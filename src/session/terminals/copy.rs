@@ -1,4 +1,7 @@
 mod control;
+mod errors;
+mod evidence;
+mod links;
 mod navigation;
 mod operator;
 mod pointer;
@@ -81,7 +84,7 @@ impl Session {
             Err(error) => self.error(&error),
         }
     }
-    fn admit_terminal_copy(&mut self) -> Result<(), String> {
+    pub(in crate::session::terminals) fn admit_terminal_copy(&mut self) -> Result<(), String> {
         let key = self
             .copy_key()
             .ok_or("Terminal copy mode requires terminal focus")?;

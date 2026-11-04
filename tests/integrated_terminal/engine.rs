@@ -123,3 +123,49 @@ fn protocol_reply() {
     );
     terminal.close();
 }
+
+// Report positions follow real full-grid scrolling, then stop at retained
+// history. Resize invalidates positions rather than relocating stale evidence.
+#[test]
+fn prompt_retention() {
+    let script = r#"stty raw -echo
+i=0; while [ $i -lt 40 ]; do printf '\033]133;A\007P%s\r\n' "$i"; i=$((i+1)); done
+printf READY
+while :; do sleep 60; done
+"#;
+    let mut terminal = Terminal::new(
+        script,
+        Limits {
+            scrollback_lines: 8,
+            ..Limits::default()
+        },
+    );
+    terminal.wait(|s| text(s).contains("READY"));
+    let session = terminal.sessions.get(terminal.id).unwrap();
+    let prompts: Vec<_> = session.prompts().collect();
+    assert_eq!(prompts.len(), 31);
+    for point in prompts {
+        assert!((-8..23).contains(&point.line.0));
+        assert_eq!(session.screen().grid()[point].c, 'P');
+    }
+    terminal
+        .sessions
+        .resize(
+            terminal.id,
+            Geometry {
+                columns: 100,
+                rows: 30,
+            },
+        )
+        .unwrap();
+    assert_eq!(
+        terminal
+            .sessions
+            .get(terminal.id)
+            .unwrap()
+            .prompts()
+            .count(),
+        0
+    );
+    terminal.close();
+}

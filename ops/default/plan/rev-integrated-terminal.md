@@ -201,6 +201,15 @@ Paste candidates, including active bracket framing, share the configured pending
 input cap; rejection publishes no partial bytes. Copy cursor reset requires a
 current-text representation check before moving the frozen point.
 
+Prompt evidence retains at most 1024 actual OSC 133 A reports per session and
+follows ordinary full-grid scrolling. Unsupported grid transforms, resize and
+unrepresentable pending-wrap positions invalidate or decline evidence. Frozen
+copy metadata includes up to 1024 prompt points and 1024 hyperlink spans within
+a 64 KiB link allocation budget, covered by the existing 256 KiB per-copy fixed
+charge. Recognized `path:line[:column]: error:` locations require positive
+positions and an existing regular file in the creation context; no evidence
+means no source jump or URI fallback to a changed live grid.
+
 ## Slice 6: Session lifecycle and failure containment
 
 Prerequisite: Slice 5 integrated into dev.

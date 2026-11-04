@@ -59,6 +59,7 @@ impl Session {
         }
     }
     pub(super) fn clear_scrollback(&mut self) {
+        self.engine.prompts.clear();
         self.engine.term.clear_screen(ClearMode::Saved);
     }
 }

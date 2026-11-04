@@ -1,5 +1,7 @@
 #[path = "copy.rs"]
 mod copy;
+#[path = "evidence.rs"]
+mod evidence;
 #[path = "interaction.rs"]
 mod interaction;
 #[path = "pointer.rs"]

@@ -165,7 +165,7 @@ fn row(session: &Session, line: Line) -> Result<String, String> {
     Ok(text)
 }
 
-fn cell(cell: &Cell) -> String {
+pub(super) fn cell(cell: &Cell) -> String {
     if cell
         .flags
         .intersects(Flags::WIDE_CHAR_SPACER | Flags::LEADING_WIDE_CHAR_SPACER)

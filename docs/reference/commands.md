@@ -79,7 +79,7 @@ compiled M-x name once.
 | Native completion | `completion-at-point`, `completion-next`, `completion-previous`, `completion-accept`, `completion-cancel`, `completion-mode`, `completion-auto-mode` |
 | Command and session | `execute-extended-command`, `keyboard-quit`, `save-buffers-kill-terminal` |
 | Files | `find-file`, `save-buffer`, `write-file`, `revert-buffer` |
-| Terminal | `terminal-open`, `terminal-toggle`, `terminal-new`, `terminal-new-buffer`, `terminal-move-to-buffer`, `terminal-move-to-panel`, `terminal-open-here`, `terminal-open-other-pane`, `terminal-list`, `terminal-rename`, `terminal-send-next-key`, `terminal-copy-mode`, `terminal-copy-mode-done`, `terminal-yank`, `terminal-yank-pop`, `terminal-clear`, `terminal-clear-scrollback`, `terminal-beginning-of-line`, `terminal-end-of-line`, `terminal-reset-cursor-point`, `terminal-undo`, `terminal-send-return`, `terminal-send-tab`, `terminal-send-escape`, `terminal-send-backspace`, `terminal-send-delete`, `terminal-send-up`, `terminal-send-down`, `terminal-send-left`, `terminal-send-right`, `terminal-send-prior`, `terminal-send-next`, `terminal-send-space` |
+| Terminal | `terminal-open`, `terminal-toggle`, `terminal-new`, `terminal-new-buffer`, `terminal-move-to-buffer`, `terminal-move-to-panel`, `terminal-open-here`, `terminal-open-other-pane`, `terminal-list`, `terminal-rename`, `terminal-send-next-key`, `terminal-copy-mode`, `terminal-copy-mode-done`, `terminal-yank`, `terminal-yank-pop`, `terminal-clear`, `terminal-clear-scrollback`, `terminal-beginning-of-line`, `terminal-end-of-line`, `terminal-reset-cursor-point`, `terminal-undo`, `terminal-send-return`, `terminal-send-tab`, `terminal-send-escape`, `terminal-send-backspace`, `terminal-send-delete`, `terminal-send-up`, `terminal-send-down`, `terminal-send-left`, `terminal-send-right`, `terminal-send-prior`, `terminal-send-next`, `terminal-send-space`, `terminal-next-prompt`, `terminal-previous-prompt`, `terminal-next-error`, `terminal-open-link` |
 | Shell | `shell-filter-region`, `shell-command-insert`, `shell-command-on-region`, `shell-command`, `shell-command-cancel`, `shell-command-output` |
 | AI | `ai-explain`, `ai-prompt`, `ai-implement`, `ai-apply-result`, `ai-discard-result`, `ai-set-directory`, `ai-select-model`, `ai-reset-session`, `ai-disconnect`, `ai-cancel`, `ai-save-command` |
 | Buffers | `switch-to-buffer`, `list-buffers`, `kill-buffer` |
@@ -697,6 +697,21 @@ to refresh. `terminal-send-return`, tab, escape, backspace, delete, up/down,
 left/right, prior/next (paging), and space use the same mode-aware live VT key
 encoder. `terminal-undo` sends C-_ to the child without changing source history.
 Input commands, including literal-next, require exiting explicit copy mode.
+
+`terminal-previous-prompt` and `terminal-next-prompt` navigate actual retained
+OSC 133 A reports in a copy projection. Prompt-looking text supplies no evidence.
+The engine retains at most 1024 reports, follows ordinary full-screen scrolling
+and drops unproven positions after resizing or complex grid transformations.
+Each copy keeps its captured reports while live output continues.
+`terminal-next-error` recognizes retained `path:line[:column]: error:` locations
+with positive decimal positions. It opens an existing regular file using the
+terminal's creation directory for relative paths. Missing files, malformed or
+out-of-range locations and unavailable evidence retain the current source.
+It does not infer a shell's later working directory.
+`terminal-open-link` activates the validated URI at the live cursor or frozen
+copy point through the configured viewer. Copy snapshots retain at most 1024
+link spans charged within 64 KiB; absent evidence never falls back to new live
+output. Control-click also uses captured evidence during copy inspection.
 
 Use `terminal-toggle` to hide or restore the panel without restarting its shell.
 The panel remembers its height and clamps it to preserve a usable source pane.

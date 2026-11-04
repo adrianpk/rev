@@ -89,6 +89,10 @@ Every command below is also available as `M-x` followed by its exact name.
 | M-x terminal-send-prior | `terminal-send-prior` | Send PageUp with the live mode-aware VT encoder. |
 | M-x terminal-send-next | `terminal-send-next` | Send PageDown with the live mode-aware VT encoder. |
 | M-x terminal-send-space | `terminal-send-space` | Send Space with the live mode-aware VT encoder. |
+| M-x terminal-next-prompt | `terminal-next-prompt` | Navigate the next captured OSC 133 prompt. |
+| M-x terminal-previous-prompt | `terminal-previous-prompt` | Navigate the previous captured OSC 133 prompt. |
+| M-x terminal-next-error | `terminal-next-error` | Visit an actually recognized retained error location. |
+| M-x terminal-open-link | `terminal-open-link` | Explicitly activate the validated link at live or frozen point. |
 | `C-x b` | `switch-to-buffer` | Select a live buffer by name. |
 | `C-x C-b` | `list-buffers` | Select from the live buffer inventory. |
 | `C-x k` | `kill-buffer` | Close a buffer with modified-text protection. |

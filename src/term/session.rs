@@ -106,6 +106,9 @@ impl Session {
     pub fn screen(&self) -> &Term<impl EventListener> {
         &self.engine.term
     }
+    pub fn prompts(&self) -> impl Iterator<Item = alacritty_terminal::index::Point> + '_ {
+        self.engine.prompts.points()
+    }
     pub fn title(&self) -> Option<String> {
         self.engine.effects().title.clone()
     }
@@ -132,6 +135,9 @@ impl Session {
     pub(super) fn resize(&mut self, size: Geometry, cells: usize) -> io::Result<()> {
         if let Some(process) = &self.process {
             process.resize(size)?;
+        }
+        if size != self.size {
+            self.engine.prompts.reset();
         }
         self.engine.term.resize(size);
         self.size = size;

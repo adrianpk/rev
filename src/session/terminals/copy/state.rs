@@ -12,6 +12,7 @@ pub(in crate::session::terminals) struct State {
     pub buffer: Buffer,
     pub view: View,
     pub charge: usize,
+    pub(super) evidence: super::evidence::Evidence,
     pub mode: bool,
     pub(super) search: Option<Search>,
     pub(super) last_query: Option<super::query::Query>,
@@ -34,11 +35,13 @@ impl State {
             Buffer::terminal_copy(&snapshot.text, settings).map_err(|e| e.to_string())?;
         let view = snapshot.view(session, &mut buffer, viewport, settings)?;
         let pointer_anchor = buffer.mark();
+        let evidence = super::evidence::Evidence::capture(session, &snapshot);
         Ok(Self {
             id,
             buffer,
             view,
             charge,
+            evidence,
             mode: false,
             search: None,
             last_query: None,

@@ -6,6 +6,7 @@ mod filter;
 mod limits;
 mod paste;
 mod process;
+mod prompts;
 mod readiness;
 mod session;
 mod viewport;

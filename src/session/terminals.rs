@@ -142,6 +142,9 @@ impl Session {
             TerminalCommand::CopyModeDone => return self.terminal_copy_done(),
             _ => {}
         }
+        if let Some(action) = self.terminal_evidence_command(command) {
+            return action;
+        }
         if command == TerminalCommand::SendNextKey {
             return self.terminal_literal_next();
         }

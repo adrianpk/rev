@@ -6,6 +6,7 @@ use super::{
 use alacritty_terminal::{
     Term,
     event::{Event, EventListener},
+    grid::Dimensions,
     term::{
         self,
         cell::{Cell, CellExtra, Flags},
@@ -91,6 +92,7 @@ pub(super) struct Engine {
     filter: Filter,
     effects: Listener,
     extras: Extras,
+    pub(super) prompts: super::prompts::Prompts,
 }
 impl Engine {
     pub fn new(size: Geometry, history: usize) -> Self {
@@ -106,6 +108,7 @@ impl Engine {
             filter: Filter::default(),
             effects,
             extras: Extras::default(),
+            prompts: super::prompts::Prompts::new(history),
         }
     }
     pub fn advance(&mut self, bytes: &[u8]) -> bool {
@@ -113,9 +116,11 @@ impl Engine {
             term: &mut self.term,
             extras: &mut self.extras,
             effects: &self.effects,
+            prompts: &mut self.prompts,
         };
         for byte in bytes {
             if let Some(bytes) = self.filter.byte(*byte) {
+                handler.prompts.observe(bytes, handler.term);
                 self.processor.advance(&mut handler, bytes);
             }
         }
@@ -139,6 +144,7 @@ struct Admitted<'a> {
     term: &'a mut Term<Listener>,
     extras: &'a mut Extras,
     effects: &'a Listener,
+    prompts: &'a mut super::prompts::Prompts,
 }
 impl Admitted<'_> {
     fn combining_point(&self) -> alacritty_terminal::index::Point {
@@ -179,6 +185,7 @@ impl Handler for Admitted<'_> {
         if (combining || self.term.grid().cursor.template.extra.is_some()) && !self.allocation() {
             return;
         }
+        self.prompts.input(self.term, c);
         self.term.input(c);
         if combining {
             self.extras.record(&self.term.grid()[point]);
@@ -206,6 +213,82 @@ impl Handler for Admitted<'_> {
         self.term.terminal_attribute(attr);
         self.extras.record(&self.term.grid().cursor.template);
     }
+    fn linefeed(&mut self) {
+        self.prompts.linefeed(self.term);
+        self.term.linefeed();
+    }
+    fn newline(&mut self) {
+        self.prompts.linefeed(self.term);
+        self.term.newline();
+    }
+    fn scroll_up(&mut self, lines: usize) {
+        self.prompts
+            .scroll(lines.min(self.term.grid().screen_lines()));
+        self.term.scroll_up(lines);
+    }
+    fn set_scrolling_region(&mut self, top: usize, bottom: Option<usize>) {
+        self.prompts
+            .region(top, bottom, self.term.grid().screen_lines());
+        self.term.set_scrolling_region(top, bottom);
+    }
+    fn reset_state(&mut self) {
+        self.prompts.reset();
+        self.term.reset_state();
+    }
+    fn set_private_mode(&mut self, mode: PrivateMode) {
+        let before = self.term.mode().contains(term::TermMode::ALT_SCREEN);
+        self.term.set_private_mode(mode);
+        if before != self.term.mode().contains(term::TermMode::ALT_SCREEN) {
+            self.prompts.clear();
+        }
+    }
+    fn unset_private_mode(&mut self, mode: PrivateMode) {
+        let before = self.term.mode().contains(term::TermMode::ALT_SCREEN);
+        self.term.unset_private_mode(mode);
+        if before != self.term.mode().contains(term::TermMode::ALT_SCREEN) {
+            self.prompts.clear();
+        }
+    }
+    fn scroll_down(&mut self, lines: usize) {
+        self.prompts.clear();
+        self.term.scroll_down(lines);
+    }
+    fn insert_blank_lines(&mut self, lines: usize) {
+        self.prompts.clear();
+        self.term.insert_blank_lines(lines);
+    }
+    fn delete_lines(&mut self, lines: usize) {
+        self.prompts.clear();
+        self.term.delete_lines(lines);
+    }
+    fn reverse_index(&mut self) {
+        self.prompts.clear();
+        self.term.reverse_index();
+    }
+    fn clear_screen(&mut self, mode: ClearMode) {
+        self.prompts.clear();
+        self.term.clear_screen(mode);
+    }
+    fn decaln(&mut self) {
+        self.prompts.clear();
+        self.term.decaln();
+    }
+    fn insert_blank(&mut self, columns: usize) {
+        self.prompts.erase_row(self.term.grid().cursor.point.line);
+        self.term.insert_blank(columns);
+    }
+    fn erase_chars(&mut self, columns: usize) {
+        self.prompts.erase_row(self.term.grid().cursor.point.line);
+        self.term.erase_chars(columns);
+    }
+    fn delete_chars(&mut self, columns: usize) {
+        self.prompts.erase_row(self.term.grid().cursor.point.line);
+        self.term.delete_chars(columns);
+    }
+    fn clear_line(&mut self, mode: LineClearMode) {
+        self.prompts.erase_row(self.term.grid().cursor.point.line);
+        self.term.clear_line(mode);
+    }
     // Title stacks, clipboard and extended keyboard stacks stay inert. The
     // ordinary engine cursor, screen, charset, color and input modes are native.
     forward! {
@@ -214,7 +297,6 @@ impl Handler for Admitted<'_> {
         goto(_line: i32, _col: usize);
         goto_line(_line: i32);
         goto_col(_col: usize);
-        insert_blank(arg0: usize);
         move_up(arg0: usize);
         move_down(arg0: usize);
         identify_terminal(_intermediate: Option<char>);
@@ -226,34 +308,19 @@ impl Handler for Admitted<'_> {
         put_tab(_count: u16);
         backspace();
         carriage_return();
-        linefeed();
         bell();
         substitute();
-        newline();
         set_horizontal_tabstop();
-        scroll_up(arg0: usize);
-        scroll_down(arg0: usize);
-        insert_blank_lines(arg0: usize);
-        delete_lines(arg0: usize);
-        erase_chars(arg0: usize);
-        delete_chars(arg0: usize);
         move_backward_tabs(_count: u16);
         move_forward_tabs(_count: u16);
         save_cursor_position();
         restore_cursor_position();
-        clear_line(_mode: LineClearMode);
-        clear_screen(_mode: ClearMode);
         clear_tabs(_mode: TabulationClearMode);
         set_tabs(_interval: u16);
-        reset_state();
-        reverse_index();
         set_mode(_mode: Mode);
         unset_mode(_mode: Mode);
         report_mode(_mode: Mode);
-        set_private_mode(_mode: PrivateMode);
-        unset_private_mode(_mode: PrivateMode);
         report_private_mode(_mode: PrivateMode);
-        set_scrolling_region(_top: usize, _bottom: Option<usize>);
         set_keypad_application_mode();
         unset_keypad_application_mode();
         set_active_charset(arg0: CharsetIndex);
@@ -261,7 +328,6 @@ impl Handler for Admitted<'_> {
         set_color(arg0: usize, arg1: Rgb);
         dynamic_color_sequence(arg0: String, arg1: usize, arg2: &str);
         reset_color(arg0: usize);
-        decaln();
         text_area_size_pixels();
         text_area_size_chars();
         report_keyboard_mode();

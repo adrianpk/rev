@@ -1,5 +1,9 @@
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum TerminalCommand {
+    NextPrompt,
+    PreviousPrompt,
+    NextError,
+    OpenLink,
     Yank,
     YankPop,
     Clear,
@@ -27,6 +31,10 @@ pub enum TerminalCommand {
 impl TerminalCommand {
     pub fn name(self) -> &'static str {
         match self {
+            Self::NextPrompt => return "terminal-next-prompt",
+            Self::PreviousPrompt => return "terminal-previous-prompt",
+            Self::NextError => return "terminal-next-error",
+            Self::OpenLink => return "terminal-open-link",
             Self::CopyMode => return "terminal-copy-mode",
             Self::CopyModeDone => return "terminal-copy-mode-done",
             _ => {}

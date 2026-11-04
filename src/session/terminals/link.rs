@@ -98,7 +98,11 @@ impl Session {
             Err(error) => self.error(&error),
         }
     }
-    fn activate_terminal_link(&mut self, id: SessionId, uri: &str) -> Result<(), String> {
+    pub(super) fn activate_terminal_link(
+        &mut self,
+        id: SessionId,
+        uri: &str,
+    ) -> Result<(), String> {
         admit_uri(uri)?;
         if self.terminals.link.is_some() {
             return Err("A terminal link viewer is still owned".into());

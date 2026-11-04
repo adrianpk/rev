@@ -134,7 +134,7 @@ impl Session {
             && event.modifiers.contains(KeyModifiers::CONTROL)
         {
             if self.terminals.copies.contains_key(&surface.copy_key()) {
-                return self.error("No retained hyperlink evidence at this copy location");
+                return self.terminal_copy_link_cell(surface.copy_key(), event);
             }
             return self.terminal_link_at(surface.id, self.terminal_cell(surface, event));
         }
