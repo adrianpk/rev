@@ -31,10 +31,33 @@ impl IndexTarget {
 
 pub(super) struct Request {
     pub direction: IndexDirection,
-    pub target: IndexTarget,
+    pub targets: Vec<IndexTarget>,
+    pub _admission: Lease,
+}
+
+fn path_names(diff: &Diff) -> impl Iterator<Item = &Path> {
+    std::iter::once(diff.change.path.as_path()).chain(
+        diff.change
+            .old_path
+            .as_deref()
+            .filter(|_| diff.change.renamed_in(diff.group)),
+    )
+}
+fn overlaps(a: LineRange, b: LineRange) -> bool {
+    // Empty ranges at the same insertion boundary are not independent edits.
+    if a.count == 0 || b.count == 0 {
+        a.start <= b.start.saturating_add(b.count) && b.start <= a.start.saturating_add(a.count)
+    } else {
+        a.start < b.start.saturating_add(b.count) && b.start < a.start.saturating_add(a.count)
+    }
 }
 
 impl Repositories {
+    pub(crate) fn index_marks_admission(&self) -> Result<Lease, String> {
+        self.budget
+            .reserve(256 * std::mem::size_of::<IndexTarget>())
+    }
+
     /// Launch one checked disk/index action. No visiting buffer is saved.
     /// Complete comparison evidence is revalidated on the worker before any
     /// index-changing child; possible effects invalidate prior authority.
@@ -43,27 +66,81 @@ impl Repositories {
         direction: IndexDirection,
         target: IndexTarget,
     ) -> Result<OperationId, String> {
-        let diff = target.diff();
-        if !self.detail_current(diff)
-            || diff
-                .observation
-                .status
-                .as_ref()
-                .is_none_or(|s| s.completeness != Completeness::Complete)
-        {
-            return Err("Index action requires a complete current comparison and Status".into());
+        self.change_index_group(direction, &[target])
+    }
+
+    /// Admit the complete group before any worker or changing child. Paths may
+    /// share a direction; hunks must share one immutable parent comparison.
+    pub fn change_index_group(
+        &mut self,
+        direction: IndexDirection,
+        targets: &[IndexTarget],
+    ) -> Result<OperationId, String> {
+        if targets.is_empty() || targets.len() > 256 {
+            return Err("Index selection requires 1..=256 exact targets".into());
         }
-        let allowed = match direction {
-            IndexDirection::Stage => matches!(diff.group, Group::Untracked | Group::Unstaged),
-            IndexDirection::Unstage => diff.group == Group::Staged,
-        };
-        if !allowed || matches!(diff.kind, DiffKind::Unmerged | DiffKind::Malformed(_)) {
-            return Err("Selected path/layer does not support this index direction".into());
-        }
-        if let IndexTarget::Hunk { hunk, .. } = &target
-            && (!diff.supports_hunks() || diff.hunk(*hunk).is_none())
-        {
-            return Err("Selected hunk is unsupported or belongs to another comparison".into());
+        let diff = targets[0].diff();
+        for (i, target) in targets.iter().enumerate() {
+            let current = target.diff();
+            if !self.detail_current(current)
+                || current.observation.context != diff.observation.context
+                || current.observation.generation != diff.observation.generation
+                || current
+                    .observation
+                    .status
+                    .as_ref()
+                    .is_none_or(|s| s.completeness != Completeness::Complete)
+            {
+                return Err(
+                    "Entire index group requires complete current comparisons and Status".into(),
+                );
+            }
+            let allowed = match direction {
+                IndexDirection::Stage => {
+                    matches!(current.group, Group::Untracked | Group::Unstaged)
+                }
+                IndexDirection::Unstage => current.group == Group::Staged,
+            };
+            if !allowed || matches!(current.kind, DiffKind::Unmerged | DiffKind::Malformed(_)) {
+                return Err("Entire selected group must support the same index direction".into());
+            }
+            if let IndexTarget::Hunk { hunk, .. } = target
+                && (!current.supports_hunks() || current.hunk(*hunk).is_none())
+            {
+                return Err("Selected hunk is unsupported or belongs to another comparison".into());
+            }
+            for previous in &targets[..i] {
+                match (previous, target) {
+                    (IndexTarget::Path(a), IndexTarget::Path(b)) => {
+                        if path_names(a)
+                            .any(|p| path_names(b).any(|q| p.starts_with(q) || q.starts_with(p)))
+                        {
+                            return Err(
+                                "Index path group contains duplicate or overlapping paths".into()
+                            );
+                        }
+                    }
+                    (
+                        IndexTarget::Hunk { diff: a, hunk: x },
+                        IndexTarget::Hunk { diff: b, hunk: y },
+                    ) => {
+                        if a.id != b.id || x == y {
+                            return Err(
+                                "Hunk group requires unique hunks from one path/layer comparison"
+                                    .into(),
+                            );
+                        }
+                        let x = a.hunk(*x).ok_or("Hunk identity expired")?;
+                        let y = b.hunk(*y).ok_or("Hunk identity expired")?;
+                        if overlaps(x.old, y.old) || overlaps(x.new, y.new) {
+                            return Err("Hunk group contains overlapping ranges".into());
+                        }
+                    }
+                    _ => {
+                        return Err("Whole paths and text hunks cannot share an index group".into());
+                    }
+                }
+            }
         }
         let identity = &diff.observation.identity;
         if self.progress().any(|p| {
@@ -80,10 +157,15 @@ impl Repositories {
             .ok_or("Index actions require a working tree")?
             .clone();
         let context = diff.observation.context;
+        let admission = self.budget.reserve(std::mem::size_of_val(targets))?;
         self.start(
             root,
             Some(context),
-            work::Request::Index(Request { direction, target }),
+            work::Request::Index(Request {
+                direction,
+                targets: targets.to_vec(),
+                _admission: admission,
+            }),
         )
     }
 }

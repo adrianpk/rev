@@ -30,45 +30,31 @@ impl Runner {
         request: super::super::index::Request,
         admission: &mut Lease,
     ) -> Result<Candidate, String> {
-        let diff = request.target.diff();
-        let target = diff::Target {
-            observation: diff.observation.clone(),
-            group: diff.group,
-            change: diff.change.clone(),
-        };
-        let current = self.compare(target, admission)?;
-        if !current.verified
-            || current.completeness != Completeness::Complete
-            || current.bytes != diff.evidence
-        {
-            return Err("Index comparison changed or is incomplete; refresh required".into());
-        }
-        drop(current);
+        let diff = request.targets[0].diff();
+        self.check_index_comparisons(&request.targets, admission)?;
         let Prepared {
             args,
             input,
             expected,
-        } = match &request.target {
-            IndexTarget::Path(_) => self.path_action(request.direction, diff, admission)?,
-            IndexTarget::Hunk { hunk, .. } => {
-                self.hunk_action(request.direction, diff, *hunk, admission)?
+        } = match &request.targets[0] {
+            IndexTarget::Path(_) => {
+                self.path_group(request.direction, &request.targets, admission)?
+            }
+            IndexTarget::Hunk { .. } => {
+                let hunks: Vec<_> = request
+                    .targets
+                    .iter()
+                    .filter_map(|t| match t {
+                        IndexTarget::Hunk { hunk, .. } => Some(*hunk),
+                        _ => None,
+                    })
+                    .collect();
+                self.hunk_action(request.direction, diff, &hunks, admission)?
             }
         };
-        // Hash/filter reads and patch preflight must not widen the accepted
-        // comparison. Check all captured facts again immediately before effects.
-        let target = diff::Target {
-            observation: diff.observation.clone(),
-            group: diff.group,
-            change: diff.change.clone(),
-        };
-        let checked = self.compare(target, admission)?;
-        if !checked.verified
-            || checked.completeness != Completeness::Complete
-            || checked.bytes != diff.evidence
-        {
-            return Err("Index comparison changed during preflight; refresh required".into());
-        }
-        drop(checked);
+        // All captured comparisons are checked again after hashing/filtering
+        // and patch preflight. No subset has effects while another is checked.
+        self.check_index_comparisons(&request.targets, admission)?;
         let executed = self.command_input(&args, Phase::Executing, false, None, input);
         self.effects = if self.exit.is_some() || self.retained.is_some() {
             Effects::Possible
@@ -114,6 +100,153 @@ impl Runner {
                 Err(error)
             }
         }
+    }
+
+    fn check_index_comparisons(
+        &mut self,
+        targets: &[IndexTarget],
+        admission: &mut Lease,
+    ) -> Result<(), String> {
+        self.check_index_status(targets, admission)?;
+        for (i, selected) in targets.iter().enumerate() {
+            let diff = selected.diff();
+            if targets[..i].iter().any(|t| t.diff().id == diff.id) {
+                continue;
+            }
+            let target = diff::Target {
+                observation: diff.observation.clone(),
+                group: diff.group,
+                change: diff.change.clone(),
+            };
+            let (bytes, limited) = self.command_os(
+                &self.diff_args(&target),
+                Phase::Checking,
+                target.group == Group::Untracked,
+                Some(self.policy.max_detail_bytes),
+            )?;
+            if limited || bytes != diff.evidence {
+                return Err(
+                    "Index group comparison changed or is incomplete; refresh required".into(),
+                );
+            }
+        }
+        self.check_index_status(targets, admission)
+    }
+
+    fn check_index_status(
+        &mut self,
+        targets: &[IndexTarget],
+        admission: &mut Lease,
+    ) -> Result<(), String> {
+        let (identity, status) = self.observe(admission)?;
+        let current = status.as_ref().ok_or("Working-tree Status unavailable")?;
+        for target in targets {
+            let diff = target.diff();
+            let prior = diff
+                .observation
+                .status
+                .as_ref()
+                .ok_or("Captured Status unavailable")?;
+            if identity != diff.observation.identity
+                || current.head != prior.head
+                || current.completeness != Completeness::Complete
+                || current
+                    .group(diff.group)
+                    .find(|p| p.path == diff.change.path)
+                    != Some(&diff.change)
+            {
+                return Err(
+                    "Index group path, layer or repository changed; refresh required".into(),
+                );
+            }
+        }
+        Ok(())
+    }
+
+    fn path_group(
+        &mut self,
+        direction: IndexDirection,
+        targets: &[IndexTarget],
+        admission: &mut Lease,
+    ) -> Result<Prepared, String> {
+        if targets.len() == 1 {
+            return self.path_action(direction, targets[0].diff(), admission);
+        }
+        let count = targets
+            .iter()
+            .map(|t| {
+                if t.diff().change.renamed_in(t.diff().group) {
+                    2
+                } else {
+                    1
+                }
+            })
+            .sum::<usize>();
+        let path_bytes = targets
+            .iter()
+            .map(|t| {
+                let d = t.diff();
+                d.change.path.as_os_str().len()
+                    + 1
+                    + d.change
+                        .old_path
+                        .as_ref()
+                        .filter(|_| d.change.renamed_in(d.group))
+                        .map_or(0, |p| p.as_os_str().len() + 1)
+            })
+            .sum::<usize>();
+        if path_bytes > budget::SCRATCH_BYTES {
+            return Err("Index group path manifest exceeds worker scratch admission".into());
+        }
+        admission.grow(2 * path_bytes + count * (std::mem::size_of::<Entry>() + 128))?;
+        let mut expected = Vec::with_capacity(count);
+        for target in targets {
+            expected.extend(
+                self.path_action(direction, target.diff(), admission)?
+                    .expected,
+            );
+        }
+        let diff = targets[0].diff();
+        let mut args: Vec<OsString> = vec!["--literal-pathspecs".into()];
+        match direction {
+            IndexDirection::Stage => args.extend([
+                "add".into(),
+                "--pathspec-from-file=-".into(),
+                "--pathspec-file-nul".into(),
+            ]),
+            IndexDirection::Unstage => match &diff
+                .observation
+                .status
+                .as_ref()
+                .ok_or("Missing Status")?
+                .head
+            {
+                Head::Unborn { .. } => args.extend([
+                    "update-index".into(),
+                    "--force-remove".into(),
+                    "-z".into(),
+                    "--stdin".into(),
+                ]),
+                Head::Branch { object, .. } | Head::Detached { object } => args.extend([
+                    "restore".into(),
+                    "--staged".into(),
+                    format!("--source={}", object.hex()).into(),
+                    "--pathspec-from-file=-".into(),
+                    "--pathspec-file-nul".into(),
+                ]),
+            },
+        }
+        let mut manifest = Vec::with_capacity(path_bytes);
+        for entry in &expected {
+            manifest.extend_from_slice(entry.path.as_os_str().as_bytes());
+            manifest.push(0);
+        }
+        let input = crate::process::input::stage(Some(&manifest))?;
+        Ok(Prepared {
+            args,
+            input,
+            expected,
+        })
     }
 
     fn path_action(
@@ -311,10 +444,14 @@ impl Runner {
         &mut self,
         direction: IndexDirection,
         diff: &Diff,
-        id: HunkId,
+        ids: &[HunkId],
         admission: &mut Lease,
     ) -> Result<Prepared, String> {
-        let hunk = diff.hunk(id).ok_or("Hunk identity expired")?;
+        let mut hunks = ids
+            .iter()
+            .map(|id| diff.hunk(*id).ok_or("Hunk identity expired"))
+            .collect::<Result<Vec<_>, _>>()?;
+        hunks.sort_by_key(|h| h.patch.start);
         let object = diff
             .change
             .objects
@@ -336,7 +473,12 @@ impl Runner {
         };
         admission.grow(3 * base.len() + 4 * diff.evidence.len() + 16384)?;
         let reverse = direction == IndexDirection::Unstage;
-        let content = hunk_result(&base, diff, hunk, reverse)?;
+        let mut content = base;
+        // Descending ranges preserve the original index offsets, including
+        // insertions/deletions that change the size of later selected hunks.
+        for hunk in hunks.iter().rev() {
+            content = hunk_result(&content, diff, hunk, reverse)?;
+        }
         if content.len() > self.policy.max_detail_bytes {
             return Err("Expected index content exceeds detail admission".into());
         }
@@ -375,7 +517,8 @@ impl Runner {
             .ok_or("Missing comparison header")?
             .patch
             .start;
-        let mut patch = Vec::with_capacity(header + hunk.patch.len());
+        let mut patch =
+            Vec::with_capacity(header + hunks.iter().map(|h| h.patch.len()).sum::<usize>());
         // An executable-bit change is whole-path metadata, not part of a
         // selected text hunk. Creation/deletion mode headers remain necessary.
         for line in diff.evidence[..header].split_inclusive(|b| *b == b'\n') {
@@ -383,7 +526,9 @@ impl Runner {
                 patch.extend_from_slice(line);
             }
         }
-        patch.extend_from_slice(&diff.evidence[hunk.patch.clone()]);
+        for hunk in hunks {
+            patch.extend_from_slice(&diff.evidence[hunk.patch.clone()]);
+        }
         let mut args: Vec<OsString> = vec![
             "apply".into(),
             "--cached".into(),
@@ -411,21 +556,26 @@ impl Runner {
         admission: &mut Lease,
     ) -> Result<(Candidate, Result<(), String>), String> {
         let (identity, status) = self.observe(admission)?;
-        let mut args: Vec<OsString> = vec![
-            "--literal-pathspecs".into(),
-            "ls-files".into(),
-            "--stage".into(),
-            "-z".into(),
-            "--".into(),
-        ];
-        args.extend(expected.iter().map(|e| e.path.as_os_str().to_owned()));
-        let (bytes, _) = self.command_os(&args, Phase::Verifying, false, None)?;
-        let actual = entries(
-            &bytes,
-            diff.observation.identity.format,
-            true,
-            expected.len(),
-        )?;
+        let mut actual = Vec::with_capacity(expected.len());
+        // ls-files has no input manifest. Bounded read-only batches preserve
+        // the 64-token argv bound without breaking the changing action apart.
+        for batch in expected.chunks(12) {
+            let mut args: Vec<OsString> = vec![
+                "--literal-pathspecs".into(),
+                "ls-files".into(),
+                "--stage".into(),
+                "-z".into(),
+                "--".into(),
+            ];
+            args.extend(batch.iter().map(|e| e.path.as_os_str().to_owned()));
+            let (bytes, _) = self.command_os(&args, Phase::Verifying, false, None)?;
+            actual.extend(entries(
+                &bytes,
+                diff.observation.identity.format,
+                true,
+                batch.len(),
+            )?);
+        }
         let valid = actual
             .iter()
             .all(|entry| expected.iter().any(|e| e.path == entry.path))

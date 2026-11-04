@@ -13,8 +13,9 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
   M-x or modal colon. Browse tracked and untracked changes without saving source
   buffers, expand exact staged and unstaged hunks, inspect read-only diffs and
   visit current files without replacing unsaved text. Stage or unstage one exact
-  disk path or text hunk with s/u, retaining working files and unsaved buffers;
-  stale comparisons reject before index changes. Return to the same windows
+  disk path, text hunk or compatible marked group with s/u, retaining working
+  files and unsaved buffers. Mark exact targets with *, remove them with - and
+  clear marks with 0; stale or incompatible groups reject before index changes. Return to the same windows
   and terminals. Inspect active and
   recent Git processes, cancel a selected operation, and confirm before quitting
   with Git work still running. Failed refreshes preserve confirmed Status.

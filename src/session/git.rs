@@ -24,6 +24,7 @@ pub(super) struct Work {
     inspection: comparisons::Inspection,
     index_request: Option<OperationId>,
     index_preparing: Option<index::Preparing>,
+    marks: index::Marks,
     process_selected: Option<OperationId>,
     process_top: usize,
     detail_top: usize,
@@ -178,6 +179,7 @@ impl Work {
             inspection: comparisons::Inspection::default(),
             index_request: None,
             index_preparing: None,
+            marks: index::Marks::default(),
             process_selected: None,
             process_top: 0,
             detail_top: 0,
@@ -264,6 +266,9 @@ impl Session {
                 GitCommand::ToggleSection => self.toggle_git_section(),
                 GitCommand::Diff => self.open_git_diff(comparisons::Mode::Detail),
                 GitCommand::VisitFile => self.visit_git_file(),
+                GitCommand::Mark => self.mark_git(),
+                GitCommand::Unmark => self.unmark_git(false),
+                GitCommand::UnmarkAll => self.unmark_git(true),
                 GitCommand::Stage => self.change_git_index(crate::git::IndexDirection::Stage),
                 GitCommand::Unstage => self.change_git_index(crate::git::IndexDirection::Unstage),
                 GitCommand::Dispatch => {
@@ -694,6 +699,7 @@ impl Session {
                             "Tab  git-toggle-section",
                             "Return  git-visit-file",
                             "s / u  git-stage / git-unstage",
+                            "* / - / 0  mark / unmark / clear",
                             "M-x git-diff  selected comparison",
                             "$  git-processes",
                             "M-x / :  native commands",
@@ -716,8 +722,15 @@ impl Session {
                                     && line.hunk == self.git.inspection.selected;
                                 (
                                     format!(
-                                        "{} {}",
+                                        "{}{} {}",
                                         if selected { ">" } else { " " },
+                                        if line.hunk.is_some_and(|id| self.git.marks.contains(
+                                            &Target::Hunk(diff.group, diff.change.path.clone(), id)
+                                        )) {
+                                            "*"
+                                        } else {
+                                            " "
+                                        },
                                         comparisons::line_label(diff, line)
                                     ),
                                     selected,
@@ -756,7 +769,7 @@ impl Session {
                 if row == 2 {
                     return (
                         format!(
-                            "{}{}{}{}",
+                            "{}{}{}{}{}",
                             if self.git.state.request.is_some() || self.git.index_request.is_some()
                             {
                                 "Checking / refreshing  "
@@ -776,9 +789,28 @@ impl Session {
                             if status.is_some_and(
                                 |s| s.completeness != crate::git::Completeness::Complete
                             ) {
-                                "TRUNCATED: path admission reached"
+                                "TRUNCATED: path admission reached  "
                             } else {
                                 ""
+                            },
+                            if self.git.marks.targets.is_empty() {
+                                String::new()
+                            } else {
+                                format!(
+                                    "  {} marked{}; 0 clears",
+                                    self.git.marks.targets.len(),
+                                    if self
+                                        .git
+                                        .marks
+                                        .targets
+                                        .iter()
+                                        .all(|t| self.git.engine.detail_current(t.diff()))
+                                    {
+                                        ""
+                                    } else {
+                                        " / STALE"
+                                    }
+                                )
                             }
                         ),
                         false,
@@ -813,7 +845,14 @@ impl Session {
                         .as_ref()
                         .is_some_and(|t| i.matches(t))
                 });
-                let marker = if selected { ">" } else { " " };
+                let marked = item
+                    .as_ref()
+                    .is_some_and(|i| self.git.marks.contains(&i.target()));
+                let marker = format!(
+                    "{}{}",
+                    if selected { ">" } else { " " },
+                    if marked { "*" } else { " " }
+                );
                 let text = match item {
                     Some(Item::Section(group, count)) => {
                         format!("{marker} {} ({count})", group.label())

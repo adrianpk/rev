@@ -58,8 +58,11 @@ Every command below is also available as `M-x` followed by its exact name.
 | `M-x shell-command-output`, `:shell-command-output` | `shell-command-output` | Visit the last retained read-only plain-text result or diagnostics. |
 | `C-x g`, `M-x git-status`, `:git-status` | `git-status` | Discover the current repository and open full-canvas native Status. |
 | `q` in Git | `git-quit` | Dismiss the innermost menu or return to the retained editing context; owned work continues. |
-| `s` in Git Status or Diff | `git-stage` | Stage the exact selected path or supported text hunk; unsaved source text is retained. |
-| `u` in Git Status or Diff | `git-unstage` | Unstage the exact selected staged path or supported text hunk without changing working files. |
+| `*`, `x m` in Git Status or Diff | `git-mark` | Mark one exact current path or supported hunk independently of navigation. |
+| `-`, `x u` in Git Status or Diff | `git-unmark` | Remove the exact selected path or hunk mark. |
+| `0`, `x c` in Git Status or Diff | `git-unmark-all` | Clear all retained path and hunk marks. |
+| `s` in Git Status or Diff | `git-stage` | Stage the exact selected path, supported text hunk or complete compatible marked group; unsaved source text is retained. |
+| `u` in Git Status or Diff | `git-unstage` | Unstage the exact selected staged path, supported text hunk or complete compatible marked group without changing working files. |
 | `g` in Git | `git-refresh` | Request a replacement observation; retain confirmed Status on failure. |
 | Tab in Git | `git-toggle-section` | Collapse or expand the selected Status group, path comparison or semantic hunk. |
 | `?` in Git | `git-dispatch` | Show the available native Git actions. |
@@ -746,6 +749,9 @@ native cancellation. Prompts use `keys.minibuffer`.
 | `C-g` | `keyboard-quit` |
 | `q` | `git-quit` |
 | `g` | `git-refresh` |
+| `*`, `x m` | `git-mark` |
+| `-`, `x u` | `git-unmark` |
+| `0`, `x c` | `git-unmark-all` |
 | `s` | `git-stage` |
 | `u` | `git-unstage` |
 | Tab | `git-toggle-section` |
@@ -754,6 +760,14 @@ native cancellation. Prompts use `keys.minibuffer`.
 | Return | `git-visit-file` |
 | Up, `C-p`, `p` | `previous-line` |
 | Down, `C-n`, `n` | `next-line` |
+
+Marks retain complete comparison identities independently of navigation. Use *
+or x m to mark, - or x u to remove a selected mark, and 0 or x c to clear all
+marks. At most 256 targets are retained within shared Git memory admission.
+When marks exist, s/u checks the entire group: whole paths must support one
+direction; text hunks must be nonoverlapping units from one exact path/layer
+comparison. Mixed, duplicate, stale or unsupported groups fail before changing
+the index. Refresh does not retarget old marks; clear or unmark them explicitly.
 
 Only nonempty groups appear, in Unmerged, Untracked, Unstaged and Staged order.
 Selection follows an exact path and group across refresh. Mouse selection

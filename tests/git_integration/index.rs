@@ -1,3 +1,6 @@
+#[path = "index_groups.rs"]
+mod groups;
+
 #[path = "index_presentation.rs"]
 mod presentation;
 
