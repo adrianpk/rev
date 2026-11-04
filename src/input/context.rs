@@ -39,6 +39,9 @@ impl Input {
         if self.workspace_git_commit {
             return MapContext::GitCommit;
         }
+        if self.workspace_git && self.workspace_git_history {
+            return MapContext::GitHistory;
+        }
         if self.workspace_git {
             return MapContext::Git;
         }
@@ -186,6 +189,14 @@ impl Input {
             self.clear_prefix();
             self.suppress_repeat = true;
             self.workspace_git_commit = active;
+        }
+    }
+
+    pub(crate) fn set_git_history(&mut self, active: bool) {
+        if self.workspace_git_history != active {
+            self.clear_prefix();
+            self.suppress_repeat = true;
+            self.workspace_git_history = active;
         }
     }
 

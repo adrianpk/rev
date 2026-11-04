@@ -3,10 +3,12 @@ use std::os::unix::ffi::OsStringExt;
 
 mod commit;
 mod discard;
+mod history;
 mod index;
 
 pub(super) enum Request {
     Status,
+    History(super::history::Request),
     Diff(diff::Target),
     Index(super::index::Request),
     Discard(Arc<Diff>),
@@ -16,6 +18,7 @@ pub(super) enum Request {
 impl Request {
     pub fn kind(&self) -> OperationKind {
         match self {
+            Self::History(_) => OperationKind::History,
             Self::Status => OperationKind::Status,
             Self::Diff(_) => OperationKind::Diff,
             Self::Index(request) => request.direction.kind(),
@@ -28,12 +31,14 @@ impl Request {
 
 pub(super) enum Publication {
     Status(Observation),
+    History(super::history::ResultData),
     Diff(Diff),
     Composition(Composition),
 }
 
 enum Candidate {
     Status(Identity, Option<Status>),
+    History(super::history::ResultData),
     Diff(diff::Prepared),
     Composition(commit::Prepared),
 }
@@ -83,6 +88,9 @@ pub(super) fn start(
                 retained: None,
             };
             let observed = match request {
+                Request::History(request) => runner
+                    .history(request, &mut admission)
+                    .map(Candidate::History),
                 Request::Index(request) => runner.change_index(request, &mut admission),
                 Request::Discard(diff) => runner.discard(diff, &mut admission),
                 Request::Commit(request) => runner.commit(request, &mut admission),
@@ -430,6 +438,7 @@ impl Runner {
         };
         record.admission = admission.split(record.bytes() + 4096);
         let publication = observed.and_then(|candidate| match candidate {
+            Candidate::History(result) => Ok(Publication::History(result)),
             Candidate::Status(identity, status) => Ok(Publication::Status(Observation {
                 context: progress.context.unwrap_or(ContextId(progress.operation.0)),
                 generation: progress.operation.0,

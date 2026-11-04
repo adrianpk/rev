@@ -48,6 +48,7 @@ pub(super) fn bindings(context: Context) -> &'static [(&'static str, &'static st
         Context::Tree => TREE,
         Context::BookmarkList => BOOKMARK_LIST,
         Context::Git => GIT,
+        Context::GitHistory => GIT_HISTORY,
         Context::GitCommit => GIT_COMMIT,
         _ => modal_bindings(context),
     }
@@ -159,6 +160,32 @@ pub(super) const EDITOR: &[(&str, &str)] = &[
     ("C-x t d", "tree-create-directory"),
 ];
 
+pub(super) const GIT_HISTORY: &[(&str, &str)] = &[
+    ("C-x g", "git-status"),
+    ("q", "git-quit"),
+    ("g", "git-refresh"),
+    ("TAB", "git-show"),
+    ("RET", "git-show"),
+    ("f", "git-log-next-page"),
+    ("A", "git-commit-amend"),
+    ("F", "git-commit-fixup"),
+    ("$", "git-processes"),
+    ("M-x", "execute-extended-command"),
+    (":", "execute-extended-command"),
+    ("C-g", "keyboard-quit"),
+    ("C-x C-c", "save-buffers-kill-terminal"),
+    ("Up", "previous-line"),
+    ("Down", "next-line"),
+    ("C-p", "previous-line"),
+    ("C-n", "next-line"),
+    ("p", "previous-line"),
+    ("n", "next-line"),
+    ("PageUp", "scroll-down-command"),
+    ("PageDown", "scroll-up-command"),
+    ("M-<", "beginning-of-buffer"),
+    ("M->", "end-of-buffer"),
+];
+
 pub(super) const GIT_COMMIT: &[(&str, &str)] = &[
     ("C-Enter", "git-commit-submit"),
     ("C-c C-c", "git-commit-submit"),
@@ -167,6 +194,8 @@ pub(super) const GIT_COMMIT: &[(&str, &str)] = &[
 ];
 
 const GIT: &[(&str, &str)] = &[
+    ("h", "git-log"),
+    ("l l", "git-log"),
     ("C-Enter", "git-commit-submit"),
     ("C-c C-c", "git-commit-submit"),
     ("c", "git-commit"),

@@ -695,6 +695,9 @@ Status reads disk and Git state; it does not save an unsaved source buffer.
 
 | Command | Behavior |
 | --- | --- |
+| `git-log` | Open bounded ancestry from current branch HEAD; detached or bare repositories collect an explicit root, resolved once to a full commit. |
+| `git-show` | Inspect selected full revision metadata, parents, changed paths and its first-parent diff; invoke again in detail to choose another complete parent ID. |
+| `git-log-next-page` | Continue the pinned root's exact topological ancestry; expose completion and the configured retained-page limit. |
 | `git-commit-amend` | Prepare the exact observed HEAD and existing message; explicitly review before committing the checked index as its replacement. |
 | `git-commit-fixup` | Resolve one entered revision to a full immutable commit, compose its standard fixup subject/body and explicitly review the target; keep current history in place. |
 | `git-commit` | Open a native subject/body composer from current complete Status; retain cancelled or failed text for this session. |
@@ -724,6 +727,18 @@ malformed and truncated results. g refreshes Status and the retained comparison;
 old detail is labeled stale until replacement succeeds. Return visits the real
 current file, preserving an existing modified source buffer. A deleted path or
 directory has no current source file to visit. q returns one presentation level.
+
+h or l l in Status opens History. `keys.git_history` keeps navigation separate
+from Status in both profiles. Tab inspects the exact selected revision; f admits
+one more finite ancestry page. g verifies current HEAD and preserves the pinned
+root, admitted pages and compatible selection; a changed HEAD requires Status
+refresh and explicit History reentry. Missing objects and page limits are explicit.
+Revision detail includes full parent IDs, raw commit metadata, exact old/new
+changed paths and a bounded read-only patch. Invoke `git-show` in detail to
+compare another listed full parent ID. q returns to History, then Status. A/F in
+History prepares amend of checked HEAD or fixup of the selected full revision;
+existing explicit commit review remains required. Inspection never checks out
+historical files or replaces current source text.
 
 The `keys.git` map owns q, g, s/u, Tab, Return, ? and list navigation in both profiles.
 M-x and colon use the shared command catalog. Unmerged, Untracked, Unstaged

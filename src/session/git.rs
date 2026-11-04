@@ -11,6 +11,7 @@ use std::{path::PathBuf, sync::Arc};
 mod commit;
 mod comparisons;
 pub(super) mod discard;
+mod history;
 mod index;
 mod processes;
 mod shutdown;
@@ -31,6 +32,7 @@ pub(super) struct Work {
     composer: Option<commit::Composer>,
     index_preparing: Option<index::Preparing>,
     marks: index::Marks,
+    ancestry: history::Inspection,
     process_selected: Option<OperationId>,
     process_top: usize,
     detail_top: usize,
@@ -42,6 +44,8 @@ pub(super) struct Work {
 enum Page {
     #[default]
     Status,
+    History,
+    Revision,
     Diff,
     Processes,
     Process(OperationId),
@@ -60,6 +64,10 @@ struct Painted {
     process_top: usize,
     comparison: Option<OperationId>,
     comparison_top: usize,
+    history: Option<OperationId>,
+    revision: Option<OperationId>,
+    history_top: usize,
+    revision_top: usize,
     expanded: bool,
     expanded_hunk: Option<crate::git::HunkId>,
 }
@@ -190,6 +198,7 @@ impl Work {
             composer: None,
             index_preparing: None,
             marks: index::Marks::default(),
+            ancestry: history::Inspection::default(),
             process_selected: None,
             process_top: 0,
             detail_top: 0,
@@ -273,6 +282,9 @@ impl Session {
                 return Some(self.message("A prompt owns input focus"));
             }
             return Some(match command {
+                GitCommand::Log => self.open_git_history(),
+                GitCommand::Show => self.show_git_revision(),
+                GitCommand::LogNextPage => self.continue_git_history(true),
                 GitCommand::Status => self.open_git(),
                 GitCommand::Commit => self.compose_git_commit(),
                 GitCommand::CommitAmend => self.prepare_git_amend(),
@@ -381,6 +393,14 @@ impl Session {
             return Action::Redraw;
         }
         match self.git.page {
+            Page::History => {
+                self.git.page = Page::Status;
+                return Action::Redraw;
+            }
+            Page::Revision => {
+                self.git.page = Page::History;
+                return Action::Redraw;
+            }
             Page::Process(_) => {
                 self.git.page = Page::Processes;
                 return Action::Redraw;
@@ -407,6 +427,9 @@ impl Session {
         })
     }
     fn refresh_git(&mut self) -> Action {
+        if self.git.visible && matches!(self.git.page, Page::History | Page::Revision) {
+            return self.continue_git_history(false);
+        }
         let Some(context) = self.git.state.context.filter(|_| self.git.visible) else {
             return self.message("Git Status is still checking its repository context");
         };
@@ -430,6 +453,7 @@ impl Session {
     }
     fn move_git(&mut self, distance: usize, backward: bool) -> Action {
         match self.git.page {
+            Page::History | Page::Revision => return self.move_git_history(distance, backward),
             Page::Processes => return self.move_git_process(distance, backward),
             Page::Process(id) => return self.scroll_git_process(id, distance, backward),
             Page::Diff => return self.move_git_diff(distance, backward),
@@ -520,6 +544,15 @@ impl Session {
             return Action::Wait;
         }
         for update in updates {
+            if self
+                .git
+                .ancestry
+                .request
+                .is_some_and(|(id, _)| id == update.operation)
+            {
+                self.publish_git_history(&update);
+                continue;
+            }
             if self.git.commit_preparing == Some(update.operation) {
                 self.publish_git_preparation(&update);
                 continue;
@@ -600,6 +633,9 @@ impl Session {
         Action::Redraw
     }
     pub(super) fn git_input(&mut self, event: &Event) -> Option<Action> {
+        self.input.set_git_history(
+            self.git.visible && matches!(self.git.page, Page::History | Page::Revision),
+        );
         if self.git.composer.is_some() && matches!(event, Event::Mouse(_)) {
             return Some(Action::Wait);
         }
@@ -629,6 +665,10 @@ impl Session {
                     && !self.git.painted.as_ref().is_some_and(|painted| {
                         painted.context == self.git.state.context
                             && painted.generation == self.git.observation().map(|o| o.generation)
+                            && painted.history == self.git.history().map(|h| h.id)
+                            && painted.revision == self.git.revision().map(|d| d.id)
+                            && painted.history_top == self.git.ancestry.top
+                            && painted.revision_top == self.git.ancestry.detail_top
                             && painted.top == self.git.state.top
                             && painted.collapsed == self.git.state.collapsed
                             && painted.size == self.size
@@ -665,6 +705,8 @@ impl Session {
                         let index = usize::from(mouse.row - 3);
                         if self.git.page == Page::Processes {
                             self.select_git_process(self.git.process_top + index)
+                        } else if matches!(self.git.page, Page::History | Page::Revision) {
+                            self.select_git_history(index)
                         } else if self.git.page == Page::Status {
                             self.select_git_row(self.git.state.top + index)
                         } else if self.git.page == Page::Diff {
@@ -726,6 +768,10 @@ impl Session {
                 Page::Status => {
                     " Git Status  c commit  Tab expand  Return visit  g refresh  $ processes  ? actions  q return"
                 }
+                Page::History => {
+                    " Git History  Tab revision  f next page  g refresh  $ processes  q Status"
+                }
+                Page::Revision => " Git Revision  git-show parent comparison  g refresh  q History",
                 Page::Diff => " Git Diff  g refresh  Return visit source  $ processes  q Status",
                 Page::Processes => " Git Processes  Return inspect  C-g cancel selected  q return",
                 Page::Process(_) => {
@@ -783,6 +829,34 @@ impl Session {
                             },
                         )
                     };
+                }
+                if self.git.page == Page::History {
+                    return if row < 3 {
+                        (self.git.history_header(row), false)
+                    } else {
+                        self.git
+                            .history()
+                            .and_then(|h| h.revisions().nth(self.git.ancestry.top + row - 3))
+                            .map_or_else(
+                                || (String::new(), false),
+                                |r| {
+                                    let selected = Some(r.object) == self.git.ancestry.selected;
+                                    (
+                                        format!(
+                                            "{} {} {} {}",
+                                            if selected { ">" } else { " " },
+                                            r.object.hex(),
+                                            label(&r.authored),
+                                            label(&r.subject)
+                                        ),
+                                        selected,
+                                    )
+                                },
+                            )
+                    };
+                }
+                if self.git.page == Page::Revision {
+                    return (self.git.revision_row(row), false);
                 }
                 if self.git.page != Page::Status {
                     return if row < 3 {
@@ -937,6 +1011,10 @@ impl Session {
             process_top: self.git.process_top,
             comparison: self.git.inspection.detail.as_ref().map(|d| d.id),
             comparison_top: self.git.inspection.top,
+            history: self.git.history().map(|h| h.id),
+            revision: self.git.revision().map(|d| d.id),
+            history_top: self.git.ancestry.top,
+            revision_top: self.git.ancestry.detail_top,
             expanded: self.git.inspection.expanded,
             expanded_hunk: self.git.inspection.expanded_hunk,
         });

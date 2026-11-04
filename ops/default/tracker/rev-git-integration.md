@@ -104,12 +104,12 @@ Report: `ops/default/report/slices/rev-git-integration/slice-5-history.md`
 Requirements: GIT07, GIT13, GIT17-GIT18
 PR: pending
 
-- [ ] T5.1: Browse finite ancestry pages, exact revisions and parent comparisons; keep selection and explicit ancestry continuation across refresh.
+- [x] T5.1: Browse finite ancestry pages, exact revisions and parent comparisons; keep selection and explicit ancestry continuation across refresh.
 - [ ] T5.2: Implement exact ordered ranges, separate range-base and ordered revision marks, read-only reflog and blame inspection, and canonical source/revision visits.
 - [ ] T5.3: Verify detached/unborn/merge history, paging limits, full object identities, historical file renames, line attribution and no checkout or source modification during inspection.
 
-Validation: pending; use the exact focused commands and selected-gate policy in the plan.
-Integration: pending; no commit or PR is claimed.
+Validation: T5.1 development checks passed six history tests, 21 command/configuration reference tests, strict focused Clippy, documentation and whitespace. T5.2-T5.3 and final exact-HEAD controller validation remain pending.
+Integration: T5.1 is recorded in the task commit that introduces the Slice 5 report. The approved branch is active; no canonical PR is claimed before T5.2-T5.3 are complete.
 
 ## Slice 6: Branches and both tag kinds
 

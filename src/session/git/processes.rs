@@ -40,6 +40,7 @@ impl Work {
             .map(|p| p.kind)
             .or_else(|| self.engine.record(id).map(|r| r.kind));
         match kind {
+            Some(crate::git::OperationKind::History) => "history inspection",
             Some(crate::git::OperationKind::Status) => "Status observation",
             Some(crate::git::OperationKind::Diff) => "Diff comparison",
             Some(crate::git::OperationKind::Stage) => "Stage index",
@@ -84,7 +85,9 @@ impl Work {
     }
     pub(super) fn process_rows(&self) -> Box<dyn Iterator<Item = (String, bool)> + '_> {
         match self.page {
-            Page::Status | Page::Diff => Box::new(std::iter::empty()),
+            Page::Status | Page::Diff | Page::History | Page::Revision => {
+                Box::new(std::iter::empty())
+            }
             Page::Processes => Box::new(self.process_ids().map(|id| {
                 let selected = self.process_selected == Some(id);
                 let summary = self.process_summary(id).unwrap_or_default();

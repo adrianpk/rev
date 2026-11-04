@@ -1554,6 +1554,8 @@ max_result_bytes = 262144
 
 # Read-only Git navigation uses the same context in both startup profiles.
 [keys.git]
+"h" = "git-log"
+"l l" = "git-log"
 "C-Enter" = "git-commit-submit"
 "C-c C-c" = "git-commit-submit"
 "c" = "git-commit"
@@ -1591,3 +1593,29 @@ max_result_bytes = 262144
 "C-c C-c" = "git-commit-submit"
 "C-g" = "keyboard-quit"
 "C-c C-k" = "git-commit-cancel"
+
+# Read-only history and exact revision comparison in both profiles.
+[keys.git_history]
+"C-x g" = "git-status"
+"q" = "git-quit"
+"g" = "git-refresh"
+"TAB" = "git-show"
+"RET" = "git-show"
+"f" = "git-log-next-page"
+"A" = "git-commit-amend"
+"F" = "git-commit-fixup"
+"$" = "git-processes"
+"M-x" = "execute-extended-command"
+":" = "execute-extended-command"
+"C-g" = "keyboard-quit"
+"C-x C-c" = "save-buffers-kill-terminal"
+"Up" = "previous-line"
+"Down" = "next-line"
+"C-p" = "previous-line"
+"C-n" = "next-line"
+"p" = "previous-line"
+"n" = "next-line"
+"PageUp" = "scroll-down-command"
+"PageDown" = "scroll-up-command"
+"M-<" = "beginning-of-buffer"
+"M->" = "end-of-buffer"

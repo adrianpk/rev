@@ -32,6 +32,7 @@ pub enum Context {
     BookmarkList,
     Git,
     GitCommit,
+    GitHistory,
     Org,
     OrgAgenda,
     OrgCapture,
@@ -40,7 +41,7 @@ pub enum Context {
 }
 
 impl Context {
-    pub const ALL: [Self; 18] = [
+    pub const ALL: [Self; 19] = [
         Self::VimNormal,
         Self::VimInsert,
         Self::VimReplace,
@@ -54,6 +55,7 @@ impl Context {
         Self::BookmarkList,
         Self::Git,
         Self::GitCommit,
+        Self::GitHistory,
         Self::Org,
         Self::OrgAgenda,
         Self::OrgCapture,
@@ -70,6 +72,7 @@ impl Context {
             Self::BookmarkList => "bookmark_list",
             Self::Git => "git",
             Self::GitCommit => "git_commit",
+            Self::GitHistory => "git_history",
             _ => self.modal_name(),
         }
     }
@@ -129,6 +132,7 @@ pub struct Effective {
     bookmark_list: Map,
     git: Map,
     git_commit: Map,
+    git_history: Map,
     org: Map,
     org_agenda: Map,
     org_capture: Map,
@@ -158,6 +162,7 @@ impl Effective {
             Context::BookmarkList => &self.bookmark_list,
             Context::Git => &self.git,
             Context::GitCommit => &self.git_commit,
+            Context::GitHistory => &self.git_history,
             _ => self.org_map(context),
         }
     }
@@ -209,6 +214,7 @@ pub(crate) fn compile_ai(
         tree: Map::compile(Context::Tree, &keys.tree, commands)?,
         bookmark_list: Map::compile(Context::BookmarkList, &keys.bookmark_list, commands)?,
         git: Map::compile(Context::Git, &keys.git, commands)?,
+        git_history: Map::compile(Context::GitHistory, &keys.git_history, commands)?,
         org_agenda: Map::compile(Context::OrgAgenda, &keys.org_agenda, commands)?,
         org_calendar,
     })

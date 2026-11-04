@@ -56,6 +56,9 @@ Every command below is also available as `M-x` followed by its exact name.
 | `C-u M-!` (non-modal), `M-x shell-command-insert`, `:shell-command-insert` | `shell-command-insert` | Insert complete successful stdout at the point captured before the prompt, with null stdin. |
 | `M-x shell-command-cancel`, `:shell-command-cancel` | `shell-command-cancel` | Cancel the owned invocation; originating editing C-g also cancels after inner input owners. |
 | `M-x shell-command-output`, `:shell-command-output` | `shell-command-output` | Visit the last retained read-only plain-text result or diagnostics. |
+| `h`, `l l` in Status | `git-log` | Open exact bounded ancestry; detached HEAD collects an explicit root. |
+| Tab in History; `M-x git-show`, `:git-show` | `git-show` | Inspect full revision metadata, changed paths and exact parent comparison. |
+| `f` in History | `git-log-next-page` | Continue exact ancestry from its pinned root. |
 | `M-x git-commit-amend` | `git-commit-amend` | Prepare exact observed HEAD composition, then explicitly review the replacement commit. |
 | `M-x git-commit-fixup` | `git-commit-fixup` | Resolve one exact target, compose its fixup body and review before submission. |
 | `c` in Git Status | `git-commit` | Open native commit text directly; a subsequent c is literal message text. |
@@ -754,6 +757,30 @@ buffers and filesystem publication.
 | `C-g` | `keyboard-quit` |
 | `C-c C-k` | `git-commit-cancel` |
 
+### Git history defaults and availability
+
+`keys.git_history` owns History and revision-detail input in both profiles.
+Prompts still use `keys.minibuffer`. Pointer selection requires the currently
+painted observation and viewport. q returns from revision detail to History,
+then Status, preserving selection and source ownership.
+
+| Keys | Target |
+| --- | --- |
+| `C-x g` | `git-status` |
+| `q` | `git-quit` |
+| `g` | `git-refresh` |
+| Tab, Return | `git-show` |
+| `f` | `git-log-next-page` |
+| `A`, `F` | `git-commit-amend`, `git-commit-fixup` |
+| `$` | `git-processes` |
+| `M-x`, `:` | `execute-extended-command` |
+| `C-g` | `keyboard-quit` |
+| `C-x C-c` | `save-buffers-kill-terminal` |
+| Up, `C-p`, `p` | `previous-line` |
+| Down, `C-n`, `n` | `next-line` |
+| PageUp, PageDown | `scroll-down-command`, `scroll-up-command` |
+| `M-<`, `M->` | `beginning-of-buffer`, `end-of-buffer` |
+
 ### Git defaults and availability
 
 `keys.git` applies to native Git navigation in both startup profiles. It keeps
@@ -769,6 +796,7 @@ native cancellation. Prompts use `keys.minibuffer`.
 | `C-g` | `keyboard-quit` |
 | `C-Enter`, `C-c C-c` during exact commit review | `git-commit-submit` |
 | `c` | `git-commit` |
+| `h`, `l l` | `git-log` |
 | `q` | `git-quit` |
 | `g` | `git-refresh` |
 | `k`, `x d` | `git-discard` |

@@ -10,6 +10,27 @@ impl Session {
     }
 
     pub(in crate::session::git) fn prompt_git_fixup(&mut self) -> Action {
+        if self.git.page == Page::History {
+            let target = self.git.ancestry.selected.filter(|id| {
+                self.git.ancestry.request.is_none()
+                    && !self.git.ancestry.failed
+                    && self.git.history().is_some_and(|h| {
+                        h.revision(*id).is_some()
+                            && self
+                                .git
+                                .observation()
+                                .is_some_and(|o| std::ptr::eq(o, h.observation.as_ref()))
+                    })
+            });
+            let Some(target) = target else {
+                return self.message("Select an exact History revision for fixup");
+            };
+            let result = self
+                .commit_context()
+                .and_then(|context| self.git.engine.commit_observation(context))
+                .and_then(|observation| self.git.engine.prepare_fixup(observation, &target.hex()));
+            return self.git_preparation_started(result);
+        }
         let result = self
             .commit_context()
             .and_then(|context| self.git.engine.commit_observation(context));
@@ -35,7 +56,7 @@ impl Session {
 
     fn commit_context(&self) -> Result<ContextId, String> {
         if !self.git.visible
-            || self.git.page != Page::Status
+            || !matches!(self.git.page, Page::Status | Page::History)
             || self.windows.retained_view_active()
             || self.layout_active()
         {
@@ -70,7 +91,7 @@ impl Session {
             self.git.commit_preparing = None;
         }
         if !self.git.visible
-            || self.git.page != Page::Status
+            || !matches!(self.git.page, Page::Status | Page::History)
             || self.pending.is_some()
             || self.input.focus() != Focus::Editing
         {

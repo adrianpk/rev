@@ -11,3 +11,6 @@ mod index;
 mod status;
 #[path = "git_integration/support.rs"]
 mod support;
+
+#[path = "git_integration/history.rs"]
+mod history;

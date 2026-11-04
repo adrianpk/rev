@@ -78,7 +78,10 @@ impl Session {
         &mut self,
         composition: Option<Arc<crate::git::Composition>>,
     ) -> Result<(), String> {
-        if !self.git.visible || self.git.page != Page::Status {
+        if !self.git.visible
+            || !(self.git.page == Page::Status
+                || (self.git.page == Page::History && composition.is_some()))
+        {
             return Err("Open Git Status before composing a commit".into());
         }
         if self.windows.retained_view_active() || self.layout_active() {
@@ -128,6 +131,7 @@ impl Session {
             _admission: admission,
         });
         self.git.visible = false;
+        self.git.page = Page::Status;
         self.git.state.menu = false;
         self.tree.edit();
         self.terminals.focused = false;

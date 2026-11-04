@@ -6,7 +6,9 @@ mod diff;
 pub use commit::MAX_COMMIT_BYTES;
 pub use commit::{CommitMode, Composition};
 mod discard;
+mod history;
 mod index;
+pub use history::{History, HistoryPage, Revision, RevisionDetail, RevisionPath};
 pub use index::{IndexDirection, IndexTarget};
 mod status;
 pub use diff::{Baseline, Diff, DiffKind, DiffLine, Hunk, HunkId, LineRange};
@@ -110,6 +112,7 @@ pub enum OperationKind {
     Discard,
     Commit,
     CommitPrepare,
+    History,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -195,6 +198,8 @@ pub struct Context {
     pub failure: Option<OperationId>,
     pub detail: Option<Arc<Diff>>,
     pub detail_failure: Option<OperationId>,
+    pub history: Option<Arc<History>>,
+    pub revision: Option<Arc<RevisionDetail>>,
     draft: Option<commit::Draft>,
     composition: Option<Arc<Composition>>,
 }
@@ -596,6 +601,8 @@ impl Repositories {
                             failure: None,
                             detail: None,
                             detail_failure: None,
+                            history: None,
+                            revision: None,
                             draft: None,
                             composition: None,
                         });
@@ -630,6 +637,34 @@ impl Repositories {
                     }
                     progress.context
                 }
+                Ok(work::Publication::History(result)) => {
+                    let observation = match &result {
+                        history::ResultData::Log(h) => &h.observation,
+                        history::ResultData::Show(d) => &d.history.observation,
+                    };
+                    if let Some(context) = self
+                        .contexts
+                        .iter_mut()
+                        .find(|c| c.id == observation.context)
+                        && Arc::ptr_eq(&context.observation, observation)
+                        && context.failure.is_none()
+                    {
+                        match result {
+                            history::ResultData::Log(h) => {
+                                context.history = Some(Arc::new(h));
+                            }
+                            history::ResultData::Show(d) => {
+                                context.revision = Some(Arc::new(d));
+                            }
+                        }
+                        published = true;
+                    } else {
+                        record.outcome = Outcome::Failed;
+                        record.diagnostic =
+                            Some("History generation changed before publication".into());
+                    }
+                    progress.context
+                }
                 Ok(work::Publication::Composition(composition)) => {
                     if let Some(context) = self
                         .contexts
@@ -655,7 +690,7 @@ impl Repositories {
                         match progress.kind {
                             OperationKind::Status => context.failure = Some(record.id),
                             OperationKind::Diff => context.detail_failure = Some(record.id),
-                            OperationKind::CommitPrepare => {}
+                            OperationKind::CommitPrepare | OperationKind::History => {}
                             OperationKind::Stage
                             | OperationKind::Unstage
                             | OperationKind::Discard

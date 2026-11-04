@@ -23,6 +23,9 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
   retain the session draft with C-g. Commit only the checked staged content,
   keeping Git hooks, identity and signing policy. Explicitly review amend and
   fixup targets before Git runs; fixup leaves autosquash to a separate action.
+  Browse finite history pages, full revision metadata, historical renames and
+  exact parent diffs with h and Tab; f continues the pinned ancestry. Inspect
+  without checking out files or changing source text, the index or HEAD.
   Return to the same windows
   and terminals. Inspect active and
   recent Git processes, cancel a selected operation, and confirm before quitting

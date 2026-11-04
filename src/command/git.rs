@@ -1,6 +1,9 @@
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum GitCommand {
     Status,
+    Log,
+    Show,
+    LogNextPage,
     Commit,
     CommitAmend,
     CommitFixup,
@@ -26,6 +29,9 @@ pub enum GitCommand {
 impl GitCommand {
     pub fn name(self) -> &'static str {
         match self {
+            Self::Log => "git-log",
+            Self::Show => "git-show",
+            Self::LogNextPage => "git-log-next-page",
             Self::Status => "git-status",
             Self::Commit => "git-commit",
             Self::CommitAmend => "git-commit-amend",
