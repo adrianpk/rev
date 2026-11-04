@@ -20,6 +20,7 @@ pub(crate) struct KillRing {
     entries: VecDeque<Text>,
     policy: crate::config::KillRing,
     continuation: Option<Continuation>,
+    generation: Option<u64>,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -56,7 +57,12 @@ impl KillRing {
             entries: VecDeque::with_capacity(policy.capacity),
             policy,
             continuation: None,
+            generation: Some(0),
         }
+    }
+
+    pub(crate) fn generation(&self) -> Option<u64> {
+        self.generation
     }
 
     pub(crate) fn text(&self) -> Option<&Rope> {
@@ -195,6 +201,7 @@ impl KillRing {
     }
 
     fn store(&mut self, entry: Entry) {
+        self.generation = self.generation.and_then(|value| value.checked_add(1));
         if entry.coalesced {
             self.entries.pop_front();
         } else if self.entries.len() == self.policy.capacity {

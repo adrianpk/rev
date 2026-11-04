@@ -1,3 +1,4 @@
+mod control;
 mod copy;
 mod entry;
 mod input;
@@ -10,6 +11,7 @@ mod pointer;
 mod render;
 mod selection;
 mod source;
+mod transfer;
 
 use std::{path::PathBuf, sync::Arc, time::Duration};
 
@@ -45,6 +47,7 @@ pub(super) struct Work {
     link: Option<link::Activation>,
     copies: std::collections::BTreeMap<copy::Key, copy::State>,
     copy_chord: Option<SessionId>,
+    yank: Option<transfer::Yank>,
 }
 
 impl Work {
@@ -93,6 +96,7 @@ impl Work {
             link: None,
             copies: Default::default(),
             copy_chord: None,
+            yank: None,
         }
     }
 }
@@ -140,6 +144,9 @@ impl Session {
         }
         if command == TerminalCommand::SendNextKey {
             return self.terminal_literal_next();
+        }
+        if let Some(action) = self.terminal_transfer_command(command) {
+            return action;
         }
         self.terminal_placement_command(command)
     }

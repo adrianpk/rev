@@ -38,13 +38,15 @@ pub struct Session {
     ready: Arc<AtomicBool>,
     wake: Waker,
     readiness: Option<Readiness>,
-    engine: Engine,
+    pub(super) engine: Engine,
     size: Geometry,
     peak: Geometry,
-    limits: Limits,
+    pub(super) limits: Limits,
     cells: usize,
-    input: VecDeque<u8>,
-    state: State,
+    pub(super) input: VecDeque<u8>,
+    pub(super) paste: Option<super::paste::Pending>,
+    pub(super) input_serial: u64,
+    pub(super) state: State,
     eof: bool,
     diagnostic: Option<String>,
     extra_bytes: usize,
@@ -74,6 +76,8 @@ impl Session {
             limits,
             cells,
             input: VecDeque::new(),
+            paste: None,
+            input_serial: 0,
             state: State::Running,
             eof: false,
             diagnostic: None,
@@ -154,6 +158,7 @@ impl Session {
                 "Terminal input queue is full; input was not accepted",
             ));
         }
+        self.paste = None;
         self.input.extend(bytes);
         self.rearm();
         Ok(())
@@ -216,6 +221,9 @@ impl Session {
                 "Terminal response exceeds pending input capacity",
             ));
         }
+        if !replies.is_empty() {
+            self.paste = None;
+        }
         self.input.extend(replies);
         self.observe_exit()?;
         Ok(written + read)
@@ -229,6 +237,9 @@ impl Session {
         }
         match file.write(bytes) {
             Ok(count) => {
+                if count > 0 {
+                    self.paste = None;
+                }
                 self.input.drain(..count);
                 Ok(count)
             }
@@ -241,6 +252,7 @@ impl Session {
                 Ok(0)
             }
             Err(error) if error.raw_os_error() == Some(5) => {
+                self.paste = None;
                 self.input.clear();
                 Ok(0)
             }
@@ -296,6 +308,7 @@ impl Session {
         if self.process.as_ref().expect("running process").exited()? {
             self.start_cleanup(true)?;
             self.state = State::Draining;
+            self.paste = None;
             self.input.clear();
         }
         Ok(())
@@ -360,7 +373,7 @@ impl Session {
             self.readiness.take();
         }
     }
-    fn rearm(&self) {
+    pub(super) fn rearm(&self) {
         if let Some(readiness) = &self.readiness {
             readiness.rearm(
                 !self.input.is_empty(),
@@ -379,6 +392,7 @@ impl Session {
         }
         self.readiness.take();
         self.file.take();
+        self.paste = None;
         self.input.clear();
         self.state = if self.cleanup.is_some() {
             State::Closing

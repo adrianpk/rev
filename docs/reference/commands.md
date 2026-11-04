@@ -79,7 +79,7 @@ compiled M-x name once.
 | Native completion | `completion-at-point`, `completion-next`, `completion-previous`, `completion-accept`, `completion-cancel`, `completion-mode`, `completion-auto-mode` |
 | Command and session | `execute-extended-command`, `keyboard-quit`, `save-buffers-kill-terminal` |
 | Files | `find-file`, `save-buffer`, `write-file`, `revert-buffer` |
-| Terminal | `terminal-open`, `terminal-toggle`, `terminal-new`, `terminal-new-buffer`, `terminal-move-to-buffer`, `terminal-move-to-panel`, `terminal-open-here`, `terminal-open-other-pane`, `terminal-list`, `terminal-rename`, `terminal-send-next-key`, `terminal-copy-mode`, `terminal-copy-mode-done` |
+| Terminal | `terminal-open`, `terminal-toggle`, `terminal-new`, `terminal-new-buffer`, `terminal-move-to-buffer`, `terminal-move-to-panel`, `terminal-open-here`, `terminal-open-other-pane`, `terminal-list`, `terminal-rename`, `terminal-send-next-key`, `terminal-copy-mode`, `terminal-copy-mode-done`, `terminal-yank`, `terminal-yank-pop`, `terminal-clear`, `terminal-clear-scrollback`, `terminal-beginning-of-line`, `terminal-end-of-line`, `terminal-reset-cursor-point`, `terminal-undo`, `terminal-send-return`, `terminal-send-tab`, `terminal-send-escape`, `terminal-send-backspace`, `terminal-send-delete`, `terminal-send-up`, `terminal-send-down`, `terminal-send-left`, `terminal-send-right`, `terminal-send-prior`, `terminal-send-next`, `terminal-send-space` |
 | Shell | `shell-filter-region`, `shell-command-insert`, `shell-command-on-region`, `shell-command`, `shell-command-cancel`, `shell-command-output` |
 | AI | `ai-explain`, `ai-prompt`, `ai-implement`, `ai-apply-result`, `ai-discard-result`, `ai-set-directory`, `ai-select-model`, `ai-reset-session`, `ai-disconnect`, `ai-cancel`, `ai-save-command` |
 | Buffers | `switch-to-buffer`, `list-buffers`, `kill-buffer` |
@@ -677,6 +677,26 @@ under an 8 MiB editor storage charge, separately from emulator history. Admissio
 failure keeps existing views and the live child. Local pointer inspection also
 freezes output; returning its wheel position to the tail, or accepted live input,
 resumes following. Explicit copy mode retains keyboard ownership until exited.
+
+`terminal-yank` (C-y in live terminal input) pastes the shared kill ring's
+newest entry; `terminal-yank-pop` (M-y) rotates it only while that exact paste
+remains wholly queued. Any write, later input, protocol reply, unrelated command
+or changed kill ring ends replacement authority. Rev never guesses how to erase
+text a child has consumed. Literal-next still sends these keys to the child.
+Explicit frontend paste uses the same atomic queue and active bracketed-paste
+mode. Text exceeding the configured input limit, including framing, is rejected
+before queue mutation. Escape and control characters other than line breaks and
+tabs are rejected. Child clipboard requests remain denied.
+
+`terminal-clear` sends C-l to the child; `terminal-clear-scrollback` removes
+retained emulator history and copy projections for that session, preserves the
+live screen and sends no child input. Copy line start/end operate on the frozen
+text. `terminal-reset-cursor-point` aligns with the live cursor only while its
+current text is still represented by that copy; otherwise it reports the need
+to refresh. `terminal-send-return`, tab, escape, backspace, delete, up/down,
+left/right, prior/next (paging), and space use the same mode-aware live VT key
+encoder. `terminal-undo` sends C-_ to the child without changing source history.
+Input commands, including literal-next, require exiting explicit copy mode.
 
 Use `terminal-toggle` to hide or restore the panel without restarting its shell.
 The panel remembers its height and clamps it to preserve a usable source pane.

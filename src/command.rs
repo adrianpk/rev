@@ -42,7 +42,7 @@ pub use motion::Motion;
 pub use rectangle::RectangleCommand;
 pub use region::RegionCommand;
 pub use scroll::Scroll;
-pub use terminal::TerminalCommand;
+pub use terminal::{TerminalCommand, TerminalKey};
 pub use tree::TreeCommand;
 pub use window::WindowCommand;
 
@@ -109,7 +109,27 @@ pub enum Command {
 }
 
 impl Command {
-    pub const ALL: [Self; 450] = [
+    pub const ALL: [Self; 470] = [
+        Self::Terminal(TerminalCommand::Yank),
+        Self::Terminal(TerminalCommand::YankPop),
+        Self::Terminal(TerminalCommand::Clear),
+        Self::Terminal(TerminalCommand::ClearScrollback),
+        Self::Terminal(TerminalCommand::BeginningOfLine),
+        Self::Terminal(TerminalCommand::EndOfLine),
+        Self::Terminal(TerminalCommand::ResetCursorPoint),
+        Self::Terminal(TerminalCommand::Undo),
+        Self::Terminal(TerminalCommand::Send(TerminalKey::Return)),
+        Self::Terminal(TerminalCommand::Send(TerminalKey::Tab)),
+        Self::Terminal(TerminalCommand::Send(TerminalKey::Escape)),
+        Self::Terminal(TerminalCommand::Send(TerminalKey::Backspace)),
+        Self::Terminal(TerminalCommand::Send(TerminalKey::Delete)),
+        Self::Terminal(TerminalCommand::Send(TerminalKey::Up)),
+        Self::Terminal(TerminalCommand::Send(TerminalKey::Down)),
+        Self::Terminal(TerminalCommand::Send(TerminalKey::Left)),
+        Self::Terminal(TerminalCommand::Send(TerminalKey::Right)),
+        Self::Terminal(TerminalCommand::Send(TerminalKey::Prior)),
+        Self::Terminal(TerminalCommand::Send(TerminalKey::Next)),
+        Self::Terminal(TerminalCommand::Send(TerminalKey::Space)),
         Self::Terminal(TerminalCommand::CopyMode),
         Self::Terminal(TerminalCommand::CopyModeDone),
         Self::Terminal(TerminalCommand::SendNextKey),

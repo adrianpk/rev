@@ -4,6 +4,7 @@ mod cleanup;
 mod engine;
 mod filter;
 mod limits;
+mod paste;
 mod process;
 mod readiness;
 mod session;
@@ -13,6 +14,7 @@ pub use limits::{
     COMBINING_SCALARS, CONTROL_BYTES, EDITOR_CELLS, EXTRA_BYTES, Geometry, Launch, Limits,
     SERVICE_BYTES, SESSION_CELLS,
 };
+pub use paste::Paste;
 pub use readiness::Waker;
 pub use session::{Session, State, Storage};
 use std::{
@@ -97,6 +99,25 @@ impl Sessions {
     }
     pub fn queue(&mut self, id: SessionId, bytes: &[u8]) -> io::Result<()> {
         self.session(id)?.queue(bytes)
+    }
+    /// Atomically paste, or replace only the exact preceding unsent paste.
+    pub fn paste(
+        &mut self,
+        id: SessionId,
+        text: &str,
+        previous: Option<Paste>,
+    ) -> io::Result<Paste> {
+        if previous.is_some_and(|paste| paste.id != id) {
+            return Err(limits::invalid("Paste belongs to another terminal"));
+        }
+        let serial = self
+            .session(id)?
+            .paste(text, previous.map(|paste| paste.serial))?;
+        Ok(Paste { id, serial })
+    }
+    pub fn clear_scrollback(&mut self, id: SessionId) -> io::Result<()> {
+        self.session(id)?.clear_scrollback();
+        Ok(())
     }
     pub fn resize(&mut self, id: SessionId, size: Geometry) -> io::Result<()> {
         let old = self.sessions.get(&id).ok_or_else(missing)?;

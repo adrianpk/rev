@@ -26,7 +26,7 @@ impl Session {
 
         match event {
             Event::Key(event) => self.terminal_key(*event),
-            Event::Paste(text) => Some(self.terminal_send(text.as_bytes())),
+            Event::Paste(text) => Some(self.terminal_paste_text(text)),
             _ => Some(Action::Wait),
         }
     }
@@ -97,6 +97,13 @@ impl Session {
         if key.code == KeyCode::Char('x') && key.modifiers == KeyModifiers::ALT {
             return Some(self.execute(crate::command::Command::ExecuteExtended));
         }
+        if key.code == KeyCode::Char('y') {
+            match key.modifiers {
+                KeyModifiers::CONTROL => return Some(self.terminal_yank(false)),
+                KeyModifiers::ALT => return Some(self.terminal_yank(true)),
+                _ => {}
+            }
+        }
         None
     }
 
@@ -121,6 +128,9 @@ impl Session {
     }
 
     pub(super) fn terminal_literal_next(&mut self) -> Action {
+        if self.terminal_copy_active() {
+            return self.error("Exit terminal copy mode before sending input");
+        }
         let Some(id) = self.current_terminal().filter(|_| self.terminals.focused) else {
             return self.error("Literal terminal input requires a focused terminal");
         };
@@ -129,6 +139,25 @@ impl Session {
     }
 
     pub(in crate::session) fn terminal_send(&mut self, bytes: &[u8]) -> Action {
+        let result = self.terminal_input_id().and_then(|id| {
+            self.terminals
+                .sessions
+                .queue(id, bytes)
+                .map_err(|error| error.to_string())
+        });
+        match result {
+            Ok(()) => {
+                self.terminals.yank = None;
+                self.resume_terminal_input_tail();
+                Action::Redraw
+            }
+            Err(error) => self.error(&format!("Terminal input: {error}")),
+        }
+    }
+    pub(super) fn terminal_input_id(&self) -> Result<crate::term::SessionId, String> {
+        if !self.terminals.focused {
+            return Err("Terminal input requires a focused terminal".into());
+        }
         let usable = if self.terminals.view.is_some() {
             self.buffer_geometry(&self.windows, self.terminals.visible)
                 .is_some()
@@ -136,17 +165,9 @@ impl Session {
             self.terminal_rows().is_some()
         };
         if !usable {
-            return self.error("Terminal presentation is suspended at this screen size");
+            return Err("Terminal presentation is suspended at this screen size".into());
         }
-        let Some(id) = self.current_terminal() else {
-            return self.error("No terminal is selected");
-        };
-        match self.terminals.sessions.queue(id, bytes) {
-            Ok(()) => {
-                self.resume_terminal_input_tail();
-                Action::Redraw
-            }
-            Err(error) => self.error(&format!("Terminal input: {error}")),
-        }
+        self.current_terminal()
+            .ok_or("No terminal is selected".into())
     }
 }

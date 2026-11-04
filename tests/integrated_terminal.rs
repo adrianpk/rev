@@ -5,6 +5,8 @@ mod engine;
 mod fixture;
 #[path = "integrated_terminal/panel.rs"]
 mod panel;
+#[path = "integrated_terminal/paste.rs"]
+mod paste;
 #[path = "integrated_terminal/resources.rs"]
 mod resources;
 use fixture::Fixture;

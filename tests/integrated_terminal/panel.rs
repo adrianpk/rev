@@ -4,6 +4,8 @@ mod copy;
 mod interaction;
 #[path = "pointer.rs"]
 mod pointer;
+#[path = "transfer.rs"]
+mod transfer;
 
 use crossterm::event::{Event, KeyCode, KeyEvent, KeyModifiers};
 use rev::{
