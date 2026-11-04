@@ -72,6 +72,7 @@ impl Session {
 
     pub(super) fn decision(&mut self, accepted: bool) -> Action {
         match self.pending.take() {
+            Some(Pending::GitDiscard(consent)) => self.git_discard_answer(*consent, accepted),
             Some(Pending::GitQuit {
                 operations,
                 sources,
@@ -196,6 +197,7 @@ impl Session {
             Some(Pending::Replace(state)) if state.deciding() => {
                 Some("Replace occurrence? [y/n/q]")
             }
+            Some(Pending::GitDiscard(consent)) => Some(consent.message.as_str()),
             Some(Pending::Quit(quit)) => Some(quit.question.as_str()),
             Some(Pending::Save { confirmation, .. }) => Some(confirmation.message()),
             Some(Pending::Kill { message, .. }) => Some(message.as_str()),

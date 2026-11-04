@@ -4,6 +4,7 @@ use crate::git::{Effects, IndexDirection, IndexTarget, Outcome, Update};
 pub(super) enum Intent {
     Change(IndexDirection),
     Mark,
+    Discard,
 }
 
 #[derive(Default)]
@@ -77,7 +78,7 @@ impl Session {
         let message = format!("{} Git targets marked", self.git.marks.targets.len());
         self.message(&message)
     }
-    fn git_index_selection(&self) -> Option<Target> {
+    pub(super) fn git_index_selection(&self) -> Option<Target> {
         if self.git.page == Page::Diff {
             self.git.inspection.detail.as_ref().map(|d| {
                 self.git.inspection.selected.map_or_else(
@@ -89,11 +90,12 @@ impl Session {
             self.git.state.selected.clone()
         }
     }
-    fn prepare_git_index(&mut self, intent: Intent) -> Action {
+    pub(super) fn prepare_git_index(&mut self, intent: Intent) -> Action {
         if !self.git.visible || !matches!(self.git.page, Page::Status | Page::Diff) {
             return self.message("Select an exact path or supported hunk in Git Status first");
         }
         if self.git.index_request.is_some()
+            || self.git.discard_request.is_some()
             || self.git.index_preparing.is_some()
             || self.git.inspection.request.is_some()
         {
@@ -139,6 +141,12 @@ impl Session {
             Target::Hunk(_, _, hunk) => IndexTarget::Hunk { diff, hunk: *hunk },
             Target::Section(_) => return self.message("Index action requires a path or hunk"),
         };
+        if matches!(intent, Intent::Discard) {
+            return match target {
+                IndexTarget::Path(diff) => self.confirm_git_discard(diff),
+                _ => self.message("Discard requires one whole tracked path; hunks are unsupported"),
+            };
+        }
         if matches!(intent, Intent::Mark) {
             if !self.git.engine.detail_current(target.diff()) {
                 return self.message("Cannot mark a stale or incomplete comparison");

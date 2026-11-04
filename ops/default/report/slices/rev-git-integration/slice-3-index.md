@@ -1,6 +1,6 @@
 # Slice 3: Checked Staging Unstaging and Discard
 
-Status: drafting
+Status: reviewing
 Delivery set: rev-git-integration
 Plan: `ops/default/plan/rev-git-integration.md`
 Tracker: `ops/default/tracker/rev-git-integration.md`
@@ -57,8 +57,23 @@ T3.2 delivers compatible marked groups:
   after the single changing child. Unmarked entries and working files remain
   intact in real-Git fixtures.
 
-T3.3 protected discard remains pending. No complete Slice 3 delivery or PR is
-claimed.
+T3.3 delivers protected whole-path discard:
+
+- k and x d capture one tracked unstaged path with a supported index entry.
+  Explicit y/n confirmation is one-shot; Return does not imply yes and C-g
+  cancels. Hunks, marked groups, untracked deletion and gitlinks cannot gain
+  replacement authority.
+- Current canonical path and inode identity find visiting sources, including
+  aliases. Unsaved text rejects the request. Source revisions, destination
+  evidence and repository context are rechecked when consent is consumed.
+- The worker checks complete comparison and index entries before one installed
+  Git working-tree restore. It predicts checkout bytes through Git's configured
+  filters, then verifies actual bytes, type/mode and unchanged complete index
+  entries. HEAD is not substituted as the restoration source.
+- File changes enter the existing automatic/ask observation and reload owner;
+  the action never saves or directly replaces a source buffer. Failed changing
+  children retain their actual exit/diagnostics and possible effects without
+  replay. Outstanding cleanup retains its child rather than launching another.
 
 ## Implementation Notes
 
@@ -85,6 +100,13 @@ checking every exact comparison. The NUL manifest admits at most the existing
 index verification uses batches of at most twelve paths to preserve the
 64-token and 65536-byte argv limits. No operation or resource limit changed.
 
+Discard snapshots complete staged entries within the existing detail/output
+caps and admits checkout, verification and source-guard payloads before they are
+retained. Regular-file proof opens without following a substituted symlink and
+checks identity/metadata around a bounded byte read; symlink proof checks exact
+link bytes and stable metadata. Source confirmation uses the existing native
+decision owner and routes cancellation before generic Git navigation.
+
 ## Contracts Added or Changed
 
 - Added typed index direction and immutable path/hunk request targets.
@@ -93,7 +115,8 @@ index verification uses batches of at most twelve paths to preserve the
 - Added borrowed, sealed input at the existing process boundary.
 - Registered working stage/unstage commands, both-profile s/u bindings and their
   complete sample/default-reference entries. T3.2 adds mark/unmark/clear and
-  their direct and x-family aliases (25 Git bindings, 489 commands).
+  their direct and x-family aliases; T3.3 adds confirmed discard (27 Git bindings,
+  490 commands).
 - No new dependency or persistent application storage was introduced.
 
 ## Files of Interest
@@ -105,51 +128,56 @@ index verification uses batches of at most twelve paths to preserve the
 - `src/process/input.rs`: sealed anonymous input shared with shell commands.
 - `tests/git_integration/index.rs`: real index, path, hunk and failure fixtures.
 - `tests/git_integration/index_groups.rs`: complete-group effects and rejection.
-- `tests/git_integration/index_presentation.rs`: both-profile captured marks.
+- `tests/git_integration/index_presentation.rs`: both-profile marks, consent and source protection.
+- `src/git/work/discard.rs`: bounded checkout prediction, index and file proof.
+- `src/session/git/discard.rs`: canonical source admission and one-shot consent.
+- `tests/git_integration/index_discard.rs`: actual restores, filters and failure effects.
 
 ## Validation
 
-Development validation covers real repository effects and shared input/UI
-contracts. The initial backend run passed nine tests (about 85 seconds); the
-expanded eleven-case run passed both-profile native paths/hunks and took about
-134 seconds. Three later focused cases cover executable-mode preservation, initialized
-gitlinks and whole-file creation/deletion modes. Final clean-HEAD controller validation follows complete
-T3.1-T3.3 delivery and the PR-reference follow-up.
+Development checks passed for formatting, strict focused Clippy, three backend
+marked-group cases, four native index cases, five discard cases and the shared
+reference/presentation checks. The group path fixture also passed after adding
+mixed tracked/untracked staging. Discard cases cover actual text/binary, type,
+mode, symlink and missing-file results; checkout filters; stale rejection;
+post-effect exit failure; both-profile cancellation and dirty canonical aliases;
+and automatic versus ask reload.
 
-- `cargo fmt --all -- --check`: passed.
-- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo clippy --locked --lib --bin rev --test git_integration -- -D warnings`: passed after the mode/gitlink follow-ups and again after T3.2.
-- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test git_integration index:: -- --test-threads=1`: 11 passed before the executable-mode follow-up.
-- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test git_integration index::hunk_mode -- --test-threads=1`: regression reproduced a postcondition mismatch, then passed both directions after separating mode metadata from text hunks.
-- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test git_integration index::gitlink_path -- --test-threads=1`: passed.
-- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test git_integration index::hunk_file_modes -- --test-threads=1`: regression reproduced the staged-deletion mode mismatch, then passed deletion/creation cases after deriving the restoration mode from HEAD.
-- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --lib process::capture:: -- --test-threads=1`: 3 passed.
-- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test shell_commands regions:: -- --test-threads=1`: 3 passed.
-- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test commands --test configuration reference -- --test-threads=1`: 21 passed in T3.1 and again after T3.2 catalog correction.
-- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test git_integration status::presentation -- --test-threads=1`: 9 passed again after T3.2.
-- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test git_integration diffs::presentation -- --test-threads=1`: 5 passed again after T3.2.
-- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo run --locked --quiet --example documentation-check`: passed in T3.1 and after T3.2; the unchanged checker now covers 489 command names, 25 Git bindings, 263 settings and 76 pages.
-- `git diff --check`: passed.
+The three group cases took about 39 seconds, four native index cases about
+45 seconds and five discard cases about 46 seconds. These bounded development
+runs add observable index/file/source protection without running the delivery
+set gate. The controller receipt for the final clean PR head supplies exact-HEAD
+outcomes for this ordered command list after PR-reference follow-up:
 
-T3.2 development checks add three backend group cases (about 39 seconds) and
-four native index cases (about 45 seconds, including both existing single-target
-journeys). The path-group case passed again after extending its born-repository
-variant to mix tracked and untracked members. These remain development evidence;
-no final exact-HEAD controller receipt is claimed yet.
+- `cargo fmt --all -- --check`
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo clippy --locked --lib --bin rev --test git_integration -- -D warnings`
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test git_integration index:: -- --test-threads=1`
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test git_integration status::presentation -- --test-threads=1`
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test git_integration diffs::presentation -- --test-threads=1`
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test commands --test configuration reference -- --test-threads=1`
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test external_changes observation::shared_kernel_reload -- --test-threads=1`
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo run --locked --quiet --example documentation-check`
+- `git diff --check`
+
+Additional successful development selections:
 
 - `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test git_integration index::groups -- --test-threads=1`: 3 passed.
 - `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test git_integration index::groups::paths -- --test-threads=1`: extended mixed-layer case passed.
-- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test git_integration index::presentation:: -- --test-threads=1`: 4 passed across both profiles.
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test git_integration index::presentation:: -- --test-threads=1`: 4 passed before the two discard journeys were added.
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test git_integration discard -- --test-threads=1`: 5 passed.
 
-The first strict check rejected complex internal tuple types; named prepared
-request state resolved that finding. The first documentation check rejected
-an outdated 17-key defaults row after s/u were added; the reference now matches
-the packaged map. The first native mark fixture attempted to visit binary input;
-using an unchanged text source for entry retained the binary mutation targets.
-Reference validation then caught mark commands missing from the top-level binding
-inventory; the catalog entries were added without changing either checker.
-No assertions or configured limits were weakened.
+Regression development corrected independent executable-mode headers in text
+hunk patches and HEAD-mode restoration for staged deletion. Reference checks
+caught outdated key counts and missing top-level mark catalog entries; the
+references were corrected without changing the checkers. The discard C-g test
+caught generic Git cancellation preceding the consent owner; cancellation now
+consumes the captured decision through its own route. No assertion or configured
+limit was weakened.
 
 ## Risks and Follow-ups
 
-Complete T3.3 confirmed discard with modified-buffer protection. Combined PTY
+External clients remain outside editor serialization. Non-deterministic checkout
+filters or concurrent post-effect changes can prevent exact file verification;
+such results retain possible effects rather than success. Complete index or
+checkout evidence beyond existing caps rejects before replacement. Combined PTY
 and resource acceptance remain assigned to Slice 13.

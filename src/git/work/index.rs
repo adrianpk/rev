@@ -15,7 +15,7 @@ struct Prepared {
     input: Option<fs::File>,
     expected: Vec<Entry>,
 }
-struct Execution {
+pub(super) struct Execution {
     argv: Vec<OsString>,
     stdout: Vec<u8>,
     stderr: Vec<u8>,
@@ -55,31 +55,17 @@ impl Runner {
         // All captured comparisons are checked again after hashing/filtering
         // and patch preflight. No subset has effects while another is checked.
         self.check_index_comparisons(&request.targets, admission)?;
-        let executed = self.command_input(&args, Phase::Executing, false, None, input);
-        self.effects = if self.exit.is_some() || self.retained.is_some() {
-            Effects::Possible
-        } else {
-            Effects::NotStarted
-        };
-        let facts = Execution {
-            argv: std::mem::take(&mut self.argv),
-            stdout: std::mem::take(&mut self.stdout),
-            stderr: std::mem::take(&mut self.stderr),
-            exit: self.exit.take(),
-            truncated: self.truncated,
-            end: self.end,
-        };
+        let (executed, facts) = self.execute_change(&args, input);
+        if self.retained.is_some() {
+            self.restore_execution(facts, true);
+            return Err(
+                "Index child cleanup remains owned; effects require later inspection".into(),
+            );
+        }
         // A failed/interrupted changing child is never replayed. Refresh is
         // attempted under the remaining original deadline and cancellation.
         let result = self.verify_index_result(diff, &expected, admission);
-        self.argv = facts.argv;
-        self.stdout = facts.stdout;
-        self.stderr = facts.stderr;
-        self.exit = facts.exit;
-        self.truncated = facts.truncated;
-        if executed.is_err() {
-            self.end = facts.end;
-        }
+        self.restore_execution(facts, executed.is_err());
         match result {
             Ok((candidate, verified)) => {
                 match (executed, verified) {
@@ -102,7 +88,41 @@ impl Runner {
         }
     }
 
-    fn check_index_comparisons(
+    pub(super) fn execute_change(
+        &mut self,
+        args: &[OsString],
+        input: Option<fs::File>,
+    ) -> (Result<(), String>, Execution) {
+        let executed = self
+            .command_input(args, Phase::Executing, false, None, input)
+            .map(|_| ());
+        self.effects = if self.exit.is_some() || self.retained.is_some() {
+            Effects::Possible
+        } else {
+            Effects::NotStarted
+        };
+        let facts = Execution {
+            argv: std::mem::take(&mut self.argv),
+            stdout: std::mem::take(&mut self.stdout),
+            stderr: std::mem::take(&mut self.stderr),
+            exit: self.exit.take(),
+            truncated: self.truncated,
+            end: self.end,
+        };
+        (executed, facts)
+    }
+    pub(super) fn restore_execution(&mut self, facts: Execution, failed: bool) {
+        self.argv = facts.argv;
+        self.stdout = facts.stdout;
+        self.stderr = facts.stderr;
+        self.exit = facts.exit;
+        self.truncated = facts.truncated;
+        if failed {
+            self.end = facts.end;
+        }
+    }
+
+    pub(super) fn check_index_comparisons(
         &mut self,
         targets: &[IndexTarget],
         admission: &mut Lease,

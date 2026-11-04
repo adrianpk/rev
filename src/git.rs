@@ -2,6 +2,7 @@
 //! durable repository state; this owner retains finite session observations.
 pub(crate) mod budget;
 mod diff;
+mod discard;
 mod index;
 pub use index::{IndexDirection, IndexTarget};
 mod status;
@@ -103,6 +104,7 @@ pub enum OperationKind {
     Diff,
     Stage,
     Unstage,
+    Discard,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -535,10 +537,12 @@ impl Repositories {
                 active.record = Some(finished.record);
                 active.progress.lock().expect("Git progress owner").phase = Phase::Cleanup;
                 let progress = *active.progress.lock().expect("Git progress owner");
-                if matches!(progress.kind, OperationKind::Stage | OperationKind::Unstage)
-                    && let Some(context) = progress
-                        .context
-                        .and_then(|id| self.contexts.iter_mut().find(|c| c.id == id))
+                if matches!(
+                    progress.kind,
+                    OperationKind::Stage | OperationKind::Unstage | OperationKind::Discard
+                ) && let Some(context) = progress
+                    .context
+                    .and_then(|id| self.contexts.iter_mut().find(|c| c.id == id))
                 {
                     context.failure = Some(progress.operation);
                 }
@@ -616,9 +620,9 @@ impl Repositories {
                         match progress.kind {
                             OperationKind::Status => context.failure = Some(record.id),
                             OperationKind::Diff => context.detail_failure = Some(record.id),
-                            OperationKind::Stage | OperationKind::Unstage => {
-                                context.failure = Some(record.id)
-                            }
+                            OperationKind::Stage
+                            | OperationKind::Unstage
+                            | OperationKind::Discard => context.failure = Some(record.id),
                         }
                     }
                     progress.context

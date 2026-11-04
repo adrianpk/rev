@@ -244,7 +244,7 @@ Both use M-x or modal colon and leave this configuration unchanged.
 | `keys.vim_visual_line` | Map of chord sequences to canonical commands | Compiled map | Visual Line navigation, complete logical lines and shared operators. The sample declares all 122 entries. |
 | `keys.vim_visual_block` | Map of chord sequences to canonical commands | Compiled map | Visual Block navigation and atomic block delete/change/copy with logical grapheme columns. The sample declares all 118 entries. |
 | `keys.minibuffer` | Map of chord sequences to admitted prompt actions/commands | Compiled map | Prompt focus; all 22 entries are active in the sample. |
-| `keys.git` | Map of chord sequences to admitted Git commands | Compiled map | One native Git interaction owner in both profiles; all 25 entries are active in the sample. |
+| `keys.git` | Map of chord sequences to admitted Git commands | Compiled map | One native Git interaction owner in both profiles; all 27 entries are active in the sample. |
 | `keys.bookmark_list` | Map of chord sequences to admitted bookmark-list commands | Compiled map | Read-only bookmark view; all 16 entries are active in the sample. Prompts retain their own input maps. |
 | `keys.tree` | Map of chord sequences to admitted tree commands | Compiled map | Tree focus; all 23 entries are active in the sample. |
 

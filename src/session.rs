@@ -202,6 +202,7 @@ enum AfterSave {
 }
 
 enum Pending {
+    GitDiscard(Box<git::discard::Consent>),
     GitQuit {
         operations: Vec<crate::git::OperationId>,
         message: String,

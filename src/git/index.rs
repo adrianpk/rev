@@ -142,20 +142,7 @@ impl Repositories {
                 }
             }
         }
-        let identity = &diff.observation.identity;
-        if self.progress().any(|p| {
-            p.context.is_none()
-                || p.context.and_then(|id| self.context(id)).is_some_and(|c| {
-                    c.observation.identity.common_directory == identity.common_directory
-                })
-        }) {
-            return Err("Repository common storage already owns an active Git operation".into());
-        }
-        let root = identity
-            .worktree
-            .as_ref()
-            .ok_or("Index actions require a working tree")?
-            .clone();
+        let root = self.mutation_root(diff)?;
         let context = diff.observation.context;
         let admission = self.budget.reserve(std::mem::size_of_val(targets))?;
         self.start(
@@ -167,5 +154,20 @@ impl Repositories {
                 _admission: admission,
             }),
         )
+    }
+    pub(super) fn mutation_root(&self, diff: &Diff) -> Result<PathBuf, String> {
+        let identity = &diff.observation.identity;
+        if self.progress().any(|p| {
+            p.context.is_none()
+                || p.context.and_then(|id| self.context(id)).is_some_and(|c| {
+                    c.observation.identity.common_directory == identity.common_directory
+                })
+        }) {
+            return Err("Repository common storage already owns an active Git operation".into());
+        }
+        identity
+            .worktree
+            .clone()
+            .ok_or_else(|| "Repository has no working tree".into())
     }
 }

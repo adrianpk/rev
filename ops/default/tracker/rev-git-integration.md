@@ -65,7 +65,7 @@ Integration: [PR #259](https://forge.adrianpk.com/adrianpk/rev/pulls/259) merged
 
 ## Slice 3: Checked staging unstaging and discard
 
-Status: implementing
+Status: reviewing
 Branch: `feat/rev-git-integration-03-index`
 Expected PR title: `feat(git): stage exact paths hunks and checked groups`
 Report: `ops/default/report/slices/rev-git-integration/slice-3-index.md`
@@ -74,10 +74,10 @@ PR: pending
 
 - [x] T3.1: Stage and unstage exact paths or admitted text hunks; revalidate their complete comparison before changing the index.
 - [x] T3.2: Implement compatible marked path groups and nonoverlapping same-path/layer hunk groups; reject stale, mixed, duplicate or unsupported groups before launch.
-- [ ] T3.3: Restore one confirmed tracked working-tree path from its index state without changing the index; protect unsaved buffers and verify actual index/worktree results and partial-effect diagnostics.
+- [x] T3.3: Restore one confirmed tracked working-tree path from its index state without changing the index; protect unsaved buffers and verify actual index/worktree results and partial-effect diagnostics.
 
-Validation: T3.1 development strict Clippy and formatter pass; 11 index/native cases passed before mode follow-ups, with three focused cases covering executable modes, gitlinks and creation/deletion modes. Shared checks passed 3 process, 3 shell-region, 21 reference, 9 Status presentation and 5 diff presentation tests; documentation catalogs pass. T3.2 adds three real-Git group cases, four native index cases and revalidated 35 shared presentation/reference cases; strict Clippy, formatter and documentation pass. Final exact-HEAD controller validation follows T3.3 and PR references.
-Integration: T3.1-T3.2 implementation is on the approved slice branch. T3.3 protected discard remains pending; no PR or merge is claimed.
+Validation: Development formatter and strict focused Clippy pass. T3.2 passed three real-Git group cases, four native index cases and 35 shared presentation/reference cases. T3.3 passed five discard cases, 21 reference cases, the four-scenario shared reload test and documentation checks (490 commands, 27 Git bindings). The controller records the final ordered required/focused checks against the clean PR head after PR-reference follow-up.
+Integration: T3.1-T3.3 are implemented on the approved slice branch. PR references and exact-HEAD controller validation precede handoff; integration remains controller-owned.
 
 ## Slice 4: Native commit composition
 

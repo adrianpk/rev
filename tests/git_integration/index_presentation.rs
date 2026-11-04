@@ -217,3 +217,139 @@ fn native_hunk_marks() {
         );
     }
 }
+
+// One-shot y/n decisions preserve files on n, C-g and an empty Return. A yes
+// restores the checked index (not HEAD), using existing ask/reload source policy.
+#[test]
+fn native_discard_confirmation() {
+    for profile in ["non-modal", "modal"] {
+        for policy in ["ask", "reload"] {
+            let repository = Repository::new("sha1");
+            let path = repository.root.join("a");
+            fs::write(&path, "HEAD\n").unwrap();
+            repository.commit();
+            fs::write(&path, "index\n").unwrap();
+            repository.git(["add", "a"]);
+            fs::write(&path, "working\n").unwrap();
+            let index = repository.git(["ls-files", "--stage", "-z"]);
+            let mut owned = editor(
+                &repository,
+                profile,
+                &format!("[files]\nexternal_changes='{policy}'\nexternal_change_debounce_ms=0\n"),
+                false,
+            );
+            let editor = &mut owned.0;
+            editor.load(&path).unwrap();
+            let id = editor.buffer().unwrap().id();
+            editor.execute(Command::Split(Split::Below));
+            let views: Vec<_> = editor.windows().iter().map(|(id, _)| id).collect();
+            entry(editor);
+            wait(editor, |s| s.git_observation().is_some());
+            plain(editor, 'n');
+            plain(editor, 'k');
+            wait(editor, |s| s.echo().contains("y=discard"));
+            key(editor, KeyCode::Enter, KeyModifiers::NONE);
+            assert_eq!(fs::read(&path).unwrap(), b"working\n");
+            plain(editor, 'n');
+            assert!(editor.echo().contains("Discard canceled"));
+            plain(editor, 'k');
+            assert!(editor.echo().contains("y=discard"));
+            key(editor, KeyCode::Char('g'), KeyModifiers::CONTROL);
+            assert!(editor.echo().contains("Discard canceled"));
+            assert_eq!(fs::read(&path).unwrap(), b"working\n");
+            plain(editor, 'x');
+            plain(editor, 'd');
+            assert!(editor.echo().contains("y=discard"));
+            plain(editor, 'y');
+            wait(editor, |s| {
+                s.echo().contains("Working path restored and verified")
+            });
+            assert_eq!(fs::read(&path).unwrap(), b"index\n");
+            assert_eq!(repository.git(["ls-files", "--stage", "-z"]), index);
+            plain(editor, 'q');
+            assert!(!editor.git_visible());
+            assert_eq!(editor.buffer().unwrap().id(), id);
+            assert_eq!(
+                editor
+                    .windows()
+                    .iter()
+                    .map(|(id, _)| id)
+                    .collect::<Vec<_>>(),
+                views
+            );
+            if policy == "ask" {
+                wait(editor, |s| {
+                    s.buffer().unwrap().external_change_notice().is_some()
+                });
+                assert_eq!(text(editor), "working\n");
+                editor.execute(Command::RevertBuffer);
+            }
+            wait(editor, |s| text(s) == "index\n");
+            assert!(!editor.buffer().unwrap().is_modified());
+        }
+    }
+}
+
+// Dirty canonical owners include visits through a symlink alias. Hunk/group
+// discard stays unsupported, and a disk change invalidates an open decision.
+#[test]
+fn native_discard_guards() {
+    for profile in ["non-modal", "modal"] {
+        for case in ["dirty", "alias", "changed"] {
+            let repository = Repository::new("sha1");
+            let path = repository.root.join("a");
+            fs::write(&path, "index\n").unwrap();
+            std::os::unix::fs::symlink("a", repository.root.join("alias")).unwrap();
+            repository.commit();
+            fs::write(&path, "working\n").unwrap();
+            let index = repository.git(["ls-files", "--stage", "-z"]);
+            let mut owned = editor(
+                &repository,
+                profile,
+                "[files]\nexternal_changes='ask'\n",
+                false,
+            );
+            let editor = &mut owned.0;
+            editor
+                .load(&if case == "alias" {
+                    repository.root.join("alias")
+                } else {
+                    path.clone()
+                })
+                .unwrap();
+            if case != "changed" {
+                if profile == "modal" {
+                    plain(editor, 'i');
+                }
+                plain(editor, 'x');
+                assert!(editor.buffer().unwrap().is_modified());
+            }
+            let before = text(editor);
+            entry(editor);
+            wait(editor, |s| s.git_observation().is_some());
+            plain(editor, 'n');
+            plain(editor, 'k');
+            if case == "changed" {
+                wait(editor, |s| s.echo().contains("y=discard"));
+                fs::write(&path, "newer\n").unwrap();
+                plain(editor, 'y');
+                assert!(editor.echo().contains("destination changed"));
+                assert_eq!(fs::read(&path).unwrap(), b"newer\n");
+            } else {
+                wait(editor, |s| s.echo().contains("unsaved text"));
+                assert_eq!(fs::read(&path).unwrap(), b"working\n");
+                plain(editor, '*');
+                plain(editor, 'k');
+                assert!(editor.echo().contains("clear marked groups"));
+                plain(editor, '0');
+                plain(editor, 'n');
+                assert!(selected(editor).contains("@@"));
+                plain(editor, 'k');
+                assert!(editor.echo().contains("hunks and sections are unsupported"));
+            }
+            assert_eq!(repository.git(["ls-files", "--stage", "-z"]), index);
+            plain(editor, 'q');
+            assert_eq!(text(editor), before);
+        }
+    }
+}

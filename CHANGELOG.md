@@ -15,7 +15,9 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
   visit current files without replacing unsaved text. Stage or unstage one exact
   disk path, text hunk or compatible marked group with s/u, retaining working
   files and unsaved buffers. Mark exact targets with *, remove them with - and
-  clear marks with 0; stale or incompatible groups reject before index changes. Return to the same windows
+  clear marks with 0; stale or incompatible groups reject before index changes.
+  Confirm whole-path discard with k to restore a tracked working file from its
+  index, protecting unsaved visiting buffers and retaining staged entries. Return to the same windows
   and terminals. Inspect active and
   recent Git processes, cancel a selected operation, and confirm before quitting
   with Git work still running. Failed refreshes preserve confirmed Status.

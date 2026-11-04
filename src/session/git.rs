@@ -9,6 +9,7 @@ use crossterm::event::{Event, MouseButton, MouseEventKind};
 use std::{path::PathBuf, sync::Arc};
 
 mod comparisons;
+pub(super) mod discard;
 mod index;
 mod processes;
 mod shutdown;
@@ -23,6 +24,7 @@ pub(super) struct Work {
     process_origin: Option<Page>,
     inspection: comparisons::Inspection,
     index_request: Option<OperationId>,
+    discard_request: Option<OperationId>,
     index_preparing: Option<index::Preparing>,
     marks: index::Marks,
     process_selected: Option<OperationId>,
@@ -178,6 +180,7 @@ impl Work {
             process_origin: None,
             inspection: comparisons::Inspection::default(),
             index_request: None,
+            discard_request: None,
             index_preparing: None,
             marks: index::Marks::default(),
             process_selected: None,
@@ -266,6 +269,7 @@ impl Session {
                 GitCommand::ToggleSection => self.toggle_git_section(),
                 GitCommand::Diff => self.open_git_diff(comparisons::Mode::Detail),
                 GitCommand::VisitFile => self.visit_git_file(),
+                GitCommand::Discard => self.discard_git(),
                 GitCommand::Mark => self.mark_git(),
                 GitCommand::Unmark => self.unmark_git(false),
                 GitCommand::UnmarkAll => self.unmark_git(true),
@@ -294,6 +298,9 @@ impl Session {
             Command::Quit => self.quit(),
             Command::ExecuteExtended => self.extended(),
             Command::KeyboardQuit => {
+                if let Some(action) = self.cancel_git_discard() {
+                    return Some(action);
+                }
                 if self.cancel_quit() {
                     return Some(self.message("Quit canceled; Git work retained"));
                 }
@@ -387,7 +394,9 @@ impl Session {
         let Some(context) = self.git.state.context.filter(|_| self.git.visible) else {
             return self.message("Git Status is still checking its repository context");
         };
-        if self.git.state.request.is_some() || self.git.index_request.is_some() {
+        if self.git.state.request.is_some()
+            || (self.git.index_request.is_some() || self.git.discard_request.is_some())
+        {
             return self.message("Git observation is already active");
         }
         match self.git.engine.refresh(context) {
@@ -495,6 +504,10 @@ impl Session {
             return Action::Wait;
         }
         for update in updates {
+            if self.git.discard_request == Some(update.operation) {
+                self.publish_git_discard(&update);
+                continue;
+            }
             if self.git.index_request == Some(update.operation) {
                 self.publish_git_index(&update);
                 continue;
@@ -700,6 +713,7 @@ impl Session {
                             "Return  git-visit-file",
                             "s / u  git-stage / git-unstage",
                             "* / - / 0  mark / unmark / clear",
+                            "k / x d  git-discard (confirmed)",
                             "M-x git-diff  selected comparison",
                             "$  git-processes",
                             "M-x / :  native commands",
@@ -770,7 +784,9 @@ impl Session {
                     return (
                         format!(
                             "{}{}{}{}{}",
-                            if self.git.state.request.is_some() || self.git.index_request.is_some()
+                            if self.git.state.request.is_some()
+                                || (self.git.index_request.is_some()
+                                    || self.git.discard_request.is_some())
                             {
                                 "Checking / refreshing  "
                             } else {

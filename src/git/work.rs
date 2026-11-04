@@ -1,12 +1,14 @@
 use super::*;
 use std::os::unix::ffi::OsStringExt;
 
+mod discard;
 mod index;
 
 pub(super) enum Request {
     Status,
     Diff(diff::Target),
     Index(super::index::Request),
+    Discard(Arc<Diff>),
 }
 impl Request {
     pub fn kind(&self) -> OperationKind {
@@ -14,6 +16,7 @@ impl Request {
             Self::Status => OperationKind::Status,
             Self::Diff(_) => OperationKind::Diff,
             Self::Index(request) => request.direction.kind(),
+            Self::Discard(_) => OperationKind::Discard,
         }
     }
 }
@@ -47,7 +50,7 @@ pub(super) fn start(
         .name("git-observation".into())
         .spawn(move || {
             let seconds = match request {
-                Request::Index(_) => policy.operation_timeout_seconds,
+                Request::Index(_) | Request::Discard(_) => policy.operation_timeout_seconds,
                 _ => policy.observation_timeout_seconds,
             };
             let mut runner = Runner {
@@ -71,6 +74,7 @@ pub(super) fn start(
             };
             let observed = match request {
                 Request::Index(request) => runner.change_index(request, &mut admission),
+                Request::Discard(diff) => runner.discard(diff, &mut admission),
                 Request::Diff(target) => {
                     runner.compare(target, &mut admission).map(Candidate::Diff)
                 }

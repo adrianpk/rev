@@ -58,6 +58,7 @@ Every command below is also available as `M-x` followed by its exact name.
 | `M-x shell-command-output`, `:shell-command-output` | `shell-command-output` | Visit the last retained read-only plain-text result or diagnostics. |
 | `C-x g`, `M-x git-status`, `:git-status` | `git-status` | Discover the current repository and open full-canvas native Status. |
 | `q` in Git | `git-quit` | Dismiss the innermost menu or return to the retained editing context; owned work continues. |
+| `k`, `x d` in Git Status or Diff | `git-discard` | Confirm one tracked unstaged whole path from its index; protect dirty visiting buffers. |
 | `*`, `x m` in Git Status or Diff | `git-mark` | Mark one exact current path or supported hunk independently of navigation. |
 | `-`, `x u` in Git Status or Diff | `git-unmark` | Remove the exact selected path or hunk mark. |
 | `0`, `x c` in Git Status or Diff | `git-unmark-all` | Clear all retained path and hunk marks. |
@@ -749,6 +750,7 @@ native cancellation. Prompts use `keys.minibuffer`.
 | `C-g` | `keyboard-quit` |
 | `q` | `git-quit` |
 | `g` | `git-refresh` |
+| `k`, `x d` | `git-discard` |
 | `*`, `x m` | `git-mark` |
 | `-`, `x u` | `git-unmark` |
 | `0`, `x c` | `git-unmark-all` |
@@ -760,6 +762,14 @@ native cancellation. Prompts use `keys.minibuffer`.
 | Return | `git-visit-file` |
 | Up, `C-p`, `p` | `previous-line` |
 | Down, `C-n`, `n` | `next-line` |
+
+k or x d restores one tracked unstaged whole path from its captured index entry
+after y/n confirmation; C-g cancels and Return does not imply yes. Modified
+visiting buffers, including canonical aliases, reject the request. Changing the
+file or source context invalidates an open confirmation. Hunk and marked-group
+discard, untracked deletion and gitlink replacement are unsupported. Completed
+file changes use the existing automatic/ask reload policy; the command never
+saves or directly replaces a source buffer.
 
 Marks retain complete comparison identities independently of navigation. Use *
 or x m to mark, - or x u to remove a selected mark, and 0 or x c to clear all

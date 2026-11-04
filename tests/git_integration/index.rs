@@ -1,3 +1,6 @@
+#[path = "index_discard.rs"]
+mod discard;
+
 #[path = "index_groups.rs"]
 mod groups;
 

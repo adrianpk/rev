@@ -699,6 +699,7 @@ Status reads disk and Git state; it does not save an unsaved source buffer.
 | `git-quit` | Return from the innermost Git menu or restore the retained editing context; started work continues. |
 | `git-refresh` | Replace Status only after a checked bounded observation succeeds; retain confirmed facts with a stale indication on failure. |
 | `git-toggle-section` | Toggle a Status group, path comparison or selected semantic hunk; one path and one hunk body expand at a time. |
+| `git-discard` | Confirm restoration of one tracked unstaged whole path from its index; reject unsaved canonical sources and verify unchanged index entries and actual checkout bytes/mode. |
 | `git-mark` | Mark the exact current path or supported hunk; retain its complete comparison independently of the cursor. |
 | `git-unmark` | Remove the exact selected path or hunk mark. |
 | `git-unmark-all` | Clear all path and hunk marks. |
