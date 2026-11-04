@@ -88,6 +88,10 @@ fn map_fallback() {
         let root = fixture.write("config.toml", &format!("{VIM}\n{mapping}"));
         let startup = prepare(&root);
         assert!(startup.diagnostic.is_some(), "{name}");
-        assert_eq!(startup.snapshot, rev::config::Snapshot::default(), "{name}");
+        assert_eq!(
+            startup.snapshot,
+            rev::config::Snapshot::default().with_root(&root),
+            "{name}"
+        );
     }
 }
