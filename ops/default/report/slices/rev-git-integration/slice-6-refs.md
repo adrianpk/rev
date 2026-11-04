@@ -182,6 +182,13 @@ shell sequence still committed it. T6.3 formats that line; subsequent delivery
 commands use checked subprocess results and the final controller receipt must
 establish the actual candidate's formatter result.
 
+Controller receipt `QSHMVEJLZ3ZZKQNKLG7SBKTXAU` at
+`ad28099225bdf6102d0cacb87525577a288815d8` passed formatter, then stopped
+at Clippy on a sibling-module visibility error in background history feedback.
+The existing refs failure flag is now visible only within its parent Git session
+module. Behavioral checks had not started; the corrected head requires a fresh
+ordered receipt. No behavior assertion or resource limit changed.
+
 Final ordered contract, executed through the controller after this PR-reference
 follow-up commit:
 

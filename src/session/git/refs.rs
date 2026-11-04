@@ -13,7 +13,7 @@ pub(super) struct Inspection {
     remote_selected: Option<Vec<u8>>,
     detail: Option<usize>,
     pub top: usize,
-    failed: bool,
+    pub(super) failed: bool,
     _admission: crate::git::budget::Lease,
 }
 impl Inspection {
