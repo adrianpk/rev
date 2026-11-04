@@ -1,5 +1,5 @@
 use super::{Session, snapshot::Snapshot};
-use crate::{command::Motion, coordinates::Coordinates, session::Action};
+use crate::{command::Motion, session::Action};
 
 impl Session {
     pub(in crate::session::terminals) fn terminal_copy_line(&mut self, end: bool) -> Action {
@@ -47,29 +47,7 @@ impl Session {
             .sessions
             .get(copy.id)
             .ok_or("Terminal is unavailable")?;
-        let snapshot = Snapshot::capture(session)?;
-        let text = copy
-            .buffer
-            .slice(
-                &copy
-                    .buffer
-                    .span(0..copy.buffer.len_chars())
-                    .map_err(|e| e.to_string())?,
-            )
-            .map_err(|e| e.to_string())?;
-        if text != snapshot.text.as_str() {
-            return Err(
-                "Live cursor is not represented by this frozen copy; re-enter copy mode to refresh"
-                    .into(),
-            );
-        }
-        let point = snapshot.point(session, session.screen().grid().cursor.point);
-        let coordinates = Coordinates::new(&copy.buffer).map_err(|e| e.to_string())?;
-        copy.view.point.position = if coordinates.is_boundary(point).map_err(|e| e.to_string())? {
-            point
-        } else {
-            coordinates.previous(point).map_err(|e| e.to_string())?
-        };
+        copy.view.point.position = Snapshot::represented_cursor(session, &copy.buffer)?;
         copy.view.reset_navigation();
         copy.reveal(size)
     }

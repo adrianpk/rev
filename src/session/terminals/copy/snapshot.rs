@@ -21,6 +21,23 @@ pub(super) struct Snapshot {
 }
 
 impl Snapshot {
+    pub fn represented_cursor(session: &Session, buffer: &Buffer) -> Result<Scalar, String> {
+        let snapshot = Self::capture(session)?;
+        let span = buffer
+            .span(0..buffer.len_chars())
+            .map_err(|e| e.to_string())?;
+        let text = buffer.slice(&span).map_err(|e| e.to_string())?;
+        if text != snapshot.text.as_str() {
+            return Err(
+                "Live cursor is not represented by this frozen copy; re-enter copy mode to refresh"
+                    .into(),
+            );
+        }
+        observed(
+            buffer,
+            snapshot.point(session, session.screen().grid().cursor.point),
+        )
+    }
     pub fn capture(session: &Session) -> Result<Self, String> {
         let grid = session.screen().grid();
         let history = grid.history_size();
