@@ -169,7 +169,7 @@ impl Terminal {
         let deadline = self.deadline.min(Instant::now() + Duration::from_secs(2));
         loop {
             let remaining = deadline.saturating_duration_since(Instant::now());
-            if remaining.is_zero() {
+            if remaining < Duration::from_millis(350) {
                 return Err("PTY did not become quiescent".into());
             }
             match self

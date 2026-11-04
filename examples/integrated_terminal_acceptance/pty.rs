@@ -44,8 +44,12 @@ fn journey(root: &Path, binary: &Path, wrapper: &Path, profile: &str) -> Result<
     Ok(())
 }
 fn named(terminal: &mut Terminal, name: &str) -> Result<()> {
-    terminal.send(b"\x1bx")?;
-    terminal.frame(|f| (1..=24).any(|number| row(f, number).starts_with("M-x ")))?;
+    // An explicit Alt-x event avoids the legacy ESC/x transport ambiguity:
+    // a separately decoded Escape correctly belongs to the live child.
+    terminal.send(b"\x1b[120;3u")?;
+    terminal
+        .frame(|f| (1..=24).any(|number| row(f, number).starts_with("M-x ")))
+        .map_err(|e| format!("{name} command prompt: {e}"))?;
     terminal.send(format!("\x1b[200~{name}\x1b[201~\r").as_bytes())
 }
 fn line(terminal: &mut Terminal, line: &str) -> Result<()> {
