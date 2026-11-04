@@ -7,7 +7,7 @@ Plan: [Native Git Integration Delivery](../plan/rev-git-integration.md)
 Spec: [Native Git Integration](../spec/editor-git-integration.md)
 Model: [Native Git Model](../spec/editor-git-integration-model.md)
 Approved: owner, 2026-11-04; complete fourteen-slice plan and autonomous Looper execution/integration through dev
-Active slice: Slice 3 - Checked staging unstaging and discard
+Active slice: Slice 4 - Native commit composition
 Progress owner: after startup, Looper checkpoint, canonical PRs and exact-candidate validation receipts
 
 ## Canonical slice map
@@ -65,7 +65,7 @@ Integration: [PR #259](https://forge.adrianpk.com/adrianpk/rev/pulls/259) merged
 
 ## Slice 3: Checked staging unstaging and discard
 
-Status: reviewing
+Status: delivered
 Branch: `feat/rev-git-integration-03-index`
 Expected PR title: `feat(git): stage exact paths hunks and checked groups`
 Report: `ops/default/report/slices/rev-git-integration/slice-3-index.md`
@@ -76,12 +76,12 @@ PR: `#260`
 - [x] T3.2: Implement compatible marked path groups and nonoverlapping same-path/layer hunk groups; reject stale, mixed, duplicate or unsupported groups before launch.
 - [x] T3.3: Restore one confirmed tracked working-tree path from its index state without changing the index; protect unsaved buffers and verify actual index/worktree results and partial-effect diagnostics.
 
-Validation: Development formatter and strict focused Clippy pass. T3.2 passed three real-Git group cases, four native index cases and 35 shared presentation/reference cases. T3.3 passed five discard cases, 21 reference cases, the four-scenario shared reload test and documentation checks (490 commands, 27 Git bindings). The controller records the final ordered required/focused checks against the clean PR head after PR-reference follow-up.
-Integration: T3.1-T3.3 are implemented on the approved slice branch. Canonical PR #260 targets dev. Exact-HEAD controller validation precedes handoff; integration remains controller-owned.
+Validation: Controller receipt `WQFGAZWVDQUWWTWHRKJ5VA3LDW` passed all nine ordered checks for `d14a59b0b274bc5a376594e375e4d288c8f71594`: 24 index, 9 Status, 5 diff and 21 reference tests, shared reload, strict Clippy, formatter, documentation and whitespace.
+Integration: [PR #260](https://forge.adrianpk.com/adrianpk/rev/pulls/260) merged through controller-owned Rebase + Fast-forward into dev at `d14a59b0b274bc5a376594e375e4d288c8f71594`. Slice 3 of 14 completed.
 
 ## Slice 4: Native commit composition
 
-Status: pending
+Status: implementing
 Branch: `feat/rev-git-integration-04-commits`
 Expected PR title: `feat(git): compose commits amend and fixup`
 Report: `ops/default/report/slices/rev-git-integration/slice-4-commits.md`

@@ -1,6 +1,6 @@
 # Slice 3: Checked Staging Unstaging and Discard
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-git-integration
 Plan: `ops/default/plan/rev-git-integration.md`
 Tracker: `ops/default/tracker/rev-git-integration.md`
@@ -134,6 +134,13 @@ decision owner and routes cancellation before generic Git navigation.
 - `tests/git_integration/index_discard.rs`: actual restores, filters and failure effects.
 
 ## Validation
+
+Controller receipt `WQFGAZWVDQUWWTWHRKJ5VA3LDW` passed all nine ordered checks
+for `d14a59b0b274bc5a376594e375e4d288c8f71594`, including 24 index, 9 Status,
+5 diff, 21 reference tests and the shared reload test. The canonical PR contract
+was verified. [PR #260](https://forge.adrianpk.com/adrianpk/rev/pulls/260) merged
+through controller-owned Rebase + Fast-forward into dev at that exact commit.
+Slice 3 of 14 completed.
 
 Development checks passed for formatting, strict focused Clippy, three backend
 marked-group cases, four native index cases, five discard cases and the shared
