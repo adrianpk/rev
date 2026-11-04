@@ -11,6 +11,10 @@ impl Session {
         link.and(sessions)
     }
 
+    pub(in crate::session) fn terminal_closing(&self, id: SessionId) -> bool {
+        self.terminals.closing.contains_key(&id)
+    }
+
     pub(in crate::session) fn cancel_terminal_close(&mut self) -> bool {
         if !matches!(self.pending, Some(Pending::TerminalClose { .. })) {
             return false;
