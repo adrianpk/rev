@@ -695,6 +695,9 @@ Status reads disk and Git state; it does not save an unsaved source buffer.
 
 | Command | Behavior |
 | --- | --- |
+| `git-commit` | Open a native subject/body composer from current complete Status; retain cancelled or failed text for this session. |
+| `git-commit-submit` | Explicitly commit the checked index with the accepted message; verify actual HEAD, parent, message, tree and unchanged index. |
+| `git-commit-cancel` | Return to Status before process start, retaining the session draft. |
 | `git-status` | Check installed Git and the actual repository, then open structured Status. |
 | `git-quit` | Return from the innermost Git menu or restore the retained editing context; started work continues. |
 | `git-refresh` | Replace Status only after a checked bounded observation succeeds; retain confirmed facts with a stale indication on failure. |
@@ -735,3 +738,11 @@ Application exit identifies active Git work and requires a fresh decision
 before termination, alongside unsaved-source and terminal decisions. Accepted
 cleanup retains ownership until reaping; failure keeps the editor open. Stopping
 a process does not abort a Git sequence or claim repository rollback.
+
+In Status, c opens normal commit composition directly. A following c is message
+text; plain Return inserts a newline. `keys.git_commit` inherits ordinary native
+editor keys in both profiles: C-Enter or C-c C-c submits, C-g or C-c C-k cancels
+and retains the draft. Git keeps identity, hooks and signing policy; rev never
+saves or stages source text implicitly. Failed or uncertain effects retain the
+message and actual child diagnostics in Processes. Drafts are session-only,
+limited to 65536 bytes per context, with bounded native undo history.

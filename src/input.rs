@@ -136,6 +136,7 @@ pub struct Input {
     workspace_tree: bool,
     workspace_bookmarks: bool,
     workspace_git: bool,
+    workspace_git_commit: bool,
     workspace_completion: bool,
     workspace_org: Option<OrgContext>,
     meta_deadline: Option<Instant>,

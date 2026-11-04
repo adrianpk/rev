@@ -51,6 +51,7 @@ impl Context {
         matches!(
             self,
             Self::Editor
+                | Self::GitCommit
                 | Self::Org
                 | Self::OrgCapture
                 | Self::OrgSourceEdit

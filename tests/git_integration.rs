@@ -1,4 +1,6 @@
 #![forbid(unsafe_code)]
+#[path = "git_integration/commits.rs"]
+mod commits;
 #[path = "git_integration/diffs.rs"]
 mod diffs;
 #[path = "configuration/fixture.rs"]

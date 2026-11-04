@@ -56,6 +56,9 @@ Every command below is also available as `M-x` followed by its exact name.
 | `C-u M-!` (non-modal), `M-x shell-command-insert`, `:shell-command-insert` | `shell-command-insert` | Insert complete successful stdout at the point captured before the prompt, with null stdin. |
 | `M-x shell-command-cancel`, `:shell-command-cancel` | `shell-command-cancel` | Cancel the owned invocation; originating editing C-g also cancels after inner input owners. |
 | `M-x shell-command-output`, `:shell-command-output` | `shell-command-output` | Visit the last retained read-only plain-text result or diagnostics. |
+| `c` in Git Status | `git-commit` | Open native commit text directly; a subsequent c is literal message text. |
+| `C-Enter`, `C-c C-c` in composer | `git-commit-submit` | Commit the checked index with the accepted message. |
+| `C-g`, `C-c C-k` in composer | `git-commit-cancel` | Retain the session draft and return to Status before process start. |
 | `C-x g`, `M-x git-status`, `:git-status` | `git-status` | Discover the current repository and open full-canvas native Status. |
 | `q` in Git | `git-quit` | Dismiss the innermost menu or return to the retained editing context; owned work continues. |
 | `k`, `x d` in Git Status or Diff | `git-discard` | Confirm one tracked unstaged whole path from its index; protect dirty visiting buffers. |
@@ -735,6 +738,20 @@ mutation and workspace transitions require fresh presses. Pending prefixes are
 cleared by prompt acquisition, cancellation and workspace changes. Tree text
 and paste never enter the visiting buffer while tree focus is retained.
 
+### Git commit defaults and availability
+
+`keys.git_commit` inherits editor text editing in both startup profiles. Normal
+composition begins with c in Status. Plain Return inserts a newline; submission
+requires C-Enter (a distinguishable host event) or C-c C-c. C-g and C-c C-k
+retain the cancelled session draft. Composer text is separate from source
+buffers and filesystem publication.
+
+| Keys | Target |
+| --- | --- |
+| `C-Enter`, `C-c C-c` | `git-commit-submit` |
+| `C-g` | `keyboard-quit` |
+| `C-c C-k` | `git-commit-cancel` |
+
 ### Git defaults and availability
 
 `keys.git` applies to native Git navigation in both startup profiles. It keeps
@@ -748,6 +765,7 @@ native cancellation. Prompts use `keys.minibuffer`.
 | `C-x C-c` | `save-buffers-kill-terminal` |
 | `M-x`, `:` | `execute-extended-command` |
 | `C-g` | `keyboard-quit` |
+| `c` | `git-commit` |
 | `q` | `git-quit` |
 | `g` | `git-refresh` |
 | `k`, `x d` | `git-discard` |

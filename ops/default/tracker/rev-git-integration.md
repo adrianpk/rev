@@ -88,7 +88,7 @@ Report: `ops/default/report/slices/rev-git-integration/slice-4-commits.md`
 Requirements: GIT06, GIT16-GIT19
 PR: pending
 
-- [ ] T4.1: Enter normal composition directly with c and provide ordinary native text editing, explicit submission, cancellation and session-only retained drafts.
+- [x] T4.1: Enter normal composition directly with c and provide ordinary native text editing, explicit submission, cancellation and session-only retained drafts.
 - [ ] T4.2: Compose normal, reviewed amend and exact-target fixup requests; preserve checked index/HEAD, identity, hooks, signing policy and actual messages without hidden staging or saving.
 - [ ] T4.3: Verify C-Enter/C-c C-c submission, C-g/C-c C-k cancellation, literal c, failed hooks, retained drafts, post-effect uncertainty and protected source/terminal state.
 

@@ -1,6 +1,7 @@
 use super::*;
 use std::os::unix::ffi::OsStringExt;
 
+mod commit;
 mod discard;
 mod index;
 
@@ -9,6 +10,7 @@ pub(super) enum Request {
     Diff(diff::Target),
     Index(super::index::Request),
     Discard(Arc<Diff>),
+    Commit(super::commit::Request),
 }
 impl Request {
     pub fn kind(&self) -> OperationKind {
@@ -17,6 +19,7 @@ impl Request {
             Self::Diff(_) => OperationKind::Diff,
             Self::Index(request) => request.direction.kind(),
             Self::Discard(_) => OperationKind::Discard,
+            Self::Commit(_) => OperationKind::Commit,
         }
     }
 }
@@ -50,7 +53,9 @@ pub(super) fn start(
         .name("git-observation".into())
         .spawn(move || {
             let seconds = match request {
-                Request::Index(_) | Request::Discard(_) => policy.operation_timeout_seconds,
+                Request::Index(_) | Request::Discard(_) | Request::Commit(_) => {
+                    policy.operation_timeout_seconds
+                }
                 _ => policy.observation_timeout_seconds,
             };
             let mut runner = Runner {
@@ -64,6 +69,7 @@ pub(super) fn start(
                 captured: 0,
                 effects: Effects::NotStarted,
                 operation_failure: None,
+                failure_verified: false,
                 argv: Vec::new(),
                 stdout: Vec::new(),
                 stderr: Vec::new(),
@@ -75,6 +81,7 @@ pub(super) fn start(
             let observed = match request {
                 Request::Index(request) => runner.change_index(request, &mut admission),
                 Request::Discard(diff) => runner.discard(diff, &mut admission),
+                Request::Commit(request) => runner.commit(request, &mut admission),
                 Request::Diff(target) => {
                     runner.compare(target, &mut admission).map(Candidate::Diff)
                 }
@@ -104,6 +111,7 @@ struct Runner {
     captured: usize,
     effects: Effects,
     operation_failure: Option<String>,
+    failure_verified: bool,
     argv: Vec<OsString>,
     stdout: Vec<u8>,
     stderr: Vec<u8>,
@@ -384,7 +392,10 @@ impl Runner {
                 capture::End::Cancelled => Outcome::Cancelled,
                 capture::End::TimedOut => Outcome::TimedOut,
                 capture::End::OutputLimit => Outcome::OutputLimit,
-                _ if self.operation_failure.is_some() && self.effects == Effects::Possible => {
+                _ if self.operation_failure.is_some()
+                    && self.effects == Effects::Possible
+                    && !self.failure_verified =>
+                {
                     Outcome::Indeterminate
                 }
                 _ if self.operation_failure.is_some() => Outcome::Failed,

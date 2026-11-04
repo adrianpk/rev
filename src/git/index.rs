@@ -156,7 +156,9 @@ impl Repositories {
         )
     }
     pub(super) fn mutation_root(&self, diff: &Diff) -> Result<PathBuf, String> {
-        let identity = &diff.observation.identity;
+        self.mutation_identity_root(&diff.observation.identity)
+    }
+    pub(super) fn mutation_identity_root(&self, identity: &Identity) -> Result<PathBuf, String> {
         if self.progress().any(|p| {
             p.context.is_none()
                 || p.context.and_then(|id| self.context(id)).is_some_and(|c| {

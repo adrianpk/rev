@@ -31,6 +31,7 @@ pub enum Context {
     Tree,
     BookmarkList,
     Git,
+    GitCommit,
     Org,
     OrgAgenda,
     OrgCapture,
@@ -39,7 +40,7 @@ pub enum Context {
 }
 
 impl Context {
-    pub const ALL: [Self; 17] = [
+    pub const ALL: [Self; 18] = [
         Self::VimNormal,
         Self::VimInsert,
         Self::VimReplace,
@@ -52,6 +53,7 @@ impl Context {
         Self::Tree,
         Self::BookmarkList,
         Self::Git,
+        Self::GitCommit,
         Self::Org,
         Self::OrgAgenda,
         Self::OrgCapture,
@@ -67,6 +69,7 @@ impl Context {
             Self::Tree => "tree",
             Self::BookmarkList => "bookmark_list",
             Self::Git => "git",
+            Self::GitCommit => "git_commit",
             _ => self.modal_name(),
         }
     }
@@ -98,6 +101,7 @@ impl Context {
     /// text, decisions and Escape timing remain with their existing owners.
     pub fn defaults(self) -> &'static [(&'static str, &'static str)] {
         match self {
+            Self::GitCommit => defaults::commit_complete(),
             Self::Org => defaults::org_complete(),
             Self::OrgCalendar => defaults::calendar_complete(),
             Self::OrgCapture => defaults::capture_complete(),
@@ -124,6 +128,7 @@ pub struct Effective {
     tree: Map,
     bookmark_list: Map,
     git: Map,
+    git_commit: Map,
     org: Map,
     org_agenda: Map,
     org_capture: Map,
@@ -152,6 +157,7 @@ impl Effective {
             Context::Tree => &self.tree,
             Context::BookmarkList => &self.bookmark_list,
             Context::Git => &self.git,
+            Context::GitCommit => &self.git_commit,
             _ => self.org_map(context),
         }
     }
@@ -197,6 +203,7 @@ pub(crate) fn compile_ai(
         org,
         org_capture,
         org_source_edit,
+        git_commit: Map::overlay(&editor, Context::GitCommit, &keys.git_commit, commands)?,
         editor,
         minibuffer,
         tree: Map::compile(Context::Tree, &keys.tree, commands)?,

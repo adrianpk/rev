@@ -249,6 +249,21 @@ impl Buffer {
         permutation: Option<Permutation>,
     ) -> Result<Prepared, Error> {
         self.admit(self.stamp())?;
+        if let Some(limit) = self.text_byte_limit {
+            if edits.len() > 64 || points.len() > 16 {
+                return Err(Error::Capacity);
+            }
+            let mut bytes = self.text.len_bytes();
+            for edit in edits {
+                bytes = bytes
+                    .checked_sub(self.slice(&edit.source)?.len_bytes())
+                    .and_then(|n| n.checked_add(edit.text.len()))
+                    .ok_or(Error::Capacity)?;
+            }
+            if bytes > limit {
+                return Err(Error::Capacity);
+            }
+        }
         let next_state = self.next_state.checked_add(1).ok_or(Error::Capacity)?;
         let changes = self.changes(edits)?;
         let state = State {

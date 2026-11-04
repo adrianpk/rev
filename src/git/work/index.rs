@@ -5,7 +5,7 @@ use std::{
 };
 
 #[derive(Clone, Debug, PartialEq, Eq)]
-struct Entry {
+pub(super) struct Entry {
     path: PathBuf,
     mode: Option<u32>,
     object: Option<ObjectId>,
@@ -625,7 +625,7 @@ impl Runner {
     }
 }
 
-fn entries(
+pub(super) fn entries(
     bytes: &[u8],
     format: ObjectFormat,
     index: bool,

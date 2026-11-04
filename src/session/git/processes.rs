@@ -45,6 +45,7 @@ impl Work {
             Some(crate::git::OperationKind::Stage) => "Stage index",
             Some(crate::git::OperationKind::Unstage) => "Unstage index",
             Some(crate::git::OperationKind::Discard) => "Discard working path",
+            Some(crate::git::OperationKind::Commit) => "Commit checked index",
             None => "expired operation",
         }
     }

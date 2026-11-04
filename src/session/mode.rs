@@ -5,6 +5,15 @@ use super::{Action, Session};
 impl Session {
     pub(super) fn sync_input_context(&mut self) {
         self.input.set_git(self.git_visible());
+        self.input.set_git_commit(self.git_composing());
+        if self.git_composing() {
+            self.input.set_tree_focus(false);
+            self.input.set_bookmark_list(false);
+            self.input.set_org_context(None);
+            self.input
+                .editing_owner(self.windows.selected_id(), self.view().point.stamp.buffer);
+            return;
+        }
         if self.git_visible() {
             return;
         }

@@ -21,6 +21,10 @@ pub(super) fn source_complete() -> &'static [(&'static str, &'static str)] {
         LazyLock::new(|| complete(EDITOR, ORG_SOURCE_EDIT));
     &COMPLETE
 }
+pub(super) fn commit_complete() -> &'static [(&'static str, &'static str)] {
+    static COMPLETE: LazyLock<Vec<(&str, &str)>> = LazyLock::new(|| complete(EDITOR, GIT_COMMIT));
+    &COMPLETE
+}
 fn complete(
     base: &'static [(&'static str, &'static str)],
     local: &'static [(&'static str, &'static str)],
@@ -44,6 +48,7 @@ pub(super) fn bindings(context: Context) -> &'static [(&'static str, &'static st
         Context::Tree => TREE,
         Context::BookmarkList => BOOKMARK_LIST,
         Context::Git => GIT,
+        Context::GitCommit => GIT_COMMIT,
         _ => modal_bindings(context),
     }
 }
@@ -154,7 +159,15 @@ pub(super) const EDITOR: &[(&str, &str)] = &[
     ("C-x t d", "tree-create-directory"),
 ];
 
-pub(super) const GIT: &[(&str, &str)] = &[
+pub(super) const GIT_COMMIT: &[(&str, &str)] = &[
+    ("C-Enter", "git-commit-submit"),
+    ("C-c C-c", "git-commit-submit"),
+    ("C-g", "keyboard-quit"),
+    ("C-c C-k", "git-commit-cancel"),
+];
+
+const GIT: &[(&str, &str)] = &[
+    ("c", "git-commit"),
     ("C-x g", "git-status"),
     ("C-x C-c", "save-buffers-kill-terminal"),
     ("M-x", "execute-extended-command"),

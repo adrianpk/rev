@@ -33,6 +33,11 @@ impl Buffer {
         let grammar = self.selected_grammar(settings.grammar(&language));
         self.policy = policy;
         self.history_policy = settings.settings().history.clone();
+        if self.text_byte_limit.is_some() {
+            self.history_policy.group_limit = self.history_policy.group_limit.min(16);
+            self.history_policy.payload_target_bytes =
+                self.history_policy.payload_target_bytes.min(131072);
+        }
         if self.syntax_policy != settings.settings().syntax {
             self.org_attempt = None;
         }

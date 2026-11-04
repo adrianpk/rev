@@ -158,6 +158,7 @@ pub struct Buffer {
     text: Rope,
     read_only: bool,
     transient: bool,
+    text_byte_limit: Option<usize>,
     source_language: Option<String>,
     mark: Option<Scalar>,
     mark_mode: region::Mode,
@@ -222,6 +223,7 @@ impl Buffer {
             text,
             read_only: false,
             transient: false,
+            text_byte_limit: None,
             source_language: None,
             mark: None,
             mark_mode: region::Mode::Inactive,
@@ -512,6 +514,19 @@ impl Buffers {
         buffer.transient = true;
         buffer.source_language = Some(language.to_owned());
         buffer.default_newline = crate::config::Newline::Lf;
+        Ok(self.insert(buffer))
+    }
+
+    /// A Git message is native text with a finite session-only owner. Its
+    /// smaller history and transaction limits fit the composer's admission.
+    pub(crate) fn commit_draft(&mut self, text: &str) -> Result<BufferId, Error> {
+        let mut buffer = Buffer::new(text, &self.settings.settings().files)?;
+        buffer.name = "*Git Commit: C-Enter submits; C-g retains draft*".into();
+        buffer.transient = true;
+        buffer.text_byte_limit = Some(crate::git::MAX_COMMIT_BYTES);
+        buffer.bom = false;
+        buffer.default_newline = crate::config::Newline::Lf;
+        buffer.mode_choice = Some(Mode::Text);
         Ok(self.insert(buffer))
     }
 

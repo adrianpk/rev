@@ -36,6 +36,9 @@ impl Input {
         if self.focus() != Focus::Editing {
             return MapContext::Minibuffer;
         }
+        if self.workspace_git_commit {
+            return MapContext::GitCommit;
+        }
         if self.workspace_git {
             return MapContext::Git;
         }
@@ -178,6 +181,14 @@ fn search_key(command: Command) -> Key {
 }
 
 impl Input {
+    pub(crate) fn set_git_commit(&mut self, active: bool) {
+        if self.workspace_git_commit != active {
+            self.clear_prefix();
+            self.suppress_repeat = true;
+            self.workspace_git_commit = active;
+        }
+    }
+
     pub(crate) fn set_git(&mut self, active: bool) {
         if self.workspace_git != active {
             self.clear_prefix();

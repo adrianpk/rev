@@ -1,7 +1,9 @@
 //! Native repository observations and owned installed-Git operations. Git keeps
 //! durable repository state; this owner retains finite session observations.
 pub(crate) mod budget;
+mod commit;
 mod diff;
+pub use commit::MAX_COMMIT_BYTES;
 mod discard;
 mod index;
 pub use index::{IndexDirection, IndexTarget};
@@ -105,6 +107,7 @@ pub enum OperationKind {
     Stage,
     Unstage,
     Discard,
+    Commit,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -190,6 +193,7 @@ pub struct Context {
     pub failure: Option<OperationId>,
     pub detail: Option<Arc<Diff>>,
     pub detail_failure: Option<OperationId>,
+    draft: Option<commit::Draft>,
 }
 
 #[derive(Clone, Copy, Debug)]
@@ -539,7 +543,10 @@ impl Repositories {
                 let progress = *active.progress.lock().expect("Git progress owner");
                 if matches!(
                     progress.kind,
-                    OperationKind::Stage | OperationKind::Unstage | OperationKind::Discard
+                    OperationKind::Stage
+                        | OperationKind::Unstage
+                        | OperationKind::Discard
+                        | OperationKind::Commit
                 ) && let Some(context) = progress
                     .context
                     .and_then(|id| self.contexts.iter_mut().find(|c| c.id == id))
@@ -569,6 +576,11 @@ impl Repositories {
                         let id = observation.context;
                         self.contexts[prior].observation = Arc::new(observation);
                         self.contexts[prior].failure = None;
+                        if progress.kind == OperationKind::Commit
+                            && record.outcome == Outcome::Verified
+                        {
+                            self.contexts[prior].draft = None;
+                        }
                         published = true;
                         record.context = Some(id);
                         Some(id)
@@ -580,6 +592,7 @@ impl Repositories {
                             failure: None,
                             detail: None,
                             detail_failure: None,
+                            draft: None,
                         });
                         published = true;
                         record.context = Some(id);
@@ -622,7 +635,8 @@ impl Repositories {
                             OperationKind::Diff => context.detail_failure = Some(record.id),
                             OperationKind::Stage
                             | OperationKind::Unstage
-                            | OperationKind::Discard => context.failure = Some(record.id),
+                            | OperationKind::Discard
+                            | OperationKind::Commit => context.failure = Some(record.id),
                         }
                     }
                     progress.context

@@ -8,6 +8,7 @@ use crate::{
 use crossterm::event::{Event, MouseButton, MouseEventKind};
 use std::{path::PathBuf, sync::Arc};
 
+mod commit;
 mod comparisons;
 pub(super) mod discard;
 mod index;
@@ -25,6 +26,8 @@ pub(super) struct Work {
     inspection: comparisons::Inspection,
     index_request: Option<OperationId>,
     discard_request: Option<OperationId>,
+    commit_request: Option<OperationId>,
+    composer: Option<commit::Composer>,
     index_preparing: Option<index::Preparing>,
     marks: index::Marks,
     process_selected: Option<OperationId>,
@@ -181,6 +184,8 @@ impl Work {
             inspection: comparisons::Inspection::default(),
             index_request: None,
             discard_request: None,
+            commit_request: None,
+            composer: None,
             index_preparing: None,
             marks: index::Marks::default(),
             process_selected: None,
@@ -258,12 +263,19 @@ impl Session {
     }
 
     pub(super) fn git_command(&mut self, command: Command) -> Option<Action> {
+        if let Some(action) = self.commit_command(command) {
+            return Some(action);
+        }
         if let Command::Git(command) = command {
             if self.input.focus() != Focus::Editing {
                 return Some(self.message("A prompt owns input focus"));
             }
             return Some(match command {
                 GitCommand::Status => self.open_git(),
+                GitCommand::Commit => self.compose_git_commit(),
+                GitCommand::CommitSubmit | GitCommand::CommitCancel => {
+                    self.message("No commit composer is active")
+                }
                 GitCommand::Quit => self.quit_git(),
                 GitCommand::Refresh => self.refresh_git(),
                 GitCommand::ToggleSection => self.toggle_git_section(),
@@ -504,6 +516,10 @@ impl Session {
             return Action::Wait;
         }
         for update in updates {
+            if self.git.commit_request == Some(update.operation) {
+                self.publish_git_commit(&update);
+                continue;
+            }
             if self.git.discard_request == Some(update.operation) {
                 self.publish_git_discard(&update);
                 continue;
@@ -576,6 +592,9 @@ impl Session {
         Action::Redraw
     }
     pub(super) fn git_input(&mut self, event: &Event) -> Option<Action> {
+        if self.git_composing() && matches!(event, Event::Mouse(_)) {
+            return Some(Action::Wait);
+        }
         if !self.git.visible || self.input.focus() != Focus::Editing {
             return None;
         }
@@ -708,6 +727,7 @@ impl Session {
                     return (
                         [
                             "Git actions",
+                            "c  git-commit (native composer)",
                             "g  git-refresh",
                             "Tab  git-toggle-section",
                             "Return  git-visit-file",
