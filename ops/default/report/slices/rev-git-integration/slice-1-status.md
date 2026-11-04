@@ -97,6 +97,10 @@ including separated authorization values. Diagnostic labels remain display
 text and never become repository arguments. Active capture stays on its worker;
 completed or retained-cleanup records provide the available byte evidence.
 
+The documentation schema collector reads the new Git model alongside the other
+configuration modules. Its existing exact comparison still rejects missing,
+extra or duplicate preferences and mismatched packaged defaults.
+
 ## Contracts Added or Changed
 
 - Added the typed native Git observation, operation identity, process record
@@ -140,6 +144,12 @@ The controller records the final clean-HEAD ordered validation separately after
 the PR-reference commit. Shared window/panel checks below ran during T1.2;
 combined PTY/resource acceptance remains assigned to Slice 13.
 
+Initial final-candidate validation passed checks 1-7, then the documentation
+check rejected the missing Git schema source. Adding that source corrected the
+collector; the same documentation command then passed with 482 commands, 263
+configuration entries, 76 pages and 485 local links/anchors. The final ordered
+receipt is regenerated for the corrected clean candidate.
+
 - `cargo fmt --all -- --check`: passed.
 - `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo clippy --locked --lib --bin rev --test git_integration -- -D warnings`: passed.
 - `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test git_integration status:: -- --test-threads=1`: 21 passed.
@@ -147,6 +157,9 @@ combined PTY/resource acceptance remains assigned to Slice 13.
 - `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test configuration reference -- --test-threads=1`: 11 passed.
 - `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test commands --test configuration reference -- --test-threads=1`: 10 command and 11 configuration checks passed.
 - `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test windows --test panels -- --test-threads=1`: 41 window and 19 panel checks passed.
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --lib session::quit -- --test-threads=1`: 1 passed.
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test integrated_terminal panel::lifecycle::shutdown -- --test-threads=1`: 1 passed, covering both profiles.
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo run --locked --quiet --example documentation-check`: passed after correcting the Git schema source inventory.
 - `git diff --check`: passed.
 
 ## Risks and Follow-ups
