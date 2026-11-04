@@ -1,6 +1,6 @@
 # Slice 4: Native Commit Composition
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-git-integration
 Plan: `ops/default/plan/rev-git-integration.md`
 Tracker: `ops/default/tracker/rev-git-integration.md`
@@ -162,8 +162,12 @@ follow-up commit:
 - `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo run --locked --quiet --example documentation-check`
 - `git diff --check`
 
-The [canonical PR #261](https://forge.adrianpk.com/adrianpk/rev/pulls/261)
-Validation list and controller receipt provide the exact clean-HEAD results.
+Controller receipt `ZZX5LLVZNAXQS4VOZ7WVHIINQO` passed all nine ordered
+checks above at `32a529e71460cef57f342ac83318221c0a7dba3d`: 234 selected
+tests, formatter, strict Clippy, documentation and whitespace. The
+[canonical PR #261](https://forge.adrianpk.com/adrianpk/rev/pulls/261) merged
+through controller-owned Rebase + Fast-forward into dev at that exact commit.
+Slice 4 of 14 completed.
 
 ## Risks and Follow-ups
 

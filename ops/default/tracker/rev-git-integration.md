@@ -7,7 +7,7 @@ Plan: [Native Git Integration Delivery](../plan/rev-git-integration.md)
 Spec: [Native Git Integration](../spec/editor-git-integration.md)
 Model: [Native Git Model](../spec/editor-git-integration-model.md)
 Approved: owner, 2026-11-04; complete fourteen-slice plan and autonomous Looper execution/integration through dev
-Active slice: Slice 4 - Native commit composition
+Active slice: Slice 5 - History ranges reflog and blame
 Progress owner: after startup, Looper checkpoint, canonical PRs and exact-candidate validation receipts
 
 ## Canonical slice map
@@ -81,7 +81,7 @@ Integration: [PR #260](https://forge.adrianpk.com/adrianpk/rev/pulls/260) merged
 
 ## Slice 4: Native commit composition
 
-Status: reviewing
+Status: delivered
 Branch: `feat/rev-git-integration-04-commits`
 Expected PR title: `feat(git): compose commits amend and fixup`
 Report: `ops/default/report/slices/rev-git-integration/slice-4-commits.md`
@@ -92,12 +92,12 @@ PR: `#261`
 - [x] T4.2: Compose normal, reviewed amend and exact-target fixup requests; preserve checked index/HEAD, identity, hooks, signing policy and actual messages without hidden staging or saving.
 - [x] T4.3: Verify C-Enter/C-c C-c submission, C-g/C-c C-k cancellation, literal c, failed hooks, retained drafts, post-effect uncertainty and protected source/terminal state.
 
-Validation: Development checks passed ten commit tests, four native acceptance tests, five effect/authority tests, strict Clippy and reference checks. Exact-HEAD ordered results are recorded by the controller after the PR-reference follow-up.
-Integration: [PR #261](https://forge.adrianpk.com/adrianpk/rev/pulls/261) is open against dev on the approved branch. Controller-owned integration is pending.
+Validation: Controller receipt `ZZX5LLVZNAXQS4VOZ7WVHIINQO` passed all nine ordered checks at `32a529e71460cef57f342ac83318221c0a7dba3d`: 75 Git, 138 editing/rectangle and 21 reference tests, formatter, strict Clippy, documentation and whitespace.
+Integration: [PR #261](https://forge.adrianpk.com/adrianpk/rev/pulls/261) merged through controller-owned Rebase + Fast-forward into dev at `32a529e71460cef57f342ac83318221c0a7dba3d`. Slice 4 of 14 completed.
 
 ## Slice 5: History ranges reflog and blame
 
-Status: pending
+Status: active
 Branch: `feat/rev-git-integration-05-history`
 Expected PR title: `feat(git): browse history ranges reflog and blame`
 Report: `ops/default/report/slices/rev-git-integration/slice-5-history.md`
