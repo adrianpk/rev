@@ -63,7 +63,8 @@ fn initial(owner: &Path, terminal: &mut Terminal, profile: &str) -> Result<()> {
         terminal,
         "printf %s $$ >shell.pid; export KEPT=alive; printf '\\033[2J\\033[HPTY_SHELL_READY\\n'",
     )?;
-    terminal.frame(|f| row(f, 8).contains("PTY_SHELL_READY"))?;
+    terminal
+        .frame(|f| row(f, 8).contains("PTY_SHELL_READY") && plain(f).contains("SHELL_READY> 2 "))?;
     assert!(pid_file(&owner.join("workspace/shell.pid"))? > 0);
     Ok(())
 }
@@ -106,7 +107,9 @@ fn quit_tool(terminal: &mut Terminal) -> Result<()> {
         .map_err(|e| format!("Escape from lazygit help: {e}"))?;
     terminal.send(b"q")?;
     terminal
-        .frame(|f| plain(f).contains("SHELL_READY>"))
+        // Leaving the alternate screen restores an old prompt before Bash has
+        // reaped the tool and prepared readline. Require the new generation.
+        .frame(|f| plain(f).contains("SHELL_READY> 3 "))
         .map_err(|e| format!("lazygit quit: {e}"))?;
     Ok(())
 }
@@ -114,7 +117,7 @@ fn recorder(owner: &Path, terminal: &mut Terminal, profile: &str) -> Result<()> 
     start_recorder(terminal)?;
     terminal.send(b"\x11\x07\x1b[<0;5;3M\x1b[<0;5;3m\x1b[<68;5;3M")?;
     copy(terminal, profile)?;
-    terminal.frame(|f| plain(f).contains("INPUT_ACK") && plain(f).contains("SHELL_READY>"))?;
+    terminal.frame(|f| plain(f).contains("INPUT_ACK") && main_prompt(f, 2))?;
     assert_eq!(
         fs::read(owner.join("workspace/input.bin"))?,
         b"\x07\x1b[<0;5;3M\x1b[<0;5;3m\x1b[200~paste\x1b[201~"
@@ -207,7 +210,7 @@ fn shell_state(owner: &Path, terminal: &mut Terminal) -> Result<()> {
 
 fn start_recorder(terminal: &mut Terminal) -> Result<()> {
     named(terminal, "terminal-new-buffer")?;
-    terminal.frame(|f| plain(f).contains("terminal-2") && plain(f).contains("SHELL_READY>"))?;
+    terminal.frame(|f| plain(f).contains("terminal-2") && main_prompt(f, 1))?;
     let payload = b"\x07\x1b[<0;5;3M\x1b[<0;5;3m\x1b[200~paste\x1b[201~";
     line(
         terminal,
@@ -256,6 +259,7 @@ fn tool_journey(root: &Path, binary: &Path, wrapper: &Path, profile: &str) -> Re
 }
 fn finish_tool(owner: &Path, terminal: &mut Terminal) -> Result<()> {
     reaped(pid_file(&owner.join("workspace/tool.pid"))?)?;
+    assert_eq!(fs::read_to_string(owner.join("workspace/tool.exit"))?, "0");
     line(terminal, "printf '%s' \"$KEPT\" >kept-state; exit 7")?;
     terminal.frame(|f| plain(f).contains("Exited (7)"))?;
     assert_eq!(
@@ -263,4 +267,11 @@ fn finish_tool(owner: &Path, terminal: &mut Terminal) -> Result<()> {
         "alive"
     );
     terminal.finish()
+}
+
+// The main terminal and lower panel can display different shell generations.
+// A ready prompt in the inactive panel cannot acknowledge the main child.
+fn main_prompt(frame: &str, generation: usize) -> bool {
+    let prompt = format!("SHELL_READY> {generation} ");
+    (1..=5).any(|number| row(frame, number).contains(&prompt))
 }

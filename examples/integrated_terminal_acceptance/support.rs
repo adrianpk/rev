@@ -114,7 +114,10 @@ pub(crate) fn repository(root: &Path, profile: &str) -> Result<PathBuf> {
     )?;
     fs::write(
         path.join("bashrc"),
-        "PS1='SHELL_READY> '\nHISTFILE=/dev/null\n",
+        r#"REV_FIXTURE_PROMPT=0
+PROMPT_COMMAND='REV_FIXTURE_PROMPT=$((REV_FIXTURE_PROMPT+1)); PS1="SHELL_READY> $REV_FIXTURE_PROMPT "'
+HISTFILE=/dev/null
+"#,
     )?;
     Ok(path)
 }
