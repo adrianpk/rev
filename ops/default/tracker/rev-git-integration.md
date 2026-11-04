@@ -7,7 +7,7 @@ Plan: [Native Git Integration Delivery](../plan/rev-git-integration.md)
 Spec: [Native Git Integration](../spec/editor-git-integration.md)
 Model: [Native Git Model](../spec/editor-git-integration-model.md)
 Approved: owner, 2026-11-04; complete fourteen-slice plan and autonomous Looper execution/integration through dev
-Active slice: Slice 1 - Repository context and native Status
+Active slice: Slice 2 - Changes hunks and source visits
 Progress owner: after startup, Looper checkpoint, canonical PRs and exact-candidate validation receipts
 
 ## Canonical slice map
@@ -33,23 +33,23 @@ Progress owner: after startup, Looper checkpoint, canonical PRs and exact-candid
 
 ## Slice 1: Repository context and native Status
 
-Status: reviewing
+Status: delivered
 Branch: `feat/rev-git-integration-01-status`
 Expected PR title: `feat(git): own repository context and native status`
 Report: `ops/default/report/slices/rev-git-integration/slice-1-status.md`
 Requirements: GIT01-GIT03, GIT16-GIT20
-PR: pending
+PR: `#258`
 
 - [x] T1.1: Resolve worktree/common directories, bare/unborn/detached state, exact path bytes and SHA-1/SHA-256 objects through installed Git; add the bounded native repository/process owner and the complete startup [git] catalog, sample and origins.
 - [x] T1.2: Open semantic Status with C-x g, M-x and modal colon, preserve full-canvas return context and existing source/terminal owners, and render explicit complete/truncated/unavailable groups with checked selection and pointer targets.
 - [x] T1.3: Expose native active/recent process inspection and checked cancellation; preserve owned work after q, integrate guarded application exit, and verify real repositories, missing Git, malformed output, stale publication and bounded cleanup.
 
-Validation: T1.1-T1.3 development checks pass: formatter, strict focused Clippy and 21 native Git tests. Shared development evidence includes 10 process tests, 10 command-reference tests, 11 configuration-reference tests, 41 window tests and 19 panel tests. The controller records final clean-HEAD validation after PR-reference follow-up.
-Integration: [PR #258](https://forge.adrianpk.com/adrianpk/rev/pulls/258) targets dev with the approved title and branch. T1.1-T1.3 are committed; merge remains pending under controller ownership.
+Validation: T1.1-T1.3 development checks pass: formatter, strict focused Clippy and 21 native Git tests. Shared development evidence includes 10 process tests, 10 command-reference tests, 11 configuration-reference tests, 41 window tests and 19 panel tests. Controller validation `ODY3HME22HUL3MRUW4F2VYWHPM` passed all 9 ordered checks for merged commit `2a6181a062428d91dd4192467b5cbb9735bed6d1`.
+Integration: [PR #258](https://forge.adrianpk.com/adrianpk/rev/pulls/258) merged through controller-owned Rebase + Fast-forward into dev at `2a6181a062428d91dd4192467b5cbb9735bed6d1`. Slice 1 of 14 completed.
 
 ## Slice 2: Changes hunks and source visits
 
-Status: pending
+Status: implementing
 Branch: `feat/rev-git-integration-02-diffs`
 Expected PR title: `feat(git): inspect exact diffs and visit native sources`
 Report: `ops/default/report/slices/rev-git-integration/slice-2-diffs.md`

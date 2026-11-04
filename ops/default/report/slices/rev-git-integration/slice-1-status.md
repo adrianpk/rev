@@ -1,11 +1,13 @@
 # Slice 1: Repository Context and Native Status
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-git-integration
 Plan: `ops/default/plan/rev-git-integration.md`
 Tracker: `ops/default/tracker/rev-git-integration.md`
 Branch: `feat/rev-git-integration-01-status`
 PR: `#258`
+Merged commit: `2a6181a062428d91dd4192467b5cbb9735bed6d1`
+Controller validation: `ODY3HME22HUL3MRUW4F2VYWHPM` (9 ordered checks passed for the merged commit)
 
 ## Purpose
 
