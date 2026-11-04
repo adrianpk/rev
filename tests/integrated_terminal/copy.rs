@@ -58,9 +58,7 @@ fn stable_copy() {
             .session
             .execute(Command::Terminal(TerminalCommand::MoveToPanel));
         assert_eq!(editor.session.terminal_copy_view().unwrap().point, point);
-        editor
-            .session
-            .handle(key(KeyCode::Char('z'), KeyModifiers::NONE));
+        editor.session.insert('z');
         assert!(
             editor.session.echo().contains("read-only"),
             "{}",
