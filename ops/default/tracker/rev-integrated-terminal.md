@@ -7,7 +7,7 @@ Plan: [Integrated Terminal Delivery](../plan/rev-integrated-terminal.md)
 Spec: [Integrated Terminal Sessions](../spec/editor-integrated-terminal.md)
 Model: [Integrated Terminal Model](../spec/editor-integrated-terminal-model.md)
 Approved: owner, 2026-11-03; explicit request to start the approved terminal delivery through Looper
-Active slice: Slice 2 - Lower panel and native commands
+Active slice: Slice 3 - Buffer placement and multiple sessions
 Progress owner: Looper checkpoint, canonical PRs and exact-candidate validation receipts
 
 ## Canonical slice map
@@ -54,7 +54,7 @@ local 5 ms startup/zero idle CPU-tick observations in the Slice 1 report.
 
 ## Slice 2: Lower panel and native commands
 
-Status: reviewing
+Status: delivered
 Branch: `feat/rev-integrated-terminal-02-panel`
 Expected PR title: `feat(terminal): open interactive shells in the lower panel`
 Report: `ops/default/report/slices/rev-integrated-terminal/slice-2-panel.md`
@@ -66,12 +66,12 @@ PR: `#249`
 
 Task evidence: T2.1 `47660f76771a` admits all seven startup preferences; T2.2 `c81964d0fa2f` wires native panel commands, cells, wake delivery and typed resource navigation. T2.3 `7d6e91c04df7` completes source admission, bounded cell projection, effective bindings, Unreleased and native fixtures.
 
-Validation: four focused native panel tests, two preference tests and focused source quality passed during development. Required receipt `BQ37AO7KJC5IK4Q63WR7DU7CIJ` on `bd5aec14c2a8c2450df9c40d4416e4982712a430` passed formatting and Clippy, then failed runtime cleanup at the former 100 ms observation bound; all 163 command and 153 configuration cases passed. The owner approved incident 2's first-party asynchronous cleanup correction on 2026-11-04. It replaces that scan cutoff with the planned 2 second close deadline, retains 500 ms grace, resource/FD assertions and owned job groups, and leaves dependencies and frozen checks unchanged. Pending/failed cleanup retains buffer identity and capacity; live commands have no runtime cap. Final runtime evidence belongs to the controller's exact-head required-command receipt.
-Integration: pending canonical PR and controller verification.
+Validation: controller receipt `L6AILPA6B5PXJKN455OFAC7EHO` passed the exact five required commands on `6d5d674655998a92e163be7be8248085f24bb287`, including 348 runtime cases. Focused source receipt `GOC2OMTOBVXWI2ONL5BCB7BVKL` passed sixteen files. Owner-approved async cleanup is recorded in `6b2995b519b7` and `6d5d67465599`.
+Integration: canonical PR #249 merged into dev at `6d5d674655998a92e163be7be8248085f24bb287`; Slice 2 of 8 completed.
 
 ## Slice 3: Buffer placement and multiple sessions
 
-Status: pending
+Status: active
 Branch: `feat/rev-integrated-terminal-03-placement`
 Expected PR title: `feat(terminal): move live sessions between panel and buffers`
 Report: `ops/default/report/slices/rev-integrated-terminal/slice-3-placement.md`

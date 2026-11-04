@@ -1,11 +1,12 @@
 # Slice 2: Lower Panel and Native Commands
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-integrated-terminal
 Plan: [Integrated Terminal Delivery](../../../plan/rev-integrated-terminal.md)
 Tracker: [Integrated Terminal Tracker](../../../tracker/rev-integrated-terminal.md)
 Branch: `feat/rev-integrated-terminal-02-panel`
 PR: `#249`
+Integration: controller-owned Rebase + Fast-forward into dev at `6d5d674655998a92e163be7be8248085f24bb287`
 
 ## Purpose
 
@@ -112,6 +113,12 @@ ordinary behavior after returning source focus.
 - `tests/integrated_terminal/panel.rs`: real-child native panel acceptance.
 
 ## Validation
+
+Final controller receipt `L6AILPA6B5PXJKN455OFAC7EHO` passed the exact five
+required commands on clean head `6d5d674655998a92e163be7be8248085f24bb287`: 348
+runtime cases, formatting, strict Clippy, documentation and whitespace. Focused
+receipt `GOC2OMTOBVXWI2ONL5BCB7BVKL` passed sixteen selected source files.
+Canonical PR #249 is merged at that exact commit; Slice 2 of 8 is delivered.
 
 Required validation attempt `BQ37AO7KJC5IK4Q63WR7DU7CIJ` on
 `bd5aec14c2a8c2450df9c40d4416e4982712a430` passed formatting and strict
