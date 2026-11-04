@@ -171,7 +171,7 @@ Status: active
 Branch: `feat/rev-integrated-terminal-07-acceptance`
 Expected PR title: `test(terminal): verify shells tools and bounded session resources`
 Report: `ops/default/report/slices/rev-integrated-terminal/slice-7-acceptance.md`
-PR: pending
+PR: [#254](https://forge.adrianpk.com/adrianpk/rev/pulls/254)
 
 - [x] T7.1: Add examples/integrated-terminal-acceptance.rs and scripts/check-integrated-terminal.sh using existing Rust/Linux PTY support and isolated fixtures; exercise real shells and installed lazygit in a disposable local repository without network or user Git state.
 - [x] T7.2: Verify both profiles, multiple sessions, panel/main-buffer movement, continued child state, alternate screen, focus/literal-next, mouse, copy/paste, protected source admission and complete host restoration through real terminal journeys.
@@ -188,7 +188,7 @@ The report records actual binary, CPU, RSS, queue, stream and FD/thread results
 and the explicit host-key transport boundary.
 
 Validation: focused commands passed; final exact-PR-HEAD configured checks remain pending.
-Integration: pending canonical PR and controller verification.
+Integration: canonical PR #254 targets dev; final validation and controller integration pending.
 
 ## Slice 8: User guidance and joint integration
 
