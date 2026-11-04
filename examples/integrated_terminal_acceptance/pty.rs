@@ -169,14 +169,7 @@ fn switch(terminal: &mut Terminal, name: &str) -> Result<()> {
 }
 fn close_first(owner: &Path, terminal: &mut Terminal) -> Result<()> {
     switch(terminal, "terminal")?;
-    line(terminal, "printf '%s' \"$KEPT\" >kept-state")?;
-    terminal
-        .frame(|f| {
-            plain(f).contains("SHELL_READY>")
-                && fs::read_to_string(owner.join("workspace/kept-state"))
-                    .is_ok_and(|text| text == "alive")
-        })
-        .map_err(|e| format!("shell state acknowledgement: {e}"))?;
+    shell_state(owner, terminal)?;
     terminal.send(b"\x18k")?;
     terminal
         .frame(|f| plain(f).contains("Kill buffer:"))
@@ -189,6 +182,18 @@ fn close_first(owner: &Path, terminal: &mut Terminal) -> Result<()> {
     terminal
         .frame(|f| plain(f).contains("Buffer closed"))
         .map_err(|e| format!("closed receipt: {e}"))?;
+    Ok(())
+}
+
+fn shell_state(owner: &Path, terminal: &mut Terminal) -> Result<()> {
+    line(terminal, "printf '%s' \"$KEPT\" >kept-state")?;
+    terminal
+        .frame(|f| {
+            plain(f).contains("SHELL_READY>")
+                && fs::read_to_string(owner.join("workspace/kept-state"))
+                    .is_ok_and(|text| text == "alive")
+        })
+        .map_err(|e| format!("shell state acknowledgement: {e}"))?;
     Ok(())
 }
 
