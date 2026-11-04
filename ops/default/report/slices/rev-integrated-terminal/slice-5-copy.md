@@ -1,11 +1,11 @@
 # Slice 5: Retained Output and Transfer
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-integrated-terminal
 Plan: [Integrated Terminal Delivery](../../../plan/rev-integrated-terminal.md)
 Tracker: [Integrated Terminal Tracker](../../../tracker/rev-integrated-terminal.md)
 Branch: `feat/rev-integrated-terminal-05-copy`
-PR: [#252](https://forge.adrianpk.com/adrianpk/rev/pulls/252)
+PR: `#252`
 
 ## Purpose
 
@@ -165,8 +165,10 @@ named/pointer link activation, 64 KiB copy-link admission exhaustion, earlier
 link preservation, genuine error locations and invalid/missing file/row/column
 source retention. The prior resource/FD assertions remain unchanged.
 
-The controller retains the exact final PR-head receipt after its reference
-follow-up commit. Its required ordered commands are:
+Controller receipt `DA64MDHVV5YRRY3SUYKXH3JKAZ` passed all five ordered checks
+on exact final head `fa2ca69da2384e4f45257ce449dfb3d35ccb8100`, including
+38 terminal, 42 rectangle and 30 search tests. Canonical PR #252 merged at that
+same head; local dev and origin/dev matched it. The successful ordered list is:
 
 - `cargo fmt --all -- --check`
 - `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo clippy --locked --all-targets -- -D warnings`
@@ -179,4 +181,4 @@ follow-up commit. Its required ordered commands are:
 Yank-pop replacement ends when input leaves the owned queue; it does not erase
 arbitrary child state. Prompt and link navigation report missing admitted
 evidence. Error locations use the creation context and represented source
-coordinates. Canonical integration remains controller-owned.
+coordinates. Canonical PR #252 is integrated; lifecycle delivery continues in Slice 6.

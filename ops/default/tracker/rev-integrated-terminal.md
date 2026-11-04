@@ -7,7 +7,7 @@ Plan: [Integrated Terminal Delivery](../plan/rev-integrated-terminal.md)
 Spec: [Integrated Terminal Sessions](../spec/editor-integrated-terminal.md)
 Model: [Integrated Terminal Model](../spec/editor-integrated-terminal-model.md)
 Approved: owner, 2026-11-03; explicit request to start the approved terminal delivery through Looper
-Active slice: Slice 5 - Retained output and transfer
+Active slice: Slice 6 - Session lifecycle and failure containment
 Progress owner: Looper checkpoint, canonical PRs and exact-candidate validation receipts
 
 ## Canonical slice map
@@ -108,11 +108,11 @@ Integration: canonical PR #251 merged into dev at `ef59e61d3a152d52faf23e8e05288
 
 ## Slice 5: Retained output and transfer
 
-Status: reviewing
+Status: delivered
 Branch: `feat/rev-integrated-terminal-05-copy`
 Expected PR title: `feat(terminal): navigate and copy retained terminal output`
 Report: `ops/default/report/slices/rev-integrated-terminal/slice-5-copy.md`
-PR: [#252](https://forge.adrianpk.com/adrianpk/rev/pulls/252)
+PR: `#252`
 
 - [x] T5.1: Provide bounded scrollback, stable per-view copy mode, selection/search, copy with retained viewport, tail-follow suspension/resumption and the specified Return/C-g exits while output continues.
 - [x] T5.2: Implement native terminal yank/yank-pop with checked replaceability and bracketed paste, separate clear-screen/clear-scrollback operations, line/cursor navigation and explicit send/undo operations.
@@ -122,25 +122,25 @@ T5.1 is complete. Receipt `NBFYD5DMKMI6RM4NRLBO7KFQLI` passed all 21 panel
 PTY tests and sixteen source files at `976b0dcb5ade370b536dbfb22a7b8a7b6e3fa6b4`.
 T5.2/T5.3 implementation and focused evidence are recorded below and in the report.
 
-Validation: the controller records the final exact-PR receipt with the ordered Slice 5 commands from the frozen configuration; focused task receipts are recorded below.
-Integration: canonical PR #252 is open against dev; controller verification is pending.
+Validation: controller receipt `DA64MDHVV5YRRY3SUYKXH3JKAZ` passed all five ordered Slice 5 commands on `fa2ca69da2384e4f45257ce449dfb3d35ccb8100`, including 110 runtime tests and both 474-command inventories.
+Integration: canonical PR #252 merged into dev at `fa2ca69da2384e4f45257ce449dfb3d35ccb8100`; Slice 5 of 8 completed.
 
 T5.2 evidence: implementation `61a16c018292` and cursor-owner refactor
 `cc1a07055a1f`; queue fixture correction `a892e8e60ad6`; checked policy/catalog
 `a5daf0519d9f`. Receipt `MCZY75A524KKYSJWPA7Z35TKP4` passed 34 real-PTY tests,
 twelve source-quality files, both 470-command documentation inventories and diff
-checking on the exact clean T5.2 head. Final Slice 5 validation follows the PR-reference commit.
+checking on the exact clean T5.2 head. Final validation is recorded above.
 
 T5.3 evidence: `e37ec1eef7d0` and `1b394b3eb6b2` implement bounded actual
 prompt reports, frozen URI targets and checked compiler-location visits. The
 printf-data correction `77416996db98` preserves the exact URI assertion. Receipt
 `CMCFOMPGVG7Z2XCBTMMBJSNSU6` passed prompt and evidence/capacity tests on
 `c9fbc6df3c1c674a3e3261147485547de20cca9b`; both documentation inventories now
-contain all 474 commands. Final exact-PR validation is retained by the controller.
+contain all 474 commands. Final exact-PR validation passed as recorded above.
 
 ## Slice 6: Session lifecycle and failure containment
 
-Status: pending
+Status: active
 Branch: `feat/rev-integrated-terminal-06-lifecycle`
 Expected PR title: `feat(terminal): preserve sessions and confirm owned shutdown`
 Report: `ops/default/report/slices/rev-integrated-terminal/slice-6-lifecycle.md`
