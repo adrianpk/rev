@@ -5,7 +5,7 @@ Delivery set: rev-git-integration
 Plan: `ops/default/plan/rev-git-integration.md`
 Tracker: `ops/default/tracker/rev-git-integration.md`
 Branch: `feat/rev-git-integration-05-history`
-PR: pending
+PR: `#262`
 
 ## Purpose
 
@@ -169,7 +169,20 @@ Development checks for T5.3:
 - `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo clippy --locked --lib --bin rev --test git_integration -- -D warnings` passed.
 - `git diff --check` passed.
 
-Final exact-HEAD controller validation follows the canonical PR-reference commit.
+Final ordered contract, executed through the controller after this reference
+follow-up commit:
+
+- `cargo fmt --all -- --check`
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo clippy --locked --lib --bin rev --test git_integration -- -D warnings`
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test git_integration history:: -- --test-threads=1`
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test git_integration -- --skip history:: --test-threads=1`
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test commands --test configuration reference -- --test-threads=1`
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo run --locked --quiet --example documentation-check`
+- `git diff --check`
+
+The [canonical PR #262](https://forge.adrianpk.com/adrianpk/rev/pulls/262)
+Validation list and controller receipt provide the exact clean-HEAD results.
+
 
 
 ## Risks and Follow-ups

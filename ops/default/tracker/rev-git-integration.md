@@ -102,14 +102,14 @@ Branch: `feat/rev-git-integration-05-history`
 Expected PR title: `feat(git): browse history ranges reflog and blame`
 Report: `ops/default/report/slices/rev-git-integration/slice-5-history.md`
 Requirements: GIT07, GIT13, GIT17-GIT18
-PR: pending
+PR: `#262`
 
 - [x] T5.1: Browse finite ancestry pages, exact revisions and parent comparisons; keep selection and explicit ancestry continuation across refresh.
 - [x] T5.2: Implement exact ordered ranges, separate range-base and ordered revision marks, read-only reflog and blame inspection, and canonical source/revision visits.
 - [x] T5.3: Verify detached/unborn/merge history, paging limits, full object identities, historical file renames, line attribution and no checkout or source modification during inspection.
 
 Validation: T5.1 development checks passed six history tests, 21 command/configuration reference tests, strict focused Clippy, documentation and whitespace. T5.2 adds five passed real-Git/native inspection cases, strict Clippy and updated documentation checks. T5.3 adds four passed limit/failure cases, a fresh byte-bound case and both-profile SHA-256 range labels. Final exact-HEAD controller validation follows the PR-reference commit.
-Integration: T5.1 is recorded in the task commit that introduces the Slice 5 report. T5.2-T5.3 are implemented on the approved branch; canonical PR preparation and final exact-HEAD validation are next.
+Integration: [PR #262](https://forge.adrianpk.com/adrianpk/rev/pulls/262) is open against dev on the approved branch. The existing report links the ordered final validation contract. Controller-owned integration is pending.
 
 ## Slice 6: Branches and both tag kinds
 
