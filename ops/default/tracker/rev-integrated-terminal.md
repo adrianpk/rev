@@ -7,7 +7,7 @@ Plan: [Integrated Terminal Delivery](../plan/rev-integrated-terminal.md)
 Spec: [Integrated Terminal Sessions](../spec/editor-integrated-terminal.md)
 Model: [Integrated Terminal Model](../spec/editor-integrated-terminal-model.md)
 Approved: owner, 2026-11-03; explicit request to start the approved terminal delivery through Looper
-Active slice: Slice 3 - Buffer placement and multiple sessions
+Active slice: Slice 4 - Live terminal interaction
 Progress owner: Looper checkpoint, canonical PRs and exact-candidate validation receipts
 
 ## Canonical slice map
@@ -71,7 +71,7 @@ Integration: canonical PR #249 merged into dev at `6d5d674655998a92e163be7be8248
 
 ## Slice 3: Buffer placement and multiple sessions
 
-Status: reviewing
+Status: delivered
 Branch: `feat/rev-integrated-terminal-03-placement`
 Expected PR title: `feat(terminal): move live sessions between panel and buffers`
 Report: `ops/default/report/slices/rev-integrated-terminal/slice-3-placement.md`
@@ -83,12 +83,12 @@ PR: `#250`
 
 Task evidence: T3.1 `e039a166383d`; T3.2 `5b3c81588ab0`; T3.3 `c861096dfe81` with correction `6a4f108e2343` completes checked native pane focus, per-attachment viewport state, directory entry and other-pane candidates.
 
-Validation: clean-head focused receipt `P2LCRJX3SCAVQOTP7KRQVZESLI` passed nine real-child panel scenarios and fifteen selected source files on `6a4f108e2343333e8e087cd2d52d216b5ab738ba`. Final acceptance uses the exact ordered Slice 3 command list and clean-head controller receipt; complete live input and stable copy projections remain in later slices.
-Integration: pending canonical PR and controller verification.
+Validation: controller receipt `TTW6SAT24SJSO2KXS5M5RYX2RB` passed the five ordered Slice 3 commands on `d82d9e36628b601efc16cb0ab5e1ca6c9ebfa532`, including 84 runtime cases. Focused receipt `XHWCORNSXMVYXK35HLTMM4SXKM` passed fifteen source files on the same head.
+Integration: canonical PR #250 merged into dev at `d82d9e36628b601efc16cb0ab5e1ca6c9ebfa532`; Slice 3 of 8 completed.
 
 ## Slice 4: Live terminal interaction
 
-Status: pending
+Status: active
 Branch: `feat/rev-integrated-terminal-04-interaction`
 Expected PR title: `feat(terminal): route native input and render interactive tools`
 Report: `ops/default/report/slices/rev-integrated-terminal/slice-4-interaction.md`

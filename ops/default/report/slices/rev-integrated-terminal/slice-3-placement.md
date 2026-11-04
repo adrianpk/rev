@@ -1,6 +1,6 @@
 # Slice 3: Buffer Placement and Multiple Sessions
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-integrated-terminal
 Plan: [Integrated Terminal Delivery](../../../plan/rev-integrated-terminal.md)
 Tracker: [Integrated Terminal Tracker](../../../tracker/rev-integrated-terminal.md)
@@ -87,9 +87,12 @@ entry. Final fixtures additionally require child cwd changes to survive moves
 and other-pane geometry failures to retain the original layout.
 Focused clean-head receipt `P2LCRJX3SCAVQOTP7KRQVZESLI` passed all nine panel
 cases and fifteen selected source files on `6a4f108e2343333e8e087cd2d52d216b5ab738ba`.
-Final exact-head evidence belongs to the controller's ordered Slice 3 receipt after
-this PR-reference follow-up. Its identity stays outside the report to preserve
-the final clean candidate.
+Final controller receipt `TTW6SAT24SJSO2KXS5M5RYX2RB` passed the five ordered
+Slice 3 commands on `d82d9e36628b601efc16cb0ab5e1ca6c9ebfa532`: formatting,
+strict all-target Clippy, 84 runtime cases, documentation checks and
+`git diff --check`. Focused receipt `XHWCORNSXMVYXK35HLTMM4SXKM` passed
+fifteen source files on that same head. Canonical PR #250 merged at that
+candidate; Slice 3 of 8 completed.
 Focused attempt `ZMPDHASBYTLDAGM3I6A5UU6YVO` found a compile error after
 extracting inventory clipping. The helper now returns its coordinate error;
 the existing caller performs the view-error conversion without behavior changes.
