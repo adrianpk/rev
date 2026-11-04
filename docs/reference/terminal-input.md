@@ -5,6 +5,9 @@ the byte reports below; native event checks cover explicit modifier and key-phas
 reports. A physical chord works when the terminal and any multiplexer deliver a
 distinguishable supported report.
 
+Live integrated terminals apply their [child/host input ownership](integrated-terminal.md#live-input-and-mouse)
+before source bindings; an isolated Escape belongs to the child.
+
 ## Meta and Escape
 
 In modal editing, a decoded Escape or its C-[ alias returns to Normal immediately,

@@ -14,6 +14,7 @@ session, start with the [User Guide](../tutorials/user-guide/index.md).
 - [Register grammar assets](register-grammar.md): admit precompiled syntax and completion queries for an explicit language.
 - [Recover edits](recover-edits.md): resolve file, save and tree errors while retaining live text.
 
+- [Use integrated terminals](use-integrated-terminal.md): open shells, move live tools, copy output and close owned jobs.
 - [Run a shell command or text filter](run-shell-command.md): process selected unsaved text, insert output and inspect failures.
 
 ## Org mode

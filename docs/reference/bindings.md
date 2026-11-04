@@ -530,6 +530,9 @@ Switching buffers or publishing a source revision retires Visual authority.
 Pointer drag replaces the shared anchor while retaining the active shape;
 folding, wrapping and resize affect projection without making a separate range.
 
+For live terminal key ownership and copy controls, see the
+[integrated terminal reference](integrated-terminal.md#live-input-and-mouse).
+
 ## Configuration keymap contracts
 
 The [complete reference sample](config.toml) spells out every default target in

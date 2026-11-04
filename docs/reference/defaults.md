@@ -71,6 +71,9 @@ Arguments remain structured values; no command string or implicit `-c` is added.
 | `terminal.max_pending_input_bytes` | Integer 4096..=1048576 | `262144` | Complete input sequences are accepted atomically into this bound. |
 | `terminal.max_pending_output_bytes` | Integer 4096..=1048576 | `262144` | Maximum pre-parser output; direct bounded reads apply PTY backpressure without an accumulating output queue. |
 
+The [terminal reference](integrated-terminal.md#startup-settings) explains these
+startup fields, live-session admission and the separate shell-filter settings.
+
 ## Startup configuration
 
 The [complete English reference sample](config.toml) contains every supported
