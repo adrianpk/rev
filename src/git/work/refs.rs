@@ -50,6 +50,22 @@ impl Runner {
         admission: &mut Lease,
     ) -> Result<Refs, String> {
         let before = self.ref_head(observation.identity.format)?;
+        let compatible = match observation.status.as_ref().map(|s| &s.head) {
+            Some(Head::Branch { name, object }) => {
+                before.0.strip_prefix(b"refs/heads/") == Some(name.as_slice())
+                    && before.1 == Some(*object)
+            }
+            Some(Head::Unborn { branch }) => {
+                before.0.strip_prefix(b"refs/heads/") == Some(branch.as_slice())
+                    && before.1.is_none()
+            }
+            Some(Head::Detached { object }) => before.0.is_empty() && before.1 == Some(*object),
+            None => true,
+        };
+        if !compatible {
+            return Err("HEAD changed between Status and Refs; refresh required".into());
+        }
+
         let count = format!("--count={}", self.policy.max_refs + 1);
         let bytes=self.command(&["for-each-ref", "--sort=refname", &count,
             "--format=%(refname)%00%(objectname)%00%(objecttype)%00%(symref)%00%(*objectname)%00%(*objecttype)%00%(upstream)%00%(upstream:track)%00",

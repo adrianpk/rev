@@ -397,6 +397,7 @@ impl Session {
         if let Err(e) = self.input.decision("Confirm local branch action? [y/n]") {
             return self.error(&e.to_string());
         }
+        self.git.painted = None;
         self.pending = Some(Pending::GitBranch(Box::new(Consent {
             refs: prompt.refs,
             action,

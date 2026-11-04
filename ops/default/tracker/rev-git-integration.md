@@ -124,7 +124,7 @@ PR: pending
 - [ ] T6.2: Implement t/git-tag-create with lightweight default and annotated message composition; retain distinct tag-object/peeled-target identities, Git metadata/signing and checked local tag deletion.
 - [ ] T6.3: Verify current/unmerged branch protection, modified source admission, stale confirmation, both tag kinds, existing-name failure and conflicting signing policy without implicit publication or policy overrides.
 
-Validation: T6.1 development formatter, strict focused Clippy, all six refs tests and 21 reference tests pass. Both native profiles additionally verify full SHA-256 review and scroll controls. Documentation checks 508 commands and 267 configuration entries. T6.2-T6.3 and final controller validation remain pending.
+Validation: T6.1 development formatter, strict focused Clippy, all seven refs tests and 21 reference tests pass. Both native profiles additionally verify full SHA-256 review and scroll controls. A real checkout interleaving reproduced and now rejects incompatible Status/Refs HEAD publication. Documentation checks 508 commands and 267 configuration entries. T6.2-T6.3 and final controller validation remain pending.
 Integration: pending; no commit or PR is claimed.
 
 ## Slice 7: Separate fetch and reviewed push

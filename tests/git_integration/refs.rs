@@ -250,3 +250,46 @@ fn ref_limits_and_heads() {
 
 #[path = "refs_presentation.rs"]
 mod presentation;
+
+// A real external checkout between the Status HEAD check and ref collection
+// cannot publish a ref set under the preceding, incompatible Status owner.
+#[test]
+fn head_between_reads() {
+    use std::os::unix::fs::PermissionsExt;
+    let repository = Repository::new("sha1");
+    repository.commit();
+    repository.git(["branch", "other"]);
+    fs::write(
+        &repository.program,
+        r#"#!/bin/sh
+export GIT_CONFIG_NOSYSTEM=1 GIT_CONFIG_GLOBAL=/dev/null
+if [ "$2" = symbolic-ref ]; then
+    count=0
+    if [ -f "$0.state" ]; then read -r count < "$0.state"; fi
+    count=$((count + 1))
+    printf '%s\n' "$count" > "$0.state"
+    if [ "$count" = 3 ]; then /usr/bin/git switch --quiet other || exit 91; fi
+fi
+exec /usr/bin/git "$@"
+"#,
+    )
+    .unwrap();
+    fs::set_permissions(&repository.program, fs::Permissions::from_mode(0o700)).unwrap();
+    let mut owner = repository.owner("");
+    let update = repository.open(&mut owner, &repository.root);
+    let context = update.context.unwrap();
+    let id = owner.refs(context).unwrap();
+    let update = finish(&mut owner);
+    assert!(
+        !update.published,
+        "incompatible refs published: {:?}",
+        owner.context(context).unwrap().refs
+    );
+    let record = owner.record(id).unwrap();
+    assert_eq!(record.effects, Effects::NotStarted);
+    assert_eq!(record.outcome, Outcome::Failed);
+    assert_eq!(
+        repository.git(["symbolic-ref", "HEAD"]),
+        b"refs/heads/other\n"
+    );
+}

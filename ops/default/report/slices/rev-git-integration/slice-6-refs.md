@@ -97,6 +97,18 @@ Successful development commands:
 - `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo run --locked --quiet --example documentation-check` passed: 508 commands, 267 configuration entries, 76 reachable pages and 485 links.
 - `git diff --check`
 
+A focused interleaving fixture then reproduced a HEAD move after the Status
+HEAD check but before ref collection: the old implementation published Status
+for main together with Refs for other. Ref collection now checks both the full
+HEAD ref and object against its Status owner before admission, in addition to
+the existing before/after ref-read check. The fixture performs a real checkout
+through isolated installed Git and retains the unchanged five-second wait.
+Native branch review also invalidates the preceding painted list so that its
+coordinates cannot authorize selection after confirmation closes.
+The complete focused refs selection passed all seven cases in 29.52 seconds
+after the HEAD compatibility correction. Strict focused Clippy passed again.
+No assertion, deadline or resource limit was weakened.
+
 ## Risks and Follow-ups
 
 T6.2 tag creation/deletion and T6.3 acceptance remain pending. Combined native
