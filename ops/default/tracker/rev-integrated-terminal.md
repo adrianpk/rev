@@ -112,7 +112,7 @@ Status: reviewing
 Branch: `feat/rev-integrated-terminal-05-copy`
 Expected PR title: `feat(terminal): navigate and copy retained terminal output`
 Report: `ops/default/report/slices/rev-integrated-terminal/slice-5-copy.md`
-PR: pending
+PR: [#252](https://forge.adrianpk.com/adrianpk/rev/pulls/252)
 
 - [x] T5.1: Provide bounded scrollback, stable per-view copy mode, selection/search, copy with retained viewport, tail-follow suspension/resumption and the specified Return/C-g exits while output continues.
 - [x] T5.2: Implement native terminal yank/yank-pop with checked replaceability and bracketed paste, separate clear-screen/clear-scrollback operations, line/cursor navigation and explicit send/undo operations.
@@ -123,7 +123,7 @@ PTY tests and sixteen source files at `976b0dcb5ade370b536dbfb22a7b8a7b6e3fa6b4`
 T5.2/T5.3 implementation and focused evidence are recorded below and in the report.
 
 Validation: pending; use the exact ordered Slice 5 commands from the plan and frozen controller configuration.
-Integration: pending canonical PR and controller verification.
+Integration: canonical PR #252 is open against dev; controller verification is pending.
 
 T5.2 evidence: implementation `61a16c018292` and cursor-owner refactor
 `cc1a07055a1f`; queue fixture correction `a892e8e60ad6`; checked policy/catalog
