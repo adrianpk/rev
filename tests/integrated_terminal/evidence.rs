@@ -109,6 +109,23 @@ while :; do sleep 60; done
     assert!(editor.session.terminal_focused());
     assert_eq!(editor.session.buffer().unwrap().stamp(), source);
     assert!(!editor.fixture.0.join("source/missing.rs").exists());
+    for location in [
+        "document.org:99:1: error: row",
+        "document.org:1:999: error: column",
+    ] {
+        let script =
+            format!("stty raw -echo\nprintf '{location}\\r\\nREADY'\nwhile :; do sleep 60; done\n");
+        let mut invalid = Editor::with_script("modal", 24, "", &script);
+        let source = invalid.session.buffer().unwrap().stamp();
+        let point = invalid.session.windows().selected().point;
+        command(&mut invalid, TerminalCommand::Open);
+        invalid.wait(|s| text(s).contains("READY"));
+        command(&mut invalid, TerminalCommand::NextError);
+        assert!(!invalid.session.echo().contains("location opened"));
+        assert!(invalid.session.terminal_focused());
+        assert_eq!(invalid.session.buffer().unwrap().stamp(), source);
+        assert_eq!(invalid.session.windows().selected().point, point);
+    }
 }
 
 fn viewer_complete(editor: &mut Editor) {
@@ -129,6 +146,10 @@ fn retained_links() {
     if isolated("panel::evidence::retained_links", false) {
         return;
     }
+    retained_link_case();
+    link_capacity_case();
+}
+fn retained_link_case() {
     let uri = "https://example.invalid/$((1+2))?q=a%20b";
     let script = format!(
         "stty raw -echo\nprintf '%b' '\\033]8;;{uri}\\033\\\\CLICK\\033]8;;\\033\\\\\\r\\n\\033]8;;javascript:bad\\033\\\\REJECT\\033]8;;\\033\\\\READY'\nwhile [ ! -f burst ]; do sleep 0.01; done\nprintf '\\033[2J\\033[H\\033]8;;https://new.invalid\\033\\\\CHANGED\\033]8;;\\033\\\\'\nwhile :; do sleep 60; done\n"
@@ -179,5 +200,61 @@ fn retained_links() {
     editor.session.execute(Command::Motion(Motion::BufferEnd));
     command(&mut editor, TerminalCommand::OpenLink);
     assert!(editor.session.echo().contains("No retained hyperlink"));
+    assert_eq!(editor.session.buffer().unwrap().stamp(), source);
+}
+
+// Copy link capacity exhaustion declines only missing evidence. An earlier
+// admitted target remains usable and the live cell still carries the late URI.
+fn link_capacity_case() {
+    let prefix = format!("https://example.invalid/{}", "x".repeat(1024));
+    let payload: String = (0..40)
+        .map(|index| format!("\\033]8;;{prefix}/{index}\\033\\\\X\\033]8;;\\033\\\\ "))
+        .collect();
+    let script =
+        format!("stty raw -echo\nprintf '%b' '{payload}READY'\nwhile :; do sleep 60; done\n");
+    let mut editor = Editor::with_script(
+        "modal",
+        24,
+        "[org.tools]\nviewer=['/bin/sh','../viewer.sh','{target}']",
+        &script,
+    );
+    editor
+        .fixture
+        .write("viewer.sh", "printf '%s' \"$1\" >called\n");
+    command(&mut editor, TerminalCommand::Open);
+    editor.wait(|s| text(s).contains("READY"));
+    let source = editor.session.buffer().unwrap().stamp();
+    let session = editor
+        .session
+        .terminals()
+        .get(editor.session.terminals().ids().next().unwrap())
+        .unwrap();
+    let point = alacritty_terminal::index::Point::new(
+        alacritty_terminal::index::Line(0),
+        alacritty_terminal::index::Column(78),
+    );
+    assert_eq!(
+        session.screen().grid()[point].hyperlink().unwrap().uri(),
+        format!("{prefix}/39")
+    );
+    command(&mut editor, TerminalCommand::CopyMode);
+    editor.session.execute(Command::Motion(Motion::BufferStart));
+    for _ in 0..78 {
+        editor.session.execute(Command::Motion(Motion::ForwardChar));
+    }
+    command(&mut editor, TerminalCommand::OpenLink);
+    assert!(
+        editor.session.echo().contains("No retained hyperlink"),
+        "{}",
+        editor.session.echo()
+    );
+    assert!(!editor.fixture.0.join("source/called").exists());
+    editor.session.execute(Command::Motion(Motion::BufferStart));
+    command(&mut editor, TerminalCommand::OpenLink);
+    viewer_complete(&mut editor);
+    assert_eq!(
+        std::fs::read_to_string(editor.fixture.0.join("source/called")).unwrap(),
+        format!("{prefix}/0")
+    );
     assert_eq!(editor.session.buffer().unwrap().stamp(), source);
 }

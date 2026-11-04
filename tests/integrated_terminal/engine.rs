@@ -168,4 +168,17 @@ while :; do sleep 60; done
         0
     );
     terminal.close();
+    let script = r#"stty raw -echo
+i=0; while [ $i -lt 1200 ]; do printf '\033]133;A\007.'; i=$((i+1)); done
+printf READY
+while :; do sleep 60; done
+"#;
+    let mut terminal = Terminal::new(script, Limits::default());
+    terminal.wait(|s| text(s).contains("READY"));
+    let session = terminal.sessions.get(terminal.id).unwrap();
+    assert_eq!(session.prompts().count(), 1024);
+    for point in session.prompts() {
+        assert_eq!(session.screen().grid()[point].c, '.');
+    }
+    terminal.close();
 }
