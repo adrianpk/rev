@@ -5,7 +5,7 @@ Delivery set: rev-integrated-terminal
 Plan: [Integrated Terminal Delivery](../../../plan/rev-integrated-terminal.md)
 Tracker: [Integrated Terminal Tracker](../../../tracker/rev-integrated-terminal.md)
 Branch: `feat/rev-integrated-terminal-03-placement`
-PR: pending
+PR: `#250`
 
 ## Purpose
 
@@ -70,6 +70,9 @@ session/emulator and retain their own ordinary view state.
 - `src/display/terminal.rs`: clipped structured cell ranges.
 - `tests/integrated_terminal/panel.rs`: real-child native placement fixtures.
 
+Task commits: T3.1 `e039a166383d`; T3.2 `5b3c81588ab0`; T3.3 `c861096dfe81`,
+with inventory error-boundary correction `6a4f108e2343`.
+
 ## Validation
 
 Development command
@@ -82,7 +85,11 @@ Pane scenarios cover shared child identity, separate visible history offsets,
 focus-owned geometry, tiny-screen rejection/recovery and directory/other-pane
 entry. Final fixtures additionally require child cwd changes to survive moves
 and other-pane geometry failures to retain the original layout.
-Final exact-head evidence belongs to the controller's ordered Slice 3 receipt.
+Focused clean-head receipt `P2LCRJX3SCAVQOTP7KRQVZESLI` passed all nine panel
+cases and fifteen selected source files on `6a4f108e2343333e8e087cd2d52d216b5ab738ba`.
+Final exact-head evidence belongs to the controller's ordered Slice 3 receipt after
+this PR-reference follow-up. Its identity stays outside the report to preserve
+the final clean candidate.
 Focused attempt `ZMPDHASBYTLDAGM3I6A5UU6YVO` found a compile error after
 extracting inventory clipping. The helper now returns its coordinate error;
 the existing caller performs the view-error conversion without behavior changes.

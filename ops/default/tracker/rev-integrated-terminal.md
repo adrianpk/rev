@@ -71,19 +71,19 @@ Integration: canonical PR #249 merged into dev at `6d5d674655998a92e163be7be8248
 
 ## Slice 3: Buffer placement and multiple sessions
 
-Status: active
+Status: reviewing
 Branch: `feat/rev-integrated-terminal-03-placement`
 Expected PR title: `feat(terminal): move live sessions between panel and buffers`
 Report: `ops/default/report/slices/rev-integrated-terminal/slice-3-placement.md`
-PR: pending
+PR: `#250`
 
 - [x] T3.1: Implement direct terminal-new-buffer and bidirectional move commands; retain process/emulator/buffer identity, working directory, alternate-screen state and output, with atomic geometry failure.
 - [x] T3.2: Create multiple sessions only on explicit invocation; implement independent names, selection/list/rename and one selected lower-panel session, retaining hidden sessions and the instance-global default.
 - [x] T3.3: Support ordinary pane views with one resize authority and independent copy/viewport state, checked focus changes, tiny-screen recovery, cwd entry commands and other-pane selection; verify no duplicate child on move/toggle.
 
-Task evidence: T3.1 `e039a166383d`; T3.2 `5b3c81588ab0`; T3.3 completes checked native pane focus, per-attachment viewport state, directory entry and other-pane candidates.
+Task evidence: T3.1 `e039a166383d`; T3.2 `5b3c81588ab0`; T3.3 `c861096dfe81` with correction `6a4f108e2343` completes checked native pane focus, per-attachment viewport state, directory entry and other-pane candidates.
 
-Validation: nine focused real-child panel scenarios passed during development. Final acceptance uses the exact ordered Slice 3 command list and clean-head controller receipt; complete live input and stable copy projections remain in later slices.
+Validation: clean-head focused receipt `P2LCRJX3SCAVQOTP7KRQVZESLI` passed nine real-child panel scenarios and fifteen selected source files on `6a4f108e2343333e8e087cd2d52d216b5ab738ba`. Final acceptance uses the exact ordered Slice 3 command list and clean-head controller receipt; complete live input and stable copy projections remain in later slices.
 Integration: pending canonical PR and controller verification.
 
 ## Slice 4: Live terminal interaction
