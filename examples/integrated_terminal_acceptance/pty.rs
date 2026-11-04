@@ -44,7 +44,7 @@ fn journey(root: &Path, binary: &Path, wrapper: &Path, profile: &str) -> Result<
     Ok(())
 }
 fn named(terminal: &mut Terminal, name: &str) -> Result<()> {
-    terminal.send(b"\x1bx")?;
+    terminal.send(b"\x1b[120;3u")?;
     terminal.frame(|f| (1..=24).any(|number| row(f, number).starts_with("M-x ")))?;
     terminal.send(format!("\x1b[200~{name}\x1b[201~\r").as_bytes())
 }
