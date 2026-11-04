@@ -14,10 +14,27 @@ use std::ops::Range;
 
 impl State {
     pub fn operator(&self, request: Editing, size: Size) -> Result<(Span, Shape), String> {
-        let (range, shape) = self
-            .operator_range(request, size)
-            .map_err(|e| e.to_string())?;
+        let (range, shape) = match request.operand {
+            Some(Operand::Motion(target)) if matches!(target.target, Target::Search(_)) => {
+                let Target::Search(search) = target.target else {
+                    unreachable!("search target")
+                };
+                self.search_range(search, target.amount())?
+            }
+            _ => self
+                .operator_range(request, size)
+                .map_err(|e| e.to_string())?,
+        };
         Ok((self.buffer.span(range).map_err(|e| e.to_string())?, shape))
+    }
+    fn search_range(
+        &self,
+        search: crate::command::navigation::Search,
+        count: usize,
+    ) -> Result<(Range<usize>, Shape), String> {
+        let target = self.search_destination(search, count)?;
+        let point = self.view.point.position;
+        Ok((point.0.min(target.0)..point.0.max(target.0), Shape::Linear))
     }
     fn operator_range(&self, request: Editing, size: Size) -> Result<(Range<usize>, Shape), Error> {
         let operand = request.operand.or_else(|| end_operand(request));
@@ -104,6 +121,9 @@ use super::{Action as HostAction, Key, Session};
 
 impl Session {
     pub(super) fn edit_terminal_copy(&mut self, key: Key, request: Editing) -> HostAction {
+        if request.action.selects() {
+            return self.select_terminal_copy_object(key, request);
+        }
         if !request.action.copies() {
             return self.error("Terminal copy text is read-only");
         }
@@ -119,6 +139,9 @@ impl Session {
             let outcome = self.input.expect_operator(request);
             return self.outcome(outcome, std::time::Instant::now());
         }
+        if let Some(action) = self.begin_copy_search_operator(key, request) {
+            return action;
+        }
         match self.prepare_copy_operand(key, request) {
             Ok(entry) => {
                 self.kills.publish_transfer(entry);
@@ -126,6 +149,103 @@ impl Session {
             }
             Err(error) => self.error(&error),
         }
+    }
+    fn begin_copy_search_operator(&mut self, key: Key, request: Editing) -> Option<HostAction> {
+        use crate::command::navigation::Search;
+        let Some(Operand::Motion(target)) = request.operand else {
+            return None;
+        };
+        let Target::Search(search @ (Search::Forward | Search::Backward)) = target.target else {
+            return None;
+        };
+        let action = self.navigate_copy_search(key, search, target.amount());
+        if let Some(search) = self
+            .terminals
+            .copies
+            .get_mut(&key)
+            .and_then(|copy| copy.search.as_mut())
+        {
+            search.operator = true;
+        }
+        Some(action)
+    }
+    fn select_terminal_copy_object(&mut self, key: Key, request: Editing) -> HostAction {
+        let copy = self
+            .terminals
+            .copies
+            .get(&key)
+            .expect("copy object context");
+        if !matches!(
+            copy.buffer.visual(),
+            Some(crate::buffer::Visual::Character | crate::buffer::Visual::Line)
+        ) {
+            return self.error("Text objects require a linear Visual selection");
+        }
+        if request.operand.is_none() {
+            let outcome = self.input.expect_visual_object(request);
+            return self.outcome(outcome, std::time::Instant::now());
+        }
+        let result = self.publish_copy_object(key, request);
+        if result.is_ok() {
+            self.input
+                .set_editing_state(crate::input::EditingState::VisualCharacter);
+        }
+        self.copy_result(result)
+    }
+    fn copy_object_span(&self, key: Key, request: Editing) -> Result<Span, String> {
+        if !matches!(
+            request.operand,
+            Some(Operand::Object(
+                Object::Word { big: false, .. } | Object::Paragraph { .. }
+            ))
+        ) {
+            return Err("Visual text object is unavailable".into());
+        }
+        let size = self
+            .copy_size(key)
+            .ok_or("Terminal copy presentation is suspended")?;
+        let copy = self
+            .terminals
+            .copies
+            .get(&key)
+            .expect("copy object context");
+        let (span, _) = copy.operator(request, size)?;
+        if span.range.is_empty() {
+            return Err("Terminal text object is empty".into());
+        }
+        Ok(span)
+    }
+    fn publish_copy_object(&mut self, key: Key, request: Editing) -> Result<(), String> {
+        let span = self.copy_object_span(key, request)?;
+        let size = self
+            .copy_size(key)
+            .ok_or("Terminal copy presentation is suspended")?;
+        let copy = self
+            .terminals
+            .copies
+            .get_mut(&key)
+            .expect("copy object context");
+        let end = Coordinates::new(&copy.buffer)
+            .map_err(|e| e.to_string())?
+            .previous_observed(Scalar(span.range.end))
+            .map_err(|e| e.to_string())?;
+        let mut candidate = copy.view.clone();
+        candidate.point.position = end;
+        candidate
+            .reveal(&copy.buffer, size)
+            .map_err(|e| e.to_string())?;
+        let anchor = crate::buffer::edit::Point {
+            position: Scalar(span.range.start),
+            ..candidate.point
+        };
+        copy.buffer
+            .activate_mark(anchor)
+            .map_err(|e| e.to_string())?;
+        copy.buffer
+            .activate_visual(anchor, crate::buffer::Visual::Character)
+            .map_err(|e| e.to_string())?;
+        copy.view = candidate;
+        Ok(())
     }
     fn prepare_copy_operand(
         &self,

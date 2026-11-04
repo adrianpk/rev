@@ -111,7 +111,7 @@ input/rendering responsive and use readiness wakes rather than an idle timer.
 Copy projections are private read-only native buffers, outside the buffer
 registry and source providers. Bound each capture to 1 MiB of UTF-8 text and
 at most 32 attachments. Charge twice the UTF-8 bytes, physical-row mapping
-storage and 64 KiB of native metadata per projection against an 8 MiB editor
+storage and 256 KiB of native metadata per projection against an 8 MiB editor
 budget. One candidate capture may be prepared before admission; failure retains
 all existing projections and live emulator state. Physical rows and spacing
 remain addressable by native linear, line and block coordinates. Removing an

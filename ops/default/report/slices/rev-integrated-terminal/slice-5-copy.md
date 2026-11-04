@@ -37,15 +37,21 @@ Native modal word, object and line copy operators now resolve through native
 coordinates and bounded per-copy find continuation. Screen alignment, buffer
 and counted page navigation use the attachment's native view. Both native
 rectangle commands and inclusive modal blocks retain their ordinary transfer
-shapes. Modal search continuation and composed search operators still require
-completion. Terminal yank, replacement checks, clear/send commands and evidence
+shapes. Confirmed literal/word searches, reverse/repeat search and composed search
+operators retain query state inside that copy attachment. Native Visual text
+objects preserve the source command's selection policy. Unchanged Visual state
+preserves pending prefixes; cancelled or reassigned searches restore their
+original view and cannot consume another host prompt. Terminal yank, replacement checks, clear/send commands and evidence
 navigation remain pending under T5.2 and T5.3.
 
 ## Contracts Added or Changed
 
 A capture admits at most 1 MiB of UTF-8 text. Up to 32 attachment projections
 share an 8 MiB editor charge: twice the captured bytes, physical-row mappings
-and 64 KiB per projection. One bounded candidate may be prepared before
+and 256 KiB per projection. The fixed charge was increased from the initial
+64 KiB estimate to conservatively cover native coordinate metadata and two
+bounded query observations; the 8 MiB editor cap and 1 MiB text cap stay fixed.
+One bounded candidate may be prepared before
 admission. Rejection preserves existing projections and live state. The
 projection preserves physical rows and spacing and filters control characters.
 Emulator retention, IO bounds and process cleanup remain separately owned.

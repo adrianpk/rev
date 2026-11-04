@@ -106,7 +106,7 @@ impl Snapshot {
         Ok(())
     }
     pub fn charge(&self) -> usize {
-        2 * self.text.len() + self.rows.len() * size_of::<std::ops::Range<usize>>() + 64 * 1024
+        2 * self.text.len() + self.rows.len() * size_of::<std::ops::Range<usize>>() + 256 * 1024
     }
     pub fn point(&self, session: &Session, point: Point) -> Scalar {
         let index = (point.line.0 + self.history as i32).max(0) as usize;

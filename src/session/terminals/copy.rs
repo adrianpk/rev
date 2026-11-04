@@ -1,5 +1,6 @@
 mod navigation;
 mod operator;
+mod query;
 mod search;
 mod snapshot;
 mod state;
@@ -50,8 +51,10 @@ impl Session {
         self.input
             .observe_navigation(self.windows.selected_id(), copy.view.point);
         if let Some(shape) = copy.buffer.visual() {
-            self.input
-                .set_editing_state(crate::input::EditingState::from_visual(shape));
+            let state = crate::input::EditingState::from_visual(shape);
+            if self.input.editing_state() != Some(state) {
+                self.input.set_editing_state(state);
+            }
         }
         true
     }
@@ -268,17 +271,13 @@ impl Session {
         request: crate::command::Navigation,
         size: Size,
     ) -> Option<Action> {
-        use crate::command::navigation::{Search, Target};
+        use crate::command::navigation::Target;
         if matches!(request.target, Target::Find(_)) && request.character.is_none() {
             let outcome = self.input.expect_navigation(request);
             return Some(self.outcome(outcome, std::time::Instant::now()));
         }
         if let Target::Search(search) = request.target {
-            let direction = match search {
-                Search::Backward | Search::Reverse | Search::WordBackward => Direction::Backward,
-                _ => Direction::Forward,
-            };
-            return Some(self.start_terminal_copy_search(direction));
+            return Some(self.navigate_copy_search(key, search, request.amount()));
         }
         let copy = self.terminals.copies.get_mut(&key).expect("selected copy");
         let result = copy.navigate(request, size).and_then(|_| copy.reveal(size));
@@ -384,6 +383,7 @@ impl Session {
         }
     }
     pub(in crate::session) fn sync_terminal_copies(&mut self) {
+        self.cancel_obsolete_copy_searches();
         self.terminals.copies.retain(|key, copy| {
             if self.terminals.sessions.get(copy.id).is_none() {
                 return false;
@@ -399,6 +399,17 @@ impl Session {
             }
         });
     }
+    fn cancel_obsolete_copy_searches(&mut self) {
+        let owner = self.copy_key();
+        let searching = self.input.focus() == Focus::Search;
+        for (key, copy) in &mut self.terminals.copies {
+            if (Some(*key) != owner || !searching)
+                && let Some(search) = copy.search.take()
+            {
+                copy.view = search.origin;
+            }
+        }
+    }
     pub(super) fn start_terminal_copy_search(&mut self, direction: Direction) -> Action {
         let key = self.copy_key().expect("selected terminal copy");
         if let Err(error) = self.input.search(direction) {
@@ -409,6 +420,9 @@ impl Session {
         self.message("Search frozen terminal output")
     }
     pub(in crate::session) fn terminal_copy_search_step(&mut self) -> Option<Action> {
+        if self.input.focus() != Focus::Search {
+            return None;
+        }
         let key = self.copy_key()?;
         let query = self.input.prompt()?.text().to_owned();
         let size = self.copy_size(key)?;
@@ -428,15 +442,14 @@ impl Session {
         &mut self,
         action: SearchAction,
     ) -> Option<Action> {
+        if self.input.focus() != Focus::Search {
+            return None;
+        }
         let key = self.copy_key()?;
         let copy = self.terminals.copies.get_mut(&key)?;
         let search = copy.search.as_mut()?;
         match action {
-            SearchAction::Accept => {
-                copy.search = None;
-                self.input.cancel();
-                Some(self.message("Terminal copy search accepted"))
-            }
+            SearchAction::Accept => Some(self.finish_copy_search(key)),
             SearchAction::Repeat(direction) => {
                 search.repeat(direction);
                 self.input.search_label(direction);

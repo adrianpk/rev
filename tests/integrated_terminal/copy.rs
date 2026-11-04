@@ -49,6 +49,14 @@ fn stable_copy() {
             .handle(key(KeyCode::Char('t'), KeyModifiers::CONTROL));
         assert!(editor.session.terminal_copy_view().is_some());
         select_alpha(&mut editor);
+        // Cancelling a stronger host prompt preserves the copy selection.
+        editor
+            .session
+            .handle(key(KeyCode::Char('x'), KeyModifiers::ALT));
+        editor.session.handle(Event::Paste("terminal-open".into()));
+        editor
+            .session
+            .handle(key(KeyCode::Char('g'), KeyModifiers::CONTROL));
         let point = editor.session.terminal_copy_view().unwrap().point;
         editor
             .session
@@ -239,8 +247,7 @@ fn native_copy() {
         return;
     }
     for profile in ["non-modal", "modal"] {
-        let script =
-            "printf 'alpha beta\\nB123456l9l\\n界é omega\\nREADY'\nwhile :; do sleep 60; done\n";
+        let script = "printf 'alpha beta alpha beta\\nB123456l9l\\n界é omega\\nREADY'\nwhile :; do sleep 60; done\n";
         let mut editor = Editor::with_script(profile, 24, "", script);
         editor.open_copy();
         if profile == "modal" {
@@ -271,7 +278,14 @@ fn native_copy() {
                     .0,
                 90
             );
-            strokes(&mut editor, "ggvlly");
+            strokes(&mut editor, "ggvll");
+            editor
+                .session
+                .handle(key(KeyCode::Char('x'), KeyModifiers::CONTROL));
+            editor
+                .session
+                .handle(key(KeyCode::Char('x'), KeyModifiers::CONTROL));
+            strokes(&mut editor, "y");
             assert_eq!(editor.session.killed_text().unwrap().to_string(), "alp");
             editor
                 .session
@@ -331,6 +345,78 @@ fn native_copy() {
         editor.session.execute(Command::Motion(Motion::ForwardChar));
         editor.session.execute(Command::Linear(LinearCommand::Copy));
         assert_eq!(editor.session.killed_text().unwrap().to_string(), "界é");
+        editor
+            .session
+            .handle(key(KeyCode::Char('g'), KeyModifiers::CONTROL));
+        if profile == "modal" {
+            strokes(&mut editor, "gg/beta");
+            editor
+                .session
+                .handle(key(KeyCode::Enter, KeyModifiers::NONE));
+            assert_eq!(
+                editor
+                    .session
+                    .terminal_copy_view()
+                    .unwrap()
+                    .point
+                    .position
+                    .0,
+                10
+            );
+            strokes(&mut editor, "n");
+            assert_eq!(
+                editor
+                    .session
+                    .terminal_copy_view()
+                    .unwrap()
+                    .point
+                    .position
+                    .0,
+                21
+            );
+            strokes(&mut editor, "N");
+            assert_eq!(
+                editor
+                    .session
+                    .terminal_copy_view()
+                    .unwrap()
+                    .point
+                    .position
+                    .0,
+                6
+            );
+            strokes(&mut editor, "*");
+            assert_eq!(
+                editor
+                    .session
+                    .terminal_copy_view()
+                    .unwrap()
+                    .point
+                    .position
+                    .0,
+                21
+            );
+            strokes(&mut editor, "ggy/beta");
+            editor
+                .session
+                .handle(key(KeyCode::Enter, KeyModifiers::NONE));
+            assert_eq!(
+                editor.session.killed_text().unwrap().to_string(),
+                "alpha beta"
+            );
+            assert_eq!(
+                editor
+                    .session
+                    .terminal_copy_view()
+                    .unwrap()
+                    .point
+                    .position
+                    .0,
+                0
+            );
+            strokes(&mut editor, "viwy");
+            assert_eq!(editor.session.killed_text().unwrap().to_string(), "alpha");
+        }
         assert_eq!(editor.session.terminal_buffer().unwrap().len_bytes(), 0);
         assert_eq!(editor.session.terminals().ids().count(), 1);
     }
@@ -343,4 +429,55 @@ impl Editor {
         self.wait(|s| text(s).contains("READY"));
         copy(self);
     }
+}
+
+// Five real mirrored attachments compete for the same copy storage allowance.
+// The rejected fifth capture cannot evict an admitted frozen view or child.
+#[test]
+fn copy_capacity() {
+    if isolated("panel::copy::copy_capacity", false) {
+        return;
+    }
+    let cell = format!("a{}", "\u{301}".repeat(32));
+    let script = format!(
+        "i=0; while [ $i -lt 12000 ]; do printf '%s' '{cell}'; i=$((i+1)); done\nprintf '\\r\\nREADY'\nwhile :; do sleep 60; done\n"
+    );
+    let mut editor = Editor::with_script("non-modal", 24, "", &script);
+    editor
+        .session
+        .execute(Command::Terminal(TerminalCommand::NewBuffer));
+    editor.wait(|s| text(s).contains("READY"));
+    let split = Command::Split(rev::window::Split::Right);
+    editor.session.execute(split);
+    let first = editor.session.windows().order();
+    editor.session.select_view(first[0]).unwrap();
+    editor.session.execute(split);
+    editor.session.select_view(first[1]).unwrap();
+    editor.session.execute(split);
+    editor.session.select_view(first[0]).unwrap();
+    editor.session.execute(split);
+    let views = editor.session.windows().order();
+    assert_eq!(views.len(), 5);
+    let mut admitted = Vec::new();
+    for view in &views[..4] {
+        editor.session.select_view(*view).unwrap();
+        copy(&mut editor);
+        admitted.push(editor.session.terminal_copy_view().unwrap().point);
+    }
+    editor.session.select_view(views[4]).unwrap();
+    editor
+        .session
+        .execute(Command::Terminal(TerminalCommand::CopyMode));
+    assert!(
+        editor.session.echo().contains("copy storage is full"),
+        "{}",
+        editor.session.echo()
+    );
+    assert!(editor.session.terminal_copy_view().is_none());
+    for (view, point) in views.iter().zip(admitted) {
+        editor.session.select_view(*view).unwrap();
+        assert_eq!(editor.session.terminal_copy_view().unwrap().point, point);
+    }
+    assert_eq!(editor.session.terminals().ids().count(), 1);
+    assert_eq!(editor.session.buffer().unwrap().len_bytes(), 0);
 }
