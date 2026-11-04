@@ -11,6 +11,7 @@ pub(super) struct Search {
     direction: Direction,
     anchor: Scalar,
     query: String,
+    valid: bool,
     pub count: usize,
     pub operator: bool,
 }
@@ -22,6 +23,7 @@ impl Search {
             direction,
             anchor: view.point.position,
             query: String::new(),
+            valid: true,
             count: 1,
             operator: false,
         }
@@ -37,7 +39,9 @@ impl Search {
         self.direction = direction;
     }
     pub fn update(&mut self, buffer: &Buffer, query: &str) -> Result<Option<Scalar>, String> {
+        self.valid = false;
         if query.is_empty() {
+            self.valid = true;
             self.found = None;
             self.query.clear();
             return Ok(Some(self.origin.point.position));
@@ -49,6 +53,7 @@ impl Search {
         self.found = pattern
             .occurrence(buffer, request)
             .map_err(|e| e.to_string())?;
+        self.valid = true;
         let Some(found) = &self.found else {
             return Ok(None);
         };
@@ -62,8 +67,8 @@ impl Search {
             found: self.found.clone(),
         })
     }
-    pub fn current(&self, query: &str) -> bool {
-        self.query == query
+    pub fn valid(&self) -> bool {
+        self.valid
     }
 }
 
@@ -165,7 +170,18 @@ impl Session {
     pub(super) fn finish_copy_search(&mut self, key: Key) -> Action {
         let entry = match self.prepare_copy_search(key) {
             Ok(entry) => entry,
-            Err(error) => return self.error(&error),
+            Err(error) => {
+                let copy = self
+                    .terminals
+                    .copies
+                    .get_mut(&key)
+                    .expect("copy search context");
+                if let Some(search) = copy.search.take() {
+                    copy.view = search.origin;
+                }
+                self.input.cancel();
+                return self.error(&error);
+            }
         };
         let copy = self
             .terminals
@@ -193,11 +209,8 @@ impl Session {
             .get(&key)
             .expect("copy search context");
         let search = copy.search.as_ref().expect("active copy search");
-        if !self
-            .input
-            .prompt()
-            .is_some_and(|prompt| search.current(prompt.text()))
-        {
+        // Native input consumes the prompt before delivering Search::Accept.
+        if !search.valid() {
             return Err("Current terminal copy query is invalid".into());
         }
         if !search.operator {

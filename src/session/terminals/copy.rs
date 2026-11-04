@@ -442,9 +442,6 @@ impl Session {
         &mut self,
         action: SearchAction,
     ) -> Option<Action> {
-        if self.input.focus() != Focus::Search {
-            return None;
-        }
         let key = self.copy_key()?;
         let copy = self.terminals.copies.get_mut(&key)?;
         let search = copy.search.as_mut()?;
