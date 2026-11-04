@@ -33,8 +33,8 @@ with the live command/schema/default owners, rather than a second manual list.
 The interactive section in the command catalog links the dedicated reference;
 its stable anchor and complete command inventory remain available. Accepted
 baseline/model clauses now admit typed terminal resources without transferring
-source/file/history authority. TRM01-TRM11 link their implementation reports;
-combined-gate acceptance remains pending. Core contracts state their behavior
+source/file/history authority. TRM01-TRM11 link their implementation reports and
+completed combined acceptance. Core contracts state their behavior
 directly without relying on another product's capabilities.
 
 ## Files of Interest
@@ -77,8 +77,8 @@ The controller checkpoint records the merge activity. Guide generation was local
 
 ## Risks and Follow-ups
 
-The unchanged combined gate remains controller-owned on integrated dev.
-Slice-local documentation and catalog checks do not close terminal delivery.
+The unchanged controller-owned combined gate passed. Exact evidence and the
+documentation-only closure boundary are recorded in Delivery-set closure below.
 
 ## Gate Repair 1 Diagnosis
 
@@ -158,5 +158,51 @@ the unchanged eight-second deadline.
 
 Canonical PR #256 merged into dev unchanged at
 `6390608f045e36d24e3510763054777067407a6f`; the checkpoint records merge activity.
-All eight slices and Gate repair 1 are integrated. The unchanged combined gate
-has not rerun after this repair and remains controller-owned.
+All eight slices and Gate repair 1 are integrated. The controller subsequently
+passed the unchanged combined gate, as recorded below.
+
+## Delivery-set closure
+
+Completed: 2026-11-04. Eight slices through PRs #248-#255 and authorized
+readiness repair #256 are integrated. The controller passed the unchanged full
+gate at immutable candidate `52da8df25937c2165d72916603ef048712b3abbb` in receipt
+`IYS47Y2HH6YVYH3AMLMDEOZHVQ`. The selected specification/model and plan/tracker
+are Completed; all eight reports are delivered and TRM01-TRM11 are closed.
+
+The controller executed these exact commands as one ordered `&&` chain:
+
+- `cargo fmt --all -- --check`
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo clippy --locked --all-targets -- -D warnings`
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test integrated_terminal --test configuration --test commands --test windows --test panels --test display --test pointer --test core --test files --test recovery --test shell_commands --test external_changes -- --test-threads=1`
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test modal contexts:: -- --test-threads=1`
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --lib process -- --test-threads=1`
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 bash scripts/check-integrated-terminal.sh`
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo run --locked --quiet --example documentation-check`
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 bash scripts/build-user-guide.sh`
+- `git diff --check`
+
+The batch passed 688 integration tests, 20 modal-context cases and seven
+process/library cases: 715 selected top-level tests. Both native profiles and
+all real-PTY journeys passed actual Bash/lazygit, live relocation, multiple
+sessions, exact child input, source exclusion, copy/paste, confirmed lifecycle
+and normal/error host restoration. The readiness regression includes both
+signal/key orders and the multi-read burst without another input write.
+
+Final local observations from the controller's gate:
+
+| Observation | Result |
+| --- | --- |
+| Host idle and streams | Both profiles consumed zero idle CPU ticks; largest host stream 940752 bytes, below the unchanged 1 MiB cap and eight-second deadline. |
+| Resource fairness | 1048576 producer bytes, 1064495 serviced bytes across 137 turns; peer response 94 microseconds, four owner-plus-shell CPU ticks, peak RSS 8960 kB. |
+| Retention and ownership | 64 retained rows, 168800 reserved cells, zero extra bytes; 49664 queued input bytes. Two leaders reaped in 32347 microseconds; FDs 4 to 4 and threads 1 to 1. |
+| Normal-release binary | 22514456 bytes; +937728 bytes against Slice 1's recorded 21576728-byte pre-terminal baseline. That historical baseline was not rebuilt. |
+
+These measurements describe the local gate candidate. Documentation validated
+474 commands, 247 configuration entries, 76 reachable pages and 484 local
+links/anchors. The Spore projection and local User Guide build passed.
+
+Only configured operational documentation paths change after the tested
+candidate. Runtime source, dependency versions, tests, scripts and user-facing
+guide sources retain the tested bytes. Owned fixtures have retired; source
+worktrees, validation receipts and generated local guide output are retained.
+The delivery ends on clean, pushed dev with no successor started.

@@ -52,8 +52,13 @@ instance registry for process/PTY/emulator ownership and independent panel or
 main-area attachments. Source invariants remain with `Resource::Text`; hiding
 or mirroring a terminal view does not close its session. Input/copy ownership,
 confirmed asynchronous close and truthful pending/failure state follow the
-paired terminal contract. Slices 1-7 have integrated evidence; the unchanged
-combined controller gate is still required before terminal delivery closure.
+paired terminal contract. Eight slices and readiness repair #256 are Completed.
+The unchanged controller gate passed at
+`52da8df25937c2165d72916603ef048712b3abbb`, receipt
+`IYS47Y2HH6YVYH3AMLMDEOZHVQ`, covering native/PTY input, source admission,
+ownership, resource limits and host restoration. The
+[terminal tracker](../tracker/rev-integrated-terminal.md#final-gate-and-closure)
+retains that acceptance without changing the original model's historical gates.
 
 ## Ownership
 

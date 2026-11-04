@@ -1,6 +1,9 @@
 # Integrated Terminal Sessions
 
-Status: Approved
+Status: Completed
+Completed: 2026-11-04
+Validated candidate: `52da8df25937c2165d72916603ef048712b3abbb`
+Gate validation: `IYS47Y2HH6YVYH3AMLMDEOZHVQ`
 Date: 2026-10-28
 Reviewed: 2026-11-03
 Approved: product owner, 2026-11-03; lower-panel default, direct-buffer entry, bidirectional live relocation and multiple on-demand sessions in the first delivery
@@ -11,8 +14,8 @@ Model: [Integrated Terminal Model](editor-integrated-terminal-model.md)
 Delivery: [Plan](../plan/rev-integrated-terminal.md), [tracker](../tracker/rev-integrated-terminal.md)
 Editor owner: [rev Editor](rev-editor.md)
 Controls: [Editor Configuration](editor-configuration.md)
-Delivery boundary: approved eight-slice autonomous delivery through dev; owner explicitly requested Looper startup on 2026-11-03
-Readiness: Slices 1-7 integrated through PRs #248-#254 with exact-candidate receipts; guidance and baseline reconciliation are Slice 8, and combined controller acceptance remains pending
+Delivery boundary: eight slices through PRs #248-#255 and authorized repair #256 delivered through dev
+Readiness: TRM01-TRM11 Completed after the unchanged controller gate passed the validated candidate; exact commands and observations are in the Slice 8 closure
 Separate capability: [Shell Commands and Text Filters](editor-shell-commands.md) is Completed; interactive terminals retain their own session lifecycle and delivery
 
 ## Purpose
@@ -59,7 +62,7 @@ This is an accepted additive capability against the **Scope and priority**
 section of [rev Editor](rev-editor.md#scope-and-priority). That section's
 embedded-shell exclusion describes the original implemented baseline;
 TRM01-TRM11 define the separately implemented interactive-terminal addition,
-whose final combined acceptance remains controller-owned.
+whose unchanged controller-owned combined gate passed the candidate above.
 The completed shell-command capability continues to own one-shot text filters.
 
 The baseline's **Vocabulary and invariants** and the **Buffer** record in
@@ -454,6 +457,10 @@ No accepted TRM requirement or scenario is removed by this reconciliation.
 The [integration target](../../../tests/integrated_terminal.rs) groups engine,
 panel, interaction, pointer, copy, transfer, paste, evidence, lifecycle and
 resource checks. Slice 7 records real Bash/lazygit, both-profile native/host PTYs,
-normal/error restoration and measured resource/FD/thread retirement. These are
-slice-local receipts, not the final combined gate. Final delivery status changes
-only after the controller's unchanged gate succeeds on the integrated dev head.
+normal/error restoration and measured resource/FD/thread retirement. The
+controller's unchanged combined gate passed all these boundaries at
+`52da8df25937c2165d72916603ef048712b3abbb`, receipt
+`IYS47Y2HH6YVYH3AMLMDEOZHVQ`, including the repair's controlled readiness
+regression. TRM01-TRM11 are Completed. The
+[Slice 8 closure](../report/slices/rev-integrated-terminal/slice-8-guidance.md#delivery-set-closure)
+records exact combined commands and the documentation-only closure boundary.

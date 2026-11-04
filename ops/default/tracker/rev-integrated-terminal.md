@@ -1,13 +1,16 @@
 # Integrated Terminal Tracker
 
-Status: Approved
+Status: Completed
+Completed: 2026-11-04
+Validated candidate: `52da8df25937c2165d72916603ef048712b3abbb`
+Gate validation: `IYS47Y2HH6YVYH3AMLMDEOZHVQ`
 Date: 2026-11-03
 Delivery set: rev-integrated-terminal
 Plan: [Integrated Terminal Delivery](../plan/rev-integrated-terminal.md)
 Spec: [Integrated Terminal Sessions](../spec/editor-integrated-terminal.md)
 Model: [Integrated Terminal Model](../spec/editor-integrated-terminal-model.md)
 Approved: owner, 2026-11-03; explicit request to start the approved terminal delivery through Looper
-Active slice: None; all eight slices integrated, combined controller gate pending
+Active slice: None; all eight slices and Gate repair 1 completed
 Progress owner: Looper checkpoint, canonical PRs and exact-candidate validation receipts
 
 ## Canonical slice map
@@ -223,7 +226,8 @@ The checkpoint records merge activity for all eight slices.
 ## Final gate and closure
 
 All eight canonical PRs #248-#255 are merged unchanged into dev and all slice
-reports are delivered. Combined acceptance and delivery-set closure remain pending.
+reports are delivered. Authorized repair #256 is integrated and combined
+acceptance passed; this delivery set is Completed.
 
 Gate prerequisites reverified after repair integration on 2026-11-04: Bash
 5.3.15, Git 2.55.0, lazygit
@@ -238,8 +242,8 @@ temporary projection and target/userguide output. No persistent fixture is neede
 The unchanged plan Full gate failed at
 `c22102280c1cb514fc1eca1e663c126e9a12e063`, receipt
 `DIMJP2WKAA5IZ4ZYCRY75TCV4W`, during the non-modal real-PTY lazygit relocation
-journey's second M-x prompt. Earlier native batches passed. Successful combined
-acceptance and restricted documentation closure remain controller-owned.
+journey's second M-x prompt. Earlier native batches passed. The authorized
+repair and successful unchanged-gate rerun are recorded below.
 
 Gate repair 1 uses `fix/rev-integrated-terminal-validation-1`, the pinned title
 `fix(terminal): repair approved integrated terminal acceptance`, and the existing
@@ -262,6 +266,14 @@ profiles' real-PTY journeys and normal/error restoration on the same head.
 
 Integration: canonical PR #256 merged into dev unchanged at
 `6390608f045e36d24e3510763054777067407a6f`; checkpoint merge activity is recorded.
-All slice reports and this repair are delivered. The unchanged combined gate
-has not rerun after repair integration. The controller retains that gate and
-final delivery-set closure; slice-local evidence does not mark the set Completed.
+All slice reports and this repair are delivered. The controller passed the
+unchanged combined gate at `52da8df25937c2165d72916603ef048712b3abbb` in receipt
+`IYS47Y2HH6YVYH3AMLMDEOZHVQ`. It passed 688 integration tests, 20 modal-context
+cases, seven process/library cases, both-profile native and real-PTY journeys,
+normal/error restoration, resource/FD/thread bounds, catalogs and local Spore
+guide generation. TRM01-TRM11 and the delivery set are Completed.
+
+The [Slice 8 closure](../report/slices/rev-integrated-terminal/slice-8-guidance.md#delivery-set-closure)
+records exact commands and measured observations. Only configured operational
+documentation paths differ from the tested candidate. No owned test fixture
+remains active; source worktrees, receipts and local guide output are retained.

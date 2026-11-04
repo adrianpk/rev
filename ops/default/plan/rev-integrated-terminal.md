@@ -1,6 +1,9 @@
 # Integrated Terminal Delivery
 
-Status: Approved
+Status: Completed
+Completed: 2026-11-04
+Validated candidate: `52da8df25937c2165d72916603ef048712b3abbb`
+Gate validation: `IYS47Y2HH6YVYH3AMLMDEOZHVQ`
 Date: 2026-11-03
 Delivery set: rev-integrated-terminal
 Slice strategy: behavior-first
@@ -11,7 +14,7 @@ Model: [Integrated Terminal Model](../spec/editor-integrated-terminal-model.md)
 Tracker: [Integrated Terminal Tracker](../tracker/rev-integrated-terminal.md)
 Concern: [Pending Work Index](../README.md)
 Full gate: `cargo fmt --all -- --check && env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo clippy --locked --all-targets -- -D warnings && env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test integrated_terminal --test configuration --test commands --test windows --test panels --test display --test pointer --test core --test files --test recovery --test shell_commands --test external_changes -- --test-threads=1 && env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test modal contexts:: -- --test-threads=1 && env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --lib process -- --test-threads=1 && env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 bash scripts/check-integrated-terminal.sh && env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo run --locked --quiet --example documentation-check && env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 bash scripts/build-user-guide.sh && git diff --check`
-Active slice: None; all eight slices integrated, combined controller gate pending
+Active slice: None; all eight slices and Gate repair 1 completed
 
 ## Outcome and authority
 
@@ -334,3 +337,20 @@ incremental/dev/test debug artifacts. Newly created targets for this run may be
 cleaned after their slice is integrated and its worktree is clean with no live
 build or validator. Preserve source worktrees, reports, validation receipts and
 unrelated targets. Do not change global configuration or clean other projects.
+
+## Delivery-set closure
+
+All eight slices integrated through canonical PRs #248-#255, followed by
+authorized readiness repair #256. The controller passed the unchanged Full gate
+at `52da8df25937c2165d72916603ef048712b3abbb` in receipt
+`IYS47Y2HH6YVYH3AMLMDEOZHVQ`: 688 integration tests, 20 modal-context cases,
+seven process/library cases, both-profile native/PTY/resource acceptance,
+documentation and local User Guide generation. TRM01-TRM11 are Completed.
+The [Slice 8 closure](../report/slices/rev-integrated-terminal/slice-8-guidance.md#delivery-set-closure)
+records the exact commands and observations.
+
+The closure commit changes only configured operational documentation paths.
+Runtime source, dependencies, tests, scripts and user-facing guide sources remain
+identical to the tested candidate. Owned fixtures have retired; source worktrees,
+receipts and generated local guide output are retained. Delivery ends on clean,
+synchronized dev.

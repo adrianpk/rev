@@ -132,4 +132,10 @@ latency guarantees; active CPU covers the owner and two shell leaders.
 
 The fault case injects one write error inside a real controlling PTY. It proves
 cleanup and restoration orchestration with subsequent writes available, not
-recovery from an unavailable physical terminal. Canonical PR #254 is integrated; user guidance is the recorded next slice.
+recovery from an unavailable physical terminal. Canonical PR #254 and the later
+guidance slice and readiness repair are integrated. The unchanged controller
+gate passed at `52da8df25937c2165d72916603ef048712b3abbb`, receipt
+`IYS47Y2HH6YVYH3AMLMDEOZHVQ`; the
+[Slice 8 closure](slice-8-guidance.md#delivery-set-closure) records combined
+acceptance and final resource observations. The measurements above retain their
+original slice-local candidates.

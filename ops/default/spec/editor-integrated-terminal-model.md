@@ -1,6 +1,9 @@
 # Integrated Terminal Model
 
-Status: Approved
+Status: Completed
+Completed: 2026-11-04
+Validated candidate: `52da8df25937c2165d72916603ef048712b3abbb`
+Gate validation: `IYS47Y2HH6YVYH3AMLMDEOZHVQ`
 Date: 2026-10-28
 Reviewed: 2026-11-03
 Approved: product owner, 2026-11-03; promoted with the terminal specification
@@ -123,8 +126,12 @@ restart. Only the existing immutable startup configuration is durable. The
 baseline [editor model](rev-editor-model.md) preserves source/file/history
 invariants and delegates these transient records to this model.
 
-Slices 1-7 are integrated through canonical PRs #248-#254. Their reports retain
-exact-candidate implementation and measured acceptance evidence; the paired
-specification maps TRM01-TRM11. Slice 8 reconciles guidance/catalogs and the
-baseline. Final combined acceptance and delivery closure remain with the
-controller's unchanged gate, so these records do not mark delivery Completed.
+All eight slices and authorized readiness repair #256 are integrated through
+canonical PRs #248-#256. Their reports retain exact-candidate implementation and
+measured acceptance evidence; the paired specification maps TRM01-TRM11. The
+controller's unchanged combined gate passed at
+`52da8df25937c2165d72916603ef048712b3abbb`, receipt
+`IYS47Y2HH6YVYH3AMLMDEOZHVQ`. Native, real-PTY and resource acceptance verify
+these transient owners together with source admission and host restoration.
+The model is Completed; the [Slice 8 closure](../report/slices/rev-integrated-terminal/slice-8-guidance.md#delivery-set-closure)
+records exact evidence and the documentation-only closure boundary.

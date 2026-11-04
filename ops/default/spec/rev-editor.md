@@ -95,11 +95,13 @@ SHL01-SHL08 acceptance. It does not turn the
 original exclusion into an interactive shell, automatic task runner or plugin
 interface. [Interactive Terminals](editor-integrated-terminal.md) is the
 separately approved additive contract for live PTY sessions, terminal-backed
-buffers and lower-panel/main-area placement. Slices 1-7 are integrated through
-PRs #248-#254; guidance and baseline reconciliation are Slice 8. The
-[terminal tracker](../tracker/rev-integrated-terminal.md) retains exact slice
-receipts while final combined controller acceptance remains pending. Original
-completed editor gates stay historical and do not establish terminal acceptance.
+buffers and lower-panel/main-area placement. All eight slices through PRs
+#248-#255 and authorized repair #256 are Completed. The unchanged terminal gate
+passed at `52da8df25937c2165d72916603ef048712b3abbb`, receipt
+`IYS47Y2HH6YVYH3AMLMDEOZHVQ`; the
+[terminal tracker](../tracker/rev-integrated-terminal.md#final-gate-and-closure)
+records TRM01-TRM11 acceptance and the documentation-only closure. Original
+completed editor gates retain their historical identities.
 
 MUST and SHALL define acceptance obligations. SHOULD is a strong expectation;
 deviations require a recorded reason. MAY permits bounded optional behavior
