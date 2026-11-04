@@ -20,28 +20,35 @@ fn close_current(editor: &mut Editor) {
         .handle(key(KeyCode::Enter, KeyModifiers::NONE));
 }
 
-// Detaching the final view retains the child. Actual exit keeps its final
-// output/status, a new default leaves it inspectable, and only closure frees
-// capacity. All observations cross the native buffer and real PTY owners.
+// Shell completion closes either placement, restores source and frees capacity.
+// A background exit must keep a pending buffer query usable and up to date.
 #[test]
-fn retained_exit() {
-    if isolated("panel::lifecycle::retained_exit", false) {
+fn automatic_exit() {
+    if isolated("panel::lifecycle::automatic_exit", false) {
         return;
     }
     for profile in ["non-modal", "modal"] {
-        retained_exit_case(profile);
+        for (placement, background) in [
+            (TerminalCommand::Open, false),
+            (TerminalCommand::NewBuffer, false),
+            (TerminalCommand::Open, true),
+            (TerminalCommand::NewBuffer, true),
+        ] {
+            automatic_exit_case(profile, placement, background);
+        }
     }
 }
-fn retained_exit_case(profile: &str) {
+fn automatic_exit_case(profile: &str, placement: TerminalCommand, background: bool) {
     let script = r#"stty raw -echo
 printf READY
 while [ ! -f "leave-$$" ]; do sleep 0.01; done
 printf '\r\nFINAL_OUTPUT'
 exit 7
 "#;
-    let mut editor = Editor::with_script(profile, 24, "max_sessions=2", script);
+    let mut editor = Editor::with_script(profile, 24, "max_sessions=1", script);
+    editor.session.insert('!');
     let source = editor.session.buffer().unwrap().stamp();
-    command(&mut editor, TerminalCommand::NewBuffer);
+    command(&mut editor, placement);
     editor.wait(|s| text(s).contains("READY"));
     let first = editor
         .session
@@ -49,7 +56,6 @@ exit 7
         .unwrap()
         .terminal()
         .unwrap();
-    let buffer = editor.session.terminal_buffer().unwrap().id();
     let pid = editor
         .session
         .terminals()
@@ -57,90 +63,215 @@ exit 7
         .unwrap()
         .process_id()
         .unwrap();
-    editor
-        .session
-        .handle(key(KeyCode::Char('g'), KeyModifiers::CONTROL));
-    assert_eq!(editor.session.buffer().unwrap().stamp(), source);
-    assert_eq!(
-        *editor.session.terminals().get(first).unwrap().state(),
-        State::Running
-    );
-    assert!(
+    if background {
+        cancel(&mut editor);
         editor
             .session
-            .terminals()
-            .get(first)
-            .unwrap()
-            .owns_process()
-    );
+            .execute(Command::Buffer(BufferCommand::Switch));
+        editor.session.handle(Event::Paste("term".into()));
+    }
     editor
         .fixture
         .write(&format!("source/leave-{pid}"), "ready");
-    editor.wait(|s| matches!(s.state(), State::Exited(_)));
-    let exited = editor.session.terminals().get(first).unwrap();
-    assert!(matches!(exited.state(),State::Exited(status) if status.code()==Some(7)));
-    assert!(!exited.owns_process());
-    assert_eq!(exited.process_id(), None);
-    assert!(text(exited).contains("FINAL_OUTPUT"));
-    assert!(!text(exited).contains("Exited (7)"));
-    switch(&mut editor, "terminal");
-    assert_eq!(editor.session.terminal_buffer().unwrap().id(), buffer);
-    assert_eq!(editor.session.terminal_buffer().unwrap().len_bytes(), 0);
-    assert!(
-        editor
-            .session
-            .frame()
-            .unwrap()
-            .rows()
-            .iter()
-            .any(|row| row.text().contains("Exited (7)"))
-    );
-    command(&mut editor, TerminalCommand::CopyMode);
-    assert!(
-        editor
-            .session
-            .frame()
-            .unwrap()
-            .rows()
-            .iter()
-            .any(|row| row.text().contains("[COPY] Exited (7)"))
-    );
-    command(&mut editor, TerminalCommand::Open);
-    let second = editor
-        .session
-        .terminal_buffer()
-        .unwrap()
-        .terminal()
-        .unwrap();
-    assert_ne!(first, second);
-    editor.wait(|s| text(s).contains("READY"));
-    command(&mut editor, TerminalCommand::New);
-    assert!(
-        editor.session.echo().contains("capacity"),
-        "{}",
-        editor.session.echo()
-    );
-    assert_eq!(editor.session.terminals().ids().count(), 2);
-    assert!(text(editor.session.terminals().get(first).unwrap()).contains("FINAL_OUTPUT"));
-    switch(&mut editor, "terminal");
-    assert_eq!(editor.session.terminal_buffer().unwrap().id(), buffer);
-    close_current(&mut editor);
-    assert!(!editor.session.echo().starts_with("Terminate"));
     let deadline = Instant::now() + Duration::from_secs(3);
     while editor.session.terminals().get(first).is_some() {
         editor.session.expire_input(Instant::now());
         assert!(Instant::now() < deadline, "{}", editor.session.echo());
         std::thread::sleep(Duration::from_millis(1));
     }
-    assert_eq!(editor.session.terminals().ids().count(), 1);
+    assert_eq!(editor.session.buffer().unwrap().stamp(), source);
+    assert!(editor.session.terminal_buffer().is_none());
+    assert!(!editor.session.terminal_focused());
     assert!(editor.session.terminal_copy_view().is_none());
+    if background {
+        let frame = editor.session.frame().unwrap();
+        assert!(
+            frame
+                .rows()
+                .iter()
+                .any(|r| r.text().contains("Switch to buffer: term"))
+        );
+        assert!(!frame.rows().iter().any(|r| r.text().trim() == "terminal"));
+        editor.session.handle(key(KeyCode::Tab, KeyModifiers::NONE));
+        for _ in 0..4 {
+            editor
+                .session
+                .handle(key(KeyCode::Backspace, KeyModifiers::NONE));
+        }
+        editor.session.handle(Event::Paste("doc".into()));
+        editor.session.handle(key(KeyCode::Tab, KeyModifiers::NONE));
+        editor
+            .session
+            .handle(key(KeyCode::Enter, KeyModifiers::NONE));
+        assert!(!editor.session.echo().contains("No buffer"));
+        assert_eq!(editor.session.buffer().unwrap().stamp(), source);
+    }
     command(&mut editor, TerminalCommand::Open);
-    assert_eq!(
+    assert_ne!(
         editor.session.terminal_buffer().unwrap().terminal(),
-        Some(second)
+        Some(first)
     );
-    command(&mut editor, TerminalCommand::New);
-    assert_eq!(editor.session.terminals().ids().count(), 2);
+    editor.wait(|s| text(s).contains("READY"));
+    assert_eq!(editor.session.terminals().ids().count(), 1);
+}
+
+// C-x b lists both placements, filters names, and selects without creating a
+// replacement child or changing a terminal's panel/main-area placement.
+#[test]
+fn buffer_candidates() {
+    if isolated("panel::lifecycle::buffer_candidates", false) {
+        return;
+    }
+    for profile in ["non-modal", "modal"] {
+        let mut editor = Editor::new(profile, 24);
+        let source = editor.session.buffer().unwrap().stamp();
+        editor.open();
+        let panel = editor.session.terminal_buffer().unwrap().terminal();
+        command(&mut editor, TerminalCommand::NewBuffer);
+        editor.wait(|s| text(s).contains("READY"));
+        let main = editor.session.terminal_buffer().unwrap().terminal();
+        let main_stamp = editor.session.buffer().unwrap().stamp();
+        assert_ne!(panel, main);
+        buffer_selector(&mut editor);
+        let frame = editor.session.frame().unwrap();
+        assert!(frame.rows().iter().any(|row| {
+            row.band() == rev::display::Band::Completion && row.text().trim() == "document.org"
+        }));
+        editor.session.handle(Event::Paste("term".into()));
+        for name in ["terminal", "terminal-2"] {
+            let frame = editor.session.frame().unwrap();
+            assert!(
+                frame.rows().iter().any(|row| {
+                    row.band() == rev::display::Band::Completion && row.text().trim() == name
+                }),
+                "missing visible candidate {name}"
+            );
+            editor
+                .session
+                .handle(key(KeyCode::Down, KeyModifiers::NONE));
+        }
+        editor.session.handle(key(KeyCode::Up, KeyModifiers::NONE));
+        editor.session.handle(key(KeyCode::Tab, KeyModifiers::NONE));
+        editor
+            .session
+            .handle(key(KeyCode::Enter, KeyModifiers::NONE));
+        assert_eq!(editor.session.terminal_buffer().unwrap().terminal(), panel);
+        assert_eq!(editor.session.buffer().unwrap().stamp(), main_stamp);
+        cancel(&mut editor);
+        assert_eq!(editor.session.buffer().unwrap().stamp(), source);
+        buffer_selector(&mut editor);
+        editor.session.handle(Event::Paste("term".into()));
+        editor
+            .session
+            .handle(key(KeyCode::Down, KeyModifiers::NONE));
+        editor
+            .session
+            .handle(key(KeyCode::Enter, KeyModifiers::NONE));
+        assert_eq!(editor.session.buffer().unwrap().terminal(), main);
+        assert_eq!(editor.session.terminals().ids().count(), 2);
+    }
+}
+
+fn buffer_selector(editor: &mut Editor) {
+    editor
+        .session
+        .handle(key(KeyCode::Char('x'), KeyModifiers::CONTROL));
+    editor
+        .session
+        .handle(key(KeyCode::Char('b'), KeyModifiers::NONE));
+}
+
+// Completion of a hidden panel child cannot steal focus from a different
+// main-area terminal, and must release only the completed session.
+#[test]
+fn background_exit() {
+    if isolated("panel::lifecycle::background_exit", false) {
+        return;
+    }
+    for profile in ["non-modal", "modal"] {
+        let script = "printf READY\nwhile [ ! -f leave-$$ ]; do sleep 0.01; done\nexit 0\n";
+        let mut editor = Editor::with_script(profile, 24, "", script);
+        command(&mut editor, TerminalCommand::Open);
+        editor.wait(|s| text(s).contains("READY"));
+        let first = editor
+            .session
+            .terminal_buffer()
+            .unwrap()
+            .terminal()
+            .unwrap();
+        let pid = editor
+            .session
+            .terminals()
+            .get(first)
+            .unwrap()
+            .process_id()
+            .unwrap();
+        command(&mut editor, TerminalCommand::NewBuffer);
+        editor.wait(|s| text(s).contains("READY"));
+        let active = editor.session.buffer().unwrap().id();
+        editor
+            .fixture
+            .write(&format!("source/leave-{pid}"), "ready");
+        let deadline = Instant::now() + Duration::from_secs(3);
+        while editor.session.terminals().get(first).is_some() {
+            editor.session.expire_input(Instant::now());
+            assert!(Instant::now() < deadline, "{}", editor.session.echo());
+            std::thread::sleep(Duration::from_millis(1));
+        }
+        assert_eq!(editor.session.buffer().unwrap().id(), active);
+        assert!(editor.session.terminal_focused());
+        assert_eq!(editor.session.terminals().ids().count(), 1);
+    }
+}
+
+// An unrelated source-save decision must remain visible and cancellable when
+// a background shell exits. Closing that shell cannot authorize source loss.
+#[test]
+fn exit_question() {
+    if isolated("panel::lifecycle::exit_question", false) {
+        return;
+    }
+    for profile in ["non-modal", "modal"] {
+        let script = "printf READY\nwhile [ ! -f leave-$$ ]; do sleep 0.01; done\nexit 0\n";
+        let mut editor = Editor::with_script(profile, 24, "", script);
+        editor.session.insert('!');
+        let source = editor.session.buffer().unwrap().stamp();
+        command(&mut editor, TerminalCommand::Open);
+        editor.wait(|s| text(s).contains("READY"));
+        let id = editor
+            .session
+            .terminal_buffer()
+            .unwrap()
+            .terminal()
+            .unwrap();
+        let pid = editor
+            .session
+            .terminals()
+            .get(id)
+            .unwrap()
+            .process_id()
+            .unwrap();
+        cancel(&mut editor);
+        close_current(&mut editor);
+        let question = editor.session.echo().to_owned();
+        assert!(question.contains("y=save"));
+        editor
+            .fixture
+            .write(&format!("source/leave-{pid}"), "ready");
+        let deadline = Instant::now() + Duration::from_secs(3);
+        while editor.session.terminals().get(id).is_some() {
+            editor.session.expire_input(Instant::now());
+            assert!(Instant::now() < deadline, "{}", editor.session.echo());
+            std::thread::sleep(Duration::from_millis(1));
+        }
+        assert!(
+            editor.session.echo().contains(&question),
+            "{}",
+            editor.session.echo()
+        );
+        cancel(&mut editor);
+        assert_eq!(editor.session.buffer().unwrap().stamp(), source);
+    }
 }
 
 fn answer(editor: &mut Editor, yes: bool) -> rev::session::Action {

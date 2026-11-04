@@ -62,8 +62,8 @@ fn registry_lifetime() {
     assert_eq!(text(buffers.get(reopened).unwrap()), "original");
 }
 
-// Tab completes a unique live name and a shared Unicode prefix; Enter selects
-// an exact name, while unknown names and cancellation preserve the active owner.
+// Switching shows live candidates before typing. Unicode filtering, Tab and
+// arrow selection use that list; unknown names and cancellation keep the owner.
 #[test]
 fn buffer_completion() {
     let fixture = Fixture::new();
@@ -76,20 +76,25 @@ fn buffer_completion() {
     let mut session = editor(buffers, initial);
     session.handle(chord('x'));
     session.handle(press(KeyCode::Char('b')));
-    session.handle(press(KeyCode::Char('界')));
-    session.handle(press(KeyCode::Tab));
-    assert!(session.echo().contains("2 matching"));
     assert!(
         session
             .frame()
             .unwrap()
             .rows()
-            .last()
-            .unwrap()
-            .text()
-            .starts_with("Switch to buffer: 界alp")
+            .iter()
+            .any(|row| { row.band() == Band::Completion && row.text().contains("界alpha") })
     );
-    argument(&mut session, "ha");
+    session.handle(press(KeyCode::Char('界')));
+    session.handle(press(KeyCode::Tab));
+    assert!(
+        session
+            .frame()
+            .unwrap()
+            .rows()
+            .iter()
+            .any(|row| row.text().starts_with("Switch to buffer: 界alpha"))
+    );
+    argument(&mut session, "");
     assert_eq!(session.buffer().unwrap().id(), first_id);
     let before = snapshot(&session);
     command(&mut session, BufferCommand::Switch, "missing");

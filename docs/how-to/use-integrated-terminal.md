@@ -22,7 +22,9 @@ or creation directory; it does not guess a running shell's later cwd.
 ## Switch sessions and return to source
 
 Create another shell with `terminal-new`. Use `terminal-list` or ordinary
-C-x b selection to revisit any retained terminal. Rename the selected buffer
+C-x b selection to revisit any terminal. C-x b immediately lists source and
+terminal buffers; type to filter, use arrows to select and Return to visit.
+Panel terminals appear in the same list. Rename the selected buffer
 with `terminal-rename`; names must be unique, 1–256 UTF-8 bytes and contain no
 control characters. Hide the panel with `terminal-toggle` and restore it later.
 
@@ -53,8 +55,10 @@ preserving the live screen; `terminal-clear` sends C-l to the child.
 ## Close owned jobs
 
 Quit a tool with its own control to return to its shell. An actual shell exit
-retains final output/status. Close that exited buffer explicitly to release
-capacity. If a live buffer is closed with C-x k, answer the termination question;
+automatically closes its terminal buffer after owned cleanup. A main-area
+terminal returns to its previous source; the selected panel terminal is removed.
+This also applies to nonzero shell exit codes. If a live buffer is closed with
+C-x k, answer the termination question;
 no/cancel retains it. Hiding a pane or switching buffers does not ask or signal.
 
 When quitting the editor, resolve source save decisions, then answer the single
@@ -69,8 +73,8 @@ an editor restart.
 Use the [terminal settings](../reference/integrated-terminal.md#startup-settings)
 to select one executable, literal argv, preferred panel height and bounded
 session/history/queue sizes. Restart rev to use changed startup preferences.
-`terminal-open` starts a new default after the previous default exited, retaining
-its old output buffer. Exited sessions still consume capacity until closed.
+`terminal-open` starts a new default after the previous default exited.
+Exited sessions release their buffers and capacity after successful cleanup.
 A full input queue rejects the complete new input or paste without accepting a
 partial sequence. Close an unneeded retained session or reduce output history
 when admission is exhausted; never assume a rejected creation started a child.

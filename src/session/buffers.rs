@@ -15,7 +15,12 @@ impl Session {
             BufferCommand::Switch => "Switch to buffer: ",
             _ => "Kill buffer: ",
         };
-        if let Err(error) = self.input.argument(label, "") {
+        let argument = if command == BufferCommand::Switch {
+            self.input.names_argument(label, "", self.buffer_names())
+        } else {
+            self.input.argument(label, "")
+        };
+        if let Err(error) = argument {
             return self.error(&error.to_string());
         }
         self.pending = Some(Pending::Buffer {
@@ -156,6 +161,7 @@ impl Session {
         self.windows.replace_buffer(closed, buffer);
         self.lsp.closed(closed);
         self.recent_clocks.retain(|p| p.stamp.buffer != closed);
-        self.message("Buffer closed")
+        self.refresh_buffer_completion(closed);
+        self.focus_message("Buffer closed")
     }
 }

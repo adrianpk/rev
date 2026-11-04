@@ -58,7 +58,8 @@ when you want a new independent session directly in the main area.
 
 Run `M-x terminal-new` to create another panel session. The first remains owned
 and can keep running while hidden. Use `terminal-list` to select one, or C-x b
-and its buffer name. Names start with `terminal`, then `terminal-2`; use
+to see and filter all buffers, including panel terminals. Names start with
+`terminal`, then `terminal-2`; use
 `terminal-rename` for a recognizable name such as `build`. The lower panel
 shows one selected session at a time.
 
@@ -83,9 +84,10 @@ text into live input, with the child's bracketed-paste mode when enabled.
 The [task guide](../../how-to/use-integrated-terminal.md#copy-retained-output)
 has concrete selection steps.
 
-At the shell prompt, enter `exit 7`. The header shows the actual exit status
-and retains final output. C-x k and Return close that exited buffer. Closing
-a live terminal instead asks before terminating its owned jobs. Quitting rev
+At the shell prompt, enter `exit`. Its terminal buffer closes automatically.
+The main area returns to its previous source; a selected lower-panel terminal
+disappears from the panel. Closing a live terminal with C-x k and Return asks
+before terminating its owned jobs. Quitting rev
 resolves source saves first and asks once about live sessions; declining keeps
 them. These sessions last for this editor process and are not restored after
 restart.

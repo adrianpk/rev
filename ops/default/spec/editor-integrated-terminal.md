@@ -216,10 +216,13 @@ SHALL own process termination, waiting and complete resource cleanup.
 
 Editor exit with live terminals SHALL ask once whether to terminate those
 sessions or cancel exit. Processes SHALL not implicitly survive an editor
-restart. Normal child exit SHALL retain bounded final output and its actual
-exit status in an inspectable buffer until explicit closure. Status text SHALL
-not be injected into the child's output. A terminal buffer SHALL not be saved
-as an ordinary source file.
+restart. After the terminal's shell exits, with any exit code, rev SHALL drain
+final output, complete owned cleanup and automatically close its terminal-backed
+buffer. A main-area attachment SHALL restore source editing; a selected panel
+attachment SHALL be removed. Background completion SHALL preserve unrelated
+prompts and source changes. Pending or failed cleanup SHALL remain visible and
+owned. Status text SHALL not be injected into the child's output. A terminal
+buffer SHALL not be saved as an ordinary source file.
 
 #### Scenario: Hide the lower panel
 
@@ -232,8 +235,9 @@ as an ordinary source file.
 
 - **GIVEN** an owned terminal application exits
 - **WHEN** rev observes its completion
-- **THEN** the session reports the actual outcome under the retention policy
-- **AND** it does not remain labeled as a live interactive process.
+- **THEN** final output drains and successful cleanup closes its terminal buffer
+- **AND** its source view is restored or its panel attachment is removed
+- **AND** unrelated buffers, prompts and live terminal sessions remain intact.
 
 #### Scenario: Decline terminal termination
 
@@ -288,7 +292,10 @@ session SHALL retain its own working state. There SHALL be one instance-global
 default terminal identity; no Project/Workspace registry is introduced.
 terminal-open selects the live default or creates one; terminal-new always
 creates an independent session. If the default exited, opening creates a new
-default while retaining the old exited buffer. terminal-toggle remembers the
+default after automatic closure of the exited buffer. C-x b SHALL immediately
+show a filterable list of source and terminal-backed buffers, including panel
+sessions. Selection SHALL preserve session identity and placement.
+terminal-toggle remembers the
 last selected terminal and lower-panel size, and restores previous focus/layout
 when hidden without spawning a process on each toggle.
 

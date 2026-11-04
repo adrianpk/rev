@@ -118,7 +118,6 @@ impl Session {
         if self.terminals.selected == Some(id) {
             self.terminals.selected = None;
             self.terminals.visible = false;
-            self.terminal_return();
         }
     }
     pub fn terminals(&self) -> &Sessions {

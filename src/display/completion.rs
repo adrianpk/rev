@@ -24,7 +24,7 @@ impl Frame {
                     .get(index)
                     .copied()
                     .unwrap_or(if candidates.is_empty() {
-                        "No matching bookmarks"
+                        "No matching names"
                     } else {
                         ""
                     });

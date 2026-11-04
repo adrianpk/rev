@@ -2,7 +2,7 @@ use crossterm::event::KeyCode;
 
 use super::{Context, Error, Input, Key, Outcome, Prompt};
 
-/// A bounded snapshot of bookmark names, independent of document text. The
+/// A bounded snapshot of names, independent of document text. The
 /// session revalidates the accepted name against its canonical collection.
 #[derive(Debug)]
 pub(crate) struct Names {
@@ -68,7 +68,7 @@ impl Names {
         if let Some(previous) = direction {
             let count = self.candidates().len();
             if count == 0 {
-                return Outcome::Message("No matching bookmarks");
+                return Outcome::Message("No matching names");
             }
             self.selected = if previous {
                 self.selected.saturating_sub(1)
@@ -102,7 +102,7 @@ impl Names {
     fn complete(&mut self) -> Outcome {
         let candidates = self.candidates();
         let Some(name) = candidates.get(self.selected) else {
-            return Outcome::Message("No matching bookmarks");
+            return Outcome::Message("No matching names");
         };
         let name = (*name).to_owned();
         let query = self
@@ -158,6 +158,20 @@ impl Input {
             Context::Names(names) => Some(names),
             _ => None,
         }
+    }
+    pub(crate) fn refresh_names(&mut self, incoming: Vec<String>) {
+        let Context::Names(names) = &mut self.context else {
+            return;
+        };
+        let selected = names
+            .candidates()
+            .get(names.selected)
+            .map(|s| (*s).to_owned());
+        names.names = incoming;
+        let index = selected.and_then(|name| names.candidates().iter().position(|n| *n == name));
+        names.selected = index.unwrap_or(0);
+        names.chosen &= index.is_some();
+        names.top = names.top.min(names.selected);
     }
     pub(crate) fn reveal_names(&mut self, rows: u16) {
         if let Context::Names(names) = &mut self.context {

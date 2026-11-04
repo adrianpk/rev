@@ -3,6 +3,24 @@ use crate::buffer::Buffers;
 use super::{Action, Pending, Session};
 
 impl Session {
+    pub(super) fn buffer_names(&self) -> Vec<String> {
+        self.buffers.iter().map(|b| b.name().to_owned()).collect()
+    }
+
+    pub(super) fn refresh_buffer_completion(&mut self, closed: crate::buffer::BufferId) {
+        let Some(Pending::Buffer {
+            command: crate::command::BufferCommand::Switch,
+            default,
+        }) = &mut self.pending
+        else {
+            return;
+        };
+        if *default == closed {
+            *default = self.windows.selected().point.stamp.buffer;
+        }
+        self.input.refresh_names(self.buffer_names());
+    }
+
     pub(in crate::session) fn complete_buffer(&mut self) -> Action {
         if !matches!(self.pending, Some(Pending::Buffer { .. })) {
             return self.message("No buffer completion is pending");

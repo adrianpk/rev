@@ -67,7 +67,9 @@ buffer navigation. Creation is on demand: editor startup and buffer listing
 do not launch children, and selecting or moving an existing session does not
 duplicate its process. terminal-open reuses a live default; terminal-new and
 terminal-new-buffer create independent sessions. Opening after default exit
-creates a fresh default without discarding its exited buffer. Buffer names are
+creates a fresh default after automatic closure of the exited buffer. C-x b
+shows source and terminal names immediately and filters them as the user types;
+panel placement does not exclude a session. Buffer names are
 terminal, terminal-2 and so on, with explicit identity-preserving rename.
 
 Moving preserves actual child working state. Metadata about the current shell
@@ -90,9 +92,11 @@ Killing a live terminal-backed buffer/session requires explicit termination
 confirmation. Declining preserves it. Confirmed closure owns signaling, waiting
 and resource release; unrelated processes remain outside ownership. Editor
 exit with live sessions asks once to terminate them or cancel exit. Session
-processes do not implicitly survive an editor restart. Normal child exit
-retains bounded output and truthful status outside the child output stream
-until explicit closure.
+processes do not implicitly survive an editor restart. Shell exit, including a
+nonzero exit code, drains output and automatically closes the terminal buffer
+after successful owned cleanup. Main-area attachments restore source editing;
+the selected panel attachment is removed. Background completion preserves
+unrelated prompts and source changes. Cleanup failures remain owned and visible.
 
 Child control sequences are interpreted under the emulator contract and lowered
 into editor-owned rendering. Output does not acquire authority to overwrite

@@ -151,7 +151,7 @@ fn closure(owner: &Path, terminal: &mut Terminal) -> Result<()> {
     );
     switch(terminal, "terminal-2")?;
     line(terminal, "exit 7")?;
-    terminal.frame(|f| plain(f).contains("Exited (7)"))?;
+    terminal.frame(|f| plain(f).contains("Buffer closed") && plain(f).contains("source.org"))?;
     reaped(pid_file(&owner.join("workspace/shell.pid"))?)?;
     Ok(())
 }
@@ -261,7 +261,7 @@ fn finish_tool(owner: &Path, terminal: &mut Terminal) -> Result<()> {
     reaped(pid_file(&owner.join("workspace/tool.pid"))?)?;
     assert_eq!(fs::read_to_string(owner.join("workspace/tool.exit"))?, "0");
     line(terminal, "printf '%s' \"$KEPT\" >kept-state; exit 7")?;
-    terminal.frame(|f| plain(f).contains("Exited (7)"))?;
+    terminal.frame(|f| plain(f).contains("Buffer closed") && plain(f).contains("source.org"))?;
     assert_eq!(
         fs::read_to_string(owner.join("workspace/kept-state"))?,
         "alive"

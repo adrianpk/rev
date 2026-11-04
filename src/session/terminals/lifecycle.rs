@@ -40,8 +40,8 @@ impl Session {
     }
 
     pub(super) fn finish_terminal_closures(&mut self) -> Action {
+        let mut action = self.close_exited_terminals();
         let ids: Vec<_> = self.terminals.closing.keys().copied().collect();
-        let mut action = Action::Wait;
         for id in ids {
             match self.terminals.sessions.get(id).map(|s| s.state()) {
                 None => {
@@ -63,5 +63,44 @@ impl Session {
             }
         }
         action
+    }
+
+    fn close_exited_terminals(&mut self) -> Action {
+        let exited: Vec<_> = self
+            .terminals
+            .sessions
+            .ids()
+            .filter(|id| {
+                self.terminals
+                    .sessions
+                    .get(*id)
+                    .is_some_and(|session| matches!(session.state(), State::Exited(_)))
+            })
+            .collect();
+        for id in exited {
+            if let Err(error) = self.retire_exited_terminal(id) {
+                return self.error(&format!("Close exited terminal: {error}"));
+            }
+        }
+        Action::Wait
+    }
+
+    fn retire_exited_terminal(&mut self, id: SessionId) -> Result<(), String> {
+        let buffer = self
+            .buffers
+            .iter()
+            .find(|buffer| buffer.terminal() == Some(id))
+            .map(crate::buffer::Buffer::id)
+            .ok_or("Exited terminal has no buffer")?;
+        let kill = self
+            .buffers
+            .prepare_kill(buffer)
+            .map_err(|e| e.to_string())?;
+        self.terminals
+            .sessions
+            .close(id)
+            .map_err(|e| e.to_string())?;
+        self.terminals.closing.insert(id, kill);
+        Ok(())
     }
 }

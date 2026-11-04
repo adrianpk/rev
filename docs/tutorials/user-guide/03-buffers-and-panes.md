@@ -12,7 +12,10 @@ Both files now have live buffers: rev's in-memory copies of their text.
 Switching files does not close or save the other buffer.
 
 Press `C-x b`, type `notes.txt` and press Enter to return to your notes.
-`C-x C-b` offers a buffer list instead: move with Up/Down and press Enter.
+A list appears as soon as you press `C-x b`; typing filters it. Up/Down selects
+a candidate, Tab completes its name, and Enter opens it. The list also includes
+terminal buffers, including terminals shown in the lower panel.
+`C-x C-b` opens the detailed buffer inventory.
 
 ## Show both files
 

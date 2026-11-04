@@ -16,9 +16,15 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
   C-g, inspect/copy retained output with C-c C-t, and paste with C-y. Child key
   and mouse modes, local selection and explicit links follow the
   [terminal reference](docs/reference/integrated-terminal.md). Configure startup
-  shell, panel and resource preferences under `[terminal]`. Exited sessions
-  retain output and status; closing live sessions and quitting ask before owned
-  shutdown, with pending or failed cleanup kept visible.
+  shell, panel and resource preferences under `[terminal]`. Shell exit closes
+  its terminal buffer and restores source editing; closing live sessions and
+  quitting ask before owned shutdown, with pending or failed cleanup kept visible.
+
+### Changed
+
+- C-x b shows a filterable buffer list immediately, including terminals in the
+  lower panel and editing panes. Use arrows and Enter to select, or Tab to
+  complete a name; selecting a terminal preserves its session and placement.
 
 - [Run shell commands and text filters](docs/tutorials/user-guide/15-shell-commands.md)
   from M-x or colon, send selected unsaved text to tools such as sort/tr, and

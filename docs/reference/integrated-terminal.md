@@ -113,6 +113,7 @@ Use `terminal-toggle` to hide or restore the panel without restarting its shell.
 The panel remembers its height and clamps it to preserve a usable source pane.
 
 `list-buffers` and `switch-to-buffer` include the terminal's stable buffer name.
+C-x b displays a filterable candidate list immediately, including panel sessions.
 Selecting it restores its current placement. Use `terminal-new` for an
 independent panel session or `terminal-new-buffer` for direct main-area entry.
 Move the same process with `terminal-move-to-buffer` and
@@ -217,16 +218,19 @@ restarting rev.
 | --- | --- |
 | Running | The editor owns the live child; hidden views do not change this state. |
 | Draining | Leader exit was observed; final output and owned cleanup are still pending. |
-| Exited | The actual exit status and bounded final output remain inspectable. |
-| Closing | Explicitly approved cleanup is running; the buffer and capacity remain owned. |
+| Exited | Final output has drained and the actual exit status is known; automatic buffer closure follows. |
+| Closing | Cleanup after shell exit or approved termination is running; the buffer and capacity remain owned. |
 | Failed | A diagnostic is retained; failure does not count as successful cleanup. |
 | Closed | Cleanup completed and the registry can release this session. |
 
 Closing a live terminal with `kill-buffer` asks whether to terminate it.
-Declining or cancelling retains the session. Closing an exited buffer releases
-its retained output and capacity. Merely hiding the panel, changing buffers or
-removing a view does not terminate a child. Opening the default after its exit
-creates a fresh shell and retains the exited buffer until explicit closure.
+Declining or cancelling retains the session. When the shell exits, with any exit
+code, rev automatically closes its terminal buffer after draining and successful
+owned cleanup. A main-area terminal restores source editing; a selected panel
+terminal is removed from the panel. Background completion preserves unrelated
+prompts and buffers. Merely hiding the panel, changing buffers or removing a view
+does not terminate a child. Opening the default after its exit creates a fresh
+shell. Exited terminal buffers disappear from buffer selection after cleanup.
 
 Quitting first resolves source saves/discards, then asks once about live
 terminal sessions. Declining keeps the editor and sessions. Approved cleanup
