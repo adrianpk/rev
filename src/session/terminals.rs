@@ -137,10 +137,7 @@ impl Session {
             TerminalCommand::Rename => self.rename_terminal(),
             TerminalCommand::MoveToBuffer => self.terminal_move(true),
             TerminalCommand::MoveToPanel => self.terminal_move(false),
-            TerminalCommand::OpenHere | TerminalCommand::OpenOtherPane => {
-                self.terminal_entry_command(command)
-            }
-            TerminalCommand::SendNextKey => unreachable!("input commands dispatched separately"),
+            _ => self.terminal_entry_command(command),
         }
     }
 

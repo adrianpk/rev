@@ -54,6 +54,10 @@ cancellation returning from the child as well as closing the host prompt. The
 expiration path now preserves the prior transient owner through dispatch.
 The existing focus assertion remains unchanged.
 
+Attempt `FLGGPRJOJ4AK2ERS2PCMBNIPFB` passed the raw-PTY cases after that
+correction, then found two command-dispatch complexity violations. Input and
+placement dispatch now delegate directory entry to its existing small owner.
+
 Pending focused clean-head controller validation and the ordered Slice 4
 commands. The raw-PTY fixture covers both startup profiles and ordinary versus
 application modes, protected-key forwarding and host transient cancellation.

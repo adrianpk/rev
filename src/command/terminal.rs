@@ -31,8 +31,7 @@ impl TerminalCommand {
             Self::New => "terminal-new",
             Self::List => "terminal-list",
             Self::Rename => "terminal-rename",
-            Self::OpenHere | Self::OpenOtherPane => self.entry_name(),
-            Self::SendNextKey => unreachable!("input commands named separately"),
+            _ => self.entry_name(),
         }
     }
 
