@@ -141,6 +141,7 @@ impl Terminal {
     }
 
     pub(crate) fn idle(&mut self) -> Result<()> {
+        self.settle_output()?;
         let ticks = cpu_ticks(&self.editor)?;
         assert!(
             matches!(
@@ -159,6 +160,29 @@ impl Terminal {
             peak_rss(&self.editor)?
         );
         Ok(())
+    }
+
+    // Establish a measurement epoch after queued command redraws. Every byte
+    // still consumes the same stream cap; a busy renderer cannot pass either
+    // this bounded barrier or the subsequent 350-ms silence assertion.
+    fn settle_output(&mut self) -> Result<()> {
+        let deadline = self.deadline.min(Instant::now() + Duration::from_secs(2));
+        loop {
+            let remaining = deadline.saturating_duration_since(Instant::now());
+            if remaining.is_zero() {
+                return Err("PTY did not become quiescent".into());
+            }
+            match self
+                .received
+                .as_ref()
+                .ok_or("closed PTY reader")?
+                .recv_timeout(remaining.min(Duration::from_millis(10)))
+            {
+                Ok(chunk) => self.append(chunk)?,
+                Err(RecvTimeoutError::Timeout) => return Ok(()),
+                Err(error) => return Err(error.into()),
+            }
+        }
     }
 
     // Mode/style bytes can precede a frame's hide-cursor delimiter. Keep their
