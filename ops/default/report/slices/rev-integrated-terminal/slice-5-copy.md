@@ -1,6 +1,6 @@
 # Slice 5: Retained Output and Transfer
 
-Status: drafting
+Status: reviewing
 Delivery set: rev-integrated-terminal
 Plan: [Integrated Terminal Delivery](../../../plan/rev-integrated-terminal.md)
 Tracker: [Integrated Terminal Tracker](../../../tracker/rev-integrated-terminal.md)
@@ -34,6 +34,13 @@ frozen line/cursor controls, child-side undo and the complete twelve explicit
 send identities. C-y/M-y use retained text in live input; literal-next preserves
 access to their child encodings. Explicit input commands require leaving copy
 mode. Clearing history releases that session's captures and preserves its screen.
+
+T5.3 navigates actual bounded OSC 133 prompt reports and recognized retained
+compiler locations. Positive file/row/column evidence visits an existing regular
+source through the terminal's creation context; missing or invalid evidence
+retains the source. Explicit named and pointer hyperlink activation uses the
+captured URI during frozen inspection, with the existing literal viewer argv and
+scheme policy. Both 474-command inventories include every finite send identity.
 
 ## Implementation Notes
 
@@ -73,9 +80,23 @@ the existing pending-input cap and publishes atomically. Escape/control bytes
 other than line breaks/tabs are rejected before queue mutation. Cursor reset
 checks that the live text is represented by the frozen projection before moving.
 
+The prompt owner retains at most 1024 reports. Full-grid scrolling adjusts
+positions and evicts records beyond history. Resize, complex grid transforms and
+unrepresentable pending-wrap positions invalidate or decline evidence. A frozen
+copy retains up to 1024 prompt points and 1024 hyperlink spans. The 64 KiB link
+budget reserves span storage before copying URI bytes, within the existing
+256 KiB per-copy metadata charge. Missing captured links never fall back to a
+changed live grid. Error locations recognize `path:line[:column]: error:` with
+positive decimal positions, an existing regular file and represented native
+source coordinates. Paths remain literal data; no shell cwd is inferred.
+
 ## Files of Interest
 
-- `src/session/terminals/copy/`: bounded snapshot, native view, pointer, operator and search ownership.
+- `src/session/terminals/copy/`: bounded snapshot, native view, pointer, operator, search and captured evidence ownership.
+- `src/term/paste.rs` and `src/session/terminals/transfer.rs`: atomic input receipts and retained-text authority.
+- `src/term/prompts.rs`: bounded reported prompt positions and invalidation.
+- `src/session/terminals/copy/errors.rs`: checked compiler-location visits.
+- `tests/integrated_terminal/transfer.rs`, `evidence.rs` and `paste.rs`: real-PTY paste, controls, retained evidence and capacity assertions.
 - `src/session/terminals/copy.rs`: admission, commands, transfers and attachment lifetime.
 - `src/buffer/lifecycle.rs`: private read-only projection construction.
 - `src/display/terminal.rs`: native copy projection beside live VT cell rendering.
@@ -122,9 +143,40 @@ shell escape sequence rather than embedding a Rust NUL; it additionally asserts
 negotiated bracketed mode. Receipt `7R5IXHB7NKFOVTSQAG7XESSHJP` records that
 regression passing before the documentation inventory was completed.
 
-These are focused T5.1/T5.2 checks. Required ordered Slice 5 validation is pending
-T5.3 and the final PR head.
+T5.3 source checks passed all fourteen selected files at
+`1b394b3eb6b299bd2a3a7868ac5bdd2f4a3acb1e` in retained batch
+`7M6OAKZ2CGI5UH2AY2LCJ5427X`. That batch passed 37 of 38 terminal tests; the
+link fixture passed its percent-encoded URI as a printf format and produced
+spaces. Correction `77416996db98` passes the payload as data, preserving the exact
+URI, activation policy and frozen/live distinction. Receipt
+`AVBV5N2H6WLBQW7CXB2MFIKZRH` passed the corrected link journey, the 474-command
+catalogs and diff checking.
+
+Receipt `CMCFOMPGVG7Z2XCBTMMBJSNSU6` passed at
+`c9fbc6df3c1c674a3e3261147485547de20cca9b` with this exact ordered list:
+
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test integrated_terminal engine::prompt_retention -- --exact --test-threads=1`
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test integrated_terminal panel::evidence:: -- --test-threads=1`
+- `git diff --check`
+
+These four evidence tests cover both profiles, actual history eviction, the
+1024-report cap, unchanged frozen boundaries during continued output, validated
+named/pointer link activation, 64 KiB copy-link admission exhaustion, earlier
+link preservation, genuine error locations and invalid/missing file/row/column
+source retention. The prior resource/FD assertions remain unchanged.
+
+The controller retains the exact final PR-head receipt after its reference
+follow-up commit. Its required ordered commands are:
+
+- `cargo fmt --all -- --check`
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo clippy --locked --all-targets -- -D warnings`
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test integrated_terminal --test search --test rectangles -- --test-threads=1`
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo run --locked --quiet --example documentation-check`
+- `git diff --check`
 
 ## Risks and Follow-ups
 
-T5.3 prompt/error/link evidence navigation is pending. No Slice 5 PR is open.
+Yank-pop replacement ends when input leaves the owned queue; it does not erase
+arbitrary child state. Prompt and link navigation report missing admitted
+evidence. Error locations use the creation context and represented source
+coordinates. Canonical integration remains controller-owned.

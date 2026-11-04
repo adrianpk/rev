@@ -108,7 +108,7 @@ Integration: canonical PR #251 merged into dev at `ef59e61d3a152d52faf23e8e05288
 
 ## Slice 5: Retained output and transfer
 
-Status: active
+Status: reviewing
 Branch: `feat/rev-integrated-terminal-05-copy`
 Expected PR title: `feat(terminal): navigate and copy retained terminal output`
 Report: `ops/default/report/slices/rev-integrated-terminal/slice-5-copy.md`
@@ -116,14 +116,11 @@ PR: pending
 
 - [x] T5.1: Provide bounded scrollback, stable per-view copy mode, selection/search, copy with retained viewport, tail-follow suspension/resumption and the specified Return/C-g exits while output continues.
 - [x] T5.2: Implement native terminal yank/yank-pop with checked replaceability and bracketed paste, separate clear-screen/clear-scrollback operations, line/cursor navigation and explicit send/undo operations.
-- [ ] T5.3: Complete prompt/error/link navigation using actual admitted evidence such as OSC 133 and recognized locations; report unavailable evidence honestly. Complete the finite terminal-send-* command inventory without placeholders.
+- [x] T5.3: Complete prompt/error/link navigation using actual admitted evidence such as OSC 133 and recognized locations; report unavailable evidence honestly. Complete the finite terminal-send-* command inventory without placeholders.
 
-Implementation checkpoint: T5.1 is complete. Controller receipt
-`NBFYD5DMKMI6RM4NRLBO7KFQLI` passed all 21 focused panel PTY tests and 16-file
-source checks at `976b0dcb5ade370b536dbfb22a7b8a7b6e3fa6b4`, followed by
-`git diff --check`. Native copy/search/operators, Unicode pointer mapping,
-placement transfer and both storage rejection boundaries passed. T5.2 and
-T5.3 remain pending before canonical PR preparation.
+T5.1 is complete. Receipt `NBFYD5DMKMI6RM4NRLBO7KFQLI` passed all 21 panel
+PTY tests and sixteen source files at `976b0dcb5ade370b536dbfb22a7b8a7b6e3fa6b4`.
+T5.2/T5.3 implementation and focused evidence are recorded below and in the report.
 
 Validation: pending; use the exact ordered Slice 5 commands from the plan and frozen controller configuration.
 Integration: pending canonical PR and controller verification.
@@ -132,7 +129,14 @@ T5.2 evidence: implementation `61a16c018292` and cursor-owner refactor
 `cc1a07055a1f`; queue fixture correction `a892e8e60ad6`; checked policy/catalog
 `a5daf0519d9f`. Receipt `MCZY75A524KKYSJWPA7Z35TKP4` passed 34 real-PTY tests,
 twelve source-quality files, both 470-command documentation inventories and diff
-checking on the exact clean T5.2 head. T5.3 and final Slice 5 validation remain.
+checking on the exact clean T5.2 head. Final Slice 5 validation follows the PR-reference commit.
+
+T5.3 evidence: `e37ec1eef7d0` and `1b394b3eb6b2` implement bounded actual
+prompt reports, frozen URI targets and checked compiler-location visits. The
+printf-data correction `77416996db98` preserves the exact URI assertion. Receipt
+`CMCFOMPGVG7Z2XCBTMMBJSNSU6` passed prompt and evidence/capacity tests on
+`c9fbc6df3c1c674a3e3261147485547de20cca9b`; both documentation inventories now
+contain all 474 commands. Final exact-PR validation is retained by the controller.
 
 ## Slice 6: Session lifecycle and failure containment
 
