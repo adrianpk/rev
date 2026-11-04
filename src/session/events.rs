@@ -235,8 +235,14 @@ impl Session {
     }
 
     fn expire_escape(&mut self, now: Instant) -> Action {
+        // Expiration can cancel a prompt before dispatch observes its previous
+        // focus. Preserve that owner so one Escape cannot also leave a child.
+        let previous = self.terminals.host_cancel;
+        self.terminals.host_cancel |= self.terminal_host_transient();
         let outcome = self.input.expire(now);
-        self.outcome(outcome, now)
+        let action = self.outcome(outcome, now);
+        self.terminals.host_cancel = previous;
+        action
     }
 
     fn expire_layout(&mut self) -> Action {

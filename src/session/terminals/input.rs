@@ -10,13 +10,13 @@ impl Session {
     /// Host transients and already-started host prefixes retain first refusal.
     /// Other live keys bypass source/modal editing in either startup profile.
     pub(in crate::session) fn terminal_input(&mut self, event: &Event) -> Option<Action> {
-        if self.input.focus() != Focus::Editing || self.pending.is_some() {
+        if self.terminal_host_transient() {
             return None;
         }
         if let Event::Mouse(mouse) = event {
             return self.terminal_pointer(*mouse);
         }
-        if !self.terminals.focused || self.input.prefix().is_some() {
+        if !self.terminals.focused {
             return None;
         }
         match event {
@@ -24,6 +24,12 @@ impl Session {
             Event::Paste(text) => Some(self.terminal_send(text.as_bytes())),
             _ => Some(Action::Wait),
         }
+    }
+
+    pub(in crate::session) fn terminal_host_transient(&self) -> bool {
+        self.input.focus() != Focus::Editing
+            || self.pending.is_some()
+            || self.input.prefix().is_some()
     }
 
     fn terminal_pointer(&mut self, mouse: MouseEvent) -> Option<Action> {

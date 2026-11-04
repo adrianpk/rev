@@ -49,6 +49,11 @@ prefixes. A frame exposes optional native terminal cursor style metadata.
 
 ## Validation
 
+Focused attempt `NA76K3A36DM2CK62VG3QC4QL2Q` exposed delayed Escape
+cancellation returning from the child as well as closing the host prompt. The
+expiration path now preserves the prior transient owner through dispatch.
+The existing focus assertion remains unchanged.
+
 Pending focused clean-head controller validation and the ordered Slice 4
 commands. The raw-PTY fixture covers both startup profiles and ordinary versus
 application modes, protected-key forwarding and host transient cancellation.
