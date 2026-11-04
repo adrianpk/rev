@@ -45,12 +45,22 @@ Timer deadlines exist only while an unpaused countdown is armed; completed jobs
 retire their own polling deadline. Optional clock recovery is the separate,
 opt-in XDG state record described by the Org model, not editor-history persistence.
 
+## Integrated terminal extension
+
+The [terminal model](editor-integrated-terminal-model.md) adds a bounded
+instance registry for process/PTY/emulator ownership and independent panel or
+main-area attachments. Source invariants remain with `Resource::Text`; hiding
+or mirroring a terminal view does not close its session. Input/copy ownership,
+confirmed asynchronous close and truthful pending/failure state follow the
+paired terminal contract. Slices 1-7 have integrated evidence; the unchanged
+combined controller gate is still required before terminal delivery closure.
+
 ## Ownership
 
 | Owner | State and authority |
 | --- | --- |
 | Application | Buffer/view registries, layout, focus, ring, rectangle, input, tree, and messages. |
-| Buffer | Canonical rope, text revision, file association, mark, history, save point, and syntax state. |
+| Buffer | Stable typed navigation identity. Source text owns rope, revision, file association, mark, history, save point and syntax; terminal resources refer to the terminal session owner. |
 | View | Buffer reference, point, desired display column qualified by pane width, source-qualified viewport anchor, vertical/horizontal scroll, geometry, selection shape and independent gutter policy/overrides. |
 | Layout | One recursive tree of editing views and below/right split nodes. |
 | Terminal guard | Acquired raw mode, alternate screen, paste/cursor/color restoration and independently tracked SGR/button mouse-reporting obligations. |
@@ -87,6 +97,13 @@ and internal lists do not acquire authority to mutate text through a second
 storage path.
 
 ### Buffer
+
+The fields below describe source-text buffers. A terminal resource carries its
+stable `SessionId` through `Resource::Terminal` and participates in navigation,
+but its inert source storage cannot authorize save, edits or source providers.
+Its process/emulator and frozen copy state follow the
+[integrated terminal model](editor-integrated-terminal-model.md). Terminal
+sessions and attachments are transient and are not file/history persistence.
 
 | Field | Meaning and invariant |
 | --- | --- |

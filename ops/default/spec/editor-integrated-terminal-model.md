@@ -52,8 +52,9 @@ is a separate explicit operation. The configured user shell is the interactive
 default; explicit argv/environment remain structured data. rev's directory
 context supplies the initial location with file-parent/launch-directory
 fallbacks. The approved plan defines the initial typed TOML keys, panel
-dimensions and finite resource bounds. Implementing the shipped sample and
-measuring those bounds belong to the recorded slices.
+dimensions and finite resource bounds. The shipped sample is checked against
+the live schema; Slice 7 records actual storage, queue, CPU/RSS and cleanup
+observations. The user reference lists all seven startup fields.
 
 There is one instance-global default session and one remembered lower-panel
 terminal/size. The lower panel displays one selected session at a time;
@@ -75,8 +76,10 @@ without introducing workspace registration or changing a running child's cwd.
 
 Creation must prepare process, terminal state, buffer identity and a valid
 attachment coherently. A failed candidate leaves no unowned child. Session
-states follow Odra: Prepared, Starting, Running, Exited, Closing, Closed and
-Failed. Hidden/detached is presentation state, not a replacement process state.
+states are Running, Draining, Exited, Closing, Closed and Failed. Prepared and
+Starting describe the pre-publication creation transaction, not published live
+registry states. Draining retains final IO/cleanup after leader exit. Hidden or
+detached remains presentation state, not a replacement process state.
 
 Relocation prepares the new attachment/geometry before replacing the old one.
 Failure retains the old valid placement. Hide/detach is not process termination.
@@ -94,16 +97,34 @@ other panes, invoke host commands or change AI tool grants. Live keyboard and
 pointer routing must distinguish child interaction from host command/copy mode.
 
 Live input, protected host command/recovery routes and literal-next handling
-follow the Odra contract. Copy mode owns stable retained-text navigation while
+follow the paired specification's explicit TRM06/TRM11 contract. Copy mode owns stable retained-text navigation while
 the child continues. Native user paste follows child bracketed-paste state;
 child-requested clipboard effects are denied and hyperlinks require explicit
 activation. The crate's own optional vi-navigation helpers do not select or
 replace rev's startup-only non-modal/modal profile.
 
-## Readiness
+## Implementation mapping and readiness
 
-The product behavior and eight-slice plan are approved with the sibling
-specification. The plan records dependency/preference/bounds decisions and
-native Linux PTY/lazygit acceptance. Implementation and measurements remain
-pending controller execution; planning does not claim a delivered terminal.
-No new Git/AI workflow or runtime profile selection is introduced.
+`buffer::Resource::Text` retains canonical source text and file/history authority;
+`Resource::Terminal(SessionId)` identifies a terminal resource with inert source
+storage. `term::Sessions` owns process/PTY/emulator state, bounded IO and cleanup.
+Session attachments own panel/main-area placement and copy viewports. Input
+uses this type/focus distinction before source-only commands or providers.
+
+Confirmed close is asynchronous: a Closing session retains buffer/capacity
+until its owned worker returns successful cleanup. Failed cleanup keeps its
+process ownership and diagnostic. Discovery/signals/wait/reap stay off the UI,
+with the unchanged 500 ms grace and two-second cleanup deadline. Live commands
+have no runtime cap. Interrupted zero-time exit observation defers to the next
+bounded service turn rather than converting a live child into a failure.
+
+No live session, scrollback, process or attachment is persisted across editor
+restart. Only the existing immutable startup configuration is durable. The
+baseline [editor model](rev-editor-model.md) preserves source/file/history
+invariants and delegates these transient records to this model.
+
+Slices 1-7 are integrated through canonical PRs #248-#254. Their reports retain
+exact-candidate implementation and measured acceptance evidence; the paired
+specification maps TRM01-TRM11. Slice 8 reconciles guidance/catalogs and the
+baseline. Final combined acceptance and delivery closure remain with the
+controller's unchanged gate, so these records do not mark delivery Completed.

@@ -22,12 +22,19 @@ settings, input/copy ownership, limits and pending/failure lifecycle behavior.
 ## Implementation Notes
 
 Markdown remains the source for the Spore projection. Small text diagrams show
-placement without adding an image or runtime dependency.
+placement without adding an image or runtime dependency. Chapter 16 is linked
+in the everyday editor path; the independent Org path remains separately
+validated. Catalog checks compare all 37 terminal commands and seven settings
+with the live command/schema/default owners, rather than a second manual list.
 
 ## Contracts Added or Changed
 
 The interactive section in the command catalog links the dedicated reference;
-its stable anchor and complete command inventory remain available.
+its stable anchor and complete command inventory remain available. Accepted
+baseline/model clauses now admit typed terminal resources without transferring
+source/file/history authority. TRM01-TRM11 link their implementation reports;
+combined-gate acceptance remains pending. Core contracts state their behavior
+directly without relying on another product's capabilities.
 
 ## Files of Interest
 
@@ -41,5 +48,5 @@ Pending the configured clean-HEAD Slice 8 commands.
 
 ## Risks and Follow-ups
 
-Learning-path/catalog updates, baseline/model reconciliation and final configured
-checks remain in this slice. The controller owns the combined gate after merge.
+The unchanged combined gate remains controller-owned after Slice 8 merges.
+Slice-local documentation and catalog checks do not close terminal delivery.

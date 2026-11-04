@@ -6,13 +6,13 @@ Reviewed: 2026-11-03
 Approved: product owner, 2026-11-03; lower-panel default, direct-buffer entry, bidirectional live relocation and multiple on-demand sessions in the first delivery
 Version: 0.4
 Format: OpenSpec capability specification
-Source: product-owner terminal presentation request, Odra behavior reference, Rust/Alacritty engine choice and multiple-session clarification
+Source: product-owner terminal presentation, session/input ownership, Rust engine choice and multiple-session clarification
 Model: [Integrated Terminal Model](editor-integrated-terminal-model.md)
 Delivery: [Plan](../plan/rev-integrated-terminal.md), [tracker](../tracker/rev-integrated-terminal.md)
 Editor owner: [rev Editor](rev-editor.md)
 Controls: [Editor Configuration](editor-configuration.md)
 Delivery boundary: approved eight-slice autonomous delivery through dev; owner explicitly requested Looper startup on 2026-11-03
-Readiness: approved plan/tracker define the dependency, initial finite preferences/resource bounds, ordered validation and closure; implementation and measurements remain pending controller execution
+Readiness: Slices 1-7 integrated through PRs #248-#254 with exact-candidate receipts; guidance and baseline reconciliation are Slice 8, and combined controller acceptance remains pending
 Separate capability: [Shell Commands and Text Filters](editor-shell-commands.md) is Completed; interactive terminals retain their own session lifecycle and delivery
 
 ## Purpose
@@ -26,7 +26,7 @@ A terminal-backed buffer makes full-area tools such as lazygit usable through
 the editor's normal buffer navigation. Supporting that application does not
 create a built-in Git UI or a Magit-like subsystem in rev.
 
-## Reference and confirmed direction
+## Confirmed direction
 
 The owner selected two independent contracts on 2026-11-03. A lower terminal
 panel and a terminal-backed buffer are two placements of the same interactive
@@ -35,12 +35,11 @@ belongs to Shell Commands and Text Filters; it does not require this emulator,
 PTY or persistent session. Either capability may reuse genuinely shared native
 process primitives without taking over the other's lifecycle.
 
-Odra's integrated-terminal-sessions specification, reviewed at commit
-f701c830b88e2088bb8de93ba9fee2dd0cd111f1, is the behavioral reference for session,
-terminal-state, buffer/view, input, copy/paste and lifecycle ownership. rev
-preserves those semantics with its requested placement controls and a Rust
-terminal engine. Its native commands and TOML replace Odra's programmable
-surface; Project/Workspace abstractions are not introduced.
+Session, terminal-state, buffer/view, input, copy/paste and lifecycle ownership
+are defined by TRM01-TRM11 below. Native commands and startup TOML expose the
+same capability through the requested placements and Rust engine. The editor's
+existing file/directory context supplies creation context; no workspace
+registration or programmable command surface is introduced.
 
 - The default placement is a usable lower terminal panel.
 - Opening directly in a normal buffer location is an explicit alternative.
@@ -52,14 +51,15 @@ surface; Project/Workspace abstractions are not introduced.
   retained terminal output across those moves.
 - Use alacritty_terminal as the selected Rust terminal engine, with no
   libghostty-vt or Zig build/runtime requirement for this feature.
-- Inherit Odra's session, close, input, copy/paste and presentation behavior.
+- Preserve the explicit session, close, input, copy/paste and presentation contracts below.
 
 ## Relationship to the delivered baseline
 
 This is an accepted additive capability against the **Scope and priority**
 section of [rev Editor](rev-editor.md#scope-and-priority). That section's
 embedded-shell exclusion describes the original implemented baseline;
-TRM01-TRM11 define the separately planned interactive-terminal addition.
+TRM01-TRM11 define the separately implemented interactive-terminal addition,
+whose final combined acceptance remains controller-owned.
 The completed shell-command capability continues to own one-shot text filters.
 
 The baseline's **Vocabulary and invariants** and the **Buffer** record in
@@ -384,8 +384,8 @@ compact bounded fallback; raw output SHALL never grant editor-command authority.
 
 ## Native command contract
 
-Reuse Odra's terminal-prefixed native command identities where the operation
-exists. Adapt its working-context selection to rev's file/directory model.
+Use the terminal-prefixed native command identities below with the editor's
+existing file/directory context.
 All commands below require concrete native behavior, not functional-looking
 stubs or a programmable facade.
 
@@ -412,8 +412,8 @@ stubs or a programmable facade.
 
 ## Implementation preparation
 
-Behavior follows Odra with the approved rev placement, multiple-session and
-Rust-engine choices above. The linked eight-slice plan fixes the initial
+Behavior follows the approved session, placement, multiple-session and
+Rust-engine contracts above. The linked eight-slice plan fixes the initial
 engineering policy and validation; its tracker and controller own execution.
 
 - Resolve the pinned alacritty_terminal feature/transitive set in Slice 1;
@@ -429,3 +429,31 @@ The plan maps the accepted baseline addition and typed buffer/file command
 admission to implementation and acceptance work. Preserve historical completed
 delivery and gate records. Exact startup and progress belong to the controller;
 planning metadata is not evidence of a running worker or completed capability.
+
+## Implementation mapping and evidence
+
+The baseline's Scope and priority and Buffer vocabulary now distinguish source
+text from terminal resources. The paired editor model links the transient
+terminal owner without turning a terminal into a writable rope or file.
+No accepted TRM requirement or scenario is removed by this reconciliation.
+
+| Requirement | Implemented boundary and recorded evidence |
+| --- | --- |
+| TRM01 | Default panel/direct buffer creation and admitted geometry: [Slice 2](../report/slices/rev-integrated-terminal/slice-2-panel.md), [Slice 3](../report/slices/rev-integrated-terminal/slice-3-placement.md); panel tests. |
+| TRM02 | Same session/buffer/process across moves; failed geometry preserves placement: [Slice 3](../report/slices/rev-integrated-terminal/slice-3-placement.md), [Slice 7](../report/slices/rev-integrated-terminal/slice-7-acceptance.md); real lazygit relocation. |
+| TRM03 | On-demand independent sessions, stable names and ordinary navigation: [Slice 3](../report/slices/rev-integrated-terminal/slice-3-placement.md), [Slice 7](../report/slices/rev-integrated-terminal/slice-7-acceptance.md). |
+| TRM04 | Real PTY, emulator modes, alternate screen, live keys and cell rendering: [Slice 1](../report/slices/rev-integrated-terminal/slice-1-engine.md), [Slice 4](../report/slices/rev-integrated-terminal/slice-4-interaction.md), [Slice 7](../report/slices/rev-integrated-terminal/slice-7-acceptance.md). |
+| TRM05 | Hidden/mirrored views retain ownership; explicit close/quit, draining and exit status: [Slice 6](../report/slices/rev-integrated-terminal/slice-6-lifecycle.md), [Slice 7](../report/slices/rev-integrated-terminal/slice-7-acceptance.md). |
+| TRM06 | Child versus host input, source exclusion, literal-next and mouse ownership: [Slice 4](../report/slices/rev-integrated-terminal/slice-4-interaction.md), [Slice 7](../report/slices/rev-integrated-terminal/slice-7-acceptance.md). |
+| TRM07 | Complete command/configuration catalogs and typed startup defaults: [Slice 2](../report/slices/rev-integrated-terminal/slice-2-panel.md), [Slice 8](../report/slices/rev-integrated-terminal/slice-8-guidance.md). |
+| TRM08 | Queue/grid/extra/session admission, fair service, contained faults and owned cleanup: [Slice 1](../report/slices/rev-integrated-terminal/slice-1-engine.md), [Slice 6](../report/slices/rev-integrated-terminal/slice-6-lifecycle.md), [Slice 7](../report/slices/rev-integrated-terminal/slice-7-acceptance.md). |
+| TRM09 | Actual installed lazygit keeps its own interactive behavior and process state: [Slice 7](../report/slices/rev-integrated-terminal/slice-7-acceptance.md); no Git UI is added to the editor. |
+| TRM10 | Pinned Rust engine/PTY adapter and editor-owned cells; host owns fonts: [Slice 1](../report/slices/rev-integrated-terminal/slice-1-engine.md), [Slice 4](../report/slices/rev-integrated-terminal/slice-4-interaction.md). |
+| TRM11 | Frozen copy, atomic paste/replacement, reported prompt/error/link evidence and denied child effects: [Slice 5](../report/slices/rev-integrated-terminal/slice-5-copy.md), [Slice 7](../report/slices/rev-integrated-terminal/slice-7-acceptance.md). |
+
+The [integration target](../../../tests/integrated_terminal.rs) groups engine,
+panel, interaction, pointer, copy, transfer, paste, evidence, lifecycle and
+resource checks. Slice 7 records real Bash/lazygit, both-profile native/host PTYs,
+normal/error restoration and measured resource/FD/thread retirement. These are
+slice-local receipts, not the final combined gate. Final delivery status changes
+only after the controller's unchanged gate succeeds on the integrated dev head.

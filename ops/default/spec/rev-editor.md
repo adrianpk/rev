@@ -75,7 +75,7 @@ Priorities, in order:
 
 Compatibility concerns the specified commands, keys, cursor behavior, and
 screen organization. It does not import the complete GNU Emacs feature set.
-The baseline excludes a GUI, Lisp or another embedded scripting runtime, plugins
+The original baseline excludes a GUI, Lisp or another embedded scripting runtime, plugins
 or package installation, LSP or language-completion engines, Git UI, embedded
 shells, a Dired-style editable directory listing and general IDE subsystems.
 Tree-sitter is for highlighting. Native Org is the accepted additive capability
@@ -95,8 +95,11 @@ SHL01-SHL08 acceptance. It does not turn the
 original exclusion into an interactive shell, automatic task runner or plugin
 interface. [Interactive Terminals](editor-integrated-terminal.md) is the
 separately approved additive contract for live PTY sessions, terminal-backed
-buffers and lower-panel/main-area placement. Its implementation remains a
-separate delivery; original completed editor gates stay historical.
+buffers and lower-panel/main-area placement. Slices 1-7 are integrated through
+PRs #248-#254; guidance and baseline reconciliation are Slice 8. The
+[terminal tracker](../tracker/rev-integrated-terminal.md) retains exact slice
+receipts while final combined controller acceptance remains pending. Original
+completed editor gates stay historical and do not establish terminal acceptance.
 
 MUST and SHALL define acceptance obligations. SHOULD is a strong expectation;
 deviations require a recorded reason. MAY permits bounded optional behavior
@@ -108,7 +111,7 @@ product-owner decision. Accepted adaptation clarifications are identified below.
 
 | Term | Meaning |
 | --- | --- |
-| Buffer | One editable rope, file association, mark, and per-buffer history. |
+| Buffer | Stable navigation identity for source text or a typed terminal resource. A source buffer owns its editable rope, file association, mark and history; a terminal buffer refers to its owned session. |
 | File | A path and its disk content, distinct from its visiting buffer. |
 | Window or view | A terminal viewport referencing a buffer, with independent point and scroll. |
 | Frame | The single terminal screen; no additional OS window. |
