@@ -122,7 +122,7 @@ T5.1 is complete. Receipt `NBFYD5DMKMI6RM4NRLBO7KFQLI` passed all 21 panel
 PTY tests and sixteen source files at `976b0dcb5ade370b536dbfb22a7b8a7b6e3fa6b4`.
 T5.2/T5.3 implementation and focused evidence are recorded below and in the report.
 
-Validation: pending; use the exact ordered Slice 5 commands from the plan and frozen controller configuration.
+Validation: the controller records the final exact-PR receipt with the ordered Slice 5 commands from the frozen configuration; focused task receipts are recorded below.
 Integration: canonical PR #252 is open against dev; controller verification is pending.
 
 T5.2 evidence: implementation `61a16c018292` and cursor-owner refactor

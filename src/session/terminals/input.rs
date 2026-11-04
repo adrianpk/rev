@@ -54,12 +54,12 @@ impl Session {
         let Some(key) = Key::normalize(event) else {
             return Some(Action::Wait);
         };
-        if let Some(id) = self.terminals.copy_chord.take() {
-            if self.current_terminal() == Some(id) {
-                return Some(
-                    self.terminal_copy_chord(key, event.state.contains(KeyEventState::KEYPAD)),
-                );
-            }
+        if let Some(id) = self.terminals.copy_chord.take()
+            && self.current_terminal() == Some(id)
+        {
+            return Some(
+                self.terminal_copy_chord(key, event.state.contains(KeyEventState::KEYPAD)),
+            );
         }
         let id = self.current_terminal();
         let literal = self
