@@ -363,3 +363,138 @@ fn declined_close() {
         }
     }
 }
+
+// Real retained hyperlink allocations reach the extras admission boundary.
+// The failed terminal remains inspectable and consumes capacity until explicit
+// closure; a second PTY and the exact unsaved source remain usable throughout.
+#[test]
+fn extras_failure() {
+    if isolated("panel::lifecycle::extras_failure", false) {
+        return;
+    }
+    for profile in ["non-modal", "modal"] {
+        extras_failure_case(profile);
+    }
+}
+fn extras_failure_case(profile: &str) {
+    use std::io::Write;
+    let script = "stty raw -echo\nprintf READY\nwhile [ ! -f role-$$ ]; do sleep 0.01; done\nif [ \"$(cat role-$$)\" = flood ]; then cat extras; else dd bs=1 count=1 >/dev/null 2>&1; printf PEER_ACK; fi\nwhile :; do sleep 60; done\n";
+    let mut editor =
+        Editor::with_script(profile, 24, "scrollback_lines=64\nmax_sessions=2", script);
+    editor.session.insert('!');
+    let source = editor.session.buffer().unwrap().stamp();
+    let path = editor.fixture.0.join("source/extras");
+    let mut file = std::fs::File::create(path).unwrap();
+    for index in 0..2300 {
+        write!(
+            file,
+            "\x1b]8;;https://example.invalid/{index:04}/{}\x07x",
+            "a".repeat(3970)
+        )
+        .unwrap();
+    }
+    drop(file);
+    command(&mut editor, TerminalCommand::Open);
+    editor.wait(|s| text(s).contains("READY"));
+    let victim = editor.session.terminals().ids().next().unwrap();
+    let victim_pid = editor
+        .session
+        .terminals()
+        .get(victim)
+        .unwrap()
+        .process_id()
+        .unwrap();
+    let victim_name = editor.session.terminal_buffer().unwrap().name().to_owned();
+    command(&mut editor, TerminalCommand::New);
+    editor.wait(|s| text(s).contains("READY"));
+    let peer = editor
+        .session
+        .terminal_buffer()
+        .unwrap()
+        .terminal()
+        .unwrap();
+    let peer_pid = editor
+        .session
+        .terminals()
+        .get(peer)
+        .unwrap()
+        .process_id()
+        .unwrap();
+    editor
+        .fixture
+        .write(&format!("source/role-{victim_pid}"), "flood");
+    editor
+        .fixture
+        .write(&format!("source/role-{peer_pid}"), "peer");
+    editor
+        .session
+        .handle(key(KeyCode::Char('p'), KeyModifiers::NONE));
+    let deadline = Instant::now() + Duration::from_secs(5);
+    loop {
+        editor.session.expire_input(Instant::now());
+        let victim = editor.session.terminals().get(victim).unwrap();
+        assert!(victim.storage().extra_bytes <= rev::term::EXTRA_BYTES);
+        if matches!(victim.state(), State::Failed(_))
+            && text(editor.session.terminals().get(peer).unwrap()).contains("PEER_ACK")
+        {
+            break;
+        }
+        assert!(
+            Instant::now() < deadline,
+            "extras/peer deadline: {:?}, {}",
+            victim.state(),
+            victim.storage().extra_bytes
+        );
+        std::thread::sleep(Duration::from_millis(1));
+    }
+    assert!(
+        editor
+            .session
+            .terminals()
+            .get(victim)
+            .unwrap()
+            .diagnostic()
+            .unwrap()
+            .contains("storage limit")
+    );
+    assert_eq!(
+        editor.session.terminals().get(peer).unwrap().process_id(),
+        Some(peer_pid)
+    );
+    cancel(&mut editor);
+    assert_eq!(editor.session.buffer().unwrap().stamp(), source);
+    assert!(editor.session.buffer().unwrap().is_modified());
+    command(&mut editor, TerminalCommand::New);
+    assert!(editor.session.echo().contains("capacity"));
+    assert_eq!(editor.session.terminals().ids().count(), 2);
+    switch(&mut editor, &victim_name);
+    assert_eq!(
+        editor.session.terminal_buffer().unwrap().terminal(),
+        Some(victim)
+    );
+    assert!(
+        editor
+            .session
+            .frame()
+            .unwrap()
+            .rows()
+            .iter()
+            .any(|r| r.text().contains("Failed:"))
+    );
+    close_current(&mut editor);
+    if editor.session.echo().starts_with("Terminate") {
+        answer(&mut editor, true);
+    }
+    let deadline = Instant::now() + Duration::from_secs(3);
+    while editor.session.terminals().get(victim).is_some() {
+        editor.session.expire_input(Instant::now());
+        assert!(Instant::now() < deadline, "{}", editor.session.echo());
+        std::thread::sleep(Duration::from_millis(1));
+    }
+    assert_eq!(
+        editor.session.terminals().get(peer).unwrap().process_id(),
+        Some(peer_pid)
+    );
+    command(&mut editor, TerminalCommand::New);
+    assert_eq!(editor.session.terminals().ids().count(), 2);
+}

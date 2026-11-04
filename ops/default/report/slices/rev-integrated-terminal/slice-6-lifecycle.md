@@ -64,9 +64,20 @@ All three source files passed the repository's safe-Rust, parameter, nesting and
 complexity checks. The real-PTY scenario passed both profiles, actual status and
 final-output retention, default replacement, retained capacity, explicit closure
 and renewed capacity admission.
-Required Slice 6 validation follows completion of T6.2 and T6.3.
+Controller receipt `PPD4GYIBWP77SFKH7JFLMK3L4K` passed at clean T6.2 head
+`fbaff04c09f8d1f31a23faac5b2bdc6cbdcaed91`:
+
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo run --locked --quiet --example source-check -- --file src/session/terminals/shutdown.rs --file src/session/terminals/lifecycle.rs --file src/session/quit.rs --file src/session/bookmarks/quit.rs`
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test integrated_terminal panel::lifecycle -- --test-threads=1`
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --lib session::quit -- --test-threads=1`
+- `git diff --check`
+
+Four lifecycle scenarios pass in both profiles; one unresolved-save continuation
+regression passes. The initial compile attempt found an ownership visibility
+error; the terminal owner now exposes a pending-close query. Required Slice 6
+validation follows completion of T6.3.
 
 ## Risks and Follow-ups
 
-T6.2 focused native shutdown and source-revision checks are pending.
+T6.2 focused checks passed.
 T6.3 bounded admission/flood/close/error regressions are pending.

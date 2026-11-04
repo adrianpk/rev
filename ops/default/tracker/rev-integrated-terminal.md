@@ -147,12 +147,16 @@ Report: `ops/default/report/slices/rev-integrated-terminal/slice-6-lifecycle.md`
 PR: pending
 
 - [x] T6.1: Keep visibility separate from process lifetime, retain actual exited status/output, replace an exited default without erasing its buffer and release capacity only after explicit closure.
-- [ ] T6.2: Confirm live-buffer termination and editor-wide session shutdown once, preserve declined choices, own process-group cleanup/reaping and handle failure without losing unsaved source or unrelated sessions.
+- [x] T6.2: Confirm live-buffer termination and editor-wide session shutdown once, preserve declined choices, own process-group cleanup/reaping and handle failure without losing unsaved source or unrelated sessions.
 - [ ] T6.3: Exercise queue/grid/extra/session admission, output floods, blocked input, incomplete controls, rapid resize/close, failed relocations and native shutdown/error paths under finite deadlines and fair readiness service.
 
 T6.1: `ea41ea80cf39` passes receipt `4YZKUDYB6PWBIR4MIKAPNVDJTR`: readable
 actual live/copy status, final-view detachment, exited-buffer/default retention
 and capacity release only after closure, with both profiles and three source files.
+
+T6.2: `fbaff04c09f8` passes receipt `PPD4GYIBWP77SFKH7JFLMK3L4K`: four
+native lifecycle scenarios across both profiles, actual owned background-group
+cleanup, source revision guards, and the unresolved-save continuation regression.
 
 Validation: pending; use the exact ordered Slice 6 commands from the plan and frozen controller configuration.
 Integration: pending canonical PR and controller verification.
