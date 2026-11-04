@@ -78,3 +78,32 @@ The controller checkpoint records the merge activity. Guide generation was local
 
 The unchanged combined gate remains controller-owned on integrated dev.
 Slice-local documentation and catalog checks do not close terminal delivery.
+
+## Gate Repair 1 Diagnosis
+
+The controller's unchanged combined gate failed at
+`c22102280c1cb514fc1eca1e663c126e9a12e063` in receipt
+`DIMJP2WKAA5IZ4ZYCRY75TCV4W`. Native regression batches and both native tool
+profiles passed. The non-modal real-PTY lazygit journey then timed out waiting
+for the second M-x prompt, after moving the live tool to the main buffer.
+
+Focused receipt `TBCKOI6QAOOQ2H3X5H5U2O3XZL` passed the unchanged PTY journeys
+and whitespace on that same head, confirming an intermittent boundary failure.
+A controlled real-PTY probe against the pinned Crossterm 0.29.0 reproduced the
+underlying input loss: queue an owned SIGWINCH before the eight-byte CSI-u Alt-x
+event, then release the event reader. The first poll/read returns Resize(80, 24);
+the second 100 ms poll returns false while all eight input bytes remain unread.
+The probe restores raw mode and closes its owned PTY and control socket.
+
+Crossterm's Mio adapter returns immediately from the signal readiness token,
+discarding the remaining tokens from that poll. Mio uses edge readiness, so the
+unread terminal input receives no fresh edge until another input write. This
+matches the missing prompt after terminal output wakes the native event owner.
+
+Repair identity remains branch `fix/rev-integrated-terminal-validation-1`, title
+`fix(terminal): repair approved integrated terminal acceptance`, and this report.
+The bounded correction requires authority for a reproducible same-version
+Crossterm source override outside the current repair paths. Preserve its version,
+license and dependencies, every observable assertion, the eight-second/1-MiB
+PTY limits, cleanup bounds and frozen gate. Source correction and canonical
+repair PR preparation remain pending that authority.

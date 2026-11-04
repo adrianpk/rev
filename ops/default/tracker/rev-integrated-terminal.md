@@ -234,6 +234,17 @@ is active. The acceptance script creates its isolated HOME/XDG, local Git
 repository and finite PTY fixtures when invoked; the guide builder owns its
 temporary projection and target/userguide output. No persistent fixture is needed.
 
-The unchanged plan Full gate has not run. Its exact clean-dev receipt and the
-restricted documentation closure remain controller-owned. The checkpoint is
-the execution owner; slice-local checks do not mark terminal delivery Completed.
+The unchanged plan Full gate failed at
+`c22102280c1cb514fc1eca1e663c126e9a12e063`, receipt
+`DIMJP2WKAA5IZ4ZYCRY75TCV4W`, during the non-modal real-PTY lazygit relocation
+journey's second M-x prompt. Earlier native batches passed. Successful combined
+acceptance and restricted documentation closure remain controller-owned.
+
+Gate repair 1 uses `fix/rev-integrated-terminal-validation-1`, the pinned title
+`fix(terminal): repair approved integrated terminal acceptance`, and the existing
+Slice 8 report. Focused receipt `TBCKOI6QAOOQ2H3X5H5U2O3XZL` passed unchanged
+PTY journeys on the failed base. A controlled PTY probe then reproduced signal
+readiness consuming the Mio edge while the eight-byte Alt-x event remains unread.
+The report records the dependency diagnosis. A same-version Crossterm 0.29.0
+source override needs authority beyond the current allowed paths; correction and
+PR preparation are pending. The checkpoint retains all policy, counters and gates.
