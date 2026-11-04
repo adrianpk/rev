@@ -41,7 +41,17 @@ Running commands and loops have no runtime deadline. Cleanup retains the
 
 ## Validation
 
-Focused T6.1 checks are pending on a clean implementation commit.
+Controller receipt `4YZKUDYB6PWBIR4MIKAPNVDJTR` passed at clean T6.1 head
+`ea41ea80cf393434cf64b00233317eea91d04335` with this exact ordered list:
+
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo run --locked --quiet --example source-check -- --file src/term/session.rs --file src/session/terminals.rs --file src/session/terminals/render.rs`
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test integrated_terminal panel::lifecycle::retained_exit -- --exact --test-threads=1`
+- `git diff --check`
+
+All three source files passed the repository's safe-Rust, parameter, nesting and
+complexity checks. The real-PTY scenario passed both profiles, actual status and
+final-output retention, default replacement, retained capacity, explicit closure
+and renewed capacity admission.
 Required Slice 6 validation follows completion of T6.2 and T6.3.
 
 ## Risks and Follow-ups
