@@ -246,6 +246,36 @@ impl Repositories {
             work::Request::History(Request::Range { history, base, end }),
         )
     }
+    pub(crate) fn refresh_history_at(
+        &mut self,
+        history: Arc<History>,
+        observation: Arc<Observation>,
+    ) -> Result<OperationId, String> {
+        self.check_history(&history)?;
+        if history.observation.context != observation.context
+            || history.observation.identity != observation.identity
+        {
+            return Err("Retained history belongs to another repository".into());
+        }
+        let directory = self.history_directory(&observation)?;
+        let object = |o: &Observation| {
+            o.status.as_ref().and_then(|s| match s.head {
+                Head::Branch { object, .. } | Head::Detached { object } => Some(object),
+                Head::Unborn { .. } => None,
+            })
+        };
+        let prior = (object(&history.observation) == object(&observation)).then_some(history);
+        self.start(
+            directory,
+            Some(observation.context),
+            work::Request::History(Request::Log {
+                observation,
+                root: None,
+                prior,
+                next: false,
+            }),
+        )
+    }
     fn check_history(&self, history: &Arc<History>) -> Result<(), String> {
         if self
             .context(history.observation.context)

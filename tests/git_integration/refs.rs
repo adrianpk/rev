@@ -296,3 +296,6 @@ exec /usr/bin/git "$@"
 
 #[path = "refs_tags.rs"]
 mod tags;
+
+#[path = "refs_acceptance.rs"]
+mod acceptance;

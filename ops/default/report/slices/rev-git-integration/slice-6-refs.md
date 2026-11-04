@@ -1,6 +1,6 @@
 # Slice 6: Branches and Both Tag Kinds
 
-Status: drafting
+Status: reviewing
 Delivery set: rev-git-integration
 Plan: `ops/default/plan/rev-git-integration.md`
 Tracker: `ops/default/tracker/rev-git-integration.md`
@@ -63,6 +63,28 @@ T6.2 adds local lightweight and annotated tags:
   Git's expected-old-object ref update rejects a moved deletion target. Neither
   tag kind nor deletion invokes publication or changes HEAD/index.
 
+T6.3 completes focused acceptance and native inspection:
+
+- Real linked-worktree fixtures retain Git's switch/deletion protection.
+  Invalid/existing branch names leave refs unchanged before any changing child.
+- A fixture moves a tag after preflight but before Git's expected-object lock.
+  The actual deletion child fails once with retained lock diagnostics; its
+  replacement ref survives and the request is never replayed by name.
+- Hostile mirror/follow-tag/push settings do not publish either local tag kind.
+  The local bare publication fixture remains empty after each creation and
+  deletion; HEAD and index remain unchanged.
+- Both profiles retain modified source while composing tags. One native route
+  verifies signed annotation review and actual Git signature verification;
+  the other preserves unsigned verbatim bytes. Signed review exposes its
+  accepted final newline before submission.
+- Tab shows scrollable full ref/object/type/symbolic/peeled/upstream facts.
+  Configured remotes remain reachable after long ref lists without exposing
+  URL values. Returning from review invalidates old painted list coordinates.
+- Ref operations queue an ordinary owned read to refresh retained History.
+  Unchanged HEAD retains pinned admitted pages; changed HEAD starts current
+  ancestry. A branch switch also reloads clean visiting source through the
+  existing file policy. Background history does not replace ref-failure feedback.
+
 ## Implementation Notes
 
 The existing repository/process owner runs structured installed-Git argv,
@@ -94,10 +116,10 @@ and changing-action deadlines remain the configured existing limits.
 
 ## Files of Interest
 
-- `src/git/refs.rs`, `src/git/work/refs.rs`: exact observations, bounded
-  installed-Git reads, branch preconditions, execution and postconditions.
-- `src/session/git/refs.rs`: native list selection, names, source admission,
-  explicit scrollable review and file-owner reconciliation.
+- `src/git/refs.rs`, `src/git/work/refs.rs`, their tag modules: exact observations,
+  bounded reads, branch/tag preconditions, signing, execution and postconditions.
+- `src/session/git/refs.rs`, its tag module and the shared native message owner:
+  exact selection, full detail, review, source protection and history refresh.
 - `src/input/keymap/defaults.rs`, `docs/reference/config.toml`: actual factory
   bindings and complete configuration sample.
 - `tests/git_integration/refs.rs`, `refs_presentation.rs`: real object/ref effects,
@@ -151,9 +173,18 @@ recognize that signature. Exact native review and the checked request now use
 one shared final-newline rule when signing, within the existing byte ceiling.
 `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test git_integration refs::tags::signed_annotation -- --test-threads=1` passed after correction: both signing policies verify through installed Git, including non-newline-terminated input, while the lightweight tag still points directly to its commit.
 
+T6.3 development command:
+
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test git_integration refs:: -- --test-threads=1` passed all 17 tests in 47.35 seconds. The final candidate also checks the shared 90-test Git baseline, command/configuration references, documentation, strict Clippy and whitespace through the controller.
+
+T6.2's pre-commit formatter detected one late unformatted review line, but the
+shell sequence still committed it. T6.3 formats that line; subsequent delivery
+commands use checked subprocess results and the final controller receipt must
+establish the actual candidate's formatter result.
+
 ## Risks and Follow-ups
 
-T6.3 acceptance and final controller validation remain pending. Combined native
+Final exact-HEAD controller validation and controller-owned integration remain pending. Combined native
 PTY/resource acceptance remains Slice 13; the complete User Guide remains
 Slice 14. Revalidation detects changed Git facts and does not claim an exclusive
 transaction against external Git clients.

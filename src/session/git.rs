@@ -421,6 +421,10 @@ impl Session {
         }
     }
     fn quit_git(&mut self) -> Action {
+        if !self.git.state.menu && self.quit_git_ref_detail() {
+            return Action::Redraw;
+        }
+
         if !self.git.visible {
             return self.message("No Git presentation is active");
         }
@@ -554,6 +558,10 @@ impl Session {
         Action::Redraw
     }
     fn toggle_git_section(&mut self) -> Action {
+        if self.git.page == Page::Refs {
+            return self.toggle_git_ref_detail();
+        }
+
         if self.git.visible
             && matches!(
                 self.git.page,
@@ -918,7 +926,7 @@ impl Session {
                     );
                 }
                 if self.git.page == Page::Refs {
-                    return self.git.refs_row(row);
+                    return self.git.refs_row(row, usize::from(self.size.width.max(1)));
                 }
                 if self.git.page == Page::Diff {
                     return if row < 3 {

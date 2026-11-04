@@ -10,6 +10,8 @@ pub(super) struct Inspection {
     pub request: Option<OperationId>,
     pub tag_preparing: Option<OperationId>,
     selected: Option<Vec<u8>>,
+    remote_selected: Option<Vec<u8>>,
+    detail: Option<usize>,
     pub top: usize,
     failed: bool,
     _admission: crate::git::budget::Lease,
@@ -20,6 +22,8 @@ impl Inspection {
             request: None,
             tag_preparing: None,
             selected: None,
+            remote_selected: None,
+            detail: None,
             top: 0,
             failed: false,
             _admission: engine
@@ -68,7 +72,16 @@ impl Work {
             .refs
             .as_ref()
     }
-    pub(super) fn refs_row(&self, row: usize) -> (String, bool) {
+    pub(super) fn refs_row(&self, row: usize, width: usize) -> (String, bool) {
+        if let Some(top) = self.refs.detail {
+            return (
+                self.ref_detail_lines(width)
+                    .nth(top + row)
+                    .unwrap_or_default(),
+                false,
+            );
+        }
+
         let Some(refs) = self.refs() else {
             return (
                 if row == 0 {
@@ -115,7 +128,10 @@ impl Work {
         }
         if row == 2 {
             return (
-                if self.refs.request.is_some() {
+                if self.refs.request.is_some()
+                    || self.refs.tag_preparing.is_some()
+                    || self.ancestry.request.is_some()
+                {
                     "Checking / executing / refreshing refs".into()
                 } else {
                     "Exact full names and objects; local actions require review".into()
@@ -159,12 +175,79 @@ impl Work {
                 selected,
             );
         }
-        (
-            refs.remotes
-                .get(index.saturating_sub(refs.entries.len()))
-                .map_or(String::new(), |r| format!("  remote {}", label(r))),
-            false,
-        )
+        refs.remotes
+            .get(index.saturating_sub(refs.entries.len()))
+            .map_or((String::new(), false), |r| {
+                let selected = self.refs.remote_selected.as_ref() == Some(r);
+                (
+                    format!("{} remote {}", if selected { ">" } else { " " }, label(r)),
+                    selected,
+                )
+            })
+    }
+    fn ref_detail_lines(&self, width: usize) -> impl Iterator<Item = String> + '_ {
+        (0..19)
+            .map(move |row| {
+                let Some(refs) = self.refs() else {
+                    return String::new();
+                };
+                let reference = self.refs.selected.as_ref().and_then(|n| refs.reference(n));
+                match row {
+                    0 => "Git Ref Detail".into(),
+                    1 => reference.map_or("Configured remote name".into(), |r| {
+                        format!("Kind: {:?}", r.kind)
+                    }),
+                    2 => "Full exact name:".into(),
+                    3 => reference
+                        .map(|r| label(&r.name))
+                        .or_else(|| self.refs.remote_selected.as_ref().map(|n| label(n)))
+                        .unwrap_or_default(),
+                    4 => "Full ref object:".into(),
+                    5 => reference.map_or("unavailable for configured remote".into(), |r| {
+                        r.object.hex()
+                    }),
+                    6 => reference.map_or(String::new(), |r| {
+                        format!("Object type: {}", label(&r.object_type))
+                    }),
+                    7 => "Symbolic target:".into(),
+                    8 => reference.map_or(String::new(), |r| label(&r.symbolic)),
+                    9 => "Peeled target:".into(),
+                    10 => reference
+                        .and_then(|r| r.peeled)
+                        .map_or("direct object / unavailable".into(), |id| id.hex()),
+                    11 => reference.map_or(String::new(), |r| {
+                        format!("Peeled type: {}", label(&r.peeled_type))
+                    }),
+                    12 => "Full upstream ref:".into(),
+                    13 => reference.map_or(String::new(), |r| label(&r.upstream)),
+                    14 => reference.map_or(String::new(), |r| {
+                        format!(
+                            "Tracking: {}",
+                            if r.tracking.is_empty() {
+                                "unavailable or equal".into()
+                            } else {
+                                label(&r.tracking)
+                            }
+                        )
+                    }),
+                    15 => format!(
+                        "HEAD ref: {}",
+                        if refs.head_ref.is_empty() {
+                            "detached".into()
+                        } else {
+                            label(&refs.head_ref)
+                        }
+                    ),
+                    16 => refs.head.map_or("HEAD unborn".into(), |id| id.hex()),
+                    17 => format!("Observation: {:?}", refs.completeness),
+                    _ => "Up/Down scroll; Tab or q returns to Refs".into(),
+                }
+            })
+            .flat_map(move |text| Wrapped {
+                text,
+                offset: Some(0),
+                width: width.max(1),
+            })
     }
     pub(super) fn refs_menu(&self, row: usize) -> (String, bool) {
         (
@@ -216,13 +299,23 @@ impl Session {
         }
     }
     pub(super) fn select_git_ref(&mut self, index: usize) -> Action {
+        if self.git.refs.detail.is_some() {
+            return Action::Wait;
+        }
         let Some(refs) = self.git.refs() else {
             return Action::Wait;
         };
-        let Some(r) = refs.entries.get(index) else {
+        if let Some(reference) = refs.entries.get(index) {
+            let name = reference.name.clone();
+            self.git.refs.selected = Some(name);
+            self.git.refs.remote_selected = None;
+        } else if let Some(remote) = refs.remotes.get(index.saturating_sub(refs.entries.len())) {
+            let name = remote.clone();
+            self.git.refs.selected = None;
+            self.git.refs.remote_selected = Some(name);
+        } else {
             return Action::Wait;
-        };
-        self.git.refs.selected = Some(r.name.clone());
+        }
         self.git.refs.top = self
             .git
             .refs
@@ -231,7 +324,37 @@ impl Session {
             .max(index.saturating_sub(self.git_extent().saturating_sub(1)));
         Action::Redraw
     }
+    pub(super) fn toggle_git_ref_detail(&mut self) -> Action {
+        self.git.refs.detail = if self.git.refs.detail.is_some() {
+            None
+        } else {
+            Some(0)
+        };
+        self.git.painted = None;
+        Action::Redraw
+    }
+    pub(super) fn quit_git_ref_detail(&mut self) -> bool {
+        if self.git.page == Page::Refs && self.git.refs.detail.take().is_some() {
+            self.git.painted = None;
+            true
+        } else {
+            false
+        }
+    }
     pub(super) fn move_git_refs(&mut self, distance: usize, backward: bool) -> Action {
+        if let Some(top) = self.git.refs.detail {
+            let count = self
+                .git
+                .ref_detail_lines(usize::from(self.size.width.max(1)))
+                .count();
+            self.git.refs.detail = Some(if backward {
+                top.saturating_sub(distance)
+            } else {
+                top.saturating_add(distance).min(count.saturating_sub(1))
+            });
+            self.git.painted = None;
+            return Action::Redraw;
+        }
         let Some(refs) = self.git.refs() else {
             return Action::Wait;
         };
@@ -239,13 +362,19 @@ impl Session {
             .entries
             .iter()
             .position(|r| Some(&r.name) == self.git.refs.selected.as_ref())
+            .or_else(|| {
+                refs.remotes
+                    .iter()
+                    .position(|n| Some(n) == self.git.refs.remote_selected.as_ref())
+                    .map(|i| i + refs.entries.len())
+            })
             .unwrap_or(0);
         let next = if backward {
             index.saturating_sub(distance)
         } else {
             index
                 .saturating_add(distance)
-                .min(refs.entries.len().saturating_sub(1))
+                .min((refs.entries.len() + refs.remotes.len()).saturating_sub(1))
         };
         self.select_git_ref(next)
     }
@@ -536,11 +665,42 @@ impl Session {
                     .cloned()
                     .or_else(|| r.entries.first().map(|r| r.name.clone()))
             });
-            self.git.refs.selected = selected;
-            self.move_git_refs(0, false);
+            if self
+                .git
+                .refs
+                .remote_selected
+                .as_ref()
+                .is_none_or(|name| self.git.refs().is_none_or(|r| !r.remotes.contains(name)))
+            {
+                self.git.refs.remote_selected = None;
+            }
+            if self.git.refs.selected.is_some() && selected != self.git.refs.selected {
+                self.git.refs.detail = None;
+            }
+            self.git.refs.selected = if self.git.refs.remote_selected.is_some() {
+                None
+            } else {
+                selected
+            };
+            if self.git.refs.detail.is_none() {
+                self.move_git_refs(0, false);
+            }
         }
         self.observe_files();
         self.git.painted = None;
+        if update.published
+            && let Some(history) = self.git.history().cloned()
+            && let Some(observation) = update
+                .context
+                .and_then(|id| self.git.engine.context(id))
+                .map(|c| c.observation.clone())
+        {
+            match self.git.engine.refresh_history_at(history, observation) {
+                Ok(id) => self.git.ancestry.request = Some((id, Page::History)),
+                Err(_) => self.git.ancestry.failed = true,
+            }
+        }
+
         if self.git.visible && self.pending.is_none() && self.input.focus() == Focus::Editing {
             if self.git.refs.failed
                 && self.git.engine.record(update.operation).is_some_and(|r| {

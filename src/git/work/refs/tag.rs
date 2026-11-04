@@ -126,6 +126,9 @@ impl Runner {
             intent.target.hex().into(),
         ]);
         self.check_tag_refs(&intent.refs, admission)?;
+        if self.tag_policy()?.0 != intent.policy {
+            return Err("Tag signing policy changed before launch; review again".into());
+        }
         let (executed, facts) = self.execute_change(&args, input);
         if self.retained.is_some() {
             self.restore_execution(facts, true);

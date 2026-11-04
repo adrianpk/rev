@@ -23,12 +23,24 @@ fn tag_kinds() {
     for format in ["sha1", "sha256"] {
         let repository = Repository::new(format);
         repository.commit();
+        let bare = repository.fixture.0.join("publication.git");
+        repository.git(["init", "--bare", bare.to_str().unwrap()]);
+        repository.git(["config", "remote.origin.url", bare.to_str().unwrap()]);
+        repository.git(["config", "remote.origin.mirror", "true"]);
+        repository.git(["config", "remote.origin.push", "refs/tags/*:refs/tags/*"]);
+        repository.git(["config", "push.followTags", "true"]);
+        let before_index = repository.git(["ls-files", "--stage", "-z"]);
         let mut owner = repository.owner("");
         repository.open(&mut owner, &repository.root);
         let refs = observe(&repository, &mut owner);
         let head = refs.head.unwrap();
         let intent = prepare(&mut owner, refs, "plain", TagKind::Lightweight);
         create(&mut owner, intent, "", true);
+        assert!(
+            repository
+                .git(["-C", bare.to_str().unwrap(), "for-each-ref"])
+                .is_empty()
+        );
         assert_eq!(
             repository.git(["rev-parse", "refs/tags/plain"]),
             format!("{}\n", head.hex()).as_bytes()
@@ -36,6 +48,11 @@ fn tag_kinds() {
         let refs = observe(&repository, &mut owner);
         let intent = prepare(&mut owner, refs, "annotation", TagKind::Annotated);
         create(&mut owner, intent, "Subject\n\nBody with literal c", true);
+        assert!(
+            repository
+                .git(["-C", bare.to_str().unwrap(), "for-each-ref"])
+                .is_empty()
+        );
         let raw = repository.git(["cat-file", "tag", "refs/tags/annotation"]);
         let text = String::from_utf8(raw).unwrap();
         assert!(text.starts_with(&format!("object {}\ntype commit\ntag annotation\ntagger Example Author <author@example.invalid>",head.hex())));
@@ -51,6 +68,16 @@ fn tag_kinds() {
             assert_eq!(owner.record(id).unwrap().outcome, Outcome::Verified);
         }
         assert!(repository.git(["tag", "--list"]).is_empty());
+        assert!(
+            repository
+                .git(["-C", bare.to_str().unwrap(), "for-each-ref"])
+                .is_empty()
+        );
+        assert_eq!(repository.git(["ls-files", "--stage", "-z"]), before_index);
+        assert_eq!(
+            repository.git(["rev-parse", "HEAD"]),
+            format!("{}\n", head.hex()).as_bytes()
+        );
     }
 }
 
@@ -100,12 +127,7 @@ fn signing_and_draft() {
     assert!(repository.git(["tag", "--list"]).is_empty());
 }
 
-// Real SSH signing stays Git-owned and the stored annotation/signature verify
-// as distinct content. No live key, credential agent or remote is used.
-#[test]
-fn signed_annotation() {
-    let repository = Repository::new("sha256");
-    repository.commit();
+fn ssh_signing(repository: &Repository) {
     let key = repository.fixture.0.join("fixture-key");
     let output = std::process::Command::new("ssh-keygen")
         .args(["-q", "-t", "ed25519", "-N", "", "-f"])
@@ -115,9 +137,6 @@ fn signed_annotation() {
     assert!(output.status.success());
     repository.git(["config", "gpg.format", "ssh"]);
     repository.git(["config", "user.signingkey", key.to_str().unwrap()]);
-    repository.git(["config", "tag.gpgsign", "true"]);
-    let mut owner = repository.owner("");
-    repository.open(&mut owner, &repository.root);
     let allowed = repository.fixture.0.join("allowed-signers");
     let public = fs::read_to_string(key.with_extension("pub")).unwrap();
     fs::write(&allowed, format!("author@example.invalid {public}")).unwrap();
@@ -126,6 +145,17 @@ fn signed_annotation() {
         "gpg.ssh.allowedSignersFile",
         allowed.to_str().unwrap(),
     ]);
+}
+
+// Real SSH signing stays Git-owned and the stored annotation/signature verify
+// as distinct content. No live key, credential agent or remote is used.
+#[test]
+fn signed_annotation() {
+    let repository = Repository::new("sha256");
+    repository.commit();
+    ssh_signing(&repository);
+    let mut owner = repository.owner("");
+    repository.open(&mut owner, &repository.root);
     for (name, text, force) in [
         ("signed", "Signed annotation\n", false),
         ("forced", "Annotation without final newline", true),

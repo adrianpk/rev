@@ -942,6 +942,7 @@ aliases below.
 
 | Keys | Target |
 | --- | --- |
+| `TAB` | `git-toggle-section` |
 | `t` | `git-tag-create` |
 | `T` | `git-tag-delete` |
 | `C-Enter` | `git-commit-submit` |

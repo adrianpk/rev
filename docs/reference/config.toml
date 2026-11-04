@@ -1652,6 +1652,7 @@ max_result_bytes = 262144
 
 # Exact local/tracking refs and checked local branch actions in both profiles.
 [keys.git_refs]
+"TAB" = "git-toggle-section"
 "t" = "git-tag-create"
 "T" = "git-tag-delete"
 "C-Enter" = "git-commit-submit"

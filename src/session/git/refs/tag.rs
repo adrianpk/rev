@@ -288,7 +288,9 @@ impl Session {
         let text = buffer
             .slice(&buffer.span(0..buffer.len_chars())?)?
             .to_string();
-        let text=intent.annotation(&text).expect("validated exact tag review");
+        let text = intent
+            .annotation(&text)
+            .expect("validated exact tag review");
         let metadata = format!(
             "Local tag review\nKind: annotated\nExact target:\n{}\nTarget type: {}\nTag name:\n{}\nGit signing policy: {}\nAnnotation: {} bytes; final newline: {}\nAccepted annotation:",
             intent.target.hex(),

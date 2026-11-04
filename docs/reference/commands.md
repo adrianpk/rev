@@ -742,14 +742,19 @@ directory has no current source file to visit. q returns one presentation level.
 
 b or y in Status opens Refs. Its independent `keys.git_refs` map keeps n for
 branch creation, S for switch, R for rename and D for non-forced deletion.
-Choose a ref with Up/Down or C-p/C-n. Prompts collect new names; the explicit
+Choose a ref or configured remote with Up/Down or C-p/C-n. Tab opens
+read-only full-name/object/type/upstream detail; Up/Down scroll and Tab or q
+returns to the list. Remote names remain reachable beyond the ref rows. Prompts collect new names; the explicit
 review shows the exact accepted name and full target. Only y accepts; Return
 is not acceptance, n or C-g cancels. Existing names, moved refs/HEAD, modified
 source buffers and dirty switch state reject. g refreshes compatible Status
 and Refs; failed observations retain confirmed facts. Tags show their actual
 object and peeled commit separately. Configured remote names are shown without
 exposing URL values. q returns to Status; started work retains its ownership.
-Changed disk files enter the existing automatic-or-ask reload policy.
+Changed disk files enter the existing automatic-or-ask reload policy. Retained
+history refreshes through the owned read worker: unchanged HEAD retains its
+pinned pages, while a changed HEAD starts current ancestry. Refresh failure
+keeps the preceding history stale and does not replay the ref mutation.
 
 t in Refs creates a local tag. Enter a name, accept the default lightweight kind
 or explicitly select annotated, then accept or enter a full target object ID.

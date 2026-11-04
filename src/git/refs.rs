@@ -190,6 +190,9 @@ impl Repositories {
         match &action {
             BranchAction::Create { name, target } => {
                 parameter(name)?;
+                if refs.entries.len() >= self.policy.max_refs {
+                    return Err("New branch exceeds complete-ref admission".into());
+                }
                 if target.format() != refs.observation.identity.format {
                     return Err("Branch target object format differs".into());
                 }
@@ -223,8 +226,8 @@ impl Repositories {
     }
 }
 fn parameter(name: &str) -> Result<(), String> {
-    if name.is_empty() || name.len() > 4096 || name.contains('\0') {
-        Err("Branch name requires 1..=4096 non-NUL bytes".into())
+    if name.is_empty() || name.len() > 4085 || name.contains('\0') {
+        Err("Branch name requires 1..=4085 non-NUL bytes".into())
     } else {
         Ok(())
     }

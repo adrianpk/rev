@@ -27,6 +27,15 @@ fn native_tags() {
         let repository = Repository::new("sha256");
         let mut owned = editor(&repository, profile, "", true);
         let editor = &mut owned.0;
+        let disk_source = text(editor);
+        if profile == "non-modal" {
+            super::ssh_signing(&repository);
+            repository.git(["config", "tag.forcesignannotated", "true"]);
+        }
+        if profile == "modal" {
+            plain(editor, 'i');
+        }
+        plain(editor, 'x');
         let source = text(editor);
         let point = editor.view().point;
         let head = repository.git(["rev-parse", "HEAD"]);
@@ -64,13 +73,16 @@ fn native_tags() {
         assert_eq!(text(editor), annotation);
         assert_eq!(
             fs::read_to_string(repository.root.join("source.txt")).unwrap(),
-            source
+            disk_source
         );
         key(editor, KeyCode::Enter, KeyModifiers::CONTROL);
         assert!(editor.git_visible());
         let frame = render(editor).join("\n");
         assert!(frame.contains("Kind: annotated"), "{frame}");
         assert!(frame.contains("Annotation body λ雪"), "{frame}");
+        if profile == "non-modal" {
+            assert!(frame.contains("final newline: true"), "{frame}");
+        }
         assert!(
             frame.contains(String::from_utf8_lossy(&head).trim()),
             "{frame}"
@@ -82,7 +94,20 @@ fn native_tags() {
         wait(editor, |s| s.echo().contains("Refs and Status checked"));
         assert_eq!(text(editor), source);
         let raw = repository.git(["cat-file", "tag", "refs/tags/annotated"]);
-        assert!(String::from_utf8_lossy(&raw).ends_with(&annotation));
+        if profile == "non-modal" {
+            let signature = repository.git([
+                "for-each-ref",
+                "--format=%(contents:signature)%00",
+                "refs/tags/annotated",
+            ]);
+            let signature = signature.strip_suffix(b"\0\n").unwrap();
+            let body = raw.as_slice();
+            let unsigned = body.strip_suffix(signature).unwrap();
+            assert!(unsigned.ends_with(format!("{annotation}\n").as_bytes()));
+            repository.git(["verify-tag", "annotated"]);
+        } else {
+            assert!(String::from_utf8_lossy(&raw).ends_with(&annotation));
+        }
         key(editor, KeyCode::Down, KeyModifiers::NONE);
         plain(editor, 'T');
         let object = repository.git(["rev-parse", "refs/tags/annotated"]);
