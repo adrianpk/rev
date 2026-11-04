@@ -2,6 +2,7 @@ use crate::{
     buffer::Buffer,
     coordinates::Scalar,
     term::{Session, Viewport},
+    view::View,
 };
 use alacritty_terminal::{
     grid::Dimensions,
@@ -46,6 +47,63 @@ impl Snapshot {
             }
         }
         Ok(snapshot)
+    }
+    pub fn view(
+        &self,
+        session: &Session,
+        buffer: &mut Buffer,
+        viewport: Viewport,
+        settings: &crate::config::Snapshot,
+    ) -> Result<View, String> {
+        let mut view = View::with_settings(buffer, settings);
+        view.gutter.apply(crate::gutter::Change::Visible(false));
+        view.bookmark_markers = false;
+        view.preview.enabled = false;
+        view.top = self.top(viewport, buffer)?;
+        view.point.position = if viewport.offset == 0 {
+            self.point(session, session.screen().grid().cursor.point)
+        } else {
+            Scalar(
+                self.rows[self
+                    .history
+                    .saturating_sub(viewport.offset.min(self.history))]
+                .start,
+            )
+        };
+        self.selection(session, buffer, &mut view, viewport)?;
+        let coordinates =
+            crate::coordinates::Coordinates::new(buffer).map_err(|e| e.to_string())?;
+        if !coordinates
+            .is_boundary(view.point.position)
+            .map_err(|e| e.to_string())?
+        {
+            view.point.position = coordinates
+                .previous(view.point.position)
+                .map_err(|e| e.to_string())?;
+        }
+        Ok(view)
+    }
+    fn selection(
+        &self,
+        session: &Session,
+        buffer: &mut Buffer,
+        view: &mut View,
+        viewport: Viewport,
+    ) -> Result<(), String> {
+        let Some(selection) = viewport.selection else {
+            return Ok(());
+        };
+        let anchor = self.point(session, selection.anchor);
+        let end = self.point(session, selection.end);
+        view.point.position = anchor.min(end);
+        buffer
+            .activate_mark(view.point)
+            .map_err(|e| e.to_string())?;
+        view.point.position = crate::coordinates::Coordinates::new(buffer)
+            .map_err(|e| e.to_string())?
+            .next_observed(anchor.max(end))
+            .map_err(|e| e.to_string())?;
+        Ok(())
     }
     pub fn charge(&self) -> usize {
         2 * self.text.len() + self.rows.len() * size_of::<std::ops::Range<usize>>() + 64 * 1024

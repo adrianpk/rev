@@ -50,6 +50,22 @@ fn stable_copy() {
         assert!(editor.session.terminal_copy_view().is_some());
         select_alpha(&mut editor);
         let point = editor.session.terminal_copy_view().unwrap().point;
+        editor
+            .session
+            .execute(Command::Terminal(TerminalCommand::MoveToBuffer));
+        assert_eq!(editor.session.terminal_copy_view().unwrap().point, point);
+        editor
+            .session
+            .execute(Command::Terminal(TerminalCommand::MoveToPanel));
+        assert_eq!(editor.session.terminal_copy_view().unwrap().point, point);
+        editor
+            .session
+            .handle(key(KeyCode::Char('z'), KeyModifiers::NONE));
+        assert!(
+            editor.session.echo().contains("read-only"),
+            "{}",
+            editor.session.echo()
+        );
         let before: Vec<_> = editor.session.frame().unwrap().rows()[12..22]
             .iter()
             .map(|r| r.text().to_owned())
@@ -142,7 +158,17 @@ fn copy_views() {
     editor.wait(|s| text(s).contains("READY2"));
     copy(&mut editor);
     editor.session.execute(Command::Motion(Motion::BufferStart));
-    editor.session.execute(Command::Motion(Motion::ForwardWord));
+    // Screen clearing retains older rows; locate the newer marker explicitly.
+    editor.session.execute(Command::SearchForward);
+    editor.session.handle(Event::Paste("SECOND".into()));
+    editor
+        .session
+        .handle(key(KeyCode::Enter, KeyModifiers::NONE));
+    editor
+        .session
+        .execute(Command::Navigate(rev::command::Navigation::new(
+            rev::command::navigation::Target::Align(rev::command::navigation::Screen::Top),
+        )));
     let second = editor.session.terminal_copy_view().unwrap().point;
     editor.session.select_view(views[0]).unwrap();
     assert_eq!(editor.session.terminal_copy_view().unwrap().point, first);

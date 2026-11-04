@@ -24,44 +24,48 @@ impl Session {
                     .get(*view)
                     .expect("live terminal view")
                     .terminal;
-                if let Some(copy) = self.terminals.copies.get(&super::copy::Key::View(*view)) {
-                    copy.frame(
-                        frame,
-                        Panel::new(panel.outer(), true, active),
-                        if copy.mode {
-                            " Terminal [COPY]  Return: live"
-                        } else {
-                            " Terminal retained output; C-c C-t: copy"
-                        },
-                    )?;
-                    continue;
+                let panel = Panel::new(panel.outer(), true, active);
+                if !self.paint_copy(frame, super::copy::Key::View(*view), panel)? {
+                    self.paint_terminal(frame, id, panel, &viewport);
                 }
-                self.paint_terminal(
-                    frame,
-                    id,
-                    Panel::new(panel.outer(), true, active),
-                    &viewport,
-                );
             }
         }
+        self.terminal_panel_frame(frame, composition)
+    }
+
+    fn terminal_panel_frame(
+        &self,
+        frame: &mut Frame,
+        composition: &Composition,
+    ) -> Result<(), crate::view::Error> {
         if let Some(panel) = composition.terminal()
             && let Some(id) = self.terminals.selected
+            && !self.paint_copy(frame, super::copy::Key::Panel, panel)?
         {
-            if let Some(copy) = self.terminals.copies.get(&super::copy::Key::Panel) {
-                copy.frame(
-                    frame,
-                    panel,
-                    if copy.mode {
-                        " Terminal [COPY]  Return: live"
-                    } else {
-                        " Terminal retained output; C-c C-t: copy"
-                    },
-                )?;
-                return Ok(());
-            }
             self.paint_terminal(frame, id, panel, &self.terminals.viewport);
         }
         Ok(())
+    }
+
+    fn paint_copy(
+        &self,
+        frame: &mut Frame,
+        key: super::copy::Key,
+        panel: Panel,
+    ) -> Result<bool, crate::view::Error> {
+        let Some(copy) = self.terminals.copies.get(&key) else {
+            return Ok(false);
+        };
+        copy.frame(
+            frame,
+            panel,
+            if copy.mode {
+                " Terminal [COPY]  Return: live"
+            } else {
+                " Terminal retained output; C-c C-t: copy"
+            },
+        )?;
+        Ok(true)
     }
 
     fn paint_terminal(

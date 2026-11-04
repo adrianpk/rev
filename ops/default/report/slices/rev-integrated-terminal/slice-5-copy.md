@@ -56,9 +56,17 @@ Emulator retention, IO bounds and process cleanup remain separately owned.
 
 ## Validation
 
-Runtime validation pending. Test compilation initially found an unavailable
-inventory accessor in the new fixture; the fixture now checks the registered
-terminal's empty text and source stamp directly.
+Initial controller validation `JYHDD3GI7HOIEREKLM2FV6FXPT` at
+`893e82490db7bb282792c57e0d5c05e0908b7638` ran
+`env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test integrated_terminal panel:: -- --test-threads=1`:
+17 passed; the new independent-copy fixture failed because screen clearing
+retains older history. The corrected fixture searches the newer marker and
+aligns its native row before comparing panes. The existing PTY assertions
+passed unchanged, including input ownership and mouse reporting.
+
+Source-quality diagnostics identified six control-flow violations in the new
+copy dispatch, capture, input routing and rendering. Helpers now separate those
+owners without raising limits. Fresh runtime and source validation is pending.
 
 ## Risks and Follow-ups
 

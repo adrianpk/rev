@@ -21,22 +21,26 @@ impl Session {
             return None;
         }
         if self.terminal_copy_active() {
-            return match event {
-                Event::Key(key)
-                    if Key::normalize(*key).is_some_and(|key| {
-                        key.code == KeyCode::Enter && key.modifiers.is_empty()
-                    }) =>
-                {
-                    Some(self.terminal_copy_done())
-                }
-                Event::Paste(_) => Some(self.error("Terminal copy text is read-only")),
-                _ => None,
-            };
+            return self.terminal_copy_input(event);
         }
+
         match event {
             Event::Key(event) => self.terminal_key(*event),
             Event::Paste(text) => Some(self.terminal_send(text.as_bytes())),
             _ => Some(Action::Wait),
+        }
+    }
+
+    fn terminal_copy_input(&mut self, event: &Event) -> Option<Action> {
+        match event {
+            Event::Key(key)
+                if Key::normalize(*key)
+                    .is_some_and(|key| key.code == KeyCode::Enter && key.modifiers.is_empty()) =>
+            {
+                Some(self.terminal_copy_done())
+            }
+            Event::Paste(_) => Some(self.error("Terminal copy text is read-only")),
+            _ => None,
         }
     }
 
@@ -64,17 +68,8 @@ impl Session {
             .take()
             .is_some_and(|armed| Some(armed) == id);
         if !literal {
-            if key.code == KeyCode::Char('c') && key.modifiers == KeyModifiers::CONTROL {
-                self.terminals.copy_chord = id;
-                return Some(
-                    self.message("Terminal C-c: C-t copy, C-c send interrupt, C-g cancel"),
-                );
-            }
-            if key.code == KeyCode::Char('q') && key.modifiers == KeyModifiers::CONTROL {
-                return Some(self.terminal_literal_next());
-            }
-            if key.code == KeyCode::Char('x') && key.modifiers == KeyModifiers::ALT {
-                return Some(self.execute(crate::command::Command::ExecuteExtended));
+            if let Some(action) = self.terminal_host_input(key) {
+                return Some(action);
             }
             if self.input.terminal_host_key(key) {
                 return None;
@@ -89,6 +84,20 @@ impl Session {
             return Some(self.message("Key has no terminal encoding"));
         };
         Some(self.terminal_send(&bytes))
+    }
+
+    fn terminal_host_input(&mut self, key: Key) -> Option<Action> {
+        if key.code == KeyCode::Char('c') && key.modifiers == KeyModifiers::CONTROL {
+            self.terminals.copy_chord = self.current_terminal();
+            return Some(self.message("Terminal C-c: C-t copy, C-c send interrupt, C-g cancel"));
+        }
+        if key.code == KeyCode::Char('q') && key.modifiers == KeyModifiers::CONTROL {
+            return Some(self.terminal_literal_next());
+        }
+        if key.code == KeyCode::Char('x') && key.modifiers == KeyModifiers::ALT {
+            return Some(self.execute(crate::command::Command::ExecuteExtended));
+        }
+        None
     }
 
     fn terminal_copy_chord(&mut self, key: Key, keypad: bool) -> Action {

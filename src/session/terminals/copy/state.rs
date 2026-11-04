@@ -28,43 +28,7 @@ impl State {
         let charge = snapshot.charge();
         let mut buffer =
             Buffer::terminal_copy(&snapshot.text, settings).map_err(|e| e.to_string())?;
-        let mut view = View::with_settings(&buffer, settings);
-        view.gutter.apply(crate::gutter::Change::Visible(false));
-        view.bookmark_markers = false;
-        view.preview.enabled = false;
-        view.top = snapshot.top(viewport, &buffer)?;
-        view.point.position = if viewport.offset == 0 {
-            snapshot.point(session, session.screen().grid().cursor.point)
-        } else {
-            Coordinates::new(&buffer)
-                .map_err(|e| e.to_string())?
-                .from_cell(crate::coordinates::Cell {
-                    row: view.top,
-                    column: 0,
-                })
-                .map_err(|e| e.to_string())?
-        };
-        if let Some(selection) = viewport.selection {
-            let anchor = snapshot.point(session, selection.anchor);
-            let end = snapshot.point(session, selection.end);
-            view.point.position = anchor.min(end);
-            buffer
-                .activate_mark(view.point)
-                .map_err(|e| e.to_string())?;
-            view.point.position = Coordinates::new(&buffer)
-                .map_err(|e| e.to_string())?
-                .next_observed(anchor.max(end))
-                .map_err(|e| e.to_string())?;
-        }
-        let coordinates = Coordinates::new(&buffer).map_err(|e| e.to_string())?;
-        if !coordinates
-            .is_boundary(view.point.position)
-            .map_err(|e| e.to_string())?
-        {
-            view.point.position = coordinates
-                .previous(view.point.position)
-                .map_err(|e| e.to_string())?;
-        }
+        let view = snapshot.view(session, &mut buffer, viewport, settings)?;
         Ok(Self {
             id,
             buffer,
@@ -112,7 +76,10 @@ impl State {
                 usize::from(size.text_rows()).max(1) / if half { 2 } else { 1 } * request.amount(),
                 size,
             ),
-            Target::Align(_) => self.scroll(Scroll::Recenter, 0, size),
+            Target::Align(screen) => self
+                .view
+                .align_screen(&self.buffer, size, screen)
+                .map_err(|e| e.to_string()),
             _ => self.navigate_text(request),
         }
     }

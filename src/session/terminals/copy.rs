@@ -213,20 +213,28 @@ impl Session {
             return None;
         }
         let key = self.copy_key().expect("active copy view");
+        if let Some(action) = self.copy_text_command(key, command) {
+            return Some(action);
+        }
         let size = match self.copy_size(key) {
             Some(size) => size,
             None => return Some(self.error("Terminal copy presentation is suspended")),
         };
+        match command {
+            Command::Navigate(request) => self.copy_navigation(key, request, size),
+            Command::Motion(_) | Command::Scroll(_) | Command::Region(_) => {
+                Some(self.move_terminal_copy(key, command, size))
+            }
+            _ => None,
+        }
+    }
+    fn copy_text_command(&mut self, key: Key, command: Command) -> Option<Action> {
         match command {
             Command::Edit(request) => Some(self.edit_terminal_copy(key, request)),
             Command::Linear(LinearCommand::Copy) => Some(self.copy_terminal_region(key)),
             Command::SearchForward => Some(self.start_terminal_copy_search(Direction::Forward)),
             Command::SearchBackward => Some(self.start_terminal_copy_search(Direction::Backward)),
             Command::Modal(mode) => Some(self.terminal_copy_modal(key, mode)),
-            Command::Navigate(request) => self.copy_navigation(key, request, size),
-            Command::Motion(_) | Command::Scroll(_) | Command::Region(_) => {
-                Some(self.move_terminal_copy(key, command, size))
-            }
             _ => None,
         }
     }
