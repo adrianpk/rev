@@ -15,7 +15,8 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
   it through ordinary buffer navigation, open directly with
   `terminal-new-buffer`, and move the same live session between panel and editing
   panes with `terminal-move-to-buffer` and `terminal-move-to-panel`. Configure
-  startup shell preferences under `[terminal]`.
+  startup shell preferences under `[terminal]`. Use `terminal-new` for independent
+  sessions, `terminal-list` to select them and `terminal-rename` to name them.
 
 - [Run shell commands and text filters](docs/tutorials/user-guide/15-shell-commands.md)
   from M-x or colon, send selected unsaved text to tools such as sort/tr, and

@@ -15,11 +15,29 @@ impl Kill {
 impl Buffers {
     pub(crate) fn terminal(&mut self, id: crate::term::SessionId) -> Result<BufferId, Error> {
         let mut buffer = Buffer::new("", &self.settings.settings().files)?;
-        buffer.name = format!("*terminal-{}*", id.number());
+        buffer.name = if id.number() == 1 {
+            "terminal".into()
+        } else {
+            format!("terminal-{}", id.number())
+        };
         buffer.resource = super::Resource::Terminal(id);
         buffer.transient = true;
         buffer.mode_choice = Some(super::Mode::Text);
         Ok(self.insert(buffer))
+    }
+    pub(crate) fn rename_terminal(&mut self, id: BufferId, name: &str) -> Result<(), String> {
+        if name.trim().is_empty() || name.len() > 256 || name.chars().any(char::is_control) {
+            return Err("Terminal name must contain 1-256 bytes without control characters".into());
+        }
+        if self.iter().any(|b| b.id() != id && b.name() == name) {
+            return Err("A buffer already has that name".into());
+        }
+        let buffer = self.get_mut(id).map_err(|e| e.to_string())?;
+        if buffer.terminal().is_none() {
+            return Err("Rename requires a terminal buffer".into());
+        }
+        buffer.name = name.into();
+        Ok(())
     }
     pub(crate) fn apply_ai_definition(&mut self, name: &str, incoming: &crate::config::Snapshot) {
         self.settings.ai_definition(name, incoming);

@@ -61,6 +61,9 @@ Every command below is also available as `M-x` followed by its exact name.
 | `M-x terminal-new-buffer`, `:terminal-new-buffer` | `terminal-new-buffer` | Create an independent terminal directly in the selected editing pane. |
 | `M-x terminal-move-to-buffer`, `:terminal-move-to-buffer` | `terminal-move-to-buffer` | Move the current terminal into the selected editing pane. |
 | `M-x terminal-move-to-panel`, `:terminal-move-to-panel` | `terminal-move-to-panel` | Dock the same session in the lower panel. |
+| `M-x terminal-new`, `:terminal-new` | `terminal-new` | Create an independent lower-panel session. |
+| `M-x terminal-list`, `:terminal-list` | `terminal-list` | Select or inspect retained terminal sessions. |
+| `M-x terminal-rename`, `:terminal-rename` | `terminal-rename` | Give the selected terminal buffer a unique name without changing its identity. |
 | `C-x b` | `switch-to-buffer` | Select a live buffer by name. |
 | `C-x C-b` | `list-buffers` | Select from the live buffer inventory. |
 | `C-x k` | `kill-buffer` | Close a buffer with modified-text protection. |

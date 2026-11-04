@@ -2,6 +2,7 @@ mod input;
 mod lifecycle;
 mod placement;
 mod render;
+mod selection;
 mod source;
 
 use std::{path::PathBuf, sync::Arc, time::Duration};
@@ -107,20 +108,23 @@ impl Session {
         if self.input.focus() != crate::input::Focus::Editing || self.pending.is_some() {
             return self.error("A host prompt owns terminal invocation");
         }
+        self.terminal_dispatch(command)
+    }
+
+    fn terminal_dispatch(&mut self, command: TerminalCommand) -> Action {
         match command {
-            TerminalCommand::NewBuffer => return self.terminal_create(true),
-            TerminalCommand::MoveToBuffer => return self.terminal_move(true),
-            TerminalCommand::MoveToPanel => return self.terminal_move(false),
-            _ => {}
+            TerminalCommand::Open => self.terminal_open(),
+            TerminalCommand::Toggle => self.terminal_toggle(),
+            TerminalCommand::NewBuffer => self.terminal_create(true),
+            TerminalCommand::New => self.terminal_create(false),
+            TerminalCommand::List => self.list_terminals(),
+            TerminalCommand::Rename => self.rename_terminal(),
+            TerminalCommand::MoveToBuffer => self.terminal_move(true),
+            TerminalCommand::MoveToPanel => self.terminal_move(false),
         }
-        if command == TerminalCommand::Toggle {
-            if self.terminals.visible {
-                return self.terminal_hide();
-            }
-            if let Some(id) = self.terminals.selected {
-                return self.terminal_show(id);
-            }
-        }
+    }
+
+    fn terminal_open(&mut self) -> Action {
         if let Some(id) = self.terminals.default
             && self
                 .terminals
@@ -131,6 +135,16 @@ impl Session {
             return self.select_terminal(id);
         }
         self.terminal_create(false)
+    }
+
+    fn terminal_toggle(&mut self) -> Action {
+        if self.terminals.visible {
+            return self.terminal_hide();
+        }
+        if let Some(id) = self.terminals.selected {
+            return self.terminal_show(id);
+        }
+        self.terminal_open()
     }
 
     fn terminal_create(&mut self, buffer: bool) -> Action {
@@ -165,7 +179,14 @@ impl Session {
                 "Create terminal buffer: {error}; cleanup: {cleanup:?}"
             ));
         }
-        self.terminals.default = Some(id);
+        if !self
+            .terminals
+            .default
+            .and_then(|id| self.terminals.sessions.get(id))
+            .is_some_and(|s| *s.state() == State::Running)
+        {
+            self.terminals.default = Some(id);
+        }
         if buffer {
             self.terminal_to_buffer(id)
         } else {

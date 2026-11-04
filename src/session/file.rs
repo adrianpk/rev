@@ -134,6 +134,7 @@ impl Session {
     }
     fn file_argument(&mut self, pending: Option<Pending>, path: String) -> Action {
         match pending {
+            Some(Pending::TerminalRename(id)) => self.terminal_renamed(id, &path),
             Some(Pending::Shell(request)) => self.shell_argument(*request, &path),
             Some(Pending::Ai(request)) => self.ai_argument(*request, &path),
             Some(Pending::AiSave(prompt)) => self.ai_save_argument(*prompt, &path),

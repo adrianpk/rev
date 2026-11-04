@@ -5,15 +5,24 @@ use super::{Error, Frame, Position, clip};
 
 impl Frame {
     /// Derive only visible inventory rows; the list never owns editable text.
-    pub(crate) fn inventory(&mut self, buffers: &Buffers, selected: BufferId) -> Result<(), Error> {
+    pub(crate) fn inventory(
+        &mut self,
+        buffers: &Buffers,
+        selected: BufferId,
+        terminals: bool,
+    ) -> Result<(), Error> {
+        let entries = || {
+            buffers
+                .iter()
+                .filter(|b| !terminals || b.terminal().is_some())
+        };
         self.terminal_rows.clear();
         let extent = usize::from(self.size.text_rows());
         if extent == 0 {
             self.decision();
             return Ok(());
         }
-        let index = buffers
-            .iter()
+        let index = entries()
             .position(|buffer| buffer.id() == selected)
             .ok_or(crate::buffer::Error::Missing(selected))?;
         let top = index.saturating_sub(extent - 1);
@@ -25,12 +34,7 @@ impl Frame {
             row.tone = super::Tone::Document;
             row.search = None;
         }
-        for (row, buffer) in self
-            .rows
-            .iter_mut()
-            .take(extent)
-            .zip(buffers.iter().skip(top))
-        {
+        for (row, buffer) in self.rows.iter_mut().take(extent).zip(entries().skip(top)) {
             row.text = clip::line(
                 Glyphs::for_text(&entry(buffer, selected))?,
                 0,
@@ -43,7 +47,12 @@ impl Frame {
         self.rows[extent].tone = super::Tone::Status(true);
         self.rows[extent].search = None;
         self.rows[extent].text = clip::line(
-            Glyphs::for_text(&format!("Buffers: {} live", buffers.iter().len()))?,
+            Glyphs::for_text(&format!(
+                "{}: {} {}",
+                if terminals { "Terminals" } else { "Buffers" },
+                entries().count(),
+                if terminals { "retained" } else { "live" }
+            ))?,
             0,
             self.size.width,
         )?;

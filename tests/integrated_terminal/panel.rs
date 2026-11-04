@@ -53,9 +53,9 @@ impl Editor {
             self.session.expire_input(Instant::now());
             if self
                 .session
-                .terminals()
-                .ids()
-                .next()
+                .terminal_buffer()
+                .and_then(|b| b.terminal())
+                .or_else(|| self.session.terminals().ids().next())
                 .and_then(|id| self.session.terminals().get(id))
                 .is_some_and(&ready)
             {
@@ -300,12 +300,7 @@ fn source_guards() {
     assert!(editor.session.terminal_focused());
     editor.session.execute(Command::Buffer(BufferCommand::List));
     let frame = editor.session.frame().unwrap();
-    assert!(
-        frame
-            .rows()
-            .iter()
-            .any(|r| r.text().contains("*terminal-1*"))
-    );
+    assert!(frame.rows().iter().any(|r| r.text().contains("terminal")));
     editor
         .session
         .handle(key(KeyCode::Enter, KeyModifiers::NONE));
@@ -491,6 +486,99 @@ fn direct_buffer() {
         .handle(key(KeyCode::Char('g'), KeyModifiers::CONTROL));
     assert_eq!(editor.session.buffer().unwrap().stamp(), source);
     assert_eq!(editor.session.terminals().ids().count(), 1);
+}
+
+// Listing and renaming retain independent processes. Selecting a hidden peer
+// and reopening the instance default never creates another child.
+#[test]
+fn independent_sessions() {
+    if isolated("panel::independent_sessions", false) {
+        return;
+    }
+    let mut editor = Editor::new("non-modal", 24);
+    editor
+        .session
+        .execute(Command::Terminal(TerminalCommand::List));
+    assert_eq!(editor.session.terminals().ids().count(), 0);
+    editor.open();
+    let first = editor
+        .session
+        .terminal_buffer()
+        .unwrap()
+        .terminal()
+        .unwrap();
+    let first_buffer = editor.session.terminal_buffer().unwrap().id();
+    let first_pid = editor.session.terminals().get(first).unwrap().process_id();
+    assert_eq!(editor.session.terminal_buffer().unwrap().name(), "terminal");
+    editor.send("one");
+    editor.wait(|s| text(s).contains("INPUT:one"));
+    editor
+        .session
+        .execute(Command::Terminal(TerminalCommand::New));
+    editor.wait(|s| text(s).contains("READY"));
+    let second = editor
+        .session
+        .terminal_buffer()
+        .unwrap()
+        .terminal()
+        .unwrap();
+    assert_ne!(first, second);
+    assert_eq!(
+        editor.session.terminal_buffer().unwrap().name(),
+        "terminal-2"
+    );
+    let second_pid = editor.session.terminals().get(second).unwrap().process_id();
+    editor.send("two");
+    editor.wait(|s| text(s).contains("INPUT:two"));
+    assert!(!text(editor.session.terminals().get(first).unwrap()).contains("INPUT:two"));
+    editor
+        .session
+        .execute(Command::Terminal(TerminalCommand::List));
+    let frame = editor.session.frame().unwrap();
+    assert!(frame.rows().iter().any(|r| r.text().contains("terminal-2")));
+    assert!(
+        !frame
+            .rows()
+            .iter()
+            .any(|r| r.text().contains("document.org"))
+    );
+    editor.session.handle(key(KeyCode::Up, KeyModifiers::NONE));
+    editor
+        .session
+        .handle(key(KeyCode::Enter, KeyModifiers::NONE));
+    assert_eq!(editor.session.terminal_buffer().unwrap().id(), first_buffer);
+    editor
+        .session
+        .execute(Command::Terminal(TerminalCommand::Rename));
+    editor.session.handle(Event::Paste("work".into()));
+    editor
+        .session
+        .handle(key(KeyCode::Enter, KeyModifiers::NONE));
+    assert_eq!(editor.session.terminal_buffer().unwrap().name(), "work");
+    assert_eq!(editor.session.terminal_buffer().unwrap().id(), first_buffer);
+    editor
+        .session
+        .execute(Command::Terminal(TerminalCommand::Rename));
+    editor.session.handle(Event::Paste("terminal-2".into()));
+    editor
+        .session
+        .handle(key(KeyCode::Enter, KeyModifiers::NONE));
+    assert_eq!(editor.session.terminal_buffer().unwrap().name(), "work");
+    assert!(editor.session.echo().contains("already has that name"));
+    editor
+        .session
+        .execute(Command::Terminal(TerminalCommand::Open));
+    assert_eq!(editor.session.terminal_buffer().unwrap().id(), first_buffer);
+    assert_eq!(editor.session.terminals().ids().count(), 2);
+    assert_eq!(
+        editor.session.terminals().get(first).unwrap().process_id(),
+        first_pid
+    );
+    assert_eq!(
+        editor.session.terminals().get(second).unwrap().process_id(),
+        second_pid
+    );
+    assert!(text(editor.session.terminals().get(second).unwrap()).contains("INPUT:two"));
 }
 
 // Native file observers retire asynchronously. Isolate their descriptors and

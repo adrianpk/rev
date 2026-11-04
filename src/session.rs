@@ -204,6 +204,8 @@ enum Pending {
         kill: Kill,
         message: String,
     },
+    TerminalRename(crate::term::SessionId),
+    Terminals(BufferId),
     Shell(Box<shell::Request>),
     Ai(Box<ai::Request>),
     AiDirectory,
@@ -664,7 +666,10 @@ impl Session {
     ) -> Result<(), view::Error> {
         self.input_frame(frame, composition)?;
         if let Some(Pending::Inventory(selected)) = &self.pending {
-            frame.inventory(&self.buffers, *selected)?;
+            frame.inventory(&self.buffers, *selected, false)?;
+        }
+        if let Some(Pending::Terminals(selected)) = &self.pending {
+            frame.inventory(&self.buffers, *selected, true)?;
         }
         if self.input.focus() == crate::input::Focus::Decision {
             frame.decision();

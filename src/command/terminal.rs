@@ -5,6 +5,9 @@ pub enum TerminalCommand {
     NewBuffer,
     MoveToBuffer,
     MoveToPanel,
+    New,
+    List,
+    Rename,
 }
 
 impl TerminalCommand {
@@ -15,6 +18,9 @@ impl TerminalCommand {
             Self::NewBuffer => "terminal-new-buffer",
             Self::MoveToBuffer => "terminal-move-to-buffer",
             Self::MoveToPanel => "terminal-move-to-panel",
+            Self::New => "terminal-new",
+            Self::List => "terminal-list",
+            Self::Rename => "terminal-rename",
         }
     }
 }

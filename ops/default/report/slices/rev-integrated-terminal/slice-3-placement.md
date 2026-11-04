@@ -20,6 +20,14 @@ buffer and process. They preserve child working state, retained output and the
 alternate screen. Geometry rejection retains the original valid placement.
 C-g returns to the source view, preserving unsaved text and the live session.
 
+`terminal-new` creates an independent lower-panel session. Stable names start
+with `terminal`, then `terminal-2` and subsequent identities under normal native
+name conflict handling. `terminal-list` filters the ordinary inventory to
+retained terminal buffers; listing never launches a child. `terminal-rename`
+requires a unique 1-256 byte name without control characters and preserves
+buffer/session identity. The live instance default remains unchanged when
+another independent session is created. Hidden peers continue receiving output.
+
 ## Implementation Notes
 
 Native views bind the existing terminal-backed buffer. Source return views are
@@ -46,12 +54,14 @@ session/emulator and retain their own ordinary view state.
 
 Development command
 `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test integrated_terminal panel:: -- --test-threads=1`
-passed six scenarios, including direct-buffer entry, bidirectional moves,
+passed seven scenarios, including direct-buffer entry, bidirectional moves,
 alternate-screen/process identity, rejected geometry and original source guards.
+The independent-session scenario covers hidden peer output, native filtered
+selection, rename conflict rejection and original default process reuse.
 Final exact-head evidence belongs to the controller's ordered Slice 3 receipt.
 
 ## Risks and Follow-ups
 
-Multiple-session selection, naming, directory entry and complete pane-focus
-acceptance remain active Slice 3 tasks. Complete live-input modes and retained
+Directory entry and complete pane-focus acceptance remain active Slice 3 tasks.
+Complete live-input modes and retained
 output copy navigation remain in their recorded later slices.
