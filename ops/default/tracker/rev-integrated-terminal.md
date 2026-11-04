@@ -245,6 +245,11 @@ Gate repair 1 uses `fix/rev-integrated-terminal-validation-1`, the pinned title
 Slice 8 report. Focused receipt `TBCKOI6QAOOQ2H3X5H5U2O3XZL` passed unchanged
 PTY journeys on the failed base. A controlled PTY probe then reproduced signal
 readiness consuming the Mio edge while the eight-byte Alt-x event remains unread.
-The report records the dependency diagnosis. A same-version Crossterm 0.29.0
-source override needs authority beyond the current allowed paths; correction and
-PR preparation are pending. The checkpoint retains all policy, counters and gates.
+The owner approved incident 3 and the controller granted the exact source archive,
+readiness patch and vendor README. The same-version/license override retains
+unconsumed readiness tokens and checks queued TTY bytes before another read.
+All dependency versions and graph edges are unchanged. The new real-PTY
+`readiness::signal_keys` regression fails on the original source and passes
+signal-first, input-first and multi-read burst cases with the correction.
+Canonical repair PR preparation and final exact-head validation are pending.
+The checkpoint retains all policy, counters and gates.

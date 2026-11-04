@@ -1,4 +1,6 @@
-# Terminal engine source override
+# Terminal dependency source overrides
+
+## alacritty_terminal 0.26.0
 
 This directory contains the runtime sources of `alacritty_terminal` 0.26.0,
 under its unchanged Apache-2.0 license. The source override fixes a registered
@@ -39,3 +41,45 @@ diff -ru "$archive_dir/alacritty_terminal-0.26.0" vendor/alacritty_terminal-0.26
 The repository uses Cargo's `[patch.crates-io]` mechanism. Registry caches are
 not modified. The root dependency remains exactly version 0.26.0 with default
 features disabled. Retained recovery incident 1 authorized this source override.
+
+## Crossterm 0.29.0
+
+The complete published Crossterm 0.29.0 archive is retained under its unchanged
+MIT license. Its version, manifest, features and dependency versions are
+unchanged. Retained recovery incident 3 authorized this source override for
+SIGWINCH and native key readiness losing an edge in the Mio event adapter.
+
+The published archive is:
+https://static.crates.io/crates/crossterm/crossterm-0.29.0.crate
+
+Its SHA-256 is:
+`d8b9f2e4c67f833b660cdb0a3523065869fb35570177239812ed4c905aeff87b`.
+The packaged Git provenance identifies upstream commit
+`36d95b26a26e64b0f8c12edfe11f410a6d56a812`.
+
+All 77 archive files match the published bytes except
+`src/event/source/unix/mio.rs`. Its complete change is
+[crossterm-readiness.patch](crossterm-readiness.patch). The adapter retains its
+current readiness batch across event returns, advancing the TTY token only after
+its queued bytes are exhausted. A byte-count ioctl prevents a resumed blocking
+TTY descriptor from stalling the other tokens. Signal and event-stream wake tokens
+advance before returning. One index retains the existing three-token batch;
+there is no additional queue, polling timer or input retry.
+
+The real-PTY regression queues SIGWINCH and Alt-x in both orders, and queues a
+1,300-byte burst across TTY reads. Every case requires all native keys and the
+resize without a further input write. Existing native/PTY journeys retain their
+assertions, eight-second/1-MiB bounds and owned cleanup. Registry caches are
+unchanged; Cargo selects this source through the root patch table.
+
+The archive's line endings are preserved. Reproduce into an empty directory:
+
+```sh
+archive_dir=$(mktemp -d)
+archive="$archive_dir/crossterm-0.29.0.crate"
+curl --fail --location https://static.crates.io/crates/crossterm/crossterm-0.29.0.crate --output "$archive"
+printf '%s  %s\n' d8b9f2e4c67f833b660cdb0a3523065869fb35570177239812ed4c905aeff87b "$archive" | sha256sum --check -
+tar -xzf "$archive" -C "$archive_dir"
+patch --binary -d "$archive_dir/crossterm-0.29.0" -p1 < vendor/crossterm-readiness.patch
+diff -ru "$archive_dir/crossterm-0.29.0" vendor/crossterm-0.29.0
+```

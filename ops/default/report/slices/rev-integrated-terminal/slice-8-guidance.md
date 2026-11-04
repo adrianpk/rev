@@ -1,11 +1,12 @@
 # Slice 8: User Guidance and Joint Integration
 
-Status: delivered
+Status: reviewing
 Delivery set: rev-integrated-terminal
 Plan: [Integrated Terminal Delivery](../../../plan/rev-integrated-terminal.md)
 Tracker: [Integrated Terminal Tracker](../../../tracker/rev-integrated-terminal.md)
-Branch: `feat/rev-integrated-terminal-08-guidance`
-PR: [#255](https://forge.adrianpk.com/adrianpk/rev/pulls/255)
+Branch: `fix/rev-integrated-terminal-validation-1`
+PR: pending
+Original guidance PR: [#255](https://forge.adrianpk.com/adrianpk/rev/pulls/255)
 
 ## Purpose
 
@@ -102,8 +103,32 @@ matches the missing prompt after terminal output wakes the native event owner.
 
 Repair identity remains branch `fix/rev-integrated-terminal-validation-1`, title
 `fix(terminal): repair approved integrated terminal acceptance`, and this report.
-The bounded correction requires authority for a reproducible same-version
-Crossterm source override outside the current repair paths. Preserve its version,
-license and dependencies, every observable assertion, the eight-second/1-MiB
-PTY limits, cleanup bounds and frozen gate. Source correction and canonical
-repair PR preparation remain pending that authority.
+The owner approved retained incident 3 and the controller granted the exact
+published archive files, readiness patch and vendor README. Crossterm remains
+0.29.0 under its original MIT license; all dependency versions and graph edges
+are unchanged. The checked archive and replayable patch reproduce all 77 files,
+with only `src/event/source/unix/mio.rs` differing from the published bytes.
+
+The adapter now retains the existing three-token readiness batch across native
+event returns. TTY readiness persists until its queued bytes are exhausted; a
+byte-count ioctl avoids blocking on an empty descriptor before the remaining
+tokens are handled. Signal and event-stream wake tokens advance before return.
+One index adds no queue, timer, input rewrite or retry. Registry caches,
+eight-second/1-MiB PTY limits, live-command lifetime and cleanup bounds are intact.
+
+New regression `readiness::signal_keys` uses fresh owned event-reader processes
+and real controlling PTYs. It queues signal/key readiness in both orders and a
+1,300-byte burst, then requires every key and resize without another input write.
+The original source fails after Resize with the Alt-x bytes still queued; the
+corrected source passes all three cases. This also rejected an intermediate
+patch that could block on the retained empty TTY. Each probe has a three-second
+deadline and 1 MiB output cap and reaps its own process.
+
+Focused reproduction/regression command:
+
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test integrated_terminal readiness:: -- --test-threads=1`
+
+The final clean PR head requires the five configured repair commands and the
+focused `scripts/check-integrated-terminal.sh --pty` journeys. Controller
+receipts will identify that candidate after the PR-reference follow-up. The
+unchanged combined gate remains pending controller integration.

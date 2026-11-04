@@ -135,6 +135,16 @@ Natural exit drains bounded final output and preserves actual status. Running
 commands and loops have no runtime deadline. Dependencies, descriptor/resource
 assertions, frozen gate, configuration and execution budgets remain unchanged.
 
+Owner-approved incident 3 correction, 2026-11-04: Gate repair 1 may use the
+published Crossterm 0.29.0 source archive and a reproducible readiness patch.
+Retain pending Mio readiness tokens across native event returns and check queued
+TTY bytes before resuming a blocking descriptor. Preserve the version, MIT
+license, dependency graph, current three-token batch, all assertions and resource
+bounds. Add controlled real-PTY signal/key regression coverage. The checkpoint
+grants the exact archive files, patch and vendor README; registry caches and the
+combined gate remain unchanged. Integration and the full-gate rerun belong to
+the controller.
+
 ## Canonical slice map
 
 | Slice | Short name | Exact branch | Expected PR title | Report |

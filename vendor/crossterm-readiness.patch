@@ -1,0 +1,104 @@
+--- a/src/event/source/unix/mio.rs
++++ b/src/event/source/unix/mio.rs
+@@ -24,6 +24,8 @@
+ pub(crate) struct UnixInternalEventSource {
+     poll: Poll,
+     events: Events,
++    // Keep the current edge-triggered batch until every token is serviced.
++    event_index: usize,
+     parser: Parser,
+     tty_buffer: [u8; TTY_BUFFER_SIZE],
+     tty_fd: FileDesc<'static>,
+@@ -54,6 +56,7 @@
+         Ok(UnixInternalEventSource {
+             poll,
+             events: Events::with_capacity(3),
++            event_index: 0,
+             parser: Parser::default(),
+             tty_buffer: [0u8; TTY_BUFFER_SIZE],
+             tty_fd: input_fd,
+@@ -73,27 +76,36 @@
+         let timeout = PollTimeout::new(timeout);
+ 
+         loop {
+-            if let Err(e) = self.poll.poll(&mut self.events, timeout.leftover()) {
+-                // Mio will throw an interrupted error in case of cursor position retrieval. We need to retry until it succeeds.
+-                // Previous versions of Mio (< 0.7) would automatically retry the poll call if it was interrupted (if EINTR was returned).
+-                // https://docs.rs/mio/0.7.0/mio/struct.Poll.html#notes
+-                if e.kind() == io::ErrorKind::Interrupted {
+-                    continue;
+-                } else {
+-                    return Err(e);
+-                }
+-            };
+-
+-            if self.events.is_empty() {
+-                // No readiness events = timeout
+-                return Ok(None);
+-            }
+-
+-            for token in self.events.iter().map(|x| x.token()) {
++            if self.events.iter().nth(self.event_index).is_none() {
++                if let Err(e) = self.poll.poll(&mut self.events, timeout.leftover()) {
++                    // Mio can be interrupted while observing a cursor or an owned wake.
++                    if e.kind() == io::ErrorKind::Interrupted {
++                        continue;
++                    } else {
++                        return Err(e);
++                    }
++                }
++                self.event_index = 0;
++                if self.events.is_empty() {
++                    return Ok(None);
++                }
++            }
++
++            while let Some(token) = self.events.iter().nth(self.event_index).map(|x| x.token()) {
+                 match token {
+                     TTY_TOKEN => {
+                         loop {
++                            // The native TTY descriptor can be blocking. A retained
++                            // edge permits another read only while bytes remain.
++                            if rustix::io::ioctl_fionread(&self.tty_fd)? == 0 {
++                                self.event_index += 1;
++                                break;
++                            }
+                             match self.tty_fd.read(&mut self.tty_buffer) {
++                                Ok(0) => {
++                                    self.event_index += 1;
++                                    break;
++                                }
+                                 Ok(read_count) => {
+                                     if read_count > 0 {
+                                         self.parser.advance(
+@@ -105,6 +117,7 @@
+                                 Err(e) => {
+                                     // No more data to read at the moment. We will receive another event
+                                     if e.kind() == io::ErrorKind::WouldBlock {
++                                        self.event_index += 1;
+                                         break;
+                                     }
+                                     // once more data is available to read.
+@@ -115,11 +128,14 @@
+                             };
+ 
+                             if let Some(event) = self.parser.next() {
++                                // A parsed event does not consume the TTY edge. Resume
++                                // this token until its ready bytes are exhausted.
+                                 return Ok(Some(event));
+                             }
+                         }
+                     }
+                     SIGNAL_TOKEN => {
++                        self.event_index += 1;
+                         if self.signals.pending().next() == Some(signal_hook::consts::SIGWINCH) {
+                             // TODO Should we remove tput?
+                             //
+@@ -136,6 +152,7 @@
+                     }
+                     #[cfg(feature = "event-stream")]
+                     WAKE_TOKEN => {
++                        self.event_index += 1;
+                         return Err(std::io::Error::new(
+                             std::io::ErrorKind::Interrupted,
+                             "Poll operation was woken up by `Waker::wake`",

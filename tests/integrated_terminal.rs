@@ -7,6 +7,8 @@ mod fixture;
 mod panel;
 #[path = "integrated_terminal/paste.rs"]
 mod paste;
+#[path = "integrated_terminal/readiness.rs"]
+mod readiness;
 #[path = "integrated_terminal/resources.rs"]
 mod resources;
 use fixture::Fixture;
