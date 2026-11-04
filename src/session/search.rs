@@ -106,6 +106,9 @@ impl Session {
     }
 
     pub(super) fn search_action(&mut self, action: SearchAction) -> Action {
+        if let Some(action) = self.terminal_copy_search_action(action) {
+            return action;
+        }
         if self.invalidate_search() {
             return Action::Redraw;
         }

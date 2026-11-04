@@ -11,10 +11,17 @@ pub enum TerminalCommand {
     OpenHere,
     OpenOtherPane,
     SendNextKey,
+    CopyMode,
+    CopyModeDone,
 }
 
 impl TerminalCommand {
     pub fn name(self) -> &'static str {
+        match self {
+            Self::CopyMode => return "terminal-copy-mode",
+            Self::CopyModeDone => return "terminal-copy-mode-done",
+            _ => {}
+        }
         if self == Self::SendNextKey {
             return "terminal-send-next-key";
         }

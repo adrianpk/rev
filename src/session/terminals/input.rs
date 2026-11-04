@@ -12,10 +12,26 @@ impl Session {
             return None;
         }
         if let Event::Mouse(mouse) = event {
+            if self.terminals.copy_chord.is_some() {
+                return Some(Action::Wait);
+            }
             return self.terminal_pointer(*mouse);
         }
         if !self.terminals.focused {
             return None;
+        }
+        if self.terminal_copy_active() {
+            return match event {
+                Event::Key(key)
+                    if Key::normalize(*key).is_some_and(|key| {
+                        key.code == KeyCode::Enter && key.modifiers.is_empty()
+                    }) =>
+                {
+                    Some(self.terminal_copy_done())
+                }
+                Event::Paste(_) => Some(self.error("Terminal copy text is read-only")),
+                _ => None,
+            };
         }
         match event {
             Event::Key(event) => self.terminal_key(*event),
@@ -34,6 +50,13 @@ impl Session {
         let Some(key) = Key::normalize(event) else {
             return Some(Action::Wait);
         };
+        if let Some(id) = self.terminals.copy_chord.take() {
+            if self.current_terminal() == Some(id) {
+                return Some(
+                    self.terminal_copy_chord(key, event.state.contains(KeyEventState::KEYPAD)),
+                );
+            }
+        }
         let id = self.current_terminal();
         let literal = self
             .terminals
@@ -41,6 +64,12 @@ impl Session {
             .take()
             .is_some_and(|armed| Some(armed) == id);
         if !literal {
+            if key.code == KeyCode::Char('c') && key.modifiers == KeyModifiers::CONTROL {
+                self.terminals.copy_chord = id;
+                return Some(
+                    self.message("Terminal C-c: C-t copy, C-c send interrupt, C-g cancel"),
+                );
+            }
             if key.code == KeyCode::Char('q') && key.modifiers == KeyModifiers::CONTROL {
                 return Some(self.terminal_literal_next());
             }
@@ -60,6 +89,26 @@ impl Session {
             return Some(self.message("Key has no terminal encoding"));
         };
         Some(self.terminal_send(&bytes))
+    }
+
+    fn terminal_copy_chord(&mut self, key: Key, keypad: bool) -> Action {
+        if key.modifiers == KeyModifiers::CONTROL {
+            match key.code {
+                KeyCode::Char('t') => return self.terminal_copy_mode(),
+                KeyCode::Char('g') => return self.message("Terminal prefix cancelled"),
+                KeyCode::Char('c') => return self.terminal_send(b"\x03"),
+                _ => {}
+            }
+        }
+        let mode = self
+            .current_terminal()
+            .and_then(|id| self.terminals.sessions.get(id))
+            .map_or(TermMode::empty(), |s| *s.screen().mode());
+        let Some(mut bytes) = super::keyboard::encode(key, mode, keypad) else {
+            return self.error("Key has no terminal encoding");
+        };
+        bytes.insert(0, 3);
+        self.terminal_send(&bytes)
     }
 
     pub(super) fn terminal_literal_next(&mut self) -> Action {
@@ -84,7 +133,10 @@ impl Session {
             return self.error("No terminal is selected");
         };
         match self.terminals.sessions.queue(id, bytes) {
-            Ok(()) => Action::Redraw,
+            Ok(()) => {
+                self.resume_terminal_input_tail();
+                Action::Redraw
+            }
             Err(error) => self.error(&format!("Terminal input: {error}")),
         }
     }

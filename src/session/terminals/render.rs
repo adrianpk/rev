@@ -6,9 +6,9 @@ impl Session {
         &self,
         frame: &mut Frame,
         composition: Option<&Composition>,
-    ) {
+    ) -> Result<(), crate::view::Error> {
         let Some(composition) = composition else {
-            return;
+            return Ok(());
         };
         for (view, panel) in composition.panels() {
             let terminal = self
@@ -24,6 +24,18 @@ impl Session {
                     .get(*view)
                     .expect("live terminal view")
                     .terminal;
+                if let Some(copy) = self.terminals.copies.get(&super::copy::Key::View(*view)) {
+                    copy.frame(
+                        frame,
+                        Panel::new(panel.outer(), true, active),
+                        if copy.mode {
+                            " Terminal [COPY]  Return: live"
+                        } else {
+                            " Terminal retained output; C-c C-t: copy"
+                        },
+                    )?;
+                    continue;
+                }
                 self.paint_terminal(
                     frame,
                     id,
@@ -35,8 +47,21 @@ impl Session {
         if let Some(panel) = composition.terminal()
             && let Some(id) = self.terminals.selected
         {
+            if let Some(copy) = self.terminals.copies.get(&super::copy::Key::Panel) {
+                copy.frame(
+                    frame,
+                    panel,
+                    if copy.mode {
+                        " Terminal [COPY]  Return: live"
+                    } else {
+                        " Terminal retained output; C-c C-t: copy"
+                    },
+                )?;
+                return Ok(());
+            }
             self.paint_terminal(frame, id, panel, &self.terminals.viewport);
         }
+        Ok(())
     }
 
     fn paint_terminal(

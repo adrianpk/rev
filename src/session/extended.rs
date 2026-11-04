@@ -28,6 +28,9 @@ impl Session {
     }
 
     pub(super) fn input_changed(&mut self) -> Action {
+        if let Some(action) = self.terminal_copy_search_step() {
+            return action;
+        }
         if let Some(action) = self.refresh_timestamp() {
             return action;
         }

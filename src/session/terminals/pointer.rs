@@ -27,6 +27,10 @@ pub(super) struct Capture {
 }
 
 impl Surface {
+    fn copy_key(self) -> super::copy::Key {
+        self.view
+            .map_or(super::copy::Key::Panel, super::copy::Key::View)
+    }
     fn matches(self, capture: Option<Capture>, event: MouseEvent) -> bool {
         match capture {
             Some(capture) => self.id == capture.id && self.view == capture.view,
@@ -129,6 +133,9 @@ impl Session {
         if event.kind == MouseEventKind::Down(MouseButton::Left)
             && event.modifiers.contains(KeyModifiers::CONTROL)
         {
+            if self.terminals.copies.contains_key(&surface.copy_key()) {
+                return self.error("No retained hyperlink evidence at this copy location");
+            }
             return self.terminal_link_at(surface.id, self.terminal_cell(surface, event));
         }
         let local = capture.map_or_else(
@@ -146,6 +153,7 @@ impl Session {
         };
         match self.terminals.sessions.queue(surface.id, &bytes) {
             Ok(()) => {
+                self.discard_passive_copy(surface.copy_key());
                 self.capture_terminal_pointer(surface, event.kind, false);
                 Action::Redraw
             }
@@ -157,6 +165,11 @@ impl Session {
         event.modifiers.contains(KeyModifiers::SHIFT)
             || !mode.intersects(TermMode::MOUSE_MODE)
             || self.terminal_viewport(surface).offset > 0
+            || self
+                .terminals
+                .copies
+                .get(&surface.copy_key())
+                .is_some_and(|copy| copy.mode)
     }
 
     fn terminal_cell(&self, surface: Surface, event: MouseEvent) -> Point {
@@ -181,22 +194,33 @@ impl Session {
     }
 
     fn terminal_local_pointer(&mut self, surface: Surface, event: MouseEvent) -> Action {
+        let action = self.terminal_copy_pointer(surface.copy_key(), surface.id, event);
+        self.track_local_cells(surface, event);
+        self.capture_terminal_pointer(surface, event.kind, true);
+        if matches!(
+            event.kind,
+            MouseEventKind::ScrollUp | MouseEventKind::ScrollDown
+        ) {
+            self.scroll_terminal_surface(surface, event.kind);
+            if event.kind == MouseEventKind::ScrollDown {
+                self.resume_copy_tail(surface.copy_key());
+            }
+        }
+        action
+    }
+
+    fn track_local_cells(&mut self, surface: Surface, event: MouseEvent) {
         match event.kind {
             MouseEventKind::Down(MouseButton::Left) => {
                 let point = self.terminal_cell(surface, event);
                 self.terminal_viewport_mut(surface).select(point, false);
-                self.capture_terminal_pointer(surface, event.kind, true);
             }
             MouseEventKind::Drag(MouseButton::Left) | MouseEventKind::Up(MouseButton::Left) => {
                 let point = self.terminal_cell(surface, event);
                 self.terminal_viewport_mut(surface).select(point, true);
             }
-            MouseEventKind::ScrollUp | MouseEventKind::ScrollDown => {
-                self.scroll_terminal_surface(surface, event.kind)
-            }
-            _ => return Action::Wait,
+            _ => {}
         }
-        Action::Redraw
     }
 
     fn scroll_terminal_surface(&mut self, surface: Surface, kind: MouseEventKind) {

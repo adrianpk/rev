@@ -24,6 +24,9 @@ impl Session {
     }
 
     pub(in crate::session) fn terminal_quit_input(&mut self) -> Option<Action> {
+        if let Some(action) = self.terminal_copy_quit() {
+            return Some(action);
+        }
         if !self.terminals.focused {
             return None;
         }

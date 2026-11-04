@@ -79,7 +79,7 @@ compiled M-x name once.
 | Native completion | `completion-at-point`, `completion-next`, `completion-previous`, `completion-accept`, `completion-cancel`, `completion-mode`, `completion-auto-mode` |
 | Command and session | `execute-extended-command`, `keyboard-quit`, `save-buffers-kill-terminal` |
 | Files | `find-file`, `save-buffer`, `write-file`, `revert-buffer` |
-| Terminal | `terminal-open`, `terminal-toggle`, `terminal-new`, `terminal-new-buffer`, `terminal-move-to-buffer`, `terminal-move-to-panel`, `terminal-open-here`, `terminal-open-other-pane`, `terminal-list`, `terminal-rename`, `terminal-send-next-key` |
+| Terminal | `terminal-open`, `terminal-toggle`, `terminal-new`, `terminal-new-buffer`, `terminal-move-to-buffer`, `terminal-move-to-panel`, `terminal-open-here`, `terminal-open-other-pane`, `terminal-list`, `terminal-rename`, `terminal-send-next-key`, `terminal-copy-mode`, `terminal-copy-mode-done` |
 | Shell | `shell-filter-region`, `shell-command-insert`, `shell-command-on-region`, `shell-command`, `shell-command-cancel`, `shell-command-output` |
 | AI | `ai-explain`, `ai-prompt`, `ai-implement`, `ai-apply-result`, `ai-discard-result`, `ai-set-directory`, `ai-select-model`, `ai-reset-session`, `ai-disconnect`, `ai-cancel`, `ai-save-command` |
 | Buffers | `switch-to-buffer`, `list-buffers`, `kill-buffer` |
@@ -638,6 +638,10 @@ key to the child, including `C-g`, `M-x` or `C-x`. Key releases do not consume
 that request. Return, Tab, deletion, arrows, Home/End, paging and F1-F20 use
 classic VT encodings; modified movement uses native modifier parameters. Child
 application-cursor, reported application-keypad and newline modes are respected.
+`C-c C-t` enters a frozen copy view of retained output. `C-c C-c` sends one
+child interrupt, and `C-q C-c` sends it literally; `C-c C-g` cancels the prefix.
+An unclaimed second key sends the deferred C-c and that key together.
+
 The child cursor uses its requested block, bar or underline shape and blink
 state; host prompts and source editing restore their own cursor presentation.
 
@@ -659,6 +663,20 @@ viewer receives the URI as literal data in the terminal's creation directory,
 with the existing viewer time/output limits. One activation can be owned at a
 time. Missing configuration and viewer failure remain visible. Child clipboard
 requests, host commands, title effects and unsupported graphics remain inert.
+
+`terminal-copy-mode` captures a private read-only projection for the selected
+attachment. Native point, region, search and selection copying inspect that
+snapshot while the child continues producing output. Copying retains the view
+and selection. Return or `terminal-copy-mode-done` resumes live input without
+sending a child Return. C-g cancels a search first, then clears a selection, then
+leaves copy mode; stronger host prompts retain their cancellation owner.
+
+Each projection preserves physical terminal rows, cell spacing, wide characters
+and combining text, with a 1 MiB UTF-8 text cap. At most 32 projections are retained
+under an 8 MiB editor storage charge, separately from emulator history. Admission
+failure keeps existing views and the live child. Local pointer inspection also
+freezes output; returning its wheel position to the tail, or accepted live input,
+resumes following. Explicit copy mode retains keyboard ownership until exited.
 
 Use `terminal-toggle` to hide or restore the panel without restarting its shell.
 The panel remembers its height and clamps it to preserve a usable source pane.

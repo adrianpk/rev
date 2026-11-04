@@ -20,7 +20,9 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
   Live input supports control keys, paging, function keys and child cursor modes;
   use C-q to send one protected host key literally to the shell or tool. Interact
   with child mouse modes, select or scroll locally with Shift, and open validated
-  links with Control-click through your configured viewer.
+  links with Control-click through your configured viewer. Enter retained-output
+  copy mode with C-c C-t to navigate, select, search and copy while the child
+  keeps running; Return resumes live input without sending a child command.
 
 - [Run shell commands and text filters](docs/tutorials/user-guide/15-shell-commands.md)
   from M-x or colon, send selected unsaved text to tools such as sort/tr, and

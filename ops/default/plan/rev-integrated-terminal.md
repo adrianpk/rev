@@ -108,6 +108,16 @@ the actual supported fallback for oversized child effects. Take at most 64 KiB
 of IO per service turn across sessions with round-robin progress; keep native
 input/rendering responsive and use readiness wakes rather than an idle timer.
 
+Copy projections are private read-only native buffers, outside the buffer
+registry and source providers. Bound each capture to 1 MiB of UTF-8 text and
+at most 32 attachments. Charge twice the UTF-8 bytes, physical-row mapping
+storage and 64 KiB of native metadata per projection against an 8 MiB editor
+budget. One candidate capture may be prepared before admission; failure retains
+all existing projections and live emulator state. Physical rows and spacing
+remain addressable by native linear, line and block coordinates. Removing an
+attachment or terminal releases its projection; a placement move transfers
+its frozen view without creating a new child.
+
 Closure uses owned process-group signaling and waiting. Start with a 500 ms
 grace period and a finite final reap deadline of 2 seconds; normal child exit
 retains bounded final output and actual status. A cleanup failure must remain

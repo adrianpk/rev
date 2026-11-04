@@ -1,3 +1,4 @@
+mod copy;
 mod entry;
 mod input;
 mod keyboard;
@@ -42,6 +43,8 @@ pub(super) struct Work {
     literal: Option<SessionId>,
     capture: Option<pointer::Capture>,
     link: Option<link::Activation>,
+    copies: std::collections::BTreeMap<copy::Key, copy::State>,
+    copy_chord: Option<SessionId>,
 }
 
 impl Work {
@@ -88,6 +91,8 @@ impl Work {
             literal: None,
             capture: None,
             link: None,
+            copies: Default::default(),
+            copy_chord: None,
         }
     }
 }
@@ -128,6 +133,11 @@ impl Session {
     }
 
     fn terminal_dispatch(&mut self, command: TerminalCommand) -> Action {
+        match command {
+            TerminalCommand::CopyMode => return self.terminal_copy_mode(),
+            TerminalCommand::CopyModeDone => return self.terminal_copy_done(),
+            _ => {}
+        }
         if command == TerminalCommand::SendNextKey {
             return self.terminal_literal_next();
         }
@@ -269,6 +279,7 @@ impl Session {
     }
 
     pub(super) fn terminal_return(&mut self) {
+        self.terminals.copy_chord = None;
         self.cancel_terminal_pointer();
         self.terminals.literal = None;
         self.restore_terminal_view();
@@ -292,6 +303,7 @@ impl Session {
     }
 
     pub(super) fn terminal_source_focus(&mut self) {
+        self.terminals.copy_chord = None;
         self.cancel_terminal_pointer();
         self.terminals.literal = None;
         self.terminals.focused = false;

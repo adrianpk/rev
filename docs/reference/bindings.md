@@ -67,6 +67,8 @@ Every command below is also available as `M-x` followed by its exact name.
 | `M-x terminal-open-here`, `:terminal-open-here` | `terminal-open-here` | Create a session from the current resource's directory context. |
 | `M-x terminal-open-other-pane`, `:terminal-open-other-pane` | `terminal-open-other-pane` | Select a terminal in the next pane, creating a right split when needed. |
 | `C-q` in live terminal input, `M-x terminal-send-next-key` | `terminal-send-next-key` | Send one following normalized key literally to the child, bypassing host recovery. |
+| `C-c C-t` in live terminal input, `M-x terminal-copy-mode` | `terminal-copy-mode` | Freeze retained output for native navigation, selection and search. |
+| Return in terminal copy mode, `M-x terminal-copy-mode-done` | `terminal-copy-mode-done` | Resume live input without sending Return to the child. |
 | `C-x b` | `switch-to-buffer` | Select a live buffer by name. |
 | `C-x C-b` | `list-buffers` | Select from the live buffer inventory. |
 | `C-x k` | `kill-buffer` | Close a buffer with modified-text protection. |

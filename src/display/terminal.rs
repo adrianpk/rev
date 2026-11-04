@@ -34,6 +34,29 @@ impl Run {
 }
 
 impl Frame {
+    pub(crate) fn terminal_copy(
+        &mut self,
+        buffer: &crate::buffer::Buffer,
+        view: &crate::view::View,
+        panel: Panel,
+        label: &str,
+    ) -> Result<(), crate::view::Error> {
+        self.panel(buffer, view, panel)?;
+        if panel.active() {
+            self.cursor_style = None;
+        }
+        if let Some(status) = panel.status() {
+            let text = crate::coordinates::Glyphs::for_text(label)
+                .and_then(|g| super::clip::line(g, 0, status.width()))?;
+            self.terminal_blit(
+                status,
+                0,
+                text,
+                (Band::Status, Tone::Status(panel.active())),
+            );
+        }
+        Ok(())
+    }
     /// Project emulator cells, never child escape strings. Per-cell placement
     /// preserves the emulator's columns even for unusual combining sequences.
     pub(crate) fn terminal(

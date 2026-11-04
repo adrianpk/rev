@@ -1,5 +1,23 @@
 use super::{Buffer, BufferId, Buffers, Error, Stamp};
 
+impl Buffer {
+    /// Private read-only projection: no registry, file, observer or edit history.
+    pub(crate) fn terminal_copy(
+        text: &str,
+        settings: &crate::config::Snapshot,
+    ) -> Result<Self, Error> {
+        let mut buffer = Self::new(text, &settings.settings().files)?;
+        buffer.name = "Terminal copy".into();
+        buffer.transient = true;
+        buffer.read_only = true;
+        buffer.mode_choice = Some(super::Mode::Text);
+        buffer.apply_settings(settings);
+        buffer.wrap_override = Some(false);
+        buffer.org_enabled = false;
+        Ok(buffer)
+    }
+}
+
 /// A close decision identifies one live buffer and its exact text revision.
 /// Newer edits invalidate discard or save-before-close authority.
 pub struct Kill {

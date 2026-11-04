@@ -629,8 +629,8 @@ impl Session {
         self.agenda_frame(frame, composition)?;
         self.query_frame(frame, composition)?;
         self.agenda_results_frame(frame, composition)?;
-        self.bookmark_list_frame(frame, composition)
-            .map(|()| self.terminal_frame(frame, composition))
+        self.bookmark_list_frame(frame, composition)?;
+        self.terminal_frame(frame, composition)
     }
 
     fn retire_frame_work(&self) {
@@ -809,6 +809,9 @@ impl Session {
 
     /// Executes the same implemented command enum produced by key bindings.
     pub fn execute(&mut self, command: Command) -> Action {
+        if let Some(action) = self.terminal_copy_command(command) {
+            return action;
+        }
         if let Some(action) = self.terminal_source_guard(command) {
             return action;
         }
@@ -823,6 +826,9 @@ impl Session {
     }
 
     fn execute_now(&mut self, command: Command) -> Action {
+        if let Some(action) = self.terminal_copy_command(command) {
+            return action;
+        }
         if let Some(action) = self.terminal_source_guard(command) {
             return action;
         }
@@ -1016,6 +1022,9 @@ impl Session {
     /// Inserts one printable scalar, retaining a valid grapheme cursor after
     /// joins. Control bytes can enter only through explicit implemented commands.
     pub fn insert(&mut self, character: char) -> Action {
+        if self.terminal_copy_active() {
+            return self.error("Terminal copy text is read-only");
+        }
         if self.terminals.focused {
             if self.input.focus() != crate::input::Focus::Editing || self.pending.is_some() {
                 return self.error("A host prompt owns input focus");

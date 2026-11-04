@@ -169,6 +169,11 @@ impl Session {
             self.windows.selected_mut().rebind(buffer);
             if self.terminals.selected == Some(id) && !self.terminals.buffers.contains(&id) {
                 self.windows.selected_mut().terminal = self.terminals.viewport;
+                if let Some(copy) = self.terminals.copies.remove(&super::copy::Key::Panel) {
+                    self.terminals
+                        .copies
+                        .insert(super::copy::Key::View(view), copy);
+                }
             }
         }
         self.terminals.visible = visible;
@@ -223,6 +228,10 @@ impl Session {
         if let Err(error) = self.admit_terminal_geometry(id, size) {
             return self.error(&format!("Move terminal: {error}"));
         }
+        let copy = self
+            .terminals
+            .view
+            .and_then(|view| self.terminals.copies.remove(&super::copy::Key::View(view)));
         if let Some(view) = self.terminals.view {
             self.restore_source_at(view);
         }
@@ -230,6 +239,10 @@ impl Session {
         self.terminals.view = None;
         let action = self.show_admitted_terminal(id);
         self.terminals.viewport = viewport;
+        if let Some(copy) = copy {
+            self.terminals.copies.insert(super::copy::Key::Panel, copy);
+            self.sync_input_context();
+        }
         action
     }
 
