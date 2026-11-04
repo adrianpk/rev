@@ -118,8 +118,9 @@ impl Terminal {
         let dimensions = self.dimensions;
         if let Err(error) = self.wait(|output| frame(output, dimensions).is_some_and(&predicate)) {
             return Err(format!(
-                "PTY frame failed: {error}; tail={:?}",
-                self.output.chars().rev().take(1500).collect::<String>()
+                "PTY frame failed: {error}; bytes={} geometry={dimensions:?}; visible={}",
+                self.bytes,
+                diagnostic(&self.output, dimensions)
             )
             .into());
         }
@@ -261,4 +262,16 @@ fn read_output(mut output: std::process::ChildStdout) -> (JoinHandle<()>, Receiv
         }
     });
     (reader, received)
+}
+
+fn diagnostic(output: &str, dimensions: Option<(usize, usize)>) -> String {
+    let frame = output.rsplit_once(HIDE).map_or(output, |(_, frame)| frame);
+    let (rows, _) = dimensions.unwrap_or((24, 100));
+    (1..=rows)
+        .map(|number| format!("{number}: {}", row(frame, number)))
+        .collect::<Vec<_>>()
+        .join("\n")
+        .chars()
+        .take(4500)
+        .collect()
 }
