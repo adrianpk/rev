@@ -10,6 +10,7 @@ mod placement;
 mod pointer;
 mod render;
 mod selection;
+mod shutdown;
 mod source;
 mod transfer;
 
@@ -48,6 +49,7 @@ pub(super) struct Work {
     copies: std::collections::BTreeMap<copy::Key, copy::State>,
     copy_chord: Option<SessionId>,
     yank: Option<transfer::Yank>,
+    shutdown: shutdown::Shutdown,
 }
 
 impl Work {
@@ -97,6 +99,7 @@ impl Work {
             copies: Default::default(),
             copy_chord: None,
             yank: None,
+            shutdown: Default::default(),
         }
     }
 }
@@ -378,7 +381,10 @@ impl Session {
     }
 
     pub(super) fn terminal_remaining(&self) -> Option<Duration> {
-        (self.terminals.sessions.is_ready() || self.terminal_link_ready()).then_some(Duration::ZERO)
+        (self.terminals.sessions.is_ready()
+            || self.terminal_link_ready()
+            || self.terminal_shutdown_ready())
+        .then_some(Duration::ZERO)
     }
 
     pub(super) fn expire_terminals(&mut self) -> Action {

@@ -7,10 +7,34 @@ use super::{Action, AfterSave, Pending, Session};
 pub(super) struct Quit {
     buffers: VecDeque<BufferId>,
     pub(super) question: String,
+    sources: Sources,
+}
+
+/// Permission to discard specific modified source revisions for this exit.
+/// A later publication requires another source decision, even during cleanup.
+#[derive(Default)]
+pub(super) struct Sources {
+    discarded: Vec<crate::buffer::Stamp>,
+}
+impl Sources {
+    fn remember(&mut self, buffer: &crate::buffer::Buffer) {
+        if buffer.is_modified() {
+            self.discarded.push(buffer.stamp());
+        }
+    }
+    pub(super) fn permits(&self, buffers: &crate::buffer::Buffers) -> bool {
+        buffers
+            .iter()
+            .filter(|buffer| buffer.is_modified())
+            .all(|buffer| self.discarded.contains(&buffer.stamp()))
+    }
 }
 
 impl Session {
     pub(super) fn quit(&mut self) -> Action {
+        if self.terminal_shutdown_active() {
+            return self.advance_terminal_shutdown();
+        }
         if self.active_clock.is_some() {
             return self.clock_departure(super::outline::clocks::Departure::Quit);
         }
@@ -26,12 +50,13 @@ impl Session {
         self.ask_quit(Quit {
             buffers,
             question: String::new(),
+            sources: Sources::default(),
         })
     }
 
     fn ask_quit(&mut self, mut quit: Quit) -> Action {
         let Some(id) = quit.buffers.front() else {
-            return self.finish_bookmark_quit();
+            return self.finish_bookmark_quit(quit.sources);
         };
         let buffer = match self.buffers.get(*id) {
             Ok(buffer) => buffer,
@@ -78,8 +103,19 @@ impl Session {
     pub(super) fn quit_next(&mut self, mut quit: Quit) -> Action {
         // Discard is permission for this exit only; cancellation must not mark
         // unsaved text clean or remove buffers/windows processed earlier.
-        quit.buffers.pop_front();
+        if let Some(id) = quit.buffers.pop_front()
+            && let Ok(buffer) = self.buffers.get(id)
+        {
+            quit.sources.remember(buffer);
+        }
         self.ask_quit(quit)
+    }
+
+    pub(super) fn finish_editor_quit(&mut self) -> Action {
+        self.end_timer_session();
+        self.installation.cancel();
+        self.shell.stop();
+        Action::Exit
     }
 
     pub(super) fn cancel_quit(&mut self) -> bool {
@@ -87,7 +123,9 @@ impl Session {
             self.pending,
             Some(
                 Pending::Quit(_)
-                    | Pending::BookmarkQuit
+                    | Pending::BookmarkQuit(_)
+                    | Pending::TerminalQuit { .. }
+                    | Pending::TerminalShutdown { .. }
                     | Pending::Write {
                         after: AfterSave::Quit(_),
                         ..
@@ -99,6 +137,7 @@ impl Session {
             )
         );
         if quitting {
+            self.cancel_terminal_shutdown();
             self.pending = None;
             self.input.cancel();
         }

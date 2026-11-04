@@ -42,7 +42,12 @@ impl Session {
             let ai = self.expire_ai();
             let reload = self.expire_reload();
             let observed = self.expire_observation();
-            if terminal != Action::Wait
+            let shutdown = self.advance_terminal_shutdown();
+            if shutdown == Action::Exit {
+                return Ok(Action::Exit);
+            }
+            if shutdown != Action::Wait
+                || terminal != Action::Wait
                 || shell != Action::Wait
                 || ai != Action::Wait
                 || reload != Action::Wait
@@ -229,6 +234,7 @@ impl Session {
             self.expire_capture(),
             self.expire_bookmark_navigation(),
             self.expire_layout(),
+            self.advance_terminal_shutdown(),
         ]
         .into_iter()
         .rev()

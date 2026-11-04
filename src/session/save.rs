@@ -72,6 +72,10 @@ impl Session {
 
     pub(super) fn decision(&mut self, accepted: bool) -> Action {
         match self.pending.take() {
+            Some(Pending::TerminalQuit { sources, .. }) => {
+                self.terminal_quit_answer(accepted, sources)
+            }
+            Some(Pending::TerminalShutdown { .. }) => self.terminal_shutdown_answer(accepted),
             Some(Pending::TerminalClose { kill, .. }) => {
                 if accepted {
                     self.close_buffer(kill)
@@ -190,6 +194,9 @@ impl Session {
             Some(Pending::Save { confirmation, .. }) => Some(confirmation.message()),
             Some(Pending::Kill { message, .. }) => Some(message.as_str()),
             Some(Pending::TerminalClose { message, .. }) => Some(message.as_str()),
+            Some(Pending::TerminalQuit { message, .. } | Pending::TerminalShutdown { message }) => {
+                Some(message.as_str())
+            }
             _ => None,
         };
         if let Some(question) = question {

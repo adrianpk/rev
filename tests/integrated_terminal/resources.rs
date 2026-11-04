@@ -264,7 +264,7 @@ fn process_cleanup() {
         }
     }
 }
-fn stopped(pid: u32) -> bool {
+pub(super) fn stopped(pid: u32) -> bool {
     fs::read_to_string(format!("/proc/{pid}/stat")).map_or(true, |text| {
         text.rsplit_once(") ").unwrap().1.starts_with('Z')
     })

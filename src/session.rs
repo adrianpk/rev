@@ -204,6 +204,13 @@ enum Pending {
         kill: Kill,
         message: String,
     },
+    TerminalQuit {
+        message: String,
+        sources: quit::Sources,
+    },
+    TerminalShutdown {
+        message: String,
+    },
     TerminalRename(crate::term::SessionId),
     Terminals(BufferId),
     Shell(Box<shell::Request>),
@@ -216,7 +223,7 @@ enum Pending {
     LspLifecycle(Box<lsp::LifecyclePrompt>),
     Bookmark(bookmarks::Prompt),
     BookmarkReload(Box<bookmarks::Reload>),
-    BookmarkQuit,
+    BookmarkQuit(quit::Sources),
     Tangle(tangling::Prompt),
     Execution(execution::Prompt),
     Feed(feeds::Prompt),

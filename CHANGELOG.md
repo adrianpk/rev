@@ -27,7 +27,12 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
   queue ownership. Explicit paste respects child bracketed-paste mode. Use named
   commands to clear scrollback, align copy point or send protected VT keys.
   Navigate reported prompts and recognized error locations, and activate links
-  retained with a copy snapshot through the configured viewer.
+  retained with a copy snapshot through the configured viewer. Keep final output
+  and actual exit status after a child exits; opening again starts a new default
+  without erasing the old buffer. Closing a live buffer asks before termination.
+  Quitting resolves source saves first, asks once for live terminals, and waits
+  for owned cleanup while keeping the editor responsive. Declining retains the
+  sessions; a source change or cleanup failure cancels exit and preserves source.
 
 - [Run shell commands and text filters](docs/tutorials/user-guide/15-shell-commands.md)
   from M-x or colon, send selected unsaved text to tools such as sort/tr, and

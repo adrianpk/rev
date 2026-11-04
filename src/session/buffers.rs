@@ -94,7 +94,8 @@ impl Session {
                 && self
                     .terminals()
                     .get(terminal)
-                    .is_some_and(|s| *s.state() == crate::term::State::Running)
+                    .is_some_and(|s| s.owns_process())
+                && !self.terminals.closing.contains_key(&terminal)
             {
                 let message = format!(
                     "Terminate {:?}? y=terminate, n=keep, C-g=cancel",

@@ -142,7 +142,7 @@ impl Session {
             Some(Pending::AiModel(models)) => self.ai_model_argument(models, &path),
             Some(Pending::LspSetup(prompt)) => self.lsp_setup_argument(*prompt, &path),
             Some(Pending::Bookmark(prompt)) => self.bookmark_argument(prompt, &path),
-            Some(Pending::BookmarkQuit) => self.bookmark_quit_answer(&path),
+            Some(Pending::BookmarkQuit(sources)) => self.bookmark_quit_answer(&path, sources),
             Some(pending) if pending.org_argument() => self.org_argument(pending, &path),
             Some(Pending::GotoLine { view, source }) => self.goto_argument(view, source, &path),
             Some(Pending::TreeRename(rename)) => self.tree_renamed(rename, &path),

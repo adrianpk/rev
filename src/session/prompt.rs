@@ -96,6 +96,9 @@ impl Session {
         ) {
             self.pending = None;
         }
+        if self.cancel_terminal_close() {
+            return Some(self.message("Terminal retained"));
+        }
         if self.cancel_quit() {
             return Some(self.message("Quit"));
         }

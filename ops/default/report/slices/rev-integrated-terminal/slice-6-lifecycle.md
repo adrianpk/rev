@@ -20,11 +20,23 @@ the old terminal buffer and its capacity reservation until explicit closure.
 Native live/copy headers report readable actual status outside child output.
 Completed buffer closure releases its copy projections immediately.
 
+T6.2 resolves native source-save and bookmark decisions before one aggregate
+terminal confirmation. Declining preserves live sessions and dirty sources.
+Accepted closure submits existing bounded workers and keeps native input and
+rendering responsive until ownership and terminal buffers are released.
+C-g cancels exit while already approved cleanup continues.
+
 ## Implementation Notes
 
 The session owner exposes whether a process or cleanup receipt remains owned.
 Presentation and buffer identity remain separate from process lifetime. Status
 uses actual exit-code/signal observations, not text inserted into the grid.
+
+Discard permission records exact source stamps. A later source publication,
+including during terminal cleanup, cancels exit without marking sources clean.
+Cleanup failure retains its session/buffer and cancels exit. Native Exit remains
+observable after rendering consumes worker receipts. Live buffer-close decline
+releases the prompt; repeated approved closure does not ask again.
 
 ## Contracts Added or Changed
 
@@ -56,5 +68,5 @@ Required Slice 6 validation follows completion of T6.2 and T6.3.
 
 ## Risks and Follow-ups
 
-T6.2 editor-wide confirmed asynchronous shutdown and failure handling are pending.
+T6.2 focused native shutdown and source-revision checks are pending.
 T6.3 bounded admission/flood/close/error regressions are pending.
