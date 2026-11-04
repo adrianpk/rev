@@ -1,6 +1,6 @@
 use super::support::{Repository, finish};
 #[path = "presentation.rs"]
-mod presentation;
+pub(crate) mod presentation;
 use rev::{
     config,
     git::{Completeness, Group, Head, ObjectFormat, Outcome, Repositories},

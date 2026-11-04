@@ -75,7 +75,9 @@ impl Diff {
             && !self.hunks.is_empty()
     }
     pub fn hunk(&self, id: HunkId) -> Option<&Hunk> {
-        self.hunks.iter().find(|hunk| hunk.id == id)
+        // The private ordinal belongs to this immutable comparison. Checking
+        // the complete ID prevents another comparison from aliasing its slot.
+        self.hunks.get(id.1).filter(|hunk| hunk.id == id)
     }
     pub(super) fn bytes(&self) -> usize {
         std::mem::size_of::<Self>()

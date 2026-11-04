@@ -1,6 +1,6 @@
 # Slice 2: Changes Hunks and Source Visits
 
-Status: drafting
+Status: reviewing
 Delivery set: rev-git-integration
 Plan: `ops/default/plan/rev-git-integration.md`
 Tracker: `ops/default/tracker/rev-git-integration.md`
@@ -53,7 +53,13 @@ T2.2 adds native inspection and visits:
 - Pointer receipts include comparison identity, expansion and viewport state.
   Generated content remains outside writable source, Org, LSP and save paths.
 
-T2.3 both-profile source/navigation acceptance remains pending.
+T2.3 verifies both startup profiles through native key, command, pointer and
+source owners: distinct layers and multiple hunks, exact byte paths, refresh
+selection, stale receipts and resize, failed detail retention, modified source
+visits, retained split identities and live terminal return. Staged unusual-name
+fixtures also exercise literal pathspecs in SHA-1 and SHA-256 repositories.
+Hunk lookup uses its private ordinal and full immutable identity, so walking
+bounded display rows does not repeatedly scan the complete hunk list.
 
 ## Implementation Notes
 
@@ -97,14 +103,20 @@ operations must revalidate the complete comparison before effects.
 
 Development checks establish the backend foundation. The earlier combined Git
 run passed 27 tests; the focused comparison rerun covers the layer-specific
-rename correction. Nine native Status/presentation/process regression checks pass after T2.2.
-The controller's final clean-HEAD receipt follows T2.3 and PR-reference follow-up.
+rename correction. Nine native Status/presentation/process regression checks
+pass after T2.2. T2.3's five native acceptance cases pass in both profiles;
+the extended staged unusual-name fixture passes in both object formats.
+The final ordered clean-HEAD validation is recorded through the controller
+after the PR-reference follow-up; development results below are not that receipt.
 
 - `cargo fmt --all -- --check`: passed.
 - `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo clippy --locked --lib --bin rev --test git_integration -- -D warnings`: passed.
 - `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test git_integration diffs:: -- --test-threads=1`: 6 passed after the layer-specific follow-up, about 34 seconds.
 - `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test git_integration -- --test-threads=1`: 27 passed before the layer-specific follow-up, about 66 seconds.
 - `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test git_integration status::presentation -- --test-threads=1`: 9 passed after T2.2.
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test git_integration diffs::presentation -- --test-threads=1`: initial 4 native cases passed.
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test git_integration diffs::presentation::failed_and_hidden_detail -- --test-threads=1`: passed after adding failed replacement and refresh-return acceptance.
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test git_integration diffs::unborn_and_path_bytes -- --test-threads=1`: extended literal staged-path fixtures passed.
 - `git diff --check`: passed.
 
 The first bounded-detail fixture requested 1024 bytes and was rejected by the
@@ -113,5 +125,6 @@ its assertions on explicit truncation, byte admission and unsupported hunks.
 
 ## Risks and Follow-ups
 
-Complete T2.3 both-profile navigation and ownership acceptance before preparing
-the Slice 2 PR. Combined PTY and resource measurements remain assigned to Slice 13.
+Combined PTY and resource measurements remain assigned to Slice 13. This slice
+prepares exact read-only hunk identities; changing index and discard behavior
+remains assigned to Slice 3.

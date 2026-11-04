@@ -16,13 +16,13 @@ use std::{
 #[path = "lifetime.rs"]
 mod lifetime;
 
-struct Editor(Session);
+pub(crate) struct Editor(pub Session);
 impl Drop for Editor {
     fn drop(&mut self) {
         self.0.shutdown_terminals().unwrap();
     }
 }
-fn editor(repository: &Repository, profile: &str, extra: &str, file: bool) -> Editor {
+pub(crate) fn editor(repository: &Repository, profile: &str, extra: &str, file: bool) -> Editor {
     let snapshot = repository.snapshot(&format!(
         "[editor]\ninteraction_profile='{profile}'\n{extra}"
     ));
@@ -48,17 +48,17 @@ fn editor(repository: &Repository, profile: &str, extra: &str, file: bool) -> Ed
         .unwrap(),
     )
 }
-fn key(editor: &mut Session, code: KeyCode, modifiers: KeyModifiers) {
+pub(crate) fn key(editor: &mut Session, code: KeyCode, modifiers: KeyModifiers) {
     editor.handle(Event::Key(KeyEvent::new(code, modifiers)));
 }
-fn plain(editor: &mut Session, c: char) {
+pub(crate) fn plain(editor: &mut Session, c: char) {
     key(editor, KeyCode::Char(c), KeyModifiers::NONE);
 }
-fn entry(editor: &mut Session) {
+pub(crate) fn entry(editor: &mut Session) {
     key(editor, KeyCode::Char('x'), KeyModifiers::CONTROL);
     plain(editor, 'g');
 }
-fn wait(editor: &mut Session, ready: impl Fn(&Session) -> bool) {
+pub(crate) fn wait(editor: &mut Session, ready: impl Fn(&Session) -> bool) {
     let deadline = Instant::now() + Duration::from_secs(5);
     loop {
         editor.expire_input(Instant::now());
@@ -73,7 +73,7 @@ fn wait(editor: &mut Session, ready: impl Fn(&Session) -> bool) {
         std::thread::sleep(Duration::from_millis(2));
     }
 }
-fn render(editor: &mut Session) -> Vec<String> {
+pub(crate) fn render(editor: &mut Session) -> Vec<String> {
     editor
         .frame()
         .unwrap()
@@ -82,20 +82,20 @@ fn render(editor: &mut Session) -> Vec<String> {
         .map(|r| r.text().to_owned())
         .collect()
 }
-fn text(editor: &Session) -> String {
+pub(crate) fn text(editor: &Session) -> String {
     let buffer = editor.buffer().unwrap();
     buffer
         .slice(&buffer.span(0..buffer.len_chars()).unwrap())
         .unwrap()
         .to_string()
 }
-fn selected(editor: &mut Session) -> String {
+pub(crate) fn selected(editor: &mut Session) -> String {
     render(editor)
         .into_iter()
         .find(|s| s.starts_with('>'))
         .unwrap_or_default()
 }
-fn click(editor: &mut Session, row: u16) {
+pub(crate) fn click(editor: &mut Session, row: u16) {
     editor.handle(Event::Mouse(MouseEvent {
         kind: MouseEventKind::Down(MouseButton::Left),
         column: 3,

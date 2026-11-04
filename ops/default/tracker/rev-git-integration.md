@@ -49,7 +49,7 @@ Integration: [PR #258](https://forge.adrianpk.com/adrianpk/rev/pulls/258) merged
 
 ## Slice 2: Changes hunks and source visits
 
-Status: implementing
+Status: reviewing
 Branch: `feat/rev-git-integration-02-diffs`
 Expected PR title: `feat(git): inspect exact diffs and visit native sources`
 Report: `ops/default/report/slices/rev-git-integration/slice-2-diffs.md`
@@ -58,10 +58,10 @@ PR: pending
 
 - [x] T2.1: Read staged, unstaged, unborn and untracked comparisons with exact semantic identities; admit bounded text hunks and truthful binary/rename/type-change/submodule/truncated detail.
 - [x] T2.2: Add Status expansion, read-only detail, current-source visits, retained navigation and resize/pointer mappings without making generated Git content a writable source.
-- [ ] T2.3: Verify both layers of one path, multiple hunks, unusual path bytes, stale refresh, modified visiting buffers and return to the surviving editor layout.
+- [x] T2.3: Verify both layers of one path, multiple hunks, unusual path bytes, stale refresh, modified visiting buffers and return to the surviving editor layout.
 
-Validation: T2.1 development formatter and strict focused Clippy pass; six comparison tests pass, with an earlier 27-test shared Git run. Nine native Status/presentation/process regressions pass after T2.2. Final clean-HEAD controller validation follows T2.3.
-Integration: T2.1 comparison backend and T2.2 native expansion/detail/source visits implemented on the approved slice branch. T2.3 acceptance remains pending; no slice PR or merge is claimed.
+Validation: T2.1 development formatter and strict focused Clippy pass; six comparison tests pass, with an earlier 27-test shared Git run. Nine native Status/presentation/process regressions pass after T2.2. T2.3 adds five both-profile native acceptance cases and extended staged unusual-path fixtures in both object formats; all pass focused development checks. Final ordered clean-HEAD controller validation follows the PR-reference commit.
+Integration: T2.1-T2.3 implemented on the approved slice branch; canonical PR preparation and final controller validation follow. No merge is claimed.
 
 ## Slice 3: Checked staging unstaging and discard
 

@@ -1,3 +1,6 @@
+#[path = "diff_presentation.rs"]
+mod presentation;
+
 use super::support::{Repository, finish};
 use rev::git::{
     Baseline, Completeness, Diff, DiffKind, Group, OperationKind, Outcome, Repositories,
@@ -124,6 +127,28 @@ fn unborn_and_path_bytes() {
                 "untracked previews have no tracked hunk action"
             );
             assert!(contains(&detail.evidence, b"+preview"));
+        }
+        repository.git(["add", "--all"]);
+        owner.refresh(staged.observation.context).unwrap();
+        assert!(finish(&mut owner).published);
+        for path in paths {
+            let exact = OsString::from_vec(path.to_vec());
+            let detail = compare(&mut owner, Group::Staged, Path::new(&exact));
+            assert_eq!(detail.change.path.as_os_str().as_encoded_bytes(), path);
+            assert!(detail.supports_hunks());
+            assert_eq!(
+                detail.hunks.len(),
+                1,
+                "literal pathspec admits exactly one file"
+            );
+            assert_eq!(
+                detail
+                    .evidence
+                    .windows(11)
+                    .filter(|b| *b == b"diff --git ")
+                    .count(),
+                1
+            );
         }
     }
 }
