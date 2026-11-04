@@ -132,8 +132,8 @@ fn copy(terminal: &mut Terminal, profile: &str) -> Result<()> {
     Ok(())
 }
 fn closure(owner: &Path, terminal: &mut Terminal) -> Result<()> {
-    decline_exit(terminal)?;
-    close_first(terminal)?;
+    decline_exit(terminal).map_err(|e| format!("decline exit: {e}"))?;
+    close_first(owner, terminal).map_err(|e| format!("close first: {e}"))?;
     assert_eq!(
         fs::read_to_string(owner.join("workspace/kept-state"))?,
         "alive"
@@ -157,19 +157,38 @@ fn switch(terminal: &mut Terminal, name: &str) -> Result<()> {
     terminal.send(b"\x18b")?;
     terminal.frame(|f| plain(f).contains("Switch to buffer:"))?;
     terminal.send(format!("{name}\r").as_bytes())?;
-    terminal.frame(|f| plain(f).contains(name) && plain(f).contains("SHELL_READY>"))?;
+    terminal
+        .frame(|f| {
+            let text = plain(f);
+            text.contains(name)
+                && text.contains("SHELL_READY>")
+                && !text.contains("Switch to buffer:")
+        })
+        .map_err(|e| format!("switch {name}: {e}"))?;
     Ok(())
 }
-fn close_first(terminal: &mut Terminal) -> Result<()> {
+fn close_first(owner: &Path, terminal: &mut Terminal) -> Result<()> {
     switch(terminal, "terminal")?;
     line(terminal, "printf '%s' \"$KEPT\" >kept-state")?;
-    terminal.frame(|f| plain(f).contains("SHELL_READY>"))?;
+    terminal
+        .frame(|f| {
+            plain(f).contains("SHELL_READY>")
+                && fs::read_to_string(owner.join("workspace/kept-state"))
+                    .is_ok_and(|text| text == "alive")
+        })
+        .map_err(|e| format!("shell state acknowledgement: {e}"))?;
     terminal.send(b"\x18k")?;
-    terminal.frame(|f| plain(f).contains("Kill buffer:"))?;
+    terminal
+        .frame(|f| plain(f).contains("Kill buffer:"))
+        .map_err(|e| format!("kill prompt: {e}"))?;
     terminal.send(b"\r")?;
-    terminal.frame(|f| plain(f).contains("Terminate"))?;
+    terminal
+        .frame(|f| plain(f).contains("Terminate"))
+        .map_err(|e| format!("terminate prompt: {e}"))?;
     terminal.send(b"y")?;
-    terminal.frame(|f| plain(f).contains("Buffer closed"))?;
+    terminal
+        .frame(|f| plain(f).contains("Buffer closed"))
+        .map_err(|e| format!("closed receipt: {e}"))?;
     Ok(())
 }
 
