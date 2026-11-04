@@ -626,6 +626,7 @@ fn context_reference() {
             "### Minibuffer defaults and availability",
         ),
         (Context::Tree, "### Tree defaults and availability"),
+        (Context::Git, "### Git defaults and availability"),
         (
             Context::OrgAgenda,
             "### Org agenda defaults and availability",

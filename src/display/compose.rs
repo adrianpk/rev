@@ -44,6 +44,7 @@ impl Frame {
     ) -> Result<Self, Error> {
         let selected = buffers.get(windows.selected().point.stamp.buffer)?;
         let mut frame = Self {
+            _git_admission: None,
             size,
             stamp: selected.stamp(),
             palette: buffers.palette().clone(),

@@ -35,8 +35,25 @@ T1.1 implements the backend foundation:
   whole-candidate validation are in place. Loading configuration does not run
   Git or require it to be installed.
 
-Native commands, Status rendering/input and application-exit integration are
-pending in T1.2-T1.3. Slice 1 is not ready for its pull request.
+T1.2 adds the native presentation:
+
+- `C-x g`, M-x and modal colon enter the same read-only full-canvas Status in
+  both startup profiles, using the visiting file, chosen directory or launch
+  directory as the discovery origin.
+- Only nonempty Unmerged, Untracked, Unstaged and Staged groups appear. HEAD,
+  upstream counts, clean, unborn, detached, bare, checking, stale and truncated
+  states are explicit. Display labels escape exact operating-system bytes.
+- Refresh preserves compatible path/group selection. Mouse targets require the
+  painted context, generation, dimensions, focus and navigation state; a stale
+  hit rejects before choosing another row.
+- Native prompts and the available-action dispatcher preserve source text,
+  unsaved revisions, window identities, modal state, tree focus and the same
+  live terminal. Returning with `q` leaves started Git work owned.
+- `keys.git` supplies validated navigation bindings independently of source
+  maps. Retained frames participate in the same 32 MiB budget as observations.
+
+T1.3 process inspection, checked UI cancellation and guarded application exit
+remain pending. Slice 1 is not ready for its pull request.
 
 ## Implementation Notes
 
@@ -66,6 +83,8 @@ abort or repository rollback is inferred from child termination.
   process boundary. Existing text-tool callers keep their interface.
 - Added all fifteen approved startup preferences with per-source provenance,
   documented defaults/ranges and complete-candidate cross-field validation.
+- Added native Git command identities and a validated `keys.git` context, with
+  full-canvas frame admission and source/terminal input ownership boundaries.
 - No dependency or persistent repository store was added.
 
 ## Files of Interest
@@ -76,24 +95,30 @@ abort or repository rollback is inferred from child termination.
 - `src/git/work.rs`: installed-Git capability/discovery and HEAD verification.
 - `src/process/capture.rs`: OS arguments, bounded capture and owned cleanup.
 - `src/config/git.rs`: typed startup policy and validation.
+- `src/session/git.rs`: retained native Status navigation and checked input.
+- `src/display/git.rs`: safe read-only projection under shared admission.
 - `tests/git_integration/status.rs`: real isolated repository contracts.
+- `tests/git_integration/presentation.rs`: both-profile navigation, terminal
+  retention, pointer generations, configuration and display bounds.
 
 ## Validation
 
-T1.1 development checks pass. These checks do not establish native
-presentation, the complete slice, or the final delivery gate. The controller's
-clean-HEAD slice receipt is pending T1.2-T1.3.
+T1.1-T1.2 development checks pass. They establish backend and native Status
+behavior, not the complete slice or final delivery gate. The controller's
+clean-HEAD slice receipt remains pending T1.3.
 
 - `cargo fmt --all -- --check`: passed.
 - `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo clippy --locked --lib --bin rev --test git_integration -- -D warnings`: passed.
-- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test git_integration status:: -- --test-threads=1`: 10 passed.
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test git_integration status:: -- --test-threads=1`: 16 passed.
 - `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --lib process -- --test-threads=1`: 10 passed.
 - `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test configuration reference -- --test-threads=1`: 11 passed.
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test commands --test configuration reference -- --test-threads=1`: 10 command and 11 configuration checks passed.
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test windows --test panels -- --test-threads=1`: 41 window and 19 panel checks passed.
 - `git diff --check`: passed.
 
 ## Risks and Follow-ups
 
-Complete T1.2 native presentation and T1.3 process inspection, checked UI
+Complete T1.3 process inspection, checked UI
 cancellation, guarded application exit and remaining failure fixtures before
 opening the canonical Slice 1 pull request. Joint PTY and resource measurements
 remain assigned to Slice 13 by the approved plan.

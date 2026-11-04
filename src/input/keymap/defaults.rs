@@ -43,6 +43,7 @@ pub(super) fn bindings(context: Context) -> &'static [(&'static str, &'static st
         Context::Minibuffer => MINIBUFFER,
         Context::Tree => TREE,
         Context::BookmarkList => BOOKMARK_LIST,
+        Context::Git => GIT,
         _ => modal_bindings(context),
     }
 }
@@ -70,6 +71,7 @@ pub(super) fn org_bindings(context: Context) -> &'static [(&'static str, &'stati
 }
 
 pub(super) const EDITOR: &[(&str, &str)] = &[
+    ("C-x g", "git-status"),
     ("C-c a", "org-agenda"),
     ("C-c c", "org-capture"),
     ("C-c l", "org-store-link"),
@@ -152,6 +154,24 @@ pub(super) const EDITOR: &[(&str, &str)] = &[
     ("C-x t d", "tree-create-directory"),
 ];
 
+pub(super) const GIT: &[(&str, &str)] = &[
+    ("C-x g", "git-status"),
+    ("C-x C-c", "save-buffers-kill-terminal"),
+    ("M-x", "execute-extended-command"),
+    (":", "execute-extended-command"),
+    ("C-g", "keyboard-quit"),
+    ("q", "git-quit"),
+    ("g", "git-refresh"),
+    ("TAB", "git-toggle-section"),
+    ("?", "git-dispatch"),
+    ("Up", "previous-line"),
+    ("Down", "next-line"),
+    ("C-p", "previous-line"),
+    ("C-n", "next-line"),
+    ("p", "previous-line"),
+    ("n", "next-line"),
+];
+
 const MINIBUFFER: &[(&str, &str)] = &[
     ("C-g", "keyboard-quit"),
     ("RET", "minibuffer-accept"),
@@ -178,6 +198,7 @@ const MINIBUFFER: &[(&str, &str)] = &[
 ];
 
 const TREE: &[(&str, &str)] = &[
+    ("C-x g", "git-status"),
     ("C-x C-f", "find-file"),
     ("C-g", "keyboard-quit"),
     ("TAB", "insert-tab"),
@@ -366,6 +387,7 @@ const ORG_CALENDAR: &[(&str, &str)] = &[
 ];
 
 const BOOKMARK_LIST: &[(&str, &str)] = &[
+    ("C-x g", "git-status"),
     ("Down", "next-line"),
     ("C-n", "next-line"),
     ("n", "next-line"),

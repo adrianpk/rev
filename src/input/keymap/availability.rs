@@ -74,6 +74,22 @@ impl Context {
             Self::Minibuffer => minibuffer(target),
             Self::Tree => tree(target),
             Self::BookmarkList => bookmark_list(target),
+            Self::Git => matches!(
+                target,
+                Binding::Command(
+                    Command::Git(_)
+                        | Command::Quit
+                        | Command::KeyboardQuit
+                        | Command::ExecuteExtended
+                        | Command::Scroll(
+                            Scroll::NextLine
+                                | Scroll::PreviousLine
+                                | Scroll::PageForward
+                                | Scroll::PageBackward
+                        )
+                        | Command::Motion(Motion::BufferStart | Motion::BufferEnd)
+                )
+            ),
             _ => unreachable!("editing context handled"),
         }
     }
@@ -105,6 +121,7 @@ fn tree(target: Binding) -> bool {
     matches!(
         command,
         Command::Tree(_)
+            | Command::Git(crate::command::GitCommand::Status)
             | Command::KeyboardQuit
             | Command::Quit
             | Command::MouseMode
@@ -149,15 +166,17 @@ fn bookmark_list(target: Binding) -> bool {
     matches!(
         target,
         Binding::Command(
-            Command::Bookmark(
-                B::List
-                    | B::MenuVisit
-                    | B::MenuDelete
-                    | B::MenuUnmark
-                    | B::MenuExecute
-                    | B::Save
-                    | B::Reload
-            ) | Command::KeyboardQuit
+            Command::Git(crate::command::GitCommand::Status)
+                | Command::Bookmark(
+                    B::List
+                        | B::MenuVisit
+                        | B::MenuDelete
+                        | B::MenuUnmark
+                        | B::MenuExecute
+                        | B::Save
+                        | B::Reload
+                )
+                | Command::KeyboardQuit
                 | Command::ExecuteExtended
                 | Command::Quit
                 | Command::Split(_)

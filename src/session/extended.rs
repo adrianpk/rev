@@ -47,6 +47,9 @@ impl Session {
 
 impl Session {
     fn visual_command_origin(&self) -> Option<Origin> {
+        if self.git_visible() {
+            return None;
+        }
         if self.terminals.focused {
             return None;
         }

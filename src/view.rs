@@ -43,6 +43,7 @@ pub enum Error {
     Fold(FoldError),
     WorkingDirectory(std::io::ErrorKind),
     TerminalGeometry(std::io::ErrorKind),
+    GitCapacity,
 }
 
 impl fmt::Display for Error {
@@ -56,6 +57,8 @@ impl fmt::Display for Error {
             Self::Fold(error) => error.fmt(formatter),
             Self::WorkingDirectory(kind) => write!(formatter, "read working directory: {kind}"),
             Self::TerminalGeometry(kind) => write!(formatter, "Terminal geometry: {kind}"),
+            Self::GitCapacity => formatter
+                .write_str("Git presentation exceeds its 32 MiB session capacity admission"),
         }
     }
 }

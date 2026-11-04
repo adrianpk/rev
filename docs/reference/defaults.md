@@ -236,16 +236,17 @@ Both use M-x or modal colon and leave this configuration unchanged.
 | `language` | Map of language IDs to partial tables | `{}` | IDs start with `[a-z]`, then contain only `[a-z0-9-]`; no grammar installation is implied. |
 | `files.associations` | Map of exact basenames or `*.suffix` to language IDs | `{}` | User rules override built-in recognition; see language rules below. |
 | `keys.completion` | Map of popup chord sequences to completion commands | Compiled map | Active cursor popup; all 7 entries are active in the sample. Escape is a reserved literal cancellation. |
-| `keys.editor` | Map of chord sequences to existing editor command names | Compiled map | Non-modal editing focus; all 80 entries are active in the sample. |
-| `keys.vim_normal` | Map of chord sequences to canonical commands | Compiled map | modal Normal editing; state entry, navigation/counts/search, operators, transfer, jump history, Replace, dot repetition, colon commands and native pane controls. The sample declares all 139 entries. |
-| `keys.vim_insert` | Map of chord sequences to canonical commands | Compiled map | modal Insert editing; independent native factories and one-Normal-command C-o. The sample declares all 81 entries. |
-| `keys.vim_replace` | Map of chord sequences to canonical commands | Compiled map | modal Replace editing; native modified controls, whole-grapheme overwrite and underline cursor. The sample declares all 80 entries. |
-| `keys.vim_visual_character` | Map of chord sequences to canonical commands | Compiled map | Visual Character navigation, inclusive selection and shared operators. The sample declares all 121 entries. |
-| `keys.vim_visual_line` | Map of chord sequences to canonical commands | Compiled map | Visual Line navigation, complete logical lines and shared operators. The sample declares all 121 entries. |
-| `keys.vim_visual_block` | Map of chord sequences to canonical commands | Compiled map | Visual Block navigation and atomic block delete/change/copy with logical grapheme columns. The sample declares all 117 entries. |
+| `keys.editor` | Map of chord sequences to existing editor command names | Compiled map | Non-modal editing focus; all 81 entries are active in the sample. |
+| `keys.vim_normal` | Map of chord sequences to canonical commands | Compiled map | modal Normal editing; state entry, navigation/counts/search, operators, transfer, jump history, Replace, dot repetition, colon commands and native pane controls. The sample declares all 140 entries. |
+| `keys.vim_insert` | Map of chord sequences to canonical commands | Compiled map | modal Insert editing; independent native factories and one-Normal-command C-o. The sample declares all 82 entries. |
+| `keys.vim_replace` | Map of chord sequences to canonical commands | Compiled map | modal Replace editing; native modified controls, whole-grapheme overwrite and underline cursor. The sample declares all 81 entries. |
+| `keys.vim_visual_character` | Map of chord sequences to canonical commands | Compiled map | Visual Character navigation, inclusive selection and shared operators. The sample declares all 122 entries. |
+| `keys.vim_visual_line` | Map of chord sequences to canonical commands | Compiled map | Visual Line navigation, complete logical lines and shared operators. The sample declares all 122 entries. |
+| `keys.vim_visual_block` | Map of chord sequences to canonical commands | Compiled map | Visual Block navigation and atomic block delete/change/copy with logical grapheme columns. The sample declares all 118 entries. |
 | `keys.minibuffer` | Map of chord sequences to admitted prompt actions/commands | Compiled map | Prompt focus; all 22 entries are active in the sample. |
-| `keys.bookmark_list` | Map of chord sequences to admitted bookmark-list commands | Compiled map | Read-only bookmark view; all 15 entries are active in the sample. Prompts retain their own input maps. |
-| `keys.tree` | Map of chord sequences to admitted tree commands | Compiled map | Tree focus; all 22 entries are active in the sample. |
+| `keys.git` | Map of chord sequences to admitted Git navigation commands | Compiled map | One read-only Git interaction owner in both profiles; all 15 entries are active in the sample. |
+| `keys.bookmark_list` | Map of chord sequences to admitted bookmark-list commands | Compiled map | Read-only bookmark view; all 16 entries are active in the sample. Prompts retain their own input maps. |
+| `keys.tree` | Map of chord sequences to admitted tree commands | Compiled map | Tree focus; all 23 entries are active in the sample. |
 
 Only the fixed implemented [commands and context actions](bindings.md) are
 accepted as keymap values. No value unbinds a key or supplies code or consent.

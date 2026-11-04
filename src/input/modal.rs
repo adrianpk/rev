@@ -83,6 +83,7 @@ impl Input {
             && self.focus() == Focus::Editing
             && !self.workspace_tree
             && !self.workspace_bookmarks
+            && !self.workspace_git
             && !matches!(
                 self.workspace_org,
                 Some(super::OrgContext::Agenda | super::OrgContext::Calendar)

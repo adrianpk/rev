@@ -36,6 +36,9 @@ impl Input {
         if self.focus() != Focus::Editing {
             return MapContext::Minibuffer;
         }
+        if self.workspace_git {
+            return MapContext::Git;
+        }
         if self.workspace_bookmarks {
             return MapContext::BookmarkList;
         }
@@ -175,6 +178,14 @@ fn search_key(command: Command) -> Key {
 }
 
 impl Input {
+    pub(crate) fn set_git(&mut self, active: bool) {
+        if self.workspace_git != active {
+            self.clear_prefix();
+            self.suppress_repeat = true;
+            self.workspace_git = active;
+        }
+    }
+
     pub(crate) fn set_bookmark_list(&mut self, active: bool) {
         if self.workspace_bookmarks != active {
             self.clear_prefix();

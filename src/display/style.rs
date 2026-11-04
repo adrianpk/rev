@@ -25,6 +25,7 @@ pub enum Message {
 pub(super) enum Tone {
     #[default]
     Document,
+    GitSelection,
     Habit(crate::org::agenda::HabitState, bool),
     Status(bool),
     Border(bool),
@@ -87,6 +88,7 @@ impl Tone {
             ),
             Self::Message(message) => Colors::new(message.color(palette), palette.background),
             Self::Document => Colors::new(palette.foreground, palette.background),
+            Self::GitSelection => Colors::new(palette.tree_selected_text, palette.tree_selected),
             Self::Completion(kind) => Colors::new(kind_color(kind, palette), palette.background),
             Self::Habit(state, future) => {
                 Colors::new(palette.foreground, habit_color(state, future, &palette.org))

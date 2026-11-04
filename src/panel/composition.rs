@@ -20,6 +20,37 @@ pub struct Composition {
 }
 
 impl Composition {
+    /// Full-width command completion over a native navigation canvas. No hidden
+    /// source pane, tree or terminal constrains its available candidate rows.
+    pub(crate) fn navigation(size: Size, requested: u16) -> Option<Self> {
+        if size.width == 0 || size.height == 0 {
+            return None;
+        }
+        let rows = requested.min(size.height.saturating_sub(4));
+        let query = size.height.checked_sub(rows + 1)?;
+        Some(Self {
+            panels: Vec::new(),
+            borders: if rows > 0 {
+                vec![Area::new(0, query - 1, size.width, 1)?]
+            } else {
+                Vec::new()
+            },
+            auxiliary: if rows > 0 {
+                Some(Panel::new(
+                    Area::new(0, query + 1, size.width, rows)?,
+                    false,
+                    false,
+                ))
+            } else {
+                None
+            },
+            prompt: Area::new(0, query, size.width, 1)?,
+            viewport: Area::new(0, 0, size.width, query.saturating_sub(1))?,
+            tree: None,
+            terminal: None,
+        })
+    }
+
     /// Derive only a live editing leaf's gutter. Auxiliary/tree surfaces are not
     /// candidates; a suspended editing layout has no projection. Buffer stamps
     /// and point rows are checked against the canonical source before use.

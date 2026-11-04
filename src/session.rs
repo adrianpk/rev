@@ -9,6 +9,7 @@ mod bookmarks;
 mod buffers;
 mod capture;
 mod completion;
+mod git;
 mod lsp;
 mod shell;
 mod status;
@@ -109,6 +110,7 @@ pub struct Session {
     reload: reload::Work,
     ai: ai::Work,
     shell: shell::Work,
+    git: git::Work,
     terminals: terminals::Work,
     lsp: crate::lsp::Client,
     installation: crate::lsp::install::Manager,
@@ -367,7 +369,10 @@ impl Session {
             std::env::current_dir().map_err(|e| view::Error::WorkingDirectory(e.kind()))?,
             observation.wake.clone(),
         );
+        let git = git::Work::new(buffers.snapshot(), observation.wake.clone())
+            .map_err(|e| view::Error::WorkingDirectory(e.kind()))?;
         Ok(Self {
+            git,
             observation,
             terminals,
             reload: reload::Work::default(),
@@ -528,6 +533,12 @@ impl Session {
     /// Advance cold native projection by one bounded batch. An unfinished
     /// projection has no source cursor/hits; remaining_input owns its next wake.
     pub fn poll_frame(&mut self) -> Result<Frame, view::Error> {
+        if self.git_visible() {
+            self.refresh_frame()?;
+            if self.git_visible() {
+                return self.git_frame();
+            }
+        }
         if self.layout_active() {
             return self.pending_frame();
         }
@@ -570,6 +581,7 @@ impl Session {
         // Canonical completion precedes the derived layout budget. Embedding
         // hosts may observe ready jobs through frame() without synthesizing input.
         self.expire_shell();
+        self.expire_git();
         self.resize_terminal();
         self.expire_terminals();
         self.invalidate_completion();
@@ -596,6 +608,9 @@ impl Session {
     }
 
     fn project_frame(&mut self) -> Result<Frame, view::Error> {
+        if self.git_visible() {
+            return self.git_frame();
+        }
         let composition = self.composition();
         let candidate_rows = composition
             .as_ref()
@@ -816,6 +831,9 @@ impl Session {
 
     /// Executes the same implemented command enum produced by key bindings.
     pub fn execute(&mut self, command: Command) -> Action {
+        if let Some(action) = self.git_command(command) {
+            return action;
+        }
         if let Some(action) = self.terminal_copy_command(command) {
             return action;
         }
@@ -833,6 +851,9 @@ impl Session {
     }
 
     fn execute_now(&mut self, command: Command) -> Action {
+        if let Some(action) = self.git_command(command) {
+            return action;
+        }
         if let Some(action) = self.terminal_copy_command(command) {
             return action;
         }
@@ -1029,6 +1050,9 @@ impl Session {
     /// Inserts one printable scalar, retaining a valid grapheme cursor after
     /// joins. Control bytes can enter only through explicit implemented commands.
     pub fn insert(&mut self, character: char) -> Action {
+        if self.git_visible() {
+            return self.message("Git presentation is read-only");
+        }
         if self.terminal_copy_active() {
             return self.error("Terminal copy text is read-only");
         }

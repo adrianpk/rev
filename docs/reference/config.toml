@@ -501,6 +501,7 @@ bookmark = "#e0af68"            # Resolved logical-line bookmark marker.
 # Terminal aliases, key availability and focus rules are described in bindings.md.
 
 [keys.editor]
+"C-x g" = "git-status"
 "M-!" = "shell-command"
 "M-|" = "shell-command-on-region"
 "C-u M-!" = "shell-command-insert"
@@ -607,6 +608,7 @@ bookmark = "#e0af68"            # Resolved logical-line bookmark marker.
 "C-r" = "isearch-backward"
 
 [keys.tree]
+"C-x g" = "git-status"
 "C-x C-f" = "find-file"
 "C-g" = "keyboard-quit"
 "TAB" = "insert-tab"
@@ -810,6 +812,7 @@ bookmark = "#e0af68"            # Resolved logical-line bookmark marker.
 
 # Native read-only bookmark list; these keys never edit the backing source.
 [keys.bookmark_list]
+"C-x g" = "git-status"
 "Down" = "next-line"
 "C-n" = "next-line"
 "n" = "next-line"
@@ -850,6 +853,7 @@ bookmark = "#e0af68"            # Resolved logical-line bookmark marker.
 # modal editing maps are independent of keys.editor. Local components keep priority.
 
 [keys.vim_normal]
+"C-x g" = "git-status"
 "M-!" = "shell-command"
 "M-|" = "shell-command-on-region"
 ":" = "execute-extended-command"
@@ -991,6 +995,7 @@ bookmark = "#e0af68"            # Resolved logical-line bookmark marker.
 "." = "modal-repeat-last-change"
 
 [keys.vim_insert]
+"C-x g" = "git-status"
 "M-!" = "shell-command"
 "M-|" = "shell-command-on-region"
 "C-u M-!" = "shell-command-insert"
@@ -1074,6 +1079,7 @@ bookmark = "#e0af68"            # Resolved logical-line bookmark marker.
 "C-o" = "modal-one-normal-command"
 
 [keys.vim_replace]
+"C-x g" = "git-status"
 "M-!" = "shell-command"
 "M-|" = "shell-command-on-region"
 "C-u M-!" = "shell-command-insert"
@@ -1157,6 +1163,7 @@ bookmark = "#e0af68"            # Resolved logical-line bookmark marker.
 
 
 [keys.vim_visual_character]
+"C-x g" = "git-status"
 "M-!" = "shell-command"
 "M-|" = "shell-command-on-region"
 ":" = "execute-extended-command"
@@ -1280,6 +1287,7 @@ bookmark = "#e0af68"            # Resolved logical-line bookmark marker.
 "a" = "modal-select-around-object"
 
 [keys.vim_visual_line]
+"C-x g" = "git-status"
 "M-!" = "shell-command"
 "M-|" = "shell-command-on-region"
 ":" = "execute-extended-command"
@@ -1403,6 +1411,7 @@ bookmark = "#e0af68"            # Resolved logical-line bookmark marker.
 "a" = "modal-select-around-object"
 
 [keys.vim_visual_block]
+"C-x g" = "git-status"
 "M-!" = "shell-command"
 "M-|" = "shell-command-on-region"
 ":" = "execute-extended-command"
@@ -1542,3 +1551,21 @@ max_result_bytes = 262144
 # output = "replace" # explanation; insert requires point; replace needs selection/buffer
 # model = "provider/model" # Optional Pi model override; no credentials.
 # Bind ai-table-total in the existing profile keymap table, then restart.
+
+# Read-only Git navigation uses the same context in both startup profiles.
+[keys.git]
+"C-x g" = "git-status"
+"C-x C-c" = "save-buffers-kill-terminal"
+"M-x" = "execute-extended-command"
+":" = "execute-extended-command"
+"C-g" = "keyboard-quit"
+"q" = "git-quit"
+"g" = "git-refresh"
+"TAB" = "git-toggle-section"
+"?" = "git-dispatch"
+"Up" = "previous-line"
+"Down" = "next-line"
+"C-p" = "previous-line"
+"C-n" = "next-line"
+"p" = "previous-line"
+"n" = "next-line"

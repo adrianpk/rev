@@ -8,6 +8,9 @@ impl Session {
     /// Host transients and already-started host prefixes retain first refusal.
     /// Other live keys bypass source/modal editing in either startup profile.
     pub(in crate::session) fn terminal_input(&mut self, event: &Event) -> Option<Action> {
+        if self.git_visible() {
+            return None;
+        }
         if self.terminal_host_transient() {
             return None;
         }

@@ -30,6 +30,7 @@ pub enum Context {
     Minibuffer,
     Tree,
     BookmarkList,
+    Git,
     Org,
     OrgAgenda,
     OrgCapture,
@@ -38,7 +39,7 @@ pub enum Context {
 }
 
 impl Context {
-    pub const ALL: [Self; 16] = [
+    pub const ALL: [Self; 17] = [
         Self::VimNormal,
         Self::VimInsert,
         Self::VimReplace,
@@ -50,6 +51,7 @@ impl Context {
         Self::Minibuffer,
         Self::Tree,
         Self::BookmarkList,
+        Self::Git,
         Self::Org,
         Self::OrgAgenda,
         Self::OrgCapture,
@@ -64,6 +66,7 @@ impl Context {
             Self::Minibuffer => "minibuffer",
             Self::Tree => "tree",
             Self::BookmarkList => "bookmark_list",
+            Self::Git => "git",
             _ => self.modal_name(),
         }
     }
@@ -120,6 +123,7 @@ pub struct Effective {
     minibuffer: Map,
     tree: Map,
     bookmark_list: Map,
+    git: Map,
     org: Map,
     org_agenda: Map,
     org_capture: Map,
@@ -147,6 +151,7 @@ impl Effective {
             Context::Minibuffer => &self.minibuffer,
             Context::Tree => &self.tree,
             Context::BookmarkList => &self.bookmark_list,
+            Context::Git => &self.git,
             _ => self.org_map(context),
         }
     }
@@ -196,6 +201,7 @@ pub(crate) fn compile_ai(
         minibuffer,
         tree: Map::compile(Context::Tree, &keys.tree, commands)?,
         bookmark_list: Map::compile(Context::BookmarkList, &keys.bookmark_list, commands)?,
+        git: Map::compile(Context::Git, &keys.git, commands)?,
         org_agenda: Map::compile(Context::OrgAgenda, &keys.org_agenda, commands)?,
         org_calendar,
     })

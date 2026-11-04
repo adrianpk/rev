@@ -7,6 +7,7 @@ mod calendar;
 mod clip;
 mod completion;
 mod compose;
+pub(crate) mod git;
 mod gutter;
 mod habit;
 mod headings;
@@ -100,6 +101,7 @@ impl Row {
 /// One derived frame. The session builds a fresh projection at each redraw;
 /// no retained row cache can survive an edit, metadata change, or resize.
 pub struct Frame {
+    _git_admission: Option<crate::git::budget::Lease>,
     size: Size,
     stamp: Stamp,
     palette: crate::config::Palette,
@@ -127,6 +129,7 @@ impl Frame {
         palette: &crate::config::Palette,
     ) -> Result<Self, Error> {
         let mut frame = Self {
+            _git_admission: None,
             size,
             stamp: buffer.stamp(),
             palette: palette.clone(),
@@ -147,6 +150,7 @@ impl Frame {
     pub fn project(buffer: &Buffer, view: &View, size: Size, echo: &str) -> Result<Self, Error> {
         view.cell(buffer)?;
         let mut frame = Self {
+            _git_admission: None,
             size,
             stamp: buffer.stamp(),
             palette: crate::config::Palette::default(),

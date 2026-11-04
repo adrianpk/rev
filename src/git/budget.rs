@@ -12,7 +12,7 @@ pub const SCRATCH_BYTES: usize = 1048576;
 pub(super) struct Budget(Arc<AtomicUsize>);
 
 #[derive(Debug)]
-pub(super) struct Lease {
+pub(crate) struct Lease {
     budget: Budget,
     bytes: usize,
 }

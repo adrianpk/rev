@@ -4,6 +4,10 @@ use super::{Action, Session};
 
 impl Session {
     pub(super) fn sync_input_context(&mut self) {
+        self.input.set_git(self.git_visible());
+        if self.git_visible() {
+            return;
+        }
         self.sync_terminal_focus();
         self.sync_terminal_copies();
         self.qualify_repeat();

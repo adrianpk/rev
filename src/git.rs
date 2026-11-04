@@ -1,6 +1,6 @@
 //! Native repository observations and owned installed-Git operations. Git keeps
 //! durable repository state; this owner retains finite session observations.
-mod budget;
+pub(crate) mod budget;
 mod status;
 mod work;
 pub use status::{Completeness, Group, Head, PathChange, Status};
@@ -233,6 +233,21 @@ impl Repositories {
     }
     pub fn admitted_bytes(&self) -> usize {
         self.budget.used()
+    }
+    pub(crate) fn presentation(
+        &self,
+        width: u16,
+        height: u16,
+    ) -> Result<Lease, crate::view::Error> {
+        // A path can expand to escaped OS bytes and combining graphemes. This
+        // conservative row charge also covers formatting scratch and Row data.
+        let bytes = usize::from(height)
+            .checked_mul(32768usize.max(usize::from(width) * 8) + 512)
+            .and_then(|rows| rows.checked_add(4096))
+            .ok_or(crate::view::Error::GitCapacity)?;
+        self.budget
+            .reserve(bytes)
+            .map_err(|_| crate::view::Error::GitCapacity)
     }
     pub fn busy(&self) -> bool {
         !self.active.is_empty()

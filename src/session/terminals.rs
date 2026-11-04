@@ -124,7 +124,7 @@ impl Session {
         &self.terminals.sessions
     }
     pub fn terminal_focused(&self) -> bool {
-        self.terminals.focused
+        self.terminals.focused && !self.git_visible()
     }
 
     pub fn terminal_buffer(&self) -> Option<&crate::buffer::Buffer> {

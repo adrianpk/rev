@@ -52,7 +52,9 @@ impl Input {
     }
 
     fn finish_escape(&mut self) -> Outcome {
-        if self.profile == InteractionProfile::Modal {
+        if self.profile == InteractionProfile::Modal
+            || (self.workspace_git && self.focus() == super::Focus::Editing)
+        {
             // The session routes KeyboardQuit through the innermost owner.
             // Do not force Normal or discard an outer draft here.
             self.cancel();

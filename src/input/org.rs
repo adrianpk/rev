@@ -52,7 +52,8 @@ impl Input {
     }
 
     pub(super) fn accepts_text(&self) -> bool {
-        self.workspace_org.is_none_or(OrgContext::accepts_text)
+        !self.workspace_git
+            && self.workspace_org.is_none_or(OrgContext::accepts_text)
             && (!self.modal_editing() || self.editing_state.text_entry())
     }
 }

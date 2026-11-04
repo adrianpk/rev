@@ -1,4 +1,6 @@
 use super::support::{Repository, finish};
+#[path = "presentation.rs"]
+mod presentation;
 use rev::{
     config,
     git::{Completeness, Group, Head, ObjectFormat, Outcome, Repositories},

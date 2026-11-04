@@ -8,7 +8,9 @@ mod buffer;
 mod completion;
 pub mod editing;
 pub use editing::Editing;
+mod git;
 mod gutter;
+pub use git::GitCommand;
 mod kill;
 mod linear;
 mod lsp;
@@ -49,6 +51,7 @@ pub use window::WindowCommand;
 /// Only commands with a working handler belong in the public registry.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum Command {
+    Git(GitCommand),
     Terminal(TerminalCommand),
     Modal(ModalCommand),
     Navigate(Navigation),
@@ -109,7 +112,12 @@ pub enum Command {
 }
 
 impl Command {
-    pub const ALL: [Self; 474] = [
+    pub const ALL: [Self; 479] = [
+        Self::Git(GitCommand::Status),
+        Self::Git(GitCommand::Quit),
+        Self::Git(GitCommand::Refresh),
+        Self::Git(GitCommand::ToggleSection),
+        Self::Git(GitCommand::Dispatch),
         Self::Terminal(TerminalCommand::NextPrompt),
         Self::Terminal(TerminalCommand::PreviousPrompt),
         Self::Terminal(TerminalCommand::NextError),
@@ -613,6 +621,7 @@ impl Command {
     }
     fn family_name(self) -> &'static str {
         match self {
+            Self::Git(command) => command.name(),
             Self::Terminal(command) => command.name(),
             Self::Buffer(command) => command.name(),
             Self::Split(split) => split.name(),

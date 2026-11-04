@@ -56,6 +56,11 @@ Every command below is also available as `M-x` followed by its exact name.
 | `C-u M-!` (non-modal), `M-x shell-command-insert`, `:shell-command-insert` | `shell-command-insert` | Insert complete successful stdout at the point captured before the prompt, with null stdin. |
 | `M-x shell-command-cancel`, `:shell-command-cancel` | `shell-command-cancel` | Cancel the owned invocation; originating editing C-g also cancels after inner input owners. |
 | `M-x shell-command-output`, `:shell-command-output` | `shell-command-output` | Visit the last retained read-only plain-text result or diagnostics. |
+| `C-x g`, `M-x git-status`, `:git-status` | `git-status` | Discover the current repository and open full-canvas native Status. |
+| `q` in Git | `git-quit` | Dismiss the innermost menu or return to the retained editing context; owned work continues. |
+| `g` in Git | `git-refresh` | Request a replacement observation; retain confirmed Status on failure. |
+| Tab in Git | `git-toggle-section` | Collapse or expand the selected nonempty Status group. |
+| `?` in Git | `git-dispatch` | Show the available native Git actions. |
 | `M-x terminal-open`, `:terminal-open` | `terminal-open` | Open or select the instance default interactive terminal in the lower panel. |
 | `M-x terminal-toggle`, `:terminal-toggle` | `terminal-toggle` | Hide or restore the lower terminal panel without restarting the child. |
 | `M-x terminal-new-buffer`, `:terminal-new-buffer` | `terminal-new-buffer` | Create an independent terminal directly in the selected editing pane. |
@@ -548,7 +553,7 @@ Escape/C-[ is a state transition while modal editing owns input, so a standalone
 Escape cannot become a configurable command prefix there.
 
 `keys.completion` supplies the active popup map; Escape remains literal cancel.
-`keys.editor`, `keys.minibuffer` and `keys.tree` inherit independent complete
+`keys.editor`, `keys.minibuffer`, `keys.tree` and `keys.git` inherit independent complete
 maps. Omitted entries keep their built-in command. An exact normalized override
 replaces that chord, including an earlier spelling from another included layer.
 Removing/commenting an override restores the inherited entry. Two aliases for
@@ -565,7 +570,7 @@ contains it is unreachable because it cancels pending prefixes, and rejects.
 
 These contracts expose validated maps through `Snapshot::keymaps()`. Library
 input/session construction supplied with a snapshot dispatches `keys.editor`,
-`keys.minibuffer` and `keys.tree` through their existing Rust action owners.
+`keys.minibuffer`, `keys.tree` and `keys.git` through their native Rust action owners.
 The focused prompt temporarily owns the minibuffer map even when an Org role or
 the tree retains workspace focus. Tree focus takes precedence over Org editing.
 No keymap edits the underlying document from a prompt.
@@ -689,6 +694,7 @@ releases and held acceptance keys cannot submit a newly acquired argument.
 | Keys | Target |
 | --- | --- |
 | `C-x C-f` | `find-file` |
+| `C-x g` | `git-status` |
 | `C-g` | `keyboard-quit` |
 | `TAB` | `insert-tab` (return to editing) |
 | `M-x` | `execute-extended-command` |
@@ -706,7 +712,7 @@ releases and held acceptance keys cannot submit a newly acquired argument.
 | `C-x t n` | `tree-create-file` |
 | `C-x t d` | `tree-create-directory` |
 
-Tree configuration admits the tree command catalog, find-file, cancel, exit, M-x and
+Tree configuration admits the tree command catalog, Git Status, find-file, cancel, exit, M-x and
 return-to-editing, plus the existing navigation aliases `previous-line`,
 `next-line`, `backward-char`, `forward-char` and `newline`. File mutation commands
 retain their prompts and explicit confirmation; a binding cannot supply consent.
@@ -717,6 +723,32 @@ changing `C-n` does not change Down. Navigation aliases can repeat; open, refres
 mutation and workspace transitions require fresh presses. Pending prefixes are
 cleared by prompt acquisition, cancellation and workspace changes. Tree text
 and paste never enter the visiting buffer while tree focus is retained.
+
+### Git defaults and availability
+
+`keys.git` applies to native Git navigation in both startup profiles. It keeps
+source text read-only and retains the original windows, tree and terminal
+owners. User mappings replace individual chords; `C-g` remains reserved for
+native cancellation. Prompts use `keys.minibuffer`.
+
+| Keys | Target |
+| --- | --- |
+| `C-x g` | `git-status` |
+| `C-x C-c` | `save-buffers-kill-terminal` |
+| `M-x`, `:` | `execute-extended-command` |
+| `C-g` | `keyboard-quit` |
+| `q` | `git-quit` |
+| `g` | `git-refresh` |
+| Tab | `git-toggle-section` |
+| `?` | `git-dispatch` |
+| Up, `C-p`, `p` | `previous-line` |
+| Down, `C-n`, `n` | `next-line` |
+
+Only nonempty groups appear, in Unmerged, Untracked, Unstaged and Staged order.
+Selection follows an exact path and group across refresh. Mouse selection
+requires the current painted generation and dimensions. Tab toggles a group;
+`q`, `C-g` or Escape dismisses its action menu. Returning from Status keeps
+started Git work owned by the editor.
 
 ### Org agenda defaults and availability
 

@@ -135,6 +135,7 @@ pub struct Input {
     keymaps: keymap::Effective,
     workspace_tree: bool,
     workspace_bookmarks: bool,
+    workspace_git: bool,
     workspace_completion: bool,
     workspace_org: Option<OrgContext>,
     meta_deadline: Option<Instant>,
@@ -353,6 +354,9 @@ impl Input {
             });
         }
         if !self.accepts_text() {
+            if self.workspace_git {
+                return Outcome::Message("Git presentation is read-only");
+            }
             return Outcome::Message("Unbound Org context key");
         }
         if key.plain().is_none() {

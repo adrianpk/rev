@@ -38,6 +38,7 @@ impl Session {
         // a continuous typing burst. Other input deadlines retain their owner.
         if action != Action::Exit {
             let shell = self.expire_shell();
+            let git = self.expire_git();
             let terminal = self.expire_terminals();
             let ai = self.expire_ai();
             let reload = self.expire_reload();
@@ -49,6 +50,7 @@ impl Session {
             if shutdown != Action::Wait
                 || terminal != Action::Wait
                 || shell != Action::Wait
+                || git != Action::Wait
                 || ai != Action::Wait
                 || reload != Action::Wait
                 || observed != Action::Wait
@@ -70,6 +72,7 @@ impl Session {
             self.reload_remaining(),
             self.ai_remaining(),
             self.shell_remaining(),
+            self.git.engine.remaining(),
             self.terminal_remaining(),
             self.observation_remaining(),
             self.pointer_remaining(now),
@@ -78,7 +81,8 @@ impl Session {
             self.agenda_action_remaining(),
             self.capture_remaining(),
             self.bookmark_visit.as_ref().map(|_| Duration::ZERO),
-            (self.layout_pending || self.layout_active()).then_some(Duration::ZERO),
+            ((self.layout_pending && !self.git_visible()) || self.layout_active())
+                .then_some(Duration::ZERO),
         ]
         .into_iter()
         .flatten()
@@ -177,6 +181,9 @@ impl Session {
             self.sync_input_context();
             return action;
         }
+        if let Some(action) = self.git_input(&event) {
+            return action;
+        }
         if let Event::Mouse(mouse) = event
             && let Some(action) = self.timestamp_pointer(mouse)
         {
@@ -199,7 +206,7 @@ impl Session {
     }
 
     fn obsolete_pointer(&self, event: &Event) -> bool {
-        self.layout_pending && matches!(event, Event::Mouse(_))
+        self.layout_pending && !self.git_visible() && matches!(event, Event::Mouse(_))
     }
 
     /// Service native deadlines after the host has processed ready input.
@@ -225,6 +232,7 @@ impl Session {
             self.expire_reload(),
             self.expire_ai(),
             self.expire_shell(),
+            self.expire_git(),
             self.expire_terminals(),
             self.expire_observation(),
             self.expire_completion(now),
@@ -254,6 +262,9 @@ impl Session {
     }
 
     fn expire_layout(&mut self) -> Action {
+        if self.git_visible() {
+            return Action::Wait;
+        }
         if let Some(action) = self.expire_layout_input() {
             return action;
         }

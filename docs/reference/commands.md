@@ -685,3 +685,25 @@ while retaining valid stdout. Switching panes never redirects the target or take
 focus. Successful replacement/insertion uses one ordinary undo step; empty
 replacement deletes the region, while empty insertion creates no history entry.
 No whitespace or newline normalization changes the stdout applied to source.
+
+## Native Git Status
+
+C-x g opens native Status in both editing profiles, from the visiting file or
+selected directory and launch-directory fallback. The full canvas belongs to
+Git navigation while source buffers, layout and terminals remain retained.
+Status reads disk and Git state; it does not save an unsaved source buffer.
+
+| Command | Behavior |
+| --- | --- |
+| `git-status` | Check installed Git and the actual repository, then open structured Status. |
+| `git-quit` | Return from the innermost Git menu or restore the retained editing context; started work continues. |
+| `git-refresh` | Replace Status only after a checked bounded observation succeeds; retain confirmed facts with a stale indication on failure. |
+| `git-toggle-section` | Toggle the selected Status section while retaining its semantic identity. |
+| `git-dispatch` | Show the currently available native Git actions. |
+
+The `keys.git` map owns q, g, Tab, ? and list navigation in both profiles.
+M-x and colon use the shared command catalog. Unmerged, Untracked, Unstaged
+and Staged sections appear in that order when nonempty. Clean, bare, unborn,
+detached, unavailable and truncated states remain explicit. Pointer selection
+uses a current frame and semantic path identity; display escaping never
+reconstructs a filesystem argument.
