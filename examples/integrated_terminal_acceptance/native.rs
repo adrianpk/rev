@@ -107,6 +107,6 @@ fn quit_tool(editor: &mut Editor, tool: u32) -> Result<()> {
     editor.wait(|s| {
         !s.screen().mode().contains(TermMode::ALT_SCREEN) && screen(s).contains("SHELL_READY>")
     })?;
-    assert!(!fs::exists(format!("/proc/{tool}"))?);
+    reaped(tool)?;
     Ok(())
 }

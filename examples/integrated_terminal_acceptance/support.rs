@@ -172,3 +172,14 @@ pub(crate) fn source(session: &Session) -> String {
 pub(crate) fn pid_file(path: &Path) -> Result<u32> {
     Ok(fs::read_to_string(path)?.trim().parse()?)
 }
+
+// A tool may restore its screen before its shell has observed and reaped exit.
+// Keep the final no-process assertion after a finite observation of that owner.
+pub(crate) fn reaped(pid: u32) -> Result<()> {
+    let deadline = Instant::now() + Duration::from_secs(2);
+    while fs::exists(format!("/proc/{pid}"))? {
+        assert!(Instant::now() < deadline, "owned tool was not reaped");
+        std::thread::sleep(Duration::from_millis(1));
+    }
+    Ok(())
+}
