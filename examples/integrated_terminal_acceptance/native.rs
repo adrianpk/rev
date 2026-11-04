@@ -1,9 +1,15 @@
 use super::support::*;
 use alacritty_terminal::term::TermMode;
 use crossterm::event::{KeyCode, KeyModifiers};
-use rev::command::TerminalCommand;
+use rev::{buffer::BufferId, command::TerminalCommand, term::SessionId};
 use std::{fs, path::Path};
 
+struct Owned {
+    id: SessionId,
+    buffer: BufferId,
+    shell: u32,
+    tool: u32,
+}
 pub(crate) fn run(root: &Path) -> Result<()> {
     for profile in ["non-modal", "modal"] {
         journey(root, profile)?;
@@ -14,6 +20,22 @@ fn journey(root: &Path, profile: &str) -> Result<()> {
     let mut editor = Editor::open(root, profile)?;
     assert_eq!(editor.session.terminals().ids().count(), 0);
     let source = editor.session.buffer()?.stamp();
+    let owned = shell(&mut editor, profile)?;
+    relocate(&mut editor, profile, &owned)?;
+    quit_tool(&mut editor, owned.tool)?;
+    key(
+        &mut editor.session,
+        KeyCode::Char('g'),
+        KeyModifiers::CONTROL,
+    );
+    assert_eq!(editor.session.buffer()?.stamp(), source);
+    assert_eq!(super::support::source(&editor.session), ORIGINAL);
+    println!(
+        "PASS native profile={profile}: interactive Bash, cwd, actual lazygit alternate screen/help and identity-preserving panel/buffer relocation"
+    );
+    Ok(())
+}
+fn shell(editor: &mut Editor, profile: &str) -> Result<Owned> {
     named(&mut editor.session, profile, "terminal-open");
     editor.wait(|s| screen(s).contains("SHELL_READY>"))?;
     let id = editor.selected();
@@ -28,6 +50,15 @@ fn journey(root: &Path, profile: &str) -> Result<()> {
     editor.line("printf '\\r\\nSHELL_STATE:%s\\r\\n' $$; mkdir -p kept; cd kept; pwd");
     editor.wait(|s| screen(s).contains(&format!("SHELL_STATE:{shell}")))?;
     editor.wait(|s| screen(s).contains("/kept"))?;
+    let tool = start_tool(editor)?;
+    Ok(Owned {
+        id,
+        buffer,
+        shell,
+        tool,
+    })
+}
+fn start_tool(editor: &mut Editor) -> Result<u32> {
     editor
         .line("cd ..; sh -c 'printf %s $$ >tool.pid; exec lazygit --use-config-file lazygit.yml'");
     editor.wait(|s| {
@@ -40,6 +71,9 @@ fn journey(root: &Path, profile: &str) -> Result<()> {
     );
     key(&mut editor.session, KeyCode::Char('?'), KeyModifiers::NONE);
     editor.wait(|s| screen(s).contains("Keybindings"))?;
+    Ok(tool)
+}
+fn relocate(editor: &mut Editor, profile: &str, owned: &Owned) -> Result<()> {
     for placement in [TerminalCommand::MoveToBuffer, TerminalCommand::MoveToPanel] {
         named(
             &mut editor.session,
@@ -50,15 +84,23 @@ fn journey(root: &Path, profile: &str) -> Result<()> {
                 "terminal-move-to-panel"
             },
         );
-        assert_eq!(editor.selected(), id);
-        assert_eq!(editor.session.terminal_buffer().unwrap().id(), buffer);
+        assert_eq!(editor.selected(), owned.id);
+        assert_eq!(editor.session.terminal_buffer().unwrap().id(), owned.buffer);
         assert_eq!(
-            editor.session.terminals().get(id).unwrap().process_id(),
-            Some(shell)
+            editor
+                .session
+                .terminals()
+                .get(owned.id)
+                .unwrap()
+                .process_id(),
+            Some(owned.shell)
         );
-        assert_eq!(pid_file(&editor.directory.join("tool.pid"))?, tool);
+        assert_eq!(pid_file(&editor.directory.join("tool.pid"))?, owned.tool);
         editor.wait(|s| screen(s).contains("Keybindings"))?;
     }
+    Ok(())
+}
+fn quit_tool(editor: &mut Editor, tool: u32) -> Result<()> {
     key(&mut editor.session, KeyCode::Esc, KeyModifiers::NONE);
     editor.wait(|s| screen(s).contains("Files") && !screen(s).contains("Keybindings"))?;
     key(&mut editor.session, KeyCode::Char('q'), KeyModifiers::NONE);
@@ -66,15 +108,5 @@ fn journey(root: &Path, profile: &str) -> Result<()> {
         !s.screen().mode().contains(TermMode::ALT_SCREEN) && screen(s).contains("SHELL_READY>")
     })?;
     assert!(!fs::exists(format!("/proc/{tool}"))?);
-    key(
-        &mut editor.session,
-        KeyCode::Char('g'),
-        KeyModifiers::CONTROL,
-    );
-    assert_eq!(editor.session.buffer()?.stamp(), source);
-    assert_eq!(super::support::source(&editor.session), ORIGINAL);
-    println!(
-        "PASS native profile={profile}: interactive Bash, cwd, actual lazygit alternate screen/help and identity-preserving panel/buffer relocation"
-    );
     Ok(())
 }

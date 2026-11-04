@@ -5,7 +5,6 @@ use alacritty_terminal::{
 use crossterm::event::{Event, KeyCode, KeyEvent, KeyModifiers};
 use rev::{
     buffer::Buffers,
-    command::Command,
     session::Session,
     term::{SessionId, State},
     view::{Size, View},
