@@ -123,6 +123,7 @@ pub enum OperationKind {
     TagPrepare,
     TagCreate,
     TagDelete,
+    Fetch,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -573,6 +574,7 @@ impl Repositories {
                         | OperationKind::Commit
                         | OperationKind::TagCreate
                         | OperationKind::TagDelete
+                        | OperationKind::Fetch
                         | OperationKind::Branch
                 ) && let Some(context) = progress
                     .context
@@ -773,6 +775,7 @@ impl Repositories {
                             | OperationKind::Commit
                             | OperationKind::TagCreate
                             | OperationKind::TagDelete
+                            | OperationKind::Fetch
                             | OperationKind::Branch => context.failure = Some(record.id),
                         }
                     }

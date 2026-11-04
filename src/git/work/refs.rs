@@ -1,14 +1,41 @@
 use super::*;
 mod tag;
+mod transport;
 use crate::git::{BranchAction, RefKind, Reference, Refs, refs::Request};
 
 impl Runner {
+    fn check_ref_snapshot(&mut self, refs: &Refs, admission: &mut Lease) -> Result<(), String> {
+        self.check_ref_origin(&refs.observation, admission)?;
+        let current = self.read_refs(refs.observation.clone(), admission)?;
+        if !refs.same(&current) {
+            return Err("Refs changed while tag parameters or confirmation were open".into());
+        }
+        Ok(())
+    }
+    fn refresh_ref_result(&mut self, refs: &Refs, admission: &mut Lease) -> Result<Refs, String> {
+        let (identity, status) = self.observe(admission)?;
+        if identity != refs.observation.identity {
+            return Err("Repository identity changed after local ref action".into());
+        }
+        let id = self.progress.lock().expect("Git progress owner").operation;
+        let mut observation = Observation {
+            context: refs.observation.context,
+            generation: id.0,
+            identity,
+            status,
+            admission: admission.split(0),
+        };
+        observation.admission = admission.split(observation.bytes());
+        self.read_refs(Arc::new(observation), admission)
+    }
+
     pub(super) fn refs(
         &mut self,
         request: Request,
         admission: &mut Lease,
     ) -> Result<Candidate, String> {
         match request {
+            Request::Fetch { refs, remote, .. } => self.fetch(refs, &remote, admission),
             Request::PrepareTag {
                 refs,
                 name,

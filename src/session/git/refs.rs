@@ -258,6 +258,7 @@ impl Work {
                 "R  git-branch-rename: exact local branch",
                 "D  git-branch-delete: merged, noncurrent local branch",
                 "t / T  git-tag-create / git-tag-delete (confirmed local refs)",
+                "& / M f  git-fetch: selected configured remote, without integration",
                 "g  git-refresh",
                 "$  git-processes",
                 "M-x / :  native commands",
@@ -294,6 +295,26 @@ impl Session {
                 self.git.state.menu = false;
                 self.git.painted = None;
                 self.message("Checking exact Git refs and configured remote names")
+            }
+            Err(e) => self.error(&e),
+        }
+    }
+    pub(super) fn fetch_git_remote(&mut self) -> Action {
+        let Some(refs) =
+            self.git.refs().cloned().filter(|_| {
+                self.git.visible && self.git.page == Page::Refs && !self.git.refs.failed
+            })
+        else {
+            return self.message("Open current Refs and select a configured remote before fetch");
+        };
+        let Some(remote) = self.git.refs.remote_selected.clone() else {
+            return self.message("Select one exact configured remote row before fetch");
+        };
+        match self.git.engine.fetch(refs, &remote) {
+            Ok(id) => {
+                self.git.refs.request = Some(id);
+                self.git.painted = None;
+                self.message("Fetching the selected configured remote; integration remains a separate choice")
             }
             Err(e) => self.error(&e),
         }
@@ -726,6 +747,19 @@ impl Session {
                 self.message(&format!(
                     "Tag operation failed; annotation retained: {diagnostic}"
                 ));
+                return;
+            }
+            if self
+                .git
+                .engine
+                .record(update.operation)
+                .is_some_and(|r| r.kind == crate::git::OperationKind::Fetch)
+            {
+                self.message(if self.git.refs.failed {
+                    "Fetch failed or tracking effects remain uncertain; inspect git-processes; raw transport output withheld"
+                } else {
+                    "Fetch completed; Refs and Status checked; branch not integrated"
+                });
                 return;
             }
             self.message(if self.git.refs.failed {

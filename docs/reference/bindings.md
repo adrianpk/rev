@@ -566,7 +566,8 @@ For live terminal key ownership and copy controls, see the
 
 | Keys | Command | Behavior |
 | --- | --- | --- |
-| `b`, `y` in Status | `git-refs` | Inspect exact native repository refs. |
+| `&`, `M f` in Refs | `git-fetch` | Fetch the selected configured remote without integration. |
+| `b`, `y` in Status; `M b` in Refs | `git-refs` | Inspect exact native repository refs. |
 | `n` in Refs | `git-branch-create` | Confirm a new local branch at the selected full commit. |
 | `S` in Refs | `git-branch-switch` | Confirm a checked clean local branch switch. |
 | `R` in Refs | `git-branch-rename` | Confirm the exact local branch and new name. |
@@ -934,7 +935,7 @@ in review retains the draft.
 
 ### Git refs defaults and availability
 
-`keys.git_refs` owns read-only refs and reviewed local branch/tag actions in both
+`keys.git_refs` owns read-only refs, explicit fetch and reviewed local branch/tag actions in both
 profiles. Prompts retain `keys.minibuffer`. n creates a branch; p is reserved
 for push. Up/Down and C-p/C-n navigate. Annotated tag text uses the retained
 native message owner and `keys.git_commit`; its review uses the explicit submit
@@ -942,6 +943,9 @@ aliases below.
 
 | Keys | Target |
 | --- | --- |
+| `&` | `git-fetch` |
+| `M b` | `git-refs` |
+| `M f` | `git-fetch` |
 | `TAB` | `git-toggle-section` |
 | `t` | `git-tag-create` |
 | `T` | `git-tag-delete` |

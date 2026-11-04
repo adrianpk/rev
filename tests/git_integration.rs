@@ -17,3 +17,6 @@ mod history;
 
 #[path = "git_integration/refs.rs"]
 mod refs;
+
+#[path = "git_integration/transport.rs"]
+mod transport;

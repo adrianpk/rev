@@ -1,6 +1,7 @@
 //! Exact, bounded ref observations and one-shot local branch requests.
 use super::*;
 mod tag;
+mod transport;
 pub(super) use tag::TagDraft;
 pub use tag::{TagIntent, TagKind};
 
@@ -99,6 +100,11 @@ impl BranchAction {
 }
 pub(super) enum Request {
     Observe(Arc<Observation>),
+    Fetch {
+        refs: Arc<Refs>,
+        remote: Vec<u8>,
+        _admission: Lease,
+    },
     PrepareTag {
         refs: Arc<Refs>,
         name: String,

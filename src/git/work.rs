@@ -20,6 +20,7 @@ pub(super) enum Request {
 impl Request {
     pub fn kind(&self) -> OperationKind {
         match self {
+            Self::Refs(super::refs::Request::Fetch { .. }) => OperationKind::Fetch,
             Self::Refs(super::refs::Request::PrepareTag { .. }) => OperationKind::TagPrepare,
             Self::Refs(super::refs::Request::CreateTag { .. }) => OperationKind::TagCreate,
             Self::Refs(super::refs::Request::DeleteTag { .. }) => OperationKind::TagDelete,
@@ -72,7 +73,11 @@ pub(super) fn start(
     std::thread::Builder::new()
         .name("git-observation".into())
         .spawn(move || {
+            let private_output = matches!(request.kind(), OperationKind::Fetch);
             let seconds = match request {
+                Request::Refs(super::refs::Request::Fetch { .. }) => {
+                    policy.transport_timeout_seconds
+                }
                 Request::Index(_)
                 | Request::Discard(_)
                 | Request::Commit(_)
@@ -92,6 +97,7 @@ pub(super) fn start(
                 cancel,
                 wake: wake.clone(),
                 captured: 0,
+                private_output,
                 effects: Effects::NotStarted,
                 operation_failure: None,
                 failure_verified: false,
@@ -141,6 +147,9 @@ struct Runner {
     cancel: Cancellation,
     wake: crate::term::Waker,
     captured: usize,
+    // Transport/helper and raw configuration output may contain credentials.
+    // Parse it privately; public records retain safe argv, exit and outcome.
+    private_output: bool,
     effects: Effects,
     operation_failure: Option<String>,
     failure_verified: bool,
@@ -378,6 +387,10 @@ impl Runner {
         self.truncated = result.stdout.len() > stdout_end
             || result.stderr.len() > stderr_end
             || result.end == capture::End::OutputLimit;
+        if self.private_output {
+            self.stdout.clear();
+            self.stderr.clear();
+        }
         self.exit = result.status;
         self.end = if result.end == capture::End::Cancelled && !self.cancel.is_cancelled() {
             capture::End::TimedOut
@@ -450,7 +463,8 @@ impl Runner {
             output_truncated: self.truncated,
             diagnostic: self
                 .operation_failure
-                .or_else(|| observed.as_ref().err().cloned()),
+                .or_else(|| observed.as_ref().err().cloned())
+                .or_else(|| self.private_output.then(|| "Transport/configuration output withheld to protect credentials; exit and checked facts retained".into())),
             admission: admission.split(0),
         };
         record.admission = admission.split(record.bytes() + 4096);

@@ -192,6 +192,9 @@ pub(super) const GIT_HISTORY: &[(&str, &str)] = &[
 ];
 
 const GIT_REFS: &[(&str, &str)] = &[
+    ("&", "git-fetch"),
+    ("M b", "git-refs"),
+    ("M f", "git-fetch"),
     ("TAB", "git-toggle-section"),
     ("t", "git-tag-create"),
     ("T", "git-tag-delete"),

@@ -34,7 +34,9 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
   creation, clean switching, renaming or non-forced deletion in Refs. Create a
   local lightweight tag with t, or explicitly compose an annotated tag while
   retaining Git signing policy and failed annotation drafts. Review exact tag
-  objects before local deletion with T. Changed
+  objects before local deletion with T. Select a configured remote in Refs and
+  fetch with & or M f, refreshing tracking facts without merging or rebasing.
+  Changed
   files follow your reload policy, protecting unsaved source text.
   Return to the same windows
   and terminals. Inspect active and

@@ -2,14 +2,6 @@ use super::*;
 use crate::git::{TagIntent, TagKind};
 
 impl Runner {
-    fn check_tag_refs(&mut self, refs: &Refs, admission: &mut Lease) -> Result<(), String> {
-        self.check_ref_origin(&refs.observation, admission)?;
-        let current = self.read_refs(refs.observation.clone(), admission)?;
-        if !refs.same(&current) {
-            return Err("Refs changed while tag parameters or confirmation were open".into());
-        }
-        Ok(())
-    }
     fn tag_policy(&mut self) -> Result<(Vec<u8>, bool, bool), String> {
         let bytes = self.command(
             &[
@@ -49,7 +41,7 @@ impl Runner {
         target: ObjectId,
         admission: &mut Lease,
     ) -> Result<Candidate, String> {
-        self.check_tag_refs(&refs, admission)?;
+        self.check_ref_snapshot(&refs, admission)?;
         if refs.entries.len() >= self.policy.max_refs {
             return Err("New tag exceeds configured complete-ref admission".into());
         }
@@ -77,7 +69,7 @@ impl Runner {
                     .into(),
             );
         }
-        self.check_tag_refs(&refs, admission)?;
+        self.check_ref_snapshot(&refs, admission)?;
         let mut intent = TagIntent {
             refs,
             name,
@@ -98,7 +90,7 @@ impl Runner {
         text: &str,
         admission: &mut Lease,
     ) -> Result<Candidate, String> {
-        self.check_tag_refs(&intent.refs, admission)?;
+        self.check_ref_snapshot(&intent.refs, admission)?;
         let (policy, sign_all, _) = self.tag_policy()?;
         if policy != intent.policy || (intent.kind == TagKind::Lightweight && sign_all) {
             return Err(
@@ -125,7 +117,7 @@ impl Runner {
             intent.name.clone().into(),
             intent.target.hex().into(),
         ]);
-        self.check_tag_refs(&intent.refs, admission)?;
+        self.check_ref_snapshot(&intent.refs, admission)?;
         if self.tag_policy()?.0 != intent.policy {
             return Err("Tag signing policy changed before launch; review again".into());
         }
@@ -235,7 +227,7 @@ impl Runner {
         name: &[u8],
         admission: &mut Lease,
     ) -> Result<Candidate, String> {
-        self.check_tag_refs(&refs, admission)?;
+        self.check_ref_snapshot(&refs, admission)?;
         let object = refs.reference(name).ok_or("Tag identity expired")?.object;
         let args = [
             OsString::from("update-ref"),
@@ -274,21 +266,5 @@ impl Runner {
             self.operation_failure = Some("Tag deletion effects remain unverified".into());
         }
         result
-    }
-    fn refresh_ref_result(&mut self, refs: &Refs, admission: &mut Lease) -> Result<Refs, String> {
-        let (identity, status) = self.observe(admission)?;
-        if identity != refs.observation.identity {
-            return Err("Repository identity changed after local ref action".into());
-        }
-        let id = self.progress.lock().expect("Git progress owner").operation;
-        let mut observation = Observation {
-            context: refs.observation.context,
-            generation: id.0,
-            identity,
-            status,
-            admission: admission.split(0),
-        };
-        observation.admission = admission.split(observation.bytes());
-        self.read_refs(Arc::new(observation), admission)
     }
 }

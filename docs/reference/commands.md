@@ -697,6 +697,7 @@ Status reads disk and Git state; it does not save an unsaved source buffer.
 | --- | --- |
 | `git-tag-create` | Collect a local tag name, lightweight/annotated kind (lightweight by default) and complete target ID; check Git signing policy and explicitly review before creation. Annotated tags add native message composition and retained failure drafts. |
 | `git-tag-delete` | Review the selected tag's exact full name, object and peeled target; delete only that unchanged local ref. |
+| `git-fetch` | Fetch the exact selected configured remote in Refs with its observed transport/refspec policy; refresh tracking facts and Status without merge or rebase. |
 | `git-refs` | Observe local/remote-tracking branches, both tag kinds, configured remote names, HEAD and available upstream facts with exact names and object IDs. |
 | `git-branch-create` | Collect a new local name and confirm the selected ref's commit or checked HEAD; create without implicit tracking. |
 | `git-branch-switch` | Confirm the selected local branch; require complete clean disk/index and unchanged unmodified repository-backed buffers. |
@@ -846,3 +847,21 @@ accept. C-Enter or C-c C-c explicitly accepts; q or C-g cancels and retains
 the draft. A moved HEAD or changed index rejects before the mutator. Amend
 preserves Git author/parent semantics; fixup creates one ordinary child commit
 with the standard message and does not run autosquash.
+
+### Native Git fetch
+
+Select a configured remote row in Refs, then use & or M f, or invoke
+`git-fetch` through M-x or modal colon. M b reopens Refs. Missing selection
+reports its requirement instead of choosing an upstream or path. Fetch honors
+the selected remote's configured transport and refspecs, including the installed
+Git credential/helper policy. Configured pull policy does not trigger integration.
+The native request checks complete current refs, HEAD and its private effective
+configuration before launch. Changed configuration requires a new checked request.
+
+Fetch uses `git.transport_timeout_seconds` and the existing aggregate output,
+metadata, record and session limits. Leaving Git retains owned work; cancellation
+and deadlines retain actual possible effects. Processes keeps safe argv, actual
+exit, outcome and checked local facts. Raw transport/helper and configuration
+output is withheld because it can contain credentials. A failed or unverifiable
+fetch is not automatically replayed. Refreshed tracking facts are local
+observations; they do not promise exclusive access against other Git clients.

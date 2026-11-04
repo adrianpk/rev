@@ -136,12 +136,12 @@ Report: `ops/default/report/slices/rev-git-integration/slice-7-transport.md`
 Requirements: GIT09, GIT16-GIT19
 PR: pending
 
-- [ ] T7.1: Fetch an explicitly selected configured remote and refresh tracking facts without integrating the current branch.
+- [x] T7.1: Fetch an explicitly selected configured remote and refresh tracking facts without integrating the current branch.
 - [ ] T7.2: Review and confirm one exact branch, configured upstream remote and destination; prevent implicit force, deletion, tags or mirror expansion and reject ambiguous tracking.
 - [ ] T7.3: Verify local-bare remote outcomes, hostile/conflicting push settings, failed credentials/helpers, cancellation, bounded diagnostics and publication uncertainty; no live user remote or credential is used.
 
-Validation: pending; use the exact focused commands and selected-gate policy in the plan.
-Integration: pending; no commit or PR is claimed.
+Validation: T7.1 development formatter, strict focused Clippy, all three transport tests and 21 reference tests pass. Documentation checks 511 commands and 267 configuration entries. Real SHA-1/SHA-256 bare remotes and both native profiles establish explicit fetch without integration; final exact-HEAD evidence remains pending.
+Integration: T7.1 introduces the canonical report; T7.2-T7.3 and canonical PR preparation remain pending.
 
 ## Slice 8: Merge rebase and sequence control
 

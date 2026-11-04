@@ -299,6 +299,7 @@ impl Session {
             return Some(match command {
                 GitCommand::TagCreate => self.prompt_git_tag(),
                 GitCommand::TagDelete => self.confirm_git_tag_delete(),
+                GitCommand::Fetch => self.fetch_git_remote(),
                 GitCommand::Refs => self.open_git_refs(),
                 GitCommand::BranchCreate => self.prompt_git_branch(refs::Intent::Create),
                 GitCommand::BranchSwitch => self.prompt_git_branch(refs::Intent::Switch),

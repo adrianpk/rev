@@ -2,6 +2,7 @@
 pub enum GitCommand {
     Status,
     Refs,
+    Fetch,
     TagCreate,
     TagDelete,
 
@@ -46,6 +47,7 @@ impl GitCommand {
             Self::TagCreate => "git-tag-create",
             Self::TagDelete => "git-tag-delete",
 
+            Self::Fetch => "git-fetch",
             Self::Refs => "git-refs",
             Self::BranchCreate => "git-branch-create",
             Self::BranchSwitch => "git-branch-switch",
