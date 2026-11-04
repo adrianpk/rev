@@ -20,6 +20,22 @@ pub enum State {
     Failed(String),
     Closed,
 }
+impl std::fmt::Display for State {
+    fn fmt(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::Running => formatter.write_str("Running"),
+            Self::Draining => formatter.write_str("Draining"),
+            Self::Closing => formatter.write_str("Closing"),
+            Self::Exited(status) => match status.code() {
+                Some(code) => write!(formatter, "Exited ({code})"),
+                None => write!(formatter, "Exited ({status})"),
+            },
+            Self::Failed(message) => write!(formatter, "Failed: {message}"),
+            Self::Closed => formatter.write_str("Closed"),
+        }
+    }
+}
+
 /// Conservative allocated cell reservation and separately tracked queues/extras.
 #[derive(Clone, Copy, Debug)]
 pub struct Storage {
@@ -96,6 +112,11 @@ impl Session {
     }
     pub fn state(&self) -> &State {
         &self.state
+    }
+    /// True while a child or its cleanup receipt remains owned. An exited
+    /// leader can still have owned background job groups being retired.
+    pub fn owns_process(&self) -> bool {
+        self.process.is_some() || self.cleanup.is_some()
     }
     pub fn geometry(&self) -> Geometry {
         self.size

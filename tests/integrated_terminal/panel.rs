@@ -4,6 +4,8 @@ mod copy;
 mod evidence;
 #[path = "interaction.rs"]
 mod interaction;
+#[path = "lifecycle.rs"]
+mod lifecycle;
 #[path = "pointer.rs"]
 mod pointer;
 #[path = "transfer.rs"]

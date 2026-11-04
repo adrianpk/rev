@@ -56,15 +56,16 @@ impl Session {
         let Some(copy) = self.terminals.copies.get(&key) else {
             return Ok(false);
         };
-        copy.frame(
-            frame,
-            panel,
-            if copy.mode {
-                " Terminal [COPY]  Return: live"
-            } else {
-                " Terminal retained output; C-c C-t: copy"
-            },
-        )?;
+        let state = self.terminals.sessions.get(copy.id).map_or_else(
+            || "Unavailable".into(),
+            |session| session.state().to_string(),
+        );
+        let label = if copy.mode {
+            format!(" Terminal [COPY] {state}  Return: live")
+        } else {
+            format!(" Terminal retained output; {state}  C-c C-t: copy")
+        };
+        copy.frame(frame, panel, &label)?;
         Ok(true)
     }
 
@@ -86,7 +87,7 @@ impl Session {
         frame.terminal(
             session,
             panel,
-            &format!(" {name}  {:?}  C-g: editor", session.state()),
+            &format!(" {name}  {}  C-g: editor", session.state()),
             viewport,
         );
     }

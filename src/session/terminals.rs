@@ -106,6 +106,7 @@ impl Session {
         if self.current_terminal() == Some(id) && self.terminals.focused {
             self.terminal_return();
         }
+        self.terminals.copies.retain(|_, copy| copy.id != id);
         self.terminals.buffers.remove(&id);
         self.terminals.contexts.remove(&id);
         if self.terminals.default == Some(id) {
