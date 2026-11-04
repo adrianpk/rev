@@ -70,12 +70,16 @@ fn initial(owner: &Path, terminal: &mut Terminal, profile: &str) -> Result<()> {
 fn lazygit(owner: &Path, terminal: &mut Terminal) -> Result<()> {
     line(
         terminal,
-        "sh -c 'printf %s $$ >tool.pid; exec lazygit --use-config-file lazygit.yml'",
+        "sh -c 'printf %s $$ >tool.pid; exec lazygit --use-config-file lazygit.yml'; printf '%s' \"$?\" >tool.exit",
     )?;
-    terminal.frame(|f| plain(f).contains("Files"))?;
+    terminal
+        .frame(|f| plain(f).contains("Files"))
+        .map_err(|e| format!("lazygit files: {e}"))?;
     let tool = pid_file(&owner.join("workspace/tool.pid"))?;
     terminal.send(b"?")?;
-    terminal.frame(|f| plain(f).contains("Keybindings"))?;
+    terminal
+        .frame(|f| plain(f).contains("Keybindings"))
+        .map_err(|e| format!("lazygit help: {e}"))?;
     move_tool(terminal, "terminal-move-to-buffer")?;
     move_tool(terminal, "terminal-move-to-panel")?;
     assert_eq!(pid_file(&owner.join("workspace/tool.pid"))?, tool);
@@ -232,9 +236,14 @@ fn plain(frame: &str) -> String {
 fn tool_journey(root: &Path, binary: &Path, wrapper: &Path, profile: &str) -> Result<()> {
     let owner = prepare(root, profile, "tool")?;
     let mut terminal = Terminal::start(&owner, binary, wrapper, "source.org")?;
-    initial(&owner, &mut terminal, profile)?;
-    lazygit(&owner, &mut terminal)?;
-    finish_tool(&owner, &mut terminal)?;
+    initial(&owner, &mut terminal, profile).map_err(|e| format!("tool {profile} initial: {e}"))?;
+    lazygit(&owner, &mut terminal).map_err(|e| {
+        format!(
+            "tool {profile}: {e}; tool_exit={:?}",
+            fs::read_to_string(owner.join("workspace/tool.exit"))
+        )
+    })?;
+    finish_tool(&owner, &mut terminal).map_err(|e| format!("tool {profile} finish: {e}"))?;
     assert_eq!(
         fs::read_to_string(owner.join("workspace/source.org"))?,
         ORIGINAL
