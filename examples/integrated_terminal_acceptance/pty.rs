@@ -44,7 +44,9 @@ fn journey(root: &Path, binary: &Path, wrapper: &Path, profile: &str) -> Result<
     Ok(())
 }
 fn named(terminal: &mut Terminal, name: &str) -> Result<()> {
-    terminal.send(format!("\x1bx\x1b[200~{name}\x1b[201~\r").as_bytes())
+    terminal.send(b"\x1bx")?;
+    terminal.frame(|f| row(f, 24).starts_with("M-x "))?;
+    terminal.send(format!("\x1b[200~{name}\x1b[201~\r").as_bytes())
 }
 fn line(terminal: &mut Terminal, line: &str) -> Result<()> {
     terminal.send(format!("\x1b[200~{line}\x1b[201~\r").as_bytes())
@@ -143,7 +145,7 @@ fn closure(owner: &Path, terminal: &mut Terminal) -> Result<()> {
     Ok(())
 }
 fn decline_exit(terminal: &mut Terminal) -> Result<()> {
-    named(terminal, "save-buffer")?;
+    terminal.send(b"\x18\x13")?;
     terminal.frame(|f| plain(f).contains("requires a source buffer"))?;
     terminal.send(b"\x18\x03")?;
     terminal.frame(|f| plain(f).contains("terminate 2 terminal sessions"))?;
@@ -152,7 +154,7 @@ fn decline_exit(terminal: &mut Terminal) -> Result<()> {
     Ok(())
 }
 fn switch(terminal: &mut Terminal, name: &str) -> Result<()> {
-    named(terminal, "switch-to-buffer")?;
+    terminal.send(b"\x18b")?;
     terminal.frame(|f| plain(f).contains("Switch to buffer:"))?;
     terminal.send(format!("{name}\r").as_bytes())?;
     terminal.frame(|f| plain(f).contains(name) && plain(f).contains("SHELL_READY>"))?;
@@ -162,7 +164,7 @@ fn close_first(terminal: &mut Terminal) -> Result<()> {
     switch(terminal, "terminal")?;
     line(terminal, "printf '%s' \"$KEPT\" >kept-state")?;
     terminal.frame(|f| plain(f).contains("SHELL_READY>"))?;
-    named(terminal, "kill-buffer")?;
+    terminal.send(b"\x18k")?;
     terminal.frame(|f| plain(f).contains("Kill buffer:"))?;
     terminal.send(b"\r")?;
     terminal.frame(|f| plain(f).contains("Terminate"))?;
