@@ -235,6 +235,12 @@ impl Owned {
         let start = Instant::now();
         let deadline = start + Duration::from_secs(2);
         self.signal(if exited { Signal::KILL } else { Signal::TERM })?;
+        // The leader remains unreaped, so its group ID cannot be reused.
+        // After SIGKILL and a complete no-live-member observation, another
+        // whole process-table scan cannot establish more cleanup authority.
+        if exited && !self.running(deadline)? {
+            return self.reap();
+        }
         let grace = start + Duration::from_millis(500);
         while Instant::now() < grace && self.running(deadline)? {
             std::thread::sleep(Duration::from_millis(2));
@@ -248,6 +254,10 @@ impl Owned {
         if self.running(deadline)? {
             return Err("Git process-group cleanup timed out".into());
         }
+        self.reap()
+    }
+
+    fn reap(&mut self) -> Result<ExitStatus, String> {
         // No child reaping precedes the last group signal/observation.
         let status = self
             .child

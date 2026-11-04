@@ -184,6 +184,22 @@ Focused correction checks:
 - `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --lib process -- --test-threads=1` passed 11 selected tests, including signed/zero/foreign groups, malformed metadata and real owned process/descendant cleanup.
 - `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test git_integration history::inspection::reflog_objects -- --test-threads=1` passed after the correction.
 
+The next receipt `JP4XZKHTIJ45WP4JJHEUHKXDMD` at
+`8ee8ea4cabcd1b3a7cbb6eeae0647d8555490fcc` passed all 15 history tests,
+then found 19 deadline failures among the existing Git regressions. Completed
+child cleanup performed four global process-table scans even after SIGKILL and
+an established absence of live group members. The unchanged focused diff fixture
+passed in 4.94 seconds against its five-second wait.
+
+Cleanup now reaps an already-exited, retained leader after the initial SIGKILL
+and one complete no-live-member observation. Group identity remains pinned until
+that last signal/observation; live descendants still require bounded cleanup.
+Cancellation keeps the same 500 ms grace and two-second deadline. The focused
+diff fixture then passed in 1.51 seconds, and all 11 selected process cases
+passed again. No fixture deadline or assertion changed.
+
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test git_integration diffs::layers_and_hunks -- --test-threads=1` passed before and after the cleanup correction, with the timing above.
+
 Final ordered contract, executed through the controller after this reference
 follow-up commit:
 
