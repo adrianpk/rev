@@ -7,7 +7,7 @@ Plan: [Native Git Integration Delivery](../plan/rev-git-integration.md)
 Spec: [Native Git Integration](../spec/editor-git-integration.md)
 Model: [Native Git Model](../spec/editor-git-integration-model.md)
 Approved: owner, 2026-11-04; complete fourteen-slice plan and autonomous Looper execution/integration through dev
-Active slice: Slice 2 - Changes hunks and source visits
+Active slice: Slice 3 - Checked staging unstaging and discard
 Progress owner: after startup, Looper checkpoint, canonical PRs and exact-candidate validation receipts
 
 ## Canonical slice map
@@ -49,7 +49,7 @@ Integration: [PR #258](https://forge.adrianpk.com/adrianpk/rev/pulls/258) merged
 
 ## Slice 2: Changes hunks and source visits
 
-Status: reviewing
+Status: delivered
 Branch: `feat/rev-git-integration-02-diffs`
 Expected PR title: `feat(git): inspect exact diffs and visit native sources`
 Report: `ops/default/report/slices/rev-git-integration/slice-2-diffs.md`
@@ -60,12 +60,12 @@ PR: `#259`
 - [x] T2.2: Add Status expansion, read-only detail, current-source visits, retained navigation and resize/pointer mappings without making generated Git content a writable source.
 - [x] T2.3: Verify both layers of one path, multiple hunks, unusual path bytes, stale refresh, modified visiting buffers and return to the surviving editor layout.
 
-Validation: T2.1 development formatter and strict focused Clippy pass; six comparison tests pass, with an earlier 27-test shared Git run. Nine native Status/presentation/process regressions pass after T2.2. T2.3 adds five both-profile native acceptance cases and extended staged unusual-path fixtures in both object formats; all pass focused development checks. Final ordered clean-HEAD controller validation follows the PR-reference commit.
-Integration: T2.1 `11a9b7c87ab940764b18b15dec849bf5c655d898`, T2.2 `c23fb12f2daa75a9856c1db9f59aeb9fd27f3f57` and T2.3 `805723003834aa2022ed5cda2003697954835f27` are pushed. [PR #259](https://forge.adrianpk.com/adrianpk/rev/pulls/259) targets dev with the exact configured title; final ordered validation follows this PR-reference commit. Integration remains controller-owned.
+Validation: T2.1 development formatter and strict focused Clippy pass; six comparison tests pass, with an earlier 27-test shared Git run. Nine native Status/presentation/process regressions pass after T2.2. T2.3 adds five both-profile native acceptance cases and extended staged unusual-path fixtures in both object formats; all pass focused development checks. Controller validation `45HQQNKFYXODWKRVVQBKHITJD5` passed all seven ordered checks at `78e4c43cf79792337006786f8752a093badc05d6`, including all 32 Git and 21 reference tests, documentation and whitespace.
+Integration: [PR #259](https://forge.adrianpk.com/adrianpk/rev/pulls/259) merged through controller-owned Rebase + Fast-forward into dev at `78e4c43cf79792337006786f8752a093badc05d6`. Slice 2 of 14 completed.
 
 ## Slice 3: Checked staging unstaging and discard
 
-Status: pending
+Status: implementing
 Branch: `feat/rev-git-integration-03-index`
 Expected PR title: `feat(git): stage exact paths hunks and checked groups`
 Report: `ops/default/report/slices/rev-git-integration/slice-3-index.md`
