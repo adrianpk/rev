@@ -113,6 +113,10 @@ fn recorder(owner: &Path, terminal: &mut Terminal, profile: &str) -> Result<()> 
     Ok(())
 }
 fn copy(terminal: &mut Terminal, profile: &str) -> Result<()> {
+    // Bash's echoed recorder command is older retained text. Select the
+    // deterministic visible word only after explicit native history clearing.
+    named(terminal, "terminal-clear-scrollback")?;
+    terminal.frame(|f| plain(f).contains("scrollback cleared"))?;
     terminal.send(b"\x03\x14")?;
     terminal.frame(|f| plain(f).contains("[COPY]"))?;
     let keys: &[u8] = if profile == "modal" {
