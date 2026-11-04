@@ -92,7 +92,7 @@ Status: reviewing
 Branch: `feat/rev-integrated-terminal-04-interaction`
 Expected PR title: `feat(terminal): route native input and render interactive tools`
 Report: `ops/default/report/slices/rev-integrated-terminal/slice-4-interaction.md`
-PR: pending
+PR: `#251`
 
 - [x] T4.1: Route printable keys, child control keys, Return/Tab/deletion/arrows/paging, cursor shape and application modes in both startup profiles; preserve host recovery/prefix commands, literal-next and contextual transient cancellation.
 - [x] T4.2: Render real shell and full-screen TUI screen/style/cursor/alternate-screen/resize changes without source repaint glitches, raw escape passthrough, focus stealing or a busy idle loop.
@@ -104,7 +104,7 @@ Focused receipts: `NZ6I2BQ7YVM7IJBMWFHBBJYCIE` passed T4.1 input and six source 
 T4.3 task evidence: `a819a54562a6`, with fixture correction `ef72e033fb2f`.
 Controller receipt `2MF3LO7YJWYNHK5YRRN7T5RZK7` passed four real-PTY pointer/link scenarios, six host mouse restoration cases, five configured-viewer regressions, seven source files and whitespace on `ef72e033fb2ffea99d62280631cb546c83154c4a`.
 Validation: final exact-HEAD evidence follows PR references using the unchanged six ordered Slice 4 commands.
-Integration: pending canonical PR and controller verification.
+Integration: canonical PR #251 targets dev; controller-owned integration remains pending.
 
 ## Slice 5: Retained output and transfer
 
