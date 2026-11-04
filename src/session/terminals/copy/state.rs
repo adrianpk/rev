@@ -1,7 +1,7 @@
 use super::{search::Search, snapshot::Snapshot};
 use crate::{
     buffer::{Buffer, Span},
-    command::{Motion, Navigation, RegionCommand, Scroll, navigation::Target},
+    command::{Motion, RegionCommand, Scroll},
     coordinates::{Coordinates, Scalar},
     term::{Session, SessionId, Viewport},
     view::{Size, View},
@@ -15,6 +15,8 @@ pub(in crate::session::terminals) struct State {
     pub mode: bool,
     pub(super) search: Option<Search>,
     pointer_anchor: Option<Scalar>,
+    pub(super) finding: Option<super::navigation::Finding>,
+    pub(super) page_overlap: usize,
 }
 
 impl State {
@@ -37,6 +39,8 @@ impl State {
             mode: false,
             search: None,
             pointer_anchor: None,
+            finding: None,
+            page_overlap: settings.settings().scroll.page_overlap,
         })
     }
 
@@ -53,41 +57,6 @@ impl State {
             )
             .map_err(|e| e.to_string())?;
         self.view.point.position = point;
-        self.view.reset_navigation();
-        Ok(())
-    }
-    pub fn navigate(&mut self, request: Navigation, size: Size) -> Result<(), String> {
-        match request.target {
-            Target::Line(direction) => self.scroll(
-                if direction == crate::search::Direction::Backward {
-                    Scroll::PreviousLine
-                } else {
-                    Scroll::NextLine
-                },
-                request.amount(),
-                size,
-            ),
-            Target::Page { backward, half } => self.scroll(
-                if backward {
-                    Scroll::PageBackward
-                } else {
-                    Scroll::PageForward
-                },
-                usize::from(size.text_rows()).max(1) / if half { 2 } else { 1 } * request.amount(),
-                size,
-            ),
-            Target::Align(screen) => self
-                .view
-                .align_screen(&self.buffer, size, screen)
-                .map_err(|e| e.to_string()),
-            _ => self.navigate_text(request),
-        }
-    }
-    fn navigate_text(&mut self, request: Navigation) -> Result<(), String> {
-        let coordinates = Coordinates::new(&self.buffer).map_err(|e| e.to_string())?;
-        self.view.point.position = coordinates
-            .navigation(self.view.point.position, request.target, request.amount())
-            .map_err(|e| e.to_string())?;
         self.view.reset_navigation();
         Ok(())
     }

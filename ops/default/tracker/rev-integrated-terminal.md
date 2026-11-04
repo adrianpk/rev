@@ -118,6 +118,12 @@ PR: pending
 - [ ] T5.2: Implement native terminal yank/yank-pop with checked replaceability and bracketed paste, separate clear-screen/clear-scrollback operations, line/cursor navigation and explicit send/undo operations.
 - [ ] T5.3: Complete prompt/error/link navigation using actual admitted evidence such as OSC 133 and recognized locations; report unavailable evidence honestly. Complete the finite terminal-send-* command inventory without placeholders.
 
+Implementation checkpoint: private bounded projections, stable per-attachment
+copy/search, Return/C-g exits and placement transfer are implemented. Controller
+receipt `5DUFVYYYIFGO33Y7JBSOLISNTZ` passed 18 focused PTY tests and 12-file
+source checks at `17b19b8a513efc61c8fe4af7f26cf3b5a8d71136`. Native modal
+operators and rectangles are being completed; T5.1 remains unchecked.
+
 Validation: pending; use the exact ordered Slice 5 commands from the plan and frozen controller configuration.
 Integration: pending canonical PR and controller verification.
 

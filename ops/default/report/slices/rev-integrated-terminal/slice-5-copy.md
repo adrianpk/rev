@@ -33,7 +33,11 @@ or source undo history. The registered terminal resource retains its empty
 text storage and stable process identity. Placement moves transfer the copy
 state, while separate attachments capture and navigate independently.
 
-Native modal operator composition and complete copy navigation still require
+Native modal word, object and line copy operators now resolve through native
+coordinates and bounded per-copy find continuation. Screen alignment, buffer
+and counted page navigation use the attachment's native view. Both native
+rectangle commands and inclusive modal blocks retain their ordinary transfer
+shapes. Modal search continuation and composed search operators still require
 completion. Terminal yank, replacement checks, clear/send commands and evidence
 navigation remain pending under T5.2 and T5.3.
 
@@ -67,6 +71,17 @@ passed unchanged, including input ownership and mouse reporting.
 Source-quality diagnostics identified six control-flow violations in the new
 copy dispatch, capture, input routing and rendering. Helpers now separate those
 owners without raising limits. Fresh runtime and source validation is pending.
+
+Focused controller validation `5DUFVYYYIFGO33Y7JBSOLISNTZ` passed at
+`17b19b8a513efc61c8fe4af7f26cf3b5a8d71136` with this exact ordered list:
+
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo run --locked --quiet --example source-check -- --file src/buffer/lifecycle.rs --file src/command/terminal.rs --file src/display/terminal.rs --file src/session/terminals/copy.rs --file src/session/terminals/copy/search.rs --file src/session/terminals/copy/snapshot.rs --file src/session/terminals/copy/state.rs --file src/session/terminals/input.rs --file src/session/terminals/placement.rs --file src/session/terminals/pointer.rs --file src/session/terminals/render.rs --file src/session/terminals/source.rs`
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test integrated_terminal panel:: -- --test-threads=1`
+- `git diff --check`
+
+All 18 focused PTY tests and all 12 source files passed. This is evidence for
+the initial projection checkpoint; the later native operator and rectangle
+changes require fresh validation.
 
 ## Risks and Follow-ups
 

@@ -222,3 +222,125 @@ fn copy_admission() {
         pid
     );
 }
+
+fn strokes(editor: &mut Editor, text: &str) {
+    for character in text.chars() {
+        editor
+            .session
+            .handle(key(KeyCode::Char(character), KeyModifiers::NONE));
+    }
+}
+
+// Real profile bindings resolve operators and regions against the private copy,
+// including inclusive blocks and complete wide/combining grapheme transfers.
+#[test]
+fn native_copy() {
+    if isolated("panel::copy::native_copy", false) {
+        return;
+    }
+    for profile in ["non-modal", "modal"] {
+        let script =
+            "printf 'alpha beta\\nB123456l9l\\n界é omega\\nREADY'\nwhile :; do sleep 60; done\n";
+        let mut editor = Editor::with_script(profile, 24, "", script);
+        editor.open_copy();
+        if profile == "modal" {
+            strokes(&mut editor, "ggyw");
+            assert_eq!(editor.session.killed_text().unwrap().to_string(), "alpha ");
+            assert_eq!(
+                editor
+                    .session
+                    .terminal_copy_view()
+                    .unwrap()
+                    .point
+                    .position
+                    .0,
+                0
+            );
+            strokes(&mut editor, "yy");
+            let line = editor.session.killed_text().unwrap().to_string();
+            assert!(line.starts_with("alpha beta"));
+            assert!(line.ends_with('\n'));
+            strokes(&mut editor, "jfl;");
+            assert_eq!(
+                editor
+                    .session
+                    .terminal_copy_view()
+                    .unwrap()
+                    .point
+                    .position
+                    .0,
+                90
+            );
+            strokes(&mut editor, "ggvlly");
+            assert_eq!(editor.session.killed_text().unwrap().to_string(), "alp");
+            editor
+                .session
+                .handle(key(KeyCode::Char('g'), KeyModifiers::CONTROL));
+            strokes(&mut editor, "gg");
+            editor
+                .session
+                .handle(key(KeyCode::Char('v'), KeyModifiers::CONTROL));
+            strokes(&mut editor, "jly");
+            assert_eq!(editor.session.killed_text().unwrap().to_string(), "al\nB1");
+        } else {
+            editor.session.execute(Command::Motion(Motion::BufferStart));
+            editor
+                .session
+                .handle(key(KeyCode::Char(' '), KeyModifiers::CONTROL));
+            editor
+                .session
+                .handle(key(KeyCode::Char('f'), KeyModifiers::ALT));
+            editor
+                .session
+                .handle(key(KeyCode::Char('w'), KeyModifiers::ALT));
+            assert_eq!(editor.session.killed_text().unwrap().to_string(), "alpha");
+            editor
+                .session
+                .handle(key(KeyCode::Char('g'), KeyModifiers::CONTROL));
+            editor.session.execute(Command::Motion(Motion::BufferStart));
+            editor
+                .session
+                .execute(Command::Rectangle(rev::command::RectangleCommand::Mark));
+            editor
+                .session
+                .handle(key(KeyCode::Right, KeyModifiers::NONE));
+            editor
+                .session
+                .handle(key(KeyCode::Right, KeyModifiers::NONE));
+            editor
+                .session
+                .handle(key(KeyCode::Down, KeyModifiers::NONE));
+            editor
+                .session
+                .execute(Command::Rectangle(rev::command::RectangleCommand::Copy));
+            assert_eq!(editor.session.rectangle().unwrap().rows(), &["al", "B1"]);
+        }
+        editor
+            .session
+            .handle(key(KeyCode::Char('g'), KeyModifiers::CONTROL));
+        assert!(editor.session.terminal_copy_view().is_some());
+        editor.session.execute(Command::Motion(Motion::BufferStart));
+        editor
+            .session
+            .execute(Command::Scroll(rev::command::Scroll::NextLine));
+        editor
+            .session
+            .execute(Command::Scroll(rev::command::Scroll::NextLine));
+        editor.session.execute(Command::Region(RegionCommand::Set));
+        editor.session.execute(Command::Motion(Motion::ForwardChar));
+        editor.session.execute(Command::Motion(Motion::ForwardChar));
+        editor.session.execute(Command::Linear(LinearCommand::Copy));
+        assert_eq!(editor.session.killed_text().unwrap().to_string(), "界é");
+        assert_eq!(editor.session.terminal_buffer().unwrap().len_bytes(), 0);
+        assert_eq!(editor.session.terminals().ids().count(), 1);
+    }
+}
+
+impl Editor {
+    fn open_copy(&mut self) {
+        self.session
+            .execute(Command::Terminal(TerminalCommand::Open));
+        self.wait(|s| text(s).contains("READY"));
+        copy(self);
+    }
+}

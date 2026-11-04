@@ -1,3 +1,5 @@
+mod navigation;
+mod operator;
 mod search;
 mod snapshot;
 mod state;
@@ -235,6 +237,7 @@ impl Session {
             Command::SearchForward => Some(self.start_terminal_copy_search(Direction::Forward)),
             Command::SearchBackward => Some(self.start_terminal_copy_search(Direction::Backward)),
             Command::Modal(mode) => Some(self.terminal_copy_modal(key, mode)),
+            Command::Rectangle(command) => Some(self.terminal_copy_rectangle(key, command)),
             _ => None,
         }
     }
@@ -245,7 +248,9 @@ impl Session {
             Command::Scroll(scroll) => copy.scroll(
                 scroll,
                 if scroll.page() {
-                    usize::from(size.text_rows()).max(1)
+                    usize::from(size.text_rows())
+                        .saturating_sub(copy.page_overlap)
+                        .max(1)
                 } else {
                     1
                 },
@@ -264,6 +269,10 @@ impl Session {
         size: Size,
     ) -> Option<Action> {
         use crate::command::navigation::{Search, Target};
+        if matches!(request.target, Target::Find(_)) && request.character.is_none() {
+            let outcome = self.input.expect_navigation(request);
+            return Some(self.outcome(outcome, std::time::Instant::now()));
+        }
         if let Target::Search(search) = request.target {
             let direction = match search {
                 Search::Backward | Search::Reverse | Search::WordBackward => Direction::Backward,
@@ -338,21 +347,6 @@ impl Session {
                 },
             )
             .map_err(|e| e.to_string())
-    }
-    fn edit_terminal_copy(&mut self, key: Key, request: crate::command::Editing) -> Action {
-        use crate::command::editing::Action as Edit;
-        if !matches!(request.action, Edit::Copy | Edit::CopyEnd) {
-            return self.error("Terminal copy text is read-only");
-        }
-        let copy = self.terminals.copies.get_mut(&key).expect("copy editing");
-        if !copy.buffer.mark_active() {
-            if request.pending() {
-                let outcome = self.input.expect_operator(request);
-                return self.outcome(outcome, std::time::Instant::now());
-            }
-            return self.error("Select terminal text before copying");
-        }
-        self.copy_terminal_region(key)
     }
     fn copy_result(&mut self, result: Result<(), String>) -> Action {
         match result {
