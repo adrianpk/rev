@@ -66,7 +66,7 @@ PR: `#249`
 
 Task evidence: T2.1 `47660f76771a` admits all seven startup preferences; T2.2 `c81964d0fa2f` wires native panel commands, cells, wake delivery and typed resource navigation. T2.3 `7d6e91c04df7` completes source admission, bounded cell projection, effective bindings, Unreleased and native fixtures.
 
-Validation: four focused native panel tests, two preference tests and focused source quality passed during development. Final acceptance uses the exact ordered Slice 2 commands and the clean PR HEAD recorded by the controller.
+Validation: four focused native panel tests, two preference tests and focused source quality passed during development. Required receipt `BQ37AO7KJC5IK4Q63WR7DU7CIJ` on `bd5aec14c2a8c2450df9c40d4416e4982712a430` passed formatting and Clippy, then failed the runtime batch at the unchanged 100 ms process-observation bound. All 163 command and 153 configuration cases passed. Host process counts reached 8571; bounded scan observations took 109-127 ms. Runtime acceptance requires restoring that prerequisite or separate recovery authority; limits and frozen checks remain unchanged. Source receipt `U3PD23XLQLV2EPT7UT6UNOLDOZ` passed on that head.
 Integration: pending canonical PR and controller verification.
 
 ## Slice 3: Buffer placement and multiple sessions

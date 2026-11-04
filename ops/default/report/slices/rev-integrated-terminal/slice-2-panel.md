@@ -92,6 +92,35 @@ ordinary behavior after returning source focus.
 
 ## Validation
 
+Required validation attempt `BQ37AO7KJC5IK4Q63WR7DU7CIJ` on
+`bd5aec14c2a8c2450df9c40d4416e4982712a430` passed formatting and strict
+all-target Clippy, then failed the required test batch. All 163 command and
+153 configuration tests passed. Seven engine/resource tests failed after
+process observation exceeded its unchanged 100 ms bound; retained cleanup
+descriptors then disturbed the failed-launch descriptor baseline. The original
+descriptor and cleanup assertions remain intact.
+
+Further bounded read-only scans observed 8571 process records and 109-127 ms
+scan times even with allocation and parser variants. A kernel `getsid`
+prefilter was tested locally, but rustix 1.1.5 panics for kernel tasks whose
+session ID is zero. That experimental path was removed and is absent from the
+canonical candidate. Continue only after restoring the host observation
+prerequisite or authorizing a separate safe dependency correction. No scan,
+cleanup, resource or gate limit has been increased.
+
+The owned read-only reproducer `target/getsid-zero.rs` confirms `/proc/2/stat`
+session zero, then exits 101 at rustix's `Pid::from_raw_unchecked` positive-PID
+assertion. Its captured diagnostic is `target/getsid-zero.log`. The existing
+dependency-source authorization covers alacritty_terminal 0.26.0; a separate
+same-version rustix correction requires a new decision before application.
+
+The catalog fixture now uses an owned quiet `/bin/sh` script for terminal
+commands instead of user shell startup or asynchronous prompt timing. All
+direct/named parity assertions remain. A new session-isolation assertion also
+requires closing one PTY to leave another usable and release both descriptor
+sets. These fixture changes require the unchanged runtime validation after
+the prerequisite is restored.
+
 Development evidence:
 
 - `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test configuration terminal -- --test-threads=1`

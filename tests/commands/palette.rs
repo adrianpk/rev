@@ -333,9 +333,27 @@ fn query_admission() {
 // result as direct enum dispatch. Missing handlers cannot pass as registry stubs.
 #[test]
 fn catalog_dispatch() {
+    let fixture = super::config_fixture::Fixture::new();
+    let script = fixture.write("quiet-terminal.sh", "IFS= read -r hold\n");
+    let config = fixture.write(
+        "terminal.toml",
+        &format!(
+            "[terminal]\nprogram='/bin/sh'\nargs=[{}]",
+            serde_json::to_string(&script.to_string_lossy()).unwrap()
+        ),
+    );
+    let startup = rev::config::prepare(&config);
+    assert!(startup.diagnostic.is_none(), "{:?}", startup.diagnostic);
     for command in Command::ALL {
-        let mut direct = editor();
-        let mut palette = editor();
+        let create = || {
+            if matches!(command, Command::Terminal(_)) {
+                catalog_terminal(&startup.snapshot)
+            } else {
+                editor()
+            }
+        };
+        let mut direct = create();
+        let mut palette = create();
         let action = direct.execute(command);
         assert_ne!(
             direct.echo(),
@@ -373,6 +391,22 @@ fn catalog_dispatch() {
             command.name()
         );
     }
+}
+
+// Catalog parity uses an owned, quiet, blocking child instead of user shell
+// startup files or prompt timing. Real visible output has native PTY fixtures.
+fn catalog_terminal(snapshot: &rev::config::Snapshot) -> Session {
+    let buffers = Buffers::with_settings(snapshot.clone()).unwrap();
+    let view = View::with_settings(buffers.get(buffers.initial()).unwrap(), snapshot);
+    Session::new(
+        buffers,
+        view,
+        Size {
+            width: 80,
+            height: 24,
+        },
+    )
+    .unwrap()
 }
 
 // Real bound file/window/edit/history paths and named entry produce equivalent

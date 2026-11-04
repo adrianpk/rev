@@ -223,6 +223,28 @@ fn stopped(pid: u32) -> bool {
     })
 }
 
+// Session ownership must retain every owned job-control group while
+// leaving another live session usable. Both PTYs release their descriptors.
+#[test]
+fn session_isolation() {
+    let baseline = fs::read_dir("/proc/self/fd").unwrap().count();
+    let mut peer = Terminal::new(
+        "stty -echo; printf PEER; read -r line; printf ALIVE; read -r end",
+        Limits::default(),
+    );
+    peer.wait(|s| text(s).contains("PEER"));
+    let mut victim = Terminal::new("stty -echo; printf READY; read -r line", Limits::default());
+    victim.wait(|s| text(s).contains("READY"));
+    victim.sessions.close(victim.id).unwrap();
+    peer.send(b"ping\n");
+    peer.wait(|s| text(s).contains("ALIVE"));
+    assert_eq!(*peer.sessions.get(peer.id).unwrap().state(), State::Running);
+    peer.sessions.close(peer.id).unwrap();
+    drop(victim);
+    drop(peer);
+    assert_eq!(fs::read_dir("/proc/self/fd").unwrap().count(), baseline);
+}
+
 // The instance cell ledger includes both grids and upstream row caches. A
 // rejected third session cannot consume a descriptor or disturb either owner.
 #[test]
