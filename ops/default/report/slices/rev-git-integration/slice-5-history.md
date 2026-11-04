@@ -144,11 +144,6 @@ Development checks for T5.1:
 - `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test commands --test configuration reference -- --test-threads=1` passed 21 tests.
 - `git diff --check` passed.
 
-The shallow-boundary fixture initially queried the last completed record instead
-of its returned operation ID. It now requires the exact operation's retained
-ancestry-change diagnostic. The focused case and complete six-test history batch
-then passed; the rejection and retained-page assertions remain unchanged.
-
 Development checks for T5.2:
 
 - `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test git_integration history::inspection:: -- --test-threads=1` passed five real-Git/native tests in 60 seconds, including both-profile range/mark roles and immutable source visits.
@@ -169,6 +164,26 @@ Development checks for T5.3:
 - `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo clippy --locked --lib --bin rev --test git_integration -- -D warnings` passed.
 - `git diff --check` passed.
 
+The first controller attempt `3GOMFGYBSZ3KSHDYLCOJIHDP7O` at
+`5a7cf07f752d1a9ebaf7de5d3a096e4de9b019c7` passed formatter and Clippy,
+then failed `history::inspection::reflog_objects` with retained process cleanup
+ownership; the other 14 history tests passed. The diagnostic reported unsigned
+process-group parsing failure during read-only `symbolic-ref` observation.
+
+Linux documents the procfs group field as signed, and its
+[kernel implementation](https://github.com/torvalds/linux/blob/master/fs/proc/array.c)
+can retain the negative sentinel when a task exits during observation. The focused
+signed-field case reproduced rejection by the unsigned parser. The correction
+parses the signed field and matches only positive owned groups; malformed fields
+still fail with bounded diagnostic evidence. Signal scope, stream limits, cleanup
+deadlines and assertions remain unchanged. The earlier shallow-boundary fixture
+also binds diagnostics to its exact returned operation, including retained cleanup.
+
+Focused correction checks:
+
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --lib process -- --test-threads=1` passed 11 selected tests, including signed/zero/foreign groups, malformed metadata and real owned process/descendant cleanup.
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test git_integration history::inspection::reflog_objects -- --test-threads=1` passed after the correction.
+
 Final ordered contract, executed through the controller after this reference
 follow-up commit:
 
@@ -176,6 +191,7 @@ follow-up commit:
 - `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo clippy --locked --lib --bin rev --test git_integration -- -D warnings`
 - `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test git_integration history:: -- --test-threads=1`
 - `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test git_integration -- --skip history:: --test-threads=1`
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --lib process -- --test-threads=1`
 - `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test commands --test configuration reference -- --test-threads=1`
 - `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo run --locked --quiet --example documentation-check`
 - `git diff --check`

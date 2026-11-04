@@ -108,7 +108,7 @@ PR: `#262`
 - [x] T5.2: Implement exact ordered ranges, separate range-base and ordered revision marks, read-only reflog and blame inspection, and canonical source/revision visits.
 - [x] T5.3: Verify detached/unborn/merge history, paging limits, full object identities, historical file renames, line attribution and no checkout or source modification during inspection.
 
-Validation: T5.1 development checks passed six history tests, 21 command/configuration reference tests, strict focused Clippy, documentation and whitespace. T5.2 adds five passed real-Git/native inspection cases, strict Clippy and updated documentation checks. T5.3 adds four passed limit/failure cases, a fresh byte-bound case and both-profile SHA-256 range labels. Final exact-HEAD controller validation follows the PR-reference commit.
+Validation: T5.1 development checks passed six history tests, 21 command/configuration reference tests, strict focused Clippy, documentation and whitespace. T5.2 adds five passed real-Git/native inspection cases, strict Clippy and updated documentation checks. T5.3 adds four passed limit/failure cases, a fresh byte-bound case and both-profile SHA-256 range labels. The first controller attempt stopped on unsigned procfs group parsing during read-only cleanup; a signed-field reproducer and 11 selected process tests plus the focused reflog case pass after correction. Fresh exact-HEAD validation follows the pushed correction.
 Integration: [PR #262](https://forge.adrianpk.com/adrianpk/rev/pulls/262) is open against dev on the approved branch. The existing report links the ordered final validation contract. Controller-owned integration is pending.
 
 ## Slice 6: Branches and both tag kinds

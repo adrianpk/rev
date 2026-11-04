@@ -112,10 +112,58 @@ fn live_member(bytes: &[u8], group: u32) -> Result<bool, String> {
         .map_err(|e| format!("Process observation fields: {e}"))?;
     let mut fields = tail.split_whitespace();
     let state = fields.next().ok_or("Process observation lacks state")?;
-    let observed = fields
-        .nth(1)
-        .ok_or("Process observation lacks group")?
-        .parse::<u32>()
-        .map_err(|e| format!("Process observation group: {e}"))?;
-    Ok(observed == group && !matches!(state, "Z" | "X" | "x"))
+    let field = fields.nth(1).ok_or("Process observation lacks group")?;
+    // procfs pgrp is signed; a task exiting during observation can report -1.
+    // Nonpositive values cannot identify the positive group we created.
+    let observed = field.parse::<i32>().map_err(|e| {
+        format!(
+            "Process observation group {:?}: {e}",
+            field.chars().take(32).collect::<String>()
+        )
+    })?;
+    Ok(
+        observed > 0
+            && i64::from(observed) == i64::from(group)
+            && !matches!(state, "Z" | "X" | "x"),
+    )
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    // procfs exposes pgrp as signed %d. Nonpositive groups cannot identify an
+    // owned child; malformed fields still reject rather than hiding live work.
+    #[test]
+    fn signed_group_fields() {
+        for (name, bytes, expected) in [
+            ("live member", b"123 (name) R 7 42 0\n".as_slice(), Ok(true)),
+            (
+                "other group",
+                b"123 (name) S 7 43 0\n".as_slice(),
+                Ok(false),
+            ),
+            (
+                "negative group",
+                b"123 (name) R 7 -1 0\n".as_slice(),
+                Ok(false),
+            ),
+            ("zero group", b"123 (name) S 7 0 0\n".as_slice(), Ok(false)),
+            ("zombie", b"123 (name) Z 7 42 0\n".as_slice(), Ok(false)),
+            ("dead", b"123 (name) X 7 42 0\n".as_slice(), Ok(false)),
+            (
+                "complex comm",
+                b"123 (name )\n\xff) R 7 42 0\n".as_slice(),
+                Ok(true),
+            ),
+            (
+                "malformed group",
+                b"123 (name) R 7 invalid 0\n".as_slice(),
+                Err(()),
+            ),
+            ("missing group", b"123 (name) R 7\n".as_slice(), Err(())),
+        ] {
+            assert_eq!(live_member(bytes, 42).map_err(|_| ()), expected, "{name}");
+        }
+    }
 }
