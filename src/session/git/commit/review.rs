@@ -5,6 +5,9 @@ impl Session {
         &mut self,
     ) -> Result<Frame, crate::view::Error> {
         let state = self.git.composer.as_ref().expect("commit review");
+        if state.tag.is_some() {
+            return self.git_tag_review_frame();
+        }
         let composition = state.composition.as_ref().expect("prepared commit review");
         let (title, target) = match composition.mode {
             crate::git::CommitMode::Amend { head } => ("Amend exact HEAD", head.hex()),

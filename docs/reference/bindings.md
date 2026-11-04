@@ -571,6 +571,8 @@ For live terminal key ownership and copy controls, see the
 | `S` in Refs | `git-branch-switch` | Confirm a checked clean local branch switch. |
 | `R` in Refs | `git-branch-rename` | Confirm the exact local branch and new name. |
 | `D` in Refs | `git-branch-delete` | Confirm non-forced local deletion. |
+| `t` in Refs | `git-tag-create` | Confirm a local lightweight tag or explicitly compose an annotated tag. |
+| `T` in Refs | `git-tag-delete` | Confirm deletion of the exact local tag object. |
 
 ## Configuration keymap contracts
 
@@ -932,12 +934,18 @@ in review retains the draft.
 
 ### Git refs defaults and availability
 
-`keys.git_refs` owns read-only refs and reviewed local branch actions in both
+`keys.git_refs` owns read-only refs and reviewed local branch/tag actions in both
 profiles. Prompts retain `keys.minibuffer`. n creates a branch; p is reserved
-for push and has no navigation alias. Up/Down and C-p/C-n navigate.
+for push. Up/Down and C-p/C-n navigate. Annotated tag text uses the retained
+native message owner and `keys.git_commit`; its review uses the explicit submit
+aliases below.
 
 | Keys | Target |
 | --- | --- |
+| `t` | `git-tag-create` |
+| `T` | `git-tag-delete` |
+| `C-Enter` | `git-commit-submit` |
+| `C-c C-c` | `git-commit-submit` |
 | `C-x g` | `git-status` |
 | `q` | `git-quit` |
 | `g` | `git-refresh` |

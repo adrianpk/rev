@@ -40,6 +40,29 @@ T6.1 adds exact ref inspection and local branch requests:
   retains started work. Failed observation leaves confirmed facts visible and
   stale; g can establish a fresh compatible observation.
 
+T6.2 adds local lightweight and annotated tags:
+
+- t / `git-tag-create` collects a name, an explicit kind with lightweight as
+  the default, and one full exact object. Installed Git validates names,
+  existing-name absence, object/type and applicable signing policy before review.
+- Lightweight creation requires explicit y at a scrollable full-target review.
+  Annotated creation uses the existing retained native message editor. Return
+  edits text, C-Enter or C-c C-c opens exact review, and those aliases accept it.
+  Both profiles retain literal text, source owners and native cancellation.
+- Git supplies tagger identity/date and configured signing. Lightweight creation
+  rejects `tag.gpgSign` rather than changing kind or disabling signing. Annotated
+  signing honors both `tag.gpgSign` and `tag.forceSignAnnotated`. Unsigned
+  verbatim annotations preserve entered bytes; signed review includes the final
+  newline required to keep Git's signature delimiter recognizable, within the
+  unchanged 65536-byte bound.
+- Failed or cancelled annotation text remains session-only and can be recovered
+  through an explicitly prepared annotated retry. Actual child diagnostics remain
+  available after post-effect refresh. Native failure feedback includes safe
+  retained diagnostic text.
+- T / `git-tag-delete` reviews the local full ref, tag object and peeled target.
+  Git's expected-old-object ref update rejects a moved deletion target. Neither
+  tag kind nor deletion invokes publication or changes HEAD/index.
+
 ## Implementation Notes
 
 The existing repository/process owner runs structured installed-Git argv,
@@ -64,6 +87,9 @@ and changing-action deadlines remain the configured existing limits.
   branch creation; navigation uses Up/Down or C-p/C-n.
 - Ref refresh publishes Status and Refs with one compatible observation;
   incompatible old targets cannot supply changing authority.
+- `git-tag-create` and `git-tag-delete` have native handlers, complete command
+  inventory/reference entries and active sample bindings. Annotated text shares
+  the existing `keys.git_commit` owner; tag review keeps explicit submit aliases.
 - No dependency or persistent repository store was added.
 
 ## Files of Interest
@@ -109,9 +135,25 @@ The complete focused refs selection passed all seven cases in 29.52 seconds
 after the HEAD compatibility correction. Strict focused Clippy passed again.
 No assertion, deadline or resource limit was weakened.
 
+T6.2 development checks passed the complete 13-case refs selection, including
+both-profile creation/review/cancellation and real tag objects, signing-policy
+conflicts, actual signer failure and retained drafts. Strict focused Clippy and
+documentation checks also passed (510 commands, 267 configuration entries).
+The first compile exposed visibility/type inference mistakes, corrected before
+successful tests. An early fixture entered its launch repository instead of the
+owned fixture; it now enters through its owned visiting file. The unsigned
+verbatim check was corrected to preserve actual Git bytes without an invented
+final newline. Existing fixture deadlines and acceptance assertions remain intact.
+
+The extended signing fixture then found that a signed verbatim message lacking
+its final newline attached Git's signature marker to the text. Git could not
+recognize that signature. Exact native review and the checked request now use
+one shared final-newline rule when signing, within the existing byte ceiling.
+`env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test git_integration refs::tags::signed_annotation -- --test-threads=1` passed after correction: both signing policies verify through installed Git, including non-newline-terminated input, while the lightweight tag still points directly to its commit.
+
 ## Risks and Follow-ups
 
-T6.2 tag creation/deletion and T6.3 acceptance remain pending. Combined native
+T6.3 acceptance and final controller validation remain pending. Combined native
 PTY/resource acceptance remains Slice 13; the complete User Guide remains
 Slice 14. Revalidation detects changed Git facts and does not claim an exclusive
 transaction against external Git clients.

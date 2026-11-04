@@ -695,6 +695,8 @@ Status reads disk and Git state; it does not save an unsaved source buffer.
 
 | Command | Behavior |
 | --- | --- |
+| `git-tag-create` | Collect a local tag name, lightweight/annotated kind (lightweight by default) and complete target ID; check Git signing policy and explicitly review before creation. Annotated tags add native message composition and retained failure drafts. |
+| `git-tag-delete` | Review the selected tag's exact full name, object and peeled target; delete only that unchanged local ref. |
 | `git-refs` | Observe local/remote-tracking branches, both tag kinds, configured remote names, HEAD and available upstream facts with exact names and object IDs. |
 | `git-branch-create` | Collect a new local name and confirm the selected ref's commit or checked HEAD; create without implicit tracking. |
 | `git-branch-switch` | Confirm the selected local branch; require complete clean disk/index and unchanged unmodified repository-backed buffers. |
@@ -711,8 +713,8 @@ Status reads disk and Git state; it does not save an unsaved source buffer.
 | `git-commit-amend` | Prepare the exact observed HEAD and existing message; explicitly review before committing the checked index as its replacement. |
 | `git-commit-fixup` | Resolve one entered revision to a full immutable commit, compose its standard fixup subject/body and explicitly review the target; keep current history in place. |
 | `git-commit` | Open a native subject/body composer from current complete Status; retain cancelled or failed text for this session. |
-| `git-commit-submit` | Explicitly commit the checked index with the accepted message; verify actual HEAD, parent, message, tree and unchanged index. |
-| `git-commit-cancel` | Return to Status before process start, retaining the session draft. |
+| `git-commit-submit` | Explicitly commit the checked index with the accepted message; verify actual HEAD, parent, message, tree and unchanged index. In tag message composition, open or accept the annotated tag review. |
+| `git-commit-cancel` | Return before process start, retaining the session commit or tag annotation draft. |
 | `git-status` | Check installed Git and the actual repository, then open structured Status. |
 | `git-quit` | Return from the innermost Git menu or restore the retained editing context; started work continues. |
 | `git-refresh` | Replace Status only after a checked bounded observation succeeds; retain confirmed facts with a stale indication on failure. |
@@ -748,6 +750,28 @@ and Refs; failed observations retain confirmed facts. Tags show their actual
 object and peeled commit separately. Configured remote names are shown without
 exposing URL values. q returns to Status; started work retains its ownership.
 Changed disk files enter the existing automatic-or-ask reload policy.
+
+t in Refs creates a local tag. Enter a name, accept the default lightweight kind
+or explicitly select annotated, then accept or enter a full target object ID.
+Git checks the name, target and current signing policy before review. Lightweight
+review shows the name, kind and full target; y accepts, n or C-g cancels. A policy
+requiring signing rejects the lightweight choice without changing its kind or
+disabling signing. Select annotated explicitly to compose an annotation in the
+native message editor. Return inserts a newline; C-Enter or C-c C-c opens the
+scrollable exact review, and the same aliases explicitly accept it. q or C-g
+from review retains the draft. The existing `keys.git_commit` aliases own native
+message editing for both commits and annotated tags. Source publication and
+saving remain guarded while this transient message owner is active.
+
+Git supplies tagger identity/date and performs configured signing. Signed
+annotation review includes its required final newline within the 65536-byte
+message limit, so the signature remains recognizable to Git. A failed tag
+creation preserves annotation text and actual process diagnostics. After g,
+start t with the retained name, explicitly choose annotated and accept the same
+target to recover its draft. T reviews the selected local tag's full ref object
+and peeled target before deletion. Creation and deletion do not publish tags;
+HEAD and index remain unchanged. An annotated tag retains its distinct tag
+object and target instead of treating both as a commit ID.
 
 h or l l in Status opens History. `keys.git_history` keeps navigation separate
 from Status in both profiles. Tab inspects the exact selected revision; f admits

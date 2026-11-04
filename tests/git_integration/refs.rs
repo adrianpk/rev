@@ -293,3 +293,6 @@ exec /usr/bin/git "$@"
         b"refs/heads/other\n"
     );
 }
+
+#[path = "refs_tags.rs"]
+mod tags;

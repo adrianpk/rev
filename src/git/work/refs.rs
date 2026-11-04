@@ -1,4 +1,5 @@
 use super::*;
+mod tag;
 use crate::git::{BranchAction, RefKind, Reference, Refs, refs::Request};
 
 impl Runner {
@@ -8,6 +9,15 @@ impl Runner {
         admission: &mut Lease,
     ) -> Result<Candidate, String> {
         match request {
+            Request::PrepareTag {
+                refs,
+                name,
+                kind,
+                target,
+                ..
+            } => self.prepare_tag(refs, name, kind, target, admission),
+            Request::CreateTag { intent, text, .. } => self.create_tag(intent, &text, admission),
+            Request::DeleteTag { refs, name, .. } => self.delete_tag(refs, &name, admission),
             Request::Observe(observation) => {
                 let (identity, status) = self.observe(admission)?;
                 if identity != observation.identity {

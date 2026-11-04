@@ -20,6 +20,9 @@ pub(super) enum Request {
 impl Request {
     pub fn kind(&self) -> OperationKind {
         match self {
+            Self::Refs(super::refs::Request::PrepareTag { .. }) => OperationKind::TagPrepare,
+            Self::Refs(super::refs::Request::CreateTag { .. }) => OperationKind::TagCreate,
+            Self::Refs(super::refs::Request::DeleteTag { .. }) => OperationKind::TagDelete,
             Self::Refs(super::refs::Request::Observe(_)) => OperationKind::Refs,
             Self::Refs(super::refs::Request::Branch { .. }) => OperationKind::Branch,
             Self::History(_) => OperationKind::History,
@@ -39,6 +42,7 @@ pub(super) enum Publication {
     History(super::history::ResultData),
     Diff(Diff),
     Composition(Composition),
+    TagIntent(TagIntent),
 }
 
 enum Candidate {
@@ -47,6 +51,7 @@ enum Candidate {
     History(super::history::ResultData),
     Diff(diff::Prepared),
     Composition(commit::Prepared),
+    TagIntent(TagIntent),
 }
 
 pub(super) struct Finished {
@@ -71,9 +76,11 @@ pub(super) fn start(
                 Request::Index(_)
                 | Request::Discard(_)
                 | Request::Commit(_)
-                | Request::Refs(super::refs::Request::Branch { .. }) => {
-                    policy.operation_timeout_seconds
-                }
+                | Request::Refs(
+                    super::refs::Request::Branch { .. }
+                    | super::refs::Request::CreateTag { .. }
+                    | super::refs::Request::DeleteTag { .. },
+                ) => policy.operation_timeout_seconds,
                 _ => policy.observation_timeout_seconds,
             };
             let mut runner = Runner {
@@ -448,6 +455,7 @@ impl Runner {
         };
         record.admission = admission.split(record.bytes() + 4096);
         let publication = observed.and_then(|candidate| match candidate {
+            Candidate::TagIntent(intent) => Ok(Publication::TagIntent(intent)),
             Candidate::Refs { refs, changed } => Ok(Publication::Refs { refs, changed }),
             Candidate::History(result) => Ok(Publication::History(result)),
             Candidate::Status(identity, status) => Ok(Publication::Status(Observation {

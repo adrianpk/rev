@@ -14,7 +14,7 @@ pub use history::{
 };
 pub use index::{IndexDirection, IndexTarget};
 mod refs;
-pub use refs::{BranchAction, RefKind, Reference, Refs};
+pub use refs::{BranchAction, RefKind, Reference, Refs, TagIntent, TagKind};
 mod status;
 pub use diff::{Baseline, Diff, DiffKind, DiffLine, Hunk, HunkId, LineRange};
 mod work;
@@ -120,6 +120,9 @@ pub enum OperationKind {
     History,
     Refs,
     Branch,
+    TagPrepare,
+    TagCreate,
+    TagDelete,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -211,6 +214,8 @@ pub struct Context {
     pub blame: Option<Arc<Blame>>,
     pub revision_file: Option<Arc<RevisionFile>>,
     pub revision: Option<Arc<RevisionDetail>>,
+    tag_intent: Option<Arc<TagIntent>>,
+    tag_draft: Option<refs::TagDraft>,
     draft: Option<commit::Draft>,
     composition: Option<Arc<Composition>>,
 }
@@ -566,6 +571,8 @@ impl Repositories {
                         | OperationKind::Unstage
                         | OperationKind::Discard
                         | OperationKind::Commit
+                        | OperationKind::TagCreate
+                        | OperationKind::TagDelete
                         | OperationKind::Branch
                 ) && let Some(context) = progress
                     .context
@@ -619,6 +626,8 @@ impl Repositories {
                             blame: None,
                             revision_file: None,
                             revision: None,
+                            tag_intent: None,
+                            tag_draft: None,
                             draft: None,
                             composition: None,
                         });
@@ -647,6 +656,11 @@ impl Repositories {
                             context.observation = refs.observation.clone();
                             context.failure = None;
                             context.composition = None;
+                        }
+                        if progress.kind == OperationKind::TagCreate
+                            && record.outcome == Outcome::Verified
+                        {
+                            context.tag_draft = None;
                         }
                         refs.id = record.id;
                         context.refs = Some(Arc::new(refs));
@@ -707,6 +721,22 @@ impl Repositories {
                     }
                     progress.context
                 }
+                Ok(work::Publication::TagIntent(intent)) => {
+                    if let Some(context) = self
+                        .contexts
+                        .iter_mut()
+                        .find(|c| c.id == intent.refs.observation.context)
+                        && Arc::ptr_eq(&context.observation, &intent.refs.observation)
+                        && context.failure.is_none()
+                    {
+                        context.tag_intent = Some(Arc::new(intent));
+                        published = true;
+                    } else {
+                        record.outcome = Outcome::Failed;
+                        record.diagnostic = Some("Tag preparation generation changed".into());
+                    }
+                    progress.context
+                }
                 Ok(work::Publication::Composition(composition)) => {
                     if let Some(context) = self
                         .contexts
@@ -734,11 +764,15 @@ impl Repositories {
                                 context.failure = Some(record.id)
                             }
                             OperationKind::Diff => context.detail_failure = Some(record.id),
-                            OperationKind::CommitPrepare | OperationKind::History => {}
+                            OperationKind::CommitPrepare
+                            | OperationKind::History
+                            | OperationKind::TagPrepare => {}
                             OperationKind::Stage
                             | OperationKind::Unstage
                             | OperationKind::Discard
                             | OperationKind::Commit
+                            | OperationKind::TagCreate
+                            | OperationKind::TagDelete
                             | OperationKind::Branch => context.failure = Some(record.id),
                         }
                     }

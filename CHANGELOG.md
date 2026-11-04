@@ -31,7 +31,10 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
   the current source without replacing unsaved text. Inspect without checking
   out files or changing source text, the index or HEAD.
   Inspect branches, tags and upstream facts with b or y; confirm local branch
-  creation, clean switching, renaming or non-forced deletion in Refs. Changed
+  creation, clean switching, renaming or non-forced deletion in Refs. Create a
+  local lightweight tag with t, or explicitly compose an annotated tag while
+  retaining Git signing policy and failed annotation drafts. Review exact tag
+  objects before local deletion with T. Changed
   files follow your reload policy, protecting unsaved source text.
   Return to the same windows
   and terminals. Inspect active and

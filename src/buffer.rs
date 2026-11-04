@@ -519,9 +519,18 @@ impl Buffers {
 
     /// A Git message is native text with a finite session-only owner. Its
     /// smaller history and transaction limits fit the composer's admission.
-    pub(crate) fn commit_draft(&mut self, text: &str) -> Result<BufferId, Error> {
+    pub(crate) fn git_message_draft(
+        &mut self,
+        text: &str,
+        annotation: bool,
+    ) -> Result<BufferId, Error> {
         let mut buffer = Buffer::new(text, &self.settings.settings().files)?;
-        buffer.name = "*Git Commit: C-Enter submits; C-g retains draft*".into();
+        buffer.name = if annotation {
+            "*Git Tag Annotation: C-Enter reviews; C-g retains draft*"
+        } else {
+            "*Git Commit: C-Enter submits; C-g retains draft*"
+        }
+        .into();
         buffer.transient = true;
         buffer.text_byte_limit = Some(crate::git::MAX_COMMIT_BYTES);
         buffer.bom = false;

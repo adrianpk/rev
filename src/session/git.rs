@@ -297,6 +297,8 @@ impl Session {
                 return Some(self.message("A prompt owns input focus"));
             }
             return Some(match command {
+                GitCommand::TagCreate => self.prompt_git_tag(),
+                GitCommand::TagDelete => self.confirm_git_tag_delete(),
                 GitCommand::Refs => self.open_git_refs(),
                 GitCommand::BranchCreate => self.prompt_git_branch(refs::Intent::Create),
                 GitCommand::BranchSwitch => self.prompt_git_branch(refs::Intent::Switch),
@@ -608,6 +610,10 @@ impl Session {
             return Action::Wait;
         }
         for update in updates {
+            if self.git.refs.tag_preparing == Some(update.operation) {
+                self.publish_git_tag_preparation(&update);
+                continue;
+            }
             if self.git.refs.request == Some(update.operation) {
                 self.publish_git_refs(&update);
                 continue;
@@ -712,7 +718,7 @@ impl Session {
                     Page::Revision | Page::Reflog | Page::Blame | Page::RevisionFile
                 ),
         );
-        if let Some(action) = self.git_branch_review_input(event) {
+        if let Some(action) = self.git_ref_review_input(event) {
             return Some(action);
         }
         if self.git.composer.is_some() && matches!(event, Event::Mouse(_)) {
@@ -813,8 +819,8 @@ impl Session {
         }
     }
     pub(super) fn git_frame(&mut self) -> Result<Frame, crate::view::Error> {
-        if matches!(self.pending, Some(super::Pending::GitBranch(_))) {
-            return self.git_branch_review_frame();
+        if matches!(self.pending, Some(super::Pending::GitRef(_))) {
+            return self.git_ref_review_frame();
         }
         if self.git_commit_reviewing() {
             return self.git_commit_review_frame();
@@ -863,7 +869,7 @@ impl Session {
                     " Git Status  c commit  Tab expand  Return visit  g refresh  $ processes  ? actions  q return"
                 }
                 Page::Refs => {
-                    " Git Refs  n create  S switch  R rename  D delete  ? actions  g refresh  q Status"
+                    " Git Refs  n branch  S switch  R rename  D delete  t/T tags  ? actions  g refresh  q Status"
                 }
                 Page::History => {
                     " Git History  Tab revision  * base  Return range  a/U ordered marks  f next page  q Status"

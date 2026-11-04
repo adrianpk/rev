@@ -134,6 +134,7 @@ impl Session {
     }
     fn file_argument(&mut self, pending: Option<Pending>, path: String) -> Action {
         match pending {
+            Some(Pending::GitTagPrompt(prompt)) => self.git_tag_argument(*prompt, &path),
             Some(Pending::GitBranchName(prompt)) => self.git_branch_name(*prompt, &path),
             Some(Pending::GitHistoryRoot(context)) => self.git_history_root(context, &path),
             Some(Pending::GitHistoryParent(detail)) => self.git_history_parent(detail, &path),

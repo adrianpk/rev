@@ -2,6 +2,9 @@
 pub enum GitCommand {
     Status,
     Refs,
+    TagCreate,
+    TagDelete,
+
     BranchCreate,
     BranchSwitch,
     BranchRename,
@@ -40,6 +43,9 @@ pub enum GitCommand {
 impl GitCommand {
     pub fn name(self) -> &'static str {
         match self {
+            Self::TagCreate => "git-tag-create",
+            Self::TagDelete => "git-tag-delete",
+
             Self::Refs => "git-refs",
             Self::BranchCreate => "git-branch-create",
             Self::BranchSwitch => "git-branch-switch",

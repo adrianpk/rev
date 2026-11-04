@@ -40,6 +40,9 @@ impl Work {
             .map(|p| p.kind)
             .or_else(|| self.engine.record(id).map(|r| r.kind));
         match kind {
+            Some(crate::git::OperationKind::TagPrepare) => "Prepare exact local tag",
+            Some(crate::git::OperationKind::TagCreate) => "Create checked local tag",
+            Some(crate::git::OperationKind::TagDelete) => "Delete exact local tag",
             Some(crate::git::OperationKind::Refs) => "Refs observation",
             Some(crate::git::OperationKind::Branch) => "Checked local branch",
             Some(crate::git::OperationKind::History) => "history inspection",

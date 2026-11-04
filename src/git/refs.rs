@@ -1,5 +1,8 @@
 //! Exact, bounded ref observations and one-shot local branch requests.
 use super::*;
+mod tag;
+pub(super) use tag::TagDraft;
+pub use tag::{TagIntent, TagKind};
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum RefKind {
@@ -96,6 +99,23 @@ impl BranchAction {
 }
 pub(super) enum Request {
     Observe(Arc<Observation>),
+    PrepareTag {
+        refs: Arc<Refs>,
+        name: String,
+        kind: TagKind,
+        target: ObjectId,
+        _admission: Lease,
+    },
+    CreateTag {
+        intent: Arc<TagIntent>,
+        text: String,
+        _admission: Lease,
+    },
+    DeleteTag {
+        refs: Arc<Refs>,
+        name: Vec<u8>,
+        _admission: Lease,
+    },
     Branch {
         refs: Arc<Refs>,
         action: BranchAction,
@@ -128,6 +148,22 @@ impl Repositories {
             Some(context),
             work::Request::Refs(Request::Observe(observation)),
         )
+    }
+    fn local_ref_directory(&self, refs: &Refs) -> Result<PathBuf, String> {
+        let identity = &refs.observation.identity;
+        if self.progress().any(|p| {
+            p.context.is_none()
+                || p.context.and_then(|id| self.context(id)).is_some_and(|c| {
+                    c.observation.identity.common_directory == identity.common_directory
+                })
+        }) {
+            return Err("Repository common storage already owns active Git work".into());
+        }
+        Ok(identity
+            .worktree
+            .as_ref()
+            .unwrap_or(&identity.git_directory)
+            .clone())
     }
     pub fn check_refs(&self, refs: &Refs) -> Result<(), String> {
         let context = self
@@ -170,19 +206,7 @@ impl Repositories {
         let directory = if matches!(action, BranchAction::Switch { .. }) {
             self.mutation_identity_root(identity)?
         } else {
-            if self.progress().any(|p| {
-                p.context.is_none()
-                    || p.context.and_then(|id| self.context(id)).is_some_and(|c| {
-                        c.observation.identity.common_directory == identity.common_directory
-                    })
-            }) {
-                return Err("Repository common storage already owns active Git work".into());
-            }
-            identity
-                .worktree
-                .as_ref()
-                .unwrap_or(&identity.git_directory)
-                .clone()
+            self.local_ref_directory(&refs)?
         };
         let admission = self
             .budget

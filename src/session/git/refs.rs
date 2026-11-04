@@ -1,4 +1,5 @@
 use super::super::Pending;
+pub(in crate::session) mod tag;
 use super::*;
 use crate::{
     buffer::Stamp,
@@ -7,6 +8,7 @@ use crate::{
 
 pub(super) struct Inspection {
     pub request: Option<OperationId>,
+    pub tag_preparing: Option<OperationId>,
     selected: Option<Vec<u8>>,
     pub top: usize,
     failed: bool,
@@ -16,6 +18,7 @@ impl Inspection {
     pub(super) fn new(engine: &Repositories) -> std::io::Result<Self> {
         Ok(Self {
             request: None,
+            tag_preparing: None,
             selected: None,
             top: 0,
             failed: false,
@@ -39,13 +42,19 @@ pub(in crate::session) struct Prompt {
 }
 pub(in crate::session) struct Consent {
     refs: Arc<Refs>,
-    action: BranchAction,
+    action: RefAction,
     sources: Option<Sources>,
     pub message: String,
     review: String,
     top: usize,
     _admission: crate::git::budget::Lease,
 }
+enum RefAction {
+    Branch(BranchAction),
+    CreateTag(Arc<crate::git::TagIntent>),
+    DeleteTag(Vec<u8>),
+}
+
 struct Sources {
     stamps: Vec<Stamp>,
     _admission: crate::git::budget::Lease,
@@ -165,6 +174,7 @@ impl Work {
                 "S  git-branch-switch: checked clean source state",
                 "R  git-branch-rename: exact local branch",
                 "D  git-branch-delete: merged, noncurrent local branch",
+                "t / T  git-tag-create / git-tag-delete (confirmed local refs)",
                 "g  git-refresh",
                 "$  git-processes",
                 "M-x / :  native commands",
@@ -178,16 +188,16 @@ impl Work {
     }
 }
 impl Session {
-    pub(in crate::session) fn cancel_git_branch(&mut self) -> Option<Action> {
+    pub(in crate::session) fn cancel_git_ref(&mut self) -> Option<Action> {
         if !matches!(
             self.pending,
-            Some(Pending::GitBranch(_) | Pending::GitBranchName(_))
+            Some(Pending::GitRef(_) | Pending::GitBranchName(_) | Pending::GitTagPrompt(_))
         ) {
             return None;
         }
         self.pending = None;
         self.input.cancel();
-        Some(self.message("Local branch action canceled"))
+        Some(self.message("Local ref action canceled"))
     }
 
     pub(super) fn open_git_refs(&mut self) -> Action {
@@ -386,6 +396,22 @@ impl Session {
             names,
             prompt.refs.head.map_or("unborn".into(), |id| id.hex())
         );
+        self.confirm_git_ref(
+            prompt.refs,
+            RefAction::Branch(action),
+            sources,
+            message,
+            review,
+        )
+    }
+    fn confirm_git_ref(
+        &mut self,
+        refs: Arc<Refs>,
+        action: RefAction,
+        sources: Option<Sources>,
+        message: String,
+        review: String,
+    ) -> Action {
         let admission = match self
             .git
             .engine
@@ -394,12 +420,12 @@ impl Session {
             Ok(a) => a,
             Err(e) => return self.error(&e),
         };
-        if let Err(e) = self.input.decision("Confirm local branch action? [y/n]") {
+        if let Err(e) = self.input.decision("Confirm local ref action? [y/n]") {
             return self.error(&e.to_string());
         }
         self.git.painted = None;
-        self.pending = Some(Pending::GitBranch(Box::new(Consent {
-            refs: prompt.refs,
+        self.pending = Some(Pending::GitRef(Box::new(Consent {
+            refs,
             action,
             sources,
             message: message.clone(),
@@ -439,19 +465,22 @@ impl Session {
             _admission: admission,
         })
     }
-    pub(in crate::session) fn git_branch_answer(
+    pub(in crate::session) fn git_ref_answer(
         &mut self,
         consent: Consent,
         accepted: bool,
     ) -> Action {
         self.input.cancel();
         if !accepted {
-            return self.message("Local branch action canceled");
+            return self.message("Local ref action canceled");
         }
         if self.git.state.context != Some(consent.refs.observation.context) {
             return self.message("Branch context changed; confirmation invalidated");
         }
-        if matches!(consent.action, BranchAction::Switch { .. }) {
+        if matches!(
+            consent.action,
+            RefAction::Branch(BranchAction::Switch { .. })
+        ) {
             match self.git_branch_sources(&consent.refs) {
                 Ok(s)
                     if consent
@@ -466,10 +495,15 @@ impl Session {
                 Err(e) => return self.error(&e),
             }
         }
-        match self.git.engine.branch(consent.refs, consent.action) {
+        let result = match consent.action {
+            RefAction::Branch(action) => self.git.engine.branch(consent.refs, action),
+            RefAction::CreateTag(intent) => self.git.engine.create_tag(intent, ""),
+            RefAction::DeleteTag(name) => self.git.engine.delete_tag(consent.refs, &name),
+        };
+        match result {
             Ok(id) => {
                 self.git.refs.request = Some(id);
-                self.message("Checking confirmed local branch request")
+                self.message("Checking confirmed local ref request")
             }
             Err(e) => self.error(&e),
         }
@@ -508,6 +542,32 @@ impl Session {
         self.observe_files();
         self.git.painted = None;
         if self.git.visible && self.pending.is_none() && self.input.focus() == Focus::Editing {
+            if self.git.refs.failed
+                && self.git.engine.record(update.operation).is_some_and(|r| {
+                    matches!(
+                        r.kind,
+                        crate::git::OperationKind::TagCreate | crate::git::OperationKind::TagDelete
+                    )
+                })
+            {
+                let record = self
+                    .git
+                    .engine
+                    .record(update.operation)
+                    .expect("tag record");
+                let diagnostic = crate::display::git::DiagnosticLines::new(&record.stderr)
+                    .next()
+                    .unwrap_or_else(|| {
+                        record
+                            .diagnostic
+                            .clone()
+                            .unwrap_or("inspect git-processes".into())
+                    });
+                self.message(&format!(
+                    "Tag operation failed; annotation retained: {diagnostic}"
+                ));
+                return;
+            }
             self.message(if self.git.refs.failed {
                 "Refs operation failed; confirmed facts retained; inspect git-processes"
             } else {
@@ -518,10 +578,10 @@ impl Session {
 }
 
 impl Session {
-    pub(super) fn git_branch_review_input(&mut self, event: &Event) -> Option<Action> {
+    pub(super) fn git_ref_review_input(&mut self, event: &Event) -> Option<Action> {
         use crossterm::event::{KeyCode, KeyEventKind, KeyModifiers};
         let extent = usize::from(self.size.height.saturating_sub(2).max(1));
-        let Some(Pending::GitBranch(consent)) = &mut self.pending else {
+        let Some(Pending::GitRef(consent)) = &mut self.pending else {
             return None;
         };
         let movement = match event {
@@ -562,8 +622,8 @@ impl Session {
         };
         Some(Action::Redraw)
     }
-    pub(super) fn git_branch_review_frame(&mut self) -> Result<Frame, crate::view::Error> {
-        let Some(Pending::GitBranch(consent)) = &self.pending else {
+    pub(super) fn git_ref_review_frame(&mut self) -> Result<Frame, crate::view::Error> {
+        let Some(Pending::GitRef(consent)) = &self.pending else {
             unreachable!("branch review");
         };
         let width = usize::from(self.size.width.max(1));
@@ -585,7 +645,7 @@ impl Session {
             self.size,
             self.buffers.palette(),
             &self.echo,
-            " Git Branch Review  y accept  n / C-g cancel  Up/Down scroll",
+            " Git Local Ref Review  y accept  n / C-g cancel  Up/Down scroll",
             admission,
             |_| (rows.next().unwrap_or_default(), false),
         )?;

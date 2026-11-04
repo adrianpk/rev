@@ -8,8 +8,9 @@ mod review;
 pub(super) struct Composer {
     observation: Arc<Observation>,
     composition: Option<Arc<crate::git::Composition>>,
-    review: bool,
-    top: usize,
+    pub(in crate::session::git) tag: Option<Arc<crate::git::TagIntent>>,
+    pub(in crate::session::git) review: bool,
+    pub(in crate::session::git) top: usize,
     buffer: BufferId,
     view: ViewId,
     tree: bool,
@@ -59,11 +60,21 @@ impl Session {
                 };
                 Action::Redraw
             }
-            _ if self.git_commit_reviewing() => self
-                .message("Exact commit review: C-Enter or C-c C-c accepts; q or C-g retains draft"),
+            _ if self.git_commit_reviewing() => self.message(
+                if self.git.composer.as_ref().is_some_and(|c| c.tag.is_some()) {
+                    "Exact tag review: C-Enter or C-c C-c accepts; q or C-g retains annotation"
+                } else {
+                    "Exact commit review: C-Enter or C-c C-c accepts; q or C-g retains draft"
+                },
+            ),
             _ if editing(command) => return None,
-            _ => self
-                .message("Commit composer owns this view; C-Enter submits, C-g retains the draft"),
+            _ => self.message(
+                if self.git.composer.as_ref().is_some_and(|c| c.tag.is_some()) {
+                    "Tag annotation composer owns this view; C-Enter reviews, C-g retains the draft"
+                } else {
+                    "Commit composer owns this view; C-Enter submits, C-g retains the draft"
+                },
+            ),
         })
     }
 
@@ -98,7 +109,7 @@ impl Session {
         // One active native draft: <=64 KiB text, <=16 retained history groups
         // (128 KiB payload target), <=64 ranges/transaction and <=16 points.
         // Admission also covers rope chunks, edit candidates and projection.
-        let admission = self.git.engine.source_admission(8 * 1024 * 1024)?;
+
         if composition
             .as_ref()
             .is_some_and(|c| c.observation.generation != observation.generation)
@@ -109,8 +120,28 @@ impl Session {
             .git
             .engine
             .commit_draft(context)
-            .unwrap_or_else(|| composition.as_ref().map_or("", |c| c.message.as_str()));
-        let id = self.buffers.commit_draft(text).map_err(|e| e.to_string())?;
+            .unwrap_or_else(|| composition.as_ref().map_or("", |c| c.message.as_str()))
+            .to_owned();
+        self.install_git_message(observation, composition, None, &text)
+    }
+    pub(in crate::session::git) fn install_git_message(
+        &mut self,
+        observation: Arc<Observation>,
+        composition: Option<Arc<crate::git::Composition>>,
+        tag: Option<Arc<crate::git::TagIntent>>,
+        text: &str,
+    ) -> Result<(), String> {
+        if self.windows.retained_view_active() || self.layout_active() {
+            return Err(
+                "Another interaction retains the source view; finish it before message composition"
+                    .into(),
+            );
+        }
+        let admission = self.git.engine.source_admission(8 * 1024 * 1024)?;
+        let id = self
+            .buffers
+            .git_message_draft(text, tag.is_some())
+            .map_err(|e| e.to_string())?;
         let buffer = self.buffers.get(id).map_err(|e| e.to_string())?;
         let mut point = crate::view::View::new(buffer).point;
         point.position = crate::coordinates::Scalar(buffer.len_chars());
@@ -121,6 +152,7 @@ impl Session {
         self.git.composer = Some(Composer {
             observation,
             composition,
+            tag,
             review: false,
             top: 0,
             buffer: id,
@@ -143,7 +175,7 @@ impl Session {
         Ok(())
     }
 
-    fn commit_text(&self) -> Result<String, String> {
+    pub(in crate::session::git) fn commit_text(&self) -> Result<String, String> {
         let composer = self
             .git
             .composer
@@ -169,6 +201,9 @@ impl Session {
     }
 
     fn cancel_git_commit(&mut self) -> Action {
+        if self.git.composer.as_ref().is_some_and(|c| c.tag.is_some()) {
+            return self.cancel_git_tag_annotation();
+        }
         let result = self.commit_text().and_then(|text| {
             let context = self
                 .git
@@ -187,6 +222,9 @@ impl Session {
     }
 
     fn submit_git_commit(&mut self) -> Action {
+        if self.git.composer.as_ref().is_some_and(|c| c.tag.is_some()) {
+            return self.submit_git_tag_annotation();
+        }
         if self
             .git
             .composer
@@ -223,7 +261,7 @@ impl Session {
         }
     }
 
-    fn leave_git_commit(&mut self) -> Result<(), String> {
+    pub(in crate::session::git) fn leave_git_commit(&mut self) -> Result<(), String> {
         let state = self
             .git
             .composer
@@ -243,7 +281,11 @@ impl Session {
             self.input.set_editing_state(editing);
         }
         self.git.visible = true;
-        self.git.page = Page::Status;
+        self.git.page = if state.tag.is_some() {
+            Page::Refs
+        } else {
+            Page::Status
+        };
         self.sync_input_context();
         Ok(())
     }
