@@ -36,7 +36,17 @@ No production resource limit, dependency or gate changes.
 
 ## Validation
 
-T7.1 focused validation is pending. The final candidate uses the six exact
+T7.1 receipt `PGKUQXPYN44HYS2BXYNCZKH7VC` passed at `8f0a16c510ce54cd90197c639f72bcb2efd6bb30`:
+
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 bash scripts/check-integrated-terminal.sh --native`
+- `git diff --check`
+
+Both profiles passed. The cold release build took 7 minutes 40 seconds. The
+initial source-quality failure was resolved by splitting the journey by owner;
+a screen-restoration/reap race now waits for actual process disappearance
+within two seconds, preserving the final no-process assertion.
+
+ The final candidate uses the six exact
 ordered commands from the approved plan and frozen controller configuration.
 
 ## Risks and Follow-ups

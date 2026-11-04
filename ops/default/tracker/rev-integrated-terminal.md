@@ -173,9 +173,11 @@ Expected PR title: `test(terminal): verify shells tools and bounded session reso
 Report: `ops/default/report/slices/rev-integrated-terminal/slice-7-acceptance.md`
 PR: pending
 
-- [ ] T7.1: Add examples/integrated-terminal-acceptance.rs and scripts/check-integrated-terminal.sh using existing Rust/Linux PTY support and isolated fixtures; exercise real shells and installed lazygit in a disposable local repository without network or user Git state.
+- [x] T7.1: Add examples/integrated-terminal-acceptance.rs and scripts/check-integrated-terminal.sh using existing Rust/Linux PTY support and isolated fixtures; exercise real shells and installed lazygit in a disposable local repository without network or user Git state.
 - [ ] T7.2: Verify both profiles, multiple sessions, panel/main-buffer movement, continued child state, alternate screen, focus/literal-next, mouse, copy/paste, protected source admission and complete host restoration through real terminal journeys.
 - [ ] T7.3: Measure binary delta, idle/active CPU, RSS, bounded retained output and queue/flood behavior, process/FD cleanup and fairness. Add focused source-quality coverage, share fixture setup and record real observations instead of guessed performance claims.
+
+T7.1: `8f0a16c510ce` passes focused receipt `PGKUQXPYN44HYS2BXYNCZKH7VC`: actual interactive Bash/lazygit and identity-preserving relocation in both profiles, with source quality and whitespace.
 
 Validation: pending; use the exact ordered Slice 7 commands from the plan and frozen controller configuration.
 Integration: pending canonical PR and controller verification.

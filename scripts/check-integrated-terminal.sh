@@ -1,7 +1,29 @@
 #!/usr/bin/env bash
 # All processes, repositories, stores and streams belong to this finite fixture.
 set -euo pipefail
+if [[ ${1-} == --editor ]]; then
+    shift
+    printf 'REV_EDITOR_PID=%s\n' "$$"
+    printf '%s\n' "$$" > "$(dirname "$2")/editor.pid"
+    exec "$1" "$2"
+fi
+if [[ ${1-} == --pty-child || ${1-} == --error-child ]]; then
+    kind=$1
+    shift
+    stty rows 40 cols 100
+    before=$(stty -g)
+    result=0
+    if [[ $kind == --error-child ]]; then
+        timeout --foreground --kill-after=1 8 "$1" --host-error "$2" || result=$?
+    else
+        timeout --foreground --kill-after=1 8 bash "$0" --editor "$1" "$2" || result=$?
+    fi
+    [[ $(stty -g) == "$before" ]] || { echo 'terminal attributes changed' >&2; exit 1; }
+    printf '\nREV_TTY_RESTORED\n'
+    exit "$result"
+fi
 cd "$(dirname "${BASH_SOURCE[0]}")/.."
+root=$PWD
 mode=${1:---all}
 fixture=$(mktemp -d -t rev-terminal-XXXXXXXX)
 trap 'rm -rf -- "$fixture"' EXIT
@@ -23,7 +45,9 @@ isolation=(env -u GIT_DIR -u GIT_WORK_TREE -u GIT_INDEX_FILE -u GIT_CONFIG_COUNT
     GIT_CONFIG_GLOBAL=/dev/null GIT_CONFIG_SYSTEM=/dev/null GIT_TERMINAL_PROMPT=0
     TERM=xterm-256color LC_ALL=C NO_COLOR=1)
 case "$mode" in
-    --all|--native) timeout --kill-after=1 20 "${isolation[@]}" "$target/release/examples/integrated-terminal-acceptance" --native "$fixture" ;;
-    *) echo 'expected --all or --native' >&2; exit 1 ;;
+    --all|--native) timeout --kill-after=1 20 "${isolation[@]}" "$target/release/examples/integrated-terminal-acceptance" --native "$fixture" ;;&
+    --all|--pty) timeout --kill-after=1 25 "${isolation[@]}" "$target/release/examples/integrated-terminal-acceptance" --pty "$fixture" "$target/release/rev" "$root/scripts/check-integrated-terminal.sh" ;;&
+    --all|--native|--pty) ;;
+    *) echo 'expected --all, --native or --pty' >&2; exit 1 ;;
 esac
 printf 'PASS integrated terminal acceptance mode=%s\n' "$mode"

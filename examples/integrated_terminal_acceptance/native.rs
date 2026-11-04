@@ -21,6 +21,7 @@ fn journey(root: &Path, profile: &str) -> Result<()> {
     assert_eq!(editor.session.terminals().ids().count(), 0);
     let source = editor.session.buffer()?.stamp();
     let owned = shell(&mut editor, profile)?;
+    guards(&mut editor)?;
     relocate(&mut editor, profile, &owned)?;
     quit_tool(&mut editor, owned.tool)?;
     key(
@@ -108,5 +109,35 @@ fn quit_tool(editor: &mut Editor, tool: u32) -> Result<()> {
         !s.screen().mode().contains(TermMode::ALT_SCREEN) && screen(s).contains("SHELL_READY>")
     })?;
     reaped(tool)?;
+    Ok(())
+}
+
+fn guards(editor: &mut Editor) -> Result<()> {
+    let stamp = editor.session.buffer()?.stamp();
+    for name in [
+        "save-buffer",
+        "write-file",
+        "revert-buffer",
+        "undo",
+        "undo-redo",
+        "org-mode",
+        "completion-at-point",
+        "bookmark-set",
+        "lsp-connect",
+        "org-insert-heading",
+        "ai-prompt",
+        "shell-command-on-region",
+    ] {
+        editor
+            .session
+            .execute(rev::command::Command::named(name).expect("catalog command"));
+        assert!(
+            editor.session.echo().contains("requires a source buffer"),
+            "{name}: {}",
+            editor.session.echo()
+        );
+        assert_eq!(editor.session.buffer()?.stamp(), stamp);
+        assert!(editor.session.terminal_focused());
+    }
     Ok(())
 }

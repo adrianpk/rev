@@ -1,3 +1,4 @@
+pub(crate) use super::metrics::{cpu_ticks, peak_rss};
 use alacritty_terminal::{
     grid::Dimensions,
     index::{Column, Line, Point},
