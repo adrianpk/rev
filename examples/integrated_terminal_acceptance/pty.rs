@@ -21,7 +21,7 @@ fn prepare(root: &Path, profile: &str, case: &str) -> Result<PathBuf> {
     fs::create_dir_all(owner.join("pty/config/rev"))?;
     fs::write(
         owner.join("pty/config/rev/config.toml"),
-        fs::read_to_string(config)?.replace("terminal.panel_height=15", "terminal.panel_height=10"),
+        fs::read_to_string(config)?,
     )?;
     fs::create_dir_all(owner.join("pty/home"))?;
     Ok(owner)
@@ -57,7 +57,7 @@ fn initial(owner: &Path, terminal: &mut Terminal, profile: &str) -> Result<()> {
         terminal,
         "printf %s $$ >shell.pid; export KEPT=alive; printf '\\033[2J\\033[HPTY_SHELL_READY\\n'",
     )?;
-    terminal.frame(|f| row(f, 13).contains("PTY_SHELL_READY"))?;
+    terminal.frame(|f| row(f, 8).contains("PTY_SHELL_READY"))?;
     assert!(pid_file(&owner.join("workspace/shell.pid"))? > 0);
     Ok(())
 }

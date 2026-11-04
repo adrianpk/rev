@@ -118,8 +118,9 @@ impl Terminal {
         let dimensions = self.dimensions;
         if let Err(error) = self.wait(|output| frame(output, dimensions).is_some_and(&predicate)) {
             return Err(format!(
-                "PTY frame failed: {error}; bytes={} geometry={dimensions:?}; visible={}",
+                "PTY frame failed: {error}; bytes={} geometry={dimensions:?}; complete={} visible={}",
                 self.bytes,
+                frame(&self.output, dimensions).is_some(),
                 diagnostic(&self.output, dimensions)
             )
             .into());
