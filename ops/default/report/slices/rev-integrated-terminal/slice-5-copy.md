@@ -28,6 +28,13 @@ or on accepted live input. Explicit copy mode retains keyboard ownership.
 Placement moves transfer the copy state; separate attachments capture and
 navigate independently without duplicating the child.
 
+T5.2 provides retained-text yank and checked yank-pop, atomic frontend paste
+under the active bracketed-paste mode, separate clear-screen/scrollback commands,
+frozen line/cursor controls, child-side undo and the complete twelve explicit
+send identities. C-y/M-y use retained text in live input; literal-next preserves
+access to their child encodings. Explicit input commands require leaving copy
+mode. Clearing history releases that session's captures and preserves its screen.
+
 ## Implementation Notes
 
 Private native buffers reuse coordinates, regions, rectangle transfer, literal
@@ -57,6 +64,14 @@ may be prepared before admission; rejection preserves existing views and live
 state. The projection preserves physical rows and spacing, filters control
 characters and keeps wide/combining transfers on native grapheme boundaries.
 Emulator retention, IO bounds and process cleanup remain separately owned.
+
+Paste receipts grant replacement only while the exact paste remains wholly
+queued. Any positive write, later input or protocol reply revokes the engine
+receipt. Commands and retained-text generations additionally constrain native
+yank-pop. No child-side erasure is inferred. Candidate UTF-8 plus framing shares
+the existing pending-input cap and publishes atomically. Escape/control bytes
+other than line breaks/tabs are rejected before queue mutation. Cursor reset
+checks that the live text is represented by the frozen projection before moving.
 
 ## Files of Interest
 
@@ -88,11 +103,28 @@ space. The correction preserves the observed VT cell and passes the same
 assertion. Native search acceptance also follows the actual input-consumption
 order; no assertion, resource cap or frozen gate was weakened.
 
-These are focused T5.1 checks. The required ordered Slice 5 validation is pending
-completion of T5.2 and T5.3 and the final PR head.
+Controller receipt `MCZY75A524KKYSJWPA7Z35TKP4` passed at clean T5.2 HEAD
+`a5daf0519d9f53abf38c85a73a271f002d579d1b` with this exact ordered list:
+
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo run --locked --quiet --example source-check -- --file src/command/terminal.rs --file src/kill.rs --file src/session/terminals.rs --file src/session/terminals/input.rs --file src/session/terminals/source.rs --file src/session/terminals/transfer.rs --file src/session/terminals/control.rs --file src/session/terminals/copy/control.rs --file src/session/terminals/copy/snapshot.rs --file src/term.rs --file src/term/session.rs --file src/term/paste.rs`
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test integrated_terminal -- --test-threads=1`
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo run --locked --quiet --example documentation-check`
+- `git diff --check`
+
+All 34 terminal tests passed, including unchanged resource/FD assertions and four
+new transfer/control cases. All twelve selected source files passed, and both
+command inventories contain all 470 implemented commands. Actual child bytes
+cover both profiles, normal/application modes, bracketed/plain paste, literal
+controls, copy input protection, clear-history separation and cursor rejection.
+The queue fixture preserves its 4096-byte cap, atomic size/control rejection and
+exact 16-byte delivery assertion. Its startup printf now preserves a literal
+shell escape sequence rather than embedding a Rust NUL; it additionally asserts
+negotiated bracketed mode. Receipt `7R5IXHB7NKFOVTSQAG7XESSHJP` records that
+regression passing before the documentation inventory was completed.
+
+These are focused T5.1/T5.2 checks. Required ordered Slice 5 validation is pending
+T5.3 and the final PR head.
 
 ## Risks and Follow-ups
 
-T5.2 terminal yank/paste, clear/send and line/cursor commands are pending.
-T5.3 prompt/error/link evidence navigation and the finite send inventory are
-pending. No Slice 5 PR is open.
+T5.3 prompt/error/link evidence navigation is pending. No Slice 5 PR is open.

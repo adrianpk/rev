@@ -115,7 +115,7 @@ Report: `ops/default/report/slices/rev-integrated-terminal/slice-5-copy.md`
 PR: pending
 
 - [x] T5.1: Provide bounded scrollback, stable per-view copy mode, selection/search, copy with retained viewport, tail-follow suspension/resumption and the specified Return/C-g exits while output continues.
-- [ ] T5.2: Implement native terminal yank/yank-pop with checked replaceability and bracketed paste, separate clear-screen/clear-scrollback operations, line/cursor navigation and explicit send/undo operations.
+- [x] T5.2: Implement native terminal yank/yank-pop with checked replaceability and bracketed paste, separate clear-screen/clear-scrollback operations, line/cursor navigation and explicit send/undo operations.
 - [ ] T5.3: Complete prompt/error/link navigation using actual admitted evidence such as OSC 133 and recognized locations; report unavailable evidence honestly. Complete the finite terminal-send-* command inventory without placeholders.
 
 Implementation checkpoint: T5.1 is complete. Controller receipt
@@ -127,6 +127,12 @@ T5.3 remain pending before canonical PR preparation.
 
 Validation: pending; use the exact ordered Slice 5 commands from the plan and frozen controller configuration.
 Integration: pending canonical PR and controller verification.
+
+T5.2 evidence: implementation `61a16c018292` and cursor-owner refactor
+`cc1a07055a1f`; queue fixture correction `a892e8e60ad6`; checked policy/catalog
+`a5daf0519d9f`. Receipt `MCZY75A524KKYSJWPA7Z35TKP4` passed 34 real-PTY tests,
+twelve source-quality files, both 470-command documentation inventories and diff
+checking on the exact clean T5.2 head. T5.3 and final Slice 5 validation remain.
 
 ## Slice 6: Session lifecycle and failure containment
 
