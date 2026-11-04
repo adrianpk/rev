@@ -69,6 +69,8 @@ have no runtime cap. No dependency or registry cache changes are involved.
 
 Natural exit publishes `Draining`, consumes final output through the ordinary
 bounded UI service, and retains actual exit status after worker completion.
+The same service refreshes retained-extra accounting and control diagnostics
+while draining, including the final snapshot; allocation limits stay active.
 EOF disables PTY readiness while a live child still has pidfd observation, so
 closed child descriptors cannot cause an idle notification loop. Worker
 completion wakes the existing host queue without an idle cleanup timer.

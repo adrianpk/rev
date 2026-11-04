@@ -168,6 +168,10 @@ impl Session {
         } else {
             self.pump(budget)
         };
+        self.extra_bytes = self.engine.extra_bytes();
+        if self.engine.rejected_controls() {
+            self.diagnostic = Some("Oversized child control ignored through its terminator".into());
+        }
         match work {
             Ok(bytes) => {
                 self.finish_exit();
@@ -213,10 +217,6 @@ impl Session {
             ));
         }
         self.input.extend(replies);
-        self.extra_bytes = self.engine.extra_bytes();
-        if self.engine.rejected_controls() {
-            self.diagnostic = Some("Oversized child control ignored through its terminator".into());
-        }
         self.observe_exit()?;
         Ok(written + read)
     }
