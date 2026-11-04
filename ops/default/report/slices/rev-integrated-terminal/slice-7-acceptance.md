@@ -23,6 +23,12 @@ and stable process/buffer identity across panel and main-buffer relocation.
 The existing Rust acceptance layout and source checker are reused. Git and
 lazygit use disposable stores, explicit configuration and no network operations.
 Fixture deadlines constrain validation only; live commands have no runtime cap.
+The host PTY uses factory 80x24 geometry and four cohesive cases across both
+profiles: tool relocation and input/copy each own a fresh eight-second, 1 MiB
+stream. A fifth case checks one injected output fault; the aggregate driver
+allows 45 seconds for these five bounded cases. Larger combined journeys
+exceeded the unchanged stream cap. The shared fixture recognizes a hidden
+cursor only after the owned geometry's final row is fully painted.
 
 ## Contracts Added or Changed
 

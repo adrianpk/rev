@@ -11,7 +11,7 @@ fi
 if [[ ${1-} == --pty-child || ${1-} == --error-child ]]; then
     kind=$1
     shift
-    stty rows 40 cols 100
+    stty rows 24 cols 80
     before=$(stty -g)
     result=0
     if [[ $kind == --error-child ]]; then
@@ -47,7 +47,7 @@ isolation=(env -u GIT_DIR -u GIT_WORK_TREE -u GIT_INDEX_FILE -u GIT_CONFIG_COUNT
     TERM=xterm-256color LC_ALL=C NO_COLOR=1)
 case "$mode" in
     --all|--native) timeout --kill-after=1 20 "${isolation[@]}" "$target/release/examples/integrated-terminal-acceptance" --native "$fixture" ;;&
-    --all|--pty) timeout --kill-after=1 25 "${isolation[@]}" "$target/release/examples/integrated-terminal-acceptance" --pty "$fixture" "$target/release/rev" "$root/scripts/check-integrated-terminal.sh" ;;&
+    --all|--pty) timeout --kill-after=1 45 "${isolation[@]}" "$target/release/examples/integrated-terminal-acceptance" --pty "$fixture" "$target/release/rev" "$root/scripts/check-integrated-terminal.sh" ;;&
     --all|--native|--pty) ;;
     *) echo 'expected --all, --native or --pty' >&2; exit 1 ;;
 esac

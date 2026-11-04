@@ -9,24 +9,27 @@ use std::{
 
 pub(crate) fn run(root: &Path, binary: &Path, wrapper: &Path) -> Result<()> {
     for profile in ["non-modal", "modal"] {
+        tool_journey(root, binary, wrapper, profile)?;
         journey(root, binary, wrapper, profile)?;
     }
     super::failure::run(root, binary, wrapper)
 }
-fn prepare(root: &Path, profile: &str) -> Result<PathBuf> {
-    let owner = root.join(format!("host-{profile}"));
+fn prepare(root: &Path, profile: &str, case: &str) -> Result<PathBuf> {
+    let owner = root.join(format!("host-{profile}-{case}"));
     let directory = repository(&owner, "")?;
     let config = settings(&directory, profile)?;
     fs::create_dir_all(owner.join("pty/config/rev"))?;
-    fs::copy(config, owner.join("pty/config/rev/config.toml"))?;
+    fs::write(
+        owner.join("pty/config/rev/config.toml"),
+        fs::read_to_string(config)?.replace("terminal.panel_height=15", "terminal.panel_height=10"),
+    )?;
     fs::create_dir_all(owner.join("pty/home"))?;
     Ok(owner)
 }
 fn journey(root: &Path, binary: &Path, wrapper: &Path, profile: &str) -> Result<()> {
-    let owner = prepare(root, profile)?;
+    let owner = prepare(root, profile, "input")?;
     let mut terminal = Terminal::start(&owner, binary, wrapper, "source.org")?;
     initial(&owner, &mut terminal, profile).map_err(|e| format!("initial: {e}"))?;
-    lazygit(&owner, &mut terminal).map_err(|e| format!("lazygit: {e}"))?;
     recorder(&owner, &mut terminal, profile).map_err(|e| format!("recorder: {e}"))?;
     closure(&owner, &mut terminal).map_err(|e| format!("closure: {e}"))?;
     terminal.finish()?;
@@ -35,7 +38,7 @@ fn journey(root: &Path, binary: &Path, wrapper: &Path, profile: &str) -> Result<
         ORIGINAL
     );
     println!(
-        "PASS nested host PTY profile={profile}: real shell/lazygit, multiple sessions, relocation, copy/paste, literal-next, mouse, protected source, declined shutdown, actual exit and full restoration; output_bytes={}",
+        "PASS nested host PTY profile={profile}: real shells, multiple sessions, copy/paste, literal-next, mouse, protected source, declined shutdown, actual exit and full restoration; output_bytes={}",
         terminal.bytes()
     );
     Ok(())
@@ -54,7 +57,7 @@ fn initial(owner: &Path, terminal: &mut Terminal, profile: &str) -> Result<()> {
         terminal,
         "printf %s $$ >shell.pid; export KEPT=alive; printf '\\033[2J\\033[HPTY_SHELL_READY\\n'",
     )?;
-    terminal.frame(|f| row(f, 24).contains("PTY_SHELL_READY"))?;
+    terminal.frame(|f| row(f, 13).contains("PTY_SHELL_READY"))?;
     assert!(pid_file(&owner.join("workspace/shell.pid"))? > 0);
     Ok(())
 }
@@ -190,4 +193,31 @@ fn plain(frame: &str) -> String {
             Some(&part[end + 1..])
         })
         .collect()
+}
+
+fn tool_journey(root: &Path, binary: &Path, wrapper: &Path, profile: &str) -> Result<()> {
+    let owner = prepare(root, profile, "tool")?;
+    let mut terminal = Terminal::start(&owner, binary, wrapper, "source.org")?;
+    initial(&owner, &mut terminal, profile)?;
+    lazygit(&owner, &mut terminal)?;
+    finish_tool(&owner, &mut terminal)?;
+    assert_eq!(
+        fs::read_to_string(owner.join("workspace/source.org"))?,
+        ORIGINAL
+    );
+    println!(
+        "PASS nested tool PTY profile={profile}: actual lazygit help, panel/buffer movement, same PID/cwd/shell state, truthful exit and complete host restoration; output_bytes={}",
+        terminal.bytes()
+    );
+    Ok(())
+}
+fn finish_tool(owner: &Path, terminal: &mut Terminal) -> Result<()> {
+    reaped(pid_file(&owner.join("workspace/tool.pid"))?)?;
+    line(terminal, "printf '%s' \"$KEPT\" >kept-state; exit 7")?;
+    terminal.frame(|f| plain(f).contains("Exited (7)"))?;
+    assert_eq!(
+        fs::read_to_string(owner.join("workspace/kept-state"))?,
+        "alive"
+    );
+    terminal.finish()
 }
