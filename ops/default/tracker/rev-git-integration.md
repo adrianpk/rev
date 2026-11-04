@@ -118,14 +118,14 @@ Branch: `feat/rev-git-integration-06-refs`
 Expected PR title: `feat(git): manage branches and local tag kinds`
 Report: `ops/default/report/slices/rev-git-integration/slice-6-refs.md`
 Requirements: GIT08, GIT17-GIT19
-PR: pending
+PR: `#263`
 
 - [x] T6.1: Present local/remote-tracking refs, tags, remotes and upstream facts with exact identities and checked branch create/switch/rename/non-forced deletion.
 - [x] T6.2: Implement t/git-tag-create with lightweight default and annotated message composition; retain distinct tag-object/peeled-target identities, Git metadata/signing and checked local tag deletion.
 - [x] T6.3: Verify current/unmerged branch protection, modified source admission, stale confirmation, both tag kinds, existing-name failure and conflicting signing policy without implicit publication or policy overrides.
 
-Validation: T6.1 development formatter, strict focused Clippy, all seven refs tests and 21 reference tests pass. Both native profiles additionally verify full SHA-256 review and scroll controls. A real checkout interleaving reproduced and now rejects incompatible Status/Refs HEAD publication. Documentation checks 508 commands and 267 configuration entries. T6.2 adds six passed tag/native cases, 510 documented commands and explicit checked signing/message handling. The extended real SSH fixture verifies both signing policies, missing-final-newline input and an unchanged lightweight kind. T6.3 passes all 17 focused refs tests, including linked-worktree protection, actual tag-lock races, hostile publication settings, signed native review, reachable full details/remotes and source/history refresh. Final controller validation remains pending.
-Integration: T6.1 introduced the canonical report at `130584341a8df9c1b0b49b091299aa929abce2e8`; T6.2 and T6.3 complete the approved branch. Canonical PR creation and its reference follow-up remain pending.
+Validation: T6.1 development formatter, strict focused Clippy, all seven refs tests and 21 reference tests pass. Both native profiles additionally verify full SHA-256 review and scroll controls. A real checkout interleaving reproduced and now rejects incompatible Status/Refs HEAD publication. Documentation checks 508 commands and 267 configuration entries. T6.2 adds six passed tag/native cases, 510 documented commands and explicit checked signing/message handling. The extended real SSH fixture verifies both signing policies, missing-final-newline input and an unchanged lightweight kind. T6.3 passes all 17 focused refs tests, including linked-worktree protection, actual tag-lock races, hostile publication settings, signed native review, reachable full details/remotes and source/history refresh. The report records the final ordered exact-HEAD contract for canonical controller evidence.
+Integration: T6.1 introduced the canonical report at `130584341a8df9c1b0b49b091299aa929abce2e8`; T6.2 and T6.3 complete the approved branch. [PR #263](https://forge.adrianpk.com/adrianpk/rev/pulls/263) is open against dev. The PR-reference follow-up precedes controller validation; controller-owned integration remains pending.
 
 ## Slice 7: Separate fetch and reviewed push
 
