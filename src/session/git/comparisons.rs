@@ -291,6 +291,14 @@ impl Session {
         Action::Redraw
     }
     pub(super) fn visit_git_file(&mut self) -> Action {
+        if self.git.visible
+            && matches!(
+                self.git.page,
+                Page::Revision | Page::Blame | Page::RevisionFile
+            )
+        {
+            return self.visit_git_inspection_source();
+        }
         if matches!(self.git.page, Page::Processes | Page::Process(_)) && self.git.visible {
             return self.show_git_process();
         }

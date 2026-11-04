@@ -56,6 +56,11 @@ Every command below is also available as `M-x` followed by its exact name.
 | `C-u M-!` (non-modal), `M-x shell-command-insert`, `:shell-command-insert` | `shell-command-insert` | Insert complete successful stdout at the point captured before the prompt, with null stdin. |
 | `M-x shell-command-cancel`, `:shell-command-cancel` | `shell-command-cancel` | Cancel the owned invocation; originating editing C-g also cancels after inner input owners. |
 | `M-x shell-command-output`, `:shell-command-output` | `shell-command-output` | Visit the last retained read-only plain-text result or diagnostics. |
+| Return in History | `git-show-range` | Compare the marked exact base and selected endpoint in their explicit order. |
+| `a` in History | `git-sequence-mark` | Append an exact ordered revision without changing the range base. |
+| `U` in History | `git-sequence-unmark` | Remove an ordered revision, retaining remaining order and the base. |
+| `l r` in Status | `git-reflog` | Inspect bounded exact HEAD reflog entries. |
+| `B b`, `B B` in Status | `git-blame` | Attribute the selected or visiting source at checked HEAD. |
 | `h`, `l l` in Status | `git-log` | Open exact bounded ancestry; detached HEAD collects an explicit root. |
 | Tab in History; `M-x git-show`, `:git-show` | `git-show` | Inspect full revision metadata, changed paths and exact parent comparison. |
 | `f` in History | `git-log-next-page` | Continue exact ancestry from its pinned root. |
@@ -759,7 +764,7 @@ buffers and filesystem publication.
 
 ### Git history defaults and availability
 
-`keys.git_history` owns History and revision-detail input in both profiles.
+`keys.git_history` owns History input in both profiles.
 Prompts still use `keys.minibuffer`. Pointer selection requires the currently
 painted observation and viewport. q returns from revision detail to History,
 then Status, preserving selection and source ownership.
@@ -769,9 +774,35 @@ then Status, preserving selection and source ownership.
 | `C-x g` | `git-status` |
 | `q` | `git-quit` |
 | `g` | `git-refresh` |
-| Tab, Return | `git-show` |
+| Tab | `git-show` |
+| Return | `git-show-range` |
+| `*` | `git-mark` |
+| `a`, `U` | `git-sequence-mark`, `git-sequence-unmark` |
 | `f` | `git-log-next-page` |
 | `A`, `F` | `git-commit-amend`, `git-commit-fixup` |
+| `$` | `git-processes` |
+| `M-x`, `:` | `execute-extended-command` |
+| `C-g` | `keyboard-quit` |
+| `C-x C-c` | `save-buffers-kill-terminal` |
+| Up, `C-p`, `p` | `previous-line` |
+| Down, `C-n`, `n` | `next-line` |
+| PageUp, PageDown | `scroll-down-command`, `scroll-up-command` |
+| `M-<`, `M->` | `beginning-of-buffer`, `end-of-buffer` |
+
+### Git inspection defaults and availability
+
+`keys.git_inspect` owns revision, reflog, blame and historical-file navigation
+in both profiles. Return opens the selected exact parent, revision or historical
+blob. v inspects a full revision; it never treats a reflog selector as an argument.
+`git-visit-file` visits current source through its canonical native owner.
+
+| Keys | Target |
+| --- | --- |
+| `C-x g` | `git-status` |
+| `q` | `git-quit` |
+| `g` | `git-refresh` |
+| Tab, Return | `git-toggle-section` |
+| `v` | `git-show` |
 | `$` | `git-processes` |
 | `M-x`, `:` | `execute-extended-command` |
 | `C-g` | `keyboard-quit` |
@@ -797,6 +828,8 @@ native cancellation. Prompts use `keys.minibuffer`.
 | `C-Enter`, `C-c C-c` during exact commit review | `git-commit-submit` |
 | `c` | `git-commit` |
 | `h`, `l l` | `git-log` |
+| `l r` | `git-reflog` |
+| `B b`, `B B` | `git-blame` |
 | `q` | `git-quit` |
 | `g` | `git-refresh` |
 | `k`, `x d` | `git-discard` |

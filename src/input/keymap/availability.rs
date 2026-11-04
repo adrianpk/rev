@@ -75,7 +75,7 @@ impl Context {
             Self::Minibuffer => minibuffer(target),
             Self::Tree => tree(target),
             Self::BookmarkList => bookmark_list(target),
-            Self::Git | Self::GitHistory => matches!(
+            Self::Git | Self::GitHistory | Self::GitInspect => matches!(
                 target,
                 Binding::Command(
                     Command::Git(_)

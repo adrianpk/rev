@@ -42,6 +42,29 @@ T5.1 delivers ancestry and revision inspection:
   confirmed history. Inspection never checks out a file or changes source
   buffers, index or HEAD. Native source text, point and split identities survive.
 
+T5.2 delivers ranges, attribution and historical source:
+
+- * sets one full History range base; Return compares that base and the selected
+  endpoint in their explicit order. a/U appends/removes independent ordered
+  revision marks. Base changes retain order; sequence changes retain the base.
+  Duplicate, excess and incompatible marks reject without partial updates.
+- l r opens bounded HEAD Reflog. Entry selectors remain volatile display
+  metadata; revision inspection uses admitted full commit objects. Refresh
+  retains a compatible object/subject selection when selectors move.
+- B b or B B attributes the selected or visiting repository source at checked
+  HEAD. Each line retains its originating object, exact filename and source
+  location, including historical renames and non-UTF-8/quoted path bytes.
+- Return in inspection opens exact parents, revisions or historical file bytes;
+  v inspects the selected reflog/blame revision. Deleted paths read their exact
+  old-side object. Historical blobs remain typed read-only resources, with
+  escaped binary bytes, explicit truncation and wrapped source display.
+- `git-visit-file` visits the current canonical source through the existing
+  file owner. Modified buffers remain intact; historical path absence is
+  explicit. Blame keeps its current path separately from its historical origin.
+- `keys.git_inspect` gives both profiles independent inspection navigation.
+  q returns to the correct History, Reflog or Blame origin without checkout,
+  saving, staging or creating a writable historical buffer.
+
 ## Implementation Notes
 
 The existing repository worker owns observation deadlines, cancellation,
@@ -77,6 +100,9 @@ commit review map so both explicit submission aliases remain available.
 - Historical observations expose full format-aware commit IDs, metadata,
   parents, exact ancestry continuation and independently admitted pages.
 - No dependency, persistent application state or process framework was added.
+- `git-show-range`, `git-sequence-mark`, `git-sequence-unmark`, `git-reflog`
+  and `git-blame` have working typed targets, native keys and complete reference
+  entries. `keys.git_inspect` is included in the complete sample and schema.
 
 ## Files of Interest
 
@@ -105,13 +131,23 @@ of its returned operation ID. It now requires the exact operation's retained
 ancestry-change diagnostic. The focused case and complete six-test history batch
 then passed; the rejection and retained-page assertions remain unchanged.
 
-Final exact-HEAD controller validation remains pending after T5.2-T5.3 and the
+Development checks for T5.2:
+
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test git_integration history::inspection:: -- --test-threads=1` passed five real-Git/native tests in 60 seconds, including both-profile range/mark roles and immutable source visits.
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo clippy --locked --lib --bin rev --test git_integration -- -D warnings` passed.
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo run --locked --quiet --example documentation-check` passed: 503 commands, 266 configuration entries and 76 reachable pages.
+- `git diff --check` passed.
+
+T5.3 adds focused limit/failure cases. Its 257-commit mark fixture uses one
+installed-Git fast-import process to bound setup cost while preserving the real
+256-mark application boundary. The selected slice runner remains serial with
+one build job; the configured full gate is unchanged.
+
+Final exact-HEAD controller validation remains pending after T5.3 and the
 canonical PR-reference follow-up.
 
 ## Risks and Follow-ups
 
-T5.2 remains pending: exact ordered ranges, independent range-base and ordered
-revision marks, reflog/blame inspection and canonical source/revision visits.
 T5.3 remains pending: the remaining finite-admission, historical-source and
 attribution edge cases and slice regressions. Combined PTY/resource acceptance
 remains Slice 13; the full User Guide remains Slice 14.

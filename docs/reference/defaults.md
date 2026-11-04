@@ -244,9 +244,10 @@ Both use M-x or modal colon and leave this configuration unchanged.
 | `keys.vim_visual_line` | Map of chord sequences to canonical commands | Compiled map | Visual Line navigation, complete logical lines and shared operators. The sample declares all 122 entries. |
 | `keys.vim_visual_block` | Map of chord sequences to canonical commands | Compiled map | Visual Block navigation and atomic block delete/change/copy with logical grapheme columns. The sample declares all 118 entries. |
 | `keys.minibuffer` | Map of chord sequences to admitted prompt actions/commands | Compiled map | Prompt focus; all 22 entries are active in the sample. |
-| `keys.git_history` | Map of chord sequences to admitted Git navigation commands | Compiled map | History and revision detail in both profiles; all 23 entries are active in the sample. |
+| `keys.git_inspect` | Map of chord sequences to read-only Git inspection commands | Compiled map | Revision, reflog, blame and historical bytes in both profiles; all 21 entries are active in the sample. |
+| `keys.git_history` | Map of chord sequences to admitted Git navigation commands | Compiled map | History in both profiles; all 26 entries are active in the sample. |
 | `keys.git_commit` | Map of chord sequences to native composer commands | Compiled map | Inherits editor keys in both profiles; all 4 entries are active in the sample. |
-| `keys.git` | Map of chord sequences to admitted Git commands | Compiled map | One native Git interaction owner in both profiles; all 32 entries are active in the sample. |
+| `keys.git` | Map of chord sequences to admitted Git commands | Compiled map | One native Git interaction owner in both profiles; all 35 entries are active in the sample. |
 | `keys.bookmark_list` | Map of chord sequences to admitted bookmark-list commands | Compiled map | Read-only bookmark view; all 16 entries are active in the sample. Prompts retain their own input maps. |
 | `keys.tree` | Map of chord sequences to admitted tree commands | Compiled map | Tree focus; all 23 entries are active in the sample. |
 

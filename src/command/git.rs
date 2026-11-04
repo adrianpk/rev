@@ -4,6 +4,11 @@ pub enum GitCommand {
     Log,
     Show,
     LogNextPage,
+    ShowRange,
+    SequenceMark,
+    SequenceUnmark,
+    Reflog,
+    Blame,
     Commit,
     CommitAmend,
     CommitFixup,
@@ -29,6 +34,11 @@ pub enum GitCommand {
 impl GitCommand {
     pub fn name(self) -> &'static str {
         match self {
+            Self::ShowRange => "git-show-range",
+            Self::SequenceMark => "git-sequence-mark",
+            Self::SequenceUnmark => "git-sequence-unmark",
+            Self::Reflog => "git-reflog",
+            Self::Blame => "git-blame",
             Self::Log => "git-log",
             Self::Show => "git-show",
             Self::LogNextPage => "git-log-next-page",

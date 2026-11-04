@@ -695,8 +695,13 @@ Status reads disk and Git state; it does not save an unsaved source buffer.
 
 | Command | Behavior |
 | --- | --- |
+| `git-show-range` | Compare the marked full base and selected full endpoint in that order; keep the exact read-only range through refresh. |
+| `git-sequence-mark` | Append the selected History revision once to a bounded ordered set, retaining the independent range base. |
+| `git-sequence-unmark` | Remove the selected revision from the ordered set, retaining remaining order and the range base. |
+| `git-reflog` | Inspect bounded HEAD reflog entries; volatile selectors stay display metadata, while revision visits use full objects. |
+| `git-blame` | Attribute the selected current source at exact HEAD, retaining original full objects, paths and line locations. |
 | `git-log` | Open bounded ancestry from current branch HEAD; detached or bare repositories collect an explicit root, resolved once to a full commit. |
-| `git-show` | Inspect selected full revision metadata, parents, changed paths and its first-parent diff; invoke again in detail to choose another complete parent ID. |
+| `git-show` | Inspect the selected History/reflog/blame revision with full metadata and first-parent diff; in revision detail, compare a selected parent or collect another complete parent ID. |
 | `git-log-next-page` | Continue the pinned root's exact topological ancestry; expose completion and the configured retained-page limit. |
 | `git-commit-amend` | Prepare the exact observed HEAD and existing message; explicitly review before committing the checked index as its replacement. |
 | `git-commit-fixup` | Resolve one entered revision to a full immutable commit, compose its standard fixup subject/body and explicitly review the target; keep current history in place. |
@@ -706,7 +711,7 @@ Status reads disk and Git state; it does not save an unsaved source buffer.
 | `git-status` | Check installed Git and the actual repository, then open structured Status. |
 | `git-quit` | Return from the innermost Git menu or restore the retained editing context; started work continues. |
 | `git-refresh` | Replace Status only after a checked bounded observation succeeds; retain confirmed facts with a stale indication on failure. |
-| `git-toggle-section` | Toggle a Status group, path comparison or selected semantic hunk; one path and one hunk body expand at a time. |
+| `git-toggle-section` | Toggle a Status group, path comparison or hunk; in inspection, open the selected exact parent, revision or read-only historical file. |
 | `git-discard` | Confirm restoration of one tracked unstaged whole path from its index; reject unsaved canonical sources and verify unchanged index entries and actual checkout bytes/mode. |
 | `git-mark` | Mark the exact current path or supported hunk; retain its complete comparison independently of the cursor. |
 | `git-unmark` | Remove the exact selected path or hunk mark. |
@@ -714,7 +719,7 @@ Status reads disk and Git state; it does not save an unsaved source buffer.
 | `git-stage` | Stage the selected exact disk path, supported unstaged text hunk or complete compatible marked group after complete preflight; preserve source buffers and verify the index. |
 | `git-unstage` | Unstage the selected staged path, supported text hunk or complete compatible marked group against its captured HEAD baseline, including unborn HEAD. |
 | `git-diff` | Inspect the selected exact path/layer or hunk in read-only detail; q returns to Status. |
-| `git-visit-file` | Visit the selected canonical current source without replacing unsaved text; in Processes, inspect the selected operation. |
+| `git-visit-file` | Visit the selected canonical current source without replacing unsaved text, including from blame or historical detail; in Processes, inspect the selected operation. |
 | `git-dispatch` | Show the currently available native Git actions. |
 | `git-processes` | Inspect active operations followed by bounded recent records, including after leaving Git. |
 | `git-process-show` | Open the selected operation's phase, elapsed time, exit evidence and safely displayed retained diagnostics. |
@@ -735,10 +740,32 @@ root, admitted pages and compatible selection; a changed HEAD requires Status
 refresh and explicit History reentry. Missing objects and page limits are explicit.
 Revision detail includes full parent IDs, raw commit metadata, exact old/new
 changed paths and a bounded read-only patch. Invoke `git-show` in detail to
-compare another listed full parent ID. q returns to History, then Status. A/F in
+compare another listed full parent ID. Return on a parent compares it; Return
+on a changed path opens its immutable historical bytes. Deleted paths use
+the comparison's old object. q returns to History, then Status. A/F in
 History prepares amend of checked HEAD or fixup of the selected full revision;
 existing explicit commit review remains required. Inspection never checks out
 historical files or replaces current source text.
+
+In History, * records one range base and Return compares that full base with
+the selected endpoint in their explicit order. a appends an exact revision and
+U removes it from the independent ordered set. Base changes retain revision
+order; sequence changes retain the base. Duplicate and excess marks reject;
+at most 256 ordered revisions remain retained. `git-unmark` removes the selected
+base and `git-unmark-all` clears both History roles. Incompatible repository/root
+marks remain explicit until cleared or their pages are admitted again.
+
+l r opens Reflog; B b or B B in Status blames the selected exact path, with the
+visiting repository-backed source as the fallback. Blame uses checked HEAD,
+so unstaged or unsaved source text is not attributed as committed content.
+`keys.git_inspect` owns revision, reflog, blame and historical-file navigation:
+Return opens retained detail, v inspects the exact selected revision, and q
+returns to its originating list. Blame retains each original object, filename
+and line through renames; historical source visits read the exact blob without
+checkout or source publication. Historical bytes remain read-only and visibly
+bounded, including binary or truncated content. `git-visit-file` explicitly
+visits the current canonical source; existing modified buffers remain owned by
+the editor. A historical path with no current file reports that fact.
 
 The `keys.git` map owns q, g, s/u, Tab, Return, ? and list navigation in both profiles.
 M-x and colon use the shared command catalog. Unmerged, Untracked, Unstaged

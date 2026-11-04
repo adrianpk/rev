@@ -1,4 +1,6 @@
+mod inspection;
 use super::*;
+pub use inspection::{Attribution, Blame, Reflog, ReflogEntry, RevisionFile};
 use std::path::PathBuf;
 
 /// Full commit metadata in one finite ancestry page. Subject text is display
@@ -76,6 +78,7 @@ pub struct RevisionDetail {
     pub history: Arc<History>,
     pub object: ObjectId,
     pub parent: Option<ObjectId>,
+    pub range: bool,
     pub metadata: Vec<u8>,
     pub paths: Vec<RevisionPath>,
     pub patch: Vec<u8>,
@@ -85,6 +88,27 @@ pub struct RevisionDetail {
 }
 
 pub(super) enum Request {
+    Reflog(Arc<Observation>),
+    Blame {
+        observation: Arc<Observation>,
+        path: PathBuf,
+    },
+    ShowObject {
+        observation: Arc<Observation>,
+        object: ObjectId,
+    },
+    File {
+        observation: Arc<Observation>,
+        object: ObjectId,
+        path: PathBuf,
+        line: usize,
+        current_path: Option<PathBuf>,
+    },
+    Range {
+        history: Arc<History>,
+        base: ObjectId,
+        end: ObjectId,
+    },
     Log {
         observation: Arc<Observation>,
         root: Option<String>,
@@ -100,6 +124,33 @@ pub(super) enum Request {
 pub(super) enum ResultData {
     Log(History),
     Show(RevisionDetail),
+    Reflog(Reflog),
+    Blame(Blame),
+    File(RevisionFile),
+}
+
+impl Request {
+    pub(super) fn observation(&self) -> &Arc<Observation> {
+        match self {
+            Self::Log { observation, .. }
+            | Self::Reflog(observation)
+            | Self::Blame { observation, .. }
+            | Self::ShowObject { observation, .. }
+            | Self::File { observation, .. } => observation,
+            Self::Show { history, .. } | Self::Range { history, .. } => &history.observation,
+        }
+    }
+}
+impl ResultData {
+    pub(super) fn observation(&self) -> &Arc<Observation> {
+        match self {
+            Self::Log(h) => &h.observation,
+            Self::Show(d) => &d.history.observation,
+            Self::Reflog(r) => &r.observation,
+            Self::Blame(b) => &b.observation,
+            Self::File(f) => &f.observation,
+        }
+    }
 }
 
 impl Repositories {
@@ -176,6 +227,23 @@ impl Repositories {
                 object,
                 parent,
             }),
+        )
+    }
+    pub fn show_range(
+        &mut self,
+        history: Arc<History>,
+        base: ObjectId,
+        end: ObjectId,
+    ) -> Result<OperationId, String> {
+        self.check_history(&history)?;
+        if history.revision(base).is_none() || history.revision(end).is_none() {
+            return Err("Range requires two exact admitted endpoints in base/end order".into());
+        }
+        let directory = self.history_directory(&history.observation)?;
+        self.start(
+            directory,
+            Some(history.observation.context),
+            work::Request::History(Request::Range { history, base, end }),
         )
     }
     fn check_history(&self, history: &Arc<History>) -> Result<(), String> {

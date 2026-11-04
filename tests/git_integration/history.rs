@@ -1,3 +1,5 @@
+#[path = "history_inspection.rs"]
+mod inspection;
 #[path = "history_presentation.rs"]
 mod presentation;
 

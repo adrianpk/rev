@@ -8,7 +8,10 @@ pub use commit::{CommitMode, Composition};
 mod discard;
 mod history;
 mod index;
-pub use history::{History, HistoryPage, Revision, RevisionDetail, RevisionPath};
+pub use history::{
+    Attribution, Blame, History, HistoryPage, Reflog, ReflogEntry, Revision, RevisionDetail,
+    RevisionFile, RevisionPath,
+};
 pub use index::{IndexDirection, IndexTarget};
 mod status;
 pub use diff::{Baseline, Diff, DiffKind, DiffLine, Hunk, HunkId, LineRange};
@@ -199,6 +202,9 @@ pub struct Context {
     pub detail: Option<Arc<Diff>>,
     pub detail_failure: Option<OperationId>,
     pub history: Option<Arc<History>>,
+    pub reflog: Option<Arc<Reflog>>,
+    pub blame: Option<Arc<Blame>>,
+    pub revision_file: Option<Arc<RevisionFile>>,
     pub revision: Option<Arc<RevisionDetail>>,
     draft: Option<commit::Draft>,
     composition: Option<Arc<Composition>>,
@@ -602,6 +608,9 @@ impl Repositories {
                             detail: None,
                             detail_failure: None,
                             history: None,
+                            reflog: None,
+                            blame: None,
+                            revision_file: None,
                             revision: None,
                             draft: None,
                             composition: None,
@@ -638,10 +647,7 @@ impl Repositories {
                     progress.context
                 }
                 Ok(work::Publication::History(result)) => {
-                    let observation = match &result {
-                        history::ResultData::Log(h) => &h.observation,
-                        history::ResultData::Show(d) => &d.history.observation,
-                    };
+                    let observation = result.observation();
                     if let Some(context) = self
                         .contexts
                         .iter_mut()
@@ -650,6 +656,11 @@ impl Repositories {
                         && context.failure.is_none()
                     {
                         match result {
+                            history::ResultData::Reflog(r) => context.reflog = Some(Arc::new(r)),
+                            history::ResultData::Blame(b) => context.blame = Some(Arc::new(b)),
+                            history::ResultData::File(f) => {
+                                context.revision_file = Some(Arc::new(f))
+                            }
                             history::ResultData::Log(h) => {
                                 context.history = Some(Arc::new(h));
                             }

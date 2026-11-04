@@ -1,3 +1,4 @@
+mod inspection;
 use super::*;
 use crate::git::history::{self, Request, ResultData};
 
@@ -7,10 +8,7 @@ impl Runner {
         request: Request,
         admission: &mut Lease,
     ) -> Result<ResultData, String> {
-        let observation = match &request {
-            Request::Log { observation, .. } => observation,
-            Request::Show { history, .. } => &history.observation,
-        };
+        let observation = request.observation();
         let (identity, status) = self.observe(admission)?;
         if identity != observation.identity
             || status.as_ref().map(|s| &s.head) != observation.status.as_ref().map(|s| &s.head)
@@ -21,7 +19,8 @@ impl Runner {
         }
         let prior = match &request {
             Request::Log { prior, .. } => prior.clone(),
-            Request::Show { history, .. } => Some(history.clone()),
+            Request::Show { history, .. } | Request::Range { history, .. } => Some(history.clone()),
+            _ => None,
         };
         if let Some(history) = &prior {
             self.verify_ancestry(history)?;
@@ -32,12 +31,48 @@ impl Runner {
                 root,
                 prior,
                 next,
-            } => self.ancestry(observation, root, prior, next, admission),
+            } => self.ancestry(
+                observation,
+                root,
+                prior,
+                next,
+                self.policy.history_page_size,
+                admission,
+            ),
             Request::Show {
                 history,
                 object,
                 parent,
-            } => self.revision(history, object, parent, admission),
+            } => self.revision(history, object, parent, false, admission),
+            Request::Range { history, base, end } => {
+                self.revision(history, end, Some(base), true, admission)
+            }
+            Request::Reflog(observation) => self.read_reflog(observation, admission),
+            Request::Blame { observation, path } => self.read_blame(observation, path, admission),
+            Request::File {
+                observation,
+                object,
+                path,
+                line,
+                current_path,
+            } => self.read_revision_file(observation, object, path, line, current_path, admission),
+            Request::ShowObject {
+                observation,
+                object,
+            } => {
+                let ResultData::Log(history) =
+                    self.ancestry(observation, Some(object.hex()), None, false, 1, admission)?
+                else {
+                    unreachable!("ancestry result")
+                };
+                let parent = history
+                    .revision(object)
+                    .ok_or("Exact inspection object is unavailable")?
+                    .parents
+                    .first()
+                    .copied();
+                self.revision(Arc::new(history), object, parent, false, admission)
+            }
         }?;
         if let Some(history) = &prior {
             self.verify_ancestry(history)?;
@@ -85,6 +120,7 @@ impl Runner {
         root: Option<String>,
         prior: Option<Arc<History>>,
         next: bool,
+        page_size: usize,
         admission: &mut Lease,
     ) -> Result<ResultData, String> {
         let root = if let Some(prior) = &prior {
@@ -157,7 +193,7 @@ impl Runner {
                     "--no-show-signature",
                     "--format=%H%x00%P%x00%an%x00%ae%x00%aI%x00%cn%x00%ce%x00%cI%x00%s",
                     "-z",
-                    &format!("--max-count={}", self.policy.history_page_size + 1),
+                    &format!("--max-count={}", page_size + 1),
                     &format!("--skip={skip}"),
                     &root.hex(),
                     "--",
@@ -218,7 +254,7 @@ impl Runner {
         if records != revisions.len() {
             return Err("Malformed terminated Git history records".into());
         }
-        let more = revisions.len() > self.policy.history_page_size;
+        let more = revisions.len() > page_size;
         if more {
             revisions.pop();
         }
@@ -245,6 +281,7 @@ impl Runner {
         history: Arc<History>,
         object: ObjectId,
         parent: Option<ObjectId>,
+        range: bool,
         admission: &mut Lease,
     ) -> Result<ResultData, String> {
         let metadata = self.command(
@@ -386,6 +423,7 @@ impl Runner {
             history,
             object,
             parent,
+            range,
             metadata,
             paths,
             patch,

@@ -1,3 +1,5 @@
+mod inspection;
+mod marks;
 use super::*;
 use crate::git::{History, ObjectId, RevisionDetail};
 
@@ -8,6 +10,33 @@ pub(super) struct Inspection {
     pub top: usize,
     pub detail_top: usize,
     pub failed: bool,
+    pub base: Option<ObjectId>,
+    pub ordered: Vec<ObjectId>,
+    pub mark_scope: Option<(ContextId, Option<ObjectId>)>,
+    _admission: Option<crate::git::budget::Lease>,
+    pub detail_selected: Option<inspection::DetailTarget>,
+    pub detail_cursor: usize,
+    pub revision_origin: Page,
+    pub file_origin: Page,
+    pub reflog_selected: Option<(ObjectId, Vec<u8>)>,
+    pub reflog_top: usize,
+    pub blame_selected: Option<usize>,
+    pub blame_top: usize,
+    pub file_top: usize,
+}
+
+impl Inspection {
+    pub(super) fn new(engine: &Repositories) -> std::io::Result<Self> {
+        Ok(Self {
+            _admission: Some(
+                engine
+                    .source_admission(65536)
+                    .map_err(std::io::Error::other)?,
+            ),
+            ordered: Vec::with_capacity(256),
+            ..Self::default()
+        })
+    }
 }
 
 impl Work {
@@ -53,7 +82,9 @@ impl Work {
                 }
             ),
             2 => format!(
-                "{}{}",
+                "Base: {} / {} ordered / {}{}",
+                self.ancestry.base.map_or("none".into(), |id| id.hex()),
+                self.ancestry.ordered.len(),
                 if self.ancestry.request.is_some() {
                     "Checking history  "
                 } else {
@@ -66,74 +97,6 @@ impl Work {
                 }
             ),
             _ => String::new(),
-        }
-    }
-    pub(super) fn revision_row(&self, row: usize) -> String {
-        let Some(detail) = self.revision() else {
-            return if row == 0 {
-                "Git Revision: checking exact objects".into()
-            } else {
-                String::new()
-            };
-        };
-        match row {
-            0 => format!("Git Revision: {}", detail.object.hex()),
-            1 => format!(
-                "Parent comparison: {}",
-                detail.parent.map_or("empty tree".into(), |p| p.hex())
-            ),
-            2 => format!(
-                "Read-only / {:?}{}; git-show selects an exact parent",
-                detail.completeness,
-                if self.ancestry.request.is_some() {
-                    " / checking exact objects; prior confirmed detail retained"
-                } else if self.ancestry.failed {
-                    " / inspection failed; confirmed facts retained"
-                } else if self
-                    .history()
-                    .is_none_or(|h| !Arc::ptr_eq(h, &detail.history))
-                {
-                    " / STALE history owner; select the revision again"
-                } else {
-                    ""
-                }
-            ),
-            _ => {
-                let index = self.ancestry.detail_top + row - 3;
-                let metadata = detail
-                    .metadata
-                    .split_inclusive(|b| *b == b'\n')
-                    .flat_map(|l| l.chunks(2048));
-                let parents = detail
-                    .history
-                    .revision(detail.object)
-                    .into_iter()
-                    .flat_map(|r| &r.parents)
-                    .map(|p| format!("Parent: {}", p.hex()));
-                let paths = detail.paths.iter().map(|p| {
-                    format!(
-                        "Path {} {}{}",
-                        label(&p.status),
-                        label(p.path.as_os_str().as_encoded_bytes()),
-                        p.old_path.as_ref().map_or(String::new(), |old| format!(
-                            " <- {}",
-                            label(old.as_os_str().as_encoded_bytes())
-                        ))
-                    )
-                });
-                metadata
-                    .map(label)
-                    .chain(parents)
-                    .chain(paths)
-                    .chain(
-                        detail
-                            .lines
-                            .iter()
-                            .map(|line| label(&detail.patch[line.clone()])),
-                    )
-                    .nth(index)
-                    .unwrap_or_default()
-            }
         }
     }
 }
@@ -177,7 +140,11 @@ impl Session {
             .log(context, (!root.is_empty()).then_some(root));
         self.start_git_history(result, Page::History)
     }
-    fn start_git_history(&mut self, result: Result<OperationId, String>, page: Page) -> Action {
+    pub(super) fn start_git_history(
+        &mut self,
+        result: Result<OperationId, String>,
+        page: Page,
+    ) -> Action {
         match result {
             Ok(operation) => {
                 self.git.ancestry.request = Some((operation, page));
@@ -199,29 +166,22 @@ impl Session {
             let Some(detail) = self.git.revision().cloned() else {
                 return Action::Wait;
             };
-            let result = self
-                .git
-                .engine
-                .show_revision(history, detail.object, detail.parent);
+            let result = self.git.engine.refresh_revision(detail);
             return self.start_git_history(result, Page::Revision);
         }
         let result = self.git.engine.continue_history(history, next);
         self.start_git_history(result, Page::History)
     }
     pub(super) fn show_git_revision(&mut self) -> Action {
-        if self.git.page == Page::Revision && self.git.visible {
-            let Some(detail) = self.git.revision() else {
-                return Action::Wait;
-            };
-            if let Err(e) = self.input.argument(
-                "Full parent object ID: ",
-                &detail.parent.map_or(String::new(), |p| p.hex()),
-            ) {
-                return self.error(&e.to_string());
-            }
-            self.pending = Some(super::super::Pending::GitHistoryParent(detail.clone()));
-            return self.message("Choose one exact parent from the revision metadata");
+        if self.git.visible
+            && matches!(
+                self.git.page,
+                Page::Reflog | Page::Blame | Page::Revision | Page::RevisionFile
+            )
+        {
+            return self.show_git_inspection();
         }
+
         let Some(history) = self
             .git
             .history()
@@ -238,6 +198,7 @@ impl Session {
         };
         let parent = revision.parents.first().copied();
         let result = self.git.engine.show_revision(history, object, parent);
+        self.git.ancestry.revision_origin = Page::History;
         self.git.ancestry.detail_top = 0;
         self.start_git_history(result, Page::Revision)
     }
@@ -250,10 +211,7 @@ impl Session {
             Ok(p) => p,
             Err(e) => return self.error(&e),
         };
-        let result =
-            self.git
-                .engine
-                .show_revision(detail.history.clone(), detail.object, Some(parent));
+        let result = self.git.engine.compare_parent(detail, parent);
         self.git.ancestry.detail_top = 0;
         self.start_git_history(result, Page::Revision)
     }
@@ -266,7 +224,7 @@ impl Session {
         {
             return;
         }
-        self.git.ancestry.request = None;
+        let requested = self.git.ancestry.request.take().map(|(_, page)| page);
         self.git.ancestry.failed = !update.published;
         if update.published {
             let selected = self.git.ancestry.selected;
@@ -276,6 +234,9 @@ impl Session {
                     .or_else(|| h.revisions().next().map(|r| r.object))
             });
         }
+        if update.published {
+            self.reconcile_git_inspection(requested);
+        }
         self.message(if update.published {
             "Git history inspected; source, index and HEAD unchanged"
         } else {
@@ -283,26 +244,11 @@ impl Session {
         });
     }
     pub(super) fn move_git_history(&mut self, distance: usize, backward: bool) -> Action {
-        if self.git.page == Page::Revision {
-            let count = self.git.revision().map_or(0, |d| {
-                d.metadata
-                    .split_inclusive(|b| *b == b'\n')
-                    .map(|l| l.len().div_ceil(2048))
-                    .sum::<usize>()
-                    + d.lines.len()
-                    + d.paths.len()
-                    + d.history.revision(d.object).map_or(0, |r| r.parents.len())
-            });
-            self.git.ancestry.detail_top = if backward {
-                self.git.ancestry.detail_top.saturating_sub(distance)
-            } else {
-                self.git
-                    .ancestry
-                    .detail_top
-                    .saturating_add(distance)
-                    .min(count.saturating_sub(self.git_extent()))
-            };
-            return Action::Redraw;
+        if matches!(
+            self.git.page,
+            Page::Revision | Page::Reflog | Page::Blame | Page::RevisionFile
+        ) {
+            return self.move_git_inspection(distance, backward);
         }
         let Some(history) = self.git.history() else {
             return Action::Wait;
@@ -329,6 +275,9 @@ impl Session {
         Action::Redraw
     }
     pub(super) fn select_git_history(&mut self, row: usize) -> Action {
+        if self.git.page != Page::History {
+            return self.select_git_inspection(row);
+        }
         if self.git.page == Page::History {
             self.git.ancestry.selected = self.git.history().and_then(|h| {
                 h.revisions()

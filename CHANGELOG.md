@@ -24,8 +24,12 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
   keeping Git hooks, identity and signing policy. Explicitly review amend and
   fixup targets before Git runs; fixup leaves autosquash to a separate action.
   Browse finite history pages, full revision metadata, historical renames and
-  exact parent diffs with h and Tab; f continues the pinned ancestry. Inspect
-  without checking out files or changing source text, the index or HEAD.
+  exact parent diffs with h and Tab; f continues the pinned ancestry. Compare
+  a marked range with * and Return, retaining independent ordered revision
+  marks with a/U. Inspect reflog entries with l r and attribute source lines
+  through renames with B b or B B. Read exact historical file bytes or visit
+  the current source without replacing unsaved text. Inspect without checking
+  out files or changing source text, the index or HEAD.
   Return to the same windows
   and terminals. Inspect active and
   recent Git processes, cancel a selected operation, and confirm before quitting
