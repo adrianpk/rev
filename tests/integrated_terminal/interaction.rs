@@ -146,3 +146,150 @@ fn key_cases(application: bool) -> Vec<(Event, &'static str)> {
     cases.push((Event::Key(keypad), if application { "\x1bOr" } else { "2" }));
     cases
 }
+
+// This controlled full-screen child speaks real VT through the PTY. It covers
+// native cell/style projection and focus/resize transitions without borrowing
+// an installed tool, its startup files, or its mutable repository state.
+#[test]
+fn full_screen() {
+    if isolated("panel::interaction::full_screen", true) {
+        return;
+    }
+    for profile in ["non-modal", "modal"] {
+        full_screen_case(profile);
+    }
+}
+
+fn full_screen_case(profile: &str) {
+    let script = r#"stty raw -echo
+printf '\033[2J\033[HMAIN_READY'
+dd bs=1 count=1 of=/dev/null 2>/dev/null
+printf '\033[?1049h\033[2J\033[H\033]4;1;rgb:12/34/56\007\033[31;1;3;4mTOOL_READY\033[0m\033]52;c;Zm9yYmlkZGVu\007\033]0;FORBIDDEN_TITLE\007\033Punsupported;FORBIDDEN_EFFECT\033\\'
+n=1
+while [ $n -le 6 ]; do
+ printf '\033[3;6H\033[%s q' "$n"
+ dd bs=1 count=1 of=/dev/null 2>/dev/null
+ n=$((n+1))
+done
+printf '\033[?25lHIDDEN'
+dd bs=1 count=1 of=/dev/null 2>/dev/null
+while [ ! -f wake ]; do sleep 0.01; done
+printf '\033[?25h\033[4;1HBACKGROUND'
+dd bs=1 count=1 of=/dev/null 2>/dev/null
+stty size >size.txt
+printf '\033[5;1HRESIZED'
+dd bs=1 count=1 of=/dev/null 2>/dev/null
+printf '\033[?1049l\033[HMAIN_RETURN'
+while :; do sleep 60; done
+"#;
+    let mut editor = Editor::with_script(profile, 24, "", script);
+    let source = editor.session.buffer().unwrap().stamp();
+    editor
+        .session
+        .execute(Command::Terminal(TerminalCommand::Open));
+    editor.wait(|s| text(s).contains("MAIN_READY"));
+    let id = editor
+        .session
+        .terminal_buffer()
+        .unwrap()
+        .terminal()
+        .unwrap();
+    let pid = editor.session.terminals().get(id).unwrap().process_id();
+    editor
+        .session
+        .handle(key(KeyCode::Char('a'), KeyModifiers::NONE));
+    editor.wait(|s| text(s).contains("TOOL_READY"));
+    use crossterm::cursor::SetCursorStyle::*;
+    for (index, style) in [
+        BlinkingBlock,
+        SteadyBlock,
+        BlinkingUnderScore,
+        SteadyUnderScore,
+        BlinkingBar,
+        SteadyBar,
+    ]
+    .into_iter()
+    .enumerate()
+    {
+        editor.wait(|s| {
+            s.screen().cursor_style().shape
+                == [
+                    alacritty_terminal::vte::ansi::CursorShape::Block,
+                    alacritty_terminal::vte::ansi::CursorShape::Underline,
+                    alacritty_terminal::vte::ansi::CursorShape::Beam,
+                ][index / 2]
+                && s.screen().cursor_style().blinking == (index % 2 == 0)
+        });
+        let frame = editor.session.frame().unwrap();
+        assert_eq!(frame.cursor_style(), Some(style));
+        let cursor = frame.cursor().unwrap();
+        assert_eq!(cursor.column, 5);
+        assert_eq!(cursor.row, 14);
+        let mut bytes = Vec::new();
+        frame.write(&mut bytes).unwrap();
+        let native = String::from_utf8(bytes).unwrap();
+        assert!(native.contains("\x1b[38;2;18;52;86m"));
+        for attribute in ["\x1b[1m", "\x1b[3m", "\x1b[4m"] {
+            assert!(native.contains(attribute), "{attribute:?}");
+        }
+        for effect in [
+            "FORBIDDEN_TITLE",
+            "FORBIDDEN_EFFECT",
+            "\x1b]52;",
+            "\x1bPunsupported",
+        ] {
+            assert!(!native.contains(effect), "{effect}");
+        }
+        assert!(
+            frame
+                .rows()
+                .iter()
+                .any(|r| r.text().contains("source stays native"))
+        );
+        editor
+            .session
+            .handle(key(KeyCode::Char('n'), KeyModifiers::NONE));
+    }
+    editor.wait(|s| text(s).contains("HIDDEN"));
+    assert_eq!(editor.session.frame().unwrap().cursor(), None);
+    editor
+        .session
+        .handle(key(KeyCode::Char('b'), KeyModifiers::NONE));
+    editor
+        .session
+        .handle(key(KeyCode::Char('g'), KeyModifiers::CONTROL));
+    std::fs::write(editor.fixture.0.join("source/wake"), "ready").unwrap();
+    editor.wait(|s| text(s).contains("BACKGROUND"));
+    assert!(!editor.session.terminal_focused());
+    assert_eq!(editor.session.buffer().unwrap().stamp(), source);
+    editor
+        .session
+        .execute(Command::Terminal(TerminalCommand::Open));
+    editor.session.handle(Event::Resize(100, 30));
+    editor
+        .session
+        .handle(key(KeyCode::Char('r'), KeyModifiers::NONE));
+    editor.wait(|s| text(s).contains("RESIZED"));
+    assert_eq!(
+        std::fs::read_to_string(editor.fixture.0.join("source/size.txt"))
+            .unwrap()
+            .trim(),
+        "10 100"
+    );
+    editor
+        .session
+        .handle(key(KeyCode::Char('q'), KeyModifiers::NONE));
+    editor.wait(|s| text(s).contains("MAIN_RETURN"));
+    let child = editor.session.terminals().get(id).unwrap();
+    assert!(
+        !child
+            .screen()
+            .mode()
+            .contains(alacritty_terminal::term::TermMode::ALT_SCREEN)
+    );
+    assert_eq!(child.process_id(), pid);
+    assert!(editor.session.killed_text().is_none());
+    assert_eq!(editor.session.terminals().ids().count(), 1);
+    assert!(editor.session.terminal_focused());
+    assert_eq!(editor.session.buffer().unwrap().stamp(), source);
+}

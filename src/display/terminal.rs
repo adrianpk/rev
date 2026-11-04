@@ -54,6 +54,8 @@ impl Frame {
                     let mut cell = grid
                         [Point::new(Line(i32::from(row) - offset), Column(usize::from(column)))]
                     .clone();
+                    cell.fg = resolved(cell.fg, session.screen().colors());
+                    cell.bg = resolved(cell.bg, session.screen().colors());
                     if cell.flags.contains(Flags::WIDE_CHAR) && column + 1 == area.width() {
                         cell.c = ' ';
                         cell.extra = None;
@@ -126,6 +128,15 @@ impl Frame {
         )
         .expect("admitted terminal projection");
     }
+}
+
+fn resolved(color: Color, colors: &alacritty_terminal::term::color::Colors) -> Color {
+    let index = match color {
+        Color::Indexed(index) => usize::from(index),
+        Color::Named(name) => name as usize,
+        Color::Spec(_) => return color,
+    };
+    colors[index].map(Color::Spec).unwrap_or(color)
 }
 
 fn cursor_style(

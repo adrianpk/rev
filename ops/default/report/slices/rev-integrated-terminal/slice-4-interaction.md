@@ -27,6 +27,12 @@ Child cursor shape and blink state travel as native frame metadata. Host
 prompts and source editing retain their own presentation; terminal restoration
 continues through the existing hosting-terminal owner.
 
+The native renderer resolves child palette changes into cell RGB values. A
+controlled full-screen child exercises alternate-screen entry/return, six
+cursor shapes, hidden cursor, styles, resize and output while source focus
+remains selected. Unsupported effects and clipboard controls never reach the
+host output.
+
 ## Implementation Notes
 
 The keyboard adapter emits bounded complete sequences to the existing atomic
@@ -58,12 +64,15 @@ Attempt `FLGGPRJOJ4AK2ERS2PCMBNIPFB` passed the raw-PTY cases after that
 correction, then found two command-dispatch complexity violations. Input and
 placement dispatch now delegate directory entry to its existing small owner.
 
-Pending focused clean-head controller validation and the ordered Slice 4
+Focused receipt `NZ6I2BQ7YVM7IJBMWFHBBJYCIE` passed exact input, six source
+files and whitespace on `580bd8538d2a7b566d37d07e54803f0d7f266d59`.
+
+Pending full-screen focused validation and the ordered Slice 4
 commands. The raw-PTY fixture covers both startup profiles and ordinary versus
 application modes, protected-key forwarding and host transient cancellation.
 
 ## Risks and Follow-ups
 
-T4.2 rendering/tool validation and T4.3 pointer/link admission remain active
+T4.3 pointer/link admission remains active
 within this slice. Stable retained copy projections and paste transfer remain
 in their recorded subsequent slice.
