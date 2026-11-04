@@ -86,14 +86,14 @@ Branch: `feat/rev-git-integration-04-commits`
 Expected PR title: `feat(git): compose commits amend and fixup`
 Report: `ops/default/report/slices/rev-git-integration/slice-4-commits.md`
 Requirements: GIT06, GIT16-GIT19
-PR: pending
+PR: `#261`
 
 - [x] T4.1: Enter normal composition directly with c and provide ordinary native text editing, explicit submission, cancellation and session-only retained drafts.
 - [x] T4.2: Compose normal, reviewed amend and exact-target fixup requests; preserve checked index/HEAD, identity, hooks, signing policy and actual messages without hidden staging or saving.
 - [x] T4.3: Verify C-Enter/C-c C-c submission, C-g/C-c C-k cancellation, literal c, failed hooks, retained drafts, post-effect uncertainty and protected source/terminal state.
 
 Validation: Development checks passed ten commit tests, four native acceptance tests, five effect/authority tests, strict Clippy and reference checks. Exact-HEAD ordered results are recorded by the controller after the PR-reference follow-up.
-Integration: pending; task commits are on the dedicated slice branch. The canonical PR reference remains pending.
+Integration: [PR #261](https://forge.adrianpk.com/adrianpk/rev/pulls/261) is open against dev on the approved branch. Controller-owned integration is pending.
 
 ## Slice 5: History ranges reflog and blame
 

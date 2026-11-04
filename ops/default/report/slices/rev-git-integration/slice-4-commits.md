@@ -5,7 +5,7 @@ Delivery set: rev-git-integration
 Plan: `ops/default/plan/rev-git-integration.md`
 Tracker: `ops/default/tracker/rev-git-integration.md`
 Branch: `feat/rev-git-integration-04-commits`
-PR: pending
+PR: `#261`
 
 ## Purpose
 
@@ -149,8 +149,21 @@ Development checks, before final exact-HEAD controller validation:
   demonstrated verbatim preservation. Verification and assertions were
   corrected to require exact accepted bytes; the focused suite then passed.
 
-The canonical PR Validation list and controller receipt provide the final
-ordered results for its clean HEAD after the PR-reference follow-up commit.
+Final ordered contract, executed through the controller after this reference
+follow-up commit:
+
+- `cargo fmt --all -- --check`
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo clippy --locked --lib --bin rev --test git_integration -- -D warnings`
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test git_integration commits:: -- --test-threads=1`
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test git_integration -- --skip commits:: --test-threads=1`
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test editing --test rectangles -- --test-threads=1`
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test commands reference -- --test-threads=1`
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test configuration reference -- --test-threads=1`
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo run --locked --quiet --example documentation-check`
+- `git diff --check`
+
+The [canonical PR #261](https://forge.adrianpk.com/adrianpk/rev/pulls/261)
+Validation list and controller receipt provide the exact clean-HEAD results.
 
 ## Risks and Follow-ups
 
