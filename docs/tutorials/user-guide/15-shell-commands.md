@@ -90,10 +90,10 @@ valid output remains inspectable but cannot automatically change that source.
 Nonzero exit, invalid output, timeout and cancellation also leave source intact.
 Inspect `*Shell Diagnostics*` with `C-x b` for status, stderr or rejection details.
 
-Continue with [Use an Integrated Terminal](16-integrated-terminal.md) for a
+Next: [Use an Integrated Terminal](16-integrated-terminal.md) for a
 persistent shell or a full-screen tool. These finite text filters do not provide
-interactive stdin or terminal emulation. The
+interactive stdin or terminal emulation. See the
 [shell task guide](../../how-to/run-shell-command.md) or the
 [exact shell reference](../../reference/shell-commands.md).
 
-[Previous](14-ai-editing.md) · [User Guide](index.md) · [Next](16-integrated-terminal.md)
+[Previous](14-ai-editing.md) · [User Guide](index.md)
