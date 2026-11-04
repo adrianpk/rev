@@ -45,7 +45,7 @@ PR: pending
 - [x] T1.3: Expose native active/recent process inspection and checked cancellation; preserve owned work after q, integrate guarded application exit, and verify real repositories, missing Git, malformed output, stale publication and bounded cleanup.
 
 Validation: T1.1-T1.3 development checks pass: formatter, strict focused Clippy and 21 native Git tests. Shared development evidence includes 10 process tests, 10 command-reference tests, 11 configuration-reference tests, 41 window tests and 19 panel tests. The controller records final clean-HEAD validation after PR-reference follow-up.
-Integration: pending; T1.1-T1.3 are implemented on the slice branch. Canonical PR preparation is in progress; no merge is claimed.
+Integration: [PR #258](https://forge.adrianpk.com/adrianpk/rev/pulls/258) targets dev with the approved title and branch. T1.1-T1.3 are committed; merge remains pending under controller ownership.
 
 ## Slice 2: Changes hunks and source visits
 
