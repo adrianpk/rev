@@ -7,18 +7,24 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 
 ## Unreleased
 
+## 0.5.0 - 2026-11-04
+
 ### Added
 
-- [Use an integrated terminal](docs/tutorials/user-guide/16-integrated-terminal.md)
-  for interactive shells and tools such as lazygit. Open in the lower panel or
-  an editing pane, move the same running session between them, and keep several
-  sessions available through ordinary buffer selection. Return to source with
-  C-g, inspect/copy retained output with C-c C-t, and paste with C-y. Child key
-  and mouse modes, local selection and explicit links follow the
-  [terminal reference](docs/reference/integrated-terminal.md). Configure startup
-  shell, panel and resource preferences under `[terminal]`. Shell exit closes
-  its terminal buffer and restores source editing; closing live sessions and
-  quitting ask before owned shutdown, with pending or failed cleanup kept visible.
+- [Run shell commands and text filters](docs/tutorials/user-guide/15-shell-commands.md)
+  from M-x or modal colon. Send selected text to tools such as sort or tr,
+  inspect their output, or apply it in one undo step. Non-modal editing also
+  provides M-!, M-\| and their C-u insert/filter forms. Keep editing while a
+  command runs; cancellation, failures and stale results preserve source text.
+
+- [Use integrated terminals](docs/tutorials/user-guide/16-integrated-terminal.md)
+  for interactive shells and tools such as lazygit. Open them in the lower panel
+  or an editing pane, move a running session between both, and keep several
+  sessions available. C-g returns to source; C-c C-t opens output copy mode and
+  C-y pastes. Shell exit closes its terminal buffer. Closing live sessions or
+  quitting asks before terminating their jobs. See the
+  [terminal reference](docs/reference/integrated-terminal.md) for startup settings,
+  keyboard and mouse behavior, and retained-output navigation.
 
 ### Changed
 
@@ -26,13 +32,10 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
   lower panel and editing panes. Use arrows and Enter to select, or Tab to
   complete a name; selecting a terminal preserves its session and placement.
 
-- [Run shell commands and text filters](docs/tutorials/user-guide/15-shell-commands.md)
-  from M-x or colon, send selected unsaved text to tools such as sort/tr, and
-  replace a region or insert complete stdout in one undo step. Keep editing while
-  a command runs, cancel it from its source and inspect retained read-only output
-  or diagnostics. Use M-!, M-\| and their C-u insert/filter sequences in non-modal
-  editing, with M-p/M-n prompt history. Automatic edits require an unchanged
-  writable target; failures and stale results preserve source.
+### Fixed
+
+- Keyboard input remains responsive when a terminal resize and queued keys
+  arrive together.
 
 ## 0.4.0 - 2026-11-03
 

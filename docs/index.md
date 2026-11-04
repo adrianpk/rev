@@ -1,6 +1,6 @@
 # Documentation
 
-These pages cover rev 0.4.0 and current Unreleased changes.
+These pages cover rev 0.5.0.
 
 Start with the [User Guide](tutorials/user-guide/index.md) to open, edit and save
 your first file, then learn buffers, search, bookmarks, file browsing, preferences
