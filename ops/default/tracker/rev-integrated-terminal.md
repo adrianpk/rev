@@ -198,7 +198,7 @@ Status: active
 Branch: `feat/rev-integrated-terminal-08-guidance`
 Expected PR title: `docs(terminal): explain integrated terminal workflows`
 Report: `ops/default/report/slices/rev-integrated-terminal/slice-8-guidance.md`
-PR: pending
+PR: [#255](https://forge.adrianpk.com/adrianpk/rev/pulls/255)
 
 - [x] T8.1: Add a short ordinary terminal chapter to the editor learning path, a task guide and exact command/configuration/input/lifecycle reference; explain panel versus buffer, moving a live lazygit session, multiple terminals and returning to the editor with small visual examples.
 - [x] T8.2: Keep Markdown the source of truth for Spore, update indexes/catalog checks and both learning-path navigation, document shell-command/filter distinction and finalize user-facing Unreleased notes without a version bump.
@@ -214,7 +214,7 @@ Validation: focused receipt `Y2WNEWSV2PFZYVWAYCQOPNJ7A7` passed documentation,
 Spore strict links/render and whitespace at `10dbde18199a`. The unchanged path
 check caught a Next: format mismatch, corrected in that candidate. The controller
 records the final exact-PR-HEAD configured receipt separately.
-Integration: pending canonical PR and controller verification.
+Integration: canonical PR #255 targets dev; controller integration pending.
 
 ## Final gate and closure
 
