@@ -164,7 +164,7 @@ impl Terminal {
 
     // Establish a measurement epoch after queued command redraws. Every byte
     // still consumes the same stream cap; a busy renderer cannot pass either
-    // this bounded barrier or the subsequent 350-ms silence assertion.
+    // this bounded 350-ms quiet barrier or the subsequent 350-ms silence assertion.
     fn settle_output(&mut self) -> Result<()> {
         let deadline = self.deadline.min(Instant::now() + Duration::from_secs(2));
         loop {
@@ -176,7 +176,7 @@ impl Terminal {
                 .received
                 .as_ref()
                 .ok_or("closed PTY reader")?
-                .recv_timeout(remaining.min(Duration::from_millis(10)))
+                .recv_timeout(remaining.min(Duration::from_millis(350)))
             {
                 Ok(chunk) => self.append(chunk)?,
                 Err(RecvTimeoutError::Timeout) => return Ok(()),

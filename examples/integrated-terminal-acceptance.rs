@@ -11,6 +11,8 @@ mod failure;
 mod metrics;
 #[path = "integrated_terminal_acceptance/pty.rs"]
 mod pty;
+#[path = "integrated_terminal_acceptance/resources.rs"]
+mod resources;
 #[path = "completion_acceptance/terminal.rs"]
 mod terminal;
 use std::path::PathBuf;
@@ -21,6 +23,10 @@ fn main() -> Result<()> {
     let root = PathBuf::from(args.get(1).ok_or("missing owned fixture root")?);
     match args.first().and_then(|arg| arg.to_str()) {
         Some("--native") => native::run(&root),
+        Some("--resources") => resources::run(
+            &root,
+            &PathBuf::from(args.get(2).ok_or("missing editor binary")?),
+        ),
         Some("--host-error") => failure::host(&root),
         Some("--pty") => pty::run(
             &root,
