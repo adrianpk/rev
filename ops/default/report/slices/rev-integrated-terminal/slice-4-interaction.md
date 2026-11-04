@@ -1,6 +1,6 @@
 # Slice 4: Live Terminal Interaction
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-integrated-terminal
 Plan: [Integrated Terminal Delivery](../../../plan/rev-integrated-terminal.md)
 Tracker: [Integrated Terminal Tracker](../../../tracker/rev-integrated-terminal.md)
@@ -109,8 +109,10 @@ T4.3 receipt `2MF3LO7YJWYNHK5YRRN7T5RZK7` passed on
 scenarios, six host mouse restoration cases, five existing configured-viewer
 regressions, seven source files and whitespace. These focused checks are distinct
 from the final six ordered Slice 4 commands and the controller-owned set gate.
-Final exact-head evidence follows the PR-reference commit; its receipt remains
-in the controller and Acta so reporting does not mutate the validated candidate.
+Final controller receipt `YORJCCZZS3WYURZ75HWQNZSX6D` passed all six ordered
+Slice 4 commands on `ef59e61d3a152d52faf23e8e05288ff02f84f9ba`, including
+strict Clippy, 148 runtime cases and documentation checks. Canonical PR #251
+merged at that validated candidate; Slice 4 of 8 completed.
 
 ## Risks and Follow-ups
 

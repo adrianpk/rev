@@ -7,7 +7,7 @@ Plan: [Integrated Terminal Delivery](../plan/rev-integrated-terminal.md)
 Spec: [Integrated Terminal Sessions](../spec/editor-integrated-terminal.md)
 Model: [Integrated Terminal Model](../spec/editor-integrated-terminal-model.md)
 Approved: owner, 2026-11-03; explicit request to start the approved terminal delivery through Looper
-Active slice: Slice 4 - Live terminal interaction
+Active slice: Slice 5 - Retained output and transfer
 Progress owner: Looper checkpoint, canonical PRs and exact-candidate validation receipts
 
 ## Canonical slice map
@@ -88,7 +88,7 @@ Integration: canonical PR #250 merged into dev at `d82d9e36628b601efc16cb0ab5e1c
 
 ## Slice 4: Live terminal interaction
 
-Status: reviewing
+Status: delivered
 Branch: `feat/rev-integrated-terminal-04-interaction`
 Expected PR title: `feat(terminal): route native input and render interactive tools`
 Report: `ops/default/report/slices/rev-integrated-terminal/slice-4-interaction.md`
@@ -103,12 +103,12 @@ Focused receipts: `NZ6I2BQ7YVM7IJBMWFHBBJYCIE` passed T4.1 input and six source 
 
 T4.3 task evidence: `a819a54562a6`, with fixture correction `ef72e033fb2f`.
 Controller receipt `2MF3LO7YJWYNHK5YRRN7T5RZK7` passed four real-PTY pointer/link scenarios, six host mouse restoration cases, five configured-viewer regressions, seven source files and whitespace on `ef72e033fb2ffea99d62280631cb546c83154c4a`.
-Validation: final exact-HEAD evidence follows PR references using the unchanged six ordered Slice 4 commands.
-Integration: canonical PR #251 targets dev; controller-owned integration remains pending.
+Validation: controller receipt `YORJCCZZS3WYURZ75HWQNZSX6D` passed the six ordered Slice 4 commands on `ef59e61d3a152d52faf23e8e05288ff02f84f9ba`, including 148 runtime cases and documentation.
+Integration: canonical PR #251 merged into dev at `ef59e61d3a152d52faf23e8e05288ff02f84f9ba`; Slice 4 of 8 completed.
 
 ## Slice 5: Retained output and transfer
 
-Status: pending
+Status: active
 Branch: `feat/rev-integrated-terminal-05-copy`
 Expected PR title: `feat(terminal): navigate and copy retained terminal output`
 Report: `ops/default/report/slices/rev-integrated-terminal/slice-5-copy.md`
