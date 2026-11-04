@@ -44,7 +44,7 @@ fn journey(root: &Path, binary: &Path, wrapper: &Path, profile: &str) -> Result<
     Ok(())
 }
 fn named(terminal: &mut Terminal, name: &str) -> Result<()> {
-    terminal.send(b"\x1b[120;3u")?;
+    terminal.send(b"\x1bx")?;
     terminal.frame(|f| (1..=24).any(|number| row(f, number).starts_with("M-x ")))?;
     terminal.send(format!("\x1b[200~{name}\x1b[201~\r").as_bytes())
 }
@@ -122,7 +122,7 @@ fn copy(terminal: &mut Terminal, profile: &str) -> Result<()> {
     terminal.send(b"\x03\x14")?;
     terminal.frame(|f| plain(f).contains("[COPY]"))?;
     let keys: &[u8] = if profile == "modal" {
-        b"gg0vey"
+        b"gg0y5l"
     } else {
         b"\x1b<\x00\x1bf\x1bw"
     };
