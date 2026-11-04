@@ -93,7 +93,15 @@ Focused receipt `SCGY7G3XHNXBZ74CDIPCGGQK5Q` passed on
 - `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo run --locked --quiet --example source-check -- --file src/display/terminal.rs`
 - `git diff --check`
 
-Both real-PTY scenarios passed. The full-screen case uses a controlled shell
+T4.3 attempt `P6OXNBLDEWSYLQ5SKRYDCU2UJL` passed child mouse and local
+mirror cases, then found two fixture admission/producer errors. The legacy
+coordinate case now requests the admitted zero-scrollback preference and
+asserts its 300-column geometry within the unchanged cell limit. The link
+producer uses `printf '%b'` with a separate payload so percent-encoded URI data
+stays literal; its emulator URI must equal the original input before activation.
+No protocol expectation, resource assertion or frozen command changes.
+
+Both earlier interaction scenarios passed. The full-screen case uses a controlled shell
 fixture; installed-tool journeys remain under the recorded acceptance slice.
 The exact ordered Slice 4 commands remain pending T4.3 and PR references. The raw-PTY fixture covers both startup profiles and ordinary versus
 application modes, protected-key forwarding and host transient cancellation.

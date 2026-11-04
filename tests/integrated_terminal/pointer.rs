@@ -111,12 +111,33 @@ fn legacy_mouse() {
         } else {
             b"\x1b[M %#".as_slice()
         };
-        let mut editor = Editor::with_script("non-modal", 24, "", &recorder(modes, expected.len()));
+        let mut editor = Editor::with_script(
+            "non-modal",
+            24,
+            "scrollback_lines=0",
+            &recorder(modes, expected.len()),
+        );
         editor
             .session
             .execute(Command::Terminal(TerminalCommand::Open));
         editor.wait(|s| text(s).contains("READY"));
         editor.session.handle(Event::Resize(300, 24));
+        let id = editor
+            .session
+            .terminal_buffer()
+            .unwrap()
+            .terminal()
+            .unwrap();
+        assert_eq!(
+            editor
+                .session
+                .terminals()
+                .get(id)
+                .unwrap()
+                .geometry()
+                .columns,
+            300
+        );
         for kind in [Kind::Down(Button::Left), Kind::Up(Button::Left)] {
             editor
                 .session
@@ -273,7 +294,7 @@ fn links() {
     }
     let uri = "https://example.invalid/$((1+2))?q=a%20b";
     let script = format!(
-        "stty raw -echo\nprintf '\\033[?1000h\\033[?1006h\\033]8;;{uri}\\033\\\\CLICK\\033]8;;\\033\\\\\\r\\n\\033]8;;javascript:bad\\033\\\\REJECT\\033]8;;\\033\\\\READY'\ndd bs=1 count=1 of=input.bin 2>/dev/null\nprintf RECEIVED\nwhile :; do sleep 60; done\n"
+        "stty raw -echo\nprintf '%b' '\\033[?1000h\\033[?1006h\\033]8;;{uri}\\033\\\\CLICK\\033]8;;\\033\\\\\\r\\n\\033]8;;javascript:bad\\033\\\\REJECT\\033]8;;\\033\\\\READY'\ndd bs=1 count=1 of=input.bin 2>/dev/null\nprintf RECEIVED\nwhile :; do sleep 60; done\n"
     );
     let mut editor = Editor::with_script(
         "modal",
@@ -289,6 +310,23 @@ fn links() {
         .session
         .execute(Command::Terminal(TerminalCommand::Open));
     editor.wait(|s| text(s).contains("READY"));
+    let id = editor
+        .session
+        .terminal_buffer()
+        .unwrap()
+        .terminal()
+        .unwrap();
+    let point = alacritty_terminal::index::Point::new(
+        alacritty_terminal::index::Line(0),
+        alacritty_terminal::index::Column(0),
+    );
+    assert_eq!(
+        editor.session.terminals().get(id).unwrap().screen().grid()[point]
+            .hyperlink()
+            .unwrap()
+            .uri(),
+        uri
+    );
     assert!(!editor.fixture.0.join("source/called").exists());
     editor.session.handle(mouse(
         Kind::Down(Button::Left),
