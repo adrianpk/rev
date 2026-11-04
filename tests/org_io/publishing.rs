@@ -163,6 +163,15 @@ fn project_partial_sources() {
         assert!(startup.diagnostic.is_none());
         let source = f.write("notes/item.org", "* Selected\n");
         f.write("other/item.org", "* Other\n");
+        // Establish aliases before visiting so their ctime is the disk baseline.
+        if mode == "hardlink" {
+            std::fs::create_dir(f.0.join("site")).unwrap();
+            std::fs::hard_link(&source, f.0.join("site/item.md")).unwrap();
+        }
+        if mode == "source symlink" {
+            std::os::unix::fs::symlink(f.0.join("other/item.org"), f.0.join("notes/link.org"))
+                .unwrap();
+        }
         let mut buffers = Buffers::with_settings(startup.snapshot).unwrap();
         let id = buffers.visit(&source).unwrap();
         let view = View::new(buffers.get(id).unwrap());
@@ -176,14 +185,6 @@ fn project_partial_sources() {
         )
         .unwrap()
         .with_org_clock(clock);
-        if mode == "hardlink" {
-            std::fs::create_dir(f.0.join("site")).unwrap();
-            std::fs::hard_link(&source, f.0.join("site/item.md")).unwrap();
-        }
-        if mode == "source symlink" {
-            std::os::unix::fs::symlink(f.0.join("other/item.org"), f.0.join("notes/link.org"))
-                .unwrap();
-        }
         publish(&mut s);
         if mode == "hardlink" {
             argument(&mut s, "yes");
