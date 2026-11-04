@@ -25,10 +25,10 @@ fn prepare(root: &Path, profile: &str) -> Result<PathBuf> {
 fn journey(root: &Path, binary: &Path, wrapper: &Path, profile: &str) -> Result<()> {
     let owner = prepare(root, profile)?;
     let mut terminal = Terminal::start(&owner, binary, wrapper, "source.org")?;
-    initial(&owner, &mut terminal, profile)?;
-    lazygit(&owner, &mut terminal)?;
-    recorder(&owner, &mut terminal, profile)?;
-    closure(&owner, &mut terminal)?;
+    initial(&owner, &mut terminal, profile).map_err(|e| format!("initial: {e}"))?;
+    lazygit(&owner, &mut terminal).map_err(|e| format!("lazygit: {e}"))?;
+    recorder(&owner, &mut terminal, profile).map_err(|e| format!("recorder: {e}"))?;
+    closure(&owner, &mut terminal).map_err(|e| format!("closure: {e}"))?;
     terminal.finish()?;
     assert_eq!(
         fs::read_to_string(owner.join("workspace/source.org"))?,
@@ -49,7 +49,7 @@ fn line(terminal: &mut Terminal, line: &str) -> Result<()> {
 fn initial(owner: &Path, terminal: &mut Terminal, profile: &str) -> Result<()> {
     let prefix = if profile == "modal" { ":" } else { "\x1bx" };
     terminal.send(format!("{prefix}terminal-open\r").as_bytes())?;
-    terminal.frame(|f| f.contains("SHELL_READY>"))?;
+    terminal.frame(|f| plain(f).contains("SHELL_READY>"))?;
     line(
         terminal,
         "printf %s $$ >shell.pid; export KEPT=alive; printf '\\033[2J\\033[HPTY_SHELL_READY\\n'",
@@ -63,10 +63,10 @@ fn lazygit(owner: &Path, terminal: &mut Terminal) -> Result<()> {
         terminal,
         "sh -c 'printf %s $$ >tool.pid; exec lazygit --use-config-file lazygit.yml'",
     )?;
-    terminal.frame(|f| f.contains("Files"))?;
+    terminal.frame(|f| plain(f).contains("Files"))?;
     let tool = pid_file(&owner.join("workspace/tool.pid"))?;
     terminal.send(b"?")?;
-    terminal.frame(|f| f.contains("Keybindings"))?;
+    terminal.frame(|f| plain(f).contains("Keybindings"))?;
     move_tool(terminal, "terminal-move-to-buffer")?;
     move_tool(terminal, "terminal-move-to-panel")?;
     assert_eq!(pid_file(&owner.join("workspace/tool.pid"))?, tool);
@@ -78,21 +78,21 @@ fn lazygit(owner: &Path, terminal: &mut Terminal) -> Result<()> {
 }
 fn move_tool(terminal: &mut Terminal, name: &str) -> Result<()> {
     named(terminal, name)?;
-    terminal.frame(|f| f.contains("Keybindings"))?;
+    terminal.frame(|f| plain(f).contains("Keybindings"))?;
     Ok(())
 }
 fn quit_tool(terminal: &mut Terminal) -> Result<()> {
     terminal.send(b"\x1b")?;
-    terminal.frame(|f| f.contains("Files") && !f.contains("Keybindings"))?;
+    terminal.frame(|f| plain(f).contains("Files") && !plain(f).contains("Keybindings"))?;
     terminal.send(b"q")?;
-    terminal.frame(|f| f.contains("SHELL_READY>"))?;
+    terminal.frame(|f| plain(f).contains("SHELL_READY>"))?;
     Ok(())
 }
 fn recorder(owner: &Path, terminal: &mut Terminal, profile: &str) -> Result<()> {
     start_recorder(terminal)?;
     terminal.send(b"\x11\x07\x1b[<0;5;3M\x1b[<0;5;3m\x1b[<68;5;3M")?;
     copy(terminal, profile)?;
-    terminal.frame(|f| f.contains("INPUT_ACK") && f.contains("SHELL_READY>"))?;
+    terminal.frame(|f| plain(f).contains("INPUT_ACK") && plain(f).contains("SHELL_READY>"))?;
     assert_eq!(
         fs::read(owner.join("workspace/input.bin"))?,
         b"\x07\x1b[<0;5;3M\x1b[<0;5;3m\x1b[200~paste\x1b[201~"
@@ -102,14 +102,14 @@ fn recorder(owner: &Path, terminal: &mut Terminal, profile: &str) -> Result<()> 
 }
 fn copy(terminal: &mut Terminal, profile: &str) -> Result<()> {
     terminal.send(b"\x03\x14")?;
-    terminal.frame(|f| f.contains("[COPY]"))?;
+    terminal.frame(|f| plain(f).contains("[COPY]"))?;
     let keys: &[u8] = if profile == "modal" {
         b"gg0vey"
     } else {
         b"\x1b<\x00\x1bf\x1bw"
     };
     terminal.send(keys)?;
-    terminal.frame(|f| f.contains("[COPY]") && f.contains("copied"))?;
+    terminal.frame(|f| plain(f).contains("[COPY]") && plain(f).contains("copied"))?;
     terminal.send(b"\r\x19")?;
     Ok(())
 }
@@ -122,42 +122,42 @@ fn closure(owner: &Path, terminal: &mut Terminal) -> Result<()> {
     );
     switch(terminal, "terminal-2")?;
     line(terminal, "exit 7")?;
-    terminal.frame(|f| f.contains("Exited (7)"))?;
+    terminal.frame(|f| plain(f).contains("Exited (7)"))?;
     reaped(pid_file(&owner.join("workspace/shell.pid"))?)?;
     Ok(())
 }
 fn decline_exit(terminal: &mut Terminal) -> Result<()> {
     named(terminal, "save-buffer")?;
-    terminal.frame(|f| f.contains("requires a source buffer"))?;
+    terminal.frame(|f| plain(f).contains("requires a source buffer"))?;
     terminal.send(b"\x18\x03")?;
-    terminal.frame(|f| f.contains("terminate 2 terminal sessions"))?;
+    terminal.frame(|f| plain(f).contains("terminate 2 terminal sessions"))?;
     terminal.send(b"n")?;
-    terminal.frame(|f| f.contains("sessions retained"))?;
+    terminal.frame(|f| plain(f).contains("sessions retained"))?;
     Ok(())
 }
 fn switch(terminal: &mut Terminal, name: &str) -> Result<()> {
     named(terminal, "switch-to-buffer")?;
-    terminal.frame(|f| f.contains("Switch to buffer:"))?;
+    terminal.frame(|f| plain(f).contains("Switch to buffer:"))?;
     terminal.send(format!("{name}\r").as_bytes())?;
-    terminal.frame(|f| f.contains(name) && f.contains("SHELL_READY>"))?;
+    terminal.frame(|f| plain(f).contains(name) && plain(f).contains("SHELL_READY>"))?;
     Ok(())
 }
 fn close_first(terminal: &mut Terminal) -> Result<()> {
     switch(terminal, "terminal")?;
     line(terminal, "printf '%s' \"$KEPT\" >kept-state")?;
-    terminal.frame(|f| f.contains("SHELL_READY>"))?;
+    terminal.frame(|f| plain(f).contains("SHELL_READY>"))?;
     named(terminal, "kill-buffer")?;
-    terminal.frame(|f| f.contains("Kill buffer:"))?;
+    terminal.frame(|f| plain(f).contains("Kill buffer:"))?;
     terminal.send(b"\r")?;
-    terminal.frame(|f| f.contains("Terminate"))?;
+    terminal.frame(|f| plain(f).contains("Terminate"))?;
     terminal.send(b"y")?;
-    terminal.frame(|f| f.contains("Buffer closed"))?;
+    terminal.frame(|f| plain(f).contains("Buffer closed"))?;
     Ok(())
 }
 
 fn start_recorder(terminal: &mut Terminal) -> Result<()> {
     named(terminal, "terminal-new-buffer")?;
-    terminal.frame(|f| f.contains("terminal-2") && f.contains("SHELL_READY>"))?;
+    terminal.frame(|f| plain(f).contains("terminal-2") && plain(f).contains("SHELL_READY>"))?;
     let payload = b"\x07\x1b[<0;5;3M\x1b[<0;5;3m\x1b[200~paste\x1b[201~";
     line(
         terminal,
@@ -168,4 +168,17 @@ fn start_recorder(terminal: &mut Terminal) -> Result<()> {
     )?;
     terminal.frame(|f| row(f, 1).contains("paste beta") && row(f, 2).contains("INPUT_READY"))?;
     Ok(())
+}
+
+// Native terminal cells carry explicit column/style controls between glyphs.
+// Inspect their rendered text while row-specific checks keep native row maps.
+fn plain(frame: &str) -> String {
+    frame
+        .split("\x1b[")
+        .skip(1)
+        .filter_map(|part| {
+            let end = part.find(|c: char| ('@'..='~').contains(&c))?;
+            Some(&part[end + 1..])
+        })
+        .collect()
 }
