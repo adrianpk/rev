@@ -174,20 +174,20 @@ Report: `ops/default/report/slices/rev-integrated-terminal/slice-7-acceptance.md
 PR: pending
 
 - [x] T7.1: Add examples/integrated-terminal-acceptance.rs and scripts/check-integrated-terminal.sh using existing Rust/Linux PTY support and isolated fixtures; exercise real shells and installed lazygit in a disposable local repository without network or user Git state.
-- [ ] T7.2: Verify both profiles, multiple sessions, panel/main-buffer movement, continued child state, alternate screen, focus/literal-next, mouse, copy/paste, protected source admission and complete host restoration through real terminal journeys.
-- [ ] T7.3: Measure binary delta, idle/active CPU, RSS, bounded retained output and queue/flood behavior, process/FD cleanup and fairness. Add focused source-quality coverage, share fixture setup and record real observations instead of guessed performance claims.
+- [x] T7.2: Verify both profiles, multiple sessions, panel/main-buffer movement, continued child state, alternate screen, focus/literal-next, mouse, copy/paste, protected source admission and complete host restoration through real terminal journeys.
+- [x] T7.3: Measure binary delta, idle/active CPU, RSS, bounded retained output and queue/flood behavior, process/FD cleanup and fairness. Add focused source-quality coverage, share fixture setup and record real observations instead of guessed performance claims.
 
 T7.1: `8f0a16c510ce` passes focused receipt `PGKUQXPYN44HYS2BXYNCZKH7VC`: actual interactive Bash/lazygit and identity-preserving relocation in both profiles, with source quality and whitespace.
 
-T7.2 checkpoint: native source-guard probes passed in the partial development
-batch. The nested suite remains failing at live-buffer closure in receipt
-`CIF4Y234KOKP3DIRTDF5I4H2CB` (`a2ac4b1748c0`); non-modal tool restoration,
-exact child bytes and idle observations passed before that failure. Modal host
-cases and the host-output-fault case are not yet established. Traditional Meta
-entry needs diagnosis alongside the current explicit CSI-u Alt-x probe.
-T7.3 remains pending. No canonical PR exists.
+T7.2/T7.3: `972eee56a2f2` passed focused receipt
+`LSXFV5ULDTILOGEM6NGIHJYDIS`: both host profiles, real tool relocation, exact
+literal/mouse/paste bytes, normal/error restoration, declined and confirmed
+closure, resource flood/fairness and shared shell PTY regression. Interrupted
+zero-time exit polls now defer within the existing service bound (`4e9bbcbdd69b`).
+The report records actual binary, CPU, RSS, queue, stream and FD/thread results
+and the explicit host-key transport boundary.
 
-Validation: pending; use the exact ordered Slice 7 commands from the plan and frozen controller configuration.
+Validation: focused commands passed; final exact-PR-HEAD configured checks remain pending.
 Integration: pending canonical PR and controller verification.
 
 ## Slice 8: User guidance and joint integration
