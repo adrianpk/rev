@@ -251,5 +251,8 @@ unconsumed readiness tokens and checks queued TTY bytes before another read.
 All dependency versions and graph edges are unchanged. The new real-PTY
 `readiness::signal_keys` regression fails on the original source and passes
 signal-first, input-first and multi-read burst cases with the correction.
-Canonical repair PR preparation and final exact-head validation are pending.
+Canonical repair PR: [#256](https://forge.adrianpk.com/adrianpk/rev/pulls/256).
+Focused receipt `O7FTJPLHVDD6O4KVWBHSORX3IN` passed format, the regression and
+whitespace on `27fff3c81e60a46b78def641ad47b679af88097c`. The PR-reference
+follow-up precedes final exact-head runtime and required-prefix validation.
 The checkpoint retains all policy, counters and gates.

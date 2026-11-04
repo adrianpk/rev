@@ -5,7 +5,7 @@ Delivery set: rev-integrated-terminal
 Plan: [Integrated Terminal Delivery](../../../plan/rev-integrated-terminal.md)
 Tracker: [Integrated Terminal Tracker](../../../tracker/rev-integrated-terminal.md)
 Branch: `fix/rev-integrated-terminal-validation-1`
-PR: pending
+PR: [#256](https://forge.adrianpk.com/adrianpk/rev/pulls/256)
 Original guidance PR: [#255](https://forge.adrianpk.com/adrianpk/rev/pulls/255)
 
 ## Purpose
@@ -127,6 +127,10 @@ deadline and 1 MiB output cap and reaps its own process.
 Focused reproduction/regression command:
 
 - `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test integrated_terminal readiness:: -- --test-threads=1`
+
+Canonical repair PR: [#256](https://forge.adrianpk.com/adrianpk/rev/pulls/256).
+Focused receipt `O7FTJPLHVDD6O4KVWBHSORX3IN` passed format, the new regression
+and whitespace on `27fff3c81e60a46b78def641ad47b679af88097c`.
 
 The final clean PR head requires the five configured repair commands and the
 focused `scripts/check-integrated-terminal.sh --pty` journeys. Controller
