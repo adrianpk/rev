@@ -78,14 +78,23 @@ fn lazygit(owner: &Path, terminal: &mut Terminal) -> Result<()> {
 }
 fn move_tool(terminal: &mut Terminal, name: &str) -> Result<()> {
     named(terminal, name)?;
-    terminal.frame(|f| plain(f).contains("Keybindings"))?;
+    let panel = name == "terminal-move-to-panel";
+    terminal
+        .frame(|f| {
+            plain(f).contains("Keybindings") && row(f, 1).contains("Protected source") == panel
+        })
+        .map_err(|e| format!("{name}: {e}"))?;
     Ok(())
 }
 fn quit_tool(terminal: &mut Terminal) -> Result<()> {
     terminal.send(b"\x1b")?;
-    terminal.frame(|f| plain(f).contains("Files") && !plain(f).contains("Keybindings"))?;
+    terminal
+        .frame(|f| plain(f).contains("Files") && !plain(f).contains("Keybindings"))
+        .map_err(|e| format!("Escape from lazygit help: {e}"))?;
     terminal.send(b"q")?;
-    terminal.frame(|f| plain(f).contains("SHELL_READY>"))?;
+    terminal
+        .frame(|f| plain(f).contains("SHELL_READY>"))
+        .map_err(|e| format!("lazygit quit: {e}"))?;
     Ok(())
 }
 fn recorder(owner: &Path, terminal: &mut Terminal, profile: &str) -> Result<()> {
