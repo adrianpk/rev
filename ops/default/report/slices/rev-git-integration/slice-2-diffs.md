@@ -5,7 +5,7 @@ Delivery set: rev-git-integration
 Plan: `ops/default/plan/rev-git-integration.md`
 Tracker: `ops/default/tracker/rev-git-integration.md`
 Branch: `feat/rev-git-integration-02-diffs`
-PR: pending
+PR: `#259`
 
 ## Purpose
 
@@ -62,6 +62,12 @@ Hunk lookup uses its private ordinal and full immutable identity, so walking
 bounded display rows does not repeatedly scan the complete hunk list.
 
 ## Implementation Notes
+
+Implementation commits: `11a9b7c87ab940764b18b15dec849bf5c655d898`
+(T2.1), `c23fb12f2daa75a9856c1db9f59aeb9fd27f3f57` (T2.2) and
+`805723003834aa2022ed5cda2003697954835f27` (T2.3).
+[PR #259](https://forge.adrianpk.com/adrianpk/rev/pulls/259) targets dev;
+controller-owned validation and integration remain the authoritative state.
 
 Comparisons share Slice 1's installed-Git worker, stable operation identities,
 finite observation deadline, capture/cleanup owner and process-record limits.

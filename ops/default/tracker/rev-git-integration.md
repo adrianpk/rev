@@ -54,14 +54,14 @@ Branch: `feat/rev-git-integration-02-diffs`
 Expected PR title: `feat(git): inspect exact diffs and visit native sources`
 Report: `ops/default/report/slices/rev-git-integration/slice-2-diffs.md`
 Requirements: GIT04, GIT17-GIT19
-PR: pending
+PR: `#259`
 
 - [x] T2.1: Read staged, unstaged, unborn and untracked comparisons with exact semantic identities; admit bounded text hunks and truthful binary/rename/type-change/submodule/truncated detail.
 - [x] T2.2: Add Status expansion, read-only detail, current-source visits, retained navigation and resize/pointer mappings without making generated Git content a writable source.
 - [x] T2.3: Verify both layers of one path, multiple hunks, unusual path bytes, stale refresh, modified visiting buffers and return to the surviving editor layout.
 
 Validation: T2.1 development formatter and strict focused Clippy pass; six comparison tests pass, with an earlier 27-test shared Git run. Nine native Status/presentation/process regressions pass after T2.2. T2.3 adds five both-profile native acceptance cases and extended staged unusual-path fixtures in both object formats; all pass focused development checks. Final ordered clean-HEAD controller validation follows the PR-reference commit.
-Integration: T2.1-T2.3 implemented on the approved slice branch; canonical PR preparation and final controller validation follow. No merge is claimed.
+Integration: T2.1 `11a9b7c87ab940764b18b15dec849bf5c655d898`, T2.2 `c23fb12f2daa75a9856c1db9f59aeb9fd27f3f57` and T2.3 `805723003834aa2022ed5cda2003697954835f27` are pushed. [PR #259](https://forge.adrianpk.com/adrianpk/rev/pulls/259) targets dev with the exact configured title; final ordered validation follows this PR-reference commit. Integration remains controller-owned.
 
 ## Slice 3: Checked staging unstaging and discard
 
