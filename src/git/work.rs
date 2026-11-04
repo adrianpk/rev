@@ -20,6 +20,8 @@ pub(super) enum Request {
 impl Request {
     pub fn kind(&self) -> OperationKind {
         match self {
+            Self::Refs(super::refs::Request::PreparePush { .. }) => OperationKind::PushPrepare,
+            Self::Refs(super::refs::Request::Push(_)) => OperationKind::Push,
             Self::Refs(super::refs::Request::Fetch { .. }) => OperationKind::Fetch,
             Self::Refs(super::refs::Request::PrepareTag { .. }) => OperationKind::TagPrepare,
             Self::Refs(super::refs::Request::CreateTag { .. }) => OperationKind::TagCreate,
@@ -44,6 +46,7 @@ pub(super) enum Publication {
     Diff(Diff),
     Composition(Composition),
     TagIntent(TagIntent),
+    PushIntent(PushIntent),
 }
 
 enum Candidate {
@@ -53,6 +56,7 @@ enum Candidate {
     Diff(diff::Prepared),
     Composition(commit::Prepared),
     TagIntent(TagIntent),
+    PushIntent(PushIntent),
 }
 
 pub(super) struct Finished {
@@ -73,11 +77,14 @@ pub(super) fn start(
     std::thread::Builder::new()
         .name("git-observation".into())
         .spawn(move || {
-            let private_output = matches!(request.kind(), OperationKind::Fetch);
+            let private_output = matches!(
+                request.kind(),
+                OperationKind::Fetch | OperationKind::PushPrepare | OperationKind::Push
+            );
             let seconds = match request {
-                Request::Refs(super::refs::Request::Fetch { .. }) => {
-                    policy.transport_timeout_seconds
-                }
+                Request::Refs(
+                    super::refs::Request::Fetch { .. } | super::refs::Request::Push(_),
+                ) => policy.transport_timeout_seconds,
                 Request::Index(_)
                 | Request::Discard(_)
                 | Request::Commit(_)
@@ -469,6 +476,7 @@ impl Runner {
         };
         record.admission = admission.split(record.bytes() + 4096);
         let publication = observed.and_then(|candidate| match candidate {
+            Candidate::PushIntent(intent) => Ok(Publication::PushIntent(intent)),
             Candidate::TagIntent(intent) => Ok(Publication::TagIntent(intent)),
             Candidate::Refs { refs, changed } => Ok(Publication::Refs { refs, changed }),
             Candidate::History(result) => Ok(Publication::History(result)),

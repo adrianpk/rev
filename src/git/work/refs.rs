@@ -35,6 +35,13 @@ impl Runner {
         admission: &mut Lease,
     ) -> Result<Candidate, String> {
         match request {
+            Request::PreparePush {
+                refs,
+                source,
+                remote,
+                ..
+            } => self.prepare_push(refs, &source, remote.as_deref(), admission),
+            Request::Push(intent) => self.push(intent, admission),
             Request::Fetch { refs, remote, .. } => self.fetch(refs, &remote, admission),
             Request::PrepareTag {
                 refs,

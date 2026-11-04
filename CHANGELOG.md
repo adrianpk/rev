@@ -36,6 +36,9 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
   retaining Git signing policy and failed annotation drafts. Review exact tag
   objects before local deletion with T. Select a configured remote in Refs and
   fetch with & or M f, refreshing tracking facts without merging or rebasing.
+  Mark one source branch with * and review its full object, configured upstream
+  remote and destination with p before a single non-forced push. Conflicting
+  publication settings reject; unavailable remote verification stays explicit.
   Changed
   files follow your reload policy, protecting unsaved source text.
   Return to the same windows

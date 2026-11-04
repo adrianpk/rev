@@ -1,5 +1,6 @@
 use super::super::Pending;
 pub(in crate::session) mod tag;
+mod transport;
 use super::*;
 use crate::{
     buffer::Stamp,
@@ -9,6 +10,8 @@ use crate::{
 pub(super) struct Inspection {
     pub request: Option<OperationId>,
     pub tag_preparing: Option<OperationId>,
+    pub push_preparing: Option<OperationId>,
+    push_mark: Option<transport::PushMark>,
     selected: Option<Vec<u8>>,
     remote_selected: Option<Vec<u8>>,
     detail: Option<usize>,
@@ -21,6 +24,8 @@ impl Inspection {
         Ok(Self {
             request: None,
             tag_preparing: None,
+            push_preparing: None,
+            push_mark: None,
             selected: None,
             remote_selected: None,
             detail: None,
@@ -57,6 +62,7 @@ enum RefAction {
     Branch(BranchAction),
     CreateTag(Arc<crate::git::TagIntent>),
     DeleteTag(Vec<u8>),
+    Push(Arc<crate::git::PushIntent>),
 }
 
 struct Sources {
@@ -130,6 +136,7 @@ impl Work {
             return (
                 if self.refs.request.is_some()
                     || self.refs.tag_preparing.is_some()
+                    || self.refs.push_preparing.is_some()
                     || self.ancestry.request.is_some()
                 {
                     "Checking / executing / refreshing refs".into()
@@ -144,8 +151,20 @@ impl Work {
             let selected = self.refs.selected.as_deref() == Some(r.name.as_slice());
             return (
                 format!(
-                    "{} {} {}{}{}{}{}",
+                    "{}{} {} {}{}{}{}{}",
                     if selected { ">" } else { " " },
+                    if self
+                        .refs
+                        .push_mark
+                        .as_ref()
+                        .is_some_and(|mark| mark.context == refs.observation.context
+                            && mark.name == r.name
+                            && mark.object == r.object)
+                    {
+                        "*"
+                    } else {
+                        " "
+                    },
                     label(&r.name),
                     r.object.hex(),
                     if r.object_type == b"tag" {
@@ -258,6 +277,8 @@ impl Work {
                 "R  git-branch-rename: exact local branch",
                 "D  git-branch-delete: merged, noncurrent local branch",
                 "t / T  git-tag-create / git-tag-delete (confirmed local refs)",
+                "* / -  mark / clear one exact push source branch",
+                "p / M p  git-push: review one configured upstream branch",
                 "& / M f  git-fetch: selected configured remote, without integration",
                 "g  git-refresh",
                 "$  git-processes",
@@ -570,7 +591,12 @@ impl Session {
             Ok(a) => a,
             Err(e) => return self.error(&e),
         };
-        if let Err(e) = self.input.decision("Confirm local ref action? [y/n]") {
+        let prompt = if matches!(action, RefAction::Push(_)) {
+            "Confirm reviewed upstream push? [y/n]"
+        } else {
+            "Confirm local ref action? [y/n]"
+        };
+        if let Err(e) = self.input.decision(prompt) {
             return self.error(&e.to_string());
         }
         self.git.painted = None;
@@ -649,6 +675,7 @@ impl Session {
             RefAction::Branch(action) => self.git.engine.branch(consent.refs, action),
             RefAction::CreateTag(intent) => self.git.engine.create_tag(intent, ""),
             RefAction::DeleteTag(name) => self.git.engine.delete_tag(consent.refs, &name),
+            RefAction::Push(intent) => self.git.engine.push(intent),
         };
         match result {
             Ok(id) => {
@@ -762,6 +789,19 @@ impl Session {
                 });
                 return;
             }
+            if self
+                .git
+                .engine
+                .record(update.operation)
+                .is_some_and(|r| r.kind == crate::git::OperationKind::Push)
+            {
+                self.message(if self.git.refs.failed {
+                    "Push failed or publication remains unresolved; inspect git-processes; no automatic retry"
+                } else {
+                    "Push verified: exact reviewed object observed at its configured upstream destination"
+                });
+                return;
+            }
             self.message(if self.git.refs.failed {
                 "Refs operation failed; confirmed facts retained; inspect git-processes"
             } else {
@@ -839,7 +879,11 @@ impl Session {
             self.size,
             self.buffers.palette(),
             &self.echo,
-            " Git Local Ref Review  y accept  n / C-g cancel  Up/Down scroll",
+            if matches!(consent.action, RefAction::Push(_)) {
+                " Git Push Review  y accept  n / C-g cancel  Up/Down scroll"
+            } else {
+                " Git Local Ref Review  y accept  n / C-g cancel  Up/Down scroll"
+            },
             admission,
             |_| (rows.next().unwrap_or_default(), false),
         )?;

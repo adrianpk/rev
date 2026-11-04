@@ -40,6 +40,8 @@ impl Work {
             .map(|p| p.kind)
             .or_else(|| self.engine.record(id).map(|r| r.kind));
         match kind {
+            Some(crate::git::OperationKind::Push) => "push",
+            Some(crate::git::OperationKind::PushPrepare) => "push preparation",
             Some(crate::git::OperationKind::Fetch) => "fetch",
             Some(crate::git::OperationKind::TagPrepare) => "Prepare exact local tag",
             Some(crate::git::OperationKind::TagCreate) => "Create checked local tag",

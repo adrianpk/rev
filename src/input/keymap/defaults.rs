@@ -192,6 +192,10 @@ pub(super) const GIT_HISTORY: &[(&str, &str)] = &[
 ];
 
 const GIT_REFS: &[(&str, &str)] = &[
+    ("*", "git-mark"),
+    ("-", "git-unmark"),
+    ("p", "git-push"),
+    ("M p", "git-push"),
     ("&", "git-fetch"),
     ("M b", "git-refs"),
     ("M f", "git-fetch"),

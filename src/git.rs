@@ -14,7 +14,7 @@ pub use history::{
 };
 pub use index::{IndexDirection, IndexTarget};
 mod refs;
-pub use refs::{BranchAction, RefKind, Reference, Refs, TagIntent, TagKind};
+pub use refs::{BranchAction, PushIntent, RefKind, Reference, Refs, TagIntent, TagKind};
 mod status;
 pub use diff::{Baseline, Diff, DiffKind, DiffLine, Hunk, HunkId, LineRange};
 mod work;
@@ -124,6 +124,8 @@ pub enum OperationKind {
     TagCreate,
     TagDelete,
     Fetch,
+    PushPrepare,
+    Push,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -216,6 +218,7 @@ pub struct Context {
     pub revision_file: Option<Arc<RevisionFile>>,
     pub revision: Option<Arc<RevisionDetail>>,
     tag_intent: Option<Arc<TagIntent>>,
+    push_intent: Option<Arc<PushIntent>>,
     tag_draft: Option<refs::TagDraft>,
     draft: Option<commit::Draft>,
     composition: Option<Arc<Composition>>,
@@ -574,6 +577,7 @@ impl Repositories {
                         | OperationKind::Commit
                         | OperationKind::TagCreate
                         | OperationKind::TagDelete
+                        | OperationKind::Push
                         | OperationKind::Fetch
                         | OperationKind::Branch
                 ) && let Some(context) = progress
@@ -629,6 +633,7 @@ impl Repositories {
                             revision_file: None,
                             revision: None,
                             tag_intent: None,
+                            push_intent: None,
                             tag_draft: None,
                             draft: None,
                             composition: None,
@@ -723,6 +728,22 @@ impl Repositories {
                     }
                     progress.context
                 }
+                Ok(work::Publication::PushIntent(intent)) => {
+                    if let Some(context) = self
+                        .contexts
+                        .iter_mut()
+                        .find(|c| c.id == intent.refs().observation.context)
+                        && Arc::ptr_eq(&context.observation, &intent.refs().observation)
+                        && context.failure.is_none()
+                    {
+                        context.push_intent = Some(Arc::new(intent));
+                        published = true;
+                    } else {
+                        record.outcome = Outcome::Failed;
+                        record.diagnostic = Some("Push preparation generation changed".into());
+                    }
+                    progress.context
+                }
                 Ok(work::Publication::TagIntent(intent)) => {
                     if let Some(context) = self
                         .contexts
@@ -768,6 +789,7 @@ impl Repositories {
                             OperationKind::Diff => context.detail_failure = Some(record.id),
                             OperationKind::CommitPrepare
                             | OperationKind::History
+                            | OperationKind::PushPrepare
                             | OperationKind::TagPrepare => {}
                             OperationKind::Stage
                             | OperationKind::Unstage
@@ -775,6 +797,7 @@ impl Repositories {
                             | OperationKind::Commit
                             | OperationKind::TagCreate
                             | OperationKind::TagDelete
+                            | OperationKind::Push
                             | OperationKind::Fetch
                             | OperationKind::Branch => context.failure = Some(record.id),
                         }

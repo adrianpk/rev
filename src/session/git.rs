@@ -299,6 +299,7 @@ impl Session {
             return Some(match command {
                 GitCommand::TagCreate => self.prompt_git_tag(),
                 GitCommand::TagDelete => self.confirm_git_tag_delete(),
+                GitCommand::Push => self.prepare_git_push(),
                 GitCommand::Fetch => self.fetch_git_remote(),
                 GitCommand::Refs => self.open_git_refs(),
                 GitCommand::BranchCreate => self.prompt_git_branch(refs::Intent::Create),
@@ -326,10 +327,12 @@ impl Session {
                 GitCommand::Diff => self.open_git_diff(comparisons::Mode::Detail),
                 GitCommand::VisitFile => self.visit_git_file(),
                 GitCommand::Discard => self.discard_git(),
+                GitCommand::Mark if self.git.page == Page::Refs => self.mark_git_push(false),
                 GitCommand::Mark if self.git.page == Page::History => {
                     self.mark_git_revision(false, false, false)
                 }
                 GitCommand::Mark => self.mark_git(),
+                GitCommand::Unmark if self.git.page == Page::Refs => self.mark_git_push(true),
                 GitCommand::Unmark if self.git.page == Page::History => {
                     self.mark_git_revision(false, true, false)
                 }
@@ -619,6 +622,10 @@ impl Session {
             return Action::Wait;
         }
         for update in updates {
+            if self.git.refs.push_preparing == Some(update.operation) {
+                self.publish_git_push_preparation(&update);
+                continue;
+            }
             if self.git.refs.tag_preparing == Some(update.operation) {
                 self.publish_git_tag_preparation(&update);
                 continue;

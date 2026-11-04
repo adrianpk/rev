@@ -1652,6 +1652,10 @@ max_result_bytes = 262144
 
 # Exact local/tracking refs and checked local branch actions in both profiles.
 [keys.git_refs]
+"*" = "git-mark"
+"-" = "git-unmark"
+"p" = "git-push"
+"M p" = "git-push"
 "&" = "git-fetch"
 "M b" = "git-refs"
 "M f" = "git-fetch"

@@ -4,6 +4,7 @@ mod tag;
 mod transport;
 pub(super) use tag::TagDraft;
 pub use tag::{TagIntent, TagKind};
+pub use transport::PushIntent;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum RefKind {
@@ -100,6 +101,13 @@ impl BranchAction {
 }
 pub(super) enum Request {
     Observe(Arc<Observation>),
+    PreparePush {
+        refs: Arc<Refs>,
+        source: Vec<u8>,
+        remote: Option<Vec<u8>>,
+        _admission: Lease,
+    },
+    Push(Arc<PushIntent>),
     Fetch {
         refs: Arc<Refs>,
         remote: Vec<u8>,

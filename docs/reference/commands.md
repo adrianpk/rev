@@ -697,6 +697,7 @@ Status reads disk and Git state; it does not save an unsaved source buffer.
 | --- | --- |
 | `git-tag-create` | Collect a local tag name, lightweight/annotated kind (lightweight by default) and complete target ID; check Git signing policy and explicitly review before creation. Annotated tags add native message composition and retained failure drafts. |
 | `git-tag-delete` | Review the selected tag's exact full name, object and peeled target; delete only that unchanged local ref. |
+| `git-push` | Prepare and explicitly confirm one selected or marked exact local branch, its configured upstream remote and full destination; push one object without force or expanded publication and verify the actual push endpoint. |
 | `git-fetch` | Fetch the exact selected configured remote in Refs with its observed transport/refspec policy; refresh tracking facts and Status without merge or rebase. |
 | `git-refs` | Observe local/remote-tracking branches, both tag kinds, configured remote names, HEAD and available upstream facts with exact names and object IDs. |
 | `git-branch-create` | Collect a new local name and confirm the selected ref's commit or checked HEAD; create without implicit tracking. |
@@ -721,8 +722,8 @@ Status reads disk and Git state; it does not save an unsaved source buffer.
 | `git-refresh` | Replace Status only after a checked bounded observation succeeds; retain confirmed facts with a stale indication on failure. |
 | `git-toggle-section` | Toggle a Status group, path comparison or hunk; in inspection, open the selected exact parent, revision or read-only historical file. |
 | `git-discard` | Confirm restoration of one tracked unstaged whole path from its index; reject unsaved canonical sources and verify unchanged index entries and actual checkout bytes/mode. |
-| `git-mark` | Mark the exact current path or supported hunk; retain its complete comparison independently of the cursor. |
-| `git-unmark` | Remove the exact selected path or hunk mark. |
+| `git-mark` | In Refs, retain one exact local branch push source independently of selection. In Status/Diff, mark the exact current path or supported hunk; retain its complete comparison independently of the cursor. |
+| `git-unmark` | In Refs, clear the independent push source. Otherwise, Remove the exact selected path or hunk mark. |
 | `git-unmark-all` | Clear all path and hunk marks. |
 | `git-stage` | Stage the selected exact disk path, supported unstaged text hunk or complete compatible marked group after complete preflight; preserve source buffers and verify the index. |
 | `git-unstage` | Unstage the selected staged path, supported text hunk or complete compatible marked group against its captured HEAD baseline, including unborn HEAD. |
@@ -865,3 +866,33 @@ exit, outcome and checked local facts. Raw transport/helper and configuration
 output is withheld because it can contain credentials. A failed or unverifiable
 fetch is not automatically replayed. Refreshed tracking facts are local
 observations; they do not promise exclusive access against other Git clients.
+
+### Native Git push
+
+In Refs select one local branch and invoke p / `git-push`, or mark it with *
+and navigate to a configured remote before M p. The remote selection constrains
+the configured upstream; it cannot replace it. The one push-source mark stays
+independent of index/path/hunk marks and History range/sequence marks. - clears
+it. A changed marked object requires clearing or marking its current object again.
+
+Preparation requires exactly one `branch.<name>.remote` and full branch
+`branch.<name>.merge`, consistent with Git's observed upstream relation. Missing
+or contradictory tracking rejects. The native scrollable review shows the full
+source ref, full source object, configured remote name and full destination ref.
+Only y accepts; Return does not submit, and n or C-g cancels. Configuration and
+source facts are checked again before launch; an accepted review is used once.
+
+Mirror push, automatic tag following, recursive submodule publication, multiple
+push URLs, conflicting push remotes or configured refspecs reject with a visible
+reason. A compatible explicit source/destination refspec is allowed. Git's
+`push.default` cannot broaden the explicit full-object refspec. The installed
+backend receives explicit no-force/no-expansion flags after compatible policy
+admission. Hooks, credentials, push signing and receiver protections remain Git-owned.
+
+The result refreshes local facts and queries the privately captured effective
+push endpoint for the exact full destination. A successful child alone does not
+prove publication. Failed children, unavailable verification, differing remote
+objects and cancellation/timeout after possible effects remain distinct in
+Processes. Failure is never automatically retried. Transport/helper output and
+credential-bearing endpoints remain private; records retain safe argv, actual
+exit and checked outcomes under the existing finite transport/output limits.

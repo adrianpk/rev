@@ -566,6 +566,7 @@ For live terminal key ownership and copy controls, see the
 
 | Keys | Command | Behavior |
 | --- | --- | --- |
+| `p`, `M p` in Refs | `git-push` | Review one exact source branch and its configured upstream destination before publication. |
 | `&`, `M f` in Refs | `git-fetch` | Fetch the selected configured remote without integration. |
 | `b`, `y` in Status; `M b` in Refs | `git-refs` | Inspect exact native repository refs. |
 | `n` in Refs | `git-branch-create` | Confirm a new local branch at the selected full commit. |
@@ -936,13 +937,17 @@ in review retains the draft.
 ### Git refs defaults and availability
 
 `keys.git_refs` owns read-only refs, explicit fetch and reviewed local branch/tag actions in both
-profiles. Prompts retain `keys.minibuffer`. n creates a branch; p is reserved
-for push. Up/Down and C-p/C-n navigate. Annotated tag text uses the retained
+profiles. Prompts retain `keys.minibuffer`. n creates a branch; p reviews one
+upstream push. * and - retain or clear its independent exact source mark. Up/Down and C-p/C-n navigate. Annotated tag text uses the retained
 native message owner and `keys.git_commit`; its review uses the explicit submit
 aliases below.
 
 | Keys | Target |
 | --- | --- |
+| `*` | `git-mark` |
+| `-` | `git-unmark` |
+| `p` | `git-push` |
+| `M p` | `git-push` |
 | `&` | `git-fetch` |
 | `M b` | `git-refs` |
 | `M f` | `git-fetch` |
