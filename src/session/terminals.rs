@@ -1,3 +1,4 @@
+mod entry;
 mod input;
 mod lifecycle;
 mod placement;
@@ -32,6 +33,8 @@ pub(super) struct Work {
     buffers: std::collections::BTreeSet<SessionId>,
     back: std::collections::BTreeMap<ViewId, crate::view::View>,
     pub(super) view: Option<ViewId>,
+    contexts: std::collections::BTreeMap<SessionId, PathBuf>,
+    viewport: crate::term::Viewport,
 }
 
 impl Work {
@@ -73,6 +76,8 @@ impl Work {
             buffers: Default::default(),
             back: Default::default(),
             view: None,
+            contexts: Default::default(),
+            viewport: Default::default(),
         }
     }
 }
@@ -83,6 +88,7 @@ impl Session {
             self.terminal_return();
         }
         self.terminals.buffers.remove(&id);
+        self.terminals.contexts.remove(&id);
         if self.terminals.default == Some(id) {
             self.terminals.default = None;
         }
@@ -121,6 +127,10 @@ impl Session {
             TerminalCommand::Rename => self.rename_terminal(),
             TerminalCommand::MoveToBuffer => self.terminal_move(true),
             TerminalCommand::MoveToPanel => self.terminal_move(false),
+            TerminalCommand::OpenHere => {
+                self.terminal_create_at(false, self.terminal_directory(true))
+            }
+            TerminalCommand::OpenOtherPane => self.terminal_other_pane(),
         }
     }
 
@@ -148,6 +158,10 @@ impl Session {
     }
 
     fn terminal_create(&mut self, buffer: bool) -> Action {
+        self.terminal_create_at(buffer, self.terminal_directory(false))
+    }
+
+    fn terminal_create_at(&mut self, buffer: bool, directory: PathBuf) -> Action {
         let geometry = if buffer {
             self.buffer_geometry(&self.windows, self.terminals.visible)
         } else {
@@ -163,12 +177,7 @@ impl Session {
             return self.error(&error.to_string());
         }
         let mut launch = self.terminals.launch.clone();
-        launch.directory = self
-            .tree
-            .chosen_root()
-            .or_else(|| self.buffer().ok()?.file()?.path().parent())
-            .unwrap_or(&launch.directory)
-            .to_owned();
+        launch.directory = directory.clone();
         let id = match self.terminals.sessions.open(launch, size) {
             Ok(id) => id,
             Err(error) => return self.error(&format!("Open terminal: {error}")),
@@ -179,6 +188,7 @@ impl Session {
                 "Create terminal buffer: {error}; cleanup: {cleanup:?}"
             ));
         }
+        self.terminals.contexts.insert(id, directory);
         if !self
             .terminals
             .default
@@ -201,15 +211,18 @@ impl Session {
         if let Err(error) = self.stop_typing() {
             return self.error(&error.to_string());
         }
-        if let Err(error) = self.terminals.sessions.resize(id, size) {
+        if let Err(error) = self.admit_terminal_geometry(id, size) {
             return self.error(&format!("Show terminal: {error}"));
         }
         self.show_admitted_terminal(id)
     }
 
     fn show_admitted_terminal(&mut self, id: SessionId) -> Action {
-        if !self.terminals.focused {
+        if !self.terminals.focused || self.terminals.view.is_some() {
             self.terminals.home = Some((self.windows.selected_id(), self.tree.focused()));
+        }
+        if self.terminals.selected != Some(id) {
+            self.terminals.viewport = Default::default();
         }
         self.terminals.selected = Some(id);
         self.terminals.view = None;
@@ -225,7 +238,9 @@ impl Session {
 
     fn terminal_hide(&mut self) -> Action {
         self.terminals.visible = false;
-        self.terminal_return();
+        if self.terminals.view.is_none() {
+            self.terminal_return();
+        }
         self.message("Terminal panel hidden")
     }
 
@@ -233,6 +248,15 @@ impl Session {
         self.restore_terminal_view();
         self.terminals.focused = false;
         if let Some((id, tree)) = self.terminals.home.take() {
+            if self
+                .windows
+                .get(id)
+                .ok()
+                .and_then(|v| self.buffers.get(v.point.stamp.buffer).ok())
+                .is_some_and(|b| b.terminal().is_some())
+            {
+                self.restore_source_at(id);
+            }
             let _ = self.windows.select(id);
             if tree {
                 let _ = self.tree.focus(self.size);
@@ -296,7 +320,7 @@ impl Session {
         {
             return Action::Wait;
         }
-        match self.terminals.sessions.resize(id, size) {
+        match self.admit_terminal_geometry(id, size) {
             Ok(()) => Action::Wait,
             Err(error) => self.error(&format!("Terminal retains its admitted geometry: {error}")),
         }

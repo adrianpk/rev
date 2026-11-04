@@ -29,6 +29,7 @@ impl Session {
     }
 
     pub(in crate::session) fn terminal_renamed(&mut self, id: SessionId, name: &str) -> Action {
+        self.input.cancel();
         let Some(buffer) = self
             .buffers
             .iter()

@@ -1,6 +1,7 @@
 use std::io::{self, Write};
 
 use alacritty_terminal::{
+    grid::Dimensions,
     index::{Column, Line, Point},
     term::{
         TermMode,
@@ -35,16 +36,24 @@ impl Run {
 impl Frame {
     /// Project emulator cells, never child escape strings. Per-cell placement
     /// preserves the emulator's columns even for unusual combining sequences.
-    pub(crate) fn terminal(&mut self, session: &Session, panel: Panel, label: &str) {
+    pub(crate) fn terminal(
+        &mut self,
+        session: &Session,
+        panel: Panel,
+        label: &str,
+        viewport: &crate::term::Viewport,
+    ) {
         let area = panel.content();
         let grid = session.screen().grid();
         let size = session.geometry();
+        let offset = viewport.offset.min(grid.history_size()) as i32;
         for row in 0..area.height() {
             let cells: Vec<_> = (0..area.width().min(size.columns))
                 .filter(|_| row < size.rows)
                 .map(|column| {
-                    let mut cell =
-                        grid[Point::new(Line(i32::from(row)), Column(usize::from(column)))].clone();
+                    let mut cell = grid
+                        [Point::new(Line(i32::from(row) - offset), Column(usize::from(column)))]
+                    .clone();
                     if cell.flags.contains(Flags::WIDE_CHAR) && column + 1 == area.width() {
                         cell.c = ' ';
                         cell.extra = None;
@@ -82,7 +91,10 @@ impl Frame {
         if panel.active() {
             self.cursor = None;
             let cursor = grid.cursor.point;
-            if session.screen().mode().contains(TermMode::SHOW_CURSOR) && cursor.line.0 >= 0 {
+            if offset == 0
+                && session.screen().mode().contains(TermMode::SHOW_CURSOR)
+                && cursor.line.0 >= 0
+            {
                 self.cursor = panel.position(Position {
                     column: cursor.column.0 as u16,
                     row: cursor.line.0 as u16,

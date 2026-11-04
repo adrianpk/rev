@@ -35,11 +35,7 @@ impl Frame {
             row.search = None;
         }
         for (row, buffer) in self.rows.iter_mut().take(extent).zip(entries().skip(top)) {
-            row.text = clip::line(
-                Glyphs::for_text(&entry(buffer, selected))?,
-                0,
-                self.size.width,
-            )?;
+            row.text = entry(buffer, selected, self.size.width)?;
         }
         self.rows[extent].selection = None;
         self.rows[extent].syntax.clear();
@@ -47,12 +43,7 @@ impl Frame {
         self.rows[extent].tone = super::Tone::Status(true);
         self.rows[extent].search = None;
         self.rows[extent].text = clip::line(
-            Glyphs::for_text(&format!(
-                "{}: {} {}",
-                if terminals { "Terminals" } else { "Buffers" },
-                entries().count(),
-                if terminals { "retained" } else { "live" }
-            ))?,
+            Glyphs::for_text(&inventory_label(terminals, entries().count()))?,
             0,
             self.size.width,
         )?;
@@ -64,12 +55,21 @@ impl Frame {
     }
 }
 
-fn entry(buffer: &Buffer, selected: BufferId) -> String {
+fn entry(buffer: &Buffer, selected: BufferId, width: u16) -> Result<String, Error> {
     let marker = if buffer.id() == selected { ">" } else { " " };
     let dirty = if buffer.is_modified() { "**" } else { "--" };
     let access = if buffer.is_readonly() { "RO" } else { "RW" };
     let path = buffer
         .file()
         .map_or_else(|| "(unnamed)".into(), |file| format!("{:?}", file.path()));
-    format!("{marker} {} {dirty} {access} {path}", buffer.name())
+    let text = format!("{marker} {} {dirty} {access} {path}", buffer.name());
+    clip::line(Glyphs::for_text(&text)?, 0, width)
+}
+
+fn inventory_label(terminals: bool, count: usize) -> String {
+    if terminals {
+        format!("Terminals: {count} retained")
+    } else {
+        format!("Buffers: {count} live")
+    }
 }

@@ -64,6 +64,8 @@ Every command below is also available as `M-x` followed by its exact name.
 | `M-x terminal-new`, `:terminal-new` | `terminal-new` | Create an independent lower-panel session. |
 | `M-x terminal-list`, `:terminal-list` | `terminal-list` | Select or inspect retained terminal sessions. |
 | `M-x terminal-rename`, `:terminal-rename` | `terminal-rename` | Give the selected terminal buffer a unique name without changing its identity. |
+| `M-x terminal-open-here`, `:terminal-open-here` | `terminal-open-here` | Create a session from the current resource's directory context. |
+| `M-x terminal-open-other-pane`, `:terminal-open-other-pane` | `terminal-open-other-pane` | Select a terminal in the next pane, creating a right split when needed. |
 | `C-x b` | `switch-to-buffer` | Select a live buffer by name. |
 | `C-x C-b` | `list-buffers` | Select from the live buffer inventory. |
 | `C-x k` | `kill-buffer` | Close a buffer with modified-text protection. |

@@ -5,7 +5,7 @@ impl Session {
     /// A lower-panel terminal is a resource focus, like the native tree. It
     /// cannot borrow the selected source pane's file, point, mode or providers.
     pub(in crate::session) fn terminal_source_guard(&mut self, command: Command) -> Option<Action> {
-        if !self.terminals.focused {
+        if !self.terminals.focused && self.buffer().is_ok_and(|b| b.terminal().is_none()) {
             return None;
         }
         if matches!(

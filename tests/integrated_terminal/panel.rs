@@ -27,7 +27,7 @@ impl Editor {
     }
     fn with_keys(profile: &str, height: u16, keys: &str) -> Self {
         let fixture = Fixture::new();
-        let script = fixture.write("child.sh", "printf '\\033[2J\\033[HREADY:%s\\n' \"$1\"\npwd\nwhile IFS= read -r line; do\n case \"$line\" in\n ping) printf '\\033[31mPONG\\033[0m\\n';;\n alt) printf '\\033[?1049h\\033[2J\\033[HALTERNATE';;\n exit) exit 7;;\n *) printf 'INPUT:%s\\n' \"$line\";;\n esac\ndone\n");
+        let script = fixture.write("child.sh", "printf '\\033[2J\\033[HREADY:%s\\n' \"$1\"\npwd\nwhile IFS= read -r line; do\n case \"$line\" in\n ping) printf '\\033[31mPONG\\033[0m\\n';;\n change) mkdir -p changed; cd changed; printf CHANGED;;\n where) pwd;;\n scroll) i=0; while [ $i -lt 60 ]; do printf \"LINE%s\\n\" \"$i\"; i=$((i+1)); done;;\n alt) printf '\\033[?1049h\\033[2J\\033[HALTERNATE';;\n exit) exit 7;;\n *) printf 'INPUT:%s\\n' \"$line\";;\n esac\ndone\n");
         let config = fixture.write("config.toml", &format!(
             "[editor]\ninteraction_profile='{profile}'\n[terminal]\nprogram='/bin/sh'\nargs=[{},'literal;not-evaluated']\n{keys}",
             serde_json::to_string(&script.to_string_lossy()).unwrap(),
@@ -405,6 +405,8 @@ fn live_relocation() {
         let buffer = editor.session.terminal_buffer().unwrap().id();
         let id = editor.session.terminals().ids().next().unwrap();
         let pid = editor.session.terminals().get(id).unwrap().process_id();
+        editor.send("change");
+        editor.wait(|s| text(s).contains("CHANGED"));
         editor.send("alt");
         editor.wait(|s| text(s).contains("ALTERNATE"));
         editor.session.handle(Event::Resize(u16::MAX, 24));
@@ -458,6 +460,8 @@ fn live_relocation() {
             editor.session.terminals().get(id).unwrap().process_id(),
             pid
         );
+        editor.send("where");
+        editor.wait(|s| text(s).contains("source/changed"));
         editor.send("ping");
         editor.wait(|s| text(s).contains("PONG"));
     }
@@ -579,6 +583,216 @@ fn independent_sessions() {
         second_pid
     );
     assert!(text(editor.session.terminals().get(second).unwrap()).contains("INPUT:two"));
+}
+
+// Mirrors share one child while focus owns geometry. Navigation offsets stay
+// attachment-local across focus, resize, suspension and moving another view.
+#[test]
+fn mirrored_panes() {
+    if isolated("panel::mirrored_panes", false) {
+        return;
+    }
+    let mut editor = Editor::new("non-modal", 24);
+    editor
+        .session
+        .execute(Command::Terminal(TerminalCommand::NewBuffer));
+    editor.wait(|s| text(s).contains("READY"));
+    let terminal = editor.session.buffer().unwrap().terminal().unwrap();
+    let pid = editor
+        .session
+        .terminals()
+        .get(terminal)
+        .unwrap()
+        .process_id();
+    let buffer = editor.session.buffer().unwrap().id();
+    editor
+        .session
+        .execute(Command::Split(rev::window::Split::Right));
+    let panes = editor.session.windows().order();
+    assert_eq!(panes.len(), 2);
+    editor.session.select_view(panes[1]).unwrap();
+    assert_eq!(editor.session.buffer().unwrap().id(), buffer);
+    let right_geometry = editor.session.terminals().get(terminal).unwrap().geometry();
+    editor.send("scroll");
+    editor.wait(|s| text(s).contains("LINE59"));
+    editor.session.set_terminal_viewport(panes[0], 3).unwrap();
+    assert!(
+        editor
+            .session
+            .set_terminal_viewport(panes[0], usize::MAX)
+            .is_err()
+    );
+    assert_eq!(
+        editor
+            .session
+            .windows()
+            .get(panes[0])
+            .unwrap()
+            .terminal
+            .offset,
+        3
+    );
+    assert_eq!(
+        editor
+            .session
+            .windows()
+            .get(panes[1])
+            .unwrap()
+            .terminal
+            .offset,
+        0
+    );
+    let frame = editor.session.frame().unwrap();
+    let row = frame.rows()[0].text();
+    let (left, right) = row.split_once('│').unwrap();
+    assert_ne!(left.trim(), right.trim());
+    let mut native = Vec::new();
+    frame.write(&mut native).unwrap();
+    assert!(native.windows(4).any(|s| s == b"LINE"));
+    editor.session.select_view(panes[0]).unwrap();
+    assert_ne!(
+        editor
+            .session
+            .terminals()
+            .get(terminal)
+            .unwrap()
+            .geometry()
+            .columns,
+        right_geometry.columns
+    );
+    assert_eq!(
+        editor
+            .session
+            .windows()
+            .get(panes[0])
+            .unwrap()
+            .terminal
+            .offset,
+        3
+    );
+    editor.session.handle(Event::Resize(80, 3));
+    let admitted = editor.session.terminals().get(terminal).unwrap().geometry();
+    assert!(editor.session.select_view(panes[1]).is_err());
+    assert_eq!(editor.session.windows().selected_id(), panes[0]);
+    editor.session.frame().unwrap();
+    assert_eq!(
+        editor.session.terminals().get(terminal).unwrap().geometry(),
+        admitted
+    );
+    editor.session.handle(Event::Resize(100, 30));
+    editor.session.select_view(panes[1]).unwrap();
+    editor
+        .session
+        .execute(Command::Terminal(TerminalCommand::MoveToPanel));
+    assert_eq!(
+        editor
+            .session
+            .windows()
+            .get(panes[0])
+            .unwrap()
+            .point
+            .stamp
+            .buffer,
+        buffer
+    );
+    assert_eq!(
+        editor
+            .session
+            .windows()
+            .get(panes[0])
+            .unwrap()
+            .terminal
+            .offset,
+        3
+    );
+    editor
+        .session
+        .execute(Command::Terminal(TerminalCommand::MoveToBuffer));
+    assert_eq!(editor.session.buffer().unwrap().id(), buffer);
+    assert_eq!(
+        editor
+            .session
+            .terminals()
+            .get(terminal)
+            .unwrap()
+            .process_id(),
+        pid
+    );
+    assert_eq!(editor.session.terminals().ids().count(), 1);
+}
+
+// Directory entry uses admitted resource context. Other-pane entry prepares
+// the ordinary split/selection before publishing and reuses the live process.
+#[test]
+fn directory_and_other_pane() {
+    if isolated("panel::directory_and_other_pane", false) {
+        return;
+    }
+    let mut editor = Editor::new("modal", 24);
+    editor
+        .session
+        .execute(Command::Terminal(TerminalCommand::OpenHere));
+    editor.wait(|s| text(s).contains("READY"));
+    let id = editor
+        .session
+        .terminal_buffer()
+        .unwrap()
+        .terminal()
+        .unwrap();
+    let pid = editor.session.terminals().get(id).unwrap().process_id();
+    assert!(
+        text(editor.session.terminals().get(id).unwrap()).contains(
+            &editor
+                .fixture
+                .0
+                .join("source")
+                .to_string_lossy()
+                .to_string()
+        )
+    );
+    let original = editor.session.windows().selected_id();
+    editor.session.handle(Event::Resize(u16::MAX, 24));
+    editor
+        .session
+        .execute(Command::Terminal(TerminalCommand::OpenOtherPane));
+    assert_eq!(editor.session.windows().iter().len(), 1);
+    assert_eq!(editor.session.windows().selected_id(), original);
+    assert_eq!(
+        editor.session.terminals().get(id).unwrap().process_id(),
+        pid
+    );
+    editor.session.handle(Event::Resize(80, 24));
+    editor
+        .session
+        .execute(Command::Terminal(TerminalCommand::OpenOtherPane));
+    assert_eq!(editor.session.windows().iter().len(), 2);
+    assert_ne!(editor.session.windows().selected_id(), original);
+    assert_eq!(editor.session.buffer().unwrap().terminal(), Some(id));
+    assert_eq!(
+        editor.session.terminals().get(id).unwrap().process_id(),
+        pid
+    );
+    assert_eq!(editor.session.terminals().ids().count(), 1);
+    editor
+        .session
+        .execute(Command::Terminal(TerminalCommand::OpenOtherPane));
+    assert_eq!(editor.session.windows().selected_id(), original);
+    assert_eq!(editor.session.terminals().ids().count(), 1);
+    let mut tiny = Editor::new("non-modal", 4);
+    let view = tiny.session.windows().selected_id();
+    tiny.session
+        .execute(Command::Terminal(TerminalCommand::OpenOtherPane));
+    assert_eq!(tiny.session.terminals().ids().count(), 0);
+    assert_eq!(tiny.session.windows().iter().len(), 1);
+    assert_eq!(tiny.session.windows().selected_id(), view);
+    let mut fresh = Editor::new("non-modal", 24);
+    fresh
+        .session
+        .execute(Command::Terminal(TerminalCommand::OpenOtherPane));
+    fresh.wait(|s| text(s).contains("READY"));
+    assert_eq!(fresh.session.windows().iter().len(), 2);
+    assert_eq!(fresh.session.terminals().ids().count(), 1);
+    assert!(fresh.session.buffer().unwrap().terminal().is_some());
 }
 
 // Native file observers retire asynchronously. Isolate their descriptors and

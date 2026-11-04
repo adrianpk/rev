@@ -79,7 +79,7 @@ compiled M-x name once.
 | Native completion | `completion-at-point`, `completion-next`, `completion-previous`, `completion-accept`, `completion-cancel`, `completion-mode`, `completion-auto-mode` |
 | Command and session | `execute-extended-command`, `keyboard-quit`, `save-buffers-kill-terminal` |
 | Files | `find-file`, `save-buffer`, `write-file`, `revert-buffer` |
-| Terminal | `terminal-open`, `terminal-toggle`, `terminal-new`, `terminal-new-buffer`, `terminal-move-to-buffer`, `terminal-move-to-panel`, `terminal-list`, `terminal-rename` |
+| Terminal | `terminal-open`, `terminal-toggle`, `terminal-new`, `terminal-new-buffer`, `terminal-move-to-buffer`, `terminal-move-to-panel`, `terminal-open-here`, `terminal-open-other-pane`, `terminal-list`, `terminal-rename` |
 | Shell | `shell-filter-region`, `shell-command-insert`, `shell-command-on-region`, `shell-command`, `shell-command-cancel`, `shell-command-output` |
 | AI | `ai-explain`, `ai-prompt`, `ai-implement`, `ai-apply-result`, `ai-discard-result`, `ai-set-directory`, `ai-select-model`, `ai-reset-session`, `ai-disconnect`, `ai-cancel`, `ai-save-command` |
 | Buffers | `switch-to-buffer`, `list-buffers`, `kill-buffer` |
@@ -637,7 +637,23 @@ hide or restore the panel without restarting its shell. The panel remembers its
 height and clamps it to preserve a usable source pane.
 
 `list-buffers` and `switch-to-buffer` include the terminal's stable buffer name.
-Selecting it focuses the panel. Terminal buffers hold emulator state rather
+Selecting it restores its current placement. Use `terminal-new` for an
+independent panel session or `terminal-new-buffer` for direct main-area entry.
+Move the same process with `terminal-move-to-buffer` and
+`terminal-move-to-panel`; a rejected geometry keeps the old attachment.
+`terminal-list` shows retained sessions, and `terminal-rename` accepts a unique
+1-256 byte name without control characters. Names start with `terminal`, then
+`terminal-2` under ordinary buffer name conflict handling.
+
+`terminal-open-here` uses the current source file's containing directory. For
+a terminal resource, it uses the admitted creation directory; it does not guess
+a shell's later working-directory changes. `terminal-open-other-pane` selects
+the terminal in the next pane, preparing a right split when there is only one.
+Splitting a terminal buffer presents the same child in another view; focused
+live input owns resize, and each attachment retains its own viewport state.
+Small screens suspend presentation until geometry becomes usable again.
+
+Terminal buffers hold emulator state rather
 than editable source text, so file saves, text edits, undo, bookmarks, completion,
 LSP, Org and AI source actions require returning to a source buffer. Killing a
 live terminal buffer asks before terminating its owned process group.

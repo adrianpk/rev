@@ -31,6 +31,7 @@ impl Session {
         let view = self.windows.get(id)?;
         view.check_source(self.buffers.get(view.point.stamp.buffer)?)?;
         self.stop_typing()?;
+        self.prepare_terminal_view(id)?;
         self.kills.break_chain();
         self.windows.select(id)?;
         self.terminal_source_focus();

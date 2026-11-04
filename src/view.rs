@@ -42,6 +42,7 @@ pub enum Error {
     Gutter(crate::gutter::Error),
     Fold(FoldError),
     WorkingDirectory(std::io::ErrorKind),
+    TerminalGeometry(std::io::ErrorKind),
 }
 
 impl fmt::Display for Error {
@@ -54,6 +55,7 @@ impl fmt::Display for Error {
             Self::Gutter(error) => error.fmt(formatter),
             Self::Fold(error) => error.fmt(formatter),
             Self::WorkingDirectory(kind) => write!(formatter, "read working directory: {kind}"),
+            Self::TerminalGeometry(kind) => write!(formatter, "Terminal geometry: {kind}"),
         }
     }
 }
@@ -106,6 +108,8 @@ impl From<crate::window::Error> for Error {
 /// left is a terminal-cell offset. Its point identifies the displayed buffer.
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct View {
+    /// Terminal navigation belongs to the attachment, independently of source point.
+    pub terminal: crate::term::Viewport,
     pub point: Point,
     pub(crate) jumps: crate::jump::History,
     /// Session-only presentation values, copied by splits and never text data.
@@ -150,6 +154,7 @@ impl View {
     pub fn new(buffer: &Buffer) -> Self {
         let bookmarks = crate::config::Bookmarks::default();
         Self {
+            terminal: Default::default(),
             point: Point {
                 stamp: buffer.stamp(),
                 position: Scalar(0),

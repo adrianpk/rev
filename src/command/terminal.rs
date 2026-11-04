@@ -8,6 +8,8 @@ pub enum TerminalCommand {
     New,
     List,
     Rename,
+    OpenHere,
+    OpenOtherPane,
 }
 
 impl TerminalCommand {
@@ -21,6 +23,8 @@ impl TerminalCommand {
             Self::New => "terminal-new",
             Self::List => "terminal-list",
             Self::Rename => "terminal-rename",
+            Self::OpenHere => "terminal-open-here",
+            Self::OpenOtherPane => "terminal-open-other-pane",
         }
     }
 }

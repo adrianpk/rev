@@ -19,17 +19,33 @@ impl Session {
                 .and_then(|b| b.terminal());
             if let Some(id) = terminal {
                 let active = self.terminals.focused && self.terminals.view == Some(*view);
-                self.paint_terminal(frame, id, Panel::new(panel.outer(), true, active));
+                let viewport = self
+                    .windows
+                    .get(*view)
+                    .expect("live terminal view")
+                    .terminal;
+                self.paint_terminal(
+                    frame,
+                    id,
+                    Panel::new(panel.outer(), true, active),
+                    &viewport,
+                );
             }
         }
         if let Some(panel) = composition.terminal()
             && let Some(id) = self.terminals.selected
         {
-            self.paint_terminal(frame, id, panel);
+            self.paint_terminal(frame, id, panel, &self.terminals.viewport);
         }
     }
 
-    fn paint_terminal(&self, frame: &mut Frame, id: SessionId, panel: Panel) {
+    fn paint_terminal(
+        &self,
+        frame: &mut Frame,
+        id: SessionId,
+        panel: Panel,
+        viewport: &crate::term::Viewport,
+    ) {
         let Some(session) = self.terminals.sessions.get(id) else {
             return;
         };
@@ -42,6 +58,7 @@ impl Session {
             session,
             panel,
             &format!(" {name}  {:?}  C-g: editor", session.state()),
+            viewport,
         );
     }
 }

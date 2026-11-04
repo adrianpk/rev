@@ -79,9 +79,11 @@ PR: pending
 
 - [x] T3.1: Implement direct terminal-new-buffer and bidirectional move commands; retain process/emulator/buffer identity, working directory, alternate-screen state and output, with atomic geometry failure.
 - [x] T3.2: Create multiple sessions only on explicit invocation; implement independent names, selection/list/rename and one selected lower-panel session, retaining hidden sessions and the instance-global default.
-- [ ] T3.3: Support ordinary pane views with one resize authority and independent copy/viewport state, checked focus changes, tiny-screen recovery, cwd entry commands and other-pane selection; verify no duplicate child on move/toggle.
+- [x] T3.3: Support ordinary pane views with one resize authority and independent copy/viewport state, checked focus changes, tiny-screen recovery, cwd entry commands and other-pane selection; verify no duplicate child on move/toggle.
 
-Validation: pending; use the exact ordered Slice 3 commands from the plan and frozen controller configuration.
+Task evidence: T3.1 `e039a166383d`; T3.2 `5b3c81588ab0`; T3.3 completes checked native pane focus, per-attachment viewport state, directory entry and other-pane candidates.
+
+Validation: nine focused real-child panel scenarios passed during development. Final acceptance uses the exact ordered Slice 3 command list and clean-head controller receipt; complete live input and stable copy projections remain in later slices.
 Integration: pending canonical PR and controller verification.
 
 ## Slice 4: Live terminal interaction

@@ -4,6 +4,7 @@ use super::{Action, Session};
 
 impl Session {
     pub(super) fn sync_input_context(&mut self) {
+        self.sync_terminal_focus();
         self.qualify_repeat();
         self.input
             .editing_owner(self.windows.selected_id(), self.view().point.stamp.buffer);

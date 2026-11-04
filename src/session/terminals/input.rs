@@ -25,6 +25,9 @@ impl Session {
     }
 
     fn terminal_pointer(&mut self, mouse: MouseEvent) -> Option<Action> {
+        if let Some(view) = self.terminal_pointer_view(mouse) {
+            return Some(view);
+        }
         let panel = self.composition().and_then(|c| c.terminal());
         if panel.is_some_and(|p| {
             let a = p.outer();
@@ -45,6 +48,29 @@ impl Session {
             self.terminal_source_focus();
         }
         None
+    }
+
+    fn terminal_pointer_view(&mut self, mouse: MouseEvent) -> Option<Action> {
+        let composition = self.composition()?;
+        let (view, _) = composition.panels().iter().find(|(id, panel)| {
+            let area = panel.outer();
+            let contains = (area.column()..area.column() + area.width()).contains(&mouse.column)
+                && (area.row()..area.row() + area.height()).contains(&mouse.row);
+            contains
+                && self
+                    .windows
+                    .get(*id)
+                    .ok()
+                    .and_then(|v| self.buffers.get(v.point.stamp.buffer).ok())
+                    .is_some_and(|b| b.terminal().is_some())
+        })?;
+        if matches!(mouse.kind, MouseEventKind::Down(_)) {
+            return Some(match self.select_view(*view) {
+                Ok(()) => Action::Redraw,
+                Err(error) => self.error(&error.to_string()),
+            });
+        }
+        Some(Action::Wait)
     }
 
     fn terminal_key(&mut self, event: KeyEvent) -> Option<Action> {
