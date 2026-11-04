@@ -140,7 +140,7 @@ fn guarded_exit() {
             assert_eq!(editor.execute(Command::Quit), Action::Redraw);
             assert!(editor.echo().contains("y=save"));
             answer(editor, 'n');
-            assert!(editor.echo().contains("terminate Git Status observations"));
+            assert!(editor.echo().contains("terminate owned Git operations"));
             key(editor, KeyCode::Enter, KeyModifiers::NONE);
             editor.handle(Event::Paste("y".into()));
             assert!(

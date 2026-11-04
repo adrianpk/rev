@@ -8,6 +8,7 @@ use crate::{
 use crossterm::event::{Event, MouseButton, MouseEventKind};
 use std::{path::PathBuf, sync::Arc};
 
+mod comparisons;
 mod processes;
 mod shutdown;
 
@@ -18,7 +19,8 @@ pub(super) struct Work {
     state: State,
     painted: Option<Painted>,
     page: Page,
-    process_origin: bool,
+    process_origin: Option<Page>,
+    inspection: comparisons::Inspection,
     process_selected: Option<OperationId>,
     process_top: usize,
     detail_top: usize,
@@ -30,6 +32,7 @@ pub(super) struct Work {
 enum Page {
     #[default]
     Status,
+    Diff,
     Processes,
     Process(OperationId),
 }
@@ -45,6 +48,10 @@ struct Painted {
     page: Page,
     processes: Vec<OperationId>,
     process_top: usize,
+    comparison: Option<OperationId>,
+    comparison_top: usize,
+    expanded: bool,
+    expanded_hunk: Option<crate::git::HunkId>,
 }
 
 #[derive(Default)]
@@ -57,15 +64,17 @@ struct State {
     menu: bool,
 }
 
-#[derive(PartialEq, Eq)]
+#[derive(Clone, PartialEq, Eq)]
 enum Target {
     Section(Group),
     Path(Group, PathBuf),
+    Hunk(Group, PathBuf, crate::git::HunkId),
 }
 
 enum Item<'a> {
     Section(Group, usize),
     Path(Group, &'a PathChange),
+    Detail(&'a crate::git::Diff, &'a crate::git::DiffLine),
 }
 
 impl Item<'_> {
@@ -73,6 +82,10 @@ impl Item<'_> {
         match self {
             Self::Section(group, _) => Target::Section(*group),
             Self::Path(group, path) => Target::Path(*group, path.path.clone()),
+            Self::Detail(diff, line) => line.hunk.map_or_else(
+                || Target::Path(diff.group, diff.change.path.clone()),
+                |id| Target::Hunk(diff.group, diff.change.path.clone(), id),
+            ),
         }
     }
     fn matches(&self, target: &Target) -> bool {
@@ -81,12 +94,34 @@ impl Item<'_> {
             (Self::Path(group, path), Target::Path(other, target)) => {
                 group == other && path.path == *target
             }
+            (Self::Detail(diff, line), Target::Hunk(group, path, id)) => {
+                diff.group == *group
+                    && diff.change.path == *path
+                    && line.hunk == Some(*id)
+                    && diff
+                        .hunk(*id)
+                        .is_some_and(|h| h.patch.start == line.bytes.start)
+            }
             _ => false,
+        }
+    }
+    fn selectable(&self) -> bool {
+        match self {
+            Self::Detail(diff, line) => line
+                .hunk
+                .and_then(|id| diff.hunk(id))
+                .is_some_and(|h| h.patch.start == line.bytes.start),
+            _ => true,
         }
     }
 }
 
-fn items<'a>(status: &'a Status, collapsed: &'a [bool; 4]) -> impl Iterator<Item = Item<'a>> + 'a {
+fn items<'a>(
+    status: &'a Status,
+    collapsed: &'a [bool; 4],
+    detail: Option<&'a crate::git::Diff>,
+    expanded_hunk: Option<crate::git::HunkId>,
+) -> impl Iterator<Item = Item<'a>> + 'a {
     Group::ALL
         .into_iter()
         .enumerate()
@@ -98,7 +133,28 @@ fn items<'a>(status: &'a Status, collapsed: &'a [bool; 4]) -> impl Iterator<Item
                     status
                         .group(group)
                         .filter(move |_| !collapsed[index])
-                        .map(move |p| Item::Path(group, p)),
+                        .flat_map(move |p| {
+                            std::iter::once(Item::Path(group, p)).chain(
+                                detail
+                                    .filter(|d| d.group == group && d.change.path == p.path)
+                                    .into_iter()
+                                    .flat_map(move |d| {
+                                        d.lines
+                                            .iter()
+                                            .filter(move |line| {
+                                                line.hunk.is_none()
+                                                    || line.hunk == expanded_hunk
+                                                    || line
+                                                        .hunk
+                                                        .and_then(|id| d.hunk(id))
+                                                        .is_some_and(|h| {
+                                                            h.patch.start == line.bytes.start
+                                                        })
+                                            })
+                                            .map(move |line| Item::Detail(d, line))
+                                    }),
+                            )
+                        }),
                 )
         })
 }
@@ -115,7 +171,8 @@ impl Work {
             state: State::default(),
             painted: None,
             page: Page::Status,
-            process_origin: false,
+            process_origin: None,
+            inspection: comparisons::Inspection::default(),
             process_selected: None,
             process_top: 0,
             detail_top: 0,
@@ -135,18 +192,43 @@ impl Work {
     fn status(&self) -> Option<&Status> {
         self.observation()?.status.as_ref()
     }
+    fn items(&self) -> impl Iterator<Item = Item<'_>> {
+        self.status().into_iter().flat_map(|s| {
+            items(
+                s,
+                &self.state.collapsed,
+                self.inspection
+                    .detail
+                    .as_deref()
+                    .filter(|_| self.inspection.expanded),
+                self.inspection.expanded_hunk,
+            )
+        })
+    }
     fn reconcile(&mut self, extent: usize) {
         let Some(status) = self.status() else {
             return;
         };
-        let selected = self.state.selected.as_ref().and_then(|target| {
-            items(status, &self.state.collapsed).position(|i| i.matches(target))
-        });
+        let selected = self
+            .state
+            .selected
+            .as_ref()
+            .and_then(|target| self.items().position(|i| i.matches(target)));
         let index = selected.unwrap_or(0);
         if selected.is_none() {
-            let replacement = items(status, &self.state.collapsed)
-                .next()
-                .map(|i| i.target());
+            let replacement = self
+                .state
+                .selected
+                .as_ref()
+                .and_then(|target| match target {
+                    Target::Hunk(group, path, _)
+                        if status.group(*group).any(|p| p.path == *path) =>
+                    {
+                        Some(Target::Path(*group, path.clone()))
+                    }
+                    _ => None,
+                })
+                .or_else(|| self.items().next().map(|i| i.target()));
             self.state.selected = replacement;
         }
         self.state.top = self
@@ -175,6 +257,8 @@ impl Session {
                 GitCommand::Quit => self.quit_git(),
                 GitCommand::Refresh => self.refresh_git(),
                 GitCommand::ToggleSection => self.toggle_git_section(),
+                GitCommand::Diff => self.open_git_diff(comparisons::Mode::Detail),
+                GitCommand::VisitFile => self.visit_git_file(),
                 GitCommand::Dispatch => {
                     if !self.git.visible {
                         self.message("git-dispatch requires a Git presentation")
@@ -266,8 +350,13 @@ impl Session {
                 self.git.page = Page::Processes;
                 return Action::Redraw;
             }
-            Page::Processes if self.git.process_origin => {
+            Page::Diff => {
                 self.git.page = Page::Status;
+                self.git.inspection.return_to_status();
+                return Action::Redraw;
+            }
+            Page::Processes if self.git.process_origin.is_some() => {
+                self.git.page = self.git.process_origin.take().expect("Git process origin");
                 return Action::Redraw;
             }
             _ => {}
@@ -291,6 +380,7 @@ impl Session {
         }
         match self.git.engine.refresh(context) {
             Ok(operation) => {
+                self.git.inspection.after_refresh = self.git.inspection.resume(self.git.page);
                 self.git.state.request = Some((operation, false));
                 self.git.state.menu = false;
                 self.message("Refreshing Git Status")
@@ -305,50 +395,78 @@ impl Session {
         match self.git.page {
             Page::Processes => return self.move_git_process(distance, backward),
             Page::Process(id) => return self.scroll_git_process(id, distance, backward),
+            Page::Diff => return self.move_git_diff(distance, backward),
             Page::Status => {}
         }
-        let Some(status) = self.git.status() else {
+        if self.git.status().is_none() {
             return self.message("Git Status is unavailable or checking context");
-        };
+        }
+        let selected = self.git.state.selected.as_ref();
         let position = self
             .git
-            .state
-            .selected
-            .as_ref()
-            .and_then(|target| {
-                items(status, &self.git.state.collapsed).position(|i| i.matches(target))
-            })
+            .items()
+            .filter(Item::selectable)
+            .position(|i| selected.is_some_and(|t| i.matches(t)))
             .unwrap_or(0);
-        let count = items(status, &self.git.state.collapsed).count();
-        let target = if backward {
+        let count = self.git.items().filter(Item::selectable).count();
+        let next = if backward {
             position.saturating_sub(distance)
         } else {
             position
                 .saturating_add(distance)
                 .min(count.saturating_sub(1))
         };
-        self.select_git_row(target)
+        let target = self
+            .git
+            .items()
+            .filter(Item::selectable)
+            .nth(next)
+            .map(|i| i.target());
+        self.git.state.selected = target;
+        self.git.reconcile(self.git_extent());
+        Action::Redraw
     }
     fn select_git_row(&mut self, index: usize) -> Action {
-        let Some(status) = self.git.status() else {
-            return Action::Wait;
-        };
-        let selected = items(status, &self.git.state.collapsed)
-            .nth(index)
-            .map(|i| i.target());
-        if selected.is_some() {
-            self.git.state.selected = selected;
+        let target = self.git.items().nth(index).map(|i| i.target());
+        if target.is_some() {
+            self.git.state.selected = target;
             self.git.reconcile(self.git_extent());
         }
         Action::Redraw
     }
     fn toggle_git_section(&mut self) -> Action {
         self.git.state.menu = false;
-        if self.git.page != Page::Status {
+        if matches!(self.git.page, Page::Processes | Page::Process(_)) {
             return self.show_git_process();
         }
-        let group = match self.git.state.selected {
-            Some(Target::Section(group) | Target::Path(group, _)) => group,
+        if self.git.page == Page::Diff {
+            return self.message("Diff detail is read-only; q returns to Status expansion");
+        }
+        let group = match self.git.state.selected.as_ref() {
+            Some(Target::Section(group)) => *group,
+            Some(Target::Path(group, path)) => {
+                if self.git.inspection.expanded
+                    && self
+                        .git
+                        .inspection
+                        .detail
+                        .as_ref()
+                        .is_some_and(|d| d.group == *group && d.change.path == *path)
+                {
+                    self.git.inspection.expanded = false;
+                    return Action::Redraw;
+                }
+                return self.open_git_diff(comparisons::Mode::Inline);
+            }
+            Some(Target::Hunk(_, _, id)) => {
+                self.git.inspection.expanded_hunk =
+                    if self.git.inspection.expanded_hunk == Some(*id) {
+                        None
+                    } else {
+                        Some(*id)
+                    };
+                return Action::Redraw;
+            }
             None => return self.message("No current Git section is selected"),
         };
         let index = Group::ALL
@@ -356,7 +474,6 @@ impl Session {
             .position(|g| *g == group)
             .expect("known Git group");
         self.git.state.collapsed[index] = !self.git.state.collapsed[index];
-        self.git.state.selected = Some(Target::Section(group));
         self.git.reconcile(self.git_extent());
         Action::Redraw
     }
@@ -366,6 +483,16 @@ impl Session {
             return Action::Wait;
         }
         for update in updates {
+            if self
+                .git
+                .inspection
+                .request
+                .as_ref()
+                .is_some_and(|r| r.operation == update.operation)
+            {
+                self.publish_git_diff(&update);
+                continue;
+            }
             if self
                 .git
                 .state
@@ -380,9 +507,14 @@ impl Session {
                     self.git.state.selected = None;
                     self.git.state.collapsed = [false; 4];
                     self.git.state.top = 0;
+                    self.git.inspection = comparisons::Inspection::default();
                 }
                 self.git.state.context = update.context;
                 self.git.reconcile(self.git_extent());
+                if let Some(resume) = self.git.inspection.after_refresh.take() {
+                    self.request_git_diff(resume);
+                    continue;
+                }
                 if self.git.visible
                     && self.input.focus() == Focus::Editing
                     && self.pending.is_none()
@@ -407,6 +539,7 @@ impl Session {
                 && self.input.focus() == Focus::Editing
                 && self.pending.is_none()
             {
+                self.git.inspection.after_refresh = None;
                 self.message("Git refresh failed; confirmed observation retained");
             }
         }
@@ -416,7 +549,7 @@ impl Session {
         if !self.git.visible || self.input.focus() != Focus::Editing {
             return None;
         }
-        if self.git.page != Page::Status
+        if matches!(self.git.page, Page::Processes | Page::Process(_))
             && !self.git.state.menu
             && self.pending.is_none()
             && self.input.prefix().is_none()
@@ -447,6 +580,11 @@ impl Session {
                             && painted.page == self.git.page
                             && painted.processes == self.git.process_ids().collect::<Vec<_>>()
                             && painted.process_top == self.git.process_top
+                            && painted.comparison
+                                == self.git.inspection.detail.as_ref().map(|d| d.id)
+                            && painted.comparison_top == self.git.inspection.top
+                            && painted.expanded == self.git.inspection.expanded
+                            && painted.expanded_hunk == self.git.inspection.expanded_hunk
                     })
                 {
                     return Some(
@@ -472,6 +610,8 @@ impl Session {
                             self.select_git_process(self.git.process_top + index)
                         } else if self.git.page == Page::Status {
                             self.select_git_row(self.git.state.top + index)
+                        } else if self.git.page == Page::Diff {
+                            self.select_git_diff(self.git.inspection.top + index)
                         } else {
                             Action::Wait
                         }
@@ -504,7 +644,15 @@ impl Session {
             .and_then(|id| self.git.engine.context(id));
         let observation = self.git.observation();
         let status = observation.and_then(|o| o.status.as_ref());
-        let mut rows = status.map(|s| items(s, &self.git.state.collapsed).skip(self.git.state.top));
+        let mut rows = self.git.items().skip(self.git.state.top);
+        let mut comparison_rows = self
+            .git
+            .inspection
+            .detail
+            .as_ref()
+            .into_iter()
+            .flat_map(|d| d.lines.iter().map(move |line| (d.as_ref(), line)))
+            .skip(self.git.inspection.top);
         let mut process_rows = self.git.process_rows().skip(match self.git.page {
             Page::Process(_) => self.git.detail_top,
             _ => self.git.process_top,
@@ -516,8 +664,9 @@ impl Session {
             &self.echo,
             match self.git.page {
                 Page::Status => {
-                    " Git Status  g refresh  Tab section  $ processes  ? actions  q return"
+                    " Git Status  Tab expand  Return visit  g refresh  $ processes  ? actions  q return"
                 }
+                Page::Diff => " Git Diff  g refresh  Return visit source  $ processes  q Status",
                 Page::Processes => " Git Processes  Return inspect  C-g cancel selected  q return",
                 Page::Process(_) => {
                     " Git Process  Up/Down scroll  C-g cancel this operation  q return"
@@ -531,6 +680,8 @@ impl Session {
                             "Git actions",
                             "g  git-refresh",
                             "Tab  git-toggle-section",
+                            "Return  git-visit-file",
+                            "M-x git-diff  selected comparison",
                             "$  git-processes",
                             "M-x / :  native commands",
                             "q / C-g  return to Status",
@@ -540,6 +691,27 @@ impl Session {
                         .to_string(),
                         false,
                     );
+                }
+                if self.git.page == Page::Diff {
+                    return if row < 3 {
+                        (self.git.diff_header(row), false)
+                    } else {
+                        comparison_rows.next().map_or_else(
+                            || (String::new(), false),
+                            |(diff, line)| {
+                                let selected = line.hunk.is_some()
+                                    && line.hunk == self.git.inspection.selected;
+                                (
+                                    format!(
+                                        "{} {}",
+                                        if selected { ">" } else { " " },
+                                        comparisons::line_label(diff, line)
+                                    ),
+                                    selected,
+                                )
+                            },
+                        )
+                    };
                 }
                 if self.git.page != Page::Status {
                     return if row < 3 {
@@ -571,7 +743,7 @@ impl Session {
                 if row == 2 {
                     return (
                         format!(
-                            "{}{}{}",
+                            "{}{}{}{}",
                             if self.git.state.request.is_some() {
                                 "Checking / refreshing  "
                             } else {
@@ -581,6 +753,11 @@ impl Session {
                                 "STALE: refresh failed; confirmed observation retained  "
                             } else {
                                 ""
+                            },
+                            if self.git.inspection.expanded {
+                                self.git.diff_status()
+                            } else {
+                                String::new()
                             },
                             if status.is_some_and(
                                 |s| s.completeness != crate::git::Completeness::Complete
@@ -614,7 +791,7 @@ impl Session {
                         false,
                     );
                 }
-                let item = rows.as_mut().and_then(Iterator::next);
+                let item = rows.next();
                 let selected = item.as_ref().is_some_and(|i| {
                     self.git
                         .state
@@ -631,6 +808,9 @@ impl Session {
                         "{marker}   {}",
                         label(path.path.as_os_str().as_encoded_bytes())
                     ),
+                    Some(Item::Detail(diff, line)) => {
+                        format!("{marker}     {}", comparisons::line_label(diff, line))
+                    }
                     None => String::new(),
                 };
                 (text, selected)
@@ -642,6 +822,7 @@ impl Session {
         frame.message_kind(self.echo_kind);
         self.prompt_frame(&mut frame, popup.as_ref())?;
         drop(rows);
+        drop(comparison_rows);
         drop(process_rows);
         self.git.painted = Some(Painted {
             context: self.git.state.context,
@@ -654,6 +835,10 @@ impl Session {
             page: self.git.page,
             processes: self.git.process_ids().collect(),
             process_top: self.git.process_top,
+            comparison: self.git.inspection.detail.as_ref().map(|d| d.id),
+            comparison_top: self.git.inspection.top,
+            expanded: self.git.inspection.expanded,
+            expanded_hunk: self.git.inspection.expanded_hunk,
         });
         Ok(frame)
     }

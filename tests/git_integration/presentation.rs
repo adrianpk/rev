@@ -244,6 +244,11 @@ fn semantic_pointer() {
     let omega = frame.iter().position(|s| s.contains("omega")).unwrap() as u16;
     click(editor, omega);
     assert!(selected(editor).contains("omega"));
+    let row = render(editor)
+        .iter()
+        .position(|s| s.contains("Untracked (3)"))
+        .unwrap() as u16;
+    click(editor, row);
     key(editor, KeyCode::Tab, KeyModifiers::NONE);
     let frame = render(editor).join("\n");
     assert!(frame.contains("Untracked (3)"));

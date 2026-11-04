@@ -14,16 +14,14 @@ impl Work {
     pub(super) fn process_header(&self, row: usize) -> String {
         match (self.page, row) {
             (Page::Processes, 0) => "Git Processes: active first, then recent".into(),
-            (Page::Processes, 1) => {
-                "Status observation operations; exact session identities".into()
-            }
+            (Page::Processes, 1) => "Status and diff operations; exact session identities".into(),
             (Page::Processes, 2) => self
                 .process_selected
                 .filter(|id| !self.process_ids().any(|current| current == *id))
                 .map_or(String::new(), |_| {
                     "Selected record expired; choose another operation explicitly".into()
                 }),
-            (Page::Process(id), 0) => format!("Git Process: {id:?} — Status observation"),
+            (Page::Process(id), 0) => format!("Git Process: {id:?} — {}", self.process_kind(id)),
             (Page::Process(id), 1) => self.process_summary(id).unwrap_or_else(|| {
                 "Record expired; this identity cannot target another operation".into()
             }),
@@ -34,10 +32,24 @@ impl Work {
             _ => String::new(),
         }
     }
+    fn process_kind(&self, id: OperationId) -> &'static str {
+        let kind = self
+            .engine
+            .progress()
+            .find(|p| p.operation == id)
+            .map(|p| p.kind)
+            .or_else(|| self.engine.record(id).map(|r| r.kind));
+        match kind {
+            Some(crate::git::OperationKind::Status) => "Status observation",
+            Some(crate::git::OperationKind::Diff) => "Diff comparison",
+            None => "expired operation",
+        }
+    }
     fn process_summary(&self, id: OperationId) -> Option<String> {
         if let Some(progress) = self.engine.progress().find(|p| p.operation == id) {
             return Some(format!(
-                "{id:?}  {:?}  {}s  child {}{}",
+                "{id:?}  {}  {:?}  {}s  child {}{}",
+                self.process_kind(id),
                 progress.phase,
                 progress.started.elapsed().as_secs(),
                 progress.child.map_or("none".into(), |id| id.to_string()),
@@ -50,7 +62,8 @@ impl Work {
         }
         let record = self.engine.record(id)?;
         Some(format!(
-            "{id:?}  {:?}  {}ms  {}{}",
+            "{id:?}  {}  {:?}  {}ms  {}{}",
+            self.process_kind(id),
             record.outcome,
             record.ended.duration_since(record.started).as_millis(),
             record
@@ -65,7 +78,7 @@ impl Work {
     }
     pub(super) fn process_rows(&self) -> Box<dyn Iterator<Item = (String, bool)> + '_> {
         match self.page {
-            Page::Status => Box::new(std::iter::empty()),
+            Page::Status | Page::Diff => Box::new(std::iter::empty()),
             Page::Processes => Box::new(self.process_ids().map(|id| {
                 let selected = self.process_selected == Some(id);
                 let summary = self.process_summary(id).unwrap_or_default();
@@ -120,8 +133,8 @@ impl Session {
                 "Source layout is in progress; retry process inspection after it completes",
             );
         }
-        if !self.git.visible || self.git.page == Page::Status {
-            self.git.process_origin = self.git.visible;
+        if !self.git.visible || matches!(self.git.page, Page::Status | Page::Diff) {
+            self.git.process_origin = self.git.visible.then_some(self.git.page);
             let selected = self.git.process_ids().next();
             self.git.process_selected = selected;
             self.git.process_top = 0;
@@ -138,7 +151,7 @@ impl Session {
         )
     }
     pub(super) fn show_git_process(&mut self) -> Action {
-        if !self.git.visible || self.git.page == Page::Status {
+        if !self.git.visible || !matches!(self.git.page, Page::Processes | Page::Process(_)) {
             return self.message("Select an operation in git-processes first");
         }
         let Some(id) = self.git.process_selected else {

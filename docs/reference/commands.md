@@ -698,13 +698,23 @@ Status reads disk and Git state; it does not save an unsaved source buffer.
 | `git-status` | Check installed Git and the actual repository, then open structured Status. |
 | `git-quit` | Return from the innermost Git menu or restore the retained editing context; started work continues. |
 | `git-refresh` | Replace Status only after a checked bounded observation succeeds; retain confirmed facts with a stale indication on failure. |
-| `git-toggle-section` | Toggle the selected Status section while retaining its semantic identity. |
+| `git-toggle-section` | Toggle a Status group, path comparison or selected semantic hunk; one path and one hunk body expand at a time. |
+| `git-diff` | Inspect the selected exact path/layer or hunk in read-only detail; q returns to Status. |
+| `git-visit-file` | Visit the selected canonical current source without replacing unsaved text; in Processes, inspect the selected operation. |
 | `git-dispatch` | Show the currently available native Git actions. |
 | `git-processes` | Inspect active operations followed by bounded recent records, including after leaving Git. |
 | `git-process-show` | Open the selected operation's phase, elapsed time, exit evidence and safely displayed retained diagnostics. |
 | `git-process-cancel` | Request bounded cancellation of the explicitly selected live operation; an expired identity cannot target a replacement. |
 
-The `keys.git` map owns q, g, Tab, ? and list navigation in both profiles.
+Tab on a path expands its exact comparison; Tab on a hunk expands its body.
+One path and one hunk body expand at a time. `git-diff` opens all retained patch
+lines in read-only detail, including explicit binary, rename, submodule,
+malformed and truncated results. g refreshes Status and the retained comparison;
+old detail is labeled stale until replacement succeeds. Return visits the real
+current file, preserving an existing modified source buffer. A deleted path or
+directory has no current source file to visit. q returns one presentation level.
+
+The `keys.git` map owns q, g, Tab, Return, ? and list navigation in both profiles.
 M-x and colon use the shared command catalog. Unmerged, Untracked, Unstaged
 and Staged sections appear in that order when nonempty. Clean, bare, unborn,
 detached, unavailable and truncated states remain explicit. Pointer selection

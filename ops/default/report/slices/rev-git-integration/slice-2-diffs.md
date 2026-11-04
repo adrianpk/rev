@@ -36,7 +36,24 @@ T2.1 adds the comparison backend:
   incomplete or malformed content has no supported hunk authority. Failed
   detail does not replace confirmed Status or its last retained inspection.
 
-T2.2 native presentation and T2.3 source/navigation acceptance remain pending.
+T2.2 adds native inspection and visits:
+
+- Tab toggles a Status group, exact path comparison or semantic hunk body.
+  One path and one hunk body expand at a time; navigation skips display-only
+  metadata and resolves hunk headers through immutable comparison identities.
+- `git-diff` opens full-canvas read-only patch detail. Refresh replaces Status
+  and the same comparison, preserving a surviving exact patch unit; failed or
+  incomplete detail remains explicitly stale/unverified or truncated.
+- Return visits the actual current file through normal canonical ingress,
+  retaining an existing modified buffer. Missing files and directories remain
+  inspection targets without creating a new empty source buffer.
+- q returns one presentation level. Process inspection retains its Status or
+  Diff origin and distinguishes operation kinds. C-g in diff navigation does
+  not cancel a process; process cancellation retains its explicit context.
+- Pointer receipts include comparison identity, expansion and viewport state.
+  Generated content remains outside writable source, Org, LSP and save paths.
+
+T2.3 both-profile source/navigation acceptance remains pending.
 
 ## Implementation Notes
 
@@ -62,6 +79,8 @@ operations must revalidate the complete comparison before effects.
 - Added generation-bound comparison admission and separate retained-detail
   failure state without replacing confirmed Status.
 - Added typed operation kinds to progress, completion and process records.
+- Registered working `git-diff` and `git-visit-file` commands; Return visits
+  current source in Status/Diff and inspects a selected operation in Processes.
 - Dependency and persistent storage contracts are unchanged.
 
 ## Files of Interest
@@ -69,6 +88,8 @@ operations must revalidate the complete comparison before effects.
 - `src/git/diff.rs`: comparison/hunk records, bounded indexing and parsing.
 - `src/git/work/detail.rs`: exact Git argv, paired reads and target verification.
 - `src/git.rs`: comparison admission, immutable publication and current checks.
+- `src/session/git/comparisons.rs`: native comparison state and canonical visits.
+- `src/session/git.rs`: semantic expansion, navigation and pointer receipts.
 - `tests/git_integration/diffs.rs`: real layer, path, special-file and stale-data
   fixtures, including controlled output corruption and concurrent file change.
 
@@ -76,13 +97,14 @@ operations must revalidate the complete comparison before effects.
 
 Development checks establish the backend foundation. The earlier combined Git
 run passed 27 tests; the focused comparison rerun covers the layer-specific
-rename correction. The controller's final clean-HEAD receipt follows complete
-T2.2-T2.3 implementation and PR-reference follow-up.
+rename correction. Nine native Status/presentation/process regression checks pass after T2.2.
+The controller's final clean-HEAD receipt follows T2.3 and PR-reference follow-up.
 
 - `cargo fmt --all -- --check`: passed.
 - `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo clippy --locked --lib --bin rev --test git_integration -- -D warnings`: passed.
 - `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test git_integration diffs:: -- --test-threads=1`: 6 passed after the layer-specific follow-up, about 34 seconds.
 - `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test git_integration -- --test-threads=1`: 27 passed before the layer-specific follow-up, about 66 seconds.
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test git_integration status::presentation -- --test-threads=1`: 9 passed after T2.2.
 - `git diff --check`: passed.
 
 The first bounded-detail fixture requested 1024 bytes and was rejected by the
@@ -91,6 +113,5 @@ its assertions on explicit truncation, byte admission and unsupported hunks.
 
 ## Risks and Follow-ups
 
-Complete T2.2 native expansion, read-only detail and canonical source visits,
-then T2.3 both-profile navigation and ownership acceptance before preparing the
-Slice 2 PR. Combined PTY and resource measurements remain assigned to Slice 13.
+Complete T2.3 both-profile navigation and ownership acceptance before preparing
+the Slice 2 PR. Combined PTY and resource measurements remain assigned to Slice 13.

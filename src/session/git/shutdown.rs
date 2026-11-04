@@ -19,7 +19,7 @@ impl Session {
             return self.error(&error.to_string());
         }
         let message = format!(
-            "Quit: terminate Git Status observations {operations:?}? y=terminate, n=cancel, C-g=cancel"
+            "Quit: terminate owned Git operations {operations:?}? y=terminate, n=cancel, C-g=cancel"
         );
         self.pending = Some(Pending::GitQuit {
             operations,

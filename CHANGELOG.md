@@ -11,7 +11,9 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 
 - [Inspect Git Status](docs/reference/commands.md#native-git-status) with C-x g,
   M-x or modal colon. Browse tracked and untracked changes without saving source
-  buffers, then return to the same windows and terminals. Inspect active and
+  buffers, expand exact staged and unstaged hunks, inspect read-only diffs and
+  visit current files without replacing unsaved text. Return to the same windows
+  and terminals. Inspect active and
   recent Git processes, cancel a selected operation, and confirm before quitting
   with Git work still running. Failed refreshes preserve confirmed Status.
 

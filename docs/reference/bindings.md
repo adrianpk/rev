@@ -59,10 +59,12 @@ Every command below is also available as `M-x` followed by its exact name.
 | `C-x g`, `M-x git-status`, `:git-status` | `git-status` | Discover the current repository and open full-canvas native Status. |
 | `q` in Git | `git-quit` | Dismiss the innermost menu or return to the retained editing context; owned work continues. |
 | `g` in Git | `git-refresh` | Request a replacement observation; retain confirmed Status on failure. |
-| Tab in Git | `git-toggle-section` | Collapse or expand the selected nonempty Status group. |
+| Tab in Git | `git-toggle-section` | Collapse or expand the selected Status group, path comparison or semantic hunk. |
 | `?` in Git | `git-dispatch` | Show the available native Git actions. |
 | `$` in Git, `M-x git-processes`, `:git-processes` | `git-processes` | Inspect active and recent owned operations without cancelling them. |
-| Return in Processes | `git-process-show` | Inspect the selected operation and retain its originating list selection. |
+| Return in Status or Diff | `git-visit-file` | Visit the canonical current source, preserving an existing modified buffer. |
+| Return in Processes | `git-visit-file` | Inspect the selected operation through the same route as `git-process-show`. |
+| `M-x git-diff`, `:git-diff` | `git-diff` | Inspect the exact selected comparison as read-only detail. |
 | `C-g` in Processes or process detail, `M-x git-process-cancel` | `git-process-cancel` | Cancel the selected live operation through its exact identity; menus and prompts keep first refusal. |
 | `M-x terminal-open`, `:terminal-open` | `terminal-open` | Open or select the instance default interactive terminal in the lower panel. |
 | `M-x terminal-toggle`, `:terminal-toggle` | `terminal-toggle` | Hide or restore the lower terminal panel without restarting the child. |
@@ -745,7 +747,7 @@ native cancellation. Prompts use `keys.minibuffer`.
 | Tab | `git-toggle-section` |
 | `?` | `git-dispatch` |
 | `$` | `git-processes` |
-| Return | `git-process-show` |
+| Return | `git-visit-file` |
 | Up, `C-p`, `p` | `previous-line` |
 | Down, `C-n`, `n` | `next-line` |
 

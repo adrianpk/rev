@@ -57,11 +57,11 @@ Requirements: GIT04, GIT17-GIT19
 PR: pending
 
 - [x] T2.1: Read staged, unstaged, unborn and untracked comparisons with exact semantic identities; admit bounded text hunks and truthful binary/rename/type-change/submodule/truncated detail.
-- [ ] T2.2: Add Status expansion, read-only detail, current-source visits, retained navigation and resize/pointer mappings without making generated Git content a writable source.
+- [x] T2.2: Add Status expansion, read-only detail, current-source visits, retained navigation and resize/pointer mappings without making generated Git content a writable source.
 - [ ] T2.3: Verify both layers of one path, multiple hunks, unusual path bytes, stale refresh, modified visiting buffers and return to the surviving editor layout.
 
-Validation: T2.1 development formatter and strict focused Clippy pass; six comparison tests pass, with an earlier 27-test shared Git run. Final clean-HEAD controller validation follows T2.2-T2.3.
-Integration: T2.1 backend foundation implemented on the approved slice branch. Native presentation and source-visit tasks remain pending; no slice PR or merge is claimed.
+Validation: T2.1 development formatter and strict focused Clippy pass; six comparison tests pass, with an earlier 27-test shared Git run. Nine native Status/presentation/process regressions pass after T2.2. Final clean-HEAD controller validation follows T2.3.
+Integration: T2.1 comparison backend and T2.2 native expansion/detail/source visits implemented on the approved slice branch. T2.3 acceptance remains pending; no slice PR or merge is claimed.
 
 ## Slice 3: Checked staging unstaging and discard
 
