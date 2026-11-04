@@ -7,7 +7,7 @@ Plan: [Native Git Integration Delivery](../plan/rev-git-integration.md)
 Spec: [Native Git Integration](../spec/editor-git-integration.md)
 Model: [Native Git Model](../spec/editor-git-integration-model.md)
 Approved: owner, 2026-11-04; complete fourteen-slice plan and autonomous Looper execution/integration through dev
-Active slice: Slice 5 - History ranges reflog and blame
+Active slice: Slice 6 - Branches and both tag kinds
 Progress owner: after startup, Looper checkpoint, canonical PRs and exact-candidate validation receipts
 
 ## Canonical slice map
@@ -97,7 +97,7 @@ Integration: [PR #261](https://forge.adrianpk.com/adrianpk/rev/pulls/261) merged
 
 ## Slice 5: History ranges reflog and blame
 
-Status: reviewing
+Status: delivered
 Branch: `feat/rev-git-integration-05-history`
 Expected PR title: `feat(git): browse history ranges reflog and blame`
 Report: `ops/default/report/slices/rev-git-integration/slice-5-history.md`
@@ -108,12 +108,12 @@ PR: `#262`
 - [x] T5.2: Implement exact ordered ranges, separate range-base and ordered revision marks, read-only reflog and blame inspection, and canonical source/revision visits.
 - [x] T5.3: Verify detached/unborn/merge history, paging limits, full object identities, historical file renames, line attribution and no checkout or source modification during inspection.
 
-Validation: T5.1 development checks passed six history tests, 21 command/configuration reference tests, strict focused Clippy, documentation and whitespace. T5.2 adds five passed real-Git/native inspection cases, strict Clippy and updated documentation checks. T5.3 adds four passed limit/failure cases, a fresh byte-bound case and both-profile SHA-256 range labels. The first controller attempt stopped on unsigned procfs group parsing during read-only cleanup; a signed-field reproducer and 11 selected process tests plus the focused reflog case pass after correction. The next receipt passed all 15 history tests but found 19 legacy fixture deadline failures. Removing repeated scans after confirmed completed-child cleanup reduces the unchanged focused diff case from 4.94 to 1.51 seconds. Fresh exact-HEAD validation follows the pushed cleanup correction.
-Integration: [PR #262](https://forge.adrianpk.com/adrianpk/rev/pulls/262) is open against dev on the approved branch. The existing report links the ordered final validation contract. Controller-owned integration is pending.
+Validation: Controller receipt `QVORUFWHKOYCHDV54YAVCNY2OX` passed all eight ordered checks at `3470ed3cff871c3d3d902400c8c228ce6ebc21a9`: 90 Git tests, 11 selected process tests and 21 command/configuration reference tests, formatter, strict Clippy, documentation and whitespace. Earlier cleanup failures and their focused corrections remain in the report.
+Integration: [PR #262](https://forge.adrianpk.com/adrianpk/rev/pulls/262) merged through controller-owned Rebase + Fast-forward into dev at `3470ed3cff871c3d3d902400c8c228ce6ebc21a9`. Slice 5 of 14 completed.
 
 ## Slice 6: Branches and both tag kinds
 
-Status: pending
+Status: active
 Branch: `feat/rev-git-integration-06-refs`
 Expected PR title: `feat(git): manage branches and local tag kinds`
 Report: `ops/default/report/slices/rev-git-integration/slice-6-refs.md`

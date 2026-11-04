@@ -1,6 +1,6 @@
 # Slice 5: History Ranges Reflog and Blame
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-git-integration
 Plan: `ops/default/plan/rev-git-integration.md`
 Tracker: `ops/default/tracker/rev-git-integration.md`
@@ -212,8 +212,13 @@ follow-up commit:
 - `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo run --locked --quiet --example documentation-check`
 - `git diff --check`
 
-The [canonical PR #262](https://forge.adrianpk.com/adrianpk/rev/pulls/262)
-Validation list and controller receipt provide the exact clean-HEAD results.
+Controller receipt `QVORUFWHKOYCHDV54YAVCNY2OX` passed all eight ordered
+checks above at clean candidate `3470ed3cff871c3d3d902400c8c228ce6ebc21a9`.
+It includes 90 Git tests, 11 selected process tests and 21 command/configuration
+reference tests. Documentation checked 503 commands, 266 configuration entries
+and 76 reachable pages with 485 links. The controller merged
+[PR #262](https://forge.adrianpk.com/adrianpk/rev/pulls/262) through Rebase +
+Fast-forward into dev at that same commit. Slice 5 of 14 completed.
 
 
 
