@@ -140,11 +140,11 @@ contain all 474 commands. Final exact-PR validation passed as recorded above.
 
 ## Slice 6: Session lifecycle and failure containment
 
-Status: active
+Status: reviewing
 Branch: `feat/rev-integrated-terminal-06-lifecycle`
 Expected PR title: `feat(terminal): preserve sessions and confirm owned shutdown`
 Report: `ops/default/report/slices/rev-integrated-terminal/slice-6-lifecycle.md`
-PR: pending
+PR: `#253`
 
 - [x] T6.1: Keep visibility separate from process lifetime, retain actual exited status/output, replace an exited default without erasing its buffer and release capacity only after explicit closure.
 - [x] T6.2: Confirm live-buffer termination and editor-wide session shutdown once, preserve declined choices, own process-group cleanup/reaping and handle failure without losing unsaved source or unrelated sessions.
@@ -163,7 +163,7 @@ resource scenarios plus native extras-failure containment in both profiles;
 finite flood fairness, blocked input, exact FD checks and owned cleanup retained.
 
 Validation: final clean PR head uses the exact ordered Slice 6 commands from the plan and frozen controller configuration; the controller retains its receipt.
-Integration: pending canonical PR and controller verification.
+Integration: canonical [PR #253](https://forge.adrianpk.com/adrianpk/rev/pulls/253) targets dev; awaiting controller verification and integration.
 
 ## Slice 7: Native and PTY acceptance
 
