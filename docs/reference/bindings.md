@@ -66,6 +66,7 @@ Every command below is also available as `M-x` followed by its exact name.
 | `M-x terminal-rename`, `:terminal-rename` | `terminal-rename` | Give the selected terminal buffer a unique name without changing its identity. |
 | `M-x terminal-open-here`, `:terminal-open-here` | `terminal-open-here` | Create a session from the current resource's directory context. |
 | `M-x terminal-open-other-pane`, `:terminal-open-other-pane` | `terminal-open-other-pane` | Select a terminal in the next pane, creating a right split when needed. |
+| `C-q` in live terminal input, `M-x terminal-send-next-key` | `terminal-send-next-key` | Send one following normalized key literally to the child, bypassing host recovery. |
 | `C-x b` | `switch-to-buffer` | Select a live buffer by name. |
 | `C-x C-b` | `list-buffers` | Select from the live buffer inventory. |
 | `C-x k` | `kill-buffer` | Close a buffer with modified-text protection. |

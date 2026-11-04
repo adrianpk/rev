@@ -23,7 +23,7 @@ impl Input {
         if key.modifiers.is_empty() {
             return false;
         }
-        map.is_prefix(&sequence)
+        (key.control('x') && map.is_prefix(&sequence))
             || matches!(
                 map.lookup(&sequence),
                 Some(Binding::Command(Command::ExecuteExtended))

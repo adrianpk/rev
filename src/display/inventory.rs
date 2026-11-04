@@ -17,6 +17,7 @@ impl Frame {
                 .filter(|b| !terminals || b.terminal().is_some())
         };
         self.terminal_rows.clear();
+        self.cursor_style = None;
         let extent = usize::from(self.size.text_rows());
         if extent == 0 {
             self.decision();

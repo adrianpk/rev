@@ -17,6 +17,8 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
   panes with `terminal-move-to-buffer` and `terminal-move-to-panel`. Configure
   startup shell preferences under `[terminal]`. Use `terminal-new` for independent
   sessions, `terminal-list` to select them and `terminal-rename` to name them.
+  Live input supports control keys, paging, function keys and child cursor modes;
+  use C-q to send one protected host key literally to the shell or tool.
 
 - [Run shell commands and text filters](docs/tutorials/user-guide/15-shell-commands.md)
   from M-x or colon, send selected unsaved text to tools such as sort/tr, and

@@ -1,5 +1,7 @@
 use alacritty_terminal::term::TermMode;
-use crossterm::event::{Event, KeyCode, KeyEvent, KeyModifiers, MouseEvent, MouseEventKind};
+use crossterm::event::{
+    Event, KeyCode, KeyEvent, KeyEventState, KeyModifiers, MouseEvent, MouseEventKind,
+};
 
 use super::super::{Action, Session};
 use crate::input::{Focus, Key};
@@ -77,17 +79,40 @@ impl Session {
         let Some(key) = Key::normalize(event) else {
             return Some(Action::Wait);
         };
-        if self.input.terminal_host_key(key) {
-            return None;
+        let id = self.current_terminal();
+        let literal = self
+            .terminals
+            .literal
+            .take()
+            .is_some_and(|armed| Some(armed) == id);
+        if !literal {
+            if key.code == KeyCode::Char('q') && key.modifiers == KeyModifiers::CONTROL {
+                return Some(self.terminal_literal_next());
+            }
+            if key.code == KeyCode::Char('x') && key.modifiers == KeyModifiers::ALT {
+                return Some(self.execute(crate::command::Command::ExecuteExtended));
+            }
+            if self.input.terminal_host_key(key) {
+                return None;
+            }
         }
-        let mode = self
-            .current_terminal()
+        let mode = id
             .and_then(|id| self.terminals.sessions.get(id))
-            .is_some_and(|s| s.screen().mode().contains(TermMode::APP_CURSOR));
-        let Some(bytes) = encode(key, mode) else {
+            .map_or(TermMode::empty(), |s| *s.screen().mode());
+        let Some(bytes) =
+            super::keyboard::encode(key, mode, event.state.contains(KeyEventState::KEYPAD))
+        else {
             return Some(self.message("Key has no terminal encoding"));
         };
         Some(self.terminal_send(&bytes))
+    }
+
+    pub(super) fn terminal_literal_next(&mut self) -> Action {
+        let Some(id) = self.current_terminal().filter(|_| self.terminals.focused) else {
+            return self.error("Literal terminal input requires a focused terminal");
+        };
+        self.terminals.literal = Some(id);
+        self.message("Terminal: send the next key literally")
     }
 
     pub(in crate::session) fn terminal_send(&mut self, bytes: &[u8]) -> Action {
@@ -108,50 +133,4 @@ impl Session {
             Err(error) => self.error(&format!("Terminal input: {error}")),
         }
     }
-}
-
-fn encode(key: Key, application: bool) -> Option<Vec<u8>> {
-    let mut bytes = if let KeyCode::Char(c) = key.code {
-        character(c, key.modifiers)?
-    } else {
-        special(key.code, application)?.to_vec()
-    };
-    if key.modifiers.contains(KeyModifiers::ALT) {
-        bytes.insert(0, 0x1b);
-    }
-    Some(bytes)
-}
-
-fn character(c: char, modifiers: KeyModifiers) -> Option<Vec<u8>> {
-    if modifiers.contains(KeyModifiers::CONTROL) {
-        return match c {
-            ' '..='?' => Some(vec![(c as u8) & 0x1f]),
-            '@'..='_' | 'a'..='z' => Some(vec![(c as u8) & 0x1f]),
-            _ => None,
-        };
-    }
-    Some(c.to_string().into_bytes())
-}
-
-fn special(code: KeyCode, application: bool) -> Option<&'static [u8]> {
-    match code {
-        KeyCode::Enter => Some(b"\r"),
-        KeyCode::Tab => Some(b"\t"),
-        KeyCode::Backspace => Some(b"\x7f"),
-        KeyCode::Esc => Some(b"\x1b"),
-        KeyCode::Delete => Some(b"\x1b[3~"),
-        _ => cursor_key(code, application),
-    }
-}
-
-fn cursor_key(code: KeyCode, application: bool) -> Option<&'static [u8]> {
-    let keys: [(KeyCode, &[u8], &[u8]); 4] = [
-        (KeyCode::Up, b"\x1b[A", b"\x1bOA"),
-        (KeyCode::Down, b"\x1b[B", b"\x1bOB"),
-        (KeyCode::Right, b"\x1b[C", b"\x1bOC"),
-        (KeyCode::Left, b"\x1b[D", b"\x1bOD"),
-    ];
-    keys.into_iter()
-        .find(|(key, _, _)| *key == code)
-        .map(|(_, normal, app)| if application { app } else { normal })
 }

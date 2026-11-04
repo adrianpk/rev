@@ -1,5 +1,6 @@
 mod entry;
 mod input;
+mod keyboard;
 mod lifecycle;
 mod placement;
 mod render;
@@ -35,6 +36,7 @@ pub(super) struct Work {
     pub(super) view: Option<ViewId>,
     contexts: std::collections::BTreeMap<SessionId, PathBuf>,
     viewport: crate::term::Viewport,
+    literal: Option<SessionId>,
 }
 
 impl Work {
@@ -78,6 +80,7 @@ impl Work {
             view: None,
             contexts: Default::default(),
             viewport: Default::default(),
+            literal: None,
         }
     }
 }
@@ -118,6 +121,13 @@ impl Session {
     }
 
     fn terminal_dispatch(&mut self, command: TerminalCommand) -> Action {
+        if command == TerminalCommand::SendNextKey {
+            return self.terminal_literal_next();
+        }
+        self.terminal_placement_command(command)
+    }
+
+    fn terminal_placement_command(&mut self, command: TerminalCommand) -> Action {
         match command {
             TerminalCommand::Open => self.terminal_open(),
             TerminalCommand::Toggle => self.terminal_toggle(),
@@ -127,10 +137,20 @@ impl Session {
             TerminalCommand::Rename => self.rename_terminal(),
             TerminalCommand::MoveToBuffer => self.terminal_move(true),
             TerminalCommand::MoveToPanel => self.terminal_move(false),
+            TerminalCommand::OpenHere | TerminalCommand::OpenOtherPane => {
+                self.terminal_entry_command(command)
+            }
+            TerminalCommand::SendNextKey => unreachable!("input commands dispatched separately"),
+        }
+    }
+
+    fn terminal_entry_command(&mut self, command: TerminalCommand) -> Action {
+        match command {
             TerminalCommand::OpenHere => {
                 self.terminal_create_at(false, self.terminal_directory(true))
             }
             TerminalCommand::OpenOtherPane => self.terminal_other_pane(),
+            _ => unreachable!("directory entry commands only"),
         }
     }
 
@@ -245,6 +265,7 @@ impl Session {
     }
 
     pub(super) fn terminal_return(&mut self) {
+        self.terminals.literal = None;
         self.restore_terminal_view();
         self.terminals.focused = false;
         if let Some((id, tree)) = self.terminals.home.take() {
@@ -266,6 +287,7 @@ impl Session {
     }
 
     pub(super) fn terminal_source_focus(&mut self) {
+        self.terminals.literal = None;
         self.terminals.focused = false;
         self.terminals.view = None;
         self.terminals.home = None;

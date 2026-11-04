@@ -89,6 +89,7 @@ impl Frame {
             );
         }
         if panel.active() {
+            self.cursor_style = cursor_style(session.screen().cursor_style());
             self.cursor = None;
             let cursor = grid.cursor.point;
             if offset == 0
@@ -125,6 +126,22 @@ impl Frame {
         )
         .expect("admitted terminal projection");
     }
+}
+
+fn cursor_style(
+    style: alacritty_terminal::vte::ansi::CursorStyle,
+) -> Option<crossterm::cursor::SetCursorStyle> {
+    use alacritty_terminal::vte::ansi::CursorShape;
+    use crossterm::cursor::SetCursorStyle;
+    Some(match (style.shape, style.blinking) {
+        (CursorShape::Block | CursorShape::HollowBlock, true) => SetCursorStyle::BlinkingBlock,
+        (CursorShape::Block | CursorShape::HollowBlock, false) => SetCursorStyle::SteadyBlock,
+        (CursorShape::Beam, true) => SetCursorStyle::BlinkingBar,
+        (CursorShape::Beam, false) => SetCursorStyle::SteadyBar,
+        (CursorShape::Underline, true) => SetCursorStyle::BlinkingUnderScore,
+        (CursorShape::Underline, false) => SetCursorStyle::SteadyUnderScore,
+        (CursorShape::Hidden, _) => return None,
+    })
 }
 
 pub(super) fn write(writer: &mut impl Write, run: &Run, palette: &Palette) -> io::Result<()> {

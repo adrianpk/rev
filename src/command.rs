@@ -109,7 +109,8 @@ pub enum Command {
 }
 
 impl Command {
-    pub const ALL: [Self; 447] = [
+    pub const ALL: [Self; 448] = [
+        Self::Terminal(TerminalCommand::SendNextKey),
         Self::Terminal(TerminalCommand::Open),
         Self::Terminal(TerminalCommand::Toggle),
         Self::Terminal(TerminalCommand::NewBuffer),

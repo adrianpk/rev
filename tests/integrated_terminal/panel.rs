@@ -1,3 +1,6 @@
+#[path = "interaction.rs"]
+mod interaction;
+
 use crossterm::event::{Event, KeyCode, KeyEvent, KeyModifiers};
 use rev::{
     buffer::{Buffers, Resource},
@@ -26,8 +29,16 @@ impl Editor {
         Self::with_keys(profile, height, "")
     }
     fn with_keys(profile: &str, height: u16, keys: &str) -> Self {
+        Self::with_script(
+            profile,
+            height,
+            keys,
+            "printf '\\033[2J\\033[HREADY:%s\\n' \"$1\"\npwd\nwhile IFS= read -r line; do\n case \"$line\" in\n ping) printf '\\033[31mPONG\\033[0m\\n';;\n change) mkdir -p changed; cd changed; printf CHANGED;;\n where) pwd;;\n scroll) i=0; while [ $i -lt 60 ]; do printf \"LINE%s\\n\" \"$i\"; i=$((i+1)); done;;\n alt) printf '\\033[?1049h\\033[2J\\033[HALTERNATE';;\n exit) exit 7;;\n *) printf 'INPUT:%s\\n' \"$line\";;\n esac\ndone\n",
+        )
+    }
+    fn with_script(profile: &str, height: u16, keys: &str, script: &str) -> Self {
         let fixture = Fixture::new();
-        let script = fixture.write("child.sh", "printf '\\033[2J\\033[HREADY:%s\\n' \"$1\"\npwd\nwhile IFS= read -r line; do\n case \"$line\" in\n ping) printf '\\033[31mPONG\\033[0m\\n';;\n change) mkdir -p changed; cd changed; printf CHANGED;;\n where) pwd;;\n scroll) i=0; while [ $i -lt 60 ]; do printf \"LINE%s\\n\" \"$i\"; i=$((i+1)); done;;\n alt) printf '\\033[?1049h\\033[2J\\033[HALTERNATE';;\n exit) exit 7;;\n *) printf 'INPUT:%s\\n' \"$line\";;\n esac\ndone\n");
+        let script = fixture.write("child.sh", script);
         let config = fixture.write("config.toml", &format!(
             "[editor]\ninteraction_profile='{profile}'\n[terminal]\nprogram='/bin/sh'\nargs=[{},'literal;not-evaluated']\n{keys}",
             serde_json::to_string(&script.to_string_lossy()).unwrap(),

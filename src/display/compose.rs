@@ -49,6 +49,7 @@ impl Frame {
             palette: buffers.palette().clone(),
             rows: Vec::new(),
             cursor: None,
+            cursor_style: None,
             previews: Vec::new(),
             source_rows: Vec::new(),
             terminal_rows: Default::default(),

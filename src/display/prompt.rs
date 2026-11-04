@@ -37,6 +37,7 @@ impl Frame {
         notice: &str,
         area: Area,
     ) -> Result<(), Error> {
+        self.cursor_style = None;
         if area.width() == 0 || self.rows.is_empty() {
             return Ok(());
         }

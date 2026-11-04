@@ -701,7 +701,10 @@ impl Session {
     }
 
     fn draw(&mut self, terminal: &mut Terminal<impl Write>) -> io::Result<()> {
-        if let Some(state) = self.editing_state() {
+        let frame = self.poll_frame().map_err(io::Error::other)?;
+        if let Some(style) = frame.cursor_style() {
+            terminal.set_cursor_style(style);
+        } else if let Some(state) = self.editing_state() {
             let style = match state {
                 crate::input::EditingState::Normal
                 | crate::input::EditingState::VisualCharacter
@@ -715,8 +718,10 @@ impl Session {
                 }
             };
             terminal.set_cursor_style(style);
+        } else {
+            terminal.set_cursor_style(crossterm::cursor::SetCursorStyle::DefaultUserShape);
         }
-        terminal.draw(&self.poll_frame().map_err(io::Error::other)?)
+        terminal.draw(&frame)
     }
 
     fn outcome(&mut self, outcome: Outcome, now: std::time::Instant) -> Action {

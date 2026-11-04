@@ -79,7 +79,7 @@ compiled M-x name once.
 | Native completion | `completion-at-point`, `completion-next`, `completion-previous`, `completion-accept`, `completion-cancel`, `completion-mode`, `completion-auto-mode` |
 | Command and session | `execute-extended-command`, `keyboard-quit`, `save-buffers-kill-terminal` |
 | Files | `find-file`, `save-buffer`, `write-file`, `revert-buffer` |
-| Terminal | `terminal-open`, `terminal-toggle`, `terminal-new`, `terminal-new-buffer`, `terminal-move-to-buffer`, `terminal-move-to-panel`, `terminal-open-here`, `terminal-open-other-pane`, `terminal-list`, `terminal-rename` |
+| Terminal | `terminal-open`, `terminal-toggle`, `terminal-new`, `terminal-new-buffer`, `terminal-move-to-buffer`, `terminal-move-to-panel`, `terminal-open-here`, `terminal-open-other-pane`, `terminal-list`, `terminal-rename`, `terminal-send-next-key` |
 | Shell | `shell-filter-region`, `shell-command-insert`, `shell-command-on-region`, `shell-command`, `shell-command-cancel`, `shell-command-output` |
 | AI | `ai-explain`, `ai-prompt`, `ai-implement`, `ai-apply-result`, `ai-discard-result`, `ai-set-directory`, `ai-select-model`, `ai-reset-session`, `ai-disconnect`, `ai-cancel`, `ai-save-command` |
 | Buffers | `switch-to-buffer`, `list-buffers`, `kill-buffer` |
@@ -632,8 +632,16 @@ select the executable and literal argument array; no shell starts automatically.
 The live panel owns printable keys and ordinary child input in either profile.
 `C-g` returns focus to the editor. `M-x` opens host commands while the panel is
 focused; a prompt's `C-g` cancels that prompt before returning editor focus.
-Printable colon and Escape belong to the live child. Use `terminal-toggle` to
-hide or restore the panel without restarting its shell. The panel remembers its
+Printable colon and Escape belong to the live child. `C-x` retains the host prefix.
+`C-q`, or `terminal-send-next-key`, forwards exactly one following normalized
+key to the child, including `C-g`, `M-x` or `C-x`. Key releases do not consume
+that request. Return, Tab, deletion, arrows, Home/End, paging and F1-F20 use
+classic VT encodings; modified movement uses native modifier parameters. Child
+application-cursor, reported application-keypad and newline modes are respected.
+The child cursor uses its requested block, bar or underline shape and blink
+state; host prompts and source editing restore their own cursor presentation.
+
+Use `terminal-toggle` to hide or restore the panel without restarting its shell. The panel remembers its
 height and clamps it to preserve a usable source pane.
 
 `list-buffers` and `switch-to-buffer` include the terminal's stable buffer name.

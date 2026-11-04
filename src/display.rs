@@ -105,6 +105,7 @@ pub struct Frame {
     palette: crate::config::Palette,
     rows: Vec<Row>,
     cursor: Option<Position>,
+    cursor_style: Option<crossterm::cursor::SetCursorStyle>,
     previews: Vec<preview::Placement>,
     source_rows: Vec<SourceRows>,
     terminal_rows: std::collections::BTreeMap<u16, Vec<terminal::Run>>,
@@ -131,6 +132,7 @@ impl Frame {
             palette: palette.clone(),
             rows: Vec::new(),
             cursor: None,
+            cursor_style: None,
             previews: Vec::new(),
             source_rows: Vec::new(),
             terminal_rows: Default::default(),
@@ -150,6 +152,7 @@ impl Frame {
             palette: crate::config::Palette::default(),
             rows: Vec::new(),
             cursor: None,
+            cursor_style: None,
             previews: Vec::new(),
             source_rows: Vec::new(),
             terminal_rows: Default::default(),
@@ -234,6 +237,11 @@ impl Frame {
 
     pub fn cursor(&self) -> Option<Position> {
         self.cursor
+    }
+
+    /// Child cursor presentation for the focused native terminal surface.
+    pub fn cursor_style(&self) -> Option<crossterm::cursor::SetCursorStyle> {
+        self.cursor_style
     }
 
     /// Writes only projected rows and an admitted cursor, then flushes once.
