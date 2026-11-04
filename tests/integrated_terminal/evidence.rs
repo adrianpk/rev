@@ -131,7 +131,7 @@ fn retained_links() {
     }
     let uri = "https://example.invalid/$((1+2))?q=a%20b";
     let script = format!(
-        "stty raw -echo\nprintf '\\033]8;;{uri}\\033\\\\CLICK\\033]8;;\\033\\\\\\r\\n\\033]8;;javascript:bad\\033\\\\REJECT\\033]8;;\\033\\\\READY'\nwhile [ ! -f burst ]; do sleep 0.01; done\nprintf '\\033[2J\\033[H\\033]8;;https://new.invalid\\033\\\\CHANGED\\033]8;;\\033\\\\'\nwhile :; do sleep 60; done\n"
+        "stty raw -echo\nprintf '%b' '\\033]8;;{uri}\\033\\\\CLICK\\033]8;;\\033\\\\\\r\\n\\033]8;;javascript:bad\\033\\\\REJECT\\033]8;;\\033\\\\READY'\nwhile [ ! -f burst ]; do sleep 0.01; done\nprintf '\\033[2J\\033[H\\033]8;;https://new.invalid\\033\\\\CHANGED\\033]8;;\\033\\\\'\nwhile :; do sleep 60; done\n"
     );
     let mut editor = Editor::with_script(
         "non-modal",
