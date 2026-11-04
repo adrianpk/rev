@@ -4,6 +4,7 @@ set -euo pipefail
 if [[ ${1-} == --editor ]]; then
     shift
     printf 'REV_EDITOR_PID=%s\n' "$$"
+    printf 'REV_EDITOR_SIZE=%s\n' "$(stty size)"
     printf '%s\n' "$$" > "$(dirname "$2")/editor.pid"
     exec "$1" "$2"
 fi

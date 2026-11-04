@@ -22,6 +22,7 @@ pub(crate) struct Terminal {
     bytes: usize,
     deadline: Instant,
     editor: String,
+    dimensions: Option<(usize, usize)>,
 }
 
 impl Terminal {
@@ -65,6 +66,7 @@ impl Terminal {
             bytes: 0,
             deadline: Instant::now() + Duration::from_secs(8),
             editor: String::new(),
+            dimensions: None,
         };
         terminal.wait(|text| text.contains("REV_EDITOR_PID=") && text.contains(name))?;
         terminal.editor = terminal
@@ -74,6 +76,7 @@ impl Terminal {
             .ok_or("missing owned editor PID")?
             .trim()
             .to_owned();
+        terminal.dimensions = dimensions(&terminal.output);
         terminal.frame(|frame| frame.contains(name))?;
         Ok(terminal)
     }
@@ -112,14 +115,15 @@ impl Terminal {
     }
 
     pub(crate) fn frame(&mut self, predicate: impl Fn(&str) -> bool) -> Result<String> {
-        if let Err(error) = self.wait(|output| frame(output).is_some_and(&predicate)) {
+        let dimensions = self.dimensions;
+        if let Err(error) = self.wait(|output| frame(output, dimensions).is_some_and(&predicate)) {
             return Err(format!(
                 "PTY frame failed: {error}; tail={:?}",
                 self.output.chars().rev().take(1500).collect::<String>()
             )
             .into());
         }
-        Ok(frame(&self.output)
+        Ok(frame(&self.output, dimensions)
             .ok_or("missing completed frame")?
             .to_owned())
     }
@@ -188,11 +192,35 @@ impl Drop for Terminal {
     }
 }
 
-fn frame(output: &str) -> Option<&str> {
+// A child can legitimately hide the host cursor. Only the owned integrated
+// fixture advertises geometry; older source journeys retain their Show footer.
+fn dimensions(output: &str) -> Option<(usize, usize)> {
+    let line = output
+        .lines()
+        .find_map(|line| line.strip_prefix("REV_EDITOR_SIZE="))?;
+    let mut words = line.split_whitespace();
+    Some((words.next()?.parse().ok()?, words.next()?.parse().ok()?))
+}
+fn frame(output: &str, dimensions: Option<(usize, usize)>) -> Option<&str> {
     let start = output.rfind(HIDE)?;
     let frame = &output[start..];
-    let end = frame.rfind(SHOW)?;
-    Some(&frame[..end + SHOW.len()])
+    if let Some(end) = frame.rfind(SHOW) {
+        return Some(&frame[..end + SHOW.len()]);
+    }
+    let (rows, columns) = dimensions?;
+    hidden_frame(frame, rows, columns)
+}
+fn hidden_frame(frame: &str, rows: usize, columns: usize) -> Option<&str> {
+    use unicode_width::UnicodeWidthStr;
+    let last = format!("\x1b[{rows};1H");
+    let start = frame.rfind(&last)? + last.len();
+    for (offset, _) in frame[start..].match_indices("\x1b[0m") {
+        let end = start + offset + 4;
+        if row(&frame[..end], rows).width() == columns {
+            return Some(&frame[..end]);
+        }
+    }
+    None
 }
 
 pub(crate) fn row(frame: &str, wanted: usize) -> String {
