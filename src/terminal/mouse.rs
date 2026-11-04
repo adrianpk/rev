@@ -6,6 +6,7 @@ pub(super) struct Reporting {
     active: bool,
     sgr: bool,
     buttons: bool,
+    motion: bool,
 }
 
 impl Reporting {
@@ -42,7 +43,37 @@ impl Reporting {
 
     fn restore(&mut self, output: &mut impl Write) -> io::Result<()> {
         self.active = false;
-        super::restoration([self.disable_buttons(output), self.disable_sgr(output)])
+        super::restoration([
+            self.disable_motion(output),
+            self.disable_buttons(output),
+            self.disable_sgr(output),
+        ])
+    }
+
+    pub(super) fn motion(&mut self, output: &mut impl Write, enabled: bool) -> io::Result<()> {
+        if enabled {
+            if !self.active {
+                return Err(io::Error::other("motion requires owned mouse reporting"));
+            }
+            if !self.motion {
+                self.motion = true;
+                emit(output, b"\x1b[?1003h", "enable mouse motion tracking")?;
+            }
+        } else if self.motion {
+            self.disable_motion(output)?;
+            if self.active {
+                emit(output, b"\x1b[?1002h", "restore mouse button tracking")?;
+            }
+        }
+        Ok(())
+    }
+
+    fn disable_motion(&mut self, output: &mut impl Write) -> io::Result<()> {
+        if self.motion {
+            emit(output, b"\x1b[?1003l", "disable mouse motion tracking")?;
+            self.motion = false;
+        }
+        Ok(())
     }
 
     fn disable_buttons(&mut self, output: &mut impl Write) -> io::Result<()> {

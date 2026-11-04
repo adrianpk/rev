@@ -7,6 +7,41 @@ const BUTTONS_ON: &[u8] = b"\x1b[?1002h";
 const BUTTONS_OFF: &[u8] = b"\x1b[?1002l";
 const SGR_OFF: &[u8] = b"\x1b[?1006l";
 
+// A child motion mode must unwind to native buttons and eventually restore all
+// host modes. Failed acquisition retains its undo obligation as well.
+#[test]
+fn child_motion() {
+    let motion_on = b"\x1b[?1003h";
+    let motion_off = b"\x1b[?1003l";
+    let mut reporting = Reporting::default();
+    let mut output = Fault::default();
+    assert!(reporting.motion(&mut output, true).is_err());
+    reporting.set(&mut output, true).unwrap();
+    reporting.motion(&mut output, true).unwrap();
+    reporting.motion(&mut output, true).unwrap();
+    reporting.motion(&mut output, false).unwrap();
+    assert_eq!(
+        output.bytes,
+        [SGR_ON, BUTTONS_ON, motion_on, motion_off, BUTTONS_ON].concat()
+    );
+    reporting.motion(&mut output, true).unwrap();
+    reporting.set(&mut output, false).unwrap();
+    assert!(
+        output
+            .bytes
+            .ends_with(&[motion_off.as_slice(), BUTTONS_OFF, SGR_OFF].concat())
+    );
+    output.reject = vec![motion_on];
+    reporting.set(&mut output, true).unwrap();
+    assert!(reporting.motion(&mut output, true).is_err());
+    reporting.set(&mut output, false).unwrap();
+    assert!(
+        output
+            .bytes
+            .ends_with(&[motion_off.as_slice(), BUTTONS_OFF, SGR_OFF].concat())
+    );
+}
+
 #[derive(Default)]
 struct Fault {
     bytes: Vec<u8>,

@@ -2,7 +2,10 @@ mod entry;
 mod input;
 mod keyboard;
 mod lifecycle;
+mod link;
+mod mouse;
 mod placement;
+mod pointer;
 mod render;
 mod selection;
 mod source;
@@ -37,6 +40,8 @@ pub(super) struct Work {
     contexts: std::collections::BTreeMap<SessionId, PathBuf>,
     viewport: crate::term::Viewport,
     literal: Option<SessionId>,
+    capture: Option<pointer::Capture>,
+    link: Option<link::Activation>,
 }
 
 impl Work {
@@ -81,6 +86,8 @@ impl Work {
             contexts: Default::default(),
             viewport: Default::default(),
             literal: None,
+            capture: None,
+            link: None,
         }
     }
 }
@@ -262,6 +269,7 @@ impl Session {
     }
 
     pub(super) fn terminal_return(&mut self) {
+        self.cancel_terminal_pointer();
         self.terminals.literal = None;
         self.restore_terminal_view();
         self.terminals.focused = false;
@@ -284,6 +292,7 @@ impl Session {
     }
 
     pub(super) fn terminal_source_focus(&mut self) {
+        self.cancel_terminal_pointer();
         self.terminals.literal = None;
         self.terminals.focused = false;
         self.terminals.view = None;
@@ -346,17 +355,18 @@ impl Session {
     }
 
     pub(super) fn terminal_remaining(&self) -> Option<Duration> {
-        self.terminals.sessions.is_ready().then_some(Duration::ZERO)
+        (self.terminals.sessions.is_ready() || self.terminal_link_ready()).then_some(Duration::ZERO)
     }
 
     pub(super) fn expire_terminals(&mut self) -> Action {
+        let link = self.expire_terminal_link();
         if !self.terminals.sessions.is_ready() {
-            return Action::Wait;
+            return link;
         }
         let work = self.terminals.sessions.service();
         let closure = self.finish_terminal_closures();
         if work.changed.is_empty() {
-            closure
+            if link != Action::Wait { link } else { closure }
         } else {
             Action::Redraw
         }

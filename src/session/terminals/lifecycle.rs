@@ -5,7 +5,9 @@ impl Session {
     /// Finishes owned workers outside the interactive event loop. Embedders
     /// must call this before process exit; ordinary buffer closure is async.
     pub fn shutdown_terminals(&mut self) -> std::io::Result<()> {
-        self.terminals.sessions.shutdown()
+        let link = self.stop_terminal_link();
+        let sessions = self.terminals.sessions.shutdown();
+        link.and(sessions)
     }
 
     pub(in crate::session) fn close_terminal(&mut self, id: SessionId, kill: Kill) -> Action {

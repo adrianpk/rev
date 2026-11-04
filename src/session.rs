@@ -300,7 +300,7 @@ impl Session {
         self.start_terminal(terminal)?;
         loop {
             let action = self.read_input()?;
-            terminal.set_mouse_reporting(self.mouse_enabled())?;
+            self.sync_terminal_mouse(terminal)?;
             match action {
                 Action::Exit => return Ok(()),
                 Action::Redraw => self.draw(terminal)?,
@@ -310,9 +310,15 @@ impl Session {
     }
 
     fn start_terminal(&mut self, terminal: &mut Terminal<impl Write>) -> io::Result<()> {
-        terminal.set_mouse_reporting(self.mouse_enabled())?;
+        self.sync_terminal_mouse(terminal)?;
         terminal.set_cursor_color(self.buffers.palette().cursor)?;
         self.draw(terminal)
+    }
+
+    fn sync_terminal_mouse(&self, terminal: &mut Terminal<impl Write>) -> io::Result<()> {
+        let (enabled, motion) = self.terminal_pointer_reporting();
+        terminal.set_mouse_reporting(enabled)?;
+        terminal.set_mouse_motion(motion)
     }
 
     /// Takes ownership of canonical buffers and a qualified initial view.

@@ -33,12 +33,26 @@ cursor shapes, hidden cursor, styles, resize and output while source focus
 remains selected. Unsupported effects and clipboard controls never reach the
 host output.
 
+Child mouse reporting uses its requested classic, UTF-8 or SGR coordinate
+protocol. Shift bypasses reporting for local selection and bounded scrolling;
+mirrored attachments retain independent state. Pointer capture clips releases
+outside the original terminal and preserves source-owned drags. Control-click
+validates an OSC 8 URI and starts one bounded configured-viewer operation with
+literal argv. Unsolicited output never launches that viewer.
+
 ## Implementation Notes
 
 The keyboard adapter emits bounded complete sequences to the existing atomic
 input queue. Extended keyboard negotiation remains disabled. A single armed
 literal key is scoped to the current session and cleared on source return.
-Dependencies, resource limits and process ownership remain unchanged.
+Dependencies and terminal resource limits remain unchanged. Each attachment
+retains two selection endpoints without a text copy; one editor-wide capture
+retains only session/view identities. Viewer assembly reuses the configured
+viewer owner and its existing limits. A completion wake and one bounded result
+slot keep process IO and waits off the UI without an idle polling timer. The
+noninteractive shutdown barrier also waits for owned viewer cancellation.
+Native all-motion tracking is reversible and acquired only for a focused child
+requesting it; source contexts retain their ordinary button tracking.
 
 ## Contracts Added or Changed
 
@@ -50,7 +64,9 @@ prefixes. A frame exposes optional native terminal cursor style metadata.
 
 - `src/session/terminals/keyboard.rs`: classic VT keyboard encoding.
 - `src/session/terminals/input.rs`: host priority and literal-next routing.
-- `src/display/terminal.rs`: native cursor presentation.
+- `src/display/terminal.rs`: native cursor, palette and local selection presentation.
+- `src/session/terminals/pointer.rs`: checked pointer focus and capture.
+- `src/session/terminals/link.rs`: URI admission and owned viewer completion.
 - `tests/integrated_terminal/interaction.rs`: exact real-PTY input checks.
 
 Task commits: T4.1 `5f3ae4f4d345`, with cancellation correction
@@ -84,6 +100,5 @@ application modes, protected-key forwarding and host transient cancellation.
 
 ## Risks and Follow-ups
 
-T4.3 pointer/link admission remains active
-within this slice. Stable retained copy projections and paste transfer remain
+T4.3 focused and final ordered validation remain pending. Stable retained copy projections and paste transfer remain
 in their recorded subsequent slice.

@@ -154,10 +154,12 @@ impl Session {
             // The pending frame exposes no current source mapping. Do not let
             // a click on an obsolete surface redirect a canonical source edit.
             self.cancel_pointer_capture();
+            self.cancel_terminal_pointer();
             return Action::Wait;
         }
         if !matches!(event, Event::Mouse(_)) {
             self.cancel_pointer_capture();
+            self.cancel_terminal_pointer();
         }
         self.sync_input_context();
         let expired = if matches!(event, Event::Resize(..)) && self.layout_active() {

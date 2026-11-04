@@ -56,6 +56,11 @@ impl Frame {
                     .clone();
                     cell.fg = resolved(cell.fg, session.screen().colors());
                     cell.bg = resolved(cell.bg, session.screen().colors());
+                    select_cell(
+                        &mut cell,
+                        Point::new(Line(i32::from(row) - offset), Column(usize::from(column))),
+                        viewport.selection,
+                    );
                     if cell.flags.contains(Flags::WIDE_CHAR) && column + 1 == area.width() {
                         cell.c = ' ';
                         cell.extra = None;
@@ -127,6 +132,12 @@ impl Frame {
             },
         )
         .expect("admitted terminal projection");
+    }
+}
+
+fn select_cell(cell: &mut Cell, point: Point, selection: Option<crate::term::Selection>) {
+    if selection.is_some_and(|s| s.contains(point)) {
+        cell.flags.toggle(Flags::INVERSE);
     }
 }
 

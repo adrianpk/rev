@@ -7,6 +7,7 @@ mod limits;
 mod process;
 mod readiness;
 mod session;
+mod viewport;
 
 pub use limits::{
     COMBINING_SCALARS, CONTROL_BYTES, EDITOR_CELLS, EXTRA_BYTES, Geometry, Launch, Limits,
@@ -22,16 +23,11 @@ use std::{
         atomic::{AtomicBool, Ordering},
     },
 };
+pub use viewport::{Selection, Viewport};
 
 /// Stable process/emulator identity, independent of future buffer placement.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct SessionId(u64);
-/// Retained-output offset for one attachment. Focus and splits never share
-/// mutable navigation state; the renderer clamps it to admitted history.
-#[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
-pub struct Viewport {
-    pub offset: usize,
-}
 impl SessionId {
     pub fn number(self) -> u64 {
         self.0

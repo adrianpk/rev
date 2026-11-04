@@ -1,5 +1,7 @@
 #[path = "interaction.rs"]
 mod interaction;
+#[path = "pointer.rs"]
+mod pointer;
 
 use crossterm::event::{Event, KeyCode, KeyEvent, KeyModifiers};
 use rev::{

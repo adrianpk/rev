@@ -641,8 +641,27 @@ application-cursor, reported application-keypad and newline modes are respected.
 The child cursor uses its requested block, bar or underline shape and blink
 state; host prompts and source editing restore their own cursor presentation.
 
-Use `terminal-toggle` to hide or restore the panel without restarting its shell. The panel remembers its
-height and clamps it to preserve a usable source pane.
+Child-enabled pointer reporting uses classic, UTF-8 or SGR coordinates with
+button, drag, wheel and requested motion events. Shift retains local cell
+selection and bounded history scrolling. Without child reporting, pointer
+selection and wheel scrolling are local to that attachment; retained-history
+views also keep local control. Releasing outside a captured terminal clips to
+its admitted cells. Source drags retain their original source owner.
+Visible terminal surfaces acquire native mouse reports even when source mouse
+mode is disabled; only a focused child requesting motion acquires all-motion
+tracking. Hiding or leaving the terminal restores native tracking ownership.
+
+Control-click activates an OSC 8 hyperlink only after URI validation. Admitted
+schemes are HTTP, HTTPS, mailto and local file URIs; remote file authorities and
+executable schemes are rejected. Links require explicit `org.tools.viewer`
+argv, using the existing `{target}` substitution or one appended target. The
+viewer receives the URI as literal data in the terminal's creation directory,
+with the existing viewer time/output limits. One activation can be owned at a
+time. Missing configuration and viewer failure remain visible. Child clipboard
+requests, host commands, title effects and unsupported graphics remain inert.
+
+Use `terminal-toggle` to hide or restore the panel without restarting its shell.
+The panel remembers its height and clamps it to preserve a usable source pane.
 
 `list-buffers` and `switch-to-buffer` include the terminal's stable buffer name.
 Selecting it restores its current placement. Use `terminal-new` for an

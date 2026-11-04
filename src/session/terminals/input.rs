@@ -1,7 +1,5 @@
 use alacritty_terminal::term::TermMode;
-use crossterm::event::{
-    Event, KeyCode, KeyEvent, KeyEventState, KeyModifiers, MouseEvent, MouseEventKind,
-};
+use crossterm::event::{Event, KeyCode, KeyEvent, KeyEventState, KeyModifiers};
 
 use super::super::{Action, Session};
 use crate::input::{Focus, Key};
@@ -30,55 +28,6 @@ impl Session {
         self.input.focus() != Focus::Editing
             || self.pending.is_some()
             || self.input.prefix().is_some()
-    }
-
-    fn terminal_pointer(&mut self, mouse: MouseEvent) -> Option<Action> {
-        if let Some(view) = self.terminal_pointer_view(mouse) {
-            return Some(view);
-        }
-        let panel = self.composition().and_then(|c| c.terminal());
-        if panel.is_some_and(|p| {
-            let a = p.outer();
-            (a.column()..a.column() + a.width()).contains(&mouse.column)
-                && (a.row()..a.row() + a.height()).contains(&mouse.row)
-        }) {
-            if matches!(mouse.kind, MouseEventKind::Down(_)) {
-                if !self.terminals.focused {
-                    self.terminals.home = Some((self.windows.selected_id(), self.tree.focused()));
-                }
-                self.terminals.focused = true;
-                self.tree.edit();
-                self.sync_input_context();
-            }
-            return Some(Action::Redraw);
-        }
-        if matches!(mouse.kind, MouseEventKind::Down(_)) {
-            self.terminal_source_focus();
-        }
-        None
-    }
-
-    fn terminal_pointer_view(&mut self, mouse: MouseEvent) -> Option<Action> {
-        let composition = self.composition()?;
-        let (view, _) = composition.panels().iter().find(|(id, panel)| {
-            let area = panel.outer();
-            let contains = (area.column()..area.column() + area.width()).contains(&mouse.column)
-                && (area.row()..area.row() + area.height()).contains(&mouse.row);
-            contains
-                && self
-                    .windows
-                    .get(*id)
-                    .ok()
-                    .and_then(|v| self.buffers.get(v.point.stamp.buffer).ok())
-                    .is_some_and(|b| b.terminal().is_some())
-        })?;
-        if matches!(mouse.kind, MouseEventKind::Down(_)) {
-            return Some(match self.select_view(*view) {
-                Ok(()) => Action::Redraw,
-                Err(error) => self.error(&error.to_string()),
-            });
-        }
-        Some(Action::Wait)
     }
 
     fn terminal_key(&mut self, event: KeyEvent) -> Option<Action> {

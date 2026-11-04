@@ -90,7 +90,7 @@ impl<W: Write> Terminal<W> {
         ])
     }
 
-    /// Reversibly owns only button-event tracking and SGR coordinates. The
+    /// Reversibly owns button-event tracking and SGR coordinates. The
     /// native session supplies startup preference and runtime mode changes.
     pub fn set_mouse_reporting(&mut self, enabled: bool) -> io::Result<()> {
         if enabled && !self.screen {
@@ -99,6 +99,12 @@ impl<W: Write> Terminal<W> {
             ));
         }
         self.mouse.set(&mut self.output, enabled)
+    }
+
+    /// All-motion events are acquired only for a focused child requesting them.
+    /// Disabling restores the ordinary native button-tracking mode.
+    pub fn set_mouse_motion(&mut self, enabled: bool) -> io::Result<()> {
+        self.mouse.motion(&mut self.output, enabled)
     }
 
     /// Optional DECSCUSR feedback. Unsupported terminals may ignore it; a shape

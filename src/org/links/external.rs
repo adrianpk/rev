@@ -81,6 +81,19 @@ impl Viewer {
     pub(crate) fn label(&self) -> &str {
         &self.argv[0]
     }
+    pub(crate) fn program(mut self, target: String, directory: PathBuf) -> Program {
+        if let Some(at) = self.argv.iter().position(|a| a == "{target}") {
+            self.argv[at] = target;
+        } else {
+            self.argv.push(target);
+        }
+        Program {
+            argv: self.argv,
+            directory,
+            seconds: self.seconds,
+            output_bytes: self.output_bytes,
+        }
+    }
 }
 impl Follow {
     pub(crate) fn external_resource(&self) -> bool {
@@ -164,19 +177,7 @@ impl External {
             return Err("External link source changed before launch".into());
         }
         let target = observed.resource_value()?;
-        let mut argv = self.viewer.argv;
-        if let Some(at) = argv.iter().position(|a| a == "{target}") {
-            argv[at] = target;
-        } else {
-            argv.push(target);
-        }
-        Program {
-            argv,
-            directory,
-            seconds: self.viewer.seconds,
-            output_bytes: self.viewer.output_bytes,
-        }
-        .run(cancel)
+        self.viewer.program(target, directory).run(cancel)
     }
 }
 fn media(path: &Path) -> bool {
