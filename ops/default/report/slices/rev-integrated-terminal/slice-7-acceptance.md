@@ -1,6 +1,6 @@
 # Slice 7: Native and PTY Acceptance
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-integrated-terminal
 Plan: [Integrated Terminal Delivery](../../../plan/rev-integrated-terminal.md)
 Tracker: [Integrated Terminal Tracker](../../../tracker/rev-integrated-terminal.md)
@@ -75,6 +75,19 @@ The failing receipt is `4VJUJIZITXHW3I5K2CSIVNDJZM` at
 
 ## Validation
 
+Final canonical receipt `C4HWXE56WCZ757B54BGMDKQ333` passed at
+`47bc4911ee8a6bd1886d153ddb87d8e5b8b8c6d2`, which canonical PR #254 merged unchanged into dev:
+
+- `cargo fmt --all -- --check`
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo clippy --locked --all-targets -- -D warnings`
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test integrated_terminal -- --test-threads=1`
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 bash scripts/check-integrated-terminal.sh`
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo run --locked --quiet --example documentation-check`
+- `git diff --check`
+
+The serial integration target passed 45 tests. Both native/host profiles,
+normal/error restoration and exact FD/thread retirement passed.
+
 Focused receipt `TF7COIF6DUMGCENUZH4237HRMM` passed at
 `dee525cecdd8daf5da0e905c166cecf202179a9a`:
 
@@ -119,5 +132,4 @@ latency guarantees; active CPU covers the owner and two shell leaders.
 
 The fault case injects one write error inside a real controlling PTY. It proves
 cleanup and restoration orchestration with subsequent writes available, not
-recovery from an unavailable physical terminal. Controller integration remains
-outstanding. User guidance is the recorded next slice.
+recovery from an unavailable physical terminal. Canonical PR #254 is integrated; user guidance is the recorded next slice.

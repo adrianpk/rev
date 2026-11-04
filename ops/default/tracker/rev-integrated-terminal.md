@@ -7,7 +7,7 @@ Plan: [Integrated Terminal Delivery](../plan/rev-integrated-terminal.md)
 Spec: [Integrated Terminal Sessions](../spec/editor-integrated-terminal.md)
 Model: [Integrated Terminal Model](../spec/editor-integrated-terminal-model.md)
 Approved: owner, 2026-11-03; explicit request to start the approved terminal delivery through Looper
-Active slice: Slice 7 - Native and PTY acceptance
+Active slice: Slice 8 - User guidance and joint integration
 Progress owner: Looper checkpoint, canonical PRs and exact-candidate validation receipts
 
 ## Canonical slice map
@@ -167,7 +167,7 @@ Integration: canonical [PR #253](https://forge.adrianpk.com/adrianpk/rev/pulls/2
 
 ## Slice 7: Native and PTY acceptance
 
-Status: active
+Status: delivered
 Branch: `feat/rev-integrated-terminal-07-acceptance`
 Expected PR title: `test(terminal): verify shells tools and bounded session resources`
 Report: `ops/default/report/slices/rev-integrated-terminal/slice-7-acceptance.md`
@@ -189,13 +189,12 @@ Shared shell PTY regression passed in `7MUL6VQNUYUSO4W434E6KGL6NL` at
 `0555c3af914d`. The report records measured binary, CPU, RSS, queue, stream and
 FD/thread results and the explicit host-key transport boundary.
 
-Validation: focused commands passed; the controller records the final exact
-PR-head six-command receipt separately.
-Integration: canonical PR #254 targets dev; controller integration pending.
+Validation: final canonical receipt `C4HWXE56WCZ757B54BGMDKQ333` passed all six configured commands at `47bc4911ee8a6bd1886d153ddb87d8e5b8b8c6d2`: format, all-target Clippy, 45 tests, complete native/PTY/resource acceptance, documentation and whitespace.
+Integration: canonical PR #254 merged into dev unchanged at `47bc4911ee8a6bd1886d153ddb87d8e5b8b8c6d2`; checkpoint records merge activity.
 
 ## Slice 8: User guidance and joint integration
 
-Status: pending
+Status: active
 Branch: `feat/rev-integrated-terminal-08-guidance`
 Expected PR title: `docs(terminal): explain integrated terminal workflows`
 Report: `ops/default/report/slices/rev-integrated-terminal/slice-8-guidance.md`
