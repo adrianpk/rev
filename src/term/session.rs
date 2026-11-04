@@ -1,18 +1,21 @@
 use super::{
-    Geometry, Launch, Limits, Waker, engine::Engine, process::Process, readiness::Readiness,
+    Geometry, Launch, Limits, Waker, cleanup::Cleanup, engine::Engine, process::Process,
+    readiness::Readiness,
 };
 use alacritty_terminal::{Term, event::EventListener};
 use std::{
     collections::VecDeque,
+    fs::File,
     io::{self, Read, Write},
     process::ExitStatus,
     sync::{Arc, atomic::AtomicBool},
-    time::{Duration, Instant},
 };
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub enum State {
     Running,
+    Draining,
+    Closing,
     Exited(ExitStatus),
     Failed(String),
     Closed,
@@ -28,6 +31,12 @@ pub struct Storage {
 }
 pub struct Session {
     process: Option<Process>,
+    pid: Option<u32>,
+    file: Option<File>,
+    cleanup: Option<Cleanup>,
+    completed: Option<ExitStatus>,
+    ready: Arc<AtomicBool>,
+    wake: Waker,
     readiness: Option<Readiness>,
     engine: Engine,
     size: Geometry,
@@ -37,7 +46,6 @@ pub struct Session {
     input: VecDeque<u8>,
     state: State,
     eof: bool,
-    exit_started: Option<Instant>,
     diagnostic: Option<String>,
     extra_bytes: usize,
 }
@@ -53,6 +61,12 @@ impl Session {
         let engine = Engine::new(size, limits.scrollback_lines);
         let mut session = Self {
             process: Some(Process::launch(&launch, size)?),
+            pid: None,
+            file: None,
+            cleanup: None,
+            completed: None,
+            ready: ready.clone(),
+            wake: wake.clone(),
             readiness: None,
             engine,
             size,
@@ -62,11 +76,12 @@ impl Session {
             input: VecDeque::new(),
             state: State::Running,
             eof: false,
-            exit_started: None,
             diagnostic: None,
             extra_bytes: 0,
         };
         let process = session.process.as_ref().expect("prepared terminal process");
+        session.pid = Some(process.pid.as_raw_nonzero().get() as u32);
+        session.file = Some(process.pty.file().try_clone()?);
         session.readiness = Some(Readiness::new(
             process.pty.file().try_clone()?,
             process.exit.clone(),
@@ -82,9 +97,7 @@ impl Session {
         self.size
     }
     pub fn process_id(&self) -> Option<u32> {
-        self.process
-            .as_ref()
-            .map(|p| p.pid.as_raw_nonzero().get() as u32)
+        self.pid
     }
     pub fn screen(&self) -> &Term<impl EventListener> {
         &self.engine.term
@@ -146,18 +159,36 @@ impl Session {
         Ok(())
     }
     pub(super) fn service(&mut self, budget: usize) -> (usize, bool) {
-        if self.state != State::Running {
-            return (0, false);
+        let completed = self.poll_cleanup();
+        if !matches!(self.state, State::Running | State::Draining) {
+            return (0, completed);
         }
-        match self.pump(budget) {
+        let work = if self.state == State::Draining {
+            self.read_output(budget)
+        } else {
+            self.pump(budget)
+        };
+        match work {
             Ok(bytes) => {
+                self.finish_exit();
+                if self.eof && self.state == State::Draining {
+                    self.readiness.take();
+                }
                 self.rearm();
-                (bytes, bytes != 0 || self.state != State::Running)
+                (
+                    bytes,
+                    completed || bytes != 0 || self.state != State::Running,
+                )
             }
             Err(error) => {
                 self.diagnostic = Some(error.to_string());
                 self.state = State::Failed(error.to_string());
-                self.readiness.take();
+                if let Err(cleanup) = self.start_cleanup(false) {
+                    let message = format!("{error}; cleanup could not start: {cleanup}");
+                    self.diagnostic = Some(message.clone());
+                    self.state = State::Failed(message);
+                }
+                self.file.take();
                 (0, true)
             }
         }
@@ -190,16 +221,13 @@ impl Session {
         Ok(written + read)
     }
     fn write_input(&mut self, budget: usize) -> io::Result<usize> {
-        let process = self
-            .process
-            .as_ref()
-            .expect("running terminal owns process");
+        let mut file = self.file.as_ref().expect("running terminal owns IO");
         let (bytes, _) = self.input.as_slices();
         let bytes = &bytes[..bytes.len().min(budget)];
         if bytes.is_empty() {
             return Ok(0);
         }
-        match process.pty.file().write(bytes) {
+        match file.write(bytes) {
             Ok(count) => {
                 self.input.drain(..count);
                 Ok(count)
@@ -227,11 +255,11 @@ impl Session {
                 .len()
                 .min(budget - total)
                 .min(self.limits.max_pending_output_bytes);
-            let process = self
-                .process
+            let read = self
+                .file
                 .as_ref()
-                .expect("running terminal owns process");
-            let read = process.pty.file().read(&mut bytes[..count]);
+                .expect("terminal owns IO")
+                .read(&mut bytes[..count]);
             let Some(count) = self.read_result(read)? else {
                 break;
             };
@@ -265,74 +293,105 @@ impl Session {
         }
     }
     fn observe_exit(&mut self) -> io::Result<()> {
-        let process = self
-            .process
-            .as_ref()
-            .expect("running terminal owns process");
-        if !process.exited()? {
-            return Ok(());
-        }
-        if self.exit_started.is_none() {
-            self.exit_started = Some(Instant::now());
-            process.signal(rustix::process::Signal::KILL)?;
-        }
-        let deadline =
-            self.exit_started.expect("exit observation started") + Duration::from_secs(2);
-        if Instant::now() >= deadline {
-            return Err(io::Error::new(
-                io::ErrorKind::TimedOut,
-                "Terminal exit cleanup timed out",
-            ));
-        }
-        if !self.eof || process.running(deadline)? {
-            return Ok(());
-        }
-        if let Some(status) = self.process.as_mut().expect("owned process").status() {
-            self.state = State::Exited(status);
+        if self.process.as_ref().expect("running process").exited()? {
+            self.start_cleanup(true)?;
+            self.state = State::Draining;
             self.input.clear();
-            self.readiness.take();
-            self.process.take();
         }
         Ok(())
     }
-    fn rearm(&self) {
-        if let Some(readiness) = &self.readiness {
-            readiness.rearm(!self.input.is_empty(), self.exit_started.is_none());
+    fn start_cleanup(&mut self, exited: bool) -> io::Result<()> {
+        if self.process.is_some() {
+            let readiness = if exited { None } else { self.readiness.take() };
+            self.cleanup = Some(Cleanup::start(
+                &mut self.process,
+                readiness,
+                exited,
+                self.ready.clone(),
+                self.wake.clone(),
+            )?);
+        }
+        Ok(())
+    }
+    fn poll_cleanup(&mut self) -> bool {
+        let Some(result) = self.cleanup.as_ref().and_then(Cleanup::poll) else {
+            return false;
+        };
+        self.complete_cleanup(result);
+        true
+    }
+    fn complete_cleanup(&mut self, result: io::Result<ExitStatus>) {
+        match result {
+            Ok(status) => {
+                self.pid = None;
+                self.completed = Some(status);
+                if self.state == State::Closing {
+                    self.state = State::Closed;
+                }
+            }
+            Err(error) => {
+                self.process = self.cleanup.as_ref().and_then(Cleanup::process);
+                self.diagnostic = Some(error.to_string());
+                self.state = State::Failed(error.to_string());
+                self.file.take();
+                self.readiness.take();
+            }
+        }
+        self.cleanup.take();
+    }
+    pub(super) fn wait_closed(&mut self) -> io::Result<()> {
+        if let Some(cleanup) = &self.cleanup {
+            let result = cleanup.wait()?;
+            self.complete_cleanup(result);
+        }
+        if let State::Failed(message) = &self.state {
+            return Err(io::Error::other(message.clone()));
+        }
+        Ok(())
+    }
+    fn finish_exit(&mut self) {
+        if self.state == State::Draining
+            && self.eof
+            && let Some(status) = self.completed
+        {
+            self.state = State::Exited(status);
+            self.pid = None;
+            self.file.take();
+            self.readiness.take();
         }
     }
-    /// The caller supplies termination authority. Failure retains the process,
-    /// failed status and capacity so the operation cannot claim clean closure.
+    fn rearm(&self) {
+        if let Some(readiness) = &self.readiness {
+            readiness.rearm(
+                !self.input.is_empty(),
+                self.state == State::Running,
+                !self.eof,
+            );
+        }
+    }
+    /// Starts owned cleanup without waiting. Capacity and failure state stay
+    /// published until service observes successful worker completion.
     pub(super) fn close(&mut self) -> io::Result<()> {
-        if let Some(process) = &mut self.process
-            && let Err(error) = process.stop()
-        {
+        if let Err(error) = self.start_cleanup(false) {
             self.state = State::Failed(error.to_string());
             self.diagnostic = Some(error.to_string());
             return Err(error);
         }
         self.readiness.take();
-        self.process.take();
+        self.file.take();
         self.input.clear();
-        self.state = State::Closed;
+        self.state = if self.cleanup.is_some() {
+            State::Closing
+        } else {
+            State::Closed
+        };
         Ok(())
     }
 }
 impl Drop for Session {
     fn drop(&mut self) {
-        if self.process.is_none() {
-            return;
-        }
-        if let Err(error) = self.close() {
-            // Keep ownership off the editor thread if the kernel cannot finish
-            // a killed child inside the explicit close deadline.
-            eprintln!("Terminal cleanup remains pending: {error}");
-            self.readiness.take();
-            if let Some(process) = self.process.take() {
-                std::thread::spawn(move || {
-                    let _ = process.signal(rustix::process::Signal::KILL);
-                    drop(process);
-                });
-            }
-        }
+        // Shutdown and error unwinding transfer ownership rather than waiting
+        // for process discovery, signaling or upstream PTY destruction here.
+        self.start_cleanup(false).expect("terminal shutdown worker");
     }
 }

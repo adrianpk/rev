@@ -102,7 +102,7 @@ fn bounded_child_effects() {
     assert!(session.storage().extra_bytes > 0);
     assert!(session.storage().extra_bytes <= rev::term::EXTRA_BYTES);
     assert!(session.diagnostic().unwrap().contains("Oversized"));
-    terminal.sessions.close(terminal.id).unwrap();
+    terminal.close();
 }
 
 // Protocol replies use the same bounded input owner and cannot invoke host
@@ -121,5 +121,5 @@ fn protocol_reply() {
             .pending_input_bytes,
         0
     );
-    terminal.sessions.close(terminal.id).unwrap();
+    terminal.close();
 }

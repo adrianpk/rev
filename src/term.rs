@@ -1,5 +1,6 @@
 //! Bounded native interactive sessions. This owner never writes child output to
 //! the host terminal and does not create a process until explicitly requested.
+mod cleanup;
 mod engine;
 mod filter;
 mod limits;
@@ -101,10 +102,37 @@ impl Sessions {
         self.admit_cells(cells, Some(id))?;
         self.session(id)?.resize(size, cells)
     }
+    /// Requests asynchronous close. Service removes the identity only after
+    /// successful cleanup; Closing/Failed sessions still consume capacity.
     pub fn close(&mut self, id: SessionId) -> io::Result<()> {
         self.session(id)?.close()?;
-        self.sessions.remove(&id);
+        self.ready.store(true, Ordering::Release);
+        (self.wake)();
         Ok(())
+    }
+    /// Batch shutdown outside an interactive UI. Starts all workers before
+    /// waiting for their bounded receipts; actual process waits stay on workers.
+    /// A failed or pending identity remains owned and consumes capacity.
+    pub fn shutdown(&mut self) -> io::Result<()> {
+        let ids: Vec<_> = self.ids().collect();
+        let mut errors = Vec::new();
+        for id in &ids {
+            if let Err(error) = self.close(*id) {
+                errors.push(error.to_string());
+            }
+        }
+        for id in ids {
+            if let Err(error) = self.session(id)?.wait_closed() {
+                errors.push(error.to_string());
+            }
+        }
+        self.sessions
+            .retain(|_, session| *session.state() != State::Closed);
+        if errors.is_empty() {
+            Ok(())
+        } else {
+            Err(io::Error::other(errors.join("; ")))
+        }
     }
     /// Nonblocking, fair IO: at most 64 KiB across all sessions. PTY backpressure
     /// retains unread bytes in the kernel; no unbounded pre-parser queue exists.
@@ -125,6 +153,8 @@ impl Sessions {
                 result.changed.push(id);
             }
         }
+        self.sessions
+            .retain(|_, session| *session.state() != State::Closed);
         self.cursor = (self.cursor + 1) % ids.len();
         result
     }

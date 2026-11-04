@@ -53,12 +53,30 @@ terminal cell vector. Blank padding stays in the ordinary bounded frame text.
 Child bytes never become host escape passthrough. Coalesced PTY readiness wakes
 the existing native signal queue; idle terminal work adds no polling deadline.
 
-Confirmed buffer closure exposed process-observation pressure with 6210 visible
-process records; a read-only Python scan took 110 ms. The owned Rust scan now
-reuses a 4097-byte scratch buffer and parses its four identity fields without
-per-record vectors. It retains the 100 ms observation deadline, 32768-entry and
-256-group bounds, 4096-byte stat limit, 500 ms grace and 2 second final cleanup
-deadline. The unchanged confirmed-close regression passes after this correction.
+The owner approved first-party asynchronous cleanup for retained incident 2 on
+2026-11-04. Process discovery, group signals, waiting and reaping run on an
+owned worker, including destruction and native error unwinding. A close request
+publishes `Closing`; the buffer and its capacity remain until service observes
+success. Failure publishes `Failed` and returns process ownership for a later
+explicit retry. Native completion preserves any newer host prompt.
+
+The former 100 ms whole-host scan cutoff is replaced by the existing 2 second
+requested-close deadline, measured before worker submission. The 500 ms grace,
+32768-entry/256-group observation bounds and 4096-byte stat limit remain.
+Discovery admits only the owned Unix session, including background job groups;
+its leader stays unreaped until those groups stop. Running commands and loops
+have no runtime cap. No dependency or registry cache changes are involved.
+
+Natural exit publishes `Draining`, consumes final output through the ordinary
+bounded UI service, and retains actual exit status after worker completion.
+EOF disables PTY readiness while a live child still has pidfd observation, so
+closed child descriptors cannot cause an idle notification loop. Worker
+completion wakes the existing host queue without an idle cleanup timer.
+On native exit or IO failure the host terminal is restored before collecting
+worker receipts outside the interactive loop. Owned test processes use the
+same explicit shutdown barrier before exiting, so process exit cannot abandon
+active cleanup threads. The idle fixture keeps a live shell loop beyond the
+2 second close window and then verifies continued input and actual exit status.
 
 Native editor fixtures run in isolated child test processes so asynchronous
 file-observer retirement and color caches cannot disturb the engine's exact
@@ -87,7 +105,8 @@ ordinary behavior after returning source focus.
   read-only terminal resources and deterministic source replacements.
 - `src/panel/composition.rs` and `src/display/terminal.rs`: separated surfaces
   and bounded native cell rendering.
-- `src/term/process.rs`: allocation reduction within unchanged cleanup bounds.
+- `src/term/process.rs`, `src/term/cleanup.rs` and `src/term/session.rs`:
+  owned asynchronous cleanup, pending states and bounded final output.
 - `tests/integrated_terminal/panel.rs`: real-child native panel acceptance.
 
 ## Validation
@@ -104,22 +123,25 @@ Further bounded read-only scans observed 8571 process records and 109-127 ms
 scan times even with allocation and parser variants. A kernel `getsid`
 prefilter was tested locally, but rustix 1.1.5 panics for kernel tasks whose
 session ID is zero. That experimental path was removed and is absent from the
-canonical candidate. Continue only after restoring the host observation
-prerequisite or authorizing a separate safe dependency correction. No scan,
-cleanup, resource or gate limit has been increased.
+canonical candidate. The subsequent owner decision authorizes the asynchronous
+first-party correction above, replacing the scan cutoff while retaining the
+planned cleanup deadline, resources and frozen gate.
 
 The owned read-only reproducer `target/getsid-zero.rs` confirms `/proc/2/stat`
 session zero, then exits 101 at rustix's `Pid::from_raw_unchecked` positive-PID
-assertion. Its captured diagnostic is `target/getsid-zero.log`. The existing
-dependency-source authorization covers alacritty_terminal 0.26.0; a separate
-same-version rustix correction requires a new decision before application.
+assertion. Its captured diagnostic is `target/getsid-zero.log`. The approved
+solution keeps rustix and the existing alacritty source override unchanged.
 
 The catalog fixture now uses an owned quiet `/bin/sh` script for terminal
 commands instead of user shell startup or asynchronous prompt timing. All
 direct/named parity assertions remain. A new session-isolation assertion also
 requires closing one PTY to leave another usable and release both descriptor
-sets. These fixture changes require the unchanged runtime validation after
-the prerequisite is restored.
+sets. Closure fixtures now wait for observable asynchronous completion before
+the same exact descriptor assertions. They cover cooperative and HUP-resistant
+job groups, both explicit close and registry destruction, caller responsiveness,
+the retained 500 ms grace and 2 second close bound. Pending capacity and buffer
+identity remain asserted. Exact-head runtime acceptance is recorded through
+the controller using the unchanged required commands below.
 
 Development evidence:
 

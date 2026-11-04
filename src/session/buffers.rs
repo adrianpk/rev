@@ -133,10 +133,17 @@ impl Session {
     pub(super) fn close_buffer(&mut self, kill: Kill) -> Action {
         let closed = kill.id();
         if let Some(terminal) = self.buffers.get(closed).ok().and_then(|b| b.terminal())
-            && let Err(error) = self.close_terminal(terminal)
+            && self.terminals().get(terminal).is_some()
         {
-            return self.error(&error.to_string());
+            return self.close_terminal(terminal, kill);
         }
+        self.input.cancel();
+        self.pending = None;
+        self.remove_buffer(kill)
+    }
+
+    pub(super) fn remove_buffer(&mut self, kill: Kill) -> Action {
+        let closed = kill.id();
         let replacement = match self.buffers.kill(kill) {
             Ok(id) => id,
             Err(error) => return self.error(&error.to_string()),
@@ -148,8 +155,6 @@ impl Session {
         self.windows.replace_buffer(closed, buffer);
         self.lsp.closed(closed);
         self.recent_clocks.retain(|p| p.stamp.buffer != closed);
-        self.input.cancel();
-        self.pending = None;
         self.message("Buffer closed")
     }
 }

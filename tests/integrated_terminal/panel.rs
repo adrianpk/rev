@@ -14,6 +14,13 @@ struct Editor {
     fixture: Fixture,
 }
 
+impl Drop for Editor {
+    fn drop(&mut self) {
+        // The owned child test process must not exit before cleanup workers.
+        self.session.shutdown_terminals().unwrap();
+    }
+}
+
 impl Editor {
     fn new(profile: &str, height: u16) -> Self {
         Self::with_keys(profile, height, "")
@@ -315,9 +322,39 @@ fn source_guards() {
     editor
         .session
         .handle(key(KeyCode::Enter, KeyModifiers::NONE));
+    let closing = Instant::now();
     editor
         .session
         .handle(key(KeyCode::Char('y'), KeyModifiers::NONE));
+    assert!(
+        closing.elapsed() < Duration::from_millis(100),
+        "native close blocked input"
+    );
+    assert!(matches!(
+        editor
+            .session
+            .terminals()
+            .get(editor.session.terminals().ids().next().unwrap())
+            .unwrap()
+            .state(),
+        rev::term::State::Closing
+    ));
+    assert!(editor.session.terminal_buffer().is_some());
+    editor
+        .session
+        .handle(key(KeyCode::Char('g'), KeyModifiers::CONTROL));
+    assert!(!editor.session.terminal_focused());
+    assert_eq!(editor.session.buffer().unwrap().stamp(), source);
+    let deadline = Instant::now() + Duration::from_secs(3);
+    while editor.session.terminals().ids().next().is_some() {
+        editor.session.expire_input(Instant::now());
+        assert!(
+            Instant::now() < deadline,
+            "confirmed close: {}",
+            editor.session.echo()
+        );
+        std::thread::sleep(Duration::from_millis(1));
+    }
     assert_eq!(editor.session.terminals().ids().count(), 0);
     assert!(!editor.session.terminal_focused());
     assert_eq!(editor.session.buffer().unwrap().stamp(), source);

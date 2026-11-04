@@ -21,6 +21,7 @@ pub(super) struct Readiness {
     stop: Arc<AtomicBool>,
     writable: Arc<AtomicBool>,
     child_live: Arc<AtomicBool>,
+    readable: Arc<AtomicBool>,
     thread: Option<JoinHandle<()>>,
 }
 impl Readiness {
@@ -34,6 +35,7 @@ impl Readiness {
         let stop = Arc::new(AtomicBool::new(false));
         let writable = Arc::new(AtomicBool::new(false));
         let child_live = Arc::new(AtomicBool::new(true));
+        let readable = Arc::new(AtomicBool::new(true));
         let worker = Worker {
             file,
             child,
@@ -41,6 +43,7 @@ impl Readiness {
             stop: stop.clone(),
             writable: writable.clone(),
             child_live: child_live.clone(),
+            readable: readable.clone(),
             ready,
             wake,
         };
@@ -52,12 +55,14 @@ impl Readiness {
             stop,
             writable,
             child_live,
+            readable,
             thread: Some(thread),
         })
     }
-    pub fn rearm(&self, writable: bool, child_live: bool) {
+    pub fn rearm(&self, writable: bool, child_live: bool, readable: bool) {
         self.writable.store(writable, Ordering::Release);
         self.child_live.store(child_live, Ordering::Release);
+        self.readable.store(readable, Ordering::Release);
         signal(&self.control);
     }
 }
@@ -77,6 +82,7 @@ struct Worker {
     stop: Arc<AtomicBool>,
     writable: Arc<AtomicBool>,
     child_live: Arc<AtomicBool>,
+    readable: Arc<AtomicBool>,
     ready: Arc<AtomicBool>,
     wake: Waker,
 }
@@ -110,7 +116,9 @@ impl Worker {
             } else {
                 PollFlags::IN
             };
-            fds.push(PollFd::new(&self.file, flags));
+            if self.readable.load(Ordering::Acquire) {
+                fds.push(PollFd::new(&self.file, flags));
+            }
             if self.child_live.load(Ordering::Acquire) {
                 fds.push(PollFd::new(self.child.as_ref(), PollFlags::IN));
             }

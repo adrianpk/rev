@@ -114,6 +114,17 @@ retains bounded final output and actual status. A cleanup failure must remain
 visible and owned, never labeled successful or resolved by killing unrelated
 processes. Geometry admission and capacity failure must roll back atomically.
 
+Owner-approved incident 2 correction, 2026-11-04: Slice 2 moves process
+discovery, group signaling, waiting and reaping to one owned cleanup worker per
+admitted session. Replace the implementation-only 100 ms whole-host scan cutoff
+with the existing 2 second requested-close deadline, measured from submission;
+retain the 500 ms grace, 32768-entry/256-group/4096-byte observation bounds and
+Unix-session ownership of background job groups. Publish pending cleanup and
+failures truthfully, retaining buffer identity and capacity until success.
+Natural exit drains bounded final output and preserves actual status. Running
+commands and loops have no runtime deadline. Dependencies, descriptor/resource
+assertions, frozen gate, configuration and execution budgets remain unchanged.
+
 ## Canonical slice map
 
 | Slice | Short name | Exact branch | Expected PR title | Report |

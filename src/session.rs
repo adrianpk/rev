@@ -275,18 +275,24 @@ enum Pending {
 
 impl Session {
     /// Run native input, deadlines and drawing for this host-owned session.
-    /// The caller owns terminal acquisition, entry and restoration on return.
+    /// The caller acquires and enters the host terminal. On return, restore it
+    /// before collecting bounded cleanup receipts outside the interactive UI.
     pub fn run_terminal(&mut self, terminal: &mut Terminal<impl Write>) -> io::Result<()> {
         // Initialize Crossterm's native signal queue before enabling owned wakes.
-        crossterm::event::poll(std::time::Duration::ZERO)?;
-        self.observation.wake.arm(true);
-        let result = self.drive_terminal(terminal);
+        let result = crossterm::event::poll(std::time::Duration::ZERO).and_then(|_| {
+            self.observation.wake.arm(true);
+            self.drive_terminal(terminal)
+        });
         self.observation.wake.arm(false);
         self.ai.stop();
         self.shell.stop();
         self.end_timer_session();
         self.lsp.set_enabled(false);
-        result
+        // Restore the host before the noninteractive completion barrier. The
+        // workers own all child discovery, signaling, waits and reaping.
+        let restored = terminal.restore();
+        let cleanup = self.shutdown_terminals();
+        result.and(restored).and(cleanup)
     }
     fn drive_terminal(&mut self, terminal: &mut Terminal<impl Write>) -> io::Result<()> {
         self.start_terminal(terminal)?;

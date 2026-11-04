@@ -84,6 +84,25 @@ impl Terminal {
                 .expect("terminal readiness deadline");
         }
     }
+    fn close(&mut self) {
+        self.sessions.close(self.id).unwrap();
+        let deadline = Instant::now() + Duration::from_secs(3);
+        loop {
+            self.sessions.service();
+            let Some(session) = self.sessions.get(self.id) else {
+                return;
+            };
+            assert!(
+                !matches!(session.state(), rev::term::State::Failed(_)),
+                "{:?}",
+                session.state()
+            );
+            let remaining = deadline.saturating_duration_since(Instant::now());
+            self.wake
+                .recv_timeout(remaining)
+                .expect("owned close deadline");
+        }
+    }
     fn send(&mut self, bytes: &[u8]) {
         self.sessions.queue(self.id, bytes).unwrap();
     }
@@ -105,4 +124,24 @@ fn text(session: &rev::term::Session) -> String {
         })
         .collect::<Vec<_>>()
         .join("\n")
+}
+
+// Drop is asynchronous in production. Retain every exact descriptor assertion
+// after a finite observation of worker retirement, including the Drop path.
+fn wait_fds(baseline: usize) {
+    let deadline = Instant::now() + Duration::from_secs(3);
+    while std::fs::read_dir("/proc/self/fd").unwrap().count() != baseline
+        && Instant::now() < deadline
+    {
+        std::thread::sleep(Duration::from_millis(1));
+    }
+}
+impl Drop for Terminal {
+    fn drop(&mut self) {
+        // Most fixtures do not test destruction. Retire them before the next
+        // case establishes its descriptor baseline; process_cleanup covers Drop.
+        if self.sessions.get(self.id).is_some() && !std::thread::panicking() {
+            self.close();
+        }
+    }
 }

@@ -1,4 +1,5 @@
 mod input;
+mod lifecycle;
 mod source;
 
 use std::{path::PathBuf, sync::Arc, time::Duration};
@@ -24,6 +25,7 @@ pub(super) struct Work {
     pub(super) host_cancel: bool,
     height: u16,
     home: Option<(ViewId, bool)>,
+    closing: std::collections::BTreeMap<SessionId, crate::buffer::Kill>,
 }
 
 impl Work {
@@ -61,13 +63,13 @@ impl Work {
             host_cancel: false,
             height: prefs.panel_height as u16,
             home: None,
+            closing: Default::default(),
         }
     }
 }
 
 impl Session {
-    pub(super) fn close_terminal(&mut self, id: SessionId) -> std::io::Result<()> {
-        self.terminals.sessions.close(id)?;
+    fn terminal_closed(&mut self, id: SessionId) {
         if self.terminals.default == Some(id) {
             self.terminals.default = None;
         }
@@ -76,7 +78,6 @@ impl Session {
             self.terminals.visible = false;
             self.terminal_return();
         }
-        Ok(())
     }
     pub fn terminals(&self) -> &Sessions {
         &self.terminals.sessions
@@ -252,8 +253,9 @@ impl Session {
             return Action::Wait;
         }
         let work = self.terminals.sessions.service();
+        let closure = self.finish_terminal_closures();
         if work.changed.is_empty() {
-            Action::Wait
+            closure
         } else {
             Action::Redraw
         }

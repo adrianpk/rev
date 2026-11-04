@@ -44,7 +44,14 @@ impl Process {
         let exit = match rustix::process::pidfd_open(pid, rustix::process::PidfdFlags::NONBLOCK) {
             Ok(exit) => exit,
             Err(error) => {
-                let _ = rustix::process::kill_process_group(pid, Signal::KILL);
+                // Even a launch rejected before pidfd publication must not
+                // signal or run the upstream child-wait destructor on the UI.
+                std::thread::spawn(move || {
+                    if let Err(cleanup) = rustix::process::kill_process_group(pid, Signal::KILL) {
+                        eprintln!("Rejected terminal launch cleanup for PID {pid}: {cleanup}");
+                    }
+                    drop(pty);
+                });
                 return Err(error.into());
             }
         };
@@ -79,8 +86,7 @@ impl Process {
             None => None,
         }
     }
-    pub fn signal(&self, signal: Signal) -> io::Result<()> {
-        let deadline = Instant::now() + Duration::from_millis(100);
+    fn signal(&self, signal: Signal, deadline: Instant) -> io::Result<()> {
         for group in groups(self.pid, deadline)? {
             match rustix::process::kill_process_group(
                 Pid::from_raw(group).expect("observed process group"),
@@ -95,15 +101,15 @@ impl Process {
     pub fn running(&self, deadline: Instant) -> io::Result<bool> {
         Ok(!groups(self.pid, deadline)?.is_empty())
     }
-    pub fn stop(&mut self) -> io::Result<std::process::ExitStatus> {
-        let start = Instant::now();
-        self.signal(Signal::HUP)?;
-        let grace = start + Duration::from_millis(500);
-        self.wait_group(grace, start + Duration::from_secs(2))?;
-        if self.running(start + Duration::from_secs(2))? {
-            self.signal(Signal::KILL)?;
-        }
+    pub fn stop(&mut self, exited: bool, start: Instant) -> io::Result<std::process::ExitStatus> {
         let deadline = start + Duration::from_secs(2);
+        let first = if exited { Signal::KILL } else { Signal::HUP };
+        self.signal(first, deadline)?;
+        let grace = start + Duration::from_millis(500);
+        self.wait_group(grace, deadline)?;
+        if self.running(deadline)? {
+            self.signal(Signal::KILL, deadline)?;
+        }
         self.wait_group(deadline, deadline)?;
         if self.running(deadline)? {
             return Err(io::Error::new(

@@ -60,6 +60,25 @@ fn atomic_admission() {
         4096
     );
     terminal.sessions.close(terminal.id).unwrap();
+    assert_eq!(
+        *terminal.sessions.get(terminal.id).unwrap().state(),
+        State::Closing
+    );
+    assert_eq!(terminal.sessions.ids().count(), 1);
+    assert!(
+        terminal
+            .sessions
+            .open(
+                Launch {
+                    program: "/bin/sh".into(),
+                    args: vec![],
+                    directory: terminal._fixture.0.clone(),
+                },
+                old
+            )
+            .is_err()
+    );
+    terminal.close();
     assert!(terminal.sessions.get(terminal.id).is_none());
     assert!(terminal.sessions.queue(terminal.id, b"stale").is_err());
 }
@@ -146,7 +165,7 @@ fn rejected_launches() {
 #[test]
 fn idle_readiness() {
     let mut terminal = Terminal::new(
-        "stty -echo; printf READY; read -r action; printf DONE",
+        "stty -echo; printf READY; while read -r action; do case \"$action\" in finish) printf DONE; exit 0;; esac; done",
         Limits::default(),
     );
     terminal.wait(|session| text(session).contains("READY"));
@@ -162,13 +181,13 @@ fn idle_readiness() {
     assert!(
         terminal
             .wake
-            .recv_timeout(Duration::from_millis(100))
+            .recv_timeout(Duration::from_millis(2100))
             .is_err()
     );
     let after = ticks(pid);
     assert_eq!(after, before);
     println!(
-        "native shell idle_ticks={} observation_ms=100",
+        "native shell idle_ticks={} observation_ms=2100",
         after - before
     );
     terminal.send(b"finish\n");
@@ -192,29 +211,57 @@ fn ticks(pid: u32) -> u64 {
 #[test]
 fn process_cleanup() {
     let baseline = fs::read_dir("/proc/self/fd").unwrap().count();
-    for explicit in [true, false] {
-        let mut terminal = Terminal::new(
-            "set -m; sleep 60 & printf '%s' $! > child.pid; printf READY; read -r action",
-            Limits::default(),
-        );
-        terminal.wait(|session| text(session).contains("READY"));
-        let parent = terminal
-            .sessions
-            .get(terminal.id)
-            .unwrap()
-            .process_id()
-            .unwrap();
-        let child = fs::read_to_string(terminal._fixture.0.join("child.pid"))
-            .unwrap()
-            .parse::<u32>()
-            .unwrap();
-        if explicit {
-            terminal.sessions.close(terminal.id).unwrap();
+    for signal in ["", "trap '' HUP;"] {
+        for explicit in [true, false] {
+            let mut terminal = Terminal::new(
+                &format!(
+                    "{signal} set -m; sleep 60 & printf '%s' $! > child.pid; printf READY; read -r action"
+                ),
+                Limits::default(),
+            );
+            terminal.wait(|session| text(session).contains("READY"));
+            let parent = terminal
+                .sessions
+                .get(terminal.id)
+                .unwrap()
+                .process_id()
+                .unwrap();
+            let child = fs::read_to_string(terminal._fixture.0.join("child.pid"))
+                .unwrap()
+                .parse::<u32>()
+                .unwrap();
+            let start = Instant::now();
+            if explicit {
+                terminal.sessions.close(terminal.id).unwrap();
+                assert!(
+                    start.elapsed() < Duration::from_millis(100),
+                    "close blocked caller"
+                );
+                assert_eq!(
+                    *terminal.sessions.get(terminal.id).unwrap().state(),
+                    State::Closing
+                );
+                terminal.close();
+            } else {
+                // Exercise the registry destructor itself, without the shared
+                // fixture completion helper taking explicit-close authority.
+                let sessions = std::mem::take(&mut terminal.sessions);
+                drop(sessions);
+                assert!(
+                    start.elapsed() < Duration::from_millis(100),
+                    "Drop blocked caller"
+                );
+            }
+            drop(terminal);
+            wait_fds(baseline);
+            assert!(start.elapsed() < Duration::from_secs(2), "close deadline");
+            if !signal.is_empty() {
+                assert!(start.elapsed() >= Duration::from_millis(500), "HUP grace");
+            }
+            assert!(!fs::exists(format!("/proc/{parent}")).unwrap());
+            assert!(stopped(child));
+            assert_eq!(fs::read_dir("/proc/self/fd").unwrap().count(), baseline);
         }
-        drop(terminal);
-        assert!(!fs::exists(format!("/proc/{parent}")).unwrap());
-        assert!(stopped(child));
-        assert_eq!(fs::read_dir("/proc/self/fd").unwrap().count(), baseline);
     }
 }
 fn stopped(pid: u32) -> bool {
@@ -235,13 +282,14 @@ fn session_isolation() {
     peer.wait(|s| text(s).contains("PEER"));
     let mut victim = Terminal::new("stty -echo; printf READY; read -r line", Limits::default());
     victim.wait(|s| text(s).contains("READY"));
-    victim.sessions.close(victim.id).unwrap();
+    victim.close();
     peer.send(b"ping\n");
     peer.wait(|s| text(s).contains("ALIVE"));
     assert_eq!(*peer.sessions.get(peer.id).unwrap().state(), State::Running);
-    peer.sessions.close(peer.id).unwrap();
+    peer.close();
     drop(victim);
     drop(peer);
+    wait_fds(baseline);
     assert_eq!(fs::read_dir("/proc/self/fd").unwrap().count(), baseline);
 }
 
@@ -282,4 +330,10 @@ fn aggregate_cells() {
     );
     sessions.close(first).unwrap();
     sessions.close(second).unwrap();
+    let deadline = Instant::now() + Duration::from_secs(3);
+    while sessions.ids().next().is_some() {
+        sessions.service();
+        assert!(Instant::now() < deadline, "aggregate cleanup deadline");
+        std::thread::sleep(Duration::from_millis(1));
+    }
 }
