@@ -3,7 +3,7 @@
 Status: proposed
 Date: 2026-11-03
 Scope: pending behavior after the completed integrated-terminal, native shell-command, native completion, optional LSP, modal editing, server-management, Pi/reload and heading-presentation deliveries
-Owner decision: native shell commands, text filters and integrated terminals are Completed; other proposals retain their separate approval boundaries
+Owner decision: native shell commands, text filters and integrated terminals are Completed; native Git integration is approved for one fourteen-slice Looper delivery; other proposals retain their separate approval boundaries
 
 This index connects the pending tickets, capability specifications and models.
 It is a planning entry point, not a delivery plan or execution tracker. The
@@ -17,13 +17,14 @@ decisions and identify cases where rev has no direct Emacs counterpart.
 ## Complete inventory
 
 The inventory contains fourteen delivered topics, two open presentation
-follow-ups and three capability proposals. Solved
+follow-ups and four capability topics, including the approved native Git delivery. Solved
 tickets retain their implementation/PR evidence.
 The completed delivery passed its controller-owned full gate; other capabilities
 retain their own specification/model state.
 
 | Topic | Artifacts | State and remaining decisions |
 | --- | --- | --- |
+| Native Git integration | [Spec](spec/editor-git-integration.md), [model](spec/editor-git-integration-model.md), [plan](plan/rev-git-integration.md), [tracker](tracker/rev-git-integration.md) | Approved fourteen-slice delivery in one Looper run through dev. Full native workflows, contextual bindings, installed-Git ownership, lifecycle, separate fetch, reviewed upstream push, both local tag kinds and resource bounds are approved. Preparation publication and startup are authorized; actual execution and gate evidence belong to the controller. |
 | Keybinding hints in M-x | [Ticket](ticket/open/20261031095151-show-keybindings-beside-m-x-commands.md) | Open. Show assigned shortcuts beside command candidates using effective bindings; preserve command completion and invocation. |
 | Tree selection highlight and active-buffer synchronization | [Ticket](ticket/open/20261031093408-highlight-tree-selection-and-sync-active-buffer.md) | Open follow-up for later. Persistent selection feedback and displayed-buffer synchronization; multi-pane and tree-navigation indication policy remain to be settled. |
 | Open a file or directory from CLI/find-file | [Navigation spec](spec/editor-file-navigation.md), [model](spec/editor-file-navigation-model.md), [ticket](ticket/solved/20261028094803-open-directory-targets-from-cli-and-find-file.md) | Delivered / Completed spec / solved ticket. Slice 5 delivered directory acceptance and root precedence through PR #178. |
@@ -45,6 +46,14 @@ retain their own specification/model state.
 | External programs/extensions | [Spec](spec/editor-external-extensions.md), [model](spec/editor-external-extensions-model.md) | Optional exploration only. Explicit configuration, stdio and one child per invocation are the refined draft profile. Adoption itself is undecided; no scheduled delivery or baseline dependency. |
 
 ## Selected execution order
+
+On 2026-11-04 the owner approved the complete native Git specification/model,
+binding matrix, local-operation policies, bounds and fourteen-slice plan/tracker,
+and explicitly requested one autonomous Looper delivery through dev. It follows
+the completed integrated-terminal delivery and precedes M-x keybinding hints
+and the other presentation follow-ups. Slice PR integration, the selected full
+gate and closure belong to that controller; main promotion and release remain
+separate operations.
 
 On 2026-11-03 the owner requested two independent specifications and starting
 the agent-selected first capability. Native shell commands and text filters
