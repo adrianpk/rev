@@ -13,7 +13,11 @@ pub(super) struct Capture {
 
 impl Session {
     pub(super) fn yank(&mut self) -> Result<bool, Error> {
-        let text = self.kills.text().ok_or(Error::EmptyRing)?.to_string();
+        let text = self.kills.text().ok_or(Error::EmptyRing)?;
+        self.buffer()
+            .map_err(edit::Error::from)?
+            .check_edit_payload(text.len_bytes())?;
+        let text = text.to_string();
         let point = self.windows.selected().point.position.0;
         Ok(self.publish_yank(point..point, &text, 0)?)
     }
@@ -26,6 +30,9 @@ impl Session {
             return Err(Error::Yank);
         }
         let (rotation, text) = self.kills.older(capture.rotation).ok_or(Error::Yank)?;
+        self.buffer()
+            .map_err(edit::Error::from)?
+            .check_edit_payload(text.len_bytes())?;
         let text = text.to_string();
         Ok(self.publish_yank(capture.source.range, &text, rotation)?)
     }

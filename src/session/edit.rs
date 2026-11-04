@@ -136,6 +136,7 @@ fn replacement(
     text: &str,
 ) -> Result<(Replacement, Scalar), Error> {
     let source = buffer.span(range.clone())?;
+    buffer.check_edit_payload(text.len())?;
     let position = range
         .start
         .checked_add(text.chars().count())

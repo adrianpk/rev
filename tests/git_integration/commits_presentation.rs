@@ -11,7 +11,12 @@ use std::fs;
 // the modified source, split identities and point survive the retained view.
 #[test]
 fn normal_composer() {
-    for (profile, chord) in [("non-modal", false), ("modal", true)] {
+    for (profile, chord) in [
+        ("non-modal", false),
+        ("non-modal", true),
+        ("modal", false),
+        ("modal", true),
+    ] {
         let repository = Repository::new("sha1");
         let path = repository.root.join("source");
         fs::write(&path, "base\n").unwrap();
@@ -81,7 +86,12 @@ fn normal_composer() {
 // unrelated workspace commands cannot escape the transient view owner.
 #[test]
 fn normal_cancel() {
-    for (profile, chord) in [("non-modal", true), ("modal", false)] {
+    for (profile, chord) in [
+        ("non-modal", false),
+        ("non-modal", true),
+        ("modal", false),
+        ("modal", true),
+    ] {
         let repository = Repository::new("sha1");
         let path = repository.root.join("source");
         fs::write(&path, "base\n").unwrap();

@@ -12,6 +12,7 @@ pub(crate) struct Insertion {
     pub edits: Vec<Replacement>,
     pub cursor: Scalar,
     inserted: usize,
+    bytes: usize,
     columns: super::Columns,
 }
 
@@ -28,6 +29,7 @@ impl Rectangle {
             edits: Vec::new(),
             cursor: point.position,
             inserted: 0,
+            bytes: 0,
             columns: self.columns,
         };
         for (index, text) in self.rows.iter().enumerate() {
@@ -56,12 +58,19 @@ impl Insertion {
             cell.column
                 .saturating_sub(self.columns.cell(&coordinates, position)?.column)
         };
+        buffer.check_edit_payload(prefix.saturating_add(text.len()))?;
         let mut content = " ".repeat(prefix);
         content.push_str(text);
         self.append(buffer, position, content)
     }
 
     fn extend(&mut self, buffer: &Buffer, column: usize, text: &str) -> Result<(), Error> {
+        let payload = buffer.newline().len().saturating_add(if text.is_empty() {
+            0
+        } else {
+            column.saturating_add(text.len())
+        });
+        buffer.check_edit_payload(payload)?;
         let mut content = buffer.newline().to_owned();
         if !text.is_empty() {
             content.extend(std::iter::repeat_n(' ', column));
@@ -71,6 +80,8 @@ impl Insertion {
     }
 
     fn append(&mut self, buffer: &Buffer, position: Scalar, text: String) -> Result<(), Error> {
+        self.bytes = self.bytes.checked_add(text.len()).ok_or(Error::Capacity)?;
+        buffer.check_edit_payload(self.bytes)?;
         self.inserted = self
             .inserted
             .checked_add(text.chars().count())
@@ -91,6 +102,9 @@ impl Insertion {
         {
             previous.text.push_str(&text);
             return Ok(());
+        }
+        if buffer.edit_payload_limit().is_some() && self.edits.len() >= 64 {
+            return Err(Error::Capacity);
         }
         self.edits.push(Replacement {
             source: buffer.span(position.0..position.0)?,

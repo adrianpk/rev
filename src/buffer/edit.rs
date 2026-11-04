@@ -203,6 +203,19 @@ pub struct Prepared {
 }
 
 impl Buffer {
+    /// Bound transient input before a native caller materializes a transfer.
+    /// Final replacement size and complete batch limits are checked below.
+    pub(crate) fn check_edit_payload(&self, bytes: usize) -> Result<(), Error> {
+        if self.text_byte_limit.is_some_and(|limit| bytes > limit) {
+            return Err(Error::Capacity);
+        }
+        Ok(())
+    }
+
+    pub(crate) fn edit_payload_limit(&self) -> Option<usize> {
+        self.text_byte_limit
+    }
+
     pub fn is_readonly(&self) -> bool {
         self.read_only || self.terminal().is_some()
     }

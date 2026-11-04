@@ -81,7 +81,7 @@ Integration: [PR #260](https://forge.adrianpk.com/adrianpk/rev/pulls/260) merged
 
 ## Slice 4: Native commit composition
 
-Status: implementing
+Status: reviewing
 Branch: `feat/rev-git-integration-04-commits`
 Expected PR title: `feat(git): compose commits amend and fixup`
 Report: `ops/default/report/slices/rev-git-integration/slice-4-commits.md`
@@ -90,9 +90,9 @@ PR: pending
 
 - [x] T4.1: Enter normal composition directly with c and provide ordinary native text editing, explicit submission, cancellation and session-only retained drafts.
 - [x] T4.2: Compose normal, reviewed amend and exact-target fixup requests; preserve checked index/HEAD, identity, hooks, signing policy and actual messages without hidden staging or saving.
-- [ ] T4.3: Verify C-Enter/C-c C-c submission, C-g/C-c C-k cancellation, literal c, failed hooks, retained drafts, post-effect uncertainty and protected source/terminal state.
+- [x] T4.3: Verify C-Enter/C-c C-c submission, C-g/C-c C-k cancellation, literal c, failed hooks, retained drafts, post-effect uncertainty and protected source/terminal state.
 
-Validation: Development checks passed ten focused commit tests, strict Clippy and the native configuration-reference suite. Final exact-HEAD controller validation remains pending.
+Validation: Development checks passed ten commit tests, four native acceptance tests, five effect/authority tests, strict Clippy and reference checks. Exact-HEAD ordered results are recorded by the controller after the PR-reference follow-up.
 Integration: pending; task commits are on the dedicated slice branch. The canonical PR reference remains pending.
 
 ## Slice 5: History ranges reflog and blame
