@@ -225,11 +225,12 @@ The checkpoint records merge activity for all eight slices.
 All eight canonical PRs #248-#255 are merged unchanged into dev and all slice
 reports are delivered. Combined acceptance and delivery-set closure remain pending.
 
-Gate prerequisites verified on 2026-11-04: Bash 5.3.15, Git 2.55.0, lazygit
+Gate prerequisites reverified after repair integration on 2026-11-04: Bash
+5.3.15, Git 2.55.0, lazygit
 0.64.1, Rust/Cargo 1.98.0, rustfmt, Clippy, Spore and the fixture utilities are
 available. Locked offline Linux metadata resolves 91 available package manifests.
 Linux procfs and PTY allocation work; the primary target filesystem has over
-109 GiB free against the fixed 1 GiB prerequisite. No primary build or validator
+108 GiB free against the fixed 1 GiB prerequisite. No primary build or validator
 is active. The acceptance script creates its isolated HOME/XDG, local Git
 repository and finite PTY fixtures when invoked; the guide builder owns its
 temporary projection and target/userguide output. No persistent fixture is needed.
@@ -253,6 +254,14 @@ All dependency versions and graph edges are unchanged. The new real-PTY
 signal-first, input-first and multi-read burst cases with the correction.
 Canonical repair PR: [#256](https://forge.adrianpk.com/adrianpk/rev/pulls/256).
 Focused receipt `O7FTJPLHVDD6O4KVWBHSORX3IN` passed format, the regression and
-whitespace on `27fff3c81e60a46b78def641ad47b679af88097c`. The PR-reference
-follow-up precedes final exact-head runtime and required-prefix validation.
-The checkpoint retains all policy, counters and gates.
+whitespace on `27fff3c81e60a46b78def641ad47b679af88097c`.
+Final canonical receipt `BCMQANMXVO5IJO5KC7TXAZVSEM` passed all five configured
+repair commands at `6390608f045e36d24e3510763054777067407a6f`, including 461 tests
+and documentation. Focused receipt `EZFW2VPLAEB6I5MVBWYNLAZX6Y` passed both
+profiles' real-PTY journeys and normal/error restoration on the same head.
+
+Integration: canonical PR #256 merged into dev unchanged at
+`6390608f045e36d24e3510763054777067407a6f`; checkpoint merge activity is recorded.
+All slice reports and this repair are delivered. The unchanged combined gate
+has not rerun after repair integration. The controller retains that gate and
+final delivery-set closure; slice-local evidence does not mark the set Completed.

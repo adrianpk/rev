@@ -1,6 +1,6 @@
 # Slice 8: User Guidance and Joint Integration
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-integrated-terminal
 Plan: [Integrated Terminal Delivery](../../../plan/rev-integrated-terminal.md)
 Tracker: [Integrated Terminal Tracker](../../../tracker/rev-integrated-terminal.md)
@@ -132,7 +132,31 @@ Canonical repair PR: [#256](https://forge.adrianpk.com/adrianpk/rev/pulls/256).
 Focused receipt `O7FTJPLHVDD6O4KVWBHSORX3IN` passed format, the new regression
 and whitespace on `27fff3c81e60a46b78def641ad47b679af88097c`.
 
-The final clean PR head requires the five configured repair commands and the
-focused `scripts/check-integrated-terminal.sh --pty` journeys. Controller
-receipts will identify that candidate after the PR-reference follow-up. The
-unchanged combined gate remains pending controller integration.
+Final canonical repair receipt `BCMQANMXVO5IJO5KC7TXAZVSEM` passed all five
+configured commands at `6390608f045e36d24e3510763054777067407a6f` after the
+PR-reference follow-up:
+
+- `cargo fmt --all -- --check`
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo clippy --locked --all-targets -- -D warnings`
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test integrated_terminal --test configuration --test commands --test windows --test panels --test display -- --test-threads=1`
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo run --locked --quiet --example documentation-check`
+- `git diff --check`
+
+All 461 selected tests passed, including the three controlled readiness cases.
+Documentation retained 474 commands, 247 configuration entries, 76 reachable
+pages and 484 local links/anchors.
+
+Focused receipt `EZFW2VPLAEB6I5MVBWYNLAZX6Y` passed on the same exact head:
+
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 bash scripts/check-integrated-terminal.sh --pty`
+- `git diff --check`
+
+Both profiles passed actual lazygit relocation/PID/cwd/exit, exact child input,
+protected source, normal/error host restoration and owned cleanup. Idle CPU
+remained zero ticks in both profiles and every case stayed below 1 MiB under
+the unchanged eight-second deadline.
+
+Canonical PR #256 merged into dev unchanged at
+`6390608f045e36d24e3510763054777067407a6f`; the checkpoint records merge activity.
+All eight slices and Gate repair 1 are integrated. The unchanged combined gate
+has not rerun after this repair and remains controller-owned.
