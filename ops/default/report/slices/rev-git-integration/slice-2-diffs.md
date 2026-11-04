@@ -125,6 +125,15 @@ after the PR-reference follow-up; development results below are not that receipt
 - `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test git_integration diffs::unborn_and_path_bytes -- --test-threads=1`: extended literal staged-path fixtures passed.
 - `git diff --check`: passed.
 
+The first controller candidate `680e73237042a0f06a9124fd6b7f930e8b0a1162`
+passed formatting, strict Clippy, all 11 diff tests and all 21 Status tests.
+`env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test commands --test configuration reference -- --test-threads=1`
+then failed the bindings catalog assertion: the new visit command appeared twice
+and the retained process-show command lacked its own catalog entry. The table
+now documents each live command exactly once while retaining Return's actual
+contextual dispatch. Checks and native behavior are unchanged; the complete
+ordered receipt must be regenerated for the corrected candidate.
+
 The first bounded-detail fixture requested 1024 bytes and was rejected by the
 approved 4096-byte minimum. The corrected fixture uses that minimum and retains
 its assertions on explicit truncation, byte admission and unsupported hunks.

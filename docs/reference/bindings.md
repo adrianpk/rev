@@ -63,7 +63,7 @@ Every command below is also available as `M-x` followed by its exact name.
 | `?` in Git | `git-dispatch` | Show the available native Git actions. |
 | `$` in Git, `M-x git-processes`, `:git-processes` | `git-processes` | Inspect active and recent owned operations without cancelling them. |
 | Return in Status or Diff | `git-visit-file` | Visit the canonical current source, preserving an existing modified buffer. |
-| Return in Processes | `git-visit-file` | Inspect the selected operation through the same route as `git-process-show`. |
+| `M-x git-process-show`, `:git-process-show`; Return in Processes | `git-process-show` | Inspect the selected operation; the Return binding dispatches through git-visit-file. |
 | `M-x git-diff`, `:git-diff` | `git-diff` | Inspect the exact selected comparison as read-only detail. |
 | `C-g` in Processes or process detail, `M-x git-process-cancel` | `git-process-cancel` | Cancel the selected live operation through its exact identity; menus and prompts keep first refusal. |
 | `M-x terminal-open`, `:terminal-open` | `terminal-open` | Open or select the instance default interactive terminal in the lower panel. |
@@ -753,7 +753,10 @@ native cancellation. Prompts use `keys.minibuffer`.
 
 Only nonempty groups appear, in Unmerged, Untracked, Unstaged and Staged order.
 Selection follows an exact path and group across refresh. Mouse selection
-requires the current painted generation and dimensions. Tab toggles a group;
+requires the current painted generation, comparison, expansion and dimensions.
+Tab toggles a group, path comparison or hunk body; Return visits the current
+source, or inspects the selected operation in Processes. Named `git-diff`
+opens read-only patch detail. q returns one presentation level;
 `q`, `C-g` or Escape dismisses its action menu. Returning from Status keeps
 started Git work owned by the editor.
 
