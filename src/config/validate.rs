@@ -47,6 +47,7 @@ fn checked_document(
     editing(document)?;
     super::ai::validate(&document.ai)?;
     super::shell::validate(&document.shell)?;
+    super::git::validate(&document.git, false)?;
     super::terminal::validate(&document.terminal)?;
     completion_and_lsp(document)?;
     bookmarks(&document.bookmarks)?;
@@ -429,6 +430,7 @@ fn estimates(document: &Document) -> Result<(), Failure> {
 }
 
 pub(super) fn candidate(value: &Document) -> Result<keymap::Effective, Failure> {
+    super::git::validate(&value.git, true)?;
     super::lsp_validation::validate(&value.lsp, true)?;
     let keymaps = checked_document(value, Some(&value.ai.commands))?;
     let mut priority = super::Priority::default();

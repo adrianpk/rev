@@ -1,6 +1,7 @@
 //! One owned Unix process group with bounded nonblocking output and cleanup.
 //! This is lifetime ownership for explicitly selected tools, not a sandbox.
 mod cancellation;
+pub(crate) mod capture;
 pub(crate) mod group;
 mod streams;
 pub use cancellation::Cancellation;

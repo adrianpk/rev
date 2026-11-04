@@ -9,6 +9,7 @@ pub mod config;
 pub mod coordinates;
 pub mod display;
 pub mod file;
+pub mod git;
 pub mod gutter;
 pub mod input;
 mod jump;

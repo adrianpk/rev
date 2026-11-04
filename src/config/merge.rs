@@ -36,6 +36,7 @@ impl Document {
         merge.lsp(&mut self.lsp, &later.lsp);
         merge.ai(&mut self.ai, &later.ai);
         merge.shell(&mut self.shell, &later.shell);
+        merge.git(&mut self.git, &later.git);
         merge.terminal(&mut self.terminal, &later.terminal);
         merge.headings(&mut self.org.headings, &later.org.headings);
         merge.leaf(

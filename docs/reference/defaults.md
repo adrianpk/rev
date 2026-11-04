@@ -55,6 +55,35 @@ defines stdin/stdout, checked publication and cancellation; the
 | `shell.max_input_bytes` | Integer 1..=16777216 | `8388608` | Maximum captured region input in UTF-8 bytes. |
 | `shell.max_output_bytes` | Integer 1..=16777216 | `8388608` | Aggregate stdout plus stderr bytes; excess fails without admitting partial output. |
 
+## Git preferences
+
+These global preferences are frozen at startup. Loading them does not discover
+a repository or launch Git. All values inherit by leaf through ordinary includes;
+an invalid source or complete candidate selects the complete built-in defaults.
+
+| Setting | Type | Default | Behavior |
+| --- | --- | --- | --- |
+| `git.program` | String | `"git"` | Nonempty literal installed executable, at most 4096 bytes without NUL; no shell expansion. |
+| `git.observation_timeout_seconds` | Integer 1..=60 | `10` | Deadline for one repository observation, including its capability and HEAD checks. |
+| `git.operation_timeout_seconds` | Integer 1..=600 | `60` | Deadline for a changing repository operation. |
+| `git.transport_timeout_seconds` | Integer 1..=600 | `120` | Separate deadline for transport. |
+| `git.max_status_paths` | Integer 1..=65536 | `1024` | Complete retained path records; reached admission produces explicit truncation. |
+| `git.max_path_bytes` | Integer 4096..=4194304 | `262144` | Aggregate exact path bytes retained in an observation. |
+| `git.history_page_size` | Integer 1..=1024 | `128` | Revisions in an ancestry page. |
+| `git.max_history_pages` | Integer 1..=16 | `4` | Retained ancestry pages per context. |
+| `git.max_refs` | Integer 1..=16384 | `256` | Complete retained ref records. |
+| `git.max_remotes` | Integer 1..=256 | `32` | Complete retained remote records. |
+| `git.max_output_bytes` | Integer 4096..=16777216 | `1048576` | Aggregate stdout and stderr capture for one job. |
+| `git.max_detail_bytes` | Integer 4096..=8388608 | `524288` | Detail bytes; must not exceed max_output_bytes. |
+| `git.max_diagnostic_bytes` | Integer 1024..=1048576 | `65536` | Retained diagnostic bytes; must not exceed max_output_bytes. |
+| `git.max_process_records` | Integer 1..=32 | `8` | Active and recent records; live ownership cannot be evicted. |
+| `git.max_process_record_bytes` | Integer 65536..=16777216 | `2097152` | Aggregate retained process bytes; must be at least max_output_bytes. |
+
+All Git capacities, including temporary replacements and parser scratch, also
+share a fixed 32 MiB editor-wide admission budget. At most four repository
+contexts remain retained. Reached admission preserves existing observations
+and active ownership. Count preferences cannot override these hard limits.
+
 ## Interactive terminal preferences
 
 These global preferences are frozen at startup and separate from one-shot

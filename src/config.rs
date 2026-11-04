@@ -24,6 +24,8 @@ mod terminal;
 pub use terminal::{PartialTerminal, Terminal};
 mod shell;
 pub use shell::{PartialShell, Shell};
+mod git;
+pub use git::{Git, PartialGit};
 mod ai;
 pub use ai::{Ai, AiCommand, AiContext, AiInput, AiOutput, PartialAi, PartialPi, Pi};
 mod headings;
@@ -95,6 +97,7 @@ pub struct Settings {
     pub lsp: Lsp,
     pub ai: Ai,
     pub shell: Shell,
+    pub git: Git,
     pub terminal: Terminal,
     pub language: BTreeMap<String, Language>,
     pub keys: Keymaps,
@@ -127,6 +130,7 @@ pub struct Document {
     pub lsp: PartialLsp,
     pub ai: PartialAi,
     pub shell: PartialShell,
+    pub git: PartialGit,
     pub terminal: PartialTerminal,
     pub language: BTreeMap<String, Language>,
     pub keys: Keymaps,

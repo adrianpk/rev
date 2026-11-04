@@ -21,6 +21,26 @@ timeout_seconds = 600
 max_input_bytes = 8388608
 max_output_bytes = 8388608
 
+# Native Git; discovery happens only after an explicit Git command.
+# Literal installed executable, 1..=4096 bytes; no shell expansion.
+[git]
+program = "git"
+observation_timeout_seconds = 10 # Integer 1..=60.
+operation_timeout_seconds = 60 # Integer 1..=600.
+transport_timeout_seconds = 120 # Integer 1..=600.
+max_status_paths = 1024 # Integer 1..=65536; incomplete lists are explicit.
+max_path_bytes = 262144 # Integer 4096..=4194304 aggregate retained path bytes.
+history_page_size = 128 # Integer 1..=1024.
+max_history_pages = 4 # Integer 1..=16.
+max_refs = 256 # Integer 1..=16384.
+max_remotes = 32 # Integer 1..=256.
+max_output_bytes = 1048576 # Integer 4096..=16777216 per job.
+max_detail_bytes = 524288 # Integer 4096..=8388608, at most max_output_bytes.
+max_diagnostic_bytes = 65536 # Integer 1024..=1048576, at most max_output_bytes.
+max_process_records = 8 # Integer 1..=32 active/recent records.
+max_process_record_bytes = 2097152 # Integer 65536..=16777216, at least max_output_bytes.
+# All Git capacities also share the fixed 32 MiB session admission budget.
+
 # Interactive terminals; loading preferences never launches a process.
 [terminal]
 program = ""

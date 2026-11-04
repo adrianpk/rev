@@ -33,19 +33,19 @@ Progress owner: after startup, Looper checkpoint, canonical PRs and exact-candid
 
 ## Slice 1: Repository context and native Status
 
-Status: ready
+Status: implementing
 Branch: `feat/rev-git-integration-01-status`
 Expected PR title: `feat(git): own repository context and native status`
 Report: `ops/default/report/slices/rev-git-integration/slice-1-status.md`
 Requirements: GIT01-GIT03, GIT16-GIT20
 PR: pending
 
-- [ ] T1.1: Resolve worktree/common directories, bare/unborn/detached state, exact path bytes and SHA-1/SHA-256 objects through installed Git; add the bounded native repository/process owner and the complete startup [git] catalog, sample and origins.
+- [x] T1.1: Resolve worktree/common directories, bare/unborn/detached state, exact path bytes and SHA-1/SHA-256 objects through installed Git; add the bounded native repository/process owner and the complete startup [git] catalog, sample and origins.
 - [ ] T1.2: Open semantic Status with C-x g, M-x and modal colon, preserve full-canvas return context and existing source/terminal owners, and render explicit complete/truncated/unavailable groups with checked selection and pointer targets.
 - [ ] T1.3: Expose native active/recent process inspection and checked cancellation; preserve owned work after q, integrate guarded application exit, and verify real repositories, missing Git, malformed output, stale publication and bounded cleanup.
 
-Validation: pending; use the exact focused commands and selected-gate policy in the plan.
-Integration: pending; no commit or PR is claimed.
+Validation: T1.1 development checks pass: formatter, strict focused Clippy, 10 native Git tests, 10 process tests and 11 configuration-reference tests. The final clean-HEAD controller receipt is pending T1.2-T1.3.
+Integration: pending; T1.1 is committed on the slice branch. No slice PR or merge is claimed.
 
 ## Slice 2: Changes hunks and source visits
 

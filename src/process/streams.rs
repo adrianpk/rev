@@ -32,8 +32,11 @@ impl Stream {
             Ok(0) => self.closed = true,
             Ok(n) => {
                 if n > remaining {
+                    self.bytes.reserve_exact(remaining);
+                    self.bytes.extend_from_slice(&buffer[..remaining]);
                     return Err("External job output limit reached".into());
                 }
+                self.bytes.reserve_exact(n);
                 self.bytes.extend_from_slice(&buffer[..n]);
             }
             Err(e) if matches!(e.kind(), ErrorKind::WouldBlock | ErrorKind::Interrupted) => (),
@@ -62,6 +65,33 @@ impl Streams {
             status,
             stdout: std::mem::take(&mut self.stdout.bytes),
             stderr: std::mem::take(&mut self.stderr.bytes),
+        }
+    }
+
+    pub(super) fn take(&mut self) -> (Vec<u8>, Vec<u8>) {
+        (
+            std::mem::take(&mut self.stdout.bytes),
+            std::mem::take(&mut self.stderr.bytes),
+        )
+    }
+
+    pub(super) fn wait(
+        &self,
+        exit: &std::os::fd::OwnedFd,
+        timeout: Duration,
+    ) -> Result<(), String> {
+        use rustix::event::{PollFd, PollFlags, Timespec, poll};
+        let mut fds = vec![PollFd::new(exit, PollFlags::IN)];
+        if !self.stdout.closed {
+            fds.push(PollFd::new(&self.stdout.read, PollFlags::IN));
+        }
+        if !self.stderr.closed {
+            fds.push(PollFd::new(&self.stderr.read, PollFlags::IN));
+        }
+        let timeout = Timespec::try_from(timeout).map_err(|e| e.to_string())?;
+        match poll(&mut fds, Some(&timeout)) {
+            Ok(_) | Err(rustix::io::Errno::INTR) => Ok(()),
+            Err(error) => Err(format!("Wait for owned output: {error}")),
         }
     }
 }
