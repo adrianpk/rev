@@ -1,5 +1,6 @@
 mod navigation;
 mod operator;
+mod pointer;
 mod query;
 mod search;
 mod snapshot;
@@ -87,10 +88,9 @@ impl Session {
         if self.terminals.copies.contains_key(&key) {
             return Ok(());
         }
-        self.admit_copy_at(key, id)
+        self.admit_copy_at(key, id, self.copy_viewport(key))
     }
-    fn admit_copy_at(&mut self, key: Key, id: SessionId) -> Result<(), String> {
-        let viewport = self.copy_viewport(key);
+    fn admit_copy_at(&mut self, key: Key, id: SessionId, viewport: Viewport) -> Result<(), String> {
         let session = self
             .terminals
             .sessions
@@ -107,47 +107,6 @@ impl Session {
         }
         self.terminals.copies.insert(key, candidate);
         Ok(())
-    }
-    pub(super) fn terminal_copy_pointer(
-        &mut self,
-        key: Key,
-        id: SessionId,
-        event: crossterm::event::MouseEvent,
-    ) -> Action {
-        use crossterm::event::{MouseButton, MouseEventKind};
-        if !self.terminals.copies.contains_key(&key) {
-            if event.kind == MouseEventKind::ScrollDown {
-                return Action::Wait;
-            }
-            if let Err(error) = self.admit_copy_at(key, id) {
-                return self.error(&error);
-            }
-        }
-        let Some(size) = self.copy_size(key) else {
-            return self.error("Terminal copy presentation is suspended");
-        };
-        let copy = self
-            .terminals
-            .copies
-            .get_mut(&key)
-            .expect("copy pointer target");
-        let result = match event.kind {
-            MouseEventKind::Down(MouseButton::Left) => copy.pointer(event, false),
-            MouseEventKind::Drag(MouseButton::Left) | MouseEventKind::Up(MouseButton::Left) => {
-                copy.pointer(event, true)
-            }
-            MouseEventKind::ScrollUp | MouseEventKind::ScrollDown => copy
-                .view
-                .scroll_viewport(
-                    &copy.buffer,
-                    event.kind == MouseEventKind::ScrollUp,
-                    self.buffers.snapshot().settings().mouse.scroll_lines,
-                    size,
-                )
-                .map_err(|e| e.to_string()),
-            _ => return Action::Wait,
-        };
-        self.copy_result(result)
     }
     pub(super) fn resume_copy_tail(&mut self, key: Key) {
         if self.copy_viewport(key).offset == 0

@@ -229,6 +229,29 @@ fn copy_admission() {
         editor.session.terminals().get(id).unwrap().process_id(),
         pid
     );
+    editor
+        .session
+        .execute(Command::Terminal(TerminalCommand::MoveToBuffer));
+    let point = editor.session.view().point;
+    use crossterm::event::{MouseButton, MouseEvent, MouseEventKind};
+    editor.session.handle(Event::Mouse(MouseEvent {
+        kind: MouseEventKind::Down(MouseButton::Left),
+        column: 0,
+        row: 0,
+        modifiers: KeyModifiers::SHIFT,
+    }));
+    assert!(
+        editor.session.echo().contains("exceeds 1 MiB"),
+        "{}",
+        editor.session.echo()
+    );
+    assert!(editor.session.terminal_copy_view().is_none());
+    assert!(editor.session.view().terminal.selection.is_none());
+    assert_eq!(editor.session.view().point, point);
+    editor
+        .session
+        .execute(Command::Terminal(TerminalCommand::MoveToPanel));
+    assert_eq!(editor.session.buffer().unwrap().stamp(), source);
 }
 
 fn strokes(editor: &mut Editor, text: &str) {

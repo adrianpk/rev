@@ -16,6 +16,7 @@ pub(in crate::session::terminals) struct State {
     pub(super) search: Option<Search>,
     pub(super) last_query: Option<super::query::Query>,
     pointer_anchor: Option<Scalar>,
+    pub(super) pointer_cell: Option<(u16, u16)>,
     pub(super) finding: Option<super::navigation::Finding>,
     pub(super) page_overlap: usize,
 }
@@ -32,6 +33,7 @@ impl State {
         let mut buffer =
             Buffer::terminal_copy(&snapshot.text, settings).map_err(|e| e.to_string())?;
         let view = snapshot.view(session, &mut buffer, viewport, settings)?;
+        let pointer_anchor = buffer.mark();
         Ok(Self {
             id,
             buffer,
@@ -40,7 +42,8 @@ impl State {
             mode: false,
             search: None,
             last_query: None,
-            pointer_anchor: None,
+            pointer_anchor,
+            pointer_cell: None,
             finding: None,
             page_overlap: settings.settings().scroll.page_overlap,
         })

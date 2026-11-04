@@ -194,7 +194,14 @@ impl Session {
     }
 
     fn terminal_local_pointer(&mut self, surface: Surface, event: MouseEvent) -> Action {
-        let action = self.terminal_copy_pointer(surface.copy_key(), surface.id, event);
+        let key = surface.copy_key();
+        let cell =
+            (!self.terminals.copies.contains_key(&key)).then(|| self.terminal_cell(surface, event));
+        match self.terminal_copy_pointer(key, surface.id, event, cell) {
+            Ok(true) => {}
+            Ok(false) => return Action::Wait,
+            Err(error) => return self.error(&error),
+        }
         self.track_local_cells(surface, event);
         self.capture_terminal_pointer(surface, event.kind, true);
         if matches!(
@@ -206,7 +213,7 @@ impl Session {
                 self.resume_copy_tail(surface.copy_key());
             }
         }
-        action
+        self.message("")
     }
 
     fn track_local_cells(&mut self, surface: Surface, event: MouseEvent) {

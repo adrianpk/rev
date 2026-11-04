@@ -93,8 +93,8 @@ impl Snapshot {
         let Some(selection) = viewport.selection else {
             return Ok(());
         };
-        let anchor = self.point(session, selection.anchor);
-        let end = self.point(session, selection.end);
+        let anchor = observed(buffer, self.point(session, selection.anchor))?;
+        let end = observed(buffer, self.point(session, selection.end))?;
         view.point.position = anchor.min(end);
         buffer
             .activate_mark(view.point)
@@ -166,4 +166,12 @@ fn cell(cell: &Cell) -> String {
         .chain(cell.zerowidth().unwrap_or_default().iter().copied())
         .map(|c| if c.is_control() { ' ' } else { c })
         .collect()
+}
+
+fn observed(buffer: &Buffer, point: Scalar) -> Result<Scalar, String> {
+    let coordinates = crate::coordinates::Coordinates::new(buffer).map_err(|e| e.to_string())?;
+    if coordinates.is_boundary(point).map_err(|e| e.to_string())? {
+        return Ok(point);
+    }
+    coordinates.previous(point).map_err(|e| e.to_string())
 }
