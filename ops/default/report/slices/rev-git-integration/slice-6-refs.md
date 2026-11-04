@@ -1,6 +1,6 @@
 # Slice 6: Branches and Both Tag Kinds
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-git-integration
 Plan: `ops/default/plan/rev-git-integration.md`
 Tracker: `ops/default/tracker/rev-git-integration.md`
@@ -202,10 +202,16 @@ follow-up commit:
 
 The [canonical PR #263](https://forge.adrianpk.com/adrianpk/rev/pulls/263)
 Validation list and controller receipt record the exact clean-HEAD results.
+Receipt `P6AQRLEPYKAAT3MWRQKSXFWWQG` passed all seven ordered checks at
+`bef97e57c7953c9ab463c59b52b15ebcea22ac06`: 107 Git tests, 21 reference
+tests and 510-command documentation coverage, plus formatter, Clippy and
+whitespace checks.
 
 ## Risks and Follow-ups
 
-Controller-owned integration remains pending. Combined native PTY/resource
+PR #263 merged through controller-owned Rebase + Fast-forward into dev at
+`bef97e57c7953c9ab463c59b52b15ebcea22ac06`. Slice 6 of 14 completed.
+Combined native PTY/resource
 acceptance remains Slice 13; the complete User Guide remains Slice 14.
 Revalidation detects changed Git facts and does not claim an exclusive
 transaction against external Git clients.
