@@ -41,8 +41,10 @@ aggregate PTY budget is 45 seconds. Hidden-cursor frames require the owned
 geometry's final row to be fully painted. The older visible-cursor path is
 covered by the shared shell-command PTY regression.
 
-Shell transitions acknowledge persisted fixture state and completed host prompts,
-rather than matching stale prompt text. Modal copying uses an explicit
+Shell transitions acknowledge persisted fixture state and fresh per-shell
+prompt generations in the active presentation. Restored alternate-screen text
+and the inactive panel cannot acknowledge readiness. The actual lazygit exit
+status must be zero before sending the next shell command. Modal copying uses an explicit
 five-character operand and retains the exact child-byte assertion. Idle
 measurement follows a full 350 ms quiet epoch within the existing two-second
 settling deadline, then checks another 350 ms of silence and at most one CPU tick.
@@ -73,33 +75,40 @@ The failing receipt is `4VJUJIZITXHW3I5K2CSIVNDJZM` at
 
 ## Validation
 
-Focused receipt `LSXFV5ULDTILOGEM6NGIHJYDIS` passed at
-`972eee56a2f2c7b0df026652f3086f635363b242`:
+Focused receipt `TF7COIF6DUMGCENUZH4237HRMM` passed at
+`dee525cecdd8daf5da0e905c166cecf202179a9a`:
 
-- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 bash scripts/check-integrated-terminal.sh --pty`
-- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 bash scripts/check-integrated-terminal.sh --resources`
-- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 bash scripts/check-shell-commands.sh --pty`
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 bash scripts/check-integrated-terminal.sh`
 - `git diff --check`
 
-T7.1 native receipt `PGKUQXPYN44HYS2BXYNCZKH7VC` passed at
-`8f0a16c510ce54cd90197c639f72bcb2efd6bb30` with the profile prefix and
-`bash scripts/check-integrated-terminal.sh --native`, then `git diff --check`.
-The final PR head uses the six configured commands in canonical order, plus
-the focused shared shell PTY regression before whitespace. The controller owns
-the exact clean-HEAD receipt; integration remains pending that validation.
+This includes both native profiles, all five host cases and the resource
+scenario after fresh-prompt synchronization. The shared shell PTY regression
+also passed at `0555c3af914d6e85a95bdbd7972b812a8b4f9d89` in receipt
+`7MUL6VQNUYUSO4W434E6KGL6NL`, using the same profile prefix with
+`bash scripts/check-shell-commands.sh --pty`. Its shared fixture has not changed
+since that regression.
+
+Canonical six-command batch `XTDL6KAYI3BTSO3YTMY73UW6PE` passed format, Clippy
+and 45 tests before failing in the modal tool case. The fresh prompt-generation
+assertions replace that ambiguous restored-screen readiness observation; the
+full focused script above passed afterward. No limits or assertions were relaxed.
+
+The PR declares exactly the six configured commands in canonical order. The
+controller retains their final clean-HEAD validation receipt separately. Focused
+shared-regression evidence remains separate from that fixed command list.
 
 Local normal-release observations from the focused receipt:
 
 | Observation | Result |
 | --- | --- |
 | Binary | 22515240 bytes; +938512 bytes (+4.3496%) against Slice 1's recorded 21576728-byte pre-terminal release at `507862798782d15235f3758868ab33cd3611c57e`. The baseline was not rebuilt here. |
-| Host idle | Both profiles: 350 ms silence, zero CPU ticks; peak editor RSS 17952 / 19040 kB. |
-| Two-session idle | 350 ms, zero owner-plus-shell CPU ticks; peak owner RSS 6988 kB. |
-| Active flood | 1048576 producer bytes; 1064495 serviced bytes across 139 turns in 40454 microseconds; peer response 123 microseconds; owner-plus-shell CPU 3 ticks at 100 ticks/second. |
+| Host idle | Both profiles: 350 ms silence, zero CPU ticks; peak editor RSS 16928 / 18516 kB. |
+| Two-session idle | 350 ms, zero owner-plus-shell CPU ticks; peak owner RSS 6864 kB. |
+| Active flood | 1048576 producer bytes; 1064495 serviced bytes across 138 turns in 40674 microseconds; peer response 126 microseconds; owner-plus-shell CPU 3 ticks at 100 ticks/second. |
 | Retention/queues | 64 retained rows, 168800 reserved cells, zero extra bytes, 49664 input bytes still queued; full 65536-byte queue rejected overflow atomically. |
-| Active peak RSS | 8984 kB in the resource driver. |
-| Cleanup | Two leaders reaped in 42381 microseconds; FDs 4 to 4 and threads 1 to 1. |
-| Host streams | Tool: 801782 / 821112 bytes; input/closure: 964885 / 938531 bytes, all below 1 MiB. |
+| Active peak RSS | 8924 kB in the resource driver. |
+| Cleanup | Two leaders reaped in 39188 microseconds; FDs 4 to 4 and threads 1 to 1. |
+| Host streams | Tool: 780328 / 805428 bytes; input/closure: 912334 / 885979 bytes, all below 1 MiB. |
 
 The cold acceptance release build took 7 minutes 40 seconds. Rebuilding the
 changed process owner took 4 minutes 17 seconds; focused driver relinks took
@@ -110,6 +119,5 @@ latency guarantees; active CPU covers the owner and two shell leaders.
 
 The fault case injects one write error inside a real controlling PTY. It proves
 cleanup and restoration orchestration with subsequent writes available, not
-recovery from an unavailable physical terminal. Final configured PR validation
-and controller integration remain pending. User guidance is the recorded next
-slice.
+recovery from an unavailable physical terminal. Controller integration remains
+outstanding. User guidance is the recorded next slice.

@@ -179,16 +179,19 @@ PR: [#254](https://forge.adrianpk.com/adrianpk/rev/pulls/254)
 
 T7.1: `8f0a16c510ce` passes focused receipt `PGKUQXPYN44HYS2BXYNCZKH7VC`: actual interactive Bash/lazygit and identity-preserving relocation in both profiles, with source quality and whitespace.
 
-T7.2/T7.3: `972eee56a2f2` passed focused receipt
-`LSXFV5ULDTILOGEM6NGIHJYDIS`: both host profiles, real tool relocation, exact
-literal/mouse/paste bytes, normal/error restoration, declined and confirmed
-closure, resource flood/fairness and shared shell PTY regression. Interrupted
-zero-time exit polls now defer within the existing service bound (`4e9bbcbdd69b`).
-The report records actual binary, CPU, RSS, queue, stream and FD/thread results
-and the explicit host-key transport boundary.
+T7.2/T7.3: `dee525cecdd8` passed focused receipt
+`TF7COIF6DUMGCENUZH4237HRMM`: both native/host profiles, real tool relocation,
+exact literal/mouse/paste bytes, normal/error restoration, declined/confirmed
+closure and resource flood/fairness. Fresh active-shell prompt generations and
+actual tool exit zero replace ambiguous restored-screen readiness. Interrupted
+zero-time exit polls defer within the existing service bound (`4e9bbcbdd69b`).
+Shared shell PTY regression passed in `7MUL6VQNUYUSO4W434E6KGL6NL` at
+`0555c3af914d`. The report records measured binary, CPU, RSS, queue, stream and
+FD/thread results and the explicit host-key transport boundary.
 
-Validation: focused commands passed; final exact-PR-HEAD configured checks remain pending.
-Integration: canonical PR #254 targets dev; final validation and controller integration pending.
+Validation: focused commands passed; the controller records the final exact
+PR-head six-command receipt separately.
+Integration: canonical PR #254 targets dev; controller integration pending.
 
 ## Slice 8: User guidance and joint integration
 
