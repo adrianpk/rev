@@ -18,6 +18,10 @@ The initial driver creates isolated repositories and runs interactive Bash and
 actual lazygit in both profiles. It checks cwd, alternate-screen help interaction
 and stable process/buffer identity across panel and main-buffer relocation.
 
+The T7.2 driver additionally covers native source exclusions, nested tool and
+input cases, and one injected host write failure. This work is incomplete until
+the full nested suite passes in both profiles.
+
 ## Implementation Notes
 
 The existing Rust acceptance layout and source checker are reused. Git and
@@ -57,5 +61,19 @@ ordered commands from the approved plan and frozen controller configuration.
 
 ## Risks and Follow-ups
 
-Nested PTY journeys, source exclusions and resource measurements remain under
-T7.2 and T7.3.
+T7.2 remains open. Focused receipt `CIF4Y234KOKP3DIRTDF5I4H2CB` at
+`a2ac4b1748c0bfc6067aee538f17f0f95675dddd` fails the full nested suite while
+waiting for the live-buffer closure prompt. Before failure, the non-modal tool
+journey passed relocation, PID/shell-state retention, actual exit and host
+restoration within 812850 captured bytes. The raw-input case passed its exact
+literal/mouse/bracketed-paste bytes and a 350 ms idle observation at zero CPU
+ticks and 17792 kB peak editor RSS. These partial observations do not establish
+a passing nested suite or the modal cases.
+
+Traditional Escape-prefixed Meta entry also missed prompt observations in prior
+nested runs. The current CSI-u Alt-x probe retains the actual M-x prompt and
+placement assertions; it does not establish equivalence of the two transports.
+The live-buffer close path and these input observations require continued
+diagnosis. The eight-second / 1 MiB case limits and exact assertions remain.
+T7.3 integrated resource measurements and focused production source coverage
+remain pending. No canonical Slice 7 PR has been opened.

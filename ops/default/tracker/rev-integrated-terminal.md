@@ -179,6 +179,14 @@ PR: pending
 
 T7.1: `8f0a16c510ce` passes focused receipt `PGKUQXPYN44HYS2BXYNCZKH7VC`: actual interactive Bash/lazygit and identity-preserving relocation in both profiles, with source quality and whitespace.
 
+T7.2 checkpoint: native source-guard probes passed in the partial development
+batch. The nested suite remains failing at live-buffer closure in receipt
+`CIF4Y234KOKP3DIRTDF5I4H2CB` (`a2ac4b1748c0`); non-modal tool restoration,
+exact child bytes and idle observations passed before that failure. Modal host
+cases and the host-output-fault case are not yet established. Traditional Meta
+entry needs diagnosis alongside the current explicit CSI-u Alt-x probe.
+T7.3 remains pending. No canonical PR exists.
+
 Validation: pending; use the exact ordered Slice 7 commands from the plan and frozen controller configuration.
 Integration: pending canonical PR and controller verification.
 
