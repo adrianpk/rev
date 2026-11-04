@@ -1,6 +1,6 @@
 # Slice 8: User Guidance and Joint Integration
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-integrated-terminal
 Plan: [Integrated Terminal Delivery](../../../plan/rev-integrated-terminal.md)
 Tracker: [Integrated Terminal Tracker](../../../tracker/rev-integrated-terminal.md)
@@ -47,12 +47,19 @@ directly without relying on another product's capabilities.
 
 ## Validation
 
-Focused receipt `Y2WNEWSV2PFZYVWAYCQOPNJ7A7` passed at
-`10dbde18199a61eaf768bb1d81761632580d1267`:
+Final canonical receipt `IT5NYQHLV2YQN43Q46TFNMIGTD` passed all six configured
+commands at `56862f0225b718b82c57d1c0ccd3c24fa97e1ab9`:
 
+- `cargo fmt --all -- --check`
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo clippy --locked --all-targets -- -D warnings`
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test integrated_terminal --test commands --test configuration -- --test-threads=1`
 - `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo run --locked --quiet --example documentation-check`
 - `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 bash scripts/build-user-guide.sh`
 - `git diff --check`
+
+All 361 selected integration tests passed. Earlier focused receipt
+`Y2WNEWSV2PFZYVWAYCQOPNJ7A7` passed documentation, local guide generation and
+whitespace at `10dbde18199a61eaf768bb1d81761632580d1267`.
 
 The checker validated 76 reachable pages, 484 local links/anchors, independent
 editor/Org paths, 474 commands and 247 configuration entries. The dedicated
@@ -63,10 +70,11 @@ link chapter 16, whose HTML contains the actual move command examples.
 The first focused receipt `RTY6FC3J2FVDWH4U7F2UM5KJ74` rejected a footer-only
 Next link. The chapter now uses the established Next: line; no check was weakened.
 Accepted TRM01-TRM11 requirement/scenario text is unchanged from the integrated
-baseline. The controller records the final exact-PR-HEAD six-command receipt
-separately. This is local guide generation, not website publication.
+baseline. Canonical PR #255 merged into dev unchanged at
+`56862f0225b718b82c57d1c0ccd3c24fa97e1ab9`; Slice 8 of 8 completed.
+The controller checkpoint records the merge activity. Guide generation was local.
 
 ## Risks and Follow-ups
 
-The unchanged combined gate remains controller-owned after Slice 8 merges.
+The unchanged combined gate remains controller-owned on integrated dev.
 Slice-local documentation and catalog checks do not close terminal delivery.

@@ -7,7 +7,7 @@ Plan: [Integrated Terminal Delivery](../plan/rev-integrated-terminal.md)
 Spec: [Integrated Terminal Sessions](../spec/editor-integrated-terminal.md)
 Model: [Integrated Terminal Model](../spec/editor-integrated-terminal-model.md)
 Approved: owner, 2026-11-03; explicit request to start the approved terminal delivery through Looper
-Active slice: Slice 8 - User guidance and joint integration
+Active slice: None; all eight slices integrated, combined controller gate pending
 Progress owner: Looper checkpoint, canonical PRs and exact-candidate validation receipts
 
 ## Canonical slice map
@@ -194,7 +194,7 @@ Integration: canonical PR #254 merged into dev unchanged at `47bc4911ee8a6bd1886
 
 ## Slice 8: User guidance and joint integration
 
-Status: active
+Status: delivered
 Branch: `feat/rev-integrated-terminal-08-guidance`
 Expected PR title: `docs(terminal): explain integrated terminal workflows`
 Report: `ops/default/report/slices/rev-integrated-terminal/slice-8-guidance.md`
@@ -212,14 +212,28 @@ evidence without changing accepted requirement/scenario text.
 
 Validation: focused receipt `Y2WNEWSV2PFZYVWAYCQOPNJ7A7` passed documentation,
 Spore strict links/render and whitespace at `10dbde18199a`. The unchanged path
-check caught a Next: format mismatch, corrected in that candidate. The controller
-records the final exact-PR-HEAD configured receipt separately.
-Integration: canonical PR #255 targets dev; controller integration pending.
+check caught a Next: format mismatch, corrected in that candidate.
+Final canonical receipt `IT5NYQHLV2YQN43Q46TFNMIGTD` passed all six configured
+commands at `56862f0225b718b82c57d1c0ccd3c24fa97e1ab9`: format, all-target
+Clippy, 361 integration tests, documentation, local guide generation and whitespace.
+Integration: canonical PR #255 merged into dev unchanged at
+`56862f0225b718b82c57d1c0ccd3c24fa97e1ab9`; Slice 8 of 8 completed.
+The checkpoint records merge activity for all eight slices.
 
 ## Final gate and closure
 
-Pending eight canonical integrations, the unchanged plan Full gate, an exact
-clean-dev receipt, and the restricted documentation closure. The checkpoint is
-the execution owner; this tracker records human-readable evidence rather than
-creating a second controller. Do not mark terminal delivery Completed from
-slice-local checks or move main, tags, mirrors or public sites in this run.
+All eight canonical PRs #248-#255 are merged unchanged into dev and all slice
+reports are delivered. Combined acceptance and delivery-set closure remain pending.
+
+Gate prerequisites verified on 2026-11-04: Bash 5.3.15, Git 2.55.0, lazygit
+0.64.1, Rust/Cargo 1.98.0, rustfmt, Clippy, Spore and the fixture utilities are
+available. Locked offline Linux metadata resolves 91 available package manifests.
+Linux procfs and PTY allocation work; the primary target filesystem has over
+109 GiB free against the fixed 1 GiB prerequisite. No primary build or validator
+is active. The acceptance script creates its isolated HOME/XDG, local Git
+repository and finite PTY fixtures when invoked; the guide builder owns its
+temporary projection and target/userguide output. No persistent fixture is needed.
+
+The unchanged plan Full gate has not run. Its exact clean-dev receipt and the
+restricted documentation closure remain controller-owned. The checkpoint is
+the execution owner; slice-local checks do not mark terminal delivery Completed.
