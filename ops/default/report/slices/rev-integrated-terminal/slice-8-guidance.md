@@ -1,6 +1,6 @@
 # Slice 8: User Guidance and Joint Integration
 
-Status: drafting
+Status: reviewing
 Delivery set: rev-integrated-terminal
 Plan: [Integrated Terminal Delivery](../../../plan/rev-integrated-terminal.md)
 Tracker: [Integrated Terminal Tracker](../../../tracker/rev-integrated-terminal.md)
@@ -41,10 +41,30 @@ directly without relying on another product's capabilities.
 - `docs/tutorials/user-guide/16-integrated-terminal.md`
 - `docs/how-to/use-integrated-terminal.md`
 - `docs/reference/integrated-terminal.md`
+- `examples/documentation-check.rs` and `documentation_check/catalogs.rs`
+- `publication/userguide/index.sptree`
+- Terminal/editor specification and model companions under `ops/default/spec/`
 
 ## Validation
 
-Pending the configured clean-HEAD Slice 8 commands.
+Focused receipt `Y2WNEWSV2PFZYVWAYCQOPNJ7A7` passed at
+`10dbde18199a61eaf768bb1d81761632580d1267`:
+
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo run --locked --quiet --example documentation-check`
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 bash scripts/build-user-guide.sh`
+- `git diff --check`
+
+The checker validated 76 reachable pages, 484 local links/anchors, independent
+editor/Org paths, 474 commands and 247 configuration entries. The dedicated
+terminal inventory covers all 37 live names and seven startup settings. Spore
+strict link checks and rendering passed; the generated index and prior chapter
+link chapter 16, whose HTML contains the actual move command examples.
+
+The first focused receipt `RTY6FC3J2FVDWH4U7F2UM5KJ74` rejected a footer-only
+Next link. The chapter now uses the established Next: line; no check was weakened.
+Accepted TRM01-TRM11 requirement/scenario text is unchanged from the integrated
+baseline. The controller records the final exact-PR-HEAD six-command receipt
+separately. This is local guide generation, not website publication.
 
 ## Risks and Follow-ups
 

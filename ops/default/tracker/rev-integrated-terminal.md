@@ -200,11 +200,20 @@ Expected PR title: `docs(terminal): explain integrated terminal workflows`
 Report: `ops/default/report/slices/rev-integrated-terminal/slice-8-guidance.md`
 PR: pending
 
-- [ ] T8.1: Add a short ordinary terminal chapter to the editor learning path, a task guide and exact command/configuration/input/lifecycle reference; explain panel versus buffer, moving a live lazygit session, multiple terminals and returning to the editor with small visual examples.
-- [ ] T8.2: Keep Markdown the source of truth for Spore, update indexes/catalog checks and both learning-path navigation, document shell-command/filter distinction and finalize user-facing Unreleased notes without a version bump.
-- [ ] T8.3: Reconcile accepted baseline/model clauses and all requirement evidence, run the focused slice checks and prepare clean dev for the controller-owned combined gate; do not claim completion before that receipt.
+- [x] T8.1: Add a short ordinary terminal chapter to the editor learning path, a task guide and exact command/configuration/input/lifecycle reference; explain panel versus buffer, moving a live lazygit session, multiple terminals and returning to the editor with small visual examples.
+- [x] T8.2: Keep Markdown the source of truth for Spore, update indexes/catalog checks and both learning-path navigation, document shell-command/filter distinction and finalize user-facing Unreleased notes without a version bump.
+- [x] T8.3: Reconcile accepted baseline/model clauses and all requirement evidence, run the focused slice checks and prepare clean dev for the controller-owned combined gate; do not claim completion before that receipt.
 
-Validation: pending; use the exact ordered Slice 8 commands from the plan and frozen controller configuration.
+T8.1: `ef908f3a7155` adds the terminal chapter, task guide, exact reference and
+small placement diagrams. T8.2: `ae3fb57269c5` connects Markdown/Spore navigation,
+checks live terminal catalogs and finalizes the terminal Unreleased entry.
+T8.3: `bcbdbbab9114` reconciles baseline/model typed ownership and TRM01-TRM11
+evidence without changing accepted requirement/scenario text.
+
+Validation: focused receipt `Y2WNEWSV2PFZYVWAYCQOPNJ7A7` passed documentation,
+Spore strict links/render and whitespace at `10dbde18199a`. The unchanged path
+check caught a Next: format mismatch, corrected in that candidate. The controller
+records the final exact-PR-HEAD configured receipt separately.
 Integration: pending canonical PR and controller verification.
 
 ## Final gate and closure
