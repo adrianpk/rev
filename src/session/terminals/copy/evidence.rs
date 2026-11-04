@@ -103,8 +103,13 @@ impl Session {
             row: (copy.view.top + usize::from(event.row)).min(copy.buffer.len_lines() - 1),
             column: copy.view.left + usize::from(event.column),
         };
-        let point =
-            Coordinates::new(&copy.buffer).and_then(|coordinates| coordinates.from_cell(cell));
+        let point = Coordinates::new(&copy.buffer)
+            .map_err(|error| error.to_string())
+            .and_then(|coordinates| {
+                coordinates
+                    .from_cell(cell)
+                    .map_err(|error| error.to_string())
+            });
         match point {
             Ok(point) => self.terminal_copy_link(key, point),
             Err(error) => self.error(&error.to_string()),
