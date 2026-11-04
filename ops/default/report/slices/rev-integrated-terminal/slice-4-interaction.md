@@ -1,6 +1,6 @@
 # Slice 4: Live Terminal Interaction
 
-Status: drafting
+Status: reviewing
 Delivery set: rev-integrated-terminal
 Plan: [Integrated Terminal Delivery](../../../plan/rev-integrated-terminal.md)
 Tracker: [Integrated Terminal Tracker](../../../tracker/rev-integrated-terminal.md)
@@ -70,7 +70,8 @@ prefixes. A frame exposes optional native terminal cursor style metadata.
 - `tests/integrated_terminal/interaction.rs`: exact real-PTY input checks.
 
 Task commits: T4.1 `5f3ae4f4d345`, with cancellation correction
-`9671a9d28f0d` and bounded dispatch `580bd8538d2a`; T4.2 `7da3f48dff23`.
+`9671a9d28f0d` and bounded dispatch `580bd8538d2a`; T4.2 `7da3f48dff23`;
+T4.3 `a819a54562a6`, with fixture correction `ef72e033fb2f`.
 
 ## Validation
 
@@ -103,10 +104,15 @@ No protocol expectation, resource assertion or frozen command changes.
 
 Both earlier interaction scenarios passed. The full-screen case uses a controlled shell
 fixture; installed-tool journeys remain under the recorded acceptance slice.
-The exact ordered Slice 4 commands remain pending T4.3 and PR references. The raw-PTY fixture covers both startup profiles and ordinary versus
-application modes, protected-key forwarding and host transient cancellation.
+T4.3 receipt `2MF3LO7YJWYNHK5YRRN7T5RZK7` passed on
+`ef72e033fb2ffea99d62280631cb546c83154c4a`: four real-PTY pointer/link
+scenarios, six host mouse restoration cases, five existing configured-viewer
+regressions, seven source files and whitespace. These focused checks are distinct
+from the final six ordered Slice 4 commands and the controller-owned set gate.
+Final exact-head evidence follows the PR-reference commit; its receipt remains
+in the controller and Acta so reporting does not mutate the validated candidate.
 
 ## Risks and Follow-ups
 
-T4.3 focused and final ordered validation remain pending. Stable retained copy projections and paste transfer remain
+Stable retained copy projections and paste transfer remain
 in their recorded subsequent slice.
