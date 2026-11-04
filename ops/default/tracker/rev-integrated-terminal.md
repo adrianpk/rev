@@ -7,7 +7,7 @@ Plan: [Integrated Terminal Delivery](../plan/rev-integrated-terminal.md)
 Spec: [Integrated Terminal Sessions](../spec/editor-integrated-terminal.md)
 Model: [Integrated Terminal Model](../spec/editor-integrated-terminal-model.md)
 Approved: owner, 2026-11-03; explicit request to start the approved terminal delivery through Looper
-Active slice: Slice 6 - Session lifecycle and failure containment
+Active slice: Slice 7 - Native and PTY acceptance
 Progress owner: Looper checkpoint, canonical PRs and exact-candidate validation receipts
 
 ## Canonical slice map
@@ -140,7 +140,7 @@ contain all 474 commands. Final exact-PR validation passed as recorded above.
 
 ## Slice 6: Session lifecycle and failure containment
 
-Status: reviewing
+Status: delivered
 Branch: `feat/rev-integrated-terminal-06-lifecycle`
 Expected PR title: `feat(terminal): preserve sessions and confirm owned shutdown`
 Report: `ops/default/report/slices/rev-integrated-terminal/slice-6-lifecycle.md`
@@ -162,12 +162,12 @@ T6.3: `1b0fb2569df0` passes receipt `OSU7364GZSOJZEX53J6V4ZMEZP`: eight
 resource scenarios plus native extras-failure containment in both profiles;
 finite flood fairness, blocked input, exact FD checks and owned cleanup retained.
 
-Validation: final clean PR head uses the exact ordered Slice 6 commands from the plan and frozen controller configuration; the controller retains its receipt.
-Integration: canonical [PR #253](https://forge.adrianpk.com/adrianpk/rev/pulls/253) targets dev; awaiting controller verification and integration.
+Validation: final receipt `DHHPXEKLN57H44VO5X5ELFNGQL` passed all six configured commands at `e48e4efdc6305167e6aa38753217e0c952923396`: 201 integration tests, seven process-owner tests, format, all-target Clippy, documentation and whitespace.
+Integration: canonical [PR #253](https://forge.adrianpk.com/adrianpk/rev/pulls/253) merged into dev unchanged at `e48e4efdc6305167e6aa38753217e0c952923396`; checkpoint records merge activity.
 
 ## Slice 7: Native and PTY acceptance
 
-Status: pending
+Status: active
 Branch: `feat/rev-integrated-terminal-07-acceptance`
 Expected PR title: `test(terminal): verify shells tools and bounded session resources`
 Report: `ops/default/report/slices/rev-integrated-terminal/slice-7-acceptance.md`

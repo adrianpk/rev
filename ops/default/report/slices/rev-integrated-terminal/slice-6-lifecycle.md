@@ -1,6 +1,6 @@
 # Slice 6: Session Lifecycle and Failure Containment
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-integrated-terminal
 Plan: [Integrated Terminal Delivery](../../../plan/rev-integrated-terminal.md)
 Tracker: [Integrated Terminal Tracker](../../../tracker/rev-integrated-terminal.md)
@@ -100,9 +100,19 @@ unterminated control survives 64 valid/rejected resize pairs and repeated close
 without leaking descriptors. Existing rejected-launch FD and 500 ms grace /
 2 second cleanup assertions pass unchanged.
 
-The final PR head uses the exact six ordered commands from the approved plan
-and frozen configuration. Its receipt is retained by the controller after the
-PR-reference follow-up commit.
+Final controller receipt `DHHPXEKLN57H44VO5X5ELFNGQL` passed at
+`e48e4efdc6305167e6aa38753217e0c952923396`, integrated unchanged through
+[PR #253](https://forge.adrianpk.com/adrianpk/rev/pulls/253):
+
+- `cargo fmt --all -- --check`
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo clippy --locked --all-targets -- -D warnings`
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test integrated_terminal --test files --test recovery --test shell_commands --test external_changes -- --test-threads=1`
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --lib process -- --test-threads=1`
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo run --locked --quiet --example documentation-check`
+- `git diff --check`
+
+The six checks passed: format, all-target Clippy, 201 integration tests, seven
+process-owner tests, 73 reachable documentation pages / 459 links and whitespace.
 
 ## Risks and Follow-ups
 
