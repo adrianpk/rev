@@ -134,6 +134,7 @@ pub struct View {
     wrap_cache: wrap::Cache,
     wrap_width: Option<u16>,
     wrap_active: bool,
+    indent_active: bool,
     folds: Option<fold::Folds>,
     visibility: Option<std::sync::Arc<crate::org::Visibility>>,
     visibility_initialized: bool,
@@ -178,6 +179,7 @@ impl View {
             wrap_cache: wrap::Cache::default(),
             wrap_width: None,
             wrap_active: buffer.soft_wrap(),
+            indent_active: buffer.org_indentation(),
             folds: None,
             visibility: None,
             visibility_initialized: false,
@@ -289,13 +291,15 @@ impl View {
         Ok(())
     }
 
-    // Goals are display columns, not canonical positions. Width comparison
+    // Goals are display columns, not canonical positions. Policy comparison
     // invalidates them before use without advancing the text publication stamp.
     fn sync_policy(&mut self, buffer: &Buffer) {
         let width = buffer.policy().tab_width;
-        if self.tab_width != width {
+        let indent = buffer.org_indentation();
+        if self.tab_width != width || self.indent_active != indent {
             self.reset_navigation();
             self.tab_width = width;
+            self.indent_active = indent;
         }
     }
 

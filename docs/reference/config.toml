@@ -206,6 +206,8 @@ directories_first = true
 # Native Org availability; M-x org-mode selects it explicitly per buffer.
 enabled = true
 # Visually align heading bodies and continuations without inserting source spaces.
+# Runtime org-indent-mode, org-indent-enable and org-indent-disable
+# override this preference per live buffer without writing TOML.
 indent = true
 
 [org.headings]

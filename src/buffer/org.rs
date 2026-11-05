@@ -4,7 +4,16 @@ use crate::org::Index;
 impl Buffer {
     /// Effective visual indentation; ordinary text buffers retain source geometry.
     pub fn org_indentation(&self) -> bool {
-        self.is_org() && self.org_indent
+        self.is_org() && self.org_indent_override.unwrap_or(self.org_indent)
+    }
+
+    /// Runtime presentation belongs to this buffer, including readonly results.
+    /// It survives source/mode changes and never enters text or edit history.
+    pub(crate) fn set_org_indentation(&mut self, enabled: bool) {
+        self.org_indent_override = Some(enabled);
+        if enabled {
+            self.request_org_outline();
+        }
     }
 
     /// No source scan: the existing native outline owns complete evidence.

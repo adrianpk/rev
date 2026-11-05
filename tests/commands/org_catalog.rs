@@ -182,3 +182,30 @@ fn control_reference() {
         assert!(count > 50);
     }
 }
+
+// The three indentation names are complete native catalog identities, with no
+// factory shortcut in any inherited context, including either editing profile.
+#[test]
+fn indentation_catalog() {
+    use rev::input::keymap::Context;
+    for (name, command) in [
+        ("org-indent-mode", OrgCommand::IndentMode),
+        ("org-indent-enable", OrgCommand::IndentEnable),
+        ("org-indent-disable", OrgCommand::IndentDisable),
+    ] {
+        assert_eq!(Command::named(name), Some(Command::Org(command)));
+        assert_eq!(
+            Command::ALL
+                .iter()
+                .filter(|c| **c == Command::Org(command))
+                .count(),
+            1
+        );
+        for context in Context::ALL {
+            assert!(
+                context.defaults().iter().all(|(_, target)| *target != name),
+                "{context:?}: {name}"
+            );
+        }
+    }
+}

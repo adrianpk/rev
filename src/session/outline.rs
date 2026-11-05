@@ -7,6 +7,7 @@ use std::sync::Arc;
 pub(super) mod clocks;
 pub(super) mod estimates;
 mod headings;
+mod indentation;
 mod list;
 mod operation;
 pub(super) mod property;
@@ -36,6 +37,9 @@ impl Session {
             return self.message("Native Org mode is not active");
         }
         if let Some(action) = self.heading_presentation(command) {
+            return action;
+        }
+        if let Some(action) = self.indentation_command(command) {
             return action;
         }
         if let Some(action) = self.table_return(command) {

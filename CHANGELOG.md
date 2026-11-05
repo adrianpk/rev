@@ -11,7 +11,10 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 
 - Org heading bodies and wrapped continuations align with their enclosing
   heading by default. Set `org.indent=false` to retain the previous layout.
-  Visual spacing leaves source whitespace, copied text and saved bytes intact.
+  Use `org-indent-mode`, `org-indent-enable` or `org-indent-disable` to change
+  one buffer and all its views without writing configuration. The choice survives
+  edits and reload, and resets when the buffer closes. Visual spacing leaves
+  source whitespace, copied text and saved bytes intact.
 - [Work with Git inside rev](docs/tutorials/user-guide/git/index.md): inspect
   saved changes with C-x g, expand staged/unstaged diffs, stage exact paths,
   hunks or compatible marked groups, and compose normal, amend or fixup commits.

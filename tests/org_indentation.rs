@@ -3,6 +3,9 @@
 #[path = "configuration/fixture.rs"]
 mod fixture;
 
+#[path = "org_indentation/controls.rs"]
+mod controls;
+
 use crossterm::event::{
     Event, KeyCode, KeyEvent, KeyModifiers, MouseButton, MouseEvent, MouseEventKind,
 };

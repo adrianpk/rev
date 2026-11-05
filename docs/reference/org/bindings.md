@@ -7,6 +7,8 @@ source, agenda, calendar and draft actions require their stated owner.
 
 | Keys | Command | Result |
 | --- | --- | --- |
+| M-x or modal colon | `org-indent-mode` | Toggle visual indentation for every view of the active Org buffer, including read-only results. No factory shortcut. |
+| M-x or modal colon | `org-indent-enable`, `org-indent-disable` | Set the buffer choice explicitly; repeating the same command keeps that state. No TOML write. |
 | M-x or modal colon | `org-pretty-headings-mode` | Toggle source/pretty headings only in the active native Org view, including read-only results. No factory shortcut. |
 | M-x or modal colon | `org-reset-heading-presentation` | Clear this view's override and restore its immutable startup pretty flag. No TOML write. |
 | `C-c C-x C-a` in Org | `org-archive-subtree` | Move the complete subtree to the checked archive location with origin metadata. |

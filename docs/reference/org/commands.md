@@ -9,6 +9,7 @@ see [Org bindings](bindings.md) and the [capability map](../org-controls.md).
 
 | Group | Names |
 | --- | --- |
+| Visual indentation | `org-indent-mode`, `org-indent-enable`, `org-indent-disable` |
 | Heading presentation | `org-pretty-headings-mode`, `org-reset-heading-presentation` |
 | Native mode | `org-mode`, `text-mode` |
 | Org visibility | `org-cycle`, `org-shifttab`, `org-overview`, `org-content`, `org-show-all`, `org-hide-subtree`, `org-show-children`, `org-show-subtree`, `org-hide-drawer`, `org-show-drawer`, `org-toggle-drawer` |
@@ -49,6 +50,25 @@ see [Org bindings](bindings.md) and the [capability map](../org-controls.md).
 | Org property columns | `org-columns`, `org-columns-insert-dblock` |
 | Org table interchange | `org-table-import`, `org-table-export` |
 | Org recalculation | `org-table-recalculate`, `org-table-recalculate-cell`, `org-table-recalculate-column` |
+
+## Visual indentation
+
+`org-indent-mode` toggles visual indentation for the active Org buffer.
+`org-indent-enable` and `org-indent-disable` set it explicitly; repeating either
+keeps the same state. All three report the resulting enabled or disabled state.
+Use M-x, modal colon or a configured editing binding; no default shortcut is added.
+
+The runtime choice overrides the startup `org.indent` preference for every view
+of that buffer, including read-only Org results. Other buffers keep their own
+choices. Pretty headings remain per view, and Visual Line mode remains an
+independent buffer preference. Source text, selection anchors, copied bytes,
+edit history and TOML stay unchanged.
+
+The choice survives edits, undo/redo, heading moves, folding, resize, buffer
+switches and external reload. Text mode suspends it; returning to Org restores
+it. Closing the buffer discards it, so reopening uses startup preferences.
+Commands require an active native Org editing view and report unavailability
+elsewhere without activating Org.
 
 ## Native task workflows
 

@@ -220,7 +220,10 @@ terminal display columns/cells, never bytes or Unicode scalar positions.
 At the same `org.indent` policy, these heading settings preserve the original
 prefix width, separator, title, wrapping and source positions. The independent
 `org.indent` preference adds visual margins to headings and their body text;
-see [Org configuration](org/configuration.md). Literal or unverified prefixes remain source.
+see [Org configuration](org/configuration.md). Use `org-indent-mode`,
+`org-indent-enable` or `org-indent-disable` to override it for one live buffer
+without writing TOML. All its views share that choice; closing discards it.
+Literal or unverified prefixes remain source.
 Heading recognition remains active with syntax coloring disabled, but respects
 `org.enabled`. The terminal owns font coverage and shaping; use `pretty = false`
 or simpler one-cell markers when a symbol is unavailable. rev installs no fonts

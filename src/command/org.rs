@@ -232,9 +232,12 @@ pub enum OrgCommand {
     LinkPreviewRegion,
     PrettyHeadings,
     ResetHeadingPresentation,
+    IndentMode,
+    IndentEnable,
+    IndentDisable,
 }
 impl OrgCommand {
-    pub const ALL: [Self; 230] = [
+    pub const ALL: [Self; 233] = [
         Self::Cycle,
         Self::GlobalCycle,
         Self::Overview,
@@ -465,6 +468,9 @@ impl OrgCommand {
         Self::LinkPreviewRegion,
         Self::PrettyHeadings,
         Self::ResetHeadingPresentation,
+        Self::IndentMode,
+        Self::IndentEnable,
+        Self::IndentDisable,
     ];
     pub fn name(self) -> &'static str {
         [
@@ -698,6 +704,9 @@ impl OrgCommand {
             "org-link-preview-region",
             "org-pretty-headings-mode",
             "org-reset-heading-presentation",
+            "org-indent-mode",
+            "org-indent-enable",
+            "org-indent-disable",
         ][self as usize]
     }
 

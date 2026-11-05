@@ -176,6 +176,7 @@ pub struct Buffer {
     org_active: bool,
     // Startup projection policy, shared by all views of this buffer.
     pub(crate) org_indent: bool,
+    org_indent_override: Option<bool>,
     org_highlights: Option<crate::org::Highlights>,
     org_attempt: Option<Stamp>,
     org_outline: Option<std::sync::Arc<crate::org::Outline>>,
@@ -242,6 +243,7 @@ impl Buffer {
             mode_choice: None,
             org_active: false,
             org_indent: crate::config::Org::default().indent,
+            org_indent_override: None,
             org_highlights: None,
             org_attempt: None,
             org_outline: None,
