@@ -291,9 +291,33 @@ fn configuration_catalog() {
             "{name}"
         );
     }
-    let owner = Repositories::new(&config::Snapshot::default(), Arc::new(|| {}));
-    assert!(!owner.busy());
-    assert_eq!(owner.admitted_bytes(), 65536);
+    let configured = repository.fixture.write(
+        "shell.toml",
+        "[shell]\nprogram='example-shell'\nargs=['--login','-c']",
+    );
+    let configured = config::prepare(&configured);
+    assert!(configured.diagnostic.is_none());
+    let startup_shell = std::env::var("SHELL")
+        .ok()
+        .filter(|shell| !shell.is_empty())
+        .unwrap_or_else(|| "/bin/sh".into());
+    for (name, snapshot) in [
+        ("default shell", config::Snapshot::default()),
+        ("configured shell", configured.snapshot),
+    ] {
+        // The idle owner retains shell configuration and startup selection in
+        // addition to its fixed metadata; none of these bytes starts Git work.
+        let shell = &snapshot.settings().shell;
+        let shell_bytes = shell.program.capacity()
+            + shell.args.capacity() * std::mem::size_of::<String>()
+            + shell.args.iter().map(String::capacity).sum::<usize>()
+            + startup_shell.capacity();
+        let owner = Repositories::new(&snapshot, Arc::new(|| {}));
+        assert!(!owner.busy(), "{name}");
+        assert!(owner.contexts().is_empty(), "{name}");
+        assert!(owner.records().is_empty(), "{name}");
+        assert_eq!(owner.admitted_bytes(), 65536 + shell_bytes, "{name}");
+    }
 }
 
 // Resource ceilings apply to actual candidates. A high configured path ceiling

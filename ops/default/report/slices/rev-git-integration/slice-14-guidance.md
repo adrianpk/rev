@@ -1,11 +1,11 @@
 # Slice 14: Git Learning Path and Reference
 
-Status: delivered
+Status: reviewing
 Delivery set: rev-git-integration
 Plan: `ops/default/plan/rev-git-integration.md`
 Tracker: `ops/default/tracker/rev-git-integration.md`
-Branch: `feat/rev-git-integration-14-guidance`
-PR: [#271](https://forge.adrianpk.com/adrianpk/rev/pulls/271)
+Branch: `fix/rev-git-integration-validation-1`
+PR: pending
 
 ## Purpose
 
@@ -90,3 +90,35 @@ that exact head: 85 reachable pages, 550 local links/anchors, 593 commands,
 271 settings, successful Spore projection/rendering, formatter and whitespace.
 This closes Slice 14 of 14. The selected full gate and exact-candidate
 delivery-set closure remain pending with the controller.
+
+## Gate Repair 1: Retained Shell Configuration
+
+The retained full gate at `9ddc7972dfbcdd7effb18dfa6d3e7be887f603fb`
+failed `status::configuration_catalog`: the idle Git owner admitted 65,574
+bytes while the test still expected only its fixed 65,536-byte metadata.
+The other 239 Git tests passed in that retained run. Shell policy strings,
+argument-vector storage and the startup shell selection became retained Git
+state with the approved direct-command routes; their existing charge is valid.
+
+The exact focused reproduction below failed with the same values at the
+unchanged base. The repair retains an equality assertion and accounts for
+those capacities in default and explicitly configured shell cases. Both cases
+also require an idle owner with no repository contexts or process records.
+No runtime accounting, resource limit, gate requirement or startup execution
+behavior changes. Only `tests/git_integration/status.rs` and this existing
+report change; the original Slice 14 integration evidence above is preserved.
+
+Focused reproduction (failed before repair):
+
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test git_integration status::configuration_catalog -- --exact --test-threads=1`
+
+The repair's clean PR-reference head is validated through the controller with
+this exact ordered list; its receipt retains the actual head and results:
+
+- `cargo fmt --all -- --check`
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo clippy --locked --lib --bin rev --test git_integration -- -D warnings`
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test git_integration status::configuration_catalog -- --exact --test-threads=1`
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test git_integration status::byte_admission -- --exact --test-threads=1`
+- `git diff --check`
+
+The unchanged full-gate rerun and repair integration remain controller-owned.
