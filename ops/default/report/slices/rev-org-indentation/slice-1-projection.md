@@ -1,11 +1,12 @@
 # Slice 1: Projection and checked mappings
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-org-indentation
 Plan: [Org Indentation Delivery](../../../plan/rev-org-indentation.md)
 Tracker: [Org Indentation Tracker](../../../tracker/rev-org-indentation.md)
 Branch: `feat/rev-org-indentation-01-projection`
 PR: `#276`
+Integrated: `3849381e48c4951a33cba391201fd0bc7cb4f840`
 
 ## Purpose
 
@@ -90,8 +91,10 @@ Observed command times after initial compilation: format 2.70s, Clippy 15.20s,
 heading/wrapping 78.76s, and focused structure 2.27s. The library filter spent
 40.60s building and 4.98s executing tests. Compilation dominates the cold checks.
 
-Looper records the authoritative exact clean-HEAD receipt after the final
-PR-reference commit. This report's local checks do not replace that receipt.
+Looper recorded all five required commands passing for the exact clean
+PR-reference HEAD `3849381e48c4951a33cba391201fd0bc7cb4f840`. Canonical PR #276
+was verified merged into dev at that same commit. The retained validation
+receipt is authoritative; this report does not replace it.
 The controller-owned combined gate, PTY journeys and guide build have not run
 for this slice.
 

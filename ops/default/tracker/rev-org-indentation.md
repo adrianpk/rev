@@ -7,7 +7,7 @@ Plan: [Org Indentation Delivery](../plan/rev-org-indentation.md)
 Spec: [Org Visual Indentation](../spec/editor-org-indentation.md)
 Model: [Org Visual Indentation Model](../spec/editor-org-indentation-model.md)
 Approved: product owner, 2026-11-05; specification and explicit autonomous four-slice Looper startup through dev
-Active slice: Slice 1 - Projection and checked mappings
+Active slice: Slice 2 - Configured editing presentation
 Progress owner: retained Looper checkpoint and canonical validation receipts
 
 ## Canonical slice map
@@ -21,13 +21,14 @@ Progress owner: retained Looper checkpoint and canonical validation receipts
 
 ## Slice 1: Projection and checked mappings
 
-State: reviewing
+State: delivered
 Dependency: approved preparation on clean dev
 Requirements: OIN01, OIN03, OIN05
 Implementation: `54395f4feea63a7cc0de34582f4d18c3840c09de` (T1.1-T1.3)
 PR: `#276`
 Report: [Slice 1](../report/slices/rev-org-indentation/slice-1-projection.md)
-Validation: local required checks passed; 17 library-filter, 16 heading and 26 wrapping tests, plus 11 focused structural regressions. Looper records exact clean-HEAD evidence after the PR-reference commit.
+Integrated: `3849381e48c4951a33cba391201fd0bc7cb4f840`
+Validation: all five required commands passed through Looper for that exact clean HEAD; 17 library-filter, 16 heading and 26 wrapping tests passed, plus 11 focused structural regressions during implementation. Canonical PR #276 is merged.
 
 - [x] T1.1: Extend native enclosing-heading evidence and checked virtual-margin mappings.
 - [x] T1.2: Handle structural ownership, continuations, tabs/Unicode, clipping, caps and invalidation.
@@ -35,7 +36,7 @@ Validation: local required checks passed; 17 library-filter, 16 heading and 26 w
 
 ## Slice 2: Configured editing presentation
 
-State: pending
+State: active
 Dependency: Slice 1 integrated
 Requirements: OIN01-OIN03, OIN05
 
@@ -65,8 +66,8 @@ Requirements: OIN01-OIN05
 
 ## Final gate and closure
 
-The plan owns the ordered slice and final-gate commands. Slice 1 is implemented
-for review; later slices and the combined delivery gate remain pending. Controller identity
+The plan owns the ordered slice and final-gate commands. Slice 1 is integrated;
+Slice 2 is active. Later slices and the combined delivery gate remain pending. Controller identity
 and live execution progress belong to Looper. After all four slices integrate, it
 validates the exact clean dev candidate. Record its hash, receipt, successful
 commands, report introductions and evidence limits here, then mark the paired
