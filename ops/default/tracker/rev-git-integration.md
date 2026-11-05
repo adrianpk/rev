@@ -255,16 +255,34 @@ PR: [#271](https://forge.adrianpk.com/adrianpk/rev/pulls/271)
 Validation: Controller receipt `56IS2Q3SWAQ5436XOUMSJIQ3HI` passed all four ordered checks at `71524f02b11264a59a8049d4c10bd64e627017d4`: documentation catalog/navigation, Markdown-to-Spore guide build, formatter and whitespace. It verified 85 reachable pages, 550 local links/anchors, 593 commands and 271 settings. This remains Slice 14 evidence, not the delivery-set gate.
 Integration: [PR #271](https://forge.adrianpk.com/adrianpk/rev/pulls/271) merged through controller-owned Rebase + Fast-forward into dev at `71524f02b11264a59a8049d4c10bd64e627017d4`. Slice 14 of 14 completed.
 
+## Gate Repair 1: Retained shell configuration
+
+Status: delivered
+Branch: `fix/rev-git-integration-validation-1`
+Expected PR title: `test(git): account for retained shell configuration`
+Report: [Slice 14 guidance](../report/slices/rev-git-integration/slice-14-guidance.md#gate-repair-1-retained-shell-configuration)
+PR: [#272](https://forge.adrianpk.com/adrianpk/rev/pulls/272)
+
+The first controller gate at `9ddc7972dfbcdd7effb18dfa6d3e7be887f603fb`
+failed the configuration catalog's stale fixed-only admission expectation.
+The delivered test accounts exactly for retained shell configuration/startup
+selection and preserves idle ownership and all existing resource limits.
+Controller receipt `275HLP6E5BALNYAJTW2D54M444` passed all five focused commands
+at `2bd1f7182cec65757d670f230d446b57164b54f5`. PR #272 merged there through
+controller-owned Rebase + Fast-forward. This receipt is repair evidence;
+the selected full-gate rerun remains pending.
+
 ## Gate preparation
 
 Status: ready for controller execution
-Integrated slice candidate: `71524f02b11264a59a8049d4c10bd64e627017d4`
+Integrated candidate after repair: `2bd1f7182cec65757d670f230d446b57164b54f5`
 
-All fourteen controller-recorded merge commits are ancestors of dev. Required
+All fourteen slice merge commits and repair PR #272 are ancestors of dev. Required
 installed tools, Git subtree, SHA-1/SHA-256 initialization, the immutable
 pre-Git baseline, unchanged manifest/lockfile, at least 2 GiB free build storage
 and local PTY allocation were checked. Owned temporary capability fixtures
-completed and were removed. The approved acceptance and guide drivers create
+completed and were removed. These prerequisites were rechecked after repair
+integration. The approved acceptance and guide drivers create
 and clean their own isolated fixtures; no persistent service is required.
 
 The configured full gate is unchanged and has not been run by this worker.

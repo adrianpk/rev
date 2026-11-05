@@ -1,6 +1,6 @@
 # Slice 14: Git Learning Path and Reference
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-git-integration
 Plan: `ops/default/plan/rev-git-integration.md`
 Tracker: `ops/default/tracker/rev-git-integration.md`
@@ -121,4 +121,10 @@ this exact ordered list; its receipt retains the actual head and results:
 - `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test git_integration status::byte_admission -- --exact --test-threads=1`
 - `git diff --check`
 
-The unchanged full-gate rerun and repair integration remain controller-owned.
+[PR #272](https://forge.adrianpk.com/adrianpk/rev/pulls/272) merged through
+controller-owned Rebase + Fast-forward into dev at
+`2bd1f7182cec65757d670f230d446b57164b54f5`. Controller receipt
+`275HLP6E5BALNYAJTW2D54M444` passed all five repair commands above at that exact
+head, including both exact configuration/accounting tests with one case each
+and 239 filtered out. The repair is delivered; the unchanged full-gate rerun
+and delivery-set closure remain pending with the controller.
