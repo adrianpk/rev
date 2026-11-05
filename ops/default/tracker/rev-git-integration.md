@@ -182,14 +182,14 @@ Branch: `feat/rev-git-integration-10-conflicts`
 Expected PR title: `feat(git): inspect and resolve checked conflicts`
 Report: `ops/default/report/slices/rev-git-integration/slice-10-conflicts.md`
 Requirements: GIT12, GIT17-GIT19
-PR: pending
+PR: [#267](https://forge.adrianpk.com/adrianpk/rev/pulls/267)
 
 - [x] T10.1: Observe exact conflict paths/kinds/index stages and operation-dependent Base/Current/Applied roles; provide read-only side inspection and canonical editable result visits.
 - [x] T10.2: Review whole-side replacement or resolved deletion and stage only a checked saved resolution; protect modified buffers, changed stages and unsupported/partial cases.
 - [x] T10.3: Route git-conflict-explain through the existing optional AI request/result owner with bounded conflict context and no automatic edit or resolution; verify no-provider behavior and request construction without mandatory live credentials.
 
 Validation: T10.1 development passed six real conflict cases, six existing native integration cases, 21 reference cases, strict Clippy, formatter, documentation and whitespace checks. Both object formats/profiles, exact unusual paths, stage roles, partial/unsupported observations and unsaved source ownership are covered. T10.2 adds nine passing resolution cases covering saved bytes/absence, exact deletion, all sides, stale confirmation, CRLF conversion, real hook uncertainty, ordered continuation and both native profiles. Expanded unsupported-admission checks, Clippy and 21 references also pass. T10.3 adds three passing explanation behavior cases plus its Rust fixture entrypoint, five shared AI result-owner cases and updated 547-command documentation. Requests preserve exact copied roles/source with no tool/edit/stage/continue authority; missing provider, bounds, historical context and native ownership are covered. Final controller evidence follows PR-reference completion.
-Integration: T10.1-T10.3 are implemented. The Slice 10 report is reviewing; canonical PR creation and final exact-HEAD controller validation remain pending.
+Integration: T10.1-T10.3 are implemented and canonical PR #267 is open against dev. The Slice 10 report is reviewing. PR-reference completion precedes exact-HEAD controller validation; integration remains controller-owned.
 
 ## Slice 11: Stashes and linked worktrees
 

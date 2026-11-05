@@ -5,7 +5,7 @@ Delivery set: rev-git-integration
 Plan: `ops/default/plan/rev-git-integration.md`
 Tracker: `ops/default/tracker/rev-git-integration.md`
 Branch: `feat/rev-git-integration-10-conflicts`
-PR: pending
+PR: `#267`
 
 ## Purpose
 
