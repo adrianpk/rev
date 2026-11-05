@@ -1,6 +1,6 @@
 # Slice 12: Prepared Repository Command Families
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-git-integration
 Plan: `ops/default/plan/rev-git-integration.md`
 Tracker: `ops/default/tracker/rev-git-integration.md`
@@ -469,3 +469,13 @@ remains a later controller phase.
 Combined PTY/resource acceptance and learning-path guidance remain in their
 recorded later slices. The controller owns this slice's integration and the
 unchanged full delivery-set gate.
+
+## Integration
+
+[PR #269](https://forge.adrianpk.com/adrianpk/rev/pulls/269) merged through
+controller-owned Rebase + Fast-forward into dev at
+`7f4214caf64eee0337f8507a7a0862a523fac795`. Controller receipt
+`ZQMQ2STQDLUHSC67WGG2VNVRTA` passed all eight ordered checks on that exact
+candidate: 48 family, 21 reference, 35 shell and five process/workspace cases,
+formatter, strict focused Clippy, documentation and whitespace. Slice 12 of 14
+completed.

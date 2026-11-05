@@ -7,7 +7,7 @@ Plan: [Native Git Integration Delivery](../plan/rev-git-integration.md)
 Spec: [Native Git Integration](../spec/editor-git-integration.md)
 Model: [Native Git Model](../spec/editor-git-integration-model.md)
 Approved: owner, 2026-11-04; complete fourteen-slice plan and autonomous Looper execution/integration through dev
-Active slice: Slice 12 - Prepared Git families and direct commands
+Active slice: Slice 13 - Combined native PTY and resource acceptance
 Progress owner: after startup, Looper checkpoint, canonical PRs and exact-candidate validation receipts
 
 ## Canonical slice map
@@ -209,7 +209,7 @@ Integration: [PR #268](https://forge.adrianpk.com/adrianpk/rev/pulls/268) merged
 
 ## Slice 12: Prepared Git families and direct commands
 
-Status: reviewing
+Status: delivered
 Branch: `feat/rev-git-integration-12-commands`
 Expected PR title: `feat(git): expose prepared repository command families`
 Report: `ops/default/report/slices/rev-git-integration/slice-12-commands.md`
@@ -220,23 +220,23 @@ PR: [#269](https://forge.adrianpk.com/adrianpk/rev/pulls/269)
 - [x] T12.2: Complete native notes add/remove/prune, mailbox/plain patch application, format-patch/save-diff/request-pull and sparse-checkout enable/disable/reapply/set/add with exact targets, capability checks and observable real effects.
 - [x] T12.3: Expose explicit structured direct Git argv and a separately explicit existing shell-command route; integrate complete contextual family prefixes, bound input/review and verify every listed variant using isolated local repositories.
 
-Validation: T12.1 passed 20 combined family cases; notes/sparse added eight selected cases and output added nine selected cases. Local patch/mailbox development passes seven selected cases in 35.32 seconds; all five process/workspace cases pass in 1.33 seconds. Direct Git/shell development passes seven selected engine/native cases in 32.58 seconds, including both object formats/profiles, actual unknown effects/output, hidden compatible and failed refresh, exact input, unsaved protection, exclusive admission, cancellation and unchanged shell time/output limits. Formatter, strict focused Clippy, documentation (593 commands/271 configuration entries/72 Status bindings) and whitespace pass. Final ordered slice checks belong to the controller receipt after the PR-reference follow-up.
-Integration: T12.1-T12.3 implementation is complete; the report is reviewing. Canonical PR #269 is open against dev. Its required reference follow-up precedes exact-candidate controller validation; integration remains controller-owned.
+Validation: Controller receipt `ZQMQ2STQDLUHSC67WGG2VNVRTA` passed all eight ordered checks at `7f4214caf64eee0337f8507a7a0862a523fac795`: 48 family, 21 reference, 35 shell and five process/workspace cases, formatter, strict focused Clippy, documentation and whitespace.
+Integration: [PR #269](https://forge.adrianpk.com/adrianpk/rev/pulls/269) merged through controller-owned Rebase + Fast-forward into dev at `7f4214caf64eee0337f8507a7a0862a523fac795`. Slice 12 of 14 completed.
 
 ## Slice 13: Combined native PTY and resource acceptance
 
-Status: pending
+Status: active
 Branch: `feat/rev-git-integration-13-acceptance`
 Expected PR title: `test(git): verify native workflows and bounded ownership`
 Report: `ops/default/report/slices/rev-git-integration/slice-13-acceptance.md`
 Requirements: GIT01-GIT20 together
 PR: pending
 
-- [ ] T13.1: Add one repository-native Git acceptance entry and Bash driver reusing existing Rust/Linux PTY support; share real isolated fixture builders and verify objects/files rather than command labels.
+- [x] T13.1: Add one repository-native Git acceptance entry and Bash driver reusing existing Rust/Linux PTY support; share real isolated fixture builders and verify objects/files rather than command labels.
 - [ ] T13.2: Exercise representative both-profile journeys covering Status/diffs/index/commit, refs/transport, sequence/conflict, contextual prefixes, pointer/resize and restoration with a live terminal; assert matrix routing at the cheapest reliable native layer.
 - [ ] T13.3: Measure Git-only binary delta, startup/idle CPU, retained RSS/output and bounded fair service; verify process/FD cleanup, malformed/truncated/large input, ownership on q/app exit and zero dependency additions.
 
-Validation: pending; use the exact focused commands and selected-gate policy in the plan.
+Validation: T13.1 development native checks pass in both object formats/profiles; both Linux PTY profiles pass decoded entry, quiet Status, source and terminal restoration within the existing eight-second/1-MiB bounds. Combined journeys and release resource measurements remain in progress.
 Integration: pending; no commit or PR is claimed.
 
 ## Slice 14: Git learning path and reference
