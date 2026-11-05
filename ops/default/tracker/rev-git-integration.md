@@ -150,14 +150,14 @@ Branch: `feat/rev-git-integration-08-integration`
 Expected PR title: `feat(git): run checked merge and rebase workflows`
 Report: `ops/default/report/slices/rev-git-integration/slice-8-integration.md`
 Requirements: GIT10, GIT16-GIT19
-PR: pending
+PR: `#265`
 
 - [x] T8.1: Implement explicit fast-forward/normal/no-fast-forward merge policies and rebase from exact observed refs with checked worktree/source preconditions.
 - [x] T8.2: Prepare reviewed autosquash and observe Git-owned in-progress work through exact family-specific and generic status/continue/skip/abort controls; never launch an interactive external editor.
 - [x] T8.3: Verify successful and conflicted local histories, stale HEAD, missing sequence, wrong-family controls and skipped/aborted outcomes; source reload follows existing automatic/ask policy.
 
 Validation: T8.1-T8.3 development formatter, strict focused Clippy, all 19 integration tests, 9 shared process tests and 21 reference tests pass. Actual autosquash trees/messages/authors match Git in both formats. Sequence fingerprint/lineage guards, hooks, cancellation and both-profile native review/reload pass. Documentation checks 526 commands and 268 configuration entries. Final ordered exact-HEAD controller evidence follows PR-reference commit.
-Integration: T8.1-T8.3 are implemented; canonical PR preparation is next. The external controller owns integration into dev.
+Integration: [PR #265](https://forge.adrianpk.com/adrianpk/rev/pulls/265) is prepared with T8.1-T8.3 complete. PR-reference follow-up precedes final controller validation. The external controller owns integration into dev.
 
 ## Slice 9: Ordered revisions and manual bisect
 
