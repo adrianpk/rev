@@ -604,6 +604,11 @@ For live terminal key ownership and copy controls, see the
 | `o u` in Status | `git-submodule-update` | Review one exact gitlink path and initialize or check out its indexed commit without forcing dirty files. |
 | `o s` in Status | `git-submodule-sync` | Review one declared submodule path and verify its registered URL against .gitmodules. |
 | `o d` in Status | `git-submodule-deinit` | Review non-forced deinitialization of one checked clean submodule, preserving its parent gitlink. |
+| `O a` in Status | `git-subtree-add` | Review an explicit prefix, source repository and pinned full branch object before importing a subtree. |
+| `O m` in Status | `git-subtree-merge` | Review a full local commit and subtree prefix, retaining actual merge/conflict state. |
+| `O f` in Status | `git-subtree-pull` | Pin one explicit source branch before fetching and merging into a reviewed subtree prefix. |
+| `O p` in Status | `git-subtree-push` | Review one explicit endpoint and full destination branch, then verify its published subtree object and tree. |
+| `O s` in Status | `git-subtree-split` | Review an exact commit and prefix, then inspect the full split object while preserving local HEAD and saved files. |
 | `Z Z`, `Z l` in Status | `git-worktree-list` | Open a bounded NUL-record worktree list with raw paths, full HEADs, distinct Git/common directories, lock reasons and prune state. |
 | `c` in Worktree | `git-worktree-create` | Review a new linked worktree and new local branch at the exact observed HEAD, using a checked absent destination. |
 | `v` in Worktree | `git-worktree-visit` | Open checked Git Status for the selected worktree identity while retaining native source buffers and windows. |
@@ -914,6 +919,11 @@ native cancellation. Prompts use `keys.minibuffer`.
 | `o u` | `git-submodule-update` |
 | `o s` | `git-submodule-sync` |
 | `o d` | `git-submodule-deinit` |
+| `O a` | `git-subtree-add` |
+| `O m` | `git-subtree-merge` |
+| `O f` | `git-subtree-pull` |
+| `O p` | `git-subtree-push` |
+| `O s` | `git-subtree-split` |
 | `Z Z`, `Z l` | `git-worktree-list` |
 | `z z`, `z l` | `git-stash-list` |
 | `C-x g` | `git-status` |

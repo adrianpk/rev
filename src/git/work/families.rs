@@ -2,6 +2,7 @@ use super::*;
 use crate::git::conflicts::resolution::fingerprint;
 use crate::git::{Family, FamilyPlan, FamilyResult, families::Request};
 mod submodule;
+mod subtree;
 
 impl Runner {
     pub(super) fn family(
@@ -59,6 +60,36 @@ impl Runner {
         }
         Ok(path)
     }
+    fn family_relative_destination(&self, arg: &std::ffi::OsStr) -> Result<PathBuf, String> {
+        let relative = Path::new(arg);
+        if relative
+            .components()
+            .any(|p| !matches!(p, std::path::Component::Normal(n) if n != ".git"))
+        {
+            return Err(
+                "Prepared repository path requires literal relative components outside .git".into(),
+            );
+        }
+        let path = self.directory.join(relative);
+        if path.as_os_str().len() > 4096 {
+            return Err("Prepared repository path exceeds 4096 bytes".into());
+        }
+        // Check every existing component. Git must not follow a replaced
+        // symlink into an unrelated directory, including for an empty child.
+        let mut current = self.directory.clone();
+        for component in relative.components() {
+            current.push(component);
+            match std::fs::symlink_metadata(&current) {
+                Ok(m) if m.is_dir() && !m.file_type().is_symlink() => {}
+                Err(e) if e.kind() == std::io::ErrorKind::NotFound => break,
+                _ => {
+                    return Err("Prepared repository path is not an ordinary directory path".into());
+                }
+            }
+        }
+        Ok(path)
+    }
+
     fn prepare_family(
         &mut self,
         family: Family,
@@ -81,12 +112,20 @@ impl Runner {
         {
             return Err("Installed Git does not provide the selected command family".into());
         }
-        let destination = if family.repository_action() {
-            self.submodule_destination(family, &args)?
+        let destination = if family.subtree() {
+            self.family_relative_destination(&args[3])?
+        } else if family.submodule() {
+            if family == Family::SubmoduleList {
+                self.directory.clone()
+            } else {
+                self.family_relative_destination(args.last().ok_or("Submodule path is required")?)?
+            }
         } else {
             self.family_destination(args.last().ok_or("Destination is required")?)?
         };
-        let parent_stamp = if !family.repository_action() || family == Family::SubmoduleAdd {
+        let parent_stamp = if !family.repository_action()
+            || matches!(family, Family::SubmoduleAdd | Family::SubtreeAdd)
+        {
             Some(Self::family_destination_stamp(&destination)?)
         } else {
             None
@@ -120,7 +159,7 @@ impl Runner {
         } else {
             [Vec::new(), Vec::new(), Vec::new()]
         };
-        let submodule = if family.repository_action() {
+        let submodule = if family.submodule() {
             let source = source
                 .as_ref()
                 .ok_or("Submodule source context is unavailable")?;
@@ -142,6 +181,28 @@ impl Runner {
         } else {
             None
         };
+        let subtree = if family.subtree() {
+            Some(
+                self.prepare_subtree(
+                    family,
+                    &mut args,
+                    &destination,
+                    source
+                        .as_ref()
+                        .ok_or("Subtree source context is unavailable")?,
+                    admission,
+                )?,
+            )
+        } else {
+            None
+        };
+        let proof = if let Some(state) = submodule {
+            crate::git::families::FamilyProof::Submodule(state)
+        } else if let Some(state) = subtree {
+            crate::git::families::FamilyProof::Subtree(state)
+        } else {
+            crate::git::families::FamilyProof::Creation
+        };
         let size = std::mem::size_of::<FamilyPlan>()
             + args.capacity() * std::mem::size_of::<OsString>()
             + args.iter().map(OsString::capacity).sum::<usize>()
@@ -149,9 +210,7 @@ impl Runner {
             + self.directory.capacity()
             + destination.capacity()
             + self.policy.program.capacity()
-            + submodule
-                .as_ref()
-                .map_or(0, crate::git::families::Submodule::bytes)
+            + proof.bytes()
             + 4096;
         admission.grow(size)?;
         Ok(Candidate::FamilyPlan(FamilyPlan {
@@ -165,7 +224,7 @@ impl Runner {
             evidence,
             directory_stamp,
             parent_stamp,
-            submodule,
+            proof,
             _admission: admission.split(size),
         }))
     }
@@ -194,7 +253,7 @@ impl Runner {
                 return Err("Saved source bytes changed while prepared review was open".into());
             }
         }
-        if let Some(expected) = &plan.submodule {
+        if let Some(expected) = plan.submodule() {
             let actual = self.submodule_state(
                 plan.family,
                 &plan.destination,
@@ -205,6 +264,9 @@ impl Runner {
                 return Err("Submodule configuration, gitlink or saved child state changed while review was open".into());
             }
             return self.execute_submodule(plan, admission);
+        }
+        if plan.subtree().is_some() {
+            return self.execute_subtree(plan, admission);
         }
         let (executed, facts) = self.execute_change(&plan.args, None);
         if self.retained.is_some() {
@@ -291,6 +353,7 @@ impl Runner {
             Ok(Candidate::FamilyResult(FamilyResult {
                 plan,
                 created: Some(created),
+                object: None,
                 source,
                 _admission: admission.split(size),
             }))

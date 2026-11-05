@@ -13,6 +13,11 @@ pub enum Family {
     SubmoduleUpdate,
     SubmoduleSync,
     SubmoduleDeinit,
+    SubtreeAdd,
+    SubtreeMerge,
+    SubtreePull,
+    SubtreePush,
+    SubtreeSplit,
 }
 impl Family {
     pub fn label(self) -> &'static str {
@@ -27,6 +32,11 @@ impl Family {
             Self::SubmoduleUpdate => "submodule update",
             Self::SubmoduleSync => "submodule sync",
             Self::SubmoduleDeinit => "submodule deinit",
+            Self::SubtreeAdd => "subtree add",
+            Self::SubtreeMerge => "subtree merge",
+            Self::SubtreePull => "subtree pull",
+            Self::SubtreePush => "subtree push",
+            Self::SubtreeSplit => "subtree split",
         }
     }
     pub fn seed(self) -> Vec<String> {
@@ -41,6 +51,11 @@ impl Family {
             Self::SubmoduleUpdate => &["submodule", "update", "--init", "--checkout", "--", ""],
             Self::SubmoduleSync => &["submodule", "sync", "--", ""],
             Self::SubmoduleDeinit => &["submodule", "deinit", "--", ""],
+            Self::SubtreeAdd => &["subtree", "add", "--prefix", "", "--", "", ""],
+            Self::SubtreeMerge => &["subtree", "merge", "--prefix", "", "--", ""],
+            Self::SubtreePull => &["subtree", "pull", "--prefix", "", "--", "", ""],
+            Self::SubtreePush => &["subtree", "push", "--prefix", "", "--", "", ""],
+            Self::SubtreeSplit => &["subtree", "split", "--prefix", "", "--", ""],
         };
         args.iter().map(|a| (*a).into()).collect()
     }
@@ -65,6 +80,9 @@ impl Family {
         Ok(())
     }
     pub fn repository_action(self) -> bool {
+        self.submodule() || self.subtree()
+    }
+    pub(super) fn submodule(self) -> bool {
         matches!(
             self,
             Self::SubmoduleAdd
@@ -72,6 +90,16 @@ impl Family {
                 | Self::SubmoduleUpdate
                 | Self::SubmoduleSync
                 | Self::SubmoduleDeinit
+        )
+    }
+    pub(super) fn subtree(self) -> bool {
+        matches!(
+            self,
+            Self::SubtreeAdd
+                | Self::SubtreeMerge
+                | Self::SubtreePull
+                | Self::SubtreePush
+                | Self::SubtreeSplit
         )
     }
     pub(super) fn transport(self) -> bool {
@@ -83,7 +111,35 @@ impl Family {
                 | Self::CloneMirror
                 | Self::SubmoduleAdd
                 | Self::SubmoduleUpdate
+                | Self::SubtreeAdd
+                | Self::SubtreePull
+                | Self::SubtreePush
         )
+    }
+}
+
+pub(super) struct Subtree {
+    pub configuration: Vec<u8>,
+    pub target: ObjectId,
+    pub tree: Option<ObjectId>,
+    pub remote: Option<(OsString, OsString, Option<ObjectId>)>,
+}
+impl std::fmt::Debug for Subtree {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("Subtree")
+            .field("target", &self.target)
+            .field("tree", &self.tree)
+            .finish_non_exhaustive()
+    }
+}
+impl Subtree {
+    pub fn bytes(&self) -> usize {
+        std::mem::size_of::<Self>()
+            + self.configuration.capacity()
+            + self
+                .remote
+                .as_ref()
+                .map_or(0, |(url, name, _)| url.capacity() + name.capacity())
     }
 }
 
@@ -125,6 +181,22 @@ impl Submodule {
     }
 }
 
+#[derive(Debug)]
+pub(super) enum FamilyProof {
+    Creation,
+    Submodule(Submodule),
+    Subtree(Subtree),
+}
+impl FamilyProof {
+    pub fn bytes(&self) -> usize {
+        match self {
+            Self::Creation => 0,
+            Self::Submodule(state) => state.bytes(),
+            Self::Subtree(state) => state.bytes(),
+        }
+    }
+}
+
 /// Canonical preparation is read-only; only execute_family authorizes effects.
 #[derive(Debug)]
 pub struct FamilyPlan {
@@ -138,13 +210,38 @@ pub struct FamilyPlan {
     pub(super) evidence: [Vec<u8>; 3],
     pub(super) directory_stamp: [u64; 8],
     pub(super) parent_stamp: Option<[u64; 8]>,
-    pub(super) submodule: Option<Submodule>,
+    pub(super) proof: FamilyProof,
     pub(super) _admission: Lease,
+}
+impl FamilyPlan {
+    pub(super) fn submodule(&self) -> Option<&Submodule> {
+        if let FamilyProof::Submodule(state) = &self.proof {
+            Some(state)
+        } else {
+            None
+        }
+    }
+    pub(super) fn subtree(&self) -> Option<&Subtree> {
+        if let FamilyProof::Subtree(state) = &self.proof {
+            Some(state)
+        } else {
+            None
+        }
+    }
+    pub fn target_object(&self) -> Option<ObjectId> {
+        self.subtree().map(|s| s.target)
+    }
+    pub fn remote_branch(&self) -> Option<&std::ffi::OsStr> {
+        self.subtree()
+            .and_then(|s| s.remote.as_ref())
+            .map(|(_, reference, _)| reference.as_os_str())
+    }
 }
 #[derive(Debug)]
 pub struct FamilyResult {
     pub plan: Arc<FamilyPlan>,
     pub created: Option<Identity>,
+    pub object: Option<ObjectId>,
     pub(super) source: Option<Observation>,
     pub(super) _admission: Lease,
 }
@@ -203,11 +300,14 @@ impl Repositories {
                 .as_ref()
                 .is_none_or(|o| o.identity.worktree.is_none())
         {
-            return Err("Submodule preparation requires a checked working-tree context".into());
+            return Err(
+                "Repository family preparation requires a checked working-tree context".into(),
+            );
         }
         let size = args.iter().map(OsString::capacity).sum::<usize>() + 8192;
         let admission = self.budget.reserve(size)?;
         self.family_plan = None;
+        self.family_result = None;
         self.start(
             directory.into(),
             context,

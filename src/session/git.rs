@@ -479,6 +479,15 @@ impl Session {
                     self.compose_git_family(crate::git::Family::SubmoduleDeinit)
                 }
 
+                GitCommand::SubtreeAdd => self.compose_git_family(crate::git::Family::SubtreeAdd),
+                GitCommand::SubtreeMerge => {
+                    self.compose_git_family(crate::git::Family::SubtreeMerge)
+                }
+                GitCommand::SubtreePull => self.compose_git_family(crate::git::Family::SubtreePull),
+                GitCommand::SubtreePush => self.compose_git_family(crate::git::Family::SubtreePush),
+                GitCommand::SubtreeSplit => {
+                    self.compose_git_family(crate::git::Family::SubtreeSplit)
+                }
                 GitCommand::Status => self.open_git(),
                 GitCommand::Commit => self.compose_git_commit(),
                 GitCommand::CommitAmend => self.prepare_git_amend(),

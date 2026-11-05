@@ -45,7 +45,7 @@ impl Runner {
         }
         Ok(endpoint.into())
     }
-    fn transport_bool(&mut self, key: Vec<u8>) -> Result<bool, String> {
+    pub(in crate::git::work) fn transport_bool(&mut self, key: Vec<u8>) -> Result<bool, String> {
         let bytes = self
             .command_os(
                 &[

@@ -162,7 +162,7 @@ fn native_submodules() {
         key(editor, KeyCode::Enter, KeyModifiers::NONE);
         assert!(render(editor).join("\n").contains("Argument Review"));
         accept(editor);
-        wait(editor, |e| e.echo().contains("submodule command verified"));
+        wait(editor, |e| e.echo().contains("repository command verified"));
         editor.execute(Command::Git(GitCommand::Processes));
         let rows = render(editor).join("\n");
         assert!(rows.contains("Verified"), "{rows}");
@@ -224,5 +224,66 @@ fn submodule_sources() {
         editor.load(if modified { &child } else { &alias }).unwrap();
         assert_eq!(text(editor), retained);
         assert_eq!(fs::read(child).unwrap(), b"first\n");
+    }
+}
+
+// Both profiles expose all subtree seeds; preparation and cancellation remain
+// read-only, while separate acceptance retains the actual split object output.
+#[test]
+fn native_subtrees() {
+    for profile in ["non-modal", "modal"] {
+        let (repository, _child, _owner) = super::subtree::added("sha1");
+        let mut owned = editor(&repository, profile, "", true);
+        let editor = &mut owned.0;
+        let original = text(editor);
+        entry(editor);
+        wait(editor, |e| e.echo().contains("Git Status refreshed"));
+        for (key, verb) in [
+            ('a', "add"),
+            ('m', "merge"),
+            ('f', "pull"),
+            ('p', "push"),
+            ('s', "split"),
+        ] {
+            plain(editor, 'O');
+            plain(editor, key);
+            let seed: Vec<String> = serde_json::from_str(&text(editor)).unwrap();
+            assert_eq!(
+                (&seed[0], &seed[1]),
+                (&"subtree".to_owned(), &verb.to_owned())
+            );
+            key_event_cancel(editor);
+            assert_eq!(text(editor), original);
+        }
+        let draft = r#"["subtree","split","--prefix","vendor module","--","HEAD"]"#;
+        let objects = repository.git(["count-objects", "-v"]);
+        let head = repository.git(["rev-parse", "HEAD"]);
+        plain(editor, 'O');
+        plain(editor, 's');
+        replace(editor, draft);
+        accept(editor);
+        wait(editor, |e| e.echo().contains("Exact prepared Git review"));
+        assert!(render(editor).join("\n").contains("Pinned subtree object"));
+        assert_eq!(repository.git(["count-objects", "-v"]), objects);
+        key(editor, KeyCode::Enter, KeyModifiers::NONE);
+        assert_eq!(repository.git(["count-objects", "-v"]), objects);
+        plain(editor, 'q');
+        assert_eq!(text(editor), original);
+        plain(editor, 'O');
+        plain(editor, 's');
+        replace(editor, draft);
+        accept(editor);
+        wait(editor, |e| e.echo().contains("Exact prepared Git review"));
+        accept(editor);
+        wait(editor, |e| e.echo().contains("repository command verified"));
+        assert_eq!(repository.git(["rev-parse", "HEAD"]), head);
+        editor.execute(Command::Git(GitCommand::Processes));
+        editor.execute(Command::Git(GitCommand::ProcessShow));
+        let output = render(editor).join("\n");
+        assert!(
+            output.contains("Verified") && output.contains("stdout:"),
+            "{output}"
+        );
+        assert_eq!(text(editor), original);
     }
 }

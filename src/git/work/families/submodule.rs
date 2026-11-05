@@ -3,39 +3,6 @@ use crate::git::families::Submodule;
 use std::os::unix::ffi::OsStrExt;
 
 impl Runner {
-    pub(super) fn submodule_destination(
-        &self,
-        family: Family,
-        args: &[OsString],
-    ) -> Result<PathBuf, String> {
-        if family == Family::SubmoduleList {
-            return Ok(self.directory.clone());
-        }
-        let relative = Path::new(args.last().ok_or("Submodule path is required")?);
-        if relative
-            .components()
-            .any(|p| !matches!(p, std::path::Component::Normal(n) if n != ".git"))
-        {
-            return Err("Submodule path requires literal relative components outside .git".into());
-        }
-        let path = self.directory.join(relative);
-        if path.as_os_str().len() > 4096 {
-            return Err("Submodule path exceeds 4096 bytes".into());
-        }
-        // Check every existing component. Git must not follow a replaced
-        // symlink into an unrelated directory, including for an empty child.
-        let mut current = self.directory.clone();
-        for component in relative.components() {
-            current.push(component);
-            match std::fs::symlink_metadata(&current) {
-                Ok(m) if m.is_dir() && !m.file_type().is_symlink() => {}
-                Err(e) if e.kind() == std::io::ErrorKind::NotFound => break,
-                _ => return Err("Submodule path is not an ordinary directory path".into()),
-            }
-        }
-        Ok(path)
-    }
-
     fn submodule_key(name: &std::ffi::OsStr, suffix: &[u8]) -> OsString {
         OsString::from_vec([b"submodule.".as_slice(), name.as_bytes(), suffix].concat())
     }
@@ -67,7 +34,7 @@ impl Runner {
         let relative = path
             .strip_prefix(&self.directory)
             .map_err(|_| "Submodule path escaped its repository")?;
-        self.submodule_destination(family, &[relative.as_os_str().into()])?;
+        self.family_relative_destination(relative.as_os_str())?;
         let entries = self
             .command_os(
                 &[
@@ -270,8 +237,7 @@ impl Runner {
                     );
                 }
                 let name = plan
-                    .submodule
-                    .as_ref()
+                    .submodule()
                     .and_then(|s| s.name.as_ref())
                     .expect("checked name");
                 let url = self
@@ -362,6 +328,7 @@ impl Runner {
             Ok(Candidate::FamilyResult(FamilyResult {
                 plan: plan.clone(),
                 created: None,
+                object: None,
                 source: Some(source),
                 _admission: admission.split(4096),
             }))

@@ -46,7 +46,21 @@ Deliver GIT14-GIT15 and their GIT16-GIT20 contracts through T12.1-T12.3 in the
   file-tree roots and native process/language-server owners. Actual postchecks
   verify gitlinks, checkout objects/bytes, registration or empty deinitialization.
   Listing retains actual bounded output and reports no repository effects.
-- T12.1 subtree routes and T12.2-T12.3 remain pending. No PR is claimed.
+- Status O a/O m/O f/O p/O s prepare subtree add, merge, pull, push and split.
+  Read-only preparation freezes local commits or one explicit remote branch to
+  a full object. Exact review includes executable/cwd/argv, literal prefix,
+  pinned object and full remote branch. Changed configuration, source or remote
+  anchor refuses execution before a changing child.
+- Subtree results verify actual clean branch/ref state, prefix objects, saved
+  paths outside the prefix, split tree identity and remote publication tree.
+  Split output retains its full actual commit. Push names one explicit endpoint
+  and branch; implicit followTags, recursive publication, active URL rewrites
+  and configured-name ambiguity reject. No force, inferred upstream or retry.
+- Actual subtree merge conflicts retain Git-owned sequence lineage and report
+  in-progress state rather than verification. Existing operation inspection and
+  separately reviewed controls remain available; no automatic continuation or
+  abort. Missing optional subtree support is diagnosed before effects.
+- T12.2-T12.3 remain pending. No PR is claimed.
 
 ## Implementation Notes
 
@@ -71,19 +85,21 @@ admits at most 64 arguments, 4096 bytes each, 64 KiB total and an absolute cwd
 within 4096 bytes. Native draft text remains bounded to 64 KiB. Transport output
 is withheld from public records; diagnostic display keeps existing redaction.
 Init, listing, sync and deinit obey the operation timeout; clones, submodule add
-and update obey the transport timeout. Configuration probes stay private, and
+and update obey the transport timeout. Subtree add/pull/push preparation and
+execution use that same transport timeout; merge/split use the operation timeout. Configuration probes stay private, and
 Debug omits captured configuration and resolved URL bytes. Relative sync URLs whose resolved
 registration cannot be established remain unverified after the actual command.
 No runtime/development dependency or validation prerequisite was added.
 
 ## Contracts Added or Changed
 
-- Twelve working commands: git-clone, git-clone-shallow, git-clone-bare,
+- Seventeen working commands: git-clone, git-clone-shallow, git-clone-bare,
   git-clone-mirror, git-init, git-ignore and git-ignore-exclude; five additional
-  commands are git-submodule-add/list/update/sync/deinit.
-- Status has 53 active defaults. The existing keys.git_commit context also
+  commands are git-submodule-add/list/update/sync/deinit and five are
+  git-subtree-add/merge/pull/push/split.
+- Status has 58 active defaults. The existing keys.git_commit context also
   supplies ordinary editing and explicit submission for prepared argument text.
-- Live catalogs contain 573 commands and 271 configuration entries.
+- Live catalogs contain 578 commands and 271 configuration entries.
 
 ## Files of Interest
 
@@ -91,6 +107,8 @@ No runtime/development dependency or validation prerequisite was added.
   exact preconditions, installed capability checks and creation verification.
 - `src/git/work/families/submodule.rs`: checked submodule configuration, child
   evidence and actual postconditions under the same process/admission owner.
+- `src/git/work/families/subtree.rs`: pinned local/remote objects, exact branch
+  and tree postconditions, actual conflict retention and publication policy.
 - `src/session/git/families.rs`, `src/session/git/commit.rs`: native draft,
   two-step submission, exact review and original source restoration.
 - `src/git/work/repository.rs`: shared saved-state evidence for unborn sources.
@@ -98,6 +116,8 @@ No runtime/development dependency or validation prerequisite was added.
   Git objects/files and both-profile native input, review and visiting owners.
 - `tests/git_integration/families_submodule.rs`: SHA-1/SHA-256 real submodule
   round trips, configuration/index/path/child races and dirty child refusal.
+- `tests/git_integration/families_subtree.rs`: both-format real subtree workflows,
+  changed remote/push policy, actual conflict state and unavailable helpers.
 
 ## Validation
 
@@ -150,6 +170,25 @@ was introduced. Existing unusual metadata still requires actual postcondition
 verification and can remain unverified. Initial submodule compile wiring needed
 an explicit Path import and closure error type, corrected before validation.
 
+Subtree development passed four real engine cases in 25.57 seconds and the
+both-profile native case in 8.17 seconds. The final combined 20-case family run
+passed in 114.17 seconds. All 21 reference cases passed (1.92 and 14.57 seconds),
+strict focused Clippy passed in 18.91 seconds, and formatter/whitespace passed.
+Documentation passed at 578 commands, 271 configuration entries, 76 pages and
+485 links. This completes T12.1; T12.2-T12.3 remain pending.
+
+The first subtree push correctly remained unverified because Git subtree adds
+refs/heads/ itself and the composed full-ref operand therefore targeted a
+repeated prefix. Installed helper source confirmed its actual argv construction.
+Preparation now retains and reviews the full destination separately and supplies
+its exact short operand to that helper. Independent destination branch/tree,
+file-byte and local-HEAD assertions are unchanged. The actual failed case was
+corrected without automatic cleanup, another changing command or weaker checks.
+Strict Clippy also rejected separately retained optional proof payloads as an
+oversized publication variant. One mutually exclusive typed family proof now
+owns creation, submodule or subtree evidence within the same admission budget;
+no lint, observable assertion, fixture wait or resource bound was relaxed.
+
 Successful development commands:
 
 - `cargo fmt --all -- --check`
@@ -163,6 +202,8 @@ Successful development commands:
 - `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo run --locked --quiet --example documentation-check`
 - `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test git_integration families::presentation:: -- --test-threads=1`
 - `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test git_integration families::configured_deadlines -- --test-threads=1`
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test git_integration families::subtree:: -- --test-threads=1`
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test git_integration families::presentation::native_subtrees -- --test-threads=1`
 - `git diff --check`
 
 These are focused development results. Final exact-HEAD controller validation
@@ -171,7 +212,7 @@ follow-up commit. No full gate or final receipt is claimed.
 
 ## Risks and Follow-ups
 
-Complete the remaining approved subtree, notes/patch/sparse and direct
+Complete the remaining approved notes/patch/sparse and direct
 Git/separate shell routes in this same slice. Combined PTY/resource acceptance
 and learning-path guidance remain in their recorded later slices. The controller
 owns integration.

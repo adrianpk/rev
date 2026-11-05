@@ -26,6 +26,9 @@ pub(super) struct Execution {
 }
 
 impl Execution {
+    pub(super) fn stdout(&self) -> &[u8] {
+        &self.stdout
+    }
     pub(super) fn code(&self) -> Option<i32> {
         self.exit.and_then(|s| s.code())
     }

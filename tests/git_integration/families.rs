@@ -6,6 +6,8 @@ use std::{ffi::OsString, fs, os::unix::ffi::OsStringExt, path::Path, sync::Arc};
 mod presentation;
 #[path = "families_submodule.rs"]
 mod submodule;
+#[path = "families_subtree.rs"]
+mod subtree;
 
 fn args(family: Family, source: &Path, destination: &Path) -> Vec<OsString> {
     let mut args: Vec<OsString> = family.seed().into_iter().map(OsString::from).collect();

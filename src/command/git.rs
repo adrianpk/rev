@@ -12,6 +12,11 @@ pub enum GitCommand {
     SubmoduleUpdate,
     SubmoduleSync,
     SubmoduleDeinit,
+    SubtreeAdd,
+    SubtreeMerge,
+    SubtreePull,
+    SubtreePush,
+    SubtreeSplit,
 
     WorktreeList,
     WorktreeCreate,
@@ -123,6 +128,11 @@ impl GitCommand {
             Self::SubmoduleUpdate => "git-submodule-update",
             Self::SubmoduleSync => "git-submodule-sync",
             Self::SubmoduleDeinit => "git-submodule-deinit",
+            Self::SubtreeAdd => "git-subtree-add",
+            Self::SubtreeMerge => "git-subtree-merge",
+            Self::SubtreePull => "git-subtree-pull",
+            Self::SubtreePush => "git-subtree-push",
+            Self::SubtreeSplit => "git-subtree-split",
 
             Self::WorktreeList => "git-worktree-list",
             Self::WorktreeCreate => "git-worktree-create",

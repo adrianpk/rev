@@ -6,7 +6,10 @@ impl Runner {
     // Keep the complete effective configuration private, including URL rewrites,
     // helpers and refspecs. Output already has the shared aggregate admission;
     // every retained key/value also observes the 4096-byte metadata bound.
-    fn transport_config(&mut self, admission: &mut Lease) -> Result<Vec<u8>, String> {
+    pub(in crate::git::work) fn transport_config(
+        &mut self,
+        admission: &mut Lease,
+    ) -> Result<Vec<u8>, String> {
         let bytes = self.command(&["config", "--null", "--list"], Phase::Checking, false)?;
         if !bytes.is_empty() && bytes.last() != Some(&0) {
             return Err("Transport configuration is incomplete".into());

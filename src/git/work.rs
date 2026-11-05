@@ -192,6 +192,11 @@ pub(super) fn start(
                     | OperationKind::Family
             );
             let seconds = match request {
+                Request::Family(super::families::Request::Prepare { family, .. })
+                    if family.subtree() && family.transport() =>
+                {
+                    policy.transport_timeout_seconds
+                }
                 Request::Family(super::families::Request::Execute(ref plan))
                     if !plan.family.transport() =>
                 {

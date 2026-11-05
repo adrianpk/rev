@@ -216,12 +216,12 @@ Report: `ops/default/report/slices/rev-git-integration/slice-12-commands.md`
 Requirements: GIT14-GIT15, GIT16-GIT20
 PR: pending
 
-- [ ] T12.1: Provide working native parameter/review routes for regular/shallow/bare/mirror clone, init, ignore files, submodule add/list/update/sync/deinit and subtree add/merge/pull/push/split.
+- [x] T12.1: Provide working native parameter/review routes for regular/shallow/bare/mirror clone, init, ignore files, submodule add/list/update/sync/deinit and subtree add/merge/pull/push/split.
 - [ ] T12.2: Complete native notes add/remove/prune, mailbox/plain patch application, format-patch/save-diff/request-pull and sparse-checkout enable/disable/reapply/set/add with exact targets, capability checks and observable real effects.
 - [ ] T12.3: Expose explicit structured direct Git argv and a separately explicit existing shell-command route; integrate complete contextual family prefixes, bound input/review and verify every listed variant using isolated local repositories.
 
-Validation: All 15 combined family cases pass in 79.00 seconds, including both-format submodule round trips, raw/literal targets, stale evidence, dirty-child refusal and both-profile native owners. All 21 reference cases, formatter, strict focused Clippy, documentation (573 commands/271 configuration entries) and whitespace pass. Earlier commit/tag/stash regressions and correction evidence remain in the report. Remaining variants and final controller evidence are pending.
-Integration: T12.1 clone/init/ignore and all five submodule routes are implemented. Subtree and T12.2-T12.3 remain pending; the Slice 12 report is drafting. No PR is claimed.
+Validation: All 20 combined family cases pass in 114.17 seconds, including both-format submodule/subtree workflows, raw/literal targets, stale evidence, actual merge conflict retention, optional-helper availability and both-profile native owners. All 21 reference cases, formatter, strict focused Clippy, documentation (578 commands/271 configuration entries) and whitespace pass. Earlier regressions and correction evidence remain in the report. T12.2-T12.3 and final controller evidence are pending.
+Integration: T12.1 is complete: clone/init/ignore, all five submodule variants and all five subtree variants have working native preparation/review/execution routes. T12.2-T12.3 remain pending; the Slice 12 report is drafting. No PR is claimed.
 
 ## Slice 13: Combined native PTY and resource acceptance
 

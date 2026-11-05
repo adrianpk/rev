@@ -27,7 +27,7 @@ impl Session {
             });
             if related && buffer.is_modified() {
                 return Err(
-                    "Submodule action refused: a repository-backed buffer has unsaved text".into(),
+                    "Prepared repository action refused: a repository-backed buffer has unsaved text".into(),
                 );
             }
             if family == Family::SubmoduleDeinit
@@ -201,8 +201,9 @@ impl Session {
             self.observe_files();
         }
         if self.git.visible && self.pending.is_none() && self.input.focus() == Focus::Editing {
-            self.message(if update.published && self.git.engine.family_result().is_some_and(|r| r.created.is_none()) { "Prepared submodule command verified; $ inspects the accepted operation and listing" }
-                else if update.published { "Prepared Git destination created and verified; $ inspects the accepted operation" }
+            self.message(if self.git.engine.record(update.operation).is_some_and(|r| r.outcome == crate::git::Outcome::InProgress) { "Prepared Git command stopped in progress; git-operation-status inspects the actual sequence" }
+                else if update.published && self.git.engine.record(update.operation).is_some_and(|r| r.outcome == crate::git::Outcome::Verified) && self.git.engine.family_result().is_some_and(|r| r.created.is_none()) { "Prepared Git repository command verified; $ inspects the accepted operation and output" }
+                else if update.published && self.git.engine.record(update.operation).is_some_and(|r| r.outcome == crate::git::Outcome::Verified) { "Prepared Git destination created and verified; $ inspects the accepted operation" }
                 else { "Prepared Git command failed or effects remain uncertain; inspect destination and $ diagnostics" });
         }
     }
@@ -222,6 +223,15 @@ impl Session {
             label(plan.directory.as_os_str().as_encoded_bytes()),
             label(plan.destination.as_os_str().as_encoded_bytes())
         );
+        if let Some(object) = plan.target_object() {
+            metadata.push_str(&format!("Pinned subtree object: {}\n", object.hex()));
+        }
+        if let Some(reference) = plan.remote_branch() {
+            metadata.push_str(&format!(
+                "Exact remote branch: {}\n",
+                label(reference.as_encoded_bytes())
+            ));
+        }
         for (index, arg) in plan.args.iter().enumerate() {
             metadata.push_str(&format!("{index}: {}\n", label(arg.as_encoded_bytes())));
         }

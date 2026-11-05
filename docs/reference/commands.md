@@ -733,6 +733,11 @@ Status reads disk and Git state; it does not save an unsaved source buffer.
 | `git-submodule-update` | Review one exact gitlink path and initialize or check out its indexed commit without forcing dirty files. |
 | `git-submodule-sync` | Review one declared submodule path and verify its registered URL against .gitmodules. |
 | `git-submodule-deinit` | Review non-forced deinitialization of one checked clean submodule, preserving its parent gitlink. |
+| `git-subtree-add` | Review an explicit prefix, source repository and pinned full branch object before importing a subtree. |
+| `git-subtree-merge` | Review a full local commit and subtree prefix, retaining actual merge/conflict state. |
+| `git-subtree-pull` | Pin one explicit source branch before fetching and merging into a reviewed subtree prefix. |
+| `git-subtree-push` | Review one explicit endpoint and full destination branch, then verify its published subtree object and tree. |
+| `git-subtree-split` | Review an exact commit and prefix, then inspect the full split object while preserving local HEAD and saved files. |
 | `git-worktree-list` | Open a bounded NUL-record worktree list with raw paths, full HEADs, distinct Git/common directories, lock reasons and prune state. |
 | `git-worktree-create` | Review a new linked worktree and new local branch at the exact observed HEAD, using a checked absent destination. |
 | `git-worktree-visit` | Open checked Git Status for the selected worktree identity while retaining native source buffers and windows. |
@@ -1062,3 +1067,34 @@ actual bounded output under git-processes; other raw configuration/transport
 output stays private. Successful changing results verify actual gitlinks,
 checkouts, URL registration or deinitialization. Relative sync URLs whose
 resolved value cannot be verified remain explicitly unverified after execution.
+
+
+### Prepared subtree arguments
+
+Status O a/O m/O f/O p/O s prepare subtree add, merge, pull, push and split.
+Each route requires a checked working tree, complete refs, clean saved state,
+no active Git sequence and an explicit literal repository-relative prefix.
+Add requires an absent prefix with an existing ordinary parent. Other routes
+require an existing ordinary directory. Missing optional Git subtree support
+reports its installed availability before any changing child.
+
+Add and pull name a source repository and one full refs/heads branch; read-only
+preparation pins its complete object ID. Merge names an exact local commit.
+Split names an explicit commit, such as HEAD, and retains its resulting full
+commit object and actual stdout under process inspection. Native composition,
+read-only preparation and exact review remain separate from execution.
+
+Push requires an explicit repository URL or absolute path and one full
+refs/heads destination. Review shows that full branch and the exact argv operand
+used by Git subtree, which adds refs/heads itself. Configured remote names,
+active URL rewrites, implicit followTags and recursive publication are refused.
+The checked remote branch and captured effective configuration must remain
+unchanged through review. No force, inferred upstream or additional publication
+is requested.
+
+Postchecks inspect actual branch/ref state, saved paths outside the prefix,
+imported and split tree objects, and the remote subtree object after push.
+Unsaved native sources remain protected. A real merge conflict retains Git's
+actual sequence and reports in-progress state; git-operation-status inspects it
+before a separately reviewed continuation or abort. Failures preserve uncertainty
+and never retry, clean up or claim rollback automatically.

@@ -75,6 +75,9 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
   execution. Visit the actual ignore files through their ordinary file owners.
   Review submodule add, recursive listing, exact-gitlink update, URL sync or
   non-forced deinit while protecting dirty children and retained native sources.
+  Review subtree add, merge or pull, inspect full split objects or publish one
+  explicit subtree branch. Retain actual Git conflicts for manual sequence
+  control and verify saved files, exact trees and remote branch results.
   Return to the same windows
   and terminals. Inspect active and
   recent Git processes, cancel a selected operation, and confirm before quitting
