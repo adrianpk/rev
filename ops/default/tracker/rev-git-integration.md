@@ -214,14 +214,14 @@ Branch: `feat/rev-git-integration-12-commands`
 Expected PR title: `feat(git): expose prepared repository command families`
 Report: `ops/default/report/slices/rev-git-integration/slice-12-commands.md`
 Requirements: GIT14-GIT15, GIT16-GIT20
-PR: pending
+PR: [#269](https://forge.adrianpk.com/adrianpk/rev/pulls/269)
 
 - [x] T12.1: Provide working native parameter/review routes for regular/shallow/bare/mirror clone, init, ignore files, submodule add/list/update/sync/deinit and subtree add/merge/pull/push/split.
 - [x] T12.2: Complete native notes add/remove/prune, mailbox/plain patch application, format-patch/save-diff/request-pull and sparse-checkout enable/disable/reapply/set/add with exact targets, capability checks and observable real effects.
 - [x] T12.3: Expose explicit structured direct Git argv and a separately explicit existing shell-command route; integrate complete contextual family prefixes, bound input/review and verify every listed variant using isolated local repositories.
 
 Validation: T12.1 passed 20 combined family cases; notes/sparse added eight selected cases and output added nine selected cases. Local patch/mailbox development passes seven selected cases in 35.32 seconds; all five process/workspace cases pass in 1.33 seconds. Direct Git/shell development passes seven selected engine/native cases in 32.58 seconds, including both object formats/profiles, actual unknown effects/output, hidden compatible and failed refresh, exact input, unsaved protection, exclusive admission, cancellation and unchanged shell time/output limits. Formatter, strict focused Clippy, documentation (593 commands/271 configuration entries/72 Status bindings) and whitespace pass. Final ordered slice checks belong to the controller receipt after the PR-reference follow-up.
-Integration: T12.1-T12.3 implementation is complete; the report is reviewing. Canonical PR preparation and exact-candidate controller validation are in progress.
+Integration: T12.1-T12.3 implementation is complete; the report is reviewing. Canonical PR #269 is open against dev. Its required reference follow-up precedes exact-candidate controller validation; integration remains controller-owned.
 
 ## Slice 13: Combined native PTY and resource acceptance
 
