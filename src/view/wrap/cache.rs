@@ -306,7 +306,7 @@ mod tests {
     }
 
     // Virtual padding is charged as cached text. Repeated reflow and internal
-    // policy changes keep both existing ceilings and rebuild the source end.
+    // runtime policy changes keep both existing ceilings and rebuild the source end.
     #[test]
     fn indented_retention() {
         let mut buffers = Buffers::new().unwrap();
@@ -319,14 +319,17 @@ mod tests {
             .run(&crate::org::Cancellation::default());
         b.install_org_coloring(coloring).unwrap();
         let view = View::new(b);
-        for enabled in [true, false, true] {
-            b.org_indent = enabled;
+        let mut peaks = (0, 0);
+        for enabled in [false, true].into_iter().cycle().take(8) {
+            b.set_org_indentation(enabled);
             for width in [6, 512] {
                 let rows = view.wrapped_rows(b, width, 14000).unwrap();
                 assert_eq!(rows.last().unwrap().source.end, Scalar(b.len_chars()));
                 let cache = view.wrap_cache.0.lock().unwrap();
                 assert!(cache.fragments.len() <= LIMIT);
                 assert!(cache.bytes <= TEXT_BYTES);
+                peaks.0 = peaks.0.max(cache.fragments.len());
+                peaks.1 = peaks.1.max(cache.bytes);
                 assert_eq!(
                     cache.bytes,
                     cache
@@ -343,5 +346,9 @@ mod tests {
                 }
             }
         }
+        println!(
+            "MEASURE runtime indentation retention: 8 policy changes, widths 6/512, peak_fragments={} limit={LIMIT}, peak_text_bytes={} limit={TEXT_BYTES}",
+            peaks.0, peaks.1
+        );
     }
 }

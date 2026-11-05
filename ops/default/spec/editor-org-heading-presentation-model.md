@@ -66,7 +66,7 @@ through existing context keymaps; no default keybinding is introduced. Outside
 an active native Org view, report unavailability without changing mode, text or
 other views. Read-only Org buffers admit these presentation controls.
 
-Only the pretty flag has a runtime override. The marker list, hide-leading-stars
+Within heading settings, only the pretty flag has a runtime override. The marker list, hide-leading-stars
 and cycle choices remain immutable startup settings. A split copies the
 effective policy and override metadata by value; later changes are independent.
 Like gutter presentation, a view retains its choice through buffer switches,
@@ -79,15 +79,18 @@ the override. Reset never writes preferences or changes the interaction profile.
 | Record | Evidence and lifetime |
 | --- | --- |
 | Recognized heading | Existing Org document/revision, level and checked prefix/title ranges. Literal-block ownership is already resolved by the Org owner. |
-| Effective heading presentation | Immutable startup settings, optional view-local pretty override and projection policy observation. No text revision is created by changing it. |
-| Prefix projection | Original source span, concealed-star cells, selected marker, admitted cell width and title boundary. Current source-to-display mapping remains authoritative. |
-| Presentation snapshot | Buffer/revision, view/folding/geometry/settings observations and bounded visible runs. Stale mapping is rejected before pointer or edit actions. |
+| Effective heading presentation | Immutable heading settings and optional view-local pretty override, independent of the buffer-owned indentation policy. No text revision is created by either choice. |
+| Prefix projection | Original source span, concealed-star cells, selected marker, admitted cell width and title boundary after the current structural margin. Current source-to-display mapping remains authoritative; the virtual margin has no source scalar. |
+| Presentation snapshot | Buffer/revision, view/folding/geometry/settings, effective buffer indentation and current structural coverage, with bounded visible runs. Changed policy or stale mapping is rejected before pointer or edit actions. |
 
 Preserve the original prefix width with N-1 leading cells and a final one-cell
 marker. With hiding enabled, paint the leading cells blank; otherwise paint
 their original stars. Disabled pretty mode paints all source stars. The existing
-separator, title start, soft-wrap positions and source/display coordinate owner
-remain unchanged. No virtual indentation is added to ordinary body text.
+separator and original prefix width remain unchanged. Pretty/source comparisons
+at the same effective indentation policy retain title and wrap positions. The
+[Org Indentation Model](editor-org-indentation-model.md) adds its capped outer
+heading/body/continuation margins through the shared source/display coordinate
+owner. That buffer policy is independent of this view's pretty override.
 
 Each leading cell maps to its original star, and the final marker cell maps to
 the final star. Point entering the prefix or editing it does not reveal or
@@ -125,5 +128,7 @@ Controller receipt `T2QVMEBIU5HJTNBIOEXKDCUFSU` passed the unchanged full gate
 at `18f625997de4c0ac2e1ae50d6fea667fe14f2c2d`. The
 [Slice 3 closure](../report/slices/rev-org-headings/slice-3-acceptance.md#delivery-set-closure)
 records source/configuration/view, read-only result, geometry, reload and real
-terminal acceptance for this model. All approved bounds and mappings above remain
-unchanged.
+terminal acceptance for the original heading-only layout. Glyph admission and
+source-star identity retain that contract. The composed outer margins and policy
+identity above belong to the later [Org Indentation delivery](../tracker/rev-org-indentation.md);
+its acceptance does not relabel this historical receipt.

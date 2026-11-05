@@ -95,7 +95,10 @@ table/source edits SHALL remain source edits. Visible source lines, including ta
 selected buffer wrap policy without an automatic region-specific no-wrap
 exception. Source alignment remains canonical; a wrapped narrow table need
 not look like a wider unwrapped table. Native Org commands still address
-logical source rows and fields through the shared mapping.
+logical source rows and fields through the shared mapping. The independent
+[Org indentation policy](editor-org-indentation.md) SHALL apply its capped outer
+margin to body continuations and align heading continuations with heading text;
+virtual margin cells SHALL not become source text or shift source tab stops.
 
 #### Scenario: Reflow around a folded subtree
 
@@ -169,7 +172,10 @@ scope. They complete this proposal without adding another wrap mode or runtime.
 - Breaks: prefer space/tab boundaries like ordinary Emacs Visual Line; if a
   token cannot fit, continue at checked grapheme boundaries. Keep existing tab
   expansion and unsupported/wide-cell fallback rules; never split UTF-8 or a
-  grapheme. Add no automatic continuation prefix or extra indentation.
+  grapheme. Ordinary source continuations add no automatic prefix or indentation.
+  Enabled Org indentation carries its structural body/title margin onto each
+  continuation through the shared checked mapping; this is visual padding and
+  never a source edit.
 - Commands: ordinary arrows, C-n/C-p, C-a/C-e and C-k follow WRP07. Preserve
   goal-column and paging intent through the current source/display mapping.
   When wrapping is disabled, existing logical-line behavior returns. Contextual

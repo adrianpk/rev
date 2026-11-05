@@ -20,9 +20,9 @@ Views of the same buffer may have different geometry and derived fragments.
 | Concept | Fields and evidence | Contract |
 | --- | --- | --- |
 | Effective wrap policy | Word-aware wrapping enabled at pane text width by default, validated startup preference, buffer-local runtime override and generation. | editor.soft_wrap defaults true; visual-line-mode toggles one buffer for all its views until close. New buffers inherit startup settings. Runtime changes do not write settings or text. |
-| Layout identity | Buffer/revision, view, text width, tab policy, folds/projection and settings generations. | A geometry or source change invalidates dependent fragments and pointer observations. |
-| Wrapped fragment | Logical line identity, checked source span, display-row position and cell mapping. | UTF-8 byte positions, graphemes and terminal cells are distinct coordinate domains. |
-| Continuation presentation | No added prefix/indentation, blank continuation-number cells and logical gutter association. | Derived cells are not source text, selectable bytes or additional document lines. |
+| Layout identity | Buffer/revision, view, text width, source tab policy, folds/projection, effective Org indentation, structural coverage and settings observations. | A changed geometry, source, effective policy or structural coverage invalidates dependent fragments and pointer observations. |
+| Wrapped fragment | Logical line identity, checked source span, display-row position, structural margin and source/cell mapping. | UTF-8 byte positions, graphemes and terminal cells are distinct coordinate domains; virtual padding has no source scalar. |
+| Continuation presentation | Ordinary source has no added prefix. Enabled Org indentation carries the capped enclosing-body or heading-title margin. Continuation-number cells stay blank with logical gutter association. | Derived cells are not source text, selectable bytes or additional document lines. Source tabs retain original stops independently of the outer margin. |
 | Viewport anchor | Checked source location plus the admitted fragment/scroll affinity. | Reflow preserves semantic point/selection; no raw obsolete screen row becomes canonical. |
 | Visual-line command context | Current view wrap policy, source revision, fragment mapping, canonical point and command identity. | Up/Down and C-n/C-p traverse visual rows; C-a/C-e/C-k follow Emacs Visual Line behavior when wrapped. Line numbers and goto-line retain logical source identity. |
 | Layout work/cache | Current observations, bounded entries and work accounting. | Disposal loses no text; repeated navigation cannot cause unbounded retained layout growth. |
@@ -31,7 +31,10 @@ Views of the same buffer may have different geometry and derived fragments.
 
 Startup policy resolves through the existing configuration owner. An admitted
 runtime choice, resize, edit or fold change invalidates affected layout. The
-view obtains current fragments for rendering and hit testing. Both operations
+view obtains current fragments for rendering and hit testing. The independent
+[Org indentation policy](editor-org-indentation-model.md) shares one buffer-owned
+choice across views; its toggle retires layout and screen-column goals while
+retaining canonical anchors. Both operations
 use the same mapping; a stale mapping is rejected or recomputed before an edit.
 
 Toggling wrapping changes only derived state. Source edits still use ordinary

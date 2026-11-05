@@ -60,8 +60,13 @@ virtual indentation of body text. The
 cycles heading markers by default and can repeat the last entry instead.
 These are behavioral references; rev does not load either Emacs facility.
 
-The approved rev profile decorates headings without adding virtual body
-indentation. It preserves the original prefix width: a level-N heading uses
+The heading-only baseline decorates the original source prefix. The composed
+profile adds the independent buffer-local [Org Visual Indentation](editor-org-indentation.md)
+policy, default true; its outer margins align heading titles and bodies at 2N
+cells where width permits. Disabling that policy restores the heading-only
+geometry below without changing pretty/source choice.
+
+Within that outer margin, preserve the original prefix width: a level-N heading uses
 N-1 blank cells followed by its one-cell marker, then the original separator
 and title. With leading-star hiding disabled, the first N-1 asterisks stay
 visible and only the final star is replaced. With pretty presentation disabled,
@@ -164,9 +169,13 @@ selection, clipping, horizontal scrolling and gutter numbering SHALL keep
 their canonical meanings. Initial glyph admission SHALL require one visible
 grapheme occupying one cell under the supported width policy; control sequences,
 blank/zero-width entries and unsupported widths SHALL be rejected coherently.
-The complete source prefix's cell width SHALL remain unchanged, including while
-point is inside it. Existing word-wrap, source-to-cell and selection owners
-remain authoritative; decoration SHALL not change a line's wrap positions.
+The complete source prefix's cell width SHALL remain unchanged within any
+additional Org indentation margin, including while point is inside it. Existing
+word-wrap, source-to-cell and selection owners remain authoritative. At the same
+effective indentation policy, decoration SHALL not change a line's wrap positions.
+Enabled [Org indentation](editor-org-indentation.md) changes the available source
+width and continuation margin through that same checked projection; its virtual
+cells SHALL never become canonical source positions.
 
 #### Scenario: Edit a heading level
 

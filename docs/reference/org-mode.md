@@ -39,6 +39,22 @@ wrapping stay source-backed; entering the prefix never reveals it automatically.
 See [startup preferences](defaults.md#org-heading-presentation) for markers,
 leading-star visibility, overflow and terminal font ownership.
 
+## Visual indentation
+
+`org.indent` defaults to true. Level-N headings receive N-1 extra visual cells;
+bodies and heading continuations receive 2N. The added margin is capped at
+max(0, text width-2); preamble stays unindented, and source tabs keep their
+original stops. Copy, save, source positions and history never acquire padding.
+
+Use `org-indent-mode`, `org-indent-enable` or `org-indent-disable` through M-x,
+modal colon or configured editing bindings. The choice belongs to the active
+Org buffer and all its views, including read-only results. It is independent of
+per-view pretty headings and buffer-local Visual Line mode, survives edits and
+reload, suspends in Text mode and is discarded on buffer close. No factory
+shortcut or TOML write is added. The [body alignment exercise](../tutorials/user-guide/06-org-notes.md#align-heading-bodies)
+shows both layouts; [exact controls](org/commands.md#visual-indentation) and
+[configuration](org/configuration.md) describe their lifetime and bounds.
+
 ## Keys and named commands
 
 | Key | Command | Behavior |
