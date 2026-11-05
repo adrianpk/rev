@@ -1,6 +1,7 @@
 mod inspection;
 use super::*;
 use crate::git::history::{self, Request, ResultData};
+pub(super) use inspection::unquote_path;
 
 impl Runner {
     pub(super) fn history(

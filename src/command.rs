@@ -112,7 +112,7 @@ pub enum Command {
 }
 
 impl Command {
-    pub const ALL: [Self; 578] = [
+    pub const ALL: [Self; 586] = [
         Self::Git(GitCommand::Clone),
         Self::Git(GitCommand::CloneShallow),
         Self::Git(GitCommand::CloneBare),
@@ -130,6 +130,14 @@ impl Command {
         Self::Git(GitCommand::SubtreePull),
         Self::Git(GitCommand::SubtreePush),
         Self::Git(GitCommand::SubtreeSplit),
+        Self::Git(GitCommand::NotesAdd),
+        Self::Git(GitCommand::NotesRemove),
+        Self::Git(GitCommand::NotesPrune),
+        Self::Git(GitCommand::SparseEnable),
+        Self::Git(GitCommand::SparseDisable),
+        Self::Git(GitCommand::SparseReapply),
+        Self::Git(GitCommand::SparseSet),
+        Self::Git(GitCommand::SparseAdd),
         Self::Git(GitCommand::WorktreeList),
         Self::Git(GitCommand::WorktreeCreate),
         Self::Git(GitCommand::WorktreeVisit),

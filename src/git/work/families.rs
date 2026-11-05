@@ -1,6 +1,9 @@
 use super::*;
 use crate::git::conflicts::resolution::fingerprint;
 use crate::git::{Family, FamilyPlan, FamilyResult, families::Request};
+mod notes;
+mod sparse;
+mod state;
 mod submodule;
 mod subtree;
 
@@ -112,7 +115,9 @@ impl Runner {
         {
             return Err("Installed Git does not provide the selected command family".into());
         }
-        let destination = if family.subtree() {
+        let destination = if family.notes() || family.sparse() {
+            self.directory.clone()
+        } else if family.subtree() {
             self.family_relative_destination(&args[3])?
         } else if family.submodule() {
             if family == Family::SubmoduleList {
@@ -200,6 +205,20 @@ impl Runner {
             crate::git::families::FamilyProof::Submodule(state)
         } else if let Some(state) = subtree {
             crate::git::families::FamilyProof::Subtree(state)
+        } else if family.notes() {
+            crate::git::families::FamilyProof::Notes(self.prepare_notes(
+                family,
+                &mut args,
+                source.as_ref().ok_or("Notes source context unavailable")?,
+                admission,
+            )?)
+        } else if family.sparse() {
+            crate::git::families::FamilyProof::Sparse(self.prepare_sparse(
+                family,
+                &args,
+                source.as_ref().ok_or("Sparse source context unavailable")?,
+                admission,
+            )?)
         } else {
             crate::git::families::FamilyProof::Creation
         };
@@ -267,6 +286,12 @@ impl Runner {
         }
         if plan.subtree().is_some() {
             return self.execute_subtree(plan, admission);
+        }
+        if matches!(plan.proof, crate::git::families::FamilyProof::Notes(_)) {
+            return self.execute_notes(plan, admission);
+        }
+        if matches!(plan.proof, crate::git::families::FamilyProof::Sparse(_)) {
+            return self.execute_sparse(plan, admission);
         }
         let (executed, facts) = self.execute_change(&plan.args, None);
         if self.retained.is_some() {

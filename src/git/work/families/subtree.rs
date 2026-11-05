@@ -11,7 +11,7 @@ impl Runner {
         let commit = OsString::from_vec([name.as_bytes(), b"^{commit}"].concat());
         self.family_object(&commit, format)
     }
-    fn family_object(
+    pub(super) fn family_object(
         &mut self,
         expression: &std::ffi::OsStr,
         format: ObjectFormat,

@@ -263,7 +263,7 @@ fn native_subtrees() {
         replace(editor, draft);
         accept(editor);
         wait(editor, |e| e.echo().contains("Exact prepared Git review"));
-        assert!(render(editor).join("\n").contains("Pinned subtree object"));
+        assert!(render(editor).join("\n").contains("Pinned Git object"));
         assert_eq!(repository.git(["count-objects", "-v"]), objects);
         key(editor, KeyCode::Enter, KeyModifiers::NONE);
         assert_eq!(repository.git(["count-objects", "-v"]), objects);
@@ -285,5 +285,104 @@ fn native_subtrees() {
             "{output}"
         );
         assert_eq!(text(editor), original);
+    }
+}
+
+// Both profiles expose all notes/sparse seeds through their contextual
+// prefixes and execute checked metadata and materialization on real files.
+#[test]
+fn native_notes_sparse() {
+    for profile in ["non-modal", "modal"] {
+        let repository = super::metadata::sparse_repository("sha1");
+        let mut owned = editor(&repository, profile, "", true);
+        let editor = &mut owned.0;
+        let original = text(editor);
+        entry(editor);
+        wait(editor, |e| e.echo().contains("Git Status refreshed"));
+        for (prefix, suffix, family) in [
+            ('T', 'a', Family::NotesAdd),
+            ('T', 'r', Family::NotesRemove),
+            ('T', 'p', Family::NotesPrune),
+            ('>', 'e', Family::SparseEnable),
+            ('>', 'd', Family::SparseDisable),
+            ('>', 'r', Family::SparseReapply),
+            ('>', 's', Family::SparseSet),
+            ('>', 'a', Family::SparseAdd),
+        ] {
+            plain(editor, prefix);
+            plain(editor, suffix);
+            let seed: Vec<String> = serde_json::from_str(&text(editor)).unwrap();
+            assert_eq!(seed, family.seed());
+            key_event_cancel(editor);
+            assert_eq!(text(editor), original);
+        }
+        for (prefix, suffix, draft) in [
+            (
+                'T',
+                'a',
+                r#"["notes","--ref","refs/notes/native","add","--message","native note","--","HEAD"]"#,
+            ),
+            (
+                'T',
+                'r',
+                r#"["notes","--ref","refs/notes/native","remove","--","HEAD"]"#,
+            ),
+            (
+                '>',
+                's',
+                r#"["sparse-checkout","set","--cone","--no-sparse-index","--skip-checks","--","alpha"]"#,
+            ),
+            ('>', 'd', r#"["sparse-checkout","disable"]"#),
+        ] {
+            plain(editor, prefix);
+            plain(editor, suffix);
+            replace(editor, draft);
+            accept(editor);
+            wait(editor, |e| e.echo().contains("Exact prepared Git review"));
+            if prefix == 'T' {
+                assert!(render(editor).join("\n").contains("Pinned Git object"));
+            }
+            key(editor, KeyCode::Enter, KeyModifiers::NONE);
+            assert!(render(editor).join("\n").contains("Argument Review"));
+            accept(editor);
+            wait(editor, |e| e.echo().contains("repository command verified"));
+            if prefix == 'T' && suffix == 'a' {
+                let note = String::from_utf8(repository.git([
+                    "notes",
+                    "--ref",
+                    "refs/notes/native",
+                    "list",
+                    "HEAD",
+                ]))
+                .unwrap();
+                assert!(editor.echo().contains(note.trim()), "{}", editor.echo());
+                assert_eq!(
+                    repository.git(["notes", "--ref", "refs/notes/native", "show", "HEAD"]),
+                    b"native note\n"
+                );
+            } else if prefix == 'T' {
+                assert!(
+                    repository
+                        .git(["notes", "--ref", "refs/notes/native", "list"])
+                        .is_empty()
+                );
+            } else {
+                assert_eq!(repository.root.join("beta/file").exists(), suffix == 'd');
+            }
+            assert_eq!(text(editor), original);
+        }
+        plain(editor, 'q');
+        editor.insert('!');
+        let modified = text(editor);
+        entry(editor);
+        wait(editor, |e| e.echo().contains("Git Status refreshed"));
+        plain(editor, '>');
+        plain(editor, 'e');
+        accept(editor);
+        assert!(editor.echo().contains("unsaved text"), "{}", editor.echo());
+        key_event_cancel(editor);
+        plain(editor, 'q');
+        assert_eq!(text(editor), modified);
+        assert!(repository.root.join("beta/file").is_file());
     }
 }

@@ -18,6 +18,14 @@ pub enum Family {
     SubtreePull,
     SubtreePush,
     SubtreeSplit,
+    NotesAdd,
+    NotesRemove,
+    NotesPrune,
+    SparseEnable,
+    SparseDisable,
+    SparseReapply,
+    SparseSet,
+    SparseAdd,
 }
 impl Family {
     pub fn label(self) -> &'static str {
@@ -37,6 +45,14 @@ impl Family {
             Self::SubtreePull => "subtree pull",
             Self::SubtreePush => "subtree push",
             Self::SubtreeSplit => "subtree split",
+            Self::NotesAdd => "notes add",
+            Self::NotesRemove => "notes remove",
+            Self::NotesPrune => "notes prune",
+            Self::SparseEnable => "sparse checkout enable",
+            Self::SparseDisable => "sparse checkout disable",
+            Self::SparseReapply => "sparse checkout reapply",
+            Self::SparseSet => "sparse checkout set",
+            Self::SparseAdd => "sparse checkout add",
         }
     }
     pub fn seed(self) -> Vec<String> {
@@ -56,16 +72,36 @@ impl Family {
             Self::SubtreePull => &["subtree", "pull", "--prefix", "", "--", "", ""],
             Self::SubtreePush => &["subtree", "push", "--prefix", "", "--", "", ""],
             Self::SubtreeSplit => &["subtree", "split", "--prefix", "", "--", ""],
+            Self::NotesAdd => &["notes", "--ref", "", "add", "--message", "", "--", ""],
+            Self::NotesRemove => &["notes", "--ref", "", "remove", "--", ""],
+            Self::NotesPrune => &["notes", "--ref", "", "prune"],
+            Self::SparseEnable => &["sparse-checkout", "init", "--cone", "--no-sparse-index"],
+            Self::SparseDisable => &["sparse-checkout", "disable"],
+            Self::SparseReapply => &["sparse-checkout", "reapply"],
+            Self::SparseSet => &[
+                "sparse-checkout",
+                "set",
+                "--cone",
+                "--no-sparse-index",
+                "--skip-checks",
+                "--",
+                "",
+            ],
+            Self::SparseAdd => &["sparse-checkout", "add", "--skip-checks", "--", ""],
         };
         args.iter().map(|a| (*a).into()).collect()
     }
     pub(super) fn validate(self, args: &[OsString]) -> Result<(), String> {
         let expected = self.seed();
-        if args.len() != expected.len()
-            || args
-                .iter()
-                .zip(&expected)
-                .any(|(a, b)| !b.is_empty() && a != b.as_str())
+        let variadic = matches!(self, Self::SparseSet | Self::SparseAdd);
+        if (if variadic {
+            args.len() < expected.len()
+        } else {
+            args.len() != expected.len()
+        }) || args
+            .iter()
+            .zip(&expected)
+            .any(|(a, b)| !b.is_empty() && a != b.as_str())
         {
             return Err(
                 "Keep the prepared family and its explicit option/parameter structure".into(),
@@ -80,7 +116,20 @@ impl Family {
         Ok(())
     }
     pub fn repository_action(self) -> bool {
-        self.submodule() || self.subtree()
+        self.submodule() || self.subtree() || self.notes() || self.sparse()
+    }
+    pub(super) fn notes(self) -> bool {
+        matches!(self, Self::NotesAdd | Self::NotesRemove | Self::NotesPrune)
+    }
+    pub(super) fn sparse(self) -> bool {
+        matches!(
+            self,
+            Self::SparseEnable
+                | Self::SparseDisable
+                | Self::SparseReapply
+                | Self::SparseSet
+                | Self::SparseAdd
+        )
     }
     pub(super) fn submodule(self) -> bool {
         matches!(
@@ -181,11 +230,88 @@ impl Submodule {
     }
 }
 
+#[derive(PartialEq, Eq)]
+pub(super) struct NotesRef {
+    pub name: Vec<u8>,
+    pub object: ObjectId,
+    pub symbolic: Vec<u8>,
+}
+pub(super) struct Notes {
+    pub configuration: Vec<u8>,
+    pub name: OsString,
+    pub target: Option<ObjectId>,
+    pub references: Vec<NotesRef>,
+    /// Exact target-to-note object pairs; labels never select notes.
+    pub entries: Vec<(ObjectId, ObjectId)>,
+    pub prune: Vec<ObjectId>,
+    pub message: Vec<u8>,
+}
+impl std::fmt::Debug for Notes {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("Notes")
+            .field("name", &self.name)
+            .field("target", &self.target)
+            .field("entries", &self.entries.len())
+            .finish_non_exhaustive()
+    }
+}
+impl Notes {
+    fn bytes(&self) -> usize {
+        std::mem::size_of::<Self>()
+            + self.configuration.capacity()
+            + self.name.capacity()
+            + self.references.capacity() * std::mem::size_of::<NotesRef>()
+            + self
+                .references
+                .iter()
+                .map(|r| r.name.capacity() + r.symbolic.capacity())
+                .sum::<usize>()
+            + self.entries.capacity() * std::mem::size_of::<(ObjectId, ObjectId)>()
+            + self.prune.capacity() * std::mem::size_of::<ObjectId>()
+            + self.message.capacity()
+    }
+}
+
+#[derive(PartialEq, Eq)]
+pub(super) struct Sparse {
+    pub configuration: Vec<u8>,
+    pub enabled: bool,
+    pub cone: bool,
+    pub patterns: Vec<u8>,
+    pub directories: Vec<PathBuf>,
+    pub flags: Vec<u8>,
+}
+impl std::fmt::Debug for Sparse {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("Sparse")
+            .field("enabled", &self.enabled)
+            .field("cone", &self.cone)
+            .field("directories", &self.directories)
+            .finish_non_exhaustive()
+    }
+}
+impl Sparse {
+    fn bytes(&self) -> usize {
+        std::mem::size_of::<Self>()
+            + self.configuration.capacity()
+            + self.patterns.capacity()
+            + self.flags.capacity()
+            + self.directories.capacity() * std::mem::size_of::<PathBuf>()
+            + self
+                .directories
+                .iter()
+                .map(PathBuf::capacity)
+                .sum::<usize>()
+    }
+}
+
 #[derive(Debug)]
 pub(super) enum FamilyProof {
     Creation,
     Submodule(Submodule),
     Subtree(Subtree),
+    Notes(Notes),
+    Sparse(Sparse),
 }
 impl FamilyProof {
     pub fn bytes(&self) -> usize {
@@ -193,6 +319,8 @@ impl FamilyProof {
             Self::Creation => 0,
             Self::Submodule(state) => state.bytes(),
             Self::Subtree(state) => state.bytes(),
+            Self::Notes(state) => state.bytes(),
+            Self::Sparse(state) => state.bytes(),
         }
     }
 }
@@ -229,7 +357,16 @@ impl FamilyPlan {
         }
     }
     pub fn target_object(&self) -> Option<ObjectId> {
-        self.subtree().map(|s| s.target)
+        match &self.proof {
+            FamilyProof::Notes(state) => state.target,
+            _ => self.subtree().map(|s| s.target),
+        }
+    }
+    pub fn prune_objects(&self) -> &[ObjectId] {
+        match &self.proof {
+            FamilyProof::Notes(state) => &state.prune,
+            _ => &[],
+        }
     }
     pub fn remote_branch(&self) -> Option<&std::ffi::OsStr> {
         self.subtree()
@@ -298,7 +435,7 @@ impl Repositories {
         if family.repository_action()
             && observation
                 .as_ref()
-                .is_none_or(|o| o.identity.worktree.is_none())
+                .is_none_or(|o| !family.notes() && o.identity.worktree.is_none())
         {
             return Err(
                 "Repository family preparation requires a checked working-tree context".into(),

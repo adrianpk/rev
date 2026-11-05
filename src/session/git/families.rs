@@ -201,10 +201,27 @@ impl Session {
             self.observe_files();
         }
         if self.git.visible && self.pending.is_none() && self.input.focus() == Focus::Editing {
-            self.message(if self.git.engine.record(update.operation).is_some_and(|r| r.outcome == crate::git::Outcome::InProgress) { "Prepared Git command stopped in progress; git-operation-status inspects the actual sequence" }
-                else if update.published && self.git.engine.record(update.operation).is_some_and(|r| r.outcome == crate::git::Outcome::Verified) && self.git.engine.family_result().is_some_and(|r| r.created.is_none()) { "Prepared Git repository command verified; $ inspects the accepted operation and output" }
-                else if update.published && self.git.engine.record(update.operation).is_some_and(|r| r.outcome == crate::git::Outcome::Verified) { "Prepared Git destination created and verified; $ inspects the accepted operation" }
-                else { "Prepared Git command failed or effects remain uncertain; inspect destination and $ diagnostics" });
+            let outcome = self.git.engine.record(update.operation).map(|r| r.outcome);
+            let message = if outcome == Some(crate::git::Outcome::InProgress) {
+                "Prepared Git command stopped in progress; git-operation-status inspects the actual sequence".to_owned()
+            } else if update.published && outcome == Some(crate::git::Outcome::Verified) {
+                if let Some(result) = self
+                    .git
+                    .engine
+                    .family_result()
+                    .filter(|r| r.created.is_none())
+                {
+                    result.object.map_or_else(
+                        || "Prepared Git repository command verified; $ inspects the accepted operation and output".to_owned(),
+                        |object| format!("Prepared Git repository command verified; object {}; $ inspects the accepted operation and output", object.hex()),
+                    )
+                } else {
+                    "Prepared Git destination created and verified; $ inspects the accepted operation".to_owned()
+                }
+            } else {
+                "Prepared Git command failed or effects remain uncertain; inspect destination and $ diagnostics".to_owned()
+            };
+            self.message(&message);
         }
     }
     pub(in crate::session::git) fn git_family_review_frame(
@@ -224,7 +241,13 @@ impl Session {
             label(plan.destination.as_os_str().as_encoded_bytes())
         );
         if let Some(object) = plan.target_object() {
-            metadata.push_str(&format!("Pinned subtree object: {}\n", object.hex()));
+            metadata.push_str(&format!("Pinned Git object: {}\n", object.hex()));
+        }
+        for object in plan.prune_objects() {
+            metadata.push_str(&format!(
+                "Prune note for missing object: {}\n",
+                object.hex()
+            ));
         }
         if let Some(reference) = plan.remote_branch() {
             metadata.push_str(&format!(

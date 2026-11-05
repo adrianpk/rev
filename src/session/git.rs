@@ -488,6 +488,20 @@ impl Session {
                 GitCommand::SubtreeSplit => {
                     self.compose_git_family(crate::git::Family::SubtreeSplit)
                 }
+                GitCommand::NotesAdd => self.compose_git_family(crate::git::Family::NotesAdd),
+                GitCommand::NotesRemove => self.compose_git_family(crate::git::Family::NotesRemove),
+                GitCommand::NotesPrune => self.compose_git_family(crate::git::Family::NotesPrune),
+                GitCommand::SparseEnable => {
+                    self.compose_git_family(crate::git::Family::SparseEnable)
+                }
+                GitCommand::SparseDisable => {
+                    self.compose_git_family(crate::git::Family::SparseDisable)
+                }
+                GitCommand::SparseReapply => {
+                    self.compose_git_family(crate::git::Family::SparseReapply)
+                }
+                GitCommand::SparseSet => self.compose_git_family(crate::git::Family::SparseSet),
+                GitCommand::SparseAdd => self.compose_git_family(crate::git::Family::SparseAdd),
                 GitCommand::Status => self.open_git(),
                 GitCommand::Commit => self.compose_git_commit(),
                 GitCommand::CommitAmend => self.prepare_git_amend(),

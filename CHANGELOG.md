@@ -78,6 +78,8 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
   Review subtree add, merge or pull, inspect full split objects or publish one
   explicit subtree branch. Retain actual Git conflicts for manual sequence
   control and verify saved files, exact trees and remote branch results.
+  Add, remove or prune notes on exact objects and review cone-mode sparse
+  checkout selections, checking actual note bytes and tracked-file presence.
   Return to the same windows
   and terminals. Inspect active and
   recent Git processes, cancel a selected operation, and confirm before quitting

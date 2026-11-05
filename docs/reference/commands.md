@@ -738,6 +738,14 @@ Status reads disk and Git state; it does not save an unsaved source buffer.
 | `git-subtree-pull` | Pin one explicit source branch before fetching and merging into a reviewed subtree prefix. |
 | `git-subtree-push` | Review one explicit endpoint and full destination branch, then verify its published subtree object and tree. |
 | `git-subtree-split` | Review an exact commit and prefix, then inspect the full split object while preserving local HEAD and saved files. |
+| `git-notes-add` | Review a full notes ref, exact target object and literal message; verify the stored note bytes. |
+| `git-notes-remove` | Review one existing note on a full object ID and remove only that note. |
+| `git-notes-prune` | Review exact missing-object note targets and prune only those candidates. |
+| `git-sparse-checkout-enable` | Review enabling cone mode and verify actual tracked-file materialization. |
+| `git-sparse-checkout-disable` | Review disabling sparse checkout and verify that tracked files return. |
+| `git-sparse-checkout-reapply` | Review reapplying the captured cone selection to a checked clean working tree. |
+| `git-sparse-checkout-set` | Review literal relative directories and replace the cone selection without forcing saved changes. |
+| `git-sparse-checkout-add` | Review literal relative directories and add them to the captured cone selection. |
 | `git-worktree-list` | Open a bounded NUL-record worktree list with raw paths, full HEADs, distinct Git/common directories, lock reasons and prune state. |
 | `git-worktree-create` | Review a new linked worktree and new local branch at the exact observed HEAD, using a checked absent destination. |
 | `git-worktree-visit` | Open checked Git Status for the selected worktree identity while retaining native source buffers and windows. |
@@ -1098,3 +1106,46 @@ Unsaved native sources remain protected. A real merge conflict retains Git's
 actual sequence and reports in-progress state; git-operation-status inspects it
 before a separately reviewed continuation or abort. Failures preserve uncertainty
 and never retry, clean up or claim rollback automatically.
+
+### Prepared notes arguments
+
+Status T a/T r/T p prepare notes add, remove and prune. Fill one full refs/notes
+name and an explicit existing target object for add/remove. Add also requires a
+literal nonempty message; it refuses to overwrite an existing note. Preparation
+resolves the full target ID and captures the exact target-to-note map and Git
+configuration. Prune review lists the full missing-object targets returned by
+Git's read-only dry run. A changed ref, note map, prune set, saved source or
+configuration invalidates review before execution.
+
+Execution verifies the exact resulting note map. Add checks the actual note
+blob against the reviewed message after Git's normal whitespace cleanup; remove
+and prune must preserve all other notes. HEAD, unrelated refs and saved index,
+working and untracked bytes stay checked. Bare repositories support the same
+notes operations through their actual Git context. Successful add reports the
+full note blob ID. Process inspection owns actual exit/cleanup facts; failed postchecks remain explicitly unverified.
+
+### Prepared sparse-checkout arguments
+
+Status > e/> d/> r/> s/> a prepare enable, disable, reapply, set and add.
+The routes require a checked clean working tree, complete saved/index/ref state,
+no active sequence and no unsaved repository-backed buffers. Enable and set
+select cone mode without sparse index compression. Set/add accept one or more
+literal repository-relative directory arguments after --. Paths must use
+ordinary components outside .git. The reviewed --skip-checks option permits
+literal pattern metacharacters after native path checks. Git cone patterns cannot
+represent a newline directory, so that input refuses before execution.
+Raw supported path bytes remain exact at the Git owner;
+native JSON text supports ordinary Unicode paths without shell or glob expansion.
+
+Review captures effective configuration, the selected worktree's private sparse
+patterns, complete index flags and actual materialization. Existing enabled
+non-cone patterns or inconsistent materialized excluded files refuse these
+prepared routes. Reapply/add require enabled cone mode. Parent selections absorb
+redundant child directories according to Git's cone selection.
+
+After execution, checks inspect the actual cone configuration, selected directory
+list, index skip flags and tracked-file presence. HEAD, index objects, saved
+changes and unrelated configuration remain checked. Linked worktrees retain
+separate pattern and materialization state. No force, implicit save/stash,
+automatic cleanup, retry or rollback is performed. Plain Return and cancellation
+follow the same native argument composer contract as other prepared families.

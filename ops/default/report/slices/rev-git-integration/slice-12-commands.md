@@ -60,7 +60,22 @@ Deliver GIT14-GIT15 and their GIT16-GIT20 contracts through T12.1-T12.3 in the
   in-progress state rather than verification. Existing operation inspection and
   separately reviewed controls remain available; no automatic continuation or
   abort. Missing optional subtree support is diagnosed before effects.
-- T12.2-T12.3 remain pending. No PR is claimed.
+- T12.2 notes routes: T a/T r/T p prepare add/remove/prune against a full notes
+  ref and exact objects. Add checks the stored blob against Git-cleaned literal
+  message bytes and reports its full ID. Prune review names every captured
+  missing-object target. Other notes, branch refs, HEAD and saved sources remain
+  checked; selected symbolic refs, including dangling aliases, refuse before effects.
+- T12.2 sparse routes: > e/> d/> r/> s/> a prepare cone-mode enable/disable/
+  reapply/set/add. Capture private patterns, effective configuration, literal
+  directories and complete index/materialization state. Actual postchecks verify
+  selected cones, skip flags and file presence while preserving index objects,
+  HEAD, unrelated configuration and distinct linked-worktree state.
+- Saved dirty or unsaved native sources, changed patterns/config/index flags and
+  manually materialized excluded paths protect sparse actions. Metacharacters
+  and supported raw path bytes remain literal. Git cone files cannot represent
+  a newline directory, so selecting one refuses before a changing child.
+- Remaining T12.2 patch/output families and T12.3 direct/separate shell routes
+  remain pending. No PR is claimed.
 
 ## Implementation Notes
 
@@ -69,8 +84,9 @@ configuration, cancellation, stream limits and retained cleanup owner. One
 canonical plan and result stay under the existing Git admission budget.
 Preparation waits for active Git work so unknown destination/common identity
 cannot race another owned request. Verified results refresh compatible source
-observations; failures retain confirmed state with a failure marker and no
-inferred postcondition. Hidden views do not release the process owner.
+observations. When actual compatible facts can still be read after a failure,
+they refresh the source while the process record preserves uncertainty.
+Publication alone does not verify effects or infer a postcondition. Hidden views do not release the process owner.
 
 The native draft reuses the existing retained source-view and message-buffer
 facilities. Commit/tag dispatch remains separate from argument interpretation.
@@ -93,13 +109,14 @@ No runtime/development dependency or validation prerequisite was added.
 
 ## Contracts Added or Changed
 
-- Seventeen working commands: git-clone, git-clone-shallow, git-clone-bare,
+- Twenty-five working commands: git-clone, git-clone-shallow, git-clone-bare,
   git-clone-mirror, git-init, git-ignore and git-ignore-exclude; five additional
   commands are git-submodule-add/list/update/sync/deinit and five are
-  git-subtree-add/merge/pull/push/split.
-- Status has 58 active defaults. The existing keys.git_commit context also
+  git-subtree-add/merge/pull/push/split. Eight more are git-notes-add/remove/prune
+  and git-sparse-checkout-enable/disable/reapply/set/add.
+- Status has 66 active defaults. The existing keys.git_commit context also
   supplies ordinary editing and explicit submission for prepared argument text.
-- Live catalogs contain 578 commands and 271 configuration entries.
+- Live catalogs contain 586 commands and 271 configuration entries.
 
 ## Files of Interest
 
@@ -109,6 +126,9 @@ No runtime/development dependency or validation prerequisite was added.
   evidence and actual postconditions under the same process/admission owner.
 - `src/git/work/families/subtree.rs`: pinned local/remote objects, exact branch
   and tree postconditions, actual conflict retention and publication policy.
+- `src/git/work/families/notes.rs`, `sparse.rs`, `state.rs`: exact note/ref maps,
+  bounded ordinary-file evidence, cone/index/materialization postconditions and
+  compatible actual fact refresh without claiming uncertain effects verified.
 - `src/session/git/families.rs`, `src/session/git/commit.rs`: native draft,
   two-step submission, exact review and original source restoration.
 - `src/git/work/repository.rs`: shared saved-state evidence for unborn sources.
@@ -118,6 +138,9 @@ No runtime/development dependency or validation prerequisite was added.
   round trips, configuration/index/path/child races and dirty child refusal.
 - `tests/git_integration/families_subtree.rs`: both-format real subtree workflows,
   changed remote/push policy, actual conflict state and unavailable helpers.
+
+- `tests/git_integration/families_metadata.rs`: both-format note/sparse round
+  trips, symbolic-ref and external-state protection, raw paths and linked roots.
 
 ## Validation
 
@@ -189,6 +212,32 @@ oversized publication variant. One mutually exclusive typed family proof now
 owns creation, submodule or subtree evidence within the same admission budget;
 no lint, observable assertion, fixture wait or resource bound was relaxed.
 
+Notes/sparse development passed all eight selected engine and native cases in
+63.81 seconds, including the existing subtree presentation regression. Both
+object formats prove add/remove/prune and all five sparse variants. Other-note
+and configuration races, existing/dangling symbolic note refs, bare notes,
+literal metacharacter/non-UTF8 directories, overlapping cones, changed patterns,
+index flags and saved files, linked-worktree isolation and native unsaved guards
+are covered. Strict focused Clippy passed in 18.83 seconds, formatter passed,
+and all 21 command/configuration reference checks passed (1.96/12.82 seconds).
+Documentation passed at 586 commands, 271 configuration entries, 76 pages and
+485 links. Whitespace checks passed. These are development checks; remaining
+T12.2-T12.3 behavior and the final controller receipt remain pending.
+
+The first new engine run passed five of six cases but found installed Git
+rejecting the combined raw sparse directory argument. Direct isolated Git
+reproduction confirmed that literal bracket characters require --skip-checks
+and that newline directory names still create malformed line-based cone
+patterns. Native preparation keeps its ordinary literal-directory checks,
+reviews the required flag and refuses newline selections before effects.
+Metacharacter/non-UTF8 round trips and unchanged saved bytes after newline
+refusal are asserted independently. Cone parent/child redundancy is compared
+against Git's actual normalized selection. No fixture deadline, process bound,
+forced cleanup or implicit save/stash was added. Initial compilation also
+required the expanded command count and explicit notes result error type;
+strict Clippy required a byte-string slice. Those errors were corrected before
+the successful selected run and final development lint.
+
 Successful development commands:
 
 - `cargo fmt --all -- --check`
@@ -204,6 +253,7 @@ Successful development commands:
 - `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test git_integration families::configured_deadlines -- --test-threads=1`
 - `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test git_integration families::subtree:: -- --test-threads=1`
 - `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test git_integration families::presentation::native_subtrees -- --test-threads=1`
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test git_integration -- families::metadata:: families::presentation::native_notes_sparse families::presentation::native_subtrees --test-threads=1`
 - `git diff --check`
 
 These are focused development results. Final exact-HEAD controller validation
@@ -212,7 +262,7 @@ follow-up commit. No full gate or final receipt is claimed.
 
 ## Risks and Follow-ups
 
-Complete the remaining approved notes/patch/sparse and direct
+Complete the remaining approved patch/output and direct
 Git/separate shell routes in this same slice. Combined PTY/resource acceptance
 and learning-path guidance remain in their recorded later slices. The controller
 owns integration.

@@ -609,6 +609,14 @@ For live terminal key ownership and copy controls, see the
 | `O f` in Status | `git-subtree-pull` | Pin one explicit source branch before fetching and merging into a reviewed subtree prefix. |
 | `O p` in Status | `git-subtree-push` | Review one explicit endpoint and full destination branch, then verify its published subtree object and tree. |
 | `O s` in Status | `git-subtree-split` | Review an exact commit and prefix, then inspect the full split object while preserving local HEAD and saved files. |
+| `T a` in Status | `git-notes-add` | Review a full notes ref, exact target object and literal message; verify the stored note bytes. |
+| `T r` in Status | `git-notes-remove` | Review one existing note on a full object ID and remove only that note. |
+| `T p` in Status | `git-notes-prune` | Review exact missing-object note targets and prune only those candidates. |
+| `> e` in Status | `git-sparse-checkout-enable` | Review enabling cone mode and verify actual tracked-file materialization. |
+| `> d` in Status | `git-sparse-checkout-disable` | Review disabling sparse checkout and verify that tracked files return. |
+| `> r` in Status | `git-sparse-checkout-reapply` | Review reapplying the captured cone selection to a checked clean working tree. |
+| `> s` in Status | `git-sparse-checkout-set` | Review literal relative directories and replace the cone selection without forcing saved changes. |
+| `> a` in Status | `git-sparse-checkout-add` | Review literal relative directories and add them to the captured cone selection. |
 | `Z Z`, `Z l` in Status | `git-worktree-list` | Open a bounded NUL-record worktree list with raw paths, full HEADs, distinct Git/common directories, lock reasons and prune state. |
 | `c` in Worktree | `git-worktree-create` | Review a new linked worktree and new local branch at the exact observed HEAD, using a checked absent destination. |
 | `v` in Worktree | `git-worktree-visit` | Open checked Git Status for the selected worktree identity while retaining native source buffers and windows. |
@@ -924,6 +932,14 @@ native cancellation. Prompts use `keys.minibuffer`.
 | `O f` | `git-subtree-pull` |
 | `O p` | `git-subtree-push` |
 | `O s` | `git-subtree-split` |
+| `T a` | `git-notes-add` |
+| `T r` | `git-notes-remove` |
+| `T p` | `git-notes-prune` |
+| `> e` | `git-sparse-checkout-enable` |
+| `> d` | `git-sparse-checkout-disable` |
+| `> r` | `git-sparse-checkout-reapply` |
+| `> s` | `git-sparse-checkout-set` |
+| `> a` | `git-sparse-checkout-add` |
 | `Z Z`, `Z l` | `git-worktree-list` |
 | `z z`, `z l` | `git-stash-list` |
 | `C-x g` | `git-status` |

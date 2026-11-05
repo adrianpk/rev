@@ -355,7 +355,7 @@ fn number(value: &[u8]) -> Result<usize, String> {
 
 // Git's C-quoted filename grammar preserves whitespace, quotes, backslashes
 // and non-UTF-8 bytes. Escaped display strings never become path arguments.
-fn unquote_path(value: &[u8]) -> Result<PathBuf, String> {
+pub(in crate::git::work) fn unquote_path(value: &[u8]) -> Result<PathBuf, String> {
     let bytes = if let Some(inner) = value.strip_prefix(b"\"") {
         let inner = inner
             .strip_suffix(b"\"")
