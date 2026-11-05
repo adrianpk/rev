@@ -7,7 +7,7 @@ Plan: [Native Git Integration Delivery](../plan/rev-git-integration.md)
 Spec: [Native Git Integration](../spec/editor-git-integration.md)
 Model: [Native Git Model](../spec/editor-git-integration-model.md)
 Approved: owner, 2026-11-04; complete fourteen-slice plan and autonomous Looper execution/integration through dev
-Active slice: Slice 10 - Native conflict resolution
+Active slice: Slice 11 - Stashes and linked worktrees
 Progress owner: after startup, Looper checkpoint, canonical PRs and exact-candidate validation receipts
 
 ## Canonical slice map
@@ -177,7 +177,7 @@ Integration: [PR #266](https://forge.adrianpk.com/adrianpk/rev/pulls/266) merged
 
 ## Slice 10: Native conflict resolution
 
-Status: active
+Status: delivered
 Branch: `feat/rev-git-integration-10-conflicts`
 Expected PR title: `feat(git): inspect and resolve checked conflicts`
 Report: `ops/default/report/slices/rev-git-integration/slice-10-conflicts.md`
@@ -188,12 +188,12 @@ PR: [#267](https://forge.adrianpk.com/adrianpk/rev/pulls/267)
 - [x] T10.2: Review whole-side replacement or resolved deletion and stage only a checked saved resolution; protect modified buffers, changed stages and unsupported/partial cases.
 - [x] T10.3: Route git-conflict-explain through the existing optional AI request/result owner with bounded conflict context and no automatic edit or resolution; verify no-provider behavior and request construction without mandatory live credentials.
 
-Validation: T10.1 development passed six real conflict cases, six existing native integration cases, 21 reference cases, strict Clippy, formatter, documentation and whitespace checks. Both object formats/profiles, exact unusual paths, stage roles, partial/unsupported observations and unsaved source ownership are covered. T10.2 adds nine passing resolution cases covering saved bytes/absence, exact deletion, all sides, stale confirmation, CRLF conversion, real hook uncertainty, ordered continuation and both native profiles. Expanded unsupported-admission checks, Clippy and 21 references also pass. T10.3 adds three passing explanation behavior cases plus its Rust fixture entrypoint, five shared AI result-owner cases and updated 547-command documentation. Requests preserve exact copied roles/source with no tool/edit/stage/continue authority; missing provider, bounds, historical context and native ownership are covered. Final controller evidence follows PR-reference completion.
-Integration: T10.1-T10.3 are implemented and canonical PR #267 is open against dev. The Slice 10 report is reviewing. PR-reference completion precedes exact-HEAD controller validation; integration remains controller-owned.
+Validation: Controller receipt `NG2AAES7H4F5XTH2YDS6SQ7H4Y` passed all eight ordered checks at `98574bb26c413f169b6cf06f1c034d55517b9315`: 19 conflict entries, 6 native integration presentation cases, 5 AI result-owner cases and 21 reference checks, formatter, strict Clippy, documentation and whitespace. Development corrections and retained bounds are recorded in the report.
+Integration: [PR #267](https://forge.adrianpk.com/adrianpk/rev/pulls/267) merged through controller-owned Rebase + Fast-forward into dev at `98574bb26c413f169b6cf06f1c034d55517b9315`. Slice 10 of 14 completed.
 
 ## Slice 11: Stashes and linked worktrees
 
-Status: pending
+Status: active
 Branch: `feat/rev-git-integration-11-repository`
 Expected PR title: `feat(git): manage stashes and linked worktrees`
 Report: `ops/default/report/slices/rev-git-integration/slice-11-repository.md`

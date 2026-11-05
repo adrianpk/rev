@@ -1,6 +1,6 @@
 # Slice 10: Native Conflict Resolution
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-git-integration
 Plan: `ops/default/plan/rev-git-integration.md`
 Tracker: `ops/default/tracker/rev-git-integration.md`
@@ -193,11 +193,18 @@ Successful development commands:
 - `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --lib session::ai::results:: -- --test-threads=1`
 - `git diff --check`
 
-Final validation will use the configured formatter/Clippy/conflict prefix,
-then native integration presentation, the five shared AI result-owner cases,
-command/configuration references, documentation and whitespace. The controller
-records the exact ordered checks on the clean canonical PR head after its
-PR-reference follow-up commit; no final receipt is claimed here.
+Controller validation `NG2AAES7H4F5XTH2YDS6SQ7H4Y` passed all eight ordered
+checks at clean PR head `98574bb26c413f169b6cf06f1c034d55517b9315`: the
+configured formatter/Clippy/conflict prefix, native integration presentation,
+the five AI result-owner cases, command/configuration references, documentation
+and whitespace. The 19 conflict entries passed in 156.89 seconds, six native
+integration cases in 29.14 seconds, five AI cases in 1.44 seconds and 21
+reference cases in 14.61 seconds. Documentation passed at 547 commands, 269
+configuration entries, 76 pages and 485 local links. The canonical PR contains
+the exact ordered successful commands.
+
+PR #267 merged through controller-owned Rebase + Fast-forward into dev at the
+same validated commit. Slice 10 of 14 completed.
 
 ## Risks and Follow-ups
 
