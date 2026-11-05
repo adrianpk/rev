@@ -51,13 +51,17 @@ Validation: all five required commands passed through Looper for that exact clea
 
 ## Slice 3: Buffer-local runtime commands
 
-State: active
+State: reviewing
 Dependency: Slice 2 integrated
 Requirements: OIN02-OIN05
+Implementation: `e6dc1c0f1b07e046309911867b9782d87b24008e` (T3.1-T3.3)
+PR: pending
+Report: [Slice 3](../report/slices/rev-org-indentation/slice-3-controls.md)
+Validation: all six required commands passed locally; 356 selected native tests, 20 modal contexts and one additional readonly result-owner case passed. The catalog contains 596 commands. Looper records exact clean-HEAD evidence after the PR-reference commit.
 
-- [ ] T3.1: Deliver native toggle/enable/disable through M-x, colon and configurable keymaps.
-- [ ] T3.2: Preserve policy and source anchors through views, edits, reload and Org lifecycle.
-- [ ] T3.3: Verify both profiles and policy independence; reconcile catalogs and Unreleased.
+- [x] T3.1: Deliver native toggle/enable/disable through M-x, colon and configurable keymaps.
+- [x] T3.2: Preserve policy and source anchors through views, edits, reload and Org lifecycle.
+- [x] T3.3: Verify both profiles and policy independence; reconcile catalogs and Unreleased.
 
 ## Slice 4: Joint acceptance and guidance
 
@@ -72,7 +76,7 @@ Requirements: OIN01-OIN05
 ## Final gate and closure
 
 The plan owns the ordered slice and final-gate commands. Slices 1 and 2 are
-integrated; Slice 3 is active. Slice 4 and the combined delivery gate remain
+integrated; Slice 3 is implemented for review. Slice 4 and the combined delivery gate remain
 pending. Controller identity
 and live execution progress belong to Looper. After all four slices integrate, it
 validates the exact clean dev candidate. Record its hash, receipt, successful
