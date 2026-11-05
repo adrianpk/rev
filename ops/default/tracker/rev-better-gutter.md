@@ -1,0 +1,87 @@
+# Better Gutter Tracker
+
+Status: Ready
+Date: 2026-11-06
+Delivery set: rev-better-gutter
+Approved: product owner; specification, three-slice preparation, push and one autonomous Looper delivery through dev
+Plan: [Better Gutter Delivery](../plan/rev-better-gutter.md)
+Specification: [Better Gutter](../spec/editor-better-gutter.md)
+Model: [Better Gutter Model](../spec/editor-better-gutter-model.md)
+Active slice: Slice 1 - Outside marker layout; execution not started
+Progress owner: retained Looper checkpoint and canonical validation receipts
+
+## Canonical slice map
+
+| Slice | Short name | Exact branch | Expected PR title | Report |
+| --- | --- | --- | --- | --- |
+| Slice 1 | Outside marker layout | `feat/rev-better-gutter-01-layout` | `feat(gutter): place bookmark markers before line numbers` | `ops/default/report/slices/rev-better-gutter/slice-1-layout.md` |
+| Slice 2 | Fixed symbols and font flag | `feat/rev-better-gutter-02-markers` | `feat(gutter): select built-in bookmark symbols with a font flag` | `ops/default/report/slices/rev-better-gutter/slice-2-markers.md` |
+| Slice 3 | Joint acceptance and guidance | `test/rev-better-gutter-03-acceptance` | `test(gutter): verify marker geometry and document presentation` | `ops/default/report/slices/rev-better-gutter/slice-3-acceptance.md` |
+
+## Slice 1: Outside marker layout
+
+State: pending
+Dependency: approved committed preparation on clean dev
+Requirements: BMK03, BTG02, BTG04
+Implementation: pending
+PR: pending
+Report: `ops/default/report/slices/rev-better-gutter/slice-1-layout.md`
+Validation: pending; use the exact ordered Slice 1 commands in the plan.
+
+- [ ] T1.1: Allocate the marker outside numbers; preserve mirrored placement,
+  narrow-pane safety, visibility and zero folding-column allocation.
+- [ ] T1.2: Share the checked geometry across paint, input, wrapping and overlays
+  while retaining prepared bookmark observations and canonical source identity.
+- [ ] T1.3: Verify affected native geometry, source fidelity and presentation;
+  update the layout reference and one reader-facing Unreleased outcome.
+
+## Slice 2: Fixed symbols and font flag
+
+State: pending
+Dependency: Slice 1 integrated
+Requirements: BMK03, BTG01, BTG04 and configuration model
+Implementation: pending
+PR: pending
+Report: `ops/default/report/slices/rev-better-gutter/slice-2-markers.md`
+Validation: pending; use the exact ordered Slice 2 commands in the plan.
+
+- [ ] T2.1: Deliver the startup boolean and its fixed mapping, with typed merge,
+  provenance and ignored legacy marker-string compatibility.
+- [ ] T2.2: Apply the compiled square/bookmark and blue role through existing
+  owners; retain palette overrides and view/source lifetimes.
+- [ ] T2.3: Verify defaults, both choices, malformed input and old configuration;
+  update the complete sample, catalog, migration guidance and Unreleased outcome.
+
+## Slice 3: Joint acceptance and guidance
+
+State: pending
+Dependency: Slice 2 integrated
+Requirements: BMK03, BTG01-BTG04 together
+Implementation: pending
+PR: pending
+Report: `ops/default/report/slices/rev-better-gutter/slice-3-acceptance.md`
+Validation: pending; use the exact ordered Slice 3 commands in the plan.
+
+- [ ] T3.1: Deliver the bounded native Rust/Bash acceptance entrypoint and one
+  representative owned PTY journey for each interaction profile.
+- [ ] T3.2: Complete Diataxis guidance and Markdown-derived Spore content;
+  reconcile affected baseline contracts without replacing historical evidence.
+- [ ] T3.3: Record real reports and task/commit/PR evidence, hand off the clean
+  integrated candidate for the frozen final gate and close only after it passes.
+
+## Final gate and closure
+
+The exact ordered final commands and Cargo environment are defined in the
+plan's Final gate section and copied into the local controller configuration.
+No gate, acceptance, publication or performance result is claimed at planning.
+
+- [ ] Verify the three canonical PRs integrated and three reports delivered.
+- [ ] Pass the frozen focused final gate on the exact clean candidate.
+- [ ] Record the validation receipt, exact commands, immutable report commits,
+  actual timing, terminal cleanup and evidence limits.
+- [ ] Reconcile completed plan/tracker/specification/model and pending index.
+- [ ] Preserve future folding and debugger feature boundaries.
+
+Any retained technical recovery or final-gate repair stays within the plan's
+delegation and the controller's existing ownership, identity and budgets.
+Main promotion, release, installation and mirrors remain separately requested.

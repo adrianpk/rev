@@ -4,6 +4,8 @@ Status: Approved
 Date: 2026-11-06
 Approved: product owner; specification and one autonomous Looper delivery through dev
 Specification: [Better Gutter](editor-better-gutter.md)
+Plan: [Better Gutter Delivery](../plan/rev-better-gutter.md)
+Tracker: [Better Gutter Tracker](../tracker/rev-better-gutter.md)
 Baseline models: [Editor Gutter](editor-gutter-model.md), [Native Bookmarks](editor-bookmarks-model.md), [Configuration](editor-configuration-model.md)
 
 ## Configuration contract

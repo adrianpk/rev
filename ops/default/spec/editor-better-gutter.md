@@ -9,6 +9,8 @@ Visual decisions: owner selected a flat Nerd Fonts bookmark, a solid square fall
 Baselines: [Editor Gutter](editor-gutter.md), especially GUT01-GUT05; [Native Bookmarks](editor-bookmarks.md), BMK03
 Existing models: [Editor Gutter Model](editor-gutter-model.md), [Native Bookmarks Model](editor-bookmarks-model.md)
 Configuration model: [Better Gutter Model](editor-better-gutter-model.md)
+Plan: [Better Gutter Delivery](../plan/rev-better-gutter.md)
+Tracker: [Better Gutter Tracker](../tracker/rev-better-gutter.md)
 Related behavior: [Soft Wrapping](editor-soft-wrap.md), [Pointer Interaction](editor-pointer-interaction.md), [Org Mode](editor-org-mode.md)
 
 ## Purpose

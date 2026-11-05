@@ -33,7 +33,7 @@ retain their own specification/model state.
 | Select the clicked tree entry | [Navigation NAV05](spec/editor-file-navigation.md), [model](spec/editor-file-navigation-model.md), [ticket](ticket/solved/20261030231016-select-the-clicked-file-tree-entry.md) | Delivered / Completed spec / solved ticket. Slice 7 delivered checked native activation and configurable selection-only through PR #180. |
 | Word-aware soft wrapping | [Spec](spec/editor-soft-wrap.md), [model](spec/editor-soft-wrap-model.md), [ticket](ticket/solved/20261028224018-define-comfortable-long-line-wrapping.md) | Delivered / Completed spec / solved ticket. Default word-aware pane-width wrap and buffer-local Emacs Visual Line controls; Slices 1-4 delivered through PRs #174-#177. |
 | Native bookmarks and gutter markers | [Spec](spec/editor-bookmarks.md), [model](spec/editor-bookmarks-model.md), [plan](plan/rev-bookmarks.md), [tracker](tracker/rev-bookmarks.md) | Delivered / Completed spec and model. Six slices through PRs #185-#190 and authorized repairs #191-#193 deliver named commands, checked lifecycle, persistence, listing, native markers, joint acceptance and guidance. The controller-owned combined gate passed. |
-| Better gutter | [Spec](spec/editor-better-gutter.md), [model](spec/editor-better-gutter-model.md) | Approved, 2026-11-06; preparation, slicing, push and one autonomous Looper delivery authorized. Move bookmarks before the number field; `gutter.nerd_fonts` selects the compiled blue square or flat bookmark. Future breakpoint symbols and a conditional folding column share this contract; neither feature is implemented by this delivery. |
+| Better gutter | [Spec](spec/editor-better-gutter.md), [model](spec/editor-better-gutter-model.md), [plan](plan/rev-better-gutter.md), [tracker](tracker/rev-better-gutter.md) | Approved / Ready, 2026-11-06; three slices in one autonomous Looper delivery. Move bookmarks before the number field; `gutter.nerd_fonts` selects the compiled blue square or flat bookmark. Future breakpoint states and the conditional folding-column contract remain future behavior. |
 | Built-in autocompletion | [Spec](spec/editor-autocompletion.md), [model](spec/editor-autocompletion-model.md), [plan](plan/rev-autocompletion.md), [tracker](tracker/rev-autocompletion.md) | Delivered / Completed. Eight slices through PRs #195-#202 deliver automatic/manual interaction, ten bundled parsers, native Org contexts, bounded observations, registered external grammars and native/resource/PTY acceptance. The native gate passed; the subsequent integrated LSP gate also passed CMP02 semantic/native switching and joint acceptance. |
 | Optional native LSP client | [Spec](spec/editor-language-server-support.md), [model](spec/editor-language-server-support-model.md), [plan](plan/rev-language-server-support.md), [tracker](tracker/rev-language-server-support.md) | Delivered / Completed. Six slices through PRs #203-#208 and authorized repairs #209/#210 deliver disabled-by-default stdio support, unsaved sync, UTF-8/UTF-16 mapping, shared processes, buffer exclusions, checked semantic edits, fallback and real Rust-server acceptance. The unchanged controller full gate passed; LSP01-LSP06 and joint CMP01-CMP09 are closed. |
 | Simple optional LSP installation | [Spec](spec/editor-language-server-installation.md), [model](spec/editor-language-server-installation-model.md), [plan](plan/rev-language-server-installation.md), [tracker](tracker/rev-language-server-installation.md) | Delivered / Completed. Seven slices through PRs #222–#228 deliver guided existing/custom setup, associations, explicit source choice, managed recipes and lifecycle. Any compatible language/server remains eligible independently of bundled grammars or the initial catalog. The unchanged controller gate passed INS01-INS06 with both-profile native/PTY management, real Rust/Go semantics and grammar-independent routing. |
@@ -48,6 +48,12 @@ retain their own specification/model state.
 | External programs/extensions | [Spec](spec/editor-external-extensions.md), [model](spec/editor-external-extensions-model.md) | Optional exploration only. Explicit configuration, stdio and one child per invocation are the refined draft profile. Adoption itself is undecided; no scheduled delivery or baseline dependency. |
 
 ## Selected execution order
+
+On 2026-11-06 the owner approved Better Gutter and requested preparation,
+versioning, push and one autonomous Looper run. The three-slice plan delivers
+outside marker placement, the fixed-symbol Nerd Fonts flag, and joint native/PTY
+acceptance with Diataxis and Markdown-derived Spore guidance. Execution progress
+belongs to its tracker and retained controller checkpoint.
 
 On 2026-11-05 the owner approved Org visual indentation and explicitly requested
 the plan, slicing and one Looper startup. All four canonical slices through
@@ -170,6 +176,12 @@ The proposed order is not a chain of prerequisites.
 - Selected native shell commands reuse command/prompt, checked text-edit and
   low-level process ownership. Their one-shot streams do not require terminal
   emulation, PTYs, interactive-session placement or the optional extension API.
+
+## Playground presentation
+
+New Rev playgrounds use isolated TOML with `gutter.nerd_fonts = true` for
+screenshot-ready bookmark symbols. The user supplies a compatible terminal font;
+the playground does not install fonts or change global editor configuration.
 
 ## Approved completion sequence
 
