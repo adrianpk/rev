@@ -721,6 +721,8 @@ Status reads disk and Git state; it does not save an unsaved source buffer.
 | `git-operation-continue` | Refresh actual Git state and review one compatible family-specific continuation bound to that exact sequence. |
 | `git-operation-skip` | Refresh actual Git state and review a compatible skip; reject a missing or wrong-family sequence. |
 | `git-operation-abort` | Refresh actual Git state and review one compatible abort with exact original lineage; process cancellation is a separate action. |
+| `git-conflicts` | Refresh actual Git-owned sequence state and exact selectable unmerged paths; Return inspects the selected conflict. |
+| `git-conflict-visit` | From Operation, inspect the selected exact unmerged path and its available Base/Current/Applied index stages; from Conflict, visit the canonical editable result without staging or continuing. |
 | `git-operation-status` | Refresh compatible Status/Refs and actual Git-owned sequence family, full current/original/onto identities, step and exact conflict paths, including external operations. |
 | `git-push` | Prepare and explicitly confirm one selected or marked exact local branch, its configured upstream remote and full destination; push one object without force or expanded publication and verify the actual push endpoint. |
 | `git-fetch` | Fetch the exact selected configured remote in Refs with its observed transport/refspec policy; refresh tracking facts and Status without merge or rebase. |
@@ -961,3 +963,9 @@ existing detail, 1 MiB worker scratch and 32 MiB shared session limits. Symlinke
 or oversized state cannot authorize work. Snapshot publication checks sequence
 bytes and HEAD again. Integration uses `git.operation_timeout_seconds`;
 observation, output, record and cleanup bounds retain their existing meanings.
+
+Conflict inspection retains full index object IDs, modes and bounded side bytes.
+For rebase, Current is the destination/onto side and Applied is the original
+commit being replayed. For revert, Base is the reverted commit and Applied is
+its selected parent. Missing, binary, non-text, structural and partial sides
+remain visible. The read-only view never replaces unsaved source text.

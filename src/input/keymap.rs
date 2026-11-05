@@ -36,6 +36,7 @@ pub enum Context {
     GitInspect,
     GitRefs,
     GitSequence,
+    GitConflict,
     Org,
     OrgAgenda,
     OrgCapture,
@@ -44,7 +45,7 @@ pub enum Context {
 }
 
 impl Context {
-    pub const ALL: [Self; 22] = [
+    pub const ALL: [Self; 23] = [
         Self::VimNormal,
         Self::VimInsert,
         Self::VimReplace,
@@ -62,6 +63,7 @@ impl Context {
         Self::GitInspect,
         Self::GitRefs,
         Self::GitSequence,
+        Self::GitConflict,
         Self::Org,
         Self::OrgAgenda,
         Self::OrgCapture,
@@ -82,6 +84,7 @@ impl Context {
             Self::GitInspect => "git_inspect",
             Self::GitRefs => "git_refs",
             Self::GitSequence => "git_sequence",
+            Self::GitConflict => "git_conflict",
             _ => self.modal_name(),
         }
     }
@@ -145,6 +148,7 @@ pub struct Effective {
     git_inspect: Map,
     git_refs: Map,
     git_sequence: Map,
+    git_conflict: Map,
     org: Map,
     org_agenda: Map,
     org_capture: Map,
@@ -178,6 +182,7 @@ impl Effective {
             Context::GitInspect => &self.git_inspect,
             Context::GitRefs => &self.git_refs,
             Context::GitSequence => &self.git_sequence,
+            Context::GitConflict => &self.git_conflict,
             _ => self.org_map(context),
         }
     }
@@ -233,6 +238,7 @@ pub(crate) fn compile_ai(
         git_inspect: Map::compile(Context::GitInspect, &keys.git_inspect, commands)?,
         git_refs: Map::compile(Context::GitRefs, &keys.git_refs, commands)?,
         git_sequence: Map::compile(Context::GitSequence, &keys.git_sequence, commands)?,
+        git_conflict: Map::compile(Context::GitConflict, &keys.git_conflict, commands)?,
         org_agenda: Map::compile(Context::OrgAgenda, &keys.org_agenda, commands)?,
         org_calendar,
     })

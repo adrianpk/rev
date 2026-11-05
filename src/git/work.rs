@@ -3,6 +3,7 @@ use std::os::unix::ffi::OsStringExt;
 
 mod bisect;
 mod commit;
+mod conflicts;
 mod discard;
 mod history;
 mod index;
@@ -12,6 +13,7 @@ mod sequences;
 
 pub(super) enum Request {
     Status,
+    Conflict(super::conflicts::Request),
     Application(super::sequences::Request),
     Bisect(super::bisect::Request),
     Integration(super::integration::Request),
@@ -26,6 +28,7 @@ pub(super) enum Request {
 impl Request {
     pub fn kind(&self) -> OperationKind {
         match self {
+            Self::Conflict(_) => OperationKind::Conflict,
             Self::Bisect(super::bisect::Request::Prepare { .. }) => OperationKind::BisectPrepare,
             Self::Bisect(_) => OperationKind::Bisect,
             Self::Application(super::sequences::Request::Prepare { .. }) => {
@@ -75,6 +78,7 @@ pub(super) enum Publication {
     TagIntent(TagIntent),
     PushIntent(PushIntent),
     Sequence(Sequence),
+    Conflict(Conflict),
     Autosquash(AutosquashPlan),
     ApplicationPlan(ApplyPlan),
     BisectPlan(BisectPlan),
@@ -89,6 +93,7 @@ enum Candidate {
     TagIntent(TagIntent),
     PushIntent(PushIntent),
     Sequence(Sequence),
+    Conflict(Conflict),
     Autosquash(AutosquashPlan),
     ApplicationPlan(ApplyPlan),
     BisectPlan(BisectPlan),
@@ -174,6 +179,7 @@ pub(super) fn start(
                 retained: None,
             };
             let observed = match request {
+                Request::Conflict(request) => runner.conflict(request, &mut admission),
                 Request::Bisect(request) => runner.bisect(request, &mut admission),
                 Request::Application(request) => runner.application(request, &mut admission),
                 Request::Integration(request) => runner.integration(request, &mut admission),
@@ -589,6 +595,7 @@ impl Runner {
             Candidate::BisectPlan(plan) => Ok(Publication::BisectPlan(plan)),
             Candidate::ApplicationPlan(plan) => Ok(Publication::ApplicationPlan(plan)),
             Candidate::Autosquash(plan) => Ok(Publication::Autosquash(plan)),
+            Candidate::Conflict(conflict) => Ok(Publication::Conflict(conflict)),
             Candidate::Sequence(sequence) => Ok(Publication::Sequence(sequence)),
             Candidate::PushIntent(intent) => Ok(Publication::PushIntent(intent)),
             Candidate::TagIntent(intent) => Ok(Publication::TagIntent(intent)),

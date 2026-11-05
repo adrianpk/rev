@@ -1705,6 +1705,7 @@ max_result_bytes = 262144
 
 # Independent Git-owned sequence observation in both profiles.
 [keys.git_sequence]
+"RET" = "git-conflict-visit"
 "?" = "git-bisect-start"
 "G" = "git-bisect-good"
 "B" = "git-bisect-bad"
@@ -1733,6 +1734,28 @@ max_result_bytes = 262144
 "Down" = "next-line"
 "C-p" = "previous-line"
 "C-n" = "next-line"
+"PageUp" = "scroll-down-command"
+"PageDown" = "scroll-up-command"
+"M-<" = "beginning-of-buffer"
+"M->" = "end-of-buffer"
+
+# Read-only conflict side inspection and native result visits in both profiles.
+[keys.git_conflict]
+"C-x g" = "git-status"
+"q" = "git-quit"
+"g" = "git-refresh"
+"RET" = "git-conflict-visit"
+"$" = "git-processes"
+"M-x" = "execute-extended-command"
+":" = "execute-extended-command"
+"C-g" = "keyboard-quit"
+"C-x C-c" = "save-buffers-kill-terminal"
+"Up" = "previous-line"
+"Down" = "next-line"
+"C-p" = "previous-line"
+"C-n" = "next-line"
+"p" = "previous-line"
+"n" = "next-line"
 "PageUp" = "scroll-down-command"
 "PageDown" = "scroll-up-command"
 "M-<" = "beginning-of-buffer"

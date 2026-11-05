@@ -270,7 +270,7 @@ impl Runner {
                 .map(|p| p.path.clone())
                 .collect();
         }
-        if family.is_some() {
+        if family.is_some() || !sequence.conflicts.is_empty() {
             sequence.index =
                 self.command(&["ls-files", "--stage", "-z"], Phase::Checking, false)?;
             sequence.worktree = self.command(

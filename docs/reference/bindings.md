@@ -592,6 +592,8 @@ For live terminal key ownership and copy controls, see the
 | Named command | `git-operation-continue` | Review continuation against the fresh actual compatible family. |
 | Named command | `git-operation-skip` | Review skipping against the fresh actual compatible family. |
 | Named command | `git-operation-abort` | Review abort against exact original lineage and fresh Git state. |
+| Named command | `git-conflicts` | Inspect actual Git sequence state and exact selectable conflict paths. |
+| Return in Operation or Conflict | `git-conflict-visit` | Inspect selected stages, then visit the canonical editable result. |
 | Named command | `git-operation-status` | Inspect actual Git-owned sequence state and conflicts. |
 | `p`, `M p` in Refs | `git-push` | Review one exact source branch and its configured upstream destination before publication. |
 | `&`, `M f` in Refs | `git-fetch` | Fetch the selected configured remote without integration. |
@@ -1025,6 +1027,9 @@ aliases below.
 ### Git sequence defaults and availability
 
 `keys.git_sequence` owns Git Operation navigation and checked sequence controls in both profiles.
+Up/Down or C-p/C-n selects exact conflict paths; Return opens their read-only
+Base/Current/Applied stages. Conflict Return visits the editable result.
+Pointer selection binds the painted exact conflict path.
 q returns to Status without aborting Git; g refreshes actual Git state.
 The view identifies busy controls until owned repository work finishes.
 Each control refreshes the actual family, original lineage, metadata, index and
@@ -1042,6 +1047,7 @@ object. Skipped-candidate ambiguity does not identify a unique first bad commit.
 
 | Keys | Target |
 | --- | --- |
+| `RET` | `git-conflict-visit` |
 | `?` | `git-bisect-start` |
 | `G` | `git-bisect-good` |
 | `B` | `git-bisect-bad` |
@@ -1070,6 +1076,35 @@ object. Skipped-candidate ambiguity does not identify a unique first bad commit.
 | `Down` | `next-line` |
 | `C-p` | `previous-line` |
 | `C-n` | `next-line` |
+| `PageUp` | `scroll-down-command` |
+| `PageDown` | `scroll-up-command` |
+| `M-<` | `beginning-of-buffer` |
+| `M->` | `end-of-buffer` |
+
+### Git conflict defaults and availability
+
+`keys.git_conflict` owns read-only index-side inspection in both profiles.
+Return visits the canonical editable result through the existing file owner;
+q returns to Operation without changing Git state. g refreshes actual sequence
+state, requiring a fresh inspection before any later resolution action.
+
+| Keys | Target |
+| --- | --- |
+| `C-x g` | `git-status` |
+| `q` | `git-quit` |
+| `g` | `git-refresh` |
+| `RET` | `git-conflict-visit` |
+| `$` | `git-processes` |
+| `M-x` | `execute-extended-command` |
+| `:` | `execute-extended-command` |
+| `C-g` | `keyboard-quit` |
+| `C-x C-c` | `save-buffers-kill-terminal` |
+| `Up` | `previous-line` |
+| `Down` | `next-line` |
+| `C-p` | `previous-line` |
+| `C-n` | `next-line` |
+| `p` | `previous-line` |
+| `n` | `next-line` |
 | `PageUp` | `scroll-down-command` |
 | `PageDown` | `scroll-up-command` |
 | `M-<` | `beginning-of-buffer` |

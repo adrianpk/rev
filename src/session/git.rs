@@ -10,6 +10,7 @@ use std::{path::PathBuf, sync::Arc};
 
 mod commit;
 mod comparisons;
+mod conflicts;
 pub(super) mod discard;
 mod history;
 mod index;
@@ -37,6 +38,7 @@ pub(super) struct Work {
     marks: index::Marks,
     ancestry: history::Inspection,
     refs: refs::Inspection,
+    conflicts: conflicts::Inspection,
     process_selected: Option<OperationId>,
     process_top: usize,
     detail_top: usize,
@@ -51,6 +53,7 @@ enum Page {
     History,
     Refs,
     Sequence,
+    Conflict,
     Revision,
     Reflog,
     Blame,
@@ -80,6 +83,8 @@ struct Painted {
     inspected: (Option<OperationId>, usize),
     refs: Option<OperationId>,
     refs_top: usize,
+    conflict: (Option<OperationId>, usize),
+    sequence_top: usize,
     expanded: bool,
     expanded_hunk: Option<crate::git::HunkId>,
 }
@@ -197,6 +202,7 @@ impl Work {
         let engine = Repositories::new(snapshot, Arc::new(move || wake.signal()));
         let ancestry = history::Inspection::new(&engine)?;
         let refs = refs::Inspection::new(&engine)?;
+        let conflicts = conflicts::Inspection::new(&engine)?;
         Ok(Self {
             engine,
             launch: std::env::current_dir()?,
@@ -215,6 +221,7 @@ impl Work {
             marks: index::Marks::default(),
             ancestry,
             refs,
+            conflicts,
             process_selected: None,
             process_top: 0,
             detail_top: 0,
@@ -315,6 +322,8 @@ impl Session {
                 GitCommand::BisectBad => self.request_git_bisect(crate::git::BisectAction::Bad),
                 GitCommand::BisectSkip => self.request_git_bisect(crate::git::BisectAction::Skip),
                 GitCommand::BisectReset => self.request_git_bisect(crate::git::BisectAction::Reset),
+                GitCommand::Conflicts => self.open_git_sequence(),
+                GitCommand::ConflictVisit => self.open_git_conflict(),
                 GitCommand::OperationStatus => self.open_git_sequence(),
                 GitCommand::RebaseAutosquash => self.prepare_git_autosquash(),
                 GitCommand::MergeContinue => self.request_git_control(
@@ -518,6 +527,10 @@ impl Session {
                 self.git.page = Page::Status;
                 return Action::Redraw;
             }
+            Page::Conflict => {
+                self.git.page = Page::Sequence;
+                return Action::Redraw;
+            }
             Page::Revision => {
                 self.git.page = self.git.ancestry.revision_origin;
                 return Action::Redraw;
@@ -556,6 +569,10 @@ impl Session {
         })
     }
     fn refresh_git(&mut self) -> Action {
+        if self.git.visible && self.git.page == Page::Conflict {
+            self.git.page = Page::Sequence;
+            return self.open_git_sequence();
+        }
         if self.git.visible && self.git.page == Page::Sequence {
             return self.open_git_sequence();
         }
@@ -598,6 +615,7 @@ impl Session {
         match self.git.page {
             Page::Refs => return self.move_git_refs(distance, backward),
             Page::Sequence => return self.move_git_sequence(distance, backward),
+            Page::Conflict => return self.move_git_conflict(distance, backward),
             Page::History | Page::Revision | Page::Reflog | Page::Blame | Page::RevisionFile => {
                 return self.move_git_history(distance, backward);
             }
@@ -720,6 +738,10 @@ impl Session {
                 self.publish_git_autosquash_preparation(&update);
                 continue;
             }
+            if self.git.conflicts.request == Some(update.operation) {
+                self.publish_git_conflict(&update);
+                continue;
+            }
             if self.git.refs.integration_request == Some(update.operation) {
                 self.publish_git_integration(&update);
                 continue;
@@ -826,6 +848,8 @@ impl Session {
     }
     pub(super) fn git_input(&mut self, event: &Event) -> Option<Action> {
         self.input
+            .set_git_conflict(self.git.visible && self.git.page == Page::Conflict);
+        self.input
             .set_git_sequence(self.git.visible && self.git.page == Page::Sequence);
         self.input
             .set_git_refs(self.git.visible && self.git.page == Page::Refs);
@@ -870,6 +894,12 @@ impl Session {
                     && !self.git.painted.as_ref().is_some_and(|painted| {
                         painted.refs == self.git.refs().map(|r| r.id)
                             && painted.refs_top == self.git.refs.top
+                            && painted.conflict
+                                == (
+                                    self.git.conflicts.detail.as_ref().map(|c| c.id),
+                                    self.git.conflicts.top,
+                                )
+                            && painted.sequence_top == self.git.refs.sequence_top
                             && painted.context == self.git.state.context
                             && painted.generation == self.git.observation().map(|o| o.generation)
                             && painted.inspected == self.git.inspection_token()
@@ -905,13 +935,17 @@ impl Session {
                     }
                     MouseEventKind::Down(MouseButton::Left)
                         if mouse.modifiers.is_empty()
-                            && mouse.row >= 3
+                            && (mouse.row >= 3 || self.git.page == Page::Sequence)
                             && mouse.row < self.size.height.saturating_sub(2)
                             && mouse.column < self.size.width
                             && !self.git.state.menu =>
                     {
                         let index = usize::from(mouse.row - 3);
-                        if self.git.page == Page::Refs {
+                        if self.git.page == Page::Sequence {
+                            self.select_git_sequence(
+                                self.git.refs.sequence_top + usize::from(mouse.row),
+                            )
+                        } else if self.git.page == Page::Refs {
                             self.select_git_ref(self.git.refs.top + index)
                         } else if self.git.page == Page::Processes {
                             self.select_git_process(self.git.process_top + index)
@@ -988,6 +1022,9 @@ impl Session {
                 Page::Status => {
                     " Git Status  c commit  Tab expand  Return visit  g refresh  $ processes  ? actions  q return"
                 }
+                Page::Conflict => {
+                    " Git Conflict  Return editable result  Up/Down scroll  g sequence refresh  q Operation"
+                }
                 Page::Sequence => {
                     " Git Operation  g refresh  $ processes  Up/Down scroll  q Status"
                 }
@@ -1042,6 +1079,9 @@ impl Session {
                 }
                 if self.git.page == Page::Refs {
                     return self.git.refs_row(row, usize::from(self.size.width.max(1)));
+                }
+                if self.git.page == Page::Conflict {
+                    return self.git.conflict_row(row, usize::from(self.size.width));
                 }
                 if self.git.page == Page::Sequence {
                     return self.git.sequence_row(row, usize::from(self.size.width));
@@ -1266,6 +1306,11 @@ impl Session {
             inspected: self.git.inspection_token(),
             refs: self.git.refs().map(|r| r.id),
             refs_top: self.git.refs.top,
+            conflict: (
+                self.git.conflicts.detail.as_ref().map(|c| c.id),
+                self.git.conflicts.top,
+            ),
+            sequence_top: self.git.refs.sequence_top,
             expanded: self.git.inspection.expanded,
             expanded_hunk: self.git.inspection.expanded_hunk,
         });

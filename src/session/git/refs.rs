@@ -22,7 +22,7 @@ pub(super) struct Inspection {
         crate::git::SequenceControl,
         Option<crate::git::SequenceFamily>,
     )>,
-    sequence_top: usize,
+    pub(super) sequence_top: usize,
     push_mark: Option<transport::PushMark>,
     pub(super) selected: Option<Vec<u8>>,
     remote_selected: Option<Vec<u8>>,

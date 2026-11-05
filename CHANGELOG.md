@@ -45,6 +45,9 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
   rebase onto an exact selected ref. Review a finite autosquash plan with E.
   Inspect actual Git sequence/conflict stops, including externally started work,
   and confirm compatible continue, skip or abort controls against fresh state.
+  Select exact conflict paths, inspect read-only Base/Current/Applied index sides
+  with operation-relative labels, and visit the canonical editable result.
+  Missing, binary, structural and partial sides remain explicit.
   Cherry-pick and revert controls preserve the reviewed order and mainlines;
   explicit abort also restores the original context after a completed prefix.
   Start manual bisect with explicit bad/good boundaries in the Operation view;

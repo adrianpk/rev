@@ -184,12 +184,12 @@ Report: `ops/default/report/slices/rev-git-integration/slice-10-conflicts.md`
 Requirements: GIT12, GIT17-GIT19
 PR: pending
 
-- [ ] T10.1: Observe exact conflict paths/kinds/index stages and operation-dependent Base/Current/Applied roles; provide read-only side inspection and canonical editable result visits.
+- [x] T10.1: Observe exact conflict paths/kinds/index stages and operation-dependent Base/Current/Applied roles; provide read-only side inspection and canonical editable result visits.
 - [ ] T10.2: Review whole-side replacement or resolved deletion and stage only a checked saved resolution; protect modified buffers, changed stages and unsupported/partial cases.
 - [ ] T10.3: Route git-conflict-explain through the existing optional AI request/result owner with bounded conflict context and no automatic edit or resolution; verify no-provider behavior and request construction without mandatory live credentials.
 
-Validation: pending; use the exact focused commands and selected-gate policy in the plan.
-Integration: pending; no commit or PR is claimed.
+Validation: T10.1 development passed six real conflict cases, six existing native integration cases, 21 reference cases, strict Clippy, formatter, documentation and whitespace checks. Both object formats/profiles, exact unusual paths, stage roles, partial/unsupported observations and unsaved source ownership are covered. Final controller evidence follows T10.2-T10.3 and PR-reference completion.
+Integration: T10.1 inspection and canonical result visits are implemented; T10.2-T10.3 remain pending. The Slice 10 report is drafting; no PR is claimed.
 
 ## Slice 11: Stashes and linked worktrees
 

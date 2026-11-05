@@ -52,6 +52,7 @@ pub(super) fn bindings(context: Context) -> &'static [(&'static str, &'static st
         Context::GitInspect => GIT_INSPECT,
         Context::GitRefs => GIT_REFS,
         Context::GitSequence => GIT_SEQUENCE,
+        Context::GitConflict => GIT_CONFLICT,
         Context::GitCommit => GIT_COMMIT,
         _ => modal_bindings(context),
     }
@@ -560,6 +561,7 @@ const COMPLETION: &[(&str, &str)] = &[
 ];
 
 const GIT_SEQUENCE: &[(&str, &str)] = &[
+    ("RET", "git-conflict-visit"),
     ("?", "git-bisect-start"),
     ("G", "git-bisect-good"),
     ("B", "git-bisect-bad"),
@@ -588,6 +590,28 @@ const GIT_SEQUENCE: &[(&str, &str)] = &[
     ("Down", "next-line"),
     ("C-p", "previous-line"),
     ("C-n", "next-line"),
+    ("PageUp", "scroll-down-command"),
+    ("PageDown", "scroll-up-command"),
+    ("M-<", "beginning-of-buffer"),
+    ("M->", "end-of-buffer"),
+];
+
+const GIT_CONFLICT: &[(&str, &str)] = &[
+    ("C-x g", "git-status"),
+    ("q", "git-quit"),
+    ("g", "git-refresh"),
+    ("RET", "git-conflict-visit"),
+    ("$", "git-processes"),
+    ("M-x", "execute-extended-command"),
+    (":", "execute-extended-command"),
+    ("C-g", "keyboard-quit"),
+    ("C-x C-c", "save-buffers-kill-terminal"),
+    ("Up", "previous-line"),
+    ("Down", "next-line"),
+    ("C-p", "previous-line"),
+    ("C-n", "next-line"),
+    ("p", "previous-line"),
+    ("n", "next-line"),
     ("PageUp", "scroll-down-command"),
     ("PageDown", "scroll-up-command"),
     ("M-<", "beginning-of-buffer"),

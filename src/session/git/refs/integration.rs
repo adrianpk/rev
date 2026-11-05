@@ -2,7 +2,10 @@ use super::*;
 use crate::git::{IntegrationMode, Outcome, SequenceControl, SequenceFamily};
 
 impl Work {
-    fn sequence_lines(&self, width: usize) -> impl Iterator<Item = String> + '_ {
+    fn sequence_lines(
+        &self,
+        width: usize,
+    ) -> impl Iterator<Item = (String, Option<&std::path::Path>)> + '_ {
         let sequence = self
             .state
             .context
@@ -17,13 +20,14 @@ impl Work {
         }))
             .map(move |row| {
                 let Some(s) = sequence else {
-                    return if row == 0 {
+                    return (if row == 0 {
                         "Git Operation: checking sequence state".into()
                     } else {
                         String::new()
-                    };
+                    }, None);
                 };
-                match row {
+                let target = row.checked_sub(10 + s.targets.len()).and_then(|i| s.conflicts.get(i)).map(PathBuf::as_path);
+                (match row {
                     0 => format!(
                         "Git Operation: {}",
                         s.family.map_or("none".into(), |f| format!("{f:?}"))
@@ -130,21 +134,21 @@ impl Work {
                             ),
                         }
                     }
-                }
+                }, target)
             })
-            .flat_map(move |text| Wrapped {
-                text,
+            .flat_map(move |(text, target)| Wrapped {
+                text: if target.is_some() { format!("{} {}", if target == self.conflict_path() { ">" } else { " " }, text) } else { text },
                 offset: Some(0),
                 width: width.max(1),
-            })
+            }.map(move |text| (text, target)))
     }
     pub(in crate::session::git) fn sequence_row(&self, row: usize, width: usize) -> (String, bool) {
-        (
-            self.sequence_lines(width)
-                .nth(self.refs.sequence_top + row)
-                .unwrap_or_default(),
-            false,
-        )
+        self.sequence_lines(width)
+            .nth(self.refs.sequence_top + row)
+            .map_or_else(
+                || (String::new(), false),
+                |(text, path)| (text, path.is_some() && path == self.conflict_path()),
+            )
     }
 }
 impl Session {
@@ -153,6 +157,38 @@ impl Session {
         distance: usize,
         backward: bool,
     ) -> Action {
+        let width = usize::from(self.size.width);
+        if let Some(sequence) = self
+            .git
+            .state
+            .context
+            .and_then(|id| self.git.engine.context(id))
+            .and_then(|c| c.sequence.as_ref())
+            && !sequence.conflicts.is_empty()
+        {
+            let at = self
+                .git
+                .conflict_path()
+                .and_then(|p| sequence.conflicts.iter().position(|c| c == p))
+                .unwrap_or(0);
+            let next = if backward {
+                at.saturating_sub(distance)
+            } else {
+                at.saturating_add(distance)
+                    .min(sequence.conflicts.len() - 1)
+            };
+            self.git.conflicts.selected = Some(sequence.conflicts[next].clone());
+            let selected_row = self
+                .git
+                .sequence_lines(width)
+                .position(|(_, p)| p.is_some() && p == self.git.conflict_path());
+            if let Some(row) = selected_row {
+                self.git.refs.sequence_top =
+                    row.saturating_sub(self.git_extent().saturating_sub(1));
+            }
+            self.git.painted = None;
+            return Action::Redraw;
+        }
         let count = self
             .git
             .sequence_lines(usize::from(self.size.width))
@@ -167,6 +203,18 @@ impl Session {
                 .min(count.saturating_sub(1))
         };
         self.git.painted = None;
+        Action::Redraw
+    }
+    pub(in crate::session::git) fn select_git_sequence(&mut self, row: usize) -> Action {
+        let target = self
+            .git
+            .sequence_lines(usize::from(self.size.width))
+            .nth(row)
+            .and_then(|(_, p)| p.map(std::path::Path::to_path_buf));
+        if let Some(path) = target {
+            self.git.conflicts.selected = Some(path);
+            self.git.painted = None;
+        }
         Action::Redraw
     }
     pub(in crate::session::git) fn confirm_git_integration(

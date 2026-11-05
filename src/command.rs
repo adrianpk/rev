@@ -112,7 +112,7 @@ pub enum Command {
 }
 
 impl Command {
-    pub const ALL: [Self; 539] = [
+    pub const ALL: [Self; 541] = [
         Self::Git(GitCommand::Status),
         Self::Git(GitCommand::Refs),
         Self::Git(GitCommand::Merge),
@@ -120,6 +120,8 @@ impl Command {
         Self::Git(GitCommand::MergeNoFastForward),
         Self::Git(GitCommand::Rebase),
         Self::Git(GitCommand::OperationStatus),
+        Self::Git(GitCommand::Conflicts),
+        Self::Git(GitCommand::ConflictVisit),
         Self::Git(GitCommand::MergeContinue),
         Self::Git(GitCommand::MergeAbort),
         Self::Git(GitCommand::RebaseAutosquash),

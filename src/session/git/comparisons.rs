@@ -291,6 +291,9 @@ impl Session {
         Action::Redraw
     }
     pub(super) fn visit_git_file(&mut self) -> Action {
+        if self.git.visible && matches!(self.git.page, Page::Sequence | Page::Conflict) {
+            return self.open_git_conflict();
+        }
         if self.git.visible
             && matches!(
                 self.git.page,

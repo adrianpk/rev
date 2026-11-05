@@ -5,6 +5,8 @@ mod commit;
 mod diff;
 pub use commit::MAX_COMMIT_BYTES;
 pub use commit::{CommitMode, Composition};
+mod conflicts;
+pub use conflicts::{Conflict, ConflictRole, ConflictSide};
 mod discard;
 mod history;
 mod index;
@@ -136,6 +138,7 @@ pub enum OperationKind {
     PushPrepare,
     Integration,
     Sequence,
+    Conflict,
     SequenceControl,
     AutosquashPrepare,
     ApplicationPrepare,
@@ -234,6 +237,7 @@ pub struct Context {
     pub detail_failure: Option<OperationId>,
     pub refs: Option<Arc<Refs>>,
     pub sequence: Option<Arc<Sequence>>,
+    pub conflict: Option<Arc<Conflict>>,
     pub autosquash: Option<Arc<AutosquashPlan>>,
     pub application_plan: Option<Arc<ApplyPlan>>,
     pub bisect_plan: Option<Arc<BisectPlan>>,
@@ -658,6 +662,7 @@ impl Repositories {
                             detail_failure: None,
                             refs: None,
                             sequence: None,
+                            conflict: None,
                             autosquash: None,
                             application_plan: None,
                             bisect_plan: None,
@@ -723,6 +728,25 @@ impl Repositories {
                         record.outcome = Outcome::Failed;
                         record.diagnostic =
                             Some("Autosquash source expired before publication".into());
+                    }
+                    progress.context
+                }
+                Ok(work::Publication::Conflict(conflict)) => {
+                    if let Some(context) = self
+                        .contexts
+                        .iter_mut()
+                        .find(|c| c.id == conflict.sequence.refs.observation.context)
+                        && context
+                            .sequence
+                            .as_ref()
+                            .is_some_and(|s| Arc::ptr_eq(s, &conflict.sequence))
+                    {
+                        context.conflict = Some(Arc::new(conflict));
+                        published = true;
+                    } else {
+                        record.outcome = Outcome::Failed;
+                        record.diagnostic =
+                            Some("Conflict context expired before publication".into());
                     }
                     progress.context
                 }
@@ -883,6 +907,7 @@ impl Repositories {
                             }
                             OperationKind::Diff => context.detail_failure = Some(record.id),
                             OperationKind::CommitPrepare
+                            | OperationKind::Conflict
                             | OperationKind::History
                             | OperationKind::Sequence
                             | OperationKind::ApplicationPrepare

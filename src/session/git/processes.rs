@@ -48,6 +48,7 @@ impl Work {
             Some(crate::git::OperationKind::Integration) => "checked integration",
             Some(crate::git::OperationKind::AutosquashPrepare) => "autosquash preparation",
             Some(crate::git::OperationKind::SequenceControl) => "checked sequence control",
+            Some(crate::git::OperationKind::Conflict) => "exact conflict inspection",
             Some(crate::git::OperationKind::Sequence) => "Git sequence observation",
             Some(crate::git::OperationKind::Push) => "push",
             Some(crate::git::OperationKind::PushPrepare) => "push preparation",
@@ -107,6 +108,7 @@ impl Work {
             | Page::History
             | Page::Refs
             | Page::Sequence
+            | Page::Conflict
             | Page::Revision
             | Page::Reflog
             | Page::Blame
