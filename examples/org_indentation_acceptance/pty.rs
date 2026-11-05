@@ -105,7 +105,7 @@ fn enabled(frame: &str) -> bool {
 }
 
 fn disabled(frame: &str) -> bool {
-    row(frame, 1).trim_end() == " ○ Child"
+    row(frame, 1).trim_end() == "○ Child"
         && row(frame, 2).trim_end() == "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMN"
         && row(frame, 3).trim_end() == "OPQRSTUVWXYZ"
 }

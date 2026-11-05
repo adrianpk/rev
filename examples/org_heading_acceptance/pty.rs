@@ -124,7 +124,12 @@ fn toggle(terminal: &mut Terminal, profile: &str, point: (u16, u16), enabled: bo
         "Org headings: source"
     };
     let frame = terminal.frame(|frame| predicate(frame) && frame.contains(feedback))?;
-    assert_eq!(cursor(&frame), Some(point));
+    let expected = if enabled {
+        point
+    } else {
+        (point.0, point.1 + 2)
+    };
+    assert_eq!(cursor(&frame), Some(expected));
     Ok(())
 }
 
@@ -158,11 +163,11 @@ fn copy(terminal: &mut Terminal, profile: &str) -> Result<()> {
 
 fn pretty(frame: &str) -> bool {
     MARKERS.iter().enumerate().all(|(line, marker)| {
-        row(frame, line + 1).contains(&format!(
-            "{}{marker} Heading {}",
-            " ".repeat(line),
-            line + 1
-        ))
+        row(frame, line + 1)
+            .chars()
+            .skip(7)
+            .collect::<String>()
+            .starts_with(&format!("{marker} Heading {}", line + 1))
     })
 }
 

@@ -55,7 +55,7 @@ fn native_selectors() {
             assert!(body(&frame, 0).starts_with(if expected == Some(false) {
                 "*** Heading"
             } else {
-                "  ✸ Heading"
+                "✸ Heading"
             }));
         }
         assert_eq!(
@@ -81,7 +81,7 @@ fn admission_and_reset() {
     toggle(&mut session);
     settle(&mut session);
     assert!(session.view().pretty_headings());
-    assert!(body(&session.frame().unwrap(), 0).starts_with(" ○ Heading"));
+    assert!(body(&session.frame().unwrap(), 0).starts_with("○ Heading"));
     reset(&mut session);
     assert!(!session.view().pretty_headings());
     assert_eq!(session.view().heading_presentation_override(), None);

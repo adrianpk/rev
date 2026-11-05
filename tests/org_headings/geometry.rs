@@ -6,71 +6,75 @@ use unicode_width::UnicodeWidthStr;
 
 use super::*;
 
-// Compare source and decorated frames through the same real coordinate owner:
-// wrapping, cursors and hit targets must be identical at every visible cell.
+// Flat pretty prefixes conceal cells without losing source positions. Source
+// presentation keeps each original star; clipping and wrapping share hit maps.
 #[test]
-fn unchanged_geometry() {
+fn source_and_pretty_geometry() {
     let source =
         "******** Heading 界e\u{301} with enough words to wrap around a narrow pane\nbody\n";
     for wrapped in [true, false] {
-        let (fixture, mut buffers, mut view) =
-            setup(&format!("editor.soft_wrap={wrapped}"), source);
-        let buffer = buffers.get_mut(view.point.stamp.buffer).unwrap();
-        observe(buffer, Limits::default());
-        let plain_settings = prepare(&fixture.write("plain.toml", "org.headings.pretty=false"));
-        for width in [40, 80] {
-            for left in if wrapped {
-                vec![0]
-            } else {
-                vec![0, 2, 7, 8, 9]
-            } {
-                view.left = left;
-                let mut plain = View::with_settings(buffer, &plain_settings.snapshot);
-                plain.left = left;
-                for point in 0..=8 {
-                    view.point.position = Scalar(point);
-                    plain.point.position = Scalar(point);
-                    let size = Size { width, height: 12 };
-                    let pretty = Frame::project(buffer, &view, size, "").unwrap();
-                    let source = Frame::project(buffer, &plain, size, "").unwrap();
-                    if left < 8 {
-                        let suffix = body(&source, 0)[8 - left..].to_owned();
+        for pretty in [true, false] {
+            let (_, mut buffers, mut view) = setup(
+                &format!("editor.soft_wrap={wrapped}\norg.headings.pretty={pretty}"),
+                source,
+            );
+            let buffer = buffers.get_mut(view.point.stamp.buffer).unwrap();
+            observe(buffer, Limits::default());
+            for width in [40, 80] {
+                for left in if wrapped {
+                    vec![0]
+                } else {
+                    vec![0, 2, 7, 8, 9]
+                } {
+                    view.left = left;
+                    for point in 0usize..=8 {
+                        view.point.position = Scalar(point);
+                        let frame =
+                            Frame::project(buffer, &view, Size { width, height: 12 }, "").unwrap();
+                        if left == 0 {
+                            assert!(body(&frame, 0).starts_with(if pretty {
+                                "○ Heading"
+                            } else {
+                                "******** Heading"
+                            }));
+                        }
+                        let column = point.saturating_sub(if pretty { 7 } else { 0 });
+                        let expected = column.checked_sub(left).map(|column| Position {
+                            row: 0,
+                            column: 7 + column as u16,
+                        });
                         assert_eq!(
-                            body(&pretty, 0),
-                            format!("{}○{suffix}", " ".repeat(7 - left))
+                            frame.cursor(),
+                            expected,
+                            "{wrapped}/{pretty}/{left}/{point}"
                         );
-                    } else {
-                        assert_eq!(body(&pretty, 0), body(&source, 0));
-                    }
-                    assert_eq!(
-                        pretty.cursor(),
-                        source.cursor(),
-                        "wrap={wrapped}, left={left}, point={point}"
-                    );
-                    for row in pretty.rows() {
-                        assert_eq!(row.text().width(), usize::from(width));
-                    }
-                    let area = Area::new(0, 0, width, 10).unwrap();
-                    for row in 0..10 {
-                        for column in 0..width {
-                            let at = Position { row, column };
+                        if let Some(cursor) = frame.cursor() {
+                            let hit = view
+                                .hit(buffer, Area::new(0, 0, width, 10).unwrap(), cursor)
+                                .unwrap()
+                                .unwrap();
                             assert_eq!(
-                                view.hit(buffer, area, at).unwrap(),
-                                plain.hit(buffer, area, at).unwrap()
+                                hit.position,
+                                Scalar(if pretty { point.max(7) } else { point })
                             );
                         }
-                    }
-                    for row in 1..10 {
-                        assert_eq!(pretty.rows()[row].text(), source.rows()[row].text());
+                        assert!(
+                            frame
+                                .rows()
+                                .iter()
+                                .all(|row| row.text().width() == usize::from(width))
+                        );
                     }
                 }
             }
+            assert_eq!(text(buffer), source);
+            assert!(buffer.history().is_empty());
         }
     }
 }
 
-// Concealed stars and the final marker retain separate source-backed selection
-// cells, even when point enters the prefix; copying extracts the original stars.
+// Hidden stars remain independently reachable through source motions and copy.
+// Their shared screen cell resolves pointer input to the final visible star.
 #[test]
 fn prefix_selection() {
     let (_fixture, mut buffers, mut view) = setup("", "*** Heading\n");
@@ -82,22 +86,22 @@ fn prefix_selection() {
             position: Scalar(0),
         })
         .unwrap();
-    for point in 0..=3 {
+    for point in 0usize..=3 {
         view.point.position = Scalar(point);
         let frame = Frame::project(buffer, &view, SIZE, "").unwrap();
-        assert!(body(&frame, 0).starts_with("  ✸ Heading"));
+        assert!(body(&frame, 0).starts_with("✸ Heading"));
         assert_eq!(
             frame.cursor(),
             Some(Position {
                 row: 0,
-                column: 7 + u16::try_from(point).unwrap()
+                column: 7 + point.saturating_sub(2) as u16
             })
         );
+        assert_eq!(
+            frame.rows()[0].selection(),
+            if point == 3 { Some(7..8) } else { None }
+        );
         if point > 0 {
-            assert_eq!(
-                frame.rows()[0].selection(),
-                Some(7..7 + u16::try_from(point).unwrap())
-            );
             let region = buffer.region(view.point).unwrap().unwrap();
             assert_eq!(
                 buffer.slice(&region).unwrap().to_string(),
@@ -119,12 +123,13 @@ fn prefix_selection() {
             )
             .unwrap()
             .unwrap();
-        assert_eq!(hit.position, Scalar(usize::from(column)));
+        let source_column = usize::from(column) + 2;
+        assert_eq!(hit.position, Scalar(source_column));
         assert_eq!(
             coordinates.to_cell(hit.position).unwrap(),
             Cell {
                 row: 0,
-                column: usize::from(column)
+                column: source_column
             }
         );
     }

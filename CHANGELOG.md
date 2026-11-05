@@ -10,7 +10,8 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 ### Added
 
 - [Org heading bodies and wrapped continuations](docs/tutorials/user-guide/06-org-notes.md#align-heading-bodies)
-  align with their enclosing heading by default. Set `org.indent=false` to retain the previous layout.
+  align with their enclosing heading by default. Set `org.indent=false` for a
+  flat outline with heading markers at the left margin and no added body spacing.
   Use `org-indent-mode`, `org-indent-enable` or `org-indent-disable` to change
   one buffer and all its views without writing configuration. The choice survives
   edits and reload, and resets when the buffer closes. Visual spacing leaves

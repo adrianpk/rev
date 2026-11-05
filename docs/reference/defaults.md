@@ -214,12 +214,15 @@ terminal display columns/cells, never bytes or Unicode scalar positions.
 | --- | --- | --- | --- |
 | `org.headings.pretty` | Boolean | `true` | Decorate current native Org heading prefixes; false retains readable source stars. |
 | `org.headings.bullets` | Array of marker strings | `["◉", "○", "✸", "✿", "◆", "▶"]` | Whole-array replacement; 1..32 entries, at most 32 UTF-8 bytes each and 1024 total. Each entry is one printable non-whitespace grapheme of terminal width one. Duplicates are valid. |
-| `org.headings.hide_leading_stars` | Boolean | `true` | Blank the first N-1 star cells in a pretty level-N heading; false retains those stars. |
+| `org.headings.hide_leading_stars` | Boolean | `true` | Hide the first N-1 stars in a pretty level-N heading. With visual indentation enabled their cells stay blank; when disabled they occupy no cells. False retains those stars. |
 | `org.headings.cycle_bullets` | Boolean | `true` | Cycle markers for deeper levels; false repeats the final configured marker. |
 
-At the same `org.indent` policy, these heading settings preserve the original
-prefix width, separator, title, wrapping and source positions. The independent
-`org.indent` preference adds visual margins to headings and their body text;
+Source positions and the original separator/title remain canonical. With
+`org.indent=true`, pretty presentation preserves source-prefix cells within the
+added visual margin. With `org.indent=false` and hidden leading stars, it
+collapses those cells so all heading markers start at the left margin; showing
+source stars restores their literal width and can change wrapping.
+The `org.indent` preference adds visual margins to headings and their body text;
 see [Org configuration](org/configuration.md). Use `org-indent-mode`,
 `org-indent-enable` or `org-indent-disable` to override it for one live buffer
 without writing TOML. All its views share that choice; closing discards it.

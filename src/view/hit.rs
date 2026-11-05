@@ -43,7 +43,13 @@ impl View {
         self.left
             .checked_add(usize::from(text.width()))
             .ok_or(crate::coordinates::Error::Overflow)?;
-        let projection = Projection::horizontal(buffer, row, self.left, text.width());
+        let projection = Projection::horizontal(
+            buffer,
+            row,
+            self.left,
+            text.width(),
+            self.compact_headings(),
+        );
         if local.column < projection.margin {
             return Ok(Some(Point {
                 stamp: buffer.stamp(),
@@ -101,10 +107,11 @@ impl Fragment {
         if column < self.margin {
             return Ok(Some(self.source.start));
         }
-        let right = self
-            .columns
-            .start
-            .checked_add(usize::from(width.saturating_sub(self.margin)))
+        let projection = Projection::wrapped(self, width);
+        let right = projection
+            .source
+            .column
+            .checked_add(usize::from(projection.width))
             .ok_or(crate::coordinates::Error::Overflow)?;
         Ok(Coordinates::new(buffer)?
             .hit_cell(
@@ -112,7 +119,7 @@ impl Fragment {
                     row: self.line,
                     column: self.source_column(usize::from(column)),
                 },
-                self.columns.start..right,
+                projection.source.column..right,
             )?
             .filter(|point| self.contains(*point, width)))
     }

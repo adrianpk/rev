@@ -32,7 +32,7 @@ const SIZE: Size = Size {
 
 fn setup(config: &str, source: &str) -> (Fixture, Buffers, View) {
     let fixture = Fixture::new();
-    // These fixtures compare the original source/pretty heading geometry.
+    // Exercise heading presentation without additional structural indentation.
     fixture.write("config.toml", config);
     let startup =
         prepare(&fixture.write("geometry.toml", "include=['config.toml']\norg.indent=false"));
@@ -102,7 +102,7 @@ fn reference_levels() {
             let frame = session.frame().unwrap();
             for (row, marker) in ["◉", "○", "✸", "✿", "◆", "▶", "◉", "○"].iter().enumerate()
             {
-                let expected = format!("{}{marker} Heading 界e\u{301}", " ".repeat(row));
+                let expected = format!("{marker} Heading 界e\u{301}");
                 assert!(
                     body(&frame, row).starts_with(&expected),
                     "{profile}, colored={colored}, row={row}: {:?}",
@@ -131,18 +131,18 @@ fn reference_levels() {
 #[test]
 fn startup_choices() {
     for (name, config, expected) in [
-        ("cycle", "", "       ○ Tail"),
-        ("final", "org.headings.cycle_bullets=false", "       ▶ Tail"),
+        ("cycle", "", "○ Tail"),
+        ("final", "org.headings.cycle_bullets=false", "▶ Tail"),
         (
             "visible",
             "org.headings.hide_leading_stars=false",
             "*******○ Tail",
         ),
-        ("one marker", "org.headings.bullets=['+']", "       + Tail"),
+        ("one marker", "org.headings.bullets=['+']", "+ Tail"),
         (
             "combining",
             "org.headings.bullets=['e\u{301}']",
-            "       e\u{301} Tail",
+            "e\u{301} Tail",
         ),
         ("source", "org.headings.pretty=false", "******** Tail"),
         (
@@ -151,7 +151,7 @@ fn startup_choices() {
             "******** Tail",
         ),
         ("disabled", "org.enabled=false", "******** Tail"),
-        ("color cutoff", "syntax.max_bytes=1", "       ○ Tail"),
+        ("color cutoff", "syntax.max_bytes=1", "○ Tail"),
     ] {
         let (_fixture, mut session) = editor(config, "******** Tail\nbody");
         settle(&mut session);
@@ -175,17 +175,17 @@ fn startup_choices() {
 fn edited_level() {
     let (_fixture, mut session) = editor("syntax.enabled=false", "** Heading\n");
     settle(&mut session);
-    assert!(body(&session.frame().unwrap(), 0).starts_with(" ○ Heading"));
+    assert!(body(&session.frame().unwrap(), 0).starts_with("○ Heading"));
     session.insert('*');
     let stale = Frame::project(session.buffer().unwrap(), session.view(), SIZE, "").unwrap();
     assert!(body(&stale, 0).starts_with("*** Heading"));
     settle(&mut session);
-    assert!(body(&session.frame().unwrap(), 0).starts_with("  ✸ Heading"));
+    assert!(body(&session.frame().unwrap(), 0).starts_with("✸ Heading"));
     assert_eq!(session.view().point.position.0, 1);
     assert_eq!(session.buffer().unwrap().history().len(), 1);
     session.execute(Command::History(History::Undo));
     settle(&mut session);
-    assert!(body(&session.frame().unwrap(), 0).starts_with(" ○ Heading"));
+    assert!(body(&session.frame().unwrap(), 0).starts_with("○ Heading"));
     assert_eq!(text(session.buffer().unwrap()), "** Heading\n");
     assert!(!session.buffer().unwrap().is_modified());
 }

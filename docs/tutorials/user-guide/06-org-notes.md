@@ -37,7 +37,7 @@ source without the added visual spacing:
 ```text
 ◉ Trip
 Pack light and leave early.
- ○ Equipment
+○ Equipment
 Bring a notebook and a pencil.
 ```
 
@@ -46,6 +46,10 @@ restore the first presentation; the feedback reads `Org indentation enabled`.
 `org-indent-mode` toggles between them. Repeating enable or disable keeps that
 state. In the modal profile, use `:org-indent-mode`, `:org-indent-enable` or
 `:org-indent-disable`. There is no default shortcut.
+
+With indentation disabled, heading markers all start at the left margin. If you
+switch to source presentation, the original `*`, `**` and `***` prefixes remain
+visible; their characters take space, but no leading spaces are added.
 
 This choice applies to every pane showing this buffer, including read-only Org
 results. Other buffers keep their own choices. It survives edits, undo, folds,

@@ -24,7 +24,7 @@ pub struct Fragment {
     pub text: String,
     pub end_of_line: bool,
     width: u16,
-    margins: Margins,
+    pub(super) margins: Margins,
     // Includes break lookahead and the complete observed line terminator.
     observed_end: Scalar,
 }
@@ -32,7 +32,7 @@ pub struct Fragment {
 impl Fragment {
     pub(super) fn check_projection(&self, buffer: &Buffer) -> Result<(), Error> {
         self.remember_columns(buffer)?;
-        if self.margins != Margins::new(buffer, self.line, self.width) {
+        if self.margins != Margins::new(buffer, self.line, self.width, self.margins.compact) {
             return Err(crate::coordinates::Error::Pending.into());
         }
         Ok(())
@@ -67,7 +67,11 @@ impl Fragment {
 
     pub(crate) fn painted_width(&self, width: u16) -> u16 {
         usize::from(self.margin)
-            .saturating_add(self.columns.end - self.columns.start)
+            .saturating_add(
+                self.columns
+                    .end
+                    .saturating_sub(self.columns.start.max(self.margins.concealed)),
+            )
             .min(usize::from(width)) as u16
     }
 
@@ -133,7 +137,12 @@ pub(super) enum Step {
 }
 
 impl<'a> Line<'a> {
-    pub(super) fn new(buffer: &'a Buffer, line: usize, width: u16) -> Result<Self, Error> {
+    pub(super) fn new(
+        buffer: &'a Buffer,
+        line: usize,
+        width: u16,
+        compact: bool,
+    ) -> Result<Self, Error> {
         let coordinates = Coordinates::new(buffer)?;
         Ok(Self {
             stamp: buffer.stamp(),
@@ -143,7 +152,7 @@ impl<'a> Line<'a> {
             pending: VecDeque::new(),
             line,
             width: usize::from(width),
-            margins: Margins::new(buffer, line, width),
+            margins: Margins::new(buffer, line, width, compact),
             end: coordinates.from_cell(Cell {
                 row: line,
                 column: 0,
@@ -160,6 +169,7 @@ impl<'a> Line<'a> {
         width: u16,
         start: Scalar,
         column: usize,
+        compact: bool,
     ) -> Result<Self, Error> {
         let coordinates = Coordinates::new(buffer)?;
         Ok(Self {
@@ -170,7 +180,7 @@ impl<'a> Line<'a> {
             pending: VecDeque::new(),
             line,
             width: usize::from(width),
-            margins: Margins::new(buffer, line, width),
+            margins: Margins::new(buffer, line, width, compact),
             end: start,
             after_line: Self::after_line(buffer, &coordinates, line)?,
             column,
@@ -242,10 +252,8 @@ impl<'a> Line<'a> {
         if self.done {
             return Ok(Step::Finished);
         }
-        let start = self
-            .pending
-            .front()
-            .map_or(self.column, |g| g.columns.start);
+        let start = self.column;
+        let source = self.end;
         let margin = self.margins.at(start);
         let available = self.width - margin;
         if !self.fill(budget, start, available)? {
@@ -267,10 +275,12 @@ impl<'a> Line<'a> {
         // EOL also observes the complete terminator. Removing only LF from
         // CRLF can change the body's final glyph and join the following row.
         let observed_end = if more { observed_end } else { self.after_line };
-        let source = self.pending.front().map_or(self.end, |g| g.source.start);
         let mut text = " ".repeat(margin);
         text.push_str(&self.take_text(count, start, available));
-        let cells = (self.column - start).min(available);
+        let cells = self
+            .column
+            .saturating_sub(start.max(self.margins.concealed))
+            .min(available);
         text.extend(std::iter::repeat_n(' ', available - cells));
         // An exact-width EOL needs a final insertion cell on the next row.
         self.done = !more && self.pending.is_empty() && (count == 0 || cells < available);
@@ -297,7 +307,20 @@ impl<'a> Line<'a> {
                 self.exhausted = self.lookahead.is_none();
             }
             let Some(glyph) = &self.lookahead else { break };
-            if glyph.columns.end - start > available && !self.pending.is_empty() {
+            // Consume hidden stars through the normal work budget without
+            // retaining one pending glyph per level. The fragment still owns
+            // their canonical source span, even when that prefix spans passes.
+            if glyph.columns.end <= self.margins.concealed {
+                self.lookahead = None;
+                continue;
+            }
+            if glyph
+                .columns
+                .end
+                .saturating_sub(start.max(self.margins.concealed))
+                > available
+                && !self.pending.is_empty()
+            {
                 break;
             }
             self.pending
@@ -310,7 +333,12 @@ impl<'a> Line<'a> {
         for glyph in self.pending.drain(..count) {
             self.end = glyph.source.end;
             self.column = glyph.columns.end;
-            if glyph.columns.end - start <= available {
+            if glyph
+                .columns
+                .end
+                .saturating_sub(start.max(self.margins.concealed))
+                <= available
+            {
                 text.push_str(&glyph.text);
             } else {
                 text.extend(std::iter::repeat_n(' ', available));
@@ -462,9 +490,10 @@ impl View {
                     width,
                     fragment.source.start,
                     fragment.columns.start,
+                    self.compact_headings(),
                 )?
             } else {
-                Line::new(buffer, row, width)?
+                Line::new(buffer, row, width, self.compact_headings())?
             },
         )
     }
@@ -549,7 +578,8 @@ impl View {
         let next = if let Some(fragment) = self.wrap_cache.exact(buffer, width, source, start) {
             fragment
         } else {
-            let Some(next) = Line::new(buffer, source, width)?.next()? else {
+            let Some(next) = Line::new(buffer, source, width, self.compact_headings())?.next()?
+            else {
                 return Ok(None);
             };
             next
@@ -583,7 +613,8 @@ impl View {
             fragment.remember_columns(buffer)?;
             return Ok(fragment.clone());
         }
-        let mut line = Self::checkpoint_line(buffer, width, row, checkpoint)?;
+        let mut line =
+            Self::checkpoint_line(buffer, width, row, checkpoint, self.compact_headings())?;
         while let Some(fragment) = line.next()? {
             let found = fragment.contains(point, width);
             self.wrap_cache.remember(buffer, width, fragment.clone())?;
@@ -599,6 +630,7 @@ impl View {
         width: u16,
         row: usize,
         checkpoint: Option<Fragment>,
+        compact: bool,
     ) -> Result<Line<'_>, Error> {
         Ok(if let Some(fragment) = checkpoint {
             Line::resume(
@@ -607,9 +639,10 @@ impl View {
                 width,
                 fragment.source.start,
                 fragment.columns.start,
+                compact,
             )?
         } else {
-            Line::new(buffer, row, width)?
+            Line::new(buffer, row, width, compact)?
         })
     }
 
@@ -632,6 +665,7 @@ impl View {
             width,
             current.source.end,
             current.columns.end,
+            self.compact_headings(),
         )?;
         let next = line.next()?.ok_or(crate::coordinates::Error::Overflow)?;
         self.wrap_cache.remember(buffer, width, next.clone())?;
@@ -678,7 +712,7 @@ mod tests {
     fn reference(buffer: &Buffer, width: u16) -> Vec<Fragment> {
         let mut result = Vec::new();
         for row in 0..buffer.len_lines() {
-            let mut line = Line::new(buffer, row, width).unwrap();
+            let mut line = Line::new(buffer, row, width, false).unwrap();
             while let Some(fragment) = line.next().unwrap() {
                 result.push(fragment);
             }
@@ -701,12 +735,18 @@ mod tests {
             let b = buffers.get(id).unwrap();
             for width in [1, 3, 8, 13, 80] {
                 for expected in reference(b, width) {
-                    let actual =
-                        Line::resume(b, 0, width, expected.source.start, expected.columns.start)
-                            .unwrap()
-                            .next()
-                            .unwrap()
-                            .unwrap();
+                    let actual = Line::resume(
+                        b,
+                        0,
+                        width,
+                        expected.source.start,
+                        expected.columns.start,
+                        false,
+                    )
+                    .unwrap()
+                    .next()
+                    .unwrap()
+                    .unwrap();
                     assert_eq!(actual, expected, "{width}/{}", expected.source.start.0);
                 }
             }
@@ -774,14 +814,20 @@ mod tests {
             for width in [1, 13, 4097] {
                 let expected = reference(b, width);
                 for allowance in [1, 7, 256] {
-                    check_batches(b, width, allowance, &expected);
+                    check_batches(b, width, allowance, &expected, false);
                 }
             }
         }
     }
-    fn check_batches(b: &Buffer, width: u16, allowance: usize, expected: &[Fragment]) {
+    fn check_batches(
+        b: &Buffer,
+        width: u16,
+        allowance: usize,
+        expected: &[Fragment],
+        compact: bool,
+    ) {
         let mut actual = Vec::new();
-        let mut line = Line::new(b, 0, width).unwrap();
+        let mut line = Line::new(b, 0, width, compact).unwrap();
         let mut batches = 0;
         loop {
             let mut budget = Budget {
@@ -822,7 +868,35 @@ mod tests {
         for width in [1, 3, 13, 4097] {
             let expected = reference(b, width);
             for allowance in [1, 7, 256] {
-                check_batches(b, width, allowance, &expected);
+                check_batches(b, width, allowance, &expected, false);
+            }
+        }
+    }
+
+    // A concealed prefix can span several cooperative passes. It must not
+    // allocate one pending glyph per star or drop the first source anchor.
+    #[test]
+    fn compact_batches() {
+        let mut buffers = Buffers::new().unwrap();
+        let source = format!("{} Heading with more words", "*".repeat(256));
+        let id = buffers.create(&source).unwrap();
+        let b = buffers.get_mut(id).unwrap();
+        b.select_mode(crate::buffer::Mode::Org).unwrap();
+        b.org_indent = false;
+        let coloring = crate::org::ColorScan::new(b, crate::org::Limits::default())
+            .unwrap()
+            .run(&crate::org::Cancellation::default());
+        b.install_org_coloring(coloring).unwrap();
+        for width in [1, 3, 13] {
+            let mut line = Line::new(b, 0, width, true).unwrap();
+            let mut expected = Vec::new();
+            while let Some(fragment) = line.next().unwrap() {
+                expected.push(fragment);
+            }
+            assert_eq!(expected[0].source.start, Scalar(0));
+            assert!(expected[0].text.starts_with('*'));
+            for allowance in [1, 7] {
+                check_batches(b, width, allowance, &expected, true);
             }
         }
     }

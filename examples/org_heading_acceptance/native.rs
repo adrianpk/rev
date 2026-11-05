@@ -57,7 +57,14 @@ fn controls(editor: &mut Session) -> Result<()> {
                 .starts_with(&format!("{} Heading {}", "*".repeat(row + 1), row + 1))
         );
     }
-    assert_eq!(frame.cursor(), cursor);
+    assert_eq!(
+        frame.cursor(),
+        cursor.map(|mut position| {
+            position.column =
+                7 + editor.view().cell(editor.buffer().unwrap()).unwrap().column as u16;
+            position
+        })
+    );
     named(editor, "org-pretty-headings-mode");
     assert_eq!(editor.echo(), "Org headings: pretty");
     assert_eq!(editor.view().heading_presentation_override(), Some(true));
@@ -78,7 +85,7 @@ fn controls(editor: &mut Session) -> Result<()> {
 fn levels(editor: &mut Session) -> Result<()> {
     let frame = editor.frame()?;
     for (row, marker) in MARKERS.iter().enumerate() {
-        let expected = format!("{}{marker} Heading {}", " ".repeat(row), row + 1);
+        let expected = format!("{marker} Heading {}", row + 1);
         assert!(
             frame.rows()[row]
                 .text()
@@ -96,7 +103,6 @@ fn copy(editor: &mut Session, profile: &str) -> Result<()> {
     if profile == "modal" {
         key(editor, KeyCode::Char('v'));
         key(editor, KeyCode::Char('j'));
-        key(editor, KeyCode::Char('l'));
         key(editor, KeyCode::Char('y'));
         // Visual from the first source star through the second line's marker.
         assert_eq!(

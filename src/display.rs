@@ -237,6 +237,7 @@ impl Frame {
                                 source,
                                 view.left,
                                 panel.content().width(),
+                                view.compact_headings(),
                             )
                         })
                     })
@@ -330,7 +331,15 @@ impl Frame {
                     .unwrap_or(buffer.len_lines())
             };
             let projection = fragment.map_or_else(
-                || Projection::horizontal(buffer, source, view.left, content.width()),
+                || {
+                    Projection::horizontal(
+                        buffer,
+                        source,
+                        view.left,
+                        content.width(),
+                        view.compact_headings(),
+                    )
+                },
                 |f| Projection::wrapped(f, content.width()),
             );
             let left = projection.source.column;
@@ -442,8 +451,13 @@ impl Frame {
         if buffer.soft_wrap() {
             return wrapped_position(point, view, panel, fragments);
         }
-        let projection =
-            Projection::horizontal(buffer, point.row, view.left, panel.content().width());
+        let projection = Projection::horizontal(
+            buffer,
+            point.row,
+            view.left,
+            panel.content().width(),
+            view.compact_headings(),
+        );
         panel.position(Position {
             column: u16::try_from(projection.screen_column(point.column)?).ok()?,
             row: u16::try_from(view.screen_row(buffer, point.row)?).ok()?,

@@ -2,7 +2,7 @@ use crate::buffer::Buffer;
 use crate::view::{Projection, View};
 
 /// Replace only visible ASCII prefix cells after canonical clipping/wrapping.
-/// Every source star retains its cell; no cursor or hit mapping is changed.
+/// The shared projection already accounts for hidden leading-star cells.
 pub(super) fn project(
     buffer: &Buffer,
     view: &View,

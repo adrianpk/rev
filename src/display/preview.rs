@@ -74,7 +74,16 @@ fn image_area(
     let margin = fragments
         .and_then(|rows| rows.iter().find(|f| f.line == row && f.columns.start == 0))
         .map_or_else(
-            || Projection::horizontal(buffer, row, view.left, area.width()).margin,
+            || {
+                Projection::horizontal(
+                    buffer,
+                    row,
+                    view.left,
+                    area.width(),
+                    view.compact_headings(),
+                )
+                .margin
+            },
             |f| f.margin,
         );
     Area::new(

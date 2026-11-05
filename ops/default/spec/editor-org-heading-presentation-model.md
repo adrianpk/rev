@@ -83,20 +83,21 @@ the override. Reset never writes preferences or changes the interaction profile.
 | Prefix projection | Original source span, concealed-star cells, selected marker, admitted cell width and title boundary after the current structural margin. Current source-to-display mapping remains authoritative; the virtual margin has no source scalar. |
 | Presentation snapshot | Buffer/revision, view/folding/geometry/settings, effective buffer indentation and current structural coverage, with bounded visible runs. Changed policy or stale mapping is rejected before pointer or edit actions. |
 
-Preserve the original prefix width with N-1 leading cells and a final one-cell
-marker. With hiding enabled, paint the leading cells blank; otherwise paint
-their original stars. Disabled pretty mode paints all source stars. The existing
-separator and original prefix width remain unchanged. Pretty/source comparisons
-at the same effective indentation policy retain title and wrap positions. The
+With Org indentation enabled, preserve N-1 leading cells and a final one-cell
+marker; hiding blanks those leading cells. With indentation disabled and hiding
+enabled, leading cells collapse so the marker begins at column zero. Otherwise
+retain the original stars. Disabled pretty mode paints all source stars. The
+separator and source spans remain unchanged; flat pretty/source switching can
+reflow the title and its continuations. The
 [Org Indentation Model](editor-org-indentation-model.md) adds its capped outer
 heading/body/continuation margins through the shared source/display coordinate
 owner. That buffer policy is independent of this view's pretty override.
 
-Each leading cell maps to its original star, and the final marker cell maps to
-the final star. Point entering the prefix or editing it does not reveal or
-collapse additional cells. Selection highlights source-backed cells; copy,
-save, undo and AI acceptance continue to use canonical text. A native source-view
-toggle makes all stars readable without changing source point or geometry.
+The final marker maps to the final star. In indented view leading cells retain
+separate star mappings; in flat pretty view hidden stars share its cursor cell.
+Point entering the prefix does not reveal it. Copy, save, undo and AI acceptance
+continue to use canonical text. Source view reveals all stars without changing
+source point, even when the heading's screen geometry changes.
 
 Only current recognized heading spans can be projected. Literal block text,
 list items and unverified/incomplete observations retain source rendering.

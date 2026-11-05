@@ -78,12 +78,17 @@ fn source_copy_and_edit() {
         }
         let point = session.view().point;
         let mark = session.buffer().unwrap().mark();
-        let cursor = session.frame().unwrap().cursor();
         selector(&mut session, "org-pretty-headings-mode", profile == "modal");
         assert!(!session.view().pretty_headings(), "{profile}");
         assert_eq!(session.view().point, point);
         assert_eq!(session.buffer().unwrap().mark(), mark);
-        assert_eq!(session.frame().unwrap().cursor(), cursor);
+        assert_eq!(
+            session.frame().unwrap().cursor(),
+            Some(rev::display::Position {
+                row: 0,
+                column: 7 + point.position.0 as u16,
+            })
+        );
         if profile == "modal" {
             assert!(
                 session

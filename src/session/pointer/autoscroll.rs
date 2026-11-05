@@ -198,8 +198,14 @@ fn edge_cell(
         .min(text.width() - 1);
     Ok(Cell {
         row,
-        column: crate::view::Projection::horizontal(buffer, row, view.left, text.width())
-            .source_column(usize::from(local)),
+        column: crate::view::Projection::horizontal(
+            buffer,
+            row,
+            view.left,
+            text.width(),
+            view.compact_headings(),
+        )
+        .source_column(usize::from(local)),
     })
 }
 

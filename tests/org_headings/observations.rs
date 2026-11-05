@@ -51,6 +51,6 @@ fn partial_evidence() {
         assert_eq!(observe(buffer, Limits::default()), Coverage::Complete);
         let current = Frame::project(buffer, &view, SIZE, "").unwrap();
         assert!(body(&current, 0).starts_with("◉ Root"), "{name}");
-        assert!(body(&current, 1).starts_with(" ○ Child"), "{name}");
+        assert!(body(&current, 1).starts_with("○ Child"), "{name}");
     }
 }

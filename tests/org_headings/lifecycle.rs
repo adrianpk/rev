@@ -61,7 +61,7 @@ fn edit_and_undo() {
         assert!(body(&frame, 0).starts_with(if id == selected {
             "*** Heading"
         } else {
-            "  ✸ Heading"
+            "✸ Heading"
         }));
     }
     assert_eq!(session.buffer().unwrap().history().len(), 1);
@@ -99,7 +99,7 @@ fn reload_preferences() {
         assert!(body(&frame, 0).starts_with(if id == selected {
             "*** New 界"
         } else {
-            "  ✸ New 界"
+            "✸ New 界"
         }));
     }
     assert_eq!(session.buffer().unwrap().history().len(), 1);
@@ -128,7 +128,7 @@ fn cancelled_observation() {
     toggle(&mut session);
     toggle(&mut session);
     settle(&mut session);
-    assert!(body(&session.frame().unwrap(), 0).starts_with(" ○ Heading"));
+    assert!(body(&session.frame().unwrap(), 0).starts_with("○ Heading"));
     assert_eq!(text(session.buffer().unwrap()), "** Heading\n");
     assert!(session.buffer().unwrap().history().is_empty());
     assert_eq!(session.remaining_input(Instant::now()), None);

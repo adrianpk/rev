@@ -5,6 +5,8 @@ mod fixture;
 
 #[path = "org_indentation/controls.rs"]
 mod controls;
+#[path = "org_indentation/plain.rs"]
+mod plain;
 
 use crossterm::event::{
     Event, KeyCode, KeyEvent, KeyModifiers, MouseButton, MouseEvent, MouseEventKind,
@@ -81,7 +83,8 @@ fn goto(session: &mut Session, line: usize) {
 }
 
 // Real sessions admit the new default under both profiles and both wrap modes.
-// Pretty/source choices remain independent, and disabled mode keeps legacy cells.
+// Pretty/source choices remain independent; plain pretty headings have no
+// concealed-star padding, while source view retains its literal star prefixes.
 #[test]
 fn configured_geometry() {
     let text = "preamble\n* Parent\nbody\n** Child\nchild\n*** Deep\ndeep\n* Return\nbody";
@@ -112,9 +115,9 @@ fn configured_geometry() {
                         "preamble",
                         "◉ Parent",
                         "body",
-                        " ○ Child",
+                        "○ Child",
                         "child",
-                        "  ✸ Deep",
+                        "✸ Deep",
                         "deep",
                         "◉ Return",
                         "body",

@@ -8,19 +8,30 @@ pub(crate) struct Projection {
     pub source: Cell,
     pub margin: u16,
     pub width: u16,
+    concealed: usize,
 }
 
 impl Projection {
-    pub(crate) fn horizontal(buffer: &Buffer, row: usize, left: usize, width: u16) -> Self {
-        let margin = Margins::new(buffer, row, width).at(0);
+    pub(crate) fn horizontal(
+        buffer: &Buffer,
+        row: usize,
+        left: usize,
+        width: u16,
+        compact: bool,
+    ) -> Self {
+        let margins = Margins::new(buffer, row, width, compact);
+        let margin = margins.at(0);
         let padding = margin.saturating_sub(left).min(usize::from(width)) as u16;
         Self {
             source: Cell {
                 row,
-                column: left.saturating_sub(margin),
+                column: left
+                    .saturating_sub(margin)
+                    .saturating_add(margins.concealed),
             },
             margin: padding,
             width: width - padding,
+            concealed: margins.concealed,
         }
     }
 
@@ -28,15 +39,17 @@ impl Projection {
         Self {
             source: Cell {
                 row: fragment.line,
-                column: fragment.columns.start,
+                column: fragment.columns.start.max(fragment.margins.concealed),
             },
             margin: fragment.margin,
             width: width.saturating_sub(fragment.margin),
+            concealed: fragment.margins.concealed,
         }
     }
 
     pub(crate) fn screen_column(self, source: usize) -> Option<usize> {
         source
+            .max(self.concealed)
             .checked_sub(self.source.column)?
             .checked_add(usize::from(self.margin))
     }
@@ -60,30 +73,45 @@ pub(super) struct Margins {
     continuation: usize,
     enabled: bool,
     observed: bool,
+    pub(super) compact: bool,
+    pub(super) concealed: usize,
 }
 
 impl Margins {
-    pub(super) fn new(buffer: &Buffer, row: usize, width: u16) -> Self {
-        if !buffer.org_indentation() {
+    pub(super) fn new(buffer: &Buffer, row: usize, width: u16, compact: bool) -> Self {
+        if !buffer.is_org() {
+            return Self::default();
+        }
+        let enabled = buffer.org_indentation();
+        if !enabled && !compact {
             return Self::default();
         }
         let Some(observation) = buffer.org_line_indentation(row) else {
             return Self {
-                enabled: true,
+                enabled,
+                compact,
                 ..Self::default()
             };
         };
         let cap = usize::from(width.saturating_sub(2));
         let body = observation.level.saturating_mul(2).min(cap);
         Self {
-            first: if observation.heading {
+            first: if !enabled {
+                0
+            } else if observation.heading {
                 observation.level.saturating_sub(1).min(cap)
             } else {
                 body
             },
-            continuation: body,
-            enabled: true,
+            continuation: if enabled { body } else { 0 },
+            enabled,
             observed: true,
+            compact,
+            concealed: if compact && !enabled && observation.heading {
+                observation.level.saturating_sub(1)
+            } else {
+                0
+            },
         }
     }
 
@@ -234,11 +262,18 @@ mod tests {
                         );
                     }
                 }
-                let actual = Line::resume(b, f.line, width, f.source.start, f.columns.start)
-                    .unwrap()
-                    .next()
-                    .unwrap()
-                    .unwrap();
+                let actual = Line::resume(
+                    b,
+                    f.line,
+                    width,
+                    f.source.start,
+                    f.columns.start,
+                    f.margins.compact,
+                )
+                .unwrap()
+                .next()
+                .unwrap()
+                .unwrap();
                 assert_eq!(actual, f, "restart at width {width}");
             }
         }

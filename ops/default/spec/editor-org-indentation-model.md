@@ -15,8 +15,8 @@ Existing owners: [Heading Presentation Model](editor-org-heading-presentation-mo
 | Runtime override | One `Option<bool>` equivalent per live buffer; `None` inherits startup. Toggle and explicit enable/disable record a value. It is not persisted or added to edit history. |
 | Effective policy | Existing buffer Org enablement and the startup/override value. A non-Org buffer does not project indentation. Disabling Org suspends this policy without deleting the override. |
 | Structural line observation | Native current buffer/revision and enclosing heading level, with literal-block ownership respected. Preamble level is zero. No second Org parser or independently maintained outline. |
-| Projected fragment | Checked source span, structural margin, continuation affinity and source/cell mapping at one text width. Virtual cells have no independent source scalar. |
-| Layout identity | Existing buffer/revision, width, tabs, folds and presentation observations extended by effective indentation policy. Both a changed level and a runtime toggle retire affected derived observations. |
+| Projected fragment | Checked source span, structural margin, concealed prefix, continuation affinity and source/cell mapping at one text width. Virtual cells have no independent source scalar. |
+| Layout identity | Existing buffer/revision, width, tabs, folds and observations extended by effective indentation and view-local pretty/hiding policies. Level changes and presentation toggles retire affected derived observations. |
 
 The new setting belongs directly to `[org]`, independently of `[org.headings]`:
 
@@ -43,6 +43,21 @@ Heading continuations use the ideal title margin 2N. Body continuations use the
 same structural margin as their first row. Existing source whitespace remains
 literal content; this does not introduce new list hanging-indentation rules.
 Tables and code retain their relative source columns under one outer margin.
+
+With indentation disabled and pretty/hide-leading-stars enabled, remove the
+first N-1 prefix cells from display rather than draw blanks. Every marker starts
+at column zero and its title at column two. Source/visible-star presentation
+keeps the literal prefix width. Hidden stars share the marker's cursor cell;
+a marker hit targets the final star, while keyboard operations and copy retain
+every source star. The first fragment still owns the complete prefix source
+span, including when budgeted layout spans several passes. Wrapping, scrolling,
+hits and overlays use this same translation.
+
+Pretty/source changes retire view layout observations. Pending-to-ready Org
+recognition also invalidates flat-prefix observations. Skip hidden stars under
+the existing glyph budget without retaining one pending glyph per concealed
+cell. This is the owner's post-delivery clarification; historical gate evidence
+below still belongs to its original candidate.
 
 For text width W, cap any virtual margin at max(0, W-2), using checked arithmetic
 or saturation before multiplication/allocation. This leaves room for a normal

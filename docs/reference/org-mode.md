@@ -46,6 +46,14 @@ bodies and heading continuations receive 2N. The added margin is capped at
 max(0, text width-2); preamble stays unindented, and source tabs keep their
 original stops. Copy, save, source positions and history never acquire padding.
 
+When disabled, body lines keep their source indentation and pretty headings
+with hidden leading stars display a single marker at the left margin. No blank
+star cells remain before that marker. Source presentation keeps the complete
+literal star prefix. Hidden stars retain canonical positions for keyboard edits
+and copy; their cursor shares the marker cell, and clicking the marker targets
+the final star. Changing pretty/source presentation can therefore reflow a plain
+heading while retaining the same source point.
+
 Use `org-indent-mode`, `org-indent-enable` or `org-indent-disable` through M-x,
 modal colon or configured editing bindings. The choice belongs to the active
 Org buffer and all its views, including read-only results. It is independent of

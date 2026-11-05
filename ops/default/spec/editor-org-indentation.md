@@ -47,20 +47,23 @@ Enabled, with heading text and body aligned:
       Check the distance.
 ```
 
-Disabled, retaining the current heading presentation:
+Disabled, with flat heading markers:
 
 ```text
 ◉ Project
 Project notes.
- ○ Tasks
+○ Tasks
 TODO Review the route.
-  ✸ Details
+✸ Details
 Check the distance.
 ```
 
-Disabled removes the new virtual indentation. It does not remove original star
-cells or rewrite the existing pretty-heading contract into a flat outline.
-Glyph selection and pretty/source presentation remain independent.
+Disabled removes virtual indentation and, in pretty view with leading stars
+hidden, collapses their blank cells. All markers begin at the left margin.
+Source view or visible leading stars retain their actual characters and width;
+these are source prefixes, not added indentation. Glyph selection remains
+independent. This reflects the owner's post-delivery clarification on
+2026-11-05; original gate evidence remains historical.
 
 ## Requirements
 
@@ -78,7 +81,9 @@ Native Org recognition SHALL own enclosing-heading identity through the next
 heading, including a return to a shallower level. Tables, lists, drawers and
 source/example blocks SHALL retain their internal source layout as a unit;
 literal stars inside a block SHALL not create headings. Blank lines SHALL not
-acquire source spaces. Disabling the mode SHALL restore existing geometry.
+acquire source spaces. Disabling the mode SHALL remove structural margins and
+concealed-star padding. Complete source star prefixes SHALL remain unchanged
+when source presentation or visible leading stars are selected.
 
 #### Scenario: Follow the enclosing heading
 
@@ -118,7 +123,7 @@ Runtime choices SHALL not write TOML or mark the document modified.
 
 - **GIVEN** `org.indent = true` and two distinct Org buffers
 - **WHEN** `org-indent-disable` is invoked in one buffer
-- **THEN** its views use current unindented presentation
+- **THEN** its views use flat markers and no added body margin
 - **AND** the other buffer and startup configuration remain unchanged.
 
 ### Requirement: OIN03 Share one checked source and screen mapping
@@ -184,9 +189,9 @@ that content. References and Unreleased SHALL describe only delivered behavior.
 ## Scope and baseline reconciliation
 
 This capability adds visual body/continuation indentation to the completed
-heading and wrap features. Their source-prefix preservation remains true before
-the added margin; width and wrap invariance apply to comparisons at the same
-indentation policy. The delivered heading specification's "Reference comparison
+heading and wrap features. With indentation enabled, source-prefix cells remain
+inside the added margin. Flat pretty view instead collapses hidden-star cells
+through the same source mapping. The heading specification's "Reference comparison
 and settled profile" and OGP04, its model's derived-view records, and the
 soft-wrap specification/model's continuation and layout identity are reconciled
 with this policy. Their historical receipts retain their original candidates;

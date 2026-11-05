@@ -35,7 +35,7 @@ struct Entries {
 /// Candidate snapshots share disposable observations; a real split forks them.
 /// Derived work is excluded from semantic View equality and retained requests.
 #[derive(Clone, Default)]
-pub(in crate::view) struct Cache(Arc<Mutex<Entries>>);
+pub(in crate::view) struct Cache(Arc<Mutex<Entries>>, bool);
 pub(crate) struct Scope(Arc<Mutex<Entries>>, bool);
 impl Drop for Scope {
     fn drop(&mut self) {
@@ -61,6 +61,10 @@ impl PartialEq for Cache {
 impl Eq for Cache {}
 
 impl Cache {
+    pub(in crate::view) fn headings(compact: bool) -> Self {
+        Self(Arc::default(), compact)
+    }
+
     pub(in crate::view) fn scope(&self, work: Work) -> Scope {
         let mut entries = self.0.lock().expect("fragment cache poisoned");
         let owner = entries.work.is_none();
@@ -107,7 +111,8 @@ impl Cache {
             tab: buffer.policy().tab_width,
             wrap: buffer.soft_wrap(),
             indent: buffer.org_indentation(),
-            outline_ready: buffer.org_indentation() && buffer.org_line_indentation(0).is_some(),
+            outline_ready: (buffer.org_indentation() || self.1)
+                && buffer.org_line_indentation(0).is_some(),
         };
         let mut entries = self.0.lock().expect("fragment cache poisoned");
         if entries.identity != Some(identity) {

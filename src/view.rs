@@ -176,7 +176,7 @@ impl View {
             top: 0,
             left: 0,
             wrap_start: Scalar(0),
-            wrap_cache: wrap::Cache::default(),
+            wrap_cache: wrap::Cache::headings(true),
             wrap_width: None,
             wrap_active: buffer.soft_wrap(),
             indent_active: buffer.org_indentation(),
@@ -197,6 +197,7 @@ impl View {
         view.bookmark_marker = settings.settings().bookmarks.marker.clone();
         view.preview.enabled = settings.settings().org.preview.enabled;
         view.headings = std::sync::Arc::new(settings.settings().org.headings.clone());
+        view.reset_heading_layout();
         view
     }
 
@@ -218,6 +219,7 @@ impl View {
         self.preview.enabled = enabled;
         self.headings = headings;
         self.heading_pretty = heading_pretty;
+        self.reset_heading_layout();
     }
 
     pub(crate) fn bookmark_marker(&self) -> &str {
@@ -226,7 +228,7 @@ impl View {
 
     pub(crate) fn clone_for_split(&self) -> Self {
         let mut view = self.clone();
-        view.wrap_cache = wrap::Cache::default();
+        view.wrap_cache = wrap::Cache::headings(view.compact_headings());
         view
     }
 
@@ -281,9 +283,12 @@ impl View {
             self.top = self
                 .source_at(buffer, top)
                 .ok_or(coordinates::Error::Overflow)?;
-            let margin = indentation::Margins::new(buffer, point.row, width).at(0);
+            let margins =
+                indentation::Margins::new(buffer, point.row, width, self.compact_headings());
+            let margin = margins.at(0);
             let column = point
                 .column
+                .saturating_sub(margins.concealed)
                 .checked_add(margin)
                 .ok_or(coordinates::Error::Overflow)?;
             reveal(&mut self.left, column, usize::from(width));
