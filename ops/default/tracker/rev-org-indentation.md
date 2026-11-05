@@ -25,7 +25,7 @@ State: reviewing
 Dependency: approved preparation on clean dev
 Requirements: OIN01, OIN03, OIN05
 Implementation: `54395f4feea63a7cc0de34582f4d18c3840c09de` (T1.1-T1.3)
-PR: pending
+PR: `#276`
 Report: [Slice 1](../report/slices/rev-org-indentation/slice-1-projection.md)
 Validation: local required checks passed; 17 library-filter, 16 heading and 26 wrapping tests, plus 11 focused structural regressions. Looper records exact clean-HEAD evidence after the PR-reference commit.
 
