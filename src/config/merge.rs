@@ -508,6 +508,51 @@ impl Merge {
         self.org_palette(&mut base.org, &later.org);
         self.syntax_palette(&mut base.syntax, &later.syntax);
         self.gutter_palette(&mut base.gutter, &later.gutter);
+        self.git_palette(&mut base.git, &later.git);
+    }
+
+    fn git_palette(
+        &mut self,
+        base: &mut super::PartialGitPalette,
+        later: &super::PartialGitPalette,
+    ) {
+        self.leaf(
+            &["palette", "git", "heading"],
+            &mut base.heading,
+            &later.heading,
+        );
+        self.leaf(
+            &["palette", "git", "metadata"],
+            &mut base.metadata,
+            &later.metadata,
+        );
+        self.leaf(
+            &["palette", "git", "untracked"],
+            &mut base.untracked,
+            &later.untracked,
+        );
+        self.leaf(
+            &["palette", "git", "unstaged"],
+            &mut base.unstaged,
+            &later.unstaged,
+        );
+        self.leaf(
+            &["palette", "git", "staged"],
+            &mut base.staged,
+            &later.staged,
+        );
+        self.leaf(
+            &["palette", "git", "conflict"],
+            &mut base.conflict,
+            &later.conflict,
+        );
+        self.leaf(&["palette", "git", "added"], &mut base.added, &later.added);
+        self.leaf(
+            &["palette", "git", "removed"],
+            &mut base.removed,
+            &later.removed,
+        );
+        self.leaf(&["palette", "git", "hunk"], &mut base.hunk, &later.hunk);
     }
 
     fn syntax_palette(&mut self, base: &mut PartialSyntaxPalette, later: &PartialSyntaxPalette) {

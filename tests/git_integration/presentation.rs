@@ -13,6 +13,8 @@ use std::{
     time::{Duration, Instant},
 };
 
+#[path = "colors.rs"]
+mod colors;
 #[path = "lifetime.rs"]
 mod lifetime;
 

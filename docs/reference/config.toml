@@ -427,7 +427,7 @@ bom = false
 # Patterns are exact basenames or leading *.suffix; IDs start with [a-z],
 # followed by [a-z0-9-]. Exact basename wins, then longest suffix; case matters.
 
-# Tokyo Night night defaults. All 54 roles are active six-digit #RRGGBB strings.
+# Tokyo Night night defaults. All color roles are active #RRGGBB strings.
 # Terminal true-color/cursor support and NO_COLOR determine visible capability.
 [palette]
 background = "#1a1b26"          # Document and ordinary prompt background.
@@ -486,6 +486,17 @@ habit_alert = "#ffd700"
 habit_alert_future = "#b8860b"
 habit_overdue = "#b22222"
 habit_overdue_future = "#8b0000"
+
+[palette.git]
+heading = "#7aa2f7"             # View titles and patch file headers.
+metadata = "#a9b1d6"            # Repository and comparison metadata.
+untracked = "#2ac3de"           # Untracked section and paths.
+unstaged = "#e0af68"            # Unstaged section and paths.
+staged = "#9ece6a"              # Staged section and paths.
+conflict = "#f7768e"            # Unmerged section and paths.
+added = "#9ece6a"               # Added patch lines, including new files.
+removed = "#f7768e"             # Removed patch lines.
+hunk = "#9d7cd8"                # Unified patch hunk headers.
 
 [palette.gutter]
 background = "#1a1b26"          # Number-field background.

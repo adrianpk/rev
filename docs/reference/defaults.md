@@ -465,6 +465,15 @@ All palette roles are global, with no language-scoped color override.
 | `palette.message` | RGB string | `"#c0caf5"` | Normal echo/message foreground. |
 | `palette.warning` | RGB string | `"#e0af68"` | Warning foreground. |
 | `palette.error` | RGB string | `"#db4b4b"` | Error foreground. |
+| `palette.git.heading` | RGB string | `"#7aa2f7"` | Git view titles and patch file headers. |
+| `palette.git.metadata` | RGB string | `"#a9b1d6"` | Repository and comparison metadata. |
+| `palette.git.untracked` | RGB string | `"#2ac3de"` | Untracked section and paths. |
+| `palette.git.unstaged` | RGB string | `"#e0af68"` | Unstaged section and paths. |
+| `palette.git.staged` | RGB string | `"#9ece6a"` | Staged section and paths. |
+| `palette.git.conflict` | RGB string | `"#f7768e"` | Unmerged section and paths. |
+| `palette.git.added` | RGB string | `"#9ece6a"` | Added patch lines, including new files. |
+| `palette.git.removed` | RGB string | `"#f7768e"` | Removed patch lines. |
+| `palette.git.hunk` | RGB string | `"#9d7cd8"` | Unified patch hunk headers. |
 | `palette.gutter.background` | RGB string | `"#1a1b26"` | Number-field background. |
 | `palette.gutter.foreground` | RGB string | `"#565f89"` | Ordinary logical labels. |
 | `palette.gutter.current_line` | RGB string | `"#7aa2f7"` | Current-line label; bold emphasis remains without color. |

@@ -192,7 +192,25 @@ fn palette(palette: &PartialPalette) -> Result<(), Failure> {
     }
     org_palette(&palette.org)?;
     gutter_palette(&palette.gutter)?;
+    git_palette(&palette.git)?;
     syntax_palette(&palette.syntax)
+}
+
+fn git_palette(palette: &super::PartialGitPalette) -> Result<(), Failure> {
+    for (key, value) in [
+        ("heading", &palette.heading),
+        ("metadata", &palette.metadata),
+        ("untracked", &palette.untracked),
+        ("unstaged", &palette.unstaged),
+        ("staged", &palette.staged),
+        ("conflict", &palette.conflict),
+        ("added", &palette.added),
+        ("removed", &palette.removed),
+        ("hunk", &palette.hunk),
+    ] {
+        color(&format!("palette.git.{key}"), value.as_deref())?;
+    }
+    Ok(())
 }
 
 fn syntax_palette(palette: &PartialSyntaxPalette) -> Result<(), Failure> {

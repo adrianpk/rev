@@ -29,6 +29,20 @@ explicit composer submission. The displayed review and exact command reference
 state which acceptance applies. Pointer targets are qualified by the current
 painted observation, expansion, viewport and dimensions.
 
+## Semantic colors
+
+Status uses cyan for Untracked, amber for Unstaged, green for Staged and red
+for Unmerged. Paths inherit their section's color. Inline comparisons and
+Git Diff use green for added lines, red for removed lines and violet for
+`@@` hunk headers. View titles and patch file headers use blue; metadata uses
+a quieter foreground. Unchanged context keeps the normal text color.
+
+Selection changes the background while preserving the row's semantic color.
+Section names, diff signs and selection markers remain visible without color.
+Override individual colors under
+`[palette.git]` in the startup configuration. The
+[palette catalog](defaults.md#palette-roles) lists every role and default.
+
 ## Command families
 
 The [complete Git command table](commands.md#native-git-status) owns exact names

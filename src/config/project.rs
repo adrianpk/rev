@@ -200,6 +200,19 @@ fn palette(base: &mut Palette, partial: &PartialPalette) {
     org_palette(&mut base.org, &partial.org);
     syntax_palette(&mut base.syntax, &partial.syntax);
     gutter_palette(&mut base.gutter, &partial.gutter);
+    git_palette(&mut base.git, &partial.git);
+}
+
+fn git_palette(base: &mut super::GitPalette, partial: &super::PartialGitPalette) {
+    color(&mut base.heading, &partial.heading);
+    color(&mut base.metadata, &partial.metadata);
+    color(&mut base.untracked, &partial.untracked);
+    color(&mut base.unstaged, &partial.unstaged);
+    color(&mut base.staged, &partial.staged);
+    color(&mut base.conflict, &partial.conflict);
+    color(&mut base.added, &partial.added);
+    color(&mut base.removed, &partial.removed);
+    color(&mut base.hunk, &partial.hunk);
 }
 
 fn syntax_palette(base: &mut SyntaxPalette, partial: &PartialSyntaxPalette) {

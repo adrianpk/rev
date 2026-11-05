@@ -44,6 +44,7 @@ pub struct Palette {
     pub org: OrgPalette,
     /// Number-field roles from the same immutable startup palette.
     pub gutter: GutterPalette,
+    pub git: GitPalette,
 }
 
 impl Default for Palette {
@@ -70,8 +71,54 @@ impl Default for Palette {
             syntax: SyntaxPalette::default(),
             org: OrgPalette::default(),
             gutter: GutterPalette::default(),
+            git: GitPalette::default(),
         }
     }
+}
+
+/// Native Git roles; diff signs and state labels remain meaningful without color.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct GitPalette {
+    pub heading: Rgb,
+    pub metadata: Rgb,
+    pub untracked: Rgb,
+    pub unstaged: Rgb,
+    pub staged: Rgb,
+    pub conflict: Rgb,
+    pub added: Rgb,
+    pub removed: Rgb,
+    pub hunk: Rgb,
+}
+
+impl Default for GitPalette {
+    fn default() -> Self {
+        Self {
+            heading: Rgb(0x7a, 0xa2, 0xf7),
+            metadata: Rgb(0xa9, 0xb1, 0xd6),
+            untracked: Rgb(0x2a, 0xc3, 0xde),
+            unstaged: Rgb(0xe0, 0xaf, 0x68),
+            staged: Rgb(0x9e, 0xce, 0x6a),
+            conflict: Rgb(0xf7, 0x76, 0x8e),
+            added: Rgb(0x9e, 0xce, 0x6a),
+            removed: Rgb(0xf7, 0x76, 0x8e),
+            hunk: Rgb(0x9d, 0x7c, 0xd8),
+        }
+    }
+}
+
+/// Optional Git leaves use the same merge, origin and RGB validation as other roles.
+#[derive(Clone, Debug, Default, PartialEq, Eq, Deserialize)]
+#[serde(default, deny_unknown_fields)]
+pub struct PartialGitPalette {
+    pub heading: Option<String>,
+    pub metadata: Option<String>,
+    pub untracked: Option<String>,
+    pub unstaged: Option<String>,
+    pub staged: Option<String>,
+    pub conflict: Option<String>,
+    pub added: Option<String>,
+    pub removed: Option<String>,
+    pub hunk: Option<String>,
 }
 
 /// Compiled gutter roles in the same immutable renderer palette snapshot.
@@ -121,6 +168,7 @@ pub struct PartialPalette {
     pub syntax: PartialSyntaxPalette,
     pub org: PartialOrgPalette,
     pub gutter: PartialGutterPalette,
+    pub git: PartialGitPalette,
 }
 
 /// The seven existing syntax groups; capture mapping remains syntax-owned.

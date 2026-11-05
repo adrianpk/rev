@@ -35,7 +35,7 @@ pub use repository::{
 mod refs;
 pub use refs::{BranchAction, PushIntent, RefKind, Reference, Refs, TagIntent, TagKind};
 mod status;
-pub use diff::{Baseline, Diff, DiffKind, DiffLine, Hunk, HunkId, LineRange};
+pub use diff::{Baseline, Diff, DiffKind, DiffLine, DiffLineKind, Hunk, HunkId, LineRange};
 mod work;
 pub use status::{Completeness, Group, Head, PathChange, Status};
 

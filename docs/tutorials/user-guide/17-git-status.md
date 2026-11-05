@@ -30,7 +30,9 @@ Press `C-x g`. Status occupies the editor canvas and shows `colors.txt` in
 Unstaged. Only nonempty groups appear. A clean repository has no change rows.
 
 Use Up/Down to select the path, then Tab to expand its comparison and hunk.
-You should see the removed `green` and added `gold` lines. Invoke
+You should see the removed `green` line in red and the added `gold` line in
+green. The `-` and `+` signs identify them without color. Unstaged paths use
+amber; staged paths use green and untracked paths use cyan. Invoke
 `M-x git-diff` or `:git-diff` for read-only patch detail. Press q to return
 one level. The diff is an observation of disk and index bytes, not a second
 editable copy of your file.

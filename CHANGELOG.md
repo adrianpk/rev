@@ -12,6 +12,8 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 - [Work with Git inside rev](docs/tutorials/user-guide/git/index.md): inspect
   saved changes with C-x g, expand staged/unstaged diffs, stage exact paths,
   hunks or compatible marked groups, and compose normal, amend or fixup commits.
+  Colors distinguish status groups, added and removed lines, and hunk headers;
+  selection preserves those colors. Each tone is configurable under `palette.git`.
   Explicit submission retains Git hooks and signing policy; cancelled drafts
   remain available without saving or staging source text automatically.
 - [Explore history and refs](docs/reference/git.md): browse bounded ancestry,

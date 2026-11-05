@@ -38,12 +38,24 @@ pub struct Hunk {
     pub patch: Range<usize>,
 }
 
+/// Patch tokens are classified before display escaping or 2048-byte chunking.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum DiffLineKind {
+    Metadata,
+    Header,
+    Hunk,
+    Context,
+    Added,
+    Removed,
+}
+
 /// Worker-indexed, bounded display chunks. Bytes remain in the parent evidence;
 /// a line label cannot reconstruct a pathname or become a changing target.
 #[derive(Debug)]
 pub struct DiffLine {
     pub bytes: Range<usize>,
     pub hunk: Option<HunkId>,
+    pub kind: DiffLineKind,
 }
 
 /// Exact read-only comparison tied to its originating Status observation.
@@ -161,6 +173,7 @@ pub(super) fn prepare(
                     lines.push(DiffLine {
                         bytes: offset + start..offset + (start + 2048).min(line.len()),
                         hunk: None,
+                        kind: DiffLineKind::Context,
                     });
                 }
                 offset += line.len();
@@ -249,7 +262,9 @@ fn parse(
             return Err("Git diff parsing cancelled or timed out".into());
         }
         let content = line.strip_suffix(b"\n").unwrap_or(line);
+        let mut kind = DiffLineKind::Metadata;
         if content.starts_with(b"@@ ") {
+            kind = DiffLineKind::Hunk;
             if remaining != (0, 0) {
                 failure = Some("Git hunk body does not match its declared ranges");
             }
@@ -273,6 +288,12 @@ fn parse(
         } else if active.is_some()
             && (remaining != (0, 0) || content == b"\\ No newline at end of file")
         {
+            kind = match content.first() {
+                Some(b'+') => DiffLineKind::Added,
+                Some(b'-') => DiffLineKind::Removed,
+                Some(b' ') => DiffLineKind::Context,
+                _ => DiffLineKind::Metadata,
+            };
             let used = match content.first() {
                 Some(b' ') => (1, 1),
                 Some(b'-') => (1, 0),
@@ -295,6 +316,12 @@ fn parse(
             }
         } else {
             active = None;
+            if [b"diff ".as_slice(), b"--- ", b"+++ "]
+                .iter()
+                .any(|prefix| content.starts_with(prefix))
+            {
+                kind = DiffLineKind::Header;
+            }
             // Every unified comparison comes from one native Git request;
             // unexpected extra payload must not acquire semantic text targets.
             if !content.is_empty()
@@ -328,6 +355,7 @@ fn parse(
             lines.push(DiffLine {
                 bytes: offset + start..offset + (start + 2048).min(line.len()),
                 hunk: active,
+                kind,
             });
         }
         offset += line.len();

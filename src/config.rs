@@ -62,8 +62,8 @@ mod xdg;
 pub use diagnostic::{Diagnostic, Position};
 pub use load::{Source, Sources, load};
 pub use palette::{
-    GutterPalette, OrgPalette, Palette, PartialGutterPalette, PartialOrgPalette, PartialPalette,
-    PartialSyntaxPalette, Rgb, SyntaxPalette,
+    GitPalette, GutterPalette, OrgPalette, Palette, PartialGitPalette, PartialGutterPalette,
+    PartialOrgPalette, PartialPalette, PartialSyntaxPalette, Rgb, SyntaxPalette,
 };
 pub use parse::parse;
 pub use resolve::{Snapshot, resolve};

@@ -1,7 +1,10 @@
 use super::{Action, Session};
 use crate::{
     command::{Command, GitCommand, Motion, Scroll},
-    display::{Frame, git::label},
+    display::{
+        Frame,
+        git::{Line as GitLine, Role as GitRole, label},
+    },
     git::{ContextId, Group, Head, Observation, OperationId, PathChange, Repositories, Status},
     input::Focus,
 };
@@ -1231,238 +1234,264 @@ impl Session {
             },
             admission,
             |row| {
-                if self.git.state.menu && self.git.page == Page::Refs {
-                    return self.git.refs_menu(row);
-                }
-                if self.git.state.menu {
-                    return (
-                        [
-                            "Git actions",
-                            "c  git-commit (native composer)",
-                            "g  git-refresh",
-                            "Tab  git-toggle-section",
-                            "Return  git-visit-file",
-                            "s / u  git-stage / git-unstage",
-                            "* / - / 0  mark / unmark / clear",
-                            "k / x d  git-discard (confirmed)",
-                            "M-x git-diff  selected comparison",
-                            "$  git-processes",
-                            "M-x / :  native commands",
-                            "q / C-g  return to Status",
-                        ]
-                        .get(row)
-                        .unwrap_or(&"")
-                        .to_string(),
-                        false,
-                    );
-                }
-                if self.git.page == Page::Worktree {
-                    return self
-                        .git
-                        .worktree_row(row, usize::from(self.size.width.max(1)));
-                }
-                if self.git.page == Page::Stash {
-                    return self.git.stash_row(row, usize::from(self.size.width.max(1)));
-                }
-                if self.git.page == Page::Refs {
-                    return self.git.refs_row(row, usize::from(self.size.width.max(1)));
-                }
-                if self.git.page == Page::Conflict {
-                    return self.git.conflict_row(row, usize::from(self.size.width));
-                }
-                if self.git.page == Page::Sequence {
-                    return self.git.sequence_row(row, usize::from(self.size.width));
-                }
-                if self.git.page == Page::Diff {
-                    return if row < 3 {
-                        (self.git.diff_header(row), false)
-                    } else {
-                        comparison_rows.next().map_or_else(
-                            || (String::new(), false),
-                            |(diff, line)| {
-                                let selected = line.hunk.is_some()
-                                    && line.hunk == self.git.inspection.selected;
-                                (
-                                    format!(
-                                        "{}{} {}",
-                                        if selected { ">" } else { " " },
-                                        if line.hunk.is_some_and(|id| self.git.marks.contains(
-                                            &Target::Hunk(diff.group, diff.change.path.clone(), id)
-                                        )) {
-                                            "*"
-                                        } else {
-                                            " "
-                                        },
-                                        comparisons::line_label(diff, line)
-                                    ),
-                                    selected,
-                                )
-                            },
-                        )
-                    };
-                }
-                if self.git.page == Page::History {
-                    return if row < 3 {
-                        (self.git.history_header(row), false)
-                    } else {
-                        self.git
-                            .history()
-                            .and_then(|h| h.revisions().nth(self.git.ancestry.top + row - 3))
-                            .map_or_else(
+                let mut role = match row {
+                    0 => GitRole::Heading,
+                    1 | 2 => GitRole::Metadata,
+                    _ => GitRole::Text,
+                };
+                let line = (|| {
+                    if self.git.state.menu && self.git.page == Page::Refs {
+                        return self.git.refs_menu(row);
+                    }
+                    if self.git.state.menu {
+                        return (
+                            [
+                                "Git actions",
+                                "c  git-commit (native composer)",
+                                "g  git-refresh",
+                                "Tab  git-toggle-section",
+                                "Return  git-visit-file",
+                                "s / u  git-stage / git-unstage",
+                                "* / - / 0  mark / unmark / clear",
+                                "k / x d  git-discard (confirmed)",
+                                "M-x git-diff  selected comparison",
+                                "$  git-processes",
+                                "M-x / :  native commands",
+                                "q / C-g  return to Status",
+                            ]
+                            .get(row)
+                            .unwrap_or(&"")
+                            .to_string(),
+                            false,
+                        );
+                    }
+                    if self.git.page == Page::Worktree {
+                        return self
+                            .git
+                            .worktree_row(row, usize::from(self.size.width.max(1)));
+                    }
+                    if self.git.page == Page::Stash {
+                        return self.git.stash_row(row, usize::from(self.size.width.max(1)));
+                    }
+                    if self.git.page == Page::Refs {
+                        return self.git.refs_row(row, usize::from(self.size.width.max(1)));
+                    }
+                    if self.git.page == Page::Conflict {
+                        return self.git.conflict_row(row, usize::from(self.size.width));
+                    }
+                    if self.git.page == Page::Sequence {
+                        return self.git.sequence_row(row, usize::from(self.size.width));
+                    }
+                    if self.git.page == Page::Diff {
+                        return if row < 3 {
+                            (self.git.diff_header(row), false)
+                        } else {
+                            comparison_rows.next().map_or_else(
                                 || (String::new(), false),
-                                |r| {
-                                    let selected = Some(r.object) == self.git.ancestry.selected;
+                                |(diff, line)| {
+                                    role = GitRole::Diff(line.kind);
+                                    let selected = line.hunk.is_some()
+                                        && line.hunk == self.git.inspection.selected;
                                     (
                                         format!(
-                                            "{} {}{} {} {}",
+                                            "{}{} {}",
                                             if selected { ">" } else { " " },
-                                            self.git.revision_mark_label(r.object),
-                                            r.object.hex(),
-                                            label(&r.authored),
-                                            label(&r.subject)
+                                            if line.hunk.is_some_and(|id| self.git.marks.contains(
+                                                &Target::Hunk(
+                                                    diff.group,
+                                                    diff.change.path.clone(),
+                                                    id
+                                                )
+                                            )) {
+                                                "*"
+                                            } else {
+                                                " "
+                                            },
+                                            comparisons::line_label(diff, line)
                                         ),
                                         selected,
                                     )
                                 },
                             )
-                    };
-                }
-                if matches!(
-                    self.git.page,
-                    Page::Revision | Page::Reflog | Page::Blame | Page::RevisionFile
-                ) {
-                    return self.git.inspection_row(row, self.size.width);
-                }
-                if self.git.page != Page::Status {
-                    return if row < 3 {
-                        (self.git.process_header(row), false)
-                    } else {
-                        process_rows.next().unwrap_or_default()
-                    };
-                }
-                if row == 0 {
-                    return (header(observation), false);
-                }
-                if row == 1 {
-                    return (
-                        status
-                            .and_then(|s| {
-                                s.upstream.as_ref().map(|u| {
-                                    format!(
-                                        "Upstream: {}  ahead {}  behind {}",
-                                        label(u),
-                                        s.ahead.map_or("unavailable".into(), |n| n.to_string()),
-                                        s.behind.map_or("unavailable".into(), |n| n.to_string())
-                                    )
-                                })
-                            })
-                            .unwrap_or_default(),
-                        false,
-                    );
-                }
-                if row == 2 {
-                    return (
-                        format!(
-                            "{}{}{}{}{}",
-                            if self.git.state.request.is_some()
-                                || (self.git.index_request.is_some()
-                                    || self.git.discard_request.is_some())
-                            {
-                                "Checking / refreshing  "
-                            } else {
-                                ""
-                            },
-                            if context.is_some_and(|c| c.failure.is_some()) {
-                                "STALE: refresh failed; confirmed observation retained  "
-                            } else {
-                                ""
-                            },
-                            if self.git.inspection.expanded {
-                                self.git.diff_status()
-                            } else {
-                                String::new()
-                            },
-                            if status.is_some_and(
-                                |s| s.completeness != crate::git::Completeness::Complete
-                            ) {
-                                "TRUNCATED: path admission reached  "
-                            } else {
-                                ""
-                            },
-                            if self.git.marks.targets.is_empty() {
-                                String::new()
-                            } else {
-                                format!(
-                                    "  {} marked{}; 0 clears",
-                                    self.git.marks.targets.len(),
-                                    if self
-                                        .git
-                                        .marks
-                                        .targets
-                                        .iter()
-                                        .all(|t| self.git.engine.detail_current(t.diff()))
-                                    {
-                                        ""
-                                    } else {
-                                        " / STALE"
-                                    }
-                                )
-                            }
-                        ),
-                        false,
-                    );
-                }
-                let Some(status) = status else {
-                    return (
-                        if row == 3 {
-                            if observation.is_some() {
-                                "Bare repository: working-tree Status unavailable"
-                            } else {
-                                "Checking repository context"
-                            }
+                        };
+                    }
+                    if self.git.page == Page::History {
+                        return if row < 3 {
+                            (self.git.history_header(row), false)
                         } else {
-                            ""
+                            self.git
+                                .history()
+                                .and_then(|h| h.revisions().nth(self.git.ancestry.top + row - 3))
+                                .map_or_else(
+                                    || (String::new(), false),
+                                    |r| {
+                                        let selected = Some(r.object) == self.git.ancestry.selected;
+                                        (
+                                            format!(
+                                                "{} {}{} {} {}",
+                                                if selected { ">" } else { " " },
+                                                self.git.revision_mark_label(r.object),
+                                                r.object.hex(),
+                                                label(&r.authored),
+                                                label(&r.subject)
+                                            ),
+                                            selected,
+                                        )
+                                    },
+                                )
+                        };
+                    }
+                    if matches!(
+                        self.git.page,
+                        Page::Revision | Page::Reflog | Page::Blame | Page::RevisionFile
+                    ) {
+                        return self.git.inspection_row(row, self.size.width);
+                    }
+                    if self.git.page != Page::Status {
+                        return if row < 3 {
+                            (self.git.process_header(row), false)
+                        } else {
+                            process_rows.next().unwrap_or_default()
+                        };
+                    }
+                    if row == 0 {
+                        return (header(observation), false);
+                    }
+                    if row == 1 {
+                        return (
+                            status
+                                .and_then(|s| {
+                                    s.upstream.as_ref().map(|u| {
+                                        format!(
+                                            "Upstream: {}  ahead {}  behind {}",
+                                            label(u),
+                                            s.ahead.map_or("unavailable".into(), |n| n.to_string()),
+                                            s.behind
+                                                .map_or("unavailable".into(), |n| n.to_string())
+                                        )
+                                    })
+                                })
+                                .unwrap_or_default(),
+                            false,
+                        );
+                    }
+                    if row == 2 {
+                        if context.is_some_and(|c| c.failure.is_some())
+                            || status.is_some_and(|s| {
+                                s.completeness != crate::git::Completeness::Complete
+                            })
+                        {
+                            role = GitRole::Warning;
                         }
-                        .to_owned(),
-                        false,
-                    );
-                };
-                if status.paths.is_empty() {
-                    return (
-                        if row == 3 { "Working tree clean" } else { "" }.to_owned(),
-                        false,
-                    );
-                }
-                let item = rows.next();
-                let selected = item.as_ref().is_some_and(|i| {
-                    self.git
-                        .state
-                        .selected
+                        return (
+                            format!(
+                                "{}{}{}{}{}",
+                                if self.git.state.request.is_some()
+                                    || (self.git.index_request.is_some()
+                                        || self.git.discard_request.is_some())
+                                {
+                                    "Checking / refreshing  "
+                                } else {
+                                    ""
+                                },
+                                if context.is_some_and(|c| c.failure.is_some()) {
+                                    "STALE: refresh failed; confirmed observation retained  "
+                                } else {
+                                    ""
+                                },
+                                if self.git.inspection.expanded {
+                                    self.git.diff_status()
+                                } else {
+                                    String::new()
+                                },
+                                if status.is_some_and(
+                                    |s| s.completeness != crate::git::Completeness::Complete
+                                ) {
+                                    "TRUNCATED: path admission reached  "
+                                } else {
+                                    ""
+                                },
+                                if self.git.marks.targets.is_empty() {
+                                    String::new()
+                                } else {
+                                    format!(
+                                        "  {} marked{}; 0 clears",
+                                        self.git.marks.targets.len(),
+                                        if self
+                                            .git
+                                            .marks
+                                            .targets
+                                            .iter()
+                                            .all(|t| self.git.engine.detail_current(t.diff()))
+                                        {
+                                            ""
+                                        } else {
+                                            " / STALE"
+                                        }
+                                    )
+                                }
+                            ),
+                            false,
+                        );
+                    }
+                    let Some(status) = status else {
+                        return (
+                            if row == 3 {
+                                if observation.is_some() {
+                                    "Bare repository: working-tree Status unavailable"
+                                } else {
+                                    "Checking repository context"
+                                }
+                            } else {
+                                ""
+                            }
+                            .to_owned(),
+                            false,
+                        );
+                    };
+                    if status.paths.is_empty() {
+                        return (
+                            if row == 3 { "Working tree clean" } else { "" }.to_owned(),
+                            false,
+                        );
+                    }
+                    let item = rows.next();
+                    let selected = item.as_ref().is_some_and(|i| {
+                        self.git
+                            .state
+                            .selected
+                            .as_ref()
+                            .is_some_and(|t| i.matches(t))
+                    });
+                    let marked = item
                         .as_ref()
-                        .is_some_and(|t| i.matches(t))
-                });
-                let marked = item
-                    .as_ref()
-                    .is_some_and(|i| self.git.marks.contains(&i.target()));
-                let marker = format!(
-                    "{}{}",
-                    if selected { ">" } else { " " },
-                    if marked { "*" } else { " " }
-                );
-                let text = match item {
-                    Some(Item::Section(group, count)) => {
-                        format!("{marker} {} ({count})", group.label())
-                    }
-                    Some(Item::Path(_, path)) => format!(
-                        "{marker}   {}",
-                        label(path.path.as_os_str().as_encoded_bytes())
-                    ),
-                    Some(Item::Detail(diff, line)) => {
-                        format!("{marker}     {}", comparisons::line_label(diff, line))
-                    }
-                    None => String::new(),
-                };
-                (text, selected)
+                        .is_some_and(|i| self.git.marks.contains(&i.target()));
+                    let marker = format!(
+                        "{}{}",
+                        if selected { ">" } else { " " },
+                        if marked { "*" } else { " " }
+                    );
+                    let text = match item {
+                        Some(Item::Section(group, count)) => {
+                            role = GitRole::Group(group);
+                            format!("{marker} {} ({count})", group.label())
+                        }
+                        Some(Item::Path(group, path)) => {
+                            role = GitRole::Group(group);
+                            format!(
+                                "{marker}   {}",
+                                label(path.path.as_os_str().as_encoded_bytes())
+                            )
+                        }
+                        Some(Item::Detail(diff, line)) => {
+                            role = GitRole::Diff(line.kind);
+                            format!("{marker}     {}", comparisons::line_label(diff, line))
+                        }
+                        None => String::new(),
+                    };
+                    (text, selected)
+                })();
+                GitLine::new(line, role)
             },
         )?;
         if let Some(popup) = &popup {

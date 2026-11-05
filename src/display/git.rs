@@ -107,6 +107,69 @@ fn sensitive(bytes: &[u8]) -> bool {
         })
 }
 
+/// View roles come from typed repository items, not from escaped labels.
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
+pub(crate) enum Role {
+    #[default]
+    Text,
+    Heading,
+    Metadata,
+    Warning,
+    Group(crate::git::Group),
+    Diff(crate::git::DiffLineKind),
+}
+
+pub(crate) struct Line {
+    text: String,
+    selected: bool,
+    role: Role,
+}
+
+impl Line {
+    pub(crate) fn new(line: (String, bool), role: Role) -> Self {
+        Self {
+            text: line.0,
+            selected: line.1,
+            role,
+        }
+    }
+}
+
+impl From<(String, bool)> for Line {
+    fn from(line: (String, bool)) -> Self {
+        Self::new(line, Role::Text)
+    }
+}
+
+impl Role {
+    pub(super) fn foreground(
+        self,
+        palette: &crate::config::Palette,
+        selected: bool,
+    ) -> crate::config::Rgb {
+        use crate::git::{DiffLineKind as Kind, Group};
+        match self {
+            Self::Text | Self::Diff(Kind::Context) => {
+                if selected {
+                    palette.tree_selected_text
+                } else {
+                    palette.foreground
+                }
+            }
+            Self::Heading | Self::Diff(Kind::Header) => palette.git.heading,
+            Self::Metadata | Self::Diff(Kind::Metadata) => palette.git.metadata,
+            Self::Warning => palette.warning,
+            Self::Group(Group::Untracked) => palette.git.untracked,
+            Self::Group(Group::Unstaged) => palette.git.unstaged,
+            Self::Group(Group::Staged) => palette.git.staged,
+            Self::Group(Group::Unmerged) => palette.git.conflict,
+            Self::Diff(Kind::Added) => palette.git.added,
+            Self::Diff(Kind::Removed) => palette.git.removed,
+            Self::Diff(Kind::Hunk) => palette.git.hunk,
+        }
+    }
+}
+
 impl Frame {
     pub(crate) fn git_popup(
         &mut self,
@@ -118,14 +181,14 @@ impl Frame {
         Ok(())
     }
 
-    pub(crate) fn git(
+    pub(crate) fn git<L: Into<Line>>(
         buffer: &Buffer,
         size: Size,
         palette: &crate::config::Palette,
         echo: &str,
         footer: &str,
         admission: crate::git::budget::Lease,
-        mut line: impl FnMut(usize) -> (String, bool),
+        mut line: impl FnMut(usize) -> L,
     ) -> Result<Self, Error> {
         let mut frame = Self::pending(buffer, size, palette)?;
         frame._git_admission = Some(admission);
@@ -135,13 +198,17 @@ impl Frame {
         frame.rows.pop();
         frame.echo(echo)?;
         for row in 0..size.height.saturating_sub(2) {
-            let (text, selected) = line(usize::from(row));
+            let Line {
+                text,
+                selected,
+                role,
+            } = line(usize::from(row)).into();
             let area = Area::new(0, row, size.width, 1).ok_or(CoordinateError::Overflow)?;
             frame.projection_text(&text, area)?;
-            if selected {
-                frame.rows[usize::from(row)].tone = Tone::GitSelection;
-                frame.rows[usize::from(row)].faces.clear();
-            }
+            frame.rows[usize::from(row)].tone = Tone::Git(role, selected);
+            // The Git role owns this full-width row; projection faces otherwise
+            // override its foreground with the ordinary document color.
+            frame.rows[usize::from(row)].faces.clear();
         }
         if size.height >= 2 {
             let row = size.height - 2;
