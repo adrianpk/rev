@@ -14,7 +14,10 @@ pub use history::{
     RevisionFile, RevisionPath,
 };
 pub use index::{IndexDirection, IndexTarget};
-pub use integration::{IntegrationMode, Sequence, SequenceFamily};
+pub use integration::{
+    AutosquashAction, AutosquashPlan, AutosquashStep, IntegrationMode, Sequence, SequenceControl,
+    SequenceFamily,
+};
 mod refs;
 pub use refs::{BranchAction, PushIntent, RefKind, Reference, Refs, TagIntent, TagKind};
 mod status;
@@ -129,6 +132,8 @@ pub enum OperationKind {
     PushPrepare,
     Integration,
     Sequence,
+    SequenceControl,
+    AutosquashPrepare,
     Push,
 }
 
@@ -151,6 +156,8 @@ pub enum Outcome {
     CleanupPending,
     Indeterminate,
     InProgress,
+    Skipped,
+    Aborted,
 }
 
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
@@ -218,6 +225,7 @@ pub struct Context {
     pub detail_failure: Option<OperationId>,
     pub refs: Option<Arc<Refs>>,
     pub sequence: Option<Arc<Sequence>>,
+    pub autosquash: Option<Arc<AutosquashPlan>>,
     pub history: Option<Arc<History>>,
     pub reflog: Option<Arc<Reflog>>,
     pub blame: Option<Arc<Blame>>,
@@ -583,6 +591,7 @@ impl Repositories {
                         | OperationKind::Commit
                         | OperationKind::TagCreate
                         | OperationKind::TagDelete
+                        | OperationKind::SequenceControl
                         | OperationKind::Integration
                         | OperationKind::Push
                         | OperationKind::Fetch
@@ -635,6 +644,7 @@ impl Repositories {
                             detail_failure: None,
                             refs: None,
                             sequence: None,
+                            autosquash: None,
                             history: None,
                             reflog: None,
                             blame: None,
@@ -657,6 +667,20 @@ impl Repositories {
                         );
                         None
                     }
+                }
+                Ok(work::Publication::Autosquash(plan)) => {
+                    if let Some(context) = self.contexts.iter_mut().find(|c| {
+                        c.id == plan.refs.observation.context
+                            && c.refs.as_ref().is_some_and(|r| Arc::ptr_eq(r, &plan.refs))
+                    }) {
+                        context.autosquash = Some(Arc::new(plan));
+                        published = true;
+                    } else {
+                        record.outcome = Outcome::Failed;
+                        record.diagnostic =
+                            Some("Autosquash source expired before publication".into());
+                    }
+                    progress.context
                 }
                 Ok(work::Publication::Sequence(sequence)) => {
                     if let Some(context) = self
@@ -817,6 +841,7 @@ impl Repositories {
                             OperationKind::CommitPrepare
                             | OperationKind::History
                             | OperationKind::Sequence
+                            | OperationKind::AutosquashPrepare
                             | OperationKind::PushPrepare
                             | OperationKind::TagPrepare => {}
                             OperationKind::Stage
@@ -825,6 +850,7 @@ impl Repositories {
                             | OperationKind::Commit
                             | OperationKind::TagCreate
                             | OperationKind::TagDelete
+                            | OperationKind::SequenceControl
                             | OperationKind::Integration
                             | OperationKind::Push
                             | OperationKind::Fetch

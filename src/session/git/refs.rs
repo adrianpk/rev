@@ -13,6 +13,11 @@ pub(super) struct Inspection {
     pub tag_preparing: Option<OperationId>,
     pub push_preparing: Option<OperationId>,
     pub integration_request: Option<OperationId>,
+    pub autosquash_preparing: Option<OperationId>,
+    control_preparing: Option<(
+        crate::git::SequenceControl,
+        Option<crate::git::SequenceFamily>,
+    )>,
     sequence_top: usize,
     push_mark: Option<transport::PushMark>,
     selected: Option<Vec<u8>>,
@@ -29,6 +34,8 @@ impl Inspection {
             tag_preparing: None,
             push_preparing: None,
             integration_request: None,
+            autosquash_preparing: None,
+            control_preparing: None,
             sequence_top: 0,
             push_mark: None,
             selected: None,
@@ -69,6 +76,12 @@ enum RefAction {
     CreateTag(Arc<crate::git::TagIntent>),
     DeleteTag(Vec<u8>),
     Push(Arc<crate::git::PushIntent>),
+    Autosquash(Arc<crate::git::AutosquashPlan>),
+    Control {
+        sequence: Arc<crate::git::Sequence>,
+        action: crate::git::SequenceControl,
+        family: Option<crate::git::SequenceFamily>,
+    },
     Integration {
         target: Vec<u8>,
         mode: crate::git::IntegrationMode,
@@ -606,7 +619,12 @@ impl Session {
         let prompt = if matches!(action, RefAction::Push(_)) {
             "Confirm reviewed upstream push? [y/n]"
         } else {
-            if matches!(action, RefAction::Integration { .. }) {
+            if matches!(
+                action,
+                RefAction::Integration { .. }
+                    | RefAction::Autosquash(_)
+                    | RefAction::Control { .. }
+            ) {
                 "Confirm checked integration? [y/n]"
             } else {
                 "Confirm local ref action? [y/n]"
@@ -672,7 +690,10 @@ impl Session {
         }
         if matches!(
             consent.action,
-            RefAction::Branch(BranchAction::Switch { .. }) | RefAction::Integration { .. }
+            RefAction::Branch(BranchAction::Switch { .. })
+                | RefAction::Integration { .. }
+                | RefAction::Autosquash(_)
+                | RefAction::Control { .. }
         ) {
             match self.git_branch_sources(&consent.refs) {
                 Ok(s)
@@ -688,12 +709,21 @@ impl Session {
                 Err(e) => return self.error(&e),
             }
         }
-        let integration = matches!(consent.action, RefAction::Integration { .. });
+        let integration = matches!(
+            consent.action,
+            RefAction::Integration { .. } | RefAction::Autosquash(_) | RefAction::Control { .. }
+        );
         let result = match consent.action {
             RefAction::Branch(action) => self.git.engine.branch(consent.refs, action),
             RefAction::CreateTag(intent) => self.git.engine.create_tag(intent, ""),
             RefAction::DeleteTag(name) => self.git.engine.delete_tag(consent.refs, &name),
             RefAction::Push(intent) => self.git.engine.push(intent),
+            RefAction::Autosquash(plan) => self.git.engine.autosquash(plan),
+            RefAction::Control {
+                sequence,
+                action,
+                family,
+            } => self.git.engine.control_sequence(sequence, action, family),
             RefAction::Integration { target, mode } => {
                 self.git.engine.integrate(consent.refs, &target, mode)
             }
@@ -942,7 +972,12 @@ impl Session {
             self.size,
             self.buffers.palette(),
             &self.echo,
-            if matches!(consent.action, RefAction::Integration { .. }) {
+            if matches!(
+                consent.action,
+                RefAction::Integration { .. }
+                    | RefAction::Autosquash(_)
+                    | RefAction::Control { .. }
+            ) {
                 " Git Integration Review  y / C-Enter / C-c C-c accept  C-g cancel"
             } else if matches!(consent.action, RefAction::Push(_)) {
                 " Git Push Review  y accept  n / C-g cancel  Up/Down scroll"

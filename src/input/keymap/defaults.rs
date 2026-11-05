@@ -193,6 +193,13 @@ pub(super) const GIT_HISTORY: &[(&str, &str)] = &[
 ];
 
 const GIT_REFS: &[(&str, &str)] = &[
+    ("E", "git-rebase-autosquash"),
+    ("m c", "git-merge-continue"),
+    ("m a", "git-merge-abort"),
+    ("r a", "git-rebase-autosquash"),
+    ("r c", "git-rebase-continue"),
+    ("r s", "git-rebase-skip"),
+    ("r A", "git-rebase-abort"),
     ("=", "git-merge-fast-forward"),
     ("i", "git-merge"),
     ("I", "git-merge-no-fast-forward"),
@@ -551,6 +558,11 @@ const COMPLETION: &[(&str, &str)] = &[
 ];
 
 const GIT_SEQUENCE: &[(&str, &str)] = &[
+    (">", "git-merge-continue"),
+    ("X", "git-merge-abort"),
+    ("]", "git-rebase-continue"),
+    (";", "git-rebase-skip"),
+    ("Z", "git-rebase-abort"),
     ("C-x g", "git-status"),
     ("q", "git-quit"),
     ("g", "git-refresh"),

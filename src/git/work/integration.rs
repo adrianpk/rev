@@ -1,6 +1,8 @@
 use super::*;
 use crate::git::integration::Request;
 use std::{fs, io::Read, os::unix::ffi::OsStrExt};
+mod autosquash;
+mod control;
 mod sequence;
 
 impl Runner {
@@ -10,13 +12,28 @@ impl Runner {
         admission: &mut Lease,
     ) -> Result<Candidate, String> {
         match request {
+            Request::PrepareAutosquash { refs, target, .. } => self
+                .prepare_autosquash(refs, &target, admission)
+                .map(Candidate::Autosquash),
+            Request::Autosquash(plan) => self.start_integration(
+                plan.refs.clone(),
+                &plan.target_name,
+                IntegrationMode::Rebase,
+                Some(&plan),
+                admission,
+            ),
+            Request::Control {
+                sequence,
+                action,
+                family,
+            } => self.control_sequence(sequence, action, family, admission),
             Request::Observe(observation) => self
                 .integration_refs(&observation, admission)
                 .and_then(|refs| self.read_sequence(refs, admission))
                 .map(Candidate::Sequence),
             Request::Start {
                 refs, target, mode, ..
-            } => self.start_integration(refs, &target, mode, admission),
+            } => self.start_integration(refs, &target, mode, None, admission),
         }
     }
     fn integration_refs(
@@ -103,6 +120,7 @@ impl Runner {
         refs: Arc<Refs>,
         target_name: &[u8],
         mode: IntegrationMode,
+        plan: Option<&AutosquashPlan>,
         admission: &mut Lease,
     ) -> Result<Candidate, String> {
         let current = self.check_integration_source(&refs, admission)?;
@@ -145,7 +163,11 @@ impl Runner {
                 "--".into(),
             ]
         };
-        args.push(target.hex().into());
+        if let Some(plan) = plan {
+            args = self.autosquash_args(plan, admission)?;
+        } else {
+            args.push(target.hex().into());
+        }
         let (executed, facts) = self.execute_change(&args, None);
         if self.retained.is_some() {
             self.restore_execution(facts, true);

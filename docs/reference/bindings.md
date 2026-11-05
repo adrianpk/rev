@@ -570,6 +570,15 @@ For live terminal key ownership and copy controls, see the
 | `i`, `m m` in Refs | `git-merge` | Review merge with fast-forward allowed. |
 | `I`, `m n` in Refs | `git-merge-no-fast-forward` | Review merge-commit policy. |
 | `e`, `r r` in Refs | `git-rebase` | Review ordinary rebase onto the selected exact commit. |
+| `E`, `r a` in Refs | `git-rebase-autosquash` | Review the finite ordered source plan before autosquash. |
+| `m c` in Refs; `>` in Operation | `git-merge-continue` | Refresh and confirm continuation of a compatible merge. |
+| `m a` in Refs; `X` in Operation | `git-merge-abort` | Refresh and confirm restoration of the original merge context. |
+| `r c` in Refs; `]` in Operation | `git-rebase-continue` | Refresh and confirm continuation after saved staged resolutions. |
+| `r s` in Refs; `;` in Operation | `git-rebase-skip` | Refresh and confirm skipping the current compatible rebase step. |
+| `r A` in Refs; `Z` in Operation | `git-rebase-abort` | Refresh and confirm restoration of the original rebase context. |
+| Named command | `git-operation-continue` | Review continuation against the fresh actual compatible family. |
+| Named command | `git-operation-skip` | Review skipping against the fresh actual compatible family. |
+| Named command | `git-operation-abort` | Review abort against exact original lineage and fresh Git state. |
 | Named command | `git-operation-status` | Inspect actual Git-owned sequence state and conflicts. |
 | `p`, `M p` in Refs | `git-push` | Review one exact source branch and its configured upstream destination before publication. |
 | `&`, `M f` in Refs | `git-fetch` | Fetch the selected configured remote without integration. |
@@ -949,6 +958,13 @@ aliases below.
 
 | Keys | Target |
 | --- | --- |
+| `E` | `git-rebase-autosquash` |
+| `m c` | `git-merge-continue` |
+| `m a` | `git-merge-abort` |
+| `r a` | `git-rebase-autosquash` |
+| `r c` | `git-rebase-continue` |
+| `r s` | `git-rebase-skip` |
+| `r A` | `git-rebase-abort` |
 | `=` | `git-merge-fast-forward` |
 | `i` | `git-merge` |
 | `I` | `git-merge-no-fast-forward` |
@@ -993,11 +1009,20 @@ aliases below.
 
 ### Git sequence defaults and availability
 
-`keys.git_sequence` owns read-only Git Operation navigation in both profiles.
+`keys.git_sequence` owns Git Operation navigation and checked sequence controls in both profiles.
 q returns to Status without aborting Git; g refreshes actual Git state.
+Each control refreshes the actual family, original lineage, metadata, index and
+worktree before opening exact review. Continue requires saved staged resolutions.
+y, C-Enter or C-c C-c confirms; Return does not. n or C-g cancels the review.
+Generic controls remain available by their native command names.
 
 | Keys | Target |
 | --- | --- |
+| `>` | `git-merge-continue` |
+| `X` | `git-merge-abort` |
+| `]` | `git-rebase-continue` |
+| `;` | `git-rebase-skip` |
+| `Z` | `git-rebase-abort` |
 | `C-x g` | `git-status` |
 | `q` | `git-quit` |
 | `g` | `git-refresh` |

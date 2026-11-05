@@ -204,3 +204,184 @@ fn integration_guards() {
 
 #[path = "integration_presentation.rs"]
 mod presentation;
+
+fn sequence(owner: &mut Repositories) -> Arc<rev::git::Sequence> {
+    let context = owner.contexts()[0].id;
+    owner.sequence(context).unwrap();
+    let update = finish(owner);
+    assert!(update.published, "{:?}", owner.record(update.operation));
+    owner.context(context).unwrap().sequence.clone().unwrap()
+}
+fn stopped(repository: &Repository, mode: IntegrationMode) -> Repositories {
+    topic(repository, true);
+    let mut owner = repository.owner("");
+    repository.open(&mut owner, &repository.root);
+    let refs = observe(&mut owner);
+    let id = owner.integrate(refs, b"refs/heads/topic", mode).unwrap();
+    finish(&mut owner);
+    assert_eq!(owner.record(id).unwrap().outcome, Outcome::InProgress);
+    owner
+}
+
+// Checked family controls complete staged resolutions, explicitly discard a
+// conflicted rebase step, or restore the original context on a real abort.
+#[test]
+fn sequence_controls() {
+    use rev::git::SequenceControl;
+    for (mode, action) in [
+        (IntegrationMode::Merge, SequenceControl::Continue),
+        (IntegrationMode::Merge, SequenceControl::Abort),
+        (IntegrationMode::Rebase, SequenceControl::Continue),
+        (IntegrationMode::Rebase, SequenceControl::Skip),
+        (IntegrationMode::Rebase, SequenceControl::Abort),
+    ] {
+        let repository = Repository::new("sha256");
+        let mut owner = stopped(&repository, mode);
+        let original = repository.git(["rev-parse", "main"]);
+        if action == SequenceControl::Continue {
+            fs::write(repository.root.join("file"), "resolved\n").unwrap();
+            repository.git(["add", "--", "file"]);
+        }
+        let state = sequence(&mut owner);
+        let id = owner
+            .control_sequence(state.clone(), action, state.family)
+            .unwrap();
+        let update = finish(&mut owner);
+        let record = owner.record(id).unwrap();
+        assert!(update.published, "{record:?}");
+        assert_eq!(
+            record.outcome,
+            match action {
+                SequenceControl::Continue => Outcome::Verified,
+                SequenceControl::Skip => Outcome::Skipped,
+                SequenceControl::Abort => Outcome::Aborted,
+            },
+            "{record:?}"
+        );
+        assert_eq!(record.effects, Effects::Verified, "{record:?}");
+        assert!(
+            owner
+                .context(update.context.unwrap())
+                .unwrap()
+                .sequence
+                .as_ref()
+                .unwrap()
+                .family
+                .is_none()
+        );
+        assert_eq!(
+            repository.git(["symbolic-ref", "HEAD"]),
+            b"refs/heads/main\n"
+        );
+        if action == SequenceControl::Abort {
+            assert_eq!(repository.git(["rev-parse", "HEAD"]), original);
+        }
+        if action == SequenceControl::Continue {
+            assert_eq!(
+                fs::read(repository.root.join("file")).unwrap(),
+                b"resolved\n"
+            );
+        }
+        if action == SequenceControl::Skip {
+            assert_eq!(
+                repository.git(["rev-parse", "HEAD"]),
+                repository.git(["rev-parse", "topic"])
+            );
+        }
+    }
+}
+
+fn autosquash_source(repository: &Repository) {
+    fs::write(repository.root.join("base"), "base\n").unwrap();
+    repository.commit();
+    repository.git(["switch", "--create", "topic"]);
+    fs::write(repository.root.join("remote"), "remote\n").unwrap();
+    repository.commit();
+    repository.git(["switch", "main"]);
+    for (file, content, message) in [
+        ("first", "first\n", "First subject"),
+        ("second", "second\n", "Second subject"),
+        ("first", "fixed\n", "fixup! First subject"),
+        ("second", "squashed\n", "squash! Second subject"),
+    ] {
+        fs::write(repository.root.join(file), content).unwrap();
+        repository.git(["add", "--all"]);
+        repository.git(["commit", "-m", message]);
+    }
+}
+
+// Compare actual trees, ordered messages and authors against Git's own
+// autosquash sequencer; plan provenance alone cannot prove those semantics.
+#[test]
+fn reviewed_autosquash() {
+    use std::process::Command;
+    for format in ["sha1", "sha256"] {
+        let repository = Repository::new(format);
+        autosquash_source(&repository);
+        repository.git(["branch", "reference"]);
+        let mut owner = repository.owner("");
+        repository.open(&mut owner, &repository.root);
+        let refs = observe(&mut owner);
+        let id = owner.prepare_autosquash(refs, b"refs/heads/topic").unwrap();
+        finish(&mut owner);
+        assert_eq!(owner.record(id).unwrap().outcome, Outcome::Verified);
+        let plan = owner.contexts()[0].autosquash.clone().unwrap();
+        assert_eq!(
+            plan.steps
+                .iter()
+                .map(|s| s.action.label())
+                .collect::<Vec<_>>(),
+            ["pick", "fixup", "pick", "squash"]
+        );
+        assert!(!repository.root.join(".git/rebase-merge").exists());
+        let id = owner.autosquash(plan).unwrap();
+        let update = finish(&mut owner);
+        let record = owner.record(id).unwrap();
+        assert!(update.published, "{record:?}");
+        assert_eq!(record.outcome, Outcome::Verified, "{record:?}");
+        let tree = repository.git(["rev-parse", "HEAD^{tree}"]);
+        let history = repository.git([
+            "log",
+            "--reverse",
+            "--format=%s%n%b%an <%ae>",
+            "topic..HEAD",
+        ]);
+        repository.git(["switch", "reference"]);
+        let output = Command::new(&repository.program)
+            .args([
+                "rebase",
+                "--interactive",
+                "--autosquash",
+                "--no-autostash",
+                "--no-update-refs",
+                "--no-rebase-merges",
+                "--no-fork-point",
+                "topic",
+            ])
+            .current_dir(&repository.root)
+            .env("GIT_SEQUENCE_EDITOR", "/bin/true")
+            .env("GIT_EDITOR", "/bin/true")
+            .output()
+            .unwrap();
+        assert!(
+            output.status.success(),
+            "{}",
+            String::from_utf8_lossy(&output.stderr)
+        );
+        assert_eq!(repository.git(["rev-parse", "HEAD^{tree}"]), tree);
+        assert_eq!(
+            repository.git([
+                "log",
+                "--reverse",
+                "--format=%s%n%b%an <%ae>",
+                "topic..HEAD"
+            ]),
+            history
+        );
+        assert_eq!(fs::read(repository.root.join("first")).unwrap(), b"fixed\n");
+        assert_eq!(
+            fs::read(repository.root.join("second")).unwrap(),
+            b"squashed\n"
+        );
+    }
+}

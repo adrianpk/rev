@@ -9,8 +9,10 @@ impl Runner {
     ) -> Result<Vec<SequenceFile>, String> {
         let root = &refs.observation.identity.git_directory;
         let mut paths = Vec::new();
+        let mut directories = Vec::new();
         for name in [
             "MERGE_HEAD",
+            "MERGE_AUTOSTASH",
             "MERGE_MSG",
             "MERGE_MODE",
             "ORIG_HEAD",
@@ -18,8 +20,10 @@ impl Runner {
             "CHERRY_PICK_HEAD",
             "REVERT_HEAD",
         ] {
-            if root.join(name).exists() {
-                paths.push(PathBuf::from(name));
+            match fs::symlink_metadata(root.join(name)) {
+                Err(e) if e.kind() == std::io::ErrorKind::NotFound => {}
+                Err(e) => return Err(format!("Observe Git sequence marker: {e}")),
+                Ok(_) => paths.push(PathBuf::from(name)),
             }
         }
         for directory in ["rebase-merge", "rebase-apply", "sequencer"] {
@@ -32,6 +36,7 @@ impl Runner {
                 }
                 _ => {}
             }
+            directories.push(format!("{directory}/").into_bytes());
             for entry in fs::read_dir(path).map_err(|e| format!("Read sequence entries: {e}"))? {
                 if paths.len() == 64 {
                     return Err("Sequence metadata exceeds 64-file admission".into());
@@ -46,7 +51,12 @@ impl Runner {
             }
         }
         paths.sort();
-        let mut files = Vec::with_capacity(paths.len());
+        admission.grow(directories.iter().map(|d| d.capacity() + 128).sum())?;
+        let mut files = Vec::with_capacity(paths.len() + directories.len());
+        files.extend(directories.into_iter().map(|name| SequenceFile {
+            name,
+            bytes: Vec::new(),
+        }));
         let mut remaining = self.policy.max_detail_bytes.min(budget::SCRATCH_BYTES);
         for path in paths {
             if self.cancel.is_cancelled() || Instant::now() >= self.deadline {
@@ -94,7 +104,12 @@ impl Runner {
                 .map(|f| f.bytes.as_slice())
         };
         let has = |prefix: &[u8]| files.iter().any(|f| f.name.starts_with(prefix));
-        let family = if has(b"rebase-merge/") {
+        let family = if (has(b"rebase-merge/") && has(b"rebase-apply/"))
+            || (value(b"MERGE_HEAD").is_some()
+                && (value(b"CHERRY_PICK_HEAD").is_some() || value(b"REVERT_HEAD").is_some()))
+        {
+            Some(SequenceFamily::Unsupported)
+        } else if has(b"rebase-merge/") {
             Some(SequenceFamily::Rebase)
         } else if has(b"rebase-apply/") {
             Some(if value(b"rebase-apply/applying").is_some() {

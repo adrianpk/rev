@@ -153,11 +153,11 @@ Requirements: GIT10, GIT16-GIT19
 PR: pending
 
 - [x] T8.1: Implement explicit fast-forward/normal/no-fast-forward merge policies and rebase from exact observed refs with checked worktree/source preconditions.
-- [ ] T8.2: Prepare reviewed autosquash and observe Git-owned in-progress work through exact family-specific and generic status/continue/skip/abort controls; never launch an interactive external editor.
+- [x] T8.2: Prepare reviewed autosquash and observe Git-owned in-progress work through exact family-specific and generic status/continue/skip/abort controls; never launch an interactive external editor.
 - [ ] T8.3: Verify successful and conflicted local histories, stale HEAD, missing sequence, wrong-family controls and skipped/aborted outcomes; source reload follows existing automatic/ask policy.
 
-Validation: T8.1 development formatter, strict focused Clippy, all six integration tests and 21 reference tests pass. Real Git fixtures verify merge policies, ordinary rebase, exact conflict/lineage observations, stale/dirty/autostash rejection and both-profile native review/source behavior. Documentation checks 517 commands and 268 configuration entries. Final exact-HEAD evidence remains pending.
-Integration: T8.1 introduces the canonical report; T8.2-T8.3 and canonical PR preparation remain pending.
+Validation: T8.1-T8.2 development formatter, strict focused Clippy, all 10 integration tests and 21 reference tests pass. Actual SHA-1/SHA-256 autosquash trees/messages/authors match Git; sequence controls verify continue/skip/abort results and both-profile native review. Documentation checks 526 commands and 268 configuration entries. T8.3 and final exact-HEAD evidence remain pending.
+Integration: T8.1 introduces the canonical report; T8.2 is implemented. T8.3 and canonical PR preparation remain pending.
 
 ## Slice 9: Ordered revisions and manual bisect
 

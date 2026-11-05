@@ -8,6 +8,7 @@ fn program(fixture: &Fixture, script: &str, output_bytes: usize) -> Program {
         seconds: 1,
         output_bytes,
         input: None,
+        editors: Editors::Disabled,
     }
 }
 

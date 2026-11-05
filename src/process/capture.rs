@@ -15,12 +15,19 @@ use std::{
     time::{Duration, Instant},
 };
 
+pub(crate) enum Editors {
+    Disabled,
+    AcceptMessage,
+    Todo(std::fs::File),
+}
+
 pub(crate) struct Program {
     pub argv: Vec<OsString>,
     pub directory: PathBuf,
     pub seconds: usize,
     pub output_bytes: usize,
     pub input: Option<std::fs::File>,
+    pub editors: Editors,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -49,6 +56,7 @@ pub(crate) struct Owned {
     exit: Option<OwnedFd>,
     observe_error: Option<String>,
     pid: Pid,
+    _todo: Option<std::fs::File>,
 }
 
 impl Program {
@@ -111,7 +119,11 @@ impl Program {
         }
     }
 
-    fn launch(&self, input: Option<std::fs::File>, cancel: &Cancellation) -> Result<Owned, String> {
+    fn launch(
+        &mut self,
+        input: Option<std::fs::File>,
+        cancel: &Cancellation,
+    ) -> Result<Owned, String> {
         if self.argv.is_empty()
             || self.argv.len() > 64
             || self
@@ -130,6 +142,20 @@ impl Program {
         if cancel.is_cancelled() {
             return Err("Git cancelled before launch".into());
         }
+        // Check fixed noninteractive drivers before Git can change anything.
+        use std::os::unix::fs::PermissionsExt;
+        let drivers: &[&str] = match self.editors {
+            Editors::Disabled => &[],
+            Editors::AcceptMessage => &["/bin/true"],
+            Editors::Todo(_) => &["/bin/true", "/bin/cp"],
+        };
+        for path in drivers {
+            if !std::fs::metadata(path)
+                .is_ok_and(|m| m.is_file() && m.permissions().mode() & 0o111 != 0)
+            {
+                return Err("Fixed noninteractive Git editor driver is unavailable".into());
+            }
+        }
         let (streams, stdout, stderr) = Streams::new()?;
         let mut command = Command::new(&self.argv[0]);
         command
@@ -144,6 +170,24 @@ impl Program {
             .env("GIT_EDITOR", "false")
             .env("GIT_SEQUENCE_EDITOR", "false")
             .env("GIT_PAGER", "cat");
+        match &self.editors {
+            Editors::Disabled => {}
+            Editors::AcceptMessage => {
+                command.env("GIT_EDITOR", "/bin/true");
+            }
+            Editors::Todo(file) => {
+                use std::os::fd::AsRawFd;
+                command.env("GIT_EDITOR", "/bin/true");
+                command.env(
+                    "GIT_SEQUENCE_EDITOR",
+                    format!(
+                        "/bin/cp -- /proc/{}/fd/{}",
+                        std::process::id(),
+                        file.as_raw_fd()
+                    ),
+                );
+            }
+        }
         // Ambient repository overrides must not redirect an explicitly
         // captured directory to an unrelated worktree or index.
         for key in [
@@ -171,6 +215,10 @@ impl Program {
             exit: observed.ok(),
             observe_error,
             pid,
+            _todo: match std::mem::replace(&mut self.editors, Editors::Disabled) {
+                Editors::Todo(file) => Some(file),
+                _ => None,
+            },
         })
     }
 }

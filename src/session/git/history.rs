@@ -237,7 +237,7 @@ impl Session {
         if update.published {
             self.reconcile_git_inspection(requested);
         }
-        if self.git.page == Page::Refs && self.git.refs.failed {
+        if matches!(self.git.page, Page::Refs | Page::Sequence) && self.git.refs.failed {
             return;
         }
         self.message(if update.published {

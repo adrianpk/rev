@@ -23,6 +23,12 @@ impl Request {
     pub fn kind(&self) -> OperationKind {
         match self {
             Self::Integration(super::integration::Request::Observe(_)) => OperationKind::Sequence,
+            Self::Integration(super::integration::Request::PrepareAutosquash { .. }) => {
+                OperationKind::AutosquashPrepare
+            }
+            Self::Integration(super::integration::Request::Control { .. }) => {
+                OperationKind::SequenceControl
+            }
             Self::Integration(_) => OperationKind::Integration,
             Self::Refs(super::refs::Request::PreparePush { .. }) => OperationKind::PushPrepare,
             Self::Refs(super::refs::Request::Push(_)) => OperationKind::Push,
@@ -52,6 +58,7 @@ pub(super) enum Publication {
     TagIntent(TagIntent),
     PushIntent(PushIntent),
     Sequence(Sequence),
+    Autosquash(AutosquashPlan),
 }
 
 enum Candidate {
@@ -63,6 +70,7 @@ enum Candidate {
     TagIntent(TagIntent),
     PushIntent(PushIntent),
     Sequence(Sequence),
+    Autosquash(AutosquashPlan),
 }
 
 pub(super) struct Finished {
@@ -91,7 +99,11 @@ pub(super) fn start(
                 Request::Refs(
                     super::refs::Request::Fetch { .. } | super::refs::Request::Push(_),
                 ) => policy.transport_timeout_seconds,
-                Request::Integration(super::integration::Request::Start { .. })
+                Request::Integration(
+                    super::integration::Request::Start { .. }
+                    | super::integration::Request::Autosquash(_)
+                    | super::integration::Request::Control { .. },
+                )
                 | Request::Index(_)
                 | Request::Discard(_)
                 | Request::Commit(_)
@@ -115,6 +127,9 @@ pub(super) fn start(
                 transport_diagnostic: None,
                 effects: Effects::NotStarted,
                 in_progress: false,
+                completion: None,
+                accept_message: false,
+                todo_editor: None,
                 operation_failure: None,
                 failure_verified: false,
                 argv: Vec::new(),
@@ -170,6 +185,9 @@ struct Runner {
     transport_diagnostic: Option<&'static str>,
     effects: Effects,
     in_progress: bool,
+    completion: Option<Outcome>,
+    accept_message: bool,
+    todo_editor: Option<std::fs::File>,
     operation_failure: Option<String>,
     failure_verified: bool,
     argv: Vec<OsString>,
@@ -375,6 +393,13 @@ impl Runner {
             seconds: self.seconds,
             output_bytes: detail_cap.map_or(remaining, |cap| cap.min(remaining)),
             input,
+            editors: if let Some(file) = self.todo_editor.take() {
+                capture::Editors::Todo(file)
+            } else if self.accept_message {
+                capture::Editors::AcceptMessage
+            } else {
+                capture::Editors::Disabled
+            },
         };
         let progress = self.progress.clone();
         let wake = self.wake.clone();
@@ -489,7 +514,7 @@ impl Runner {
                     Outcome::Indeterminate
                 }
                 _ if self.operation_failure.is_some() => Outcome::Failed,
-                _ if observed.is_ok() => Outcome::Verified,
+                _ if observed.is_ok() => self.completion.unwrap_or(Outcome::Verified),
                 _ => Outcome::Failed,
             }
         };
@@ -525,6 +550,7 @@ impl Runner {
         };
         record.admission = admission.split(record.bytes() + 4096);
         let publication = observed.and_then(|candidate| match candidate {
+            Candidate::Autosquash(plan) => Ok(Publication::Autosquash(plan)),
             Candidate::Sequence(sequence) => Ok(Publication::Sequence(sequence)),
             Candidate::PushIntent(intent) => Ok(Publication::PushIntent(intent)),
             Candidate::TagIntent(intent) => Ok(Publication::TagIntent(intent)),

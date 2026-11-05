@@ -311,6 +311,36 @@ impl Session {
                     self.confirm_git_integration(crate::git::IntegrationMode::Rebase)
                 }
                 GitCommand::OperationStatus => self.open_git_sequence(),
+                GitCommand::RebaseAutosquash => self.prepare_git_autosquash(),
+                GitCommand::MergeContinue => self.request_git_control(
+                    crate::git::SequenceControl::Continue,
+                    Some(crate::git::SequenceFamily::Merge),
+                ),
+                GitCommand::MergeAbort => self.request_git_control(
+                    crate::git::SequenceControl::Abort,
+                    Some(crate::git::SequenceFamily::Merge),
+                ),
+                GitCommand::RebaseContinue => self.request_git_control(
+                    crate::git::SequenceControl::Continue,
+                    Some(crate::git::SequenceFamily::Rebase),
+                ),
+                GitCommand::RebaseSkip => self.request_git_control(
+                    crate::git::SequenceControl::Skip,
+                    Some(crate::git::SequenceFamily::Rebase),
+                ),
+                GitCommand::RebaseAbort => self.request_git_control(
+                    crate::git::SequenceControl::Abort,
+                    Some(crate::git::SequenceFamily::Rebase),
+                ),
+                GitCommand::OperationContinue => {
+                    self.request_git_control(crate::git::SequenceControl::Continue, None)
+                }
+                GitCommand::OperationSkip => {
+                    self.request_git_control(crate::git::SequenceControl::Skip, None)
+                }
+                GitCommand::OperationAbort => {
+                    self.request_git_control(crate::git::SequenceControl::Abort, None)
+                }
                 GitCommand::TagCreate => self.prompt_git_tag(),
                 GitCommand::TagDelete => self.confirm_git_tag_delete(),
                 GitCommand::Push => self.prepare_git_push(),
@@ -640,6 +670,10 @@ impl Session {
             return Action::Wait;
         }
         for update in updates {
+            if self.git.refs.autosquash_preparing == Some(update.operation) {
+                self.publish_git_autosquash_preparation(&update);
+                continue;
+            }
             if self.git.refs.integration_request == Some(update.operation) {
                 self.publish_git_integration(&update);
                 continue;

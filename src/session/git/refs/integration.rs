@@ -1,5 +1,5 @@
 use super::*;
-use crate::git::{IntegrationMode, Outcome};
+use crate::git::{IntegrationMode, Outcome, SequenceControl, SequenceFamily};
 
 impl Work {
     fn sequence_lines(&self, width: usize) -> impl Iterator<Item = String> + '_ {
@@ -8,7 +8,7 @@ impl Work {
             .context
             .and_then(|id| self.engine.context(id))
             .and_then(|c| c.sequence.as_ref());
-        (0..sequence.map_or(9, |s| 9 + s.targets.len() + s.conflicts.len()))
+        (0..sequence.map_or(10, |s| 10 + s.targets.len() + s.conflicts.len()))
             .map(move |row| {
                 let Some(s) = sequence else {
                     return if row == 0 {
@@ -53,11 +53,24 @@ impl Work {
                         s.total.map_or("unavailable".into(), |n| n.to_string())
                     ),
                     8 => format!("Exact conflict paths: {}", s.conflicts.len()),
-                    _ if row - 9 < s.targets.len() => {
-                        format!("Merge target: {}", s.targets[row - 9].hex())
+                    9 => format!(
+                        "Admitted controls: {}",
+                        [
+                            SequenceControl::Continue,
+                            SequenceControl::Skip,
+                            SequenceControl::Abort
+                        ]
+                        .into_iter()
+                        .filter(|action| s.control_admission(*action, None).is_ok())
+                        .map(SequenceControl::label)
+                        .collect::<Vec<_>>()
+                        .join(", ")
+                    ),
+                    _ if row - 10 < s.targets.len() => {
+                        format!("Merge target: {}", s.targets[row - 10].hex())
                     }
                     _ => label(
-                        s.conflicts[row - 9 - s.targets.len()]
+                        s.conflicts[row - 10 - s.targets.len()]
                             .as_os_str()
                             .as_encoded_bytes(),
                     ),
@@ -160,6 +173,7 @@ impl Session {
         match self.git.engine.sequence(context) {
             Ok(id) => {
                 self.git.refs.integration_request = Some(id);
+                self.git.refs.control_preparing = None;
                 self.git.page = Page::Sequence;
                 self.git.state.menu = false;
                 self.git.painted = None;
@@ -167,6 +181,183 @@ impl Session {
             }
             Err(e) => self.error(&e),
         }
+    }
+    pub(in crate::session::git) fn request_git_control(
+        &mut self,
+        action: SequenceControl,
+        family: Option<SequenceFamily>,
+    ) -> Action {
+        let Some(context) = self.git.state.context.filter(|_| self.git.visible) else {
+            return self.message("Open Git Status before requesting sequence control");
+        };
+        match self.git.engine.sequence(context) {
+            Ok(id) => {
+                self.git.refs.integration_request = Some(id);
+                self.git.refs.control_preparing = Some((action, family));
+                self.git.page = Page::Sequence;
+                self.git.state.menu = false;
+                self.git.painted = None;
+                self.message("Checking the actual Git-owned sequence before control review")
+            }
+            Err(e) => self.error(&e),
+        }
+    }
+    fn confirm_git_control(
+        &mut self,
+        action: SequenceControl,
+        family: Option<SequenceFamily>,
+    ) -> Action {
+        let Some(sequence) = self
+            .git
+            .state
+            .context
+            .and_then(|id| self.git.engine.context(id))
+            .and_then(|c| c.sequence.clone())
+        else {
+            return self.message("No fresh Git sequence observation is available");
+        };
+        if let Err(e) = sequence.control_admission(action, family) {
+            return self.error(&e);
+        }
+        let sources = match self.git_branch_sources(&sequence.refs) {
+            Ok(s) => s,
+            Err(e) => return self.error(&e),
+        };
+        let message = format!(
+            "Confirm {} of actual {:?} sequence? y=accept, n=cancel",
+            action.label(),
+            sequence.family
+        );
+        let review = format!(
+            "Checked sequence control review\nActual family: {:?}\nAction: {}\nCurrent HEAD ref: {}\nCurrent HEAD: {}\nOriginal object: {}\nOriginal branch: {}\nOnto: {}\nCurrent revision: {}\nStep {:?} / {:?}\nConflicts: {}\nExact Git metadata, refs, index, working tree and visiting source owners must remain unchanged.\nCancellation does not abort. y / C-Enter / C-c C-c accept; n / C-g cancel.",
+            sequence.family,
+            action.label(),
+            label(&sequence.refs.head_ref),
+            sequence.refs.head.map_or("unborn".into(), |id| id.hex()),
+            sequence
+                .original
+                .map_or("unavailable".into(), |id| id.hex()),
+            label(&sequence.branch),
+            sequence.onto.map_or("unavailable".into(), |id| id.hex()),
+            sequence.current.map_or("unavailable".into(), |id| id.hex()),
+            sequence.step,
+            sequence.total,
+            sequence.conflicts.len()
+        );
+        self.confirm_git_ref(
+            sequence.refs.clone(),
+            RefAction::Control {
+                sequence,
+                action,
+                family,
+            },
+            Some(sources),
+            message,
+            review,
+        )
+    }
+    pub(in crate::session::git) fn prepare_git_autosquash(&mut self) -> Action {
+        let Some(refs) =
+            self.git.refs().cloned().filter(|_| {
+                self.git.visible && self.git.page == Page::Refs && !self.git.refs.failed
+            })
+        else {
+            return self.message("Select one exact autosquash target in current Refs");
+        };
+        let Some(target) = self.git.refs.selected.clone() else {
+            return self.message("Select one exact autosquash target ref");
+        };
+        if let Err(e) = self.git_branch_sources(&refs) {
+            return self.error(&e);
+        }
+        match self.git.engine.prepare_autosquash(refs, &target) {
+            Ok(id) => {
+                self.git.refs.autosquash_preparing = Some(id);
+                self.git.painted = None;
+                self.message("Preparing the finite autosquash plan without starting a Git sequence")
+            }
+            Err(e) => self.error(&e),
+        }
+    }
+    pub(in crate::session::git) fn publish_git_autosquash_preparation(&mut self, update: &Update) {
+        if self
+            .git
+            .engine
+            .progress()
+            .any(|p| p.operation == update.operation)
+        {
+            return;
+        }
+        self.git.refs.autosquash_preparing = None;
+        if !self.git.visible
+            || self.git.page != Page::Refs
+            || self.pending.is_some()
+            || self.input.focus() != Focus::Editing
+        {
+            return;
+        }
+        let Some(plan) = update
+            .context
+            .filter(|_| update.published && self.git.state.context == update.context)
+            .and_then(|id| self.git.engine.context(id))
+            .and_then(|c| c.autosquash.clone())
+        else {
+            let detail = self
+                .git
+                .engine
+                .record(update.operation)
+                .and_then(|r| r.diagnostic.as_deref())
+                .unwrap_or("inspect git-processes");
+            self.message(&format!("Autosquash preparation failed: {detail}"));
+            return;
+        };
+        let sources = match self.git_branch_sources(&plan.refs) {
+            Ok(s) => s,
+            Err(e) => {
+                self.error(&e);
+                return;
+            }
+        };
+        let mut review = format!(
+            "Reviewed autosquash plan\nCurrent branch: {}\nOriginal HEAD: {}\nSelected full target ref: {}\nExact target: {}\nSource merge base: {}\nOrdered actions ({} / 256 admitted):\n",
+            label(&plan.refs.head_ref),
+            plan.refs.head.map_or("unborn".into(), |id| id.hex()),
+            label(&plan.target_name),
+            plan.target.hex(),
+            plan.base.hex(),
+            plan.steps.len()
+        );
+        // The plan is already admitted. Reserve presentation before allocating
+        // its bounded full-object/subject review; the consent retains it next.
+        let size = review.len()
+            + plan
+                .steps
+                .iter()
+                .map(|s| s.subject.len() + 128)
+                .sum::<usize>();
+        let _admission = match self.git.engine.source_admission(size * 2) {
+            Ok(a) => a,
+            Err(e) => {
+                self.error(&e);
+                return;
+            }
+        };
+        for step in &plan.steps {
+            review.push_str(&format!(
+                "{} {} {}\n",
+                step.action.label(),
+                step.object.hex(),
+                step.subject
+            ));
+        }
+        review.push_str("Git keeps hooks/signing authority. No implicit autostash or executable todo actions. y / C-Enter / C-c C-c accept; n / C-g cancel.");
+        self.confirm_git_ref(
+            plan.refs.clone(),
+            RefAction::Autosquash(plan),
+            Some(sources),
+            "Confirm this exact ordered autosquash plan? y=accept, n=cancel".into(),
+            review,
+        );
     }
     pub(in crate::session::git) fn publish_git_integration(&mut self, update: &Update) {
         if self
@@ -179,9 +370,25 @@ impl Session {
             return;
         }
         self.git.refs.integration_request = None;
-        self.publish_git_refs(update);
+        let pending_control = self.git.refs.control_preparing.take();
+        if pending_control.is_some() {
+            self.git.refs.failed = !update.published;
+            if update.published {
+                self.git.state.context = update.context;
+            }
+            self.observe_files();
+            self.git.painted = None;
+        } else {
+            self.publish_git_refs(update);
+        }
         let record = self.git.engine.record(update.operation);
         let in_progress = record.is_some_and(|r| r.outcome == Outcome::InProgress);
+        let completed =
+            record.is_some_and(|r| matches!(r.outcome, Outcome::Skipped | Outcome::Aborted));
+        let aborted = record.is_some_and(|r| r.outcome == Outcome::Aborted);
+        if update.published && completed {
+            self.git.refs.failed = false;
+        }
         let observed = record.is_some_and(|r| r.kind == crate::git::OperationKind::Sequence);
         if update.published && (in_progress || observed) {
             self.git.page = Page::Sequence;
@@ -189,7 +396,17 @@ impl Session {
             self.git.refs.failed = false;
         }
         if self.git.visible && self.pending.is_none() && self.input.focus() == Focus::Editing {
-            self.message(if in_progress {
+            if let Some((action, family)) = pending_control
+                .filter(|_| update.published && self.git.state.context == update.context)
+            {
+                self.confirm_git_control(action, family);
+                return;
+            }
+            self.message(if aborted {
+                "Git sequence aborted; original branch and object verified"
+            } else if completed {
+                "Git sequence skipped; resulting branch and lineage verified"
+            } else if in_progress {
                 "Git integration stopped in progress; inspect the exact sequence and conflicts"
             } else if self.git.refs.failed {
                 "Integration failed or effects remain uncertain; inspect git-processes"

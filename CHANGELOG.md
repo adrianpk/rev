@@ -40,10 +40,12 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
   remote and destination with p before a single non-forced push. Conflicting
   publication settings reject; unavailable remote verification stays explicit.
   Review a fast-forward-only, ordinary or required-commit merge, or an ordinary
-  rebase onto an exact selected ref. Integration protects unsaved sources and
-  shows real Git sequence/conflict stops separately from completed work.
-  Changed
-  files follow your reload policy, protecting unsaved source text.
+  rebase onto an exact selected ref. Review a finite autosquash plan with E.
+  Inspect actual Git sequence/conflict stops, including externally started work,
+  and confirm compatible continue, skip or abort controls against fresh state.
+  Integration protects unsaved sources and reports in-progress, completed,
+  skipped and aborted outcomes. Changed files follow your reload policy,
+  protecting unsaved source text.
   Return to the same windows
   and terminals. Inspect active and
   recent Git processes, cancel a selected operation, and confirm before quitting

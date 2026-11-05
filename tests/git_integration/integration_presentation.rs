@@ -81,3 +81,87 @@ fn unsaved_integration() {
     assert_eq!(text(editor), source);
     assert_eq!(editor.view().point, point);
 }
+
+// Native autosquash starts only after finite full-object review, and both
+// profiles route the approved submit aliases through the same request owner.
+#[test]
+fn native_autosquash() {
+    for profile in ["non-modal", "modal"] {
+        let repository = Repository::new("sha1");
+        let mut owned = editor(&repository, profile, "", true);
+        let editor = &mut owned.0;
+        autosquash_source(&repository);
+        let before = repository.git(["rev-parse", "HEAD"]);
+        entry(editor);
+        wait(editor, |s| s.git_observation().is_some());
+        plain(editor, 'b');
+        wait(editor, |s| s.echo().contains("Refs and Status checked"));
+        key(editor, KeyCode::Down, KeyModifiers::NONE);
+        plain(editor, 'E');
+        wait(editor, |s| {
+            s.echo()
+                .contains("Confirm this exact ordered autosquash plan")
+        });
+        let frame = render(editor).join("\n");
+        assert!(frame.contains("Reviewed autosquash plan"), "{frame}");
+        assert!(
+            frame.contains(String::from_utf8_lossy(&before).trim()),
+            "{frame}"
+        );
+        key(editor, KeyCode::Enter, KeyModifiers::NONE);
+        assert_eq!(repository.git(["rev-parse", "HEAD"]), before);
+        if profile == "non-modal" {
+            key(editor, KeyCode::Enter, KeyModifiers::CONTROL);
+        } else {
+            key(editor, KeyCode::Char('c'), KeyModifiers::CONTROL);
+            key(editor, KeyCode::Char('c'), KeyModifiers::CONTROL);
+        }
+        wait(editor, |s| s.echo().contains("Integration verified"));
+        assert_eq!(
+            repository.git(["rev-list", "--count", "topic..HEAD"]),
+            b"2\n"
+        );
+        assert_eq!(fs::read(repository.root.join("first")).unwrap(), b"fixed\n");
+    }
+}
+
+// A family-specific native abort refreshes external Git state, rejects the
+// wrong family, and leaves a canceled review's real merge stop intact.
+#[test]
+fn native_sequence() {
+    use std::process::Command as Process;
+    for profile in ["non-modal", "modal"] {
+        let repository = Repository::new("sha256");
+        let mut owned = editor(&repository, profile, "", true);
+        let editor = &mut owned.0;
+        topic(&repository, true);
+        let original = repository.git(["rev-parse", "HEAD"]);
+        assert!(
+            !Process::new(&repository.program)
+                .args(["merge", "--no-edit", "topic"])
+                .current_dir(&repository.root)
+                .output()
+                .unwrap()
+                .status
+                .success()
+        );
+        entry(editor);
+        wait(editor, |s| s.git_observation().is_some());
+        editor.execute(Command::Git(GitCommand::RebaseAbort));
+        wait(editor, |s| {
+            s.echo().contains("different Git sequence family")
+        });
+        plain(editor, 'X');
+        wait(editor, |s| s.echo().contains("Confirm abort"));
+        let frame = render(editor).join("\n");
+        assert!(frame.contains("Checked sequence control review"), "{frame}");
+        plain(editor, 'n');
+        assert!(repository.root.join(".git/MERGE_HEAD").exists());
+        editor.execute(Command::Git(GitCommand::OperationAbort));
+        wait(editor, |s| s.echo().contains("Confirm abort"));
+        key(editor, KeyCode::Enter, KeyModifiers::CONTROL);
+        wait(editor, |s| s.echo().contains("sequence aborted"));
+        assert_eq!(repository.git(["rev-parse", "HEAD"]), original);
+        assert!(!repository.root.join(".git/MERGE_HEAD").exists());
+    }
+}

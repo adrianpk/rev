@@ -1652,6 +1652,13 @@ max_result_bytes = 262144
 
 # Exact local/tracking refs and checked local branch actions in both profiles.
 [keys.git_refs]
+"E" = "git-rebase-autosquash"
+"m c" = "git-merge-continue"
+"m a" = "git-merge-abort"
+"r a" = "git-rebase-autosquash"
+"r c" = "git-rebase-continue"
+"r s" = "git-rebase-skip"
+"r A" = "git-rebase-abort"
 "=" = "git-merge-fast-forward"
 "i" = "git-merge"
 "I" = "git-merge-no-fast-forward"
@@ -1696,6 +1703,11 @@ max_result_bytes = 262144
 
 # Independent Git-owned sequence observation in both profiles.
 [keys.git_sequence]
+">" = "git-merge-continue"
+"X" = "git-merge-abort"
+"]" = "git-rebase-continue"
+";" = "git-rebase-skip"
+"Z" = "git-rebase-abort"
 "C-x g" = "git-status"
 "q" = "git-quit"
 "g" = "git-refresh"

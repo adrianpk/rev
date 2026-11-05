@@ -701,6 +701,15 @@ Status reads disk and Git state; it does not save an unsaved source buffer.
 | `git-merge-fast-forward` | Review an exact integration target and require Git's fast-forward-only policy. |
 | `git-merge-no-fast-forward` | Review an exact integration target and require a merge commit when integration has work. |
 | `git-rebase` | Review ordinary rebase of the checked current branch onto the exact selected ref's commit; require clean disk/index and unmodified visiting sources. |
+| `git-merge-continue` | Refresh and confirm continuation of a compatible merge with saved staged resolutions; verify the exact resulting parents and index tree. |
+| `git-merge-abort` | Refresh and confirm abort of a compatible merge; verify restoration of its exact original branch and object. |
+| `git-rebase-autosquash` | Prepare and explicitly review at most 256 ordered pick/fixup/squash actions and full source IDs before rebasing onto the exact selected target; no interactive external editor or executable todo commands. |
+| `git-rebase-continue` | Refresh and confirm continuation of a compatible Git-owned rebase with saved staged resolutions and exact lineage. |
+| `git-rebase-skip` | Refresh and explicitly confirm skipping the current compatible rebase step; expose the actual sequence or completed skipped outcome. |
+| `git-rebase-abort` | Refresh and confirm abort of a compatible rebase; verify its original branch and object. |
+| `git-operation-continue` | Refresh actual Git state and review one compatible family-specific continuation bound to that exact sequence. |
+| `git-operation-skip` | Refresh actual Git state and review a compatible skip; reject a missing or wrong-family sequence. |
+| `git-operation-abort` | Refresh actual Git state and review one compatible abort with exact original lineage; process cancellation is a separate action. |
 | `git-operation-status` | Refresh compatible Status/Refs and actual Git-owned sequence family, full current/original/onto identities, step and exact conflict paths, including external operations. |
 | `git-push` | Prepare and explicitly confirm one selected or marked exact local branch, its configured upstream remote and full destination; push one object without force or expanded publication and verify the actual push endpoint. |
 | `git-fetch` | Fetch the exact selected configured remote in Refs with its observed transport/refspec policy; refresh tracking facts and Status without merge or rebase. |

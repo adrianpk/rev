@@ -39,6 +39,25 @@ T8.1 delivers exact merge/rebase starts and sequence inspection:
   `keys.git_sequence` has an independent both-profile navigation map and a
   complete active reference sample.
 
+T8.2 adds finite autosquash and compatible controls:
+
+- E / r a prepares a linear source plan of at most 256 full commit IDs without
+  starting rebase. Review orders pick, fixup, squash and amend-message fixup
+  actions. Missing or ambiguous fixup targets reject instead of being guessed.
+- Confirmation reconstructs the exact source range and ordered plan. A sealed
+  anonymous descriptor supplies only those actions to a fixed noninteractive
+  sequence driver; subjects never become executable todo text. Git retains
+  hooks, author identity and signing policy.
+- Family-specific and generic continue/skip/abort requests first refresh actual
+  Git state, then require one explicit review. Metadata, refs, index, worktree,
+  original lineage and visiting source stamps are checked again before effects.
+- The Operation view exposes eligible controls. Merge > / X continues/aborts;
+  rebase ] / ; / Z continues/skips/aborts. Refs provides m c / m a and
+  r c / r s / r A. Empty sequence directories remain observable; autostash,
+  executable todo content, expanded ref updates and missing lineage reject.
+- Actual completed skip and abort outcomes remain distinct from completion,
+  in-progress stops, process cancellation and uncertain effects.
+
 ## Implementation Notes
 
 The existing installed-Git worker owns structured argv, bounded process life,
@@ -77,6 +96,21 @@ external Git clients. No dependency or persistent repository store was added.
 
 ## Validation
 
+T8.2 development formatter and strict focused Clippy passed. The exact
+integration command below passed 10 tests (33.35 seconds), covering real
+SHA-1/SHA-256 autosquash trees, ordered messages and authors against Git's own
+sequencer, all merge/rebase continuation/skip/abort outcomes, external merge
+observation and both-profile native plan/control review. The reference command
+passed 21 tests; documentation checked 526 commands, 268 configuration entries,
+76 pages and 485 links. No fixture deadline or assertion changed.
+
+An initial merge-continuation postcondition incorrectly read an index field
+that is absent after sequence completion; direct resulting-index evidence
+corrected it. Strict Clippy required a fixed-size chunk iterator. The first
+reference run exposed missing primary binding catalog rows; the complete nine
+rows now pass the unchanged catalog checks.
+
+
 T8.1 development checks passed:
 
 - `cargo fmt --all -- --check`
@@ -89,11 +123,9 @@ T8.1 development checks passed:
 The initial compile required adding Sequence to the process-row page match.
 Strict Clippy required a typed sequence-file record and one collapsed branch.
 All subsequent focused checks passed. No assertion, fixture deadline or resource
-ceiling was weakened. T8.2-T8.3 and final exact-HEAD controller evidence remain
-pending.
+ceiling was weakened. T8.3 and final exact-HEAD controller evidence remain pending.
 
 ## Risks and Follow-ups
 
-T8.2 reviewed autosquash and compatible continuation controls and T8.3 extended
-sequence/reload acceptance remain pending. Combined PTY/resource acceptance
+T8.3 extended sequence/reload acceptance remains pending. Combined PTY/resource acceptance
 remains Slice 13; the full User Guide remains Slice 14.
