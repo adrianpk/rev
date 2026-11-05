@@ -1,6 +1,7 @@
 mod fold;
 mod headings;
 mod hit;
+mod indentation;
 pub use fold::FoldError;
 mod navigation;
 mod scroll;

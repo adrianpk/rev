@@ -59,7 +59,34 @@ pub(crate) struct Outline {
     column_format: Result<Option<String>, String>,
 }
 
+/// One current native line observation, including preamble and body ownership.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub(crate) struct Indentation {
+    pub level: usize,
+    pub heading: bool,
+}
+
 impl Outline {
+    pub(crate) fn indentation_at(&self, byte: usize) -> Option<Indentation> {
+        self.complete().ok()?;
+        let index = self
+            .headings
+            .partition_point(|heading| heading.start <= byte);
+        Some(index.checked_sub(1).map_or(
+            Indentation {
+                level: 0,
+                heading: false,
+            },
+            |index| {
+                let heading = &self.headings[index];
+                Indentation {
+                    level: heading.level,
+                    heading: heading.start == byte,
+                }
+            },
+        ))
+    }
+
     /// Exact native heading starts only; partial observations cannot decorate.
     pub(crate) fn heading_level_at(&self, byte: usize) -> Option<usize> {
         self.complete().ok()?;

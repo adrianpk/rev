@@ -11,10 +11,20 @@ const TEXT_BYTES: usize = 1024 * 1024;
 
 type Key = (usize, Scalar);
 
+#[derive(Clone, Copy, PartialEq, Eq)]
+struct Identity {
+    stamp: Stamp,
+    width: u16,
+    tab: usize,
+    wrap: bool,
+    indent: bool,
+    outline_ready: bool,
+}
+
 #[derive(Default)]
 struct Entries {
     work: Option<Work>,
-    identity: Option<(Stamp, u16, usize, bool)>,
+    identity: Option<Identity>,
     fragments: BTreeMap<Key, Fragment>,
     order: VecDeque<Key>,
     bytes: usize,
@@ -75,7 +85,7 @@ impl Cache {
             .lock()
             .expect("fragment cache poisoned")
             .identity
-            .map(|id| id.1);
+            .map(|id| id.width);
         if let Some(width) = width
             && let Some(fragment) = self.before(buffer, width, row, point)
         {
@@ -91,17 +101,22 @@ impl Cache {
     }
 
     fn observe(&self, buffer: &Buffer, width: u16) -> MutexGuard<'_, Entries> {
-        let identity = (
-            buffer.stamp(),
+        let identity = Identity {
+            stamp: buffer.stamp(),
             width,
-            buffer.policy().tab_width,
-            buffer.soft_wrap(),
-        );
+            tab: buffer.policy().tab_width,
+            wrap: buffer.soft_wrap(),
+            indent: buffer.org_indentation(),
+            outline_ready: buffer.org_indentation() && buffer.org_line_indentation(0).is_some(),
+        };
         let mut entries = self.0.lock().expect("fragment cache poisoned");
         if entries.identity != Some(identity) {
-            let prefix = entries.identity.and_then(|(stamp, old_width, tab, wrap)| {
-                (old_width == width && tab == identity.2 && wrap == identity.3)
-                    .then(|| buffer.unchanged_prefix(stamp))
+            let prefix = entries.identity.and_then(|old| {
+                (Identity {
+                    stamp: identity.stamp,
+                    ..old
+                } == identity)
+                    .then(|| buffer.unchanged_prefix(old.stamp))
                     .flatten()
             });
             if let Some(prefix) = prefix {
@@ -115,7 +130,7 @@ impl Cache {
                 entries.order = order;
                 entries.bytes = 0;
                 for f in entries.fragments.values_mut() {
-                    f.stamp = identity.0;
+                    f.stamp = identity.stamp;
                 }
                 entries.bytes = entries.fragments.values().map(|f| f.text.len()).sum();
                 entries.identity = Some(identity);
@@ -263,8 +278,11 @@ mod tests {
         let peer = view.clone_for_split();
         assert!(!Arc::ptr_eq(&view.wrap_cache.0, &peer.wrap_cache.0));
         peer.wrapped_rows(b, 13, 3).unwrap();
-        assert_eq!(peer.wrap_cache.0.lock().unwrap().identity.unwrap().1, 13);
-        assert_eq!(view.wrap_cache.0.lock().unwrap().identity.unwrap().1, 1);
+        assert_eq!(
+            peer.wrap_cache.0.lock().unwrap().identity.unwrap().width,
+            13
+        );
+        assert_eq!(view.wrap_cache.0.lock().unwrap().identity.unwrap().width, 1);
         assert_eq!(
             view.wrapped_rows(b, 1, 1).unwrap()[0].source.start,
             Scalar(0)
@@ -285,5 +303,45 @@ mod tests {
         assert!(cache.fragments.len() < LIMIT);
         assert_eq!(cache.bytes, TEXT_BYTES);
         assert_eq!(cache.fragments.len(), TEXT_BYTES / 512);
+    }
+
+    // Virtual padding is charged as cached text. Repeated reflow and internal
+    // policy changes keep both existing ceilings and rebuild the source end.
+    #[test]
+    fn indented_retention() {
+        let mut buffers = Buffers::new().unwrap();
+        let source = format!("** H\n{}{}", "x".repeat(LIMIT * 2 + 100), "\n".repeat(2200));
+        let id = buffers.create(&source).unwrap();
+        let b = buffers.get_mut(id).unwrap();
+        b.select_mode(crate::buffer::Mode::Org).unwrap();
+        let coloring = crate::org::ColorScan::new(b, crate::org::Limits::default())
+            .unwrap()
+            .run(&crate::org::Cancellation::default());
+        b.install_org_coloring(coloring).unwrap();
+        let view = View::new(b);
+        for enabled in [true, false, true] {
+            b.org_indent = enabled;
+            for width in [6, 512] {
+                let rows = view.wrapped_rows(b, width, 14000).unwrap();
+                assert_eq!(rows.last().unwrap().source.end, Scalar(b.len_chars()));
+                let cache = view.wrap_cache.0.lock().unwrap();
+                assert!(cache.fragments.len() <= LIMIT);
+                assert!(cache.bytes <= TEXT_BYTES);
+                assert_eq!(
+                    cache.bytes,
+                    cache
+                        .fragments
+                        .values()
+                        .map(|f| f.text.len())
+                        .sum::<usize>()
+                );
+                if enabled && width == 6 {
+                    assert_eq!(cache.fragments.len(), LIMIT);
+                }
+                if width == 512 {
+                    assert_eq!(cache.bytes, TEXT_BYTES);
+                }
+            }
+        }
     }
 }

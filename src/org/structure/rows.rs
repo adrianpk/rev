@@ -25,10 +25,48 @@ pub(super) fn collect(
         result.coverage = coverage;
     }
     result.covered = rows.last().map_or(0, |row| row.source.end);
+    if let Err(Stop(coverage)) = literal_rows(&mut rows, work) {
+        result.coverage = coverage;
+    }
     if let Err(Stop(coverage)) = pair(&mut rows, work) {
         result.coverage = coverage;
     }
     rows
+}
+
+// Closed literal blocks own their contents before outline boundaries are paired.
+// Two bounded passes avoid rescanning a suffix for every malformed opener.
+fn literal_rows(rows: &mut [Row], work: &mut Work<'_>) -> Parsed<()> {
+    use super::BlockKind;
+    let mut closings = HashMap::new();
+    for (index, row) in rows.iter_mut().enumerate().rev() {
+        work.tick()?;
+        match &row.token {
+            Token::EndBlock(name) => {
+                closings.insert(name.clone(), index);
+            }
+            Token::Block(
+                BlockKind::Source | BlockKind::Example | BlockKind::Export | BlockKind::Comment,
+                name,
+                _,
+            ) => row.close = closings.get(name).copied(),
+            _ => (),
+        }
+    }
+    let mut index = 0;
+    while index < rows.len() {
+        work.tick()?;
+        if let Some(close) = rows[index].close {
+            for row in &mut rows[index + 1..close] {
+                work.tick()?;
+                row.token = Token::Text;
+            }
+            index = close + 1;
+        } else {
+            index += 1;
+        }
+    }
+    Ok(())
 }
 
 fn read_rows(

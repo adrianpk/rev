@@ -7,6 +7,7 @@ use std::ops::Range;
 use crate::buffer::{Buffer, Stamp};
 use crate::coordinates::{Cell, Coordinates, Glyph, GlyphCheckpoint, Glyphs, Scalar};
 
+use super::indentation::Margins;
 use super::{Error, View};
 pub(crate) use crate::coordinates::Budget;
 
@@ -18,14 +19,34 @@ pub struct Fragment {
     pub line: usize,
     pub source: Range<Scalar>,
     pub columns: Range<usize>,
+    /// Virtual cells before this fragment's real source, never source scalars.
+    pub margin: u16,
     pub text: String,
     pub end_of_line: bool,
+    width: u16,
+    margins: Margins,
     // Includes break lookahead and the complete observed line terminator.
     observed_end: Scalar,
 }
 
 impl Fragment {
+    pub(super) fn check_projection(&self, buffer: &Buffer) -> Result<(), Error> {
+        self.remember_columns(buffer)?;
+        if self.margins != Margins::new(buffer, self.line, self.width) {
+            return Err(crate::coordinates::Error::Pending.into());
+        }
+        Ok(())
+    }
+
+    pub(super) fn layout_width(&self) -> u16 {
+        self.width
+    }
+
     pub(crate) fn remember_columns(&self, buffer: &Buffer) -> Result<(), Error> {
+        buffer.slice(&crate::buffer::Span {
+            stamp: self.stamp,
+            range: self.source.start.0..self.source.end.0,
+        })?;
         let coordinates = Coordinates::new(buffer)?;
         coordinates.remember_cell(
             self.source.start,
@@ -45,7 +66,21 @@ impl Fragment {
     }
 
     pub(crate) fn painted_width(&self, width: u16) -> u16 {
-        (self.columns.end - self.columns.start).min(usize::from(width)) as u16
+        usize::from(self.margin)
+            .saturating_add(self.columns.end - self.columns.start)
+            .min(usize::from(width)) as u16
+    }
+
+    pub(crate) fn screen_column(&self, column: usize) -> Option<usize> {
+        column
+            .checked_sub(self.columns.start)?
+            .checked_add(usize::from(self.margin))
+    }
+
+    pub(crate) fn source_column(&self, column: usize) -> usize {
+        self.columns
+            .start
+            .saturating_add(column.saturating_sub(usize::from(self.margin)))
     }
 
     // Only a real source newline can select the remaining blank cells.
@@ -59,9 +94,7 @@ impl Fragment {
 
     pub(crate) fn contains(&self, point: Scalar, width: u16) -> bool {
         self.source.contains(&point)
-            || self.end_of_line
-                && point == self.source.end
-                && self.columns.end - self.columns.start < usize::from(width)
+            || self.end_of_line && point == self.source.end && self.painted_width(width) < width
     }
 }
 
@@ -75,6 +108,7 @@ pub(super) struct Line<'a> {
     pending: VecDeque<Glyph<'a>>,
     line: usize,
     width: usize,
+    margins: Margins,
     end: Scalar,
     after_line: Scalar,
     column: usize,
@@ -89,6 +123,7 @@ pub(super) struct Continuation {
     pending: VecDeque<Glyph<'static>>,
     pub(super) line: usize,
     width: usize,
+    margins: Margins,
     pub(super) end: Scalar,
     after_line: Scalar,
     column: usize,
@@ -112,6 +147,7 @@ impl<'a> Line<'a> {
             pending: VecDeque::new(),
             line,
             width: usize::from(width),
+            margins: Margins::new(buffer, line, width),
             end: coordinates.from_cell(Cell {
                 row: line,
                 column: 0,
@@ -138,6 +174,7 @@ impl<'a> Line<'a> {
             pending: VecDeque::new(),
             line,
             width: usize::from(width),
+            margins: Margins::new(buffer, line, width),
             end: start,
             after_line: Self::after_line(buffer, &coordinates, line)?,
             column,
@@ -154,6 +191,7 @@ impl<'a> Line<'a> {
             pending: at.pending,
             line: at.line,
             width: at.width,
+            margins: at.margins,
             end: at.end,
             after_line: at.after_line,
             column: at.column,
@@ -170,6 +208,7 @@ impl<'a> Line<'a> {
             pending: self.pending.into_iter().map(Glyph::into_owned).collect(),
             line: self.line,
             width: self.width,
+            margins: self.margins,
             end: self.end,
             after_line: self.after_line,
             column: self.column,
@@ -211,7 +250,9 @@ impl<'a> Line<'a> {
             .pending
             .front()
             .map_or(self.column, |g| g.columns.start);
-        if !self.fill(budget, start)? {
+        let margin = self.margins.at(start);
+        let available = self.width - margin;
+        if !self.fill(budget, start, available)? {
             return Ok(Step::Pending);
         }
         let more = self.lookahead.is_some();
@@ -231,22 +272,26 @@ impl<'a> Line<'a> {
         // CRLF can change the body's final glyph and join the following row.
         let observed_end = if more { observed_end } else { self.after_line };
         let source = self.pending.front().map_or(self.end, |g| g.source.start);
-        let mut text = self.take_text(count, start);
-        let cells = (self.column - start).min(self.width);
-        text.extend(std::iter::repeat_n(' ', self.width - cells));
+        let mut text = " ".repeat(margin);
+        text.push_str(&self.take_text(count, start, available));
+        let cells = (self.column - start).min(available);
+        text.extend(std::iter::repeat_n(' ', available - cells));
         // An exact-width EOL needs a final insertion cell on the next row.
-        self.done = !more && self.pending.is_empty() && (count == 0 || cells < self.width);
+        self.done = !more && self.pending.is_empty() && (count == 0 || cells < available);
         Ok(Step::Fragment(Fragment {
             stamp: self.stamp,
             line: self.line,
             source: source..self.end,
             columns: start..self.column,
+            margin: margin as u16,
             text,
             end_of_line: !more && self.pending.is_empty(),
+            width: self.width as u16,
+            margins: self.margins,
             observed_end,
         }))
     }
-    fn fill(&mut self, budget: &mut Budget, start: usize) -> Result<bool, Error> {
+    fn fill(&mut self, budget: &mut Budget, start: usize, available: usize) -> Result<bool, Error> {
         loop {
             if self.lookahead.is_none() && !self.exhausted {
                 if !budget.charge() {
@@ -256,7 +301,7 @@ impl<'a> Line<'a> {
                 self.exhausted = self.lookahead.is_none();
             }
             let Some(glyph) = &self.lookahead else { break };
-            if glyph.columns.end - start > self.width && !self.pending.is_empty() {
+            if glyph.columns.end - start > available && !self.pending.is_empty() {
                 break;
             }
             self.pending
@@ -264,15 +309,15 @@ impl<'a> Line<'a> {
         }
         Ok(true)
     }
-    fn take_text(&mut self, count: usize, start: usize) -> String {
+    fn take_text(&mut self, count: usize, start: usize, available: usize) -> String {
         let mut text = String::new();
         for glyph in self.pending.drain(..count) {
             self.end = glyph.source.end;
             self.column = glyph.columns.end;
-            if glyph.columns.end - start <= self.width {
+            if glyph.columns.end - start <= available {
                 text.push_str(&glyph.text);
             } else {
-                text.extend(std::iter::repeat_n(' ', self.width));
+                text.extend(std::iter::repeat_n(' ', available));
             }
         }
         text
@@ -762,5 +807,27 @@ mod tests {
             line = Line::continue_from(b, line.suspend()).unwrap();
         }
         assert_eq!(actual.as_slice(), expected, "{width}/{allowance}");
+    }
+
+    // Resuming a heading mid-lookahead must keep both kinds of virtual margin
+    // and charge the same bounded glyph work, including Unicode/tab clusters.
+    #[test]
+    fn indented_batches() {
+        let mut buffers = Buffers::new().unwrap();
+        let source = format!("** {}", "one two longtoken a\t界e\u{301}👩‍💻 ".repeat(80));
+        let id = buffers.create(&source).unwrap();
+        let b = buffers.get_mut(id).unwrap();
+        b.select_mode(crate::buffer::Mode::Org).unwrap();
+        b.org_indent = true;
+        let coloring = crate::org::ColorScan::new(b, crate::org::Limits::default())
+            .unwrap()
+            .run(&crate::org::Cancellation::default());
+        b.install_org_coloring(coloring).unwrap();
+        for width in [1, 3, 13, 4097] {
+            let expected = reference(b, width);
+            for allowance in [1, 7, 256] {
+                check_batches(b, width, allowance, &expected);
+            }
+        }
     }
 }

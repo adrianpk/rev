@@ -174,6 +174,8 @@ pub struct Buffer {
     org: Option<crate::org::Index>,
     mode_choice: Option<Mode>,
     org_active: bool,
+    // Internal projection policy; startup admission is delivered separately.
+    pub(crate) org_indent: bool,
     org_highlights: Option<crate::org::Highlights>,
     org_attempt: Option<Stamp>,
     org_outline: Option<std::sync::Arc<crate::org::Outline>>,
@@ -239,6 +241,7 @@ impl Buffer {
             org: None,
             mode_choice: None,
             org_active: false,
+            org_indent: false,
             org_highlights: None,
             org_attempt: None,
             org_outline: None,

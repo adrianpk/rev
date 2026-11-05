@@ -3,7 +3,7 @@ use crate::coordinates::{Cell, Coordinates};
 use crate::display::Position;
 use crate::window::Area;
 
-use super::{Error, View};
+use super::{Error, Fragment, View, indentation::Margins};
 
 impl View {
     /// Resolve text through the same gutter/text partition used by painting.
@@ -48,8 +48,21 @@ impl View {
             .left
             .checked_add(usize::from(text.width()))
             .ok_or(crate::coordinates::Error::Overflow)?;
+        let margin = Margins::new(buffer, row, text.width()).at(0);
+        if column < margin {
+            return Ok(Some(Point {
+                stamp: buffer.stamp(),
+                position: Coordinates::new(buffer)?.from_cell(Cell { row, column: 0 })?,
+            }));
+        }
         Ok(Coordinates::new(buffer)?
-            .hit_cell(Cell { row, column }, self.left..right)?
+            .hit_cell(
+                Cell {
+                    row,
+                    column: column - margin,
+                },
+                self.left.saturating_sub(margin)..right.saturating_sub(margin),
+            )?
             .map(|position| Point {
                 stamp: buffer.stamp(),
                 position,
@@ -65,33 +78,47 @@ impl View {
         let Some(fragment) = fragments.get(usize::from(local.row)) else {
             return Ok(None);
         };
-        let left = fragment.columns.start;
-        let column = left
-            .checked_add(usize::from(local.column))
-            .ok_or(crate::coordinates::Error::Overflow)?;
-        let right = left
-            .checked_add(usize::from(text.width()))
-            .ok_or(crate::coordinates::Error::Overflow)?;
-        let coordinates = Coordinates::new(buffer)?;
-        coordinates.remember_cell(
-            fragment.source.start,
-            Cell {
-                row: fragment.line,
-                column: fragment.columns.start,
-            },
-        );
-        Ok(coordinates
-            .hit_cell(
-                Cell {
-                    row: fragment.line,
-                    column,
-                },
-                left..right,
-            )?
-            .filter(|point| fragment.contains(*point, text.width()))
+        Ok(fragment
+            .hit(buffer, text.width(), local.column)?
             .map(|position| Point {
                 stamp: buffer.stamp(),
                 position,
             }))
+    }
+}
+
+impl Fragment {
+    /// Padding selects the real fragment start. Partly clipped glyphs and
+    /// trailing fill retain the coordinate owner's existing rejection policy.
+    pub(crate) fn hit(
+        &self,
+        buffer: &Buffer,
+        width: u16,
+        column: u16,
+    ) -> Result<Option<crate::coordinates::Scalar>, Error> {
+        self.check_projection(buffer)?;
+        if self.layout_width() != width {
+            return Err(crate::coordinates::Error::Pending.into());
+        }
+        if column >= width {
+            return Ok(None);
+        }
+        if column < self.margin {
+            return Ok(Some(self.source.start));
+        }
+        let right = self
+            .columns
+            .start
+            .checked_add(usize::from(width.saturating_sub(self.margin)))
+            .ok_or(crate::coordinates::Error::Overflow)?;
+        Ok(Coordinates::new(buffer)?
+            .hit_cell(
+                Cell {
+                    row: self.line,
+                    column: self.source_column(usize::from(column)),
+                },
+                self.columns.start..right,
+            )?
+            .filter(|point| self.contains(*point, width)))
     }
 }

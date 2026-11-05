@@ -2,6 +2,16 @@ use super::{Buffer, Error, Stamp};
 use crate::org::Index;
 
 impl Buffer {
+    pub(crate) fn org_indentation(&self) -> bool {
+        self.is_org() && self.org_indent
+    }
+
+    /// No source scan: the existing native outline owns complete evidence.
+    pub(crate) fn org_line_indentation(&self, row: usize) -> Option<crate::org::Indentation> {
+        self.org_outline()?
+            .indentation_at(self.text.try_line_to_byte(row).ok()?)
+    }
+
     pub(crate) fn org_heading_level(&self, row: usize) -> Option<usize> {
         let outline = self.org_outline()?;
         outline.heading_level_at(self.text.try_line_to_byte(row).ok()?)

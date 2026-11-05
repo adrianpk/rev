@@ -141,12 +141,13 @@ impl View {
         fragment: &Fragment,
         column: usize,
     ) -> Result<Scalar, Error> {
+        fragment.check_projection(buffer)?;
         let coordinates = Coordinates::new(buffer)?;
         let edge = Self::visual_end(buffer, fragment)?;
         let last = coordinates.to_cell(edge)?.column;
         Ok(coordinates.from_cell(Cell {
             row: fragment.line,
-            column: fragment.columns.start.saturating_add(column).min(last),
+            column: fragment.source_column(column).min(last),
         })?)
     }
 
@@ -165,7 +166,9 @@ impl View {
         };
         let point = self.cell(buffer)?;
         let current = self.visual_fragment(buffer, width)?;
-        let column = point.column - current.columns.start;
+        let column = current
+            .screen_column(point.column)
+            .ok_or(crate::coordinates::Error::Overflow)?;
         for _ in 0..distance {
             let Some(next) = self.adjacent_fragment(buffer, width, &top, backward)? else {
                 break;

@@ -53,7 +53,11 @@ impl Work {
     fn new(view: &View, buffer: &Buffer, width: u16, origin: Origin) -> Result<Self, Error> {
         let point = geometry(view.visual_fragment(buffer, width)?);
         let Cell { column, .. } = view.cell(buffer)?;
-        let column = view.column.unwrap_or(column - point.columns.start);
+        let column = view.column.unwrap_or(
+            point
+                .screen_column(column)
+                .ok_or(crate::coordinates::Error::Overflow)?,
+        );
         let top = if origin.scroll.page() {
             view.wrapped_rows(buffer, width, 1)?.pop().map(geometry)
         } else {
