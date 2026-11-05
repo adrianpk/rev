@@ -1,11 +1,12 @@
 # Slice 2: Configured editing presentation
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-org-indentation
 Plan: [Org Indentation Delivery](../../../plan/rev-org-indentation.md)
 Tracker: [Org Indentation Tracker](../../../tracker/rev-org-indentation.md)
 Branch: `feat/rev-org-indentation-02-presentation`
 PR: `#277`
+Integrated: `8e839d21cdb029012d6f5c6400c6f5abec6cbff3`
 
 ## Purpose
 
@@ -104,8 +105,9 @@ format 2.72s, Clippy 1.35s, required native tests 171.38s, documentation 1.27s a
 additional view regression 48.47s. The view filter included a 43.30s first build;
 the configuration suite accounted for 92.92s of the required batch.
 
-Looper records authoritative exact clean-HEAD evidence after the final
-PR-reference commit. These implementation checks do not replace that receipt.
+All five required commands passed through Looper on the exact clean final HEAD
+`8e839d21cdb029012d6f5c6400c6f5abec6cbff3`. The canonical PR contract was
+verified, and PR #277 is merged into dev at that same commit.
 The controller-owned combined gate and real PTY journeys have not run for this
 slice; the Markdown-derived Spore build remains in the approved later work.
 
