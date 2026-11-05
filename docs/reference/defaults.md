@@ -247,7 +247,7 @@ Both use M-x or modal colon and leave this configuration unchanged.
 | `keys.git_refs` | Map of chord sequences to native ref commands | Compiled map | Ref inspection, explicit fetch, reviewed upstream push and confirmed local branch/tag actions in both profiles; all 48 entries are active in the sample. |
 | `keys.git_sequence` | Map of chord sequences to native sequence commands | Compiled map | Independent Git Operation navigation and checked sequence controls in both profiles; all 21 entries are active in the sample. |
 | `keys.git_inspect` | Map of chord sequences to read-only Git inspection commands | Compiled map | Revision, reflog, blame and historical bytes in both profiles; all 21 entries are active in the sample. |
-| `keys.git_history` | Map of chord sequences to admitted Git navigation commands | Compiled map | History in both profiles; all 26 entries are active in the sample. |
+| `keys.git_history` | Map of chord sequences to admitted Git navigation commands | Compiled map | History in both profiles, with reviewed ordered cherry-pick/revert; all 28 entries are active in the sample. |
 | `keys.git_commit` | Map of chord sequences to native composer commands | Compiled map | Inherits editor keys for commit and tag message composition in both profiles; all 4 entries are active in the sample. |
 | `keys.git` | Map of chord sequences to admitted Git commands | Compiled map | One native Git interaction owner in both profiles; all 37 entries are active in the sample. |
 | `keys.bookmark_list` | Map of chord sequences to admitted bookmark-list commands | Compiled map | Read-only bookmark view; all 16 entries are active in the sample. Prompts retain their own input maps. |

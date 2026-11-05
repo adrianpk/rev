@@ -31,6 +31,8 @@ pub enum GitCommand {
     Show,
     LogNextPage,
     ShowRange,
+    CherryPick,
+    Revert,
     SequenceMark,
     SequenceUnmark,
     Reflog,
@@ -86,6 +88,8 @@ impl GitCommand {
             Self::BranchDelete => "git-branch-delete",
 
             Self::ShowRange => "git-show-range",
+            Self::CherryPick => "git-cherry-pick",
+            Self::Revert => "git-revert",
             Self::SequenceMark => "git-sequence-mark",
             Self::SequenceUnmark => "git-sequence-unmark",
             Self::Reflog => "git-reflog",

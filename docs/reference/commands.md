@@ -719,6 +719,8 @@ Status reads disk and Git state; it does not save an unsaved source buffer.
 | `git-branch-rename` | Collect a new name and confirm the exact selected local branch; preserve its object and reject replacement of an existing name. |
 | `git-branch-delete` | Confirm exact local deletion; require a noncurrent branch merged into checked HEAD and retain Git's non-forced protection. |
 | `git-show-range` | Compare the marked full base and selected full endpoint in that order; keep the exact read-only range through refresh. |
+| `git-cherry-pick` | Prepare the selected History revision or independent ordered marks; choose a mainline number for each merge, review full targets/parents and confirm that exact order. |
+| `git-revert` | Prepare and confirm the selected or independently marked ordered revisions for revert, including each merge mainline; preserve the requested order. |
 | `git-sequence-mark` | Append the selected History revision once to a bounded ordered set, retaining the independent range base. |
 | `git-sequence-unmark` | Remove the selected revision from the ordered set, retaining remaining order and the range base. |
 | `git-reflog` | Inspect bounded HEAD reflog entries; volatile selectors stay display metadata, while revision visits use full objects. |
@@ -755,6 +757,15 @@ malformed and truncated results. g refreshes Status and the retained comparison;
 old detail is labeled stale until replacement succeeds. Return visits the real
 current file, preserving an existing modified source buffer. A deleted path or
 directory has no current source file to visit. q returns one presentation level.
+
+From Refs, the native `git-log` command opens the exact selected ref's commit
+as the History root while retaining the checked current working branch. History
+P and V prepare cherry-pick and revert. With no ordered marks, the selected
+revision is the one target. a/U append/remove independent ordered marks; * keeps
+its separate range-base role. Each merge requires a parent number and final
+review shows that full parent object. y, C-Enter or C-c C-c confirms; Return does
+not submit. A stopped ordered request exposes the actual Git family and current
+revision with its retained original context and verified completed prefix.
 
 b or y in Status opens Refs. Its independent `keys.git_refs` map keeps n for
 branch creation, S for switch, R for rename and D for non-forced deletion.

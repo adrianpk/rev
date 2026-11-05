@@ -26,7 +26,9 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
   Browse finite history pages, full revision metadata, historical renames and
   exact parent diffs with h and Tab; f continues the pinned ancestry. Compare
   a marked range with * and Return, retaining independent ordered revision
-  marks with a/U. Inspect reflog entries with l r and attribute source lines
+  marks with a/U. Review and confirm cherry-pick or revert with P/V, preserving
+  the marked order and choosing an explicit parent for each merge revision.
+  Inspect reflog entries with l r and attribute source lines
   through renames with B b or B B. Read exact historical file bytes or visit
   the current source without replacing unsaved text. Inspect without checking
   out files or changing source text, the index or HEAD.

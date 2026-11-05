@@ -83,7 +83,7 @@ impl Runner {
         Ok(result)
     }
 
-    fn verify_ancestry(&mut self, history: &History) -> Result<(), String> {
+    pub(super) fn verify_ancestry(&mut self, history: &History) -> Result<(), String> {
         let Some(root) = history.root else {
             return Ok(());
         };

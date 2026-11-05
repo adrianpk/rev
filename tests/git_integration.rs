@@ -23,3 +23,6 @@ mod transport;
 
 #[path = "git_integration/integration.rs"]
 mod integration;
+
+#[path = "git_integration/sequences.rs"]
+mod sequences;

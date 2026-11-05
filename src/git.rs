@@ -18,6 +18,8 @@ pub use integration::{
     AutosquashAction, AutosquashPlan, AutosquashStep, IntegrationMode, Sequence, SequenceControl,
     SequenceFamily,
 };
+mod sequences;
+pub use sequences::{ApplyKind, ApplyPlan, ApplyProgress, ApplyStep, RevisionChoice};
 mod refs;
 pub use refs::{BranchAction, PushIntent, RefKind, Reference, Refs, TagIntent, TagKind};
 mod status;
@@ -134,6 +136,8 @@ pub enum OperationKind {
     Sequence,
     SequenceControl,
     AutosquashPrepare,
+    ApplicationPrepare,
+    Application,
     Push,
 }
 
@@ -226,6 +230,7 @@ pub struct Context {
     pub refs: Option<Arc<Refs>>,
     pub sequence: Option<Arc<Sequence>>,
     pub autosquash: Option<Arc<AutosquashPlan>>,
+    pub application_plan: Option<Arc<ApplyPlan>>,
     pub history: Option<Arc<History>>,
     pub reflog: Option<Arc<Reflog>>,
     pub blame: Option<Arc<Blame>>,
@@ -592,6 +597,7 @@ impl Repositories {
                         | OperationKind::TagCreate
                         | OperationKind::TagDelete
                         | OperationKind::SequenceControl
+                        | OperationKind::Application
                         | OperationKind::Integration
                         | OperationKind::Push
                         | OperationKind::Fetch
@@ -645,6 +651,7 @@ impl Repositories {
                             refs: None,
                             sequence: None,
                             autosquash: None,
+                            application_plan: None,
                             history: None,
                             reflog: None,
                             blame: None,
@@ -667,6 +674,21 @@ impl Repositories {
                         );
                         None
                     }
+                }
+                Ok(work::Publication::ApplicationPlan(plan)) => {
+                    if let Some(context) = self.contexts.iter_mut().find(|c| {
+                        c.id == plan.refs.observation.context
+                            && Arc::ptr_eq(&c.observation, &plan.refs.observation)
+                    }) {
+                        context.refs = Some(plan.refs.clone());
+                        context.application_plan = Some(Arc::new(plan));
+                        published = true;
+                    } else {
+                        record.outcome = Outcome::Failed;
+                        record.diagnostic =
+                            Some("Ordered revision source expired before publication".into());
+                    }
+                    progress.context
                 }
                 Ok(work::Publication::Autosquash(plan)) => {
                     if let Some(context) = self.contexts.iter_mut().find(|c| {
@@ -841,6 +863,7 @@ impl Repositories {
                             OperationKind::CommitPrepare
                             | OperationKind::History
                             | OperationKind::Sequence
+                            | OperationKind::ApplicationPrepare
                             | OperationKind::AutosquashPrepare
                             | OperationKind::PushPrepare
                             | OperationKind::TagPrepare => {}
@@ -851,6 +874,7 @@ impl Repositories {
                             | OperationKind::TagCreate
                             | OperationKind::TagDelete
                             | OperationKind::SequenceControl
+                            | OperationKind::Application
                             | OperationKind::Integration
                             | OperationKind::Push
                             | OperationKind::Fetch

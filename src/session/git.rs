@@ -351,6 +351,10 @@ impl Session {
                 GitCommand::BranchRename => self.prompt_git_branch(refs::Intent::Rename),
                 GitCommand::BranchDelete => self.prompt_git_branch(refs::Intent::Delete),
                 GitCommand::ShowRange => self.show_git_range(),
+                GitCommand::CherryPick => {
+                    self.prepare_git_application(crate::git::ApplyKind::CherryPick)
+                }
+                GitCommand::Revert => self.prepare_git_application(crate::git::ApplyKind::Revert),
                 GitCommand::SequenceMark => self.mark_git_revision(true, false, false),
                 GitCommand::SequenceUnmark => self.mark_git_revision(true, true, false),
                 GitCommand::Reflog => self.open_git_reflog(),
@@ -670,6 +674,10 @@ impl Session {
             return Action::Wait;
         }
         for update in updates {
+            if self.git.refs.application_preparing == Some(update.operation) {
+                self.publish_git_application_preparation(&update);
+                continue;
+            }
             if self.git.refs.autosquash_preparing == Some(update.operation) {
                 self.publish_git_autosquash_preparation(&update);
                 continue;

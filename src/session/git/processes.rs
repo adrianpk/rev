@@ -40,6 +40,8 @@ impl Work {
             .map(|p| p.kind)
             .or_else(|| self.engine.record(id).map(|r| r.kind));
         match kind {
+            Some(crate::git::OperationKind::ApplicationPrepare) => "ordered revision preparation",
+            Some(crate::git::OperationKind::Application) => "ordered revision application",
             Some(crate::git::OperationKind::Integration) => "checked integration",
             Some(crate::git::OperationKind::AutosquashPrepare) => "autosquash preparation",
             Some(crate::git::OperationKind::SequenceControl) => "checked sequence control",

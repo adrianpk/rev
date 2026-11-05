@@ -7,9 +7,11 @@ mod history;
 mod index;
 mod integration;
 mod refs;
+mod sequences;
 
 pub(super) enum Request {
     Status,
+    Application(super::sequences::Request),
     Integration(super::integration::Request),
     Refs(super::refs::Request),
     History(super::history::Request),
@@ -22,7 +24,13 @@ pub(super) enum Request {
 impl Request {
     pub fn kind(&self) -> OperationKind {
         match self {
-            Self::Integration(super::integration::Request::Observe(_)) => OperationKind::Sequence,
+            Self::Application(super::sequences::Request::Prepare { .. }) => {
+                OperationKind::ApplicationPrepare
+            }
+            Self::Application(_) => OperationKind::Application,
+            Self::Integration(super::integration::Request::Observe { .. }) => {
+                OperationKind::Sequence
+            }
             Self::Integration(super::integration::Request::PrepareAutosquash { .. }) => {
                 OperationKind::AutosquashPrepare
             }
@@ -59,6 +67,7 @@ pub(super) enum Publication {
     PushIntent(PushIntent),
     Sequence(Sequence),
     Autosquash(AutosquashPlan),
+    ApplicationPlan(ApplyPlan),
 }
 
 enum Candidate {
@@ -71,6 +80,7 @@ enum Candidate {
     PushIntent(PushIntent),
     Sequence(Sequence),
     Autosquash(AutosquashPlan),
+    ApplicationPlan(ApplyPlan),
 }
 
 /// A retained changing child keeps its sealed driver reservation until the
@@ -106,7 +116,8 @@ pub(super) fn start(
                 Request::Refs(
                     super::refs::Request::Fetch { .. } | super::refs::Request::Push(_),
                 ) => policy.transport_timeout_seconds,
-                Request::Integration(
+                Request::Application(super::sequences::Request::Start(_))
+                | Request::Integration(
                     super::integration::Request::Start { .. }
                     | super::integration::Request::Autosquash(_)
                     | super::integration::Request::Control { .. },
@@ -149,6 +160,7 @@ pub(super) fn start(
                 retained: None,
             };
             let observed = match request {
+                Request::Application(request) => runner.application(request, &mut admission),
                 Request::Integration(request) => runner.integration(request, &mut admission),
                 Request::Refs(request) => runner.refs(request, &mut admission),
                 Request::History(request) => runner
@@ -559,6 +571,7 @@ impl Runner {
         };
         record.admission = admission.split(record.bytes() + 4096);
         let publication = observed.and_then(|candidate| match candidate {
+            Candidate::ApplicationPlan(plan) => Ok(Publication::ApplicationPlan(plan)),
             Candidate::Autosquash(plan) => Ok(Publication::Autosquash(plan)),
             Candidate::Sequence(sequence) => Ok(Publication::Sequence(sequence)),
             Candidate::PushIntent(intent) => Ok(Publication::PushIntent(intent)),

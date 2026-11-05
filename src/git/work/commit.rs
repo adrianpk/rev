@@ -350,7 +350,10 @@ fn head_object(head: &Head) -> Option<ObjectId> {
     }
 }
 
-fn commit_object(bytes: &[u8], format: ObjectFormat) -> Result<(Vec<ObjectId>, &[u8]), String> {
+pub(super) fn commit_object(
+    bytes: &[u8],
+    format: ObjectFormat,
+) -> Result<(Vec<ObjectId>, &[u8]), String> {
     let boundary = bytes
         .windows(2)
         .position(|p| p == b"\n\n")

@@ -109,6 +109,24 @@ impl Session {
         let Some(context) = self.git.state.context else {
             return self.message("Repository context is still checking");
         };
+        if self.git.page == Page::Refs
+            && !self.git.refs.failed
+            && let Some(refs) = self.git.refs()
+        {
+            if let Err(e) = self.git.engine.check_refs(refs) {
+                return self.error(&e);
+            }
+            if let Some(target) = self
+                .git
+                .refs
+                .selected
+                .as_ref()
+                .and_then(|name| refs.reference(name))
+                .and_then(crate::git::Reference::commit)
+            {
+                return self.git_history_root(context, &target.hex());
+            }
+        }
         if !matches!(
             self.git.status().map(|s| &s.head),
             Some(Head::Branch { .. } | Head::Unborn { .. })

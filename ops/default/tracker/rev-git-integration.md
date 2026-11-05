@@ -168,12 +168,12 @@ Report: `ops/default/report/slices/rev-git-integration/slice-9-sequences.md`
 Requirements: GIT11, GIT17-GIT19
 PR: pending
 
-- [ ] T9.1: Prepare ordered cherry-pick/revert requests from independent ordered marks, including exact mainline selection for merge commits.
+- [x] T9.1: Prepare ordered cherry-pick/revert requests from independent ordered marks, including exact mainline selection for merge commits.
 - [ ] T9.2: Integrate their actual continuation/skip/abort states with the shared sequence owner and conflict entry; reject wrong order, duplicate/stale targets and wrong active families.
 - [ ] T9.3: Provide manual bisect start/good/bad/skip/reset with exact review and real fixture verification; do not add automatic test execution.
 
-Validation: pending; use the exact focused commands and selected-gate policy in the plan.
-Integration: pending; no commit or PR is claimed.
+Validation: T9.1 development formatter, strict Clippy, all 6 sequence tests, the existing branch-switch/history/source regression and 21 command/configuration reference tests pass. Actual application trees/messages/mainline choices agree with Git in both formats. Documentation checks 528 commands and 268 configuration entries. Final exact-HEAD evidence remains pending.
+Integration: T9.1 introduces the canonical report and implements reviewed ordered application. T9.2-T9.3 and canonical PR preparation remain pending.
 
 ## Slice 10: Native conflict resolution
 

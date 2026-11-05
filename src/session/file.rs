@@ -137,6 +137,9 @@ impl Session {
             Some(Pending::GitTagPrompt(prompt)) => self.git_tag_argument(*prompt, &path),
             Some(Pending::GitBranchName(prompt)) => self.git_branch_name(*prompt, &path),
             Some(Pending::GitHistoryRoot(context)) => self.git_history_root(context, &path),
+            Some(Pending::GitSequenceMainline(selection)) => {
+                self.git_sequence_mainline(*selection, &path)
+            }
             Some(Pending::GitHistoryParent(detail)) => self.git_history_parent(detail, &path),
             Some(Pending::GitFixup(observation)) => self.git_fixup_argument(observation, &path),
             Some(Pending::TerminalRename(id)) => self.terminal_renamed(id, &path),

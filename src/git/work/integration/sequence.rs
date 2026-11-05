@@ -91,7 +91,7 @@ impl Runner {
         }
         Ok(files)
     }
-    pub(super) fn read_sequence(
+    pub(in crate::git::work) fn read_sequence(
         &mut self,
         refs: Arc<Refs>,
         admission: &mut Lease,
@@ -170,6 +170,10 @@ impl Runner {
                     .or_else(|| value(b"REBASE_HEAD"))
                     .or_else(|| field(b"original-commit")),
             )?
+        } else if family == Some(SequenceFamily::CherryPick) {
+            object(value(b"CHERRY_PICK_HEAD"))?
+        } else if family == Some(SequenceFamily::Revert) {
+            object(value(b"REVERT_HEAD"))?
         } else if targets.len() == 1 {
             targets.first().copied()
         } else {
@@ -209,6 +213,7 @@ impl Runner {
             step: number(field(b"msgnum").or_else(|| field(b"next")))?,
             total: number(field(b"end").or_else(|| field(b"last")))?,
             conflicts: Vec::new(),
+            application: None,
             files: Vec::new(),
             index: Vec::new(),
             worktree: Vec::new(),

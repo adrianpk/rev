@@ -1,5 +1,6 @@
 use super::super::Pending;
 mod integration;
+pub(in crate::session) mod sequences;
 pub(in crate::session) mod tag;
 mod transport;
 use super::*;
@@ -14,13 +15,14 @@ pub(super) struct Inspection {
     pub push_preparing: Option<OperationId>,
     pub integration_request: Option<OperationId>,
     pub autosquash_preparing: Option<OperationId>,
+    pub application_preparing: Option<OperationId>,
     control_preparing: Option<(
         crate::git::SequenceControl,
         Option<crate::git::SequenceFamily>,
     )>,
     sequence_top: usize,
     push_mark: Option<transport::PushMark>,
-    selected: Option<Vec<u8>>,
+    pub(super) selected: Option<Vec<u8>>,
     remote_selected: Option<Vec<u8>>,
     detail: Option<usize>,
     pub top: usize,
@@ -35,6 +37,7 @@ impl Inspection {
             push_preparing: None,
             integration_request: None,
             autosquash_preparing: None,
+            application_preparing: None,
             control_preparing: None,
             sequence_top: 0,
             push_mark: None,
@@ -77,6 +80,7 @@ enum RefAction {
     DeleteTag(Vec<u8>),
     Push(Arc<crate::git::PushIntent>),
     Autosquash(Arc<crate::git::AutosquashPlan>),
+    Application(Arc<crate::git::ApplyPlan>),
     Control {
         sequence: Arc<crate::git::Sequence>,
         action: crate::git::SequenceControl,
@@ -623,6 +627,7 @@ impl Session {
                 action,
                 RefAction::Integration { .. }
                     | RefAction::Autosquash(_)
+                    | RefAction::Application(_)
                     | RefAction::Control { .. }
             ) {
                 "Confirm checked integration? [y/n]"
@@ -693,6 +698,7 @@ impl Session {
             RefAction::Branch(BranchAction::Switch { .. })
                 | RefAction::Integration { .. }
                 | RefAction::Autosquash(_)
+                | RefAction::Application(_)
                 | RefAction::Control { .. }
         ) {
             match self.git_branch_sources(&consent.refs) {
@@ -711,13 +717,17 @@ impl Session {
         }
         let integration = matches!(
             consent.action,
-            RefAction::Integration { .. } | RefAction::Autosquash(_) | RefAction::Control { .. }
+            RefAction::Integration { .. }
+                | RefAction::Autosquash(_)
+                | RefAction::Application(_)
+                | RefAction::Control { .. }
         );
         let result = match consent.action {
             RefAction::Branch(action) => self.git.engine.branch(consent.refs, action),
             RefAction::CreateTag(intent) => self.git.engine.create_tag(intent, ""),
             RefAction::DeleteTag(name) => self.git.engine.delete_tag(consent.refs, &name),
             RefAction::Push(intent) => self.git.engine.push(intent),
+            RefAction::Application(plan) => self.git.engine.apply_sequence(plan),
             RefAction::Autosquash(plan) => self.git.engine.autosquash(plan),
             RefAction::Control {
                 sequence,
@@ -802,7 +812,16 @@ impl Session {
                 .and_then(|id| self.git.engine.context(id))
                 .map(|c| c.observation.clone())
         {
-            match self.git.engine.refresh_history_at(history, observation) {
+            let preserve_root = self
+                .git
+                .engine
+                .record(update.operation)
+                .is_some_and(|r| r.kind == crate::git::OperationKind::Application);
+            match self
+                .git
+                .engine
+                .refresh_history_at(history, observation, preserve_root)
+            {
                 Ok(id) => self.git.ancestry.request = Some((id, Page::History)),
                 Err(_) => self.git.ancestry.failed = true,
             }
@@ -976,6 +995,7 @@ impl Session {
                 consent.action,
                 RefAction::Integration { .. }
                     | RefAction::Autosquash(_)
+                    | RefAction::Application(_)
                     | RefAction::Control { .. }
             ) {
                 " Git Integration Review  y / C-Enter / C-c C-c accept  C-g cancel"

@@ -15,6 +15,7 @@ struct Prepared {
     input: Option<fs::File>,
     expected: Vec<Entry>,
 }
+#[derive(Clone)]
 pub(super) struct Execution {
     argv: Vec<OsString>,
     stdout: Vec<u8>,

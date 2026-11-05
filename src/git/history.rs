@@ -250,6 +250,7 @@ impl Repositories {
         &mut self,
         history: Arc<History>,
         observation: Arc<Observation>,
+        preserve_root: bool,
     ) -> Result<OperationId, String> {
         self.check_history(&history)?;
         if history.observation.context != observation.context
@@ -264,7 +265,8 @@ impl Repositories {
                 Head::Unborn { .. } => None,
             })
         };
-        let prior = (object(&history.observation) == object(&observation)).then_some(history);
+        let prior = (preserve_root || object(&history.observation) == object(&observation))
+            .then_some(history);
         self.start(
             directory,
             Some(observation.context),
@@ -276,7 +278,7 @@ impl Repositories {
             }),
         )
     }
-    fn check_history(&self, history: &Arc<History>) -> Result<(), String> {
+    pub(super) fn check_history(&self, history: &Arc<History>) -> Result<(), String> {
         if self
             .context(history.observation.context)
             .is_none_or(|c| c.history.as_ref().is_none_or(|h| !Arc::ptr_eq(h, history)))
@@ -285,7 +287,10 @@ impl Repositories {
         }
         Ok(())
     }
-    fn history_directory(&self, observation: &Arc<Observation>) -> Result<PathBuf, String> {
+    pub(super) fn history_directory(
+        &self,
+        observation: &Arc<Observation>,
+    ) -> Result<PathBuf, String> {
         let context = self
             .context(observation.context)
             .ok_or("Git context no longer exists")?;

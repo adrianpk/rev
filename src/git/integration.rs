@@ -66,6 +66,7 @@ pub struct Sequence {
     pub step: Option<usize>,
     pub total: Option<usize>,
     pub conflicts: Vec<PathBuf>,
+    pub application: Option<Arc<ApplyProgress>>,
     pub(in crate::git) files: Vec<SequenceFile>,
     pub(in crate::git) index: Vec<u8>,
     pub(in crate::git) worktree: Vec<u8>,
@@ -99,6 +100,11 @@ impl Sequence {
             && self.files == other.files
             && self.index == other.index
             && self.worktree == other.worktree
+            && match (&self.application, &other.application) {
+                (Some(a), Some(b)) => Arc::ptr_eq(a, b),
+                (None, None) => true,
+                _ => false,
+            }
             && self.refs.same(&other.refs)
             && self.refs.observation.status == other.refs.observation.status
     }
@@ -253,7 +259,10 @@ impl Sequence {
     }
 }
 pub(super) enum Request {
-    Observe(Arc<Observation>),
+    Observe {
+        observation: Arc<Observation>,
+        application: Option<Arc<ApplyProgress>>,
+    },
     PrepareAutosquash {
         refs: Arc<Refs>,
         target: Vec<u8>,
@@ -317,7 +326,13 @@ impl Repositories {
         self.start(
             root,
             Some(context),
-            work::Request::Integration(Request::Observe(observation)),
+            work::Request::Integration(Request::Observe {
+                observation,
+                application: self
+                    .context(context)
+                    .and_then(|c| c.sequence.as_ref())
+                    .and_then(|s| s.application.clone()),
+            }),
         )
     }
     /// Caller owns explicit policy/target confirmation and unsaved-buffer

@@ -208,6 +208,7 @@ enum Pending {
     GitBranchName(Box<git::refs::Prompt>),
     GitHistoryRoot(crate::git::ContextId),
     GitHistoryParent(std::sync::Arc<crate::git::RevisionDetail>),
+    GitSequenceMainline(Box<git::refs::sequences::Selection>),
     GitFixup(std::sync::Arc<crate::git::Observation>),
     GitQuit {
         operations: Vec<crate::git::OperationId>,

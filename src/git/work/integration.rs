@@ -27,16 +27,23 @@ impl Runner {
                 action,
                 family,
             } => self.control_sequence(sequence, action, family, admission),
-            Request::Observe(observation) => self
-                .integration_refs(&observation, admission)
-                .and_then(|refs| self.read_sequence(refs, admission))
-                .map(Candidate::Sequence),
+            Request::Observe {
+                observation,
+                application,
+            } => {
+                let refs = self.integration_refs(&observation, admission)?;
+                let mut sequence = self.read_sequence(refs, admission)?;
+                if let Some(progress) = application {
+                    self.bind_application(&mut sequence, progress)?;
+                }
+                Ok(Candidate::Sequence(sequence))
+            }
             Request::Start {
                 refs, target, mode, ..
             } => self.start_integration(refs, &target, mode, None, admission),
         }
     }
-    fn integration_refs(
+    pub(super) fn integration_refs(
         &mut self,
         expected: &Observation,
         admission: &mut Lease,
@@ -56,7 +63,7 @@ impl Runner {
         current.admission = admission.split(current.bytes());
         self.read_refs(Arc::new(current), admission).map(Arc::new)
     }
-    fn check_integration_source(
+    pub(super) fn check_integration_source(
         &mut self,
         expected: &Refs,
         admission: &mut Lease,

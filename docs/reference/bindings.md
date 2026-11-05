@@ -57,6 +57,8 @@ Every command below is also available as `M-x` followed by its exact name.
 | `M-x shell-command-cancel`, `:shell-command-cancel` | `shell-command-cancel` | Cancel the owned invocation; originating editing C-g also cancels after inner input owners. |
 | `M-x shell-command-output`, `:shell-command-output` | `shell-command-output` | Visit the last retained read-only plain-text result or diagnostics. |
 | Return in History | `git-show-range` | Compare the marked exact base and selected endpoint in their explicit order. |
+| `P` in History | `git-cherry-pick` | Review exact ordered revisions and explicit merge mainlines before applying them. |
+| `V` in History | `git-revert` | Review exact ordered revisions and explicit merge mainlines before reverting them. |
 | `a` in History | `git-sequence-mark` | Append an exact ordered revision without changing the range base. |
 | `U` in History | `git-sequence-unmark` | Remove an ordered revision, retaining remaining order and the base. |
 | `l r` in Status | `git-reflog` | Inspect bounded exact HEAD reflog entries. |
@@ -799,6 +801,8 @@ then Status, preserving selection and source ownership.
 
 | Keys | Target |
 | --- | --- |
+| `P` | `git-cherry-pick` |
+| `V` | `git-revert` |
 | `C-x g` | `git-status` |
 | `q` | `git-quit` |
 | `g` | `git-refresh` |

@@ -1600,6 +1600,8 @@ max_result_bytes = 262144
 
 # Read-only history and exact revision comparison in both profiles.
 [keys.git_history]
+"P" = "git-cherry-pick"
+"V" = "git-revert"
 "C-x g" = "git-status"
 "q" = "git-quit"
 "g" = "git-refresh"

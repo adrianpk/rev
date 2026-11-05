@@ -164,6 +164,8 @@ pub(super) const EDITOR: &[(&str, &str)] = &[
 ];
 
 pub(super) const GIT_HISTORY: &[(&str, &str)] = &[
+    ("P", "git-cherry-pick"),
+    ("V", "git-revert"),
     ("C-x g", "git-status"),
     ("q", "git-quit"),
     ("g", "git-refresh"),
