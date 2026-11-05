@@ -1,6 +1,6 @@
 # Org Indentation Tracker
 
-Status: Ready
+Status: In progress
 Date: 2026-11-05
 Delivery set: rev-org-indentation
 Plan: [Org Indentation Delivery](../plan/rev-org-indentation.md)
@@ -21,13 +21,17 @@ Progress owner: retained Looper checkpoint and canonical validation receipts
 
 ## Slice 1: Projection and checked mappings
 
-State: ready
+State: reviewing
 Dependency: approved preparation on clean dev
 Requirements: OIN01, OIN03, OIN05
+Implementation: `54395f4feea63a7cc0de34582f4d18c3840c09de` (T1.1-T1.3)
+PR: pending
+Report: [Slice 1](../report/slices/rev-org-indentation/slice-1-projection.md)
+Validation: local required checks passed; 17 library-filter, 16 heading and 26 wrapping tests, plus 11 focused structural regressions. Looper records exact clean-HEAD evidence after the PR-reference commit.
 
-- [ ] T1.1: Extend native enclosing-heading evidence and checked virtual-margin mappings.
-- [ ] T1.2: Handle structural ownership, continuations, tabs/Unicode, clipping, caps and invalidation.
-- [ ] T1.3: Verify projection, source round trips and bounded cases at native owner boundaries.
+- [x] T1.1: Extend native enclosing-heading evidence and checked virtual-margin mappings.
+- [x] T1.2: Handle structural ownership, continuations, tabs/Unicode, clipping, caps and invalidation.
+- [x] T1.3: Verify projection, source round trips and bounded cases at native owner boundaries.
 
 ## Slice 2: Configured editing presentation
 
@@ -61,8 +65,8 @@ Requirements: OIN01-OIN05
 
 ## Final gate and closure
 
-The plan owns the ordered slice and final-gate commands. Preparation is approved;
-no implementation or passing delivery gate is recorded yet. Controller identity
+The plan owns the ordered slice and final-gate commands. Slice 1 is implemented
+for review; later slices and the combined delivery gate remain pending. Controller identity
 and live execution progress belong to Looper. After all four slices integrate, it
 validates the exact clean dev candidate. Record its hash, receipt, successful
 commands, report introductions and evidence limits here, then mark the paired
