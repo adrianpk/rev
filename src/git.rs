@@ -138,6 +138,7 @@ pub enum OperationKind {
     AutosquashPrepare,
     ApplicationPrepare,
     Application,
+    ApplicationControl,
     Push,
 }
 
@@ -598,6 +599,7 @@ impl Repositories {
                         | OperationKind::TagDelete
                         | OperationKind::SequenceControl
                         | OperationKind::Application
+                        | OperationKind::ApplicationControl
                         | OperationKind::Integration
                         | OperationKind::Push
                         | OperationKind::Fetch
@@ -875,6 +877,7 @@ impl Repositories {
                             | OperationKind::TagDelete
                             | OperationKind::SequenceControl
                             | OperationKind::Application
+                            | OperationKind::ApplicationControl
                             | OperationKind::Integration
                             | OperationKind::Push
                             | OperationKind::Fetch

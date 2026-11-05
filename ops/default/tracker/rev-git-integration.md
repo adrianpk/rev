@@ -169,11 +169,11 @@ Requirements: GIT11, GIT17-GIT19
 PR: pending
 
 - [x] T9.1: Prepare ordered cherry-pick/revert requests from independent ordered marks, including exact mainline selection for merge commits.
-- [ ] T9.2: Integrate their actual continuation/skip/abort states with the shared sequence owner and conflict entry; reject wrong order, duplicate/stale targets and wrong active families.
+- [x] T9.2: Integrate their actual continuation/skip/abort states with the shared sequence owner and conflict entry; reject wrong order, duplicate/stale targets and wrong active families.
 - [ ] T9.3: Provide manual bisect start/good/bad/skip/reset with exact review and real fixture verification; do not add automatic test execution.
 
-Validation: T9.1 development formatter, strict Clippy, all 6 sequence tests, the existing branch-switch/history/source regression and 21 command/configuration reference tests pass. Actual application trees/messages/mainline choices agree with Git in both formats. Documentation checks 528 commands and 268 configuration entries. Final exact-HEAD evidence remains pending.
-Integration: T9.1 introduces the canonical report and implements reviewed ordered application. T9.2-T9.3 and canonical PR preparation remain pending.
+Validation: T9.1-T9.2 development formatter, strict Clippy, all 11 sequence tests, 19 shared integration tests, the existing branch-switch/history/source regression and 21 command/configuration reference tests pass. Actual order, controls, restored original context and hook uncertainty are checked with real Git. Documentation checks 534 commands and 268 configuration entries. Final exact-HEAD controller evidence remains pending after T9.3.
+Integration: T9.1-T9.2 deliver reviewed ordered application and compatible checked continuation/skip/abort through the shared sequence owner. T9.3 manual bisect and canonical PR preparation remain pending.
 
 ## Slice 10: Native conflict resolution
 

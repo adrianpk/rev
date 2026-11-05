@@ -45,6 +45,8 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
   rebase onto an exact selected ref. Review a finite autosquash plan with E.
   Inspect actual Git sequence/conflict stops, including externally started work,
   and confirm compatible continue, skip or abort controls against fresh state.
+  Cherry-pick and revert controls preserve the reviewed order and mainlines;
+  explicit abort also restores the original context after a completed prefix.
   Integration protects unsaved sources and reports in-progress, completed,
   skipped and aborted outcomes. Changed files follow your reload policy,
   protecting unsaved source text.

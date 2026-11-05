@@ -118,7 +118,13 @@ impl Sequence {
         if family.is_some_and(|f| f != actual) {
             return Err("Requested control belongs to a different Git sequence family".into());
         }
-        if !matches!(actual, SequenceFamily::Merge | SequenceFamily::Rebase) {
+        if !matches!(
+            actual,
+            SequenceFamily::Merge
+                | SequenceFamily::Rebase
+                | SequenceFamily::CherryPick
+                | SequenceFamily::Revert
+        ) {
             return Err(
                 "This observed Git sequence family has no compatible native control here".into(),
             );
@@ -161,6 +167,22 @@ impl Sequence {
             }
             if self.targets.is_empty() || self.refs.head != Some(original) {
                 return Err("Merge original HEAD/targets are missing or incompatible".into());
+            }
+        } else if matches!(actual, SequenceFamily::CherryPick | SequenceFamily::Revert) {
+            let progress = self.application.as_ref().ok_or(
+                "Ordered control requires retained exact target/order/original lineage; observe external work without guessing it",
+            )?;
+            if progress.plan.kind.family() != actual
+                || progress.plan.refs.head != Some(original)
+                || progress.plan.refs.head_ref != self.refs.head_ref
+                || self.refs.head != Some(progress.before)
+                || progress.plan.steps.get(progress.next).map(|s| s.object) != self.current
+                || self.files.iter().any(|f| f.name.starts_with(b"sequencer/"))
+            {
+                return Err("Actual Git sequence differs from the retained ordered request".into());
+            }
+            if action == SequenceControl::Continue && !self.worktree.is_empty() {
+                return Err("Continue requires all tracked resolutions saved and staged; unstaged disk changes remain".into());
             }
         } else {
             if self.onto.is_none() || self.branch.is_empty() {

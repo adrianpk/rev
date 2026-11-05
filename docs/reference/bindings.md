@@ -578,6 +578,12 @@ For live terminal key ownership and copy controls, see the
 | `r c` in Refs; `]` in Operation | `git-rebase-continue` | Refresh and confirm continuation after saved staged resolutions. |
 | `r s` in Refs; `;` in Operation | `git-rebase-skip` | Refresh and confirm skipping the current compatible rebase step. |
 | `r A` in Refs; `Z` in Operation | `git-rebase-abort` | Refresh and confirm restoration of the original rebase context. |
+| `{` in Operation | `git-cherry-pick-continue` | Refresh and review continue of the exact retained cherry-pick request. |
+| `l` in Operation | `git-cherry-pick-skip` | Refresh and review skip of the exact retained cherry-pick request. |
+| `Y` in Operation | `git-cherry-pick-abort` | Refresh and review abort of the exact retained cherry-pick request. |
+| `}` in Operation | `git-revert-continue` | Refresh and review continue of the exact retained revert request. |
+| `j` in Operation | `git-revert-skip` | Refresh and review skip of the exact retained revert request. |
+| `Q` in Operation | `git-revert-abort` | Refresh and review abort of the exact retained revert request. |
 | Named command | `git-operation-continue` | Review continuation against the fresh actual compatible family. |
 | Named command | `git-operation-skip` | Review skipping against the fresh actual compatible family. |
 | Named command | `git-operation-abort` | Review abort against exact original lineage and fresh Git state. |
@@ -1015,13 +1021,24 @@ aliases below.
 
 `keys.git_sequence` owns Git Operation navigation and checked sequence controls in both profiles.
 q returns to Status without aborting Git; g refreshes actual Git state.
+The view identifies busy controls until owned repository work finishes.
 Each control refreshes the actual family, original lineage, metadata, index and
 worktree before opening exact review. Continue requires saved staged resolutions.
 y, C-Enter or C-c C-c confirms; Return does not. n or C-g cancels the review.
-Generic controls remain available by their native command names.
+Cherry-pick/revert controls retain the exact reviewed order and mainlines.
+They require the retained original lineage as well as matching actual Git
+metadata; missing lineage is unavailable rather than guessed from a label.
+Abort explicitly restores the original context, including a completed prefix.
+Generic controls dispatch these compatible families by their native names.
 
 | Keys | Target |
 | --- | --- |
+| `{` | `git-cherry-pick-continue` |
+| `l` | `git-cherry-pick-skip` |
+| `Y` | `git-cherry-pick-abort` |
+| `}` | `git-revert-continue` |
+| `j` | `git-revert-skip` |
+| `Q` | `git-revert-abort` |
 | `>` | `git-merge-continue` |
 | `X` | `git-merge-abort` |
 | `]` | `git-rebase-continue` |

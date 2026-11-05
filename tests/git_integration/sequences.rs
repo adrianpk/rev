@@ -357,3 +357,6 @@ fn application_admission() {
 
 #[path = "sequences_presentation.rs"]
 mod presentation;
+
+#[path = "sequences_controls.rs"]
+mod controls;

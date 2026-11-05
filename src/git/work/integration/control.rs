@@ -1,13 +1,16 @@
 use super::*;
 
 impl Runner {
-    fn checked_sequence(
+    pub(in crate::git::work) fn checked_sequence(
         &mut self,
         expected: &Sequence,
         admission: &mut Lease,
     ) -> Result<Sequence, String> {
         let refs = self.integration_refs(&expected.refs.observation, admission)?;
-        let actual = self.read_sequence(refs, admission)?;
+        let mut actual = self.read_sequence(refs, admission)?;
+        if let Some(progress) = &expected.application {
+            self.bind_application(&mut actual, progress.clone())?;
+        }
         if !expected.same(&actual) {
             return Err(
                 "Git sequence, refs, index or working-tree evidence changed while review was open"
@@ -23,6 +26,13 @@ impl Runner {
         family: Option<SequenceFamily>,
         admission: &mut Lease,
     ) -> Result<Candidate, String> {
+        if expected.application.is_some() {
+            let result = self.control_application(expected, action, family, admission);
+            if result.is_err() && self.effects == Effects::Possible {
+                self.operation_failure.get_or_insert_with(|| "Ordered control effects remain unverified; refresh actual Git state; no automatic retry or inferred abort".into());
+            }
+            return result;
+        }
         let current = self.checked_sequence(&expected, admission)?;
         current.control_admission(action, family)?;
         let actual = current.family.ok_or("Git sequence disappeared")?;

@@ -560,6 +560,12 @@ const COMPLETION: &[(&str, &str)] = &[
 ];
 
 const GIT_SEQUENCE: &[(&str, &str)] = &[
+    ("{", "git-cherry-pick-continue"),
+    ("l", "git-cherry-pick-skip"),
+    ("Y", "git-cherry-pick-abort"),
+    ("}", "git-revert-continue"),
+    ("j", "git-revert-skip"),
+    ("Q", "git-revert-abort"),
     (">", "git-merge-continue"),
     ("X", "git-merge-abort"),
     ("]", "git-rebase-continue"),

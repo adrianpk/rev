@@ -255,6 +255,11 @@ impl Session {
         if update.published {
             self.reconcile_git_inspection(requested);
         }
+        // A background ancestry refresh must not replace the actual sequence
+        // result, wrong-family rejection or pending control review feedback.
+        if requested == Some(Page::Sequence) && self.git.page == Page::Sequence {
+            return;
+        }
         if matches!(self.git.page, Page::Refs | Page::Sequence) && self.git.refs.failed {
             return;
         }

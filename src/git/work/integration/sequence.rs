@@ -105,6 +105,7 @@ impl Runner {
         };
         let has = |prefix: &[u8]| files.iter().any(|f| f.name.starts_with(prefix));
         let family = if (has(b"rebase-merge/") && has(b"rebase-apply/"))
+            || (value(b"CHERRY_PICK_HEAD").is_some() && value(b"REVERT_HEAD").is_some())
             || (value(b"MERGE_HEAD").is_some()
                 && (value(b"CHERRY_PICK_HEAD").is_some() || value(b"REVERT_HEAD").is_some()))
         {

@@ -707,6 +707,12 @@ Status reads disk and Git state; it does not save an unsaved source buffer.
 | `git-rebase-continue` | Refresh and confirm continuation of a compatible Git-owned rebase with saved staged resolutions and exact lineage. |
 | `git-rebase-skip` | Refresh and explicitly confirm skipping the current compatible rebase step; expose the actual sequence or completed skipped outcome. |
 | `git-rebase-abort` | Refresh and confirm abort of a compatible rebase; verify its original branch and object. |
+| `git-cherry-pick-continue` | Refresh actual Git state and confirm saved staged resolutions, then apply the remaining reviewed targets in order; require unchanged retained cherry-pick lineage. |
+| `git-cherry-pick-skip` | Refresh actual Git state and confirm skipping only the current target, then retain the reviewed remaining order; require unchanged retained cherry-pick lineage. |
+| `git-cherry-pick-abort` | Refresh actual Git state and confirm restoration of the exact reviewed original branch and HEAD, including a verified completed prefix; require unchanged retained cherry-pick lineage. |
+| `git-revert-continue` | Refresh actual Git state and confirm saved staged resolutions, then apply the remaining reviewed targets in order; require unchanged retained revert lineage. |
+| `git-revert-skip` | Refresh actual Git state and confirm skipping only the current target, then retain the reviewed remaining order; require unchanged retained revert lineage. |
+| `git-revert-abort` | Refresh actual Git state and confirm restoration of the exact reviewed original branch and HEAD, including a verified completed prefix; require unchanged retained revert lineage. |
 | `git-operation-continue` | Refresh actual Git state and review one compatible family-specific continuation bound to that exact sequence. |
 | `git-operation-skip` | Refresh actual Git state and review a compatible skip; reject a missing or wrong-family sequence. |
 | `git-operation-abort` | Refresh actual Git state and review one compatible abort with exact original lineage; process cancellation is a separate action. |

@@ -34,6 +34,11 @@ impl Request {
             Self::Integration(super::integration::Request::PrepareAutosquash { .. }) => {
                 OperationKind::AutosquashPrepare
             }
+            Self::Integration(super::integration::Request::Control { sequence, .. })
+                if sequence.application.is_some() =>
+            {
+                OperationKind::ApplicationControl
+            }
             Self::Integration(super::integration::Request::Control { .. }) => {
                 OperationKind::SequenceControl
             }

@@ -1705,6 +1705,12 @@ max_result_bytes = 262144
 
 # Independent Git-owned sequence observation in both profiles.
 [keys.git_sequence]
+"{" = "git-cherry-pick-continue"
+"l" = "git-cherry-pick-skip"
+"Y" = "git-cherry-pick-abort"
+"}" = "git-revert-continue"
+"j" = "git-revert-skip"
+"Q" = "git-revert-abort"
 ">" = "git-merge-continue"
 "X" = "git-merge-abort"
 "]" = "git-rebase-continue"

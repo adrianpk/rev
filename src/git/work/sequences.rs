@@ -1,5 +1,6 @@
 use super::*;
 use crate::git::sequences::Request;
+mod control;
 mod preparation;
 
 impl Runner {
@@ -80,15 +81,15 @@ impl Runner {
             completed: std::mem::take(&mut completed),
             _admission: admission.split(0),
         };
-        self.apply_steps(progress, refs, admission)
+        self.apply_steps(progress, refs, admission, None)
     }
     pub(super) fn apply_steps(
         &mut self,
         mut progress: ApplyProgress,
         mut expected: Arc<Refs>,
         admission: &mut Lease,
+        mut last_facts: Option<index::Execution>,
     ) -> Result<Candidate, String> {
-        let mut last_facts = None;
         while progress.next < progress.plan.steps.len() {
             let checked = (|| {
                 let refs = self.check_integration_source(&expected, admission)?;

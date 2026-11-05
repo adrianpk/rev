@@ -53,6 +53,18 @@ impl Work {
                         s.total.map_or("unavailable".into(), |n| n.to_string())
                     ),
                     8 => format!("Exact conflict paths: {}", s.conflicts.len()),
+                    9 if self.engine.progress().any(|p| {
+                        p.context.is_none()
+                            || p.context
+                                .and_then(|id| self.engine.context(id))
+                                .is_some_and(|c| {
+                                    c.observation.identity.common_directory
+                                        == s.refs.observation.identity.common_directory
+                                })
+                    }) =>
+                    {
+                        "Checking Git owner; sequence controls wait for owned work".into()
+                    }
                     9 => format!(
                         "Admitted controls: {}",
                         [

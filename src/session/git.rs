@@ -332,6 +332,30 @@ impl Session {
                     crate::git::SequenceControl::Abort,
                     Some(crate::git::SequenceFamily::Rebase),
                 ),
+                GitCommand::CherryPickContinue => self.request_git_control(
+                    crate::git::SequenceControl::Continue,
+                    Some(crate::git::SequenceFamily::CherryPick),
+                ),
+                GitCommand::CherryPickSkip => self.request_git_control(
+                    crate::git::SequenceControl::Skip,
+                    Some(crate::git::SequenceFamily::CherryPick),
+                ),
+                GitCommand::CherryPickAbort => self.request_git_control(
+                    crate::git::SequenceControl::Abort,
+                    Some(crate::git::SequenceFamily::CherryPick),
+                ),
+                GitCommand::RevertContinue => self.request_git_control(
+                    crate::git::SequenceControl::Continue,
+                    Some(crate::git::SequenceFamily::Revert),
+                ),
+                GitCommand::RevertSkip => self.request_git_control(
+                    crate::git::SequenceControl::Skip,
+                    Some(crate::git::SequenceFamily::Revert),
+                ),
+                GitCommand::RevertAbort => self.request_git_control(
+                    crate::git::SequenceControl::Abort,
+                    Some(crate::git::SequenceFamily::Revert),
+                ),
                 GitCommand::OperationContinue => {
                     self.request_git_control(crate::git::SequenceControl::Continue, None)
                 }

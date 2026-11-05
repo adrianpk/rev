@@ -812,17 +812,31 @@ impl Session {
                 .and_then(|id| self.git.engine.context(id))
                 .map(|c| c.observation.clone())
         {
-            let preserve_root = self
-                .git
-                .engine
-                .record(update.operation)
-                .is_some_and(|r| r.kind == crate::git::OperationKind::Application);
+            let preserve_root = self.git.engine.record(update.operation).is_some_and(|r| {
+                matches!(
+                    r.kind,
+                    crate::git::OperationKind::Application
+                        | crate::git::OperationKind::ApplicationControl
+                )
+            });
             match self
                 .git
                 .engine
                 .refresh_history_at(history, observation, preserve_root)
             {
-                Ok(id) => self.git.ancestry.request = Some((id, Page::History)),
+                Ok(id) => {
+                    let page = if update
+                        .context
+                        .and_then(|id| self.git.engine.context(id))
+                        .and_then(|c| c.sequence.as_ref())
+                        .is_some_and(|s| s.family.is_some())
+                    {
+                        Page::Sequence
+                    } else {
+                        Page::History
+                    };
+                    self.git.ancestry.request = Some((id, page));
+                }
                 Err(_) => self.git.ancestry.failed = true,
             }
         }
