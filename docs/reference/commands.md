@@ -697,6 +697,11 @@ Status reads disk and Git state; it does not save an unsaved source buffer.
 | --- | --- |
 | `git-tag-create` | Collect a local tag name, lightweight/annotated kind (lightweight by default) and complete target ID; check Git signing policy and explicitly review before creation. Annotated tags add native message composition and retained failure drafts. |
 | `git-tag-delete` | Review the selected tag's exact full name, object and peeled target; delete only that unchanged local ref. |
+| `git-merge` | Review the exact selected ref/commit and merge into the checked current branch with fast-forward allowed. |
+| `git-merge-fast-forward` | Review an exact integration target and require Git's fast-forward-only policy. |
+| `git-merge-no-fast-forward` | Review an exact integration target and require a merge commit when integration has work. |
+| `git-rebase` | Review ordinary rebase of the checked current branch onto the exact selected ref's commit; require clean disk/index and unmodified visiting sources. |
+| `git-operation-status` | Refresh compatible Status/Refs and actual Git-owned sequence family, full current/original/onto identities, step and exact conflict paths, including external operations. |
 | `git-push` | Prepare and explicitly confirm one selected or marked exact local branch, its configured upstream remote and full destination; push one object without force or expanded publication and verify the actual push endpoint. |
 | `git-fetch` | Fetch the exact selected configured remote in Refs with its observed transport/refspec policy; refresh tracking facts and Status without merge or rebase. |
 | `git-refs` | Observe local/remote-tracking branches, both tag kinds, configured remote names, HEAD and available upstream facts with exact names and object IDs. |
@@ -896,3 +901,32 @@ objects and cancellation/timeout after possible effects remain distinct in
 Processes. Failure is never automatically retried. Recognized noninteractive credential/authentication failures get a fixed safe
 diagnosis. Transport/helper output and credential-bearing endpoints remain private; records retain safe argv, actual
 exit and checked outcomes under the existing finite transport/output limits.
+
+### Native Git integration
+
+In Refs select one exact commit-bearing ref. = or m f chooses fast-forward-only
+merge; i or m m permits fast-forward or merge; I or m n requires a merge commit
+when Git has integration work. e or r r chooses ordinary rebase. Native review
+shows the selected full ref/commit, current branch/HEAD and explicit policy.
+y, C-Enter or C-c C-c accepts; Return does not accept. n or C-g cancels.
+
+Integration requires complete current refs, a checked existing current branch,
+clean index/worktree and unchanged unmodified repository-backed source buffers.
+Stale HEAD/ref facts reject. Configured autostash, rebase updateRefs or branch
+mergeOptions which would alter the reviewed merge request require an explicit
+configuration revision. Requests do not save source or introduce autostash,
+interactive editors or executable todo actions. Git retains hooks/signing and
+its receiver-independent repository protections.
+
+`git-operation-status` opens the read-only Git Operation view. A conflict stop
+shows its actual family, current/original/onto objects and available step,
+plus exact conflict paths. Processes reports InProgress separately from verified
+integration and retains the actual failed child exit. q returns to Status
+without aborting Git state; process cancellation also does not abort it.
+Changed source reconciles through the existing reload/ask policy.
+
+Sequence metadata admits 64 ordinary files and 256 merge targets, within the
+existing detail, 1 MiB worker scratch and 32 MiB shared session limits. Symlinked
+or oversized state cannot authorize work. Snapshot publication checks sequence
+bytes and HEAD again. Integration uses `git.operation_timeout_seconds`;
+observation, output, record and cleanup bounds retain their existing meanings.

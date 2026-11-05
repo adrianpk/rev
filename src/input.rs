@@ -140,6 +140,7 @@ pub struct Input {
     workspace_git_history: bool,
     workspace_git_inspect: bool,
     workspace_git_refs: bool,
+    workspace_git_sequence: bool,
     workspace_completion: bool,
     workspace_org: Option<OrgContext>,
     meta_deadline: Option<Instant>,

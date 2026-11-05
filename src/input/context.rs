@@ -39,6 +39,9 @@ impl Input {
         if self.workspace_git_commit {
             return MapContext::GitCommit;
         }
+        if self.workspace_git && self.workspace_git_sequence {
+            return MapContext::GitSequence;
+        }
         if self.workspace_git && self.workspace_git_refs {
             return MapContext::GitRefs;
         }
@@ -198,6 +201,13 @@ impl Input {
         }
     }
 
+    pub(crate) fn set_git_sequence(&mut self, active: bool) {
+        if self.workspace_git_sequence != active {
+            self.clear_prefix();
+            self.suppress_repeat = true;
+            self.workspace_git_sequence = active;
+        }
+    }
     pub(crate) fn set_git_refs(&mut self, active: bool) {
         if self.workspace_git_refs != active {
             self.clear_prefix();

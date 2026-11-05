@@ -40,6 +40,8 @@ impl Work {
             .map(|p| p.kind)
             .or_else(|| self.engine.record(id).map(|r| r.kind));
         match kind {
+            Some(crate::git::OperationKind::Integration) => "checked integration",
+            Some(crate::git::OperationKind::Sequence) => "Git sequence observation",
             Some(crate::git::OperationKind::Push) => "push",
             Some(crate::git::OperationKind::PushPrepare) => "push preparation",
             Some(crate::git::OperationKind::Fetch) => "fetch",
@@ -97,6 +99,7 @@ impl Work {
             | Page::Diff
             | Page::History
             | Page::Refs
+            | Page::Sequence
             | Page::Revision
             | Page::Reflog
             | Page::Blame

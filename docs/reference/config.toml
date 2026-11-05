@@ -1652,6 +1652,14 @@ max_result_bytes = 262144
 
 # Exact local/tracking refs and checked local branch actions in both profiles.
 [keys.git_refs]
+"=" = "git-merge-fast-forward"
+"i" = "git-merge"
+"I" = "git-merge-no-fast-forward"
+"e" = "git-rebase"
+"m f" = "git-merge-fast-forward"
+"m m" = "git-merge"
+"m n" = "git-merge-no-fast-forward"
+"r r" = "git-rebase"
 "*" = "git-mark"
 "-" = "git-unmark"
 "p" = "git-push"
@@ -1672,6 +1680,25 @@ max_result_bytes = 262144
 "R" = "git-branch-rename"
 "D" = "git-branch-delete"
 "?" = "git-dispatch"
+"$" = "git-processes"
+"M-x" = "execute-extended-command"
+":" = "execute-extended-command"
+"C-g" = "keyboard-quit"
+"C-x C-c" = "save-buffers-kill-terminal"
+"Up" = "previous-line"
+"Down" = "next-line"
+"C-p" = "previous-line"
+"C-n" = "next-line"
+"PageUp" = "scroll-down-command"
+"PageDown" = "scroll-up-command"
+"M-<" = "beginning-of-buffer"
+"M->" = "end-of-buffer"
+
+# Independent Git-owned sequence observation in both profiles.
+[keys.git_sequence]
+"C-x g" = "git-status"
+"q" = "git-quit"
+"g" = "git-refresh"
 "$" = "git-processes"
 "M-x" = "execute-extended-command"
 ":" = "execute-extended-command"

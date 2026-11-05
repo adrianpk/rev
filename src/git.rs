@@ -8,11 +8,13 @@ pub use commit::{CommitMode, Composition};
 mod discard;
 mod history;
 mod index;
+mod integration;
 pub use history::{
     Attribution, Blame, History, HistoryPage, Reflog, ReflogEntry, Revision, RevisionDetail,
     RevisionFile, RevisionPath,
 };
 pub use index::{IndexDirection, IndexTarget};
+pub use integration::{IntegrationMode, Sequence, SequenceFamily};
 mod refs;
 pub use refs::{BranchAction, PushIntent, RefKind, Reference, Refs, TagIntent, TagKind};
 mod status;
@@ -125,6 +127,8 @@ pub enum OperationKind {
     TagDelete,
     Fetch,
     PushPrepare,
+    Integration,
+    Sequence,
     Push,
 }
 
@@ -146,6 +150,7 @@ pub enum Outcome {
     OutputLimit,
     CleanupPending,
     Indeterminate,
+    InProgress,
 }
 
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
@@ -212,6 +217,7 @@ pub struct Context {
     pub detail: Option<Arc<Diff>>,
     pub detail_failure: Option<OperationId>,
     pub refs: Option<Arc<Refs>>,
+    pub sequence: Option<Arc<Sequence>>,
     pub history: Option<Arc<History>>,
     pub reflog: Option<Arc<Reflog>>,
     pub blame: Option<Arc<Blame>>,
@@ -577,6 +583,7 @@ impl Repositories {
                         | OperationKind::Commit
                         | OperationKind::TagCreate
                         | OperationKind::TagDelete
+                        | OperationKind::Integration
                         | OperationKind::Push
                         | OperationKind::Fetch
                         | OperationKind::Branch
@@ -627,6 +634,7 @@ impl Repositories {
                             detail: None,
                             detail_failure: None,
                             refs: None,
+                            sequence: None,
                             history: None,
                             reflog: None,
                             blame: None,
@@ -649,6 +657,25 @@ impl Repositories {
                         );
                         None
                     }
+                }
+                Ok(work::Publication::Sequence(sequence)) => {
+                    if let Some(context) = self
+                        .contexts
+                        .iter_mut()
+                        .find(|c| c.id == sequence.refs.observation.context)
+                    {
+                        context.observation = sequence.refs.observation.clone();
+                        context.refs = Some(sequence.refs.clone());
+                        context.sequence = Some(Arc::new(sequence));
+                        context.failure = None;
+                        context.composition = None;
+                        published = true;
+                    } else {
+                        record.outcome = Outcome::Failed;
+                        record.diagnostic =
+                            Some("Sequence context expired before publication".into());
+                    }
+                    progress.context
                 }
                 Ok(work::Publication::Refs { mut refs, changed }) => {
                     if let Some(context) = self
@@ -789,6 +816,7 @@ impl Repositories {
                             OperationKind::Diff => context.detail_failure = Some(record.id),
                             OperationKind::CommitPrepare
                             | OperationKind::History
+                            | OperationKind::Sequence
                             | OperationKind::PushPrepare
                             | OperationKind::TagPrepare => {}
                             OperationKind::Stage
@@ -797,6 +825,7 @@ impl Repositories {
                             | OperationKind::Commit
                             | OperationKind::TagCreate
                             | OperationKind::TagDelete
+                            | OperationKind::Integration
                             | OperationKind::Push
                             | OperationKind::Fetch
                             | OperationKind::Branch => context.failure = Some(record.id),

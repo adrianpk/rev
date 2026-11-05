@@ -566,6 +566,11 @@ For live terminal key ownership and copy controls, see the
 
 | Keys | Command | Behavior |
 | --- | --- | --- |
+| `=`, `m f` in Refs | `git-merge-fast-forward` | Review one exact target and require fast-forward-only integration. |
+| `i`, `m m` in Refs | `git-merge` | Review merge with fast-forward allowed. |
+| `I`, `m n` in Refs | `git-merge-no-fast-forward` | Review merge-commit policy. |
+| `e`, `r r` in Refs | `git-rebase` | Review ordinary rebase onto the selected exact commit. |
+| Named command | `git-operation-status` | Inspect actual Git-owned sequence state and conflicts. |
 | `p`, `M p` in Refs | `git-push` | Review one exact source branch and its configured upstream destination before publication. |
 | `&`, `M f` in Refs | `git-fetch` | Fetch the selected configured remote without integration. |
 | `b`, `y` in Status; `M b` in Refs | `git-refs` | Inspect exact native repository refs. |
@@ -944,6 +949,14 @@ aliases below.
 
 | Keys | Target |
 | --- | --- |
+| `=` | `git-merge-fast-forward` |
+| `i` | `git-merge` |
+| `I` | `git-merge-no-fast-forward` |
+| `e` | `git-rebase` |
+| `m f` | `git-merge-fast-forward` |
+| `m m` | `git-merge` |
+| `m n` | `git-merge-no-fast-forward` |
+| `r r` | `git-rebase` |
 | `*` | `git-mark` |
 | `-` | `git-unmark` |
 | `p` | `git-push` |
@@ -964,6 +977,30 @@ aliases below.
 | `R` | `git-branch-rename` |
 | `D` | `git-branch-delete` |
 | `?` | `git-dispatch` |
+| `$` | `git-processes` |
+| `M-x` | `execute-extended-command` |
+| `:` | `execute-extended-command` |
+| `C-g` | `keyboard-quit` |
+| `C-x C-c` | `save-buffers-kill-terminal` |
+| `Up` | `previous-line` |
+| `Down` | `next-line` |
+| `C-p` | `previous-line` |
+| `C-n` | `next-line` |
+| `PageUp` | `scroll-down-command` |
+| `PageDown` | `scroll-up-command` |
+| `M-<` | `beginning-of-buffer` |
+| `M->` | `end-of-buffer` |
+
+### Git sequence defaults and availability
+
+`keys.git_sequence` owns read-only Git Operation navigation in both profiles.
+q returns to Status without aborting Git; g refreshes actual Git state.
+
+| Keys | Target |
+| --- | --- |
+| `C-x g` | `git-status` |
+| `q` | `git-quit` |
+| `g` | `git-refresh` |
 | `$` | `git-processes` |
 | `M-x` | `execute-extended-command` |
 | `:` | `execute-extended-command` |

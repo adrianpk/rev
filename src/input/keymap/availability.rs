@@ -75,22 +75,24 @@ impl Context {
             Self::Minibuffer => minibuffer(target),
             Self::Tree => tree(target),
             Self::BookmarkList => bookmark_list(target),
-            Self::Git | Self::GitHistory | Self::GitInspect | Self::GitRefs => matches!(
-                target,
-                Binding::Command(
-                    Command::Git(_)
-                        | Command::Quit
-                        | Command::KeyboardQuit
-                        | Command::ExecuteExtended
-                        | Command::Scroll(
-                            Scroll::NextLine
-                                | Scroll::PreviousLine
-                                | Scroll::PageForward
-                                | Scroll::PageBackward
-                        )
-                        | Command::Motion(Motion::BufferStart | Motion::BufferEnd)
+            Self::Git | Self::GitHistory | Self::GitInspect | Self::GitRefs | Self::GitSequence => {
+                matches!(
+                    target,
+                    Binding::Command(
+                        Command::Git(_)
+                            | Command::Quit
+                            | Command::KeyboardQuit
+                            | Command::ExecuteExtended
+                            | Command::Scroll(
+                                Scroll::NextLine
+                                    | Scroll::PreviousLine
+                                    | Scroll::PageForward
+                                    | Scroll::PageBackward
+                            )
+                            | Command::Motion(Motion::BufferStart | Motion::BufferEnd)
+                    )
                 )
-            ),
+            }
             _ => unreachable!("editing context handled"),
         }
     }

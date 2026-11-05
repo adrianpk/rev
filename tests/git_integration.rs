@@ -20,3 +20,6 @@ mod refs;
 
 #[path = "git_integration/transport.rs"]
 mod transport;
+
+#[path = "git_integration/integration.rs"]
+mod integration;

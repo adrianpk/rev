@@ -244,7 +244,8 @@ Both use M-x or modal colon and leave this configuration unchanged.
 | `keys.vim_visual_line` | Map of chord sequences to canonical commands | Compiled map | Visual Line navigation, complete logical lines and shared operators. The sample declares all 122 entries. |
 | `keys.vim_visual_block` | Map of chord sequences to canonical commands | Compiled map | Visual Block navigation and atomic block delete/change/copy with logical grapheme columns. The sample declares all 118 entries. |
 | `keys.minibuffer` | Map of chord sequences to admitted prompt actions/commands | Compiled map | Prompt focus; all 22 entries are active in the sample. |
-| `keys.git_refs` | Map of chord sequences to native ref commands | Compiled map | Ref inspection, explicit fetch, reviewed upstream push and confirmed local branch/tag actions in both profiles; all 33 entries are active in the sample. |
+| `keys.git_refs` | Map of chord sequences to native ref commands | Compiled map | Ref inspection, explicit fetch, reviewed upstream push and confirmed local branch/tag actions in both profiles; all 41 entries are active in the sample. |
+| `keys.git_sequence` | Map of chord sequences to native sequence commands | Compiled map | Independent Git Operation navigation in both profiles; all 16 entries are active in the sample. |
 | `keys.git_inspect` | Map of chord sequences to read-only Git inspection commands | Compiled map | Revision, reflog, blame and historical bytes in both profiles; all 21 entries are active in the sample. |
 | `keys.git_history` | Map of chord sequences to admitted Git navigation commands | Compiled map | History in both profiles; all 26 entries are active in the sample. |
 | `keys.git_commit` | Map of chord sequences to native composer commands | Compiled map | Inherits editor keys for commit and tag message composition in both profiles; all 4 entries are active in the sample. |

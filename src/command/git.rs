@@ -2,6 +2,11 @@
 pub enum GitCommand {
     Status,
     Refs,
+    Merge,
+    MergeFastForward,
+    MergeNoFastForward,
+    Rebase,
+    OperationStatus,
     Fetch,
     Push,
     TagCreate,
@@ -45,6 +50,11 @@ pub enum GitCommand {
 impl GitCommand {
     pub fn name(self) -> &'static str {
         match self {
+            Self::Merge => "git-merge",
+            Self::MergeFastForward => "git-merge-fast-forward",
+            Self::MergeNoFastForward => "git-merge-no-fast-forward",
+            Self::Rebase => "git-rebase",
+            Self::OperationStatus => "git-operation-status",
             Self::TagCreate => "git-tag-create",
             Self::TagDelete => "git-tag-delete",
 

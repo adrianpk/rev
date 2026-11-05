@@ -755,6 +755,7 @@ pub struct Keymaps {
     pub git_history: BTreeMap<String, String>,
     pub git_inspect: BTreeMap<String, String>,
     pub git_refs: BTreeMap<String, String>,
+    pub git_sequence: BTreeMap<String, String>,
     pub org: BTreeMap<String, String>,
     pub org_agenda: BTreeMap<String, String>,
     pub org_capture: BTreeMap<String, String>,
@@ -776,6 +777,7 @@ impl Keymaps {
             Context::GitHistory => &self.git_history,
             Context::GitInspect => &self.git_inspect,
             Context::GitRefs => &self.git_refs,
+            Context::GitSequence => &self.git_sequence,
             _ => self.modal_map(context),
         }
     }
@@ -818,6 +820,7 @@ impl Keymaps {
             Context::GitHistory => &mut self.git_history,
             Context::GitInspect => &mut self.git_inspect,
             Context::GitRefs => &mut self.git_refs,
+            Context::GitSequence => &mut self.git_sequence,
             _ => self.modal_map_mut(context),
         }
     }

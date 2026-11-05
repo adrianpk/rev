@@ -5,10 +5,12 @@ mod commit;
 mod discard;
 mod history;
 mod index;
+mod integration;
 mod refs;
 
 pub(super) enum Request {
     Status,
+    Integration(super::integration::Request),
     Refs(super::refs::Request),
     History(super::history::Request),
     Diff(diff::Target),
@@ -20,6 +22,8 @@ pub(super) enum Request {
 impl Request {
     pub fn kind(&self) -> OperationKind {
         match self {
+            Self::Integration(super::integration::Request::Observe(_)) => OperationKind::Sequence,
+            Self::Integration(_) => OperationKind::Integration,
             Self::Refs(super::refs::Request::PreparePush { .. }) => OperationKind::PushPrepare,
             Self::Refs(super::refs::Request::Push(_)) => OperationKind::Push,
             Self::Refs(super::refs::Request::Fetch { .. }) => OperationKind::Fetch,
@@ -47,6 +51,7 @@ pub(super) enum Publication {
     Composition(Composition),
     TagIntent(TagIntent),
     PushIntent(PushIntent),
+    Sequence(Sequence),
 }
 
 enum Candidate {
@@ -57,6 +62,7 @@ enum Candidate {
     Composition(commit::Prepared),
     TagIntent(TagIntent),
     PushIntent(PushIntent),
+    Sequence(Sequence),
 }
 
 pub(super) struct Finished {
@@ -85,7 +91,8 @@ pub(super) fn start(
                 Request::Refs(
                     super::refs::Request::Fetch { .. } | super::refs::Request::Push(_),
                 ) => policy.transport_timeout_seconds,
-                Request::Index(_)
+                Request::Integration(super::integration::Request::Start { .. })
+                | Request::Index(_)
                 | Request::Discard(_)
                 | Request::Commit(_)
                 | Request::Refs(
@@ -107,6 +114,7 @@ pub(super) fn start(
                 private_output,
                 transport_diagnostic: None,
                 effects: Effects::NotStarted,
+                in_progress: false,
                 operation_failure: None,
                 failure_verified: false,
                 argv: Vec::new(),
@@ -118,6 +126,7 @@ pub(super) fn start(
                 retained: None,
             };
             let observed = match request {
+                Request::Integration(request) => runner.integration(request, &mut admission),
                 Request::Refs(request) => runner.refs(request, &mut admission),
                 Request::History(request) => runner
                     .history(request, &mut admission)
@@ -160,6 +169,7 @@ struct Runner {
     private_output: bool,
     transport_diagnostic: Option<&'static str>,
     effects: Effects,
+    in_progress: bool,
     operation_failure: Option<String>,
     failure_verified: bool,
     argv: Vec<OsString>,
@@ -471,6 +481,7 @@ impl Runner {
                 capture::End::Cancelled => Outcome::Cancelled,
                 capture::End::TimedOut => Outcome::TimedOut,
                 capture::End::OutputLimit => Outcome::OutputLimit,
+                _ if self.in_progress => Outcome::InProgress,
                 _ if self.operation_failure.is_some()
                     && self.effects == Effects::Possible
                     && !self.failure_verified =>
@@ -514,6 +525,7 @@ impl Runner {
         };
         record.admission = admission.split(record.bytes() + 4096);
         let publication = observed.and_then(|candidate| match candidate {
+            Candidate::Sequence(sequence) => Ok(Publication::Sequence(sequence)),
             Candidate::PushIntent(intent) => Ok(Publication::PushIntent(intent)),
             Candidate::TagIntent(intent) => Ok(Publication::TagIntent(intent)),
             Candidate::Refs { refs, changed } => Ok(Publication::Refs { refs, changed }),

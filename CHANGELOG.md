@@ -39,6 +39,9 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
   Mark one source branch with * and review its full object, configured upstream
   remote and destination with p before a single non-forced push. Conflicting
   publication settings reject; unavailable remote verification stays explicit.
+  Review a fast-forward-only, ordinary or required-commit merge, or an ordinary
+  rebase onto an exact selected ref. Integration protects unsaved sources and
+  shows real Git sequence/conflict stops separately from completed work.
   Changed
   files follow your reload policy, protecting unsaved source text.
   Return to the same windows

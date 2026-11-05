@@ -50,6 +50,7 @@ enum Page {
     Status,
     History,
     Refs,
+    Sequence,
     Revision,
     Reflog,
     Blame,
@@ -297,6 +298,19 @@ impl Session {
                 return Some(self.message("A prompt owns input focus"));
             }
             return Some(match command {
+                GitCommand::Merge => {
+                    self.confirm_git_integration(crate::git::IntegrationMode::Merge)
+                }
+                GitCommand::MergeFastForward => {
+                    self.confirm_git_integration(crate::git::IntegrationMode::FastForward)
+                }
+                GitCommand::MergeNoFastForward => {
+                    self.confirm_git_integration(crate::git::IntegrationMode::NoFastForward)
+                }
+                GitCommand::Rebase => {
+                    self.confirm_git_integration(crate::git::IntegrationMode::Rebase)
+                }
+                GitCommand::OperationStatus => self.open_git_sequence(),
                 GitCommand::TagCreate => self.prompt_git_tag(),
                 GitCommand::TagDelete => self.confirm_git_tag_delete(),
                 GitCommand::Push => self.prepare_git_push(),
@@ -437,7 +451,7 @@ impl Session {
             return Action::Redraw;
         }
         match self.git.page {
-            Page::Refs | Page::History => {
+            Page::Refs | Page::History | Page::Sequence => {
                 self.git.page = Page::Status;
                 return Action::Redraw;
             }
@@ -479,6 +493,9 @@ impl Session {
         })
     }
     fn refresh_git(&mut self) -> Action {
+        if self.git.visible && self.git.page == Page::Sequence {
+            return self.open_git_sequence();
+        }
         if self.git.visible && self.git.page == Page::Refs {
             return self.open_git_refs();
         }
@@ -517,6 +534,7 @@ impl Session {
     fn move_git(&mut self, distance: usize, backward: bool) -> Action {
         match self.git.page {
             Page::Refs => return self.move_git_refs(distance, backward),
+            Page::Sequence => return self.move_git_sequence(distance, backward),
             Page::History | Page::Revision | Page::Reflog | Page::Blame | Page::RevisionFile => {
                 return self.move_git_history(distance, backward);
             }
@@ -622,6 +640,10 @@ impl Session {
             return Action::Wait;
         }
         for update in updates {
+            if self.git.refs.integration_request == Some(update.operation) {
+                self.publish_git_integration(&update);
+                continue;
+            }
             if self.git.refs.push_preparing == Some(update.operation) {
                 self.publish_git_push_preparation(&update);
                 continue;
@@ -723,6 +745,8 @@ impl Session {
         Action::Redraw
     }
     pub(super) fn git_input(&mut self, event: &Event) -> Option<Action> {
+        self.input
+            .set_git_sequence(self.git.visible && self.git.page == Page::Sequence);
         self.input
             .set_git_refs(self.git.visible && self.git.page == Page::Refs);
         self.input
@@ -884,6 +908,9 @@ impl Session {
                 Page::Status => {
                     " Git Status  c commit  Tab expand  Return visit  g refresh  $ processes  ? actions  q return"
                 }
+                Page::Sequence => {
+                    " Git Operation  g refresh  $ processes  Up/Down scroll  q Status"
+                }
                 Page::Refs => {
                     " Git Refs  n branch  S switch  R rename  D delete  t/T tags  ? actions  g refresh  q Status"
                 }
@@ -935,6 +962,9 @@ impl Session {
                 }
                 if self.git.page == Page::Refs {
                     return self.git.refs_row(row, usize::from(self.size.width.max(1)));
+                }
+                if self.git.page == Page::Sequence {
+                    return self.git.sequence_row(row, usize::from(self.size.width));
                 }
                 if self.git.page == Page::Diff {
                     return if row < 3 {

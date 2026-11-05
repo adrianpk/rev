@@ -88,7 +88,7 @@ impl Runner {
         }
         Ok(status)
     }
-    fn read_refs(
+    pub(super) fn read_refs(
         &mut self,
         observation: Arc<Observation>,
         admission: &mut Lease,
@@ -226,7 +226,10 @@ impl Runner {
         refs._admission = admission.split(refs.bytes());
         Ok(refs)
     }
-    fn ref_head(&mut self, format: ObjectFormat) -> Result<(Vec<u8>, Option<ObjectId>), String> {
+    pub(super) fn ref_head(
+        &mut self,
+        format: ObjectFormat,
+    ) -> Result<(Vec<u8>, Option<ObjectId>), String> {
         let reference =
             self.command(&["symbolic-ref", "--quiet", "HEAD"], Phase::Verifying, true)?;
         let reference = reference.strip_suffix(b"\n").unwrap_or(&reference);

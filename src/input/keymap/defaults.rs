@@ -51,6 +51,7 @@ pub(super) fn bindings(context: Context) -> &'static [(&'static str, &'static st
         Context::GitHistory => GIT_HISTORY,
         Context::GitInspect => GIT_INSPECT,
         Context::GitRefs => GIT_REFS,
+        Context::GitSequence => GIT_SEQUENCE,
         Context::GitCommit => GIT_COMMIT,
         _ => modal_bindings(context),
     }
@@ -192,6 +193,14 @@ pub(super) const GIT_HISTORY: &[(&str, &str)] = &[
 ];
 
 const GIT_REFS: &[(&str, &str)] = &[
+    ("=", "git-merge-fast-forward"),
+    ("i", "git-merge"),
+    ("I", "git-merge-no-fast-forward"),
+    ("e", "git-rebase"),
+    ("m f", "git-merge-fast-forward"),
+    ("m m", "git-merge"),
+    ("m n", "git-merge-no-fast-forward"),
+    ("r r", "git-rebase"),
     ("*", "git-mark"),
     ("-", "git-unmark"),
     ("p", "git-push"),
@@ -539,4 +548,23 @@ const COMPLETION: &[(&str, &str)] = &[
     ("TAB", "completion-accept"),
     ("RET", "completion-accept"),
     ("C-g", "keyboard-quit"),
+];
+
+const GIT_SEQUENCE: &[(&str, &str)] = &[
+    ("C-x g", "git-status"),
+    ("q", "git-quit"),
+    ("g", "git-refresh"),
+    ("$", "git-processes"),
+    ("M-x", "execute-extended-command"),
+    (":", "execute-extended-command"),
+    ("C-g", "keyboard-quit"),
+    ("C-x C-c", "save-buffers-kill-terminal"),
+    ("Up", "previous-line"),
+    ("Down", "next-line"),
+    ("C-p", "previous-line"),
+    ("C-n", "next-line"),
+    ("PageUp", "scroll-down-command"),
+    ("PageDown", "scroll-up-command"),
+    ("M-<", "beginning-of-buffer"),
+    ("M->", "end-of-buffer"),
 ];

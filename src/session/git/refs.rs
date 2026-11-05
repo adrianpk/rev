@@ -1,4 +1,5 @@
 use super::super::Pending;
+mod integration;
 pub(in crate::session) mod tag;
 mod transport;
 use super::*;
@@ -11,6 +12,8 @@ pub(super) struct Inspection {
     pub request: Option<OperationId>,
     pub tag_preparing: Option<OperationId>,
     pub push_preparing: Option<OperationId>,
+    pub integration_request: Option<OperationId>,
+    sequence_top: usize,
     push_mark: Option<transport::PushMark>,
     selected: Option<Vec<u8>>,
     remote_selected: Option<Vec<u8>>,
@@ -25,6 +28,8 @@ impl Inspection {
             request: None,
             tag_preparing: None,
             push_preparing: None,
+            integration_request: None,
+            sequence_top: 0,
             push_mark: None,
             selected: None,
             remote_selected: None,
@@ -56,6 +61,7 @@ pub(in crate::session) struct Consent {
     pub message: String,
     review: String,
     top: usize,
+    submit_prefix: bool,
     _admission: crate::git::budget::Lease,
 }
 enum RefAction {
@@ -63,6 +69,10 @@ enum RefAction {
     CreateTag(Arc<crate::git::TagIntent>),
     DeleteTag(Vec<u8>),
     Push(Arc<crate::git::PushIntent>),
+    Integration {
+        target: Vec<u8>,
+        mode: crate::git::IntegrationMode,
+    },
 }
 
 struct Sources {
@@ -277,6 +287,8 @@ impl Work {
                 "R  git-branch-rename: exact local branch",
                 "D  git-branch-delete: merged, noncurrent local branch",
                 "t / T  git-tag-create / git-tag-delete (confirmed local refs)",
+                "= / i / I  confirmed fast-forward / normal / required merge",
+                "e  ordinary rebase onto one exact selected ref",
                 "* / -  mark / clear one exact push source branch",
                 "p / M p  git-push: review one configured upstream branch",
                 "& / M f  git-fetch: selected configured remote, without integration",
@@ -594,7 +606,11 @@ impl Session {
         let prompt = if matches!(action, RefAction::Push(_)) {
             "Confirm reviewed upstream push? [y/n]"
         } else {
-            "Confirm local ref action? [y/n]"
+            if matches!(action, RefAction::Integration { .. }) {
+                "Confirm checked integration? [y/n]"
+            } else {
+                "Confirm local ref action? [y/n]"
+            }
         };
         if let Err(e) = self.input.decision(prompt) {
             return self.error(&e.to_string());
@@ -607,6 +623,7 @@ impl Session {
             message: message.clone(),
             review,
             top: 0,
+            submit_prefix: false,
             _admission: admission,
         })));
         self.message(&message)
@@ -655,7 +672,7 @@ impl Session {
         }
         if matches!(
             consent.action,
-            RefAction::Branch(BranchAction::Switch { .. })
+            RefAction::Branch(BranchAction::Switch { .. }) | RefAction::Integration { .. }
         ) {
             match self.git_branch_sources(&consent.refs) {
                 Ok(s)
@@ -671,16 +688,28 @@ impl Session {
                 Err(e) => return self.error(&e),
             }
         }
+        let integration = matches!(consent.action, RefAction::Integration { .. });
         let result = match consent.action {
             RefAction::Branch(action) => self.git.engine.branch(consent.refs, action),
             RefAction::CreateTag(intent) => self.git.engine.create_tag(intent, ""),
             RefAction::DeleteTag(name) => self.git.engine.delete_tag(consent.refs, &name),
             RefAction::Push(intent) => self.git.engine.push(intent),
+            RefAction::Integration { target, mode } => {
+                self.git.engine.integrate(consent.refs, &target, mode)
+            }
         };
         match result {
             Ok(id) => {
-                self.git.refs.request = Some(id);
-                self.message("Checking confirmed local ref request")
+                if integration {
+                    self.git.refs.integration_request = Some(id);
+                } else {
+                    self.git.refs.request = Some(id);
+                }
+                self.message(if integration {
+                    "Checking confirmed integration policy and exact ref target"
+                } else {
+                    "Checking confirmed local ref request"
+                })
             }
             Err(e) => self.error(&e),
         }
@@ -814,6 +843,40 @@ impl Session {
 impl Session {
     pub(super) fn git_ref_review_input(&mut self, event: &Event) -> Option<Action> {
         use crossterm::event::{KeyCode, KeyEventKind, KeyModifiers};
+        let accept = if let Some(Pending::GitRef(consent)) = &mut self.pending {
+            if let Event::Key(key) = event {
+                if key.kind == KeyEventKind::Press
+                    && key.modifiers == KeyModifiers::CONTROL
+                    && key.code == KeyCode::Enter
+                {
+                    true
+                } else if key.kind == KeyEventKind::Press
+                    && key.modifiers == KeyModifiers::CONTROL
+                    && key.code == KeyCode::Char('c')
+                {
+                    if !consent.submit_prefix {
+                        consent.submit_prefix = true;
+                        return Some(Action::Redraw);
+                    }
+                    true
+                } else {
+                    if key.kind == KeyEventKind::Press {
+                        consent.submit_prefix = false;
+                    }
+                    false
+                }
+            } else {
+                false
+            }
+        } else {
+            false
+        };
+        if accept {
+            let Some(Pending::GitRef(consent)) = self.pending.take() else {
+                unreachable!("checked Git review");
+            };
+            return Some(self.git_ref_answer(*consent, true));
+        }
         let extent = usize::from(self.size.height.saturating_sub(2).max(1));
         let Some(Pending::GitRef(consent)) = &mut self.pending else {
             return None;
@@ -879,7 +942,9 @@ impl Session {
             self.size,
             self.buffers.palette(),
             &self.echo,
-            if matches!(consent.action, RefAction::Push(_)) {
+            if matches!(consent.action, RefAction::Integration { .. }) {
+                " Git Integration Review  y / C-Enter / C-c C-c accept  C-g cancel"
+            } else if matches!(consent.action, RefAction::Push(_)) {
                 " Git Push Review  y accept  n / C-g cancel  Up/Down scroll"
             } else {
                 " Git Local Ref Review  y accept  n / C-g cancel  Up/Down scroll"
