@@ -17,7 +17,10 @@ impl Session {
         directory: &Path,
         target: Option<&Path>,
     ) -> Result<(), String> {
-        if !family.repository_action() || family == Family::SubmoduleList || family.output() {
+        if (!family.repository_action() && !family.direct())
+            || family == Family::SubmoduleList
+            || family.output()
+        {
             return Ok(());
         }
         for buffer in self.buffers.iter() {
@@ -25,10 +28,12 @@ impl Session {
                 f.path().starts_with(directory)
                     || std::fs::canonicalize(f.path()).is_ok_and(|p| p.starts_with(directory))
             });
-            if related && buffer.is_modified() {
-                return Err(
-                    "Prepared repository action refused: a repository-backed buffer has unsaved text".into(),
-                );
+            if (related || (family.direct() && buffer.file().is_some())) && buffer.is_modified() {
+                return Err(if family.direct() {
+                    "Direct command refused: a visiting file buffer has unsaved text".into()
+                } else {
+                    "Prepared repository action refused: a repository-backed buffer has unsaved text".into()
+                });
             }
             if family == Family::SubmoduleDeinit
                 && target.is_some_and(|root| {
@@ -60,14 +65,14 @@ impl Session {
         if self.git.engine.busy() {
             return self.message("Prepared composition waits for owned Git work");
         }
-        let observation = self
+        let mut observation = self
             .git
             .state
             .context
             .filter(|_| self.git.visible)
             .and_then(|id| self.git.engine.context(id))
             .map(|c| c.observation.clone());
-        let directory = observation
+        let mut directory = observation
             .as_ref()
             .map(|o| {
                 o.identity
@@ -86,6 +91,54 @@ impl Session {
                     .map(PathBuf::from)
             })
             .unwrap_or_else(|| self.git.launch.clone());
+        if family.direct() && observation.is_none() {
+            let file_parent = self
+                .buffer()
+                .ok()
+                .and_then(|b| b.file())
+                .and_then(|f| f.path().parent());
+            directory = if self.tree.focused() {
+                self.tree.chosen_root().or(file_parent)
+            } else {
+                file_parent.or_else(|| self.tree.chosen_root())
+            }
+            .unwrap_or(&self.git.launch)
+            .to_owned();
+            let canonical = std::fs::canonicalize(&directory).unwrap_or_else(|_| directory.clone());
+            observation = self
+                .git
+                .engine
+                .contexts()
+                .iter()
+                .filter(|c| c.failure.is_none())
+                .filter(|c| {
+                    canonical.starts_with(
+                        c.observation
+                            .identity
+                            .worktree
+                            .as_ref()
+                            .unwrap_or(&c.observation.identity.git_directory),
+                    )
+                })
+                .max_by_key(|c| {
+                    c.observation
+                        .identity
+                        .worktree
+                        .as_ref()
+                        .unwrap_or(&c.observation.identity.git_directory)
+                        .components()
+                        .count()
+                })
+                .map(|c| c.observation.clone());
+            if let Some(o) = &observation {
+                directory = o
+                    .identity
+                    .worktree
+                    .as_ref()
+                    .unwrap_or(&o.identity.git_directory)
+                    .clone();
+            }
+        }
         let context = observation.as_ref().map(|o| o.context);
         let text = if family.output() {
             serde_json::to_string_pretty(
@@ -238,7 +291,14 @@ impl Session {
         }
         if self.git.visible && self.pending.is_none() && self.input.focus() == Focus::Editing {
             let outcome = self.git.engine.record(update.operation).map(|r| r.outcome);
-            let message = if outcome == Some(crate::git::Outcome::InProgress) {
+            let direct = self
+                .git
+                .engine
+                .family_result()
+                .is_some_and(|r| r.plan.family.direct());
+            let message = if direct {
+                "Direct command ended; Git postconditions remain unknown; $ inspects actual argv, exit and output".to_owned()
+            } else if outcome == Some(crate::git::Outcome::InProgress) {
                 "Prepared Git command stopped in progress; git-operation-status inspects the actual sequence".to_owned()
             } else if update.published && outcome == Some(crate::git::Outcome::Verified) {
                 if let Some(output) = self
@@ -279,13 +339,24 @@ impl Session {
             .as_ref()
             .and_then(|d| d.plan.as_ref())
             .expect("prepared plan");
+        let mode = if plan.family == Family::RunShellCommand {
+            "explicit shell string; configured shell arguments"
+        } else {
+            "literal Git argv; no shell evaluation"
+        };
         let mut metadata = format!(
-            "Prepared Git review: {}\nMode: literal Git argv; no shell evaluation\nProgram: {}\nDirectory: {}\nExplicit destination: {}\nAccepted argv (one argument per line):\n--no-optional-locks\n",
+            "Prepared Git review: {}\nMode: {mode}\nProgram: {}\nDirectory: {}\nExplicit destination: {}\nAccepted argv (one argument per line):\n",
             plan.family.label(),
             label(plan.program.as_bytes()),
             label(plan.directory.as_os_str().as_encoded_bytes()),
             label(plan.destination.as_os_str().as_encoded_bytes())
         );
+        if plan.family != Family::RunShellCommand {
+            metadata.push_str("--no-optional-locks\n");
+        }
+        if let Some((seconds, bytes)) = plan.direct_limits() {
+            metadata.push_str(&format!("Limits: {seconds}s; {bytes} aggregate output bytes\nGit postconditions: unknown; stdin: closed\n"));
+        }
         if let Some(object) = plan.target_object() {
             metadata.push_str(&format!("Pinned Git object: {}\n", object.hex()));
         }

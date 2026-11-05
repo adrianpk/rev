@@ -167,6 +167,7 @@ pub(super) const EDITOR: &[(&str, &str)] = &[
 ];
 
 pub(super) const GIT_HISTORY: &[(&str, &str)] = &[
+    ("!", "git-run-command"),
     ("P", "git-cherry-pick"),
     ("V", "git-revert"),
     ("C-x g", "git-status"),
@@ -198,6 +199,7 @@ pub(super) const GIT_HISTORY: &[(&str, &str)] = &[
 ];
 
 const GIT_REFS: &[(&str, &str)] = &[
+    ("!", "git-run-command"),
     ("E", "git-rebase-autosquash"),
     ("m c", "git-merge-continue"),
     ("m a", "git-merge-abort"),
@@ -249,6 +251,7 @@ const GIT_REFS: &[(&str, &str)] = &[
 ];
 
 const GIT_INSPECT: &[(&str, &str)] = &[
+    ("!", "git-run-command"),
     ("C-x g", "git-status"),
     ("q", "git-quit"),
     ("g", "git-refresh"),
@@ -273,6 +276,7 @@ const GIT_INSPECT: &[(&str, &str)] = &[
 ];
 
 const GIT_WORKTREE: &[(&str, &str)] = &[
+    ("!", "git-run-command"),
     ("c", "git-worktree-create"),
     ("L", "git-worktree-lock"),
     ("U", "git-worktree-unlock"),
@@ -302,6 +306,7 @@ const GIT_WORKTREE: &[(&str, &str)] = &[
 ];
 
 const GIT_STASH: &[(&str, &str)] = &[
+    ("!", "git-run-command"),
     ("c", "git-stash-create"),
     ("a", "git-stash-apply"),
     ("p", "git-stash-pop"),
@@ -337,6 +342,7 @@ pub(super) const GIT_COMMIT: &[(&str, &str)] = &[
 ];
 
 const GIT: &[(&str, &str)] = &[
+    ("!", "git-run-command"),
     ("C C", "git-clone"),
     ("C s", "git-clone-shallow"),
     ("C b", "git-clone-bare"),
@@ -654,6 +660,7 @@ const COMPLETION: &[(&str, &str)] = &[
 ];
 
 const GIT_SEQUENCE: &[(&str, &str)] = &[
+    ("!", "git-run-command"),
     ("RET", "git-conflict-visit"),
     ("?", "git-bisect-start"),
     ("G", "git-bisect-good"),
@@ -690,6 +697,7 @@ const GIT_SEQUENCE: &[(&str, &str)] = &[
 ];
 
 const GIT_CONFLICT: &[(&str, &str)] = &[
+    ("!", "git-run-command"),
     ("H", "git-conflict-explain"),
     ("1", "git-conflict-use-base"),
     ("2", "git-conflict-use-current"),

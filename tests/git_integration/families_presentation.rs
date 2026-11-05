@@ -526,3 +526,132 @@ fn native_applications() {
         }
     }
 }
+
+// Every approved Git navigation map admits !, while both profiles distinguish
+// structured Git from explicit shell text, preserve canceled sources and expose
+// actual unknown outcomes. Hidden compatible Status refreshes after shell work.
+#[test]
+fn native_direct_commands() {
+    use rev::input::keymap::{Context, Sequence};
+    let snapshot = rev::config::Snapshot::default();
+    for context in [
+        Context::Git,
+        Context::GitRefs,
+        Context::GitHistory,
+        Context::GitInspect,
+        Context::GitSequence,
+        Context::GitWorktree,
+        Context::GitStash,
+        Context::GitConflict,
+    ] {
+        assert_eq!(
+            snapshot
+                .keymaps()
+                .map(context)
+                .lookup(&Sequence::parse("!").unwrap()),
+            Some(rev::command::Binding::Command(Command::Git(
+                GitCommand::RunCommand
+            ))),
+            "{context:?}"
+        );
+    }
+    for profile in ["non-modal", "modal"] {
+        let repository = Repository::new("sha1");
+        let mut owned = editor(
+            &repository,
+            profile,
+            "[shell]\nprogram='/bin/sh'\nargs=['-c']",
+            true,
+        );
+        let editor = &mut owned.0;
+        let original = text(editor);
+        entry(editor);
+        wait(editor, |e| e.echo().contains("Git Status refreshed"));
+        let generation = editor.git_observation().unwrap().generation;
+        for cancel in [true, false] {
+            plain(editor, '!');
+            replace(editor, r#"["branch","native-direct","HEAD"]"#);
+            accept(editor);
+            wait(editor, |e| e.echo().contains("Exact prepared Git review"));
+            let review = render(editor).join("\n");
+            assert!(review.contains("literal Git argv"), "{review}");
+            assert!(review.contains("postconditions: unknown"), "{review}");
+            key(editor, KeyCode::Enter, KeyModifiers::NONE);
+            assert!(
+                repository
+                    .git([
+                        "for-each-ref",
+                        "--format=%(refname)",
+                        "refs/heads/native-direct"
+                    ])
+                    .is_empty()
+            );
+            if cancel {
+                plain(editor, 'q');
+                assert_eq!(text(editor), original);
+            } else {
+                accept(editor);
+                wait(editor, |e| {
+                    e.echo().contains("postconditions remain unknown")
+                });
+            }
+        }
+        assert_eq!(
+            repository.git(["rev-parse", "refs/heads/native-direct"]),
+            repository.git(["rev-parse", "HEAD"])
+        );
+        assert!(editor.git_observation().unwrap().generation > generation);
+        plain(editor, '$');
+        key(editor, KeyCode::Enter, KeyModifiers::NONE);
+        let facts = render(editor).join("\n");
+        assert!(facts.contains("Indeterminate"), "{facts}");
+        for _ in 0..4 {
+            if editor.git_visible() {
+                editor.execute(Command::Git(GitCommand::Quit));
+            }
+        }
+        assert!(!editor.git_visible());
+        let generation = editor.git_observation().unwrap().generation;
+        let args = serde_json::to_string(&vec![
+            "printf 'through-shell\\n' | tr a-z A-Z > shell-result",
+        ])
+        .unwrap();
+        for cancel in [true, false] {
+            editor.execute(Command::Git(GitCommand::RunShellCommand));
+            replace(editor, &args);
+            accept(editor);
+            wait(editor, |e| e.echo().contains("Exact prepared Git review"));
+            let review = render(editor).join("\n");
+            assert!(review.contains("explicit shell string"), "{review}");
+            assert!(review.contains("/bin/sh"), "{review}");
+            assert!(!review.contains("--no-optional-locks"), "{review}");
+            key(editor, KeyCode::Enter, KeyModifiers::NONE);
+            assert!(!repository.root.join("shell-result").exists());
+            if cancel {
+                plain(editor, 'q');
+                assert_eq!(text(editor), original);
+            } else {
+                accept(editor);
+                wait(editor, |e| {
+                    e.git_observation()
+                        .is_some_and(|o| o.generation > generation)
+                });
+            }
+        }
+        assert_eq!(
+            fs::read(repository.root.join("shell-result")).unwrap(),
+            b"THROUGH-SHELL\n"
+        );
+        assert_eq!(text(editor), original);
+        let unrelated = repository.fixture.0.join("outside.txt");
+        fs::write(&unrelated, "outside saved\n").unwrap();
+        editor.load(&unrelated).unwrap();
+        editor.insert('!');
+        editor.load(&repository.root.join("source.txt")).unwrap();
+        editor.execute(Command::Git(GitCommand::RunCommand));
+        accept(editor);
+        assert!(editor.echo().contains("unsaved text"), "{}", editor.echo());
+        key(editor, KeyCode::Char('g'), KeyModifiers::CONTROL);
+        assert_eq!(fs::read(unrelated).unwrap(), b"outside saved\n");
+    }
+}

@@ -209,7 +209,7 @@ Integration: [PR #268](https://forge.adrianpk.com/adrianpk/rev/pulls/268) merged
 
 ## Slice 12: Prepared Git families and direct commands
 
-Status: active
+Status: reviewing
 Branch: `feat/rev-git-integration-12-commands`
 Expected PR title: `feat(git): expose prepared repository command families`
 Report: `ops/default/report/slices/rev-git-integration/slice-12-commands.md`
@@ -218,10 +218,10 @@ PR: pending
 
 - [x] T12.1: Provide working native parameter/review routes for regular/shallow/bare/mirror clone, init, ignore files, submodule add/list/update/sync/deinit and subtree add/merge/pull/push/split.
 - [x] T12.2: Complete native notes add/remove/prune, mailbox/plain patch application, format-patch/save-diff/request-pull and sparse-checkout enable/disable/reapply/set/add with exact targets, capability checks and observable real effects.
-- [ ] T12.3: Expose explicit structured direct Git argv and a separately explicit existing shell-command route; integrate complete contextual family prefixes, bound input/review and verify every listed variant using isolated local repositories.
+- [x] T12.3: Expose explicit structured direct Git argv and a separately explicit existing shell-command route; integrate complete contextual family prefixes, bound input/review and verify every listed variant using isolated local repositories.
 
-Validation: T12.1 passed 20 combined family cases; notes/sparse added eight selected engine/native cases in 63.81 seconds, and output development passed nine selected cases in 55.00 seconds. Local patch/mailbox development passes seven selected engine/native cases in 35.32 seconds: SHA-1/SHA-256 actual trees, binary/raw/add/delete paths, multi-message author/date/message/parent metadata, changed payload semantics independent of From labels, real exit-zero hook mismatch, retained mailbox prefix conflict, configured signing preserved with an unavailable signer, stale/invalid input protection and both-profile unsaved-source guards. All five process/workspace cases pass in 1.33 seconds. Formatter, strict focused Clippy, all 21 reference cases, documentation (591 commands/271 configuration entries/71 Status bindings) and whitespace pass. T12.3 and final controller evidence remain pending.
-Integration: T12.1 and T12.2 are complete with working native preparation/review/execution. T12.3 direct/separate shell routes remain pending; the Slice 12 report is drafting. No PR is claimed.
+Validation: T12.1 passed 20 combined family cases; notes/sparse added eight selected cases and output added nine selected cases. Local patch/mailbox development passes seven selected cases in 35.32 seconds; all five process/workspace cases pass in 1.33 seconds. Direct Git/shell development passes seven selected engine/native cases in 32.58 seconds, including both object formats/profiles, actual unknown effects/output, hidden compatible and failed refresh, exact input, unsaved protection, exclusive admission, cancellation and unchanged shell time/output limits. Formatter, strict focused Clippy, documentation (593 commands/271 configuration entries/72 Status bindings) and whitespace pass. Final ordered slice checks belong to the controller receipt after the PR-reference follow-up.
+Integration: T12.1-T12.3 implementation is complete; the report is reviewing. Canonical PR preparation and exact-candidate controller validation are in progress.
 
 ## Slice 13: Combined native PTY and resource acceptance
 

@@ -111,8 +111,15 @@ impl Runner {
         args: &[OsString],
         input: Option<fs::File>,
     ) -> (Result<Vec<u8>, String>, Execution) {
+        self.execute_change_argv(self.git_argv(args), input)
+    }
+    pub(super) fn execute_change_argv(
+        &mut self,
+        argv: Vec<OsString>,
+        input: Option<fs::File>,
+    ) -> (Result<Vec<u8>, String>, Execution) {
         let executed = self
-            .command_input(args, Phase::Executing, false, None, input)
+            .command_argv(argv, Phase::Executing, false, None, input)
             .map(|(bytes, _)| bytes);
         self.effects = if self.exit.is_some() || self.retained.is_some() {
             Effects::Possible

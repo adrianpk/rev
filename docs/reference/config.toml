@@ -1554,6 +1554,7 @@ max_result_bytes = 262144
 
 # Read-only Git navigation uses the same context in both startup profiles.
 [keys.git]
+"!" = "git-run-command"
 "C C" = "git-clone"
 "C s" = "git-clone-shallow"
 "C b" = "git-clone-bare"
@@ -1634,6 +1635,7 @@ max_result_bytes = 262144
 
 # Read-only history and exact revision comparison in both profiles.
 [keys.git_history]
+"!" = "git-run-command"
 "P" = "git-cherry-pick"
 "V" = "git-revert"
 "C-x g" = "git-status"
@@ -1664,6 +1666,7 @@ max_result_bytes = 262144
 "M->" = "end-of-buffer"
 # Exact read-only repository inspection in both profiles.
 [keys.git_inspect]
+"!" = "git-run-command"
 "C-x g" = "git-status"
 "q" = "git-quit"
 "g" = "git-refresh"
@@ -1688,6 +1691,7 @@ max_result_bytes = 262144
 
 # Exact local/tracking refs and checked local branch actions in both profiles.
 [keys.git_refs]
+"!" = "git-run-command"
 "E" = "git-rebase-autosquash"
 "m c" = "git-merge-continue"
 "m a" = "git-merge-abort"
@@ -1739,6 +1743,7 @@ max_result_bytes = 262144
 
 # Independent Git-owned sequence observation in both profiles.
 [keys.git_sequence]
+"!" = "git-run-command"
 "RET" = "git-conflict-visit"
 "?" = "git-bisect-start"
 "G" = "git-bisect-good"
@@ -1775,6 +1780,7 @@ max_result_bytes = 262144
 
 # Conflict inspection, saved resolution and optional explanation in both profiles.
 [keys.git_conflict]
+"!" = "git-run-command"
 "H" = "git-conflict-explain"
 "1" = "git-conflict-use-base"
 "2" = "git-conflict-use-current"
@@ -1803,6 +1809,7 @@ max_result_bytes = 262144
 
 # Exact stash inspection and reviewed saved-file actions in both profiles.
 [keys.git_stash]
+"!" = "git-run-command"
 "c" = "git-stash-create"
 "a" = "git-stash-apply"
 "p" = "git-stash-pop"
@@ -1830,6 +1837,7 @@ max_result_bytes = 262144
 "M->" = "end-of-buffer"
 
 [keys.git_worktree]
+"!" = "git-run-command"
 "c" = "git-worktree-create"
 "L" = "git-worktree-lock"
 "U" = "git-worktree-unlock"

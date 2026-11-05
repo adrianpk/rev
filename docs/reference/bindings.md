@@ -620,6 +620,8 @@ For live terminal key ownership and copy controls, see the
 | `W c` in Status | `git-format-patch` | Review an explicit local commit range and complete mailbox bytes, then save to one absent output file. |
 | `W s` in Status | `git-save-diff` | Review two local commits and a complete binary diff, then save to one absent output file. |
 | `w p` in Status | `git-apply-patch` | Review one complete local patch file, then apply its sealed bytes to the checked index and working tree. |
+| `!` in Git navigation | `git-run-command` | Compose literal Git argv and review executable, cwd and unknown postconditions before execution. |
+| `M-x git-run-shell-command` | `git-run-shell-command` | Explicitly compose one shell command using the configured shell program and arguments, with exact review. |
 | `w a` in Status | `git-apply-mailbox` | Review one complete local mailbox, then apply its decoded patches as checked commits. |
 | `W r` in Status | `git-request-pull` | Review local commit anchors and one explicit published remote branch, then save request text without sending mail. |
 | `Z Z`, `Z l` in Status | `git-worktree-list` | Open a bounded NUL-record worktree list with raw paths, full HEADs, distinct Git/common directories, lock reasons and prune state. |
@@ -869,6 +871,7 @@ then Status, preserving selection and source ownership.
 
 | Keys | Target |
 | --- | --- |
+| `!` | `git-run-command` |
 | `P` | `git-cherry-pick` |
 | `V` | `git-revert` |
 | `C-x g` | `git-status` |
@@ -898,6 +901,7 @@ blob. v inspects a full revision; it never treats a reflog selector as an argume
 
 | Keys | Target |
 | --- | --- |
+| `!` | `git-run-command` |
 | `C-x g` | `git-status` |
 | `q` | `git-quit` |
 | `g` | `git-refresh` |
@@ -921,6 +925,7 @@ native cancellation. Prompts use `keys.minibuffer`.
 
 | Keys | Target |
 | --- | --- |
+| `!` | `git-run-command` |
 | `C C` | `git-clone` |
 | `C s` | `git-clone-shallow` |
 | `C b` | `git-clone-bare` |
@@ -1062,6 +1067,7 @@ aliases below.
 
 | Keys | Target |
 | --- | --- |
+| `!` | `git-run-command` |
 | `E` | `git-rebase-autosquash` |
 | `m c` | `git-merge-continue` |
 | `m a` | `git-merge-abort` |
@@ -1134,6 +1140,7 @@ object. Skipped-candidate ambiguity does not identify a unique first bad commit.
 
 | Keys | Target |
 | --- | --- |
+| `!` | `git-run-command` |
 | `RET` | `git-conflict-visit` |
 | `?` | `git-bisect-start` |
 | `G` | `git-bisect-good` |
@@ -1186,6 +1193,7 @@ state, requiring a fresh inspection before any later resolution action.
 
 | Keys | Target |
 | --- | --- |
+| `!` | `git-run-command` |
 | `H` | `git-conflict-explain` |
 | `1` | `git-conflict-use-base` |
 | `2` | `git-conflict-use-current` |
@@ -1230,6 +1238,7 @@ effects remain visible. Existing file automatic/ask reload policy applies.
 
 | Keys | Target |
 | --- | --- |
+| `!` | `git-run-command` |
 | `c` | `git-stash-create` |
 | `a` | `git-stash-apply` |
 | `p` | `git-stash-pop` |
@@ -1272,6 +1281,7 @@ no force, implicit save, automatic process stop or rollback is supplied.
 
 | Keys | Target |
 | --- | --- |
+| `!` | `git-run-command` |
 | `c` | `git-worktree-create` |
 | `L` | `git-worktree-lock` |
 | `U` | `git-worktree-unlock` |

@@ -508,6 +508,10 @@ impl Session {
                 GitCommand::ApplyMailbox => {
                     self.compose_git_family(crate::git::Family::ApplyMailbox)
                 }
+                GitCommand::RunCommand => self.compose_git_family(crate::git::Family::RunCommand),
+                GitCommand::RunShellCommand => {
+                    self.compose_git_family(crate::git::Family::RunShellCommand)
+                }
                 GitCommand::RequestPull => self.compose_git_family(crate::git::Family::RequestPull),
                 GitCommand::Status => self.open_git(),
                 GitCommand::Commit => self.compose_git_commit(),

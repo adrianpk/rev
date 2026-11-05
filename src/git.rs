@@ -293,6 +293,7 @@ pub struct Progress {
 }
 
 struct Active {
+    exclusive: bool,
     progress: Arc<Mutex<Progress>>,
     cancel: Cancellation,
     thread: Option<JoinHandle<work::Finished>>,
@@ -314,6 +315,8 @@ pub struct Update {
 /// storage is serialized for future changing requests by this same owner.
 pub struct Repositories {
     policy: config::Git,
+    shell_policy: config::Shell,
+    shell_startup: String,
     family_plan: Option<Arc<FamilyPlan>>,
     family_result: Option<Arc<FamilyResult>>,
     contexts: Vec<Context>,
@@ -328,11 +331,20 @@ pub struct Repositories {
 impl Repositories {
     pub fn new(snapshot: &config::Snapshot, wake: crate::term::Waker) -> Self {
         let budget = Budget::default();
+        let shell = &snapshot.settings().shell;
+        let shell_startup = crate::shell::startup_program();
+        let size = 65536
+            + shell.program.capacity()
+            + shell.args.capacity() * std::mem::size_of::<String>()
+            + shell.args.iter().map(String::capacity).sum::<usize>()
+            + shell_startup.capacity();
         let admission = budget
-            .reserve(65536)
+            .reserve(size)
             .expect("fixed Git owner metadata fits an empty budget");
         Self {
             policy: snapshot.settings().git.clone(),
+            shell_policy: shell.clone(),
+            shell_startup,
             family_plan: None,
             family_result: None,
             contexts: Vec::new(),
@@ -484,6 +496,13 @@ impl Repositories {
         context: Option<ContextId>,
         request: work::Request,
     ) -> Result<OperationId, String> {
+        let exclusive = matches!(&request, work::Request::Family(families::Request::Execute(plan)) if plan.family.direct());
+        if self.active.iter().any(|a| a.exclusive) || (exclusive && !self.active.is_empty()) {
+            return Err(
+                "Direct commands retain exclusive Git ownership until child cleanup completes"
+                    .into(),
+            );
+        }
         if self.active.len() >= MAX_CONTEXTS {
             return Err("Git active context limit reached".into());
         }
@@ -543,6 +562,7 @@ impl Repositories {
             self.wake.clone(),
         )?;
         self.active.push(Active {
+            exclusive,
             progress,
             cancel,
             thread: Some(thread),
@@ -674,6 +694,7 @@ impl Repositories {
                     progress.context
                 }
                 Ok(work::Publication::FamilyResult(mut result)) => {
+                    let source_refreshed = result.source.is_some();
                     if let Some(observation) = result.source.take()
                         && let Some(context) = self
                             .contexts
@@ -682,6 +703,15 @@ impl Repositories {
                     {
                         context.observation = Arc::new(observation);
                         context.failure = None;
+                    }
+                    if result.plan.family.direct()
+                        && !source_refreshed
+                        && let Some(expected) = &result.plan.observation
+                        && let Some(context) =
+                            self.contexts.iter_mut().find(|c| c.id == expected.context)
+                        && context.observation.generation == expected.generation
+                    {
+                        context.failure = Some(progress.operation);
                     }
                     self.family_result = Some(Arc::new(result));
                     self.family_plan = None;

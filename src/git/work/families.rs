@@ -1,6 +1,7 @@
 use super::*;
 use crate::git::conflicts::resolution::fingerprint;
 use crate::git::{Family, FamilyPlan, FamilyResult, families::Request};
+mod direct;
 mod notes;
 mod output;
 mod patch;
@@ -21,8 +22,9 @@ impl Runner {
                 args,
                 observation,
                 output,
+                shell,
                 ..
-            } => self.prepare_family(family, args, observation, output, admission),
+            } => self.prepare_family(family, args, observation, output, shell, admission),
             Request::Execute(plan) => self.execute_family(plan, admission),
         }
     }
@@ -102,9 +104,15 @@ impl Runner {
         mut args: Vec<OsString>,
         observation: Option<Arc<Observation>>,
         output: Option<PathBuf>,
+        shell: Option<crate::git::families::Shell>,
         admission: &mut Lease,
     ) -> Result<Candidate, String> {
-        family.validate(&args)?;
+        if family != Family::RunShellCommand {
+            family.validate(&args)?;
+        }
+        if (family == Family::RunShellCommand) != shell.is_some() {
+            return Err("Explicit shell preparation is unavailable".into());
+        }
         self.directory = std::fs::canonicalize(&self.directory)
             .map_err(|e| format!("Resolve prepared command directory: {e}"))?;
         let directory_stamp =
@@ -112,16 +120,18 @@ impl Runner {
         if !self.directory.is_dir() {
             return Err("Prepared command requires a captured directory".into());
         }
-        let commands = self.command(&["--list-cmds=main,others"], Phase::Checking, false)?;
-        if !commands
-            .split(|b| *b == b'\n')
-            .any(|name| name == args[0].as_encoded_bytes())
-        {
-            return Err("Installed Git does not provide the selected command family".into());
+        if !family.direct() {
+            let commands = self.command(&["--list-cmds=main,others"], Phase::Checking, false)?;
+            if !commands
+                .split(|b| *b == b'\n')
+                .any(|name| name == args[0].as_encoded_bytes())
+            {
+                return Err("Installed Git does not provide the selected command family".into());
+            }
         }
         let destination = if let Some(output) = output {
             self.family_destination(output.as_os_str())?
-        } else if family.notes() || family.sparse() || family.patch() {
+        } else if family.notes() || family.sparse() || family.patch() || family.direct() {
             self.directory.clone()
         } else if family.subtree() {
             self.family_relative_destination(&args[3])?
@@ -134,7 +144,7 @@ impl Runner {
         } else {
             self.family_destination(args.last().ok_or("Destination is required")?)?
         };
-        let parent_stamp = if !family.repository_action()
+        let parent_stamp = if (!family.repository_action() && !family.direct())
             || family.output()
             || matches!(family, Family::SubmoduleAdd | Family::SubtreeAdd)
         {
@@ -142,7 +152,7 @@ impl Runner {
         } else {
             None
         };
-        if !family.repository_action() {
+        if !family.repository_action() && !family.direct() {
             *args.last_mut().expect("checked destination") = destination.as_os_str().into();
         }
         let source = observation
@@ -208,7 +218,14 @@ impl Runner {
         } else {
             None
         };
-        let proof = if let Some(state) = submodule {
+        let proof = if family.direct() {
+            crate::git::families::FamilyProof::Direct(self.prepare_direct(
+                source.as_ref(),
+                shell.as_ref(),
+                &args,
+                admission,
+            )?)
+        } else if let Some(state) = submodule {
             crate::git::families::FamilyProof::Submodule(state)
         } else if let Some(state) = subtree {
             crate::git::families::FamilyProof::Subtree(state)
@@ -250,14 +267,16 @@ impl Runner {
             + evidence.iter().map(Vec::capacity).sum::<usize>()
             + self.directory.capacity()
             + destination.capacity()
-            + self.policy.program.capacity()
+            + shell
+                .as_ref()
+                .map_or(self.policy.program.capacity(), |s| s.program.capacity())
             + proof.bytes()
             + 4096;
         admission.grow(size)?;
         Ok(Candidate::FamilyPlan(FamilyPlan {
             family,
             directory: self.directory.clone(),
-            program: self.policy.program.clone(),
+            program: shell.map_or_else(|| self.policy.program.clone(), |s| s.program),
             args,
             destination,
             observation,
@@ -293,6 +312,9 @@ impl Runner {
             {
                 return Err("Saved source bytes changed while prepared review was open".into());
             }
+        }
+        if plan.family.direct() {
+            return self.execute_direct(plan, admission);
         }
         if let Some(expected) = plan.submodule() {
             let actual = self.submodule_state(

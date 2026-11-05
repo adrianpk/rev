@@ -31,6 +31,8 @@ pub enum Family {
     RequestPull,
     ApplyPatch,
     ApplyMailbox,
+    RunCommand,
+    RunShellCommand,
 }
 impl Family {
     pub fn label(self) -> &'static str {
@@ -63,6 +65,8 @@ impl Family {
             Self::RequestPull => "request pull output",
             Self::ApplyPatch => "plain patch application",
             Self::ApplyMailbox => "mailbox application",
+            Self::RunCommand => "direct Git command",
+            Self::RunShellCommand => "explicit shell command",
         }
     }
     pub fn seed(self) -> Vec<String> {
@@ -122,6 +126,7 @@ impl Family {
                 "",
                 "--",
             ],
+            Self::RunCommand | Self::RunShellCommand => &[""],
             Self::RequestPull => &["request-pull", "", "", ""],
             Self::ApplyPatch => &[
                 "apply",
@@ -151,6 +156,16 @@ impl Family {
         args.iter().map(|a| (*a).into()).collect()
     }
     pub(super) fn validate(self, args: &[OsString]) -> Result<(), String> {
+        if self.direct() {
+            if args.is_empty()
+                || args[0].is_empty()
+                || args.iter().any(|a| a.as_encoded_bytes().contains(&0))
+                || (self == Self::RunShellCommand && args.len() != 1)
+            {
+                return Err("Direct Git requires literal arguments; shell mode requires exactly one nonempty command string without NUL".into());
+            }
+            return Ok(());
+        }
         let expected = self.seed();
         let variadic = matches!(self, Self::SparseSet | Self::SparseAdd);
         if (if variadic {
@@ -181,6 +196,9 @@ impl Family {
             || self.sparse()
             || self.output()
             || self.patch()
+    }
+    pub fn direct(self) -> bool {
+        matches!(self, Self::RunCommand | Self::RunShellCommand)
     }
     pub(super) fn patch(self) -> bool {
         matches!(self, Self::ApplyPatch | Self::ApplyMailbox)
@@ -427,6 +445,25 @@ impl Patch {
     }
 }
 
+pub(super) struct Direct {
+    pub configuration: Option<Vec<u8>>,
+    pub seconds: usize,
+    pub output_bytes: usize,
+}
+impl std::fmt::Debug for Direct {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("Direct")
+            .field("seconds", &self.seconds)
+            .field("output_bytes", &self.output_bytes)
+            .finish_non_exhaustive()
+    }
+}
+pub(super) struct Shell {
+    pub program: String,
+    pub seconds: usize,
+    pub output_bytes: usize,
+}
+
 #[derive(Debug)]
 pub(super) enum FamilyProof {
     Creation,
@@ -436,6 +473,7 @@ pub(super) enum FamilyProof {
     Sparse(Sparse),
     Output(Output),
     Patch(Patch),
+    Direct(Direct),
 }
 impl FamilyProof {
     pub fn bytes(&self) -> usize {
@@ -447,6 +485,10 @@ impl FamilyProof {
             Self::Sparse(state) => state.bytes(),
             Self::Output(state) => state.bytes(),
             Self::Patch(state) => state.bytes(),
+            Self::Direct(state) => {
+                std::mem::size_of::<Direct>()
+                    + state.configuration.as_ref().map_or(0, Vec::capacity)
+            }
         }
     }
 }
@@ -494,6 +536,12 @@ impl FamilyPlan {
             _ => &[],
         }
     }
+    pub fn direct_limits(&self) -> Option<(usize, usize)> {
+        match &self.proof {
+            FamilyProof::Direct(s) => Some((s.seconds, s.output_bytes)),
+            _ => None,
+        }
+    }
     pub fn input_preview(&self) -> Option<(&Path, usize, ObjectId)> {
         match &self.proof {
             FamilyProof::Patch(input) => Some((&input.path, input.bytes.len(), input.hash)),
@@ -526,6 +574,7 @@ pub(super) enum Request {
         args: Vec<OsString>,
         observation: Option<Arc<Observation>>,
         output: Option<PathBuf>,
+        shell: Option<Shell>,
         _admission: Lease,
     },
     Execute(Arc<FamilyPlan>),
@@ -593,6 +642,30 @@ impl Repositories {
             );
         }
         family.validate(&args)?;
+        let (args, shell) = if family == Family::RunShellCommand {
+            let command = args[0]
+                .to_str()
+                .ok_or("Shell command requires UTF-8 input")?;
+            let mut argv =
+                crate::shell::arguments(&self.shell_policy, &self.shell_startup, command)?;
+            let program = argv.remove(0);
+            (
+                argv.into_iter().map(OsString::from).collect(),
+                Some(Shell {
+                    program,
+                    seconds: self
+                        .shell_policy
+                        .timeout_seconds
+                        .min(self.policy.operation_timeout_seconds),
+                    output_bytes: self
+                        .shell_policy
+                        .max_output_bytes
+                        .min(self.policy.max_output_bytes),
+                }),
+            )
+        } else {
+            (args, None)
+        };
         let observation = context
             .map(|id| {
                 self.context(id)
@@ -611,6 +684,7 @@ impl Repositories {
         }
         let size = args.iter().map(OsString::capacity).sum::<usize>()
             + output.as_ref().map_or(0, PathBuf::capacity)
+            + shell.as_ref().map_or(0, |s| s.program.capacity())
             + 8192;
         let admission = self.budget.reserve(size)?;
         self.family_plan = None;
@@ -623,6 +697,7 @@ impl Repositories {
                 args,
                 observation,
                 output,
+                shell,
                 _admission: admission,
             }),
         )

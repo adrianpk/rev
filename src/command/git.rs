@@ -30,6 +30,8 @@ pub enum GitCommand {
     RequestPull,
     ApplyPatch,
     ApplyMailbox,
+    RunCommand,
+    RunShellCommand,
 
     WorktreeList,
     WorktreeCreate,
@@ -159,6 +161,8 @@ impl GitCommand {
             Self::RequestPull => "git-request-pull",
             Self::ApplyPatch => "git-apply-patch",
             Self::ApplyMailbox => "git-apply-mailbox",
+            Self::RunCommand => "git-run-command",
+            Self::RunShellCommand => "git-run-shell-command",
 
             Self::WorktreeList => "git-worktree-list",
             Self::WorktreeCreate => "git-worktree-create",

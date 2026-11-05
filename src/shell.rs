@@ -31,6 +31,34 @@ pub(crate) struct Operation {
     worker: Option<JoinHandle<Result<Outcome, String>>>,
 }
 
+pub(crate) fn startup_program() -> String {
+    std::env::var("SHELL")
+        .ok()
+        .filter(|s| !s.is_empty())
+        .unwrap_or_else(|| "/bin/sh".into())
+}
+
+/// Native shell routes share startup selection and exact configured arguments.
+pub(crate) fn arguments(
+    policy: &Shell,
+    startup_shell: &str,
+    command: &str,
+) -> Result<Vec<String>, String> {
+    if command.trim().is_empty() || command.len() > 4096 || command.contains('\0') {
+        return Err("Shell command requires 1..=4096 UTF-8 bytes without NUL".into());
+    }
+    let program = if policy.program.is_empty() {
+        startup_shell
+    } else {
+        &policy.program
+    };
+    let mut argv = Vec::with_capacity(policy.args.len() + 2);
+    argv.push(program.to_owned());
+    argv.extend(policy.args.iter().cloned());
+    argv.push(command.to_owned());
+    Ok(argv)
+}
+
 impl Operation {
     pub(crate) fn start(
         policy: &Shell,
@@ -38,9 +66,7 @@ impl Operation {
         command: &str,
         invocation: Invocation,
     ) -> Result<Self, String> {
-        if command.trim().is_empty() || command.len() > 4096 || command.contains('\0') {
-            return Err("Shell command requires 1..=4096 UTF-8 bytes without NUL".into());
-        }
+        let argv = arguments(policy, startup_shell, command)?;
         if invocation
             .input
             .as_ref()
@@ -48,15 +74,6 @@ impl Operation {
         {
             return Err("Shell region exceeds max_input_bytes".into());
         }
-        let program = if policy.program.is_empty() {
-            startup_shell
-        } else {
-            &policy.program
-        };
-        let mut argv = Vec::with_capacity(policy.args.len() + 2);
-        argv.push(program.to_owned());
-        argv.extend(policy.args.iter().cloned());
-        argv.push(command.to_owned());
         let program = Program {
             argv,
             directory: invocation.directory,

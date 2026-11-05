@@ -2,6 +2,8 @@ use super::support::{Repository, finish};
 use rev::git::{Effects, Family, FamilyPlan, Outcome, Repositories};
 use std::{ffi::OsString, fs, os::unix::ffi::OsStringExt, path::Path, sync::Arc};
 
+#[path = "families_direct.rs"]
+mod direct;
 #[path = "families_metadata.rs"]
 mod metadata;
 #[path = "families_output.rs"]

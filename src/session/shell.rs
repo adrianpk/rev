@@ -35,10 +35,7 @@ impl Work {
                 .is_some_and(|r| r.directory.starts_with(root))
     }
     pub(super) fn new(launch: PathBuf) -> Self {
-        let startup_shell = std::env::var("SHELL")
-            .ok()
-            .filter(|s| !s.is_empty())
-            .unwrap_or_else(|| "/bin/sh".into());
+        let startup_shell = crate::shell::startup_program();
         Self {
             launch,
             startup_shell,

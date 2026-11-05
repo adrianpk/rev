@@ -1,6 +1,6 @@
 # Slice 12: Prepared Repository Command Families
 
-Status: drafting
+Status: reviewing
 Delivery set: rev-git-integration
 Plan: `ops/default/plan/rev-git-integration.md`
 Tracker: `ops/default/tracker/rev-git-integration.md`
@@ -104,8 +104,24 @@ Deliver GIT14-GIT15 and their GIT16-GIT20 contracts through T12.1-T12.3 in the
 - Owned producer workspaces declare their exact filenames, retain directory FDs
   and admission through active/retained child cleanup, and preserve unexpected
   entries or substituted paths. Existing time/output/cleanup limits remain.
-- T12.2 is complete. T12.3 direct/separate shell routes remain pending. No PR is
-  claimed.
+- T12.3 direct routes: ! in all eight Git navigation maps prepares structured
+  Git argv; git-run-shell-command separately prepares one explicit shell string.
+  Both show exact mode/executable/cwd/input/limits and require separate acceptance.
+  Named entry works from ordinary editing and chosen directories; compatible
+  hidden Git context remains attached to the source.
+- Direct shell selection reuses existing shell-command startup/program/args.
+  Execution uses the smaller existing shell and Git-operation time/output bounds,
+  closed stdin and the same Git process/cancellation/retained-cleanup owner.
+  Direct execution exclusively retains admission across known repositories.
+- Arbitrary commands retain unknown Git postconditions even with exit zero.
+  Actual argv, exit and bounded output remain inspectable through existing
+  escaping/redaction. Compatible Status refreshes; lost source identity retains
+  the prior observation with failed freshness. Source/configuration/cwd changes
+  and unsaved visiting file buffers protect acceptance. No output replay or
+  automatic retry/rollback is performed.
+- T12.1-T12.3 implementation is complete. Final ordered slice validation is
+  recorded by the controller against the clean PR candidate after its required
+  PR-reference follow-up.
 
 ## Implementation Notes
 
@@ -154,6 +170,23 @@ files only, preserves unexpected entries and refuses a replaced directory.
 Mailbox observation now reads its actual original object from Git's ORIG_HEAD;
 existing supported continuation/abort admission remains separate.
 
+Direct preparation never executes or classifies arbitrary input. The same
+canonical plan binds final argv (including executable/prefix bounds), captured
+cwd/source/configuration and limits. Git mode passes OS arguments directly;
+Git's own alias/helper semantics remain Git's responsibility. Shell mode reuses
+startup selection and argv construction from the existing shell-command owner,
+then executes through the Git operation's existing capture and cleanup path.
+No second process owner, dependency, queue or timeout override was added.
+
+A central admission flag keeps unknown direct effects exclusive across the
+engine, including retained cleanup. The existing child-facts helper now also
+accepts complete argv for an explicit shell executable; ordinary Git callers
+retain their unchanged prefix, capture and execution facts. Only the accepted
+arbitrary child's output is inspectable; configuration/refresh probes remain
+private and never replace actual argv, status or output. Failed compatible
+refresh marks the retained observation stale. Arbitrary output cannot become a
+command, inferred postcondition or automatic document edit.
+
 Bounds remain 32 MiB editor-wide Git admission, 1 MiB scratch, existing process
 output/deadline/cleanup ceilings and five-second fixture waits. Prepared input
 admits at most 64 arguments, 4096 bytes each, 64 KiB total and an absolute cwd
@@ -169,16 +202,17 @@ No runtime/development dependency or validation prerequisite was added.
 
 ## Contracts Added or Changed
 
-- Thirty working commands: git-clone, git-clone-shallow, git-clone-bare,
+- Thirty-two working commands: git-clone, git-clone-shallow, git-clone-bare,
   git-clone-mirror, git-init, git-ignore and git-ignore-exclude; five additional
   commands are git-submodule-add/list/update/sync/deinit and five are
   git-subtree-add/merge/pull/push/split. Eight more are git-notes-add/remove/prune
   and git-sparse-checkout-enable/disable/reapply/set/add. Three output commands
   are git-format-patch, git-save-diff and git-request-pull. Two application
-  commands are git-apply-patch and git-apply-mailbox.
-- Status has 71 active defaults. The existing keys.git_commit context also
+  commands are git-apply-patch and git-apply-mailbox. The direct routes are
+  git-run-command and git-run-shell-command.
+- Status has 72 active defaults; all eight Git navigation maps admit !. The existing keys.git_commit context also
   supplies ordinary editing and explicit submission for prepared argument text.
-- Live catalogs contain 591 commands and 271 configuration entries.
+- Live catalogs contain 593 commands and 271 configuration entries.
 
 ## Files of Interest
 
@@ -197,6 +231,9 @@ No runtime/development dependency or validation prerequisite was added.
 - `src/git/work/families/patch.rs`, `src/file/temporary.rs`,
   `src/process/capture.rs`: sealed local input, independent private-index trees,
   decoded mailbox metadata/lineage, retained workspace ownership and cleanup.
+- `src/git/work/families/direct.rs`, `src/shell.rs`, `src/session/shell.rs`:
+  unknown direct outcomes, compatible refresh, shared configured shell selection
+  and exact native argv. `src/git.rs` retains exclusive admission and stale facts.
 - `src/session/git/families.rs`, `src/session/git/commit.rs`: native draft,
   two-step submission, exact review and original source restoration.
 - `src/git/work/repository.rs`: shared saved-state evidence for unborn sources.
@@ -219,6 +256,10 @@ No runtime/development dependency or validation prerequisite was added.
   conflict and input/configuration/source protection.
 
 ## Validation
+
+The earlier entries below describe bounded development increments. Delivered
+Behavior above records the current complete implementation; the final ordered
+receipt is recorded separately against the clean PR head.
 
 Development initially passed six real Git/native cases in 10.29 seconds.
 Additional native outside-repository and unborn-source cases passed with the
@@ -372,6 +413,30 @@ commands, 271 configuration entries, 76 reachable pages and 485 links.
 Whitespace checks pass. These are development checks; T12.3 and final exact-HEAD
 controller evidence remain pending.
 
+Direct development passes all seven selected engine/native cases in 32.58
+seconds. Real SHA-1/SHA-256 repositories prove literal raw and shell-looking
+arguments, empty operands, actual staged/ref effects and retained exit/output.
+Configured shell program/args perform real pipelines and saved-file writes.
+Outside-repository commands retain unknown results without inventing a context.
+Moving actual Git metadata preserves the old observation with failed freshness
+while retaining the accepted child's exit-zero output. Source/index/HEAD/config/
+cwd and full executable/argv limits refuse before execution. Real Git aliases
+and explicit shells prove exclusive cross-context admission, descendant cleanup
+and cancellation. Existing shell time/output limits remain distinct after
+refresh. Both profiles prove separate preparation/acceptance, Return protection,
+cancellation, ! availability in eight maps, hidden compatible Status refresh,
+process inspection and protection for an unrelated unsaved visiting file.
+
+Formatter and strict focused Clippy pass (22.03 seconds). Documentation passes
+at 593 commands, 271 configuration entries, 76 pages and 485 links. Whitespace
+passes. Initial compilation required using the actual retained OperationId
+for source failure and measuring OS argument lengths through their borrowed
+values. Those corrections preserve assertions, fixture waits, cleanup and
+resource limits. The final ordered checks, including the complete families
+filter and existing shell-command regression, belong to the controller receipt
+for the clean PR candidate after the PR-reference follow-up. No full gate is
+claimed here.
+
 Successful development commands:
 
 - `cargo fmt --all -- --check`
@@ -391,15 +456,16 @@ Successful development commands:
 - `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test git_integration -- families::output:: families::presentation::native_outputs families::metadata::notes_roundtrip index::path_roundtrip --test-threads=1`
 - `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test git_integration -- families::patch:: families::presentation::native_applications --test-threads=1`
 - `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --lib -- process::capture:: file::temporary:: --test-threads=1`
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test git_integration -- families::direct:: families::presentation::native_direct_commands --test-threads=1`
 - `git diff --check`
 
-These are focused development results. Final exact-HEAD controller validation
-will follow complete T12.1-T12.3 implementation and the canonical PR-reference
-follow-up commit. No full gate or final receipt is claimed.
+These are focused development results. The controller records final ordered
+slice evidence against the clean PR head after its reference follow-up. That
+receipt is the exact-candidate evidence; the required full delivery-set gate
+remains a later controller phase.
 
 ## Risks and Follow-ups
 
-Complete the remaining approved direct Git/separate shell routes in this same
-slice. Combined PTY/resource acceptance
-and learning-path guidance remain in their recorded later slices. The controller
-owns integration.
+Combined PTY/resource acceptance and learning-path guidance remain in their
+recorded later slices. The controller owns this slice's integration and the
+unchanged full delivery-set gate.

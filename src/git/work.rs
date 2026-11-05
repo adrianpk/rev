@@ -200,6 +200,11 @@ pub(super) fn start(
                     policy.transport_timeout_seconds
                 }
                 Request::Family(super::families::Request::Execute(ref plan))
+                    if plan.family.direct() =>
+                {
+                    plan.direct_limits().expect("direct limits").0
+                }
+                Request::Family(super::families::Request::Execute(ref plan))
                     if !plan.family.transport() =>
                 {
                     policy.operation_timeout_seconds
@@ -505,6 +510,22 @@ impl Runner {
         detail_cap: Option<usize>,
         input: Option<std::fs::File>,
     ) -> Result<(Vec<u8>, bool), String> {
+        self.command_argv(self.git_argv(args), phase, allow_absent, detail_cap, input)
+    }
+    fn git_argv(&self, args: &[OsString]) -> Vec<OsString> {
+        std::iter::once(OsString::from(&self.policy.program))
+            .chain(std::iter::once(OsString::from("--no-optional-locks")))
+            .chain(args.iter().cloned())
+            .collect()
+    }
+    fn command_argv(
+        &mut self,
+        argv: Vec<OsString>,
+        phase: Phase,
+        allow_absent: bool,
+        detail_cap: Option<usize>,
+        input: Option<std::fs::File>,
+    ) -> Result<(Vec<u8>, bool), String> {
         if Instant::now() >= self.deadline {
             self.end = capture::End::TimedOut;
             return Err("Git observation timed out".into());
@@ -518,10 +539,7 @@ impl Runner {
             self.end = capture::End::OutputLimit;
             return Err("Git aggregate job output limit reached".into());
         }
-        self.argv = std::iter::once(OsString::from(&self.policy.program))
-            .chain(std::iter::once(OsString::from("--no-optional-locks")))
-            .chain(args.iter().cloned())
-            .collect();
+        self.argv = argv;
         let program = capture::Program {
             argv: self.argv.clone(),
             directory: self.directory.clone(),

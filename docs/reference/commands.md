@@ -750,6 +750,8 @@ Status reads disk and Git state; it does not save an unsaved source buffer.
 | `git-save-diff` | Review two local commits and a complete binary diff, then save to one absent output file. |
 | `git-apply-patch` | Review one complete local patch file, then apply its sealed bytes to the checked index and working tree. |
 | `git-apply-mailbox` | Review one complete local mailbox, then apply its decoded patches as checked commits. |
+| `git-run-command` | Compose literal Git argv, review exact executable/cwd/input and inspect actual unknown outcomes. |
+| `git-run-shell-command` | Compose one explicit shell string using configured shell arguments, review it and inspect actual unknown outcomes. |
 | `git-request-pull` | Review local commit anchors and one explicit published remote branch, then save request text without sending mail. |
 | `git-worktree-list` | Open a bounded NUL-record worktree list with raw paths, full HEADs, distinct Git/common directories, lock reasons and prune state. |
 | `git-worktree-create` | Review a new linked worktree and new local branch at the exact observed HEAD, using a checked absent destination. |
@@ -1235,3 +1237,53 @@ An actual stopped mailbox retains Git-owned progress and already-applied
 commits. git-operation-status inspects that state under the existing metadata
 bounds. No automatic continuation, abort, retry or provenance-based success is
 inferred. Return and cancellation follow the same prepared argument contract.
+
+
+### Direct Git and explicit shell commands
+
+! in Git navigation opens git-run-command. Edit the JSON argument array,
+for example ["branch","topic","HEAD"]. Git receives those arguments directly,
+including empty operands and exact supported path bytes. The native composer
+accepts Unicode JSON text; engine callers retain raw OS arguments. No shell
+parsing, quoting removal, globbing or substitution is performed by the editor.
+Git retains its own option, alias and helper semantics.
+
+M-x git-run-shell-command selects shell mode explicitly. Its JSON array has
+one item containing the complete shell string, for example
+["printf 'one\\n' | tr a-z A-Z"]. It reuses the existing shell-command program
+selection: shell.program when configured, otherwise startup SHELL or /bin/sh;
+shell.args precede the accepted command unchanged. Pipes, redirection and
+substitution are shell behavior in this explicitly selected mode. No document
+or region text is sent to either direct route; stdin is closed.
+
+Preparation observes only the captured directory and available checked Git
+context. It does not execute or classify the arbitrary input. Review shows
+executable, mode, canonical cwd, accepted argv/input and limits. C-Enter or
+C-c C-c first prepares this review and a separate acceptance starts execution.
+Return does not consent, and q or C-g cancels a review while retaining source
+windows. Named commands also work from ordinary editing and chosen directories.
+When Git is hidden, an existing compatible context for the source directory is
+retained; no repository identity is invented for an ordinary directory.
+
+Direct input retains the 64 KiB native draft and final argv limits: 64 complete
+tokens including executable/prefix, at most 4096 bytes each and 64 KiB total.
+Shell text is one nonempty UTF-8 command within 4096 bytes. Shell execution uses
+the smaller existing Git-operation and shell time/output limits; configuration
+is startup-only. All file-backed buffers must have saved text before accepting
+an arbitrary command because its filesystem targets cannot be inferred.
+Captured source/index/HEAD/configuration or directory changes invalidate review.
+
+Both routes use the existing Git operation, process-group, cancellation,
+diagnostic and retained-cleanup owner. They exclusively retain Git admission
+across known repositories until child cleanup finishes. Leaving a presentation
+does not cancel work; git-process-cancel selects the actual owned operation.
+git-processes remains invocable when Git is hidden. Its detail retains the real
+child argv, exit and bounded stdout/stderr through the existing escaped,
+credential-redacting presentation. Output is inspection data and cannot become
+another command or an automatic source edit.
+
+Arbitrary Git postconditions stay unknown even after exit zero. Actual child
+failure, cancellation, timeout and output-limit facts remain visible. Compatible
+Status is refreshed after possible effects; an unavailable or changed repository
+identity preserves the last confirmed observation with failed freshness. No
+automatic retry, inferred safe effect, rollback or repository recreation occurs.

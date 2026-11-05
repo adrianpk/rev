@@ -84,7 +84,9 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
   new files, with complete output checks and no mail sending or overwrite.
   Apply a reviewed local patch to the checked index and files, or apply a
   mailbox as commits with verified trees, authors and messages. Retain actual
-  mailbox progress when a later patch stops.
+  mailbox progress when a later patch stops. Compose exact Git arguments with !
+  or explicitly choose a shell command, review the executable and directory,
+  and inspect actual output while unknown Git postconditions stay explicit.
   Return to the same windows
   and terminals. Inspect active and
   recent Git processes, cancel a selected operation, and confirm before quitting

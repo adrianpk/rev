@@ -139,6 +139,8 @@ fn tree(target: Binding) -> bool {
                     | crate::command::GitCommand::CloneBare
                     | crate::command::GitCommand::CloneMirror
                     | crate::command::GitCommand::Init
+                    | crate::command::GitCommand::RunCommand
+                    | crate::command::GitCommand::RunShellCommand
             )
             | Command::KeyboardQuit
             | Command::Quit
