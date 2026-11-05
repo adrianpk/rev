@@ -7,7 +7,7 @@ Plan: [Native Git Integration Delivery](../plan/rev-git-integration.md)
 Spec: [Native Git Integration](../spec/editor-git-integration.md)
 Model: [Native Git Model](../spec/editor-git-integration-model.md)
 Approved: owner, 2026-11-04; complete fourteen-slice plan and autonomous Looper execution/integration through dev
-Active slice: Slice 9 - Ordered revisions and manual bisect
+Active slice: Slice 10 - Native conflict resolution
 Progress owner: after startup, Looper checkpoint, canonical PRs and exact-candidate validation receipts
 
 ## Canonical slice map
@@ -161,7 +161,7 @@ Integration: [PR #265](https://forge.adrianpk.com/adrianpk/rev/pulls/265) merged
 
 ## Slice 9: Ordered revisions and manual bisect
 
-Status: active
+Status: delivered
 Branch: `feat/rev-git-integration-09-sequences`
 Expected PR title: `feat(git): apply ordered revisions and manual bisect`
 Report: `ops/default/report/slices/rev-git-integration/slice-9-sequences.md`
@@ -172,12 +172,12 @@ PR: `#266`
 - [x] T9.2: Integrate their actual continuation/skip/abort states with the shared sequence owner and conflict entry; reject wrong order, duplicate/stale targets and wrong active families.
 - [x] T9.3: Provide manual bisect start/good/bad/skip/reset with exact review and real fixture verification; do not add automatic test execution.
 
-Validation: T9.1-T9.2 development includes 11 sequence cases, 19 shared integration cases, the branch/history/source regression and 21 reference checks. T9.3 adds five passing focused cases for actual bisect classification, ambiguity, stale/configured-limit fences, both native profiles and unsaved-source protection. Strict Clippy and documentation checks pass with 539 commands and 268 configuration entries. Final combined exact-HEAD controller evidence follows the PR-reference commit.
-Integration: T9.1-T9.3 implementation and the reviewing Slice 9 report are complete. Canonical PR [#266](https://forge.adrianpk.com/adrianpk/rev/pulls/266) is open; final exact-HEAD controller validation follows the PR-reference commit.
+Validation: Controller receipt `6EUQIIPWCK2S52UQHODGSQUN7H` passed all eight ordered checks at `be4d6098b3b67a67adacd1162897d5a7a903e801`: 16 sequence cases, 19 shared integration cases, one source/history regression and 21 reference checks, formatter, strict Clippy, documentation and whitespace.
+Integration: [PR #266](https://forge.adrianpk.com/adrianpk/rev/pulls/266) merged through controller-owned Rebase + Fast-forward into dev at `be4d6098b3b67a67adacd1162897d5a7a903e801`. Slice 9 of 14 completed.
 
 ## Slice 10: Native conflict resolution
 
-Status: pending
+Status: active
 Branch: `feat/rev-git-integration-10-conflicts`
 Expected PR title: `feat(git): inspect and resolve checked conflicts`
 Report: `ops/default/report/slices/rev-git-integration/slice-10-conflicts.md`

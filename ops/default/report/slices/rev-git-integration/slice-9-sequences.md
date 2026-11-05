@@ -1,6 +1,6 @@
 # Slice 9: Ordered Revisions and Manual Bisect
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-git-integration
 Plan: `ops/default/plan/rev-git-integration.md`
 Tracker: `ops/default/tracker/rev-git-integration.md`
@@ -129,9 +129,12 @@ Successful development commands include:
 - `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo run --locked --quiet --example documentation-check`
 - `git diff --check`
 
-Final validation uses the controller for the clean PR-reference HEAD and ordered
-command list. The canonical PR Validation section and controller receipt retain
-that evidence without a subsequent implementation commit.
+Controller validation `6EUQIIPWCK2S52UQHODGSQUN7H` passed all eight ordered checks
+at `be4d6098b3b67a67adacd1162897d5a7a903e801`: formatter, strict Clippy,
+16 sequence cases, 19 shared integration cases, the branch/history/source
+regression, 21 reference checks, documentation and whitespace.
+[PR #266](https://forge.adrianpk.com/adrianpk/rev/pulls/266) merged through
+controller-owned Rebase + Fast-forward into dev at that exact commit.
 
 ## Risks and Follow-ups
 
