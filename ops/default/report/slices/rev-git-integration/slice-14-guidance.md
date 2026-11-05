@@ -5,7 +5,7 @@ Delivery set: rev-git-integration
 Plan: `ops/default/plan/rev-git-integration.md`
 Tracker: `ops/default/tracker/rev-git-integration.md`
 Branch: `fix/rev-git-integration-validation-1`
-PR: pending
+PR: [#272](https://forge.adrianpk.com/adrianpk/rev/pulls/272)
 
 ## Purpose
 
