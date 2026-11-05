@@ -166,14 +166,14 @@ Branch: `feat/rev-git-integration-09-sequences`
 Expected PR title: `feat(git): apply ordered revisions and manual bisect`
 Report: `ops/default/report/slices/rev-git-integration/slice-9-sequences.md`
 Requirements: GIT11, GIT17-GIT19
-PR: pending
+PR: `#266`
 
 - [x] T9.1: Prepare ordered cherry-pick/revert requests from independent ordered marks, including exact mainline selection for merge commits.
 - [x] T9.2: Integrate their actual continuation/skip/abort states with the shared sequence owner and conflict entry; reject wrong order, duplicate/stale targets and wrong active families.
 - [x] T9.3: Provide manual bisect start/good/bad/skip/reset with exact review and real fixture verification; do not add automatic test execution.
 
 Validation: T9.1-T9.2 development includes 11 sequence cases, 19 shared integration cases, the branch/history/source regression and 21 reference checks. T9.3 adds five passing focused cases for actual bisect classification, ambiguity, stale/configured-limit fences, both native profiles and unsaved-source protection. Strict Clippy and documentation checks pass with 539 commands and 268 configuration entries. Final combined exact-HEAD controller evidence follows the PR-reference commit.
-Integration: T9.1-T9.3 implementation and the reviewing Slice 9 report are complete. Canonical PR preparation and final exact-HEAD validation remain active.
+Integration: T9.1-T9.3 implementation and the reviewing Slice 9 report are complete. Canonical PR [#266](https://forge.adrianpk.com/adrianpk/rev/pulls/266) is open; final exact-HEAD controller validation follows the PR-reference commit.
 
 ## Slice 10: Native conflict resolution
 
