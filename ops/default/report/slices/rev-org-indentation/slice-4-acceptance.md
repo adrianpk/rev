@@ -5,7 +5,7 @@ Delivery set: rev-org-indentation
 Plan: [Org Indentation Delivery](../../../plan/rev-org-indentation.md)
 Tracker: [Org Indentation Tracker](../../../tracker/rev-org-indentation.md)
 Branch: `test/rev-org-indentation-04-acceptance`
-PR: pending
+PR: `#279`
 
 ## Purpose
 
@@ -126,7 +126,7 @@ Focused development evidence:
 - The cold normal-release build took 6m32s. The entrypoint keeps timing probes
   in normal release, with one build job. Private cache/work assertions reuse
   the existing low-debug native test profile to avoid a second optimized
-  library-test build; the same eight assertions and limits remain enforced.
+  library-test build; the same eight cases and limits remain enforced.
 
 ## Risks and Follow-ups
 

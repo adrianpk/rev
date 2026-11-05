@@ -70,7 +70,7 @@ State: reviewing
 Dependency: Slice 3 integrated
 Requirements: OIN01-OIN05
 Implementation: `da5fc782b23df9d5d360ba306e7fd8629006b7a8` (T4.1-T4.3)
-PR: pending
+PR: `#279`
 Report: [Slice 4](../report/slices/rev-org-indentation/slice-4-acceptance.md)
 Validation: all six required commands passed locally; 32 selected native tests and eight focused cache/work cases passed. Development native and real PTY journeys passed both profiles; three normal-release resource cases passed with original bounds. Documentation validates 596 commands, 281 settings and 560 links/anchors. Looper records exact clean-HEAD evidence after the PR-reference commit; the combined gate and strict Spore build remain controller-owned.
 
