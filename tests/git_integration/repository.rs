@@ -2,6 +2,9 @@ use super::support::{Repository, finish};
 use rev::git::{Completeness, Effects, Outcome, Repositories, StashAction, StashPlan, Stashes};
 use std::{ffi::OsString, fs, os::unix::ffi::OsStringExt, sync::Arc};
 
+#[path = "repository_acceptance.rs"]
+mod acceptance;
+
 #[path = "repository_worktrees.rs"]
 mod worktrees;
 

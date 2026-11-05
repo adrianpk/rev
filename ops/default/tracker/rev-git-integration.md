@@ -202,10 +202,10 @@ PR: pending
 
 - [x] T11.1: Implement native stash list/create/show/apply/pop/branch/drop with exact stash-object identity, checked source state, explicit destructive review and truthful conflict outcomes.
 - [x] T11.2: Implement worktree list/create/visit/lock/unlock/prune/remove with distinct worktree/common identities, checked paths and no forced removal of protected or dirty resources.
-- [ ] T11.3: Verify stashes with conflicts, changed stash positions, linked-worktree ownership, lock reasons, stale removal and ordinary buffer/reload behavior; share existing read-only reflog/blame owners.
+- [x] T11.3: Verify stashes with conflicts, changed stash positions, linked-worktree ownership, lock reasons, stale removal and ordinary buffer/reload behavior; share existing read-only reflog/blame owners.
 
-Validation: Development passes eight stash/native cases, five worktree backend cases, two native worktree cases, four shared native ref cases and 21 reference checks, formatter, strict focused Clippy, documentation and whitespace. Both object formats/profiles, raw paths, saved-file/stale-state safeguards, lock reasons, missing-record pruning, separate identities/common ownership and protected native buffers are covered. Corrections and exact commands are recorded in the report. T11.3 and final exact-HEAD controller evidence remain pending.
-Integration: T11.1 stash and T11.2 linked-worktree management are implemented. The Slice 11 report is drafting; T11.3 additional acceptance remains pending. No PR is claimed.
+Validation: Development passes eight stash/native cases, five worktree backend cases, two native worktree cases, four additional native acceptance cases, four shared native ref cases, one shared reflog/blame native case and 21 reference checks, formatter, strict focused Clippy, documentation and whitespace. Both formats/profiles, raw identities, saved-state/stale-target checks, lock reasons, protected resources, real stash conflicts and automatic/ask reload are covered. Corrections and commands are recorded in the report. Final exact-HEAD controller evidence remains pending.
+Integration: T11.1-T11.3 are implemented. The Slice 11 report is reviewing; canonical PR and final validation follow.
 
 ## Slice 12: Prepared Git families and direct commands
 

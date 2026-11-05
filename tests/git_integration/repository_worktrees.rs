@@ -42,7 +42,7 @@ fn change(owner: &mut Repositories, plan: Arc<WorktreePlan>) {
     assert_eq!(record.outcome, Outcome::Verified, "{record:?}");
     assert_eq!(record.effects, Effects::Verified);
 }
-fn linked(repository: &Repository, name: &str) -> PathBuf {
+pub(super) fn linked(repository: &Repository, name: &str) -> PathBuf {
     let path = repository.fixture.0.join(name);
     repository.git([
         OsString::from("worktree"),

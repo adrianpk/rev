@@ -1,6 +1,6 @@
 # Slice 11: Stashes and Linked Worktrees
 
-Status: drafting
+Status: reviewing
 Delivery set: rev-git-integration
 Plan: `ops/default/plan/rev-git-integration.md`
 Tracker: `ops/default/tracker/rev-git-integration.md`
@@ -42,7 +42,10 @@ Deliver GIT13 and its GIT17-GIT19 contracts through T11.1-T11.3 in the
   record. k reviews clean non-forced removal. Main/current, locked, dirty,
   ignored/untracked and active-sequence targets reject. Retained native buffers,
   file-tree roots and process/language-server owners protect their worktrees.
-- T11.3 additional acceptance remains pending.
+- T11.3: Native acceptance verifies changed stash positions and stale drop
+  reviews, real conflicted pop through the existing conflict inspector,
+  automatic/ask source reload and a live PTY protecting its linked worktree.
+  Existing read-only reflog/blame inspection remains under its shared owner.
 
 ## Implementation Notes
 
@@ -159,14 +162,31 @@ Successful development commands:
 - `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test git_integration repository::stash_ordinal -- --test-threads=1`
 - `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test git_integration repository::worktrees:: -- --test-threads=1`
 - `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test git_integration repository::worktrees::presentation:: -- --test-threads=1`
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test git_integration repository::acceptance:: -- --test-threads=1`
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test git_integration history::inspection::presentation::native_inspections -- --test-threads=1`
 - `git diff --check`
 
-T11.3 additional acceptance remains pending. Final controller validation belongs to the
-exact clean canonical PR head after its reference follow-up commit. No final
-receipt is claimed here.
+T11.3 development passed four native cases in 12.32 seconds: full-object
+selection survives shifted stash ordinals; a later list change refuses drop;
+real pop conflicts retain the stash and expose unchanged unmerged sides;
+clean source buffers retain identity through automatic/ask reload; and a PTY
+with an asserted real linked-worktree cwd remains live after removal rejection.
+One existing read-only reflog/blame native case passed in 3.47 seconds across
+both profiles, protecting the shared owner without adding another inspector.
+
+The initial acceptance run passed the conflict case and exposed three fixture
+setup errors: an asynchronous reload was asserted before publication; untracked
+stash inputs were omitted by ordinary Git stash push; and terminal-open-here
+correctly used the visiting file rather than the chosen tree root. Fixtures now
+await the existing reload owner, use include-untracked and assert four actual
+stash entries, and use terminal-open with an asserted cwd written by the real
+child. Assertions, five-second waits and resource bounds are unchanged. Only
+the fixture-owned Editor shuts down its PTY after checking protection.
+
+Final controller validation belongs to the exact clean canonical PR head after
+its reference follow-up commit. No final receipt is claimed here.
 
 ## Risks and Follow-ups
 
-T11.3 remains within this slice. Combined PTY/resource acceptance and
-full learning-path guidance remain in their approved later slices. Integration
-remains controller-owned.
+Combined PTY/resource acceptance and full learning-path guidance remain in their
+approved later slices. Integration remains controller-owned.
