@@ -86,3 +86,11 @@ receipt after its PR-reference follow-up.
 ## Risks and Follow-ups
 
 T13.3 resource/lifetime acceptance remains in progress. No full delivery-set gate is claimed.
+
+An exploratory source-quality scan across 86 Git runtime/acceptance files
+reported parameter, nesting and complexity violations in existing runtime
+owners and several acceptance functions. Strict acceptance-target Clippy passes.
+The broad source scan is retained as a failed development diagnostic; its
+findings have not triggered runtime rewrites. T13.3 still needs its explicit
+source-check coverage, binary/startup/RSS/service measurements and owned
+process/FD lifetime evidence before slice readiness.
