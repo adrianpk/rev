@@ -85,7 +85,7 @@ pub(in crate::git) enum ResolutionRequest {
     Apply(Arc<Resolution>),
 }
 impl Repositories {
-    fn check_conflict(&self, conflict: &Arc<Conflict>) -> Result<(), String> {
+    pub(super) fn check_conflict(&self, conflict: &Arc<Conflict>) -> Result<(), String> {
         self.check_sequence(&conflict.sequence)?;
         if self
             .context(conflict.sequence.refs.observation.context)
@@ -131,4 +131,18 @@ impl Repositories {
             work::Request::Resolution(ResolutionRequest::Apply(plan)),
         )
     }
+}
+
+pub(in crate::git) fn fingerprint(m: &std::fs::Metadata) -> [u64; 8] {
+    use std::os::unix::fs::MetadataExt;
+    [
+        m.dev(),
+        m.ino(),
+        m.len(),
+        u64::from(m.mode()),
+        m.mtime() as u64,
+        m.mtime_nsec() as u64,
+        m.ctime() as u64,
+        m.ctime_nsec() as u64,
+    ]
 }

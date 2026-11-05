@@ -22,6 +22,12 @@ impl Session {
             .map_err(|e| e.to_string())
             .and_then(|b| target.current(b))
             .err()
+            .or_else(|| {
+                request
+                    .conflict
+                    .as_ref()
+                    .and_then(|c| c.current(&self.buffers).err())
+            })
             .unwrap_or_default();
         let document = super::presentation::document(&request, &output, &condition);
         let result = self
@@ -37,8 +43,13 @@ impl Session {
             && self.input.focus() == Focus::Editing
             && self.pending.is_none()
             && !self.tree.focused()
-            && !self.windows.retained_view_active();
+            && !self.windows.retained_view_active()
+            && request
+                .conflict
+                .as_ref()
+                .is_none_or(|c| self.git_explanation_origin(&c.capture));
         let id = payload.stamp.buffer;
+        let conflict = request.conflict.is_some();
         self.ai.last = Some(request.definition.clone());
         self.ai.ready = Some(Ready {
             request,
@@ -48,6 +59,9 @@ impl Session {
             drawer_body: document.drawer_body,
         });
         if show {
+            if conflict {
+                self.release_git_explanation();
+            }
             self.activate(id);
         }
         if edits {
@@ -337,6 +351,7 @@ mod tests {
             .capture(source, session.view().point)
             .unwrap();
         let request = Request {
+            conflict: None,
             source_name: "report.rs".into(),
             language: "rust".into(),
             definition: crate::config::AiCommand {

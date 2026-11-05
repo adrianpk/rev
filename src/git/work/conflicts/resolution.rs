@@ -1,5 +1,6 @@
 use super::*;
 use crate::git::conflicts::ResolutionRequest;
+use crate::git::conflicts::resolution::fingerprint;
 use crate::git::{Resolution, ResolutionAction, SavedResult};
 use std::{fs, io::Read, os::unix::fs::MetadataExt, path::Component};
 
@@ -16,7 +17,7 @@ impl Runner {
             ResolutionRequest::Apply(plan) => self.resolve_conflict(plan, admission),
         }
     }
-    fn saved_result(
+    pub(super) fn saved_result(
         &self,
         conflict: &Conflict,
         admission: &mut Lease,
@@ -345,18 +346,6 @@ impl Runner {
             }
         }
     }
-}
-fn fingerprint(m: &fs::Metadata) -> [u64; 8] {
-    [
-        m.dev(),
-        m.ino(),
-        m.len(),
-        u64::from(m.mode()),
-        m.mtime() as u64,
-        m.mtime_nsec() as u64,
-        m.ctime() as u64,
-        m.ctime_nsec() as u64,
-    ]
 }
 fn resolution_index(
     index: &[u8],

@@ -1,7 +1,9 @@
 //! Immutable exact conflict sides. Git stage numbers are retained independently
 //! of operation-relative labels; display text never supplies path authority.
 use super::*;
-mod resolution;
+mod explanation;
+pub(in crate::git) mod resolution;
+pub use explanation::ConflictExplanation;
 pub(super) use resolution::ResolutionRequest;
 pub use resolution::{Resolution, ResolutionAction, SavedResult};
 

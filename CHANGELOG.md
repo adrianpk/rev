@@ -51,6 +51,9 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
   stage saved resolution bytes with x, or confirm exact disk/index deletion
   with K. Protect unsaved result buffers and reject changed confirmation state;
   continuing remains separate. Binary, structural and partial sides stay visible.
+  Request a read-only explanation with H through optional AI, using copied roles
+  and saved or unsaved source. Changed source marks the answer historical;
+  manual resolution stays available when AI is unavailable.
   Cherry-pick and revert controls preserve the reviewed order and mainlines;
   explicit abort also restores the original context after a completed prefix.
   Start manual bisect with explicit bad/good boundaries in the Operation view;

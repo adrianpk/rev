@@ -1,6 +1,6 @@
 # Slice 10: Native Conflict Resolution
 
-Status: drafting
+Status: reviewing
 Delivery set: rev-git-integration
 Plan: `ops/default/plan/rev-git-integration.md`
 Tracker: `ops/default/tracker/rev-git-integration.md`
@@ -36,7 +36,13 @@ Deliver GIT12 and its GIT17-GIT19 contracts through T10.1-T10.3 in the
   buffers remain unchanged and need no hidden save. Stage and deletion preserve
   every other index entry, observed path state and bounded working-tree evidence.
   Continuing remains a separate explicit operation.
-- T10.3 optional AI explanation remains pending; its command is not registered.
+- T10.3: H (git-conflict-explain) copies the captured operation, exact path,
+  roles, full object IDs, available side text and saved or visiting unsaved result
+  into the existing optional AI owner. Its result is a read-only explanation;
+  applying it cannot edit, stage or continue a Git operation.
+- Missing Pi, stale capture or exceeded complete-input admission leaves manual
+  inspection and resolution available. Changed disk/index/native sources mark
+  the copied context historical; unsaved native text and return ownership survive.
 
 ## Implementation Notes
 
@@ -75,14 +81,28 @@ or uncertain effects retain the changing argv and diagnostics without replay,
 rollback or inferred continuation. Native ordered-application lineage survives
 resolution so a separately confirmed continue can finish the stopped revision.
 
+The explanation worker rechecks the captured sequence and ordinary index before
+publishing a bounded saved-result snapshot. Session serialization reserves the
+existing Git budget before copying text and rejects the complete request when
+its configured input cap is exceeded. Unsupported and binary content keeps its
+metadata and explicit incomplete status; it is never silently promoted to text.
+
+The existing Pi process/request/result owner receives fresh input-only context
+with discovery disabled and actual --no-tools/--no-extensions arguments. Its
+qualified native point retains return ownership without source-write authority.
+The Git view remains usable while the optional request starts or fails. A ready
+result changes focus only while its captured native origin still qualifies;
+otherwise it remains available without stealing a changed source view.
+
 ## Contracts Added or Changed
 
-- Seven functional native commands: git-conflicts, git-conflict-visit,
-  git-conflict-use-base/current/applied, git-conflict-delete and git-conflict-stage.
+- Eight functional native commands: git-conflicts, git-conflict-visit,
+  git-conflict-use-base/current/applied, git-conflict-delete, git-conflict-stage
+  and git-conflict-explain.
 - keys.git_sequence has 33 active entries, including Return inspection.
-- keys.git_conflict has 24 active entries for inspection, result visits and
-  checked saved resolution in both interaction profiles.
-- Command and configuration catalogs contain 546 commands and 269 entries.
+- keys.git_conflict has 25 active entries for inspection, result visits,
+  checked saved resolution and optional explanation in both interaction profiles.
+- Command and configuration catalogs contain 547 commands and 269 entries.
 
 ## Files of Interest
 
@@ -98,6 +118,13 @@ resolution so a separately confirmed continue can finish the stopped revision.
   real index/disk effects, confirmation fences, ownership and continuation.
 - `tests/git_integration/conflicts.rs` and `conflicts_presentation.rs`: real
   repository stages, both object formats/profiles and source ownership.
+
+- `src/git/conflicts/explanation.rs`, `src/git/work/conflicts/explanation.rs`:
+  checked copied-source snapshots with conservative currency and no mutation plan.
+- `src/session/ai/conflicts.rs` and the existing AI capture/result owners:
+  bounded copied context, input-only Pi admission and native return ownership.
+- `tests/git_integration/conflicts_explanation.rs`: owned Rust RPC peer and
+  native request, permission, failure, historical-source and read-only assertions.
 
 ## Validation
 
@@ -129,6 +156,27 @@ The inode fixture also passes in 8.64 seconds after replacing the file with
 identical bytes and removing its temporary old name; its assertion requires
 the file-identity diagnostic, independently of other Status path changes.
 
+T10.3 development passed three behavior cases plus the child-only Rust fixture
+entrypoint in 25.49 seconds. They cover both profiles and object formats, exact
+raw path escaping, full roles/objects/side bytes, saved and unsaved native text,
+binary metadata, actual tool-disable arguments, missing provider, input bounds,
+stale captures, readonly application rejection, native return ownership and
+historical context after disk/index/buffer changes. No repository/index/HEAD
+mutation is authorized by the explanation. Five existing AI result-owner cases
+passed in 1.28 seconds; 21 command/configuration references and documentation
+passed at 547 commands, 269 configuration entries, 76 pages and 485 local links.
+
+The controlled peer exercises the existing real RPC owner without credentials
+or provider calls. It proves request, result and permission contracts, not a
+provider's explanation quality or credential readiness. It reuses the compiled
+Rust test executable and existing shell/rustix support, adding no Python
+validation prerequisite, dependency or process framework. A fixture startup
+failure came from reopening a socket descriptor through /proc as if it were a
+pipe; duplicating its inherited descriptor fixed the fixture. The five-second
+waits, settlement gate, source assertions and resource limits remain unchanged.
+An initial raw-path assertion was corrected to the renderer's exact uppercase
+hex escape; it still requires lossless newline/non-UTF-8 identity presentation.
+
 Successful development commands:
 
 - `cargo fmt --all -- --check`
@@ -141,13 +189,19 @@ Successful development commands:
 - `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test git_integration conflicts::resolution::external_resolution -- --test-threads=1`
 - `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test git_integration conflicts::partial_and_missing -- --test-threads=1`
 - `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test git_integration conflicts::resolution::changed_review -- --test-threads=1`
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test git_integration conflicts::explanation:: -- --test-threads=1`
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --lib session::ai::results:: -- --test-threads=1`
 - `git diff --check`
 
-Final clean-HEAD validation belongs to the controller after T10.3 and the
-canonical PR-reference follow-up commit. No final receipt is claimed yet.
+Final validation will use the configured formatter/Clippy/conflict prefix,
+then native integration presentation, the five shared AI result-owner cases,
+command/configuration references, documentation and whitespace. The controller
+records the exact ordered checks on the clean canonical PR head after its
+PR-reference follow-up commit; no final receipt is claimed here.
 
 ## Risks and Follow-ups
 
-T10.3 remains required within this slice. Combined PTY/resource
-acceptance remains Slice 13 and full User Guide work remains Slice 14.
+Combined PTY/resource acceptance remains Slice 13 and full User Guide work
+remains Slice 14. Optional explanation quality depends on the configured provider;
+manual inspection and checked resolution require no provider.
 Integration and delivery-set closure remain controller-owned.

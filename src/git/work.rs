@@ -15,6 +15,7 @@ pub(super) enum Request {
     Status,
     Conflict(super::conflicts::Request),
     Resolution(super::conflicts::ResolutionRequest),
+    ConflictExplain(Arc<Conflict>),
     Application(super::sequences::Request),
     Bisect(super::bisect::Request),
     Integration(super::integration::Request),
@@ -29,6 +30,7 @@ pub(super) enum Request {
 impl Request {
     pub fn kind(&self) -> OperationKind {
         match self {
+            Self::ConflictExplain(_) => OperationKind::ConflictExplain,
             Self::Resolution(super::conflicts::ResolutionRequest::Prepare { .. }) => {
                 OperationKind::ConflictPrepare
             }
@@ -85,6 +87,7 @@ pub(super) enum Publication {
     Sequence(Sequence),
     Conflict(Conflict),
     Resolution(Resolution),
+    ConflictExplanation(ConflictExplanation),
     Autosquash(AutosquashPlan),
     ApplicationPlan(ApplyPlan),
     BisectPlan(BisectPlan),
@@ -101,6 +104,7 @@ enum Candidate {
     Sequence(Sequence),
     Conflict(Conflict),
     Resolution(Resolution),
+    ConflictExplanation(ConflictExplanation),
     Autosquash(AutosquashPlan),
     ApplicationPlan(ApplyPlan),
     BisectPlan(BisectPlan),
@@ -187,6 +191,9 @@ pub(super) fn start(
                 retained: None,
             };
             let observed = match request {
+                Request::ConflictExplain(conflict) => {
+                    runner.explain_conflict(conflict, &mut admission)
+                }
                 Request::Resolution(request) => runner.resolution(request, &mut admission),
                 Request::Conflict(request) => runner.conflict(request, &mut admission),
                 Request::Bisect(request) => runner.bisect(request, &mut admission),
@@ -604,6 +611,9 @@ impl Runner {
             Candidate::BisectPlan(plan) => Ok(Publication::BisectPlan(plan)),
             Candidate::ApplicationPlan(plan) => Ok(Publication::ApplicationPlan(plan)),
             Candidate::Autosquash(plan) => Ok(Publication::Autosquash(plan)),
+            Candidate::ConflictExplanation(snapshot) => {
+                Ok(Publication::ConflictExplanation(snapshot))
+            }
             Candidate::Resolution(plan) => Ok(Publication::Resolution(plan)),
             Candidate::Conflict(conflict) => Ok(Publication::Conflict(conflict)),
             Candidate::Sequence(sequence) => Ok(Publication::Sequence(sequence)),

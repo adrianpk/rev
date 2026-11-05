@@ -338,6 +338,7 @@ impl Session {
                     self.prepare_git_resolution(crate::git::ResolutionAction::Stage)
                 }
                 GitCommand::Conflicts => self.open_git_sequence(),
+                GitCommand::ConflictExplain => self.explain_git_conflict(),
                 GitCommand::ConflictVisit => self.open_git_conflict(),
                 GitCommand::OperationStatus => self.open_git_sequence(),
                 GitCommand::RebaseAutosquash => self.prepare_git_autosquash(),
@@ -751,6 +752,10 @@ impl Session {
             }
             if self.git.refs.autosquash_preparing == Some(update.operation) {
                 self.publish_git_autosquash_preparation(&update);
+                continue;
+            }
+            if self.git.conflicts.explaining == Some(update.operation) {
+                self.publish_git_explanation(&update);
                 continue;
             }
             if self.git.conflicts.preparing == Some(update.operation) {

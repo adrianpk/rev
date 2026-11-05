@@ -4,6 +4,7 @@ use crate::git::{Conflict, ConflictRole, Update};
 pub(super) struct Inspection {
     pub request: Option<OperationId>,
     pub preparing: Option<OperationId>,
+    pub explaining: Option<OperationId>,
     pub resolving: Option<OperationId>,
     pub detail: Option<Arc<Conflict>>,
     pub selected: Option<PathBuf>,
@@ -15,6 +16,7 @@ impl Inspection {
         Ok(Self {
             request: None,
             preparing: None,
+            explaining: None,
             resolving: None,
             detail: None,
             selected: None,
@@ -337,5 +339,78 @@ impl Session {
                 self.message("Conflict action failed or effects remain uncertain; inspect git-processes and refresh actual sequence state");
             }
         }
+    }
+}
+
+impl Session {
+    pub(super) fn explain_git_conflict(&mut self) -> Action {
+        let Some(conflict) = self
+            .git
+            .conflicts
+            .detail
+            .clone()
+            .filter(|_| self.git.visible && self.git.page == Page::Conflict)
+        else {
+            return self
+                .message("Inspect one exact conflict before requesting its optional explanation");
+        };
+        match self.git.engine.explain_conflict(conflict) {
+            Ok(id) => {
+                self.git.conflicts.explaining = Some(id);
+                self.message(
+                    "Capturing checked conflict context for optional read-only explanation",
+                )
+            }
+            Err(e) => self.error(&e),
+        }
+    }
+    pub(super) fn publish_git_explanation(&mut self, update: &Update) {
+        if self
+            .git
+            .engine
+            .progress()
+            .any(|p| p.operation == update.operation)
+        {
+            return;
+        }
+        self.git.conflicts.explaining = None;
+        if !self.git.visible
+            || self.git.page != Page::Conflict
+            || self.pending.is_some()
+            || self.input.focus() != Focus::Editing
+        {
+            return;
+        }
+        let Some(capture) = update
+            .context
+            .filter(|_| update.published)
+            .and_then(|id| self.git.engine.context(id))
+            .and_then(|c| c.conflict_explanation.clone())
+        else {
+            self.message("Conflict explanation capture failed or became stale; manual inspection and resolution remain available");
+            return;
+        };
+        if let Err(e) = self.ai_explain_conflict(capture) {
+            self.error(&e);
+        }
+    }
+    pub(in crate::session) fn git_explanation_origin(
+        &self,
+        capture: &crate::git::ConflictExplanation,
+    ) -> bool {
+        !self.git.visible
+            || (self.git.page == Page::Conflict
+                && self
+                    .git
+                    .conflicts
+                    .detail
+                    .as_ref()
+                    .is_some_and(|c| Arc::ptr_eq(c, &capture.conflict)))
+    }
+    pub(in crate::session) fn release_git_explanation(&mut self) {
+        self.git.visible = false;
+        self.git.painted = None;
+        self.input.set_git(false);
+        self.sync_input_context();
     }
 }

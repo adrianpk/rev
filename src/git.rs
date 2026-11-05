@@ -6,7 +6,7 @@ mod diff;
 pub use commit::MAX_COMMIT_BYTES;
 pub use commit::{CommitMode, Composition};
 mod conflicts;
-pub use conflicts::{Conflict, ConflictRole, ConflictSide};
+pub use conflicts::{Conflict, ConflictExplanation, ConflictRole, ConflictSide};
 pub use conflicts::{Resolution, ResolutionAction, SavedResult};
 mod discard;
 mod history;
@@ -142,6 +142,7 @@ pub enum OperationKind {
     Conflict,
     ConflictPrepare,
     ConflictResolve,
+    ConflictExplain,
     SequenceControl,
     AutosquashPrepare,
     ApplicationPrepare,
@@ -242,6 +243,7 @@ pub struct Context {
     pub sequence: Option<Arc<Sequence>>,
     pub conflict: Option<Arc<Conflict>>,
     pub resolution: Option<Arc<Resolution>>,
+    pub conflict_explanation: Option<Arc<ConflictExplanation>>,
     pub autosquash: Option<Arc<AutosquashPlan>>,
     pub application_plan: Option<Arc<ApplyPlan>>,
     pub bisect_plan: Option<Arc<BisectPlan>>,
@@ -668,6 +670,7 @@ impl Repositories {
                             sequence: None,
                             conflict: None,
                             resolution: None,
+                            conflict_explanation: None,
                             autosquash: None,
                             application_plan: None,
                             bisect_plan: None,
@@ -733,6 +736,25 @@ impl Repositories {
                         record.outcome = Outcome::Failed;
                         record.diagnostic =
                             Some("Autosquash source expired before publication".into());
+                    }
+                    progress.context
+                }
+                Ok(work::Publication::ConflictExplanation(snapshot)) => {
+                    if let Some(context) = self
+                        .contexts
+                        .iter_mut()
+                        .find(|c| c.id == snapshot.conflict.sequence.refs.observation.context)
+                        && context
+                            .conflict
+                            .as_ref()
+                            .is_some_and(|c| Arc::ptr_eq(c, &snapshot.conflict))
+                    {
+                        context.conflict_explanation = Some(Arc::new(snapshot));
+                        published = true;
+                    } else {
+                        record.outcome = Outcome::Failed;
+                        record.diagnostic =
+                            Some("Conflict explanation context expired before publication".into());
                     }
                     progress.context
                 }
@@ -933,6 +955,7 @@ impl Repositories {
                             OperationKind::Diff => context.detail_failure = Some(record.id),
                             OperationKind::CommitPrepare
                             | OperationKind::Conflict
+                            | OperationKind::ConflictExplain
                             | OperationKind::ConflictPrepare
                             | OperationKind::History
                             | OperationKind::Sequence

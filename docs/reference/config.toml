@@ -1739,8 +1739,9 @@ max_result_bytes = 262144
 "M-<" = "beginning-of-buffer"
 "M->" = "end-of-buffer"
 
-# Read-only conflict side inspection and native result visits in both profiles.
+# Conflict inspection, saved resolution and optional explanation in both profiles.
 [keys.git_conflict]
+"H" = "git-conflict-explain"
 "1" = "git-conflict-use-base"
 "2" = "git-conflict-use-current"
 "3" = "git-conflict-use-applied"

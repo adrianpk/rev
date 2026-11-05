@@ -35,6 +35,9 @@ pub(super) fn document(request: &Request, output: &pi::Output, condition: &str) 
         text.push_str(&format!("Source warning: {}\n\n", line(condition)));
     }
     let start = text.chars().count();
+    if request.conflict.is_some() {
+        text.push_str("Captured Git conflict/source context; historical explanation only. Its native span retains return ownership. No write, stage or continue authority.\n\n");
+    }
     if target.output.edits() {
         proposal(&mut text, &output.text, &request.language);
     } else {

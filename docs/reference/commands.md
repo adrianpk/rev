@@ -721,6 +721,7 @@ Status reads disk and Git state; it does not save an unsaved source buffer.
 | `git-operation-continue` | Refresh actual Git state and review one compatible family-specific continuation bound to that exact sequence. |
 | `git-operation-skip` | Refresh actual Git state and review a compatible skip; reject a missing or wrong-family sequence. |
 | `git-operation-abort` | Refresh actual Git state and review one compatible abort with exact original lineage; process cancellation is a separate action. |
+| `git-conflict-explain` | Capture exact roles, objects, saved disk text and visiting unsaved result text for the existing optional input-only AI explanation owner; retain a read-only result with no edit/stage/continue authority and mark changed sources as historical. |
 | `git-conflict-use-base` | Review a complete compatible Base side and replace only the exact working file, preserving unmerged index stages. |
 | `git-conflict-use-current` | Review the operation-relative Current side and replace only the checked working file without staging. |
 | `git-conflict-use-applied` | Review the operation-relative Applied side and replace only the checked working file without staging. |
@@ -982,3 +983,13 @@ An unsaved visiting result blocks these actions. Binary, non-text, type-change,
 submodule, incompatible-mode and partial observations remain inspection only.
 Changing the saved file, index stages, HEAD or sequence invalidates confirmation.
 Removing markers does not stage or continue; continue is always separate.
+
+Conflict H uses the configured optional Pi owner with copied input only and no
+directory discovery or tools. Saved disk text and any visiting unsaved result
+remain distinct snapshots. Exact stage IDs, modes, roles and unavailable content
+are explicit; binary or partial content is not presented as complete text.
+Context exceeding the existing Git detail or AI input cap rejects as a whole.
+An unavailable provider leaves the manual conflict view usable. The normal
+read-only AI result and discard workflow preserve native source ownership.
+Index/file metadata and native revisions conservatively invalidate source
+currency; an explanation never replaces exact Git checks for changing actions.

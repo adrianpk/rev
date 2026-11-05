@@ -592,6 +592,7 @@ For live terminal key ownership and copy controls, see the
 | Named command | `git-operation-continue` | Review continuation against the fresh actual compatible family. |
 | Named command | `git-operation-skip` | Review skipping against the fresh actual compatible family. |
 | Named command | `git-operation-abort` | Review abort against exact original lineage and fresh Git state. |
+| `H` in Conflict | `git-conflict-explain` | Send copied roles and saved/unsaved source through optional input-only AI explanation; its read-only answer grants no Git action. |
 | `1` in Conflict | `git-conflict-use-base` | Review complete Base replacement of only the checked working file. |
 | `2` in Conflict | `git-conflict-use-current` | Review complete operation-relative Current replacement without staging. |
 | `3` in Conflict | `git-conflict-use-applied` | Review complete operation-relative Applied replacement without staging. |
@@ -1093,19 +1094,23 @@ object. Skipped-candidate ambiguity does not identify a unique first bad commit.
 exact deletion from disk and index; x reviews staging saved text or absence.
 Confirm with y, C-Enter or C-c C-c; cancel with n or C-g. Unsaved result
 buffers, changed saved bytes/stages and unsupported or partial sides reject.
-Continuing remains separate.
+Continuing remains separate. H captures roles and saved/unsaved source through
+the existing optional AI owner with input-only permissions. Its read-only
+answer cannot edit, stage or continue; changed source marks it historical.
+Unavailable AI or reached input limits leave manual inspection and resolution
+available.
 Return visits the canonical editable result through the existing file owner;
 q returns to Operation without changing Git state. g refreshes actual sequence
 state, requiring a fresh inspection before any later resolution action.
 
 | Keys | Target |
 | --- | --- |
+| `H` | `git-conflict-explain` |
 | `1` | `git-conflict-use-base` |
 | `2` | `git-conflict-use-current` |
 | `3` | `git-conflict-use-applied` |
 | `K` | `git-conflict-delete` |
 | `x` | `git-conflict-stage` |
-
 | `C-x g` | `git-status` |
 | `q` | `git-quit` |
 | `g` | `git-refresh` |

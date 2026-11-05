@@ -267,3 +267,6 @@ mod presentation;
 
 #[path = "conflicts_resolution.rs"]
 mod resolution;
+
+#[path = "conflicts_explanation.rs"]
+mod explanation;

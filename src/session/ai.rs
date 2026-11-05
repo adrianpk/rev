@@ -1,4 +1,5 @@
 mod capture;
+mod conflicts;
 mod context;
 mod controls;
 mod presentation;
@@ -25,6 +26,7 @@ pub(super) struct Request {
     root: PathBuf,
     source_name: String,
     language: String,
+    conflict: Option<conflicts::Input>,
 }
 
 struct Ready {

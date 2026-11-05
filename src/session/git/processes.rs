@@ -48,6 +48,9 @@ impl Work {
             Some(crate::git::OperationKind::Integration) => "checked integration",
             Some(crate::git::OperationKind::AutosquashPrepare) => "autosquash preparation",
             Some(crate::git::OperationKind::SequenceControl) => "checked sequence control",
+            Some(crate::git::OperationKind::ConflictExplain) => {
+                "read-only conflict explanation capture"
+            }
             Some(crate::git::OperationKind::ConflictPrepare) => {
                 "checked conflict resolution preparation"
             }
