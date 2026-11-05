@@ -36,13 +36,17 @@ Validation: all five required commands passed through Looper for that exact clea
 
 ## Slice 2: Configured editing presentation
 
-State: active
+State: reviewing
 Dependency: Slice 1 integrated
 Requirements: OIN01-OIN03, OIN05
+Implementation: `66e6654eeba004dd997c74144c55253aca5bc9b6` (T2.1-T2.3)
+PR: pending
+Report: [Slice 2](../report/slices/rev-org-indentation/slice-2-presentation.md)
+Validation: all five required commands passed locally; 346 selected native tests and 17 additional view regressions passed. Documentation validates 593 commands and 281 configuration entries. Looper records exact clean-HEAD evidence after the PR-reference commit.
 
-- [ ] T2.1: Admit the boolean, complete sample and provenance through startup configuration.
-- [ ] T2.2: Integrate the same mapping across rendering, editing, navigation, overlays and pointer input.
-- [ ] T2.3: Verify enabled/disabled real sessions and retain honest legacy geometry coverage.
+- [x] T2.1: Admit the boolean, complete sample and provenance through startup configuration.
+- [x] T2.2: Integrate the same mapping across rendering, editing, navigation, overlays and pointer input.
+- [x] T2.3: Verify enabled/disabled real sessions and retain honest legacy geometry coverage.
 
 ## Slice 3: Buffer-local runtime commands
 
@@ -67,7 +71,7 @@ Requirements: OIN01-OIN05
 ## Final gate and closure
 
 The plan owns the ordered slice and final-gate commands. Slice 1 is integrated;
-Slice 2 is active. Later slices and the combined delivery gate remain pending. Controller identity
+Slice 2 is implemented for review. Later slices and the combined delivery gate remain pending. Controller identity
 and live execution progress belong to Looper. After all four slices integrate, it
 validates the exact clean dev candidate. Record its hash, receipt, successful
 commands, report introductions and evidence limits here, then mark the paired
