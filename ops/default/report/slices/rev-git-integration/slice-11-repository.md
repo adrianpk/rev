@@ -1,6 +1,6 @@
 # Slice 11: Stashes and Linked Worktrees
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-git-integration
 Plan: `ops/default/plan/rev-git-integration.md`
 Tracker: `ops/default/tracker/rev-git-integration.md`
@@ -183,8 +183,13 @@ stash entries, and use terminal-open with an asserted cwd written by the real
 child. Assertions, five-second waits and resource bounds are unchanged. Only
 the fixture-owned Editor shuts down its PTY after checking protection.
 
-Final controller validation belongs to the exact clean canonical PR head after
-its reference follow-up commit. No final receipt is claimed here.
+Controller receipt `ECS6UBJBCXLQEW6ADYPW5TIWXE` passed all eight ordered checks at
+`5cfe34a7376873e76a6a289fb06c8fb33bbd6030` after the PR-reference follow-up:
+19 repository cases, four shared ref cases, one reflog/blame case, 21 reference
+checks, formatter, strict focused Clippy, documentation and whitespace.
+[PR #268](https://forge.adrianpk.com/adrianpk/rev/pulls/268) merged through
+controller-owned Rebase + Fast-forward into dev at that same commit.
+Slice 11 of 14 completed.
 
 ## Risks and Follow-ups
 

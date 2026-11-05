@@ -7,7 +7,7 @@ Plan: [Native Git Integration Delivery](../plan/rev-git-integration.md)
 Spec: [Native Git Integration](../spec/editor-git-integration.md)
 Model: [Native Git Model](../spec/editor-git-integration-model.md)
 Approved: owner, 2026-11-04; complete fourteen-slice plan and autonomous Looper execution/integration through dev
-Active slice: Slice 11 - Stashes and linked worktrees
+Active slice: Slice 12 - Prepared Git families and direct commands
 Progress owner: after startup, Looper checkpoint, canonical PRs and exact-candidate validation receipts
 
 ## Canonical slice map
@@ -193,7 +193,7 @@ Integration: [PR #267](https://forge.adrianpk.com/adrianpk/rev/pulls/267) merged
 
 ## Slice 11: Stashes and linked worktrees
 
-Status: active
+Status: delivered
 Branch: `feat/rev-git-integration-11-repository`
 Expected PR title: `feat(git): manage stashes and linked worktrees`
 Report: `ops/default/report/slices/rev-git-integration/slice-11-repository.md`
@@ -204,12 +204,12 @@ PR: [#268](https://forge.adrianpk.com/adrianpk/rev/pulls/268)
 - [x] T11.2: Implement worktree list/create/visit/lock/unlock/prune/remove with distinct worktree/common identities, checked paths and no forced removal of protected or dirty resources.
 - [x] T11.3: Verify stashes with conflicts, changed stash positions, linked-worktree ownership, lock reasons, stale removal and ordinary buffer/reload behavior; share existing read-only reflog/blame owners.
 
-Validation: Development passes eight stash/native cases, five worktree backend cases, two native worktree cases, four additional native acceptance cases, four shared native ref cases, one shared reflog/blame native case and 21 reference checks, formatter, strict focused Clippy, documentation and whitespace. Both formats/profiles, raw identities, saved-state/stale-target checks, lock reasons, protected resources, real stash conflicts and automatic/ask reload are covered. Corrections and commands are recorded in the report. Final exact-HEAD controller evidence remains pending.
-Integration: T11.1-T11.3 are implemented. The Slice 11 report is reviewing; [PR #268](https://forge.adrianpk.com/adrianpk/rev/pulls/268) targets dev. Final exact-HEAD controller validation follows this PR-reference commit.
+Validation: Controller receipt `ECS6UBJBCXLQEW6ADYPW5TIWXE` passed all eight ordered checks at `5cfe34a7376873e76a6a289fb06c8fb33bbd6030`: 19 repository cases, four shared ref cases, one reflog/blame case, 21 reference checks, formatter, strict focused Clippy, documentation and whitespace. Development corrections and retained bounds are recorded in the report.
+Integration: [PR #268](https://forge.adrianpk.com/adrianpk/rev/pulls/268) merged through controller-owned Rebase + Fast-forward into dev at `5cfe34a7376873e76a6a289fb06c8fb33bbd6030`. Slice 11 of 14 completed.
 
 ## Slice 12: Prepared Git families and direct commands
 
-Status: pending
+Status: active
 Branch: `feat/rev-git-integration-12-commands`
 Expected PR title: `feat(git): expose prepared repository command families`
 Report: `ops/default/report/slices/rev-git-integration/slice-12-commands.md`
