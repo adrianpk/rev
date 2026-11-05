@@ -1,6 +1,7 @@
 # Org Visual Indentation Model
 
-Status: Approved
+Status: Completed
+Completed: 2026-11-05
 Date: 2026-11-05
 Approved: product owner, 2026-11-05; paired specification approval and explicit Looper startup request
 Specification: [Org Visual Indentation](editor-org-indentation.md)
@@ -75,3 +76,16 @@ or effective-policy changes. Render literal rows coherently while structural
 evidence is pending. Undo, reload and mode suspension preserve runtime policy;
 buffer close retires it. Reports must record actual native/resource/PTY evidence
 and distinguish it from the specification's required behavior.
+
+## Completed delivery evidence
+
+The paired specification and model are Completed through canonical PRs
+#276-#279. Controller receipt `YE523W7IGTDKXEUNGCMA3NNJBY` passed the unchanged
+full gate at `61e6e6a1b73d94577c7851aae6f200f6101d35c7`. The
+[Slice 4 closure](../report/slices/rev-org-indentation/slice-4-acceptance.md#delivery-set-closure)
+records source-only copy/save and edit history, buffer-owned runtime policy,
+checked projection, native/PTY lifecycle and resource acceptance. Eight native
+cache/work cases include eight runtime policy changes at widths 6 and 512,
+with actual retention peaks of 8192 fragments and 1048576 bytes under the
+unchanged limits. Deep and over-limit outlines retain finite source progress,
+and the resource cases introduce no idle deadline.

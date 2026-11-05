@@ -1,6 +1,7 @@
 # Org Visual Indentation
 
-Status: Approved
+Status: Completed
+Completed: 2026-11-05
 Date: 2026-11-05
 Format: OpenSpec capability specification
 Source: owner request for indented or unindented Org presentation, startup TOML and runtime commands, in no more than six slices
@@ -185,11 +186,24 @@ that content. References and Unreleased SHALL describe only delivered behavior.
 This capability adds visual body/continuation indentation to the completed
 heading and wrap features. Their source-prefix preservation remains true before
 the added margin; width and wrap invariance apply to comparisons at the same
-indentation policy. On delivery, reconcile the heading specification's
-"Reference comparison and settled profile" and OGP04, its model's derived-view
-records, and the soft-wrap model's continuation/layout identity. Preserve their
-historical delivery evidence; do not describe the new default as already shipped.
+indentation policy. The delivered heading specification's "Reference comparison
+and settled profile" and OGP04, its model's derived-view records, and the
+soft-wrap specification/model's continuation and layout identity are reconciled
+with this policy. Their historical receipts retain their original candidates;
+the new indentation default is covered by the separate completed gate below.
 
 No file-local STARTUP directive, configurable indentation width, source
 reindentation command, glyph/font change or drawer-visibility change is added.
 The three commands and single boolean are the complete new user surface.
+
+## Completed delivery evidence
+
+OIN01-OIN05 are delivered through four canonical slices, PRs #276-#279. The
+controller passed the unchanged selected full gate at immutable dev candidate
+`61e6e6a1b73d94577c7851aae6f200f6101d35c7`, receipt
+`YE523W7IGTDKXEUNGCMA3NNJBY`. The [Slice 4 closure](../report/slices/rev-org-indentation/slice-4-acceptance.md#delivery-set-closure)
+records 569 selected integration tests, eight native cache/work cases,
+both-profile native/PTY journeys, three bounded resource cases and strict local
+Spore validation derived from the canonical Markdown guide. The paired model,
+plan and tracker are Completed. Earlier heading and wrapping receipts remain
+historical evidence for their original layouts.

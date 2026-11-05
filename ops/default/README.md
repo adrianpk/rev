@@ -2,8 +2,8 @@
 
 Status: proposed
 Date: 2026-11-05
-Scope: pending behavior after the completed native Git, integrated-terminal, native shell-command, native completion, optional LSP, modal editing, server-management, Pi/reload and heading-presentation deliveries
-Owner decision: native shell commands, text filters and integrated terminals are Completed; native Git integration is Completed after fourteen slices and authorized repair #272; other proposals retain their separate approval boundaries
+Scope: pending behavior after the completed Org visual-indentation, native Git, integrated-terminal, native shell-command, native completion, optional LSP, modal editing, server-management, Pi/reload and heading-presentation deliveries
+Owner decision: Org visual indentation is Completed after four canonical slices; native shell commands, text filters and integrated terminals are Completed; native Git integration is Completed after fourteen slices and authorized repair #272; other proposals retain their separate approval boundaries
 
 This index connects the pending tickets, capability specifications and models.
 It is a planning entry point, not a delivery plan or execution tracker. The
@@ -41,7 +41,7 @@ retain their own specification/model state.
 | Configurable external file changes | [Spec](spec/editor-external-file-changes.md), [model](spec/editor-external-file-changes-model.md), [plan](plan/rev-ai-pi.md), [tracker](tracker/rev-ai-pi.md) | Delivered / Completed in the same eight-slice delivery. Checked revert, automatic clean-buffer reload, passive notification and unsaved-edit protection passed EFC01-EFC08 through the unchanged controller gate. |
 | Startup-selected Emacs/Vim editing | [Spec](spec/editor-modal-editing.md), [model](spec/editor-modal-editing-model.md), [plan](plan/rev-modal-editing.md), [tracker](tracker/rev-modal-editing.md) | Delivered / Completed. Eight slices through PRs #212-#219 deliver immutable startup profiles, checked modal navigation/operators/selections/jumps/repeat and shared colon/M-x/completion workflows. The unchanged controller full gate passed MOD01-MOD14, native/installed-server/PTY acceptance and guidance. |
 | Org heading glyphs and terminal fonts | [Spec](spec/editor-org-heading-presentation.md), [model](spec/editor-org-heading-presentation-model.md), [plan](plan/rev-org-headings.md), [tracker](tracker/rev-org-headings.md) | Delivered / Completed. Three slices through PRs #238-#240 deliver six cyclic reference glyphs, complete startup preferences, independent native view toggle/reset, source-backed prefix width and bounded projection. The unchanged controller full gate passed OGP01-OGP08 with 420 selected tests and both-profile native/resource/PTY acceptance. Fonts and ligatures remain terminal-owned. |
-| Org visual body indentation | [Spec](spec/editor-org-indentation.md), [model](spec/editor-org-indentation-model.md), [plan](plan/rev-org-indentation.md), [tracker](tracker/rev-org-indentation.md) | Approved / Ready, 2026-11-05; four slices within the six-slice maximum and explicit one-cycle Looper startup requested. One TOML boolean and three native runtime commands control visual indentation, enabled by default, with two cells per level and buffer-local ownership. Live execution and exact validation belong to the retained controller. |
+| Org visual body indentation | [Spec](spec/editor-org-indentation.md), [model](spec/editor-org-indentation-model.md), [plan](plan/rev-org-indentation.md), [tracker](tracker/rev-org-indentation.md) | Delivered / Completed. Four slices through PRs #276-#279 deliver OIN01-OIN05: enabled-by-default visual indentation, one TOML boolean, three native commands and buffer-local policy. The unchanged controller gate passed at `61e6e6a1b73d94577c7851aae6f200f6101d35c7`, receipt `YE523W7IGTDKXEUNGCMA3NNJBY`; [Slice 4 closure](report/slices/rev-org-indentation/slice-4-acceptance.md#delivery-set-closure) records native/resource/PTY evidence and strict local guide validation. |
 | Native shell commands and text filters | [Spec](spec/editor-shell-commands.md), [model](spec/editor-shell-commands-model.md), [plan](plan/rev-shell-commands.md), [tracker](tracker/rev-shell-commands.md) | Delivered / Completed. Four slices through PRs #242-#245 and repair #246 deliver explicit command entry, bounded stdin/stdout, checked insert/replace and native controls. The unchanged controller gate passed SHL01-SHL08 with both-profile native/resource/PTY acceptance and guide projection. |
 | Integrated terminals | [Spec](spec/editor-integrated-terminal.md), [model](spec/editor-integrated-terminal-model.md), [plan](plan/rev-integrated-terminal.md), [tracker](tracker/rev-integrated-terminal.md) | Delivered / Completed. Eight slices through PRs #248-#255 and authorized readiness repair #256 deliver lower-panel/direct-buffer shells, same-process relocation, multiple sessions, native input/copy and owned shutdown. The unchanged combined controller gate passed TRM01-TRM11 with native/PTY/resource acceptance and Markdown/Spore guidance. |
 | External programs/extensions | [Spec](spec/editor-external-extensions.md), [model](spec/editor-external-extensions-model.md) | Optional exploration only. Explicit configuration, stdio and one child per invocation are the refined draft profile. Adoption itself is undecided; no scheduled delivery or baseline dependency. |
@@ -49,10 +49,13 @@ retain their own specification/model state.
 ## Selected execution order
 
 On 2026-11-05 the owner approved Org visual indentation and explicitly requested
-the plan, slicing and one Looper startup. The linked four-slice plan stays
-within the six-slice maximum and authorizes preparation and autonomous delivery
-through dev. Live progress and final validation belong to the retained
-controller; other pending topics retain their current approval boundaries.
+the plan, slicing and one Looper startup. All four canonical slices through
+PRs #276-#279 are delivered; the unchanged controller full gate passed at
+`61e6e6a1b73d94577c7851aae6f200f6101d35c7`, receipt
+`YE523W7IGTDKXEUNGCMA3NNJBY`. The specification/model and plan/tracker are
+Completed. The linked tracker and Slice 4 closure retain exact commands,
+immutable report introductions, resource/PTY observations and local guide
+evidence. Other pending topics retain their current approval boundaries.
 
 On 2026-11-04 the owner approved the complete native Git specification/model,
 binding matrix, local-operation policies, bounds and fourteen-slice plan/tracker,

@@ -88,8 +88,8 @@ native tests 24.98s, Bash syntax under 0.01s, documentation 1.07s and diff 0.01s
 All six required commands also passed through Looper on the exact clean
 PR-reference HEAD `6c010648a49847b54f914063a2261e7403dd8c34`. The canonical PR
 contract was verified, and PR #279 is merged into dev at that commit.
-The full combined gate and strict Spore build remain controller-owned and have
-not run during this slice.
+The controller subsequently passed the unchanged combined gate and strict Spore
+build after integration; that separate evidence is recorded under Delivery-set closure.
 
 Focused development evidence:
 
@@ -131,9 +131,55 @@ Focused development evidence:
   the existing low-debug native test profile to avoid a second optimized
   library-test build; the same eight cases and limits remain enforced.
 
+## Delivery-set closure
+
+The controller passed the unchanged selected full gate at immutable dev candidate
+`61e6e6a1b73d94577c7851aae6f200f6101d35c7`, receipt
+`YE523W7IGTDKXEUNGCMA3NNJBY`. Its exact successful combined command is recorded
+in the tracker and matches the plan's frozen Final validation selection.
+
+All 569 selected integration tests passed: 164 commands, 155 configuration,
+39 display, 36 gutter, 16 headings, 16 indentation, 65 pointer, 26 wrapping,
+11 Org visibility, 20 modal contexts and 21 external-change cases. Format,
+strict all-target Clippy and scoped Rust source quality passed. The eight native
+cache/work cases passed with actual retention peaks of 8192 fragments and
+1048576 bytes, including eight runtime policy changes at widths 6 and 512.
+The normal-release build took 4m19s; the command suite ran in 197.56s and
+configuration suite in 91.18s.
+
+Both-profile native journeys passed source-only copy/save, policy controls,
+wrap, margin hits, edit/undo/redo and no idle deadline. Normal-release resource
+observations were:
+
+| Case | Source bytes | Startup (us) | 16 toggle/resize reflows (us) | Peak RSS (kB) |
+| --- | --- | --- | --- | --- |
+| Large outline | 779022 | 362757 | 6321 | 19272 |
+| Admitted depth 256 | 57607 | 64214 | 241322 | 19192 |
+| Over-limit 32768 stars | 90119 | 52583 | 94487 | 19192 |
+
+Every resource case retained exact source, empty history, no idle deadline and
+zero CPU ticks over 350ms. At width six, the admitted deep heading retained a
+four-cell margin; the over-limit case used zero literal margins with finite
+source progress. Bounds and acceptance assertions remain unchanged.
+
+The non-modal/modal PTYs passed at 40x12/64x12/40x12, with startup
+69449/93615us, 10149 output bytes each and peak RSS 15148/16408 kB.
+Both measured zero idle CPU ticks over 350ms, retained source/configuration
+bytes and restored terminal state. The eight-second/1-MiB PTY limits remained
+unchanged. Catalog/documentation checks validated 596 commands, 281 settings,
+85 reachable pages and 560 local links/anchors. All 85 canonical Markdown pages
+projected and built locally through Spore's strict link check and render into
+`target/userguide`.
+
+All four canonical PRs are merged and all four reports delivered. The paired
+indentation specification/model, plan and tracker are Completed, and the pending
+index records the delivered capability. The gate's fixture guards and owned
+PTY children completed; inspection found no remaining gate editor/driver
+processes or private indentation fixture roots. Only configured closure
+documentation differs from the tested candidate. The controller retains final
+checkpoint verification.
+
 ## Risks and Follow-ups
 
-The controller must run the unchanged combined gate on its
-exact clean dev candidate and record the receipt before closing the paired
-indentation specification/model, plan and tracker. No main promotion, release,
-publication or successor startup is included in this slice.
+No implementation follow-up is recorded. The local guide build does not
+establish public deployment.

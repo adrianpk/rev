@@ -1,6 +1,7 @@
 # Org Indentation Delivery
 
-Status: Approved
+Status: Completed
+Completed: 2026-11-05
 Date: 2026-11-05
 Delivery set: rev-org-indentation
 Slice strategy: layered
@@ -10,7 +11,7 @@ Spec: [Org Visual Indentation](../spec/editor-org-indentation.md)
 Model: [Org Visual Indentation Model](../spec/editor-org-indentation-model.md)
 Tracker: [Org Indentation Tracker](../tracker/rev-org-indentation.md)
 Concern: [Pending Work Index](../README.md)
-Active slice: None - all four slices integrated; combined gate pending
+Active slice: None - delivery set completed
 
 ## Outcome and strategy
 
@@ -182,3 +183,17 @@ once after the Markdown changes. Geometry changes justify selected shared-suite
 regressions; unrelated Git, terminal, LSP-provider and Babel journeys are not
 added. Record actual gate duration and any failure before considering a retry;
 never expand an active controller's limits or substitute a prior candidate.
+
+## Delivery-set closure
+
+All four recorded slices are delivered through canonical PRs #276-#279. The
+controller passed the unchanged selected full gate at immutable dev candidate
+`61e6e6a1b73d94577c7851aae6f200f6101d35c7`, receipt
+`YE523W7IGTDKXEUNGCMA3NNJBY`. It passed 569 selected integration tests,
+eight native cache/work cases, source quality, both-profile native/PTY journeys,
+three normal-release resource probes, documentation catalogs and the strict
+local Markdown-to-Spore guide build. The [Slice 4 closure](../report/slices/rev-org-indentation/slice-4-acceptance.md#delivery-set-closure)
+records measurements, cleanup and evidence limits; the tracker records the
+exact combined command and immutable report introductions. Plan, tracker,
+paired specification/model and pending index are reconciled. Only configured
+closure documentation differs from the tested candidate.
