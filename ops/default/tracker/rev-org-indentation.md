@@ -55,7 +55,7 @@ State: reviewing
 Dependency: Slice 2 integrated
 Requirements: OIN02-OIN05
 Implementation: `e6dc1c0f1b07e046309911867b9782d87b24008e` (T3.1-T3.3)
-PR: pending
+PR: `#278`
 Report: [Slice 3](../report/slices/rev-org-indentation/slice-3-controls.md)
 Validation: all six required commands passed locally; 356 selected native tests, 20 modal contexts and one additional readonly result-owner case passed. The catalog contains 596 commands. Looper records exact clean-HEAD evidence after the PR-reference commit.
 
