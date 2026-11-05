@@ -1,0 +1,77 @@
+# Org Visual Indentation Model
+
+Status: Approved
+Date: 2026-11-05
+Approved: product owner, 2026-11-05; paired specification approval and explicit Looper startup request
+Specification: [Org Visual Indentation](editor-org-indentation.md)
+Existing owners: [Heading Presentation Model](editor-org-heading-presentation-model.md), [Soft Wrap Model](editor-soft-wrap-model.md), [Configuration Model](editor-configuration-model.md), [Org Mode Model](editor-org-mode-model.md)
+
+## State ownership
+
+| Record | Owner and contract |
+| --- | --- |
+| `org.indent` | Existing immutable startup snapshot; boolean, default `true`. Omitted values inherit; explicit values follow existing include/override provenance. Invalid types reject the whole candidate through existing handling. |
+| Runtime override | One `Option<bool>` equivalent per live buffer; `None` inherits startup. Toggle and explicit enable/disable record a value. It is not persisted or added to edit history. |
+| Effective policy | Existing buffer Org enablement and the startup/override value. A non-Org buffer does not project indentation. Disabling Org suspends this policy without deleting the override. |
+| Structural line observation | Native current buffer/revision and enclosing heading level, with literal-block ownership respected. Preamble level is zero. No second Org parser or independently maintained outline. |
+| Projected fragment | Checked source span, structural margin, continuation affinity and source/cell mapping at one text width. Virtual cells have no independent source scalar. |
+| Layout identity | Existing buffer/revision, width, tabs, folds and presentation observations extended by effective indentation policy. Both a changed level and a runtime toggle retire affected derived observations. |
+
+The new setting belongs directly to `[org]`, independently of `[org.headings]`:
+
+```toml
+[org]
+indent = true
+```
+
+Startup admission remains startup-only. Commands do not edit configuration;
+closing and reopening a buffer uses the admitted startup value. No cache file,
+migration or additional configuration directory is introduced.
+
+## Visual margins and mapping
+
+Use terminal-cell columns relative to the pane's text area after the existing
+gutter. For level N >= 1, ideal additional heading margin is N-1 and ideal body
+margin is 2N. In pretty view with leading stars hidden, the existing N-cell
+source prefix plus separator places title and body at 2N. Pretty presentation
+off retains all source stars and still adds the heading margin. Source spaces
+and tabs keep their existing source identity and tab-stop policy; virtual cells
+do not change the source column used to expand a tab.
+
+Heading continuations use the ideal title margin 2N. Body continuations use the
+same structural margin as their first row. Existing source whitespace remains
+literal content; this does not introduce new list hanging-indentation rules.
+Tables and code retain their relative source columns under one outer margin.
+
+For text width W, cap any virtual margin at max(0, W-2), using checked arithmetic
+or saturation before multiplication/allocation. This leaves room for a normal
+two-cell grapheme when W >= 2. At width 1, use zero virtual margin and existing
+oversized-grapheme behavior. The established suspended-pane policy still owns
+unusable geometry. Capping is a display adjustment, not a change to level N.
+Do not emit endless virtual-only continuations at an over-deep heading.
+
+Each real source scalar keeps its canonical position. Prefix source stars
+retain separate mappings after the added margin. A hit inside virtual padding
+maps to the first source position of that visual fragment; selection and copy
+do not invent spaces. Source-backed selection paint begins at real text cells.
+Rendered offsets are not accepted as byte or scalar offsets.
+
+## Lifetime and bounded work
+
+All views of the same buffer observe one effective indentation choice; their
+widths, folds and pretty-heading overrides remain view-owned. A view rebound to
+another buffer adopts that buffer's indentation policy. The three commands are
+available in editable and read-only Org views, never a text edit. New default
+bindings and a fourth reset command are unnecessary.
+
+Reuse current bounded Org observation and view-layout caches. The existing
+8192-fragment and 1 MiB cached-text limits per view remain upper bounds; account added
+margin text/mapping in those bounds rather than retaining an uncharged cache.
+Do not construct an N-level padding string before clamping it to W. No extra
+idle deadline, worker, external process or dependency is required.
+
+Invalidate or reobserve on source revision, structural coverage, fold, geometry
+or effective-policy changes. Render literal rows coherently while structural
+evidence is pending. Undo, reload and mode suspension preserve runtime policy;
+buffer close retires it. Reports must record actual native/resource/PTY evidence
+and distinguish it from the specification's required behavior.
