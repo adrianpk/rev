@@ -1,6 +1,6 @@
 # Slice 8: Merge Rebase and Sequence Control
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-git-integration
 Plan: `ops/default/plan/rev-git-integration.md`
 Tracker: `ops/default/tracker/rev-git-integration.md`
@@ -136,9 +136,16 @@ was corrected to carry its memory reservation through retained cleanup. The
 resulting HEAD requires a new complete receipt; the earlier receipt is not
 candidate evidence.
 
-Final ordered check contract, executed through the controller after the
-PR-reference follow-up commit; the exact clean-HEAD receipt is retained outside
-the repository:
+Final controller receipt `LV7ZCYAEGWAJMND5ME3IRVVXGK` passed all eight ordered
+checks at `0c4dd707485bdb53f11963406b6874f7e1079186`: 19 integration tests
+(70.78 seconds), 119 earlier Git regressions (226.41 seconds), 9 process tests,
+21 reference tests, strict Clippy, formatter, 526-command documentation and
+whitespace. The canonical PR contract verified the title, body, branch, base,
+report introduction and exact head. The external controller merged PR #265
+through Rebase + Fast-forward into dev at that same commit. Slice 8 of 14
+completed.
+
+Exact successful ordered commands:
 
 - `cargo fmt --all -- --check`
 - `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo clippy --locked --lib --bin rev --test git_integration -- -D warnings`

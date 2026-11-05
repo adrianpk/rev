@@ -7,7 +7,7 @@ Plan: [Native Git Integration Delivery](../plan/rev-git-integration.md)
 Spec: [Native Git Integration](../spec/editor-git-integration.md)
 Model: [Native Git Model](../spec/editor-git-integration-model.md)
 Approved: owner, 2026-11-04; complete fourteen-slice plan and autonomous Looper execution/integration through dev
-Active slice: Slice 8 - Merge rebase and sequence control
+Active slice: Slice 9 - Ordered revisions and manual bisect
 Progress owner: after startup, Looper checkpoint, canonical PRs and exact-candidate validation receipts
 
 ## Canonical slice map
@@ -145,7 +145,7 @@ Integration: [PR #264](https://forge.adrianpk.com/adrianpk/rev/pulls/264) merged
 
 ## Slice 8: Merge rebase and sequence control
 
-Status: active
+Status: delivered
 Branch: `feat/rev-git-integration-08-integration`
 Expected PR title: `feat(git): run checked merge and rebase workflows`
 Report: `ops/default/report/slices/rev-git-integration/slice-8-integration.md`
@@ -156,12 +156,12 @@ PR: `#265`
 - [x] T8.2: Prepare reviewed autosquash and observe Git-owned in-progress work through exact family-specific and generic status/continue/skip/abort controls; never launch an interactive external editor.
 - [x] T8.3: Verify successful and conflicted local histories, stale HEAD, missing sequence, wrong-family controls and skipped/aborted outcomes; source reload follows existing automatic/ask policy.
 
-Validation: T8.1-T8.3 development formatter, strict focused Clippy, all 19 integration tests, 9 shared process tests and 21 reference tests pass. Actual autosquash trees/messages/authors match Git in both formats. Sequence fingerprint/lineage guards, hooks, cancellation and both-profile native review/reload pass. Documentation checks 526 commands and 268 configuration entries. Final ordered exact-HEAD controller evidence follows PR-reference commit.
-Integration: [PR #265](https://forge.adrianpk.com/adrianpk/rev/pulls/265) is prepared with T8.1-T8.3 complete. PR-reference follow-up precedes final controller validation. The external controller owns integration into dev.
+Validation: Controller receipt `LV7ZCYAEGWAJMND5ME3IRVVXGK` passed all eight ordered checks at `0c4dd707485bdb53f11963406b6874f7e1079186`: 138 Git tests, 9 process tests and 21 command/configuration references, formatter, strict Clippy, documentation and whitespace. The earlier candidate receipt and sealed-driver ownership correction remain in the report.
+Integration: [PR #265](https://forge.adrianpk.com/adrianpk/rev/pulls/265) merged through controller-owned Rebase + Fast-forward into dev at `0c4dd707485bdb53f11963406b6874f7e1079186`. Slice 8 of 14 completed.
 
 ## Slice 9: Ordered revisions and manual bisect
 
-Status: pending
+Status: active
 Branch: `feat/rev-git-integration-09-sequences`
 Expected PR title: `feat(git): apply ordered revisions and manual bisect`
 Report: `ops/default/report/slices/rev-git-integration/slice-9-sequences.md`
