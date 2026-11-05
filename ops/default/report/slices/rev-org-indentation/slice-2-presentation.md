@@ -5,7 +5,7 @@ Delivery set: rev-org-indentation
 Plan: [Org Indentation Delivery](../../../plan/rev-org-indentation.md)
 Tracker: [Org Indentation Tracker](../../../tracker/rev-org-indentation.md)
 Branch: `feat/rev-org-indentation-02-presentation`
-PR: pending
+PR: `#277`
 
 ## Purpose
 

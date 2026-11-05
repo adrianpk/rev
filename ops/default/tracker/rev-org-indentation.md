@@ -40,7 +40,7 @@ State: reviewing
 Dependency: Slice 1 integrated
 Requirements: OIN01-OIN03, OIN05
 Implementation: `66e6654eeba004dd997c74144c55253aca5bc9b6` (T2.1-T2.3)
-PR: pending
+PR: `#277`
 Report: [Slice 2](../report/slices/rev-org-indentation/slice-2-presentation.md)
 Validation: all five required commands passed locally; 346 selected native tests and 17 additional view regressions passed. Documentation validates 593 commands and 281 configuration entries. Looper records exact clean-HEAD evidence after the PR-reference commit.
 
