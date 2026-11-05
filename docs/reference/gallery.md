@@ -1,6 +1,6 @@
 # Gallery
 
-Screenshots of rev in use, newest first.
+Screenshots of rev in use.
 
 ## Rust and Org
 
@@ -28,9 +28,3 @@ Vertical command completion through `M-x`, with `ai-explain` selected.
 
 An explanation from Pi in a read-only Org buffer, beside the field notes.
 The answer describes the planner and identifies its incomplete return expression.
-
-## Earlier
-
-![rev with Rust and Org panes, the file tree and M-x completion](images/rev.png)
-
-Rust and Org panes beside the file tree, with `M-x` completing a command name.
