@@ -2,6 +2,10 @@
 
 #[path = "../tests/configuration/fixture.rs"]
 mod fixture;
+#[path = "git_integration_acceptance/journeys.rs"]
+mod journeys;
+#[path = "git_integration_acceptance/matrix.rs"]
+mod matrix;
 #[path = "shell_command_acceptance/metrics.rs"]
 mod metrics;
 #[path = "git_integration_acceptance/native.rs"]

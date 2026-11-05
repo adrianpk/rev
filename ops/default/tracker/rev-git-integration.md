@@ -233,10 +233,10 @@ Requirements: GIT01-GIT20 together
 PR: pending
 
 - [x] T13.1: Add one repository-native Git acceptance entry and Bash driver reusing existing Rust/Linux PTY support; share real isolated fixture builders and verify objects/files rather than command labels.
-- [ ] T13.2: Exercise representative both-profile journeys covering Status/diffs/index/commit, refs/transport, sequence/conflict, contextual prefixes, pointer/resize and restoration with a live terminal; assert matrix routing at the cheapest reliable native layer.
+- [x] T13.2: Exercise representative both-profile journeys covering Status/diffs/index/commit, refs/transport, sequence/conflict, contextual prefixes, pointer/resize and restoration with a live terminal; assert matrix routing at the cheapest reliable native layer.
 - [ ] T13.3: Measure Git-only binary delta, startup/idle CPU, retained RSS/output and bounded fair service; verify process/FD cleanup, malformed/truncated/large input, ownership on q/app exit and zero dependency additions.
 
-Validation: T13.1 development native checks pass in both object formats/profiles; both Linux PTY profiles pass decoded entry, quiet Status, source and terminal restoration within the existing eight-second/1-MiB bounds. Combined journeys and release resource measurements remain in progress.
+Validation: T13.1 development native checks pass in both object formats/profiles; both Linux PTY profiles pass decoded entry, quiet Status, source and terminal restoration within the existing eight-second/1-MiB bounds. T13.2 native hunk/commit, refs/fetch/push, conflict/abort and live-terminal journeys pass in both profiles, along with all 289 routing expectations per profile. Expanded both-profile PTY journeys pass pointer/diff/index/composer/resize/terminal/exit restoration and strict acceptance-target Clippy; T13.3 resource/lifetime measurements remain in progress.
 Integration: pending; no commit or PR is claimed.
 
 ## Slice 14: Git learning path and reference

@@ -21,6 +21,17 @@ Verify GIT01-GIT20 together through T13.1-T13.3 in the
   bytes; both profiles enter Status and restore the native source owner.
 - Both-profile Linux PTY probes decode actual C-x g and q, measure quiet Git
   Status, and verify source bytes, application exit and terminal restoration.
+- T13.2 adds representative native journeys through partial-hunk and whole-path
+  staging, retained commit drafts and explicit submission, marked fetch/push to
+  an owned local bare remote, exact conflict-side replacement and reviewed abort.
+  Assertions check actual blobs, index/worktree bytes, refs and sequence files.
+- Frozen routing expectations cover 289 contextual bindings in each profile,
+  including complete family prefixes and their distinct contextual meanings.
+  Mapping assertions complement the existing per-variant semantic fixtures.
+- The expanded host PTY journeys use actual mouse events, diff expansion,
+  staging, literal composer text, cancellation/retained draft, C-c C-c submission,
+  18-by-72 resize, host commands, a live retained terminal, declined application
+  exit, explicit child exit and source/TTY restoration.
 
 ## Implementation Notes
 
@@ -54,10 +65,24 @@ T13.1 development checks passed:
 - `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo build --locked --bin rev --example git-integration-acceptance`: native executable and editor build.
 - `target/debug/examples/git-integration-acceptance --pty "$PWD/target/debug/rev" "$PWD/scripts/check-git-integration.sh"`: both profiles, zero CPU ticks during each 350 ms quiet interval, 11,909 captured bytes each; startup 169,341/239,922 microseconds, peak RSS 29,148/30,376 kB on this development build. These are local observations, not release measurements.
 
+T13.2 development checks passed with the same exact native, build, PTY and
+strict acceptance-target Clippy commands above. The final expanded PTY probes
+captured 179,520/179,510 bytes, with startup 194,264/294,350 microseconds and
+zero CPU ticks during each 350 ms quiet interval. Native journeys pass in both
+profiles/object formats. Each native wait retains its five-second bound; the
+Bash native phase admits 60 seconds for the combined multi-operation journey,
+while each host PTY keeps its original eight-second and 1 MiB limits.
+
+Fixture corrections bind the native file-tree root to the isolated repository
+before entering Git from a terminal buffer and assert the exact repository
+identity before changing actions. Terminal-rendered cells are decoded through
+the existing row parser, and owned child exit requires the actual Buffer closed
+receipt before application shutdown. These corrections preserve the intended
+observable assertions and process/stream limits.
+
 The completed slice's ordered exact-HEAD validation belongs to the controller
 receipt after its PR-reference follow-up.
 
 ## Risks and Follow-ups
 
-T13.2 combined workflows/matrix and T13.3 resource/lifetime acceptance remain
-in progress. No full delivery-set gate is claimed.
+T13.3 resource/lifetime acceptance remains in progress. No full delivery-set gate is claimed.

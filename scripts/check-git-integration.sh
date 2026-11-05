@@ -36,7 +36,7 @@ isolation=(env HOME="$fixture/home" XDG_CONFIG_HOME="$fixture/config" XDG_DATA_H
     TERM=xterm-256color LC_ALL=C NO_COLOR=1)
 driver=("$target/release/examples/git-integration-acceptance")
 if [[ $mode == --all || $mode == --native ]]; then
-    "${isolation[@]}" timeout --kill-after=1 20 "${driver[@]}" --native
+    "${isolation[@]}" timeout --kill-after=1 60 "${driver[@]}" --native
 fi
 if [[ $mode == --all || $mode == --pty ]]; then
     "${isolation[@]}" timeout --kill-after=1 20 "${driver[@]}" --pty "$target/release/rev" "$root/scripts/check-git-integration.sh"

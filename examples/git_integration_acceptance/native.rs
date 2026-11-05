@@ -56,5 +56,6 @@ pub(crate) fn run() -> Result<()> {
             "PASS native shared fixture format={format}: exact HEAD/index/working bytes, both-profile entry and restoration"
         );
     }
-    Ok(())
+    crate::matrix::run()?;
+    crate::journeys::run()
 }

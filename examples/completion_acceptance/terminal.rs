@@ -195,6 +195,35 @@ impl Terminal {
         self.bytes
     }
 
+    // Git navigation may hide the cursor; after a real resize its completed
+    // frame must be recognized with the new geometry, under the same byte cap.
+    #[allow(dead_code, reason = "Shared PTY callers opt into resize probes.")]
+    pub(crate) fn resize(&mut self, rows: usize, columns: usize) -> Result<()> {
+        self.send(b"")?;
+        self.dimensions = Some((rows, columns));
+        let tty = format!("/proc/{}/fd/0", self.editor);
+        assert!(
+            Command::new("stty")
+                .args([
+                    "-F",
+                    &tty,
+                    "rows",
+                    &rows.to_string(),
+                    "cols",
+                    &columns.to_string()
+                ])
+                .status()?
+                .success()
+        );
+        assert!(
+            Command::new("kill")
+                .args(["-WINCH", &self.editor])
+                .status()?
+                .success()
+        );
+        Ok(())
+    }
+
     pub(crate) fn finish(&mut self) -> Result<()> {
         self.send(b"\x18\x03")?;
         self.wait(|text| text.contains("REV_TTY_RESTORED"))?;

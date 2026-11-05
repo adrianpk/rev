@@ -1,0 +1,291 @@
+# Approved contextual Git routing, frozen independently of runtime keymaps.
+# context|sequence|native command
+git	!	git-run-command
+git	C C	git-clone
+git	C s	git-clone-shallow
+git	C b	git-clone-bare
+git	C m	git-clone-mirror
+git	I I	git-init
+git	i t	git-ignore
+git	i p	git-ignore-exclude
+git	o a	git-submodule-add
+git	o l	git-submodule-list
+git	o u	git-submodule-update
+git	o s	git-submodule-sync
+git	o d	git-submodule-deinit
+git	O a	git-subtree-add
+git	O m	git-subtree-merge
+git	O f	git-subtree-pull
+git	O p	git-subtree-push
+git	O s	git-subtree-split
+git	T a	git-notes-add
+git	T r	git-notes-remove
+git	T p	git-notes-prune
+git	> e	git-sparse-checkout-enable
+git	> d	git-sparse-checkout-disable
+git	> r	git-sparse-checkout-reapply
+git	> s	git-sparse-checkout-set
+git	> a	git-sparse-checkout-add
+git	W c	git-format-patch
+git	W s	git-save-diff
+git	W r	git-request-pull
+git	w p	git-apply-patch
+git	w a	git-apply-mailbox
+git	Z Z	git-worktree-list
+git	Z l	git-worktree-list
+git	z z	git-stash-list
+git	z l	git-stash-list
+git	b	git-refs
+git	y	git-refs
+git	h	git-log
+git	l r	git-reflog
+git	B b	git-blame
+git	B B	git-blame
+git	l l	git-log
+git	C-Enter	git-commit-submit
+git	C-c C-c	git-commit-submit
+git	c	git-commit
+git	C-x g	git-status
+git	C-x C-c	save-buffers-kill-terminal
+git	M-x	execute-extended-command
+git	:	execute-extended-command
+git	C-g	keyboard-quit
+git	q	git-quit
+git	g	git-refresh
+git	k	git-discard
+git	x d	git-discard
+git	*	git-mark
+git	-	git-unmark
+git	0	git-unmark-all
+git	x m	git-mark
+git	x u	git-unmark
+git	x c	git-unmark-all
+git	s	git-stage
+git	u	git-unstage
+git	TAB	git-toggle-section
+git	?	git-dispatch
+git	$	git-processes
+git	RET	git-visit-file
+git	Up	previous-line
+git	Down	next-line
+git	C-p	previous-line
+git	C-n	next-line
+git	p	previous-line
+git	n	next-line
+git_history	!	git-run-command
+git_history	P	git-cherry-pick
+git_history	V	git-revert
+git_history	C-x g	git-status
+git_history	q	git-quit
+git_history	g	git-refresh
+git_history	TAB	git-show
+git_history	RET	git-show-range
+git_history	f	git-log-next-page
+git_history	*	git-mark
+git_history	a	git-sequence-mark
+git_history	U	git-sequence-unmark
+git_history	A	git-commit-amend
+git_history	F	git-commit-fixup
+git_history	$	git-processes
+git_history	M-x	execute-extended-command
+git_history	:	execute-extended-command
+git_history	C-g	keyboard-quit
+git_history	C-x C-c	save-buffers-kill-terminal
+git_history	Up	previous-line
+git_history	Down	next-line
+git_history	C-p	previous-line
+git_history	C-n	next-line
+git_history	p	previous-line
+git_history	n	next-line
+git_history	PageUp	scroll-down-command
+git_history	PageDown	scroll-up-command
+git_history	M-<	beginning-of-buffer
+git_history	M->	end-of-buffer
+git_inspect	!	git-run-command
+git_inspect	C-x g	git-status
+git_inspect	q	git-quit
+git_inspect	g	git-refresh
+git_inspect	TAB	git-toggle-section
+git_inspect	RET	git-toggle-section
+git_inspect	v	git-show
+git_inspect	$	git-processes
+git_inspect	M-x	execute-extended-command
+git_inspect	:	execute-extended-command
+git_inspect	C-g	keyboard-quit
+git_inspect	C-x C-c	save-buffers-kill-terminal
+git_inspect	Up	previous-line
+git_inspect	Down	next-line
+git_inspect	C-p	previous-line
+git_inspect	C-n	next-line
+git_inspect	p	previous-line
+git_inspect	n	next-line
+git_inspect	PageUp	scroll-down-command
+git_inspect	PageDown	scroll-up-command
+git_inspect	M-<	beginning-of-buffer
+git_inspect	M->	end-of-buffer
+git_refs	!	git-run-command
+git_refs	E	git-rebase-autosquash
+git_refs	m c	git-merge-continue
+git_refs	m a	git-merge-abort
+git_refs	r a	git-rebase-autosquash
+git_refs	r c	git-rebase-continue
+git_refs	r s	git-rebase-skip
+git_refs	r A	git-rebase-abort
+git_refs	=	git-merge-fast-forward
+git_refs	i	git-merge
+git_refs	I	git-merge-no-fast-forward
+git_refs	e	git-rebase
+git_refs	m f	git-merge-fast-forward
+git_refs	m m	git-merge
+git_refs	m n	git-merge-no-fast-forward
+git_refs	r r	git-rebase
+git_refs	*	git-mark
+git_refs	-	git-unmark
+git_refs	p	git-push
+git_refs	M p	git-push
+git_refs	&	git-fetch
+git_refs	M b	git-refs
+git_refs	M f	git-fetch
+git_refs	TAB	git-toggle-section
+git_refs	t	git-tag-create
+git_refs	T	git-tag-delete
+git_refs	C-Enter	git-commit-submit
+git_refs	C-c C-c	git-commit-submit
+git_refs	C-x g	git-status
+git_refs	q	git-quit
+git_refs	g	git-refresh
+git_refs	n	git-branch-create
+git_refs	S	git-branch-switch
+git_refs	R	git-branch-rename
+git_refs	D	git-branch-delete
+git_refs	?	git-dispatch
+git_refs	$	git-processes
+git_refs	M-x	execute-extended-command
+git_refs	:	execute-extended-command
+git_refs	C-g	keyboard-quit
+git_refs	C-x C-c	save-buffers-kill-terminal
+git_refs	Up	previous-line
+git_refs	Down	next-line
+git_refs	C-p	previous-line
+git_refs	C-n	next-line
+git_refs	PageUp	scroll-down-command
+git_refs	PageDown	scroll-up-command
+git_refs	M-<	beginning-of-buffer
+git_refs	M->	end-of-buffer
+git_sequence	!	git-run-command
+git_sequence	RET	git-conflict-visit
+git_sequence	?	git-bisect-start
+git_sequence	G	git-bisect-good
+git_sequence	B	git-bisect-bad
+git_sequence	|	git-bisect-skip
+git_sequence	~	git-bisect-reset
+git_sequence	{	git-cherry-pick-continue
+git_sequence	l	git-cherry-pick-skip
+git_sequence	Y	git-cherry-pick-abort
+git_sequence	}	git-revert-continue
+git_sequence	j	git-revert-skip
+git_sequence	Q	git-revert-abort
+git_sequence	>	git-merge-continue
+git_sequence	X	git-merge-abort
+git_sequence	]	git-rebase-continue
+git_sequence	;	git-rebase-skip
+git_sequence	Z	git-rebase-abort
+git_sequence	C-x g	git-status
+git_sequence	q	git-quit
+git_sequence	g	git-refresh
+git_sequence	$	git-processes
+git_sequence	M-x	execute-extended-command
+git_sequence	:	execute-extended-command
+git_sequence	C-g	keyboard-quit
+git_sequence	C-x C-c	save-buffers-kill-terminal
+git_sequence	Up	previous-line
+git_sequence	Down	next-line
+git_sequence	C-p	previous-line
+git_sequence	C-n	next-line
+git_sequence	PageUp	scroll-down-command
+git_sequence	PageDown	scroll-up-command
+git_sequence	M-<	beginning-of-buffer
+git_sequence	M->	end-of-buffer
+git_worktree	!	git-run-command
+git_worktree	c	git-worktree-create
+git_worktree	L	git-worktree-lock
+git_worktree	U	git-worktree-unlock
+git_worktree	P	git-worktree-prune
+git_worktree	k	git-worktree-remove
+git_worktree	C-x g	git-status
+git_worktree	q	git-quit
+git_worktree	g	git-refresh
+git_worktree	TAB	git-toggle-section
+git_worktree	RET	git-toggle-section
+git_worktree	v	git-worktree-visit
+git_worktree	$	git-processes
+git_worktree	M-x	execute-extended-command
+git_worktree	:	execute-extended-command
+git_worktree	C-g	keyboard-quit
+git_worktree	C-x C-c	save-buffers-kill-terminal
+git_worktree	Up	previous-line
+git_worktree	Down	next-line
+git_worktree	C-p	previous-line
+git_worktree	C-n	next-line
+git_worktree	p	previous-line
+git_worktree	n	next-line
+git_worktree	PageUp	scroll-down-command
+git_worktree	PageDown	scroll-up-command
+git_worktree	M-<	beginning-of-buffer
+git_worktree	M->	end-of-buffer
+git_stash	!	git-run-command
+git_stash	c	git-stash-create
+git_stash	a	git-stash-apply
+git_stash	p	git-stash-pop
+git_stash	b	git-stash-branch
+git_stash	k	git-stash-drop
+git_stash	C-x g	git-status
+git_stash	q	git-quit
+git_stash	g	git-refresh
+git_stash	TAB	git-toggle-section
+git_stash	RET	git-toggle-section
+git_stash	v	git-stash-show
+git_stash	$	git-processes
+git_stash	M-x	execute-extended-command
+git_stash	:	execute-extended-command
+git_stash	C-g	keyboard-quit
+git_stash	C-x C-c	save-buffers-kill-terminal
+git_stash	Up	previous-line
+git_stash	Down	next-line
+git_stash	C-p	previous-line
+git_stash	C-n	next-line
+git_stash	n	next-line
+git_stash	PageUp	scroll-down-command
+git_stash	PageDown	scroll-up-command
+git_stash	M-<	beginning-of-buffer
+git_stash	M->	end-of-buffer
+git_conflict	!	git-run-command
+git_conflict	H	git-conflict-explain
+git_conflict	1	git-conflict-use-base
+git_conflict	2	git-conflict-use-current
+git_conflict	3	git-conflict-use-applied
+git_conflict	K	git-conflict-delete
+git_conflict	x	git-conflict-stage
+git_conflict	C-x g	git-status
+git_conflict	q	git-quit
+git_conflict	g	git-refresh
+git_conflict	RET	git-conflict-visit
+git_conflict	$	git-processes
+git_conflict	M-x	execute-extended-command
+git_conflict	:	execute-extended-command
+git_conflict	C-g	keyboard-quit
+git_conflict	C-x C-c	save-buffers-kill-terminal
+git_conflict	Up	previous-line
+git_conflict	Down	next-line
+git_conflict	C-p	previous-line
+git_conflict	C-n	next-line
+git_conflict	p	previous-line
+git_conflict	n	next-line
+git_conflict	PageUp	scroll-down-command
+git_conflict	PageDown	scroll-up-command
+git_conflict	M-<	beginning-of-buffer
+git_conflict	M->	end-of-buffer
+git_commit	C-Enter	git-commit-submit
+git_commit	C-c C-c	git-commit-submit
+git_commit	C-g	keyboard-quit
+git_commit	C-c C-k	git-commit-cancel
