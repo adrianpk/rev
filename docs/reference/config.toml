@@ -1554,6 +1554,8 @@ max_result_bytes = 262144
 
 # Read-only Git navigation uses the same context in both startup profiles.
 [keys.git]
+"z z" = "git-stash-list"
+"z l" = "git-stash-list"
 "b" = "git-refs"
 "y" = "git-refs"
 "h" = "git-log"
@@ -1761,6 +1763,34 @@ max_result_bytes = 262144
 "C-p" = "previous-line"
 "C-n" = "next-line"
 "p" = "previous-line"
+"n" = "next-line"
+"PageUp" = "scroll-down-command"
+"PageDown" = "scroll-up-command"
+"M-<" = "beginning-of-buffer"
+"M->" = "end-of-buffer"
+
+# Exact stash inspection and reviewed saved-file actions in both profiles.
+[keys.git_stash]
+"c" = "git-stash-create"
+"a" = "git-stash-apply"
+"p" = "git-stash-pop"
+"b" = "git-stash-branch"
+"k" = "git-stash-drop"
+"C-x g" = "git-status"
+"q" = "git-quit"
+"g" = "git-refresh"
+"TAB" = "git-toggle-section"
+"RET" = "git-toggle-section"
+"v" = "git-stash-show"
+"$" = "git-processes"
+"M-x" = "execute-extended-command"
+":" = "execute-extended-command"
+"C-g" = "keyboard-quit"
+"C-x C-c" = "save-buffers-kill-terminal"
+"Up" = "previous-line"
+"Down" = "next-line"
+"C-p" = "previous-line"
+"C-n" = "next-line"
 "n" = "next-line"
 "PageUp" = "scroll-down-command"
 "PageDown" = "scroll-up-command"

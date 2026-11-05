@@ -1,5 +1,13 @@
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum GitCommand {
+    StashList,
+    StashCreate,
+    StashShow,
+    StashApply,
+    StashPop,
+    StashBranch,
+    StashDrop,
+
     Status,
     Refs,
     Merge,
@@ -82,6 +90,14 @@ pub enum GitCommand {
 impl GitCommand {
     pub fn name(self) -> &'static str {
         match self {
+            Self::StashList => "git-stash-list",
+            Self::StashCreate => "git-stash-create",
+            Self::StashShow => "git-stash-show",
+            Self::StashApply => "git-stash-apply",
+            Self::StashPop => "git-stash-pop",
+            Self::StashBranch => "git-stash-branch",
+            Self::StashDrop => "git-stash-drop",
+
             Self::Merge => "git-merge",
             Self::MergeFastForward => "git-merge-fast-forward",
             Self::MergeNoFastForward => "git-merge-no-fast-forward",

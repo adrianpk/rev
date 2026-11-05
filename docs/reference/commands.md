@@ -721,6 +721,13 @@ Status reads disk and Git state; it does not save an unsaved source buffer.
 | `git-operation-continue` | Refresh actual Git state and review one compatible family-specific continuation bound to that exact sequence. |
 | `git-operation-skip` | Refresh actual Git state and review a compatible skip; reject a missing or wrong-family sequence. |
 | `git-operation-abort` | Refresh actual Git state and review one compatible abort with exact original lineage; process cancellation is a separate action. |
+| `git-stash-list` | Open a bounded exact stash list; subjects and ordinal labels never supply mutation authority. |
+| `git-stash-create` | Review and stash saved tracked and untracked changes, excluding ignored files; protect affected unsaved buffers. |
+| `git-stash-show` | Inspect the selected full stash object as bounded read-only patch detail with explicit partial status. |
+| `git-stash-apply` | Review and apply one full stash object to checked clean saved state while keeping its stash entry. |
+| `git-stash-pop` | Apply one full stash object and drop only the revalidated captured entry after success; retain the stash on conflict. |
+| `git-stash-branch` | Review a new branch at the selected stash base, restore its full object and remove its checked entry only on success. |
+| `git-stash-drop` | Review removal of one exact stash entry without changing the saved working files or index. |
 | `git-conflict-explain` | Capture exact roles, objects, saved disk text and visiting unsaved result text for the existing optional input-only AI explanation owner; retain a read-only result with no edit/stage/continue authority and mark changed sources as historical. |
 | `git-conflict-use-base` | Review a complete compatible Base side and replace only the exact working file, preserving unmerged index stages. |
 | `git-conflict-use-current` | Review the operation-relative Current side and replace only the checked working file without staging. |

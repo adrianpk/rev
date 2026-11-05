@@ -9,9 +9,11 @@ mod history;
 mod index;
 mod integration;
 mod refs;
+mod repository;
 mod sequences;
 
 pub(super) enum Request {
+    Repository(super::repository::Request),
     Status,
     Conflict(super::conflicts::Request),
     Resolution(super::conflicts::ResolutionRequest),
@@ -30,6 +32,12 @@ pub(super) enum Request {
 impl Request {
     pub fn kind(&self) -> OperationKind {
         match self {
+            Self::Repository(super::repository::Request::Stashes(_)) => OperationKind::Stashes,
+            Self::Repository(super::repository::Request::Show { .. }) => OperationKind::StashShow,
+            Self::Repository(super::repository::Request::Prepare { .. }) => {
+                OperationKind::StashPrepare
+            }
+            Self::Repository(_) => OperationKind::Stash,
             Self::ConflictExplain(_) => OperationKind::ConflictExplain,
             Self::Resolution(super::conflicts::ResolutionRequest::Prepare { .. }) => {
                 OperationKind::ConflictPrepare
@@ -77,8 +85,18 @@ impl Request {
 }
 
 pub(super) enum Publication {
+    Stashes(Stashes),
+    StashDetail(StashDetail),
+    StashPlan(StashPlan),
+    StashResult {
+        stashes: Stashes,
+        sequence: Sequence,
+    },
     Status(Observation),
-    Refs { refs: Refs, changed: bool },
+    Refs {
+        refs: Refs,
+        changed: bool,
+    },
     History(super::history::ResultData),
     Diff(Diff),
     Composition(Composition),
@@ -94,8 +112,18 @@ pub(super) enum Publication {
 }
 
 enum Candidate {
+    Stashes(Stashes),
+    StashDetail(StashDetail),
+    StashPlan(StashPlan),
+    StashResult {
+        stashes: Stashes,
+        sequence: Sequence,
+    },
     Status(Identity, Option<Status>),
-    Refs { refs: Refs, changed: bool },
+    Refs {
+        refs: Refs,
+        changed: bool,
+    },
     History(super::history::ResultData),
     Diff(diff::Prepared),
     Composition(commit::Prepared),
@@ -143,7 +171,8 @@ pub(super) fn start(
                 Request::Refs(
                     super::refs::Request::Fetch { .. } | super::refs::Request::Push(_),
                 ) => policy.transport_timeout_seconds,
-                Request::Bisect(
+                Request::Repository(super::repository::Request::Stash(_))
+                | Request::Bisect(
                     super::bisect::Request::Start(_) | super::bisect::Request::Control { .. },
                 )
                 | Request::Application(super::sequences::Request::Start(_))
@@ -191,6 +220,7 @@ pub(super) fn start(
                 retained: None,
             };
             let observed = match request {
+                Request::Repository(request) => runner.repository(request, &mut admission),
                 Request::ConflictExplain(conflict) => {
                     runner.explain_conflict(conflict, &mut admission)
                 }
@@ -608,6 +638,12 @@ impl Runner {
         };
         record.admission = admission.split(record.bytes() + 4096);
         let publication = observed.and_then(|candidate| match candidate {
+            Candidate::Stashes(stashes) => Ok(Publication::Stashes(stashes)),
+            Candidate::StashDetail(detail) => Ok(Publication::StashDetail(detail)),
+            Candidate::StashPlan(plan) => Ok(Publication::StashPlan(plan)),
+            Candidate::StashResult { stashes, sequence } => {
+                Ok(Publication::StashResult { stashes, sequence })
+            }
             Candidate::BisectPlan(plan) => Ok(Publication::BisectPlan(plan)),
             Candidate::ApplicationPlan(plan) => Ok(Publication::ApplicationPlan(plan)),
             Candidate::Autosquash(plan) => Ok(Publication::Autosquash(plan)),

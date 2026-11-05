@@ -18,6 +18,7 @@ mod lines;
 use lines::Wrapped;
 mod processes;
 pub(super) mod refs;
+pub(in crate::session) mod repository;
 mod shutdown;
 
 pub(super) struct Work {
@@ -39,6 +40,7 @@ pub(super) struct Work {
     ancestry: history::Inspection,
     refs: refs::Inspection,
     conflicts: conflicts::Inspection,
+    repository: repository::Inspection,
     process_selected: Option<OperationId>,
     process_top: usize,
     detail_top: usize,
@@ -54,6 +56,7 @@ enum Page {
     Refs,
     Sequence,
     Conflict,
+    Stash,
     Revision,
     Reflog,
     Blame,
@@ -84,6 +87,7 @@ struct Painted {
     refs: Option<OperationId>,
     refs_top: usize,
     conflict: (Option<OperationId>, usize),
+    stash: (Option<OperationId>, usize),
     sequence_top: usize,
     expanded: bool,
     expanded_hunk: Option<crate::git::HunkId>,
@@ -222,6 +226,7 @@ impl Work {
             ancestry,
             refs,
             conflicts,
+            repository: repository::Inspection::new(),
             process_selected: None,
             process_top: 0,
             detail_top: 0,
@@ -337,6 +342,13 @@ impl Session {
                 GitCommand::ConflictStage => {
                     self.prepare_git_resolution(crate::git::ResolutionAction::Stage)
                 }
+                GitCommand::StashList => self.open_git_stashes(),
+                GitCommand::StashShow => self.show_git_stash(),
+                GitCommand::StashCreate => self.prompt_git_stash(repository::Intent::Create),
+                GitCommand::StashApply => self.prompt_git_stash(repository::Intent::Apply),
+                GitCommand::StashPop => self.prompt_git_stash(repository::Intent::Pop),
+                GitCommand::StashBranch => self.prompt_git_stash(repository::Intent::Branch),
+                GitCommand::StashDrop => self.prompt_git_stash(repository::Intent::Drop),
                 GitCommand::Conflicts => self.open_git_sequence(),
                 GitCommand::ConflictExplain => self.explain_git_conflict(),
                 GitCommand::ConflictVisit => self.open_git_conflict(),
@@ -527,7 +539,7 @@ impl Session {
         }
     }
     fn quit_git(&mut self) -> Action {
-        if !self.git.state.menu && self.quit_git_ref_detail() {
+        if !self.git.state.menu && (self.quit_git_ref_detail() || self.quit_git_stash_detail()) {
             return Action::Redraw;
         }
 
@@ -539,7 +551,7 @@ impl Session {
             return Action::Redraw;
         }
         match self.git.page {
-            Page::Refs | Page::History | Page::Sequence => {
+            Page::Stash | Page::Refs | Page::History | Page::Sequence => {
                 self.git.page = Page::Status;
                 return Action::Redraw;
             }
@@ -585,6 +597,9 @@ impl Session {
         })
     }
     fn refresh_git(&mut self) -> Action {
+        if self.git.visible && self.git.page == Page::Stash {
+            return self.open_git_stashes();
+        }
         if self.git.visible && self.git.page == Page::Conflict {
             self.git.page = Page::Sequence;
             return self.open_git_sequence();
@@ -629,6 +644,7 @@ impl Session {
     }
     fn move_git(&mut self, distance: usize, backward: bool) -> Action {
         match self.git.page {
+            Page::Stash => return self.move_git_stashes(distance, backward),
             Page::Refs => return self.move_git_refs(distance, backward),
             Page::Sequence => return self.move_git_sequence(distance, backward),
             Page::Conflict => return self.move_git_conflict(distance, backward),
@@ -677,6 +693,9 @@ impl Session {
         Action::Redraw
     }
     fn toggle_git_section(&mut self) -> Action {
+        if self.git.page == Page::Stash {
+            return self.show_git_stash();
+        }
         if self.git.page == Page::Refs {
             return self.toggle_git_ref_detail();
         }
@@ -737,6 +756,12 @@ impl Session {
             return Action::Wait;
         }
         for update in updates {
+            if self.git.repository.request == Some(update.operation)
+                || self.git.repository.preparing == Some(update.operation)
+            {
+                self.publish_git_repository(&update);
+                continue;
+            }
             if self
                 .git
                 .refs
@@ -876,6 +901,8 @@ impl Session {
     }
     pub(super) fn git_input(&mut self, event: &Event) -> Option<Action> {
         self.input
+            .set_git_stash(self.git.visible && self.git.page == Page::Stash);
+        self.input
             .set_git_conflict(self.git.visible && self.git.page == Page::Conflict);
         self.input
             .set_git_sequence(self.git.visible && self.git.page == Page::Sequence);
@@ -930,6 +957,7 @@ impl Session {
                             && painted.sequence_top == self.git.refs.sequence_top
                             && painted.context == self.git.state.context
                             && painted.generation == self.git.observation().map(|o| o.generation)
+                            && painted.stash == self.git.stash_token()
                             && painted.inspected == self.git.inspection_token()
                             && painted.history == self.git.history().map(|h| h.id)
                             && painted.revision == self.git.revision().map(|d| d.id)
@@ -973,6 +1001,8 @@ impl Session {
                             self.select_git_sequence(
                                 self.git.refs.sequence_top + usize::from(mouse.row),
                             )
+                        } else if self.git.page == Page::Stash {
+                            self.select_git_stash(self.git.repository.top + index)
                         } else if self.git.page == Page::Refs {
                             self.select_git_ref(self.git.refs.top + index)
                         } else if self.git.page == Page::Processes {
@@ -1056,6 +1086,9 @@ impl Session {
                 Page::Sequence => {
                     " Git Operation  g refresh  $ processes  Up/Down scroll  q Status"
                 }
+                Page::Stash => {
+                    " Git Stashes  c create  v inspect  a apply  p pop  b branch  k drop  g refresh  q Status"
+                }
                 Page::Refs => {
                     " Git Refs  n branch  S switch  R rename  D delete  t/T tags  ? actions  g refresh  q Status"
                 }
@@ -1104,6 +1137,9 @@ impl Session {
                         .to_string(),
                         false,
                     );
+                }
+                if self.git.page == Page::Stash {
+                    return self.git.stash_row(row, usize::from(self.size.width.max(1)));
                 }
                 if self.git.page == Page::Refs {
                     return self.git.refs_row(row, usize::from(self.size.width.max(1)));
@@ -1315,6 +1351,7 @@ impl Session {
         drop(comparison_rows);
         drop(process_rows);
         self.git.painted = Some(Painted {
+            stash: self.git.stash_token(),
             context: self.git.state.context,
             generation: self.git.observation().map(|o| o.generation),
             top: self.git.state.top,

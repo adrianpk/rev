@@ -63,6 +63,9 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
   Integration protects unsaved sources and reports in-progress, completed,
   skipped and aborted outcomes. Changed files follow your reload policy,
   protecting unsaved source text.
+  Open Stashes with z z or z l. Inspect full stash objects, create a stash from
+  saved tracked and untracked changes, or review apply, pop, branch and drop.
+  Protect affected unsaved files and retain the stash when restoration conflicts.
   Return to the same windows
   and terminals. Inspect active and
   recent Git processes, cancel a selected operation, and confirm before quitting

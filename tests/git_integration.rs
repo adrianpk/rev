@@ -29,3 +29,6 @@ mod sequences;
 
 #[path = "git_integration/conflicts.rs"]
 mod conflicts;
+
+#[path = "git_integration/repository.rs"]
+mod repository;

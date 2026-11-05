@@ -52,6 +52,7 @@ pub(super) fn bindings(context: Context) -> &'static [(&'static str, &'static st
         Context::GitInspect => GIT_INSPECT,
         Context::GitRefs => GIT_REFS,
         Context::GitSequence => GIT_SEQUENCE,
+        Context::GitStash => GIT_STASH,
         Context::GitConflict => GIT_CONFLICT,
         Context::GitCommit => GIT_COMMIT,
         _ => modal_bindings(context),
@@ -270,6 +271,34 @@ const GIT_INSPECT: &[(&str, &str)] = &[
     ("M->", "end-of-buffer"),
 ];
 
+const GIT_STASH: &[(&str, &str)] = &[
+    ("c", "git-stash-create"),
+    ("a", "git-stash-apply"),
+    ("p", "git-stash-pop"),
+    ("b", "git-stash-branch"),
+    ("k", "git-stash-drop"),
+    ("C-x g", "git-status"),
+    ("q", "git-quit"),
+    ("g", "git-refresh"),
+    ("TAB", "git-toggle-section"),
+    ("RET", "git-toggle-section"),
+    ("v", "git-stash-show"),
+    ("$", "git-processes"),
+    ("M-x", "execute-extended-command"),
+    (":", "execute-extended-command"),
+    ("C-g", "keyboard-quit"),
+    ("C-x C-c", "save-buffers-kill-terminal"),
+    ("Up", "previous-line"),
+    ("Down", "next-line"),
+    ("C-p", "previous-line"),
+    ("C-n", "next-line"),
+    ("n", "next-line"),
+    ("PageUp", "scroll-down-command"),
+    ("PageDown", "scroll-up-command"),
+    ("M-<", "beginning-of-buffer"),
+    ("M->", "end-of-buffer"),
+];
+
 pub(super) const GIT_COMMIT: &[(&str, &str)] = &[
     ("C-Enter", "git-commit-submit"),
     ("C-c C-c", "git-commit-submit"),
@@ -278,6 +307,8 @@ pub(super) const GIT_COMMIT: &[(&str, &str)] = &[
 ];
 
 const GIT: &[(&str, &str)] = &[
+    ("z z", "git-stash-list"),
+    ("z l", "git-stash-list"),
     ("b", "git-refs"),
     ("y", "git-refs"),
     ("h", "git-log"),

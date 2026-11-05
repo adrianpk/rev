@@ -112,7 +112,14 @@ pub enum Command {
 }
 
 impl Command {
-    pub const ALL: [Self; 547] = [
+    pub const ALL: [Self; 554] = [
+        Self::Git(GitCommand::StashList),
+        Self::Git(GitCommand::StashCreate),
+        Self::Git(GitCommand::StashShow),
+        Self::Git(GitCommand::StashApply),
+        Self::Git(GitCommand::StashPop),
+        Self::Git(GitCommand::StashBranch),
+        Self::Git(GitCommand::StashDrop),
         Self::Git(GitCommand::Status),
         Self::Git(GitCommand::Refs),
         Self::Git(GitCommand::Merge),

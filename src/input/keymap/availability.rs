@@ -80,6 +80,7 @@ impl Context {
             | Self::GitInspect
             | Self::GitRefs
             | Self::GitSequence
+            | Self::GitStash
             | Self::GitConflict => {
                 matches!(
                     target,

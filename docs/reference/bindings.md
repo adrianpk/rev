@@ -592,6 +592,13 @@ For live terminal key ownership and copy controls, see the
 | Named command | `git-operation-continue` | Review continuation against the fresh actual compatible family. |
 | Named command | `git-operation-skip` | Review skipping against the fresh actual compatible family. |
 | Named command | `git-operation-abort` | Review abort against exact original lineage and fresh Git state. |
+| `z z`, `z l` in Status | `git-stash-list` | Open a bounded exact stash list; subjects and ordinal labels never supply mutation authority. |
+| `c` in Stash | `git-stash-create` | Review and stash saved tracked and untracked changes, excluding ignored files; protect affected unsaved buffers. |
+| `v`, Return in Stash | `git-stash-show` | Inspect the selected full stash object as bounded read-only patch detail with explicit partial status. |
+| `a` in Stash | `git-stash-apply` | Review and apply one full stash object to checked clean saved state while keeping its stash entry. |
+| `p` in Stash | `git-stash-pop` | Apply one full stash object and drop only the revalidated captured entry after success; retain the stash on conflict. |
+| `b` in Stash | `git-stash-branch` | Review a new branch at the selected stash base, restore its full object and remove its checked entry only on success. |
+| `k` in Stash | `git-stash-drop` | Review removal of one exact stash entry without changing the saved working files or index. |
 | `H` in Conflict | `git-conflict-explain` | Send copied roles and saved/unsaved source through optional input-only AI explanation; its read-only answer grants no Git action. |
 | `1` in Conflict | `git-conflict-use-base` | Review complete Base replacement of only the checked working file. |
 | `2` in Conflict | `git-conflict-use-current` | Review complete operation-relative Current replacement without staging. |
@@ -872,6 +879,7 @@ native cancellation. Prompts use `keys.minibuffer`.
 
 | Keys | Target |
 | --- | --- |
+| `z z`, `z l` | `git-stash-list` |
 | `C-x g` | `git-status` |
 | `C-x C-c` | `save-buffers-kill-terminal` |
 | `M-x`, `:` | `execute-extended-command` |
@@ -1126,6 +1134,45 @@ state, requiring a fresh inspection before any later resolution action.
 | `C-n` | `next-line` |
 | `p` | `previous-line` |
 | `n` | `next-line` |
+| `PageUp` | `scroll-down-command` |
+| `PageDown` | `scroll-up-command` |
+| `M-<` | `beginning-of-buffer` |
+| `M->` | `end-of-buffer` |
+
+### Git stash defaults and availability
+
+`keys.git_stash` owns the native Stashes list in both profiles. Status z z or
+z l opens it. Selection retains full object identity; refresh never substitutes
+an entry that inherited an ordinal. Return or v toggles bounded read-only patch
+detail. All changing actions prepare exact saved-state review and require y,
+C-Enter or C-c C-c; Return alone does not accept. n and C-g cancel.
+
+Create includes saved tracked and untracked files, excluding ignored files.
+Apply/pop/branch require a checked clean saved index and worktree. Affected
+unsaved visiting sources reject without saving; unrelated unsaved text stays
+owned. Pop and branch restore the full object before a separately checked drop.
+Conflicts retain the stash and expose actual unmerged paths through git-conflicts;
+no sequence continuation or rollback is inferred. Reached caps and uncertain
+effects remain visible. Existing file automatic/ask reload policy applies.
+
+| Keys | Target |
+| --- | --- |
+| `c` | `git-stash-create` |
+| `a` | `git-stash-apply` |
+| `p` | `git-stash-pop` |
+| `b` | `git-stash-branch` |
+| `k` | `git-stash-drop` |
+| `C-x g` | `git-status` |
+| `q` | `git-quit` |
+| `g` | `git-refresh` |
+| `TAB`, `RET` | `git-toggle-section` |
+| `v` | `git-stash-show` |
+| `$` | `git-processes` |
+| `M-x`, `:` | `execute-extended-command` |
+| `C-g` | `keyboard-quit` |
+| `C-x C-c` | `save-buffers-kill-terminal` |
+| `Up`, `C-p` | `previous-line` |
+| `Down`, `C-n`, `n` | `next-line` |
 | `PageUp` | `scroll-down-command` |
 | `PageDown` | `scroll-up-command` |
 | `M-<` | `beginning-of-buffer` |

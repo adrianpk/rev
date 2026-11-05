@@ -78,6 +78,7 @@ pub(in crate::session) struct Consent {
     _admission: crate::git::budget::Lease,
 }
 pub(super) enum RefAction {
+    Stash(Arc<crate::git::StashPlan>),
     Resolution(Arc<crate::git::Resolution>),
     Branch(BranchAction),
     CreateTag(Arc<crate::git::TagIntent>),
@@ -331,7 +332,12 @@ impl Session {
     pub(in crate::session) fn cancel_git_ref(&mut self) -> Option<Action> {
         if !matches!(
             self.pending,
-            Some(Pending::GitRef(_) | Pending::GitBranchName(_) | Pending::GitTagPrompt(_))
+            Some(
+                Pending::GitRef(_)
+                    | Pending::GitBranchName(_)
+                    | Pending::GitTagPrompt(_)
+                    | Pending::GitRepository(_)
+            )
         ) {
             return None;
         }
@@ -626,7 +632,9 @@ impl Session {
             Ok(a) => a,
             Err(e) => return self.error(&e),
         };
-        let prompt = if matches!(action, RefAction::Resolution(_)) {
+        let prompt = if matches!(action, RefAction::Stash(_)) {
+            "Confirm checked stash action? [y/n]"
+        } else if matches!(action, RefAction::Resolution(_)) {
             "Confirm exact conflict resolution? [y/n]"
         } else if matches!(action, RefAction::Push(_)) {
             "Confirm reviewed upstream push? [y/n]"
@@ -691,6 +699,47 @@ impl Session {
             _admission: admission,
         })
     }
+    pub(super) fn git_stash_sources(
+        &self,
+        plan: &crate::git::StashPlan,
+    ) -> Result<Sources, String> {
+        let root = plan
+            .source
+            .refs
+            .observation
+            .identity
+            .worktree
+            .as_ref()
+            .ok_or("Stash worktree unavailable")?;
+        let count = self.buffers.iter().count();
+        let admission = self
+            .git
+            .engine
+            .source_admission(count * std::mem::size_of::<Stamp>())?;
+        let mut stamps = Vec::with_capacity(count);
+        for buffer in self.buffers.iter() {
+            let related = buffer.file().is_some_and(|f| {
+                plan.paths.iter().any(|p| {
+                    let target = root.join(p);
+                    f.path() == target
+                        || std::fs::canonicalize(&target)
+                            .is_ok_and(|p| std::fs::canonicalize(f.path()).is_ok_and(|q| p == q))
+                })
+            });
+            if related {
+                if buffer.is_modified() {
+                    return Err(
+                        "Stash action rejected: affected visiting buffer has unsaved text".into(),
+                    );
+                }
+                stamps.push(buffer.stamp());
+            }
+        }
+        Ok(Sources {
+            stamps,
+            _admission: admission,
+        })
+    }
     pub(super) fn git_resolution_sources(
         &self,
         conflict: &crate::git::Conflict,
@@ -740,7 +789,9 @@ impl Session {
     ) -> Action {
         self.input.cancel();
         if !accepted {
-            return self.message(if matches!(consent.action, RefAction::Resolution(_)) {
+            return self.message(if matches!(consent.action, RefAction::Stash(_)) {
+                "Stash action canceled"
+            } else if matches!(consent.action, RefAction::Resolution(_)) {
                 "Conflict resolution canceled"
             } else {
                 "Local ref action canceled"
@@ -751,7 +802,8 @@ impl Session {
         }
         if matches!(
             consent.action,
-            RefAction::Branch(BranchAction::Switch { .. })
+            RefAction::Stash(_)
+                | RefAction::Branch(BranchAction::Switch { .. })
                 | RefAction::Resolution(_)
                 | RefAction::Integration { .. }
                 | RefAction::Autosquash(_)
@@ -761,6 +813,7 @@ impl Session {
                 | RefAction::Control { .. }
         ) {
             let sources = match &consent.action {
+                RefAction::Stash(plan) => self.git_stash_sources(plan),
                 RefAction::Resolution(plan) => self.git_resolution_sources(&plan.conflict),
                 _ => self.git_branch_sources(&consent.refs),
             };
@@ -778,6 +831,7 @@ impl Session {
                 Err(e) => return self.error(&e),
             }
         }
+        let stash = matches!(consent.action, RefAction::Stash(_));
         let resolution = matches!(consent.action, RefAction::Resolution(_));
         let integration = matches!(
             consent.action,
@@ -789,6 +843,7 @@ impl Session {
                 | RefAction::Control { .. }
         );
         let result = match consent.action {
+            RefAction::Stash(plan) => self.git.engine.change_stash(plan),
             RefAction::Resolution(plan) => self.git.engine.resolve_conflict(plan),
             RefAction::Branch(action) => self.git.engine.branch(consent.refs, action),
             RefAction::CreateTag(intent) => self.git.engine.create_tag(intent, ""),
@@ -811,14 +866,18 @@ impl Session {
         };
         match result {
             Ok(id) => {
-                if resolution {
+                if stash {
+                    self.git.repository.request = Some(id);
+                } else if resolution {
                     self.git.conflicts.resolving = Some(id);
                 } else if integration {
                     self.git.refs.integration_request = Some(id);
                 } else {
                     self.git.refs.request = Some(id);
                 }
-                self.message(if resolution {
+                self.message(if stash {
+                    "Checking confirmed stash object and saved sources"
+                } else if resolution {
                     "Checking the confirmed conflict path, saved result and exact stage fingerprint"
                 } else if integration {
                     "Checking confirmed integration policy and exact ref target"

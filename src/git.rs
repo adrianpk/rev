@@ -25,6 +25,8 @@ mod bisect;
 pub use bisect::{BisectAction, BisectPlan, BisectResult, BisectState};
 mod sequences;
 pub use sequences::{ApplyKind, ApplyPlan, ApplyProgress, ApplyStep, RevisionChoice};
+mod repository;
+pub use repository::{StashAction, StashDetail, StashEntry, StashPlan, Stashes};
 mod refs;
 pub use refs::{BranchAction, PushIntent, RefKind, Reference, Refs, TagIntent, TagKind};
 mod status;
@@ -122,6 +124,10 @@ pub struct OperationId(u64);
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum OperationKind {
+    Stashes,
+    StashShow,
+    StashPrepare,
+    Stash,
     Status,
     Diff,
     Stage,
@@ -239,6 +245,9 @@ pub struct Context {
     pub failure: Option<OperationId>,
     pub detail: Option<Arc<Diff>>,
     pub detail_failure: Option<OperationId>,
+    pub stashes: Option<Arc<Stashes>>,
+    pub stash_detail: Option<Arc<StashDetail>>,
+    pub stash_plan: Option<Arc<StashPlan>>,
     pub refs: Option<Arc<Refs>>,
     pub sequence: Option<Arc<Sequence>>,
     pub conflict: Option<Arc<Conflict>>,
@@ -606,7 +615,8 @@ impl Repositories {
                 let progress = *active.progress.lock().expect("Git progress owner");
                 if matches!(
                     progress.kind,
-                    OperationKind::Stage
+                    OperationKind::Stash
+                        | OperationKind::Stage
                         | OperationKind::Unstage
                         | OperationKind::Discard
                         | OperationKind::Commit
@@ -666,6 +676,9 @@ impl Repositories {
                             failure: None,
                             detail: None,
                             detail_failure: None,
+                            stashes: None,
+                            stash_detail: None,
+                            stash_plan: None,
                             refs: None,
                             sequence: None,
                             conflict: None,
@@ -696,6 +709,62 @@ impl Repositories {
                         );
                         None
                     }
+                }
+                Ok(work::Publication::Stashes(stashes)) => {
+                    if let Some(context) = self
+                        .contexts
+                        .iter_mut()
+                        .find(|c| c.id == stashes.observation.context)
+                    {
+                        context.observation = stashes.observation.clone();
+                        context.stashes = Some(Arc::new(stashes));
+                        context.stash_plan = None;
+                        context.failure = None;
+                        published = true;
+                    }
+                    progress.context
+                }
+                Ok(work::Publication::StashDetail(detail)) => {
+                    if let Some(context) = self.contexts.iter_mut().find(|c| {
+                        c.id == detail.stashes.observation.context
+                            && c.stashes
+                                .as_ref()
+                                .is_some_and(|s| Arc::ptr_eq(s, &detail.stashes))
+                    }) {
+                        context.stash_detail = Some(Arc::new(detail));
+                        published = true;
+                    }
+                    progress.context
+                }
+                Ok(work::Publication::StashPlan(plan)) => {
+                    if let Some(context) = self.contexts.iter_mut().find(|c| {
+                        c.id == plan.stashes.observation.context
+                            && c.stashes
+                                .as_ref()
+                                .is_some_and(|s| Arc::ptr_eq(s, &plan.stashes))
+                    }) {
+                        context.stash_plan = Some(Arc::new(plan));
+                        published = true;
+                    }
+                    progress.context
+                }
+                Ok(work::Publication::StashResult { stashes, sequence }) => {
+                    if let Some(context) = self
+                        .contexts
+                        .iter_mut()
+                        .find(|c| c.id == stashes.observation.context)
+                    {
+                        context.observation = stashes.observation.clone();
+                        context.refs = Some(sequence.refs.clone());
+                        context.sequence = Some(Arc::new(sequence));
+                        context.stashes = Some(Arc::new(stashes));
+                        context.stash_plan = None;
+                        context.stash_detail = None;
+                        context.failure = None;
+                        context.composition = None;
+                        published = true;
+                    }
+                    progress.context
                 }
                 Ok(work::Publication::BisectPlan(plan)) => {
                     if let Some(context) = self.contexts.iter_mut().find(|c| {
@@ -949,11 +1018,13 @@ impl Repositories {
                         .and_then(|id| self.contexts.iter_mut().find(|c| c.id == id))
                     {
                         match progress.kind {
-                            OperationKind::Status | OperationKind::Refs => {
-                                context.failure = Some(record.id)
-                            }
+                            OperationKind::Stashes
+                            | OperationKind::Status
+                            | OperationKind::Refs => context.failure = Some(record.id),
                             OperationKind::Diff => context.detail_failure = Some(record.id),
-                            OperationKind::CommitPrepare
+                            OperationKind::StashShow
+                            | OperationKind::StashPrepare
+                            | OperationKind::CommitPrepare
                             | OperationKind::Conflict
                             | OperationKind::ConflictExplain
                             | OperationKind::ConflictPrepare
@@ -964,7 +1035,8 @@ impl Repositories {
                             | OperationKind::AutosquashPrepare
                             | OperationKind::PushPrepare
                             | OperationKind::TagPrepare => {}
-                            OperationKind::Stage
+                            OperationKind::Stash
+                            | OperationKind::Stage
                             | OperationKind::ConflictResolve
                             | OperationKind::Unstage
                             | OperationKind::Discard

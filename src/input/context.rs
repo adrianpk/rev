@@ -39,6 +39,9 @@ impl Input {
         if self.workspace_git_commit {
             return MapContext::GitCommit;
         }
+        if self.workspace_git && self.workspace_git_stash {
+            return MapContext::GitStash;
+        }
         if self.workspace_git && self.workspace_git_conflict {
             return MapContext::GitConflict;
         }
@@ -204,6 +207,13 @@ impl Input {
         }
     }
 
+    pub(crate) fn set_git_stash(&mut self, active: bool) {
+        if self.workspace_git_stash != active {
+            self.clear_prefix();
+            self.suppress_repeat = true;
+            self.workspace_git_stash = active;
+        }
+    }
     pub(crate) fn set_git_conflict(&mut self, active: bool) {
         if self.workspace_git_conflict != active {
             self.clear_prefix();
