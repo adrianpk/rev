@@ -253,7 +253,7 @@ struct Active {
     progress: Arc<Mutex<Progress>>,
     cancel: Cancellation,
     thread: Option<JoinHandle<work::Finished>>,
-    retained: Option<capture::Owned>,
+    retained: Option<work::Retained>,
     record: Option<Record>,
 }
 
@@ -518,7 +518,7 @@ impl Repositories {
         if active.retained.is_some() {
             let progress = active.progress.clone();
             let wake = self.wake.clone();
-            let owned = Arc::new(Mutex::new(None::<(capture::Owned, Record)>));
+            let owned = Arc::new(Mutex::new(None::<(work::Retained, Record)>));
             let transfer = owned.clone();
             // The worker must exist before ownership leaves the registry.
             let (send, receive) = std::sync::mpsc::sync_channel::<()>(1);
@@ -531,7 +531,7 @@ impl Repositories {
                         .expect("Git cleanup owner")
                         .take()
                         .expect("owned Git cleanup");
-                    let result = child.stop(false);
+                    let result = child.child.stop(false);
                     record.exit = result.as_ref().ok().copied();
                     record.ended = Instant::now();
                     record.outcome = if result.is_ok() {
@@ -540,14 +540,14 @@ impl Repositories {
                         Outcome::CleanupPending
                     };
                     record.diagnostic = result.err();
-                    if !record_cleanup_pending(&child) {
+                    if !record_cleanup_pending(&child.child) {
                         progress.lock().expect("Git progress owner").child = None;
                     }
                     wake();
                     work::Finished {
                         publication: Err("Git cancelled".into()),
                         record,
-                        retained: (record_cleanup_pending(&child)).then_some(child),
+                        retained: (record_cleanup_pending(&child.child)).then_some(child),
                     }
                 })
                 .map_err(|e| format!("Start Git cleanup worker: {e}"))?;

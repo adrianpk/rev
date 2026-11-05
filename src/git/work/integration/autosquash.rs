@@ -167,6 +167,9 @@ impl Runner {
             todo.push(b'\n');
         }
         self.todo_editor = crate::process::input::stage(Some(&todo))?;
+        // The descriptor can outlive this worker when cleanup is retained.
+        // Move its exact byte reservation alongside that process owner.
+        self.driver_admission = Some(admission.split(size));
         Ok([
             "rebase",
             "--interactive",

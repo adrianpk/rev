@@ -73,10 +73,17 @@ enum Candidate {
     Autosquash(AutosquashPlan),
 }
 
+/// A retained changing child keeps its sealed driver reservation until the
+/// same owner has completed cleanup. Diagnostic records have a separate lease.
+pub(super) struct Retained {
+    pub child: capture::Owned,
+    _driver: Option<Lease>,
+}
+
 pub(super) struct Finished {
     pub publication: Result<Publication, String>,
     pub record: Record,
-    pub retained: Option<capture::Owned>,
+    pub retained: Option<Retained>,
 }
 
 pub(super) fn start(
@@ -130,6 +137,7 @@ pub(super) fn start(
                 completion: None,
                 accept_message: false,
                 todo_editor: None,
+                driver_admission: None,
                 operation_failure: None,
                 failure_verified: false,
                 argv: Vec::new(),
@@ -188,6 +196,7 @@ struct Runner {
     completion: Option<Outcome>,
     accept_message: bool,
     todo_editor: Option<std::fs::File>,
+    driver_admission: Option<Lease>,
     operation_failure: Option<String>,
     failure_verified: bool,
     argv: Vec<OsString>,
@@ -606,7 +615,10 @@ impl Runner {
         Finished {
             publication,
             record,
-            retained: self.retained,
+            retained: self.retained.map(|child| Retained {
+                child,
+                _driver: self.driver_admission,
+            }),
         }
     }
 }

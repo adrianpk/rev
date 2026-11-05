@@ -78,7 +78,9 @@ existing detail limit, 1 MiB worker scratch and shared 32 MiB Git budget.
 Symlinked/oversized state rejects. Metadata and HEAD are read again before
 publication. Observation and changing-operation timeouts keep their existing
 independent bounds. Revalidation does not claim an exclusive transaction against
-external Git clients. No dependency or persistent repository store was added.
+external Git clients. The sealed autosquash descriptor carries its exact byte reservation with a
+retained cleanup owner, independently of diagnostic-record retention. No
+dependency or persistent repository store was added.
 
 ## Contracts Added or Changed
 
@@ -126,6 +128,13 @@ specific boundaries. Earlier development checks also exposed a completed-merge
 index lookup, one strict-Clippy iterator requirement and missing primary binding
 catalog rows; all were corrected without weakening checks, assertions, fixture
 5-second deadlines or resource limits.
+
+The first final controller batch passed all eight checks at
+`87eb209b9385c865b64e7cf73582594ae62fccc8` (receipt
+`RBFWG5G2NZ5TTCTFGOGQCT2DDM`). Before handoff, the new sealed-driver lifetime
+was corrected to carry its memory reservation through retained cleanup. The
+resulting HEAD requires a new complete receipt; the earlier receipt is not
+candidate evidence.
 
 Final ordered check contract, executed through the controller after the
 PR-reference follow-up commit; the exact clean-HEAD receipt is retained outside
