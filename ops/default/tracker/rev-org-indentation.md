@@ -7,7 +7,7 @@ Plan: [Org Indentation Delivery](../plan/rev-org-indentation.md)
 Spec: [Org Visual Indentation](../spec/editor-org-indentation.md)
 Model: [Org Visual Indentation Model](../spec/editor-org-indentation-model.md)
 Approved: product owner, 2026-11-05; specification and explicit autonomous four-slice Looper startup through dev
-Active slice: Slice 4 - Joint acceptance and guidance
+Active slice: None - all four slices integrated; combined gate pending
 Progress owner: retained Looper checkpoint and canonical validation receipts
 
 ## Canonical slice map
@@ -66,13 +66,14 @@ Validation: all six required commands passed through Looper for that exact clean
 
 ## Slice 4: Joint acceptance and guidance
 
-State: reviewing
+State: delivered
 Dependency: Slice 3 integrated
 Requirements: OIN01-OIN05
 Implementation: `da5fc782b23df9d5d360ba306e7fd8629006b7a8` (T4.1-T4.3)
 PR: `#279`
 Report: [Slice 4](../report/slices/rev-org-indentation/slice-4-acceptance.md)
-Validation: all six required commands passed locally; 32 selected native tests and eight focused cache/work cases passed. Development native and real PTY journeys passed both profiles; three normal-release resource cases passed with original bounds. Documentation validates 596 commands, 281 settings and 560 links/anchors. Looper records exact clean-HEAD evidence after the PR-reference commit; the combined gate and strict Spore build remain controller-owned.
+Integrated: `6c010648a49847b54f914063a2261e7403dd8c34`
+Validation: all six required commands passed through Looper for that exact clean HEAD; 32 selected native tests and eight focused cache/work cases passed locally. Development native and real PTY journeys passed both profiles; three normal-release resource cases passed with original bounds. Documentation validates 596 commands, 281 settings and 560 links/anchors. Canonical PR #279 is merged; the combined gate and strict Spore build remain controller-owned.
 
 - [x] T4.1: Deliver representative native/resource/PTY acceptance with the Rust/Bash entrypoint.
 - [x] T4.2: Update Markdown-derived Spore guidance, references and affected specification clauses.
@@ -80,9 +81,15 @@ Validation: all six required commands passed locally; 32 selected native tests a
 
 ## Final gate and closure
 
-The plan owns the ordered slice and final-gate commands. Slices 1-3 are
-integrated; Slice 4 is implemented for review. The combined delivery gate remains pending.
-Controller identity and live execution progress belong to Looper. After all four slices integrate, it
+Gate prerequisites are ready: Rust/Cargo 1.98, the required shell/PTY utilities
+and Spore are available. Offline locked Cargo metadata resolves all selected
+targets; acceptance helpers and publication inputs are present. Both gate
+entrypoint scripts pass Bash syntax checks. The combined gate and strict Spore
+build have not run during this preparation.
+
+The plan owns the ordered slice and final-gate commands. All four slices are
+integrated and their reports are delivered. The combined delivery gate remains
+pending. Controller identity and live execution progress belong to Looper; it
 validates the exact clean dev candidate. Record its hash, receipt, successful
 commands, report introductions and evidence limits here, then mark the paired
 specification/model, plan and tracker Completed. A failed gate remains open;

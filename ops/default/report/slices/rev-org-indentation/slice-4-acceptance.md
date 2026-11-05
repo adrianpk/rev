@@ -1,11 +1,12 @@
 # Slice 4: Joint acceptance and guidance
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-org-indentation
 Plan: [Org Indentation Delivery](../../../plan/rev-org-indentation.md)
 Tracker: [Org Indentation Tracker](../../../tracker/rev-org-indentation.md)
 Branch: `test/rev-org-indentation-04-acceptance`
 PR: `#279`
+Integrated: `6c010648a49847b54f914063a2261e7403dd8c34`
 
 ## Purpose
 
@@ -40,7 +41,7 @@ The following map connects the four reports to their implementation and integrat
 | 1 | OIN01, OIN03, OIN05; T1.1-T1.3 | `54395f4feea63a7cc0de34582f4d18c3840c09de` | #276 at `3849381e48c4951a33cba391201fd0bc7cb4f840` | [Projection](slice-1-projection.md) |
 | 2 | OIN01-OIN03, OIN05; T2.1-T2.3 | `66e6654eeba004dd997c74144c55253aca5bc9b6` | #277 at `8e839d21cdb029012d6f5c6400c6f5abec6cbff3` | [Presentation](slice-2-presentation.md) |
 | 3 | OIN02-OIN05; T3.1-T3.3 | `e6dc1c0f1b07e046309911867b9782d87b24008e` | #278 at `660b97410fd96f6cfb3b664b48dceee7b37ddfc3` | [Controls](slice-3-controls.md) |
-| 4 | OIN01-OIN05; T4.1-T4.3 | `da5fc782b23df9d5d360ba306e7fd8629006b7a8` | Pending | This report |
+| 4 | OIN01-OIN05; T4.1-T4.3 | `da5fc782b23df9d5d360ba306e7fd8629006b7a8` | #279 at `6c010648a49847b54f914063a2261e7403dd8c34` | This report |
 
 No dependency, public inspection API, second PTY harness or production layout owner is introduced.
 The existing Markdown-derived Spore publication pipeline consumes the updated
@@ -84,7 +85,9 @@ validated 596 commands, 281 configuration entries, 85 reachable pages and
 560 local links/anchors. Observed command times were format 2.79s, Clippy 48.27s,
 native tests 24.98s, Bash syntax under 0.01s, documentation 1.07s and diff 0.01s.
 
-Looper records exact clean-HEAD evidence after the final PR-reference commit.
+All six required commands also passed through Looper on the exact clean
+PR-reference HEAD `6c010648a49847b54f914063a2261e7403dd8c34`. The canonical PR
+contract was verified, and PR #279 is merged into dev at that commit.
 The full combined gate and strict Spore build remain controller-owned and have
 not run during this slice.
 
@@ -130,7 +133,7 @@ Focused development evidence:
 
 ## Risks and Follow-ups
 
-After integration, the controller must run the unchanged combined gate on its
+The controller must run the unchanged combined gate on its
 exact clean dev candidate and record the receipt before closing the paired
 indentation specification/model, plan and tracker. No main promotion, release,
 publication or successor startup is included in this slice.

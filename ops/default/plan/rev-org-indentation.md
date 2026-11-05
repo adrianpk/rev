@@ -10,7 +10,7 @@ Spec: [Org Visual Indentation](../spec/editor-org-indentation.md)
 Model: [Org Visual Indentation Model](../spec/editor-org-indentation-model.md)
 Tracker: [Org Indentation Tracker](../tracker/rev-org-indentation.md)
 Concern: [Pending Work Index](../README.md)
-Active slice: Slice 4 - Joint acceptance and guidance
+Active slice: None - all four slices integrated; combined gate pending
 
 ## Outcome and strategy
 
