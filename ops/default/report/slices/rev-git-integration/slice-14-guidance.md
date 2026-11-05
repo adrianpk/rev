@@ -1,6 +1,6 @@
 # Slice 14: Git Learning Path and Reference
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-git-integration
 Plan: `ops/default/plan/rev-git-integration.md`
 Tracker: `ops/default/tracker/rev-git-integration.md`
@@ -79,3 +79,14 @@ does not substitute for that receipt.
 ## Risks and Follow-ups
 
 The final delivery-set gate and exact-candidate closure remain controller-owned.
+
+## Integration
+
+[PR #271](https://forge.adrianpk.com/adrianpk/rev/pulls/271) merged through
+controller-owned Rebase + Fast-forward into dev at
+`71524f02b11264a59a8049d4c10bd64e627017d4`. Controller receipt
+`56IS2Q3SWAQ5436XOUMSJIQ3HI` passed the four ordered commands listed above at
+that exact head: 85 reachable pages, 550 local links/anchors, 593 commands,
+271 settings, successful Spore projection/rendering, formatter and whitespace.
+This closes Slice 14 of 14. The selected full gate and exact-candidate
+delivery-set closure remain pending with the controller.

@@ -7,7 +7,7 @@ Plan: [Native Git Integration Delivery](../plan/rev-git-integration.md)
 Spec: [Native Git Integration](../spec/editor-git-integration.md)
 Model: [Native Git Model](../spec/editor-git-integration-model.md)
 Approved: owner, 2026-11-04; complete fourteen-slice plan and autonomous Looper execution/integration through dev
-Active slice: Slice 14 - Git learning path and reference
+Active slice: none - all fourteen slices integrated; controller full gate pending
 Progress owner: after startup, Looper checkpoint, canonical PRs and exact-candidate validation receipts
 
 ## Canonical slice map
@@ -241,7 +241,7 @@ Integration: [PR #270](https://forge.adrianpk.com/adrianpk/rev/pulls/270) merged
 
 ## Slice 14: Git learning path and reference
 
-Status: reviewing
+Status: delivered
 Branch: `feat/rev-git-integration-14-guidance`
 Expected PR title: `docs(git): explain native repository workflows`
 Report: `ops/default/report/slices/rev-git-integration/slice-14-guidance.md`
@@ -252,8 +252,24 @@ PR: [#271](https://forge.adrianpk.com/adrianpk/rev/pulls/271)
 - [x] T14.2: Keep canonical Markdown and its Spore projection/navigation aligned; document explicit fetch/integration, local tags, reviewed push, sequence/conflict, direct commands and bounds, with no unimplemented feature claims.
 - [x] T14.3: Finish user-facing Unreleased entries and per-variant coverage, update the additive baseline/index references without rewriting historical gate evidence, and prepare exact-candidate closure metadata for the controller after its selected full gate passes.
 
-Validation: Required documentation catalog/navigation and Spore projection checks, focused formatter and whitespace are recorded through controller validation for the final clean PR-reference head.
-Integration: T14.1-T14.3 implementation complete; canonical PR #271 open against dev, integration controller-owned.
+Validation: Controller receipt `56IS2Q3SWAQ5436XOUMSJIQ3HI` passed all four ordered checks at `71524f02b11264a59a8049d4c10bd64e627017d4`: documentation catalog/navigation, Markdown-to-Spore guide build, formatter and whitespace. It verified 85 reachable pages, 550 local links/anchors, 593 commands and 271 settings. This remains Slice 14 evidence, not the delivery-set gate.
+Integration: [PR #271](https://forge.adrianpk.com/adrianpk/rev/pulls/271) merged through controller-owned Rebase + Fast-forward into dev at `71524f02b11264a59a8049d4c10bd64e627017d4`. Slice 14 of 14 completed.
+
+## Gate preparation
+
+Status: ready for controller execution
+Integrated slice candidate: `71524f02b11264a59a8049d4c10bd64e627017d4`
+
+All fourteen controller-recorded merge commits are ancestors of dev. Required
+installed tools, Git subtree, SHA-1/SHA-256 initialization, the immutable
+pre-Git baseline, unchanged manifest/lockfile, at least 2 GiB free build storage
+and local PTY allocation were checked. Owned temporary capability fixtures
+completed and were removed. The approved acceptance and guide drivers create
+and clean their own isolated fixtures; no persistent service is required.
+
+The configured full gate is unchanged and has not been run by this worker.
+Its exact prepared dev candidate and receipt belong to the controller. Slice
+integration and prerequisite readiness do not mark the delivery set Completed.
 
 ## Closure
 
