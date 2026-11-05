@@ -11,7 +11,7 @@ are everyday comforts you can use from the start, without first assembling a
 set of editor packages. The goal is a light, responsive editor with a
 deliberately small scope.
 
-![rev with the file tree, native completion in a Rust pane, a bookmark marker and an Org pane](docs/reference/images/rev-rust-org.png)
+![rev with the file tree, native completion and bookmark markers in a Rust pane, and an Org pane](docs/reference/images/rev-rust-org.png)
 
 _[view gallery...](docs/reference/gallery.md)_
 
