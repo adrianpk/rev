@@ -543,25 +543,26 @@ impl Runner {
             sequence.refs.same(&plan.source.refs)
         }
     }
-    fn stash_evidence(
+    pub(super) fn stash_evidence(
         &mut self,
         source: &Sequence,
         admission: &mut Lease,
     ) -> Result<[Vec<u8>; 3], String> {
         let index = self.command(&["ls-files", "--stage", "-z"], Phase::Checking, false)?;
-        let patch = self.command(
-            &[
-                "diff",
-                "--no-ext-diff",
-                "--no-textconv",
-                "--no-color",
-                "--binary",
-                "HEAD",
-                "--",
-            ],
-            Phase::Checking,
-            false,
-        )?;
+        // An unborn repository has no HEAD baseline. Exact staged entries
+        // above plus the working diff from that index still cover saved state.
+        let mut args = vec![
+            "diff",
+            "--no-ext-diff",
+            "--no-textconv",
+            "--no-color",
+            "--binary",
+        ];
+        if source.refs.head.is_some() {
+            args.push("HEAD");
+        }
+        args.push("--");
+        let patch = self.command(&args, Phase::Checking, false)?;
         let mut untracked = Vec::new();
         if let Some(status) = &source.refs.observation.status {
             for entry in status.group(Group::Untracked) {

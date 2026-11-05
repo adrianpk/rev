@@ -721,6 +721,13 @@ Status reads disk and Git state; it does not save an unsaved source buffer.
 | `git-operation-continue` | Refresh actual Git state and review one compatible family-specific continuation bound to that exact sequence. |
 | `git-operation-skip` | Refresh actual Git state and review a compatible skip; reject a missing or wrong-family sequence. |
 | `git-operation-abort` | Refresh actual Git state and review one compatible abort with exact original lineage; process cancellation is a separate action. |
+| `git-clone` | Review literal clone arguments and an explicit absent destination, then verify the created regular repository. |
+| `git-clone-shallow` | Prepare a depth-one clone at an explicit destination and verify its shallow state and full HEAD. |
+| `git-clone-bare` | Review a bare clone destination and verify its separate Git-only repository identity. |
+| `git-clone-mirror` | Review a mirror clone destination and verify bare and mirror configuration without a later push. |
+| `git-init` | Prepare initialization at an explicit absent destination and verify its unborn repository identity. |
+| `git-ignore` | Visit the ordinary worktree .gitignore file without inserting a pattern or saving text. |
+| `git-ignore-exclude` | Visit the ordinary common Git info/exclude file through its native visiting owner. |
 | `git-worktree-list` | Open a bounded NUL-record worktree list with raw paths, full HEADs, distinct Git/common directories, lock reasons and prune state. |
 | `git-worktree-create` | Review a new linked worktree and new local branch at the exact observed HEAD, using a checked absent destination. |
 | `git-worktree-visit` | Open checked Git Status for the selected worktree identity while retaining native source buffers and windows. |
@@ -764,8 +771,8 @@ Status reads disk and Git state; it does not save an unsaved source buffer.
 | `git-commit-amend` | Prepare the exact observed HEAD and existing message; explicitly review before committing the checked index as its replacement. |
 | `git-commit-fixup` | Resolve one entered revision to a full immutable commit, compose its standard fixup subject/body and explicitly review the target; keep current history in place. |
 | `git-commit` | Open a native subject/body composer from current complete Status; retain cancelled or failed text for this session. |
-| `git-commit-submit` | Explicitly commit the checked index with the accepted message; verify actual HEAD, parent, message, tree and unchanged index. In tag message composition, open or accept the annotated tag review. |
-| `git-commit-cancel` | Return before process start, retaining the session commit or tag annotation draft. |
+| `git-commit-submit` | Explicitly commit the checked index with the accepted message; verify actual HEAD, parent, message, tree and unchanged index. In tag message composition, open or accept the annotated tag review. In prepared argument composition, check input and open exact review, then execute only the accepted plan. |
+| `git-commit-cancel` | Return before process start; retain commit/tag annotation drafts or cancel prepared arguments and restore their source owner. |
 | `git-status` | Check installed Git and the actual repository, then open structured Status. |
 | `git-quit` | Return from the innermost Git menu or restore the retained editing context; started work continues. |
 | `git-refresh` | Replace Status only after a checked bounded observation succeeds; retain confirmed facts with a stale indication on failure. |
@@ -1007,3 +1014,26 @@ An unavailable provider leaves the manual conflict view usable. The normal
 read-only AI result and discard workflow preserve native source ownership.
 Index/file metadata and native revisions conservatively invalidate source
 currency; an explanation never replaces exact Git checks for changing actions.
+
+### Prepared clone and init arguments
+
+Status C C, C s, C b and C m open regular, shallow, bare and mirror clone
+preparation. I I prepares init. Named clone/init commands also work from ordinary
+editing or a chosen file-tree directory without an existing Git repository.
+The native text draft contains one JSON array of literal Git arguments. Fill its
+empty source/destination parameters; keep its family, options and parameter
+positions. Shallow preparation uses depth one. Clone and init require an absent
+explicit destination with an existing canonical ordinary parent directory.
+
+The shared native composer uses ordinary editor text keys in both profiles.
+C-Enter or C-c C-c first checks input, captures saved source state and opens
+exact review of the executable, literal argv, directory and destination. A second
+C-Enter or C-c C-c executes only that captured plan. Plain Return never accepts
+review. q or C-g cancels review; C-g cancels composition. No shell expansion,
+implicit source save, operation retry or destination deletion is performed.
+Status changes follow the existing observation/reload owners. Git process
+inspection retains bounded exit/cleanup facts; transport output is withheld to
+protect credentials. Failure after launch does not claim repository rollback.
+
+Status i t and i p visit the actual .gitignore and common Git info/exclude
+files. Existing unsaved visiting identities stay owned; no pattern is invented.

@@ -1554,6 +1554,13 @@ max_result_bytes = 262144
 
 # Read-only Git navigation uses the same context in both startup profiles.
 [keys.git]
+"C C" = "git-clone"
+"C s" = "git-clone-shallow"
+"C b" = "git-clone-bare"
+"C m" = "git-clone-mirror"
+"I I" = "git-init"
+"i t" = "git-ignore"
+"i p" = "git-ignore-exclude"
 "Z Z" = "git-worktree-list"
 "Z l" = "git-worktree-list"
 "z z" = "git-stash-list"

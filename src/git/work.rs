@@ -5,6 +5,7 @@ mod bisect;
 mod commit;
 mod conflicts;
 mod discard;
+mod families;
 mod history;
 mod index;
 mod integration;
@@ -13,6 +14,7 @@ mod repository;
 mod sequences;
 
 pub(super) enum Request {
+    Family(super::families::Request),
     Repository(super::repository::Request),
     Status,
     Conflict(super::conflicts::Request),
@@ -32,6 +34,8 @@ pub(super) enum Request {
 impl Request {
     pub fn kind(&self) -> OperationKind {
         match self {
+            Self::Family(super::families::Request::Prepare { .. }) => OperationKind::FamilyPrepare,
+            Self::Family(_) => OperationKind::Family,
             Self::Repository(super::repository::Request::Worktrees(request)) => match request {
                 super::repository::worktrees::Request::List(_) => OperationKind::Worktrees,
                 super::repository::worktrees::Request::Visit { .. } => OperationKind::WorktreeVisit,
@@ -93,6 +97,8 @@ impl Request {
 }
 
 pub(super) enum Publication {
+    FamilyPlan(FamilyPlan),
+    FamilyResult(FamilyResult),
     Worktrees(Worktrees),
     WorktreePlan(WorktreePlan),
     Stashes(Stashes),
@@ -122,6 +128,8 @@ pub(super) enum Publication {
 }
 
 enum Candidate {
+    FamilyPlan(FamilyPlan),
+    FamilyResult(FamilyResult),
     Worktrees(Worktrees),
     WorktreePlan(WorktreePlan),
     Stashes(Stashes),
@@ -177,9 +185,21 @@ pub(super) fn start(
         .spawn(move || {
             let private_output = matches!(
                 request.kind(),
-                OperationKind::Fetch | OperationKind::PushPrepare | OperationKind::Push
+                OperationKind::Fetch
+                    | OperationKind::PushPrepare
+                    | OperationKind::Push
+                    | OperationKind::FamilyPrepare
+                    | OperationKind::Family
             );
             let seconds = match request {
+                Request::Family(super::families::Request::Execute(ref plan))
+                    if plan.family == Family::Init =>
+                {
+                    policy.operation_timeout_seconds
+                }
+                Request::Family(super::families::Request::Execute(_)) => {
+                    policy.transport_timeout_seconds
+                }
                 Request::Refs(
                     super::refs::Request::Fetch { .. } | super::refs::Request::Push(_),
                 ) => policy.transport_timeout_seconds,
@@ -235,6 +255,7 @@ pub(super) fn start(
                 retained: None,
             };
             let observed = match request {
+                Request::Family(request) => runner.family(request, &mut admission),
                 Request::Repository(request) => runner.repository(request, &mut admission),
                 Request::ConflictExplain(conflict) => {
                     runner.explain_conflict(conflict, &mut admission)
@@ -653,6 +674,8 @@ impl Runner {
         };
         record.admission = admission.split(record.bytes() + 4096);
         let publication = observed.and_then(|candidate| match candidate {
+            Candidate::FamilyPlan(plan) => Ok(Publication::FamilyPlan(plan)),
+            Candidate::FamilyResult(result) => Ok(Publication::FamilyResult(result)),
             Candidate::Worktrees(worktrees) => Ok(Publication::Worktrees(worktrees)),
             Candidate::WorktreePlan(plan) => Ok(Publication::WorktreePlan(plan)),
             Candidate::Stashes(stashes) => Ok(Publication::Stashes(stashes)),

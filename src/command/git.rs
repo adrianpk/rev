@@ -1,5 +1,13 @@
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum GitCommand {
+    Clone,
+    CloneShallow,
+    CloneBare,
+    CloneMirror,
+    Init,
+    Ignore,
+    IgnoreExclude,
+
     WorktreeList,
     WorktreeCreate,
     WorktreeVisit,
@@ -98,6 +106,14 @@ pub enum GitCommand {
 impl GitCommand {
     pub fn name(self) -> &'static str {
         match self {
+            Self::Clone => "git-clone",
+            Self::CloneShallow => "git-clone-shallow",
+            Self::CloneBare => "git-clone-bare",
+            Self::CloneMirror => "git-clone-mirror",
+            Self::Init => "git-init",
+            Self::Ignore => "git-ignore",
+            Self::IgnoreExclude => "git-ignore-exclude",
+
             Self::WorktreeList => "git-worktree-list",
             Self::WorktreeCreate => "git-worktree-create",
             Self::WorktreeVisit => "git-worktree-visit",

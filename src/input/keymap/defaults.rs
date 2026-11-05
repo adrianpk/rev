@@ -337,6 +337,13 @@ pub(super) const GIT_COMMIT: &[(&str, &str)] = &[
 ];
 
 const GIT: &[(&str, &str)] = &[
+    ("C C", "git-clone"),
+    ("C s", "git-clone-shallow"),
+    ("C b", "git-clone-bare"),
+    ("C m", "git-clone-mirror"),
+    ("I I", "git-init"),
+    ("i t", "git-ignore"),
+    ("i p", "git-ignore-exclude"),
     ("Z Z", "git-worktree-list"),
     ("Z l", "git-worktree-list"),
     ("z z", "git-stash-list"),

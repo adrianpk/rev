@@ -132,7 +132,13 @@ fn tree(target: Binding) -> bool {
         command,
         Command::Tree(_)
             | Command::Git(
-                crate::command::GitCommand::Status | crate::command::GitCommand::Processes
+                crate::command::GitCommand::Status
+                    | crate::command::GitCommand::Processes
+                    | crate::command::GitCommand::Clone
+                    | crate::command::GitCommand::CloneShallow
+                    | crate::command::GitCommand::CloneBare
+                    | crate::command::GitCommand::CloneMirror
+                    | crate::command::GitCommand::Init
             )
             | Command::KeyboardQuit
             | Command::Quit

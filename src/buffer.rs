@@ -524,13 +524,21 @@ impl Buffers {
         text: &str,
         annotation: bool,
     ) -> Result<BufferId, Error> {
+        self.git_draft(
+            text,
+            if annotation {
+                "*Git Tag Annotation: C-Enter reviews; C-g retains draft*"
+            } else {
+                "*Git Commit: C-Enter submits; C-g retains draft*"
+            },
+        )
+    }
+    pub(crate) fn git_argument_draft(&mut self, text: &str) -> Result<BufferId, Error> {
+        self.git_draft(text, "*Git Arguments: C-Enter reviews; C-g cancels*")
+    }
+    fn git_draft(&mut self, text: &str, name: &str) -> Result<BufferId, Error> {
         let mut buffer = Buffer::new(text, &self.settings.settings().files)?;
-        buffer.name = if annotation {
-            "*Git Tag Annotation: C-Enter reviews; C-g retains draft*"
-        } else {
-            "*Git Commit: C-Enter submits; C-g retains draft*"
-        }
-        .into();
+        buffer.name = name.into();
         buffer.transient = true;
         buffer.text_byte_limit = Some(crate::git::MAX_COMMIT_BYTES);
         buffer.bom = false;

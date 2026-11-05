@@ -69,8 +69,8 @@ Every command below is also available as `M-x` followed by its exact name.
 | `M-x git-commit-amend` | `git-commit-amend` | Prepare exact observed HEAD composition, then explicitly review the replacement commit. |
 | `M-x git-commit-fixup` | `git-commit-fixup` | Resolve one exact target, compose its fixup body and review before submission. |
 | `c` in Git Status | `git-commit` | Open native commit text directly; a subsequent c is literal message text. |
-| `C-Enter`, `C-c C-c` in composer | `git-commit-submit` | Commit the checked index with the accepted message. |
-| `C-g`, `C-c C-k` in composer | `git-commit-cancel` | Retain the session draft and return to Status before process start. |
+| `C-Enter`, `C-c C-c` in composer | `git-commit-submit` | Submit the active native composer; prepared arguments require checked review before execution. |
+| `C-g`, `C-c C-k` in composer | `git-commit-cancel` | Cancel before process start; retain commit/tag drafts and restore the source owner. |
 | `C-x g`, `M-x git-status`, `:git-status` | `git-status` | Discover the current repository and open full-canvas native Status. |
 | `q` in Git | `git-quit` | Dismiss the innermost menu or return to the retained editing context; owned work continues. |
 | `k`, `x d` in Git Status or Diff | `git-discard` | Confirm one tracked unstaged whole path from its index; protect dirty visiting buffers. |
@@ -592,6 +592,13 @@ For live terminal key ownership and copy controls, see the
 | Named command | `git-operation-continue` | Review continuation against the fresh actual compatible family. |
 | Named command | `git-operation-skip` | Review skipping against the fresh actual compatible family. |
 | Named command | `git-operation-abort` | Review abort against exact original lineage and fresh Git state. |
+| `C C` in Status | `git-clone` | Review literal clone arguments and an explicit absent destination, then verify the created regular repository. |
+| `C s` in Status | `git-clone-shallow` | Prepare a depth-one clone at an explicit destination and verify its shallow state and full HEAD. |
+| `C b` in Status | `git-clone-bare` | Review a bare clone destination and verify its separate Git-only repository identity. |
+| `C m` in Status | `git-clone-mirror` | Review a mirror clone destination and verify bare and mirror configuration without a later push. |
+| `I I` in Status | `git-init` | Prepare initialization at an explicit absent destination and verify its unborn repository identity. |
+| `i t` in Status | `git-ignore` | Visit the ordinary worktree .gitignore file without inserting a pattern or saving text. |
+| `i p` in Status | `git-ignore-exclude` | Visit the ordinary common Git info/exclude file through its native visiting owner. |
 | `Z Z`, `Z l` in Status | `git-worktree-list` | Open a bounded NUL-record worktree list with raw paths, full HEADs, distinct Git/common directories, lock reasons and prune state. |
 | `c` in Worktree | `git-worktree-create` | Review a new linked worktree and new local branch at the exact observed HEAD, using a checked absent destination. |
 | `v` in Worktree | `git-worktree-visit` | Open checked Git Status for the selected worktree identity while retaining native source buffers and windows. |
@@ -799,7 +806,8 @@ releases and held acceptance keys cannot submit a newly acquired argument.
 | `C-x t n` | `tree-create-file` |
 | `C-x t d` | `tree-create-directory` |
 
-Tree configuration admits the tree command catalog, Git Status, find-file, cancel, exit, M-x and
+Tree configuration admits the tree command catalog, Git Status/processes, prepared
+clone/init commands, find-file, cancel, exit, M-x and
 return-to-editing, plus the existing navigation aliases `previous-line`,
 `next-line`, `backward-char`, `forward-char` and `newline`. File mutation commands
 retain their prompts and explicit confirmation; a binding cannot supply consent.
@@ -813,10 +821,13 @@ and paste never enter the visiting buffer while tree focus is retained.
 
 ### Git commit defaults and availability
 
-`keys.git_commit` inherits editor text editing in both startup profiles. Normal
+`keys.git_commit` inherits editor text editing for messages and prepared argument
+drafts in both startup profiles. Prepared argument drafts require a literal JSON
+array and two separate submissions: checked review, then execution. Normal
 composition begins with c in Status. Plain Return inserts a newline; submission
 requires C-Enter (a distinguishable host event) or C-c C-c. C-g and C-c C-k
-retain the cancelled session draft. Composer text is separate from source
+retain cancelled commit/tag session drafts. Prepared argument cancellation
+restores the source without executing the plan. Composer text is separate from source
 buffers and filesystem publication.
 
 | Keys | Target |
@@ -886,6 +897,13 @@ native cancellation. Prompts use `keys.minibuffer`.
 
 | Keys | Target |
 | --- | --- |
+| `C C` | `git-clone` |
+| `C s` | `git-clone-shallow` |
+| `C b` | `git-clone-bare` |
+| `C m` | `git-clone-mirror` |
+| `I I` | `git-init` |
+| `i t` | `git-ignore` |
+| `i p` | `git-ignore-exclude` |
 | `Z Z`, `Z l` | `git-worktree-list` |
 | `z z`, `z l` | `git-stash-list` |
 | `C-x g` | `git-status` |

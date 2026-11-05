@@ -5,6 +5,9 @@ impl Session {
         &mut self,
     ) -> Result<Frame, crate::view::Error> {
         let state = self.git.composer.as_ref().expect("commit review");
+        if state.family.is_some() {
+            return self.git_family_review_frame();
+        }
         if state.tag.is_some() {
             return self.git_tag_review_frame();
         }
@@ -19,6 +22,8 @@ impl Session {
             .to_string();
         let checked_head = match &state
             .observation
+            .as_ref()
+            .expect("commit observation")
             .status
             .as_ref()
             .expect("checked status")

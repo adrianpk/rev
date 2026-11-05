@@ -12,6 +12,7 @@ mod commit;
 mod comparisons;
 mod conflicts;
 pub(super) mod discard;
+mod families;
 mod history;
 mod index;
 mod lines;
@@ -32,6 +33,8 @@ pub(super) struct Work {
     inspection: comparisons::Inspection,
     index_request: Option<OperationId>,
     discard_request: Option<OperationId>,
+    family_request: Option<OperationId>,
+    family_preparing: Option<OperationId>,
     commit_request: Option<OperationId>,
     commit_preparing: Option<OperationId>,
     composer: Option<commit::Composer>,
@@ -221,6 +224,8 @@ impl Work {
             inspection: comparisons::Inspection::default(),
             index_request: None,
             discard_request: None,
+            family_request: None,
+            family_preparing: None,
             commit_request: None,
             commit_preparing: None,
             composer: None,
@@ -449,6 +454,15 @@ impl Session {
                 GitCommand::Log => self.open_git_history(),
                 GitCommand::Show => self.show_git_revision(),
                 GitCommand::LogNextPage => self.continue_git_history(true),
+                GitCommand::Clone => self.compose_git_family(crate::git::Family::Clone),
+                GitCommand::CloneShallow => {
+                    self.compose_git_family(crate::git::Family::CloneShallow)
+                }
+                GitCommand::CloneBare => self.compose_git_family(crate::git::Family::CloneBare),
+                GitCommand::CloneMirror => self.compose_git_family(crate::git::Family::CloneMirror),
+                GitCommand::Init => self.compose_git_family(crate::git::Family::Init),
+                GitCommand::Ignore => self.visit_git_ignore(false),
+                GitCommand::IgnoreExclude => self.visit_git_ignore(true),
                 GitCommand::Status => self.open_git(),
                 GitCommand::Commit => self.compose_git_commit(),
                 GitCommand::CommitAmend => self.prepare_git_amend(),
@@ -788,6 +802,13 @@ impl Session {
             return Action::Wait;
         }
         for update in updates {
+            if matches!(
+                update.kind,
+                crate::git::OperationKind::FamilyPrepare | crate::git::OperationKind::Family
+            ) {
+                self.publish_git_family(&update);
+                continue;
+            }
             if self.git.worktrees.request == Some(update.operation)
                 || self.git.worktrees.preparing == Some(update.operation)
             {
@@ -985,6 +1006,7 @@ impl Session {
                 {
                     return Some(Action::Wait);
                 }
+
                 if matches!(mouse.kind, MouseEventKind::Down(MouseButton::Left))
                     && !self.git.painted.as_ref().is_some_and(|painted| {
                         painted.refs == self.git.refs().map(|r| r.id)

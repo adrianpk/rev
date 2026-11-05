@@ -1,6 +1,8 @@
 //! Native repository observations and owned installed-Git operations. Git keeps
 //! durable repository state; this owner retains finite session observations.
 pub(crate) mod budget;
+mod families;
+pub use families::{Family, FamilyPlan, FamilyResult};
 mod commit;
 mod diff;
 pub use commit::MAX_COMMIT_BYTES;
@@ -127,6 +129,8 @@ pub struct OperationId(u64);
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum OperationKind {
+    FamilyPrepare,
+    Family,
     Worktrees,
     WorktreePrepare,
     WorktreeVisit,
@@ -310,6 +314,8 @@ pub struct Update {
 /// storage is serialized for future changing requests by this same owner.
 pub struct Repositories {
     policy: config::Git,
+    family_plan: Option<Arc<FamilyPlan>>,
+    family_result: Option<Arc<FamilyResult>>,
     contexts: Vec<Context>,
     active: Vec<Active>,
     records: Vec<Record>,
@@ -327,6 +333,8 @@ impl Repositories {
             .expect("fixed Git owner metadata fits an empty budget");
         Self {
             policy: snapshot.settings().git.clone(),
+            family_plan: None,
+            family_result: None,
             contexts: Vec::new(),
             active: Vec::new(),
             records: Vec::new(),
@@ -624,7 +632,8 @@ impl Repositories {
                 let progress = *active.progress.lock().expect("Git progress owner");
                 if matches!(
                     progress.kind,
-                    OperationKind::Worktree
+                    OperationKind::Family
+                        | OperationKind::Worktree
                         | OperationKind::Stash
                         | OperationKind::Stage
                         | OperationKind::Unstage
@@ -659,6 +668,26 @@ impl Repositories {
             let mut record = finished.record;
             let mut published = false;
             let context = match finished.publication {
+                Ok(work::Publication::FamilyPlan(plan)) => {
+                    self.family_plan = Some(Arc::new(plan));
+                    published = true;
+                    progress.context
+                }
+                Ok(work::Publication::FamilyResult(mut result)) => {
+                    if let Some(observation) = result.source.take()
+                        && let Some(context) = self
+                            .contexts
+                            .iter_mut()
+                            .find(|c| c.id == observation.context)
+                    {
+                        context.observation = Arc::new(observation);
+                        context.failure = None;
+                    }
+                    self.family_result = Some(Arc::new(result));
+                    self.family_plan = None;
+                    published = true;
+                    progress.context
+                }
                 Ok(work::Publication::Status(mut observation)) => {
                     let prior = self
                         .contexts
@@ -1061,7 +1090,8 @@ impl Repositories {
                             | OperationKind::Status
                             | OperationKind::Refs => context.failure = Some(record.id),
                             OperationKind::Diff => context.detail_failure = Some(record.id),
-                            OperationKind::WorktreeVisit
+                            OperationKind::FamilyPrepare
+                            | OperationKind::WorktreeVisit
                             | OperationKind::WorktreePrepare
                             | OperationKind::StashShow
                             | OperationKind::StashPrepare
@@ -1076,7 +1106,8 @@ impl Repositories {
                             | OperationKind::AutosquashPrepare
                             | OperationKind::PushPrepare
                             | OperationKind::TagPrepare => {}
-                            OperationKind::Worktree
+                            OperationKind::Family
+                            | OperationKind::Worktree
                             | OperationKind::Stash
                             | OperationKind::Stage
                             | OperationKind::ConflictResolve

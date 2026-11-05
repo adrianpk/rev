@@ -3,6 +3,8 @@
 mod commits;
 #[path = "git_integration/diffs.rs"]
 mod diffs;
+#[path = "git_integration/families.rs"]
+mod families;
 #[path = "configuration/fixture.rs"]
 mod fixture;
 #[path = "git_integration/index.rs"]

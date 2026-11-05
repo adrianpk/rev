@@ -40,6 +40,8 @@ impl Work {
             .map(|p| p.kind)
             .or_else(|| self.engine.record(id).map(|r| r.kind));
         match kind {
+            Some(crate::git::OperationKind::FamilyPrepare) => "Prepared arguments: checking",
+            Some(crate::git::OperationKind::Family) => "Prepared Git command",
             Some(crate::git::OperationKind::Worktrees) => "worktree observation",
             Some(crate::git::OperationKind::WorktreePrepare) => "worktree preparation",
             Some(crate::git::OperationKind::WorktreeVisit) => "worktree Status visit",

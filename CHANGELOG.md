@@ -70,6 +70,9 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
   visit checked Status and review new branches, lock reasons, unlock, missing
   record pruning and clean removal. Retained sources and native process owners
   protect their worktrees; changing actions recheck complete saved state.
+  Prepare regular, shallow, bare and mirror clones or repository initialization
+  with explicit destinations, literal argument editing and exact review before
+  execution. Visit the actual ignore files through their ordinary file owners.
   Return to the same windows
   and terminals. Inspect active and
   recent Git processes, cancel a selected operation, and confirm before quitting
