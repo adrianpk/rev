@@ -198,14 +198,14 @@ Branch: `feat/rev-git-integration-11-repository`
 Expected PR title: `feat(git): manage stashes and linked worktrees`
 Report: `ops/default/report/slices/rev-git-integration/slice-11-repository.md`
 Requirements: GIT13, GIT17-GIT19
-PR: pending
+PR: [#268](https://forge.adrianpk.com/adrianpk/rev/pulls/268)
 
 - [x] T11.1: Implement native stash list/create/show/apply/pop/branch/drop with exact stash-object identity, checked source state, explicit destructive review and truthful conflict outcomes.
 - [x] T11.2: Implement worktree list/create/visit/lock/unlock/prune/remove with distinct worktree/common identities, checked paths and no forced removal of protected or dirty resources.
 - [x] T11.3: Verify stashes with conflicts, changed stash positions, linked-worktree ownership, lock reasons, stale removal and ordinary buffer/reload behavior; share existing read-only reflog/blame owners.
 
 Validation: Development passes eight stash/native cases, five worktree backend cases, two native worktree cases, four additional native acceptance cases, four shared native ref cases, one shared reflog/blame native case and 21 reference checks, formatter, strict focused Clippy, documentation and whitespace. Both formats/profiles, raw identities, saved-state/stale-target checks, lock reasons, protected resources, real stash conflicts and automatic/ask reload are covered. Corrections and commands are recorded in the report. Final exact-HEAD controller evidence remains pending.
-Integration: T11.1-T11.3 are implemented. The Slice 11 report is reviewing; canonical PR and final validation follow.
+Integration: T11.1-T11.3 are implemented. The Slice 11 report is reviewing; [PR #268](https://forge.adrianpk.com/adrianpk/rev/pulls/268) targets dev. Final exact-HEAD controller validation follows this PR-reference commit.
 
 ## Slice 12: Prepared Git families and direct commands
 
