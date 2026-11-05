@@ -9,6 +9,9 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 
 ### Added
 
+- Org heading bodies and wrapped continuations align with their enclosing
+  heading by default. Set `org.indent=false` to retain the previous layout.
+  Visual spacing leaves source whitespace, copied text and saved bytes intact.
 - [Work with Git inside rev](docs/tutorials/user-guide/git/index.md): inspect
   saved changes with C-x g, expand staged/unstaged diffs, stage exact paths,
   hunks or compatible marked groups, and compose normal, amend or fixup commits.

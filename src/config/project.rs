@@ -29,6 +29,7 @@ pub(super) fn settings(document: &Document) -> Settings {
     settings.git = document.git.project();
     settings.terminal = document.terminal.project();
     scalar(&mut settings.org.enabled, document.org.enabled);
+    scalar(&mut settings.org.indent, document.org.indent);
     headings(&mut settings.org.headings, &document.org.headings);
     scalar(&mut settings.org.tags.inherit, document.org.tags.inherit);
     if let Some(names) = &document.org.properties.inherit {

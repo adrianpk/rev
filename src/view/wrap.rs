@@ -7,7 +7,7 @@ use std::ops::Range;
 use crate::buffer::{Buffer, Stamp};
 use crate::coordinates::{Cell, Coordinates, Glyph, GlyphCheckpoint, Glyphs, Scalar};
 
-use super::indentation::Margins;
+use super::indentation::{Margins, Projection};
 use super::{Error, View};
 pub(crate) use crate::coordinates::Budget;
 
@@ -72,15 +72,11 @@ impl Fragment {
     }
 
     pub(crate) fn screen_column(&self, column: usize) -> Option<usize> {
-        column
-            .checked_sub(self.columns.start)?
-            .checked_add(usize::from(self.margin))
+        Projection::wrapped(self, self.width).screen_column(column)
     }
 
     pub(crate) fn source_column(&self, column: usize) -> usize {
-        self.columns
-            .start
-            .saturating_add(column.saturating_sub(usize::from(self.margin)))
+        Projection::wrapped(self, self.width).source_column(column)
     }
 
     // Only a real source newline can select the remaining blank cells.

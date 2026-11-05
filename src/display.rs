@@ -39,8 +39,8 @@ use crossterm::{
 use crate::buffer::{Buffer, Stamp};
 use crate::coordinates::{Cell, Coordinates, Glyphs};
 use crate::panel::Panel;
-use crate::view::View;
 pub use crate::view::{Error, Size};
+use crate::view::{Projection, View};
 use crate::window::Area;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -117,7 +117,7 @@ pub struct Frame {
 struct SourceRows {
     area: Area,
     stamp: Stamp,
-    rows: Vec<(usize, usize, u16)>,
+    rows: Vec<Projection>,
 }
 
 impl Frame {
@@ -203,32 +203,46 @@ impl Frame {
         if panel.active() {
             self.cursor = Self::position(point, view, text, buffer, &fragments);
         }
-        self.record_source_rows(buffer, text, &fragments);
+        self.record_source_rows(buffer, view, text, &fragments);
         Ok(())
     }
 
     fn record_source_rows(
         &mut self,
         buffer: &Buffer,
+        view: &View,
         panel: Panel,
         fragments: &[crate::view::Fragment],
     ) {
-        if buffer.soft_wrap() {
-            self.source_rows.push(SourceRows {
-                area: panel.content(),
-                stamp: buffer.stamp(),
-                rows: fragments
+        self.source_rows.push(SourceRows {
+            area: panel.content(),
+            stamp: buffer.stamp(),
+            rows: if buffer.soft_wrap() {
+                fragments
                     .iter()
                     .map(|f| {
-                        (
-                            f.line,
-                            f.columns.start,
-                            f.highlight_width(panel.content().width()),
-                        )
+                        let mut projection = Projection::wrapped(f, panel.content().width());
+                        projection.width = f
+                            .highlight_width(panel.content().width())
+                            .saturating_sub(projection.margin);
+                        projection
                     })
-                    .collect(),
-            });
-        }
+                    .collect()
+            } else {
+                (0..panel.content().height())
+                    .filter_map(|row| {
+                        view.source_row(buffer, usize::from(row)).map(|source| {
+                            Projection::horizontal(
+                                buffer,
+                                source,
+                                view.left,
+                                panel.content().width(),
+                            )
+                        })
+                    })
+                    .collect()
+            },
+        });
     }
 
     pub fn stamp(&self) -> Stamp {
@@ -315,32 +329,27 @@ impl Frame {
                 view.source_row(buffer, usize::from(row))
                     .unwrap_or(buffer.len_lines())
             };
-            let left = fragment.map_or(view.left, |f| f.columns.start);
-            let painted = fragment.map_or(content.width(), |f| f.painted_width(content.width()));
-            let mut text = document_text(
-                buffer,
-                &coordinates,
-                fragment,
-                Cell {
-                    row: source,
-                    column: left,
-                },
-                content.width(),
-            )?;
-            headings::project(
-                buffer,
-                view,
-                Cell {
-                    row: source,
-                    column: left,
-                },
-                painted,
-                &mut text,
+            let projection = fragment.map_or_else(
+                || Projection::horizontal(buffer, source, view.left, content.width()),
+                |f| Projection::wrapped(f, content.width()),
             );
+            let left = projection.source.column;
+            let painted = fragment.map_or(projection.width, |f| {
+                f.painted_width(content.width())
+                    .saturating_sub(projection.margin)
+            });
+            let mut text = document_text(buffer, &coordinates, fragment, projection)?;
+            headings::project(buffer, view, projection, painted, &mut text);
             let projected = Row {
                 row,
                 text,
-                syntax: syntax::row(buffer, left, source, painted)?,
+                syntax: syntax::row(buffer, left, source, painted)?
+                    .into_iter()
+                    .map(|mut paint| {
+                        paint.columns = projection.shift(paint.columns);
+                        paint
+                    })
+                    .collect(),
                 band: Band::Document,
                 tone: Tone::Document,
                 faces: Vec::new(),
@@ -352,11 +361,15 @@ impl Frame {
                             buffer,
                             source,
                             left,
-                            fragment.map_or(painted, |f| f.highlight_width(content.width())),
+                            fragment.map_or(projection.width, |f| {
+                                f.highlight_width(content.width())
+                                    .saturating_sub(projection.margin)
+                            }),
                         )
                     })
                     .transpose()?
-                    .flatten(),
+                    .flatten()
+                    .map(|columns| projection.shift(columns)),
             }
             .projected(panel);
             self.blit(content, projected)?;
@@ -429,8 +442,10 @@ impl Frame {
         if buffer.soft_wrap() {
             return wrapped_position(point, view, panel, fragments);
         }
+        let projection =
+            Projection::horizontal(buffer, point.row, view.left, panel.content().width());
         panel.position(Position {
-            column: u16::try_from(point.column.checked_sub(view.left)?).ok()?,
+            column: u16::try_from(projection.screen_column(point.column)?).ok()?,
             row: u16::try_from(view.screen_row(buffer, point.row)?).ok()?,
         })
     }
@@ -448,7 +463,7 @@ fn wrapped_position(
         .enumerate()
         .find(|(_, f)| f.line == point.row && f.contains(view.point.position, content.width()))?;
     panel.position(Position {
-        column: u16::try_from(point.column.checked_sub(fragment.columns.start)?).ok()?,
+        column: u16::try_from(fragment.screen_column(point.column)?).ok()?,
         row: u16::try_from(row).ok()?,
     })
 }
@@ -456,20 +471,21 @@ fn document_text(
     buffer: &Buffer,
     coordinates: &Coordinates<'_>,
     fragment: Option<&crate::view::Fragment>,
-    from: Cell,
-    width: u16,
+    projection: Projection,
 ) -> Result<String, Error> {
     if let Some(fragment) = fragment {
         return Ok(fragment.text.clone());
     }
-    if from.row < buffer.len_lines() {
-        return Ok(clip::line(
-            coordinates.glyphs_from_column(from)?,
-            from.column,
-            width,
+    if projection.source.row < buffer.len_lines() {
+        let mut text = " ".repeat(usize::from(projection.margin));
+        text.push_str(&clip::line(
+            coordinates.glyphs_from_column(projection.source)?,
+            projection.source.column,
+            projection.width,
         )?);
+        return Ok(text);
     }
-    Ok(" ".repeat(usize::from(width)))
+    Ok(" ".repeat(usize::from(projection.width + projection.margin)))
 }
 
 fn panel_fragments(

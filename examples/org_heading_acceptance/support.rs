@@ -22,7 +22,7 @@ pub(crate) fn settings(root: &Path, profile: &str) -> Result<rev::config::Snapsh
 
 pub(crate) fn config(profile: &str) -> String {
     format!(
-        "[editor]\ninteraction_profile='{profile}'\n[tree]\nvisible=false\n[syntax]\nenabled=false\n[completion]\nautomatic=false\n"
+        "[org]\nindent=false\n[editor]\ninteraction_profile='{profile}'\n[tree]\nvisible=false\n[syntax]\nenabled=false\n[completion]\nautomatic=false\n"
     )
 }
 

@@ -3,6 +3,7 @@ mod headings;
 mod hit;
 mod indentation;
 pub use fold::FoldError;
+pub(crate) use indentation::Projection;
 mod navigation;
 mod scroll;
 mod visibility;
@@ -278,7 +279,12 @@ impl View {
             self.top = self
                 .source_at(buffer, top)
                 .ok_or(coordinates::Error::Overflow)?;
-            reveal(&mut self.left, point.column, usize::from(width));
+            let margin = indentation::Margins::new(buffer, point.row, width).at(0);
+            let column = point
+                .column
+                .checked_add(margin)
+                .ok_or(coordinates::Error::Overflow)?;
+            reveal(&mut self.left, column, usize::from(width));
         }
         Ok(())
     }

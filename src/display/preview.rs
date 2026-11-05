@@ -71,10 +71,16 @@ fn image_area(
     if offset >= area.height() {
         return None;
     }
+    let margin = fragments
+        .and_then(|rows| rows.iter().find(|f| f.line == row && f.columns.start == 0))
+        .map_or_else(
+            || Projection::horizontal(buffer, row, view.left, area.width()).margin,
+            |f| f.margin,
+        );
     Area::new(
-        area.column(),
+        area.column() + margin,
         area.row() + offset,
-        area.width().min(40),
+        area.width().saturating_sub(margin).min(40),
         (area.height() - offset).min(12),
     )
 }

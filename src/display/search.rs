@@ -26,14 +26,17 @@ impl Frame {
             .iter()
             .find(|map| map.area == text && map.stamp == buffer.stamp());
         for local in 0..panel.content().height() {
-            let columns = if buffer.soft_wrap() {
-                source_rows
-                    .and_then(|map| map.rows.get(usize::from(local)))
-                    .and_then(|(row, left, width)| highlight.row(*row, *left, *width))
-            } else {
-                view.source_row(buffer, usize::from(local))
-                    .and_then(|source| highlight.row(source, view.left, text.width()))
-            };
+            let columns = source_rows
+                .and_then(|map| map.rows.get(usize::from(local)))
+                .and_then(|projection| {
+                    highlight
+                        .row(
+                            projection.source.row,
+                            projection.source.column,
+                            projection.width,
+                        )
+                        .map(|columns| projection.shift(columns))
+                });
             if let Some((row, columns)) = columns.and_then(|columns| panel.clip(local, columns)) {
                 let target = self
                     .rows

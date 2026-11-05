@@ -89,6 +89,7 @@ See the [capability map](../org-controls.md) for the behavior each area controls
 | `org.tags.inherit` | Boolean | `true` | Include ancestor tags and FILETAGS with source provenance; no inherited text is inserted. |
 | `org.properties.inherit` | Array of property names | `[]` | At most 128 unique case-insensitive stored names, 1..128 UTF-8 bytes each; no +, derived fields or drawer delimiters. Arrays replace on merge, including empty. Only these names inherit ancestor and file defaults. |
 | `org.enabled` | Boolean | `true` | Session; admit automatic Org file recognition and explicit org-mode. Per-buffer text-mode selects plain editing. |
+| `org.indent` | Boolean | `true` | Startup preference shared by a buffer's views. Add N-1 visual cells to level-N headings and 2N to bodies and heading continuations, capped at max(0, text width-2). Preamble stays unindented. False restores the previous geometry; source whitespace, tabs, copy and saved bytes stay unchanged. Independent of pretty headings and syntax coloring. |
 
 ## Palette roles
 

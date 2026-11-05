@@ -205,6 +205,8 @@ directories_first = true
 [org]
 # Native Org availability; M-x org-mode selects it explicitly per buffer.
 enabled = true
+# Visually align heading bodies and continuations without inserting source spaces.
+indent = true
 
 [org.headings]
 # Source stars stay intact. Each marker occupies one terminal cell.

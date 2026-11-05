@@ -2,7 +2,8 @@ use super::{Buffer, Error, Stamp};
 use crate::org::Index;
 
 impl Buffer {
-    pub(crate) fn org_indentation(&self) -> bool {
+    /// Effective visual indentation; ordinary text buffers retain source geometry.
+    pub fn org_indentation(&self) -> bool {
         self.is_org() && self.org_indent
     }
 

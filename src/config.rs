@@ -172,6 +172,7 @@ pub enum Newline {
 pub struct Org {
     pub headings: Headings,
     pub enabled: bool,
+    pub indent: bool,
     pub properties: Properties,
     pub tags: Tags,
     pub todo: Todo,
@@ -201,6 +202,7 @@ impl Default for Org {
         Self {
             headings: Headings::default(),
             enabled: true,
+            indent: true,
             properties: Properties::default(),
             tags: Tags::default(),
             todo: Todo::default(),
@@ -232,6 +234,7 @@ impl Default for Org {
 pub struct PartialOrg {
     pub headings: PartialHeadings,
     pub enabled: Option<bool>,
+    pub indent: Option<bool>,
     pub properties: PartialProperties,
     pub tags: PartialTags,
     pub todo: PartialTodo,

@@ -198,7 +198,8 @@ fn edge_cell(
         .min(text.width() - 1);
     Ok(Cell {
         row,
-        column: view.left.saturating_add(usize::from(local)),
+        column: crate::view::Projection::horizontal(buffer, row, view.left, text.width())
+            .source_column(usize::from(local)),
     })
 }
 

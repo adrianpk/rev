@@ -217,8 +217,10 @@ terminal display columns/cells, never bytes or Unicode scalar positions.
 | `org.headings.hide_leading_stars` | Boolean | `true` | Blank the first N-1 star cells in a pretty level-N heading; false retains those stars. |
 | `org.headings.cycle_bullets` | Boolean | `true` | Cycle markers for deeper levels; false repeats the final configured marker. |
 
-These startup settings preserve the original prefix width, separator, title,
-wrapping and source positions. Literal or unverified prefixes remain source.
+At the same `org.indent` policy, these heading settings preserve the original
+prefix width, separator, title, wrapping and source positions. The independent
+`org.indent` preference adds visual margins to headings and their body text;
+see [Org configuration](org/configuration.md). Literal or unverified prefixes remain source.
 Heading recognition remains active with syntax coloring disabled, but respects
 `org.enabled`. The terminal owns font coverage and shaping; use `pretty = false`
 or simpler one-cell markers when a symbol is unavailable. rev installs no fonts

@@ -1,11 +1,17 @@
 use crate::buffer::Buffer;
-use crate::coordinates::Cell;
-use crate::view::View;
+use crate::view::{Projection, View};
 
 /// Replace only visible ASCII prefix cells after canonical clipping/wrapping.
 /// Every source star retains its cell; no cursor or hit mapping is changed.
-pub(super) fn project(buffer: &Buffer, view: &View, from: Cell, width: u16, text: &mut String) {
-    let Cell { row, column: left } = from;
+pub(super) fn project(
+    buffer: &Buffer,
+    view: &View,
+    projection: Projection,
+    width: u16,
+    text: &mut String,
+) {
+    let row = projection.source.row;
+    let left = projection.source.column;
     let policy = &view.headings;
     if !view.pretty_headings() {
         return;
@@ -18,8 +24,9 @@ pub(super) fn project(buffer: &Buffer, view: &View, from: Cell, width: u16, text
         return;
     }
     let cells = right - left;
+    let offset = usize::from(projection.margin);
     if !text
-        .get(..cells)
+        .get(offset..offset + cells)
         .is_some_and(|s| s.bytes().all(|b| b == b'*'))
     {
         return;
@@ -34,5 +41,5 @@ pub(super) fn project(buffer: &Buffer, view: &View, from: Cell, width: u16, text
         prefix.pop();
         prefix.push_str(&policy.bullets[index]);
     }
-    text.replace_range(..cells, &prefix);
+    text.replace_range(offset..offset + cells, &prefix);
 }

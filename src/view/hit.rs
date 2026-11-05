@@ -3,7 +3,7 @@ use crate::coordinates::{Cell, Coordinates};
 use crate::display::Position;
 use crate::window::Area;
 
-use super::{Error, Fragment, View, indentation::Margins};
+use super::{Error, Fragment, Projection, View};
 
 impl View {
     /// Resolve text through the same gutter/text partition used by painting.
@@ -40,16 +40,11 @@ impl View {
         let Some(row) = self.source_at(buffer, projected) else {
             return Ok(None);
         };
-        let column = self
-            .left
-            .checked_add(usize::from(local.column))
-            .ok_or(crate::coordinates::Error::Overflow)?;
-        let right = self
-            .left
+        self.left
             .checked_add(usize::from(text.width()))
             .ok_or(crate::coordinates::Error::Overflow)?;
-        let margin = Margins::new(buffer, row, text.width()).at(0);
-        if column < margin {
+        let projection = Projection::horizontal(buffer, row, self.left, text.width());
+        if local.column < projection.margin {
             return Ok(Some(Point {
                 stamp: buffer.stamp(),
                 position: Coordinates::new(buffer)?.from_cell(Cell { row, column: 0 })?,
@@ -59,9 +54,9 @@ impl View {
             .hit_cell(
                 Cell {
                     row,
-                    column: column - margin,
+                    column: projection.source_column(usize::from(local.column)),
                 },
-                self.left.saturating_sub(margin)..right.saturating_sub(margin),
+                projection.source.column..projection.source.column + usize::from(projection.width),
             )?
             .map(|position| Point {
                 stamp: buffer.stamp(),

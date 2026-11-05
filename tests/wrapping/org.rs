@@ -10,7 +10,10 @@ use rev::view::{Size, View};
 
 fn editor(source: &str, width: u16, height: u16) -> (super::fixture::Fixture, Session) {
     let fixture = super::fixture::Fixture::new();
-    let mut buffers = Buffers::new().unwrap();
+    // Retain the pre-indentation wrap expectations; enabled geometry has its
+    // own real-session coverage in org_indentation.
+    let snapshot = rev::config::prepare(&fixture.write("config.toml", "org.indent=false")).snapshot;
+    let mut buffers = Buffers::with_settings(snapshot).unwrap();
     let id = buffers.visit(&fixture.write("notes.org", source)).unwrap();
     let mut view = View::new(buffers.get(id).unwrap());
     view.bookmark_markers = false;

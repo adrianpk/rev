@@ -174,7 +174,7 @@ pub struct Buffer {
     org: Option<crate::org::Index>,
     mode_choice: Option<Mode>,
     org_active: bool,
-    // Internal projection policy; startup admission is delivered separately.
+    // Startup projection policy, shared by all views of this buffer.
     pub(crate) org_indent: bool,
     org_highlights: Option<crate::org::Highlights>,
     org_attempt: Option<Stamp>,
@@ -241,7 +241,7 @@ impl Buffer {
             org: None,
             mode_choice: None,
             org_active: false,
-            org_indent: false,
+            org_indent: crate::config::Org::default().indent,
             org_highlights: None,
             org_attempt: None,
             org_outline: None,

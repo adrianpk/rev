@@ -1,4 +1,56 @@
 use crate::buffer::Buffer;
+use crate::coordinates::Cell;
+
+/// One viewport row's source-cell window and visible virtual prefix. Painting,
+/// highlights, cursor anchors and horizontal hits share this translation.
+#[derive(Clone, Copy, Debug)]
+pub(crate) struct Projection {
+    pub source: Cell,
+    pub margin: u16,
+    pub width: u16,
+}
+
+impl Projection {
+    pub(crate) fn horizontal(buffer: &Buffer, row: usize, left: usize, width: u16) -> Self {
+        let margin = Margins::new(buffer, row, width).at(0);
+        let padding = margin.saturating_sub(left).min(usize::from(width)) as u16;
+        Self {
+            source: Cell {
+                row,
+                column: left.saturating_sub(margin),
+            },
+            margin: padding,
+            width: width - padding,
+        }
+    }
+
+    pub(crate) fn wrapped(fragment: &super::Fragment, width: u16) -> Self {
+        Self {
+            source: Cell {
+                row: fragment.line,
+                column: fragment.columns.start,
+            },
+            margin: fragment.margin,
+            width: width.saturating_sub(fragment.margin),
+        }
+    }
+
+    pub(crate) fn screen_column(self, source: usize) -> Option<usize> {
+        source
+            .checked_sub(self.source.column)?
+            .checked_add(usize::from(self.margin))
+    }
+
+    pub(crate) fn source_column(self, screen: usize) -> usize {
+        self.source
+            .column
+            .saturating_add(screen.saturating_sub(usize::from(self.margin)))
+    }
+
+    pub(crate) fn shift(self, range: std::ops::Range<u16>) -> std::ops::Range<u16> {
+        range.start + self.margin..range.end + self.margin
+    }
+}
 
 /// Virtual columns never change the logical columns used for source tabs.
 /// Clamp before allocating text, leaving room for a two-cell grapheme.

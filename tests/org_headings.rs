@@ -32,7 +32,10 @@ const SIZE: Size = Size {
 
 fn setup(config: &str, source: &str) -> (Fixture, Buffers, View) {
     let fixture = Fixture::new();
-    let startup = prepare(&fixture.write("config.toml", config));
+    // These fixtures compare the original source/pretty heading geometry.
+    fixture.write("config.toml", config);
+    let startup =
+        prepare(&fixture.write("geometry.toml", "include=['config.toml']\norg.indent=false"));
     assert!(startup.diagnostic.is_none(), "{:?}", startup.diagnostic);
     let mut buffers = Buffers::with_settings(startup.snapshot.clone()).unwrap();
     let id = buffers.visit(&fixture.write("notes.org", source)).unwrap();

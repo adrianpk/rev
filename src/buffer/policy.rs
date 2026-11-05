@@ -28,6 +28,7 @@ impl Buffer {
     /// undo/redo traversal remains intact until that publication.
     /// Views discard cached display goals before their next reveal/navigation.
     pub fn apply_settings(&mut self, settings: &Snapshot) {
+        self.org_indent = settings.settings().org.indent;
         let language = self.language(settings).to_owned();
         let policy = settings.editor(&language);
         let grammar = self.selected_grammar(settings.grammar(&language));
