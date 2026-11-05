@@ -1,4 +1,5 @@
 use super::*;
+mod worktrees;
 use crate::git::repository::{Request, StashAction};
 use crate::git::{StashDetail, StashEntry, StashPlan, Stashes};
 use std::os::unix::ffi::OsStrExt;
@@ -10,6 +11,7 @@ impl Runner {
         admission: &mut Lease,
     ) -> Result<Candidate, String> {
         match request {
+            Request::Worktrees(request) => self.worktrees(request, admission),
             Request::Stashes(observation) => {
                 let refs = self.integration_refs(&observation, admission)?;
                 self.read_stashes(refs.observation.clone(), admission)

@@ -592,6 +592,13 @@ For live terminal key ownership and copy controls, see the
 | Named command | `git-operation-continue` | Review continuation against the fresh actual compatible family. |
 | Named command | `git-operation-skip` | Review skipping against the fresh actual compatible family. |
 | Named command | `git-operation-abort` | Review abort against exact original lineage and fresh Git state. |
+| `Z Z`, `Z l` in Status | `git-worktree-list` | Open a bounded NUL-record worktree list with raw paths, full HEADs, distinct Git/common directories, lock reasons and prune state. |
+| `c` in Worktree | `git-worktree-create` | Review a new linked worktree and new local branch at the exact observed HEAD, using a checked absent destination. |
+| `v` in Worktree | `git-worktree-visit` | Open checked Git Status for the selected worktree identity while retaining native source buffers and windows. |
+| `L` in Worktree | `git-worktree-lock` | Review an exact linked-worktree path and explicit one-line lock reason. |
+| `U` in Worktree | `git-worktree-unlock` | Review unlocking one exact linked-worktree record without changing its saved files. |
+| `P` in Worktree | `git-worktree-prune` | Review all captured missing unlocked worktree records and prune only while the complete registry remains unchanged. |
+| `k` in Worktree | `git-worktree-remove` | Review non-forced removal of one clean linked worktree; protect current/main roots, lock state and retained native resources. |
 | `z z`, `z l` in Status | `git-stash-list` | Open a bounded exact stash list; subjects and ordinal labels never supply mutation authority. |
 | `c` in Stash | `git-stash-create` | Review and stash saved tracked and untracked changes, excluding ignored files; protect affected unsaved buffers. |
 | `v`, Return in Stash | `git-stash-show` | Inspect the selected full stash object as bounded read-only patch detail with explicit partial status. |
@@ -879,6 +886,7 @@ native cancellation. Prompts use `keys.minibuffer`.
 
 | Keys | Target |
 | --- | --- |
+| `Z Z`, `Z l` | `git-worktree-list` |
 | `z z`, `z l` | `git-stash-list` |
 | `C-x g` | `git-status` |
 | `C-x C-c` | `save-buffers-kill-terminal` |
@@ -1172,6 +1180,48 @@ effects remain visible. Existing file automatic/ask reload policy applies.
 | `C-g` | `keyboard-quit` |
 | `C-x C-c` | `save-buffers-kill-terminal` |
 | `Up`, `C-p` | `previous-line` |
+| `Down`, `C-n`, `n` | `next-line` |
+| `PageUp` | `scroll-down-command` |
+| `PageDown` | `scroll-up-command` |
+| `M-<` | `beginning-of-buffer` |
+| `M->` | `end-of-buffer` |
+
+### Git worktree defaults and availability
+
+`keys.git_worktree` owns Worktrees in both profiles. Status Z Z or Z l opens
+it. Selection retains exact operating-system path bytes and full HEAD identity;
+Return or Tab toggles wrapped details, including per-worktree and common Git
+directories, lock reasons and prune state. v opens that worktree's checked Git
+Status context while retaining source buffers and windows. q returns to Status.
+
+Create prompts for an absent path and a new local branch at the observed HEAD.
+All changing actions show exact paths and object identities and require y,
+C-Enter or C-c C-c; Return alone does not accept. n and C-g cancel. Lock retains
+its explicit one-line reason. Prune covers the complete set of missing unlocked
+records and refuses reappeared paths. Remove requires a clean saved tree,
+including untracked and ignored files, and refuses main/current, locked or
+active-sequence targets. Retained visiting buffers, file-tree roots and native
+process/language-server owners protect their worktrees. Actions serialize common
+repository storage and recheck saved state and full registry facts before Git;
+no force, implicit save, automatic process stop or rollback is supplied.
+
+| Keys | Target |
+| --- | --- |
+| `c` | `git-worktree-create` |
+| `L` | `git-worktree-lock` |
+| `U` | `git-worktree-unlock` |
+| `P` | `git-worktree-prune` |
+| `k` | `git-worktree-remove` |
+| `C-x g` | `git-status` |
+| `q` | `git-quit` |
+| `g` | `git-refresh` |
+| `TAB`, `RET` | `git-toggle-section` |
+| `v` | `git-worktree-visit` |
+| `$` | `git-processes` |
+| `M-x`, `:` | `execute-extended-command` |
+| `C-g` | `keyboard-quit` |
+| `C-x C-c` | `save-buffers-kill-terminal` |
+| `Up`, `C-p`, `p` | `previous-line` |
 | `Down`, `C-n`, `n` | `next-line` |
 | `PageUp` | `scroll-down-command` |
 | `PageDown` | `scroll-up-command` |

@@ -54,6 +54,14 @@ pub(super) struct Work {
 }
 
 impl Work {
+    pub(in crate::session) fn retains_directory(&self, root: &std::path::Path) -> bool {
+        (self.operation.is_some() || self.idle.is_some())
+            && (self.directory.as_ref().is_some_and(|p| p.starts_with(root))
+                || self
+                    .source
+                    .as_ref()
+                    .is_some_and(|s| s.root.starts_with(root)))
+    }
     pub fn new(launch: PathBuf) -> Self {
         Self {
             launch,

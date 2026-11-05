@@ -112,7 +112,14 @@ pub enum Command {
 }
 
 impl Command {
-    pub const ALL: [Self; 554] = [
+    pub const ALL: [Self; 561] = [
+        Self::Git(GitCommand::WorktreeList),
+        Self::Git(GitCommand::WorktreeCreate),
+        Self::Git(GitCommand::WorktreeVisit),
+        Self::Git(GitCommand::WorktreeLock),
+        Self::Git(GitCommand::WorktreeUnlock),
+        Self::Git(GitCommand::WorktreePrune),
+        Self::Git(GitCommand::WorktreeRemove),
         Self::Git(GitCommand::StashList),
         Self::Git(GitCommand::StashCreate),
         Self::Git(GitCommand::StashShow),

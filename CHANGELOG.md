@@ -66,6 +66,10 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
   Open Stashes with z z or z l. Inspect full stash objects, create a stash from
   saved tracked and untracked changes, or review apply, pop, branch and drop.
   Protect affected unsaved files and retain the stash when restoration conflicts.
+  Open linked Worktrees with Z Z or Z l, inspect their separate Git identities,
+  visit checked Status and review new branches, lock reasons, unlock, missing
+  record pruning and clean removal. Retained sources and native process owners
+  protect their worktrees; changing actions recheck complete saved state.
   Return to the same windows
   and terminals. Inspect active and
   recent Git processes, cancel a selected operation, and confirm before quitting

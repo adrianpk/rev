@@ -2,6 +2,9 @@ use super::support::{Repository, finish};
 use rev::git::{Completeness, Effects, Outcome, Repositories, StashAction, StashPlan, Stashes};
 use std::{ffi::OsString, fs, os::unix::ffi::OsStringExt, sync::Arc};
 
+#[path = "repository_worktrees.rs"]
+mod worktrees;
+
 fn list(repository: &Repository, owner: &mut Repositories) -> Arc<Stashes> {
     if owner.contexts().is_empty() {
         repository.open(owner, &repository.root);

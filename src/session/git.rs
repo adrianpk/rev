@@ -41,6 +41,7 @@ pub(super) struct Work {
     refs: refs::Inspection,
     conflicts: conflicts::Inspection,
     repository: repository::Inspection,
+    worktrees: repository::worktrees::Inspection,
     process_selected: Option<OperationId>,
     process_top: usize,
     detail_top: usize,
@@ -57,6 +58,7 @@ enum Page {
     Sequence,
     Conflict,
     Stash,
+    Worktree,
     Revision,
     Reflog,
     Blame,
@@ -88,6 +90,7 @@ struct Painted {
     refs_top: usize,
     conflict: (Option<OperationId>, usize),
     stash: (Option<OperationId>, usize),
+    worktree: (Option<OperationId>, usize),
     sequence_top: usize,
     expanded: bool,
     expanded_hunk: Option<crate::git::HunkId>,
@@ -227,6 +230,7 @@ impl Work {
             refs,
             conflicts,
             repository: repository::Inspection::new(),
+            worktrees: repository::worktrees::Inspection::new(),
             process_selected: None,
             process_top: 0,
             detail_top: 0,
@@ -341,6 +345,23 @@ impl Session {
                 }
                 GitCommand::ConflictStage => {
                     self.prepare_git_resolution(crate::git::ResolutionAction::Stage)
+                }
+                GitCommand::WorktreeList => self.open_git_worktrees(),
+                GitCommand::WorktreeVisit => self.visit_git_worktree(),
+                GitCommand::WorktreeCreate => {
+                    self.prompt_git_worktree(repository::worktrees::Intent::Create)
+                }
+                GitCommand::WorktreeLock => {
+                    self.prompt_git_worktree(repository::worktrees::Intent::Lock)
+                }
+                GitCommand::WorktreeUnlock => {
+                    self.prompt_git_worktree(repository::worktrees::Intent::Unlock)
+                }
+                GitCommand::WorktreePrune => {
+                    self.prompt_git_worktree(repository::worktrees::Intent::Prune)
+                }
+                GitCommand::WorktreeRemove => {
+                    self.prompt_git_worktree(repository::worktrees::Intent::Remove)
                 }
                 GitCommand::StashList => self.open_git_stashes(),
                 GitCommand::StashShow => self.show_git_stash(),
@@ -539,7 +560,11 @@ impl Session {
         }
     }
     fn quit_git(&mut self) -> Action {
-        if !self.git.state.menu && (self.quit_git_ref_detail() || self.quit_git_stash_detail()) {
+        if !self.git.state.menu
+            && (self.quit_git_ref_detail()
+                || self.quit_git_stash_detail()
+                || self.quit_git_worktree_detail())
+        {
             return Action::Redraw;
         }
 
@@ -551,7 +576,7 @@ impl Session {
             return Action::Redraw;
         }
         match self.git.page {
-            Page::Stash | Page::Refs | Page::History | Page::Sequence => {
+            Page::Worktree | Page::Stash | Page::Refs | Page::History | Page::Sequence => {
                 self.git.page = Page::Status;
                 return Action::Redraw;
             }
@@ -597,6 +622,9 @@ impl Session {
         })
     }
     fn refresh_git(&mut self) -> Action {
+        if self.git.visible && self.git.page == Page::Worktree {
+            return self.open_git_worktrees();
+        }
         if self.git.visible && self.git.page == Page::Stash {
             return self.open_git_stashes();
         }
@@ -644,6 +672,7 @@ impl Session {
     }
     fn move_git(&mut self, distance: usize, backward: bool) -> Action {
         match self.git.page {
+            Page::Worktree => return self.move_git_worktrees(distance, backward),
             Page::Stash => return self.move_git_stashes(distance, backward),
             Page::Refs => return self.move_git_refs(distance, backward),
             Page::Sequence => return self.move_git_sequence(distance, backward),
@@ -693,6 +722,9 @@ impl Session {
         Action::Redraw
     }
     fn toggle_git_section(&mut self) -> Action {
+        if self.git.page == Page::Worktree {
+            return self.toggle_git_worktree_detail();
+        }
         if self.git.page == Page::Stash {
             return self.show_git_stash();
         }
@@ -756,6 +788,12 @@ impl Session {
             return Action::Wait;
         }
         for update in updates {
+            if self.git.worktrees.request == Some(update.operation)
+                || self.git.worktrees.preparing == Some(update.operation)
+            {
+                self.publish_git_worktrees(&update);
+                continue;
+            }
             if self.git.repository.request == Some(update.operation)
                 || self.git.repository.preparing == Some(update.operation)
             {
@@ -901,6 +939,8 @@ impl Session {
     }
     pub(super) fn git_input(&mut self, event: &Event) -> Option<Action> {
         self.input
+            .set_git_worktree(self.git.visible && self.git.page == Page::Worktree);
+        self.input
             .set_git_stash(self.git.visible && self.git.page == Page::Stash);
         self.input
             .set_git_conflict(self.git.visible && self.git.page == Page::Conflict);
@@ -957,6 +997,7 @@ impl Session {
                             && painted.sequence_top == self.git.refs.sequence_top
                             && painted.context == self.git.state.context
                             && painted.generation == self.git.observation().map(|o| o.generation)
+                            && painted.worktree == self.git.worktree_token()
                             && painted.stash == self.git.stash_token()
                             && painted.inspected == self.git.inspection_token()
                             && painted.history == self.git.history().map(|h| h.id)
@@ -1001,6 +1042,8 @@ impl Session {
                             self.select_git_sequence(
                                 self.git.refs.sequence_top + usize::from(mouse.row),
                             )
+                        } else if self.git.page == Page::Worktree {
+                            self.select_git_worktree(self.git.worktrees.top + index)
                         } else if self.git.page == Page::Stash {
                             self.select_git_stash(self.git.repository.top + index)
                         } else if self.git.page == Page::Refs {
@@ -1077,6 +1120,9 @@ impl Session {
             self.buffers.palette(),
             &self.echo,
             match self.git.page {
+                Page::Worktree => {
+                    " Git Worktrees  c create  v Status visit  L lock  U unlock  P prune  k remove  q Status"
+                }
                 Page::Status => {
                     " Git Status  c commit  Tab expand  Return visit  g refresh  $ processes  ? actions  q return"
                 }
@@ -1137,6 +1183,11 @@ impl Session {
                         .to_string(),
                         false,
                     );
+                }
+                if self.git.page == Page::Worktree {
+                    return self
+                        .git
+                        .worktree_row(row, usize::from(self.size.width.max(1)));
                 }
                 if self.git.page == Page::Stash {
                     return self.git.stash_row(row, usize::from(self.size.width.max(1)));
@@ -1351,6 +1402,7 @@ impl Session {
         drop(comparison_rows);
         drop(process_rows);
         self.git.painted = Some(Painted {
+            worktree: self.git.worktree_token(),
             stash: self.git.stash_token(),
             context: self.git.state.context,
             generation: self.git.observation().map(|o| o.generation),

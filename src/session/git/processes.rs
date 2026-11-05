@@ -40,6 +40,10 @@ impl Work {
             .map(|p| p.kind)
             .or_else(|| self.engine.record(id).map(|r| r.kind));
         match kind {
+            Some(crate::git::OperationKind::Worktrees) => "worktree observation",
+            Some(crate::git::OperationKind::WorktreePrepare) => "worktree preparation",
+            Some(crate::git::OperationKind::WorktreeVisit) => "worktree Status visit",
+            Some(crate::git::OperationKind::Worktree) => "checked worktree action",
             Some(crate::git::OperationKind::Stashes) => "stash observation",
             Some(crate::git::OperationKind::StashShow) => "stash inspection",
             Some(crate::git::OperationKind::StashPrepare) => "stash preparation",
@@ -114,7 +118,8 @@ impl Work {
     }
     pub(super) fn process_rows(&self) -> Box<dyn Iterator<Item = (String, bool)> + '_> {
         match self.page {
-            Page::Stash
+            Page::Worktree
+            | Page::Stash
             | Page::Status
             | Page::Diff
             | Page::History

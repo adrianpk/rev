@@ -53,6 +53,9 @@ pub(super) struct Work {
 }
 
 impl Work {
+    pub(in crate::session) fn retains_directory(&self, root: &std::path::Path) -> bool {
+        self.contexts.values().any(|p| p.starts_with(root))
+    }
     pub(super) fn new(
         prefs: &crate::config::Terminal,
         directory: PathBuf,

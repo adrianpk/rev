@@ -629,6 +629,10 @@ fn context_reference() {
         (Context::Git, "### Git defaults and availability"),
         (Context::GitStash, "### Git stash defaults and availability"),
         (
+            Context::GitWorktree,
+            "### Git worktree defaults and availability",
+        ),
+        (
             Context::OrgAgenda,
             "### Org agenda defaults and availability",
         ),

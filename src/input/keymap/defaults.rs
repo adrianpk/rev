@@ -52,6 +52,7 @@ pub(super) fn bindings(context: Context) -> &'static [(&'static str, &'static st
         Context::GitInspect => GIT_INSPECT,
         Context::GitRefs => GIT_REFS,
         Context::GitSequence => GIT_SEQUENCE,
+        Context::GitWorktree => GIT_WORKTREE,
         Context::GitStash => GIT_STASH,
         Context::GitConflict => GIT_CONFLICT,
         Context::GitCommit => GIT_COMMIT,
@@ -271,6 +272,35 @@ const GIT_INSPECT: &[(&str, &str)] = &[
     ("M->", "end-of-buffer"),
 ];
 
+const GIT_WORKTREE: &[(&str, &str)] = &[
+    ("c", "git-worktree-create"),
+    ("L", "git-worktree-lock"),
+    ("U", "git-worktree-unlock"),
+    ("P", "git-worktree-prune"),
+    ("k", "git-worktree-remove"),
+    ("C-x g", "git-status"),
+    ("q", "git-quit"),
+    ("g", "git-refresh"),
+    ("TAB", "git-toggle-section"),
+    ("RET", "git-toggle-section"),
+    ("v", "git-worktree-visit"),
+    ("$", "git-processes"),
+    ("M-x", "execute-extended-command"),
+    (":", "execute-extended-command"),
+    ("C-g", "keyboard-quit"),
+    ("C-x C-c", "save-buffers-kill-terminal"),
+    ("Up", "previous-line"),
+    ("Down", "next-line"),
+    ("C-p", "previous-line"),
+    ("C-n", "next-line"),
+    ("p", "previous-line"),
+    ("n", "next-line"),
+    ("PageUp", "scroll-down-command"),
+    ("PageDown", "scroll-up-command"),
+    ("M-<", "beginning-of-buffer"),
+    ("M->", "end-of-buffer"),
+];
+
 const GIT_STASH: &[(&str, &str)] = &[
     ("c", "git-stash-create"),
     ("a", "git-stash-apply"),
@@ -307,6 +337,8 @@ pub(super) const GIT_COMMIT: &[(&str, &str)] = &[
 ];
 
 const GIT: &[(&str, &str)] = &[
+    ("Z Z", "git-worktree-list"),
+    ("Z l", "git-worktree-list"),
     ("z z", "git-stash-list"),
     ("z l", "git-stash-list"),
     ("b", "git-refs"),

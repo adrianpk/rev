@@ -1,5 +1,7 @@
 //! Bounded stash observations and exact, reviewed repository requests.
 use super::*;
+pub(in crate::git) mod worktrees;
+pub use worktrees::{WorktreeAction, WorktreeEntry, WorktreePlan, Worktrees};
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct StashEntry {
@@ -78,6 +80,7 @@ pub struct StashPlan {
     pub(super) _admission: Lease,
 }
 pub(super) enum Request {
+    Worktrees(worktrees::Request),
     Stashes(Arc<Observation>),
     Show {
         stashes: Arc<Stashes>,

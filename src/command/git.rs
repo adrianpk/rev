@@ -1,5 +1,13 @@
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum GitCommand {
+    WorktreeList,
+    WorktreeCreate,
+    WorktreeVisit,
+    WorktreeLock,
+    WorktreeUnlock,
+    WorktreePrune,
+    WorktreeRemove,
+
     StashList,
     StashCreate,
     StashShow,
@@ -90,6 +98,14 @@ pub enum GitCommand {
 impl GitCommand {
     pub fn name(self) -> &'static str {
         match self {
+            Self::WorktreeList => "git-worktree-list",
+            Self::WorktreeCreate => "git-worktree-create",
+            Self::WorktreeVisit => "git-worktree-visit",
+            Self::WorktreeLock => "git-worktree-lock",
+            Self::WorktreeUnlock => "git-worktree-unlock",
+            Self::WorktreePrune => "git-worktree-prune",
+            Self::WorktreeRemove => "git-worktree-remove",
+
             Self::StashList => "git-stash-list",
             Self::StashCreate => "git-stash-create",
             Self::StashShow => "git-stash-show",

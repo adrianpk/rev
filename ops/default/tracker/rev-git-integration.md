@@ -201,11 +201,11 @@ Requirements: GIT13, GIT17-GIT19
 PR: pending
 
 - [x] T11.1: Implement native stash list/create/show/apply/pop/branch/drop with exact stash-object identity, checked source state, explicit destructive review and truthful conflict outcomes.
-- [ ] T11.2: Implement worktree list/create/visit/lock/unlock/prune/remove with distinct worktree/common identities, checked paths and no forced removal of protected or dirty resources.
+- [x] T11.2: Implement worktree list/create/visit/lock/unlock/prune/remove with distinct worktree/common identities, checked paths and no forced removal of protected or dirty resources.
 - [ ] T11.3: Verify stashes with conflicts, changed stash positions, linked-worktree ownership, lock reasons, stale removal and ordinary buffer/reload behavior; share existing read-only reflog/blame owners.
 
-Validation: T11.1 development passes eight real stash/native cases, four shared native ref cases and 21 reference checks, formatter, strict focused Clippy, documentation and whitespace. Both object formats/profiles, raw paths, saved tracked/untracked bytes, pop/branch/drop, stale content/index/HEAD/list rejection, actual conflicts, bounds, renamed affected sources and unrelated unsaved ownership are covered. T11.2-T11.3 and final exact-HEAD controller evidence remain pending.
-Integration: T11.1 stash management is implemented. The Slice 11 report is drafting; T11.2 linked-worktree management and T11.3 additional acceptance remain pending. No PR is claimed.
+Validation: Development passes eight stash/native cases, five worktree backend cases, two native worktree cases, four shared native ref cases and 21 reference checks, formatter, strict focused Clippy, documentation and whitespace. Both object formats/profiles, raw paths, saved-file/stale-state safeguards, lock reasons, missing-record pruning, separate identities/common ownership and protected native buffers are covered. Corrections and exact commands are recorded in the report. T11.3 and final exact-HEAD controller evidence remain pending.
+Integration: T11.1 stash and T11.2 linked-worktree management are implemented. The Slice 11 report is drafting; T11.3 additional acceptance remains pending. No PR is claimed.
 
 ## Slice 12: Prepared Git families and direct commands
 

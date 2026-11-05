@@ -52,6 +52,11 @@ pub struct Client {
 }
 
 impl Client {
+    pub(crate) fn retains_directory(&self, root: &Path) -> bool {
+        self.connections
+            .keys()
+            .any(|(_, path)| path.starts_with(root))
+    }
     pub fn new(policy: Lsp) -> Self {
         Self {
             policy,

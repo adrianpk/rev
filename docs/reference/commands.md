@@ -721,6 +721,13 @@ Status reads disk and Git state; it does not save an unsaved source buffer.
 | `git-operation-continue` | Refresh actual Git state and review one compatible family-specific continuation bound to that exact sequence. |
 | `git-operation-skip` | Refresh actual Git state and review a compatible skip; reject a missing or wrong-family sequence. |
 | `git-operation-abort` | Refresh actual Git state and review one compatible abort with exact original lineage; process cancellation is a separate action. |
+| `git-worktree-list` | Open a bounded NUL-record worktree list with raw paths, full HEADs, distinct Git/common directories, lock reasons and prune state. |
+| `git-worktree-create` | Review a new linked worktree and new local branch at the exact observed HEAD, using a checked absent destination. |
+| `git-worktree-visit` | Open checked Git Status for the selected worktree identity while retaining native source buffers and windows. |
+| `git-worktree-lock` | Review an exact linked-worktree path and explicit one-line lock reason. |
+| `git-worktree-unlock` | Review unlocking one exact linked-worktree record without changing its saved files. |
+| `git-worktree-prune` | Review all captured missing unlocked worktree records and prune only while the complete registry remains unchanged. |
+| `git-worktree-remove` | Review non-forced removal of one clean linked worktree; protect current/main roots, lock state and retained native resources. |
 | `git-stash-list` | Open a bounded exact stash list; subjects and ordinal labels never supply mutation authority. |
 | `git-stash-create` | Review and stash saved tracked and untracked changes, excluding ignored files; protect affected unsaved buffers. |
 | `git-stash-show` | Inspect the selected full stash object as bounded read-only patch detail with explicit partial status. |

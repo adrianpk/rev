@@ -1,4 +1,5 @@
 use super::*;
+pub(in crate::session) mod worktrees;
 use crate::git::{ObjectId, StashAction, Stashes, Update};
 
 pub(super) struct Inspection {

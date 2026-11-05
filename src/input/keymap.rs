@@ -36,6 +36,7 @@ pub enum Context {
     GitInspect,
     GitRefs,
     GitSequence,
+    GitWorktree,
     GitStash,
     GitConflict,
     Org,
@@ -46,7 +47,7 @@ pub enum Context {
 }
 
 impl Context {
-    pub const ALL: [Self; 24] = [
+    pub const ALL: [Self; 25] = [
         Self::VimNormal,
         Self::VimInsert,
         Self::VimReplace,
@@ -64,6 +65,7 @@ impl Context {
         Self::GitInspect,
         Self::GitRefs,
         Self::GitSequence,
+        Self::GitWorktree,
         Self::GitStash,
         Self::GitConflict,
         Self::Org,
@@ -86,6 +88,7 @@ impl Context {
             Self::GitInspect => "git_inspect",
             Self::GitRefs => "git_refs",
             Self::GitSequence => "git_sequence",
+            Self::GitWorktree => "git_worktree",
             Self::GitStash => "git_stash",
             Self::GitConflict => "git_conflict",
             _ => self.modal_name(),
@@ -151,6 +154,7 @@ pub struct Effective {
     git_inspect: Map,
     git_refs: Map,
     git_sequence: Map,
+    git_worktree: Map,
     git_stash: Map,
     git_conflict: Map,
     org: Map,
@@ -186,6 +190,7 @@ impl Effective {
             Context::GitInspect => &self.git_inspect,
             Context::GitRefs => &self.git_refs,
             Context::GitSequence => &self.git_sequence,
+            Context::GitWorktree => &self.git_worktree,
             Context::GitStash => &self.git_stash,
             Context::GitConflict => &self.git_conflict,
             _ => self.org_map(context),
@@ -243,6 +248,7 @@ pub(crate) fn compile_ai(
         git_inspect: Map::compile(Context::GitInspect, &keys.git_inspect, commands)?,
         git_refs: Map::compile(Context::GitRefs, &keys.git_refs, commands)?,
         git_sequence: Map::compile(Context::GitSequence, &keys.git_sequence, commands)?,
+        git_worktree: Map::compile(Context::GitWorktree, &keys.git_worktree, commands)?,
         git_stash: Map::compile(Context::GitStash, &keys.git_stash, commands)?,
         git_conflict: Map::compile(Context::GitConflict, &keys.git_conflict, commands)?,
         org_agenda: Map::compile(Context::OrgAgenda, &keys.org_agenda, commands)?,

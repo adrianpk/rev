@@ -32,6 +32,14 @@ pub(super) enum Request {
 impl Request {
     pub fn kind(&self) -> OperationKind {
         match self {
+            Self::Repository(super::repository::Request::Worktrees(request)) => match request {
+                super::repository::worktrees::Request::List(_) => OperationKind::Worktrees,
+                super::repository::worktrees::Request::Visit { .. } => OperationKind::WorktreeVisit,
+                super::repository::worktrees::Request::Prepare { .. } => {
+                    OperationKind::WorktreePrepare
+                }
+                super::repository::worktrees::Request::Change(_) => OperationKind::Worktree,
+            },
             Self::Repository(super::repository::Request::Stashes(_)) => OperationKind::Stashes,
             Self::Repository(super::repository::Request::Show { .. }) => OperationKind::StashShow,
             Self::Repository(super::repository::Request::Prepare { .. }) => {
@@ -85,6 +93,8 @@ impl Request {
 }
 
 pub(super) enum Publication {
+    Worktrees(Worktrees),
+    WorktreePlan(WorktreePlan),
     Stashes(Stashes),
     StashDetail(StashDetail),
     StashPlan(StashPlan),
@@ -112,6 +122,8 @@ pub(super) enum Publication {
 }
 
 enum Candidate {
+    Worktrees(Worktrees),
+    WorktreePlan(WorktreePlan),
     Stashes(Stashes),
     StashDetail(StashDetail),
     StashPlan(StashPlan),
@@ -171,7 +183,10 @@ pub(super) fn start(
                 Request::Refs(
                     super::refs::Request::Fetch { .. } | super::refs::Request::Push(_),
                 ) => policy.transport_timeout_seconds,
-                Request::Repository(super::repository::Request::Stash(_))
+                Request::Repository(super::repository::Request::Worktrees(
+                    super::repository::worktrees::Request::Change(_),
+                ))
+                | Request::Repository(super::repository::Request::Stash(_))
                 | Request::Bisect(
                     super::bisect::Request::Start(_) | super::bisect::Request::Control { .. },
                 )
@@ -638,6 +653,8 @@ impl Runner {
         };
         record.admission = admission.split(record.bytes() + 4096);
         let publication = observed.and_then(|candidate| match candidate {
+            Candidate::Worktrees(worktrees) => Ok(Publication::Worktrees(worktrees)),
+            Candidate::WorktreePlan(plan) => Ok(Publication::WorktreePlan(plan)),
             Candidate::Stashes(stashes) => Ok(Publication::Stashes(stashes)),
             Candidate::StashDetail(detail) => Ok(Publication::StashDetail(detail)),
             Candidate::StashPlan(plan) => Ok(Publication::StashPlan(plan)),

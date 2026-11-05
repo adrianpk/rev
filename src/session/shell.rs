@@ -27,6 +27,13 @@ pub(super) struct Work {
     notify: bool,
 }
 impl Work {
+    pub(in crate::session) fn retains_directory(&self, root: &std::path::Path) -> bool {
+        self.operation.is_some()
+            && self
+                .request
+                .as_ref()
+                .is_some_and(|r| r.directory.starts_with(root))
+    }
     pub(super) fn new(launch: PathBuf) -> Self {
         let startup_shell = std::env::var("SHELL")
             .ok()

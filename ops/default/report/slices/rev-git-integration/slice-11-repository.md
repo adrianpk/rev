@@ -33,7 +33,16 @@ Deliver GIT13 and its GIT17-GIT19 contracts through T11.1-T11.3 in the
 - Conflicts retain the stash and expose actual unmerged index paths through
   the existing conflict owner. No Git sequence, continuation or rollback is
   invented. Failed or uncertain effects keep actual diagnostics and ownership.
-- T11.2 linked-worktree management and T11.3 additional acceptance remain pending.
+- T11.2: Status Z Z or Z l opens bounded Worktrees with full raw-path and
+  object identity, per-worktree/common Git directories, lock reasons and prune
+  state. Return or Tab toggles wrapped detail; v opens checked Status for that
+  worktree while retaining native source buffers and windows.
+- c reviews a new path and new branch at observed HEAD. L reviews a lock with
+  its explicit reason; U unlocks. P reviews every captured missing unlocked
+  record. k reviews clean non-forced removal. Main/current, locked, dirty,
+  ignored/untracked and active-sequence targets reject. Retained native buffers,
+  file-tree roots and process/language-server owners protect their worktrees.
+- T11.3 additional acceptance remains pending.
 
 ## Implementation Notes
 
@@ -52,7 +61,17 @@ A conflict leaves the entry intact. Restoration is rechecked before removal;
 actual saved index/working-tree/untracked evidence must remain unchanged by the
 removal. Restoration/removal failures are not retried.
 
-Stash counts use the existing max_refs bound. Path counts/bytes, detail bytes,
+Linked-worktree records come from installed Git's NUL porcelain and checked
+bounded administrative backlinks. Working roots and Git directories have
+separate filesystem fingerprints; common-storage operations serialize across
+linked contexts. Checked plans retain source index/diff/untracked evidence,
+exact registry/HEAD/branch/lock/prune facts, absent destination parent identity
+and a clean target sequence when removing. Execution rechecks these before
+non-forced Git arguments and verifies actual registry, paths, saved source
+state and branch outcomes afterward. Prune never accepts an existing root.
+Native removal guards query retained owners without closing or stopping them.
+
+Stash and worktree counts use the existing max_refs bound. Path counts/bytes, detail bytes,
 process output and retained plans share existing Git configuration, the 1 MiB
 scratch limit and the 32 MiB admission owner. Reached caps remain explicit and
 partial observations cannot authorize changing actions. No dependency, Python
@@ -64,7 +83,10 @@ existing operation/cancellation/cleanup limits remain unchanged.
 - Seven native commands: git-stash-list/create/show/apply/pop/branch/drop.
 - keys.git_stash has 25 active defaults in both interaction profiles. p is pop;
   Up and C-p navigate to the previous stash. Status has z z and z l entry routes.
-- The catalogs now contain 554 commands and 270 configuration entries.
+- Seven worktree commands: git-worktree-list/create/visit/lock/unlock/prune/remove.
+- keys.git_worktree has 26 active defaults; p remains previous-line. Status
+  adds Z Z and Z l, bringing its map to 41 entries.
+- The catalogs now contain 561 commands and 271 configuration entries.
 
 ## Files of Interest
 
@@ -74,7 +96,12 @@ existing operation/cancellation/cleanup limits remain unchanged.
   prompts, exact review, affected source owners and existing reload policy.
 - `src/input/keymap.rs`, `src/input/keymap/defaults.rs`: dedicated configurable
   stash context with the approved prefix/action meanings in both profiles.
-- `tests/git_integration/repository.rs`, `repository_presentation.rs`: real
+- `src/git/repository/worktrees.rs`, `src/git/work/repository/worktrees.rs`:
+  typed worktree observations, identity/precondition checks and verified actions.
+- `src/session/git/repository/worktrees.rs`: native worktree list/detail,
+  prompts, checked review and separate-context Status visits.
+- `tests/git_integration/repository.rs`, `repository_presentation.rs`,
+  `repository_worktrees.rs`, `repository_worktrees_presentation.rs`: real
   Git objects/disk/index and native command/key/confirmation/source behavior.
 
 ## Validation
@@ -102,6 +129,25 @@ table; grouping aliases under one target corrected the documentation. The
 existing context-reference test now also checks the stash context. Documentation
 passed at 554 commands, 270 configuration entries, 76 pages and 485 local links.
 
+T11.2 backend development passed five cases in 50.88 seconds, covering
+SHA-1/SHA-256 raw-path create/visit/lock/unlock/remove, exact lock reasons and
+separate Git/common identities; tracked, untracked, ignored, active-sequence,
+main/current removal rejection; changed lock, target HEAD/content, source bytes,
+destination and parent rejection; missing unlocked prune, locked preservation
+and reappeared roots; truncated-list and common-storage ownership admission.
+Strict focused Clippy passed after collapsing one nested conditional. All 21
+reference checks passed in 15.73 seconds; documentation passed at 561 commands,
+271 configuration entries, 76 pages and 485 links.
+
+The first native run rejected an incorrect expected detail label; the fixture
+now checks the actual Common directory field. A later native assertion exposed
+lock flags clipped after long paths/full object IDs. Row rendering now places
+lock/prune state before the path, retaining full identity in wrapped detail.
+No acceptance requirement, timeout or resource limit changed.
+The corrected native run passed two cases in 24.19 seconds: both profiles,
+create/review/lock cancellation/unlock/separate-context visit, visible state
+markers, retained source/window identity and clean/unsaved buffer protection.
+
 Successful development commands:
 
 - `cargo fmt --all -- --check`
@@ -111,14 +157,16 @@ Successful development commands:
 - `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test commands --test configuration reference -- --test-threads=1`
 - `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo run --locked --quiet --example documentation-check`
 - `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test git_integration repository::stash_ordinal -- --test-threads=1`
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test git_integration repository::worktrees:: -- --test-threads=1`
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test git_integration repository::worktrees::presentation:: -- --test-threads=1`
 - `git diff --check`
 
-T11.2-T11.3 evidence remains pending. Final controller validation belongs to the
+T11.3 additional acceptance remains pending. Final controller validation belongs to the
 exact clean canonical PR head after its reference follow-up commit. No final
 receipt is claimed here.
 
 ## Risks and Follow-ups
 
-T11.2 and T11.3 remain within this slice. Combined PTY/resource acceptance and
+T11.3 remains within this slice. Combined PTY/resource acceptance and
 full learning-path guidance remain in their approved later slices. Integration
 remains controller-owned.

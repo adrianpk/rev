@@ -203,6 +203,7 @@ enum AfterSave {
 
 enum Pending {
     GitDiscard(Box<git::discard::Consent>),
+    GitWorktree(Box<git::repository::worktrees::Prompt>),
     GitRepository(Box<git::repository::Prompt>),
     GitRef(Box<git::refs::Consent>),
     GitTagPrompt(Box<git::refs::tag::Prompt>),

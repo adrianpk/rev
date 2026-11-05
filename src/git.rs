@@ -26,7 +26,10 @@ pub use bisect::{BisectAction, BisectPlan, BisectResult, BisectState};
 mod sequences;
 pub use sequences::{ApplyKind, ApplyPlan, ApplyProgress, ApplyStep, RevisionChoice};
 mod repository;
-pub use repository::{StashAction, StashDetail, StashEntry, StashPlan, Stashes};
+pub use repository::{
+    StashAction, StashDetail, StashEntry, StashPlan, Stashes, WorktreeAction, WorktreeEntry,
+    WorktreePlan, Worktrees,
+};
 mod refs;
 pub use refs::{BranchAction, PushIntent, RefKind, Reference, Refs, TagIntent, TagKind};
 mod status;
@@ -124,6 +127,10 @@ pub struct OperationId(u64);
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum OperationKind {
+    Worktrees,
+    WorktreePrepare,
+    WorktreeVisit,
+    Worktree,
     Stashes,
     StashShow,
     StashPrepare,
@@ -245,6 +252,8 @@ pub struct Context {
     pub failure: Option<OperationId>,
     pub detail: Option<Arc<Diff>>,
     pub detail_failure: Option<OperationId>,
+    pub worktrees: Option<Arc<Worktrees>>,
+    pub worktree_plan: Option<Arc<WorktreePlan>>,
     pub stashes: Option<Arc<Stashes>>,
     pub stash_detail: Option<Arc<StashDetail>>,
     pub stash_plan: Option<Arc<StashPlan>>,
@@ -615,7 +624,8 @@ impl Repositories {
                 let progress = *active.progress.lock().expect("Git progress owner");
                 if matches!(
                     progress.kind,
-                    OperationKind::Stash
+                    OperationKind::Worktree
+                        | OperationKind::Stash
                         | OperationKind::Stage
                         | OperationKind::Unstage
                         | OperationKind::Discard
@@ -676,6 +686,8 @@ impl Repositories {
                             failure: None,
                             detail: None,
                             detail_failure: None,
+                            worktrees: None,
+                            worktree_plan: None,
                             stashes: None,
                             stash_detail: None,
                             stash_plan: None,
@@ -709,6 +721,32 @@ impl Repositories {
                         );
                         None
                     }
+                }
+                Ok(work::Publication::Worktrees(worktrees)) => {
+                    if let Some(context) = self
+                        .contexts
+                        .iter_mut()
+                        .find(|c| c.id == worktrees.observation.context)
+                    {
+                        context.observation = worktrees.observation.clone();
+                        context.worktrees = Some(Arc::new(worktrees));
+                        context.worktree_plan = None;
+                        context.failure = None;
+                        published = true;
+                    }
+                    progress.context
+                }
+                Ok(work::Publication::WorktreePlan(plan)) => {
+                    if let Some(context) = self.contexts.iter_mut().find(|c| {
+                        c.id == plan.worktrees.observation.context
+                            && c.worktrees
+                                .as_ref()
+                                .is_some_and(|w| Arc::ptr_eq(w, &plan.worktrees))
+                    }) {
+                        context.worktree_plan = Some(Arc::new(plan));
+                        published = true;
+                    }
+                    progress.context
                 }
                 Ok(work::Publication::Stashes(stashes)) => {
                     if let Some(context) = self
@@ -1018,11 +1056,14 @@ impl Repositories {
                         .and_then(|id| self.contexts.iter_mut().find(|c| c.id == id))
                     {
                         match progress.kind {
-                            OperationKind::Stashes
+                            OperationKind::Worktrees
+                            | OperationKind::Stashes
                             | OperationKind::Status
                             | OperationKind::Refs => context.failure = Some(record.id),
                             OperationKind::Diff => context.detail_failure = Some(record.id),
-                            OperationKind::StashShow
+                            OperationKind::WorktreeVisit
+                            | OperationKind::WorktreePrepare
+                            | OperationKind::StashShow
                             | OperationKind::StashPrepare
                             | OperationKind::CommitPrepare
                             | OperationKind::Conflict
@@ -1035,7 +1076,8 @@ impl Repositories {
                             | OperationKind::AutosquashPrepare
                             | OperationKind::PushPrepare
                             | OperationKind::TagPrepare => {}
-                            OperationKind::Stash
+                            OperationKind::Worktree
+                            | OperationKind::Stash
                             | OperationKind::Stage
                             | OperationKind::ConflictResolve
                             | OperationKind::Unstage
