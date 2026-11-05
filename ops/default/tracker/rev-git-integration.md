@@ -7,7 +7,7 @@ Plan: [Native Git Integration Delivery](../plan/rev-git-integration.md)
 Spec: [Native Git Integration](../spec/editor-git-integration.md)
 Model: [Native Git Model](../spec/editor-git-integration-model.md)
 Approved: owner, 2026-11-04; complete fourteen-slice plan and autonomous Looper execution/integration through dev
-Active slice: Slice 13 - Combined native PTY and resource acceptance
+Active slice: Slice 14 - Git learning path and reference
 Progress owner: after startup, Looper checkpoint, canonical PRs and exact-candidate validation receipts
 
 ## Canonical slice map
@@ -225,7 +225,7 @@ Integration: [PR #269](https://forge.adrianpk.com/adrianpk/rev/pulls/269) merged
 
 ## Slice 13: Combined native PTY and resource acceptance
 
-Status: reviewing
+Status: delivered
 Branch: `feat/rev-git-integration-13-acceptance`
 Expected PR title: `test(git): verify native workflows and bounded ownership`
 Report: `ops/default/report/slices/rev-git-integration/slice-13-acceptance.md`
@@ -236,19 +236,19 @@ PR: [#270](https://forge.adrianpk.com/adrianpk/rev/pulls/270)
 - [x] T13.2: Exercise representative both-profile journeys covering Status/diffs/index/commit, refs/transport, sequence/conflict, contextual prefixes, pointer/resize and restoration with a live terminal; assert matrix routing at the cheapest reliable native layer.
 - [x] T13.3: Measure Git-only binary delta, startup/idle CPU, retained RSS/output and bounded fair service; verify process/FD cleanup, malformed/truncated/large input, ownership on q/app exit and zero dependency additions.
 
-Validation: T13.1-T13.3 focused native/PTY/resource/lifetime checks pass, including 289 bindings per profile, actual Git objects/index/refs/conflicts, four-context progress, explicit truncation/output limits, retained ownership on q/declined exit and process/FD cleanup. Strict acceptance-target Clippy and source quality pass. Release binary delta is +1,990,136 bytes; cold candidate/baseline builds took 408/355 seconds, resource phase 5,504 milliseconds, and idle CPU is zero ticks. The report records exact commands, measurements and the retained development diagnostic. The required ordered exact-head controller receipt follows the PR-reference commit.
-Integration: T13.1-T13.3 implementation is complete; report reviewing, canonical PR #270 open against dev. Integration remains controller-owned.
+Validation: Controller receipt `YQZ3ALMQDPBYYUWCT7PUZ2CREN` passed all five ordered checks at `d15ab4469f3a05604117276340d87d0f834c871f`: formatter, strict focused runtime/test Clippy, the complete native/PTY/resource/lifetime acceptance driver, strict acceptance-target Clippy and whitespace. Both profiles and object formats, 289 bindings per profile, actual repository effects, bounded ownership and zero dependency additions passed. This is Slice 13 acceptance, not the delivery-set gate.
+Integration: [PR #270](https://forge.adrianpk.com/adrianpk/rev/pulls/270) merged through controller-owned Rebase + Fast-forward into dev at `d15ab4469f3a05604117276340d87d0f834c871f`. Slice 13 of 14 completed.
 
 ## Slice 14: Git learning path and reference
 
-Status: pending
+Status: implementing
 Branch: `feat/rev-git-integration-14-guidance`
 Expected PR title: `docs(git): explain native repository workflows`
 Report: `ops/default/report/slices/rev-git-integration/slice-14-guidance.md`
 Requirements: GIT01-GIT20 and user-visible discovery
 PR: pending
 
-- [ ] T14.1: Add a short independent Git learning path, task guides, exact command/key/configuration reference and ownership explanation; show compact status/diff/commit feedback without requiring Org learning.
+- [x] T14.1: Add a short independent Git learning path, task guides, exact command/key/configuration reference and ownership explanation; show compact status/diff/commit feedback without requiring Org learning.
 - [ ] T14.2: Keep canonical Markdown and its Spore projection/navigation aligned; document explicit fetch/integration, local tags, reviewed push, sequence/conflict, direct commands and bounds, with no unimplemented feature claims.
 - [ ] T14.3: Finish user-facing Unreleased entries and per-variant coverage, update the additive baseline/index references without rewriting historical gate evidence, and prepare exact-candidate closure metadata for the controller after its selected full gate passes.
 

@@ -92,7 +92,8 @@ resolves source saves first and asks once about live sessions; declining keeps
 them. These sessions last for this editor process and are not restored after
 restart.
 
-You have completed the User Guide. Continue with the
+You have completed the everyday editing path. The independent
+[Git path](git/index.md) teaches repository work. Continue with the
 [terminal task guide](../../how-to/use-integrated-terminal.md) or the
 [exact terminal reference](../../reference/integrated-terminal.md).
 

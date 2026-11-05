@@ -25,6 +25,13 @@ chapters offer startup-selected modal editing, optional language servers, extern
 Read in order when learning, or return directly to a chapter you need.
 Each chapter links to the next one and to its supporting reference.
 
+## Git
+
+The [Git learning path](git/index.md) uses a small local repository to teach
+saved changes, selected commits and history. It is independent of Org and the
+everyday path above. Native Git guidance describes the current Unreleased
+capability; the released version is recorded in the changelog.
+
 ## Org mode
 
 The [Org mode guide](org/index.md) has its own path for outlines, tasks,

@@ -11,6 +11,13 @@ completion, optional modal editing, file reload, optional Pi editing, local shel
 - [Reference](reference/index.md): look up commands, keys, configuration and exact behavior.
 - [Explanation](explanation/index.md): understand the editor's behavior and design.
 
+## Git
+
+The [Git learning path](tutorials/user-guide/git/index.md) covers saved changes,
+selected commits and history independently. Use the [Git reference](reference/git.md)
+for exact controls and limits, or [Git ownership](explanation/git-ownership.md)
+for source, repository and process boundaries.
+
 ## Org mode
 
 The [Org mode guide](tutorials/user-guide/org/index.md) has an independent

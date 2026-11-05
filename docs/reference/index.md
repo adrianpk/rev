@@ -33,6 +33,10 @@ Use this section to look up exact behavior. For a guided start, read the
 - [Failure recovery](recovery.md): retained text and publication outcomes.
 - [Filesystem candidates](path-completion.md): bounded path observations and library identities.
 
+## Git
+
+- [Native Git](git.md): commands, contextual maps, startup preferences, bounds and truthful outcomes.
+
 ## Org mode
 
 The [Org mode guide](../tutorials/user-guide/org/index.md) provides a separate

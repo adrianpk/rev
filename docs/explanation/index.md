@@ -5,6 +5,10 @@
 - [Buffers, panes and saved files](editing-model.md): how live text, views,
   history and files relate.
 
+## Git
+
+- [Git ownership](git-ownership.md): live source, saved files, observations and owned process lifetimes.
+
 ## Org mode
 
 - [Org support in rev](org-support.md): native document behavior, numeric

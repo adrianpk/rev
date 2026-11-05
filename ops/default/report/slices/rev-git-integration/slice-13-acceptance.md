@@ -1,6 +1,6 @@
 # Slice 13: Combined Native PTY and Resource Acceptance
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-git-integration
 Plan: `ops/default/plan/rev-git-integration.md`
 Tracker: `ops/default/tracker/rev-git-integration.md`
@@ -159,3 +159,13 @@ The earlier exploratory scan of integrated runtime owners remains a failed
 complexity diagnostic. The required driver keeps explicit source coverage of
 this acceptance entry and its shared fixtures; runtime rewrites are outside
 this validation change. No delivery-set gate or deployment is claimed here.
+
+## Integration
+
+[PR #270](https://forge.adrianpk.com/adrianpk/rev/pulls/270) merged through
+controller-owned Rebase + Fast-forward into dev at
+`d15ab4469f3a05604117276340d87d0f834c871f`. Controller receipt
+`YQZ3ALMQDPBYYUWCT7PUZ2CREN` passed all five ordered checks at that exact head,
+including the combined driver and strict acceptance-target Clippy. Its retained
+log records the final phase measurements. This closes Slice 13 of 14; the
+selected delivery-set gate remains controller-owned after Slice 14 integration.
