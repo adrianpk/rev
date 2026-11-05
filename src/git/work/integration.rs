@@ -210,7 +210,21 @@ impl Runner {
                     s.completeness == Completeness::Complete && s.paths.is_empty()
                 });
                 let policy = if mode == IntegrationMode::Rebase {
-                    true
+                    // Git's original-object provenance binds a changing rebase
+                    // to the reviewed source; ancestry alone cannot do so.
+                    (head == before && after.same(&refs))
+                        || sequence
+                            .files
+                            .iter()
+                            .find(|f| f.name == b"ORIG_HEAD")
+                            .is_some_and(|f| {
+                                ObjectId::parse(
+                                    f.bytes.strip_suffix(b"\n").unwrap_or(&f.bytes),
+                                    refs.observation.identity.format,
+                                )
+                                .ok()
+                                    == Some(before)
+                            })
                 } else {
                     let before_present = self
                         .command(

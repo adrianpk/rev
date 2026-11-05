@@ -201,6 +201,22 @@ impl Runner {
         admission: &mut Lease,
     ) -> Result<(), String> {
         let (identity, status) = self.observe(admission)?;
+        // Commit must not implicitly consume MERGE_HEAD or advance a rebase.
+        // Only the checked family control owns an active sequence transition.
+        for name in [
+            "MERGE_HEAD",
+            "CHERRY_PICK_HEAD",
+            "REVERT_HEAD",
+            "rebase-merge",
+            "rebase-apply",
+            "sequencer",
+        ] {
+            match std::fs::symlink_metadata(identity.git_directory.join(name)) {
+                Err(e) if e.kind() == std::io::ErrorKind::NotFound => {},
+                Err(e) => return Err(format!("Observe Git sequence before commit: {e}")),
+                Ok(_) => return Err("Commit requires no active Git-owned sequence; use its checked continuation control".into()),
+            }
+        }
         let actual = check_status(status.as_ref())?;
         let expected = check_status(observation.status.as_ref())?;
         if identity != observation.identity || !same_index(expected, actual) {

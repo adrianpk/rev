@@ -86,6 +86,9 @@ impl Runner {
                 subject.strip_prefix(prefix).map(|target| (action, target))
             });
             let (action, root) = if let Some((action, target)) = special {
+                if target.trim().is_empty() {
+                    return Err("Autosquash target subject is empty; no target is guessed".into());
+                }
                 let candidates = &source[..index];
                 let exact: Vec<_> = candidates
                     .iter()

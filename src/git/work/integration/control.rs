@@ -109,6 +109,18 @@ impl Runner {
                     refs.head_ref == expected_branch
                         && parents == wanted.as_bytes()
                         && actual_tree == expected_tree
+                        && self.command(
+                            &[
+                                "diff",
+                                "--no-ext-diff",
+                                "--no-textconv",
+                                "--no-color",
+                                "--binary",
+                                "--",
+                            ],
+                            Phase::Verifying,
+                            false,
+                        )? == expected.worktree
                         && self.command(&["ls-files", "--stage", "-z"], Phase::Verifying, false)?
                             == expected.index
                 } else {

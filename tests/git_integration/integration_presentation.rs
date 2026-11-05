@@ -165,3 +165,124 @@ fn native_sequence() {
         assert!(!repository.root.join(".git/MERGE_HEAD").exists());
     }
 }
+
+// Git integration reuses the canonical source owner: clean files reload only
+// under automatic policy, ask retains bytes until explicit revert, and both
+// policies refresh retained history without changing source/window ownership.
+#[test]
+fn integration_reload() {
+    for profile in ["non-modal", "modal"] {
+        for policy in ["reload", "ask"] {
+            let repository = Repository::new("sha1");
+            let mut owned = editor(
+                &repository,
+                profile,
+                &format!("[files]\nexternal_changes='{policy}'\nexternal_change_debounce_ms=0\n"),
+                true,
+            );
+            let editor = &mut owned.0;
+            let buffer = editor.buffer().unwrap().id();
+            let windows = editor
+                .windows()
+                .iter()
+                .map(|(id, _)| id)
+                .collect::<Vec<_>>();
+            repository.git(["switch", "--create", "topic"]);
+            fs::write(repository.root.join("source.txt"), "Integrated source\n").unwrap();
+            repository.commit();
+            let target = repository.git(["rev-parse", "HEAD"]);
+            repository.git(["switch", "main"]);
+            entry(editor);
+            wait(editor, |s| s.git_observation().is_some());
+            plain(editor, 'h');
+            wait(editor, |s| s.echo().contains("Git history inspected"));
+            plain(editor, 'q');
+            plain(editor, 'b');
+            wait(editor, |s| s.echo().contains("Git history inspected"));
+            key(editor, KeyCode::Down, KeyModifiers::NONE);
+            plain(editor, '=');
+            plain(editor, 'y');
+            wait(editor, |s| s.echo().contains("Git history inspected"));
+            assert_eq!(repository.git(["rev-parse", "HEAD"]), target);
+            plain(editor, 'q');
+            plain(editor, 'q');
+            assert_eq!(editor.buffer().unwrap().id(), buffer);
+            assert_eq!(
+                editor
+                    .windows()
+                    .iter()
+                    .map(|(id, _)| id)
+                    .collect::<Vec<_>>(),
+                windows
+            );
+            if policy == "ask" {
+                wait(editor, |s| {
+                    s.buffer().unwrap().external_change_notice().is_some()
+                });
+                assert_eq!(text(editor), "LOCAL_SOURCE_SENTINEL\n");
+                editor.execute(Command::RevertBuffer);
+            }
+            wait(editor, |s| text(s) == "Integrated source\n");
+            assert!(!editor.buffer().unwrap().is_modified());
+            entry(editor);
+            wait(editor, |s| s.echo().contains("Git Status refreshed"));
+            plain(editor, 'h');
+            wait(editor, |s| s.echo().contains("Git history inspected"));
+            assert!(
+                render(editor)
+                    .join("\n")
+                    .contains(String::from_utf8_lossy(&target).trim())
+            );
+        }
+    }
+}
+
+// Continuation reviews use a new actual sequence observation. A change to its
+// exact message while review is open rejects; a second fresh review can finish.
+#[test]
+fn native_continue() {
+    use std::process::Command as Process;
+    for profile in ["non-modal", "modal"] {
+        let repository = Repository::new("sha1");
+        let mut owned = editor(&repository, profile, "", true);
+        let editor = &mut owned.0;
+        topic(&repository, true);
+        let original = repository.git(["rev-parse", "HEAD"]);
+        assert!(
+            !Process::new(&repository.program)
+                .args(["merge", "--no-edit", "topic"])
+                .current_dir(&repository.root)
+                .output()
+                .unwrap()
+                .status
+                .success()
+        );
+        fs::write(repository.root.join("file"), "native resolution\n").unwrap();
+        repository.git(["add", "--", "file"]);
+        entry(editor);
+        wait(editor, |s| s.git_observation().is_some());
+        editor.execute(Command::Git(GitCommand::OperationContinue));
+        wait(editor, |s| s.echo().contains("Confirm continue"));
+        fs::write(
+            repository.root.join(".git/MERGE_MSG"),
+            "Revised merge message\n",
+        )
+        .unwrap();
+        plain(editor, 'y');
+        wait(editor, |s| s.echo().contains("Integration failed"));
+        assert_eq!(repository.git(["rev-parse", "HEAD"]), original);
+        plain(editor, '>');
+        wait(editor, |s| s.echo().contains("Confirm continue"));
+        key(editor, KeyCode::Char('c'), KeyModifiers::CONTROL);
+        key(editor, KeyCode::Char('c'), KeyModifiers::CONTROL);
+        wait(editor, |s| s.echo().contains("Integration verified"));
+        assert_eq!(
+            repository.git(["show", "--no-patch", "--format=%s", "HEAD"]),
+            b"Revised merge message\n"
+        );
+        assert_eq!(
+            fs::read(repository.root.join("file")).unwrap(),
+            b"native resolution\n"
+        );
+    }
+}

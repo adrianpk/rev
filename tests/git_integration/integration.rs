@@ -318,6 +318,15 @@ fn reviewed_autosquash() {
     for format in ["sha1", "sha256"] {
         let repository = Repository::new(format);
         autosquash_source(&repository);
+        fs::write(repository.root.join("first"), "amended\n").unwrap();
+        repository.git(["add", "--", "first"]);
+        repository.git([
+            "commit",
+            "-m",
+            "amend! First subject",
+            "-m",
+            "Replacement subject\n\nReplacement body",
+        ]);
         repository.git(["branch", "reference"]);
         let mut owner = repository.owner("");
         repository.open(&mut owner, &repository.root);
@@ -331,7 +340,7 @@ fn reviewed_autosquash() {
                 .iter()
                 .map(|s| s.action.label())
                 .collect::<Vec<_>>(),
-            ["pick", "fixup", "pick", "squash"]
+            ["pick", "fixup", "fixup -C", "pick", "squash"]
         );
         assert!(!repository.root.join(".git/rebase-merge").exists());
         let id = owner.autosquash(plan).unwrap();
@@ -378,10 +387,16 @@ fn reviewed_autosquash() {
             ]),
             history
         );
-        assert_eq!(fs::read(repository.root.join("first")).unwrap(), b"fixed\n");
+        assert_eq!(
+            fs::read(repository.root.join("first")).unwrap(),
+            b"amended\n"
+        );
         assert_eq!(
             fs::read(repository.root.join("second")).unwrap(),
             b"squashed\n"
         );
     }
 }
+
+#[path = "integration_guards.rs"]
+mod guards;

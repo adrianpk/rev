@@ -1,6 +1,6 @@
 # Slice 8: Merge Rebase and Sequence Control
 
-Status: drafting
+Status: reviewing
 Delivery set: rev-git-integration
 Plan: `ops/default/plan/rev-git-integration.md`
 Tracker: `ops/default/tracker/rev-git-integration.md`
@@ -58,6 +58,13 @@ T8.2 adds finite autosquash and compatible controls:
 - Actual completed skip and abort outcomes remain distinct from completion,
   in-progress stops, process cancellation and uncertain effects.
 
+T8.3 verifies stale and incompatible sequence state, external apply-backend
+rebase, configured-hook failure, cancellation, fresh native continuation and
+both automatic/ask source reload policies. Ordinary commit cannot implicitly
+finish an active sequence. A changing rebase must bind Git's original object
+to the reviewed source; ancestry by itself is insufficient. Real resulting
+content remains visible if that source binding changes.
+
 ## Implementation Notes
 
 The existing installed-Git worker owns structured argv, bounded process life,
@@ -75,13 +82,14 @@ external Git clients. No dependency or persistent repository store was added.
 
 ## Contracts Added or Changed
 
-- `git-merge`, `git-merge-fast-forward`, `git-merge-no-fast-forward`,
-  `git-rebase` and `git-operation-status` have native handlers, catalog entries
-  and matching reference documentation.
-- Refs has all eight direct/prefix integration bindings. The independent
-  `keys.git_sequence` map provides 16 active navigation bindings.
-- Process outcomes distinguish an observed in-progress stop from completion.
-- Existing exact-action review accepts the approved explicit submit aliases.
+- All 14 approved Integration native commands have handlers, catalog entries
+  and matching command/binding references.
+- Refs has 48 active bindings, including all direct/prefix integration actions.
+  Independent `keys.git_sequence` has 21 navigation/control bindings.
+- Process outcomes distinguish in-progress, completed, skipped, aborted,
+  canceled and uncertain results; cancellation never implies sequence abort.
+- Exact-action reviews use y, C-Enter or C-c C-c; Return does not submit.
+- Normal/amend/fixup commit admission rejects active Git-owned sequence state.
 
 ## Files of Interest
 
@@ -93,39 +101,46 @@ external Git clients. No dependency or persistent repository store was added.
   Sequence input and complete active configuration sample.
 - `tests/git_integration/integration.rs`, `integration_presentation.rs`: real
   object/ref/file assertions, conflict stops and both-profile native review.
+- `tests/git_integration/integration_guards.rs`: stale fingerprints, missing
+  lineage, external sequences, actual launch races, hooks and cancellation.
 
 ## Validation
 
-T8.2 development formatter and strict focused Clippy passed. The exact
-integration command below passed 10 tests (33.35 seconds), covering real
-SHA-1/SHA-256 autosquash trees, ordered messages and authors against Git's own
-sequencer, all merge/rebase continuation/skip/abort outcomes, external merge
-observation and both-profile native plan/control review. The reference command
-passed 21 tests; documentation checked 526 commands, 268 configuration entries,
-76 pages and 485 links. No fixture deadline or assertion changed.
+T8.3 development strict Clippy passed. The integration command below passed
+all 19 tests (81.15 seconds); the shared process command passed all 9 tests
+(2.94 seconds). Prior reference checks passed 21 tests, and documentation checked
+526 commands, 268 configuration entries, 76 pages and 485 links.
 
-An initial merge-continuation postcondition incorrectly read an index field
-that is absent after sequence completion; direct resulting-index evidence
-corrected it. Strict Clippy required a fixed-size chunk iterator. The first
-reference run exposed missing primary binding catalog rows; the complete nine
-rows now pass the unchanged catalog checks.
+SHA-1/SHA-256 autosquash fixtures compare actual trees, ordered messages and
+authors with Git's own sequencer, including amend-message fixups. Native tests
+exercise both profiles, stale continuation review, automatic/ask reload and
+retained source/window/history ownership. Independent stale metadata, index,
+worktree, HEAD and missing-state cases reject before effects. Missing original,
+branch or onto evidence, empty state directories, autostash, executable todos,
+ambiguous targets and the 256-source bound retain explicit rejection.
 
+Two regression tests failed before correction: normal commit consumed a merge
+stop, and rebase incorrectly verified a result begun from a changed HEAD.
+The sequence admission guard and actual original-object binding correct those
+specific boundaries. Earlier development checks also exposed a completed-merge
+index lookup, one strict-Clippy iterator requirement and missing primary binding
+catalog rows; all were corrected without weakening checks, assertions, fixture
+5-second deadlines or resource limits.
 
-T8.1 development checks passed:
+Final ordered check contract, executed through the controller after the
+PR-reference follow-up commit; the exact clean-HEAD receipt is retained outside
+the repository:
 
 - `cargo fmt --all -- --check`
 - `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo clippy --locked --lib --bin rev --test git_integration -- -D warnings`
-- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test git_integration integration:: -- --test-threads=1` (6 tests, 13.82 seconds)
-- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test commands --test configuration reference -- --test-threads=1` (21 tests)
-- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo run --locked --quiet --example documentation-check` (517 commands, 268 configuration entries, 76 pages and 485 links)
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test git_integration integration:: -- --test-threads=1`
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test git_integration -- --skip integration:: --test-threads=1`
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --lib process:: -- --test-threads=1`
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test commands --test configuration reference -- --test-threads=1`
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo run --locked --quiet --example documentation-check`
 - `git diff --check`
-
-The initial compile required adding Sequence to the process-row page match.
-Strict Clippy required a typed sequence-file record and one collapsed branch.
-All subsequent focused checks passed. No assertion, fixture deadline or resource
-ceiling was weakened. T8.3 and final exact-HEAD controller evidence remain pending.
 
 ## Risks and Follow-ups
 
-T8.3 extended sequence/reload acceptance remains pending. Combined PTY/resource acceptance
+Combined PTY/resource acceptance
 remains Slice 13; the full User Guide remains Slice 14.
