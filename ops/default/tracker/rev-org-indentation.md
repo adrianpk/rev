@@ -7,7 +7,7 @@ Plan: [Org Indentation Delivery](../plan/rev-org-indentation.md)
 Spec: [Org Visual Indentation](../spec/editor-org-indentation.md)
 Model: [Org Visual Indentation Model](../spec/editor-org-indentation-model.md)
 Approved: product owner, 2026-11-05; specification and explicit autonomous four-slice Looper startup through dev
-Active slice: Slice 3 - Buffer-local runtime commands
+Active slice: Slice 4 - Joint acceptance and guidance
 Progress owner: retained Looper checkpoint and canonical validation receipts
 
 ## Canonical slice map
@@ -51,13 +51,14 @@ Validation: all five required commands passed through Looper for that exact clea
 
 ## Slice 3: Buffer-local runtime commands
 
-State: reviewing
+State: delivered
 Dependency: Slice 2 integrated
 Requirements: OIN02-OIN05
 Implementation: `e6dc1c0f1b07e046309911867b9782d87b24008e` (T3.1-T3.3)
 PR: `#278`
 Report: [Slice 3](../report/slices/rev-org-indentation/slice-3-controls.md)
-Validation: all six required commands passed locally; 356 selected native tests, 20 modal contexts and one additional readonly result-owner case passed. The catalog contains 596 commands. Looper records exact clean-HEAD evidence after the PR-reference commit.
+Integrated: `660b97410fd96f6cfb3b664b48dceee7b37ddfc3`
+Validation: all six required commands passed through Looper for that exact clean HEAD; 356 selected native tests, 20 modal contexts and one additional readonly result-owner case passed locally. The catalog contains 596 commands. Canonical PR #278 is merged.
 
 - [x] T3.1: Deliver native toggle/enable/disable through M-x, colon and configurable keymaps.
 - [x] T3.2: Preserve policy and source anchors through views, edits, reload and Org lifecycle.
@@ -65,7 +66,7 @@ Validation: all six required commands passed locally; 356 selected native tests,
 
 ## Slice 4: Joint acceptance and guidance
 
-State: pending
+State: active
 Dependency: Slice 3 integrated
 Requirements: OIN01-OIN05
 
@@ -75,10 +76,9 @@ Requirements: OIN01-OIN05
 
 ## Final gate and closure
 
-The plan owns the ordered slice and final-gate commands. Slices 1 and 2 are
-integrated; Slice 3 is implemented for review. Slice 4 and the combined delivery gate remain
-pending. Controller identity
-and live execution progress belong to Looper. After all four slices integrate, it
+The plan owns the ordered slice and final-gate commands. Slices 1-3 are
+integrated; Slice 4 is active. The combined delivery gate remains pending.
+Controller identity and live execution progress belong to Looper. After all four slices integrate, it
 validates the exact clean dev candidate. Record its hash, receipt, successful
 commands, report introductions and evidence limits here, then mark the paired
 specification/model, plan and tracker Completed. A failed gate remains open;

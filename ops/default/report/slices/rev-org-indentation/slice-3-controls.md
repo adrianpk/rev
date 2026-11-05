@@ -1,11 +1,12 @@
 # Slice 3: Buffer-local runtime commands
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-org-indentation
 Plan: [Org Indentation Delivery](../../../plan/rev-org-indentation.md)
 Tracker: [Org Indentation Tracker](../../../tracker/rev-org-indentation.md)
 Branch: `feat/rev-org-indentation-03-controls`
 PR: `#278`
+Integrated: `660b97410fd96f6cfb3b664b48dceee7b37ddfc3`
 
 ## Purpose
 
@@ -78,8 +79,10 @@ batch 320.03s, modal contexts 13.98s, documentation 1.13s and diff check 0.02s.
 The command suite accounted for 209.02s and configuration for 91.90s. These
 required suites remain minutes-scale; no deadline or command was changed.
 
-Looper records exact clean-HEAD evidence after the final PR-reference commit.
-Local checks do not replace that receipt or the controller-owned combined gate.
+All six required commands passed through Looper on the exact clean final HEAD
+`660b97410fd96f6cfb3b664b48dceee7b37ddfc3`. The canonical PR contract was
+verified, and PR #278 is merged into dev at that same commit. The combined
+delivery gate remains controller-owned.
 
 The first required native batch passed 163 command tests and failed the old
 catalog cardinality assertion (231 names versus 234 after these three additions).
