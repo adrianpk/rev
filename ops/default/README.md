@@ -2,8 +2,8 @@
 
 Status: proposed
 Date: 2026-11-03
-Scope: pending behavior after the completed integrated-terminal, native shell-command, native completion, optional LSP, modal editing, server-management, Pi/reload and heading-presentation deliveries
-Owner decision: native shell commands, text filters and integrated terminals are Completed; native Git integration is approved for one fourteen-slice Looper delivery; other proposals retain their separate approval boundaries
+Scope: pending behavior after the completed native Git, integrated-terminal, native shell-command, native completion, optional LSP, modal editing, server-management, Pi/reload and heading-presentation deliveries
+Owner decision: native shell commands, text filters and integrated terminals are Completed; native Git integration is Completed after fourteen slices and authorized repair #272; other proposals retain their separate approval boundaries
 
 This index connects the pending tickets, capability specifications and models.
 It is a planning entry point, not a delivery plan or execution tracker. The
@@ -16,15 +16,15 @@ decisions and identify cases where rev has no direct Emacs counterpart.
 
 ## Complete inventory
 
-The inventory contains fourteen delivered topics, two open presentation
-follow-ups and four capability topics, including the approved native Git delivery. Solved
-tickets retain their implementation/PR evidence.
+The inventory connects completed capabilities, open presentation follow-ups
+and remaining capability proposals. Solved tickets retain their
+implementation/PR evidence.
 The completed delivery passed its controller-owned full gate; other capabilities
 retain their own specification/model state.
 
 | Topic | Artifacts | State and remaining decisions |
 | --- | --- | --- |
-| Native Git integration | [Spec](spec/editor-git-integration.md), [model](spec/editor-git-integration-model.md), [plan](plan/rev-git-integration.md), [tracker](tracker/rev-git-integration.md) | Approved fourteen-slice delivery in one Looper run through dev. Full native workflows, contextual bindings, installed-Git ownership, lifecycle, separate fetch, reviewed upstream push, both local tag kinds and resource bounds are approved. Slices 1-13 are integrated through PR #270; Slice 14 prepares the independent User Guide, reference and [variant evidence map](spec/editor-git-integration-evidence.md). The final documentation PR, selected full gate and exact-candidate closure remain controller-owned. |
+| Native Git integration | [Spec](spec/editor-git-integration.md), [model](spec/editor-git-integration-model.md), [plan](plan/rev-git-integration.md), [tracker](tracker/rev-git-integration.md) | Delivered / Completed. Fourteen slices through PRs #258-#271 and authorized repair #272 deliver native GIT01-GIT20 workflows, contextual bindings, installed-Git ownership, separate fetch/reviewed push, both local tag kinds and bounded process/source lifetime. The unchanged controller gate passed at `343850fb6914bf801dfa248b8cdd0e1c34ae1fef`, receipt `D6BU4EM7IWRUA3UHGDBE432UK3`; [Slice 14 closure](report/slices/rev-git-integration/slice-14-guidance.md#delivery-set-closure) records exact counts and evidence limits. |
 | Keybinding hints in M-x | [Ticket](ticket/open/20261031095151-show-keybindings-beside-m-x-commands.md) | Open. Show assigned shortcuts beside command candidates using effective bindings; preserve command completion and invocation. |
 | Tree selection highlight and active-buffer synchronization | [Ticket](ticket/open/20261031093408-highlight-tree-selection-and-sync-active-buffer.md) | Open follow-up for later. Persistent selection feedback and displayed-buffer synchronization; multi-pane and tree-navigation indication policy remain to be settled. |
 | Open a file or directory from CLI/find-file | [Navigation spec](spec/editor-file-navigation.md), [model](spec/editor-file-navigation-model.md), [ticket](ticket/solved/20261028094803-open-directory-targets-from-cli-and-find-file.md) | Delivered / Completed spec / solved ticket. Slice 5 delivered directory acceptance and root precedence through PR #178. |
@@ -49,11 +49,12 @@ retain their own specification/model state.
 
 On 2026-11-04 the owner approved the complete native Git specification/model,
 binding matrix, local-operation policies, bounds and fourteen-slice plan/tracker,
-and explicitly requested one autonomous Looper delivery through dev. It follows
-the completed integrated-terminal delivery and precedes M-x keybinding hints
-and the other presentation follow-ups. Slice PR integration, the selected full
-gate and closure belong to that controller; main promotion and release remain
-separate operations.
+and explicitly requested one autonomous delivery through dev. Fourteen slices
+and authorized repair #272 are now integrated; the unchanged controller gate
+passed and the specification/model and plan/tracker are Completed. The linked
+tracker and Slice 14 closure retain the exact candidate, receipt and local
+acceptance limits. Other presentation follow-ups retain their own approval
+boundaries.
 
 On 2026-11-03 the owner requested two independent specifications and starting
 the agent-selected first capability. Native shell commands and text filters
@@ -255,6 +256,17 @@ and [Slice 8 closure](report/slices/rev-integrated-terminal/slice-8-guidance.md#
 record exact commands, measured resource bounds and the documentation-only
 closure. TRM01-TRM11, all 37 terminal commands and seven startup preferences
 are delivered; other capability proposals retain their independent boundaries.
+
+Native Git is Completed after fourteen slices through PRs #258-#271 and
+repair #272. The unchanged controller gate passed at
+`343850fb6914bf801dfa248b8cdd0e1c34ae1fef`, receipt
+`D6BU4EM7IWRUA3UHGDBE432UK3`: 759 top-level tests and three nested
+child runs, both-profile/object-format native and PTY journeys, resource/lifetime
+acceptance, complete catalogs and local Markdown/Spore validation. The configured
+modal filter selected zero tests; profile coverage and that evidence limit
+remain explicit in the [tracker](tracker/rev-git-integration.md#closure) and
+[Slice 14 closure](report/slices/rev-git-integration/slice-14-guidance.md#delivery-set-closure).
+Earlier editor and feature gates retain their original candidates.
 
 Before planning another selected delivery, close only its relevant product decisions,
 reconcile the named delivered baseline clauses, and obtain implementation-scope

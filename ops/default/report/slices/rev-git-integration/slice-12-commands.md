@@ -479,3 +479,12 @@ controller-owned Rebase + Fast-forward into dev at
 candidate: 48 family, 21 reference, 35 shell and five process/workspace cases,
 formatter, strict focused Clippy, documentation and whitespace. Slice 12 of 14
 completed.
+
+## Delivery-set closure
+
+The controller passed the unchanged selected full gate at immutable candidate
+`343850fb6914bf801dfa248b8cdd0e1c34ae1fef`, receipt `D6BU4EM7IWRUA3UHGDBE432UK3`.
+All fourteen slices and repair #272 are integrated; this report remains delivered.
+Its earlier slice evidence retains its own candidate. The
+[Slice 14 closure](slice-14-guidance.md#delivery-set-closure) records final
+counts, measurements and evidence limits.

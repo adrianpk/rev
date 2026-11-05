@@ -1,6 +1,9 @@
 # Native Git Integration Delivery
 
-Status: Approved
+Status: Completed
+Completed: 2026-11-05
+Validated candidate: `343850fb6914bf801dfa248b8cdd0e1c34ae1fef`
+Gate validation: `D6BU4EM7IWRUA3UHGDBE432UK3`
 Date: 2026-11-04
 Delivery set: rev-git-integration
 Slice strategy: behavior-first
@@ -11,7 +14,7 @@ Model: [Native Git Model](../spec/editor-git-integration-model.md)
 Tracker: [Native Git Tracker](../tracker/rev-git-integration.md)
 Concern: [Pending Work Index](../README.md)
 Full gate: `cargo fmt --all -- --check && env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo clippy --locked --all-targets -- -D warnings && env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test git_integration --test configuration --test commands --test windows --test panels --test files --test external_changes --test shell_commands -- --test-threads=1 && env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test modal git_ -- --test-threads=1 && env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --lib process -- --test-threads=1 && env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 bash scripts/check-git-integration.sh && env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo run --locked --quiet --example documentation-check && env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 bash scripts/build-user-guide.sh && git diff --check`
-Active slice: none - all fourteen slices integrated; controller full gate pending
+Active slice: none - all fourteen slices and repair integrated; selected full gate passed
 
 ## Outcome and execution boundary
 
@@ -361,3 +364,16 @@ and controller receipt. Do not overwrite historical delivery evidence. Final
 closure paths are this plan, tracker, spec, model, ops/default/README.md and the
 fourteen mapped slice reports. No runtime or public-guide changes belong in the
 documentation-only closure commit.
+
+## Delivery-set closure
+
+Completed on 2026-11-05 after canonical PRs #258-#271 and authorized repair
+[#272](https://forge.adrianpk.com/adrianpk/rev/pulls/272) integrated through dev.
+The controller passed the unchanged Full gate above at immutable candidate
+`343850fb6914bf801dfa248b8cdd0e1c34ae1fef`, receipt `D6BU4EM7IWRUA3UHGDBE432UK3`. The
+[tracker closure](../tracker/rev-git-integration.md#closure) and
+[Slice 14 closure](../report/slices/rev-git-integration/slice-14-guidance.md#delivery-set-closure)
+record exact outcomes and evidence limits. GIT01-GIT20 delivery is closed;
+all fourteen reports are delivered. Earlier slice receipts and failed gate
+records retain their original candidates. This closure changes only the
+configured operational documentation paths relative to the tested tree.

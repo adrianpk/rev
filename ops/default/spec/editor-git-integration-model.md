@@ -1,6 +1,9 @@
 # Native Git Model
 
-Status: Approved
+Status: Completed
+Completed: 2026-11-05
+Validated candidate: `343850fb6914bf801dfa248b8cdd0e1c34ae1fef`
+Gate validation: `D6BU4EM7IWRUA3UHGDBE432UK3`
 Approved: owner, 2026-11-04; promoted with the complete native Git specification and delivery plan
 Date: 2026-11-03
 Reviewed: 2026-11-04
@@ -11,6 +14,8 @@ Related file lifecycle: [External File Changes Model](editor-external-file-chang
 Authority: complete native Git model, contextual bindings, local-operation policies and bounds approved for the linked delivery
 Plan: [Native Git Integration Delivery](../plan/rev-git-integration.md)
 Tracker: [Native Git Tracker](../tracker/rev-git-integration.md)
+
+Closure evidence: [Tracker](../tracker/rev-git-integration.md#closure), [Slice 14](../report/slices/rev-git-integration/slice-14-guidance.md#delivery-set-closure)
 
 ## Ownership and durability
 

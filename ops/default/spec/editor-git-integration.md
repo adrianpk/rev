@@ -1,6 +1,9 @@
 # Native Git Integration
 
-Status: Approved
+Status: Completed
+Completed: 2026-11-05
+Validated candidate: `343850fb6914bf801dfa248b8cdd0e1c34ae1fef`
+Gate validation: `D6BU4EM7IWRUA3UHGDBE432UK3`
 Approved: owner, 2026-11-04; complete specification, binding matrix, local policies, resource catalog and one fourteen-slice Looper delivery through dev
 Date: 2026-11-03
 Reviewed: 2026-11-04
@@ -9,12 +12,13 @@ Format: OpenSpec capability specification
 Source: product-owner request for built-in Rust Git workflows, a structured visual interface and descriptive git-prefixed commands
 Decision state: complete native scope, contextual binding matrix, confirmation/local-operation policies and resource bounds approved
 Priority: after the integrated-terminal delivery, before keybinding hints in M-x and the remaining presentation follow-ups
-Delivery boundary: approved implementation through one fourteen-slice Looper run after completed terminal delivery
+Delivery boundary: fourteen integrated slices through PRs #258-#271 and authorized repair #272, completed through dev
 Model: [Native Git Model](editor-git-integration-model.md)
 Plan: [Native Git Integration Delivery](../plan/rev-git-integration.md)
 Tracker: [Native Git Tracker](../tracker/rev-git-integration.md)
 Baseline: [rev Editor](rev-editor.md)
 Coverage references: [Native Git capability and evidence map](editor-git-integration-evidence.md)
+Closure evidence: [Tracker](../tracker/rev-git-integration.md#closure), [Slice 14](../report/slices/rev-git-integration/slice-14-guidance.md#delivery-set-closure)
 Configuration: [Editor Configuration](editor-configuration.md)
 Related: [File Navigation](editor-file-navigation.md), [External File Changes](editor-external-file-changes.md), [Modal Editing](editor-modal-editing.md), [Shell Commands](editor-shell-commands.md), [Integrated Terminals](editor-integrated-terminal.md), [Native AI Integration](editor-ai-pi-integration.md)
 

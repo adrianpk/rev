@@ -195,3 +195,12 @@ Slice 11 of 14 completed.
 
 Combined PTY/resource acceptance and full learning-path guidance remain in their
 approved later slices. Integration remains controller-owned.
+
+## Delivery-set closure
+
+The controller passed the unchanged selected full gate at immutable candidate
+`343850fb6914bf801dfa248b8cdd0e1c34ae1fef`, receipt `D6BU4EM7IWRUA3UHGDBE432UK3`.
+All fourteen slices and repair #272 are integrated; this report remains delivered.
+Its earlier slice evidence retains its own candidate. The
+[Slice 14 closure](slice-14-guidance.md#delivery-set-closure) records final
+counts, measurements and evidence limits.

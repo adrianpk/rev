@@ -29,8 +29,8 @@ Make GIT01-GIT20 discoverable through T14.1-T14.3 in the
 
 - T14.3 consolidates Unreleased Git outcomes, maps every required family/variant
   to existing semantic assertions and records additive baseline/index links.
-- Closure fields retain pending exact-candidate/gate identities for the
-  controller; historical editor and slice receipts keep their original meaning.
+- Closure fields record the final controller-tested candidate and gate receipt;
+  historical editor and slice receipts keep their original meaning.
 
 ## Implementation Notes
 
@@ -78,7 +78,9 @@ does not substitute for that receipt.
 
 ## Risks and Follow-ups
 
-The final delivery-set gate and exact-candidate closure remain controller-owned.
+The controller passed the final gate at `343850fb6914bf801dfa248b8cdd0e1c34ae1fef`;
+closure evidence is recorded below. The configured modal filter selected zero
+tests; both-profile native/PTY coverage is reported separately.
 
 ## Integration
 
@@ -88,8 +90,8 @@ controller-owned Rebase + Fast-forward into dev at
 `56IS2Q3SWAQ5436XOUMSJIQ3HI` passed the four ordered commands listed above at
 that exact head: 85 reachable pages, 550 local links/anchors, 593 commands,
 271 settings, successful Spore projection/rendering, formatter and whitespace.
-This closes Slice 14 of 14. The selected full gate and exact-candidate
-delivery-set closure remain pending with the controller.
+This closes Slice 14 of 14. The subsequent selected full gate and
+delivery-set closure are recorded below.
 
 ## Gate Repair 1: Retained Shell Configuration
 
@@ -126,5 +128,74 @@ controller-owned Rebase + Fast-forward into dev at
 `2bd1f7182cec65757d670f230d446b57164b54f5`. Controller receipt
 `275HLP6E5BALNYAJTW2D54M444` passed all five repair commands above at that exact
 head, including both exact configuration/accounting tests with one case each
-and 239 filtered out. The repair is delivered; the unchanged full-gate rerun
-and delivery-set closure remain pending with the controller.
+and 239 filtered out. The repair is delivered; the subsequent unchanged
+full-gate result and delivery-set closure are recorded below.
+
+## Delivery-set closure
+
+Completed: 2026-11-05. Fourteen canonical PRs #258-#271 and authorized repair
+#272 are integrated. The controller passed the unchanged selected full gate
+at immutable candidate `343850fb6914bf801dfa248b8cdd0e1c34ae1fef` in receipt
+`D6BU4EM7IWRUA3UHGDBE432UK3`. The specification/model and plan/tracker
+are Completed; all fourteen reports are delivered. GIT01-GIT20 delivery is closed.
+The tested candidate remains distinct from this documentation-only closure.
+
+Exact successful controller command:
+
+```sh
+cargo fmt --all -- --check && env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo clippy --locked --all-targets -- -D warnings && env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test git_integration --test configuration --test commands --test windows --test panels --test files --test external_changes --test shell_commands -- --test-threads=1 && env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test modal git_ -- --test-threads=1 && env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --lib process -- --test-threads=1 && env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 bash scripts/check-git-integration.sh && env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo run --locked --quiet --example documentation-check && env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 bash scripts/build-user-guide.sh && git diff --check
+```
+
+Recorded native test results:
+
+| Target | Passed |
+| --- | ---: |
+| commands | 163 |
+| configuration | 153 |
+| external_changes | 21 |
+| files | 75 |
+| git_integration | 240 |
+| panels | 19 |
+| shell_commands | 35 |
+| windows | 41 |
+| library process filter | 12 |
+| Total top-level tests | 759 |
+| Additional nested child runs | 3 |
+
+The literal modal `git_` filter selected zero tests (117 filtered out). Its
+successful command exit is not evidence that modal regression tests ran.
+The separate real Git driver exercised both startup profiles, both object
+formats and 289 contextual routes per profile, with actual index/commit,
+local fetch/reviewed push, conflicts, a retained live terminal, pointer/resize,
+composer submission/cancellation, source restoration and host TTY restoration.
+
+The release driver passed strict source quality and zero dependency additions.
+Its fresh pre-Git comparison baseline remains
+`772051f7a70b4be66d86ccf4fdea27f9b6c2da68`. Baseline/candidate binaries were
+22,454,440/24,444,576 bytes (+1,990,136). Recorded phase times were 261 seconds
+for the candidate build, 332 for the baseline build, 12 native, 4 resources,
+2 lifetime, 1 baseline startup and 6 PTY. These measured phase costs are not
+a new timeout or an inferred activity duration.
+
+Four actual repositories admitted 2,048 input paths with 128 retained paths,
+101,294 charged bytes under the 32 MiB ceiling, 45 service turns and a longest
+observed poll of 17 microseconds. A real 262,144-byte blob hit the 4,096-byte
+job cap; retained stream capacity was 1,106 bytes across three records.
+The explicitly injected malformed-porcelain boundary retained the prior
+confirmed observation with failed freshness. Resource/cleanup fixtures returned
+to four descriptors and one thread; resource peak RSS was 12,164 kB.
+Both profiles measured zero CPU ticks over each 350 ms quiet interval.
+Accepted owned-process exit reaped leader/descendant state in 534,513/535,301
+microseconds. Logical admission, RSS and observed timing keep distinct meanings.
+
+Documentation passed 593 commands, 271 settings, 85 reachable pages and 550
+local links/anchors. All 85 Markdown pages projected and rendered through
+Spore's strict/link checks into the local User Guide. Owned acceptance and
+projection fixtures completed under their existing cleanup owners; no
+persistent fixture service remains to stop. This record claims local guide
+validation, with no public deployment or release inferred from it.
+
+Only configured operational closure paths differ from the tested candidate;
+runtime, tests, dependencies, public guide sources and gate requirements are
+preserved. Earlier failed diagnostics and slice receipts retain their original
+heads and do not become evidence for a different candidate.

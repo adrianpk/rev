@@ -1,13 +1,16 @@
 # Native Git Integration Tracker
 
-Status: Approved
+Status: Completed
+Completed: 2026-11-05
+Validated candidate: `343850fb6914bf801dfa248b8cdd0e1c34ae1fef`
+Gate validation: `D6BU4EM7IWRUA3UHGDBE432UK3`
 Date: 2026-11-04
 Delivery set: rev-git-integration
 Plan: [Native Git Integration Delivery](../plan/rev-git-integration.md)
 Spec: [Native Git Integration](../spec/editor-git-integration.md)
 Model: [Native Git Model](../spec/editor-git-integration-model.md)
 Approved: owner, 2026-11-04; complete fourteen-slice plan and autonomous Looper execution/integration through dev
-Active slice: none - all fourteen slices integrated; controller full gate pending
+Active slice: none - all fourteen slices and repair integrated; selected full gate passed
 Progress owner: after startup, Looper checkpoint, canonical PRs and exact-candidate validation receipts
 
 ## Canonical slice map
@@ -270,11 +273,12 @@ selection and preserves idle ownership and all existing resource limits.
 Controller receipt `275HLP6E5BALNYAJTW2D54M444` passed all five focused commands
 at `2bd1f7182cec65757d670f230d446b57164b54f5`. PR #272 merged there through
 controller-owned Rebase + Fast-forward. This receipt is repair evidence;
-the selected full-gate rerun remains pending.
+the subsequent unchanged full gate passed at `343850fb6914bf801dfa248b8cdd0e1c34ae1fef`
+in receipt `D6BU4EM7IWRUA3UHGDBE432UK3`.
 
 ## Gate preparation
 
-Status: ready for controller execution
+Status: completed before controller gate
 Integrated candidate after repair: `2bd1f7182cec65757d670f230d446b57164b54f5`
 
 All fourteen slice merge commits and repair PR #272 are ancestors of dev. Required
@@ -285,22 +289,38 @@ completed and were removed. These prerequisites were rechecked after repair
 integration. The approved acceptance and guide drivers create
 and clean their own isolated fixtures; no persistent service is required.
 
-The configured full gate is unchanged and has not been run by this worker.
-Its exact prepared dev candidate and receipt belong to the controller. Slice
-integration and prerequisite readiness do not mark the delivery set Completed.
+The controller subsequently ran the unchanged configured full gate at
+`343850fb6914bf801dfa248b8cdd0e1c34ae1fef` and recorded successful receipt
+`D6BU4EM7IWRUA3UHGDBE432UK3`. Prerequisite checks remain separate
+from that exact-candidate gate evidence.
 
 ## Closure
 
-Status: pending
-Validated candidate: pending
-Controller gate receipt: pending
-Closure commit: pending
+Status: Completed
+Completed: 2026-11-05
+Validated candidate: `343850fb6914bf801dfa248b8cdd0e1c34ae1fef`
+Controller gate receipt: `D6BU4EM7IWRUA3UHGDBE432UK3`
+Closure commit: this documentation-only closure, identified in Git history and Acta
 Coverage references: [Per-variant evidence map](../spec/editor-git-integration-evidence.md)
 Final slice report: [Slice 14 guidance](../report/slices/rev-git-integration/slice-14-guidance.md)
-Candidate source: controller-integrated final slice head; no slice-only receipt substitutes for the selected full gate.
+Candidate source: immutable controller-tested head above; closure descendants preserve its complete tree outside the configured documentation paths.
 
 Native Git acceptance must cover every listed family and variant, both startup
 profiles, contextual keys, real object/file effects, source/terminal retention
 and the complete configuration/Markdown/Spore contract. The canonical controller
 checkpoint owns progress. Execution authority is the owner's approval recorded above; release authority
 is separate. Do not mark a slice delivered from a test result alone.
+
+The unchanged gate passed 759 top-level tests (including 240 Git integration
+cases) and three nested child runs, strict all-target Clippy and formatter,
+Git native/PTY/resource/lifetime acceptance, documentation/catalog checks and
+the local Spore build. The literal modal `git_` filter selected zero tests
+with 117 filtered out; that command is not evidence of modal regression cases.
+Both startup profiles were exercised by the actual Git driver and 289-route
+native matrix in each profile. [Slice 14 closure](../report/slices/rev-git-integration/slice-14-guidance.md#delivery-set-closure)
+retains the detailed counts, measurements and exact successful command.
+
+Owned driver fixtures completed under their existing cleanup owners. No
+persistent fixture service requires stopping. The specification/model and
+plan/tracker are Completed; all fourteen reports and repair #272 are delivered.
+Historical gate identities and every selected acceptance assertion are preserved.

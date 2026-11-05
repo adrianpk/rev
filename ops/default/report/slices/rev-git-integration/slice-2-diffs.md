@@ -147,3 +147,12 @@ its assertions on explicit truncation, byte admission and unsupported hunks.
 Combined PTY and resource measurements remain assigned to Slice 13. This slice
 prepares exact read-only hunk identities; changing index and discard behavior
 remains assigned to Slice 3.
+
+## Delivery-set closure
+
+The controller passed the unchanged selected full gate at immutable candidate
+`343850fb6914bf801dfa248b8cdd0e1c34ae1fef`, receipt `D6BU4EM7IWRUA3UHGDBE432UK3`.
+All fourteen slices and repair #272 are integrated; this report remains delivered.
+Its earlier slice evidence retains its own candidate. The
+[Slice 14 closure](slice-14-guidance.md#delivery-set-closure) records final
+counts, measurements and evidence limits.
