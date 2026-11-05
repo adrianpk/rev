@@ -21,6 +21,8 @@ text input.
 - [Review and commit changes](../../../how-to/review-and-commit.md), including hunks, groups, amend and fixup.
 - [Integrate Git changes](../../../how-to/integrate-git-changes.md), resolve a conflict and inspect owned work.
 
+- [Prepare repository commands](../../../how-to/prepare-git-commands.md) with literal arguments and separate review/execute steps.
+
 ## Understand and look up
 
 [Git ownership](../../../explanation/git-ownership.md) explains saved files,

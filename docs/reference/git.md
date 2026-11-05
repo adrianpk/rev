@@ -44,6 +44,10 @@ reviewed push, integration, ordered revisions and conflicts. Reflog and blame
 are read-only inspections. Stashes and linked worktrees retain full object/path
 identities; ordinal labels and escaped display paths cannot authorize changes.
 
+[Prepared repository commands](../how-to/prepare-git-commands.md) covers clone/init,
+ignore files, submodules, subtree, notes, sparse checkout, output/application
+and the separately explicit Git/shell routes.
+
 ## Startup preferences and resource bounds
 
 The [Git preference catalog](defaults.md#git-preferences) owns every `git.*`

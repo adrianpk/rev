@@ -15,6 +15,12 @@
     @page[id = "guide-16-integrated-terminal"]
   }
 
+  @part[id = "Git", opening = "guide-git-index"]{
+    @page[id = "guide-17-git-status"]
+    @page[id = "guide-18-git-index-and-commit"]
+    @page[id = "guide-19-git-history-and-remotes"]
+  }
+
   @part[id = "Org mode", opening = "guide-org-index"]{
     @page[id = "guide-06-org-notes"]
     @page[id = "guide-07-org-tasks-and-agenda"]

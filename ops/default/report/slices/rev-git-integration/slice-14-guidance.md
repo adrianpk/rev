@@ -22,6 +22,11 @@ Make GIT01-GIT20 discoverable through T14.1-T14.3 in the
 - Task guides cover exact staging, groups, amend/fixup, explicit fetch and
   integration, reviewed single-branch push, ordered revisions and conflicts.
 
+- T14.2 aligns the Spore book with the independent Git path and extends the
+  existing documentation checker to verify its index, chapter links and order.
+- Prepared-family procedures describe literal input, separate review/execute,
+  non-overwriting output, checked application and unknown arbitrary effects.
+
 ## Implementation Notes
 
 Canonical Markdown remains under the existing Diataxis quadrants. The Git
@@ -43,9 +48,12 @@ User documentation only; native Git, source and process contracts are unchanged.
 - `docs/reference/git.md`: exact catalog/settings and finite-lifetime entry.
 - `docs/explanation/git-ownership.md`: source, observation and job authority.
 
+- `publication/userguide/index.sptree`, `examples/documentation-check.rs`: shared navigation contract.
+- `docs/how-to/prepare-git-commands.md`: prepared family and direct routes.
+
 ## Validation
 
-Documentation and Spore validation are pending completion of T14.2-T14.3.
+Documentation and Spore validation are pending completion of T14.3.
 The exact clean PR head and ordered successful commands will be recorded by
 controller validation after the PR-reference follow-up commit.
 

@@ -22,6 +22,8 @@ session, start with the [User Guide](../tutorials/user-guide/index.md).
 - [Review and commit changes](review-and-commit.md): exact paths, hunks, groups, discard, normal commits, amend and fixup.
 - [Integrate Git changes](integrate-git-changes.md): explicit fetch, reviewed push, integration, ordered revisions and conflict resolution.
 
+- [Prepare repository commands](prepare-git-commands.md): clone/init, submodules, subtree, notes, sparse checkout, patches and explicit direct commands.
+
 ## Org mode
 
 The [Org task guides](org/index.md) group capture, code extraction and export.
