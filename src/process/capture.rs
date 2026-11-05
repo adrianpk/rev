@@ -28,6 +28,8 @@ pub(crate) struct Program {
     pub output_bytes: usize,
     pub input: Option<std::fs::File>,
     pub editors: Editors,
+    pub git_index: Option<PathBuf>,
+    pub workspace: Option<std::sync::Arc<crate::file::temporary::Directory>>,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -57,6 +59,7 @@ pub(crate) struct Owned {
     observe_error: Option<String>,
     pid: Pid,
     _todo: Option<std::fs::File>,
+    _workspace: Option<std::sync::Arc<crate::file::temporary::Directory>>,
 }
 
 impl Program {
@@ -202,6 +205,15 @@ impl Program {
         ] {
             command.env_remove(key);
         }
+        if let Some(index) = &self.git_index {
+            if !index.is_absolute()
+                || index.as_os_str().len() > 4096
+                || index.as_os_str().as_bytes().contains(&0)
+            {
+                return Err("Owned private index path is invalid".into());
+            }
+            command.env("GIT_INDEX_FILE", index);
+        }
         let child = command.spawn().map_err(|e| format!("Start Git: {e}"))?;
         let pid = Pid::from_child(&child);
         let observed = rustix::process::pidfd_open(pid, rustix::process::PidfdFlags::NONBLOCK);
@@ -215,6 +227,7 @@ impl Program {
             exit: observed.ok(),
             observe_error,
             pid,
+            _workspace: self.workspace.take(),
             _todo: match std::mem::replace(&mut self.editors, Editors::Disabled) {
                 Editors::Todo(file) => Some(file),
                 _ => None,
@@ -346,8 +359,10 @@ impl Drop for Owned {
             let _ = self.signal(Signal::KILL);
             // A library owner can be dropped outside the guarded application
             // exit path. A reaper thread retains that child off the UI thread.
+            let workspace = self._workspace.take();
             std::thread::spawn(move || {
                 let _ = child.wait();
+                drop(workspace);
             });
         }
     }

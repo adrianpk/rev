@@ -3,6 +3,7 @@ use crate::git::conflicts::resolution::fingerprint;
 use crate::git::{Family, FamilyPlan, FamilyResult, families::Request};
 mod notes;
 mod output;
+mod patch;
 mod sparse;
 mod state;
 mod submodule;
@@ -120,7 +121,7 @@ impl Runner {
         }
         let destination = if let Some(output) = output {
             self.family_destination(output.as_os_str())?
-        } else if family.notes() || family.sparse() {
+        } else if family.notes() || family.sparse() || family.patch() {
             self.directory.clone()
         } else if family.subtree() {
             self.family_relative_destination(&args[3])?
@@ -219,6 +220,13 @@ impl Runner {
                 source.as_ref().ok_or("Output source context unavailable")?,
                 admission,
             )?)
+        } else if family.patch() {
+            crate::git::families::FamilyProof::Patch(self.prepare_patch(
+                family,
+                &mut args,
+                source.as_ref().ok_or("Patch source context unavailable")?,
+                admission,
+            )?)
         } else if family.notes() {
             crate::git::families::FamilyProof::Notes(self.prepare_notes(
                 family,
@@ -300,6 +308,9 @@ impl Runner {
         }
         if plan.subtree().is_some() {
             return self.execute_subtree(plan, admission);
+        }
+        if matches!(plan.proof, crate::git::families::FamilyProof::Patch(_)) {
+            return self.execute_patch(plan, admission);
         }
         if matches!(plan.proof, crate::git::families::FamilyProof::Output(_)) {
             return self.execute_output(plan, admission);

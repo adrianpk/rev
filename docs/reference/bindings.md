@@ -619,6 +619,8 @@ For live terminal key ownership and copy controls, see the
 | `> a` in Status | `git-sparse-checkout-add` | Review literal relative directories and add them to the captured cone selection. |
 | `W c` in Status | `git-format-patch` | Review an explicit local commit range and complete mailbox bytes, then save to one absent output file. |
 | `W s` in Status | `git-save-diff` | Review two local commits and a complete binary diff, then save to one absent output file. |
+| `w p` in Status | `git-apply-patch` | Review one complete local patch file, then apply its sealed bytes to the checked index and working tree. |
+| `w a` in Status | `git-apply-mailbox` | Review one complete local mailbox, then apply its decoded patches as checked commits. |
 | `W r` in Status | `git-request-pull` | Review local commit anchors and one explicit published remote branch, then save request text without sending mail. |
 | `Z Z`, `Z l` in Status | `git-worktree-list` | Open a bounded NUL-record worktree list with raw paths, full HEADs, distinct Git/common directories, lock reasons and prune state. |
 | `c` in Worktree | `git-worktree-create` | Review a new linked worktree and new local branch at the exact observed HEAD, using a checked absent destination. |
@@ -947,6 +949,8 @@ native cancellation. Prompts use `keys.minibuffer`.
 | `W c` | `git-format-patch` |
 | `W s` | `git-save-diff` |
 | `W r` | `git-request-pull` |
+| `w p` | `git-apply-patch` |
+| `w a` | `git-apply-mailbox` |
 | `Z Z`, `Z l` | `git-worktree-list` |
 | `z z`, `z l` | `git-stash-list` |
 | `C-x g` | `git-status` |

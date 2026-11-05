@@ -9,6 +9,8 @@ fn program(fixture: &Fixture, script: &str, output_bytes: usize) -> Program {
         output_bytes,
         input: None,
         editors: Editors::Disabled,
+        git_index: None,
+        workspace: None,
     }
 }
 
@@ -116,4 +118,43 @@ fn launch_admission() {
         assert!(result.status.is_none(), "{name}");
         assert!(result.diagnostic.is_some(), "{name}");
     }
+}
+
+// The same process owner keeps a private producer directory alive during a real
+// child, clears its index override afterward and cleans only after cancellation.
+#[test]
+fn private_workspace() {
+    let fixture = Fixture::new();
+    let workspace = std::sync::Arc::new(
+        crate::file::temporary::Directory::new(&fixture.0, vec!["index".into()]).unwrap(),
+    );
+    let root = std::fs::canonicalize(workspace.anchor()).unwrap();
+    let mut owned = program(
+        &fixture,
+        "printf owned > \"$GIT_INDEX_FILE\"; printf before; sleep 30",
+        4096,
+    );
+    owned.git_index = Some(workspace.entry("index").unwrap());
+    owned.workspace = Some(workspace);
+    let control = Cancellation::default();
+    let cancel = control.clone();
+    let worker = std::thread::spawn(move || owned.run(&control, |_, _| {}));
+    let deadline = Instant::now() + Duration::from_secs(4);
+    while !std::fs::read(root.join("index")).is_ok_and(|bytes| bytes == b"owned") {
+        assert!(
+            Instant::now() < deadline,
+            "workspace producer did not start"
+        );
+        std::thread::sleep(Duration::from_millis(2));
+    }
+    assert_eq!(std::fs::read(root.join("index")).unwrap(), b"owned");
+    cancel.cancel();
+    let result = worker.join().unwrap();
+    assert_eq!(result.end, End::Cancelled);
+    assert!(result.retained.is_none());
+    assert!(Instant::now() < deadline);
+    assert!(!root.exists());
+    let output = program(&fixture, "printf '%s' \"${GIT_INDEX_FILE-unset}\"", 4096)
+        .run(&Cancellation::default(), |_, _| {});
+    assert_eq!(output.stdout, b"unset");
 }

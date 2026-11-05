@@ -365,6 +365,8 @@ const GIT: &[(&str, &str)] = &[
     ("W c", "git-format-patch"),
     ("W s", "git-save-diff"),
     ("W r", "git-request-pull"),
+    ("w p", "git-apply-patch"),
+    ("w a", "git-apply-mailbox"),
     ("Z Z", "git-worktree-list"),
     ("Z l", "git-worktree-list"),
     ("z z", "git-stash-list"),

@@ -194,7 +194,10 @@ impl Runner {
 
         let original = if family == Some(SequenceFamily::Rebase) {
             object(field(b"orig-head"))?
-        } else if family == Some(SequenceFamily::Merge) {
+        } else if matches!(
+            family,
+            Some(SequenceFamily::Merge | SequenceFamily::Mailbox)
+        ) {
             object(value(b"ORIG_HEAD"))?
         } else {
             None

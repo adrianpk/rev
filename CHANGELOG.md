@@ -82,6 +82,9 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
   checkout selections, checking actual note bytes and tracked-file presence.
   Save reviewed binary patches, commit mailboxes or request-pull text to explicit
   new files, with complete output checks and no mail sending or overwrite.
+  Apply a reviewed local patch to the checked index and files, or apply a
+  mailbox as commits with verified trees, authors and messages. Retain actual
+  mailbox progress when a later patch stops.
   Return to the same windows
   and terminals. Inspect active and
   recent Git processes, cancel a selected operation, and confirm before quitting

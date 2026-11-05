@@ -159,7 +159,8 @@ enum Candidate {
 }
 
 /// A retained changing child keeps its sealed driver reservation until the
-/// same owner has completed cleanup. Diagnostic records have a separate lease.
+/// same owner has completed cleanup. Private workspaces use the same retained
+/// reservation; diagnostic records have a separate lease.
 pub(super) struct Retained {
     pub child: capture::Owned,
     _driver: Option<Lease>,
@@ -250,6 +251,8 @@ pub(super) fn start(
                 accept_message: false,
                 todo_editor: None,
                 driver_admission: None,
+                private_index: None,
+                workspace: None,
                 operation_failure: None,
                 failure_verified: false,
                 argv: Vec::new(),
@@ -318,6 +321,8 @@ struct Runner {
     accept_message: bool,
     todo_editor: Option<std::fs::File>,
     driver_admission: Option<Lease>,
+    private_index: Option<PathBuf>,
+    workspace: Option<Arc<crate::file::temporary::Directory>>,
     operation_failure: Option<String>,
     failure_verified: bool,
     argv: Vec<OsString>,
@@ -523,6 +528,8 @@ impl Runner {
             seconds: self.seconds,
             output_bytes: detail_cap.map_or(remaining, |cap| cap.min(remaining)),
             input,
+            git_index: self.private_index.clone(),
+            workspace: self.workspace.clone(),
             editors: if let Some(file) = self.todo_editor.take() {
                 capture::Editors::Todo(file)
             } else if self.accept_message {

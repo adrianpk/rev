@@ -6,6 +6,8 @@ use std::{ffi::OsString, fs, os::unix::ffi::OsStringExt, path::Path, sync::Arc};
 mod metadata;
 #[path = "families_output.rs"]
 mod output;
+#[path = "families_patch.rs"]
+mod patch;
 #[path = "families_presentation.rs"]
 mod presentation;
 #[path = "families_submodule.rs"]

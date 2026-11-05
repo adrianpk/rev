@@ -29,6 +29,8 @@ pub enum Family {
     FormatPatch,
     SaveDiff,
     RequestPull,
+    ApplyPatch,
+    ApplyMailbox,
 }
 impl Family {
     pub fn label(self) -> &'static str {
@@ -59,6 +61,8 @@ impl Family {
             Self::FormatPatch => "format patch output",
             Self::SaveDiff => "saved diff output",
             Self::RequestPull => "request pull output",
+            Self::ApplyPatch => "plain patch application",
+            Self::ApplyMailbox => "mailbox application",
         }
     }
     pub fn seed(self) -> Vec<String> {
@@ -119,6 +123,30 @@ impl Family {
                 "--",
             ],
             Self::RequestPull => &["request-pull", "", "", ""],
+            Self::ApplyPatch => &[
+                "apply",
+                "--index",
+                "--binary",
+                "--whitespace=nowarn",
+                "--",
+                "",
+            ],
+            Self::ApplyMailbox => &[
+                "am",
+                "--patch-format=mboxrd",
+                "--no-3way",
+                "--no-signoff",
+                "--no-message-id",
+                "--no-scissors",
+                "--no-keep-cr",
+                "--no-keep",
+                "--no-keep-non-patch",
+                "--utf8",
+                "--no-rerere-autoupdate",
+                "--whitespace=nowarn",
+                "--",
+                "",
+            ],
         };
         args.iter().map(|a| (*a).into()).collect()
     }
@@ -147,7 +175,15 @@ impl Family {
         Ok(())
     }
     pub fn repository_action(self) -> bool {
-        self.submodule() || self.subtree() || self.notes() || self.sparse() || self.output()
+        self.submodule()
+            || self.subtree()
+            || self.notes()
+            || self.sparse()
+            || self.output()
+            || self.patch()
+    }
+    pub(super) fn patch(self) -> bool {
+        matches!(self, Self::ApplyPatch | Self::ApplyMailbox)
     }
     pub fn output(self) -> bool {
         matches!(self, Self::FormatPatch | Self::SaveDiff | Self::RequestPull)
@@ -365,6 +401,32 @@ impl Output {
     }
 }
 
+pub(super) struct Patch {
+    pub configuration: Vec<u8>,
+    pub path: PathBuf,
+    pub stamp: [u64; 8],
+    pub bytes: Vec<u8>,
+    pub hash: ObjectId,
+    pub mails: usize,
+}
+impl std::fmt::Debug for Patch {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("Patch")
+            .field("path", &self.path)
+            .field("bytes", &self.bytes.len())
+            .field("hash", &self.hash)
+            .finish_non_exhaustive()
+    }
+}
+impl Patch {
+    fn bytes(&self) -> usize {
+        std::mem::size_of::<Self>()
+            + self.configuration.capacity()
+            + self.path.capacity()
+            + self.bytes.capacity()
+    }
+}
+
 #[derive(Debug)]
 pub(super) enum FamilyProof {
     Creation,
@@ -373,6 +435,7 @@ pub(super) enum FamilyProof {
     Notes(Notes),
     Sparse(Sparse),
     Output(Output),
+    Patch(Patch),
 }
 impl FamilyProof {
     pub fn bytes(&self) -> usize {
@@ -383,6 +446,7 @@ impl FamilyProof {
             Self::Notes(state) => state.bytes(),
             Self::Sparse(state) => state.bytes(),
             Self::Output(state) => state.bytes(),
+            Self::Patch(state) => state.bytes(),
         }
     }
 }
@@ -428,6 +492,12 @@ impl FamilyPlan {
         match &self.proof {
             FamilyProof::Notes(state) => &state.prune,
             _ => &[],
+        }
+    }
+    pub fn input_preview(&self) -> Option<(&Path, usize, ObjectId)> {
+        match &self.proof {
+            FamilyProof::Patch(input) => Some((&input.path, input.bytes.len(), input.hash)),
+            _ => None,
         }
     }
     pub fn output_preview(&self) -> Option<(usize, ObjectId)> {

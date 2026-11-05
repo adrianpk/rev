@@ -87,8 +87,25 @@ Deliver GIT14-GIT15 and their GIT16-GIT20 contracts through T12.1-T12.3 in the
   bare contexts work, including an explicitly empty saved diff. Output stays
   within existing detail/scratch and aggregate limits. No mail, push, implicit
   save, overwrite, forced cleanup, retry or rollback is implied.
-- Remaining T12.2 mailbox/plain application and T12.3 direct/separate shell
-  routes remain pending. No PR is claimed.
+- T12.2 application routes: w p/w a prepare one complete ordinary local patch
+  or mailbox file. Exact input path, fingerprint, byte count and blob hash bind
+  the later sealed stdin. Complete clean tracked saved state, unchanged input,
+  HEAD/configuration and unsaved native buffer guards protect execution.
+- After acceptance, installed Git applies decoded patch bytes to a private index
+  to derive independent expected trees. Actual plain application must produce
+  that index tree and materialized saved state without changing HEAD. Actual
+  mailbox commits must have the predicted trees, exact single-parent lineage,
+  decoded authors, author timestamps and cleaned message bytes.
+- Changed mailbox payload with unchanged From labels follows its actual patch
+  semantics. Real hook changes remain Indeterminate/Possible despite exit zero.
+  Later mailbox conflict retains the applied prefix and actual Git-owned progress;
+  no automatic continue, abort, rollback or retry is attempted. Git retains its
+  configured signing policy; no signing bypass is prepared.
+- Owned producer workspaces declare their exact filenames, retain directory FDs
+  and admission through active/retained child cleanup, and preserve unexpected
+  entries or substituted paths. Existing time/output/cleanup limits remain.
+- T12.2 is complete. T12.3 direct/separate shell routes remain pending. No PR is
+  claimed.
 
 ## Implementation Notes
 
@@ -116,6 +133,27 @@ The existing common saved-state helper also supports an unborn source: exact
 index entries plus the working diff from that index replace a nonexistent HEAD
 baseline, with the same saved untracked hashes.
 
+Patch input uses the same bounded ordinary-file capture and literal argument
+composer. Preparation hashes sealed bytes without writing Git objects; plain
+patches also receive a read-only Git apply --check. Private index derivation and
+mailbox split/decode start only after separate acceptance. Blob/tree objects may
+be written during independent derivation; no source index/file rollback is
+inferred if later execution fails. Mailbox envelope count is bounded by
+min(max_refs, 256), with all decoded file reads under existing detail/scratch
+limits. UTF-8 message encoding and explicit mailbox options are part of review.
+Git owns configured signing. A signing-policy override was removed before
+commit to comply with the approved repository semantics contract.
+
+The capture owner adds a typed private-index override only for a single owned
+prediction child, after clearing ambient repository overrides. Actual mutators
+and observations receive no private override. Its existing retained driver
+reservation also retains private workspace metadata until child cleanup ends.
+The same child owner carries the workspace FD; a dropped live child keeps that
+workspace until its reaper finishes. Cleanup admits declared ordinary producer
+files only, preserves unexpected entries and refuses a replaced directory.
+Mailbox observation now reads its actual original object from Git's ORIG_HEAD;
+existing supported continuation/abort admission remains separate.
+
 Bounds remain 32 MiB editor-wide Git admission, 1 MiB scratch, existing process
 output/deadline/cleanup ceilings and five-second fixture waits. Prepared input
 admits at most 64 arguments, 4096 bytes each, 64 KiB total and an absolute cwd
@@ -131,15 +169,16 @@ No runtime/development dependency or validation prerequisite was added.
 
 ## Contracts Added or Changed
 
-- Twenty-eight working commands: git-clone, git-clone-shallow, git-clone-bare,
+- Thirty working commands: git-clone, git-clone-shallow, git-clone-bare,
   git-clone-mirror, git-init, git-ignore and git-ignore-exclude; five additional
   commands are git-submodule-add/list/update/sync/deinit and five are
   git-subtree-add/merge/pull/push/split. Eight more are git-notes-add/remove/prune
   and git-sparse-checkout-enable/disable/reapply/set/add. Three output commands
-  are git-format-patch, git-save-diff and git-request-pull.
-- Status has 69 active defaults. The existing keys.git_commit context also
+  are git-format-patch, git-save-diff and git-request-pull. Two application
+  commands are git-apply-patch and git-apply-mailbox.
+- Status has 71 active defaults. The existing keys.git_commit context also
   supplies ordinary editing and explicit submission for prepared argument text.
-- Live catalogs contain 589 commands and 271 configuration entries.
+- Live catalogs contain 591 commands and 271 configuration entries.
 
 ## Files of Interest
 
@@ -155,6 +194,9 @@ No runtime/development dependency or validation prerequisite was added.
 - `src/git/work/families/output.rs`, `src/git/work/index.rs`: complete producer
   capture, pinned ranges/remote anchors, unchanged execution facts and atomic
   explicit-file publication with actual byte verification.
+- `src/git/work/families/patch.rs`, `src/file/temporary.rs`,
+  `src/process/capture.rs`: sealed local input, independent private-index trees,
+  decoded mailbox metadata/lineage, retained workspace ownership and cleanup.
 - `src/session/git/families.rs`, `src/session/git/commit.rs`: native draft,
   two-step submission, exact review and original source restoration.
 - `src/git/work/repository.rs`: shared saved-state evidence for unborn sources.
@@ -171,6 +213,10 @@ No runtime/development dependency or validation prerequisite was added.
 - `tests/git_integration/families_output.rs`: real mailbox/diff consumers,
   published request text, bare/empty output, stale evidence, changed producer
   bytes, complete-output limits and transport-deadline evidence.
+
+- `tests/git_integration/families_patch.rs`: both-format real plain/mailbox
+  application, changed payload semantics, real hook mismatch, retained prefix
+  conflict and input/configuration/source protection.
 
 ## Validation
 
@@ -292,6 +338,40 @@ wrapper delays request-pull only, proving both preparation and execution use the
 existing transport deadline. No assertions, fixture waits, admission ceiling or
 cleanup limit was weakened. No new dependency or process framework was added.
 
+Application development passes five engine cases in 31.06 seconds. After
+adding both-profile native preparation/acceptance and unsaved-source guards,
+the combined six-case run passes in 32.41 seconds. After retaining configured
+signing and adding a real unavailable-signer case, all seven selected engine
+and native cases pass in 35.32 seconds. Signing failure preserves the original
+HEAD, enabled signing configuration and actual mailbox progress without a
+commit or automatic rollback. Both object formats prove
+plain staged trees and multi-message commit lineage, authors, non-default author
+dates, multi-paragraph/UTF-8 messages, binary bytes, raw paths, additions and
+deletions. Ordinary abbreviated patch headers are consumed by installed Git.
+A valid changed payload keeps its From commit label but produces its actual
+different checked tree. A real successful applypatch-msg hook changes message
+bytes and correctly retains Indeterminate/Possible facts with exit zero.
+A later actual mailbox conflict retains the first commit, step/total/original
+metadata, unchanged conflicting source and Git-owned sequence files.
+Input byte/identity, configuration, index and HEAD races refuse before changing
+execution; symlinks, oversized input and dirty saved state reject preparation.
+
+The native test build exposed an accidental mechanical rename across existing
+presentation cases. Their original code was restored verbatim before adding
+only the new case. No assertion, fixture wait or resource limit was relaxed.
+All five selected process/workspace unit cases pass in 1.33 seconds, including
+existing real cancellation/timeout/leader/descendant cleanup and the new private
+index scope/lifetime case. Workspace tests preserve unknown entries, symlinks
+and replaced directories, and prove complete bounded reads and owned cleanup.
+Formatter and strict focused Clippy pass (22.86 seconds, then 18.06 seconds
+after the signing contract correction); all 21 command and
+configuration reference cases pass (2.05/15.47 seconds). The documentation
+checker first caught the old Status count in defaults.md; correcting it to 71
+active bindings preserves the unchanged check. Documentation passes at 591
+commands, 271 configuration entries, 76 reachable pages and 485 links.
+Whitespace checks pass. These are development checks; T12.3 and final exact-HEAD
+controller evidence remain pending.
+
 Successful development commands:
 
 - `cargo fmt --all -- --check`
@@ -309,6 +389,8 @@ Successful development commands:
 - `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test git_integration families::presentation::native_subtrees -- --test-threads=1`
 - `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test git_integration -- families::metadata:: families::presentation::native_notes_sparse families::presentation::native_subtrees --test-threads=1`
 - `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test git_integration -- families::output:: families::presentation::native_outputs families::metadata::notes_roundtrip index::path_roundtrip --test-threads=1`
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test git_integration -- families::patch:: families::presentation::native_applications --test-threads=1`
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --lib -- process::capture:: file::temporary:: --test-threads=1`
 - `git diff --check`
 
 These are focused development results. Final exact-HEAD controller validation
@@ -317,7 +399,7 @@ follow-up commit. No full gate or final receipt is claimed.
 
 ## Risks and Follow-ups
 
-Complete the remaining approved mailbox/plain application and direct
-Git/separate shell routes in this same slice. Combined PTY/resource acceptance
+Complete the remaining approved direct Git/separate shell routes in this same
+slice. Combined PTY/resource acceptance
 and learning-path guidance remain in their recorded later slices. The controller
 owns integration.

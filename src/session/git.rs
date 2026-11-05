@@ -504,6 +504,10 @@ impl Session {
                 GitCommand::SparseAdd => self.compose_git_family(crate::git::Family::SparseAdd),
                 GitCommand::FormatPatch => self.compose_git_family(crate::git::Family::FormatPatch),
                 GitCommand::SaveDiff => self.compose_git_family(crate::git::Family::SaveDiff),
+                GitCommand::ApplyPatch => self.compose_git_family(crate::git::Family::ApplyPatch),
+                GitCommand::ApplyMailbox => {
+                    self.compose_git_family(crate::git::Family::ApplyMailbox)
+                }
                 GitCommand::RequestPull => self.compose_git_family(crate::git::Family::RequestPull),
                 GitCommand::Status => self.open_git(),
                 GitCommand::Commit => self.compose_git_commit(),

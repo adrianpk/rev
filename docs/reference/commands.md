@@ -748,6 +748,8 @@ Status reads disk and Git state; it does not save an unsaved source buffer.
 | `git-sparse-checkout-add` | Review literal relative directories and add them to the captured cone selection. |
 | `git-format-patch` | Review an explicit local commit range and complete mailbox bytes, then save to one absent output file. |
 | `git-save-diff` | Review two local commits and a complete binary diff, then save to one absent output file. |
+| `git-apply-patch` | Review one complete local patch file, then apply its sealed bytes to the checked index and working tree. |
+| `git-apply-mailbox` | Review one complete local mailbox, then apply its decoded patches as checked commits. |
 | `git-request-pull` | Review local commit anchors and one explicit published remote branch, then save request text without sending mail. |
 | `git-worktree-list` | Open a bounded NUL-record worktree list with raw paths, full HEADs, distinct Git/common directories, lock reasons and prune state. |
 | `git-worktree-create` | Review a new linked worktree and new local branch at the exact observed HEAD, using a checked absent destination. |
@@ -1191,3 +1193,45 @@ Postchecks read the actual saved bytes. find-file visits the explicit output;
 process inspection retains the actual producer's exit/cleanup facts. Changed
 review evidence refuses execution. Failed writes preserve uncertainty and never
 retry, delete the chosen destination or claim rollback.
+
+
+### Prepared local patch application
+
+Status w p/w a prepare plain patch and mailbox application. Fill the final
+argument with one explicit local input file. Preparation captures complete
+ordinary file bytes, identity, effective configuration, HEAD and saved sources.
+Review shows the input path, byte count and blob hash alongside executable,
+cwd and literal argv. The actual child consumes the captured bytes through sealed
+stdin; input paths are never shell expressions. Symlinks, partial or oversized
+input, dirty tracked state and unsaved repository-backed buffers refuse the
+route. Existing untracked sources remain checked. A complete existing HEAD and
+no active Git sequence are required.
+
+Plain application uses Git apply --index --binary against both index and saved
+files. After acceptance, Git independently applies the same bytes to a private
+index and derives an expected tree; the actual index tree and materialized files
+must match. Ordinary abbreviated patch headers and binary patches are supported.
+HEAD and other refs remain checked. There is no implicit commit.
+
+Mailbox application uses explicit mboxrd decoding, UTF-8 messages, no three-way
+fallback, added signoff, message ID or scissors stripping. Git retains its
+configured signing policy; unavailable signing remains an actual failure. After
+acceptance, installed Git splits and decodes each message in an exclusively
+owned workspace. Sequential private-index application derives expected trees.
+Actual commits must form the exact single-parent chain from the captured HEAD,
+with those trees and decoded authors, author timestamps and messages. An input
+From commit label is not semantic proof. Hooks still run; changed hook results
+remain unverified even when Git exits zero.
+
+Complete input and decoded files retain the existing detail/scratch admission;
+mailbox envelope count is at most min(max_refs, 256). The private workspace has
+only declared producer names and stays owned by active/retained child cleanup.
+Unknown entries or substituted paths are preserved. Existing process time,
+output, cancellation and cleanup limits apply. Private object derivation starts
+only after explicit acceptance and may write blob/tree objects before the real
+mutator. No repository index or saved-file rollback is attempted.
+
+An actual stopped mailbox retains Git-owned progress and already-applied
+commits. git-operation-status inspects that state under the existing metadata
+bounds. No automatic continuation, abort, retry or provenance-based success is
+inferred. Return and cancellation follow the same prepared argument contract.

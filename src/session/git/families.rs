@@ -289,6 +289,13 @@ impl Session {
         if let Some(object) = plan.target_object() {
             metadata.push_str(&format!("Pinned Git object: {}\n", object.hex()));
         }
+        if let Some((path, bytes, hash)) = plan.input_preview() {
+            metadata.push_str(&format!(
+                "Input file: {}\nComplete sealed input bytes: {bytes}\nInput Git blob hash: {}\n",
+                label(path.as_os_str().as_encoded_bytes()),
+                hash.hex()
+            ));
+        }
         if let Some((bytes, hash)) = plan.output_preview() {
             metadata.push_str(&format!("Complete output bytes: {bytes}\nOutput Git blob hash: {} (no object database write)\n", hash.hex()));
         }

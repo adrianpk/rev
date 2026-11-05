@@ -450,3 +450,79 @@ fn native_outputs() {
         assert_eq!(text(editor), original);
     }
 }
+
+// Both profiles use w p/w a and the ordinary native draft/review owner. Return
+// cannot apply input; real saved bytes and unsaved-buffer protection are visible.
+#[test]
+fn native_applications() {
+    for profile in ["non-modal", "modal"] {
+        for (family, suffix) in [(Family::ApplyPatch, 'p'), (Family::ApplyMailbox, 'a')] {
+            let repository = Repository::new("sha1");
+            let mut owned = editor(&repository, profile, "", true);
+            let editor = &mut owned.0;
+            let original = text(editor);
+            let base = String::from_utf8(repository.git(["rev-parse", "HEAD"]))
+                .unwrap()
+                .trim()
+                .to_owned();
+            fs::write(repository.root.join("source.txt"), "applied native bytes\n").unwrap();
+            repository.commit();
+            let input = repository.fixture.0.join("native.patch");
+            let bytes = if family == Family::ApplyMailbox {
+                repository.git(["format-patch", "--stdout", &format!("{base}..HEAD"), "--"])
+            } else {
+                repository.git(["diff", &base, "HEAD", "--"])
+            };
+            fs::write(&input, bytes).unwrap();
+            repository.git(["reset", "--hard", &base]);
+            entry(editor);
+            wait(editor, |e| e.echo().contains("Git Status refreshed"));
+            plain(editor, 'w');
+            plain(editor, suffix);
+            let args = family
+                .seed()
+                .into_iter()
+                .map(|s| {
+                    if s.is_empty() {
+                        input.to_str().unwrap().into()
+                    } else {
+                        s
+                    }
+                })
+                .collect::<Vec<String>>();
+            replace(editor, &serde_json::to_string(&args).unwrap());
+            accept(editor);
+            wait(editor, |e| e.echo().contains("Exact prepared Git review"));
+            let review = render(editor).join("\n");
+            assert!(review.contains("Complete sealed input bytes"), "{review}");
+            assert!(review.contains("Input Git blob hash"), "{review}");
+            key(editor, KeyCode::Enter, KeyModifiers::NONE);
+            assert_eq!(
+                fs::read_to_string(repository.root.join("source.txt")).unwrap(),
+                original
+            );
+            accept(editor);
+            wait(editor, |e| e.echo().contains("repository command verified"));
+            assert_eq!(
+                fs::read(repository.root.join("source.txt")).unwrap(),
+                b"applied native bytes\n"
+            );
+            plain(editor, 'q');
+            editor.insert('!');
+            entry(editor);
+            wait(editor, |e| e.echo().contains("Git Status refreshed"));
+            editor.execute(Command::Git(if family == Family::ApplyPatch {
+                GitCommand::ApplyPatch
+            } else {
+                GitCommand::ApplyMailbox
+            }));
+            accept(editor);
+            assert!(editor.echo().contains("unsaved text"), "{}", editor.echo());
+            key(editor, KeyCode::Char('g'), KeyModifiers::CONTROL);
+            assert_eq!(
+                fs::read(repository.root.join("source.txt")).unwrap(),
+                b"applied native bytes\n"
+            );
+        }
+    }
+}

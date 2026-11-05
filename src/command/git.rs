@@ -28,6 +28,8 @@ pub enum GitCommand {
     FormatPatch,
     SaveDiff,
     RequestPull,
+    ApplyPatch,
+    ApplyMailbox,
 
     WorktreeList,
     WorktreeCreate,
@@ -155,6 +157,8 @@ impl GitCommand {
             Self::FormatPatch => "git-format-patch",
             Self::SaveDiff => "git-save-diff",
             Self::RequestPull => "git-request-pull",
+            Self::ApplyPatch => "git-apply-patch",
+            Self::ApplyMailbox => "git-apply-mailbox",
 
             Self::WorktreeList => "git-worktree-list",
             Self::WorktreeCreate => "git-worktree-create",
