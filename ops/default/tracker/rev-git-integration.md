@@ -246,14 +246,14 @@ Branch: `feat/rev-git-integration-14-guidance`
 Expected PR title: `docs(git): explain native repository workflows`
 Report: `ops/default/report/slices/rev-git-integration/slice-14-guidance.md`
 Requirements: GIT01-GIT20 and user-visible discovery
-PR: pending
+PR: [#271](https://forge.adrianpk.com/adrianpk/rev/pulls/271)
 
 - [x] T14.1: Add a short independent Git learning path, task guides, exact command/key/configuration reference and ownership explanation; show compact status/diff/commit feedback without requiring Org learning.
 - [x] T14.2: Keep canonical Markdown and its Spore projection/navigation aligned; document explicit fetch/integration, local tags, reviewed push, sequence/conflict, direct commands and bounds, with no unimplemented feature claims.
 - [x] T14.3: Finish user-facing Unreleased entries and per-variant coverage, update the additive baseline/index references without rewriting historical gate evidence, and prepare exact-candidate closure metadata for the controller after its selected full gate passes.
 
 Validation: Required documentation catalog/navigation and Spore projection checks, focused formatter and whitespace are recorded through controller validation for the final clean PR-reference head.
-Integration: T14.1-T14.3 implementation complete; canonical PR pending, integration controller-owned.
+Integration: T14.1-T14.3 implementation complete; canonical PR #271 open against dev, integration controller-owned.
 
 ## Closure
 

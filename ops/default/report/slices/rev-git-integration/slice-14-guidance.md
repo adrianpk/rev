@@ -5,7 +5,7 @@ Delivery set: rev-git-integration
 Plan: `ops/default/plan/rev-git-integration.md`
 Tracker: `ops/default/tracker/rev-git-integration.md`
 Branch: `feat/rev-git-integration-14-guidance`
-PR: pending
+PR: [#271](https://forge.adrianpk.com/adrianpk/rev/pulls/271)
 
 ## Purpose
 
@@ -61,7 +61,7 @@ User documentation only; native Git, source and process contracts are unchanged.
 
 ## Validation
 
-Required exact commands for the final clean PR-reference head:
+Exact ordered commands for the clean PR-reference head:
 
 - `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo run --locked --quiet --example documentation-check`
 - `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 bash scripts/build-user-guide.sh`
@@ -72,9 +72,9 @@ Coverage-map links and named native assertion owners resolve. Versioned
 changelog history is byte-for-byte unchanged. These are documentation
 consistency checks; runtime scenarios were not rerun for this slice.
 
-Required command execution is pending controller validation.
-The exact clean PR head and ordered successful commands will be recorded by
-controller validation after the PR-reference follow-up commit.
+The controller retains the exact head, ordered successful command list and
+log in its validation receipt after the PR-reference follow-up. This report
+does not substitute for that receipt.
 
 ## Risks and Follow-ups
 
