@@ -3,7 +3,7 @@ use crate::git::families::Subtree;
 use std::os::unix::ffi::OsStrExt;
 
 impl Runner {
-    fn family_commit(
+    pub(super) fn family_commit(
         &mut self,
         name: &std::ffi::OsStr,
         format: ObjectFormat,
@@ -52,7 +52,7 @@ impl Runner {
         }
         Ok(tree)
     }
-    fn subtree_remote(
+    pub(super) fn subtree_remote(
         &mut self,
         repository: &std::ffi::OsStr,
         reference: &std::ffi::OsStr,

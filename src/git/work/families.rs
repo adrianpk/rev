@@ -2,6 +2,7 @@ use super::*;
 use crate::git::conflicts::resolution::fingerprint;
 use crate::git::{Family, FamilyPlan, FamilyResult, families::Request};
 mod notes;
+mod output;
 mod sparse;
 mod state;
 mod submodule;
@@ -18,8 +19,9 @@ impl Runner {
                 family,
                 args,
                 observation,
+                output,
                 ..
-            } => self.prepare_family(family, args, observation, admission),
+            } => self.prepare_family(family, args, observation, output, admission),
             Request::Execute(plan) => self.execute_family(plan, admission),
         }
     }
@@ -98,6 +100,7 @@ impl Runner {
         family: Family,
         mut args: Vec<OsString>,
         observation: Option<Arc<Observation>>,
+        output: Option<PathBuf>,
         admission: &mut Lease,
     ) -> Result<Candidate, String> {
         family.validate(&args)?;
@@ -115,7 +118,9 @@ impl Runner {
         {
             return Err("Installed Git does not provide the selected command family".into());
         }
-        let destination = if family.notes() || family.sparse() {
+        let destination = if let Some(output) = output {
+            self.family_destination(output.as_os_str())?
+        } else if family.notes() || family.sparse() {
             self.directory.clone()
         } else if family.subtree() {
             self.family_relative_destination(&args[3])?
@@ -129,6 +134,7 @@ impl Runner {
             self.family_destination(args.last().ok_or("Destination is required")?)?
         };
         let parent_stamp = if !family.repository_action()
+            || family.output()
             || matches!(family, Family::SubmoduleAdd | Family::SubtreeAdd)
         {
             Some(Self::family_destination_stamp(&destination)?)
@@ -205,6 +211,14 @@ impl Runner {
             crate::git::families::FamilyProof::Submodule(state)
         } else if let Some(state) = subtree {
             crate::git::families::FamilyProof::Subtree(state)
+        } else if family.output() {
+            crate::git::families::FamilyProof::Output(self.prepare_output(
+                family,
+                &mut args,
+                &destination,
+                source.as_ref().ok_or("Output source context unavailable")?,
+                admission,
+            )?)
         } else if family.notes() {
             crate::git::families::FamilyProof::Notes(self.prepare_notes(
                 family,
@@ -286,6 +300,9 @@ impl Runner {
         }
         if plan.subtree().is_some() {
             return self.execute_subtree(plan, admission);
+        }
+        if matches!(plan.proof, crate::git::families::FamilyProof::Output(_)) {
+            return self.execute_output(plan, admission);
         }
         if matches!(plan.proof, crate::git::families::FamilyProof::Notes(_)) {
             return self.execute_notes(plan, admission);

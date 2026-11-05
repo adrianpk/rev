@@ -193,7 +193,8 @@ pub(super) fn start(
             );
             let seconds = match request {
                 Request::Family(super::families::Request::Prepare { family, .. })
-                    if family.subtree() && family.transport() =>
+                    if (family.subtree() && family.transport())
+                        || family == Family::RequestPull =>
                 {
                     policy.transport_timeout_seconds
                 }

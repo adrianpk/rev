@@ -80,6 +80,8 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
   control and verify saved files, exact trees and remote branch results.
   Add, remove or prune notes on exact objects and review cone-mode sparse
   checkout selections, checking actual note bytes and tracked-file presence.
+  Save reviewed binary patches, commit mailboxes or request-pull text to explicit
+  new files, with complete output checks and no mail sending or overwrite.
   Return to the same windows
   and terminals. Inspect active and
   recent Git processes, cancel a selected operation, and confirm before quitting

@@ -386,3 +386,67 @@ fn native_notes_sparse() {
         assert!(repository.root.join("beta/file").is_file());
     }
 }
+
+// Both profiles separate literal argv from an explicit output path, preserve
+// unsaved sources, and require separate review/acceptance before file creation.
+#[test]
+fn native_outputs() {
+    for profile in ["non-modal", "modal"] {
+        let repository = Repository::new("sha1");
+        fs::write(repository.root.join("versioned"), "base\n").unwrap();
+        repository.commit();
+        let mut owned = editor(&repository, profile, "", true);
+        let editor = &mut owned.0;
+        let base = String::from_utf8(repository.git(["rev-parse", "HEAD"])).unwrap();
+        fs::write(repository.root.join("versioned"), "delivered\n").unwrap();
+        repository.commit();
+        editor.insert('!');
+        let original = text(editor);
+        let saved_source = fs::read(repository.root.join("source.txt")).unwrap();
+        entry(editor);
+        wait(editor, |e| e.echo().contains("Git Status refreshed"));
+        for (suffix, family) in [
+            ('c', Family::FormatPatch),
+            ('s', Family::SaveDiff),
+            ('r', Family::RequestPull),
+        ] {
+            plain(editor, 'W');
+            plain(editor, suffix);
+            let seed: serde_json::Value = serde_json::from_str(&text(editor)).unwrap();
+            assert_eq!(seed["arguments"], serde_json::json!(family.seed()));
+            assert_eq!(seed["output"], "");
+            key_event_cancel(editor);
+            assert_eq!(text(editor), original);
+        }
+        let output = repository.fixture.0.join("native.diff");
+        let draft = serde_json::json!({"arguments": ["diff", "--binary", "--full-index", "--no-ext-diff", "--no-textconv", "--no-color", base.trim(), "HEAD", "--"], "output": output});
+        for execute in [false, true] {
+            plain(editor, 'W');
+            plain(editor, 's');
+            replace(editor, &draft.to_string());
+            accept(editor);
+            wait(editor, |e| e.echo().contains("Exact prepared Git review"));
+            let frame = render(editor).join("\n");
+            assert!(frame.contains("Complete output bytes"), "{frame}");
+            key(editor, KeyCode::Enter, KeyModifiers::NONE);
+            assert!(!output.exists());
+            if execute {
+                accept(editor);
+                wait(editor, |e| e.echo().contains("output saved and verified"));
+                assert!(fs::read_to_string(&output).unwrap().contains("+delivered"));
+            } else {
+                plain(editor, 'q');
+            }
+            assert_eq!(text(editor), original);
+            assert_eq!(
+                fs::read(repository.root.join("source.txt")).unwrap(),
+                saved_source
+            );
+        }
+        plain(editor, 'q');
+        editor.load(&output).unwrap();
+        assert!(text(editor).contains("+delivered"));
+        editor.load(&repository.root.join("source.txt")).unwrap();
+        assert_eq!(text(editor), original);
+    }
+}

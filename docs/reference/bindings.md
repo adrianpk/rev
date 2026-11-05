@@ -617,6 +617,9 @@ For live terminal key ownership and copy controls, see the
 | `> r` in Status | `git-sparse-checkout-reapply` | Review reapplying the captured cone selection to a checked clean working tree. |
 | `> s` in Status | `git-sparse-checkout-set` | Review literal relative directories and replace the cone selection without forcing saved changes. |
 | `> a` in Status | `git-sparse-checkout-add` | Review literal relative directories and add them to the captured cone selection. |
+| `W c` in Status | `git-format-patch` | Review an explicit local commit range and complete mailbox bytes, then save to one absent output file. |
+| `W s` in Status | `git-save-diff` | Review two local commits and a complete binary diff, then save to one absent output file. |
+| `W r` in Status | `git-request-pull` | Review local commit anchors and one explicit published remote branch, then save request text without sending mail. |
 | `Z Z`, `Z l` in Status | `git-worktree-list` | Open a bounded NUL-record worktree list with raw paths, full HEADs, distinct Git/common directories, lock reasons and prune state. |
 | `c` in Worktree | `git-worktree-create` | Review a new linked worktree and new local branch at the exact observed HEAD, using a checked absent destination. |
 | `v` in Worktree | `git-worktree-visit` | Open checked Git Status for the selected worktree identity while retaining native source buffers and windows. |
@@ -841,7 +844,8 @@ and paste never enter the visiting buffer while tree focus is retained.
 
 `keys.git_commit` inherits editor text editing for messages and prepared argument
 drafts in both startup profiles. Prepared argument drafts require a literal JSON
-array and two separate submissions: checked review, then execution. Normal
+array; output drafts require an arguments array and an explicit output path in
+one JSON object. Both use two separate submissions: checked review, then execution. Normal
 composition begins with c in Status. Plain Return inserts a newline; submission
 requires C-Enter (a distinguishable host event) or C-c C-c. C-g and C-c C-k
 retain cancelled commit/tag session drafts. Prepared argument cancellation
@@ -940,6 +944,9 @@ native cancellation. Prompts use `keys.minibuffer`.
 | `> r` | `git-sparse-checkout-reapply` |
 | `> s` | `git-sparse-checkout-set` |
 | `> a` | `git-sparse-checkout-add` |
+| `W c` | `git-format-patch` |
+| `W s` | `git-save-diff` |
+| `W r` | `git-request-pull` |
 | `Z Z`, `Z l` | `git-worktree-list` |
 | `z z`, `z l` | `git-stash-list` |
 | `C-x g` | `git-status` |

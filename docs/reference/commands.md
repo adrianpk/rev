@@ -746,6 +746,9 @@ Status reads disk and Git state; it does not save an unsaved source buffer.
 | `git-sparse-checkout-reapply` | Review reapplying the captured cone selection to a checked clean working tree. |
 | `git-sparse-checkout-set` | Review literal relative directories and replace the cone selection without forcing saved changes. |
 | `git-sparse-checkout-add` | Review literal relative directories and add them to the captured cone selection. |
+| `git-format-patch` | Review an explicit local commit range and complete mailbox bytes, then save to one absent output file. |
+| `git-save-diff` | Review two local commits and a complete binary diff, then save to one absent output file. |
+| `git-request-pull` | Review local commit anchors and one explicit published remote branch, then save request text without sending mail. |
 | `git-worktree-list` | Open a bounded NUL-record worktree list with raw paths, full HEADs, distinct Git/common directories, lock reasons and prune state. |
 | `git-worktree-create` | Review a new linked worktree and new local branch at the exact observed HEAD, using a checked absent destination. |
 | `git-worktree-visit` | Open checked Git Status for the selected worktree identity while retaining native source buffers and windows. |
@@ -1149,3 +1152,42 @@ changes and unrelated configuration remain checked. Linked worktrees retain
 separate pattern and materialization state. No force, implicit save/stash,
 automatic cleanup, retry or rollback is performed. Plain Return and cancellation
 follow the same native argument composer contract as other prepared families.
+
+
+### Prepared patch and request output
+
+Status W c/W s/W r prepare format-patch, saved diff and request-pull output.
+These drafts contain a JSON object with an arguments array and an explicit
+output path, for example {"arguments":["diff","--binary","--full-index",
+"--no-ext-diff","--no-textconv","--no-color","HEAD~1","HEAD","--"],
+"output":"review.diff"}. Relative output names resolve against the captured
+repository root. The destination must be absent, with an ordinary canonical
+parent outside Git metadata. Existing entries are never overwritten.
+
+Format-patch requires one local BASE..END commit range; saved diff requires two
+local commit expressions. Preparation freezes full IDs and disables replacement
+objects. Binary/full-index output permits real Git mailbox/plain-patch consumers.
+Only saved commit state is exported; an unsaved native source stays owned and is
+not saved implicitly. A bare repository can supply the same checked commit range.
+
+Request-pull requires an explicit repository URL or absolute path, a local start
+commit and one full remote refs/heads branch. Its end parameter can also use
+LOCAL:REMOTE to select a different local commit expression. The remote branch
+must already name the reviewed local end commit; this route does not publish it.
+Active endpoint URL rewrites refuse preparation. Request text is saved locally;
+no mail is sent.
+
+The shared owner captures complete output during read-only preparation. Review
+shows the exact executable/mode/cwd/argv, destination, byte count and Git blob
+hash of the captured bytes. This hash does not write an object to the database.
+A separate acceptance regenerates the output and requires exact byte equality,
+unchanged source/configuration and the same published request-pull anchor.
+Output exceeding the existing detail/scratch or aggregate process limits rejects
+as a whole. No partial export file is presented as a complete result.
+
+File publication reuses the existing owned staging lifecycle through a captured
+directory descriptor and an atomic hard link that cannot replace another entry.
+Postchecks read the actual saved bytes. find-file visits the explicit output;
+process inspection retains the actual producer's exit/cleanup facts. Changed
+review evidence refuses execution. Failed writes preserve uncertainty and never
+retry, delete the chosen destination or claim rollback.

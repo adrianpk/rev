@@ -74,8 +74,21 @@ Deliver GIT14-GIT15 and their GIT16-GIT20 contracts through T12.1-T12.3 in the
   manually materialized excluded paths protect sparse actions. Metacharacters
   and supported raw path bytes remain literal. Git cone files cannot represent
   a newline directory, so selecting one refuses before a changing child.
-- Remaining T12.2 patch/output families and T12.3 direct/separate shell routes
-  remain pending. No PR is claimed.
+- T12.2 output routes: W c/W s/W r prepare format-patch, saved binary diff and
+  request-pull text. The native JSON object separates literal arguments from an
+  explicit absent output path. Commit anchors freeze to full IDs; review names
+  complete byte count and a Git blob hash without writing an object database.
+- Accepted output is regenerated and compared byte for byte before publication.
+  Existing file/parent/source/config changes refuse; request-pull also rechecks
+  the exact already-published remote branch. Atomic non-overwriting publication
+  and actual saved-byte checks protect the chosen output. Changed producer bytes
+  with exit zero retain an unverified outcome and publish no file.
+- Read-only export preserves unsaved native sources. Both object formats and
+  bare contexts work, including an explicitly empty saved diff. Output stays
+  within existing detail/scratch and aggregate limits. No mail, push, implicit
+  save, overwrite, forced cleanup, retry or rollback is implied.
+- Remaining T12.2 mailbox/plain application and T12.3 direct/separate shell
+  routes remain pending. No PR is claimed.
 
 ## Implementation Notes
 
@@ -91,6 +104,14 @@ Publication alone does not verify effects or infer a postcondition. Hidden views
 The native draft reuses the existing retained source-view and message-buffer
 facilities. Commit/tag dispatch remains separate from argument interpretation.
 JSON arguments are literal OS arguments and are not passed through a shell.
+Output drafts wrap the arguments and explicit path in one JSON object under the
+same text/input bounds. Read-only preparation retains the complete producer
+bytes; later regeneration must match those bytes before filesystem publication.
+The shared execution helper returns bounded complete stdout to output callers
+while retaining the same actual argv/exit/cleanup facts for existing mutators.
+Output staging reuses the ordinary file owner's Temporary lifecycle through a
+captured directory FD; hard-link publication cannot overwrite an entry that
+appeared after review. Actual saved bytes are checked before success is claimed.
 The existing common saved-state helper also supports an unborn source: exact
 index entries plus the working diff from that index replace a nonexistent HEAD
 baseline, with the same saved untracked hashes.
@@ -102,21 +123,23 @@ within 4096 bytes. Native draft text remains bounded to 64 KiB. Transport output
 is withheld from public records; diagnostic display keeps existing redaction.
 Init, listing, sync and deinit obey the operation timeout; clones, submodule add
 and update obey the transport timeout. Subtree add/pull/push preparation and
-execution use that same transport timeout; merge/split use the operation timeout. Configuration probes stay private, and
+execution use that same transport timeout; merge/split use the operation timeout.
+Request-pull preparation and execution use the transport timeout. Configuration probes stay private, and
 Debug omits captured configuration and resolved URL bytes. Relative sync URLs whose resolved
 registration cannot be established remain unverified after the actual command.
 No runtime/development dependency or validation prerequisite was added.
 
 ## Contracts Added or Changed
 
-- Twenty-five working commands: git-clone, git-clone-shallow, git-clone-bare,
+- Twenty-eight working commands: git-clone, git-clone-shallow, git-clone-bare,
   git-clone-mirror, git-init, git-ignore and git-ignore-exclude; five additional
   commands are git-submodule-add/list/update/sync/deinit and five are
   git-subtree-add/merge/pull/push/split. Eight more are git-notes-add/remove/prune
-  and git-sparse-checkout-enable/disable/reapply/set/add.
-- Status has 66 active defaults. The existing keys.git_commit context also
+  and git-sparse-checkout-enable/disable/reapply/set/add. Three output commands
+  are git-format-patch, git-save-diff and git-request-pull.
+- Status has 69 active defaults. The existing keys.git_commit context also
   supplies ordinary editing and explicit submission for prepared argument text.
-- Live catalogs contain 586 commands and 271 configuration entries.
+- Live catalogs contain 589 commands and 271 configuration entries.
 
 ## Files of Interest
 
@@ -129,6 +152,9 @@ No runtime/development dependency or validation prerequisite was added.
 - `src/git/work/families/notes.rs`, `sparse.rs`, `state.rs`: exact note/ref maps,
   bounded ordinary-file evidence, cone/index/materialization postconditions and
   compatible actual fact refresh without claiming uncertain effects verified.
+- `src/git/work/families/output.rs`, `src/git/work/index.rs`: complete producer
+  capture, pinned ranges/remote anchors, unchanged execution facts and atomic
+  explicit-file publication with actual byte verification.
 - `src/session/git/families.rs`, `src/session/git/commit.rs`: native draft,
   two-step submission, exact review and original source restoration.
 - `src/git/work/repository.rs`: shared saved-state evidence for unborn sources.
@@ -141,6 +167,10 @@ No runtime/development dependency or validation prerequisite was added.
 
 - `tests/git_integration/families_metadata.rs`: both-format note/sparse round
   trips, symbolic-ref and external-state protection, raw paths and linked roots.
+
+- `tests/git_integration/families_output.rs`: real mailbox/diff consumers,
+  published request text, bare/empty output, stale evidence, changed producer
+  bytes, complete-output limits and transport-deadline evidence.
 
 ## Validation
 
@@ -238,6 +268,30 @@ required the expanded command count and explicit notes result error type;
 strict Clippy required a byte-string slice. Those errors were corrected before
 the successful selected run and final development lint.
 
+Output development first passed four real engine cases in 17.18 seconds. The
+expanded nine-case selection passed in 55.00 seconds, including both-profile
+native output composition and the existing notes/index round-trip regressions.
+Independent installed-Git am/apply consumers in separate owned roots verify
+actual tree objects and known text/binary bytes in SHA-1 and SHA-256 repositories.
+Request text contains the full local anchors and published branch without
+changing either repository. Bare contexts and empty saved diffs are covered.
+These consumer checks do not claim native application routes, which are pending.
+Formatter and strict focused Clippy pass; the last incremental Clippy check
+completed in 2.70 seconds after the 21.45-second check. All 21 command and
+configuration reference cases pass (2.29/13.70 seconds).
+Documentation passes at 589 commands, 271 configuration entries, 76 pages and
+485 links. Whitespace checks pass. These remain development results before
+complete native application/direct routes and final exact-HEAD validation.
+
+A real saved attributes change alters producer output while keeping clean source
+refs/configuration. The accepted producer exits zero, but exact byte comparison
+retains Indeterminate/Possible facts and no destination is created. Parent and
+file collisions, source/config/HEAD and remote-branch changes refuse before
+publication; complete-output limits reject without a partial file. A real Git
+wrapper delays request-pull only, proving both preparation and execution use the
+existing transport deadline. No assertions, fixture waits, admission ceiling or
+cleanup limit was weakened. No new dependency or process framework was added.
+
 Successful development commands:
 
 - `cargo fmt --all -- --check`
@@ -254,6 +308,7 @@ Successful development commands:
 - `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test git_integration families::subtree:: -- --test-threads=1`
 - `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test git_integration families::presentation::native_subtrees -- --test-threads=1`
 - `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test git_integration -- families::metadata:: families::presentation::native_notes_sparse families::presentation::native_subtrees --test-threads=1`
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test git_integration -- families::output:: families::presentation::native_outputs families::metadata::notes_roundtrip index::path_roundtrip --test-threads=1`
 - `git diff --check`
 
 These are focused development results. Final exact-HEAD controller validation
@@ -262,7 +317,7 @@ follow-up commit. No full gate or final receipt is claimed.
 
 ## Risks and Follow-ups
 
-Complete the remaining approved patch/output and direct
+Complete the remaining approved mailbox/plain application and direct
 Git/separate shell routes in this same slice. Combined PTY/resource acceptance
 and learning-path guidance remain in their recorded later slices. The controller
 owns integration.

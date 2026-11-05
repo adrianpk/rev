@@ -17,7 +17,7 @@ impl Session {
         directory: &Path,
         target: Option<&Path>,
     ) -> Result<(), String> {
-        if !family.repository_action() || family == Family::SubmoduleList {
+        if !family.repository_action() || family == Family::SubmoduleList || family.output() {
             return Ok(());
         }
         for buffer in self.buffers.iter() {
@@ -87,7 +87,14 @@ impl Session {
             })
             .unwrap_or_else(|| self.git.launch.clone());
         let context = observation.as_ref().map(|o| o.context);
-        let text = serde_json::to_string_pretty(&family.seed()).expect("string argument array");
+        let text = if family.output() {
+            serde_json::to_string_pretty(
+                &serde_json::json!({"arguments": family.seed(), "output": ""}),
+            )
+            .expect("output draft")
+        } else {
+            serde_json::to_string_pretty(&family.seed()).expect("string argument array")
+        };
         let draft = Draft {
             was_visible: self.git.visible,
             family,
@@ -96,7 +103,7 @@ impl Session {
             plan: None,
         };
         match self.install_git_text(observation, None, None, Some(draft), &text) {
-            Ok(()) => self.message("Edit the JSON argument array; fill empty parameters; C-Enter or C-c C-c prepares exact review; C-g cancels"),
+            Ok(()) => self.message(if family.output() { "Edit arguments and explicit output path; C-Enter or C-c C-c prepares exact review; C-g cancels" } else { "Edit the JSON argument array; fill empty parameters; C-Enter or C-c C-c prepares exact review; C-g cancels" }),
             Err(e) => self.error(&e),
         }
     }
@@ -129,20 +136,49 @@ impl Session {
             if text.len() > crate::git::MAX_COMMIT_BYTES {
                 return Err("Prepared draft exceeds 64 KiB".into());
             }
-            let args: Vec<String> = serde_json::from_str(&text).map_err(|e| {
-                format!("Prepared input requires one JSON array of literal arguments: {e}")
-            })?;
+            let (args, output): (Vec<String>, Option<PathBuf>) = if draft.family.output() {
+                #[derive(serde::Deserialize)]
+                #[serde(deny_unknown_fields)]
+                struct OutputDraft {
+                    arguments: Vec<String>,
+                    output: PathBuf,
+                }
+                let value: OutputDraft = serde_json::from_str(&text).map_err(|e| {
+                    format!(
+                        "Output input requires an arguments array and explicit output path: {e}"
+                    )
+                })?;
+                (value.arguments, Some(value.output))
+            } else {
+                (
+                    serde_json::from_str(&text).map_err(|e| {
+                        format!("Prepared input requires one JSON array of literal arguments: {e}")
+                    })?,
+                    None,
+                )
+            };
             if args.len() > 64 || args.iter().any(|a| a.len() > 4096 || a.contains('\0')) {
                 return Err(
                     "Prepared input exceeds its argument count/byte bounds or contains NUL".into(),
                 );
             }
-            let id = self.git.engine.prepare_family(
-                &draft.directory,
-                draft.context,
-                draft.family,
-                args.into_iter().map(OsString::from).collect(),
-            )?;
+            let arguments = args.into_iter().map(OsString::from).collect();
+            let id = if let Some(output) = output {
+                self.git.engine.prepare_family_output(
+                    &draft.directory,
+                    draft.context,
+                    draft.family,
+                    arguments,
+                    &output,
+                )?
+            } else {
+                self.git.engine.prepare_family(
+                    &draft.directory,
+                    draft.context,
+                    draft.family,
+                    arguments,
+                )?
+            };
             self.git.family_preparing = Some(id);
             Ok(false)
         })();
@@ -205,7 +241,17 @@ impl Session {
             let message = if outcome == Some(crate::git::Outcome::InProgress) {
                 "Prepared Git command stopped in progress; git-operation-status inspects the actual sequence".to_owned()
             } else if update.published && outcome == Some(crate::git::Outcome::Verified) {
-                if let Some(result) = self
+                if let Some(output) = self
+                    .git
+                    .engine
+                    .family_result()
+                    .filter(|r| r.plan.family.output())
+                {
+                    format!(
+                        "Prepared Git output saved and verified: {}; $ inspects the producer; find-file visits the explicit output",
+                        label(output.plan.destination.as_os_str().as_encoded_bytes())
+                    )
+                } else if let Some(result) = self
                     .git
                     .engine
                     .family_result()
@@ -242,6 +288,9 @@ impl Session {
         );
         if let Some(object) = plan.target_object() {
             metadata.push_str(&format!("Pinned Git object: {}\n", object.hex()));
+        }
+        if let Some((bytes, hash)) = plan.output_preview() {
+            metadata.push_str(&format!("Complete output bytes: {bytes}\nOutput Git blob hash: {} (no object database write)\n", hash.hex()));
         }
         for object in plan.prune_objects() {
             metadata.push_str(&format!(

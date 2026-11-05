@@ -26,6 +26,9 @@ pub enum Family {
     SparseReapply,
     SparseSet,
     SparseAdd,
+    FormatPatch,
+    SaveDiff,
+    RequestPull,
 }
 impl Family {
     pub fn label(self) -> &'static str {
@@ -53,6 +56,9 @@ impl Family {
             Self::SparseReapply => "sparse checkout reapply",
             Self::SparseSet => "sparse checkout set",
             Self::SparseAdd => "sparse checkout add",
+            Self::FormatPatch => "format patch output",
+            Self::SaveDiff => "saved diff output",
+            Self::RequestPull => "request pull output",
         }
     }
     pub fn seed(self) -> Vec<String> {
@@ -88,6 +94,31 @@ impl Family {
                 "",
             ],
             Self::SparseAdd => &["sparse-checkout", "add", "--skip-checks", "--", ""],
+            Self::FormatPatch => &[
+                "format-patch",
+                "--stdout",
+                "--binary",
+                "--full-index",
+                "--no-signature",
+                "--no-cover-letter",
+                "--no-notes",
+                "--no-ext-diff",
+                "--no-textconv",
+                "",
+                "--",
+            ],
+            Self::SaveDiff => &[
+                "diff",
+                "--binary",
+                "--full-index",
+                "--no-ext-diff",
+                "--no-textconv",
+                "--no-color",
+                "",
+                "",
+                "--",
+            ],
+            Self::RequestPull => &["request-pull", "", "", ""],
         };
         args.iter().map(|a| (*a).into()).collect()
     }
@@ -116,7 +147,10 @@ impl Family {
         Ok(())
     }
     pub fn repository_action(self) -> bool {
-        self.submodule() || self.subtree() || self.notes() || self.sparse()
+        self.submodule() || self.subtree() || self.notes() || self.sparse() || self.output()
+    }
+    pub fn output(self) -> bool {
+        matches!(self, Self::FormatPatch | Self::SaveDiff | Self::RequestPull)
     }
     pub(super) fn notes(self) -> bool {
         matches!(self, Self::NotesAdd | Self::NotesRemove | Self::NotesPrune)
@@ -163,6 +197,7 @@ impl Family {
                 | Self::SubtreeAdd
                 | Self::SubtreePull
                 | Self::SubtreePush
+                | Self::RequestPull
         )
     }
 }
@@ -305,6 +340,31 @@ impl Sparse {
     }
 }
 
+pub(super) struct Output {
+    pub configuration: Vec<u8>,
+    pub bytes: Vec<u8>,
+    pub hash: ObjectId,
+    pub remote: Option<(OsString, OsString, ObjectId)>,
+}
+impl std::fmt::Debug for Output {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("Output")
+            .field("bytes", &self.bytes.len())
+            .field("hash", &self.hash)
+            .finish_non_exhaustive()
+    }
+}
+impl Output {
+    fn bytes(&self) -> usize {
+        std::mem::size_of::<Self>()
+            + self.configuration.capacity()
+            + self.bytes.capacity()
+            + self.remote.as_ref().map_or(0, |(endpoint, reference, _)| {
+                endpoint.capacity() + reference.capacity()
+            })
+    }
+}
+
 #[derive(Debug)]
 pub(super) enum FamilyProof {
     Creation,
@@ -312,6 +372,7 @@ pub(super) enum FamilyProof {
     Subtree(Subtree),
     Notes(Notes),
     Sparse(Sparse),
+    Output(Output),
 }
 impl FamilyProof {
     pub fn bytes(&self) -> usize {
@@ -321,6 +382,7 @@ impl FamilyProof {
             Self::Subtree(state) => state.bytes(),
             Self::Notes(state) => state.bytes(),
             Self::Sparse(state) => state.bytes(),
+            Self::Output(state) => state.bytes(),
         }
     }
 }
@@ -368,6 +430,12 @@ impl FamilyPlan {
             _ => &[],
         }
     }
+    pub fn output_preview(&self) -> Option<(usize, ObjectId)> {
+        match &self.proof {
+            FamilyProof::Output(output) => Some((output.bytes.len(), output.hash)),
+            _ => None,
+        }
+    }
     pub fn remote_branch(&self) -> Option<&std::ffi::OsStr> {
         self.subtree()
             .and_then(|s| s.remote.as_ref())
@@ -387,6 +455,7 @@ pub(super) enum Request {
         family: Family,
         args: Vec<OsString>,
         observation: Option<Arc<Observation>>,
+        output: Option<PathBuf>,
         _admission: Lease,
     },
     Execute(Arc<FamilyPlan>),
@@ -411,7 +480,36 @@ impl Repositories {
         family: Family,
         args: Vec<OsString>,
     ) -> Result<OperationId, String> {
+        self.prepare_family_file(directory, context, family, args, None)
+    }
+    pub fn prepare_family_output(
+        &mut self,
+        directory: &Path,
+        context: Option<ContextId>,
+        family: Family,
+        args: Vec<OsString>,
+        output: &Path,
+    ) -> Result<OperationId, String> {
+        self.prepare_family_file(directory, context, family, args, Some(output.into()))
+    }
+    fn prepare_family_file(
+        &mut self,
+        directory: &Path,
+        context: Option<ContextId>,
+        family: Family,
+        args: Vec<OsString>,
+        output: Option<PathBuf>,
+    ) -> Result<OperationId, String> {
         self.family_idle()?;
+        if family.output() != output.is_some()
+            || output.as_ref().is_some_and(|p| {
+                p.as_os_str().is_empty()
+                    || p.as_os_str().len() > 4096
+                    || p.as_os_str().as_encoded_bytes().contains(&0)
+            })
+        {
+            return Err("Output families require one explicit output path within 4096 bytes; other families take literal argv only".into());
+        }
         if !directory.is_absolute() || directory.as_os_str().len() > 4096 {
             return Err("Prepared directory requires an absolute path within 4096 bytes".into());
         }
@@ -433,15 +531,17 @@ impl Repositories {
             })
             .transpose()?;
         if family.repository_action()
-            && observation
-                .as_ref()
-                .is_none_or(|o| !family.notes() && o.identity.worktree.is_none())
+            && observation.as_ref().is_none_or(|o| {
+                !(family.notes() || family.output()) && o.identity.worktree.is_none()
+            })
         {
             return Err(
                 "Repository family preparation requires a checked working-tree context".into(),
             );
         }
-        let size = args.iter().map(OsString::capacity).sum::<usize>() + 8192;
+        let size = args.iter().map(OsString::capacity).sum::<usize>()
+            + output.as_ref().map_or(0, PathBuf::capacity)
+            + 8192;
         let admission = self.budget.reserve(size)?;
         self.family_plan = None;
         self.family_result = None;
@@ -452,6 +552,7 @@ impl Repositories {
                 family,
                 args,
                 observation,
+                output,
                 _admission: admission,
             }),
         )

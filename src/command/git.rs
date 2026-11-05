@@ -25,6 +25,9 @@ pub enum GitCommand {
     SparseReapply,
     SparseSet,
     SparseAdd,
+    FormatPatch,
+    SaveDiff,
+    RequestPull,
 
     WorktreeList,
     WorktreeCreate,
@@ -149,6 +152,9 @@ impl GitCommand {
             Self::SparseReapply => "git-sparse-checkout-reapply",
             Self::SparseSet => "git-sparse-checkout-set",
             Self::SparseAdd => "git-sparse-checkout-add",
+            Self::FormatPatch => "git-format-patch",
+            Self::SaveDiff => "git-save-diff",
+            Self::RequestPull => "git-request-pull",
 
             Self::WorktreeList => "git-worktree-list",
             Self::WorktreeCreate => "git-worktree-create",

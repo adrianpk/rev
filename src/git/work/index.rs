@@ -103,9 +103,17 @@ impl Runner {
         args: &[OsString],
         input: Option<fs::File>,
     ) -> (Result<(), String>, Execution) {
+        let (result, facts) = self.execute_change_output(args, input);
+        (result.map(|_| ()), facts)
+    }
+    pub(super) fn execute_change_output(
+        &mut self,
+        args: &[OsString],
+        input: Option<fs::File>,
+    ) -> (Result<Vec<u8>, String>, Execution) {
         let executed = self
             .command_input(args, Phase::Executing, false, None, input)
-            .map(|_| ());
+            .map(|(bytes, _)| bytes);
         self.effects = if self.exit.is_some() || self.retained.is_some() {
             Effects::Possible
         } else {
