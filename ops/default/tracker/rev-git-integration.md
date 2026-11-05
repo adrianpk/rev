@@ -170,10 +170,10 @@ PR: pending
 
 - [x] T9.1: Prepare ordered cherry-pick/revert requests from independent ordered marks, including exact mainline selection for merge commits.
 - [x] T9.2: Integrate their actual continuation/skip/abort states with the shared sequence owner and conflict entry; reject wrong order, duplicate/stale targets and wrong active families.
-- [ ] T9.3: Provide manual bisect start/good/bad/skip/reset with exact review and real fixture verification; do not add automatic test execution.
+- [x] T9.3: Provide manual bisect start/good/bad/skip/reset with exact review and real fixture verification; do not add automatic test execution.
 
-Validation: T9.1-T9.2 development formatter, strict Clippy, all 11 sequence tests, 19 shared integration tests, the existing branch-switch/history/source regression and 21 command/configuration reference tests pass. Actual order, controls, restored original context and hook uncertainty are checked with real Git. Documentation checks 534 commands and 268 configuration entries. Final exact-HEAD controller evidence remains pending after T9.3.
-Integration: T9.1-T9.2 deliver reviewed ordered application and compatible checked continuation/skip/abort through the shared sequence owner. T9.3 manual bisect and canonical PR preparation remain pending.
+Validation: T9.1-T9.2 development includes 11 sequence cases, 19 shared integration cases, the branch/history/source regression and 21 reference checks. T9.3 adds five passing focused cases for actual bisect classification, ambiguity, stale/configured-limit fences, both native profiles and unsaved-source protection. Strict Clippy and documentation checks pass with 539 commands and 268 configuration entries. Final combined exact-HEAD controller evidence follows the PR-reference commit.
+Integration: T9.1-T9.3 implementation and the reviewing Slice 9 report are complete. Canonical PR preparation and final exact-HEAD validation remain active.
 
 ## Slice 10: Native conflict resolution
 

@@ -18,6 +18,8 @@ pub use integration::{
     AutosquashAction, AutosquashPlan, AutosquashStep, IntegrationMode, Sequence, SequenceControl,
     SequenceFamily,
 };
+mod bisect;
+pub use bisect::{BisectAction, BisectPlan, BisectResult, BisectState};
 mod sequences;
 pub use sequences::{ApplyKind, ApplyPlan, ApplyProgress, ApplyStep, RevisionChoice};
 mod refs;
@@ -139,6 +141,8 @@ pub enum OperationKind {
     ApplicationPrepare,
     Application,
     ApplicationControl,
+    BisectPrepare,
+    Bisect,
     Push,
 }
 
@@ -232,6 +236,7 @@ pub struct Context {
     pub sequence: Option<Arc<Sequence>>,
     pub autosquash: Option<Arc<AutosquashPlan>>,
     pub application_plan: Option<Arc<ApplyPlan>>,
+    pub bisect_plan: Option<Arc<BisectPlan>>,
     pub history: Option<Arc<History>>,
     pub reflog: Option<Arc<Reflog>>,
     pub blame: Option<Arc<Blame>>,
@@ -600,6 +605,7 @@ impl Repositories {
                         | OperationKind::SequenceControl
                         | OperationKind::Application
                         | OperationKind::ApplicationControl
+                        | OperationKind::Bisect
                         | OperationKind::Integration
                         | OperationKind::Push
                         | OperationKind::Fetch
@@ -654,6 +660,7 @@ impl Repositories {
                             sequence: None,
                             autosquash: None,
                             application_plan: None,
+                            bisect_plan: None,
                             history: None,
                             reflog: None,
                             blame: None,
@@ -676,6 +683,19 @@ impl Repositories {
                         );
                         None
                     }
+                }
+                Ok(work::Publication::BisectPlan(plan)) => {
+                    if let Some(context) = self.contexts.iter_mut().find(|c| {
+                        c.id == plan.refs.observation.context
+                            && c.refs.as_ref().is_some_and(|r| Arc::ptr_eq(r, &plan.refs))
+                    }) {
+                        context.bisect_plan = Some(Arc::new(plan));
+                        published = true;
+                    } else {
+                        record.outcome = Outcome::Failed;
+                        record.diagnostic = Some("Bisect source expired before publication".into());
+                    }
+                    progress.context
                 }
                 Ok(work::Publication::ApplicationPlan(plan)) => {
                     if let Some(context) = self.contexts.iter_mut().find(|c| {
@@ -866,6 +886,7 @@ impl Repositories {
                             | OperationKind::History
                             | OperationKind::Sequence
                             | OperationKind::ApplicationPrepare
+                            | OperationKind::BisectPrepare
                             | OperationKind::AutosquashPrepare
                             | OperationKind::PushPrepare
                             | OperationKind::TagPrepare => {}
@@ -878,6 +899,7 @@ impl Repositories {
                             | OperationKind::SequenceControl
                             | OperationKind::Application
                             | OperationKind::ApplicationControl
+                            | OperationKind::Bisect
                             | OperationKind::Integration
                             | OperationKind::Push
                             | OperationKind::Fetch

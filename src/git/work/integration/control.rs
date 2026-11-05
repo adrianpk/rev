@@ -11,6 +11,9 @@ impl Runner {
         if let Some(progress) = &expected.application {
             self.bind_application(&mut actual, progress.clone())?;
         }
+        if let Some(plan) = expected.bisect.as_ref().and_then(|b| b.plan.clone()) {
+            self.bind_bisect(&mut actual, plan)?;
+        }
         if !expected.same(&actual) {
             return Err(
                 "Git sequence, refs, index or working-tree evidence changed while review was open"

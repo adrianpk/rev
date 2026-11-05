@@ -578,6 +578,11 @@ For live terminal key ownership and copy controls, see the
 | `r c` in Refs; `]` in Operation | `git-rebase-continue` | Refresh and confirm continuation after saved staged resolutions. |
 | `r s` in Refs; `;` in Operation | `git-rebase-skip` | Refresh and confirm skipping the current compatible rebase step. |
 | `r A` in Refs; `Z` in Operation | `git-rebase-abort` | Refresh and confirm restoration of the original rebase context. |
+| `?` in Operation | `git-bisect-start` | Collect explicit bad/good boundaries, resolve full commit IDs and review the original branch/object before starting manual bisect. |
+| `G` in Operation | `git-bisect-good` | Review the exact current candidate and record the user-supplied good verdict. |
+| `B` in Operation | `git-bisect-bad` | Review the exact current candidate and record the user-supplied bad verdict. |
+| `\|` in Operation | `git-bisect-skip` | Review and skip the current candidate; retain ambiguity when skipped commits prevent a unique first bad. |
+| `~` in Operation | `git-bisect-reset` | Review and restore the checked original branch/object; reject missing or changed original lineage. |
 | `{` in Operation | `git-cherry-pick-continue` | Refresh and review continue of the exact retained cherry-pick request. |
 | `l` in Operation | `git-cherry-pick-skip` | Refresh and review skip of the exact retained cherry-pick request. |
 | `Y` in Operation | `git-cherry-pick-abort` | Refresh and review abort of the exact retained cherry-pick request. |
@@ -1030,9 +1035,18 @@ They require the retained original lineage as well as matching actual Git
 metadata; missing lineage is unavailable rather than guessed from a label.
 Abort explicitly restores the original context, including a completed prefix.
 Generic controls dispatch these compatible families by their native names.
+Manual bisect uses ? for explicit bad/good boundaries and G/B/\| for separate
+current-candidate classifications. No build or test command runs. Full boundary
+and candidate IDs remain reviewable. ~ restores the checked original branch and
+object. Skipped-candidate ambiguity does not identify a unique first bad commit.
 
 | Keys | Target |
 | --- | --- |
+| `?` | `git-bisect-start` |
+| `G` | `git-bisect-good` |
+| `B` | `git-bisect-bad` |
+| `\|` | `git-bisect-skip` |
+| `~` | `git-bisect-reset` |
 | `{` | `git-cherry-pick-continue` |
 | `l` | `git-cherry-pick-skip` |
 | `Y` | `git-cherry-pick-abort` |

@@ -360,3 +360,6 @@ mod presentation;
 
 #[path = "sequences_controls.rs"]
 mod controls;
+
+#[path = "sequences_bisect.rs"]
+mod bisect;

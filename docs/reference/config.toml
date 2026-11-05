@@ -1705,6 +1705,11 @@ max_result_bytes = 262144
 
 # Independent Git-owned sequence observation in both profiles.
 [keys.git_sequence]
+"?" = "git-bisect-start"
+"G" = "git-bisect-good"
+"B" = "git-bisect-bad"
+"|" = "git-bisect-skip"
+"~" = "git-bisect-reset"
 "{" = "git-cherry-pick-continue"
 "l" = "git-cherry-pick-skip"
 "Y" = "git-cherry-pick-abort"

@@ -30,11 +30,15 @@ impl Runner {
             Request::Observe {
                 observation,
                 application,
+                bisect,
             } => {
                 let refs = self.integration_refs(&observation, admission)?;
                 let mut sequence = self.read_sequence(refs, admission)?;
                 if let Some(progress) = application {
                     self.bind_application(&mut sequence, progress)?;
+                }
+                if let Some(plan) = bisect {
+                    self.bind_bisect(&mut sequence, plan)?;
                 }
                 Ok(Candidate::Sequence(sequence))
             }

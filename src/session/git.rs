@@ -310,6 +310,11 @@ impl Session {
                 GitCommand::Rebase => {
                     self.confirm_git_integration(crate::git::IntegrationMode::Rebase)
                 }
+                GitCommand::BisectStart => self.prompt_git_bisect(),
+                GitCommand::BisectGood => self.request_git_bisect(crate::git::BisectAction::Good),
+                GitCommand::BisectBad => self.request_git_bisect(crate::git::BisectAction::Bad),
+                GitCommand::BisectSkip => self.request_git_bisect(crate::git::BisectAction::Skip),
+                GitCommand::BisectReset => self.request_git_bisect(crate::git::BisectAction::Reset),
                 GitCommand::OperationStatus => self.open_git_sequence(),
                 GitCommand::RebaseAutosquash => self.prepare_git_autosquash(),
                 GitCommand::MergeContinue => self.request_git_control(
@@ -698,6 +703,15 @@ impl Session {
             return Action::Wait;
         }
         for update in updates {
+            if self
+                .git
+                .refs
+                .bisect_preparing
+                .is_some_and(|(id, _)| id == update.operation)
+            {
+                self.publish_git_bisect_preparation(&update);
+                continue;
+            }
             if self.git.refs.application_preparing == Some(update.operation) {
                 self.publish_git_application_preparation(&update);
                 continue;

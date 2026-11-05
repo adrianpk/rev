@@ -240,3 +240,120 @@ fn native_controls() {
         }
     }
 }
+
+// Both profiles require explicit full-boundary and current-candidate review.
+// Return and cancellation have no Git effects; reset restores the exact branch.
+#[test]
+fn native_bisect() {
+    for profile in ["non-modal", "modal"] {
+        let repository = Repository::new("sha256");
+        let mut owned = editor(&repository, profile, "", true);
+        let editor = &mut owned.0;
+        let ids = super::bisect::linear(&repository, 9);
+        let original = object(&repository, "HEAD");
+        let source = crate::status::presentation::text(editor);
+        entry(editor);
+        wait(editor, |s| s.git_observation().is_some());
+        editor.execute(Command::Git(GitCommand::OperationStatus));
+        wait(editor, |s| s.echo().contains("sequence state checked"));
+        let prepare = |editor: &mut rev::session::Session| {
+            plain(editor, '?');
+            editor.handle(Event::Paste(ids[8].hex()));
+            key(editor, KeyCode::Enter, KeyModifiers::NONE);
+            editor.handle(Event::Paste(ids[0].hex()));
+            key(editor, KeyCode::Enter, KeyModifiers::NONE);
+            wait(editor, |s| s.echo().contains("Confirm manual bisect with"));
+        };
+        prepare(editor);
+        let frame = render(editor).join("\n");
+        assert!(frame.contains("Manual bisect boundary review"), "{frame}");
+        assert!(frame.contains(&ids[8].hex()), "{frame}");
+        assert!(frame.contains(&ids[0].hex()), "{frame}");
+        key(editor, KeyCode::Enter, KeyModifiers::NONE);
+        assert_eq!(object(&repository, "HEAD"), original);
+        plain(editor, 'n');
+        assert!(!repository.root.join(".git/BISECT_START").exists());
+        prepare(editor);
+        key(editor, KeyCode::Enter, KeyModifiers::CONTROL);
+        wait(editor, |s| {
+            s.echo().contains("Manual bisect candidate checked")
+        });
+        let first = object(&repository, "HEAD");
+        assert_ne!(first, original);
+        // Manual keys dispatch their own candidate classification, not source
+        // editing commands or a generic sequence skip/abort.
+        for (chord, action) in [('G', "good"), ('|', "skip"), ('B', "bad")] {
+            plain(editor, chord);
+            wait(editor, |s| {
+                s.echo()
+                    .contains(&format!("Confirm manual bisect {action}"))
+            });
+            let candidate = object(&repository, "HEAD");
+            let frame = render(editor).join("\n");
+            assert!(frame.contains(&candidate.hex()), "{frame}");
+            assert!(frame.contains(&ids[0].hex()), "{frame}");
+            key(editor, KeyCode::Enter, KeyModifiers::NONE);
+            assert_eq!(object(&repository, "HEAD"), candidate);
+            plain(editor, 'n');
+            assert_eq!(object(&repository, "HEAD"), candidate);
+        }
+        plain(editor, 'G');
+        wait(editor, |s| s.echo().contains("Confirm manual bisect good"));
+        key(editor, KeyCode::Char('c'), KeyModifiers::CONTROL);
+        key(editor, KeyCode::Char('c'), KeyModifiers::CONTROL);
+        wait(editor, |s| {
+            s.echo().contains("Manual bisect candidate checked")
+        });
+        assert!(
+            repository
+                .git([
+                    "show-ref",
+                    "--verify",
+                    &format!("refs/bisect/good-{}", first.hex())
+                ])
+                .starts_with(first.hex().as_bytes())
+        );
+        plain(editor, '~');
+        wait(editor, |s| s.echo().contains("Confirm manual bisect reset"));
+        let frame = render(editor).join("\n");
+        assert!(frame.contains(&original.hex()), "{frame}");
+        plain(editor, 'y');
+        wait(editor, |s| {
+            s.echo().contains("Manual bisect reset verified")
+        });
+        assert_eq!(object(&repository, "HEAD"), original);
+        assert_eq!(
+            repository.git(["symbolic-ref", "HEAD"]),
+            b"refs/heads/main\n"
+        );
+        assert_eq!(crate::status::presentation::text(editor), source);
+        assert!(!repository.root.join(".git/BISECT_START").exists());
+    }
+}
+
+// Preparing checkout-based bisect never saves or overwrites an unsaved native
+// source, regardless of profile. Admission fails before boundary collection.
+#[test]
+fn unsaved_bisect() {
+    for profile in ["non-modal", "modal"] {
+        let repository = Repository::new("sha1");
+        let mut owned = editor(&repository, profile, "", true);
+        let editor = &mut owned.0;
+        super::bisect::linear(&repository, 4);
+        if profile == "modal" {
+            plain(editor, 'i');
+        }
+        plain(editor, 'x');
+        let source = crate::status::presentation::text(editor);
+        let before = object(&repository, "HEAD");
+        entry(editor);
+        wait(editor, |s| s.git_observation().is_some());
+        editor.execute(Command::Git(GitCommand::OperationStatus));
+        wait(editor, |s| s.echo().contains("sequence state checked"));
+        plain(editor, '?');
+        assert!(editor.echo().contains("unsaved text"), "{}", editor.echo());
+        assert_eq!(object(&repository, "HEAD"), before);
+        assert_eq!(crate::status::presentation::text(editor), source);
+        assert!(!repository.root.join(".git/BISECT_START").exists());
+    }
+}

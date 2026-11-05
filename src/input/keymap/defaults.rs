@@ -560,6 +560,11 @@ const COMPLETION: &[(&str, &str)] = &[
 ];
 
 const GIT_SEQUENCE: &[(&str, &str)] = &[
+    ("?", "git-bisect-start"),
+    ("G", "git-bisect-good"),
+    ("B", "git-bisect-bad"),
+    ("|", "git-bisect-skip"),
+    ("~", "git-bisect-reset"),
     ("{", "git-cherry-pick-continue"),
     ("l", "git-cherry-pick-skip"),
     ("Y", "git-cherry-pick-abort"),

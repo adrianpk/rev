@@ -8,7 +8,13 @@ impl Work {
             .context
             .and_then(|id| self.engine.context(id))
             .and_then(|c| c.sequence.as_ref());
-        (0..sequence.map_or(10, |s| 10 + s.targets.len() + s.conflicts.len()))
+        (0..sequence.map_or(10, |s| {
+            10 + s.targets.len()
+                + s.conflicts.len()
+                + s.bisect
+                    .as_ref()
+                    .map_or(0, |b| 3 + b.good.len() + b.skipped.len())
+        }))
             .map(move |row| {
                 let Some(s) = sequence else {
                     return if row == 0 {
@@ -23,7 +29,11 @@ impl Work {
                         s.family.map_or("none".into(), |f| format!("{f:?}"))
                     ),
                     1 => {
-                        if s.family.is_some() {
+                        if s.family == Some(SequenceFamily::Bisect) {
+                            self.bisect_summary()
+                                .unwrap_or("Manual bisect state unavailable")
+                                .into()
+                        } else if s.family.is_some() {
                             "In progress; Git owns state; process cancellation does not abort it"
                                 .into()
                         } else {
@@ -65,6 +75,20 @@ impl Work {
                     {
                         "Checking Git owner; sequence controls wait for owned work".into()
                     }
+                    9 if s.family == Some(SequenceFamily::Bisect) => format!(
+                        "Admitted manual controls: {}",
+                        [
+                            crate::git::BisectAction::Good,
+                            crate::git::BisectAction::Bad,
+                            crate::git::BisectAction::Skip,
+                            crate::git::BisectAction::Reset
+                        ]
+                        .into_iter()
+                        .filter(|a| s.bisect_admission(*a).is_ok())
+                        .map(crate::git::BisectAction::label)
+                        .collect::<Vec<_>>()
+                        .join(", ")
+                    ),
                     9 => format!(
                         "Admitted controls: {}",
                         [
@@ -81,11 +105,31 @@ impl Work {
                     _ if row - 10 < s.targets.len() => {
                         format!("Merge target: {}", s.targets[row - 10].hex())
                     }
-                    _ => label(
+                    _ if row - 10 - s.targets.len() < s.conflicts.len() => label(
                         s.conflicts[row - 10 - s.targets.len()]
                             .as_os_str()
                             .as_encoded_bytes(),
                     ),
+                    _ => {
+                        let b = s.bisect.as_ref().expect("admitted bisect row");
+                        let index = row - 10 - s.targets.len() - s.conflicts.len();
+                        match index {
+                            0 => format!("Known bad: {}", b.bad.hex()),
+                            1 => format!(
+                                "Unresolved range: {} commits / {} skipped",
+                                b.remaining,
+                                b.skipped.len()
+                            ),
+                            2 => format!("Manual result: {}", b.result.label()),
+                            _ if index - 3 < b.good.len() => {
+                                format!("Known good: {}", b.good[index - 3].hex())
+                            }
+                            _ => format!(
+                                "Skipped candidate: {}",
+                                b.skipped[index - 3 - b.good.len()].hex()
+                            ),
+                        }
+                    }
                 }
             })
             .flat_map(move |text| Wrapped {
@@ -401,8 +445,9 @@ impl Session {
         if update.published && completed {
             self.git.refs.failed = false;
         }
+        let bisect = record.is_some_and(|r| r.kind == crate::git::OperationKind::Bisect);
         let observed = record.is_some_and(|r| r.kind == crate::git::OperationKind::Sequence);
-        if update.published && (in_progress || observed) {
+        if update.published && (in_progress || observed || bisect) {
             self.git.page = Page::Sequence;
             self.git.refs.sequence_top = 0;
             self.git.refs.failed = false;
@@ -414,7 +459,11 @@ impl Session {
                 self.confirm_git_control(action, family);
                 return;
             }
-            self.message(if aborted {
+            self.message(if bisect && update.published && !self.git.refs.failed {
+                self.git
+                    .bisect_summary()
+                    .unwrap_or("Manual bisect state checked")
+            } else if aborted {
                 "Git sequence aborted; original branch and object verified"
             } else if completed {
                 "Git sequence skipped; resulting branch and lineage verified"

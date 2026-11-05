@@ -43,6 +43,7 @@ pub enum SequenceFamily {
     CherryPick,
     Revert,
     Mailbox,
+    Bisect,
     Unsupported,
 }
 
@@ -67,6 +68,7 @@ pub struct Sequence {
     pub total: Option<usize>,
     pub conflicts: Vec<PathBuf>,
     pub application: Option<Arc<ApplyProgress>>,
+    pub bisect: Option<Box<BisectState>>,
     pub(in crate::git) files: Vec<SequenceFile>,
     pub(in crate::git) index: Vec<u8>,
     pub(in crate::git) worktree: Vec<u8>,
@@ -88,6 +90,11 @@ impl std::fmt::Debug for Sequence {
 }
 impl Sequence {
     pub(in crate::git) fn same(&self, other: &Self) -> bool {
+        match (&self.bisect, &other.bisect) {
+            (Some(a), Some(b)) if !a.same(b) => return false,
+            (None, Some(_)) | (Some(_), None) => return false,
+            _ => {}
+        }
         self.family == other.family
             && self.current == other.current
             && self.targets == other.targets
@@ -265,7 +272,8 @@ impl Sequence {
     }
 
     pub(in crate::git) fn bytes(&self) -> usize {
-        std::mem::size_of::<Self>()
+        self.bisect.as_ref().map_or(0, |b| b.bytes())
+            + std::mem::size_of::<Self>()
             + self.targets.capacity() * std::mem::size_of::<ObjectId>()
             + self.branch.capacity()
             + self.index.capacity()
@@ -284,6 +292,7 @@ pub(super) enum Request {
     Observe {
         observation: Arc<Observation>,
         application: Option<Arc<ApplyProgress>>,
+        bisect: Option<Arc<BisectPlan>>,
     },
     PrepareAutosquash {
         refs: Arc<Refs>,
@@ -350,6 +359,11 @@ impl Repositories {
             Some(context),
             work::Request::Integration(Request::Observe {
                 observation,
+                bisect: self
+                    .context(context)
+                    .and_then(|c| c.sequence.as_ref())
+                    .and_then(|s| s.bisect.as_ref())
+                    .and_then(|b| b.plan.clone()),
                 application: self
                     .context(context)
                     .and_then(|c| c.sequence.as_ref())

@@ -47,6 +47,10 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
   and confirm compatible continue, skip or abort controls against fresh state.
   Cherry-pick and revert controls preserve the reviewed order and mainlines;
   explicit abort also restores the original context after a completed prefix.
+  Start manual bisect with explicit bad/good boundaries in the Operation view;
+  review each candidate before marking it good, bad or skipped. Inspect a checked
+  first bad commit or skipped-candidate ambiguity, then explicitly reset to the
+  original branch and object. No build or test command runs automatically.
   Integration protects unsaved sources and reports in-progress, completed,
   skipped and aborted outcomes. Changed files follow your reload policy,
   protecting unsaved source text.

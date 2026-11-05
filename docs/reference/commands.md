@@ -707,6 +707,11 @@ Status reads disk and Git state; it does not save an unsaved source buffer.
 | `git-rebase-continue` | Refresh and confirm continuation of a compatible Git-owned rebase with saved staged resolutions and exact lineage. |
 | `git-rebase-skip` | Refresh and explicitly confirm skipping the current compatible rebase step; expose the actual sequence or completed skipped outcome. |
 | `git-rebase-abort` | Refresh and confirm abort of a compatible rebase; verify its original branch and object. |
+| `git-bisect-start` | Collect explicit bad/good boundaries, resolve full commit IDs and review the original branch/object before starting manual bisect. |
+| `git-bisect-good` | Review the exact current candidate and record the user-supplied good verdict. |
+| `git-bisect-bad` | Review the exact current candidate and record the user-supplied bad verdict. |
+| `git-bisect-skip` | Review and skip the current candidate; retain ambiguity when skipped commits prevent a unique first bad. |
+| `git-bisect-reset` | Review and restore the checked original branch/object; reject missing or changed original lineage. |
 | `git-cherry-pick-continue` | Refresh actual Git state and confirm saved staged resolutions, then apply the remaining reviewed targets in order; require unchanged retained cherry-pick lineage. |
 | `git-cherry-pick-skip` | Refresh actual Git state and confirm skipping only the current target, then retain the reviewed remaining order; require unchanged retained cherry-pick lineage. |
 | `git-cherry-pick-abort` | Refresh actual Git state and confirm restoration of the exact reviewed original branch and HEAD, including a verified completed prefix; require unchanged retained cherry-pick lineage. |

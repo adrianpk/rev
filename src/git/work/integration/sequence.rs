@@ -11,6 +11,13 @@ impl Runner {
         let mut paths = Vec::new();
         let mut directories = Vec::new();
         for name in [
+            "BISECT_START",
+            "BISECT_LOG",
+            "BISECT_TERMS",
+            "BISECT_NAMES",
+            "BISECT_EXPECTED_REV",
+            "BISECT_ANCESTORS_OK",
+            "BISECT_HEAD",
             "MERGE_HEAD",
             "MERGE_AUTOSTASH",
             "MERGE_MSG",
@@ -89,6 +96,25 @@ impl Runner {
                 bytes,
             });
         }
+        if files.iter().any(|f| f.name == b"BISECT_START") {
+            let refs = self.command(
+                &[
+                    "for-each-ref",
+                    "--format=%(refname) %(objectname) %(objecttype) %(symref)",
+                    "refs/bisect/",
+                ],
+                Phase::Checking,
+                false,
+            )?;
+            if refs.len() > remaining {
+                return Err("Bisect refs exceed bounded metadata admission".into());
+            }
+            admission.grow(refs.len() + 128)?;
+            files.push(SequenceFile {
+                name: b"refs/bisect/".to_vec(),
+                bytes: refs,
+            });
+        }
         Ok(files)
     }
     pub(in crate::git::work) fn read_sequence(
@@ -104,12 +130,20 @@ impl Runner {
                 .map(|f| f.bytes.as_slice())
         };
         let has = |prefix: &[u8]| files.iter().any(|f| f.name.starts_with(prefix));
-        let family = if (has(b"rebase-merge/") && has(b"rebase-apply/"))
+        let family = if (value(b"BISECT_START").is_some()
+            && (has(b"rebase-")
+                || has(b"sequencer/")
+                || value(b"MERGE_HEAD").is_some()
+                || value(b"CHERRY_PICK_HEAD").is_some()
+                || value(b"REVERT_HEAD").is_some()))
+            || (has(b"rebase-merge/") && has(b"rebase-apply/"))
             || (value(b"CHERRY_PICK_HEAD").is_some() && value(b"REVERT_HEAD").is_some())
             || (value(b"MERGE_HEAD").is_some()
                 && (value(b"CHERRY_PICK_HEAD").is_some() || value(b"REVERT_HEAD").is_some()))
         {
             Some(SequenceFamily::Unsupported)
+        } else if value(b"BISECT_START").is_some() {
+            Some(SequenceFamily::Bisect)
         } else if has(b"rebase-merge/") {
             Some(SequenceFamily::Rebase)
         } else if has(b"rebase-apply/") {
@@ -165,7 +199,9 @@ impl Runner {
         } else {
             None
         };
-        let current = if family == Some(SequenceFamily::Rebase) {
+        let current = if family == Some(SequenceFamily::Bisect) {
+            refs.head
+        } else if family == Some(SequenceFamily::Rebase) {
             object(
                 field(b"stopped-sha")
                     .or_else(|| value(b"REBASE_HEAD"))
@@ -215,6 +251,7 @@ impl Runner {
             total: number(field(b"end").or_else(|| field(b"last")))?,
             conflicts: Vec::new(),
             application: None,
+            bisect: None,
             files: Vec::new(),
             index: Vec::new(),
             worktree: Vec::new(),
@@ -256,6 +293,12 @@ impl Runner {
             return Err("Git sequence or HEAD changed during observation".into());
         }
         sequence.files = files;
+        if family == Some(SequenceFamily::Bisect) {
+            sequence.bisect = self.read_bisect(&sequence, admission)?.map(Box::new);
+            if sequence.files != self.sequence_files(&refs, admission)? {
+                return Err("Bisect changed during candidate verification".into());
+            }
+        }
         admission.grow(sequence.bytes())?;
         sequence._admission = admission.split(sequence.bytes());
         Ok(sequence)

@@ -1,4 +1,5 @@
 use super::super::Pending;
+pub(in crate::session) mod bisect;
 mod integration;
 pub(in crate::session) mod sequences;
 pub(in crate::session) mod tag;
@@ -16,6 +17,7 @@ pub(super) struct Inspection {
     pub integration_request: Option<OperationId>,
     pub autosquash_preparing: Option<OperationId>,
     pub application_preparing: Option<OperationId>,
+    pub bisect_preparing: Option<(OperationId, Option<crate::git::BisectAction>)>,
     control_preparing: Option<(
         crate::git::SequenceControl,
         Option<crate::git::SequenceFamily>,
@@ -38,6 +40,7 @@ impl Inspection {
             integration_request: None,
             autosquash_preparing: None,
             application_preparing: None,
+            bisect_preparing: None,
             control_preparing: None,
             sequence_top: 0,
             push_mark: None,
@@ -81,6 +84,8 @@ enum RefAction {
     Push(Arc<crate::git::PushIntent>),
     Autosquash(Arc<crate::git::AutosquashPlan>),
     Application(Arc<crate::git::ApplyPlan>),
+    BisectStart(Arc<crate::git::BisectPlan>),
+    BisectControl(Arc<crate::git::Sequence>, crate::git::BisectAction),
     Control {
         sequence: Arc<crate::git::Sequence>,
         action: crate::git::SequenceControl,
@@ -628,6 +633,8 @@ impl Session {
                 RefAction::Integration { .. }
                     | RefAction::Autosquash(_)
                     | RefAction::Application(_)
+                    | RefAction::BisectStart(_)
+                    | RefAction::BisectControl(..)
                     | RefAction::Control { .. }
             ) {
                 "Confirm checked integration? [y/n]"
@@ -699,6 +706,8 @@ impl Session {
                 | RefAction::Integration { .. }
                 | RefAction::Autosquash(_)
                 | RefAction::Application(_)
+                | RefAction::BisectStart(_)
+                | RefAction::BisectControl(..)
                 | RefAction::Control { .. }
         ) {
             match self.git_branch_sources(&consent.refs) {
@@ -720,6 +729,8 @@ impl Session {
             RefAction::Integration { .. }
                 | RefAction::Autosquash(_)
                 | RefAction::Application(_)
+                | RefAction::BisectStart(_)
+                | RefAction::BisectControl(..)
                 | RefAction::Control { .. }
         );
         let result = match consent.action {
@@ -727,6 +738,10 @@ impl Session {
             RefAction::CreateTag(intent) => self.git.engine.create_tag(intent, ""),
             RefAction::DeleteTag(name) => self.git.engine.delete_tag(consent.refs, &name),
             RefAction::Push(intent) => self.git.engine.push(intent),
+            RefAction::BisectStart(plan) => self.git.engine.start_bisect(plan),
+            RefAction::BisectControl(sequence, action) => {
+                self.git.engine.classify_bisect(sequence, action)
+            }
             RefAction::Application(plan) => self.git.engine.apply_sequence(plan),
             RefAction::Autosquash(plan) => self.git.engine.autosquash(plan),
             RefAction::Control {
@@ -817,6 +832,7 @@ impl Session {
                     r.kind,
                     crate::git::OperationKind::Application
                         | crate::git::OperationKind::ApplicationControl
+                        | crate::git::OperationKind::Bisect
                 )
             });
             match self
@@ -1010,6 +1026,8 @@ impl Session {
                 RefAction::Integration { .. }
                     | RefAction::Autosquash(_)
                     | RefAction::Application(_)
+                    | RefAction::BisectStart(_)
+                    | RefAction::BisectControl(..)
                     | RefAction::Control { .. }
             ) {
                 " Git Integration Review  y / C-Enter / C-c C-c accept  C-g cancel"

@@ -112,7 +112,7 @@ pub enum Command {
 }
 
 impl Command {
-    pub const ALL: [Self; 534] = [
+    pub const ALL: [Self; 539] = [
         Self::Git(GitCommand::Status),
         Self::Git(GitCommand::Refs),
         Self::Git(GitCommand::Merge),
@@ -141,6 +141,11 @@ impl Command {
         Self::Git(GitCommand::Show),
         Self::Git(GitCommand::LogNextPage),
         Self::Git(GitCommand::ShowRange),
+        Self::Git(GitCommand::BisectStart),
+        Self::Git(GitCommand::BisectGood),
+        Self::Git(GitCommand::BisectBad),
+        Self::Git(GitCommand::BisectSkip),
+        Self::Git(GitCommand::BisectReset),
         Self::Git(GitCommand::CherryPick),
         Self::Git(GitCommand::CherryPickContinue),
         Self::Git(GitCommand::CherryPickSkip),

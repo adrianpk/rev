@@ -1,6 +1,6 @@
 # Slice 9: Ordered Revisions and Manual Bisect
 
-Status: drafting
+Status: reviewing
 Delivery set: rev-git-integration
 Plan: `ops/default/plan/rev-git-integration.md`
 Tracker: `ops/default/tracker/rev-git-integration.md`
@@ -15,155 +15,125 @@ Deliver GIT11 and its GIT17-GIT19 contracts through T9.1-T9.3 in the
 
 ## Delivered Behavior
 
-T9.1 delivers reviewed ordered applications:
-
-- History P / V prepares cherry-pick / revert from the independent ordered
-  revision marks, or one selected revision when no ordered set exists. a/U
-  retain explicit append/remove order; * remains the separate range base.
-- Each merge requires an explicit one-based mainline choice. Final native
-  review shows every full source object, chosen full parent, exact order and
-  original branch/HEAD before y, C-Enter or C-c C-c can submit. Return does not
-  accept; n or C-g cancels. Both interaction profiles use the same requests.
-- From Refs, the existing native git-log command opens the exact selected
-  commit-bearing ref as a source History root while retaining the current
-  working branch. Ordered applications preserve that reviewed root and its
-  independent marks across the resulting history refresh.
-- One finite request owns sequential installed-Git steps in the confirmed
-  order, including different mainlines for different merge revisions. Each
-  step checks the current refs, clean index/disk and absence of another
-  sequence. Native source stamps protect unmodified visiting buffers.
-- Success checks actual branch, single parent, authored cherry-pick message,
-  resulting index/tree, clean disk and unrelated ref preservation. Revert
-  verifies the actual new commit's source identity. Existing Git hooks and
-  signing remain authoritative.
-- A real conflict stop exposes Git's current family, target and exact paths,
-  with retained original context, current step and verified completed prefix.
-  Refresh preserves that exact lineage; it does not execute remaining work.
-
-T9.2 adds compatible checked sequence controls:
-
-- The Operation view binds continue, skip and abort to fresh Git metadata,
-  exact retained target/order/mainlines, original/current branch and HEAD,
-  index and disk evidence. Generic controls dispatch the same compatible family.
-- Cherry-pick uses { / l / Y; revert uses } / j / Q. Continue requires saved
-  staged resolutions. Skip explicitly omits the current target; subsequent
-  targets retain their reviewed order, including through another conflict stop.
-- Explicit abort restores the original branch, HEAD and tree after a completed
-  prefix. Process cancellation remains separate from sequence abort.
-- Wrong requested or mixed actual families, changed targets, stale metadata,
-  changed index/HEAD and missing sequences reject before changing Git. External
-  work remains observable; unavailable required retained lineage is not guessed.
-- The view identifies busy controls while owned repository work finishes.
-  Background source-History refreshes retain Operation feedback, including
-  wrong-family rejection and a pending exact control review.
+- History P/V prepares ordered cherry-pick/revert from independent a/U marks,
+  or one selected revision. The range base remains separate. Each merge needs
+  an explicit mainline number; review shows full source and chosen parent IDs.
+- Native confirmation preserves the exact order and original branch/HEAD.
+  A real conflict exposes Git's actual family, current target and exact paths,
+  retaining the verified completed prefix and remaining mainline choices.
+- Checked cherry-pick controls use { / l / Y; revert uses } / j / Q. Continue
+  requires saved staged resolutions; skip omits only the current target before
+  continuing the reviewed order. Abort explicitly restores the original context,
+  including a verified completed prefix. Cancellation does not imply abort.
+- Operation ? collects explicit bad/good bisect boundaries, resolves full commit
+  IDs once and reviews the original branch/object before checkout. G/B/| reviews
+  a separate good/bad/skip classification for the exact current candidate.
+- Bisect checks actual boundary refs, candidate metadata and graph membership.
+  A unique first bad commit is distinguished from ambiguity caused by skipped
+  candidates. ~ explicitly resets to the checked original branch, object, index
+  and disk; a moved original branch cannot inherit the retained permission.
+- All changing actions protect unmodified visiting source owners and reuse the
+  existing reload policy. Return does not confirm; y, C-Enter or C-c C-c submits,
+  and n or C-g cancels. Both interaction profiles use the same native requests.
+  Manual bisect never starts a build/test or infers a verdict.
 
 ## Implementation Notes
 
-The existing Git owner admits at most 256 exact distinct targets. Source
-metadata is read in one bounded cat-file batch through sealed anonymous stdin;
-full IDs do not exceed structured argv admission. Metadata, complete messages,
-worker output/scratch and shared session memory retain their existing limits.
-The sealed input reservation follows an owned retained cleanup if required.
+Git owns durable sequence state. Native progress retains only one finite
+confirmed request, its original context and verified prefix. Fresh metadata,
+refs, HEAD, index/disk and source stamps fence each changing request. Duplicate
+or stale targets, wrong requested or mixed actual families and missing sequences
+reject before effects. External work remains observable; missing required
+original lineage is not reconstructed from a label.
 
-Git owns each actual revision operation and durable state. Native progress
-holds only the finite reviewed request and verified prefix needed for later
-compatible controls. Missing or changed target/HEAD/branch cannot inherit that
-lineage. Changing-child execution facts survive postcondition reads and the
-preflight for a later step. No dependency, persistent store or general process
-framework was added.
+Ordered application checks actual parents, authored cherry-pick message/author,
+resolved index/tree, branch and unrelated refs. Git abort owns the current step;
+restoring its completed prefix additionally requires a fresh clean/ref/sequence
+fence and checked reset --merge to the original object. Hooks/signing remain
+Git-owned. Post-command observation failure retains changing argv and an
+indeterminate possible-effects result instead of implying rollback.
 
-Ordered control rechecks the same shared sequence fingerprint before its
-changing child. Continue verifies the actual new commit's single parent,
-source-authored message/author where applicable, resolved index/tree and branch.
-Skip verifies the unchanged current HEAD and complete clean result before
-advancing. Git abort owns the current step; restoring a completed prefix then
-requires a fresh clean/ref/sequence fence and checked reset --merge to the exact
-original object. No restoration occurs on process cancellation or failed proof.
-New immutable progress retains the same finite confirmed request at each stop.
-Post-command observation errors preserve the changing argv and indeterminate
-possible-effects outcome; they do not claim completion or automatic restoration.
+Bisect verifies each exact good/bad/skipped-ref transition independently of
+stdout. Bounded actual graph membership establishes a unique remaining bad
+commit or proves that only skipped alternatives remain. Git's ambiguity exit 2
+is admitted only with that state proof. Reset verifies the original full ref and
+object, clean index/disk and removal of actual bisect state. No automatic retry,
+reset, test runner, interactive external editor or arbitrary command is added.
+
+Existing limits remain: four repository contexts, 32 MiB shared admission, 1 MiB
+worker scratch, structured argv bounds, bounded metadata/detail/diagnostics and
+configured observation/mutation deadlines. Ordered targets and bisect refs each
+have finite admission of at most 256; configured ref limits also apply. Bisect
+reads at most 257 candidate IDs and bounded count output. Larger ranges use
+bounded ancestry checks under the existing deadline. Sealed input avoids argv
+expansion and retains its reservation with owned cleanup. No dependency,
+persistent store or general process framework was added.
 
 ## Contracts Added or Changed
 
-- git-cherry-pick and git-revert and their six family-specific continue/skip/abort
-  commands have functional native handlers and catalogs.
-- keys.git_sequence has 27 active entries, including the six ordered controls.
-- keys.git_history has 28 active entries, including P and V, in the complete
-  configuration sample and both profiles.
-- Exact source/mainline order and original context are typed public requests.
-- Ordered applications retain their reviewed source History root; other owned
-  ref changes keep the existing destination-history refresh behavior.
-- Control preparation and changing operations retain actual busy ownership;
-  a background ancestry callback does not overwrite Operation feedback.
+- Eight ordered-application commands and five manual-bisect commands have native
+  handlers and complete command/binding catalogs. Existing generic controls
+  dispatch compatible ordered application families through the shared owner.
+- keys.git_sequence has 32 active sample entries; keys.git_history retains 28.
+  The catalogs contain 539 commands and 268 configuration entries.
+- Ordered changes preserve the reviewed source History root and its independent
+  marks. Other ref changes keep their existing destination-history behavior.
+- Busy controls remain visible while owned Git work finishes. Background
+  ancestry refreshes preserve Operation feedback and pending control reviews.
 
 ## Files of Interest
 
-- `src/git/sequences.rs`, `src/git/work/sequences.rs` and its preparation
-  and control modules: exact plans, bounded source metadata, sequential execution,
-  compatible controls and proof.
-- `src/git/integration.rs`, `src/git/work/integration/sequence.rs`: actual
-  current revision and retained ordered lineage in the shared observation.
-- `src/session/git/refs/sequences.rs`: mainline prompts, source admission and
-  complete native review through the existing confirmation owner.
-- `tests/git_integration/sequences.rs`, `sequences_controls.rs` and
-  `sequences_presentation.rs`: real Git trees/messages/parents, repeated conflict
-  stops, checked controls, stale evidence, hook uncertainty and both profiles.
+- `src/git/sequences.rs`, `src/git/work/sequences.rs` and its preparation/control
+  modules: exact ordered plans, bounded source metadata, execution and proof.
+- `src/git/bisect.rs`, `src/git/work/bisect.rs` and its observation module:
+  manual boundaries, current classifications, graph proof and original reset.
+- `src/git/integration.rs`, `src/git/work/integration/sequence.rs`: shared actual
+  Git family, metadata fingerprints and retained original lineage.
+- `src/session/git/refs/sequences.rs`, `src/session/git/refs/bisect.rs`: native
+  prompts, complete exact review, source admission and explicit confirmation.
+- `tests/git_integration/sequences.rs` and its controls, bisect and presentation
+  modules: real Git order/mainlines, repeated stops, controls and both profiles.
 
 ## Validation
 
-T9.1 development checks passed. All 6 sequence tests passed in 22.19 seconds.
-Real SHA-1/SHA-256 application trees and ordered authored messages agree with
-installed Git; the mixed-mainline fixture also checks actual resulting files
-against Git using each separately chosen parent. The existing branch-switch
-history/source regression passed in 1.86 seconds. Reference checks passed 21
-tests. Documentation checked 528 commands, 268 configuration entries, 76 pages
-and 485 links.
+T9.1-T9.2 development formatting, strict Clippy, all 11 then-existing sequence
+cases, 19 shared integration cases, the branch/history/source regression and 21
+reference checks passed. T9.3 adds five focused cases: actual first-bad content
+in both object formats, skipped-candidate ambiguity, stale and configured-limit
+fences, both-profile native review/reset and unsaved-source protection. The core
+bisect selection passed in 29.41 seconds, native flow in 11.36 seconds and source
+protection in 1.16 seconds. The final expanded fence case passed in 13.24 seconds.
+Reference validation checks 539 commands, 268 configuration entries, 76 pages
+and 485 local links.
 
-Initial native testing exposed an early fixture wait that matched preparation
-rather than confirmation. The corrected wait requires the actual Confirm
-prompt and keeps every full-ID/order/content/cancellation assertion and the
-5-second deadline. The subsequent mark-role assertion exposed destination-HEAD
-reanchoring after ordered application; preserving its reviewed source root
-corrected that behavior. The focused native test and complete sequence filter
-then passed, along with the existing destination-history regression. Strict
-Clippy required a standard slice-size calculation and one collapsed branch.
+Native fixtures retain full-ID, order, content, ownership and cancellation
+assertions and every 5-second deadline. Corrected waits observe actual review
+or control availability, and wrapped SHA-256 display assertions retain the full
+ID. These checks exposed and corrected source-History reanchoring and background
+feedback replacement. A real post-commit hook reproduced unavailable observation
+after actual effects; the corrected result remains indeterminate with retained
+changing argv. Reference checks also caught missing primary catalog entries.
 
-T9.2 development formatting and strict Clippy pass. All 11 sequence tests
-passed in 88.10 seconds; five added tests cover six family/control combinations,
-repeated conflict stops, final-step controls, stale/mixed-family evidence,
-both-profile native review and real post-commit-hook uncertainty. The existing
-19 shared integration tests passed in 76.89 seconds and the branch/history/source
-regression in 1.56 seconds. Reference tests pass 21 checks; documentation checks
-534 commands, 268 configuration entries, 76 pages and 485 links.
-
-Native testing first exposed a rendered SHA-256 ID assertion that ignored line
-wrapping. The corrected assertion retains the complete displayed ID. A later
-wait exposed background History feedback replacing a wrong-family rejection;
-the callback now preserves Operation feedback. Native availability now reports
-owned Git work as busy, and the fixture waits for that observable state to clear.
-Every wait retains its 5-second deadline and all original state/content checks.
-
-The real hook regression reproduced a committed change whose later sequence
-observation failed. The corrected outcome is indeterminate with possible effects,
-retaining the actual changing argv and verified fixture parent/content rather
-than claiming an abort. Reference validation also detected missing primary
-bindings catalog entries; the complete six-command catalog now passes.
-
-Exact successful development commands:
+Successful development commands include:
 
 - `cargo fmt --all -- --check`
 - `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo clippy --locked --lib --bin rev --test git_integration -- -D warnings`
 - `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test git_integration sequences:: -- --test-threads=1`
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test git_integration sequences::bisect:: -- --test-threads=1`
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test git_integration sequences::bisect::bisect_fences -- --test-threads=1`
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test git_integration sequences::presentation::native_bisect -- --test-threads=1`
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test git_integration sequences::presentation::unsaved_bisect -- --test-threads=1`
 - `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test git_integration integration:: -- --test-threads=1`
 - `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test git_integration refs::presentation::refreshed_history_and_source -- --test-threads=1`
 - `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test commands --test configuration reference -- --test-threads=1`
 - `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo run --locked --quiet --example documentation-check`
 - `git diff --check`
 
-These are development results. Final exact-HEAD controller evidence follows
-T9.3 and the canonical PR-reference follow-up commit.
+Final validation uses the controller for the clean PR-reference HEAD and ordered
+command list. The canonical PR Validation section and controller receipt retain
+that evidence without a subsequent implementation commit.
 
 ## Risks and Follow-ups
 
-T9.3 manual bisect and canonical PR preparation remain pending. Combined
-PTY/resource acceptance remains Slice 13; the full User Guide remains Slice 14.
+Combined PTY/resource acceptance remains Slice 13; the full User Guide remains
+Slice 14. Integration and delivery-set closure remain controller-owned.

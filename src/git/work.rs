@@ -1,6 +1,7 @@
 use super::*;
 use std::os::unix::ffi::OsStringExt;
 
+mod bisect;
 mod commit;
 mod discard;
 mod history;
@@ -12,6 +13,7 @@ mod sequences;
 pub(super) enum Request {
     Status,
     Application(super::sequences::Request),
+    Bisect(super::bisect::Request),
     Integration(super::integration::Request),
     Refs(super::refs::Request),
     History(super::history::Request),
@@ -24,6 +26,8 @@ pub(super) enum Request {
 impl Request {
     pub fn kind(&self) -> OperationKind {
         match self {
+            Self::Bisect(super::bisect::Request::Prepare { .. }) => OperationKind::BisectPrepare,
+            Self::Bisect(_) => OperationKind::Bisect,
             Self::Application(super::sequences::Request::Prepare { .. }) => {
                 OperationKind::ApplicationPrepare
             }
@@ -73,6 +77,7 @@ pub(super) enum Publication {
     Sequence(Sequence),
     Autosquash(AutosquashPlan),
     ApplicationPlan(ApplyPlan),
+    BisectPlan(BisectPlan),
 }
 
 enum Candidate {
@@ -86,6 +91,7 @@ enum Candidate {
     Sequence(Sequence),
     Autosquash(AutosquashPlan),
     ApplicationPlan(ApplyPlan),
+    BisectPlan(BisectPlan),
 }
 
 /// A retained changing child keeps its sealed driver reservation until the
@@ -121,7 +127,10 @@ pub(super) fn start(
                 Request::Refs(
                     super::refs::Request::Fetch { .. } | super::refs::Request::Push(_),
                 ) => policy.transport_timeout_seconds,
-                Request::Application(super::sequences::Request::Start(_))
+                Request::Bisect(
+                    super::bisect::Request::Start(_) | super::bisect::Request::Control { .. },
+                )
+                | Request::Application(super::sequences::Request::Start(_))
                 | Request::Integration(
                     super::integration::Request::Start { .. }
                     | super::integration::Request::Autosquash(_)
@@ -165,6 +174,7 @@ pub(super) fn start(
                 retained: None,
             };
             let observed = match request {
+                Request::Bisect(request) => runner.bisect(request, &mut admission),
                 Request::Application(request) => runner.application(request, &mut admission),
                 Request::Integration(request) => runner.integration(request, &mut admission),
                 Request::Refs(request) => runner.refs(request, &mut admission),
@@ -576,6 +586,7 @@ impl Runner {
         };
         record.admission = admission.split(record.bytes() + 4096);
         let publication = observed.and_then(|candidate| match candidate {
+            Candidate::BisectPlan(plan) => Ok(Publication::BisectPlan(plan)),
             Candidate::ApplicationPlan(plan) => Ok(Publication::ApplicationPlan(plan)),
             Candidate::Autosquash(plan) => Ok(Publication::Autosquash(plan)),
             Candidate::Sequence(sequence) => Ok(Publication::Sequence(sequence)),
