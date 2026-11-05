@@ -230,14 +230,14 @@ Branch: `feat/rev-git-integration-13-acceptance`
 Expected PR title: `test(git): verify native workflows and bounded ownership`
 Report: `ops/default/report/slices/rev-git-integration/slice-13-acceptance.md`
 Requirements: GIT01-GIT20 together
-PR: pending
+PR: [#270](https://forge.adrianpk.com/adrianpk/rev/pulls/270)
 
 - [x] T13.1: Add one repository-native Git acceptance entry and Bash driver reusing existing Rust/Linux PTY support; share real isolated fixture builders and verify objects/files rather than command labels.
 - [x] T13.2: Exercise representative both-profile journeys covering Status/diffs/index/commit, refs/transport, sequence/conflict, contextual prefixes, pointer/resize and restoration with a live terminal; assert matrix routing at the cheapest reliable native layer.
 - [x] T13.3: Measure Git-only binary delta, startup/idle CPU, retained RSS/output and bounded fair service; verify process/FD cleanup, malformed/truncated/large input, ownership on q/app exit and zero dependency additions.
 
 Validation: T13.1-T13.3 focused native/PTY/resource/lifetime checks pass, including 289 bindings per profile, actual Git objects/index/refs/conflicts, four-context progress, explicit truncation/output limits, retained ownership on q/declined exit and process/FD cleanup. Strict acceptance-target Clippy and source quality pass. Release binary delta is +1,990,136 bytes; cold candidate/baseline builds took 408/355 seconds, resource phase 5,504 milliseconds, and idle CPU is zero ticks. The report records exact commands, measurements and the retained development diagnostic. The required ordered exact-head controller receipt follows the PR-reference commit.
-Integration: T13.1-T13.3 implementation is complete; report reviewing, canonical PR pending. Integration remains controller-owned.
+Integration: T13.1-T13.3 implementation is complete; report reviewing, canonical PR #270 open against dev. Integration remains controller-owned.
 
 ## Slice 14: Git learning path and reference
 
