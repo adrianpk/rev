@@ -103,6 +103,15 @@ passed at `52da8df25937c2165d72916603ef048712b3abbb`, receipt
 records TRM01-TRM11 acceptance and the documentation-only closure. Original
 completed editor gates retain their historical identities.
 
+The additive [Native Git Integration](editor-git-integration.md) and
+[model](editor-git-integration-model.md) own GIT01-GIT20 separately from this
+baseline's original Git UI exclusion. Thirteen slices through PRs #258-#270
+are integrated into dev; Slice 14 supplies guidance and coverage references.
+The [Git evidence map](editor-git-integration-evidence.md) separates per-variant
+assertions, exact slice receipts and the pending controller-owned final gate.
+Existing editor, configuration, shell and terminal evidence retains its original
+candidate and acceptance meaning.
+
 MUST and SHALL define acceptance obligations. SHOULD is a strong expectation;
 deviations require a recorded reason. MAY permits bounded optional behavior
 after the required baseline is satisfied. A **Design default** retains a

@@ -1,6 +1,6 @@
 # Slice 14: Git Learning Path and Reference
 
-Status: drafting
+Status: reviewing
 Delivery set: rev-git-integration
 Plan: `ops/default/plan/rev-git-integration.md`
 Tracker: `ops/default/tracker/rev-git-integration.md`
@@ -27,6 +27,11 @@ Make GIT01-GIT20 discoverable through T14.1-T14.3 in the
 - Prepared-family procedures describe literal input, separate review/execute,
   non-overwriting output, checked application and unknown arbitrary effects.
 
+- T14.3 consolidates Unreleased Git outcomes, maps every required family/variant
+  to existing semantic assertions and records additive baseline/index links.
+- Closure fields retain pending exact-candidate/gate identities for the
+  controller; historical editor and slice receipts keep their original meaning.
+
 ## Implementation Notes
 
 Canonical Markdown remains under the existing Diataxis quadrants. The Git
@@ -51,9 +56,23 @@ User documentation only; native Git, source and process contracts are unchanged.
 - `publication/userguide/index.sptree`, `examples/documentation-check.rs`: shared navigation contract.
 - `docs/how-to/prepare-git-commands.md`: prepared family and direct routes.
 
+- `ops/default/spec/editor-git-integration-evidence.md`: requirements/variant map and provenance.
+- `CHANGELOG.md`: user-facing Unreleased outcomes.
+
 ## Validation
 
-Documentation and Spore validation are pending completion of T14.3.
+Required exact commands for the final clean PR-reference head:
+
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo run --locked --quiet --example documentation-check`
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 bash scripts/build-user-guide.sh`
+- `cargo fmt --all -- --check`
+- `git diff --check`
+
+Coverage-map links and named native assertion owners resolve. Versioned
+changelog history is byte-for-byte unchanged. These are documentation
+consistency checks; runtime scenarios were not rerun for this slice.
+
+Required command execution is pending controller validation.
 The exact clean PR head and ordered successful commands will be recorded by
 controller validation after the PR-reference follow-up commit.
 

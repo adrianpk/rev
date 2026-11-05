@@ -446,6 +446,20 @@ restart. Historical baseline decisions/evidence and R35 remain unchanged.
 | Resize | Geometry/projection changes without changing canonical document state. |
 | Quit | Required decisions/saves succeed before terminal guard release. |
 
+## Native Git model extension
+
+The approved [Native Git model](editor-git-integration-model.md) separates
+repository observations, generation-qualified selections, native presentation,
+composers, checked requests and bounded process ownership from canonical source
+buffers. Git retains repository semantics; generated details and process output
+cannot acquire source-write authority. Saving, index mutation and committing
+remain distinct operations. Returning to editing preserves hidden source and
+terminal owners; unresolved child cleanup remains owned.
+
+The [Git evidence map](editor-git-integration-evidence.md) links variant
+assertions and exact slice acceptance receipts. Its pending final gate does
+not relabel the original baseline's validated candidate or resource evidence.
+
 ## Implementation decisions
 
 The [approved delivery plan](../plan/rev-editor.md#pinned-implementation-decisions)

@@ -14,6 +14,7 @@ Model: [Native Git Model](editor-git-integration-model.md)
 Plan: [Native Git Integration Delivery](../plan/rev-git-integration.md)
 Tracker: [Native Git Tracker](../tracker/rev-git-integration.md)
 Baseline: [rev Editor](rev-editor.md)
+Coverage references: [Native Git capability and evidence map](editor-git-integration-evidence.md)
 Configuration: [Editor Configuration](editor-configuration.md)
 Related: [File Navigation](editor-file-navigation.md), [External File Changes](editor-external-file-changes.md), [Modal Editing](editor-modal-editing.md), [Shell Commands](editor-shell-commands.md), [Integrated Terminals](editor-integrated-terminal.md), [Native AI Integration](editor-ai-pi-integration.md)
 

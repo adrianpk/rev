@@ -9,88 +9,32 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 
 ### Added
 
-- [Inspect Git Status](docs/reference/commands.md#native-git-status) with C-x g,
-  M-x or modal colon. Browse tracked and untracked changes without saving source
-  buffers, expand exact staged and unstaged hunks, inspect read-only diffs and
-  visit current files without replacing unsaved text. Stage or unstage one exact
-  disk path, text hunk or compatible marked group with s/u, retaining working
-  files and unsaved buffers. Mark exact targets with *, remove them with - and
-  clear marks with 0; stale or incompatible groups reject before index changes.
-  Confirm whole-path discard with k to restore a tracked working file from its
-  index, protecting unsaved visiting buffers and retaining staged entries. Compose
-  a commit with c, or prepare an amend or exact-target fixup through M-x. Edit
-  its subject and body, submit with C-Enter or C-c C-c, or
-  retain the session draft with C-g. Commit only the checked staged content,
-  keeping Git hooks, identity and signing policy. Explicitly review amend and
-  fixup targets before Git runs; fixup leaves autosquash to a separate action.
-  Browse finite history pages, full revision metadata, historical renames and
-  exact parent diffs with h and Tab; f continues the pinned ancestry. Compare
-  a marked range with * and Return, retaining independent ordered revision
-  marks with a/U. Review and confirm cherry-pick or revert with P/V, preserving
-  the marked order and choosing an explicit parent for each merge revision.
-  Inspect reflog entries with l r and attribute source lines
-  through renames with B b or B B. Read exact historical file bytes or visit
-  the current source without replacing unsaved text. Inspect without checking
-  out files or changing source text, the index or HEAD.
-  Inspect branches, tags and upstream facts with b or y; confirm local branch
-  creation, clean switching, renaming or non-forced deletion in Refs. Create a
-  local lightweight tag with t, or explicitly compose an annotated tag while
-  retaining Git signing policy and failed annotation drafts. Review exact tag
-  objects before local deletion with T. Select a configured remote in Refs and
-  fetch with & or M f, refreshing tracking facts without merging or rebasing.
-  Mark one source branch with * and review its full object, configured upstream
-  remote and destination with p before a single non-forced push. Conflicting
-  publication settings reject; unavailable remote verification stays explicit.
-  Review a fast-forward-only, ordinary or required-commit merge, or an ordinary
-  rebase onto an exact selected ref. Review a finite autosquash plan with E.
-  Inspect actual Git sequence/conflict stops, including externally started work,
-  and confirm compatible continue, skip or abort controls against fresh state.
-  Select exact conflict paths, inspect read-only Base/Current/Applied index sides
-  with operation-relative labels, and visit the canonical editable result.
-  Review a complete side replacement with 1/2/3 without staging, explicitly
-  stage saved resolution bytes with x, or confirm exact disk/index deletion
-  with K. Protect unsaved result buffers and reject changed confirmation state;
-  continuing remains separate. Binary, structural and partial sides stay visible.
-  Request a read-only explanation with H through optional AI, using copied roles
-  and saved or unsaved source. Changed source marks the answer historical;
-  manual resolution stays available when AI is unavailable.
-  Cherry-pick and revert controls preserve the reviewed order and mainlines;
-  explicit abort also restores the original context after a completed prefix.
-  Start manual bisect with explicit bad/good boundaries in the Operation view;
-  review each candidate before marking it good, bad or skipped. Inspect a checked
-  first bad commit or skipped-candidate ambiguity, then explicitly reset to the
-  original branch and object. No build or test command runs automatically.
-  Integration protects unsaved sources and reports in-progress, completed,
-  skipped and aborted outcomes. Changed files follow your reload policy,
-  protecting unsaved source text.
-  Open Stashes with z z or z l. Inspect full stash objects, create a stash from
-  saved tracked and untracked changes, or review apply, pop, branch and drop.
-  Protect affected unsaved files and retain the stash when restoration conflicts.
-  Open linked Worktrees with Z Z or Z l, inspect their separate Git identities,
-  visit checked Status and review new branches, lock reasons, unlock, missing
-  record pruning and clean removal. Retained sources and native process owners
-  protect their worktrees; changing actions recheck complete saved state.
-  Prepare regular, shallow, bare and mirror clones or repository initialization
-  with explicit destinations, literal argument editing and exact review before
-  execution. Visit the actual ignore files through their ordinary file owners.
-  Review submodule add, recursive listing, exact-gitlink update, URL sync or
-  non-forced deinit while protecting dirty children and retained native sources.
-  Review subtree add, merge or pull, inspect full split objects or publish one
-  explicit subtree branch. Retain actual Git conflicts for manual sequence
-  control and verify saved files, exact trees and remote branch results.
-  Add, remove or prune notes on exact objects and review cone-mode sparse
-  checkout selections, checking actual note bytes and tracked-file presence.
-  Save reviewed binary patches, commit mailboxes or request-pull text to explicit
-  new files, with complete output checks and no mail sending or overwrite.
-  Apply a reviewed local patch to the checked index and files, or apply a
-  mailbox as commits with verified trees, authors and messages. Retain actual
-  mailbox progress when a later patch stops. Compose exact Git arguments with !
-  or explicitly choose a shell command, review the executable and directory,
-  and inspect actual output while unknown Git postconditions stay explicit.
-  Return to the same windows
-  and terminals. Inspect active and
-  recent Git processes, cancel a selected operation, and confirm before quitting
-  with Git work still running. Failed refreshes preserve confirmed Status.
+- [Work with Git inside rev](docs/tutorials/user-guide/git/index.md): inspect
+  saved changes with C-x g, expand staged/unstaged diffs, stage exact paths,
+  hunks or compatible marked groups, and compose normal, amend or fixup commits.
+  Explicit submission retains Git hooks and signing policy; cancelled drafts
+  remain available without saving or staging source text automatically.
+- [Explore history and refs](docs/reference/git.md): browse bounded ancestry,
+  revision/range detail, reflog and blame; manage local branches and lightweight
+  or annotated tags. Fetch updates tracking facts separately from integration,
+  and push reviews one exact branch and its configured upstream without force.
+- [Integrate changes deliberately](docs/how-to/integrate-git-changes.md): choose
+  a merge policy, rebase or reviewed autosquash; apply ordered cherry-pick/revert
+  sets or run manual bisect. Inspect actual conflict sides, edit saved results,
+  review side replacement or deletion, stage and continue separately. Optional
+  AI explanation leaves manual resolution available.
+- [Manage repository work](docs/reference/commands.md#native-git-status): inspect
+  and review stashes and linked worktrees while protecting unsaved sources and
+  retained sessions. Return from Git to the same editing layout and terminals;
+  inspect active/recent processes, cancel explicitly and confirm application
+  exit while Git work remains owned. Failed refreshes retain confirmed facts
+  with explicit freshness, truncation and unavailable states.
+- [Prepare repository commands](docs/how-to/prepare-git-commands.md): clone/init,
+  edit ignore files, manage submodules, subtree, notes and cone sparse checkout;
+  save checked patches, mailboxes or request text to new local files and apply
+  local patches/mailboxes with actual result checks. Explicit Git argv and a
+  separately selected shell route review executable, arguments and directory;
+  arbitrary effects stay unknown even after exit zero.
 
 ## 0.5.0 - 2026-11-04
 

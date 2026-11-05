@@ -241,7 +241,7 @@ Integration: [PR #270](https://forge.adrianpk.com/adrianpk/rev/pulls/270) merged
 
 ## Slice 14: Git learning path and reference
 
-Status: implementing
+Status: reviewing
 Branch: `feat/rev-git-integration-14-guidance`
 Expected PR title: `docs(git): explain native repository workflows`
 Report: `ops/default/report/slices/rev-git-integration/slice-14-guidance.md`
@@ -250,10 +250,10 @@ PR: pending
 
 - [x] T14.1: Add a short independent Git learning path, task guides, exact command/key/configuration reference and ownership explanation; show compact status/diff/commit feedback without requiring Org learning.
 - [x] T14.2: Keep canonical Markdown and its Spore projection/navigation aligned; document explicit fetch/integration, local tags, reviewed push, sequence/conflict, direct commands and bounds, with no unimplemented feature claims.
-- [ ] T14.3: Finish user-facing Unreleased entries and per-variant coverage, update the additive baseline/index references without rewriting historical gate evidence, and prepare exact-candidate closure metadata for the controller after its selected full gate passes.
+- [x] T14.3: Finish user-facing Unreleased entries and per-variant coverage, update the additive baseline/index references without rewriting historical gate evidence, and prepare exact-candidate closure metadata for the controller after its selected full gate passes.
 
-Validation: pending; use the exact focused commands and selected-gate policy in the plan.
-Integration: pending; no commit or PR is claimed.
+Validation: Required documentation catalog/navigation and Spore projection checks, focused formatter and whitespace are recorded through controller validation for the final clean PR-reference head.
+Integration: T14.1-T14.3 implementation complete; canonical PR pending, integration controller-owned.
 
 ## Closure
 
@@ -261,6 +261,9 @@ Status: pending
 Validated candidate: pending
 Controller gate receipt: pending
 Closure commit: pending
+Coverage references: [Per-variant evidence map](../spec/editor-git-integration-evidence.md)
+Final slice report: [Slice 14 guidance](../report/slices/rev-git-integration/slice-14-guidance.md)
+Candidate source: controller-integrated final slice head; no slice-only receipt substitutes for the selected full gate.
 
 Native Git acceptance must cover every listed family and variant, both startup
 profiles, contextual keys, real object/file effects, source/terminal retention
