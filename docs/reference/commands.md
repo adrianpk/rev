@@ -728,6 +728,11 @@ Status reads disk and Git state; it does not save an unsaved source buffer.
 | `git-init` | Prepare initialization at an explicit absent destination and verify its unborn repository identity. |
 | `git-ignore` | Visit the ordinary worktree .gitignore file without inserting a pattern or saving text. |
 | `git-ignore-exclude` | Visit the ordinary common Git info/exclude file through its native visiting owner. |
+| `git-submodule-add` | Review a submodule metadata name, source URL and literal path, then verify its gitlink and checkout. |
+| `git-submodule-list` | Review recursive submodule status and inspect the actual bounded listing without repository effects. |
+| `git-submodule-update` | Review one exact gitlink path and initialize or check out its indexed commit without forcing dirty files. |
+| `git-submodule-sync` | Review one declared submodule path and verify its registered URL against .gitmodules. |
+| `git-submodule-deinit` | Review non-forced deinitialization of one checked clean submodule, preserving its parent gitlink. |
 | `git-worktree-list` | Open a bounded NUL-record worktree list with raw paths, full HEADs, distinct Git/common directories, lock reasons and prune state. |
 | `git-worktree-create` | Review a new linked worktree and new local branch at the exact observed HEAD, using a checked absent destination. |
 | `git-worktree-visit` | Open checked Git Status for the selected worktree identity while retaining native source buffers and windows. |
@@ -1037,3 +1042,23 @@ protect credentials. Failure after launch does not claim repository rollback.
 
 Status i t and i p visit the actual .gitignore and common Git info/exclude
 files. Existing unsaved visiting identities stay owned; no pattern is invented.
+
+### Prepared submodule arguments
+
+Status o a, o l, o u, o s and o d prepare submodule add, recursive status listing,
+update, URL sync and non-forced deinit. Fill the add metadata name, source URL
+and literal repository-relative path, or the selected path for update/sync/deinit.
+Update
+uses the indexed gitlink commit and explicit checkout mode. The captured path
+must stay inside the working tree through ordinary directory components.
+
+The same two-step native composer opens exact executable/cwd/argv/target review.
+Preparation captures the parent sequence, index, saved bytes, configuration and
+selected child repository state. Changed evidence refuses execution. Update and
+deinit refuse dirty child state; unsaved repository-backed buffers protect all
+changing routes. Deinit also protects retained native visiting/directory owners.
+No force, hidden stash, save, commit or retry is implied. Listing retains its
+actual bounded output under git-processes; other raw configuration/transport
+output stays private. Successful changing results verify actual gitlinks,
+checkouts, URL registration or deinitialization. Relative sync URLs whose
+resolved value cannot be verified remain explicitly unverified after execution.

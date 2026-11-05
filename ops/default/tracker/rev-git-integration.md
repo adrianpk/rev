@@ -220,8 +220,8 @@ PR: pending
 - [ ] T12.2: Complete native notes add/remove/prune, mailbox/plain patch application, format-patch/save-diff/request-pull and sparse-checkout enable/disable/reapply/set/add with exact targets, capability checks and observable real effects.
 - [ ] T12.3: Expose explicit structured direct Git argv and a separately explicit existing shell-command route; integrate complete contextual family prefixes, bound input/review and verify every listed variant using isolated local repositories.
 
-Validation: Focused development passes clone/init/ignore native and real Git cases, three shared native commit cases, two native tag cases, a stash saved-byte round trip and 21 reference checks, formatter, strict focused Clippy, documentation and whitespace. The report records commands, timings and the unborn-source preflight correction. Remaining variants and final controller evidence are pending.
-Integration: T12.1 clone/init/ignore routes are implemented. Submodule/subtree and T12.2-T12.3 remain pending; the Slice 12 report is drafting. No PR is claimed.
+Validation: All 15 combined family cases pass in 79.00 seconds, including both-format submodule round trips, raw/literal targets, stale evidence, dirty-child refusal and both-profile native owners. All 21 reference cases, formatter, strict focused Clippy, documentation (573 commands/271 configuration entries) and whitespace pass. Earlier commit/tag/stash regressions and correction evidence remain in the report. Remaining variants and final controller evidence are pending.
+Integration: T12.1 clone/init/ignore and all five submodule routes are implemented. Subtree and T12.2-T12.3 remain pending; the Slice 12 report is drafting. No PR is claimed.
 
 ## Slice 13: Combined native PTY and resource acceptance
 

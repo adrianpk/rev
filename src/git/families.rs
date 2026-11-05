@@ -8,6 +8,11 @@ pub enum Family {
     CloneBare,
     CloneMirror,
     Init,
+    SubmoduleAdd,
+    SubmoduleList,
+    SubmoduleUpdate,
+    SubmoduleSync,
+    SubmoduleDeinit,
 }
 impl Family {
     pub fn label(self) -> &'static str {
@@ -17,6 +22,11 @@ impl Family {
             Self::CloneBare => "bare clone",
             Self::CloneMirror => "mirror clone",
             Self::Init => "repository init",
+            Self::SubmoduleAdd => "submodule add",
+            Self::SubmoduleList => "submodule list",
+            Self::SubmoduleUpdate => "submodule update",
+            Self::SubmoduleSync => "submodule sync",
+            Self::SubmoduleDeinit => "submodule deinit",
         }
     }
     pub fn seed(self) -> Vec<String> {
@@ -26,17 +36,21 @@ impl Family {
             Self::CloneBare => &["clone", "--bare", "--", "", ""],
             Self::CloneMirror => &["clone", "--mirror", "--", "", ""],
             Self::Init => &["init", "--", ""],
+            Self::SubmoduleAdd => &["submodule", "add", "--name", "", "--", "", ""],
+            Self::SubmoduleList => &["submodule", "status", "--recursive"],
+            Self::SubmoduleUpdate => &["submodule", "update", "--init", "--checkout", "--", ""],
+            Self::SubmoduleSync => &["submodule", "sync", "--", ""],
+            Self::SubmoduleDeinit => &["submodule", "deinit", "--", ""],
         };
         args.iter().map(|a| (*a).into()).collect()
     }
     pub(super) fn validate(self, args: &[OsString]) -> Result<(), String> {
         let expected = self.seed();
-        let parameters = if self == Self::Init { 1 } else { 2 };
         if args.len() != expected.len()
-            || args[..args.len().saturating_sub(parameters)]
+            || args
                 .iter()
                 .zip(&expected)
-                .any(|(a, b)| a != b.as_str())
+                .any(|(a, b)| !b.is_empty() && a != b.as_str())
         {
             return Err(
                 "Keep the prepared family and its explicit option/parameter structure".into(),
@@ -49,6 +63,65 @@ impl Family {
             return Err("Fill every prepared argument with nonempty, non-NUL input".into());
         }
         Ok(())
+    }
+    pub fn repository_action(self) -> bool {
+        matches!(
+            self,
+            Self::SubmoduleAdd
+                | Self::SubmoduleList
+                | Self::SubmoduleUpdate
+                | Self::SubmoduleSync
+                | Self::SubmoduleDeinit
+        )
+    }
+    pub(super) fn transport(self) -> bool {
+        matches!(
+            self,
+            Self::Clone
+                | Self::CloneShallow
+                | Self::CloneBare
+                | Self::CloneMirror
+                | Self::SubmoduleAdd
+                | Self::SubmoduleUpdate
+        )
+    }
+}
+
+pub(super) struct Submodule {
+    pub configuration: Vec<u8>,
+    pub name: Option<OsString>,
+    pub object: Option<ObjectId>,
+    pub url: Vec<u8>,
+    pub child: Option<Arc<Sequence>>,
+    pub evidence: [Vec<u8>; 3],
+}
+impl std::fmt::Debug for Submodule {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("Submodule")
+            .field("name", &self.name)
+            .field("object", &self.object)
+            .finish_non_exhaustive()
+    }
+}
+impl Submodule {
+    pub fn bytes(&self) -> usize {
+        std::mem::size_of::<Self>()
+            + self.configuration.capacity()
+            + self.name.as_ref().map_or(0, OsString::capacity)
+            + self.url.capacity()
+            + self.evidence.iter().map(Vec::capacity).sum::<usize>()
+    }
+    pub fn same(&self, other: &Self) -> bool {
+        self.configuration == other.configuration
+            && self.name == other.name
+            && self.object == other.object
+            && self.url == other.url
+            && self.evidence == other.evidence
+            && match (&self.child, &other.child) {
+                (Some(a), Some(b)) => a.same(b),
+                (None, None) => true,
+                _ => false,
+            }
     }
 }
 
@@ -64,13 +137,14 @@ pub struct FamilyPlan {
     pub(super) source: Option<Arc<Sequence>>,
     pub(super) evidence: [Vec<u8>; 3],
     pub(super) directory_stamp: [u64; 8],
-    pub(super) parent_stamp: [u64; 8],
+    pub(super) parent_stamp: Option<[u64; 8]>,
+    pub(super) submodule: Option<Submodule>,
     pub(super) _admission: Lease,
 }
 #[derive(Debug)]
 pub struct FamilyResult {
     pub plan: Arc<FamilyPlan>,
-    pub created: Identity,
+    pub created: Option<Identity>,
     pub(super) source: Option<Observation>,
     pub(super) _admission: Lease,
 }
@@ -124,6 +198,13 @@ impl Repositories {
                     .ok_or("Prepared source context expired")
             })
             .transpose()?;
+        if family.repository_action()
+            && observation
+                .as_ref()
+                .is_none_or(|o| o.identity.worktree.is_none())
+        {
+            return Err("Submodule preparation requires a checked working-tree context".into());
+        }
         let size = args.iter().map(OsString::capacity).sum::<usize>() + 8192;
         let admission = self.budget.reserve(size)?;
         self.family_plan = None;

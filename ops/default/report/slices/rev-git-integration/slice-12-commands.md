@@ -15,7 +15,7 @@ Deliver GIT14-GIT15 and their GIT16-GIT20 contracts through T12.1-T12.3 in the
 
 ## Delivered Behavior
 
-- T12.1 first routes: Status C C, C s, C b and C m prepare regular, depth-one,
+- T12.1 creation routes: Status C C, C s, C b and C m prepare regular, depth-one,
   bare and mirror clones; I I prepares init. Named clone/init commands also
   work from ordinary editing and chosen directories without a Git context.
 - The existing bounded native text owner edits a JSON array of literal Git
@@ -36,7 +36,17 @@ Deliver GIT14-GIT15 and their GIT16-GIT20 contracts through T12.1-T12.3 in the
 - i t and i p visit actual .gitignore and common Git info/exclude files through
   their ordinary native owners, preserving existing unsaved text and inserting
   no pattern or hidden save.
-- T12.1 submodule/subtree routes and T12.2-T12.3 remain pending. No PR is claimed.
+- Status o a/o l/o u/o s/o d prepare actual submodule add, recursive listing,
+  indexed-commit checkout/init, URL sync and non-forced deinit. Add names its
+  metadata separately from its literal path and source URL in exact review.
+  Literal paths, parent sequence/index/saved bytes, configuration, declared mappings
+  and child state remain bound to review. Changed evidence refuses launch.
+- Update and deinit refuse dirty child state; changing routes protect unsaved
+  native repository buffers. Deinit also protects retained visiting aliases,
+  file-tree roots and native process/language-server owners. Actual postchecks
+  verify gitlinks, checkout objects/bytes, registration or empty deinitialization.
+  Listing retains actual bounded output and reports no repository effects.
+- T12.1 subtree routes and T12.2-T12.3 remain pending. No PR is claimed.
 
 ## Implementation Notes
 
@@ -44,8 +54,9 @@ Prepared commands use the existing installed-Git worker, process records,
 configuration, cancellation, stream limits and retained cleanup owner. One
 canonical plan and result stay under the existing Git admission budget.
 Preparation waits for active Git work so unknown destination/common identity
-cannot race another owned request. Compatible source observations refresh after
-possible effects; hidden views do not release the process owner.
+cannot race another owned request. Verified results refresh compatible source
+observations; failures retain confirmed state with a failure marker and no
+inferred postcondition. Hidden views do not release the process owner.
 
 The native draft reuses the existing retained source-view and message-buffer
 facilities. Commit/tag dispatch remains separate from argument interpretation.
@@ -59,26 +70,34 @@ output/deadline/cleanup ceilings and five-second fixture waits. Prepared input
 admits at most 64 arguments, 4096 bytes each, 64 KiB total and an absolute cwd
 within 4096 bytes. Native draft text remains bounded to 64 KiB. Transport output
 is withheld from public records; diagnostic display keeps existing redaction.
-Init obeys the configured operation timeout; clones obey the transport timeout.
+Init, listing, sync and deinit obey the operation timeout; clones, submodule add
+and update obey the transport timeout. Configuration probes stay private, and
+Debug omits captured configuration and resolved URL bytes. Relative sync URLs whose resolved
+registration cannot be established remain unverified after the actual command.
 No runtime/development dependency or validation prerequisite was added.
 
 ## Contracts Added or Changed
 
-- Seven working commands: git-clone, git-clone-shallow, git-clone-bare,
-  git-clone-mirror, git-init, git-ignore and git-ignore-exclude.
-- Status has 48 active defaults. The existing keys.git_commit context also
+- Twelve working commands: git-clone, git-clone-shallow, git-clone-bare,
+  git-clone-mirror, git-init, git-ignore and git-ignore-exclude; five additional
+  commands are git-submodule-add/list/update/sync/deinit.
+- Status has 53 active defaults. The existing keys.git_commit context also
   supplies ordinary editing and explicit submission for prepared argument text.
-- Live catalogs contain 568 commands and 271 configuration entries.
+- Live catalogs contain 573 commands and 271 configuration entries.
 
 ## Files of Interest
 
 - `src/git/families.rs`, `src/git/work/families.rs`: typed plans, literal input,
   exact preconditions, installed capability checks and creation verification.
+- `src/git/work/families/submodule.rs`: checked submodule configuration, child
+  evidence and actual postconditions under the same process/admission owner.
 - `src/session/git/families.rs`, `src/session/git/commit.rs`: native draft,
   two-step submission, exact review and original source restoration.
 - `src/git/work/repository.rs`: shared saved-state evidence for unborn sources.
 - `tests/git_integration/families.rs`, `families_presentation.rs`: real local
   Git objects/files and both-profile native input, review and visiting owners.
+- `tests/git_integration/families_submodule.rs`: SHA-1/SHA-256 real submodule
+  round trips, configuration/index/path/child races and dirty child refusal.
 
 ## Validation
 
@@ -108,6 +127,29 @@ in 2.63 seconds: init timed out with possible effects, and clone completed under
 its transport limit. The wrapper delegates all Git output and repository work to
 installed Git; fixture waits and production limits remain unchanged.
 
+Submodule development first passed all five real variants across SHA-1 and
+SHA-256 in 20.29 seconds, then the combined 14-case suite in 68.74 seconds.
+After native alias protection, all five presentation cases passed in 16.32
+seconds. With final explicit-name preparation, all 15 combined family cases
+passed in 79.00 seconds. All 21 command/configuration reference cases passed
+(1.87 and 14.74 seconds), documentation passed at 573 commands, 271 configuration
+entries, 76 pages and 485 links, and formatter, strict focused Clippy and
+whitespace checks passed. These remain development checks before the complete
+slice and its exact-HEAD controller receipt.
+
+A new literal-target case caught installed Git returning exit zero from deinit
+while leaving the URL registration for a metadata name containing [1]. An
+isolated real Git reproduction confirmed the empty selected checkout, retained
+registration and untouched sibling; the worker correctly reported unverified
+possible effects. Add preparation now explicitly composes the metadata name
+separately from URL and literal path. The fixture chooses plain metadata names
+for metacharacter and raw newline/non-UTF8 paths. Gitlink, sibling, saved-byte,
+URL-removal and checkout assertions remain intact; no automatic metadata cleanup,
+extra changing command, forced action, assertion or resource-limit relaxation
+was introduced. Existing unusual metadata still requires actual postcondition
+verification and can remain unverified. Initial submodule compile wiring needed
+an explicit Path import and closure error type, corrected before validation.
+
 Successful development commands:
 
 - `cargo fmt --all -- --check`
@@ -129,7 +171,7 @@ follow-up commit. No full gate or final receipt is claimed.
 
 ## Risks and Follow-ups
 
-Complete the remaining approved submodule/subtree, notes/patch/sparse and direct
+Complete the remaining approved subtree, notes/patch/sparse and direct
 Git/separate shell routes in this same slice. Combined PTY/resource acceptance
 and learning-path guidance remain in their recorded later slices. The controller
 owns integration.

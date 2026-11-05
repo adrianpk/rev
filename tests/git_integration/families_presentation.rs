@@ -128,3 +128,101 @@ fn outside_repository() {
     assert!(!editor.git_visible());
     assert_eq!(text(editor), source);
 }
+
+// Both profiles expose all five working submodule seeds through Status, keep
+// cancellation native and retain actual list output under process inspection.
+#[test]
+fn native_submodules() {
+    for profile in ["non-modal", "modal"] {
+        let (repository, child, _owner) = super::submodule::added("sha1");
+        let mut owned = editor(&repository, profile, "", true);
+        let editor = &mut owned.0;
+        let original = text(editor);
+        entry(editor);
+        wait(editor, |e| e.echo().contains("Git Status refreshed"));
+        for (key, verb) in [
+            ('a', "add"),
+            ('u', "update"),
+            ('s', "sync"),
+            ('d', "deinit"),
+        ] {
+            plain(editor, 'o');
+            plain(editor, key);
+            let seed: Vec<String> = serde_json::from_str(&text(editor)).unwrap();
+            assert_eq!(seed[0], "submodule");
+            assert_eq!(seed[1], verb);
+            key_event_cancel(editor);
+            assert_eq!(text(editor), original);
+        }
+        plain(editor, 'o');
+        plain(editor, 'l');
+        accept(editor);
+        wait(editor, |e| e.echo().contains("Exact prepared Git review"));
+        assert!(render(editor).join("\n").contains("--literal-pathspecs"));
+        key(editor, KeyCode::Enter, KeyModifiers::NONE);
+        assert!(render(editor).join("\n").contains("Argument Review"));
+        accept(editor);
+        wait(editor, |e| e.echo().contains("submodule command verified"));
+        editor.execute(Command::Git(GitCommand::Processes));
+        let rows = render(editor).join("\n");
+        assert!(rows.contains("Verified"), "{rows}");
+        editor.execute(Command::Git(GitCommand::ProcessShow));
+        let detail = render(editor).join("\n");
+        let head = String::from_utf8(child.git(["rev-parse", "HEAD"])).unwrap();
+        assert!(detail.contains(&head[..12]), "{detail}");
+        assert_eq!(text(editor), original);
+    }
+}
+fn key_event_cancel(editor: &mut rev::session::Session) {
+    key(editor, KeyCode::Char('g'), KeyModifiers::CONTROL);
+}
+
+// Unsaved child text blocks update; a clean retained alias also protects deinit.
+// Both preserve the visiting owner independently of clean saved disk bytes.
+#[test]
+fn submodule_sources() {
+    for modified in [true, false] {
+        let (repository, _child, _owner) = super::submodule::added("sha1");
+        let mut owned = editor(&repository, "non-modal", "", true);
+        let editor = &mut owned.0;
+        let child = repository.root.join("module space/child");
+        let alias = repository.fixture.0.join("visiting-alias");
+        std::os::unix::fs::symlink(&child, &alias).unwrap();
+        editor.load(if modified { &child } else { &alias }).unwrap();
+        if modified {
+            editor.insert('!');
+        }
+        let retained = text(editor);
+        // Status resolves from an actual parent source, while the child/alias
+        // remains retained in another ordinary native buffer.
+        editor.load(&repository.root.join("source.txt")).unwrap();
+        entry(editor);
+        wait(editor, |e| e.echo().contains("Git Status refreshed"));
+        plain(editor, 'o');
+        plain(editor, if modified { 'u' } else { 'd' });
+        replace(
+            editor,
+            if modified {
+                r#"["submodule","update","--init","--checkout","--","module space"]"#
+            } else {
+                r#"["submodule","deinit","--","module space"]"#
+            },
+        );
+        accept(editor);
+        if modified {
+            assert!(editor.echo().contains("unsaved text"), "{}", editor.echo());
+        } else {
+            wait(editor, |e| e.echo().contains("Exact prepared Git review"));
+            accept(editor);
+            assert!(
+                editor.echo().contains("retained visiting buffer"),
+                "{}",
+                editor.echo()
+            );
+        }
+        key_event_cancel(editor);
+        editor.load(if modified { &child } else { &alias }).unwrap();
+        assert_eq!(text(editor), retained);
+        assert_eq!(fs::read(child).unwrap(), b"first\n");
+    }
+}

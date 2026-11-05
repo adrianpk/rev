@@ -463,6 +463,22 @@ impl Session {
                 GitCommand::Init => self.compose_git_family(crate::git::Family::Init),
                 GitCommand::Ignore => self.visit_git_ignore(false),
                 GitCommand::IgnoreExclude => self.visit_git_ignore(true),
+                GitCommand::SubmoduleAdd => {
+                    self.compose_git_family(crate::git::Family::SubmoduleAdd)
+                }
+                GitCommand::SubmoduleList => {
+                    self.compose_git_family(crate::git::Family::SubmoduleList)
+                }
+                GitCommand::SubmoduleUpdate => {
+                    self.compose_git_family(crate::git::Family::SubmoduleUpdate)
+                }
+                GitCommand::SubmoduleSync => {
+                    self.compose_git_family(crate::git::Family::SubmoduleSync)
+                }
+                GitCommand::SubmoduleDeinit => {
+                    self.compose_git_family(crate::git::Family::SubmoduleDeinit)
+                }
+
                 GitCommand::Status => self.open_git(),
                 GitCommand::Commit => self.compose_git_commit(),
                 GitCommand::CommitAmend => self.prepare_git_amend(),

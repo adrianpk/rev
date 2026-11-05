@@ -4,6 +4,8 @@ use std::{ffi::OsString, fs, os::unix::ffi::OsStringExt, path::Path, sync::Arc};
 
 #[path = "families_presentation.rs"]
 mod presentation;
+#[path = "families_submodule.rs"]
+mod submodule;
 
 fn args(family: Family, source: &Path, destination: &Path) -> Vec<OsString> {
     let mut args: Vec<OsString> = family.seed().into_iter().map(OsString::from).collect();
@@ -75,7 +77,7 @@ fn clone_kinds() {
             );
             assert!(!destination.exists());
             execute(&mut owner, plan);
-            let actual = &owner.family_result().unwrap().created;
+            let actual = owner.family_result().unwrap().created.as_ref().unwrap();
             assert_eq!(
                 actual.format,
                 if format == "sha256" {
@@ -133,7 +135,14 @@ fn explicit_init() {
     assert!(!destination.exists());
     execute(&mut owner, plan);
     assert_eq!(
-        owner.family_result().unwrap().created.worktree.as_ref(),
+        owner
+            .family_result()
+            .unwrap()
+            .created
+            .as_ref()
+            .unwrap()
+            .worktree
+            .as_ref(),
         Some(&destination)
     );
     assert!(
@@ -282,7 +291,14 @@ fn empty_clone() {
         );
         execute(&mut owner, plan);
         assert_eq!(
-            owner.family_result().unwrap().created.worktree.is_none(),
+            owner
+                .family_result()
+                .unwrap()
+                .created
+                .as_ref()
+                .unwrap()
+                .worktree
+                .is_none(),
             family != Family::Clone
         );
     }

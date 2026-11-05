@@ -73,6 +73,8 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
   Prepare regular, shallow, bare and mirror clones or repository initialization
   with explicit destinations, literal argument editing and exact review before
   execution. Visit the actual ignore files through their ordinary file owners.
+  Review submodule add, recursive listing, exact-gitlink update, URL sync or
+  non-forced deinit while protecting dirty children and retained native sources.
   Return to the same windows
   and terminals. Inspect active and
   recent Git processes, cancel a selected operation, and confirm before quitting

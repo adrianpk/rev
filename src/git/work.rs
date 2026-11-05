@@ -193,7 +193,7 @@ pub(super) fn start(
             );
             let seconds = match request {
                 Request::Family(super::families::Request::Execute(ref plan))
-                    if plan.family == Family::Init =>
+                    if !plan.family.transport() =>
                 {
                     policy.operation_timeout_seconds
                 }

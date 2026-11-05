@@ -1,6 +1,7 @@
 use super::*;
 use crate::git::conflicts::resolution::fingerprint;
 use crate::git::{Family, FamilyPlan, FamilyResult, families::Request};
+mod submodule;
 
 impl Runner {
     pub(super) fn family(
@@ -80,9 +81,19 @@ impl Runner {
         {
             return Err("Installed Git does not provide the selected command family".into());
         }
-        let destination = self.family_destination(args.last().ok_or("Destination is required")?)?;
-        let parent_stamp = Self::family_destination_stamp(&destination)?;
-        *args.last_mut().expect("checked destination") = destination.as_os_str().into();
+        let destination = if family.repository_action() {
+            self.submodule_destination(family, &args)?
+        } else {
+            self.family_destination(args.last().ok_or("Destination is required")?)?
+        };
+        let parent_stamp = if !family.repository_action() || family == Family::SubmoduleAdd {
+            Some(Self::family_destination_stamp(&destination)?)
+        } else {
+            None
+        };
+        if !family.repository_action() {
+            *args.last_mut().expect("checked destination") = destination.as_os_str().into();
+        }
         let source = observation
             .as_ref()
             .map(|o| {
@@ -109,6 +120,28 @@ impl Runner {
         } else {
             [Vec::new(), Vec::new(), Vec::new()]
         };
+        let submodule = if family.repository_action() {
+            let source = source
+                .as_ref()
+                .ok_or("Submodule source context is unavailable")?;
+            if source.family.is_some()
+                || source
+                    .refs
+                    .observation
+                    .status
+                    .as_ref()
+                    .is_none_or(|s| s.completeness != Completeness::Complete)
+            {
+                return Err(
+                    "Submodule preparation requires complete status and no active sequence".into(),
+                );
+            }
+            let state = self.submodule_state(family, &destination, source, admission)?;
+            args.insert(0, "--literal-pathspecs".into());
+            Some(state)
+        } else {
+            None
+        };
         let size = std::mem::size_of::<FamilyPlan>()
             + args.capacity() * std::mem::size_of::<OsString>()
             + args.iter().map(OsString::capacity).sum::<usize>()
@@ -116,6 +149,9 @@ impl Runner {
             + self.directory.capacity()
             + destination.capacity()
             + self.policy.program.capacity()
+            + submodule
+                .as_ref()
+                .map_or(0, crate::git::families::Submodule::bytes)
             + 4096;
         admission.grow(size)?;
         Ok(Candidate::FamilyPlan(FamilyPlan {
@@ -129,6 +165,7 @@ impl Runner {
             evidence,
             directory_stamp,
             parent_stamp,
+            submodule,
             _admission: admission.split(size),
         }))
     }
@@ -140,7 +177,10 @@ impl Runner {
         if std::fs::canonicalize(&plan.directory).map_err(|e| e.to_string())? != plan.directory
             || fingerprint(&std::fs::metadata(&plan.directory).map_err(|e| e.to_string())?)
                 != plan.directory_stamp
-            || Self::family_destination_stamp(&plan.destination)? != plan.parent_stamp
+            || plan.parent_stamp.is_some_and(|expected| {
+                !Self::family_destination_stamp(&plan.destination)
+                    .is_ok_and(|actual| actual == expected)
+            })
         {
             return Err(
                 "Prepared directory or destination parent changed while review was open".into(),
@@ -153,6 +193,18 @@ impl Runner {
             {
                 return Err("Saved source bytes changed while prepared review was open".into());
             }
+        }
+        if let Some(expected) = &plan.submodule {
+            let actual = self.submodule_state(
+                plan.family,
+                &plan.destination,
+                plan.source.as_ref().expect("submodule source"),
+                admission,
+            )?;
+            if !expected.same(&actual) {
+                return Err("Submodule configuration, gitlink or saved child state changed while review was open".into());
+            }
+            return self.execute_submodule(plan, admission);
         }
         let (executed, facts) = self.execute_change(&plan.args, None);
         if self.retained.is_some() {
@@ -238,7 +290,7 @@ impl Runner {
             self.effects = Effects::Verified;
             Ok(Candidate::FamilyResult(FamilyResult {
                 plan,
-                created,
+                created: Some(created),
                 source,
                 _admission: admission.split(size),
             }))

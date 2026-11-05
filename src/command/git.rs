@@ -7,6 +7,11 @@ pub enum GitCommand {
     Init,
     Ignore,
     IgnoreExclude,
+    SubmoduleAdd,
+    SubmoduleList,
+    SubmoduleUpdate,
+    SubmoduleSync,
+    SubmoduleDeinit,
 
     WorktreeList,
     WorktreeCreate,
@@ -113,6 +118,11 @@ impl GitCommand {
             Self::Init => "git-init",
             Self::Ignore => "git-ignore",
             Self::IgnoreExclude => "git-ignore-exclude",
+            Self::SubmoduleAdd => "git-submodule-add",
+            Self::SubmoduleList => "git-submodule-list",
+            Self::SubmoduleUpdate => "git-submodule-update",
+            Self::SubmoduleSync => "git-submodule-sync",
+            Self::SubmoduleDeinit => "git-submodule-deinit",
 
             Self::WorktreeList => "git-worktree-list",
             Self::WorktreeCreate => "git-worktree-create",

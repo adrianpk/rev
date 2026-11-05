@@ -1,6 +1,7 @@
 use super::*;
 use crate::git::{Family, FamilyPlan, OperationKind, Update};
 use std::ffi::OsString;
+use std::path::Path;
 
 pub(in crate::session::git) struct Draft {
     pub(in crate::session::git) was_visible: bool,
@@ -10,6 +11,51 @@ pub(in crate::session::git) struct Draft {
     plan: Option<Arc<FamilyPlan>>,
 }
 impl Session {
+    fn git_family_sources(
+        &self,
+        family: Family,
+        directory: &Path,
+        target: Option<&Path>,
+    ) -> Result<(), String> {
+        if !family.repository_action() || family == Family::SubmoduleList {
+            return Ok(());
+        }
+        for buffer in self.buffers.iter() {
+            let related = buffer.file().is_some_and(|f| {
+                f.path().starts_with(directory)
+                    || std::fs::canonicalize(f.path()).is_ok_and(|p| p.starts_with(directory))
+            });
+            if related && buffer.is_modified() {
+                return Err(
+                    "Submodule action refused: a repository-backed buffer has unsaved text".into(),
+                );
+            }
+            if family == Family::SubmoduleDeinit
+                && target.is_some_and(|root| {
+                    buffer.file().is_some_and(|f| {
+                        f.path().starts_with(root)
+                            || std::fs::canonicalize(f.path()).is_ok_and(|p| p.starts_with(root))
+                    })
+                })
+            {
+                return Err("Submodule deinit is protected by a retained visiting buffer".into());
+            }
+        }
+        if family == Family::SubmoduleDeinit
+            && target.is_some_and(|root| {
+                self.tree.chosen_root().is_some_and(|p| p.starts_with(root))
+                    || self.terminals.retains_directory(root)
+                    || self.shell.retains_directory(root)
+                    || self.ai.retains_directory(root)
+                    || self.lsp.retains_directory(root)
+            })
+        {
+            return Err(
+                "Submodule deinit is protected by a retained native directory owner".into(),
+            );
+        }
+        Ok(())
+    }
     pub(in crate::session::git) fn compose_git_family(&mut self, family: Family) -> Action {
         if self.git.engine.busy() {
             return self.message("Prepared composition waits for owned Git work");
@@ -72,11 +118,13 @@ impl Session {
                 .and_then(|c| c.family.as_ref())
                 .ok_or("No prepared argument composer")?;
             if let Some(plan) = &draft.plan {
+                self.git_family_sources(draft.family, &draft.directory, Some(&plan.destination))?;
                 let id = self.git.engine.execute_family(plan.clone())?;
                 self.git.family_request = Some(id);
                 self.leave_git_commit()?;
                 return Ok(true);
             }
+            self.git_family_sources(draft.family, &draft.directory, None)?;
             let text = self.commit_text()?;
             if text.len() > crate::git::MAX_COMMIT_BYTES {
                 return Err("Prepared draft exceeds 64 KiB".into());
@@ -153,7 +201,8 @@ impl Session {
             self.observe_files();
         }
         if self.git.visible && self.pending.is_none() && self.input.focus() == Focus::Editing {
-            self.message(if update.published { "Prepared Git destination created and verified; $ inspects the accepted operation" }
+            self.message(if update.published && self.git.engine.family_result().is_some_and(|r| r.created.is_none()) { "Prepared submodule command verified; $ inspects the accepted operation and listing" }
+                else if update.published { "Prepared Git destination created and verified; $ inspects the accepted operation" }
                 else { "Prepared Git command failed or effects remain uncertain; inspect destination and $ diagnostics" });
         }
     }

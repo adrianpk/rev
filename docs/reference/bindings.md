@@ -599,6 +599,11 @@ For live terminal key ownership and copy controls, see the
 | `I I` in Status | `git-init` | Prepare initialization at an explicit absent destination and verify its unborn repository identity. |
 | `i t` in Status | `git-ignore` | Visit the ordinary worktree .gitignore file without inserting a pattern or saving text. |
 | `i p` in Status | `git-ignore-exclude` | Visit the ordinary common Git info/exclude file through its native visiting owner. |
+| `o a` in Status | `git-submodule-add` | Review a submodule metadata name, source URL and literal path, then verify its gitlink and checkout. |
+| `o l` in Status | `git-submodule-list` | Review recursive submodule status and inspect the actual bounded listing without repository effects. |
+| `o u` in Status | `git-submodule-update` | Review one exact gitlink path and initialize or check out its indexed commit without forcing dirty files. |
+| `o s` in Status | `git-submodule-sync` | Review one declared submodule path and verify its registered URL against .gitmodules. |
+| `o d` in Status | `git-submodule-deinit` | Review non-forced deinitialization of one checked clean submodule, preserving its parent gitlink. |
 | `Z Z`, `Z l` in Status | `git-worktree-list` | Open a bounded NUL-record worktree list with raw paths, full HEADs, distinct Git/common directories, lock reasons and prune state. |
 | `c` in Worktree | `git-worktree-create` | Review a new linked worktree and new local branch at the exact observed HEAD, using a checked absent destination. |
 | `v` in Worktree | `git-worktree-visit` | Open checked Git Status for the selected worktree identity while retaining native source buffers and windows. |
@@ -904,6 +909,11 @@ native cancellation. Prompts use `keys.minibuffer`.
 | `I I` | `git-init` |
 | `i t` | `git-ignore` |
 | `i p` | `git-ignore-exclude` |
+| `o a` | `git-submodule-add` |
+| `o l` | `git-submodule-list` |
+| `o u` | `git-submodule-update` |
+| `o s` | `git-submodule-sync` |
+| `o d` | `git-submodule-deinit` |
 | `Z Z`, `Z l` | `git-worktree-list` |
 | `z z`, `z l` | `git-stash-list` |
 | `C-x g` | `git-status` |
