@@ -25,8 +25,18 @@ Deliver GIT12 and its GIT17-GIT19 contracts through T10.1-T10.3 in the
   Conflict Return visits the canonical editable result through the existing
   file owner, preserving unsaved text. q returns to Operation without changing
   index entries or Git-owned sequence state.
-- T10.2 checked replacement/deletion/saved-resolution staging and T10.3 optional
-  AI explanation remain pending. Their commands are not registered yet.
+- T10.2: 1/2/3 prepares complete compatible Base/Current/Applied working-file
+  replacement while preserving unmerged index stages. K reviews removal of one
+  exact supported result from disk and index, staging its deletion. x prepares
+  staging of captured saved text or saved absence without changing disk.
+- Exact native review accepts y, C-Enter or C-c C-c; Return alone does not
+  accept. Changed saved bytes, file identity, modes, stages, HEAD, sequence or
+  checkout/clean conversion facts invalidate confirmation before effects.
+- Modified visiting result buffers are protected. Unrelated unsaved native
+  buffers remain unchanged and need no hidden save. Stage and deletion preserve
+  every other index entry, observed path state and bounded working-tree evidence.
+  Continuing remains a separate explicit operation.
+- T10.3 optional AI explanation remains pending; its command is not registered.
 
 ## Implementation Notes
 
@@ -51,13 +61,28 @@ header offset; painted state includes its viewport and conflict inspection.
 Canonical result ingress rejects missing files, symlinks and paths resolving
 outside the captured worktree, and reuses native file-buffer ownership.
 
+Resolution preparation retains a bounded complete saved-result capture with
+ordinary file type, mode, inode/device, length and nanosecond modification/change
+facts. It rejects symlink ancestors, unsupported encodings/modes and partial
+observations. Git checkout and clean conversion remain authoritative: converted
+side bytes and expected saved-result object identities are captured and checked
+again before the sole changing child. Anonymous hash input uses existing sealed
+stdin and keeps its reservation with retained child cleanup.
+
+Postconditions verify actual index entries, saved file content/identity, other
+observed paths and bounded diff evidence, refs and Git sequence metadata. Failed
+or uncertain effects retain the changing argv and diagnostics without replay,
+rollback or inferred continuation. Native ordered-application lineage survives
+resolution so a separately confirmed continue can finish the stopped revision.
+
 ## Contracts Added or Changed
 
-- Two functional native commands: git-conflicts and git-conflict-visit.
+- Seven functional native commands: git-conflicts, git-conflict-visit,
+  git-conflict-use-base/current/applied, git-conflict-delete and git-conflict-stage.
 - keys.git_sequence has 33 active entries, including Return inspection.
-- keys.git_conflict has 19 active entries for read-only inspection and result
-  visits in both interaction profiles.
-- Command and configuration catalogs contain 541 commands and 269 entries.
+- keys.git_conflict has 24 active entries for inspection, result visits and
+  checked saved resolution in both interaction profiles.
+- Command and configuration catalogs contain 546 commands and 269 entries.
 
 ## Files of Interest
 
@@ -67,6 +92,10 @@ outside the captured worktree, and reuses native file-buffer ownership.
   when no sequence family marker exists.
 - `src/session/git/conflicts.rs`, `src/session/git/refs/integration.rs`: native
   inspection, exact selection and canonical editable result visits.
+- `src/git/conflicts/resolution.rs`, `src/git/work/conflicts/resolution.rs`:
+  exact resolution plans, bounded saved snapshots, Git conversion and proof.
+- `tests/git_integration/conflicts_resolution.rs` and its presentation module:
+  real index/disk effects, confirmation fences, ownership and continuation.
 - `tests/git_integration/conflicts.rs` and `conflicts_presentation.rs`: real
   repository stages, both object formats/profiles and source ownership.
 
@@ -88,6 +117,18 @@ so the fixture now selects the actual symlink path for its mode assertion.
 Pointer coverage exposed and corrected the new Sequence click offset; the test
 still clicks a different exact conflict and checks its inspected file.
 
+T10.2 development passed eight resolution cases together in 77.47 seconds and
+an additional external-index resolution case in 2.47 seconds: all three sides
+in both object formats, separately staged saved results/absence and deletion,
+stale bytes/inodes/stages/HEAD/metadata, real post-index-change hook uncertainty,
+Git CRLF conversion, retained cherry-pick/revert continuation, both native
+profiles and modified-result/unrelated-source admission. Expanded unsupported
+admission assertions passed in 3.74 seconds. Strict Clippy, all 21 reference
+checks and documentation passed at 546 commands and 269 configuration entries.
+The inode fixture also passes in 8.64 seconds after replacing the file with
+identical bytes and removing its temporary old name; its assertion requires
+the file-identity diagnostic, independently of other Status path changes.
+
 Successful development commands:
 
 - `cargo fmt --all -- --check`
@@ -96,13 +137,17 @@ Successful development commands:
 - `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test git_integration integration::presentation:: -- --test-threads=1`
 - `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test commands --test configuration reference -- --test-threads=1`
 - `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo run --locked --quiet --example documentation-check`
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test git_integration conflicts::resolution:: -- --test-threads=1`
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test git_integration conflicts::resolution::external_resolution -- --test-threads=1`
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test git_integration conflicts::partial_and_missing -- --test-threads=1`
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test git_integration conflicts::resolution::changed_review -- --test-threads=1`
 - `git diff --check`
 
-Final clean-HEAD validation belongs to the controller after T10.2-T10.3 and the
+Final clean-HEAD validation belongs to the controller after T10.3 and the
 canonical PR-reference follow-up commit. No final receipt is claimed yet.
 
 ## Risks and Follow-ups
 
-T10.2 and T10.3 remain required within this slice. Combined PTY/resource
+T10.3 remains required within this slice. Combined PTY/resource
 acceptance remains Slice 13 and full User Guide work remains Slice 14.
 Integration and delivery-set closure remain controller-owned.

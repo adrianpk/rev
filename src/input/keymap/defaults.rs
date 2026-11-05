@@ -597,6 +597,11 @@ const GIT_SEQUENCE: &[(&str, &str)] = &[
 ];
 
 const GIT_CONFLICT: &[(&str, &str)] = &[
+    ("1", "git-conflict-use-base"),
+    ("2", "git-conflict-use-current"),
+    ("3", "git-conflict-use-applied"),
+    ("K", "git-conflict-delete"),
+    ("x", "git-conflict-stage"),
     ("C-x g", "git-status"),
     ("q", "git-quit"),
     ("g", "git-refresh"),

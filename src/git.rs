@@ -7,6 +7,7 @@ pub use commit::MAX_COMMIT_BYTES;
 pub use commit::{CommitMode, Composition};
 mod conflicts;
 pub use conflicts::{Conflict, ConflictRole, ConflictSide};
+pub use conflicts::{Resolution, ResolutionAction, SavedResult};
 mod discard;
 mod history;
 mod index;
@@ -139,6 +140,8 @@ pub enum OperationKind {
     Integration,
     Sequence,
     Conflict,
+    ConflictPrepare,
+    ConflictResolve,
     SequenceControl,
     AutosquashPrepare,
     ApplicationPrepare,
@@ -238,6 +241,7 @@ pub struct Context {
     pub refs: Option<Arc<Refs>>,
     pub sequence: Option<Arc<Sequence>>,
     pub conflict: Option<Arc<Conflict>>,
+    pub resolution: Option<Arc<Resolution>>,
     pub autosquash: Option<Arc<AutosquashPlan>>,
     pub application_plan: Option<Arc<ApplyPlan>>,
     pub bisect_plan: Option<Arc<BisectPlan>>,
@@ -663,6 +667,7 @@ impl Repositories {
                             refs: None,
                             sequence: None,
                             conflict: None,
+                            resolution: None,
                             autosquash: None,
                             application_plan: None,
                             bisect_plan: None,
@@ -731,6 +736,25 @@ impl Repositories {
                     }
                     progress.context
                 }
+                Ok(work::Publication::Resolution(plan)) => {
+                    if let Some(context) = self
+                        .contexts
+                        .iter_mut()
+                        .find(|c| c.id == plan.conflict.sequence.refs.observation.context)
+                        && context
+                            .conflict
+                            .as_ref()
+                            .is_some_and(|c| Arc::ptr_eq(c, &plan.conflict))
+                    {
+                        context.resolution = Some(Arc::new(plan));
+                        published = true;
+                    } else {
+                        record.outcome = Outcome::Failed;
+                        record.diagnostic =
+                            Some("Conflict resolution context expired before review".into());
+                    }
+                    progress.context
+                }
                 Ok(work::Publication::Conflict(conflict)) => {
                     if let Some(context) = self
                         .contexts
@@ -759,6 +783,7 @@ impl Repositories {
                         context.observation = sequence.refs.observation.clone();
                         context.refs = Some(sequence.refs.clone());
                         context.sequence = Some(Arc::new(sequence));
+                        context.resolution = None;
                         context.failure = None;
                         context.composition = None;
                         published = true;
@@ -908,6 +933,7 @@ impl Repositories {
                             OperationKind::Diff => context.detail_failure = Some(record.id),
                             OperationKind::CommitPrepare
                             | OperationKind::Conflict
+                            | OperationKind::ConflictPrepare
                             | OperationKind::History
                             | OperationKind::Sequence
                             | OperationKind::ApplicationPrepare
@@ -916,6 +942,7 @@ impl Repositories {
                             | OperationKind::PushPrepare
                             | OperationKind::TagPrepare => {}
                             OperationKind::Stage
+                            | OperationKind::ConflictResolve
                             | OperationKind::Unstage
                             | OperationKind::Discard
                             | OperationKind::Commit

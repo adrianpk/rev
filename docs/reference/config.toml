@@ -1741,6 +1741,11 @@ max_result_bytes = 262144
 
 # Read-only conflict side inspection and native result visits in both profiles.
 [keys.git_conflict]
+"1" = "git-conflict-use-base"
+"2" = "git-conflict-use-current"
+"3" = "git-conflict-use-applied"
+"K" = "git-conflict-delete"
+"x" = "git-conflict-stage"
 "C-x g" = "git-status"
 "q" = "git-quit"
 "g" = "git-refresh"

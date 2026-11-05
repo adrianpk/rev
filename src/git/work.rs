@@ -14,6 +14,7 @@ mod sequences;
 pub(super) enum Request {
     Status,
     Conflict(super::conflicts::Request),
+    Resolution(super::conflicts::ResolutionRequest),
     Application(super::sequences::Request),
     Bisect(super::bisect::Request),
     Integration(super::integration::Request),
@@ -28,6 +29,10 @@ pub(super) enum Request {
 impl Request {
     pub fn kind(&self) -> OperationKind {
         match self {
+            Self::Resolution(super::conflicts::ResolutionRequest::Prepare { .. }) => {
+                OperationKind::ConflictPrepare
+            }
+            Self::Resolution(_) => OperationKind::ConflictResolve,
             Self::Conflict(_) => OperationKind::Conflict,
             Self::Bisect(super::bisect::Request::Prepare { .. }) => OperationKind::BisectPrepare,
             Self::Bisect(_) => OperationKind::Bisect,
@@ -79,6 +84,7 @@ pub(super) enum Publication {
     PushIntent(PushIntent),
     Sequence(Sequence),
     Conflict(Conflict),
+    Resolution(Resolution),
     Autosquash(AutosquashPlan),
     ApplicationPlan(ApplyPlan),
     BisectPlan(BisectPlan),
@@ -94,6 +100,7 @@ enum Candidate {
     PushIntent(PushIntent),
     Sequence(Sequence),
     Conflict(Conflict),
+    Resolution(Resolution),
     Autosquash(AutosquashPlan),
     ApplicationPlan(ApplyPlan),
     BisectPlan(BisectPlan),
@@ -141,6 +148,7 @@ pub(super) fn start(
                     | super::integration::Request::Autosquash(_)
                     | super::integration::Request::Control { .. },
                 )
+                | Request::Resolution(super::conflicts::ResolutionRequest::Apply(_))
                 | Request::Index(_)
                 | Request::Discard(_)
                 | Request::Commit(_)
@@ -179,6 +187,7 @@ pub(super) fn start(
                 retained: None,
             };
             let observed = match request {
+                Request::Resolution(request) => runner.resolution(request, &mut admission),
                 Request::Conflict(request) => runner.conflict(request, &mut admission),
                 Request::Bisect(request) => runner.bisect(request, &mut admission),
                 Request::Application(request) => runner.application(request, &mut admission),
@@ -595,6 +604,7 @@ impl Runner {
             Candidate::BisectPlan(plan) => Ok(Publication::BisectPlan(plan)),
             Candidate::ApplicationPlan(plan) => Ok(Publication::ApplicationPlan(plan)),
             Candidate::Autosquash(plan) => Ok(Publication::Autosquash(plan)),
+            Candidate::Resolution(plan) => Ok(Publication::Resolution(plan)),
             Candidate::Conflict(conflict) => Ok(Publication::Conflict(conflict)),
             Candidate::Sequence(sequence) => Ok(Publication::Sequence(sequence)),
             Candidate::PushIntent(intent) => Ok(Publication::PushIntent(intent)),

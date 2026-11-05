@@ -1,6 +1,9 @@
 //! Immutable exact conflict sides. Git stage numbers are retained independently
 //! of operation-relative labels; display text never supplies path authority.
 use super::*;
+mod resolution;
+pub(super) use resolution::ResolutionRequest;
+pub use resolution::{Resolution, ResolutionAction, SavedResult};
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum ConflictRole {

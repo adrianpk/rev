@@ -721,6 +721,11 @@ Status reads disk and Git state; it does not save an unsaved source buffer.
 | `git-operation-continue` | Refresh actual Git state and review one compatible family-specific continuation bound to that exact sequence. |
 | `git-operation-skip` | Refresh actual Git state and review a compatible skip; reject a missing or wrong-family sequence. |
 | `git-operation-abort` | Refresh actual Git state and review one compatible abort with exact original lineage; process cancellation is a separate action. |
+| `git-conflict-use-base` | Review a complete compatible Base side and replace only the exact working file, preserving unmerged index stages. |
+| `git-conflict-use-current` | Review the operation-relative Current side and replace only the checked working file without staging. |
+| `git-conflict-use-applied` | Review the operation-relative Applied side and replace only the checked working file without staging. |
+| `git-conflict-delete` | Review removal of one exact supported result from disk and index, staging its deletion while leaving continuation separate. |
+| `git-conflict-stage` | Review and stage one exact saved text result or saved absence; recheck complete stages, file identity, bytes, Git conversion and visiting-buffer stamps. |
 | `git-conflicts` | Refresh actual Git-owned sequence state and exact selectable unmerged paths; Return inspects the selected conflict. |
 | `git-conflict-visit` | From Operation, inspect the selected exact unmerged path and its available Base/Current/Applied index stages; from Conflict, visit the canonical editable result without staging or continuing. |
 | `git-operation-status` | Refresh compatible Status/Refs and actual Git-owned sequence family, full current/original/onto identities, step and exact conflict paths, including external operations. |
@@ -969,3 +974,11 @@ For rebase, Current is the destination/onto side and Applied is the original
 commit being replayed. For revert, Base is the reverted commit and Applied is
 its selected parent. Missing, binary, non-text, structural and partial sides
 remain visible. The read-only view never replaces unsaved source text.
+
+In Conflict, 1/2/3 prepares a complete compatible side replacement, K reviews
+exact deletion from disk and index, and x prepares staging of saved bytes or
+absence. y, C-Enter or C-c C-c accepts the exact review; n or C-g cancels it.
+An unsaved visiting result blocks these actions. Binary, non-text, type-change,
+submodule, incompatible-mode and partial observations remain inspection only.
+Changing the saved file, index stages, HEAD or sequence invalidates confirmation.
+Removing markers does not stage or continue; continue is always separate.

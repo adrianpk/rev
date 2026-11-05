@@ -154,6 +154,21 @@ fn partial_and_missing() {
             path.into()
         };
         let conflict = inspect(&mut owner, sequence, &path);
+        if variant != "delete" {
+            for action in [
+                rev::git::ResolutionAction::Stage,
+                rev::git::ResolutionAction::Delete,
+                rev::git::ResolutionAction::Use(ConflictRole::Base),
+            ] {
+                assert!(conflict.resolution_admission(action).is_err());
+            }
+        } else {
+            assert!(
+                conflict
+                    .resolution_admission(rev::git::ResolutionAction::Use(ConflictRole::Current))
+                    .is_err()
+            );
+        }
         match variant {
             "delete" => {
                 assert!(conflict.side(ConflictRole::Current).is_none());
@@ -249,3 +264,6 @@ fn external_index() {
 
 #[path = "conflicts_presentation.rs"]
 mod presentation;
+
+#[path = "conflicts_resolution.rs"]
+mod resolution;

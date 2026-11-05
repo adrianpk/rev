@@ -322,6 +322,21 @@ impl Session {
                 GitCommand::BisectBad => self.request_git_bisect(crate::git::BisectAction::Bad),
                 GitCommand::BisectSkip => self.request_git_bisect(crate::git::BisectAction::Skip),
                 GitCommand::BisectReset => self.request_git_bisect(crate::git::BisectAction::Reset),
+                GitCommand::ConflictUseBase => self.prepare_git_resolution(
+                    crate::git::ResolutionAction::Use(crate::git::ConflictRole::Base),
+                ),
+                GitCommand::ConflictUseCurrent => self.prepare_git_resolution(
+                    crate::git::ResolutionAction::Use(crate::git::ConflictRole::Current),
+                ),
+                GitCommand::ConflictUseApplied => self.prepare_git_resolution(
+                    crate::git::ResolutionAction::Use(crate::git::ConflictRole::Applied),
+                ),
+                GitCommand::ConflictDelete => {
+                    self.prepare_git_resolution(crate::git::ResolutionAction::Delete)
+                }
+                GitCommand::ConflictStage => {
+                    self.prepare_git_resolution(crate::git::ResolutionAction::Stage)
+                }
                 GitCommand::Conflicts => self.open_git_sequence(),
                 GitCommand::ConflictVisit => self.open_git_conflict(),
                 GitCommand::OperationStatus => self.open_git_sequence(),
@@ -736,6 +751,14 @@ impl Session {
             }
             if self.git.refs.autosquash_preparing == Some(update.operation) {
                 self.publish_git_autosquash_preparation(&update);
+                continue;
+            }
+            if self.git.conflicts.preparing == Some(update.operation) {
+                self.publish_git_resolution_preparation(&update);
+                continue;
+            }
+            if self.git.conflicts.resolving == Some(update.operation) {
+                self.publish_git_resolution(&update);
                 continue;
             }
             if self.git.conflicts.request == Some(update.operation) {

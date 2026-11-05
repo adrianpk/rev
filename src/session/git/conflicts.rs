@@ -3,6 +3,8 @@ use crate::git::{Conflict, ConflictRole, Update};
 
 pub(super) struct Inspection {
     pub request: Option<OperationId>,
+    pub preparing: Option<OperationId>,
+    pub resolving: Option<OperationId>,
     pub detail: Option<Arc<Conflict>>,
     pub selected: Option<PathBuf>,
     pub top: usize,
@@ -12,6 +14,8 @@ impl Inspection {
     pub(super) fn new(engine: &Repositories) -> std::io::Result<Self> {
         Ok(Self {
             request: None,
+            preparing: None,
+            resolving: None,
             detail: None,
             selected: None,
             top: 0,
@@ -54,7 +58,7 @@ impl Work {
                 let Some(s) = side else { return "Missing stage (deletion or structural conflict); no bytes inferred".into(); };
                 match row {
                     1 => format!("Object {} / mode {:06o}", s.object.hex(), s.mode),
-                    2 => format!("{} bytes / {:?} / {}", s.bytes.len(), s.completeness, if s.binary { "binary; text actions unavailable" } else if s.text { "complete UTF-8 text" } else { "unsupported mode, encoding or partial content; text actions unavailable" }),
+                    2 => format!("{} captured bytes / {:?} / {}", s.bytes.len(), s.completeness, if s.binary { "binary; text actions unavailable" } else if s.text { "complete UTF-8 text" } else { "unsupported mode, encoding or partial content; text actions unavailable" }),
                     _ => label(&s.bytes[s.lines[row-3].clone()]),
                 }
             })
@@ -190,5 +194,148 @@ impl Session {
         self.terminal_source_focus();
         self.sync_input_context();
         Action::Redraw
+    }
+}
+
+impl Session {
+    pub(super) fn prepare_git_resolution(
+        &mut self,
+        action: crate::git::ResolutionAction,
+    ) -> Action {
+        let Some(conflict) = self
+            .git
+            .conflicts
+            .detail
+            .clone()
+            .filter(|_| self.git.visible && self.git.page == Page::Conflict)
+        else {
+            return self.message("Inspect one exact current conflict before requesting resolution");
+        };
+        if let Err(e) = self.git_resolution_sources(&conflict) {
+            return self.error(&e);
+        }
+        match self.git.engine.prepare_resolution(conflict, action) {
+            Ok(id) => {
+                self.git.conflicts.preparing = Some(id);
+                self.git.painted = None;
+                self.message("Preparing checked conflict resolution; no change has started")
+            }
+            Err(e) => self.error(&e),
+        }
+    }
+    pub(super) fn publish_git_resolution_preparation(&mut self, update: &Update) {
+        if self
+            .git
+            .engine
+            .progress()
+            .any(|p| p.operation == update.operation)
+        {
+            return;
+        }
+        self.git.conflicts.preparing = None;
+        if !self.git.visible
+            || self.git.page != Page::Conflict
+            || self.pending.is_some()
+            || self.input.focus() != Focus::Editing
+        {
+            return;
+        }
+        let Some(plan) = update
+            .context
+            .filter(|_| update.published)
+            .and_then(|id| self.git.engine.context(id))
+            .and_then(|c| c.resolution.clone())
+        else {
+            self.message("Conflict resolution preparation failed; refresh the actual sequence and saved result");
+            return;
+        };
+        let sources = match self.git_resolution_sources(&plan.conflict) {
+            Ok(s) => s,
+            Err(e) => {
+                self.error(&e);
+                return;
+            }
+        };
+        let c = &plan.conflict;
+        let effect = match plan.action {
+            crate::git::ResolutionAction::Use(_) => {
+                "Replace only this working file with the complete selected side under Git checkout conversion; preserve all index stages."
+            }
+            crate::git::ResolutionAction::Delete => {
+                "Remove only this exact result path from disk and index, staging its deletion; preserve every other index entry."
+            }
+            crate::git::ResolutionAction::Stage => {
+                "Stage only the captured saved bytes or saved absence; preserve disk and every other index entry."
+            }
+        };
+        let mut review = format!(
+            "Checked conflict resolution review\nAction: {}\nExact path: {}\nKind: {}\nActual family: {:?}\nChecked HEAD:\n{}\nCompatible mode: {:06o}\nSaved bytes: {}\nExpected staged object: {}\n{}\n",
+            plan.action.label(),
+            label(c.change.path.as_os_str().as_encoded_bytes()),
+            c.kind(),
+            c.sequence.family,
+            c.sequence.refs.head.map_or("unborn".into(), |id| id.hex()),
+            plan.mode,
+            plan.saved
+                .as_ref()
+                .map_or("absent".into(), |s| s.bytes.len().to_string()),
+            plan.expected_object
+                .map_or("none / index unchanged or deletion".into(), |id| id.hex()),
+            effect
+        );
+        for role in ConflictRole::ALL {
+            if let Some(side) = c.side(role) {
+                review.push_str(&format!(
+                    "{} / stage {} / {}\n{} mode {:06o}\n",
+                    role.label(),
+                    role.stage(),
+                    role.meaning(c.sequence.family),
+                    side.object.hex(),
+                    side.mode
+                ));
+            }
+        }
+        review.push_str("Saved file identity, bytes, stages, operation metadata, HEAD and visiting source owners must remain unchanged. Marker text grants no authority. Continuing remains a separate explicit action. y / C-Enter / C-c C-c accept; n / C-g cancel.");
+        self.confirm_git_ref(
+            c.sequence.refs.clone(),
+            refs::RefAction::Resolution(plan.clone()),
+            Some(sources),
+            format!(
+                "Confirm {} for this exact conflict? y=accept, n=cancel",
+                plan.action.label()
+            ),
+            review,
+        );
+    }
+    pub(super) fn publish_git_resolution(&mut self, update: &Update) {
+        if self
+            .git
+            .engine
+            .progress()
+            .any(|p| p.operation == update.operation)
+        {
+            return;
+        }
+        self.git.conflicts.resolving = None;
+        self.git.painted = None;
+        if update.published {
+            self.git.state.context = update.context;
+        }
+        self.observe_files();
+        if self.git.visible && self.pending.is_none() && self.input.focus() == Focus::Editing {
+            self.git.page = Page::Sequence;
+            self.git.refs.sequence_top = 0;
+            if update.published
+                && self
+                    .git
+                    .engine
+                    .record(update.operation)
+                    .is_some_and(|r| r.outcome == crate::git::Outcome::Verified)
+            {
+                self.message("Conflict action verified against exact index and disk; continuing remains separate");
+            } else {
+                self.message("Conflict action failed or effects remain uncertain; inspect git-processes and refresh actual sequence state");
+            }
+        }
     }
 }

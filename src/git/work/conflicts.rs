@@ -1,4 +1,5 @@
 use super::*;
+mod resolution;
 use crate::git::{Conflict, ConflictRole, ConflictSide};
 use std::os::unix::ffi::OsStrExt;
 

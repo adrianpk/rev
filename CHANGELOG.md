@@ -47,7 +47,10 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
   and confirm compatible continue, skip or abort controls against fresh state.
   Select exact conflict paths, inspect read-only Base/Current/Applied index sides
   with operation-relative labels, and visit the canonical editable result.
-  Missing, binary, structural and partial sides remain explicit.
+  Review a complete side replacement with 1/2/3 without staging, explicitly
+  stage saved resolution bytes with x, or confirm exact disk/index deletion
+  with K. Protect unsaved result buffers and reject changed confirmation state;
+  continuing remains separate. Binary, structural and partial sides stay visible.
   Cherry-pick and revert controls preserve the reviewed order and mainlines;
   explicit abort also restores the original context after a completed prefix.
   Start manual bisect with explicit bad/good boundaries in the Operation view;

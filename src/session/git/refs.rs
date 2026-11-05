@@ -77,7 +77,8 @@ pub(in crate::session) struct Consent {
     submit_prefix: bool,
     _admission: crate::git::budget::Lease,
 }
-enum RefAction {
+pub(super) enum RefAction {
+    Resolution(Arc<crate::git::Resolution>),
     Branch(BranchAction),
     CreateTag(Arc<crate::git::TagIntent>),
     DeleteTag(Vec<u8>),
@@ -97,7 +98,7 @@ enum RefAction {
     },
 }
 
-struct Sources {
+pub(super) struct Sources {
     stamps: Vec<Stamp>,
     _admission: crate::git::budget::Lease,
 }
@@ -609,7 +610,7 @@ impl Session {
             review,
         )
     }
-    fn confirm_git_ref(
+    pub(super) fn confirm_git_ref(
         &mut self,
         refs: Arc<Refs>,
         action: RefAction,
@@ -625,7 +626,9 @@ impl Session {
             Ok(a) => a,
             Err(e) => return self.error(&e),
         };
-        let prompt = if matches!(action, RefAction::Push(_)) {
+        let prompt = if matches!(action, RefAction::Resolution(_)) {
+            "Confirm exact conflict resolution? [y/n]"
+        } else if matches!(action, RefAction::Push(_)) {
             "Confirm reviewed upstream push? [y/n]"
         } else {
             if matches!(
@@ -688,6 +691,48 @@ impl Session {
             _admission: admission,
         })
     }
+    pub(super) fn git_resolution_sources(
+        &self,
+        conflict: &crate::git::Conflict,
+    ) -> Result<Sources, String> {
+        let root = conflict
+            .sequence
+            .refs
+            .observation
+            .identity
+            .worktree
+            .as_ref()
+            .ok_or("Conflict has no worktree source owner")?;
+        let target = root.join(&conflict.change.path);
+        let canonical = std::fs::canonicalize(&target).ok();
+        let count = self.buffers.iter().count();
+        let admission = self
+            .git
+            .engine
+            .source_admission(count * std::mem::size_of::<Stamp>())?;
+        let mut stamps = Vec::with_capacity(count);
+        for buffer in self.buffers.iter() {
+            let related = buffer.file().is_some_and(|f| {
+                f.path() == target
+                    || canonical.as_ref().is_some_and(|target| {
+                        std::fs::canonicalize(f.path()).is_ok_and(|p| p == *target)
+                    })
+            });
+            if related {
+                if buffer.is_modified() {
+                    return Err(
+                        "Conflict resolution rejected: the visiting result buffer has unsaved text"
+                            .into(),
+                    );
+                }
+                stamps.push(buffer.stamp());
+            }
+        }
+        Ok(Sources {
+            stamps,
+            _admission: admission,
+        })
+    }
     pub(in crate::session) fn git_ref_answer(
         &mut self,
         consent: Consent,
@@ -695,7 +740,11 @@ impl Session {
     ) -> Action {
         self.input.cancel();
         if !accepted {
-            return self.message("Local ref action canceled");
+            return self.message(if matches!(consent.action, RefAction::Resolution(_)) {
+                "Conflict resolution canceled"
+            } else {
+                "Local ref action canceled"
+            });
         }
         if self.git.state.context != Some(consent.refs.observation.context) {
             return self.message("Branch context changed; confirmation invalidated");
@@ -703,6 +752,7 @@ impl Session {
         if matches!(
             consent.action,
             RefAction::Branch(BranchAction::Switch { .. })
+                | RefAction::Resolution(_)
                 | RefAction::Integration { .. }
                 | RefAction::Autosquash(_)
                 | RefAction::Application(_)
@@ -710,7 +760,11 @@ impl Session {
                 | RefAction::BisectControl(..)
                 | RefAction::Control { .. }
         ) {
-            match self.git_branch_sources(&consent.refs) {
+            let sources = match &consent.action {
+                RefAction::Resolution(plan) => self.git_resolution_sources(&plan.conflict),
+                _ => self.git_branch_sources(&consent.refs),
+            };
+            match sources {
                 Ok(s)
                     if consent
                         .sources
@@ -724,6 +778,7 @@ impl Session {
                 Err(e) => return self.error(&e),
             }
         }
+        let resolution = matches!(consent.action, RefAction::Resolution(_));
         let integration = matches!(
             consent.action,
             RefAction::Integration { .. }
@@ -734,6 +789,7 @@ impl Session {
                 | RefAction::Control { .. }
         );
         let result = match consent.action {
+            RefAction::Resolution(plan) => self.git.engine.resolve_conflict(plan),
             RefAction::Branch(action) => self.git.engine.branch(consent.refs, action),
             RefAction::CreateTag(intent) => self.git.engine.create_tag(intent, ""),
             RefAction::DeleteTag(name) => self.git.engine.delete_tag(consent.refs, &name),
@@ -755,12 +811,16 @@ impl Session {
         };
         match result {
             Ok(id) => {
-                if integration {
+                if resolution {
+                    self.git.conflicts.resolving = Some(id);
+                } else if integration {
                     self.git.refs.integration_request = Some(id);
                 } else {
                     self.git.refs.request = Some(id);
                 }
-                self.message(if integration {
+                self.message(if resolution {
+                    "Checking the confirmed conflict path, saved result and exact stage fingerprint"
+                } else if integration {
                     "Checking confirmed integration policy and exact ref target"
                 } else {
                     "Checking confirmed local ref request"
@@ -1021,7 +1081,9 @@ impl Session {
             self.size,
             self.buffers.palette(),
             &self.echo,
-            if matches!(
+            if matches!(consent.action, RefAction::Resolution(_)) {
+                " Git Conflict Review  y / C-Enter / C-c C-c accept  n / C-g cancel"
+            } else if matches!(
                 consent.action,
                 RefAction::Integration { .. }
                     | RefAction::Autosquash(_)

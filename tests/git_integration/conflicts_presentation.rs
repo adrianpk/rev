@@ -3,7 +3,7 @@ use crate::status::presentation::{editor, entry, key, plain, render, text, wait}
 use crossterm::event::{KeyCode, KeyModifiers};
 use rev::command::{Command as Native, GitCommand};
 
-fn open(editor: &mut rev::session::Session) {
+pub(super) fn open(editor: &mut rev::session::Session) {
     editor.execute(Native::Git(GitCommand::Conflicts));
     wait(editor, |e| {
         e.echo().contains("Git-owned sequence state checked")
