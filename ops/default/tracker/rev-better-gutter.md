@@ -7,7 +7,7 @@ Approved: product owner; specification, three-slice preparation, push and one au
 Plan: [Better Gutter Delivery](../plan/rev-better-gutter.md)
 Specification: [Better Gutter](../spec/editor-better-gutter.md)
 Model: [Better Gutter Model](../spec/editor-better-gutter-model.md)
-Active slice: Slice 1 - Outside marker layout; reviewing, awaiting controller integration
+Active slice: Slice 2 - Fixed symbols and font flag; implementation in progress
 Progress owner: retained Looper checkpoint and canonical validation receipts
 
 ## Canonical slice map
@@ -20,15 +20,16 @@ Progress owner: retained Looper checkpoint and canonical validation receipts
 
 ## Slice 1: Outside marker layout
 
-State: reviewing
+State: delivered
 Dependency: approved committed preparation on clean dev
 Requirements: BMK03, BTG02, BTG04
 Implementation: `f4698fc7b506a610cbbef6aa12f6e5bd459be019` (T1.1-T1.3)
 PR: `#282`
 Report: `ops/default/report/slices/rev-better-gutter/slice-1-layout.md`
-Validation: local formatting, scoped strict Clippy, 223 approved suite tests,
-focused completion and documentation checks passed. Looper must record the
-four required commands on the final clean PR-reference HEAD before handoff.
+Integrated: `8af7f4e02e77e31ca286d82b6651791b53e3eec8`
+Validation: Looper receipt `LE6UT6QCD7YDRHULYWKTSCXVIZ` passed the four required
+commands on that clean PR-reference HEAD, including 223 approved suite tests.
+Focused completion and documentation checks also passed locally.
 
 - [x] T1.1: Allocate the marker outside numbers; preserve mirrored placement,
   narrow-pane safety, visibility and zero folding-column allocation.
@@ -39,7 +40,7 @@ four required commands on the final clean PR-reference HEAD before handoff.
 
 ## Slice 2: Fixed symbols and font flag
 
-State: pending
+State: in progress
 Dependency: Slice 1 integrated
 Requirements: BMK03, BTG01, BTG04 and configuration model
 Implementation: pending

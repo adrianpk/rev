@@ -10,7 +10,7 @@ Specification: [Better Gutter](../spec/editor-better-gutter.md)
 Model: [Better Gutter Model](../spec/editor-better-gutter-model.md)
 Tracker: [Better Gutter Tracker](../tracker/rev-better-gutter.md)
 Concern: [Pending Work Index](../README.md)
-Active slice: Slice 1 - Outside marker layout; reviewing, awaiting controller integration
+Active slice: Slice 2 - Fixed symbols and font flag; implementation in progress
 
 ## Outcome and scope
 

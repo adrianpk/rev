@@ -1,11 +1,12 @@
 # Slice 1: Outside marker layout
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-better-gutter
 Plan: [Better Gutter Delivery](../../../plan/rev-better-gutter.md)
 Tracker: [Better Gutter Tracker](../../../tracker/rev-better-gutter.md)
 Branch: `feat/rev-better-gutter-01-layout`
 PR: `#282`
+Integrated: `8af7f4e02e77e31ca286d82b6651791b53e3eec8`
 
 ## Purpose
 
@@ -90,9 +91,10 @@ Observed local times were 3.36s for formatting, 39.39s for Clippy, 79.81s for th
 successful suite command, 4.10s for focused completion and 1.51s for documentation.
 The initial geometry-only run spent 2m15s compiling its new worktree target.
 
-Before handoff, Looper must record the same four required commands against the
-final clean PR-reference HEAD. Its retained receipt identifies the validated
-candidate. These local results do not replace that evidence or the final gate.
+Looper receipt `LE6UT6QCD7YDRHULYWKTSCXVIZ` passed the same four required commands
+against clean PR-reference HEAD `8af7f4e02e77e31ca286d82b6651791b53e3eec8`.
+Canonical PR #282 was verified merged into dev at that same commit.
+These slice results do not replace the controller-owned final gate.
 Tests release their owned temporary fixtures; no server or PTY was started.
 
 ## Risks and Follow-ups
