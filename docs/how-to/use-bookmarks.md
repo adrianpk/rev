@@ -82,9 +82,10 @@ does not authorize replacing an unknown or conflicting store.
 
 ## Control gutter markers
 
-Resolved source lines show `●` by default, independently of number labels.
-Several names on one line share one glyph. Wrapped continuations, folded bodies
-and filler remain blank; jumping reveals a folded target.
+Resolved source lines show a blue square `■` by default, independently of number
+labels. It sits before the left number field, or outside the mirrored right
+field. Several names on one line share one glyph. Wrapped continuations, folded
+bodies and filler remain blank; jumping reveals a folded target.
 
 `M-x bookmark-markers-mode` toggles markers for the current pane. Splits inherit
 that pane's visibility, then remain independent. Hiding markers never deletes
@@ -93,13 +94,22 @@ names. For different startup defaults, change the existing configuration tables:
 ```toml
 [bookmarks]
 markers = false
-marker = "*"
-
-[palette.gutter]
-bookmark = "#e0af68"
 ```
 
-The glyph must be one printable non-control grapheme of terminal width one.
+To use the built-in flat bookmark `` instead, set the startup flag in the
+existing gutter table and restart:
+
+```toml
+[gutter]
+nerd_fonts = true
+```
+
+Choose this only when your terminal font supports the Nerd Fonts bookmark.
+Rev does not select or detect fonts. Both symbols use the existing
+`palette.gutter.bookmark` color, whose default is `"#7aa2f7"`.
+For an old configuration with `bookmarks.marker` or an explicit yellow color,
+follow [Migrate older bookmark settings](../reference/gutter.md#migrate-older-bookmark-settings).
+
 Narrow panes omit the marker before reducing available number geometry or the
 protected text area. See [Line numbers](../reference/gutter.md) and the
 [bookmark reference](../reference/commands.md#named-bookmarks) for exact rules,

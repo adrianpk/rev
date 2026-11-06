@@ -72,13 +72,15 @@ Set bookmark (default notes.txt): checkpoint
 Bookmark set
 ```
 
-A `●` in the gutter marks the bookmarked source line. After moving elsewhere,
+A blue square `■` before the line number marks the bookmarked source line.
+The marker stays visible when line numbers are hidden. After moving elsewhere,
 `C-x r b`, `checkpoint`, Enter returns there, even from another file.
 Bookmarks follow live edits and persist on ordinary quit. They do not save
 source text; continue using `C-x C-s` for that.
 
 `C-x r l` lists names, and `M-x bookmark-markers-mode` toggles their markers
-for the current pane. To remove the test bookmark, run `M-x bookmark-delete`,
+for the current pane without removing names. [Set Your Preferences](09-preferences.md#choose-a-bookmark-symbol)
+shows the optional symbol for a Nerd Fonts terminal. To remove the test bookmark, run `M-x bookmark-delete`,
 enter `checkpoint` and press Enter. The name is removed; the file is unchanged.
 The [bookmark guide](../../how-to/use-bookmarks.md)
 explains replacement, deletion, checked reopening and storage recovery.

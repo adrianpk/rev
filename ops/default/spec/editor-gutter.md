@@ -20,6 +20,11 @@ Bookmark extension completed: 2026-10-31
 Bookmark extension candidate: `41ba5f89465b2be02adc613cd796271169c245e0`
 Bookmark extension gate validation: `7WOA4YIWYISUYIDTDT3ZC5SI5A`
 
+Current presentation: [Better Gutter](editor-better-gutter.md) and its
+[model](editor-better-gutter-model.md) amend BMK03 placement, symbols and color.
+Its [tracker](../tracker/rev-better-gutter.md) owns the new delivery evidence;
+the completed candidates and gates above retain their historical scope.
+
 ## Purpose
 
 Provide absolute and relative logical line numbers in rev's editing views,
@@ -214,7 +219,9 @@ The number field and optional native bookmark cell SHALL have explicit
 reserved bounds and order within their editing panel. They SHALL NOT overwrite
 borders, status, the prompt or another
 pane. Layout SHALL resolve before text, numbers and markers are drawn.
-The fixed bookmark cell follows BMK03; it introduces no generic lane API.
+The fixed bookmark cell follows BMK03: before numbers on the left and after
+numbers on the right, at the outer edge. It introduces no generic lane API,
+folding column or folding-specific padding.
 
 #### Scenario: Tabbed text in a nested panel
 
@@ -358,8 +365,8 @@ cursor/scroll and idle workloads; no runtime result is claimed by this specifica
 
 - [Native Bookmarks](editor-bookmarks.md) and its [model](editor-bookmarks-model.md)
   own the user-wide named collection, checked navigation, persistence and fixed
-  marker projection. Runtime Slices 1-5 are integrated; joint acceptance and
-  guidance are the final slice of their separate approved delivery.
+  marker projection. Their completed delivery retains its historical evidence;
+  Better Gutter separately owns the current presentation amendments.
 - [Native Autocompletion](editor-autocompletion.md): compiled Rust interaction,
   preferred operational LSP and Tree-sitter-only fallback; no ctags.
 - [Language Server Support](editor-language-server-support.md): optional client,
@@ -411,19 +418,30 @@ current configuration/view contracts without expanding gutter behavior.
 ## Fixed bookmark marker extension
 
 BMK03 extends this projection with one cell while `bookmarks.markers` is enabled,
-independently of number visibility. It uses `gutter.side`, preserves number
-format/separator behavior and the protected text minimum, and restores requested
+independently of number visibility. It uses `gutter.side`: marker, numbers,
+separator, text on the left, mirrored on the right. No folding column or
+folding-specific padding is allocated. It preserves number format/separator
+behavior and the protected text minimum, and restores requested
 presentation when space returns. Splits inherit marker visibility; later changes
 remain view-local. Number-policy reset does not reset marker visibility.
 
 The current buffer/revision index coalesces resolved locations by logical source
-line. Only its first visual fragment receives the configured glyph; continuations,
+line. Only its first visual fragment receives the selected built-in glyph; continuations,
 filler and folded bodies remain blank. A jump reveals the actual target instead
 of painting a surrogate heading. Paint performs no filesystem IO, relocation or
 persistence. Named records and their store belong to the bookmark owner, with no
 new provider registry or source-text copy.
 
+The startup boolean `gutter.nerd_fonts` defaults to false, selecting `■`
+(U+25A0); true selects `` (U+F02E). Both use the existing bookmark palette role,
+now blue `#7aa2f7` by default. Explicit palette values retain precedence.
+Legacy `bookmarks.marker` strings are accepted and discarded before effective
+publication; no custom glyph, font probing or runtime font command is supplied.
+Future folding controls and debugger semantics remain future, as recorded by
+Better Gutter; neither acquires a current lane or setting.
+
 The bookmark settings and semantic palette leaf are admitted through the
-existing startup schema and complete catalog. The bookmark tracker retains the
-new exact-candidate evidence and combined gate; the original GUT identities and
-numbering validation fields remain unchanged.
+existing startup schema and complete catalog. The bookmark tracker retains its
+completed collection evidence; the Better Gutter tracker owns the presentation
+delivery and separate gate. Original GUT identities and validation fields remain
+unchanged.

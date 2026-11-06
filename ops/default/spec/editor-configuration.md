@@ -37,6 +37,27 @@ recorded above, preserving the earlier validation identity.
 OpenSpec is the shared workspace Markdown format. Reading or validating this
 proposal does not require the OpenSpec CLI or another runtime service.
 
+## Bookmark presentation
+
+[Better Gutter](editor-better-gutter.md) extends the existing gutter startup
+table with `nerd_fonts`, a boolean defaulting to false. False selects compiled
+`■` (U+25A0); true selects compiled `` (U+F02E). Both use the existing
+bookmark palette role, now `#7aa2f7` by default. Explicit colors retain
+precedence. The immutable startup snapshot owns this choice across numbering
+reset, splits and buffer rebinds. There is no font detection, installation,
+custom glyph setting or runtime font command.
+
+The flag SHALL follow ordinary include/root precedence, typed validation and
+provenance; an invalid included type rejects the whole candidate. Legacy
+`bookmarks.marker` strings SHALL be accepted and discarded before effective
+publication, without glyph validation or effective provenance. Other legacy
+input types remain invalid. Loading SHALL NOT rewrite an existing file.
+
+The [Better Gutter tracker](../tracker/rev-better-gutter.md) owns this separate
+presentation delivery and gate evidence. Historical configuration and navigation
+identities above remain unchanged. Future folding and debugger conventions
+create no current configuration keys or runtime capability.
+
 ## Native Org controls
 
 The accepted [Org capability](editor-org-mode.md) extends this same startup

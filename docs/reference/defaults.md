@@ -287,6 +287,10 @@ change only that view's overrides and never reload or write this snapshot.
 | `gutter.left_padding` | Integer 0..=4 | `0` | Cells before digits, excluding the separator. |
 | `gutter.right_padding` | Integer 0..=4 | `1` | Cells after digits, excluding the separator. |
 
+The [gutter reference](gutter.md#bookmark-markers) describes fixed bookmark
+symbols and outside placement. Its [migration guidance](gutter.md#migrate-older-bookmark-settings)
+covers ignored legacy `bookmarks.marker` strings and explicit old palette colors.
+
 ### Mouse controls
 
 | Key | Type and bounds | Default | Scope and effect |

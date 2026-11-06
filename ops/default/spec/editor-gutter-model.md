@@ -15,6 +15,11 @@ Bookmark extension completed: 2026-10-31
 Bookmark extension candidate: `41ba5f89465b2be02adc613cd796271169c245e0`
 Bookmark extension gate validation: `7WOA4YIWYISUYIDTDT3ZC5SI5A`
 
+Current presentation: [Better Gutter](editor-better-gutter.md) and its
+[model](editor-better-gutter-model.md) amend placement, fixed symbols and color.
+Its [tracker](../tracker/rev-better-gutter.md) owns the new delivery evidence;
+the completed candidates and gates above retain their historical scope.
+
 ## Control model
 
 All gutter behavior has usable factory defaults. User preferences persist in
@@ -34,7 +39,7 @@ configuration/UI gate remains historical evidence for its original surface.
 | Right padding | `gutter.right_padding = 1` | Startup setting | Global default used by views |
 | Palette | Number and bookmark `palette.gutter` roles below | Startup setting | Renderer palette snapshot |
 | Bookmark visibility | `bookmarks.markers = true` | `bookmark-markers-mode` | Active editing view |
-| Bookmark glyph | `bookmarks.marker = "●"` | Startup setting | Immutable view startup glyph |
+| Bookmark font support | `gutter.nerd_fonts = false` | Startup setting | Immutable view choice of two compiled symbols |
 | Effective policy/source | Derived from resolved settings and overrides | Inspect | Active editing view |
 | Restore configured defaults | Existing immutable startup settings | Reset | Active editing view |
 
@@ -43,6 +48,7 @@ configuration/UI gate remains historical evidence for its original surface.
 | Key | Type and bounds | Default |
 | --- | --- | --- |
 | `gutter.visible` | Boolean | `true` |
+| `gutter.nerd_fonts` | Boolean | `false` |
 | `gutter.mode` | `absolute`, `relative` | `absolute` |
 | `gutter.current_line` | `absolute`, `zero`, `hidden` | `absolute` |
 | `gutter.side` | `left`, `right` | `left` |
@@ -53,15 +59,22 @@ configuration/UI gate remains historical evidence for its original surface.
 | `palette.gutter.foreground` | Six-digit RGB | `#565f89` |
 | `palette.gutter.current_line` | Six-digit RGB | `#7aa2f7` |
 | `palette.gutter.separator` | Six-digit RGB | `#3b4261` |
-| `palette.gutter.bookmark` | Six-digit RGB | `#e0af68` |
+| `palette.gutter.bookmark` | Six-digit RGB | `#7aa2f7` |
 | `bookmarks.markers` | Boolean | `true` |
-| `bookmarks.marker` | One printable non-control grapheme, terminal width one | `●` |
 
 Colors reuse the pinned Tokyo Night night palette selected by the existing
 configuration model. Omitted leaves inherit through built-ins, includes and
 root under the existing partial-value rules. These fields are global/view
 preferences; the existing language editing tables do not acquire new gutter
 keys implicitly. Invalid preferences reject the whole startup candidate.
+
+False selects the compiled square `■` (U+25A0); true selects the compiled flat
+bookmark `` (U+F02E). Both use one terminal cell and the bookmark palette role.
+No font detection, installation, icon-name lookup or runtime font command exists.
+Legacy `bookmarks.marker` strings are accepted and discarded before effective
+publication, without glyph validation or provenance. Other legacy input types
+remain invalid. An explicit old palette value retains precedence; loading never
+rewrites configuration.
 
 Number labels always fit the complete admitted buffer line index. The fixed
 implementation limit of 20 digits is not a configurable truncation maximum.
@@ -73,6 +86,7 @@ Arbitrary separator glyphs and lane declarations are not part of this scope.
 ```toml
 [gutter]
 visible = true
+nerd_fonts = false
 mode = "absolute"
 current_line = "absolute"
 side = "left"
@@ -85,11 +99,10 @@ background = "#1a1b26"
 foreground = "#565f89"
 current_line = "#7aa2f7"
 separator = "#3b4261"
-bookmark = "#e0af68"
+bookmark = "#7aa2f7"
 
 [bookmarks]
 markers = true
-marker = "●"
 ```
 
 These keys and alternatives are documented in the exhaustive reference sample
@@ -123,7 +136,7 @@ startup policy, including visibility, width and padding, for that view only.
 
 | Record | Semantic fields | Owner / lifetime |
 | --- | --- | --- |
-| Partial gutter settings | Optional visibility, mode, current-line form, side, minimum digits and padding. | Existing layered TOML candidate; absence remains explicit. |
+| Partial gutter settings | Optional visibility, font-support boolean, mode, current-line form, side, minimum digits and padding. | Existing layered TOML candidate; absence remains explicit. |
 | Effective startup defaults | Complete admitted gutter leaves and palette roles. | Existing immutable session snapshot. |
 | View gutter policy | Checked view identity, effective values and overridden leaves. | Existing editing view; retained across buffer switch. |
 | Number geometry | Side, digit width, padding/separator widths, field bounds and text bounds. | One panel projection; terminal cells, not document coordinates. |
@@ -140,7 +153,11 @@ its derived index and view visibility do not introduce another source/history ow
 
 The optional one-cell area is allocated from the remaining content after the
 complete available number field. Its side follows `gutter.side`; the final text
-area is shared by painting, reveal, wrapping, pointer hits and search. The marker
+area is shared by painting, reveal, wrapping, pointer hits and search. Spatial
+order is marker, numbers, separator, text on the left; text, separator, numbers,
+marker on the right. No folding column or folding-specific padding is allocated.
+Folding controls and debugger annotations remain future capabilities under
+Better Gutter, with no current runtime owner or configuration. The marker
 is omitted first under narrow geometry, preserving the three-column text minimum.
 Both requested policies survive temporary omission. Reset clears number overrides
 only; it does not change the independent marker visibility.

@@ -1,7 +1,7 @@
 # Set Your Preferences
 
-rev works with built-in defaults. This chapter changes one startup setting,
-then shows a display preference you can change while editing.
+rev works with built-in defaults. This chapter changes startup settings and
+shows display preferences you can change while editing.
 
 ## Change indentation
 
@@ -71,6 +71,25 @@ For a persistent choice, change `mode` in the existing `[gutter]` table:
 [gutter]
 mode = "relative"
 ```
+
+## Choose a bookmark symbol
+
+Set a bookmark with `C-x r m`, type `checkpoint` and press Enter. Its source line
+shows a blue square `■` before the left line number. Several names on that line
+share the same marker. Hiding line numbers keeps it visible.
+
+If your terminal uses a font with Nerd Fonts support, change the existing
+`[gutter]` table and restart to use the flat bookmark ``:
+
+```toml
+[gutter]
+nerd_fonts = true
+```
+
+Rev does not detect or install a font. Leave this false for the ordinary square.
+Copying text never includes the marker or the numbers. For settings created by
+an older version, follow the [bookmark migration guidance](../../reference/gutter.md#migrate-older-bookmark-settings)
+to remove an ignored custom marker string or replace an explicit old color.
 
 The [configuration reference](../../reference/defaults.md#startup-configuration)
 and [complete sample](../../reference/config.toml) list every supported setting.

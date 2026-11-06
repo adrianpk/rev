@@ -16,6 +16,11 @@ Plan: [Bookmarks Plan](../plan/rev-bookmarks.md)
 Tracker: [Bookmarks Tracker](../tracker/rev-bookmarks.md)
 Readiness: BMK01-BMK07 delivered through six slices and three authorized repairs; controller-owned full gate passed
 
+Current presentation: [Better Gutter](editor-better-gutter.md) amends BMK03 and
+the current BMK07 symbol/color catalog below. Its [tracker](../tracker/rev-better-gutter.md)
+owns the separate presentation delivery evidence. The completed collection
+candidate and gate above retain their historical scope.
+
 ## Purpose
 
 Return to named file locations across editing sessions and identify those
@@ -63,9 +68,11 @@ six-slice Looper delivery on 2026-10-31.
   reported, not replaced with a guessed line number.
 - Add next/previous navigation within the current file, without new default
   shortcuts. This is a rev convenience beyond the manual's core command set.
-- Represent a resolved logical source line with one configurable gutter glyph,
+- Represent a resolved logical source line with one gutter glyph,
   independently of number visibility. The graphical Emacs fringe is a behavior
   reference, not a terminal API or a claim of identical implementation.
+  Better Gutter subsequently selects two compiled symbols through a font-support
+  boolean, replacing the original configurable-glyph policy.
 
 ## Commands and bindings
 
@@ -148,8 +155,11 @@ navigation path, without changing fold or source identity globally.
 ### Requirement: BMK03 Derive current gutter markers
 
 The gutter SHALL reserve one marker cell while its per-view marker policy is
-on, whether or not number labels are shown. Use `gutter.side` for placement;
-retain the existing number format and separator contract. A row with multiple
+on, whether or not number labels are shown. Use `gutter.side` for placement:
+marker, numbers, separator, text on the left, mirrored on the right. Allocate
+no folding column or folding-specific padding; future folding/debugger semantics
+remain future under Better Gutter. Retain the existing number format and
+separator contract. A row with multiple
 bookmarks SHALL show one glyph, while all names remain individually navigable.
 Markers SHALL appear only on the first visual fragment of a resolved logical
 source line, never on continuation rows, filler, hidden folded bodies or a
@@ -278,11 +288,18 @@ marker command supplies a per-view override; other settings load at startup.
 | `bookmarks.file` | Unset | Resolve the user data path; explicit value must be an absolute path. |
 | `bookmarks.save` | `"on-exit"` | `"on-exit"`, `"on-change"` or `"manual"`. |
 | `bookmarks.markers` | `true` | Initial marker visibility for each editing view. |
-| `bookmarks.marker` | `"●"` | One printable, non-control grapheme of terminal width one. |
+| `gutter.nerd_fonts` | `false` | False selects compiled `■` (U+25A0); true selects compiled `` (U+F02E). Both occupy one terminal cell. |
 | `bookmarks.max_entries` | `1024` | Integer 1..4096; no silent eviction. |
 | `bookmarks.context_chars` | `64` | Integer 16..256 per side; scalar count, including boundary evidence. |
 | `bookmarks.search_chars` | `262144` | Integer 0..1048576 total scalar search window; zero disables relocation. |
-| `palette.gutter.bookmark` | `"#e0af68"` | Semantic marker foreground within the existing palette. |
+| `palette.gutter.bookmark` | `"#7aa2f7"` | Semantic marker foreground within the existing palette; explicit old colors retain precedence. |
+
+The startup font-support flag follows ordinary typed merge and provenance.
+It performs no font detection or installation and has no runtime font command.
+Legacy `bookmarks.marker` strings SHALL be accepted and discarded before
+effective publication, without glyph validation or effective provenance. Other
+legacy input types remain invalid. Loading SHALL NOT rewrite old configurations
+or change bookmark records or their storage format.
 
 Hard admission bounds: 256-byte name, 4096-byte encoded path and 16 MiB store.
 No on-disk read is allowed to allocate beyond that store bound. Context search
@@ -294,7 +311,7 @@ whole-document copy per keystroke is permitted. Record measured behavior for
 
 #### Scenario: Resource limit or invalid configuration
 
-- **GIVEN** a full collection, an invalid glyph or an over-limit serialized store
+- **GIVEN** a full collection, an invalid font-support boolean type or an over-limit serialized store
 - **WHEN** creation, configuration admission or loading is attempted
 - **THEN** the appropriate owner rejects it before partial publication
 - **AND** existing records, source text and ordinary editing remain available.

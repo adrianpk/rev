@@ -35,6 +35,14 @@ the inventory are potential future expansions, not implementation tasks for
 this delivery. A commented example still documents a supported option; comments
 do not turn an unimplemented option into a feature.
 
+## Bookmark presentation
+
+[Better Gutter Model](editor-better-gutter-model.md) adds the immutable startup
+boolean and compiled bookmark color to the current catalog below. Its
+[tracker](../tracker/rev-better-gutter.md) owns the separate presentation evidence;
+the historical configuration and navigation candidates above remain unchanged.
+Future folding and debugger conventions add no current settings or owners.
+
 ## Native Org controls
 
 The accepted [Org capability](editor-org-mode.md) extends this same startup
@@ -186,6 +194,7 @@ No future-inventory entry extends this table implicitly.
 | `editor.tab_width` | Integer, `4` | 1..32 display cells | Buffer coordinates; language-overridable |
 | `scroll.page_overlap` | Integer, `2` | 0..1000 rows; clamp to permit one-row progress | View scrolling, global |
 | `gutter.visible` | Boolean, `true` | True/false | Global startup default; view-local override |
+| `gutter.nerd_fonts` | Boolean, `false` | False: compiled `■` (U+25A0); true: compiled `` (U+F02E) | Immutable startup choice; no language/view override or runtime font command |
 | `gutter.mode` | String, `"absolute"` | `absolute`, `relative` | Global startup default; view-local override |
 | `gutter.current_line` | String, `"absolute"` | `absolute`, `zero`, `hidden` | Global startup default; view-local override |
 | `gutter.side` | String, `"left"` | `left`, `right` | Global startup default; view-local override |
@@ -343,6 +352,7 @@ identically.
 | `palette.gutter.foreground` | `#565f89` | Ordinary logical labels. |
 | `palette.gutter.current_line` | `#7aa2f7` | Current-line label with non-color emphasis. |
 | `palette.gutter.separator` | `#3b4261` | Number/text separator. |
+| `palette.gutter.bookmark` | `#7aa2f7` | Fixed bookmark marker; explicit colors retain precedence. |
 | `palette.syntax.keyword` | `#9d7cd8` | Keyword captures. |
 | `palette.syntax.string` | `#9ece6a` | Strings and the existing escape group. |
 | `palette.syntax.comment` | `#565f89` | Comments. |
@@ -493,6 +503,14 @@ session override; captured source view/anchor, latest edge position and at most
 one 100-ms deadline remain ephemeral native state. Disabling, cancellation,
 resize or source/view loss retires capture. Released/inside/disabled idle has
 no pointer deadline or periodic work. Neither control adds a storage owner.
+
+The gutter's font-support boolean follows normal typed partial merge and
+provenance. It selects one of two compiled one-cell symbols without probing or
+installing a font. Numbering reset, splits and buffer rebinds retain the startup
+choice. Legacy `bookmarks.marker` strings are accepted and discarded during
+decoding; they have no effective value, provenance, glyph validation or current
+catalog entry. Other input types remain invalid. Existing files and bookmark
+records are not rewritten, and explicit old palette values still win.
 
 ## Validation evidence
 

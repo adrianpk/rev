@@ -12,6 +12,11 @@ Plan: [Bookmarks Plan](../plan/rev-bookmarks.md)
 Approved: product owner, 2026-10-31; concrete profile approved with explicit Looper startup request
 Decision state: BMK01-BMK07 implemented and validated through the completed six-slice delivery and three authorized repairs
 
+Current presentation: [Better Gutter Model](editor-better-gutter-model.md)
+amends only marker geometry, compiled symbols and default color. Its
+[tracker](../tracker/rev-better-gutter.md) owns the separate delivery evidence;
+the completed collection candidate and gate above retain their historical scope.
+
 ## Ownership and identity
 
 One native bookmark collection belongs to a user data file, not a tree root,
@@ -153,5 +158,16 @@ configured collection limit and discarded when invalidated.
 
 Marker visibility is view-owned; the collection is shared across panes. Splits
 inherit the originating effective visibility. Closing the last view does not
-remove records. Use the existing gutter side and text protection, and a fixed
-one-cell semantic role; there is no generic provider registry or marker lane API.
+remove records. Use the existing gutter side and text protection. Spatial order
+is marker, numbers, separator, text on the left and its mirror on the right.
+No folding column or folding-specific padding is allocated. Future folding and
+debugger semantics remain future, without current owners or configuration.
+
+The gutter's immutable startup `nerd_fonts` boolean selects compiled `■`
+(U+25A0) when false and compiled `` (U+F02E) when true. Both occupy one cell
+and use the existing bookmark palette role, defaulting to blue `#7aa2f7`.
+Explicit colors retain precedence. Legacy `bookmarks.marker` strings are
+accepted and discarded during decoding; neither effective settings nor records
+retain a glyph string. No font detection or runtime font command is added.
+The collection, storage format, anchors and history remain unchanged. There is
+no generic provider registry or marker lane API.
