@@ -58,6 +58,23 @@ presentation delivery and gate evidence. Historical configuration and navigation
 identities above remain unchanged. Future folding and debugger conventions
 create no current configuration keys or runtime capability.
 
+## File-tree presentation
+
+[Better File Tree](editor-better-file-tree.md) adds `tree.decorated`, a startup
+boolean defaulting to true. Explicit false retains minimal labels independently
+of `gutter.nerd_fonts`. The existing false-default font flag now selects the
+compiled ordinary or Nerd Fonts tree catalog as well as the bookmark symbol;
+it remains one immutable startup leaf without font probing or runtime mutation.
+
+The seven `palette.tree_entries` foreground roles follow ordinary include/root
+precedence, typed RGB validation and provenance. Existing tree background and
+focused-selection roles remain independent; minimal text inherits foreground.
+Omitted leaves inherit compiled defaults, invalid leaves reject the candidate,
+and loading never rewrites existing TOML. This presentation adds no visibility
+intent, navigation command, language override or persistence format. The
+[Better File Tree tracker](../tracker/rev-better-file-tree.md) owns its separate
+acceptance; all historical candidate and gate identities above remain unchanged.
+
 ## Native Org controls
 
 The accepted [Org capability](editor-org-mode.md) extends this same startup

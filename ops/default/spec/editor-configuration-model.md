@@ -194,7 +194,7 @@ No future-inventory entry extends this table implicitly.
 | `editor.tab_width` | Integer, `4` | 1..32 display cells | Buffer coordinates; language-overridable |
 | `scroll.page_overlap` | Integer, `2` | 0..1000 rows; clamp to permit one-row progress | View scrolling, global |
 | `gutter.visible` | Boolean, `true` | True/false | Global startup default; view-local override |
-| `gutter.nerd_fonts` | Boolean, `false` | False: compiled `■` (U+25A0); true: compiled `` (U+F02E) | Immutable startup choice; no language/view override or runtime font command |
+| `gutter.nerd_fonts` | Boolean, `false` | False: compiled `■` (U+25A0); true: compiled `` (U+F02E) | Immutable startup choice shared by decorated tree catalogs; no language/view override or runtime font command |
 | `gutter.mode` | String, `"absolute"` | `absolute`, `relative` | Global startup default; view-local override |
 | `gutter.current_line` | String, `"absolute"` | `absolute`, `zero`, `hidden` | Global startup default; view-local override |
 | `gutter.side` | String, `"left"` | `left`, `right` | Global startup default; view-local override |
@@ -214,6 +214,7 @@ No future-inventory entry extends this table implicitly.
 | `kill_ring.capacity` | Integer, `32` | 1..4096 entries | Linear kill ring, global |
 | `kill_ring.coalesce` | Boolean, `true` | True/false | Consecutive directional kills; never combine rectangle store |
 | `tree.visible` | Boolean, `false` | True/false | Tree initial visibility; editing focus retained |
+| `tree.decorated` | Boolean, `true` | True/false | Startup presentation only; false retains minimal labels independently of the shared font flag |
 | `tree.width` | Integer, `24` | 1..512 columns, geometry may constrain it | Tree panel preference, global |
 | `tree.max_fraction` | Float, `0.3333333333333333` | Finite 0.1..0.5 | Tree maximum frame share; preserve baseline small-frame hiding |
 | `tree.root` | String, `"auto"` | `auto`, `cwd`, `file-parent` | Tree initial root; auto=file parent when supplied, otherwise cwd; file-parent also falls back to cwd |
@@ -229,7 +230,7 @@ No future-inventory entry extends this table implicitly.
 | `language.<id>.tab_width` | Optional integer, inherit editor | Same bounds as editor leaf | Matching buffer only |
 | `language.<id>.grammar` | Optional string | `rust`, `plain`; Rust identity defaults to rust, others plain | Existing bundled Rust parser or plain text |
 | `keys.editor`, `keys.minibuffer`, `keys.tree` | Sequence-to-command string maps, no user overrides | Valid existing commands in the named input context | Fixed Rust command/action identities; complete default maps documented |
-| `palette.*`, `palette.syntax.*`, `palette.gutter.*` | RGB strings, exact table below | Six-digit `#RRGGBB`; fixed role names | Semantic renderer roles, global |
+| `palette.*`, `palette.syntax.*`, `palette.gutter.*`, `palette.tree_entries.*` | RGB strings, exact table below | Six-digit `#RRGGBB`; fixed role names | Semantic renderer roles, global |
 
 New-file preferences never rewrite an existing file's BOM, separators or final
 newline. They apply once at buffer creation. Runtime key actions and explicit
@@ -343,6 +344,13 @@ identically.
 | `palette.border` | `#3b4261` | Pane separators. |
 | `palette.border_active` | `#7aa2f7` | Focused border accent. |
 | `palette.tree` | `#16161e` | File-tree background. |
+| `palette.tree_entries.root` | `#7aa2f7` | Decorated root entry foreground. |
+| `palette.tree_entries.directory` | `#e0af68` | Decorated directory entry foreground. |
+| `palette.tree_entries.source` | `#7aa2f7` | Decorated source entry foreground. |
+| `palette.tree_entries.document` | `#e0af68` | Decorated document entry foreground. |
+| `palette.tree_entries.configuration` | `#bb9af7` | Decorated configuration entry foreground. |
+| `palette.tree_entries.file` | `#c0caf5` | Decorated file entry foreground. |
+| `palette.tree_entries.symlink` | `#7dcfff` | Decorated symlink entry foreground. |
 | `palette.tree_selected` | `#283457` | Selected tree row background. |
 | `palette.tree_selected_text` | `#c0caf5` | Selected tree row text. |
 | `palette.message` | `#c0caf5` | Prompt and ordinary message text. |
@@ -363,11 +371,13 @@ identically.
 
 The seven syntax roles match the current style owner. Splitting operator,
 constant, or escape captures into additional configurable groups is not
-required by this palette decision. The ordinary tree text inherits the
-foreground role. Selection colors must remain readable over syntax styles.
+required by this palette decision. Minimal tree text inherits the
+foreground role; decorated text uses `palette.tree_entries` foregrounds.
+Selection colors must remain readable over syntax styles.
 
-The schema uses a `palette` table plus `palette.syntax` and `palette.gutter` subtables. A missing
-configured role inherits its built-in color; an unknown role is an error.
+The schema uses a `palette` table plus `palette.syntax`, `palette.gutter` and
+`palette.tree_entries` subtables. A missing configured role inherits its built-in
+color; an unknown role is an error.
 Colors use `"#RRGGBB"`; terminal-default/transparent sentinels are not selected.
 Gutter roles accompany the accepted numbering capability. Current-line text
 highlighting and other future-inventory controls are not enabled by these roles.
@@ -531,3 +541,13 @@ The original configuration/UI acceptance obligations passed through the controll
 on the validated candidate above. The final Slice 30 report records the native,
 terminal, performance and catalog evidence. The original 48-slice delivery
 remains closed with its own historical evidence.
+
+## Better File Tree reconciliation
+
+The [Better File Tree model](editor-better-file-tree-model.md) owns the compiled
+kind/icon catalog and checked cell layout. `tree.decorated` and its seven palette
+leaves use this model's existing merge, validation, origin and immutable snapshot
+contracts. The frozen `gutter.nerd_fonts` leaf selects both presentation consumers;
+minimal tree labels ignore it. This adds no language-specific leaf or runtime
+reload. Its [tracker](../tracker/rev-better-file-tree.md) owns separate acceptance;
+completed configuration/input gate identities above remain historical evidence.

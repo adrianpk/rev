@@ -57,20 +57,23 @@ Validation: five required commands passed in order; 235 selected tests and two i
 
 ## Slice 3: Acceptance and guidance
 
-State: in progress
+State: reviewing
 Dependency: Slice 2 integrated
 Requirements: BFT01-BFT04 together
-Implementation: pending
+Implementation: T3.1 `cc2ae9dfc614a8e7956aef79c96ed542a3d093ae`; T3.2/T3.3 handoff in report introduction commit
 PR: pending
 Report: `ops/default/report/slices/rev-better-file-tree/slice-3-acceptance.md`
-Validation: pending; exact ordered commands are in the plan and local configuration
+Validation: six required commands passed locally in order; 231 tests, bounded native/NO_COLOR acceptance, two restored PTYs and local 85-page Spore build passed. Final clean-HEAD evidence is recorded separately by Looper after PR references are committed.
 
-- [ ] T3.1: Deliver bounded Rust/Bash native matrix and one owned PTY journey
+- [x] T3.1: Deliver bounded Rust/Bash native matrix and one owned PTY journey
   per interaction profile using existing helpers and explicit cleanup checks.
-- [ ] T3.2: Complete Diataxis and Markdown-derived Spore guidance; reconcile
+- [x] T3.2: Complete Diataxis and Markdown-derived Spore guidance; reconcile
   directly affected descriptions without replacing historical delivery evidence.
 - [ ] T3.3: Record real reports and immutable commit/PR evidence, prepare the
   clean candidate for the controller gate and close only after that gate passes.
+
+The worker handoff portion of T3.3 is prepared. Integration, the frozen gate and
+final closure remain controller-owned and pending.
 
 ## Final gate and closure
 

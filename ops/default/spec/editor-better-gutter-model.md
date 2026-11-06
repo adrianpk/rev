@@ -15,7 +15,7 @@ Baseline models: [Editor Gutter](editor-gutter-model.md), [Native Bookmarks](edi
 
 | Key | Type | Default | Owner and effect |
 | --- | --- | --- | --- |
-| `gutter.nerd_fonts` | Boolean | `false` | Immutable startup settings; selects one of two compiled bookmark symbols. |
+| `gutter.nerd_fonts` | Boolean | `false` | Immutable startup settings; selects the compiled bookmark symbol and the decorated tree catalog. |
 | `bookmarks.markers` | Boolean, unchanged | `true` | Startup default for existing active-view marker visibility. |
 | `palette.gutter.bookmark` | Existing six-digit RGB value | `#7aa2f7` | Immutable renderer palette; explicit user overrides retain precedence. |
 
@@ -28,6 +28,13 @@ The boolean merges as one leaf using the existing include/root precedence and
 source-origin rules. A non-boolean value rejects the complete candidate through
 the existing loader contract. File changes take effect at the next startup.
 The flag does not install, embed or change terminal fonts. Detection is absent.
+
+The [Better File Tree model](editor-better-file-tree-model.md) reuses this frozen
+boolean for decorated entry icons. Minimal tree labels ignore the flag while
+the bookmark mapping above remains effective. There is no second font leaf,
+view override, persisted icon or font probe. Its separate acceptance does not
+replace the completed gutter candidate/receipt below or alter future marker
+contracts.
 
 ## Legacy configuration input
 

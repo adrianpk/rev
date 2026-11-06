@@ -27,6 +27,19 @@ The session owns chosen browsing context; views own focus and tree projection.
 | Path completion session | Prompt/draft identity, query cursor, candidate identities, current selection and listing observation. | Tab acts on the selected candidate; a row number alone cannot identify a refreshed candidate. |
 | Tree pointer hit | Current layout/viewport/listing observation and rendered entry identity. | Revalidate before selection or any admitted activation; blank and stale hits cannot redirect an action. |
 
+## Derived presentation
+
+The [Better File Tree model](editor-better-file-tree-model.md) derives a kind
+from cached entry type and basename, with root/symlink/directory precedence.
+An immutable startup snapshot selects minimal or decorated labels and one fixed
+font catalog. These derived labels and semantic colors add no stored entry,
+path identity, root, workspace record or filesystem observation. Painting and
+pointer input use the same loaded preorder/viewport and content bounds; clipped
+labels never become an opening path. The existing tree hit remains authoritative
+under both click policies. Source text, history and navigation ownership stay
+with the owners above. Presentation acceptance has its own tracker and does not
+replace the completed navigation receipt below.
+
 ## Transitions and failure
 
 An opening request resolves and prepares a candidate before changing the

@@ -461,7 +461,7 @@ All palette roles are global, with no language-scoped color override.
 | Key | Type and bounds | Default | Scope and effect |
 | --- | --- | --- | --- |
 | `palette.background` | RGB string | `"#1a1b26"` | Document and ordinary prompt background. |
-| `palette.foreground` | RGB string | `"#c0caf5"` | Document foreground; ordinary tree text inherits it. |
+| `palette.foreground` | RGB string | `"#c0caf5"` | Document foreground; minimal tree text inherits it. |
 | `palette.cursor` | RGB string | `"#c0caf5"` | Terminal cursor when the terminal owner supports color/reset. |
 | `palette.selection` | RGB string | `"#283457"` | Document and vertical candidate selection background. |
 | `palette.selection_text` | RGB string | `"#c0caf5"` | Selected document/candidate foreground. |

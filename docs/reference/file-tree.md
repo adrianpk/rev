@@ -66,6 +66,20 @@ The `palette.tree_entries` foregrounds apply only in decorated mode.
 symbols and reverse-video selection remain available with `NO_COLOR`.
 See [Scope and defaults](defaults.md) for startup values and palette defaults.
 
+### Existing configuration
+
+An existing file with no `tree.decorated` leaf adopts decoration on the next
+startup. No file is rewritten. Explicit false preserves minimal labels even
+with `gutter.nerd_fonts = true`; that flag still controls gutter bookmarks.
+Existing explicit `palette.tree`, `palette.tree_selected` and
+`palette.tree_selected_text` overrides retain their background/selection roles.
+Minimal text inherits `palette.foreground`; decorated text uses the seven
+`palette.tree_entries` roles, with omitted roles inheriting compiled defaults.
+Each leaf follows ordinary include/root precedence and source provenance. A
+non-boolean flag or invalid RGB/unknown palette role rejects the whole candidate
+through the existing startup diagnostic and factory-fallback contract. These
+preferences have no runtime toggle or automatic reload.
+
 ## Keyboard focus
 
 - `C-x t f` or `M-x focus-file-tree` shows and focuses the pane.

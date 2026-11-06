@@ -37,6 +37,18 @@ The supporting tickets divide this interaction into bounded changes.
   existing native tree action. mouse.tree_activate_on_click = false retains
   selection-only behavior. This adapts Dired activation to the existing tree.
 
+## Presentation compatibility
+
+[Better File Tree](editor-better-file-tree.md) decorates the same retained entry
+observations. `tree.decorated = false` preserves minimal labels; the existing
+`gutter.nerd_fonts` flag selects the decorated catalog. Neither setting changes
+NAV01-NAV05, visibility intent, rooting, sorting, lazy expansion, explicit refresh
+or the two click policies. Disclosure, icon, name and row space share the
+canonical loaded row target even when labels are clipped. Classification and
+painting perform no new filesystem observation. Selection and active-buffer
+synchronization remain separate work. The presentation tracker owns its gate;
+the completed navigation candidate and receipt above retain their identity.
+
 ## ADDED Requirements
 
 ### Requirement: NAV01 Distinguish opening targets

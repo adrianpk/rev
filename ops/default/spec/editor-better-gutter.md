@@ -117,6 +117,16 @@ may display its missing-character symbol. The square is the safe factory
 choice, not an automatic substitution performed by the terminal. These rules
 describe ordinary rev usage independently of any development environment.
 
+## Shared font preference
+
+[Better File Tree](editor-better-file-tree.md) also consumes the frozen
+`gutter.nerd_fonts` startup boolean for its decorated icon catalog. The default
+remains false; it does not create a second font setting or runtime mutation.
+Minimal tree labels ignore the flag while bookmarks keep the selected symbol.
+Bookmark geometry, colors, visibility, storage and future folding/debugger
+contracts below remain unchanged. The presentation delivery owns its acceptance;
+this specification retains its completed Better Gutter evidence.
+
 ## MODIFIED Requirements
 
 ### Requirement: BMK03 Derive current gutter markers

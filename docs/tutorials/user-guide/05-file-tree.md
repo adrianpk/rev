@@ -11,12 +11,19 @@ expands or collapses it. For selection-only clicks, set
 `mouse.tree_activate_on_click = false` in startup configuration, then use Enter
 to open the selected entry.
 
-Look for these file rows; other entries are omitted:
+The default ordinary-font presentation looks like this when your directory is
+named `notes`; other entries are omitted:
 
 ```text
-   notes.txt
-   todo.txt
+▾ ◆ notes/
+    ≡ notes.txt
+    ≡ todo.txt
 ```
+
+`◆` identifies the root and `≡` identifies documents. Directories have a `/`
+kind symbol and a separate `▸` disclosure; Right changes it to `▾` and shows
+the children. Source files use `λ`, configuration files `=`, other files `·`
+and symlinks `@`. The symbols remain useful without color.
 
 The tree starts at the parent directory of the file used to launch rev.
 Launching without a file uses the current directory. File visits follow the
@@ -50,6 +57,38 @@ complete a file, then press Enter. Split with `C-x 3` and click another file in
 the tree: it opens in the editing pane you last selected. Each pane wraps at its
 own width. `C-g` cancels a Find File prompt without opening the draft path;
 resizing preserves the documents and their source positions.
+
+To try minimal labels, edit `decorated` in the existing `[tree]` table of your
+startup configuration, then restart rev:
+
+```toml
+[tree]
+decorated = false
+```
+
+Your file rows now look like this, with the same navigation and click behavior:
+
+```text
+v notes/
+    notes.txt
+    todo.txt
+```
+
+Set `decorated = true` and restart to restore symbols and entry colors. The
+[preferences chapter](09-preferences.md) explains how to edit startup settings;
+merge these excerpts into existing tables rather than adding duplicate tables.
+
+If your terminal already uses a Nerd Fonts-compatible font, set `nerd_fonts`
+to true in its existing `[gutter]` table and restart:
+
+```toml
+[gutter]
+nerd_fonts = true
+```
+
+This changes both decorated tree icons and gutter bookmarks. Minimal tree
+labels stay minimal. The default is false; rev does not install or detect
+fonts. If icons appear as boxes, set it back to false for ordinary symbols.
 
 The [file tree reference](../../reference/file-tree.md) covers file creation,
 rename, deletion and refresh. [Focused prompts](../../reference/prompts.md)
