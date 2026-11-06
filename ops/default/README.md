@@ -1,9 +1,9 @@
 # Pending Editor Work
 
 Status: proposed
-Date: 2026-11-05
-Scope: pending behavior after the completed Org visual-indentation, native Git, integrated-terminal, native shell-command, native completion, optional LSP, modal editing, server-management, Pi/reload and heading-presentation deliveries
-Owner decision: Org visual indentation is Completed after four canonical slices; native shell commands, text filters and integrated terminals are Completed; native Git integration is Completed after fourteen slices and authorized repair #272; other proposals retain their separate approval boundaries
+Date: 2026-11-06
+Scope: pending behavior after the completed Better Gutter, Org visual-indentation, native Git, integrated-terminal, native shell-command, native completion, optional LSP, modal editing, server-management, Pi/reload and heading-presentation deliveries
+Owner decision: Better Gutter is Completed after three slices and repair #285; Org visual indentation is Completed after four canonical slices; native shell commands, text filters and integrated terminals are Completed; native Git integration is Completed after fourteen slices and authorized repair #272; other proposals retain their separate approval boundaries
 
 This index connects the pending tickets, capability specifications and models.
 It is a planning entry point, not a delivery plan or execution tracker. The
@@ -33,7 +33,7 @@ retain their own specification/model state.
 | Select the clicked tree entry | [Navigation NAV05](spec/editor-file-navigation.md), [model](spec/editor-file-navigation-model.md), [ticket](ticket/solved/20261030231016-select-the-clicked-file-tree-entry.md) | Delivered / Completed spec / solved ticket. Slice 7 delivered checked native activation and configurable selection-only through PR #180. |
 | Word-aware soft wrapping | [Spec](spec/editor-soft-wrap.md), [model](spec/editor-soft-wrap-model.md), [ticket](ticket/solved/20261028224018-define-comfortable-long-line-wrapping.md) | Delivered / Completed spec / solved ticket. Default word-aware pane-width wrap and buffer-local Emacs Visual Line controls; Slices 1-4 delivered through PRs #174-#177. |
 | Native bookmarks and gutter markers | [Spec](spec/editor-bookmarks.md), [model](spec/editor-bookmarks-model.md), [plan](plan/rev-bookmarks.md), [tracker](tracker/rev-bookmarks.md) | Delivered / Completed spec and model. Six slices through PRs #185-#190 and authorized repairs #191-#193 deliver named commands, checked lifecycle, persistence, listing, native markers, joint acceptance and guidance. The controller-owned combined gate passed. |
-| Better gutter | [Spec](spec/editor-better-gutter.md), [model](spec/editor-better-gutter-model.md), [plan](plan/rev-better-gutter.md), [tracker](tracker/rev-better-gutter.md) | Approved / Ready, 2026-11-06; three slices in one autonomous Looper delivery. Move bookmarks before the number field; `gutter.nerd_fonts` selects the compiled blue square or flat bookmark. Future breakpoint states and the conditional folding-column contract remain future behavior. |
+| Better gutter | [Spec](spec/editor-better-gutter.md), [model](spec/editor-better-gutter-model.md), [plan](plan/rev-better-gutter.md), [tracker](tracker/rev-better-gutter.md) | Delivered / Completed. Three slices through PRs #282-#284 and repair #285 deliver outside markers, fixed symbols and the startup Nerd Fonts flag. The unchanged controller gate passed at `bcf705d9e6ac70caef0d2fc7c9c124d966f56627`, receipt `2VTBXR6STDPODOXBSBNFIUWESW`; [Slice 3 closure](report/slices/rev-better-gutter/slice-3-acceptance.md#delivery-set-closure) records acceptance and limits. Folding indicators and debugger behavior remain future. |
 | Built-in autocompletion | [Spec](spec/editor-autocompletion.md), [model](spec/editor-autocompletion-model.md), [plan](plan/rev-autocompletion.md), [tracker](tracker/rev-autocompletion.md) | Delivered / Completed. Eight slices through PRs #195-#202 deliver automatic/manual interaction, ten bundled parsers, native Org contexts, bounded observations, registered external grammars and native/resource/PTY acceptance. The native gate passed; the subsequent integrated LSP gate also passed CMP02 semantic/native switching and joint acceptance. |
 | Optional native LSP client | [Spec](spec/editor-language-server-support.md), [model](spec/editor-language-server-support-model.md), [plan](plan/rev-language-server-support.md), [tracker](tracker/rev-language-server-support.md) | Delivered / Completed. Six slices through PRs #203-#208 and authorized repairs #209/#210 deliver disabled-by-default stdio support, unsaved sync, UTF-8/UTF-16 mapping, shared processes, buffer exclusions, checked semantic edits, fallback and real Rust-server acceptance. The unchanged controller full gate passed; LSP01-LSP06 and joint CMP01-CMP09 are closed. |
 | Simple optional LSP installation | [Spec](spec/editor-language-server-installation.md), [model](spec/editor-language-server-installation-model.md), [plan](plan/rev-language-server-installation.md), [tracker](tracker/rev-language-server-installation.md) | Delivered / Completed. Seven slices through PRs #222–#228 deliver guided existing/custom setup, associations, explicit source choice, managed recipes and lifecycle. Any compatible language/server remains eligible independently of bundled grammars or the initial catalog. The unchanged controller gate passed INS01-INS06 with both-profile native/PTY management, real Rust/Go semantics and grammar-independent routing. |
@@ -49,11 +49,14 @@ retain their own specification/model state.
 
 ## Selected execution order
 
-On 2026-11-06 the owner approved Better Gutter and requested preparation,
-versioning, push and one autonomous Looper run. The three-slice plan delivers
-outside marker placement, the fixed-symbol Nerd Fonts flag, and joint native/PTY
-acceptance with Diataxis and Markdown-derived Spore guidance. Execution progress
-belongs to its tracker and retained controller checkpoint.
+Better Gutter is Completed on 2026-11-06 after three canonical slices and
+repair #285. The unchanged controller gate passed at
+`bcf705d9e6ac70caef0d2fc7c9c124d966f56627`, receipt `2VTBXR6STDPODOXBSBNFIUWESW`,
+with 398 selected tests, two nested child runs, native/two-profile PTY acceptance
+and local Markdown/Spore guidance. The plan, tracker and specification/model
+are Completed; the [Slice 3 closure](report/slices/rev-better-gutter/slice-3-acceptance.md#delivery-set-closure)
+records exact evidence. Future folding/debugger capabilities and other pending
+topics retain their own approval boundaries.
 
 On 2026-11-05 the owner approved Org visual indentation and explicitly requested
 the plan, slicing and one Looper startup. All four canonical slices through

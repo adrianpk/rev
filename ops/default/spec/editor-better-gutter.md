@@ -1,6 +1,9 @@
 # Better Gutter
 
-Status: Approved
+Status: Completed
+Completed: 2026-11-06
+Validated candidate: `bcf705d9e6ac70caef0d2fc7c9c124d966f56627`
+Gate validation: `2VTBXR6STDPODOXBSBNFIUWESW`
 Date: 2026-11-06
 Format: OpenSpec change specification
 Source: owner discussion and supplied gutter screenshot; one specification for the gutter design
@@ -24,13 +27,13 @@ markers. The breakpoint and folding clauses define how those capabilities will
 fit into this gutter when implemented; they do not introduce a debugger or a
 new structural-folding engine.
 
-## Current implementation
+## Pre-delivery implementation
 
-The current gutter allocates the number field first and then a one-cell
-bookmark field from the remaining text-side area. Its default glyph is `●`
-and its default palette role is `#e0af68`. The marker is presentation rather
-than source text, but its position beside the first text cell makes it look
-like a yellow dot inside the code.
+Before this delivery, the gutter allocated the number field first and then a
+one-cell bookmark field from the remaining text-side area. Its default glyph
+was `●` and its default palette role was `#e0af68`. The marker was presentation
+rather than source text, but its position beside the first text cell made it
+look like a yellow dot inside the code.
 
 The relevant owners are the existing gutter geometry, bookmark projection and
 configuration. Bookmark commands, names, anchors, persistence and relocation
@@ -330,3 +333,14 @@ This change document does not alter the Completed status or historical gate
 evidence of its baselines. Their current presentation clauses and existing
 model/configuration descriptions must be reconciled when this change is
 implemented; bookmark storage remains unchanged.
+
+## Delivery outcome
+
+The three canonical slices and repair #285 completed the current bookmark
+presentation. The unchanged controller gate passed on the candidate recorded
+above; the [tracker](../tracker/rev-better-gutter.md#final-gate-and-closure) and
+[Slice 3 closure](../report/slices/rev-better-gutter/slice-3-acceptance.md#delivery-set-closure)
+retain exact evidence. BMK03, BTG01 and BTG04 are implemented; BTG02/BTG03
+protect the present absence of a folding column and debugger behavior. Their
+future folding and breakpoint clauses remain future contracts, not delivered
+features. Physical terminal font drawing and public deployment are unverified.

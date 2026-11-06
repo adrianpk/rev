@@ -112,8 +112,8 @@ Tests release their owned temporary fixtures.
 
 ## Risks and Follow-ups
 
-Native evidence establishes emitted code points, geometry and renderer colors;
-it does not establish the appearance or availability of a physical terminal font.
-Joint terminal journeys, complete guidance, Spore build and baseline reconciliation
-remain Slice 3. The retained controller owns integration, the frozen final gate
-and successor startup. No final-gate or public deployment result is claimed.
+The subsequent slices and repair #285 completed the remaining delivery work.
+The controller passed the unchanged full gate at `bcf705d9e6ac70caef0d2fc7c9c124d966f56627`,
+receipt `2VTBXR6STDPODOXBSBNFIUWESW`. The [Slice 3 closure](slice-3-acceptance.md#delivery-set-closure)
+records combined acceptance, immutable report introductions and cleanup.
+Physical terminal font drawing and public deployment are outside that evidence.

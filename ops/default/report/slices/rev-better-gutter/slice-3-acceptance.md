@@ -156,13 +156,65 @@ and released their owned temporary files.
 Looper receipt `S4UHXCYEFUXAHMB6ASP7PIB6PS` passed all four required commands
 against clean PR-reference HEAD `5473ef7c28b2ff978821faa37e0c9c9e3518c8e8`.
 Canonical PR #285 was verified merged into dev at that same commit.
-These focused results do not replace the unchanged full gate; the controller
-owns that gate's retry.
+These focused results do not replace the unchanged full gate. The controller's
+subsequent gate pass is recorded below.
+
+## Delivery-set closure
+
+Completed: 2026-11-06
+Validated candidate: `bcf705d9e6ac70caef0d2fc7c9c124d966f56627`
+Gate validation: `2VTBXR6STDPODOXBSBNFIUWESW`
+
+Canonical PRs #282, #283 and #284 and authorized repair #285 are integrated into
+dev. The controller passed the unchanged full gate on the immutable candidate
+above. The closure commit changes only configured documentation paths; no
+product source, test, script, guide source or generated output changes follow
+that tested candidate.
+
+The exact successful controller command was:
+
+```sh
+export CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 && cargo fmt --all -- --check && cargo clippy --locked --all-targets -- -D warnings && cargo test --locked --test gutter --test bookmarks --test display --test pointer --test wrapping --test configuration --test org_indentation -- --test-threads=1 && bash scripts/check-better-gutter.sh && cargo run --locked --quiet --example documentation-check && bash scripts/build-user-guide.sh && git diff --check
+```
+
+The gate ran from 01:10:47 to 01:13:42 UTC on 2026-11-06 (175.58s). It passed
+398 selected top-level tests: bookmarks 58, configuration 156, display 39,
+gutter 36, Org indentation 18, pointer 65 and wrapping 26. Two nested bookmark
+startup-child runs also passed. No selected test failed or was ignored.
+
+Native acceptance passed the 240 presentation combinations plus Org fold reveal
+and completion anchors. The non-modal PTY completed in 970ms with 11863 output
+bytes and 29320 kB peak RSS; modal completed in 1003ms with 11878 bytes and
+30344 kB peak RSS. Both observed 350ms idle silence with zero CPU ticks and
+restored TTY attributes. The acceptance build took 1.04s with cached artifacts.
+These are observations of this run, not a general performance guarantee.
+
+Documentation passed 596 commands in each combined inventory, 281 configuration
+entries, 85 reachable pages and 566 local links/anchors. Spore built the local
+User Guide from the same Markdown sources. This does not establish public
+deployment or the drawing/availability of a physical terminal font.
+
+Immutable report introductions remain:
+
+- [Slice 1 report](https://forge.adrianpk.com/adrianpk/rev/src/commit/9457ee78bba319f2942ff8dbdd638c2b5b49cce6/ops/default/report/slices/rev-better-gutter/slice-1-layout.md), PR #282.
+- [Slice 2 report](https://forge.adrianpk.com/adrianpk/rev/src/commit/938eb34191488a78a85359a5a46467dc1ae14c39/ops/default/report/slices/rev-better-gutter/slice-2-markers.md), PR #283.
+- [Slice 3 report](https://forge.adrianpk.com/adrianpk/rev/src/commit/cafc0f0a78197de885221e0581b311f067b21835/ops/default/report/slices/rev-better-gutter/slice-3-acceptance.md), PR #284 and its recorded repair #285.
+
+The gate's owned test/PTY fixtures finished. Inspection found no matching gate
+editor, driver or wrapper process active. The script's temporary fixture was
+removed; retained Slice 1/2 check logs are evidence artifacts and were preserved.
+No process was stopped during closure.
+
+The plan, tracker and Better Gutter specification/model are Completed; its
+pending-index entry records that completed state. The six baseline descriptions
+were reconciled before this gate and retain their historical completion metadata. Future folding/debugger
+semantics remain future. No successor, main promotion, release or publication
+is part of this closure.
 
 ## Risks and Follow-ups
 
 Native evidence proves emitted code points, geometry and renderer colors, not
 the drawing or availability of a physical terminal font. The PTYs exercise the
 ordinary factory square; glyph/configuration variants remain native coverage.
-The controller owns exact integrated-candidate validation and closure.
-No final-gate, main promotion, release or public deployment result is claimed.
+The completed gate and documentation-only closure do not authorize main
+promotion, a release, public deployment or a successor delivery.

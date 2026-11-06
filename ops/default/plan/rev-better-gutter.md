@@ -1,6 +1,9 @@
 # Better Gutter Delivery
 
-Status: Approved
+Status: Completed
+Completed: 2026-11-06
+Validated candidate: `bcf705d9e6ac70caef0d2fc7c9c124d966f56627`
+Gate validation: `2VTBXR6STDPODOXBSBNFIUWESW`
 Date: 2026-11-06
 Delivery set: rev-better-gutter
 Slice strategy: behavior-first
@@ -10,7 +13,7 @@ Specification: [Better Gutter](../spec/editor-better-gutter.md)
 Model: [Better Gutter Model](../spec/editor-better-gutter-model.md)
 Tracker: [Better Gutter Tracker](../tracker/rev-better-gutter.md)
 Concern: [Pending Work Index](../README.md)
-Active slice: None; all three slices and repair 1 integrated, controller-owned final gate pending
+Active slice: None; delivery set Completed
 
 ## Outcome and scope
 
@@ -189,3 +192,20 @@ BMK03/BTG01/BTG04 implemented, BTG02/BTG03's current absence protected, the froz
 gate green on the exact candidate and completed artifacts. Future debugger and
 folding functionality are not marked delivered merely because their visual
 conventions are recorded here.
+
+## Completion
+
+All three slices through canonical PRs #282-#284 and authorized repair #285 are
+integrated into dev. The controller passed the unchanged frozen gate at
+`bcf705d9e6ac70caef0d2fc7c9c124d966f56627`, receipt `2VTBXR6STDPODOXBSBNFIUWESW`, in
+175.58s. It passed 398 selected top-level tests, two nested child runs, native
+marker acceptance, both-profile PTYs, documentation catalogs and the local
+Markdown-derived Spore build. The [Slice 3 closure](../report/slices/rev-better-gutter/slice-3-acceptance.md#delivery-set-closure)
+records exact commands, immutable report introductions, observations and limits.
+
+BMK03, BTG01 and BTG04 are delivered. BTG02's current zero folding-column
+allocation and BTG03's current absence of debugger behavior are protected; their
+future feature conventions remain future. Baseline contracts were reconciled
+before the gate without replacing their historical candidates or receipts.
+Closure changes only the configured documentation paths after the tested
+candidate. Main promotion, release and public publication remain separate work.

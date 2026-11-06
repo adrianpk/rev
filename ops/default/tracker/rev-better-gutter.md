@@ -1,13 +1,16 @@
 # Better Gutter Tracker
 
-Status: In progress
+Status: Completed
+Completed: 2026-11-06
+Validated candidate: `bcf705d9e6ac70caef0d2fc7c9c124d966f56627`
+Gate validation: `2VTBXR6STDPODOXBSBNFIUWESW`
 Date: 2026-11-06
 Delivery set: rev-better-gutter
 Approved: product owner; specification, three-slice preparation, push and one autonomous Looper delivery through dev
 Plan: [Better Gutter Delivery](../plan/rev-better-gutter.md)
 Specification: [Better Gutter](../spec/editor-better-gutter.md)
 Model: [Better Gutter Model](../spec/editor-better-gutter-model.md)
-Active slice: None; all three slices and repair 1 integrated, controller-owned final gate pending
+Active slice: None; delivery set Completed
 Progress owner: retained Looper checkpoint and canonical validation receipts
 
 ## Canonical slice map
@@ -78,12 +81,11 @@ profile PTYs and the Markdown-derived Spore build also passed locally.
   representative owned PTY journey for each interaction profile.
 - [x] T3.2: Complete Diataxis guidance and Markdown-derived Spore content;
   reconcile affected baseline contracts without replacing historical evidence.
-- [ ] T3.3: Record real reports and task/commit/PR evidence, hand off the clean
+- [x] T3.3: Record real reports and task/commit/PR evidence, hand off the clean
   integrated candidate for the frozen final gate and close only after it passes.
 
-All three reports record delivered implementation and slice evidence.
-Slice handoff and traceability are complete; T3.3 remains open only for the
-controller-owned integrated final gate and delivery-set closure.
+All three reports are delivered. T3.3 is complete with the controller-owned
+full gate and this documentation-only delivery-set closure.
 
 ## Final-gate repair 1
 
@@ -102,7 +104,7 @@ Implementation: `4f5d6da28d93d780d8b4a905f5d53100424f2203`
 Validation: Looper receipt `S4UHXCYEFUXAHMB6ASP7PIB6PS` passed all four required
 commands against that clean PR-reference HEAD, including all-target Clippy and
 250 suite tests. The focused Org indentation regression also passed all 18 tests.
-Canonical PR #285 is merged; the unchanged full-gate retry remains controller-owned.
+Canonical PR #285 is merged; the controller subsequently passed the unchanged full gate.
 
 ## Final gate and closure
 
@@ -116,12 +118,22 @@ all approved gate targets; both gate scripts passed Bash syntax validation.
 The acceptance entrypoint and reused helpers are tracked. These prerequisite
 checks do not execute the full gate.
 
+The controller passed the unchanged gate at `bcf705d9e6ac70caef0d2fc7c9c124d966f56627`,
+receipt `2VTBXR6STDPODOXBSBNFIUWESW`, in 175.58s. All 398 selected
+top-level tests and two nested child runs passed without failures or ignored
+tests. Native acceptance, both profile PTYs, catalogs and the local Spore build
+passed. Exact commands, immutable report introductions, timing, owned cleanup
+and evidence limits are in the [Slice 3 closure](../report/slices/rev-better-gutter/slice-3-acceptance.md#delivery-set-closure).
+The pending index records Better Gutter as Completed, together with its
+specification/model; the six reconciled baselines retain their original
+completion and gate metadata.
+
 - [x] Verify the three canonical PRs integrated and three reports delivered.
-- [ ] Pass the frozen focused final gate on the exact clean candidate.
-- [ ] Record the validation receipt, exact commands, immutable report commits,
+- [x] Pass the frozen focused final gate on the exact clean candidate.
+- [x] Record the validation receipt, exact commands, immutable report commits,
   actual timing, terminal cleanup and evidence limits.
-- [ ] Reconcile completed plan/tracker/specification/model and pending index.
-- [ ] Preserve future folding and debugger feature boundaries.
+- [x] Reconcile completed plan/tracker/specification/model and pending index.
+- [x] Preserve future folding and debugger feature boundaries.
 
 Any retained technical recovery or final-gate repair stays within the plan's
 delegation and the controller's existing ownership, identity and budgets.

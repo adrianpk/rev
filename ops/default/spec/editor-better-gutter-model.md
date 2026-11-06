@@ -1,6 +1,9 @@
 # Better Gutter Model
 
-Status: Approved
+Status: Completed
+Completed: 2026-11-06
+Validated candidate: `bcf705d9e6ac70caef0d2fc7c9c124d966f56627`
+Gate validation: `2VTBXR6STDPODOXBSBNFIUWESW`
 Date: 2026-11-06
 Approved: product owner; specification and one autonomous Looper delivery through dev
 Specification: [Better Gutter](editor-better-gutter.md)
@@ -64,3 +67,12 @@ no breakpoint record, debugger process or breakpoint configuration leaf.
 The future folding column is present only when its eventual enabling setting
 requests it. Disabled means zero column width and zero folding-specific
 padding. No dormant folding leaf or empty column is added by this delivery.
+
+## Delivery evidence
+
+The current configuration and projection model is Completed through PRs
+#282-#284 and repair #285. The controller passed the unchanged gate on the
+candidate recorded above. The [Slice 3 closure](../report/slices/rev-better-gutter/slice-3-acceptance.md#delivery-set-closure)
+records exact checks and limits. Future breakpoint records, collision policy,
+folding indicators and their eventual configuration remain future capabilities.
+Historical baseline gate identities are preserved.
