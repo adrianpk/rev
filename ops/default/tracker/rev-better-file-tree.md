@@ -8,7 +8,7 @@ Plan: [Better File Tree Delivery](../plan/rev-better-file-tree.md)
 Specification: [Better File Tree](../spec/editor-better-file-tree.md)
 Model: [Better File Tree Model](../spec/editor-better-file-tree-model.md)
 Concern: [Pending Work Index](../README.md)
-Active slice: Slice 3, Acceptance and guidance
+Active slice: None; all three slices integrated, awaiting controller final gate
 Progress owner: retained Looper checkpoint and canonical validation receipts
 
 ## Canonical slice map
@@ -57,13 +57,14 @@ Validation: five required commands passed in order; 235 selected tests and two i
 
 ## Slice 3: Acceptance and guidance
 
-State: reviewing
+State: delivered
 Dependency: Slice 2 integrated
 Requirements: BFT01-BFT04 together
 Implementation: T3.1 `cc2ae9dfc614a8e7956aef79c96ed542a3d093ae`; T3.2/T3.3 handoff `33411913f2e5d77191f61f27068b9d80ecbf8c39`
+Integrated: `f42a106ccf2cc967f022b0c59e3e0b1bede57f6a`
 PR: [#289](https://forge.adrianpk.com/adrianpk/rev/pulls/289)
 Report: `ops/default/report/slices/rev-better-file-tree/slice-3-acceptance.md`
-Validation: six required commands passed locally in order; 231 tests, bounded native/NO_COLOR acceptance, two restored PTYs and local 85-page Spore build passed. Final clean-HEAD evidence is recorded separately by Looper after PR references are committed.
+Validation: six required commands passed locally in order; 231 tests, bounded native/NO_COLOR acceptance, two restored PTYs and local 85-page Spore build passed. Looper validate passed all six commands in order on clean final HEAD `f42a106ccf2cc967f022b0c59e3e0b1bede57f6a` (114.40s); canonical PR #289 merged at that same commit.
 
 - [x] T3.1: Deliver bounded Rust/Bash native matrix and one owned PTY journey
   per interaction profile using existing helpers and explicit cleanup checks.
@@ -72,8 +73,8 @@ Validation: six required commands passed locally in order; 231 tests, bounded na
 - [ ] T3.3: Record real reports and immutable commit/PR evidence, prepare the
   clean candidate for the controller gate and close only after that gate passes.
 
-The worker handoff portion of T3.3 is prepared. Integration, the frozen gate and
-final closure remain controller-owned and pending.
+Slice 3 implementation and report handoff are delivered. The final-closure
+clause of T3.3 remains pending the controller-owned frozen gate.
 
 ## Final gate and closure
 
@@ -81,7 +82,16 @@ The plan's Final gate section and local controller configuration own the exact
 ordered commands and environment. This tracker records no implementation,
 validation, performance or publication result at planning.
 
-- [ ] Verify all three canonical PRs integrated and all reports delivered.
+Gate prerequisites were checked after all three integrations: Cargo, Rust,
+Bash, the existing PTY tools and Spore are available; locked offline Cargo
+metadata includes every approved gate target; gate scripts and Markdown/Spore
+inputs are present; the PTY multiplexer is accessible. Both scripts passed
+`bash -n scripts/check-better-file-tree.sh scripts/build-user-guide.sh`.
+No fixture or server was started during preparation. The full gate has not run;
+the controller must select the clean pushed candidate after this administrative
+update. Earlier slice validation belongs only to its recorded HEAD.
+
+- [x] Verify all three canonical PRs integrated and all reports delivered.
 - [ ] Pass the frozen final gate on the exact clean integrated candidate.
 - [ ] Record the receipt, commands, immutable report introductions, observed
   timing, cleanup and font-rendering evidence limits.

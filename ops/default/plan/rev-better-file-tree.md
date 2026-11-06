@@ -10,7 +10,7 @@ Specification: [Better File Tree](../spec/editor-better-file-tree.md)
 Model: [Better File Tree Model](../spec/editor-better-file-tree-model.md)
 Tracker: [Better File Tree Tracker](../tracker/rev-better-file-tree.md)
 Concern: [Pending Work Index](../README.md)
-Active slice: Slice 3, Acceptance and guidance
+Active slice: None; all three slices integrated, awaiting controller final gate
 
 ## Outcome and strategy
 

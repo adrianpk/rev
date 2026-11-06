@@ -1,11 +1,12 @@
 # Slice 3: Acceptance and guidance
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-better-file-tree
 Plan: [Better File Tree Delivery](../../../plan/rev-better-file-tree.md)
 Tracker: [Better File Tree Tracker](../../../tracker/rev-better-file-tree.md)
 Branch: `test/rev-better-file-tree-03-acceptance`
 PR: `#289`
+Integrated: `f42a106ccf2cc967f022b0c59e3e0b1bede57f6a`
 
 ## Purpose
 
@@ -37,7 +38,8 @@ prepare the candidate for the controller-owned integrated gate and closure.
 T3.1 is implemented in `cc2ae9dfc614a8e7956aef79c96ed542a3d093ae`.
 T3.2 guidance, baseline reconciliation and the initial T3.3 handoff report are in
 report introduction commit `33411913f2e5d77191f61f27068b9d80ecbf8c39`.
-Canonical PR #289 targets dev; the tracker records both implementation commits.
+Canonical PR #289 merged into dev at its validated final HEAD; the tracker
+records both implementation commits.
 
 The driver reuses the existing frame/surface inspector and completion acceptance
 PTY helper. Native cases carry the configuration matrix; two PTYs provide real
@@ -56,7 +58,7 @@ only its fixture and asserts that removal.
 The guide remains projected from Markdown by the existing publication example
 and Spore build. No parallel publication prose is maintained. Slice 2's report
 and tracker were closed after verifying canonical PR #288 merged at validated
-HEAD `e86542d3fde474cad006a69aeb22ee873c062355`; Slice 3 is active.
+HEAD `e86542d3fde474cad006a69aeb22ee873c062355`; Slice 3 was activated for this work.
 
 ## Contracts Added or Changed
 
@@ -112,15 +114,17 @@ took 67s; no bounds were raised and no test was disabled or weakened.
 
 Spore projected and built 85 Markdown pages locally. No deployment is implied.
 No owned editor process or acceptance temporary directory remained after the
-checks. The final PR-reference HEAD receives separate ordered clean-HEAD evidence
-through Looper validate; that receipt owns the final candidate and timing.
+checks. Looper validate passed all six ordered commands on clean final
+PR-reference HEAD `f42a106ccf2cc967f022b0c59e3e0b1bede57f6a` in 114.40s.
+Canonical PR #289 merged into dev at that same commit. This slice evidence
+belongs to that HEAD; the controller final gate tests the prepared candidate.
 These slice checks do not replace the controller's frozen integrated gate.
 
 ## Risks and Follow-ups
 
 Native and PTY checks prove emitted code points and terminal-cell geometry;
 they do not establish the drawing of an installed physical font. The controller
-still owns integration, the frozen final gate and delivery closure. The separate
+still owns the frozen final gate and delivery closure. The separate
 selection/active-buffer synchronization ticket and main/release/publication
 boundaries retain their scope.
 
