@@ -1,11 +1,12 @@
 # Slice 3: Joint acceptance and guidance
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-better-gutter
 Plan: [Better Gutter Delivery](../../../plan/rev-better-gutter.md)
 Tracker: [Better Gutter Tracker](../../../tracker/rev-better-gutter.md)
 Branch: `test/rev-better-gutter-03-acceptance`
 PR: `#284`
+Integrated: `09b88ac85eee353dfb9649d43f0e696bb02d7fa9`
 
 ## Purpose
 
@@ -104,14 +105,16 @@ with zero CPU ticks and restored TTY state. The cached acceptance build took
 were removed. Spore built the 85-page guide; generated preference links and the
 configuration download were checked against their sources.
 
-The exact clean-HEAD validation batch is recorded through `looper validate`
-after PR-reference bookkeeping. These local results do not establish the
-controller-owned integrated final gate or delivery-set completion.
+Looper receipt `KZYA354UGVNE62JZKDAKX5QPLZ` passed all six required commands
+against clean PR-reference HEAD `09b88ac85eee353dfb9649d43f0e696bb02d7fa9`.
+Canonical PR #284 was verified merged into dev at that same commit.
+These slice results do not establish the controller-owned integrated final
+gate or delivery-set completion.
 
 ## Risks and Follow-ups
 
 Native evidence proves emitted code points, geometry and renderer colors, not
 the drawing or availability of a physical terminal font. The PTYs exercise the
 ordinary factory square; glyph/configuration variants remain native coverage.
-The controller owns merge, exact integrated-candidate validation and closure.
+The controller owns exact integrated-candidate validation and closure.
 No final-gate, main promotion, release or public deployment result is claimed.

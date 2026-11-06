@@ -7,7 +7,7 @@ Approved: product owner; specification, three-slice preparation, push and one au
 Plan: [Better Gutter Delivery](../plan/rev-better-gutter.md)
 Specification: [Better Gutter](../spec/editor-better-gutter.md)
 Model: [Better Gutter Model](../spec/editor-better-gutter-model.md)
-Active slice: Slice 3 - Joint acceptance and guidance; reviewing
+Active slice: None; all three slices integrated, controller-owned final gate pending
 Progress owner: retained Looper checkpoint and canonical validation receipts
 
 ## Canonical slice map
@@ -60,7 +60,7 @@ commands on that clean PR-reference HEAD, including all-target Clippy,
 
 ## Slice 3: Joint acceptance and guidance
 
-State: reviewing
+State: delivered
 Dependency: Slice 2 integrated
 Requirements: BMK03, BTG01-BTG04 together
 Implementation: `0d1219ed67b779c65d75fddf2d8f0672ac9a8778` (T3.1),
@@ -68,10 +68,11 @@ Implementation: `0d1219ed67b779c65d75fddf2d8f0672ac9a8778` (T3.1),
 PR: `#284`
 Report: `ops/default/report/slices/rev-better-gutter/slice-3-acceptance.md`
 Report introduction: `cafc0f0a78197de885221e0581b311f067b21835` (T3.3 reporting)
-Validation: all six ordered Slice 3 commands passed locally, including
-all-target Clippy, 94 suite tests and documentation catalogs. Focused native
-acceptance, two bounded profile PTYs and the Markdown-derived Spore build passed.
-Record the exact clean-HEAD receipt after PR-reference bookkeeping.
+Integrated: `09b88ac85eee353dfb9649d43f0e696bb02d7fa9`
+Validation: Looper receipt `KZYA354UGVNE62JZKDAKX5QPLZ` passed all six required
+commands against that clean PR-reference HEAD, including all-target Clippy,
+94 suite tests and documentation catalogs. Focused native acceptance, two bounded
+profile PTYs and the Markdown-derived Spore build also passed locally.
 
 - [x] T3.1: Deliver the bounded native Rust/Bash acceptance entrypoint and one
   representative owned PTY journey for each interaction profile.
@@ -80,9 +81,9 @@ Record the exact clean-HEAD receipt after PR-reference bookkeeping.
 - [ ] T3.3: Record real reports and task/commit/PR evidence, hand off the clean
   integrated candidate for the frozen final gate and close only after it passes.
 
-The Slice 3 report records completed implementation and local evidence.
-Its PR handoff precedes controller-owned integration, final gate and closure;
-T3.3 and the delivery-set closure checks remain open until those steps finish.
+All three reports record delivered implementation and slice evidence.
+Slice handoff and traceability are complete; T3.3 remains open only for the
+controller-owned integrated final gate and delivery-set closure.
 
 ## Final gate and closure
 
@@ -90,7 +91,13 @@ The exact ordered final commands and Cargo environment are defined in the
 plan's Final gate section and copied into the local controller configuration.
 No gate, acceptance, publication or performance result is claimed at planning.
 
-- [ ] Verify the three canonical PRs integrated and three reports delivered.
+Gate prerequisites are available: Rust/Cargo with formatting and Clippy, Bash,
+the existing PTY utilities and Spore. Locked offline Cargo metadata recognizes
+all approved gate targets; both gate scripts passed Bash syntax validation.
+The acceptance entrypoint and reused helpers are tracked. These prerequisite
+checks do not execute the full gate.
+
+- [x] Verify the three canonical PRs integrated and three reports delivered.
 - [ ] Pass the frozen focused final gate on the exact clean candidate.
 - [ ] Record the validation receipt, exact commands, immutable report commits,
   actual timing, terminal cleanup and evidence limits.
