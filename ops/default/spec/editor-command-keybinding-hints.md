@@ -1,10 +1,13 @@
 # Command Keybinding Hints
 
-Status: Approved
+Status: Completed
+Completed: 2026-11-06
+Validated candidate: `ca39b8f14e03d3753f071811b1151b8299bc3560`
+Gate validation: `BV6KPQKMFAI37JMO2HBOQOISIM`
 Date: 2026-11-06
 Approved: product owner; proceed with the established delivery process on 2026-11-06
 Format: OpenSpec capability addition
-Source: [TKT-20261031095151](../ticket/reviewing/20261031095151-show-keybindings-beside-m-x-commands.md); owner requested a formal specification before implementation
+Source: [TKT-20261031095151](../ticket/solved/20261031095151-show-keybindings-beside-m-x-commands.md); owner requested a formal specification before implementation
 Baselines: [Editor Interaction](editor-interaction.md), UI02; [Command Recency and Frequency](editor-command-ranking.md); [Configuration](editor-configuration.md); [Modal Editing](editor-modal-editing.md)
 Current reference: [Commands](../../../docs/reference/commands.md), [Bindings](../../../docs/reference/bindings.md), [Focused Prompts](../../../docs/reference/prompts.md)
 Plan: [Command Keybinding Hints Delivery](../plan/rev-command-keybinding-hints.md)
@@ -25,7 +28,7 @@ This specification formalizes the existing ticket. The owner's continuation
 approves delivery preparation and implementation through the established
 plan, tracker and Looper workflow.
 
-## Current implementation and ownership
+## Planning baseline and ownership
 
 `src/display/completion.rs` paints one canonical command name per candidate row.
 `src/input/palette.rs` owns query matching, recent/frequent ranking, selection,
@@ -33,7 +36,8 @@ completion and accepted command identity. The effective maps and normalized
 sequences live under `src/input/keymap/`; focused input owners decide which map
 and handlers apply.
 
-The selector currently displays no shortcut annotation. Looking up the active
+At the approved planning baseline, the selector displayed no shortcut
+annotation. Looking up the active
 minibuffer map after opening it would describe selector controls instead of
 bindings available in the originating editor, Org, Git or tree context. Capture
 the originating dispatch context before the selector takes focus.
@@ -240,3 +244,20 @@ selection, Unicode/key-label widths, narrow/zero geometry, resize and NO_COLOR.
 Use deterministic native cases for resolution and layout, plus representative
 input/render journeys for the shared selector. No new dependency, persisted
 model or configuration surface is required by this presentation feature.
+
+
+## Completed delivery evidence
+
+Canonical PRs #294 and #295 deliver KBH01-KBH05, preserving UI02 and CMR01-CMR05.
+The interaction baseline UI02 was reconciled before the gate; its historical
+candidate and validation evidence remain unchanged. The controller passed the
+frozen full gate at `ca39b8f14e03d3753f071811b1151b8299bc3560`, receipt
+`BV6KPQKMFAI37JMO2HBOQOISIM`, with 362 selected tests, native origin/layout/
+identity acceptance, both-profile bounded PTY journeys and canonical
+Markdown-derived Spore guidance.
+
+The [Slice 2 closure](../report/slices/rev-command-keybinding-hints/slice-2-acceptance.md#delivery-set-closure)
+records the exact successful command, immutable report introductions, timings,
+resource observations and local evidence limits. The source ticket is solved
+with resolution fixed. This closure changes no requirement, runtime, test,
+guide, dependency, configuration or persistence assertion.

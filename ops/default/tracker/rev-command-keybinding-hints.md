@@ -1,14 +1,17 @@
 # Command Keybinding Hints Tracker
 
-Status: In progress
+Status: Completed
+Completed: 2026-11-06
+Validated candidate: `ca39b8f14e03d3753f071811b1151b8299bc3560`
+Gate validation: `BV6KPQKMFAI37JMO2HBOQOISIM`
 Date: 2026-11-06
 Delivery set: rev-command-keybinding-hints
 Approved: product owner; continue the established preparation commits, plan, slicing, push and one autonomous Looper delivery through dev
 Plan: [Command Keybinding Hints Delivery](../plan/rev-command-keybinding-hints.md)
 Specification: [Command Keybinding Hints](../spec/editor-command-keybinding-hints.md)
 Concern: [Pending Work Index](../README.md)
-Ticket: [TKT-20261031095151](../ticket/reviewing/20261031095151-show-keybindings-beside-m-x-commands.md)
-Active slice: None - all recorded slices integrated; controller gate pending
+Ticket: [TKT-20261031095151](../ticket/solved/20261031095151-show-keybindings-beside-m-x-commands.md)
+Active slice: None - both slices delivered and the delivery set is Completed
 Progress owner: retained Looper checkpoint and canonical validation receipts
 
 ## Canonical slice map
@@ -60,13 +63,13 @@ configuration freezes these commands before execution. The original preparation 
 review evidence is recorded below; publication remains outside this set.
 
 - [x] Verify both canonical PRs integrated and reports delivered.
-- [ ] Verify gate prerequisites and run the selected unchanged gate on the
+- [x] Verify gate prerequisites and run the selected unchanged gate on the
   exact clean dev candidate under controller ownership.
-- [ ] Record the successful receipt, exact commands, immutable introductions,
+- [x] Record the successful receipt, exact commands, immutable introductions,
   actual stage timings, owned cleanup and evidence limits.
-- [ ] Move the source ticket reviewing to solved, resolution fixed, with all
+- [x] Move the source ticket reviewing to solved, resolution fixed, with all
   source links and actual lifecycle metadata consistent.
-- [ ] Complete plan, tracker, specification and pending index within the eight
+- [x] Complete plan, tracker, specification and pending index within the eight
   exact closure paths; preserve the tested runtime and acceptance assertions.
 
 Technical recovery retains the same run and consumed budgets under the plan's
@@ -86,7 +89,8 @@ other open tickets remain outside this delivery.
 - Eight focused hint tests passed, including configured/normalized sequences,
   local ownership, all modal states, clipping, identity and actual cell colors.
 - Final clean-HEAD ordered evidence is recorded by Looper for the PR-reference
-  commit. PR #294 is integrated at that exact commit; the combined gate remains pending.
+  commit. PR #294 is integrated at that exact commit; the later combined gate
+  passed at the immutable candidate recorded above.
 
 Slice 1 integrated: `05365b43a51f5aaa7217c489117afc78289b0abe`. Its clean-HEAD
 receipt `D6ITQPUQYZ5CJ5CUMWE6JOV236` passed all five ordered commands. Canonical
@@ -111,7 +115,7 @@ integrated through PR #295; no recorded slice remains active.
   targets dev and pins that immutable introduction. Its following reference
   commit records the review; exact clean-HEAD evidence is recorded once there.
   Canonical PR #295 merged into dev at that exact validated head on 2026-11-06;
-  the combined controller gate remains pending.
+  the later combined controller gate passed at the candidate recorded above.
 
 Slice 2 integrated: `3952b5915ec7048ec7892e4e51c61ec3094e7f5d`. Its clean-HEAD
 receipt `AFRA7O7QCHCSKEGJ3IXL7ZQO43` passed all six ordered commands, including
@@ -136,6 +140,22 @@ These prerequisite-only commands passed:
 - `bash -n scripts/check-command-keybinding-hints.sh`
 - `bash -n scripts/build-user-guide.sh`
 
-The worker did not run the combined acceptance script or full gate. The
-controller must validate the exact clean pushed dev candidate after this
-metadata closure. The plan's gate, resource limits and assertions are unchanged.
+Preparation did not run the combined acceptance script or full gate. The
+controller subsequently passed both at the exact candidate recorded above.
+The plan's gate, resource limits and assertions remain unchanged.
+
+
+## Completed delivery evidence
+
+The controller passed the unchanged full gate at `ca39b8f14e03d3753f071811b1151b8299bc3560`,
+receipt `BV6KPQKMFAI37JMO2HBOQOISIM`, from 19:50:39.338071521Z to
+19:58:21.398665094Z on 2026-11-06 (462.061 seconds). All 362 selected tests
+passed: commands 172, display 44, modal 120, command_usage 15 and configuration
+keymaps 11. The native matrix, both-profile bounded PTYs, catalogs, 85-page
+Markdown validation and strict local Spore projection/build also passed.
+The [Slice 2 closure](../report/slices/rev-command-keybinding-hints/slice-2-acceptance.md#delivery-set-closure)
+records exact commands, stage/resource measurements and limits. Owned fixtures
+were reaped and removed; closure inspection found no acceptance root or active
+gate editor/driver. The ticket is solved with resolution fixed. All delivery
+artifacts are Completed and only the eight configured closure paths differ
+from the tested candidate.

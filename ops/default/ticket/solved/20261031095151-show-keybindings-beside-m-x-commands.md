@@ -1,7 +1,9 @@
 ---
 id: TKT-20261031095151
 title: Show keybindings beside M-x commands
-status: reviewing
+status: solved
+resolution: fixed
+closed_at: 2026-11-06T20:01:19Z
 kind: task
 severity: unclassified
 priority: unclassified
@@ -58,8 +60,8 @@ The owner requested formal specification before implementation on 2026-11-06.
 records the originating-context rules, primary-hint policy, rendering boundaries
 and acceptance scenarios. The owner approved continuation on 2026-11-06.
 Both slices are integrated through PRs #294 and #295, and their reports are
-delivered. The integrated controller gate remains pending, so this ticket
-retains its reviewing state.
+delivered. The controller passed the unchanged integrated gate, so this ticket
+is solved with resolution fixed.
 
 ## Slice 1 evidence
 
@@ -71,8 +73,8 @@ The source commit is c18cdc0b5bb3feb05074e4d2bcba07c0afcfba6b. This review does
 not close the ticket or claim the delivery-set gate.
 
 Canonical [PR #294](https://forge.adrianpk.com/adrianpk/rev/pulls/294) targets `dev` and
-links the immutable report introduction. The ticket remains reviewing through
-Slice 2 and the successful integrated controller gate.
+links the immutable report introduction. Slice 2 and the successful integrated
+controller gate complete this ticket.
 
 
 ## Slice 2 evidence
@@ -83,11 +85,24 @@ regressions and contextual Markdown/Spore guidance. Acceptance is implemented in
 `2a66698097f1a66ec1efbf18dc61c9f33c4990f7`; guidance and UI02 reconciliation
 are in `266f6384283bbdc9c791d1c2c9250d510bfd3023`. All 15 required usage tests
 pass; each focused PTY journey restores the terminal and records only one named
-identity. The ticket remains reviewing until the controller's combined gate.
+identity. The controller subsequently passed its combined gate.
 
 Canonical [PR #295](https://forge.adrianpk.com/adrianpk/rev/pulls/295) targets `dev` and
 pins the Slice 2 report introduction `543c5324ca45fbdf83c31fe272a3516b0c781f94`.
 PR #295 is integrated at `3952b5915ec7048ec7892e4e51c61ec3094e7f5d`, with
 successful Slice 2 receipt `AFRA7O7QCHCSKEGJ3IXL7ZQO43`. The metadata retains
-that review identity while awaiting the combined controller gate. PR #294 and
+that delivered review identity after the successful combined gate. PR #294 and
 its original branch remain recorded in the Slice 1 report and tracker.
+
+
+## Resolution
+
+Fixed on 2026-11-06 through canonical PRs #294 and #295. The controller passed
+the frozen full gate at immutable candidate `ca39b8f14e03d3753f071811b1151b8299bc3560`,
+receipt `BV6KPQKMFAI37JMO2HBOQOISIM`: 362 selected tests, native map/origin/
+layout/identity acceptance, both-profile bounded PTY journeys, command and
+configuration catalogs, and strict local Markdown-derived Spore guidance.
+The [Slice 1 report](../../report/slices/rev-command-keybinding-hints/slice-1-effective.md)
+and [Slice 2 closure](../../report/slices/rev-command-keybinding-hints/slice-2-acceptance.md#delivery-set-closure)
+retain exact commands, immutable introductions, timings and evidence limits.
+Only approved documentation closure paths change after the tested candidate.

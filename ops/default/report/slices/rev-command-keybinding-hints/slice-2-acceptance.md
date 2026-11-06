@@ -137,11 +137,11 @@ same bounds and do not disable tests.
 
 ## Risks and Follow-ups
 
-The combined acceptance script and frozen integrated full gate remain
-controller-owned and have not been run by this worker. The source ticket stays
-reviewing until that gate passes. Final closure metadata and any successor
-startup remain controller actions. No main promotion, release,
-tag, mirror or public guide publication is included.
+The controller passed the frozen integrated full gate, including the combined
+acceptance script, as recorded below. Evidence is local Linux native/PTY and
+Markdown/Spore validation; it does not establish behavior on every physical
+terminal or deployed guide. Successor startup remains controller-owned.
+No main promotion, release, tag, mirror or public guide publication is included.
 
 
 ## Integration
@@ -155,5 +155,78 @@ exact clean candidate. Its immutable report introduction remains
 Both recorded slices are delivered. The tracker records tool, target, syntax,
 input and output prerequisites verified before the controller gate. Closing
 these document entries changes the dev candidate; no prior slice receipt is
-claimed as full-gate evidence for that later commit. The delivery and ticket
-remain open until the controller validates the integrated candidate.
+claimed as full-gate evidence for that later commit. The controller subsequently
+validated the integrated candidate below; the delivery is Completed and the
+ticket solved with resolution fixed.
+
+
+## Delivery-set closure
+
+Completed: 2026-11-06. Canonical PRs #294 and #295 are merged into dev and both
+reports are delivered. The controller passed the unchanged full gate on clean
+immutable candidate `ca39b8f14e03d3753f071811b1151b8299bc3560`, receipt
+`BV6KPQKMFAI37JMO2HBOQOISIM`. The supplied receipt and log retain the exact
+successful command:
+
+```sh
+export CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 && cargo fmt --all -- --check && cargo clippy --locked --all-targets -- -D warnings && cargo test --locked --test commands --test modal --test display --test command_usage -- --test-threads=1 && cargo test --locked --test configuration keymaps -- --test-threads=1 && bash scripts/check-command-keybinding-hints.sh && cargo run --locked --quiet --example documentation-check && bash scripts/build-user-guide.sh && git diff --check
+```
+
+The receipt spans 19:50:39.338071521Z to 19:58:21.398665094Z on 2026-11-06:
+462.061 seconds total. All 362 selected tests passed, with no failures or
+ignored tests. The 149 other configuration tests were intentionally filtered
+by the approved keymaps selection. Cargo reported these stage timings:
+
+| Stage | Result | Reported time |
+| --- | --- | --- |
+| All-target Clippy | passed | 55.28s |
+| Four-suite test compilation | passed | 52.04s |
+| Command usage | 15 passed | 3.75s |
+| Commands | 172 passed | 217.53s |
+| Display | 44 passed | 11.47s |
+| Modal | 120 passed | 95.38s |
+| Configuration compilation | passed | 2.58s |
+| Configuration keymaps | 11 passed | 3.85s |
+| Acceptance editor/driver build | passed | 1.22s |
+
+Formatting, native acceptance, documentation, Spore and whitespace also passed;
+the log does not provide separate elapsed measurements for those stages. Their
+previous implementation timings are not reused as measurements of this gate.
+
+The native map/origin/identity, actual dispatch, modal-state, Visual-cancel,
+Unicode geometry, color and NO_COLOR matrix passed. Both real input/render
+journeys passed with their original eight-second helper lifetime, 1 MiB
+observed-output cap and 30-second outer deadline excluding compilation:
+
+| Profile | Journey time | Output | Idle CPU ticks | Peak RSS |
+| --- | --- | --- | --- | --- |
+| non-modal | 986ms | 29,637 bytes | 0 | 29,792 kB |
+| modal | 1069ms | 29,637 bytes | 0 | 31,484 kB |
+
+Each journey retained source/configuration bytes and exactly one canonical
+named usage event; direct shortcut dispatch added none. Both idle samples
+observed no output over 350ms. Ordinary finish restored terminal attributes
+and reaped owned children. The wrapper removed its temporary fixture root.
+Closure inspection found no acceptance temporary roots or active gate editor/
+driver processes. No persistent service or preview was started.
+
+Catalog validation passed 596 commands in each combined inventory and 289
+configuration entries. Documentation passed 85 reachable pages and 578 local
+links/anchors. Spore projected and built all 85 Markdown pages locally with
+strict link validation. Generated output remains ignored local build output;
+these checks establish no public deployment or universal physical-terminal
+rendering guarantee.
+
+Immutable report introductions:
+
+- [Slice 1](https://forge.adrianpk.com/adrianpk/rev/src/commit/844ec6c5fb9d0c6f71d1de2ca6f98538423d8d12/ops/default/report/slices/rev-command-keybinding-hints/slice-1-effective.md), delivered by PR #294 at `05365b43a51f5aaa7217c489117afc78289b0abe`.
+- [Slice 2](https://forge.adrianpk.com/adrianpk/rev/src/commit/543c5324ca45fbdf83c31fe272a3516b0c781f94/ops/default/report/slices/rev-command-keybinding-hints/slice-2-acceptance.md), delivered by PR #295 at `3952b5915ec7048ec7892e4e51c61ec3094e7f5d`.
+
+KBH01-KBH05 are delivered with UI02 and CMR01-CMR05 preserved. UI02 was
+reconciled before the gate and its historical validation identities remain
+unchanged. The plan, tracker, specification and pending-work entry are
+Completed; TKT-20261031095151 is solved with resolution fixed. Only the eight
+configured closure Markdown paths differ from the tested candidate. Runtime,
+tests, guides, changelog and every required acceptance assertion retain their
+tested content. No main promotion, tag, release, installation, guide deployment
+or mirror publication was performed.

@@ -1,6 +1,9 @@
 # Command Keybinding Hints Delivery
 
-Status: In progress
+Status: Completed
+Completed: 2026-11-06
+Validated candidate: `ca39b8f14e03d3753f071811b1151b8299bc3560`
+Gate validation: `BV6KPQKMFAI37JMO2HBOQOISIM`
 Date: 2026-11-06
 Delivery set: rev-command-keybinding-hints
 Slice strategy: behavior-first
@@ -9,8 +12,8 @@ Planning baseline: `421ab4b62604`
 Specification: [Command Keybinding Hints](../spec/editor-command-keybinding-hints.md)
 Tracker: [Command Keybinding Hints Tracker](../tracker/rev-command-keybinding-hints.md)
 Concern: [Pending Work Index](../README.md)
-Ticket: [TKT-20261031095151](../ticket/reviewing/20261031095151-show-keybindings-beside-m-x-commands.md)
-Active slice: None - all recorded slices integrated; controller gate pending
+Ticket: [TKT-20261031095151](../ticket/solved/20261031095151-show-keybindings-beside-m-x-commands.md)
+Active slice: None - both slices delivered and the delivery set is Completed
 
 ## Outcome and strategy
 
@@ -152,8 +155,9 @@ timings in the final report. Cold compilation may take longer.
 Both recorded slices are integrated through canonical PRs #294 and #295, and
 both reports are delivered. The tracker records verified prerequisites.
 Primary dev contains only the integrated work and delivered-document closure;
-the controller owns the unchanged full gate above. The delivery remains In
-progress and the ticket reviewing until that exact integrated gate passes.
+the controller passed the unchanged full gate above at the immutable candidate
+recorded in this header. The delivery is Completed and the ticket solved with
+resolution fixed. Only the configured closure documents change afterward.
 
 ## Ticket lifecycle and closure
 
@@ -181,3 +185,17 @@ Complete the plan, tracker, specification and index together. Retain the tested
 candidate, receipt, exact commands, immutable report introductions, actual
 measurements and local evidence limits. Runtime, tests, guides, changelog and
 acceptance assertions must remain unchanged after the gate.
+
+
+## Completed delivery evidence
+
+Canonical PRs #294 and #295 are integrated and both reports delivered. The
+controller passed the frozen full gate at `ca39b8f14e03d3753f071811b1151b8299bc3560`, receipt
+`BV6KPQKMFAI37JMO2HBOQOISIM`: 362 selected tests, native acceptance, both-profile
+PTY journeys, command/configuration catalogs and the local Spore build.
+The [Slice 2 closure](../report/slices/rev-command-keybinding-hints/slice-2-acceptance.md#delivery-set-closure)
+records the exact successful command, immutable introductions, measured timings,
+resource observations, owned cleanup and evidence limits. The source ticket is
+solved with resolution fixed. No runtime, test, guide or acceptance assertion
+changes after the tested candidate; only the eight configured Markdown closure
+paths differ.
