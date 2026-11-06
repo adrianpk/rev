@@ -5,7 +5,7 @@ Delivery set: rev-better-gutter
 Plan: [Better Gutter Delivery](../../../plan/rev-better-gutter.md)
 Tracker: [Better Gutter Tracker](../../../tracker/rev-better-gutter.md)
 Branch: `feat/rev-better-gutter-02-markers`
-PR: pending
+PR: `#283`
 
 ## Purpose
 

@@ -44,7 +44,7 @@ State: reviewing
 Dependency: Slice 1 integrated
 Requirements: BMK03, BTG01, BTG04 and configuration model
 Implementation: `c59fea87a73273887736a3a362f0cd19db18875f` (T2.1-T2.3)
-PR: pending
+PR: `#283`
 Report: `ops/default/report/slices/rev-better-gutter/slice-2-markers.md`
 Validation: all five required commands passed locally, including strict
 all-target Clippy, 250 suite tests and documentation catalogs. Looper must record
