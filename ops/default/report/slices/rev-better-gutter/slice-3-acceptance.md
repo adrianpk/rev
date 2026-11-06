@@ -115,7 +115,7 @@ gate or delivery-set completion.
 
 Repair status: reviewing
 Branch: `fix/rev-better-gutter-validation-1`
-PR: pending
+PR: `#285`
 Implementation: `4f5d6da28d93d780d8b4a905f5d53100424f2203`
 
 The controller's unchanged full gate failed at

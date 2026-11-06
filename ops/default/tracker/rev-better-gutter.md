@@ -90,7 +90,7 @@ controller-owned integrated final gate and delivery-set closure.
 State: reviewing
 Branch: `fix/rev-better-gutter-validation-1`
 Expected PR title: `fix(gutter): correct better gutter acceptance`
-PR: pending
+PR: `#285`
 Report: `ops/default/report/slices/rev-better-gutter/slice-3-acceptance.md`
 Failed candidate: `10054d1fece9557d37923fa8be0d825727232ac7`
 Failed validation: `VIR36T3PHGW77O2D4MNMV64DGX`
