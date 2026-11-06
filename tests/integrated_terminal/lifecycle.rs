@@ -434,7 +434,11 @@ fn source_revision() {
         editor.session.insert('X');
         let changed = editor.session.buffer().unwrap().stamp();
         assert_ne!(answer(&mut editor, true), rev::session::Action::Exit);
-        assert!(editor.session.echo().contains("Source changed"));
+        assert_eq!(
+            editor.session.echo(),
+            "Source or owned Git work changed; quit canceled before termination",
+            "{profile}"
+        );
         assert_live(&editor, &pids);
         assert_eq!(editor.session.buffer().unwrap().stamp(), changed);
         begin_exit(&mut editor);
