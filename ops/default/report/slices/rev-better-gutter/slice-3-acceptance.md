@@ -111,6 +111,51 @@ Canonical PR #284 was verified merged into dev at that same commit.
 These slice results do not establish the controller-owned integrated final
 gate or delivery-set completion.
 
+### Final-gate repair 1
+
+Repair status: reviewing
+Branch: `fix/rev-better-gutter-validation-1`
+PR: pending
+Implementation: `4f5d6da28d93d780d8b4a905f5d53100424f2203`
+
+The controller's unchanged full gate failed at
+`10054d1fece9557d37923fa8be0d825727232ac7`, receipt
+`VIR36T3PHGW77O2D4MNMV64DGX`. Formatting and Clippy passed; the selected test
+command then failed in `org_indentation::gutter_and_bookmark_identity`, which
+still expected the former factory dot. The first assertion observed `■` and
+expected `●`; its folded-row absence check also searched for the old dot.
+
+The isolated reproduction failed with the same mismatch:
+
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test org_indentation gutter_and_bookmark_identity -- --exact --test-threads=1`
+
+The repair updates both expectations to the approved factory square. It retains
+the checked marker column, both gutter sides, first-fragment/continuation
+behavior, Org indentation, cursor placement, folded-marker absence and bookmark
+source position assertions. No runtime code, fixture configuration, timeout or
+frozen gate requirement changes.
+
+All four required repair commands passed locally, in the injected order:
+
+- `cargo fmt --all -- --check`
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo clippy --locked --all-targets -- -D warnings`
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test gutter --test bookmarks --test configuration -- --test-threads=1`
+- `git diff --check`
+
+These suites passed 250 tests: bookmarks 58, configuration 156 and gutter 36,
+with none ignored. Observed times were 2.82s for formatting, 63.93s for Clippy,
+120.96s for the suites and 0.01s for diff hygiene.
+
+The focused regression command
+`env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test org_indentation -- --test-threads=1`
+passed all 18 tests, including the previously failing identity case. Initial
+cold compilation took 1m43s and the suite took 9.31s. Test fixtures completed
+and released their owned temporary files.
+
+The exact clean-HEAD batch is recorded through `looper validate` after the
+repair PR-reference commit. These focused results do not replace the unchanged
+full gate; the controller owns repair integration and that gate's retry.
+
 ## Risks and Follow-ups
 
 Native evidence proves emitted code points, geometry and renderer colors, not

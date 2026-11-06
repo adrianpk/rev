@@ -10,7 +10,7 @@ Specification: [Better Gutter](../spec/editor-better-gutter.md)
 Model: [Better Gutter Model](../spec/editor-better-gutter-model.md)
 Tracker: [Better Gutter Tracker](../tracker/rev-better-gutter.md)
 Concern: [Pending Work Index](../README.md)
-Active slice: None; all three slices integrated, controller-owned final gate pending
+Active slice: None; all three slices integrated, final-gate repair 1 reviewing
 
 ## Outcome and scope
 
