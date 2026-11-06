@@ -58,8 +58,8 @@ Validation: all five required commands passed locally, including 343 tests; cano
 State: reviewing
 Dependency: Slice 2 integrated
 Requirements: UI02 and CMR01-CMR05 together
-Implementation: `1a46d3e6f49baef20453597dc1a1298910c6efb6` implements T3.1; `e467e2de7f2fcdba65669a6d6324ad516f0e6b16` implements T3.2; T3.3 records the report and PR handoff
-PR: pending
+Implementation: `1a46d3e6f49baef20453597dc1a1298910c6efb6` implements T3.1; `e467e2de7f2fcdba65669a6d6324ad516f0e6b16` implements T3.2; `601f204ee78c67107287901d9b28603a467b7d3c` implements T3.3 and introduces the report
+PR: [#293](https://forge.adrianpk.com/adrianpk/rev/pulls/293), open against `dev`
 Report: `ops/default/report/slices/rev-command-ranking/slice-3-acceptance.md`
 Validation: all six required commands passed locally, including 301 tests; focused native/PTY acceptance and Markdown-derived Spore checks also passed. Canonical clean-HEAD evidence belongs to Looper receipts for the final PR-reference commit
 
