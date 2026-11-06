@@ -119,7 +119,17 @@ PTY journey was started for this slice.
 
 ## Risks and Follow-ups
 
-Native checks prove selected/emitted code points and terminal-cell geometry,
-not physical font drawing. Slice 3 owns combined native/PTY acceptance, complete
-User Guide/Spore reconciliation and the integrated controller-gate handoff.
-The selection/active-buffer synchronization ticket retains its separate scope.
+Physical-font drawing remains terminal-owned. Native acceptance establishes
+emitted code points and terminal-cell geometry. The separate selection and
+active-buffer synchronization ticket retains its scope. Slice-level validation
+above keeps its own candidate identity.
+
+## Delivery-set closure
+
+All three recorded slices are delivered through PRs #287-#289. The retained
+controller passed the unchanged final gate at
+`e0351ac918a760b7940e660494f2309d67bd30a4`, receipt `2WXLCTXPDKGL7ZMY7KI52IQSFP`.
+The [Slice 3 closure](slice-3-acceptance.md#delivery-set-closure) records complete
+native/PTY, guidance, timing, cleanup and immutable-report evidence. The completed
+later slices fulfill the font-catalog/geometry and combined-acceptance work that
+remained after this slice. Main/release/publication boundaries remain unchanged.

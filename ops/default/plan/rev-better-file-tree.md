@@ -1,6 +1,9 @@
 # Better File Tree Delivery
 
-Status: Approved
+Status: Completed
+Completed: 2026-11-06
+Validated candidate: `e0351ac918a760b7940e660494f2309d67bd30a4`
+Gate validation: `2WXLCTXPDKGL7ZMY7KI52IQSFP`
 Date: 2026-11-06
 Delivery set: rev-better-file-tree
 Slice strategy: behavior-first
@@ -10,7 +13,7 @@ Specification: [Better File Tree](../spec/editor-better-file-tree.md)
 Model: [Better File Tree Model](../spec/editor-better-file-tree-model.md)
 Tracker: [Better File Tree Tracker](../tracker/rev-better-file-tree.md)
 Concern: [Pending Work Index](../README.md)
-Active slice: None; all three slices integrated, awaiting controller final gate
+Active slice: None; all three slices delivered and the delivery set is Completed
 
 ## Outcome and strategy
 
@@ -191,3 +194,18 @@ Completion requires all three PRs integrated, all reports delivered, BFT01-BFT04
 and the model implemented, the exact candidate green under the unchanged gate,
 and completed operational artifacts. No release, installation, guide deployment
 or public mirror push is implied by delivery through dev.
+
+## Completed delivery evidence
+
+All three recorded slices are delivered through canonical PRs #287, #288 and
+#289. The retained controller passed the unchanged full gate on clean integrated
+candidate `e0351ac918a760b7940e660494f2309d67bd30a4` under receipt
+`2WXLCTXPDKGL7ZMY7KI52IQSFP`. BFT01-BFT04, the model, both-profile
+native/PTY acceptance and local Markdown-derived Spore guidance are complete.
+The [Slice 3 closure](../report/slices/rev-better-file-tree/slice-3-acceptance.md#delivery-set-closure)
+records the exact command, suite counts, observed timings, immutable report
+introductions, cleanup and physical-font evidence limits. Only the eight
+permitted closure Markdown files differ after that candidate; runtime code,
+required assertions, samples, guides and the frozen gate remain unchanged.
+The separate selection-synchronization ticket and main/release/publication
+boundaries retain their existing scope.

@@ -103,6 +103,17 @@ are owned and cleaned by their suites; no persistent service was started.
 
 ## Risks and Follow-ups
 
-Slice 2 owns the Nerd Fonts catalog and shared checked prefix geometry. Slice 3
-owns combined acceptance and complete User Guide/Spore reconciliation. This
-slice makes no physical-font, full-gate, release or deployment claim.
+Physical-font drawing remains terminal-owned. Native acceptance establishes
+emitted code points and terminal-cell geometry. The separate selection and
+active-buffer synchronization ticket retains its scope. Slice-level validation
+above keeps its own candidate identity.
+
+## Delivery-set closure
+
+All three recorded slices are delivered through PRs #287-#289. The retained
+controller passed the unchanged final gate at
+`e0351ac918a760b7940e660494f2309d67bd30a4`, receipt `2WXLCTXPDKGL7ZMY7KI52IQSFP`.
+The [Slice 3 closure](slice-3-acceptance.md#delivery-set-closure) records complete
+native/PTY, guidance, timing, cleanup and immutable-report evidence. The completed
+later slices fulfill the font-catalog/geometry and combined-acceptance work that
+remained after this slice. Main/release/publication boundaries remain unchanged.

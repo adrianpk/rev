@@ -1,6 +1,9 @@
 # Better File Tree
 
-Status: Approved
+Status: Completed
+Completed: 2026-11-06
+Validated candidate: `e0351ac918a760b7940e660494f2309d67bd30a4`
+Gate validation: `2WXLCTXPDKGL7ZMY7KI52IQSFP`
 Date: 2026-11-06
 Approved: product owner, 2026-11-06; specification/model, preparation commits, plan, slicing, push and one autonomous Looper delivery through dev
 Format: OpenSpec change specification
@@ -22,7 +25,7 @@ Both presentations use the same tree, entry identities and interactions. The
 supplied screenshot informs presentation; its multiple roots do not introduce
 a workspace or multi-root model into rev.
 
-## Current implementation
+## Pre-delivery implementation
 
 The tree already has lazy directory observations, one-time initial expansion,
 keyboard navigation, pointer activation, root policies and explicit refresh.
@@ -235,3 +238,17 @@ dev. The approved scope includes both presentations, the fixed icon catalogs,
 palette roles, configuration and joint acceptance with Markdown/Spore guidance.
 The linked selection-synchronization ticket retains its separate scope.
 Main promotion, release and public publication remain separately requested.
+
+## Completed delivery evidence
+
+The approved three-slice delivery is complete through canonical PRs #287-#289.
+The retained controller passed the unchanged full gate at
+`e0351ac918a760b7940e660494f2309d67bd30a4`, receipt `2WXLCTXPDKGL7ZMY7KI52IQSFP`.
+The [tracker](../tracker/rev-better-file-tree.md#completed-gate-evidence) and
+[Slice 3 closure](../report/slices/rev-better-file-tree/slice-3-acceptance.md#delivery-set-closure)
+map BFT01-BFT04 and this model to implementation, configuration/presentation
+acceptance, both input profiles, native/PTY geometry and local Markdown/Spore
+guidance. Historical baseline candidates and receipts retain their identities.
+Only permitted closure Markdown files change after the tested candidate;
+required behavior and assertions remain intact. Physical-font drawing and the
+separate selection-synchronization follow-up retain their stated boundaries.

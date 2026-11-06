@@ -1,6 +1,9 @@
 # Better File Tree Tracker
 
-Status: Approved
+Status: Completed
+Completed: 2026-11-06
+Validated candidate: `e0351ac918a760b7940e660494f2309d67bd30a4`
+Gate validation: `2WXLCTXPDKGL7ZMY7KI52IQSFP`
 Date: 2026-11-06
 Delivery set: rev-better-file-tree
 Approved: product owner; specification/model, preparation commits, three-slice plan, push and one autonomous Looper delivery through dev
@@ -8,7 +11,7 @@ Plan: [Better File Tree Delivery](../plan/rev-better-file-tree.md)
 Specification: [Better File Tree](../spec/editor-better-file-tree.md)
 Model: [Better File Tree Model](../spec/editor-better-file-tree-model.md)
 Concern: [Pending Work Index](../README.md)
-Active slice: None; all three slices integrated, awaiting controller final gate
+Active slice: None; all three slices delivered and the delivery set is Completed
 Progress owner: retained Looper checkpoint and canonical validation receipts
 
 ## Canonical slice map
@@ -70,11 +73,11 @@ Validation: six required commands passed locally in order; 231 tests, bounded na
   per interaction profile using existing helpers and explicit cleanup checks.
 - [x] T3.2: Complete Diataxis and Markdown-derived Spore guidance; reconcile
   directly affected descriptions without replacing historical delivery evidence.
-- [ ] T3.3: Record real reports and immutable commit/PR evidence, prepare the
+- [x] T3.3: Record real reports and immutable commit/PR evidence, prepare the
   clean candidate for the controller gate and close only after that gate passes.
 
-Slice 3 implementation and report handoff are delivered. The final-closure
-clause of T3.3 remains pending the controller-owned frozen gate.
+Slice 3 implementation and report handoff are delivered. T3.3 is closed after
+the controller passed its unchanged full gate on `e0351ac918a760b7940e660494f2309d67bd30a4`.
 
 ## Final gate and closure
 
@@ -87,16 +90,41 @@ Bash, the existing PTY tools and Spore are available; locked offline Cargo
 metadata includes every approved gate target; gate scripts and Markdown/Spore
 inputs are present; the PTY multiplexer is accessible. Both scripts passed
 `bash -n scripts/check-better-file-tree.sh scripts/build-user-guide.sh`.
-No fixture or server was started during preparation. The full gate has not run;
-the controller must select the clean pushed candidate after this administrative
-update. Earlier slice validation belongs only to its recorded HEAD.
+No fixture or server was started during preparation. The controller subsequently
+passed the full gate at `e0351ac918a760b7940e660494f2309d67bd30a4` under
+receipt `2WXLCTXPDKGL7ZMY7KI52IQSFP`. Earlier slice validation remains
+bound to its recorded HEAD; the final gate remains bound to this exact candidate.
 
 - [x] Verify all three canonical PRs integrated and all reports delivered.
-- [ ] Pass the frozen final gate on the exact clean integrated candidate.
-- [ ] Record the receipt, commands, immutable report introductions, observed
+- [x] Pass the frozen final gate on the exact clean integrated candidate.
+- [x] Record the receipt, commands, immutable report introductions, observed
   timing, cleanup and font-rendering evidence limits.
-- [ ] Complete the plan/tracker/specification/model and pending-work index.
-- [ ] Preserve separate selection-synchronization and main/release boundaries.
+- [x] Complete the plan/tracker/specification/model and pending-work index.
+- [x] Preserve separate selection-synchronization and main/release boundaries.
 
 Any technical recovery or final-gate repair remains within the plan's bounded
 delegation and the same retained controller, conversation and execution budget.
+
+## Completed gate evidence
+
+The retained controller passed the exact approved combined command at
+`e0351ac918a760b7940e660494f2309d67bd30a4`, receipt `2WXLCTXPDKGL7ZMY7KI52IQSFP`.
+All 395 selected tests passed: configuration 160, display 41, gutter 37,
+panels 19, pointer 67 and tree 71. Native presentation/configuration and isolated
+NO_COLOR acceptance, both owned PTYs, documentation validation and the local
+85-page Markdown/Spore build passed. No owned test editor or temporary acceptance
+directory remained at closure. Native/PTY evidence establishes emitted code
+points and terminal-cell geometry, not installed physical-font drawing.
+
+Immutable report introductions:
+
+- [Slice 1](https://forge.adrianpk.com/adrianpk/rev/src/commit/8e42af2708051a5371d11cae49320565caa9c906/ops/default/report/slices/rev-better-file-tree/slice-1-decoration.md).
+- [Slice 2](https://forge.adrianpk.com/adrianpk/rev/src/commit/ac3dee145daf7bebb7dd1a21c6148997fca3b864/ops/default/report/slices/rev-better-file-tree/slice-2-icons.md).
+- [Slice 3](https://forge.adrianpk.com/adrianpk/rev/src/commit/33411913f2e5d77191f61f27068b9d80ecbf8c39/ops/default/report/slices/rev-better-file-tree/slice-3-acceptance.md).
+
+The [Slice 3 closure](../report/slices/rev-better-file-tree/slice-3-acceptance.md#delivery-set-closure)
+retains the exact command and measured stage/PTY observations. Documentation
+closure changes only the eight permitted Markdown files after the tested
+candidate. The pending index and specification/model are Completed; the separate
+selection/active-buffer synchronization ticket remains open. Main promotion,
+release, installation and publication were not performed.
