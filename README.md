@@ -11,7 +11,7 @@ are everyday comforts you can use from the start, without first assembling a
 set of editor packages. The goal is a light, responsive editor with a
 deliberately small scope.
 
-![rev with the file tree, code and a blue bookmark marker beside indented Org notes, with M-x commands below](docs/reference/images/rev-rust-org.png)
+![rev with the decorated file tree, code and a blue bookmark marker beside indented Org notes](docs/reference/images/rev-rust-org.png)
 
 _[view gallery...](docs/reference/gallery.md)_
 

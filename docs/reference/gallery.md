@@ -4,7 +4,7 @@ Screenshots of rev in use.
 
 ## Code and Org with indentation
 
-![rev with code and a blue bookmark marker beside indented Org tasks, dates, a table and a source block, with M-x commands below](images/rev-rust-org.png)
+![rev with the decorated file tree, code and a blue bookmark marker beside indented Org tasks, dates, a table and a source block](images/rev-rust-org.png)
 
 ## Code and Org without indentation
 
