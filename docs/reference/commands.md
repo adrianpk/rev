@@ -43,7 +43,7 @@ back into the editor.
   matching set; navigation stops at the oldest entry. The session retains up to
   128 distinct accepted command names, most recent first. Accepting a name records
   the invocation even if its handler later refuses it. Canceled or unknown input
-  does not enter history; history is not persisted.
+  does not enter history; this M-p/M-n navigation history is not persisted.
 - C-g cancels command entry. Text, cursor edits and single-line paste remain in
   the prompt. The existing 4096-character prompt bound and control rejection apply.
   Releases and repeated Return do not invoke a command twice.
@@ -61,8 +61,9 @@ captures usage when it opens, so drawing and resize preserve the chosen identity
 Typing, Tab, history recall, cancellation and unknown names add no usage. Direct
 bindings and internal calls also add none. A named invocation counts once when
 accepted even if its handler fails or a later argument prompt is canceled.
-Usage is currently session-local and starts empty in a new editor. This window
-is separate from the configurable distinct-name M-p/M-n history above.
+The executable loads and saves this window across editor starts. It is separate
+from the configurable distinct-name M-p/M-n history above. Each open selector
+keeps its snapshot while other instances or its own publisher update usage.
 
 Argument-taking commands continue with their existing path, buffer or decision
 prompts. Named edits use the same read-only admission and history as bindings.
@@ -80,6 +81,41 @@ an explicit decision for each occurrence.
 
 See [Bindings](bindings.md) for the complete key map and [Scope and defaults](defaults.md)
 for file, history and retained-text policies.
+
+## Command usage state
+
+The executable uses `$XDG_STATE_HOME/rev/command-history.toml`, falling back to
+`$HOME/.local/state/rev/command-history.toml` under the existing XDG root rules.
+The window is user-wide across files, directories and editing profiles. Loading
+or merely opening a selector creates no state file. After a named invocation,
+publication may create missing state parents and writes a complete user-only
+record. Ordinary shutdown makes a final bounded publication attempt; forced
+termination can lose unpublished events.
+
+```toml
+version = 1
+commands = ["find-file", "undo", "find-file"]
+```
+
+Names are oldest first, with repetitions retained for frequency. The record
+accepts at most 256 names, each at most 128 ASCII bytes: a lowercase letter
+followed by lowercase letters, digits or hyphens. Input and output are bounded
+to 64 KiB. No arguments, paths, prompt drafts, document contents or timestamps
+enter this record. Unknown but well-formed historical names remain data and
+cannot introduce commands into the selector.
+
+Concurrent publishers acquire a nonblocking sibling lock and append pending
+events to the latest valid disk window before atomic replacement. A busy lock
+defers publication until later owned work or shutdown; it adds no recurring
+idle polling. An unresolved replacement outcome suspends that instance's
+persistence so a retry cannot count a batch twice.
+
+Missing state starts empty. Unreadable, malformed, oversized and unsupported
+records produce a non-modal `Command usage: ...` diagnostic, retain session
+ranking and preserve the existing file. Publication errors do not prevent
+editing or shutdown. Pure `Input` and `Session::new`/`empty` construction does
+not discover user history; embedding hosts explicitly supply a
+`command::usage::History` owner and drive publication and final flush.
 
 ## Implemented catalog
 

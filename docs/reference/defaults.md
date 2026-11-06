@@ -121,6 +121,13 @@ only its missing parents and the complete packaged sample, then validates it
 through the ordinary loader. It does not need installed reference files or a
 checkout. Data, state and cache directories remain absent.
 
+Command ranking loads the existing user-wide state window without creating a
+file or directory. After a named invocation it may create the state root and
+save the latest 256 invocations to `command-history.toml`. This fixed usage
+window is separate from the configured distinct-name M-p/M-n history below.
+See [Command usage state](commands.md#command-usage-state) for the versioned
+format, 64 KiB bound, concurrent publication and nonfatal failure behavior.
+
 Publication exposes a complete synchronized file without replacing a concurrent
 winner. Every existing entry is preserved, including empty/invalid files,
 directories and dangling symbolic links. Pure location, parsing, loading and
@@ -380,7 +387,7 @@ edit limits and finite lifecycle.
 | `windows.split_ratio` | Finite float 0.1..=0.9 | `0.5` | Session; preferred first-child share after the separator, clamped by both recursive subtree minima. |
 | `minibuffer.candidate_limit` | Integer 1..=32 | `8` | Session; maximum visible command/path candidate rows, including any list diagnostic, clipped to geometry. |
 | `minibuffer.match` | String: "prefix-then-substring", "prefix" or "substring" | `"prefix-then-substring"` | Session; M-x matching only. File candidates retain literal component-prefix matching. |
-| `minibuffer.history_limit` | Integer 1..=4096 | `128` | Session; distinct accepted command names in memory, newest first. No persisted history. |
+| `minibuffer.history_limit` | Integer 1..=4096 | `128` | Session; distinct accepted names for M-p/M-n, newest first. Navigation is not persisted; the separate fixed 256-invocation window persists candidate ranking. |
 | `minibuffer.input_limit` | Integer 1..=65536 | `4096` | Session; Unicode scalars per prompt, including paste, completion and history recall. Excess rejects wholly. |
 | `completion.enabled` | Boolean | `true` | Native manual and automatic completion; completion-mode toggles this session only. |
 | `completion.automatic` | Boolean | `true` | Requests after eligible native identifier/separator edits; completion-auto-mode toggles this session only. |

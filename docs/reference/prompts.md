@@ -13,7 +13,9 @@ names, four other frequent names, then the alphabetical remainder within each
 text-match rank. Exact typed names take precedence. An open selector retains its
 usage snapshot through navigation and resize. Tab and M-p/M-n do not record an
 invocation; Return records one before any argument stage. The 256-invocation
-window is separate from distinct-name session history and is not yet persisted.
+window persists for ranking across editor starts and remains separate from
+distinct-name M-p/M-n session navigation. State failures retain session ranking
+and report a non-modal diagnostic; they add no prompt or shutdown decision.
 
 `C-g` cancels the current interaction in both profiles. In the modal profile,
 Escape or `C-[` also cancels it after the short Alt/Meta recognition deadline;
