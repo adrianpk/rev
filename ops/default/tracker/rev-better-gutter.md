@@ -7,7 +7,7 @@ Approved: product owner; specification, three-slice preparation, push and one au
 Plan: [Better Gutter Delivery](../plan/rev-better-gutter.md)
 Specification: [Better Gutter](../spec/editor-better-gutter.md)
 Model: [Better Gutter Model](../spec/editor-better-gutter-model.md)
-Active slice: Slice 2 - Fixed symbols and font flag; implementation in progress
+Active slice: Slice 2 - Fixed symbols and font flag; reviewing, awaiting controller integration
 Progress owner: retained Looper checkpoint and canonical validation receipts
 
 ## Canonical slice map
@@ -40,19 +40,21 @@ Focused completion and documentation checks also passed locally.
 
 ## Slice 2: Fixed symbols and font flag
 
-State: in progress
+State: reviewing
 Dependency: Slice 1 integrated
 Requirements: BMK03, BTG01, BTG04 and configuration model
-Implementation: pending
+Implementation: `c59fea87a73273887736a3a362f0cd19db18875f` (T2.1-T2.3)
 PR: pending
 Report: `ops/default/report/slices/rev-better-gutter/slice-2-markers.md`
-Validation: pending; use the exact ordered Slice 2 commands in the plan.
+Validation: all five required commands passed locally, including strict
+all-target Clippy, 250 suite tests and documentation catalogs. Looper must record
+those commands on the final clean PR-reference HEAD before handoff.
 
-- [ ] T2.1: Deliver the startup boolean and its fixed mapping, with typed merge,
+- [x] T2.1: Deliver the startup boolean and its fixed mapping, with typed merge,
   provenance and ignored legacy marker-string compatibility.
-- [ ] T2.2: Apply the compiled square/bookmark and blue role through existing
+- [x] T2.2: Apply the compiled square/bookmark and blue role through existing
   owners; retain palette overrides and view/source lifetimes.
-- [ ] T2.3: Verify defaults, both choices, malformed input and old configuration;
+- [x] T2.3: Verify defaults, both choices, malformed input and old configuration;
   update the complete sample, catalog, migration guidance and Unreleased outcome.
 
 ## Slice 3: Joint acceptance and guidance
