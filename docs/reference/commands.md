@@ -15,9 +15,12 @@ back into the editor.
 
 - Type a lowercase hyphenated name or part of it. Matching is case-sensitive.
   `minibuffer.match` selects `prefix-then-substring` (the default), `prefix` or
-  `substring`. The default ranks prefixes before other substrings; each rank
-  retains the registry's alphabetical order. Substring mode has one alphabetical
-  rank; prefix mode excludes other substrings.
+  `substring`. An exact name comes first. The default then ranks prefixes before
+  other substrings; substring mode has one remaining rank, while prefix mode
+  excludes other substrings. Within each rank, up to four distinct recent
+  commands lead, followed by up to four other frequent commands, then the
+  alphabetical remainder. Empty queries use that same four/four ordering across
+  the full catalog. No command appears twice and unused names fill no usage slot.
 - The query appears above a vertical list with one command per row. Up to
   `minibuffer.candidate_limit` rows are shown (default 8, admitted range 1..=32),
   clipped to geometry after complete editing minima. The selected command uses
@@ -48,8 +51,18 @@ back into the editor.
 Candidate space borrows presentation rows without scrolling the retained editing
 workspace. When no candidate rows fit, the query and cancellation remain usable.
 Resize preserves the draft and selection; growing restores a coherent list.
-Rendering reads only the admitted command catalog and cannot execute a command or
-observe the filesystem.
+Rendering reads only the admitted command catalog and the selector's captured
+usage snapshot; it cannot execute a command or observe the filesystem.
+
+Session ranking counts the last 256 accepted M-x or modal colon invocations,
+including registered AI commands. Frequency counts repetitions in that window;
+ties prefer the most recent invocation, then the canonical name. Each selector
+captures usage when it opens, so drawing and resize preserve the chosen identity.
+Typing, Tab, history recall, cancellation and unknown names add no usage. Direct
+bindings and internal calls also add none. A named invocation counts once when
+accepted even if its handler fails or a later argument prompt is canceled.
+Usage is currently session-local and starts empty in a new editor. This window
+is separate from the configurable distinct-name M-p/M-n history above.
 
 Argument-taking commands continue with their existing path, buffer or decision
 prompts. Named edits use the same read-only admission and history as bindings.

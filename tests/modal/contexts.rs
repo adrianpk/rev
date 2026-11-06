@@ -76,6 +76,61 @@ fn colon_catalog() {
     assert!(editor.buffer().unwrap().history().is_empty());
 }
 
+// Both entry gestures share session usage. Canceling an argument still counts
+// its named invocation; internal calls, Tab and selector cancellation do not.
+#[test]
+fn colon_ranking() {
+    for colon in [true, false] {
+        let mut editor = session(VIM, "one\ntwo\nthree", 0);
+        editor.execute(Command::GotoLine);
+        control(&mut editor, 'g');
+        let open = |editor: &mut Session, colon: bool| {
+            if colon {
+                keys(editor, ":");
+            } else {
+                editor.handle(Event::Key(KeyEvent::new(
+                    KeyCode::Char('x'),
+                    KeyModifiers::ALT,
+                )));
+            }
+        };
+        open(&mut editor, colon);
+        editor.handle(Event::Paste("goto-line".into()));
+        editor.handle(key(KeyCode::Enter));
+        assert!(
+            editor
+                .frame()
+                .unwrap()
+                .rows()
+                .iter()
+                .any(|row| row.text().starts_with("Goto line: "))
+        );
+        control(&mut editor, 'g');
+        editor.execute(Command::History(History::Undo));
+        open(&mut editor, !colon);
+        let frame = editor.frame().unwrap();
+        let first = frame
+            .rows()
+            .iter()
+            .find(|row| row.band() == rev::display::Band::Completion)
+            .unwrap();
+        assert_eq!(first.text().trim(), "goto-line");
+        editor.handle(Event::Paste("undo".into()));
+        editor.handle(key(KeyCode::Tab));
+        control(&mut editor, 'g');
+        open(&mut editor, colon);
+        let frame = editor.frame().unwrap();
+        let first = frame
+            .rows()
+            .iter()
+            .find(|row| row.band() == rev::display::Band::Completion)
+            .unwrap();
+        assert_eq!(first.text().trim(), "goto-line");
+        assert_eq!(text(&editor), "one\ntwo\nthree");
+        assert_eq!(editor.editing_state(), Some(EditingState::Normal));
+    }
+}
+
 // A cancelled command selector retains the authoritative Visual shape/anchor
 // only while its exact native view, point and source observations survive.
 #[test]

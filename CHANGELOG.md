@@ -47,6 +47,11 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 
 ### Changed
 
+- [M-x and modal colon](docs/reference/commands.md#matching-and-invocation)
+  show up to four recent commands, then four other frequent commands, before
+  the alphabetical remainder. Ranking uses the last 256 named invocations in
+  the current session, preserves text-match priority and keeps the selected
+  command stable during resize. Bindings and canceled drafts do not affect usage.
 - [The file tree](docs/reference/file-tree.md#presentation) uses ordinary symbols
   and semantic colors by default to distinguish roots, directories, source files,
   documents, configuration files and symlinks. Set `gutter.nerd_fonts = true` for

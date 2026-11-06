@@ -1,6 +1,6 @@
 # Command Ranking Tracker
 
-Status: Approved
+Status: In progress
 Date: 2026-11-06
 Delivery set: rev-command-ranking
 Approved: product owner; specification/model and the established preparation commits, three-slice plan, push and one autonomous Looper delivery through dev
@@ -21,19 +21,19 @@ Progress owner: retained Looper checkpoint and canonical validation receipts
 
 ## Slice 1: Session ranking
 
-State: ready
+State: reviewing
 Dependency: approved committed preparation on clean dev
 Requirements: UI02, CMR01-CMR03 and derived ranking model
-Implementation: pending
+Implementation: `3adc46aa4c2e815229c86995aa143ca10023e09e` implements T1.1/T1.2; T1.3 completes coverage, guidance and the report on this branch
 PR: pending
 Report: `ops/default/report/slices/rev-command-ranking/slice-1-session.md`
-Validation: pending; exact commands are in the plan and local configuration
+Validation: all five required commands passed locally, including 328 tests; canonical clean-HEAD evidence belongs to Looper receipts for the final PR-reference commit
 
-- [ ] T1.1: Deliver bounded usage and deterministic recent/frequent ranking
+- [x] T1.1: Deliver bounded usage and deterministic recent/frequent ranking
   within match ranks, with canonical identities and no duplicates.
-- [ ] T1.2: Observe shared named dispatch once and capture stable snapshots;
+- [x] T1.2: Observe shared named dispatch once and capture stable snapshots;
   preserve existing prompt and session-history controls.
-- [ ] T1.3: Verify native session behavior, document its delivered boundary
+- [x] T1.3: Verify native session behavior, document its delivered boundary
   and add one Unreleased product outcome.
 
 ## Slice 2: Persistent usage

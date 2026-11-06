@@ -11,6 +11,8 @@ mod status;
 
 #[path = "display/palette.rs"]
 mod palette;
+#[path = "display/ranking.rs"]
+mod ranking;
 #[path = "support/surface.rs"]
 mod surface;
 #[path = "display/tree.rs"]

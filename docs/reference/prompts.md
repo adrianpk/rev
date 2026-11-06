@@ -8,6 +8,13 @@ M-x, find-file and bookmark-name queries appear above their vertical candidates
 when surplus rows fit; other argument and decision prompts retain the bottom
 prompt row.
 
+M-x and modal colon rank matching commands by session usage: four distinct recent
+names, four other frequent names, then the alphabetical remainder within each
+text-match rank. Exact typed names take precedence. An open selector retains its
+usage snapshot through navigation and resize. Tab and M-p/M-n do not record an
+invocation; Return records one before any argument stage. The 256-invocation
+window is separate from distinct-name session history and is not yet persisted.
+
 `C-g` cancels the current interaction in both profiles. In the modal profile,
 Escape or `C-[` also cancels it after the short Alt/Meta recognition deadline;
 a second Escape cancels immediately. The innermost interaction owns cancellation:

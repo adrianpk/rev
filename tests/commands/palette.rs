@@ -354,6 +354,12 @@ fn catalog_dispatch() {
         };
         let mut direct = create();
         let mut palette = create();
+        // A named selector invocation promotes its own name. Equalize prior
+        // usage before comparing complete frames from the two handler routes.
+        if command == Command::ExecuteExtended {
+            assert_eq!(named(&mut direct, command.name()), Action::Redraw);
+            direct.execute(Command::KeyboardQuit);
+        }
         let action = direct.execute(command);
         assert_ne!(
             direct.echo(),
