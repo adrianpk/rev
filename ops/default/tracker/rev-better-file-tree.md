@@ -8,7 +8,7 @@ Plan: [Better File Tree Delivery](../plan/rev-better-file-tree.md)
 Specification: [Better File Tree](../spec/editor-better-file-tree.md)
 Model: [Better File Tree Model](../spec/editor-better-file-tree-model.md)
 Concern: [Pending Work Index](../README.md)
-Active slice: Slice 1, Decorated presentation
+Active slice: Slice 2, Font icons and geometry
 Progress owner: retained Looper checkpoint and canonical validation receipts
 
 ## Canonical slice map
@@ -21,13 +21,14 @@ Progress owner: retained Looper checkpoint and canonical validation receipts
 
 ## Slice 1: Decorated presentation
 
-State: reviewing
+State: delivered
 Dependency: approved committed preparation on clean dev
 Requirements: BFT01, BFT03 and ordinary-symbol BFT02/BFT04
 Implementation: T1.1 `0adbdac90ae076d3fb0d3ad3dff6b43c1fff2270`; T1.2 `a95c18e140eb6b0d78ac2e269af1c39accd3c28a`; T1.3 `8e42af2708051a5371d11cae49320565caa9c906`
+Integrated: `219b8de4e1fd0957cccc0fe8fd9b5994b6063ed8`
 PR: [#287](https://forge.adrianpk.com/adrianpk/rev/pulls/287)
 Report: `ops/default/report/slices/rev-better-file-tree/slice-1-decoration.md`
-Validation: five ordered commands passed locally; 271 tests plus two isolated NO_COLOR child checks. Final clean-HEAD evidence is recorded separately by Looper after PR references are committed.
+Validation: five ordered commands passed locally; 271 tests plus two isolated NO_COLOR child checks. Looper validate passed all five commands on clean final HEAD `219b8de4e1fd0957cccc0fe8fd9b5994b6063ed8`; canonical PR #287 merged at that commit.
 
 - [x] T1.1: Deliver the startup boolean and entry palette with typed composition,
   provenance, defaults, sample and existing background/selection compatibility.
@@ -38,7 +39,7 @@ Validation: five ordered commands passed locally; 271 tests plus two isolated NO
 
 ## Slice 2: Font icons and geometry
 
-State: pending
+State: in progress
 Dependency: Slice 1 integrated
 Requirements: BFT01-BFT04 and configuration model
 Implementation: pending

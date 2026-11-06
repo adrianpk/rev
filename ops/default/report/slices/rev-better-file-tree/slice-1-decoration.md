@@ -1,11 +1,12 @@
 # Slice 1: Decorated presentation
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-better-file-tree
 Plan: [Better File Tree Delivery](../../../plan/rev-better-file-tree.md)
 Tracker: [Better File Tree Tracker](../../../tracker/rev-better-file-tree.md)
 Branch: `feat/rev-better-file-tree-01-decoration`
 PR: `#287`
+Integrated: `219b8de4e1fd0957cccc0fe8fd9b5994b6063ed8`
 
 ## Purpose
 
@@ -95,8 +96,8 @@ worktree compile took 93s before the first test attempt. Documentation validatio
 covered 85 reachable pages, 570 local links/anchors, 596 commands and 289
 configuration entries against the live schema and sample.
 
-The final PR-reference HEAD receives its own ordered clean-HEAD evidence through
-the controller's validate command; the receipt owns that candidate and timing.
+Looper validate passed all five required commands on clean final PR-reference
+HEAD `219b8de4e1fd0957cccc0fe8fd9b5994b6063ed8`. Canonical PR #287 was verified merged into dev at that same commit.
 These slice checks do not replace the controller-owned final gate. Test fixtures
 are owned and cleaned by their suites; no persistent service was started.
 
