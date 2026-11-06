@@ -44,7 +44,7 @@ Canonical [PR #292](https://forge.adrianpk.com/adrianpk/rev/pulls/292) targets
 The report's immutable introduction is
 `397907bd342d83d54d83c13e7e0cb067fa2cb757`.
 Slice 1's report and tracker are closed against merged PR #291 at
-`17e16f07580cc32d743e6f8d34510dda14c85c2e`; the plan and tracker activate Slice 2.
+`17e16f07580cc32d743e6f8d34510dda14c85c2e`; the plan and tracker activated Slice 2 before this delivery.
 
 `command::usage::Store` validates bounded TOML and uses the existing concrete
 `file::Output` and owned sibling temporary-file boundary. Ordinary-file checks,

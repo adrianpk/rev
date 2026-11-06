@@ -55,20 +55,20 @@ Validation: all five required commands passed locally, including 343 tests; cano
 
 ## Slice 3: Acceptance and guidance
 
-State: active
+State: reviewing
 Dependency: Slice 2 integrated
 Requirements: UI02 and CMR01-CMR05 together
-Implementation: pending
+Implementation: `1a46d3e6f49baef20453597dc1a1298910c6efb6` implements T3.1; `e467e2de7f2fcdba65669a6d6324ad516f0e6b16` implements T3.2; T3.3 records the report and PR handoff
 PR: pending
 Report: `ops/default/report/slices/rev-command-ranking/slice-3-acceptance.md`
-Validation: pending; exact commands are in the plan and local configuration
+Validation: all six required commands passed locally, including 301 tests; focused native/PTY acceptance and Markdown-derived Spore checks also passed. Canonical clean-HEAD evidence belongs to Looper receipts for the final PR-reference commit
 
-- [ ] T3.1: Deliver bounded native, two-profile restart/PTY and paired-publisher
+- [x] T3.1: Deliver bounded native, two-profile restart/PTY and paired-publisher
   acceptance using existing Rust/Bash helpers and owned cleanup.
-- [ ] T3.2: Complete Diataxis and Markdown-derived Spore guidance; reconcile
+- [x] T3.2: Complete Diataxis and Markdown-derived Spore guidance; reconcile
   affected baselines without replacing historical evidence.
-- [ ] T3.3: Record real report/commit/PR evidence, hand off the clean candidate
-  for the controller gate and close only after it passes.
+- [x] T3.3: Record real report/commit/PR evidence, hand off the clean candidate
+  for the controller gate. Set closure remains pending until that gate passes.
 
 ## Final gate and closure
 
