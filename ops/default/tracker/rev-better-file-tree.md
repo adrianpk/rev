@@ -24,8 +24,8 @@ Progress owner: retained Looper checkpoint and canonical validation receipts
 State: reviewing
 Dependency: approved committed preparation on clean dev
 Requirements: BFT01, BFT03 and ordinary-symbol BFT02/BFT04
-Implementation: T1.1 `0adbdac90ae076d3fb0d3ad3dff6b43c1fff2270`; T1.2 `a95c18e140eb6b0d78ac2e269af1c39accd3c28a`; T1.3 in the report introduction commit
-PR: pending
+Implementation: T1.1 `0adbdac90ae076d3fb0d3ad3dff6b43c1fff2270`; T1.2 `a95c18e140eb6b0d78ac2e269af1c39accd3c28a`; T1.3 `8e42af2708051a5371d11cae49320565caa9c906`
+PR: [#287](https://forge.adrianpk.com/adrianpk/rev/pulls/287)
 Report: `ops/default/report/slices/rev-better-file-tree/slice-1-decoration.md`
 Validation: five ordered commands passed locally; 271 tests plus two isolated NO_COLOR child checks. Final clean-HEAD evidence is recorded separately by Looper after PR references are committed.
 

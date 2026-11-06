@@ -5,7 +5,7 @@ Delivery set: rev-better-file-tree
 Plan: [Better File Tree Delivery](../../../plan/rev-better-file-tree.md)
 Tracker: [Better File Tree Tracker](../../../tracker/rev-better-file-tree.md)
 Branch: `feat/rev-better-file-tree-01-decoration`
-PR: pending
+PR: `#287`
 
 ## Purpose
 
@@ -32,7 +32,7 @@ startup configuration and the existing cached tree renderer.
 
 T1.1 is implemented in `0adbdac90ae076d3fb0d3ad3dff6b43c1fff2270`. T1.2 and its renderer/classification regressions
 are implemented in `a95c18e140eb6b0d78ac2e269af1c39accd3c28a`. T1.3 completes the reference, defaults catalog,
-Unreleased outcome and this report in its introduction commit.
+Unreleased outcome and this report in `8e42af2708051a5371d11cae49320565caa9c906`.
 
 `Entry::kind` derives one fixed presentation kind from cached observation data.
 `tree::Kind` owns the compiled basename/suffix catalog, ordinary symbol and
