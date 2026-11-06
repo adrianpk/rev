@@ -1,7 +1,7 @@
 ---
 id: TKT-20261031095151
 title: Show keybindings beside M-x commands
-status: open
+status: ready
 kind: task
 severity: unclassified
 priority: unclassified
@@ -9,6 +9,7 @@ scope: ui
 tags: commands, keybindings
 source: chat
 reported_at: 2026-10-31T09:51:51Z
+ready_at: 2026-11-06T18:48:39Z
 commits: []
 ---
 
@@ -45,3 +46,11 @@ selection, completion, invocation and narrow-width rendering remain usable.
 This is a bounded presentation ticket. Reuse the existing command registry,
 effective keymaps and candidate-list rendering. It does not introduce new
 shortcuts, change dispatch or authorize implementation during capture.
+
+## Specification trail
+
+The owner requested formal specification before implementation on 2026-11-06.
+[Command Keybinding Hints](../../spec/editor-command-keybinding-hints.md)
+records the originating-context rules, primary-hint policy, rendering boundaries
+and acceptance scenarios. The owner approved continuation on 2026-11-06.
+The ticket is ready for the approved plan, tracker and Looper delivery.
