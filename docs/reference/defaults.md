@@ -279,7 +279,7 @@ change only that view's overrides and never reload or write this snapshot.
 | Key | Type and bounds | Default | Scope and effect |
 | --- | --- | --- | --- |
 | `gutter.visible` | Boolean | `true` | Initial number visibility, subject to protected text geometry. |
-| `gutter.nerd_fonts` | Boolean | `false` | Startup choice of compiled bookmark: ordinary square when false, flat Nerd Fonts bookmark when true; no font detection or installation. |
+| `gutter.nerd_fonts` | Boolean | `false` | Startup choice of compiled symbols for bookmarks and decorated tree entries: ordinary when false, Nerd Fonts when true; no font detection or installation. |
 | `gutter.mode` | String: "absolute" or "relative" | `"absolute"` | Logical line calculation from each view's own point. |
 | `gutter.current_line` | String: "absolute", "zero" or "hidden" | `"absolute"` | Current-row label, independent of calculation mode. |
 | `gutter.side` | String: "left" or "right" | `"left"` | Number field placement inside its editing pane. |
@@ -394,7 +394,7 @@ edit limits and finite lifecycle.
 | `history.payload_target_bytes` | Integer 1..=1073741824 | `67108864` | Per buffer; soft logical fragment-payload target in bytes, not resident memory. The newest complete group survives excess. |
 | `kill_ring.capacity` | Integer 1..=4096 | `32` | Session; linear entries, separate from retained rectangle rows. |
 | `kill_ring.coalesce` | Boolean | `true` | Session; consecutive compatible directional kills join; unrelated commands still end the chain. |
-| `tree.decorated` | Boolean | `true` | Startup; ordinary kind symbols and semantic entry colors. Set false for the existing minimal labels. |
+| `tree.decorated` | Boolean | `true` | Startup; kind symbols and semantic entry colors, with the catalog chosen by gutter.nerd_fonts. Set false for the existing minimal labels. |
 | `tree.visible` | Boolean | `false` | Initial show preference; showing never steals editor focus. Narrow geometry can temporarily hide the pane. |
 | `tree.width` | Integer 1..=512 | `24` | Session; preferred tree columns, constrained by its frame share and complete editor geometry. |
 | `tree.max_fraction` | Finite float 0.1..=0.5 | `0.3333333333333333` | Session; maximum terminal-width fraction for the tree. The divider is separate. |

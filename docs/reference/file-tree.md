@@ -24,21 +24,31 @@ does not show a hidden tree or change navigation. Set the startup preference
 `tree.decorated = false` to keep the existing minimal labels; omitted settings
 adopt the decorated default without rewriting your configuration.
 
-| Kind | Ordinary symbol | Foreground role |
-| --- | --- | --- |
-| Root | `◆` | `palette.tree_entries.root` |
-| Directory | `/` | `palette.tree_entries.directory` |
-| Source file | `λ` | `palette.tree_entries.source` |
-| Document | `≡` | `palette.tree_entries.document` |
-| Configuration | `=` | `palette.tree_entries.configuration` |
-| Other file | `·` | `palette.tree_entries.file` |
-| Symlink | `@` | `palette.tree_entries.symlink` |
+Set the existing startup preference `gutter.nerd_fonts = true` when your terminal
+font supports Nerd Fonts. It selects the fixed tree icons below as well as the
+existing gutter bookmark. No font is detected or installed; missing opted-in
+glyphs may appear as boxes. Set it back to false for ordinary symbols. The
+factory default remains false. Restart after changing either preference.
+
+| Kind | Ordinary symbol | Nerd Fonts icon | Foreground role |
+| --- | --- | --- | --- |
+| Root | `◆` | `` U+F1B2 | `palette.tree_entries.root` |
+| Directory | `/` | `` U+F07B closed; `` U+F07C open | `palette.tree_entries.directory` |
+| Source file | `λ` | `` U+F121 | `palette.tree_entries.source` |
+| Document | `≡` | `󰈙` U+F0219 | `palette.tree_entries.document` |
+| Configuration | `=` | `` U+E615 | `palette.tree_entries.configuration` |
+| Other file | `·` | `` U+F15B | `palette.tree_entries.file` |
+| Symlink | `@` | `` U+F481 | `palette.tree_entries.symlink` |
 
 Decorated directories, including the root, use `▸` when closed and `▾` when
 open. Disclosure and kind symbols have separate fields; names at the same
-depth align with a two-cell nesting step. Directory slashes and `[incomplete]`
-diagnostics remain visible. Minimal labels use `>` and `v` for directories
-and `@` for symlinks, independent of the gutter font preference.
+depth align with a two-cell nesting step. Both catalogs have the same four-cell
+disclosure/icon prefix under rev's terminal-cell policy, including one-cell kind
+icons. Directory slashes and `[incomplete]` diagnostics remain visible. Minimal
+labels use `>` and `v` for directories and `@` for symlinks, independent of the
+gutter font preference. Painting and clipping preserve whole Unicode graphemes;
+partial wide glyphs at a pane edge leave spaces. Clicks over disclosure, icon,
+name or remaining row space all apply the existing full-row click policy.
 
 Kinds come from observed type and basename only. Root, symlink and directory
 identity take precedence over suffixes. Source suffixes include `.rs`, `.go`,

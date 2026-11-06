@@ -109,6 +109,9 @@ defaults to `false`, selecting the compiled square `■` (U+25A0). With `true`, 
 uses the compiled flat bookmark `` (U+F02E, `nf-fa-bookmark`). Both occupy one
 terminal cell under rev's display policy and use `palette.gutter.bookmark`, whose
 default is `"#7aa2f7"`. Explicit palette overrides retain precedence.
+The same startup flag selects the fixed Nerd Fonts catalog in the
+[decorated file tree](file-tree.md#presentation). Minimal tree labels ignore it;
+the gutter bookmark still follows the flag.
 
 Set `nerd_fonts = true` in the existing `[gutter]` table only when the terminal
 font supports that glyph. Rev does not detect, install or select a font; a

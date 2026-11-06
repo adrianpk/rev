@@ -49,9 +49,11 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 
 - [The file tree](docs/reference/file-tree.md#presentation) uses ordinary symbols
   and semantic colors by default to distinguish roots, directories, source files,
-  documents, configuration files and symlinks. Set `tree.decorated = false` to
-  retain minimal labels. Customize entry colors under `palette.tree_entries`;
-  tree visibility, navigation and focused selection keep their existing behavior.
+  documents, configuration files and symlinks. Set `gutter.nerd_fonts = true` for
+  the fixed Nerd Fonts icons, or `tree.decorated = false` to retain minimal labels.
+  Both icon sets keep names aligned and clip Unicode labels safely in narrow panes.
+  Customize entry colors under `palette.tree_entries`; tree visibility,
+  navigation and focused selection keep their existing behavior.
 - [Bookmark markers](docs/reference/gutter.md#bookmark-markers) appear before
   left-side line numbers and after right-side numbers, keeping the separator
   beside the text. The default is a blue square; set `gutter.nerd_fonts = true`
