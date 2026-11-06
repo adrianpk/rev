@@ -24,7 +24,7 @@ State: reviewing
 Dependency: approved committed preparation on clean dev
 Requirements: KBH01-KBH05; retain UI02 and CMR01-CMR05
 Branch: `feat/rev-command-keybinding-hints-01-effective`
-PR: pending
+PR: [#294](https://forge.adrianpk.com/adrianpk/rev/pulls/294)
 Report: `ops/default/report/slices/rev-command-keybinding-hints/slice-1-effective.md`
 Validation: the five ordered Slice 1 commands recorded in the plan and local configuration
 
@@ -76,8 +76,11 @@ other open tickets remain outside this delivery.
 ## Slice 1 review evidence
 
 - T1.1 and T1.2 source: `c18cdc0b5bb3feb05074e4d2bcba07c0afcfba6b`.
-- T1.3 extends existing commands/modal/display tests, records one Unreleased
-  outcome and introduces the canonical Slice 1 report.
+- T1.3: `844ec6c5fb9d0c6f71d1de2ca6f98538423d8d12` extends existing
+  commands/modal/display tests, records one Unreleased outcome and introduces
+  the canonical Slice 1 report.
+- Canonical [PR #294](https://forge.adrianpk.com/adrianpk/rev/pulls/294) targets `dev`;
+  the report link pins its full immutable introduction commit.
 - All five required slice commands passed locally: 336 tests (172 commands,
   44 display, 120 modal), 85 documentation pages and 576 local links/anchors.
 - Eight focused hint tests passed, including configured/normalized sequences,

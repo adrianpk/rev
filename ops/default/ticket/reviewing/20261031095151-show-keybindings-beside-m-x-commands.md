@@ -13,7 +13,8 @@ ready_at: 2026-11-06T18:48:39Z
 started_at: 2026-11-06T18:58:38Z
 branch: feat/rev-command-keybinding-hints-01-effective
 reviewed_at: 2026-11-06T19:15:41Z
-commits: [c18cdc0b5bb3feb05074e4d2bcba07c0afcfba6b]
+pr: 294
+commits: [c18cdc0b5bb3feb05074e4d2bcba07c0afcfba6b, 844ec6c5fb9d0c6f71d1de2ca6f98538423d8d12]
 ---
 
 # Show keybindings beside M-x commands
@@ -67,3 +68,7 @@ cell-safe presentation, native regressions and all five successful slice checks.
 The required suites passed 336 tests; eight focused hint tests also passed.
 The source commit is c18cdc0b5bb3feb05074e4d2bcba07c0afcfba6b. This review does
 not close the ticket or claim the delivery-set gate.
+
+Canonical [PR #294](https://forge.adrianpk.com/adrianpk/rev/pulls/294) targets `dev` and
+links the immutable report introduction. The ticket remains reviewing through
+Slice 2 and the successful integrated controller gate.

@@ -5,7 +5,7 @@ Delivery set: rev-command-keybinding-hints
 Plan: [Command Keybinding Hints Delivery](../../../plan/rev-command-keybinding-hints.md)
 Tracker: [Command Keybinding Hints Tracker](../../../tracker/rev-command-keybinding-hints.md)
 Branch: `feat/rev-command-keybinding-hints-01-effective`
-PR: pending
+PR: `#294`
 
 ## Purpose
 
@@ -32,8 +32,11 @@ modal colon selector, retaining UI02 and CMR01-CMR05 behavior.
 ## Implementation Notes
 
 T1.1 and T1.2 source is implemented in
-`c18cdc0b5bb3feb05074e4d2bcba07c0afcfba6b`. T1.3 introduces the existing-suite
-regressions, Unreleased outcome and this report together.
+`c18cdc0b5bb3feb05074e4d2bcba07c0afcfba6b`. T1.3 is implemented in
+`844ec6c5fb9d0c6f71d1de2ca6f98538423d8d12`: existing-suite regressions, the Unreleased outcome and
+this report. Its immutable introduction is that same commit. Canonical
+[PR #294](https://forge.adrianpk.com/adrianpk/rev/pulls/294) targets `dev` and remains open for
+controller verification.
 
 Input inspects only sequences already admitted by the effective maps, bounded
 at eight normalized chords. One isolated input probe owns a map snapshot and
