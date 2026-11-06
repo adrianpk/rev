@@ -2,9 +2,13 @@
 
 Screenshots of rev in use.
 
-## Code and Org
+## Code and Org with indentation
 
-![rev with code completion and two bookmark markers beside Org tasks, dates, tables and a source block](images/rev-rust-org.png)
+![rev with code and a blue bookmark marker beside indented Org tasks, dates, a table and a source block, with M-x commands below](images/rev-rust-org.png)
+
+## Code and Org without indentation
+
+![rev with native code completion and a blue bookmark marker beside Org notes without visual indentation](images/rev-code-org-plain.png)
 
 ## Git Status
 
@@ -12,8 +16,12 @@ Screenshots of rev in use.
 
 ## M-x commands
 
-![rev showing vertical M-x command completion with ai-explain selected](images/rev-mx-commands.png)
+![rev invoking ai-explain through M-x for selected code beside Org notes](images/rev-mx-commands.png)
 
 ## AI explanation
 
-![rev showing a read-only Org explanation of the Rust planner beside its field notes](images/rev-ai-explanation.png)
+![rev showing a read-only Org explanation beside the project's Org field notes](images/rev-ai-explanation.png)
+
+## Integrated terminal
+
+![rev with an interactive terminal in the lower panel beneath an AI explanation and Org notes](images/rev-terminal.png)
