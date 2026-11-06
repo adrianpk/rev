@@ -60,8 +60,8 @@ Validation: five required commands passed in order; 235 selected tests and two i
 State: reviewing
 Dependency: Slice 2 integrated
 Requirements: BFT01-BFT04 together
-Implementation: T3.1 `cc2ae9dfc614a8e7956aef79c96ed542a3d093ae`; T3.2/T3.3 handoff in report introduction commit
-PR: pending
+Implementation: T3.1 `cc2ae9dfc614a8e7956aef79c96ed542a3d093ae`; T3.2/T3.3 handoff `33411913f2e5d77191f61f27068b9d80ecbf8c39`
+PR: [#289](https://forge.adrianpk.com/adrianpk/rev/pulls/289)
 Report: `ops/default/report/slices/rev-better-file-tree/slice-3-acceptance.md`
 Validation: six required commands passed locally in order; 231 tests, bounded native/NO_COLOR acceptance, two restored PTYs and local 85-page Spore build passed. Final clean-HEAD evidence is recorded separately by Looper after PR references are committed.
 

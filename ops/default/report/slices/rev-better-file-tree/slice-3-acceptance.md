@@ -5,7 +5,7 @@ Delivery set: rev-better-file-tree
 Plan: [Better File Tree Delivery](../../../plan/rev-better-file-tree.md)
 Tracker: [Better File Tree Tracker](../../../tracker/rev-better-file-tree.md)
 Branch: `test/rev-better-file-tree-03-acceptance`
-PR: pending
+PR: `#289`
 
 ## Purpose
 
@@ -36,8 +36,8 @@ prepare the candidate for the controller-owned integrated gate and closure.
 
 T3.1 is implemented in `cc2ae9dfc614a8e7956aef79c96ed542a3d093ae`.
 T3.2 guidance, baseline reconciliation and the initial T3.3 handoff report are in
-this report's introduction commit. Its immutable identity and the canonical PR
-are recorded in the tracker after introduction.
+report introduction commit `33411913f2e5d77191f61f27068b9d80ecbf8c39`.
+Canonical PR #289 targets dev; the tracker records both implementation commits.
 
 The driver reuses the existing frame/surface inspector and completion acceptance
 PTY helper. Native cases carry the configuration matrix; two PTYs provide real
