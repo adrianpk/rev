@@ -4,6 +4,8 @@ Status: Approved
 Date: 2026-11-06
 Approved: product owner, 2026-11-06; specification/model and one autonomous Looper delivery through dev
 Specification: [Better File Tree](editor-better-file-tree.md)
+Plan: [Better File Tree Delivery](../plan/rev-better-file-tree.md)
+Tracker: [Better File Tree Tracker](../tracker/rev-better-file-tree.md)
 Baseline models: [Configuration](editor-configuration-model.md), [File and Directory Navigation](editor-file-navigation-model.md), [Better Gutter](editor-better-gutter-model.md)
 
 ## Configuration contract

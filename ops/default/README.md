@@ -24,7 +24,7 @@ retain their own specification/model state.
 
 | Topic | Artifacts | State and remaining decisions |
 | --- | --- | --- |
-| Better file tree | [Spec](spec/editor-better-file-tree.md), [model](spec/editor-better-file-tree-model.md) | Approved on 2026-11-06. Decorated presentation by default, existing minimal labels through `tree.decorated = false`, and ordinary or Nerd Fonts symbols selected by `gutter.nerd_fonts`. The owner authorized preparation, plan, slicing, push and one autonomous Looper delivery through dev. |
+| Better file tree | [Spec](spec/editor-better-file-tree.md), [model](spec/editor-better-file-tree-model.md), [plan](plan/rev-better-file-tree.md), [tracker](tracker/rev-better-file-tree.md) | Approved on 2026-11-06 for one three-slice Looper delivery through dev. Decorated default, existing minimal labels through `tree.decorated = false`, shared Nerd Fonts choice and Markdown/Spore guidance. Looper owns execution progress. |
 | Native Git integration | [Spec](spec/editor-git-integration.md), [model](spec/editor-git-integration-model.md), [plan](plan/rev-git-integration.md), [tracker](tracker/rev-git-integration.md) | Delivered / Completed. Fourteen slices through PRs #258-#271 and authorized repair #272 deliver native GIT01-GIT20 workflows, contextual bindings, installed-Git ownership, separate fetch/reviewed push, both local tag kinds and bounded process/source lifetime. The unchanged controller gate passed at `343850fb6914bf801dfa248b8cdd0e1c34ae1fef`, receipt `D6BU4EM7IWRUA3UHGDBE432UK3`; [Slice 14 closure](report/slices/rev-git-integration/slice-14-guidance.md#delivery-set-closure) records exact counts and evidence limits. |
 | Keybinding hints in M-x | [Ticket](ticket/open/20261031095151-show-keybindings-beside-m-x-commands.md) | Open. Show assigned shortcuts beside command candidates using effective bindings; preserve command completion and invocation. |
 | Tree selection highlight and active-buffer synchronization | [Ticket](ticket/open/20261031093408-highlight-tree-selection-and-sync-active-buffer.md) | Open follow-up for later. Persistent selection feedback and displayed-buffer synchronization; multi-pane and tree-navigation indication policy remain to be settled. |
@@ -49,6 +49,13 @@ retain their own specification/model state.
 | External programs/extensions | [Spec](spec/editor-external-extensions.md), [model](spec/editor-external-extensions-model.md) | Optional exploration only. Explicit configuration, stdio and one child per invocation are the refined draft profile. Adoption itself is undecided; no scheduled delivery or baseline dependency. |
 
 ## Selected execution order
+
+On 2026-11-06 the owner approved Better File Tree and requested Conventional
+Commits, plan, slicing, push and one autonomous Looper delivery. The approved
+three-slice plan starts with decorated ordinary-symbol presentation, completes
+Nerd Fonts icons and shared geometry, then validates joint behavior and guidance.
+The linked plan/tracker own slice identities; Looper owns actual progress.
+The persistent selection/active-buffer synchronization ticket remains separate.
 
 Better Gutter is Completed on 2026-11-06 after three canonical slices and
 repair #285. The unchanged controller gate passed at
