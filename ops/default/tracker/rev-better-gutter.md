@@ -1,13 +1,13 @@
 # Better Gutter Tracker
 
-Status: Ready
+Status: In progress
 Date: 2026-11-06
 Delivery set: rev-better-gutter
 Approved: product owner; specification, three-slice preparation, push and one autonomous Looper delivery through dev
 Plan: [Better Gutter Delivery](../plan/rev-better-gutter.md)
 Specification: [Better Gutter](../spec/editor-better-gutter.md)
 Model: [Better Gutter Model](../spec/editor-better-gutter-model.md)
-Active slice: Slice 1 - Outside marker layout; execution not started
+Active slice: Slice 1 - Outside marker layout; reviewing, awaiting controller integration
 Progress owner: retained Looper checkpoint and canonical validation receipts
 
 ## Canonical slice map
@@ -20,19 +20,21 @@ Progress owner: retained Looper checkpoint and canonical validation receipts
 
 ## Slice 1: Outside marker layout
 
-State: pending
+State: reviewing
 Dependency: approved committed preparation on clean dev
 Requirements: BMK03, BTG02, BTG04
-Implementation: pending
+Implementation: `f4698fc7b506a610cbbef6aa12f6e5bd459be019` (T1.1-T1.3)
 PR: pending
 Report: `ops/default/report/slices/rev-better-gutter/slice-1-layout.md`
-Validation: pending; use the exact ordered Slice 1 commands in the plan.
+Validation: local formatting, scoped strict Clippy, 223 approved suite tests,
+focused completion and documentation checks passed. Looper must record the
+four required commands on the final clean PR-reference HEAD before handoff.
 
-- [ ] T1.1: Allocate the marker outside numbers; preserve mirrored placement,
+- [x] T1.1: Allocate the marker outside numbers; preserve mirrored placement,
   narrow-pane safety, visibility and zero folding-column allocation.
-- [ ] T1.2: Share the checked geometry across paint, input, wrapping and overlays
+- [x] T1.2: Share the checked geometry across paint, input, wrapping and overlays
   while retaining prepared bookmark observations and canonical source identity.
-- [ ] T1.3: Verify affected native geometry, source fidelity and presentation;
+- [x] T1.3: Verify affected native geometry, source fidelity and presentation;
   update the layout reference and one reader-facing Unreleased outcome.
 
 ## Slice 2: Fixed symbols and font flag
