@@ -32,6 +32,8 @@ mod selection_edit;
 mod tree_click;
 #[path = "pointer/tree_click_policy.rs"]
 mod tree_click_policy;
+#[path = "pointer/tree_decoration.rs"]
+mod tree_decoration;
 #[path = "pointer/workspace.rs"]
 mod workspace;
 

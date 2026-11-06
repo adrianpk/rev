@@ -244,3 +244,65 @@ fn rebound_labels() {
     assert!(session.buffer().unwrap().history().is_empty());
     assert!(!session.buffer().unwrap().is_modified());
 }
+
+// One frozen font preference drives the tree catalog and the existing gutter
+// bookmark independently of decoration. Editing the source config cannot change
+// either consumer during a live session; owned manual bookmark storage avoids IO
+// outside this fixture.
+#[test]
+fn shared_font_choice() {
+    use super::config_fixture::Fixture;
+    use rev::command::BookmarkCommand;
+    let fixture = Fixture::new();
+    let source = fixture.write("root/main.rs", "retained");
+    for (decorated, nerd_fonts) in [(false, false), (false, true), (true, false), (true, true)] {
+        let config = fixture.write("config.toml", &format!("tree.visible=true\ntree.decorated={decorated}\ngutter.nerd_fonts={nerd_fonts}\nbookmarks.file='{}'\nbookmarks.save='manual'", fixture.0.join("bookmarks.toml").display()));
+        let startup = rev::config::prepare(&config);
+        assert!(startup.diagnostic.is_none(), "{:?}", startup.diagnostic);
+        let mut buffers = Buffers::with_settings(startup.snapshot.clone()).unwrap();
+        let id = buffers.visit(&source).unwrap();
+        let view = View::with_settings(buffers.get(id).unwrap(), &startup.snapshot);
+        let mut session = Session::new(buffers, view, SIZE).unwrap();
+        session.execute(Command::Bookmark(BookmarkCommand::Set));
+        submit(&mut session, "font-choice");
+        assert!(session.bookmarks().get("font-choice").is_some());
+        fixture.write(
+            "config.toml",
+            &format!(
+                "tree.decorated={}\ngutter.nerd_fonts={}",
+                !decorated, !nerd_fonts
+            ),
+        );
+        let frame = session.frame().unwrap();
+        let tree_prefix = if !decorated {
+            "v root/"
+        } else if nerd_fonts {
+            "▾ \u{f1b2} root/"
+        } else {
+            "▾ ◆ root/"
+        };
+        assert!(frame.rows()[0].text().starts_with(tree_prefix));
+        let composition =
+            Composition::workspace(session.windows(), session.tree(), SIZE, 0).unwrap();
+        let panel = composition
+            .panels()
+            .iter()
+            .find(|(id, _)| *id == session.windows().selected_id())
+            .unwrap()
+            .1;
+        let geometry = session
+            .view()
+            .gutter_geometry(session.buffer().unwrap(), panel.content())
+            .unwrap();
+        let marker = geometry.marker().unwrap();
+        let cells = surface::draw(&frame);
+        let cell = cells[&(usize::from(marker.row()), usize::from(marker.column()))];
+        assert_eq!(cell.character, if nerd_fonts { '\u{f02e}' } else { '■' });
+        assert_eq!(
+            cell.foreground,
+            Some(rev::config::Palette::default().gutter.bookmark)
+        );
+        assert!(!session.buffer().unwrap().is_modified());
+        assert!(session.buffer().unwrap().history().is_empty());
+    }
+}

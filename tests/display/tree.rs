@@ -32,10 +32,10 @@ fn entry_colors() {
         .enumerate()
         .map(|(index, role)| format!("palette.tree_entries.{role}='#{:02x}0203'\n", index + 1))
         .collect::<String>();
-    for decorated in [false, true] {
+    for (decorated, nerd_fonts) in [(false, false), (false, true), (true, false), (true, true)] {
         let startup = prepare(&fixture.write(
             "config.toml",
-            &format!("tree.visible=true\ntree.decorated={decorated}\n{colors}"),
+            &format!("tree.visible=true\ntree.decorated={decorated}\ngutter.nerd_fonts={nerd_fonts}\n{colors}"),
         ));
         assert!(startup.diagnostic.is_none(), "{:?}", startup.diagnostic);
         let palette = startup.snapshot.settings().palette.clone();
@@ -129,31 +129,52 @@ fn no_color() {
         );
         return;
     }
-    let fixture = config_fixture::Fixture::new();
-    let source = fixture.write("root/main.rs", "retained");
-    let startup = prepare(&fixture.write("config.toml", "tree.visible=true"));
-    assert!(startup.diagnostic.is_none());
-    let mut buffers = Buffers::with_settings(startup.snapshot).unwrap();
-    let id = buffers.visit(&source).unwrap();
-    let view = View::new(buffers.get(id).unwrap());
-    let mut session = Session::new(
-        buffers,
-        view,
-        Size {
-            width: 80,
-            height: 8,
-        },
-    )
-    .unwrap();
-    session.execute(Command::Tree(TreeCommand::Focus));
-    let frame = session.frame().unwrap();
-    assert!(frame.rows()[0].text().starts_with("▾ ◆ root/"));
-    assert!(frame.rows()[1].text().starts_with("    λ main.rs"));
-    let mut bytes = Vec::new();
-    frame.write(&mut bytes).unwrap();
-    let output = String::from_utf8(bytes).unwrap();
-    assert!(!output.contains("38;2;") && !output.contains("48;2;"));
-    assert!(output.contains("\x1b[7m"));
-    assert!(output.contains("◆ root/") && output.contains("λ main.rs"));
-    assert!(!session.buffer().unwrap().is_modified());
+    for (decorated, nerd_fonts) in [(false, false), (false, true), (true, false), (true, true)] {
+        let fixture = config_fixture::Fixture::new();
+        let source = fixture.write("root/main.rs", "retained");
+        let startup = prepare(&fixture.write(
+            "config.toml",
+            &format!(
+                "tree.visible=true\ntree.decorated={decorated}\ngutter.nerd_fonts={nerd_fonts}"
+            ),
+        ));
+        assert!(startup.diagnostic.is_none());
+        let mut buffers = Buffers::with_settings(startup.snapshot).unwrap();
+        let id = buffers.visit(&source).unwrap();
+        let view = View::new(buffers.get(id).unwrap());
+        let mut session = Session::new(
+            buffers,
+            view,
+            Size {
+                width: 80,
+                height: 8,
+            },
+        )
+        .unwrap();
+        session.execute(Command::Tree(TreeCommand::Focus));
+        let frame = session.frame().unwrap();
+        let root = if !decorated {
+            "v root/"
+        } else if nerd_fonts {
+            "▾ \u{f1b2} root/"
+        } else {
+            "▾ ◆ root/"
+        };
+        let source = if !decorated {
+            "    main.rs"
+        } else if nerd_fonts {
+            "    \u{f121} main.rs"
+        } else {
+            "    λ main.rs"
+        };
+        assert!(frame.rows()[0].text().starts_with(root));
+        assert!(frame.rows()[1].text().starts_with(source));
+        let mut bytes = Vec::new();
+        frame.write(&mut bytes).unwrap();
+        let output = String::from_utf8(bytes).unwrap();
+        assert!(!output.contains("38;2;") && !output.contains("48;2;"));
+        assert!(output.contains("\x1b[7m"));
+        assert!(output.contains(root) && output.contains(source));
+        assert!(!session.buffer().unwrap().is_modified());
+    }
 }
