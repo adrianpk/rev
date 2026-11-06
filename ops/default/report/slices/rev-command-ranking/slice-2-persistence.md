@@ -1,6 +1,6 @@
 # Slice 2: Persistent usage
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-command-ranking
 Plan: [Command Ranking Delivery](../../../plan/rev-command-ranking.md)
 Tracker: [Command Ranking Tracker](../../../tracker/rev-command-ranking.md)
@@ -40,7 +40,8 @@ T2.1 and T2.2 are implemented in
 `397907bd342d83d54d83c13e7e0cb067fa2cb757`: the real-boundary test target,
 reference/defaults guidance, updated Unreleased entry and this report.
 Canonical [PR #292](https://forge.adrianpk.com/adrianpk/rev/pulls/292) targets
-`dev`. The report's immutable introduction is
+`dev` and is merged there at `ce48b3a699970eec94375ba116f100c4eedb949c`.
+The report's immutable introduction is
 `397907bd342d83d54d83c13e7e0cb067fa2cb757`.
 Slice 1's report and tracker are closed against merged PR #291 at
 `17e16f07580cc32d743e6f8d34510dda14c85c2e`; the plan and tracker activate Slice 2.
@@ -127,4 +128,5 @@ Forced termination can lose unpublished events. Filesystem work that outlasts
 the final flush deadline returns a diagnostic and retains its sole worker slot.
 The joint ranking matrix, paired real-publisher acceptance, representative
 two-profile restart journeys, User Guide/Spore completion and baseline closure
-remain Slice 3.
+remain Slice 3. The plan and tracker now activate that slice; the integrated
+gate and delivery-set closure remain controller-owned.

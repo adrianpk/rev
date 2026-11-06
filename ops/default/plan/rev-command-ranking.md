@@ -10,7 +10,7 @@ Specification: [Command Recency and Frequency](../spec/editor-command-ranking.md
 Model: [Command Usage Model](../spec/editor-command-ranking-model.md)
 Tracker: [Command Ranking Tracker](../tracker/rev-command-ranking.md)
 Concern: [Pending Work Index](../README.md)
-Active slice: Slice 2, Persistent usage
+Active slice: Slice 3, Acceptance and guidance
 
 ## Outcome and strategy
 

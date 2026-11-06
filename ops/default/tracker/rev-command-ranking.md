@@ -8,7 +8,7 @@ Plan: [Command Ranking Delivery](../plan/rev-command-ranking.md)
 Specification: [Command Recency and Frequency](../spec/editor-command-ranking.md)
 Model: [Command Usage Model](../spec/editor-command-ranking-model.md)
 Concern: [Pending Work Index](../README.md)
-Active slice: Slice 2, Persistent usage
+Active slice: Slice 3, Acceptance and guidance
 Progress owner: retained Looper checkpoint and canonical validation receipts
 
 ## Canonical slice map
@@ -38,11 +38,11 @@ Validation: all five required commands passed locally, including 328 tests; cano
 
 ## Slice 2: Persistent usage
 
-State: reviewing
+State: delivered
 Dependency: Slice 1 integrated
 Requirements: UI02, CMR01-CMR05 and complete usage model
 Implementation: `380c07e992ba94d631f7e82d246cb1fc9f71391a` implements T2.1/T2.2; `397907bd342d83d54d83c13e7e0cb067fa2cb757` implements T2.3 and introduces the report
-PR: [#292](https://forge.adrianpk.com/adrianpk/rev/pulls/292), open against `dev`
+PR: [#292](https://forge.adrianpk.com/adrianpk/rev/pulls/292), merged into `dev` at `ce48b3a699970eec94375ba116f100c4eedb949c`
 Report: `ops/default/report/slices/rev-command-ranking/slice-2-persistence.md`
 Validation: all five required commands passed locally, including 343 tests; canonical clean-HEAD evidence belongs to Looper receipts for the final PR-reference commit
 
@@ -55,7 +55,7 @@ Validation: all five required commands passed locally, including 343 tests; cano
 
 ## Slice 3: Acceptance and guidance
 
-State: pending
+State: active
 Dependency: Slice 2 integrated
 Requirements: UI02 and CMR01-CMR05 together
 Implementation: pending
