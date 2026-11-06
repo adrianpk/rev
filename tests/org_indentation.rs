@@ -464,7 +464,7 @@ fn gutter_and_bookmark_identity() {
             .gutter_geometry(b, Area::new(0, 0, 20, 12).unwrap())
             .unwrap();
         let marker = usize::from(geometry.marker().unwrap().column());
-        assert_eq!(frame.rows()[1].text().chars().nth(marker), Some('●'));
+        assert_eq!(frame.rows()[1].text().chars().nth(marker), Some('■'));
         assert_eq!(frame.cursor().unwrap().column, geometry.text().column() + 4);
         let rows = session
             .view()
@@ -484,7 +484,7 @@ fn gutter_and_bookmark_identity() {
     session.execute(Command::Org(OrgCommand::HideSubtree));
     settle(&mut session);
     let frame = session.frame().unwrap();
-    assert!(!frame.rows().iter().any(|row| row.text().contains('●')));
+    assert!(!frame.rows().iter().any(|row| row.text().contains('■')));
     assert_eq!(
         session.bookmarks().get("body").unwrap().point().position,
         Scalar(5)
