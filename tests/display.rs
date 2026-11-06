@@ -21,7 +21,7 @@ use rev::view::View;
 use unicode_width::UnicodeWidthStr;
 
 // The initial frame borrows the canonical empty buffer, reserves distinct
-// document/status/echo rows, and places the active cursor at the first text cell after numbering.
+// document/status/echo rows, and places a blank outside marker before numbering.
 #[test]
 fn initial_frame() {
     let buffers = Buffers::new().unwrap();
@@ -41,7 +41,7 @@ fn initial_frame() {
     assert_eq!(frame.cursor(), Some(Position { column: 7, row: 0 }));
     assert_eq!(frame.rows().len(), 24);
     for (index, row) in frame.rows()[..22].iter().enumerate() {
-        let prefix = if index == 0 { "   1 │" } else { "     │" };
+        let prefix = if index == 0 { "    1 │" } else { "      │" };
         assert_eq!(row.band(), Band::Document);
         assert!(row.text().strip_prefix(prefix).unwrap().trim().is_empty());
     }

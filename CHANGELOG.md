@@ -45,6 +45,13 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
   separately selected shell route review executable, arguments and directory;
   arbitrary effects stay unknown even after exit zero.
 
+### Changed
+
+- [Bookmark markers](docs/reference/gutter.md#bookmark-markers) appear before
+  left-side line numbers and after right-side numbers, keeping the separator
+  beside the text. Markers remain visible when numbers are hidden and yield
+  first when the pane is too narrow.
+
 ## 0.5.0 - 2026-11-04
 
 ### Added

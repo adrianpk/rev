@@ -67,8 +67,8 @@ fn decimal_width() {
 }
 
 // Side, visibility, padding and tiny/zero geometry are crossed at ordinary and
-// maximal u16 origins. A full field either fits beside protected text or yields
-// completely; restoration never changes the requested policy.
+// maximal u16 origins. Number admission has priority over the outside marker;
+// adjacent fields consume exactly their widths without a dormant folding cell.
 #[test]
 fn partition_grid() {
     for (side, format, visible) in [
@@ -87,55 +87,58 @@ fn partition_grid() {
                     visible,
                     ..Settings::default()
                 };
-                check_partition(area(2, 3, width, height), lines, settings);
-                check_partition(
-                    area(u16::MAX - width, u16::MAX - height, width, height),
-                    lines,
-                    settings,
-                );
+                for markers in [false, true] {
+                    check_partition(area(2, 3, width, height), lines, settings, markers);
+                    check_partition(
+                        area(u16::MAX - width, u16::MAX - height, width, height),
+                        lines,
+                        settings,
+                        markers,
+                    );
+                }
             }
         }
     }
 }
 
-fn check_partition(content: Area, lines: usize, settings: Settings) {
-    let geometry = Geometry::new(content, lines, settings).unwrap();
+fn check_partition(content: Area, lines: usize, settings: Settings, markers: bool) {
+    let geometry = Geometry::with_marker(content, lines, settings, markers).unwrap();
     let field = u16::from(geometry.digits())
         + u16::from(settings.format.left_padding())
         + u16::from(settings.format.right_padding())
         + 1;
     let fits = u32::from(content.width()) >= u32::from(field) + 3;
-    assert_eq!(
-        geometry.numbers().is_some(),
-        settings.visible && content.height() > 0 && fits
-    );
-    let Some(numbers) = geometry.numbers() else {
-        assert_eq!(geometry.text(), content);
-        return;
-    };
+    let numbered = settings.visible && content.height() > 0 && fits;
+    assert_eq!(geometry.numbers().is_some(), numbered);
+    let reserved = if numbered { field } else { 0 };
+    let marked = markers && content.height() > 0 && content.width() >= reserved + 4;
+    assert_eq!(geometry.marker().is_some(), marked);
     let text = geometry.text();
-    assert_eq!(numbers.width(), field);
-    assert!(text.width() >= 3);
-    assert_eq!(numbers.width() + text.width(), content.width());
-    assert_eq!(
-        (numbers.row(), numbers.height()),
-        (content.row(), content.height())
-    );
-    assert_eq!(
-        (text.row(), text.height()),
-        (content.row(), content.height())
-    );
-    let (first, second) = match settings.side {
-        Side::Left => (numbers, text),
-        Side::Right => (text, numbers),
-    };
-    assert_eq!(first.column(), content.column());
-    assert_eq!(
-        u32::from(first.column()) + u32::from(first.width()),
-        u32::from(second.column())
-    );
-    assert_eq!(
-        u32::from(second.column()) + u32::from(second.width()),
-        u32::from(content.column()) + u32::from(content.width())
-    );
+    assert_eq!(text.width() + reserved + u16::from(marked), content.width());
+    if numbered || marked {
+        assert!(text.width() >= Geometry::MIN_TEXT_COLUMNS);
+    }
+    let mut fields = Vec::new();
+    if let Some(marker) = geometry.marker() {
+        assert_eq!(marker.width(), 1);
+        fields.push(marker);
+    }
+    if let Some(numbers) = geometry.numbers() {
+        assert_eq!(numbers.width(), field);
+        fields.push(numbers);
+    }
+    fields.push(text);
+    if settings.side == Side::Right {
+        fields.reverse();
+    }
+    let mut column = content.column();
+    for field in fields {
+        assert_eq!(field.column(), column);
+        assert_eq!(
+            (field.row(), field.height()),
+            (content.row(), content.height())
+        );
+        column += field.width();
+    }
+    assert_eq!(column, content.column() + content.width());
 }

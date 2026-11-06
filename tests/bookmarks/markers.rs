@@ -89,7 +89,10 @@ fn narrow_geometry() {
                     let content = area(width, height);
                     let numbers = Geometry::new(content, 999, settings).unwrap();
                     let actual = Geometry::with_marker(content, 999, settings, true).unwrap();
-                    assert_eq!(actual.numbers(), numbers.numbers());
+                    assert_eq!(
+                        actual.numbers().map(|field| field.width()),
+                        numbers.numbers().map(|field| field.width())
+                    );
                     let expected = height > 0 && numbers.text().width() >= 4;
                     assert_eq!(
                         actual.marker().is_some(),
@@ -112,6 +115,8 @@ fn narrow_geometry() {
                                 })
                                 .is_none()
                         );
+                    } else {
+                        assert_eq!(actual, numbers);
                     }
                 }
             }
@@ -143,6 +148,19 @@ fn independent_fields() {
                 });
                 let frame = project(&s, &view, 24, 8);
                 assert_eq!(rows(&frame), [1]);
+                let rendered = frame.rows()[1].text();
+                match (side, visible) {
+                    (Side::Left, true) => assert!(rendered.starts_with("●   2 │second")),
+                    (Side::Right, true) => {
+                        assert!(rendered.starts_with("second"));
+                        assert!(rendered.ends_with("│   2 ●"));
+                    }
+                    (Side::Left, false) => assert!(rendered.starts_with("●second")),
+                    (Side::Right, false) => {
+                        assert!(rendered.starts_with("second"));
+                        assert!(rendered.ends_with('●'));
+                    }
+                }
                 let geometry = view
                     .gutter_geometry(s.buffer().unwrap(), area(24, 6))
                     .unwrap();
@@ -253,30 +271,33 @@ fn fragment_identity() {
     argument(&mut s, BookmarkCommand::Set, "body");
     goto(&mut s, 3);
     argument(&mut s, BookmarkCommand::Set, "heading");
-    let mut view = s.view().clone();
-    view.point.position = Scalar(0);
-    let wrapped = project(&s, &view, 15, 14);
-    assert_eq!(rows(&wrapped), [2, 5]);
-    let mut continuation = view.clone();
-    continuation.point.position = Scalar(19);
-    continuation
-        .reveal(
-            s.buffer().unwrap(),
-            Size {
-                width: 15,
-                height: 3,
-            },
-        )
-        .unwrap();
-    let clipped = project(&s, &continuation, 15, 3);
-    assert!(clipped.cursor().is_some());
-    assert!(rows(&clipped).is_empty());
-    let buffer = s.buffer().unwrap();
-    let hidden = Source::new(buffer).range(Byte(9)..Byte(28)).unwrap();
-    view.set_folds(buffer, &[hidden]).unwrap();
-    let folded = project(&s, &view, 15, 14);
-    assert_eq!(rows(&folded), [2]);
-    assert!(folded.rows()[2].text().contains("Last"));
+    for side in [Side::Left, Side::Right] {
+        let mut view = s.view().clone();
+        view.gutter.apply(rev::gutter::Change::Side(side));
+        view.point.position = Scalar(0);
+        let wrapped = project(&s, &view, 15, 14);
+        assert_eq!(rows(&wrapped), [2, 5]);
+        let mut continuation = view.clone();
+        continuation.point.position = Scalar(19);
+        continuation
+            .reveal(
+                s.buffer().unwrap(),
+                Size {
+                    width: 15,
+                    height: 3,
+                },
+            )
+            .unwrap();
+        let clipped = project(&s, &continuation, 15, 3);
+        assert!(clipped.cursor().is_some());
+        assert!(rows(&clipped).is_empty());
+        let buffer = s.buffer().unwrap();
+        let hidden = Source::new(buffer).range(Byte(9)..Byte(28)).unwrap();
+        view.set_folds(buffer, &[hidden]).unwrap();
+        let folded = project(&s, &view, 15, 14);
+        assert_eq!(rows(&folded), [2]);
+        assert!(folded.rows()[2].text().contains("Last"));
+    }
     s.execute(Command::Motion(Motion::BufferStart));
     s.execute(Command::Org(rev::command::OrgCommand::HideSubtree));
     let deadline = std::time::Instant::now() + std::time::Duration::from_secs(5);
@@ -483,6 +504,7 @@ fn overlay_geometry() {
                 .unwrap();
             let text = geometry.text();
             let marker = geometry.marker().unwrap();
+            let source_before = (s.buffer().unwrap().stamp(), s.buffer().unwrap().state());
             s.execute(Command::SearchForward);
             s.handle(Event::Paste("beta".into()));
             let frame = s.frame().unwrap();
@@ -529,6 +551,13 @@ fn overlay_geometry() {
                 Some(text.column() + 1..text.column() + 5)
             );
             assert_eq!(rows(&frame), [0]);
+            s.execute(Command::Linear(rev::command::LinearCommand::Copy));
+            assert_eq!(s.killed_text().unwrap().to_string(), "lpha");
+            assert_eq!(
+                (s.buffer().unwrap().stamp(), s.buffer().unwrap().state()),
+                source_before
+            );
+            assert!(s.buffer().unwrap().history().is_empty());
             assert_eq!(
                 std::fs::read_to_string(path).unwrap(),
                 "alpha beta gamma delta\nlast\n"

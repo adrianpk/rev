@@ -40,7 +40,7 @@ impl Geometry {
         Self::with_marker(content, lines, settings, false)
     }
 
-    /// Allocate numbers first, then an independent one-cell bookmark field.
+    /// Admit numbers first, then place a one-cell bookmark field outside them.
     /// Narrow panes omit the marker before reducing available number geometry.
     pub fn with_marker(
         content: Area,
@@ -63,12 +63,16 @@ impl Geometry {
             geometry.numbers = Some(numbers);
             geometry.text = text;
         }
-        if markers
-            && content.height() > 0
-            && let Some((marker, text)) = partition(geometry.text, 1, settings.side)
-        {
+        if markers && content.height() > 0 && partition(geometry.text, 1, settings.side).is_some() {
+            let (marker, inner) = partition(content, 1, settings.side).ok_or(Error::Overflow)?;
             geometry.marker = Some(marker);
-            geometry.text = text;
+            geometry.text = inner;
+            if geometry.numbers.is_some() {
+                let (numbers, text) =
+                    partition(inner, width, settings.side).ok_or(Error::Overflow)?;
+                geometry.numbers = Some(numbers);
+                geometry.text = text;
+            }
         }
         Ok(geometry)
     }

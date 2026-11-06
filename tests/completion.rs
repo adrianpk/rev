@@ -204,11 +204,25 @@ fn admitted_sources() {
 }
 
 // The popup is an overlay: it preserves source cursor/scroll, uses the selection
-// palette across the candidate row and fits after split/resize, including above
-// a bottom-row cursor. Tiny panes keep cancellation and source editing usable.
+// palette across the candidate row and follows the same text origin with either
+// gutter side and marker visibility. Tiny panes retain source byte identity.
 #[test]
 fn cursor_popup() {
+    for side in [rev::gutter::Side::Left, rev::gutter::Side::Right] {
+        for markers in [false, true] {
+            popup_case(side, markers);
+        }
+    }
+}
+
+fn popup_case(side: rev::gutter::Side, markers: bool) {
     let (_fixture, mut session) = source(SOURCE);
+    if side == rev::gutter::Side::Right {
+        session.execute(Command::Gutter(rev::command::GutterCommand::ToggleSide));
+    }
+    if !markers {
+        session.execute(Command::Bookmark(rev::command::BookmarkCommand::Markers));
+    }
     let original = session.frame().unwrap();
     let cursor = original.cursor();
     complete(&mut session);
@@ -225,6 +239,7 @@ fn cursor_popup() {
     let cells = surface::draw(&frame);
     let range = selected.selection().unwrap();
     let palette = rev::config::Palette::default();
+    assert_eq!(range.start, cursor.unwrap().column + 1);
     assert_eq!(
         cells[&(usize::from(selected.row()), usize::from(range.start))].foreground,
         Some(palette.syntax.function)

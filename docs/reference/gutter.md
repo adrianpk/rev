@@ -75,15 +75,21 @@ runtime reset continues using the running session's snapshot.
 
 ## Bookmark markers
 
-Each editing view initially reserves one additional marker cell between its
-number field and text, on `gutter.side`. A resolved bookmarked source line shows
+Each editing view initially reserves one additional marker cell outside its
+number field, on `gutter.side`. A resolved bookmarked source line shows
 the configured glyph there, even when numbers are hidden. Several names on one
 line share one glyph. A simplified left-gutter example is:
 
 ```text
-   2 │●TARGET here
-   3 │ next line
+●   2 │TARGET here
+    3 │next line
 ```
+
+On the right, the source-facing separator comes before the number field and the
+marker occupies the outermost cell: `TARGET here│   2 ●`. No folding column or
+folding-specific padding is reserved. Number padding and the separator retain
+their configured widths. With numbers hidden, the marker remains at the outer
+edge beside the text.
 
 Only the first visual fragment receives a marker. Continuations, filler and
 folded bodies stay blank; a checked visit reveals a folded target. Loaded or
