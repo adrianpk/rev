@@ -78,8 +78,9 @@ fn startup_child(profile: &str) {
             .find(|row| row.band() == Band::Completion)
             .unwrap()
             .text()
-            .trim(),
-        "undo",
+            .split_whitespace()
+            .next(),
+        Some("undo"),
         "{profile}"
     );
     let mut isolated = Session::empty(size).unwrap();
@@ -92,8 +93,9 @@ fn startup_child(profile: &str) {
             .find(|row| row.band() == Band::Completion)
             .unwrap()
             .text()
-            .trim(),
-        "ai-apply-result"
+            .split_whitespace()
+            .next(),
+        Some("ai-apply-result")
     );
     // Independent configuration and history failures share one non-modal echo;
     // neither owner can erase the other's operation or source diagnostic.

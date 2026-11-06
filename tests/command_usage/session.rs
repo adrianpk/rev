@@ -63,7 +63,8 @@ fn candidates(editor: &mut Session) -> Vec<String> {
         .rows()
         .iter()
         .filter(|row| row.band() == Band::Completion)
-        .map(|row| row.text().trim().to_owned())
+        // Usage ordering compares canonical names; hint padding changes on resize.
+        .map(|row| row.text().split_whitespace().next().unwrap().to_owned())
         .collect()
 }
 
@@ -121,7 +122,9 @@ fn retained_snapshot() {
         .find(|row| row.band() == Band::Completion && row.selection().is_some())
         .unwrap()
         .text()
-        .trim()
+        .split_whitespace()
+        .next()
+        .unwrap()
         .to_owned();
     assert_eq!(selected, "undo");
     editor.handle(key(KeyCode::Tab));
