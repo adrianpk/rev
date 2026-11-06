@@ -152,7 +152,7 @@ mod tests {
     }
 
     // Native ownership follows the latest heading, including blanks and a
-    // shallower return. Closed literal blocks cannot introduce outline levels.
+    // shallower return. Only comma-escaped headings retain literal ownership.
     #[test]
     fn structural_margins() {
         let mut buffers = Buffers::new().unwrap();
@@ -164,17 +164,27 @@ mod tests {
             ),
             (
                 "source block",
-                "** Parent\n#+begin_src text\n* literal\n#+end_src\nbody",
+                "** Parent\n#+begin_src text\n,* literal\n#+end_src\nbody",
                 vec![1, 4, 4, 4, 4],
+            ),
+            (
+                "unescaped source heading",
+                "** Parent\n#+begin_src text\n* literal\n#+end_src\nbody",
+                vec![1, 4, 0, 2, 2],
             ),
             (
                 "example block",
-                "** Parent\n#+begin_example\n*** literal\n#+end_example\nbody",
+                "** Parent\n#+begin_example\n,*** literal\n#+end_example\nbody",
                 vec![1, 4, 4, 4, 4],
             ),
             (
+                "unescaped example heading",
+                "** Parent\n#+begin_example\n*** literal\n#+end_example\nbody",
+                vec![1, 4, 2, 6, 6],
+            ),
+            (
                 "nested delimiters",
-                "** Parent\n#+begin_src text\n#+begin_example\n* literal\n#+end_example\n#+end_src\nbody",
+                "** Parent\n#+begin_src text\n#+begin_example\n,* literal\n#+end_example\n#+end_src\nbody",
                 vec![1, 4, 4, 4, 4, 4, 4],
             ),
             (
