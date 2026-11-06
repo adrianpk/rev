@@ -19,6 +19,7 @@ mod replace;
 mod search;
 mod shell;
 mod tree;
+mod usage;
 
 use std::collections::VecDeque;
 use std::fmt;
@@ -149,7 +150,7 @@ pub struct Input {
     meta_deadline: Option<Instant>,
     suppress_repeat: bool,
     history: VecDeque<Command>,
-    command_usage: crate::command::usage::Usage,
+    command_usage: crate::command::usage::History,
     shell_history: shell::History,
     ai_commands: Vec<Command>,
     policy: crate::config::Minibuffer,

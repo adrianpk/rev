@@ -1,8 +1,16 @@
+//! Bounded named-command usage and explicitly owned session persistence.
+
+mod history;
+mod store;
+
+pub use history::History;
+pub use store::{Error, Store};
+
 use std::collections::{BTreeMap, VecDeque};
 
 use super::Command;
 
-const WINDOW: usize = 256;
+pub(super) const WINDOW: usize = 256;
 const RECENT: usize = 4;
 const FREQUENT: usize = 4;
 
@@ -10,15 +18,19 @@ const FREQUENT: usize = 4;
 /// distinct prompt-history navigation has a separate owner and bound.
 #[derive(Clone, Debug, Default)]
 pub(crate) struct Usage {
-    events: VecDeque<String>,
+    pub(super) events: VecDeque<String>,
 }
 
 impl Usage {
     pub(crate) fn record(&mut self, command: Command) {
+        self.append(command.name().to_owned());
+    }
+
+    pub(super) fn append(&mut self, name: String) {
         if self.events.len() == WINDOW {
             self.events.pop_front();
         }
-        self.events.push_back(command.name().to_owned());
+        self.events.push_back(name);
     }
 
     /// Rank admitted candidates within one text-match rank. Historical names

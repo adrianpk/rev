@@ -27,7 +27,7 @@ mod scroll;
 mod split;
 mod terminal;
 mod tree;
-pub(crate) mod usage;
+pub mod usage;
 mod window;
 
 pub use crate::buffer::edit::History;

@@ -8,6 +8,7 @@ mod assets;
 mod bookmarks;
 mod buffers;
 mod capture;
+mod command_usage;
 mod completion;
 mod git;
 mod lsp;
@@ -321,6 +322,9 @@ impl Session {
         // Restore the host before the noninteractive completion barrier. The
         // workers own all child discovery, signaling, waits and reaping.
         let restored = terminal.restore();
+        if let Err(message) = self.flush_command_usage() {
+            eprintln!("{message}");
+        }
         let cleanup = self.shutdown_terminals();
         result.and(restored).and(cleanup)
     }

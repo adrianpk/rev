@@ -37,6 +37,7 @@ impl Session {
         // Filesystem work gets one bounded turn after native input, even under
         // a continuous typing burst. Other input deadlines retain their owner.
         if action != Action::Exit {
+            self.publish_command_usage();
             let shell = self.expire_shell();
             let git = self.expire_git();
             let terminal = self.expire_terminals();
@@ -68,6 +69,7 @@ impl Session {
     pub fn remaining_input(&self, now: Instant) -> Option<Duration> {
         [
             self.input.remaining(now),
+            self.input.command_usage_remaining(),
             self.completion_remaining(now),
             self.assets_remaining(),
             self.lsp_remaining(),
@@ -242,6 +244,7 @@ impl Session {
             self.expire_timer(now),
             self.expire_agenda_action(),
             self.expire_capture(),
+            self.expire_command_usage(),
             self.expire_bookmark_navigation(),
             self.expire_layout(),
             self.advance_terminal_shutdown(),

@@ -227,7 +227,7 @@ impl Input {
         self.context = Context::Command(Palette::new(
             &self.policy,
             &self.ai_commands,
-            &self.command_usage,
+            &self.command_usage.snapshot(),
         )?);
         self.clear_prefix();
         Ok(())

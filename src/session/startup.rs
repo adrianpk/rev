@@ -28,8 +28,14 @@ impl Session {
         }
         session.startup_clock_state();
         session.prepare_bookmark_markers();
-        if let Some(diagnostic) = startup.diagnostic {
-            session.notice(&format!("Configuration: {diagnostic}"));
+        let usage_diagnostic = session.startup_command_usage();
+        let diagnostic = match (startup.diagnostic, usage_diagnostic) {
+            (Some(config), Some(usage)) => Some(format!("Configuration: {config}; {usage}")),
+            (Some(config), None) => Some(format!("Configuration: {config}")),
+            (None, usage) => usage,
+        };
+        if let Some(diagnostic) = diagnostic {
+            session.notice(&diagnostic);
         }
         Ok(session)
     }
