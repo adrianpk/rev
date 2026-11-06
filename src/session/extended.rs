@@ -13,6 +13,7 @@ use super::{Action, Pending, Session};
 
 impl Session {
     pub(super) fn extended(&mut self) -> Action {
+        self.sync_input_context();
         if let Err(error) = self.stop_typing() {
             return self.error(&error.to_string());
         }

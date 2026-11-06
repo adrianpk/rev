@@ -102,15 +102,50 @@ impl Frame {
         let content = panel.content();
         for row in 0..content.height() {
             let index = palette.top() + usize::from(row);
-            let label = candidates
-                .get(index)
+            let command = candidates.get(index);
+            let label = command
                 .map(|command| command.name())
                 .unwrap_or("No matching commands");
-            let source = candidate_row(panel, row, label, palette.selected() == Some(index))?;
+            let hint = command.and_then(|command| palette.hint(*command));
+            let source = command_row(panel, row, label, hint, palette.selected() == Some(index))?;
             self.blit(content, source)?;
         }
         Ok(())
     }
+}
+
+fn command_row(
+    panel: Panel,
+    row: u16,
+    label: &str,
+    hint: Option<&str>,
+    selected: bool,
+) -> Result<Row, Error> {
+    let mut source = candidate_row(panel, row, label, selected)?;
+    let Some(hint) = hint else {
+        return Ok(source);
+    };
+    let width = usize::from(panel.content().width());
+    let name_cells = cells(label)?;
+    let hint_cells = cells(hint)?;
+    if name_cells + 2 + hint_cells > width {
+        return Ok(source);
+    }
+    // Right alignment keeps every complete hint in the secondary column while
+    // allowing each row to retain its full name and at least two blank cells.
+    let column = width - hint_cells;
+    let text = format!("{label}{}{hint}", " ".repeat(column - name_cells));
+    source.text = clip::line(Glyphs::for_text(&text)?, 0, panel.content().width())?;
+    source.faces.push(super::style::Face {
+        columns: panel.content().column() + column as u16
+            ..panel.content().column() + panel.content().width(),
+        tone: Tone::Secondary,
+    });
+    Ok(source)
+}
+
+fn cells(text: &str) -> Result<usize, Error> {
+    Ok(Glyphs::for_text(text)?.try_fold(0, |_, glyph| glyph.map(|glyph| glyph.columns.end))?)
 }
 
 fn candidate_row(panel: Panel, row: u16, label: &str, selected: bool) -> Result<Row, Error> {

@@ -41,6 +41,7 @@ impl Input {
     /// while an active prompt keeps its draft and precedence until it exits.
     pub fn set_org_context(&mut self, context: Option<OrgContext>) {
         if self.workspace_org != context {
+            self.retire_command_hints();
             self.clear_prefix();
             self.suppress_repeat = true;
             self.workspace_org = context;

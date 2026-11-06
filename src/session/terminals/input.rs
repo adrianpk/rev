@@ -90,24 +90,18 @@ impl Session {
     }
 
     fn terminal_host_input(&mut self, key: Key) -> Option<Action> {
-        if key.code == KeyCode::Char('c') && key.modifiers == KeyModifiers::CONTROL {
+        if crate::input::Input::terminal_copy_prefix(key) {
             self.terminals.copy_chord = self.current_terminal();
             return Some(self.message("Terminal C-c: C-t copy, C-c send interrupt, C-g cancel"));
         }
-        if key.code == KeyCode::Char('q') && key.modifiers == KeyModifiers::CONTROL {
-            return Some(self.terminal_literal_next());
-        }
-        if key.code == KeyCode::Char('x') && key.modifiers == KeyModifiers::ALT {
-            return Some(self.execute(crate::command::Command::ExecuteExtended));
-        }
-        if key.code == KeyCode::Char('y') {
-            match key.modifiers {
-                KeyModifiers::CONTROL => return Some(self.terminal_yank(false)),
-                KeyModifiers::ALT => return Some(self.terminal_yank(true)),
-                _ => {}
-            }
-        }
-        None
+        use crate::command::{Command, TerminalCommand};
+        Some(match crate::input::Input::terminal_host_command(key)? {
+            Command::ExecuteExtended => self.execute(Command::ExecuteExtended),
+            Command::Terminal(TerminalCommand::SendNextKey) => self.terminal_literal_next(),
+            Command::Terminal(TerminalCommand::Yank) => self.terminal_yank(false),
+            Command::Terminal(TerminalCommand::YankPop) => self.terminal_yank(true),
+            _ => unreachable!("terminal host input command"),
+        })
     }
 
     fn terminal_copy_chord(&mut self, key: Key, keypad: bool) -> Action {

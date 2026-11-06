@@ -1,11 +1,30 @@
 use crossterm::event::{KeyCode, KeyModifiers};
 
-use crate::command::{Binding, Command, Motion, PromptAction, TreeCommand};
+use crate::command::{Binding, Command, Motion, PromptAction, TerminalCommand, TreeCommand};
 
 use super::keymap::{Context as MapContext, Sequence};
 use super::{Focus, Input, Key, Outcome};
 
 impl Input {
+    pub(crate) fn terminal_copy_prefix(key: Key) -> bool {
+        key.control('c')
+    }
+
+    /// Terminal first refusal is shared by actual dispatch and hint inspection.
+    pub(crate) fn terminal_host_command(key: Key) -> Option<Command> {
+        if key.control('q') {
+            Some(Command::Terminal(TerminalCommand::SendNextKey))
+        } else if key.code == KeyCode::Char('x') && key.modifiers == KeyModifiers::ALT {
+            Some(Command::ExecuteExtended)
+        } else if key.control('y') {
+            Some(Command::Terminal(TerminalCommand::Yank))
+        } else if key.code == KeyCode::Char('y') && key.modifiers == KeyModifiers::ALT {
+            Some(Command::Terminal(TerminalCommand::YankPop))
+        } else {
+            None
+        }
+    }
+
     pub(crate) fn terminal_host_key(&self, key: Key) -> bool {
         if key.control('g') {
             return true;
@@ -204,6 +223,7 @@ fn search_key(command: Command) -> Key {
 impl Input {
     pub(crate) fn set_git_commit(&mut self, active: bool) {
         if self.workspace_git_commit != active {
+            self.retire_command_hints();
             self.clear_prefix();
             self.suppress_repeat = true;
             self.workspace_git_commit = active;
@@ -212,6 +232,7 @@ impl Input {
 
     pub(crate) fn set_git_worktree(&mut self, active: bool) {
         if self.workspace_git_worktree != active {
+            self.retire_command_hints();
             self.clear_prefix();
             self.suppress_repeat = true;
             self.workspace_git_worktree = active;
@@ -219,6 +240,7 @@ impl Input {
     }
     pub(crate) fn set_git_stash(&mut self, active: bool) {
         if self.workspace_git_stash != active {
+            self.retire_command_hints();
             self.clear_prefix();
             self.suppress_repeat = true;
             self.workspace_git_stash = active;
@@ -226,6 +248,7 @@ impl Input {
     }
     pub(crate) fn set_git_conflict(&mut self, active: bool) {
         if self.workspace_git_conflict != active {
+            self.retire_command_hints();
             self.clear_prefix();
             self.suppress_repeat = true;
             self.workspace_git_conflict = active;
@@ -233,6 +256,7 @@ impl Input {
     }
     pub(crate) fn set_git_sequence(&mut self, active: bool) {
         if self.workspace_git_sequence != active {
+            self.retire_command_hints();
             self.clear_prefix();
             self.suppress_repeat = true;
             self.workspace_git_sequence = active;
@@ -240,6 +264,7 @@ impl Input {
     }
     pub(crate) fn set_git_refs(&mut self, active: bool) {
         if self.workspace_git_refs != active {
+            self.retire_command_hints();
             self.clear_prefix();
             self.suppress_repeat = true;
             self.workspace_git_refs = active;
@@ -247,6 +272,7 @@ impl Input {
     }
     pub(crate) fn set_git_inspect(&mut self, active: bool) {
         if self.workspace_git_inspect != active {
+            self.retire_command_hints();
             self.clear_prefix();
             self.suppress_repeat = true;
             self.workspace_git_inspect = active;
@@ -255,6 +281,7 @@ impl Input {
 
     pub(crate) fn set_git_history(&mut self, active: bool) {
         if self.workspace_git_history != active {
+            self.retire_command_hints();
             self.clear_prefix();
             self.suppress_repeat = true;
             self.workspace_git_history = active;
@@ -263,6 +290,7 @@ impl Input {
 
     pub(crate) fn set_git(&mut self, active: bool) {
         if self.workspace_git != active {
+            self.retire_command_hints();
             self.clear_prefix();
             self.suppress_repeat = true;
             self.workspace_git = active;
@@ -271,6 +299,7 @@ impl Input {
 
     pub(crate) fn set_bookmark_list(&mut self, active: bool) {
         if self.workspace_bookmarks != active {
+            self.retire_command_hints();
             self.clear_prefix();
             self.suppress_repeat = true;
             self.workspace_bookmarks = active;

@@ -2,7 +2,7 @@ mod create;
 mod delete;
 mod rename;
 
-use crate::command::{Command, Motion, Scroll, TreeCommand};
+use crate::command::{Command, TreeCommand};
 use crate::input::Focus;
 use crate::tree::Tree;
 use crate::view::Size;
@@ -16,8 +16,12 @@ impl Session {
 
     pub(super) fn composition(&self) -> Option<crate::panel::Composition> {
         let rows = self.terminal_rows();
+        // Command candidates occupy the source prompt's former row. Keep the
+        // terminal separator outside that region, including a single result.
+        let command_separator = u16::from(rows.is_some() && self.input.palette().is_some());
         let size = Size {
-            height: self.size.height - rows.map_or(0, |r| r + 2),
+            height: (self.size.height - rows.map_or(0, |r| r + 2))
+                .saturating_sub(command_separator),
             ..self.size
         };
         let mut composition = self.source_composition(size)?;
@@ -126,7 +130,7 @@ impl Session {
         if !self.tree.focused() {
             return None;
         }
-        if let Some(command) = tree_alias(command) {
+        if let Some(command) = TreeCommand::alias(command) {
             return Some(self.tree_command(command));
         }
         if matches!(
@@ -198,16 +202,5 @@ impl Session {
             },
             Err(error) => self.error(&error.to_string()),
         }
-    }
-}
-
-fn tree_alias(command: Command) -> Option<TreeCommand> {
-    match command {
-        Command::Scroll(Scroll::PreviousLine) => Some(TreeCommand::Previous),
-        Command::Scroll(Scroll::NextLine) => Some(TreeCommand::Next),
-        Command::Motion(Motion::ForwardChar) => Some(TreeCommand::Expand),
-        Command::Motion(Motion::BackwardChar) => Some(TreeCommand::Collapse),
-        Command::Newline => Some(TreeCommand::Open),
-        _ => None,
     }
 }

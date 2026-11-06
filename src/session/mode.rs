@@ -6,6 +6,9 @@ impl Session {
     pub(super) fn sync_input_context(&mut self) {
         self.input.set_git(self.git_visible());
         self.input.set_git_commit(self.git_composing());
+        if self.git_visible() {
+            self.input.set_terminal_owner(None, false);
+        }
         if self.git_composing() {
             self.input.set_tree_focus(false);
             self.input.set_bookmark_list(false);
@@ -18,6 +21,13 @@ impl Session {
             return;
         }
         self.sync_terminal_focus();
+        self.input.set_terminal_owner(
+            self.terminals
+                .focused
+                .then(|| self.current_terminal())
+                .flatten(),
+            self.terminal_copy_active(),
+        );
         self.sync_terminal_copies();
         self.qualify_repeat();
         if !self.sync_terminal_copy_input() {

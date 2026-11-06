@@ -1,0 +1,143 @@
+use std::collections::{BTreeMap, BTreeSet};
+use std::time::Instant;
+
+use crossterm::event::{Event, KeyEvent};
+
+use super::keymap::Sequence;
+use super::{Input, Outcome};
+use crate::command::{Command, TreeCommand};
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub(super) struct TerminalOwner {
+    id: crate::term::SessionId,
+    copy: bool,
+}
+
+impl Input {
+    /// Inspect finite admitted sequences through the real resolver, without
+    /// executing outcomes or borrowing the live owner's prefix/history state.
+    pub(super) fn command_hints(&self) -> BTreeMap<String, String> {
+        let mut sequences: BTreeSet<_> = self
+            .active_map()
+            .bindings()
+            .map(|(sequence, _)| sequence.clone())
+            .collect();
+        if self.workspace_completion {
+            sequences.extend(
+                self.keymaps
+                    .map(super::keymap::Context::Completion)
+                    .bindings()
+                    .map(|(sequence, _)| sequence.clone()),
+            );
+        }
+        let mut sequences: Vec<_> = sequences
+            .into_iter()
+            .map(|sequence| {
+                let label = sequence.to_string();
+                (sequence.chords().len(), label, sequence)
+            })
+            .collect();
+        sequences.sort_by(|a, b| (&a.0, &a.1).cmp(&(&b.0, &b.1)));
+        let mut probe = self.binding_probe();
+        let mut hints = BTreeMap::new();
+        for (_, label, sequence) in sequences {
+            probe.cancel();
+            probe.workspace_completion = self.workspace_completion;
+            if let Some(command) = probe.resolve_hint(&sequence) {
+                let command = if self.map_context() == super::keymap::Context::Tree {
+                    if command == Command::InsertTab {
+                        continue;
+                    }
+                    TreeCommand::alias(command).map_or(command, Command::Tree)
+                } else {
+                    command
+                };
+                hints.entry(command.name().to_owned()).or_insert(label);
+            }
+        }
+        hints
+    }
+
+    fn resolve_hint(&mut self, sequence: &Sequence) -> Option<Command> {
+        if let Some(owner) = self.workspace_terminal {
+            let first = sequence.chords()[0];
+            if owner.copy {
+                // Copy-mode Return belongs to its terminal owner, not newline.
+                if first.plain() == Some(crossterm::event::KeyCode::Enter) {
+                    return None;
+                }
+            } else {
+                if Self::terminal_copy_prefix(first) {
+                    return None;
+                }
+                if let Some(command) = Self::terminal_host_command(first) {
+                    return (sequence.chords().len() == 1).then_some(command);
+                }
+                if !self.terminal_host_key(first) {
+                    return None;
+                }
+            }
+        }
+        let now = Instant::now();
+        let last = sequence.chords().len() - 1;
+        for (index, chord) in sequence.chords().iter().enumerate() {
+            match self.handle_at(Event::Key(KeyEvent::new(chord.code, chord.modifiers)), now) {
+                Outcome::Command(command) if index == last => return Some(command),
+                Outcome::Prefix(_) if index < last => {}
+                _ => return None,
+            }
+        }
+        None
+    }
+
+    fn binding_probe(&self) -> Self {
+        // The probe owns no persistence worker, live prompt, pending operator,
+        // usage events or shell history. Only admitted maps and origin matter.
+        Self {
+            profile: self.profile,
+            editing_state: self.editing_state,
+            editing_owner: self.editing_owner,
+            context: Default::default(),
+            prefix: None,
+            grammar: Default::default(),
+            navigation_source: None,
+            chords: Vec::new(),
+            keymaps: self.keymaps.clone(),
+            workspace_tree: self.workspace_tree,
+            workspace_bookmarks: self.workspace_bookmarks,
+            workspace_git: self.workspace_git,
+            workspace_git_commit: self.workspace_git_commit,
+            workspace_git_history: self.workspace_git_history,
+            workspace_git_inspect: self.workspace_git_inspect,
+            workspace_git_refs: self.workspace_git_refs,
+            workspace_git_sequence: self.workspace_git_sequence,
+            workspace_git_worktree: self.workspace_git_worktree,
+            workspace_git_stash: self.workspace_git_stash,
+            workspace_git_conflict: self.workspace_git_conflict,
+            workspace_completion: self.workspace_completion,
+            workspace_org: self.workspace_org,
+            workspace_terminal: self.workspace_terminal,
+            meta_deadline: None,
+            suppress_repeat: false,
+            history: Default::default(),
+            command_usage: Default::default(),
+            shell_history: Default::default(),
+            ai_commands: Vec::new(),
+            policy: self.policy.clone(),
+        }
+    }
+
+    pub(crate) fn set_terminal_owner(&mut self, id: Option<crate::term::SessionId>, copy: bool) {
+        let owner = id.map(|id| TerminalOwner { id, copy });
+        if self.workspace_terminal != owner {
+            self.retire_command_hints();
+            self.workspace_terminal = owner;
+        }
+    }
+
+    pub(super) fn retire_command_hints(&mut self) {
+        if let super::Context::Command(palette) = &mut self.context {
+            palette.retire_hints();
+        }
+    }
+}

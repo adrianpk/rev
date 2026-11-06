@@ -1,6 +1,6 @@
 mod history;
 
-use std::collections::VecDeque;
+use std::collections::{BTreeMap, VecDeque};
 
 use crossterm::event::KeyCode;
 
@@ -24,6 +24,7 @@ pub struct Palette {
     policy: crate::config::Minibuffer,
     ai_commands: Vec<Command>,
     usage: crate::command::usage::Usage,
+    hints: BTreeMap<String, String>,
 }
 
 impl Palette {
@@ -31,6 +32,7 @@ impl Palette {
         policy: &crate::config::Minibuffer,
         ai_commands: &[Command],
         usage: &crate::command::usage::Usage,
+        hints: BTreeMap<String, String>,
     ) -> Result<Self, Error> {
         Ok(Self {
             prompt: Prompt::new("M-x ", "", policy.input_limit)?,
@@ -43,11 +45,22 @@ impl Palette {
             policy: policy.clone(),
             ai_commands: ai_commands.to_vec(),
             usage: usage.clone(),
+            hints,
         })
     }
 
     pub fn prompt(&self) -> &Prompt {
         &self.prompt
+    }
+
+    /// Prepared annotation keyed by canonical identity, independent of rows,
+    /// matching, ranking and prompt text.
+    pub fn hint(&self, command: Command) -> Option<&str> {
+        self.hints.get(command.name()).map(String::as_str)
+    }
+
+    pub(super) fn retire_hints(&mut self) {
+        self.hints.clear();
     }
 
     pub fn candidates(&self) -> Vec<Command> {
@@ -228,6 +241,7 @@ impl Input {
             &self.policy,
             &self.ai_commands,
             &self.command_usage.snapshot(),
+            self.command_hints(),
         )?);
         self.clear_prefix();
         Ok(())

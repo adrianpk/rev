@@ -25,6 +25,7 @@ pub enum Message {
 pub(super) enum Tone {
     #[default]
     Document,
+    Secondary,
     Git(super::git::Role, bool),
     Habit(crate::org::agenda::HabitState, bool),
     Status(bool),
@@ -93,6 +94,7 @@ impl Tone {
             ),
             Self::Message(message) => Colors::new(message.color(palette), palette.background),
             Self::Document => Colors::new(palette.foreground, palette.background),
+            Self::Secondary => Colors::new(palette.status_text, palette.background),
             Self::Git(role, selected) => Colors::new(
                 role.foreground(palette, selected),
                 if selected {

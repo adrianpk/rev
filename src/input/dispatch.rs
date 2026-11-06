@@ -74,6 +74,7 @@ impl Input {
 
     pub(crate) fn set_tree_focus(&mut self, focused: bool) {
         if self.workspace_tree != focused {
+            self.retire_command_hints();
             self.clear_prefix();
             self.suppress_repeat = true;
             self.workspace_tree = focused;

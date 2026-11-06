@@ -16,6 +16,19 @@ pub enum TreeCommand {
 }
 
 impl TreeCommand {
+    /// Navigation aliases are interpreted by the tree owner, not source editing.
+    pub(crate) fn alias(command: super::Command) -> Option<Self> {
+        use super::{Command, Motion, Scroll};
+        match command {
+            Command::Scroll(Scroll::PreviousLine) => Some(Self::Previous),
+            Command::Scroll(Scroll::NextLine) => Some(Self::Next),
+            Command::Motion(Motion::ForwardChar) => Some(Self::Expand),
+            Command::Motion(Motion::BackwardChar) => Some(Self::Collapse),
+            Command::Newline => Some(Self::Open),
+            _ => None,
+        }
+    }
+
     pub fn name(self) -> &'static str {
         match self {
             Self::Delete => "tree-delete",

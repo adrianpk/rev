@@ -61,6 +61,9 @@ impl Input {
     }
 
     pub(crate) fn set_editing_state(&mut self, state: EditingState) {
+        if self.editing_state != state {
+            self.retire_command_hints();
+        }
         self.clear_prefix();
         self.suppress_repeat = true;
         self.editing_state = state;
@@ -68,12 +71,12 @@ impl Input {
 
     /// A changed native view/buffer cannot inherit a text-entry continuation.
     pub(crate) fn editing_owner(&mut self, view: ViewId, buffer: BufferId) {
-        if self.profile != InteractionProfile::Modal {
-            return;
-        }
         let owner = Some((view, buffer));
         if self.editing_owner != owner {
-            self.set_editing_state(EditingState::Normal);
+            self.retire_command_hints();
+            if self.profile == InteractionProfile::Modal {
+                self.set_editing_state(EditingState::Normal);
+            }
             self.editing_owner = owner;
         }
     }

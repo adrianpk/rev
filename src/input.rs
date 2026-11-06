@@ -2,6 +2,7 @@ mod completion;
 mod context;
 mod dispatch;
 mod grammar;
+mod hints;
 mod inventory;
 mod key;
 pub mod keymap;
@@ -147,6 +148,7 @@ pub struct Input {
     workspace_git_conflict: bool,
     workspace_completion: bool,
     workspace_org: Option<OrgContext>,
+    workspace_terminal: Option<hints::TerminalOwner>,
     meta_deadline: Option<Instant>,
     suppress_repeat: bool,
     history: VecDeque<Command>,
