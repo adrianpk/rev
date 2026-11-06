@@ -1,11 +1,12 @@
 # Slice 1: Session ranking
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-command-ranking
 Plan: [Command Ranking Delivery](../../../plan/rev-command-ranking.md)
 Tracker: [Command Ranking Tracker](../../../tracker/rev-command-ranking.md)
 Branch: `feat/rev-command-ranking-01-session`
 PR: `#291`
+Integrated: `17e16f07580cc32d743e6f8d34510dda14c85c2e`
 
 ## Purpose
 
@@ -97,6 +98,10 @@ Observed successful command times were 2.89s formatting, 0.16s cached Clippy,
 300.26s tests, 1.16s documentation and 0.01s whitespace. The first worktree test
 build took 1m42s; the initial Clippy run took 35.02s. Canonical clean-HEAD
 evidence belongs to Looper receipts for the final PR-reference commit.
+
+Looper validate passed all five required commands on clean final head
+`17e16f07580cc32d743e6f8d34510dda14c85c2e`. Canonical PR #291 merged into `dev`
+at that exact commit. Slice 2 now owns the recorded persistence follow-up.
 
 These are slice checks; integrated acceptance belongs to the controller's final
 gate. Fixtures are suite-owned; no persistent service is required.
