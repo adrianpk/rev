@@ -2,6 +2,8 @@
 
 #[path = "configuration/fixture.rs"]
 mod config_fixture;
+#[path = "tree/decoration.rs"]
+mod decoration;
 #[path = "tree/hits.rs"]
 mod hits;
 #[path = "tree/initialization.rs"]

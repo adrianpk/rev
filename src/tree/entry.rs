@@ -127,14 +127,41 @@ impl Entry {
         (directories_first && !self.directory, self.path.file_name())
     }
 
-    pub(super) fn label(&self, width: u16) -> String {
+    /// Derive presentation from the cached observation without inspecting the path.
+    pub fn kind(&self) -> super::Kind {
+        use super::Kind;
+        if self.depth == 0 {
+            Kind::Root
+        } else if self.symlink {
+            Kind::Symlink
+        } else if self.directory {
+            Kind::Directory
+        } else {
+            Kind::file(self.path.file_name().unwrap_or(self.path.as_os_str()))
+        }
+    }
+
+    pub(super) fn label(&self, width: u16, decorated: bool) -> String {
         let marker = match (self.directory, self.expanded, self.symlink) {
             (true, true, _) => "v",
             (true, false, _) => ">",
             (_, _, true) => "@",
             _ => " ",
         };
-        let indent = self.depth.min(usize::from(width.saturating_sub(4)) / 2);
+        let prefix = if decorated {
+            let disclosure = if self.directory {
+                if self.expanded { "▾" } else { "▸" }
+            } else {
+                " "
+            };
+            format!("{disclosure} {} ", self.kind().symbol())
+        } else {
+            format!("{marker} ")
+        };
+        let reserved = if decorated { 6 } else { 4 };
+        let indent = self
+            .depth
+            .min(usize::from(width.saturating_sub(reserved)) / 2);
         let name = self
             .path
             .file_name()
@@ -146,7 +173,7 @@ impl Entry {
             ""
         };
         let diagnostic = if self.incomplete { " [incomplete]" } else { "" };
-        format!("{}{marker} {name}{slash}{diagnostic}", "  ".repeat(indent))
+        format!("{}{prefix}{name}{slash}{diagnostic}", "  ".repeat(indent))
     }
 }
 

@@ -29,7 +29,7 @@ pub(super) enum Tone {
     Habit(crate::org::agenda::HabitState, bool),
     Status(bool),
     Border(bool),
-    Tree,
+    Tree(Option<crate::tree::Kind>),
     Gutter(crate::gutter::Role),
     Message(Message),
     Completion(crate::completion::Kind),
@@ -81,7 +81,12 @@ impl Tone {
             Self::Status(false) => Colors::new(palette.status_text, palette.status_inactive),
             Self::Border(true) => Colors::new(palette.border_active, palette.background),
             Self::Border(false) => Colors::new(palette.border, palette.background),
-            Self::Tree => Colors::new(palette.foreground, palette.tree),
+            Self::Tree(kind) => Colors::new(
+                kind.map_or(palette.foreground, |kind| {
+                    kind.foreground(&palette.tree_entries)
+                }),
+                palette.tree,
+            ),
             Self::Gutter(role) => Colors::new(
                 gutter_color(role, &palette.gutter),
                 palette.gutter.background,
@@ -153,7 +158,7 @@ impl Row {
             .is_some_and(|range| covers(range, column))
         {
             return match tone {
-                Tone::Tree => Colors::new(palette.tree_selected_text, palette.tree_selected),
+                Tone::Tree(_) => Colors::new(palette.tree_selected_text, palette.tree_selected),
                 Tone::Completion(kind) => Colors::new(kind_color(kind, palette), palette.selection),
                 _ => Colors::new(palette.selection_text, palette.selection),
             };

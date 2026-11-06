@@ -123,7 +123,7 @@ fn panel_colors() {
     );
     colors(
         &cells[&(usize::from(cursor.row) + 1, 0)],
-        palette.foreground,
+        palette.tree_entries.configuration,
         palette.tree,
     );
     colors(&cells[&(10, 0)], palette.status_text, palette.status);

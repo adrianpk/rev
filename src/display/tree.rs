@@ -33,7 +33,7 @@ impl Frame {
                 text: clip::line(Glyphs::for_text(&label)?, 0, content.width())?,
                 syntax: Vec::new(),
                 band: Band::Document,
-                tone: super::Tone::Tree,
+                tone: super::Tone::Tree(tree.row_kind(row)),
                 faces: Vec::new(),
                 search: None,
                 selection: (panel.active() && row == tree.selected_row())

@@ -13,6 +13,8 @@ mod status;
 mod palette;
 #[path = "support/surface.rs"]
 mod surface;
+#[path = "display/tree.rs"]
+mod tree;
 
 use rev::buffer::Buffers;
 use rev::coordinates::Scalar;

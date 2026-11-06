@@ -3,6 +3,7 @@ mod delete;
 mod entry;
 mod hit;
 mod navigation;
+mod presentation;
 mod refresh;
 mod rename;
 mod root;
@@ -10,6 +11,7 @@ mod root;
 pub use create::{CreateKind, Creation};
 pub use entry::Entry;
 pub use hit::Hit;
+pub use presentation::Kind;
 
 use std::io;
 use std::path::{Path, PathBuf};
@@ -185,9 +187,15 @@ impl Tree {
         self.entries.get(self.top + usize::from(row))
     }
 
+    pub(crate) fn row_kind(&self, row: u16) -> Option<Kind> {
+        self.row_entry(row)
+            .filter(|_| self.policy.decorated)
+            .map(Entry::kind)
+    }
+
     pub(crate) fn line(&self, row: u16, width: u16) -> String {
         self.row_entry(row)
-            .map(|entry| entry.label(width))
+            .map(|entry| entry.label(width, self.policy.decorated))
             .unwrap_or_default()
     }
 }
