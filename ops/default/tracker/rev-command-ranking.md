@@ -24,8 +24,8 @@ Progress owner: retained Looper checkpoint and canonical validation receipts
 State: reviewing
 Dependency: approved committed preparation on clean dev
 Requirements: UI02, CMR01-CMR03 and derived ranking model
-Implementation: `3adc46aa4c2e815229c86995aa143ca10023e09e` implements T1.1/T1.2; T1.3 completes coverage, guidance and the report on this branch
-PR: pending
+Implementation: `3adc46aa4c2e815229c86995aa143ca10023e09e` implements T1.1/T1.2; `1be68be2cb5ca095139d1cd9364f699e4a241e09` implements T1.3 and introduces the report
+PR: [#291](https://forge.adrianpk.com/adrianpk/rev/pulls/291), open against `dev`
 Report: `ops/default/report/slices/rev-command-ranking/slice-1-session.md`
 Validation: all five required commands passed locally, including 328 tests; canonical clean-HEAD evidence belongs to Looper receipts for the final PR-reference commit
 

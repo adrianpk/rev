@@ -5,7 +5,7 @@ Delivery set: rev-command-ranking
 Plan: [Command Ranking Delivery](../../../plan/rev-command-ranking.md)
 Tracker: [Command Ranking Tracker](../../../tracker/rev-command-ranking.md)
 Branch: `feat/rev-command-ranking-01-session`
-PR: pending
+PR: `#291`
 
 ## Purpose
 
@@ -32,8 +32,12 @@ M-x and modal colon selector.
 ## Implementation Notes
 
 T1.1 and T1.2 are implemented in
-`3adc46aa4c2e815229c86995aa143ca10023e09e`. T1.3 adds native modal/display
-regressions, reference guidance, one Unreleased outcome and this report.
+`3adc46aa4c2e815229c86995aa143ca10023e09e`. T1.3 is implemented in
+`1be68be2cb5ca095139d1cd9364f699e4a241e09`: native modal/display regressions,
+reference guidance, one Unreleased outcome and this report. Canonical
+[PR #291](https://forge.adrianpk.com/adrianpk/rev/pulls/291) targets `dev`.
+The report's immutable introduction is
+`1be68be2cb5ca095139d1cd9364f699e4a241e09`.
 
 `command::usage::Usage` owns a bounded oldest-first event queue. Counts and last
 positions are derived from that queue; no clock, permanent frequency counter,
