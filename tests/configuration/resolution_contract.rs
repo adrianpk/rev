@@ -68,6 +68,7 @@ files.bom = true
         },
         tree: Tree {
             visible: true,
+            decorated: true,
             width: 31,
             max_fraction: 0.4,
             root: TreeRoot::FileParent,

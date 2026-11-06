@@ -44,6 +44,7 @@ fn scalar_defaults() {
     assert_eq!(settings.tree.max_fraction, 0.3333333333333333);
     assert_eq!(settings.tree.root, TreeRoot::Auto);
     assert!(settings.tree.show_hidden);
+    assert!(settings.tree.decorated);
     assert!(settings.tree.directories_first);
     assert_eq!(settings.gutter, rev::gutter::Settings::default());
     assert!(settings.language.is_empty());

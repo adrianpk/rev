@@ -35,6 +35,7 @@ pub struct Palette {
     pub border: Rgb,
     pub border_active: Rgb,
     pub tree: Rgb,
+    pub tree_entries: TreePalette,
     pub tree_selected: Rgb,
     pub tree_selected_text: Rgb,
     pub message: Rgb,
@@ -63,6 +64,7 @@ impl Default for Palette {
             border: Rgb(0x3b, 0x42, 0x61),
             border_active: Rgb(0x7a, 0xa2, 0xf7),
             tree: Rgb(0x16, 0x16, 0x1e),
+            tree_entries: TreePalette::default(),
             tree_selected: Rgb(0x28, 0x34, 0x57),
             tree_selected_text: Rgb(0xc0, 0xca, 0xf5),
             message: Rgb(0xc0, 0xca, 0xf5),
@@ -160,6 +162,7 @@ pub struct PartialPalette {
     pub border: Option<String>,
     pub border_active: Option<String>,
     pub tree: Option<String>,
+    pub tree_entries: PartialTreePalette,
     pub tree_selected: Option<String>,
     pub tree_selected_text: Option<String>,
     pub message: Option<String>,
@@ -312,4 +315,43 @@ pub struct PartialOrgPalette {
     pub habit_alert_future: Option<String>,
     pub habit_overdue: Option<String>,
     pub habit_overdue_future: Option<String>,
+}
+
+/// Foreground roles for decorated entries; tree background and selection stay separate.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct TreePalette {
+    pub root: Rgb,
+    pub directory: Rgb,
+    pub source: Rgb,
+    pub document: Rgb,
+    pub configuration: Rgb,
+    pub file: Rgb,
+    pub symlink: Rgb,
+}
+
+impl Default for TreePalette {
+    fn default() -> Self {
+        Self {
+            root: Rgb(0x7a, 0xa2, 0xf7),
+            directory: Rgb(0xe0, 0xaf, 0x68),
+            source: Rgb(0x7a, 0xa2, 0xf7),
+            document: Rgb(0xe0, 0xaf, 0x68),
+            configuration: Rgb(0xbb, 0x9a, 0xf7),
+            file: Rgb(0xc0, 0xca, 0xf5),
+            symlink: Rgb(0x7d, 0xcf, 0xff),
+        }
+    }
+}
+
+/// Optional foreground leaves preserve absence through configuration composition.
+#[derive(Clone, Debug, Default, PartialEq, Eq, Deserialize)]
+#[serde(default, deny_unknown_fields)]
+pub struct PartialTreePalette {
+    pub root: Option<String>,
+    pub directory: Option<String>,
+    pub source: Option<String>,
+    pub document: Option<String>,
+    pub configuration: Option<String>,
+    pub file: Option<String>,
+    pub symlink: Option<String>,
 }

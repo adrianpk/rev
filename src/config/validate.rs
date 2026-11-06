@@ -193,6 +193,7 @@ fn palette(palette: &PartialPalette) -> Result<(), Failure> {
     org_palette(&palette.org)?;
     gutter_palette(&palette.gutter)?;
     git_palette(&palette.git)?;
+    tree_palette(&palette.tree_entries)?;
     syntax_palette(&palette.syntax)
 }
 
@@ -747,5 +748,20 @@ fn layout(document: &Document) -> Result<(), Failure> {
         0.1..=0.9,
     )?;
     float("tree.max_fraction", document.tree.max_fraction, 0.1..=0.5)?;
+    Ok(())
+}
+
+fn tree_palette(palette: &super::PartialTreePalette) -> Result<(), Failure> {
+    for (key, value) in [
+        ("root", &palette.root),
+        ("directory", &palette.directory),
+        ("source", &palette.source),
+        ("document", &palette.document),
+        ("configuration", &palette.configuration),
+        ("file", &palette.file),
+        ("symlink", &palette.symlink),
+    ] {
+        color(&format!("palette.tree_entries.{key}"), value.as_deref())?;
+    }
     Ok(())
 }

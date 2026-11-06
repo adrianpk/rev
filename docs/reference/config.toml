@@ -190,6 +190,7 @@ search_chars = 262144 # 0..1048576 total search scalars; zero disables relocatio
 # are available without factory bindings.
 
 [tree]
+decorated = true         # Ordinary kind symbols and entry colors; false keeps minimal labels.
 # Boolean; initial visibility. Tiny/narrow terminals can hide the pane.
 visible = false
 # Integer 1..=512 preferred columns, subject to editor and terminal minima.
@@ -453,6 +454,15 @@ tree_selected_text = "#c0caf5"  # Selected tree entry foreground.
 message = "#c0caf5"             # Normal echo/message foreground.
 warning = "#e0af68"             # Warning foreground.
 error = "#db4b4b"               # Error foreground.
+
+[palette.tree_entries]
+root = "#7aa2f7"
+directory = "#e0af68"
+source = "#7aa2f7"
+document = "#e0af68"
+configuration = "#bb9af7"
+file = "#c0caf5"
+symlink = "#7dcfff"
 
 [palette.syntax]
 keyword = "#9d7cd8"

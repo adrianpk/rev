@@ -388,6 +388,11 @@ impl Merge {
     }
 
     fn tree(&mut self, base: &mut PartialTree, later: &PartialTree) {
+        self.leaf(
+            &["tree", "decorated"],
+            &mut base.decorated,
+            &later.decorated,
+        );
         self.leaf(&["tree", "visible"], &mut base.visible, &later.visible);
         self.leaf(&["tree", "width"], &mut base.width, &later.width);
         self.leaf(
@@ -510,6 +515,49 @@ impl Merge {
         self.syntax_palette(&mut base.syntax, &later.syntax);
         self.gutter_palette(&mut base.gutter, &later.gutter);
         self.git_palette(&mut base.git, &later.git);
+        self.tree_palette(&mut base.tree_entries, &later.tree_entries);
+    }
+
+    fn tree_palette(
+        &mut self,
+        base: &mut super::PartialTreePalette,
+        later: &super::PartialTreePalette,
+    ) {
+        self.leaf(
+            &["palette", "tree_entries", "root"],
+            &mut base.root,
+            &later.root,
+        );
+        self.leaf(
+            &["palette", "tree_entries", "directory"],
+            &mut base.directory,
+            &later.directory,
+        );
+        self.leaf(
+            &["palette", "tree_entries", "source"],
+            &mut base.source,
+            &later.source,
+        );
+        self.leaf(
+            &["palette", "tree_entries", "document"],
+            &mut base.document,
+            &later.document,
+        );
+        self.leaf(
+            &["palette", "tree_entries", "configuration"],
+            &mut base.configuration,
+            &later.configuration,
+        );
+        self.leaf(
+            &["palette", "tree_entries", "file"],
+            &mut base.file,
+            &later.file,
+        );
+        self.leaf(
+            &["palette", "tree_entries", "symlink"],
+            &mut base.symlink,
+            &later.symlink,
+        );
     }
 
     fn git_palette(

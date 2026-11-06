@@ -28,6 +28,7 @@ fn explicit_defaults() {
         palette,
         palette["syntax"].as_table().unwrap(),
         palette["gutter"].as_table().unwrap(),
+        palette["tree_entries"].as_table().unwrap(),
         palette["org"].as_table().unwrap(),
     ] {
         for color in table.values().filter_map(toml::Value::as_str) {
@@ -35,7 +36,9 @@ fn explicit_defaults() {
             roles += 1;
         }
     }
-    assert_eq!(roles, 55);
+    assert_eq!(roles, 62);
+    assert_eq!(palette["tree_entries"].as_table().unwrap().len(), 7);
+    assert_eq!(raw["tree"]["decorated"].as_bool(), Some(true));
     assert_eq!(palette["gutter"]["bookmark"].as_str(), Some("#7aa2f7"));
     assert_eq!(raw["gutter"].as_table().unwrap().len(), 8);
     assert_eq!(raw["gutter"]["nerd_fonts"].as_bool(), Some(false));

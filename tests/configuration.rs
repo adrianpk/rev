@@ -56,6 +56,8 @@ mod scopes;
 mod startup;
 #[path = "configuration/template.rs"]
 mod template;
+#[path = "configuration/tree.rs"]
+mod tree;
 #[path = "configuration/xdg.rs"]
 mod xdg;
 

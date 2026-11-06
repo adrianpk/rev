@@ -147,6 +147,7 @@ fn kill_ring(base: &mut KillRing, partial: &PartialKillRing) {
 }
 
 fn tree(base: &mut Tree, partial: &PartialTree) {
+    scalar(&mut base.decorated, partial.decorated);
     scalar(&mut base.visible, partial.visible);
     count(&mut base.width, partial.width);
     scalar(&mut base.max_fraction, partial.max_fraction);
@@ -202,6 +203,7 @@ fn palette(base: &mut Palette, partial: &PartialPalette) {
     syntax_palette(&mut base.syntax, &partial.syntax);
     gutter_palette(&mut base.gutter, &partial.gutter);
     git_palette(&mut base.git, &partial.git);
+    tree_palette(&mut base.tree_entries, &partial.tree_entries);
 }
 
 fn git_palette(base: &mut super::GitPalette, partial: &super::PartialGitPalette) {
@@ -475,4 +477,14 @@ fn headings(base: &mut super::Headings, partial: &super::PartialHeadings) {
     if let Some(bullets) = &partial.bullets {
         base.bullets.clone_from(bullets);
     }
+}
+
+fn tree_palette(base: &mut super::TreePalette, partial: &super::PartialTreePalette) {
+    color(&mut base.root, &partial.root);
+    color(&mut base.directory, &partial.directory);
+    color(&mut base.source, &partial.source);
+    color(&mut base.document, &partial.document);
+    color(&mut base.configuration, &partial.configuration);
+    color(&mut base.file, &partial.file);
+    color(&mut base.symlink, &partial.symlink);
 }
