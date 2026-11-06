@@ -263,9 +263,10 @@ fn unicode_round_trips() {
 
 // Dragging from virtual padding selects only actual source. Search and source
 // syntax paint begin after that same prefix in wrapped and unwrapped panes.
+// Literal heading text uses Org's comma escape.
 #[test]
 fn source_overlays() {
-    let text = "** H\nalpha beta\n#+begin_src text\n* literal\n#+end_src\n";
+    let text = "** H\nalpha beta\n#+begin_src text\n,* literal\n#+end_src\n";
     for wrapped in [true, false] {
         let (_f, mut session) = editor(&format!("editor.soft_wrap={wrapped}"), text, 40, 14);
         mouse(&mut session, MouseEventKind::Down(MouseButton::Left), 1, 0);
@@ -286,7 +287,7 @@ fn source_overlays() {
                 .iter()
                 .all(|paint| paint.columns.start >= 4)
         );
-        assert_eq!(frame.rows()[3].text().trim_end(), "    * literal");
+        assert_eq!(frame.rows()[3].text().trim_end(), "    ,* literal");
         assert_eq!(source(&session), text);
         assert!(session.buffer().unwrap().history().is_empty());
     }

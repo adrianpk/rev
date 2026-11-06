@@ -48,7 +48,7 @@ fn failed_preparation() {
         ("Lisp", "%(message)", "* Target\r\n"),
         ("file escape", "%[unread]", "* Target\r\n"),
         ("time format", "%^{Name}%<%Q>", "* Target\r\n"),
-        ("structure", "%?", "#+begin_src text\n* raw heading\n"),
+        ("structure", "%?", "#+begin_src\n* raw heading\n#+end_src\n"),
     ] {
         let (fixture, mut session) = editor(&configured(template), "origin.txt", "untouched");
         let path = fixture.write("destination.org", destination);

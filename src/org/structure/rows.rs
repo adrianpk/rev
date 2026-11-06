@@ -34,7 +34,7 @@ pub(super) fn collect(
     rows
 }
 
-// Closed literal blocks own their contents before outline boundaries are paired.
+// Closed literal blocks own their contents within context-free heading boundaries.
 // Two bounded passes avoid rescanning a suffix for every malformed opener.
 fn literal_rows(rows: &mut [Row], work: &mut Work<'_>) -> Parsed<()> {
     use super::BlockKind;
@@ -42,6 +42,7 @@ fn literal_rows(rows: &mut [Row], work: &mut Work<'_>) -> Parsed<()> {
     for (index, row) in rows.iter_mut().enumerate().rev() {
         work.tick()?;
         match &row.token {
+            Token::Heading(..) => closings.clear(),
             Token::EndBlock(name) => {
                 closings.insert(name.clone(), index);
             }

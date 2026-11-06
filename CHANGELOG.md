@@ -75,6 +75,11 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
   ignored, while explicit marker colors remain effective. Markers remain visible
   when numbers are hidden and yield first when the pane is too narrow.
 
+### Fixed
+
+- Org capture rejects malformed code blocks interrupted by unescaped headings.
+  Comma-escaped headings remain literal code.
+
 ## 0.5.0 - 2026-11-04
 
 ### Added
