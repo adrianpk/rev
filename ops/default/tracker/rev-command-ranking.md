@@ -1,6 +1,9 @@
 # Command Ranking Tracker
 
-Status: In progress
+Status: Completed
+Completed: 2026-11-06
+Validated candidate: `fea4fffdfa3e66d8a7d7f1cc031a6637199424af`
+Gate validation: `342LB2K3MYK2Z2JS5ESVI4WSNP`
 Date: 2026-11-06
 Delivery set: rev-command-ranking
 Approved: product owner; specification/model and the established preparation commits, three-slice plan, push and one autonomous Looper delivery through dev
@@ -8,7 +11,7 @@ Plan: [Command Ranking Delivery](../plan/rev-command-ranking.md)
 Specification: [Command Recency and Frequency](../spec/editor-command-ranking.md)
 Model: [Command Usage Model](../spec/editor-command-ranking-model.md)
 Concern: [Pending Work Index](../README.md)
-Active slice: None; all three recorded slices delivered
+Active slice: None; all three slices delivered and the delivery set is Completed
 Progress owner: retained Looper checkpoint and canonical validation receipts
 
 ## Canonical slice map
@@ -68,7 +71,7 @@ Validation: all six required commands passed locally, including 301 tests; focus
 - [x] T3.2: Complete Diataxis and Markdown-derived Spore guidance; reconcile
   affected baselines without replacing historical evidence.
 - [x] T3.3: Record real report/commit/PR evidence, hand off the clean candidate
-  for the controller gate. Set closure remains pending until that gate passes.
+  for the controller gate; its successful receipt and final closure are recorded below.
 
 ## Final gate and closure
 
@@ -78,15 +81,28 @@ at planning.
 
 All recorded slices are now integrated. Gate tools, target admission, Bash
 entrypoint syntax, guide inputs and output-directory access were verified during
-preparation. The frozen full gate and final closure remain controller-owned and
-pending; prerequisite checks do not establish integrated acceptance.
+preparation. The controller subsequently passed the frozen full gate on
+`fea4fffdfa3e66d8a7d7f1cc031a6637199424af`, receipt `342LB2K3MYK2Z2JS5ESVI4WSNP`.
+The plan, tracker, specification/model and pending entry are now Completed;
+the original preparation and slice checks retain their own evidence.
 
 - [x] Verify all three canonical PRs integrated and all reports delivered.
-- [ ] Pass the unchanged final gate on the exact clean candidate.
-- [ ] Record the receipt, commands, immutable report introductions, actual
+- [x] Pass the unchanged final gate on the exact clean candidate.
+- [x] Record the receipt, commands, immutable report introductions, actual
   timings, state/PTY cleanup and evidence limits.
-- [ ] Complete plan/tracker/specification/model and pending index.
-- [ ] Preserve separate keybinding-hint, main, release and installation boundaries.
+- [x] Complete plan/tracker/specification/model and pending index.
+- [x] Preserve separate keybinding-hint, main, release and installation boundaries.
 
 Technical recovery and final-gate repairs stay within the plan's finite
 delegation and the same retained run, conversation and consumed budgets.
+
+## Closure evidence
+
+The [Slice 3 closure](../report/slices/rev-command-ranking/slice-3-acceptance.md#delivery-set-closure) preserves the exact successful
+gate command and receipt, all three immutable report introductions, actual stage
+and journey timings, 503 passing tests, local guide output and owned cleanup.
+No aggregate gate duration is inferred from the stage timings. Only the eight
+configured closure Markdown paths differ from the tested candidate; runtime,
+tests, guides, samples, changelog and gate assertions retain their tested content.
+The separate keybinding-hint ticket remains open. This closes the approved dev
+delivery without promotion, release, installation or publication.

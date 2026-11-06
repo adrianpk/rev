@@ -126,7 +126,17 @@ controller-owned integrated gate.
 
 Forced termination can lose unpublished events. Filesystem work that outlasts
 the final flush deadline returns a diagnostic and retains its sole worker slot.
-The joint ranking matrix, paired real-publisher acceptance, representative
-two-profile restart journeys, User Guide/Spore completion and baseline closure
-remain Slice 3. The plan and tracker now activate that slice; the integrated
-gate and delivery-set closure remain controller-owned.
+Slice 3 subsequently delivered the joint ranking matrix, paired real-publisher
+acceptance, representative two-profile restart journeys, User Guide/Spore guidance
+and baseline reconciliation. The controller has now passed the integrated gate;
+final delivery evidence is recorded below.
+
+## Delivery-set closure
+
+All three canonical slice PRs are integrated and this report remains delivered.
+The controller passed the unchanged full gate on `fea4fffdfa3e66d8a7d7f1cc031a6637199424af`,
+receipt `342LB2K3MYK2Z2JS5ESVI4WSNP`. The [Slice 3 closure](slice-3-acceptance.md#delivery-set-closure)
+records the exact command, 503 passing tests, immutable report introductions,
+measured native/PTY publication acceptance, local guide build and evidence limits.
+The storage/ownership boundaries and original slice-validation evidence above
+retain their own meaning; no state bound or failure assertion was relaxed.

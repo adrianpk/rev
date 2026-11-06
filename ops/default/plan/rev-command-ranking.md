@@ -1,6 +1,9 @@
 # Command Ranking Delivery
 
-Status: Approved
+Status: Completed
+Completed: 2026-11-06
+Validated candidate: `fea4fffdfa3e66d8a7d7f1cc031a6637199424af`
+Gate validation: `342LB2K3MYK2Z2JS5ESVI4WSNP`
 Date: 2026-11-06
 Delivery set: rev-command-ranking
 Slice strategy: behavior-first
@@ -10,7 +13,7 @@ Specification: [Command Recency and Frequency](../spec/editor-command-ranking.md
 Model: [Command Usage Model](../spec/editor-command-ranking-model.md)
 Tracker: [Command Ranking Tracker](../tracker/rev-command-ranking.md)
 Concern: [Pending Work Index](../README.md)
-Active slice: None; all three recorded slices delivered
+Active slice: None; all three slices delivered and the delivery set is Completed
 
 ## Outcome and strategy
 
@@ -136,8 +139,11 @@ target; both gate entrypoints pass Bash syntax checks. The guide inputs are
 present and the ignored output directory is writable. No application build was
 active in the primary checkout during this preparation.
 
-The full gate has not been run by this worker. Its result and final delivery-set
-closure remain pending controller execution.
+The controller passed the unchanged full gate on immutable candidate
+`fea4fffdfa3e66d8a7d7f1cc031a6637199424af`, receipt `342LB2K3MYK2Z2JS5ESVI4WSNP`.
+The [Slice 3 closure](../report/slices/rev-command-ranking/slice-3-acceptance.md#delivery-set-closure) records the exact command,
+503 passing tests, acceptance measurements, local guide build and evidence limits.
+Only the eight approved closure Markdown paths may differ from that candidate.
 
 Run once on the exact clean integrated candidate, in order. The export also
 applies to nested Cargo invocations in acceptance and guide scripts.
@@ -184,3 +190,13 @@ baseline reconciliation must precede the tested candidate.
 Completion requires three integrated canonical PRs, delivered reports,
 UI02/CMR01-CMR05 and the model implemented, the exact candidate green under the
 unchanged gate and completed artifacts. Publication and installation are separate.
+
+## Completed delivery evidence
+
+Canonical PRs [#291](https://forge.adrianpk.com/adrianpk/rev/pulls/291),
+[#292](https://forge.adrianpk.com/adrianpk/rev/pulls/292) and
+[#293](https://forge.adrianpk.com/adrianpk/rev/pulls/293) are merged into dev;
+all three reports are delivered. UI02, CMR01-CMR05 and the paired model are
+implemented, and the controller-owned frozen gate passed. The plan, tracker,
+specification/model and pending-work entry are Completed. The separate
+keybinding-hint ticket and main/release/publication boundaries retain their scope.

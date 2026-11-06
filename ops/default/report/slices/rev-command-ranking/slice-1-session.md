@@ -108,6 +108,17 @@ gate. Fixtures are suite-owned; no persistent service is required.
 
 ## Risks and Follow-ups
 
-Usage is session-local. Bounded persistence and publisher failure behavior remain
-Slice 2; restart/PTY acceptance, complete guidance and joint closure remain
-Slice 3. The separate keybinding-hint ticket keeps its scope.
+At this slice's merge, usage was session-local. Slice 2 subsequently delivered
+bounded persistence and publisher failure behavior; Slice 3 delivered restart/PTY
+acceptance and complete guidance. The separate keybinding-hint ticket keeps
+its scope.
+
+## Delivery-set closure
+
+All three canonical slice PRs are integrated and this report remains delivered.
+The controller passed the unchanged full gate on `fea4fffdfa3e66d8a7d7f1cc031a6637199424af`,
+receipt `342LB2K3MYK2Z2JS5ESVI4WSNP`. The [Slice 3 closure](slice-3-acceptance.md#delivery-set-closure)
+records the exact command, 503 passing tests, immutable report introductions,
+measured native/PTY publication acceptance, local guide build and evidence limits.
+This report's original session-only boundary and slice validation remain
+historical evidence; the complete set now includes persisted ranking.

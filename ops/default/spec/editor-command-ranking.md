@@ -1,6 +1,9 @@
 # Command Recency and Frequency
 
-Status: Approved
+Status: Completed
+Completed: 2026-11-06
+Validated candidate: `fea4fffdfa3e66d8a7d7f1cc031a6637199424af`
+Gate validation: `342LB2K3MYK2Z2JS5ESVI4WSNP`
 Date: 2026-11-06
 Approved: product owner, 2026-11-06; specification/model and the established preparation, push and one autonomous Looper delivery through dev
 Format: OpenSpec change specification
@@ -268,3 +271,17 @@ terminal journeys for actual input and restart behavior.
 The approved scope is the four/four policy, fixed usage window, bounded state
 publication and the existing selector controls. No new command vocabulary or
 settings are needed to use the default behavior.
+
+## Completed delivery evidence
+
+Three canonical slices through PRs #291, #292 and #293 implement UI02 and CMR01-CMR05.
+The controller passed its unchanged full gate at `fea4fffdfa3e66d8a7d7f1cc031a6637199424af`,
+receipt `342LB2K3MYK2Z2JS5ESVI4WSNP`: 503 selected tests, native frame/surface
+ranking, both-profile input/render/restart journeys, paired real publication,
+complete catalogs and the local Markdown-derived Spore guide build.
+The [Slice 3 closure](../report/slices/rev-command-ranking/slice-3-acceptance.md#delivery-set-closure) records the exact command,
+immutable report introductions, stage/resource observations and evidence limits.
+The interaction and configuration baselines were reconciled before that gate;
+their earlier validated candidates and historical results remain unchanged.
+The separate keybinding-hint ticket, main promotion and publication retain their
+existing boundaries.

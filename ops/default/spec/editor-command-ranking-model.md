@@ -1,6 +1,9 @@
 # Command Usage Model
 
-Status: Approved
+Status: Completed
+Completed: 2026-11-06
+Validated candidate: `fea4fffdfa3e66d8a7d7f1cc031a6637199424af`
+Gate validation: `342LB2K3MYK2Z2JS5ESVI4WSNP`
 Date: 2026-11-06
 Approved: product owner, 2026-11-06; specification/model and one autonomous Looper delivery through dev
 Specification: [Command Recency and Frequency](editor-command-ranking.md)
@@ -95,3 +98,17 @@ rewriting that record. Ordinary editing and in-memory usage remain available.
 An absent file starts empty. A complete default-only editor startup need not
 create the state root. An error diagnostic must not reproduce prompt contents
 or introduce a modal decision before ordinary command use or shutdown.
+
+## Completed delivery evidence
+
+Three canonical slices through PRs #291, #292 and #293 implement the version 1 usage model.
+The controller passed its unchanged full gate at `fea4fffdfa3e66d8a7d7f1cc031a6637199424af`,
+receipt `342LB2K3MYK2Z2JS5ESVI4WSNP`: 503 selected tests, native frame/surface
+ranking, both-profile input/render/restart journeys, paired real publication,
+complete catalogs and the local Markdown-derived Spore guide build.
+The [Slice 3 closure](../report/slices/rev-command-ranking/slice-3-acceptance.md#delivery-set-closure) records the exact command,
+immutable report introductions, stage/resource observations and evidence limits.
+The interaction and configuration baselines were reconciled before that gate;
+their earlier validated candidates and historical results remain unchanged.
+The separate keybinding-hint ticket, main promotion and publication retain their
+existing boundaries.
