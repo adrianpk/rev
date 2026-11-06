@@ -1,6 +1,6 @@
 # Slice 3: Acceptance and guidance
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-command-ranking
 Plan: [Command Ranking Delivery](../../../plan/rev-command-ranking.md)
 Tracker: [Command Ranking Tracker](../../../tracker/rev-command-ranking.md)
@@ -38,7 +38,8 @@ T3.1 is implemented in `1a46d3e6f49baef20453597dc1a1298910c6efb6`.
 T3.2 is implemented in `e467e2de7f2fcdba65669a6d6324ad516f0e6b16`.
 T3.3 records this report and the tracker handoff; final set closure remains
 controller-owned. Canonical [PR #293](https://forge.adrianpk.com/adrianpk/rev/pulls/293)
-targets `dev`. The report's immutable introduction is
+merged into `dev` at `676c3d9e2b80754fc01a7de0fc4cce1f2c9daf01`.
+The report's immutable introduction is
 `601f204ee78c67107287901d9b28603a467b7d3c`, which also records the T3.3 report/tracker handoff.
 
 The Bash wrapper builds the editor and driver together once, then runs the
@@ -55,7 +56,7 @@ The guide preview was projected from canonical Markdown into an ignored local
 Spore project, strictly link-checked, rendered and checked for the ranking text.
 There is no second authored guide source or publication step. Slice 2 is closed
 against merged PR #292 at `ce48b3a699970eec94375ba116f100c4eedb949c`;
-`cd5588ac6805ab51b3ee97d6be388b6ff3909d11` records that transition and activates Slice 3.
+`cd5588ac6805ab51b3ee97d6be388b6ff3909d11` recorded that transition and activated Slice 3.
 
 ## Contracts Added or Changed
 
@@ -127,6 +128,7 @@ controller-owned integrated gate or final delivery acceptance.
 Forced termination can lose unpublished events. Existing real-boundary tests
 cover state contention, byte/name/event bounds and publication failures; these
 representative PTY journeys do not multiply those variants into terminal runs.
-The controller still owns canonical integration, the frozen integrated gate and
-the permitted eight-path final closure. Main promotion and publication remain
-separate.
+All three canonical slice PRs are integrated. The controller still owns the
+frozen integrated gate and the permitted eight-path final closure; both remain
+pending. Delivered status records the merged slice, not a full-gate pass.
+Main promotion and publication remain separate.

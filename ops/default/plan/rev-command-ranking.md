@@ -10,7 +10,7 @@ Specification: [Command Recency and Frequency](../spec/editor-command-ranking.md
 Model: [Command Usage Model](../spec/editor-command-ranking-model.md)
 Tracker: [Command Ranking Tracker](../tracker/rev-command-ranking.md)
 Concern: [Pending Work Index](../README.md)
-Active slice: Slice 3, Acceptance and guidance
+Active slice: None; all three recorded slices delivered
 
 ## Outcome and strategy
 
@@ -128,6 +128,16 @@ approved ranking changes them. Use empty usage for alphabetical fallback cases.
 Never disable tests, weaken assertions or use actual user state to pass checks.
 
 ## Final gate
+
+Preparation: canonical PRs #291, #292 and #293 are merged into dev and all three
+slice reports are delivered. Rust/Cargo 1.98, formatter, Clippy, Bash, the
+PTY utilities and Spore are available. Locked offline metadata admits every gate
+target; both gate entrypoints pass Bash syntax checks. The guide inputs are
+present and the ignored output directory is writable. No application build was
+active in the primary checkout during this preparation.
+
+The full gate has not been run by this worker. Its result and final delivery-set
+closure remain pending controller execution.
 
 Run once on the exact clean integrated candidate, in order. The export also
 applies to nested Cargo invocations in acceptance and guide scripts.

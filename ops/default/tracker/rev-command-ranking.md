@@ -8,7 +8,7 @@ Plan: [Command Ranking Delivery](../plan/rev-command-ranking.md)
 Specification: [Command Recency and Frequency](../spec/editor-command-ranking.md)
 Model: [Command Usage Model](../spec/editor-command-ranking-model.md)
 Concern: [Pending Work Index](../README.md)
-Active slice: Slice 3, Acceptance and guidance
+Active slice: None; all three recorded slices delivered
 Progress owner: retained Looper checkpoint and canonical validation receipts
 
 ## Canonical slice map
@@ -55,11 +55,11 @@ Validation: all five required commands passed locally, including 343 tests; cano
 
 ## Slice 3: Acceptance and guidance
 
-State: reviewing
+State: delivered
 Dependency: Slice 2 integrated
 Requirements: UI02 and CMR01-CMR05 together
 Implementation: `1a46d3e6f49baef20453597dc1a1298910c6efb6` implements T3.1; `e467e2de7f2fcdba65669a6d6324ad516f0e6b16` implements T3.2; `601f204ee78c67107287901d9b28603a467b7d3c` implements T3.3 and introduces the report
-PR: [#293](https://forge.adrianpk.com/adrianpk/rev/pulls/293), open against `dev`
+PR: [#293](https://forge.adrianpk.com/adrianpk/rev/pulls/293), merged into `dev` at `676c3d9e2b80754fc01a7de0fc4cce1f2c9daf01`
 Report: `ops/default/report/slices/rev-command-ranking/slice-3-acceptance.md`
 Validation: all six required commands passed locally, including 301 tests; focused native/PTY acceptance and Markdown-derived Spore checks also passed. Canonical clean-HEAD evidence belongs to Looper receipts for the final PR-reference commit
 
@@ -76,7 +76,12 @@ The plan's Final gate section and local configuration define the ordered gate
 and environment. No implementation, validation, timing or publication is claimed
 at planning.
 
-- [ ] Verify all three canonical PRs integrated and all reports delivered.
+All recorded slices are now integrated. Gate tools, target admission, Bash
+entrypoint syntax, guide inputs and output-directory access were verified during
+preparation. The frozen full gate and final closure remain controller-owned and
+pending; prerequisite checks do not establish integrated acceptance.
+
+- [x] Verify all three canonical PRs integrated and all reports delivered.
 - [ ] Pass the unchanged final gate on the exact clean candidate.
 - [ ] Record the receipt, commands, immutable report introductions, actual
   timings, state/PTY cleanup and evidence limits.
