@@ -106,7 +106,7 @@ startup fields, live-session admission and the separate shell-filter settings.
 ## Startup configuration
 
 The [complete English reference sample](config.toml) contains every supported
-global default, all 54 active RGB roles and the profile, state and local context maps. Its
+global default, all active RGB roles and the profile, state and local context maps. Its
 optional include, language and association examples are commented out. First
 startup installs these complete defaults; a customized file may retain only the
 overrides you need.
@@ -394,6 +394,7 @@ edit limits and finite lifecycle.
 | `history.payload_target_bytes` | Integer 1..=1073741824 | `67108864` | Per buffer; soft logical fragment-payload target in bytes, not resident memory. The newest complete group survives excess. |
 | `kill_ring.capacity` | Integer 1..=4096 | `32` | Session; linear entries, separate from retained rectangle rows. |
 | `kill_ring.coalesce` | Boolean | `true` | Session; consecutive compatible directional kills join; unrelated commands still end the chain. |
+| `tree.decorated` | Boolean | `true` | Startup; ordinary kind symbols and semantic entry colors. Set false for the existing minimal labels. |
 | `tree.visible` | Boolean | `false` | Initial show preference; showing never steals editor focus. Narrow geometry can temporarily hide the pane. |
 | `tree.width` | Integer 1..=512 | `24` | Session; preferred tree columns, constrained by its frame share and complete editor geometry. |
 | `tree.max_fraction` | Finite float 0.1..=0.5 | `0.3333333333333333` | Session; maximum terminal-width fraction for the tree. The divider is separate. |
@@ -472,6 +473,13 @@ All palette roles are global, with no language-scoped color override.
 | `palette.border` | RGB string | `"#3b4261"` | Inactive separator foreground. |
 | `palette.border_active` | RGB string | `"#7aa2f7"` | Active separator foreground. |
 | `palette.tree` | RGB string | `"#16161e"` | Tree background. |
+| `palette.tree_entries.root` | RGB string | `"#7aa2f7"` | Root icon and name foreground in decorated mode; focused selection overrides it. |
+| `palette.tree_entries.directory` | RGB string | `"#e0af68"` | Directory icon and name foreground in decorated mode; focused selection overrides it. |
+| `palette.tree_entries.source` | RGB string | `"#7aa2f7"` | Source-file icon and name foreground in decorated mode; focused selection overrides it. |
+| `palette.tree_entries.document` | RGB string | `"#e0af68"` | Document icon and name foreground in decorated mode; focused selection overrides it. |
+| `palette.tree_entries.configuration` | RGB string | `"#bb9af7"` | Configuration-file icon and name foreground in decorated mode; focused selection overrides it. |
+| `palette.tree_entries.file` | RGB string | `"#c0caf5"` | Unclassified-file icon and name foreground in decorated mode; focused selection overrides it. |
+| `palette.tree_entries.symlink` | RGB string | `"#7dcfff"` | Symlink icon and name foreground in decorated mode; focused selection overrides it. |
 | `palette.tree_selected` | RGB string | `"#283457"` | Selected tree entry background. |
 | `palette.tree_selected_text` | RGB string | `"#c0caf5"` | Selected tree entry foreground. |
 | `palette.message` | RGB string | `"#c0caf5"` | Normal echo/message foreground. |

@@ -17,6 +17,45 @@ follow the visiting file's resolved parent; explicit `tree.root = "cwd"` retains
 launch cwd. A session without a file uses its chosen directory or launch cwd.
 Drawing and visible movement perform no filesystem reads or Git discovery.
 
+## Presentation
+
+The default tree uses ordinary symbols and semantic colors. This presentation
+does not show a hidden tree or change navigation. Set the startup preference
+`tree.decorated = false` to keep the existing minimal labels; omitted settings
+adopt the decorated default without rewriting your configuration.
+
+| Kind | Ordinary symbol | Foreground role |
+| --- | --- | --- |
+| Root | `◆` | `palette.tree_entries.root` |
+| Directory | `/` | `palette.tree_entries.directory` |
+| Source file | `λ` | `palette.tree_entries.source` |
+| Document | `≡` | `palette.tree_entries.document` |
+| Configuration | `=` | `palette.tree_entries.configuration` |
+| Other file | `·` | `palette.tree_entries.file` |
+| Symlink | `@` | `palette.tree_entries.symlink` |
+
+Decorated directories, including the root, use `▸` when closed and `▾` when
+open. Disclosure and kind symbols have separate fields; names at the same
+depth align with a two-cell nesting step. Directory slashes and `[incomplete]`
+diagnostics remain visible. Minimal labels use `>` and `v` for directories
+and `@` for symlinks, independent of the gutter font preference.
+
+Kinds come from observed type and basename only. Root, symlink and directory
+identity take precedence over suffixes. Source suffixes include `.rs`, `.go`,
+`.c`, `.h`, `.js`, `.jsx`, `.ts`, `.tsx`, `.html`, `.htm` and `.css`;
+documents include `.md`, `.markdown`, `.org`, `.txt` and `.rst`;
+configuration includes `.toml`, `.json`, `.yaml`, `.yml`, `.ini`, `.cfg`,
+`.conf`, `.xml`, `.editorconfig`, `.gitignore`, `.gitattributes`, `Cargo.lock`,
+`Makefile` and `Dockerfile`. ASCII case-insensitive kind matching does not
+change sorting or path identity. Unknown names remain ordinary actionable files.
+No content read, language server or parser is needed for classification.
+
+The `palette.tree_entries` foregrounds apply only in decorated mode.
+`palette.tree` remains the pane background; `palette.tree_selected` and
+`palette.tree_selected_text` keep focused selection readable. Structural
+symbols and reverse-video selection remain available with `NO_COLOR`.
+See [Scope and defaults](defaults.md) for startup values and palette defaults.
+
 ## Keyboard focus
 
 - `C-x t f` or `M-x focus-file-tree` shows and focuses the pane.
@@ -65,8 +104,7 @@ The corresponding names are `tree-previous-line`, `tree-next-line`,
 `tree-expand`, `tree-collapse` and `tree-toggle-directory`. Tree navigation
 requires tree focus. M-x names and bound keys use the same handlers.
 
-Directory markers are `>` for collapsed and `v` for expanded. Symlinks use
-`@`. Children sort directories first, then by the native filename order;
+Children sort directories first, then by the native filename order;
 comparison is case-sensitive and independent of locale. Dot entries are shown.
 Each expansion reads only that directory's direct children. Collapsing removes
 its loaded descendants; expanding again observes fresh children. There is no
@@ -81,7 +119,7 @@ listing is not an empty or complete observation. Failed initialization retains
 the previous root, source and usable tree state.
 
 Executable startup and supplied library snapshots apply `tree.visible`,
-`width`, `max_fraction`, `root`, `show_hidden` and `directories_first`. Initial
+`decorated`, `width`, `max_fraction`, `root`, `show_hidden` and `directories_first`. Initial
 visibility preserves editing focus. Width is the lesser of the preferred
 columns and maximum frame share; frames narrower than 32 columns still hide
 the tree temporarily. Widening restores its focus intent unless editing or
