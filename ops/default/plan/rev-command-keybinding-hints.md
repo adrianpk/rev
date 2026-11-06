@@ -1,6 +1,6 @@
 # Command Keybinding Hints Delivery
 
-Status: Approved
+Status: In progress
 Date: 2026-11-06
 Delivery set: rev-command-keybinding-hints
 Slice strategy: behavior-first
@@ -9,7 +9,7 @@ Planning baseline: `421ab4b62604`
 Specification: [Command Keybinding Hints](../spec/editor-command-keybinding-hints.md)
 Tracker: [Command Keybinding Hints Tracker](../tracker/rev-command-keybinding-hints.md)
 Concern: [Pending Work Index](../README.md)
-Ticket: [TKT-20261031095151](../ticket/ready/20261031095151-show-keybindings-beside-m-x-commands.md)
+Ticket: [TKT-20261031095151](../ticket/reviewing/20261031095151-show-keybindings-beside-m-x-commands.md)
 Active slice: Slice 1 - Effective hints
 
 ## Outcome and strategy

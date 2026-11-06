@@ -424,3 +424,111 @@ fn acceptance_aliases() {
         assert_eq!(input.handle(phase(accept, Repeat)), Outcome::Ignored);
     }
 }
+
+// Expected labels protect effective replacement, normalized aliases and the
+// shortest-then-lexical policy. Every advertised sequence is replayed through
+// ordinary input, so a hint cannot borrow minibuffer bindings or execute work.
+#[test]
+fn effective_hints() {
+    use rev::input::keymap::Sequence;
+    for (case, config, command, expected) in [
+        ("factory", "", "save-buffer", Some("C-x C-s")),
+        (
+            "replacement",
+            "[keys.editor]\n'C-x C-s'='newline'\n'C-c s'='save-buffer'",
+            "save-buffer",
+            Some("C-c s"),
+        ),
+        (
+            "shortest",
+            "[keys.editor]\n'M-z a'='save-buffer'\n'M-q'='save-buffer'",
+            "save-buffer",
+            Some("M-q"),
+        ),
+        (
+            "lexical",
+            "[keys.editor]\n'M-z'='save-buffer'\n'M-a'='save-buffer'",
+            "save-buffer",
+            Some("M-a"),
+        ),
+        (
+            "normalized Meta",
+            "[keys.editor]\n'ESC j'='save-buffer'",
+            "save-buffer",
+            Some("M-j"),
+        ),
+        ("terminal undo alias", "", "undo", Some("C-_")),
+        (
+            "eight chords",
+            "[keys.editor]\n'M-j a b c d e f g'='mouse-mode'",
+            "mouse-mode",
+            Some("M-j a b c d e f g"),
+        ),
+        ("unbound", "", "mouse-mode", None),
+    ] {
+        let snapshot = settings(config);
+        let mut input = Input::with_settings(&snapshot);
+        input.commands().unwrap();
+        let palette = input.palette().unwrap();
+        assert_eq!(
+            palette.hint(Command::named(command).unwrap()),
+            expected,
+            "{case}"
+        );
+        let mut dispatch = Input::with_settings(&snapshot);
+        for command in palette.candidates() {
+            if let Some(hint) = palette.hint(command) {
+                dispatch.cancel();
+                let mut result = Outcome::Ignored;
+                for chord in Sequence::parse(hint).unwrap().chords() {
+                    result =
+                        dispatch.handle(Event::Key(KeyEvent::new(chord.code, chord.modifiers)));
+                }
+                assert_eq!(result, Outcome::Command(command), "{case}: {hint}");
+            }
+        }
+        input.handle(Event::Paste("C-x C-s".into()));
+        assert!(
+            input.palette().unwrap().candidates().is_empty(),
+            "{case}: hint-only match"
+        );
+    }
+}
+
+// Filtering, Tab and named acceptance retain canonical identities. Registered
+// AI names without bindings stay candidates and inspection adds no usage.
+#[test]
+fn hint_identity() {
+    let mut input = Input::with_settings(&settings(
+        "[keys.editor]\n'M-j'='save-buffer'\n[ai.commands.review]\nprompt='Review text.'\ninput='buffer'\ncontext='input'\noutput='explanation'",
+    ));
+    input.commands().unwrap();
+    let ai = input
+        .palette()
+        .unwrap()
+        .candidates()
+        .into_iter()
+        .find(|command| command.name() == "ai-review")
+        .unwrap();
+    assert_eq!(input.palette().unwrap().hint(ai), None);
+    let initial = input.palette().unwrap().candidates();
+    input.handle(control('g'));
+    input.commands().unwrap();
+    assert_eq!(input.palette().unwrap().candidates(), initial);
+    input.handle(Event::Paste("save-buffer".into()));
+    assert_eq!(
+        input.palette().unwrap().hint(Command::SaveBuffer),
+        Some("M-j")
+    );
+    input.handle(key(KeyCode::Tab));
+    assert_eq!(input.prompt().unwrap().text(), "save-buffer");
+    assert_eq!(
+        input.handle(key(KeyCode::Enter)),
+        Outcome::Command(Command::SaveBuffer)
+    );
+    input.commands().unwrap();
+    assert_eq!(
+        input.palette().unwrap().candidates()[0],
+        Command::SaveBuffer
+    );
+}

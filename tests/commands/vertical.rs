@@ -24,7 +24,7 @@ fn names(frame: &Frame) -> Vec<&str> {
         .rows()
         .iter()
         .filter(|row| row.band() == Band::Completion)
-        .map(|row| row.text().trim())
+        .map(|row| row.text().trim().split("  ").next().unwrap())
         .collect()
 }
 

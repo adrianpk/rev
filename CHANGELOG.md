@@ -9,6 +9,10 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 
 ### Added
 
+- M-x and modal colon command lists show one effective shortcut beside each
+  bound command, using the editing state and input context where the list opened.
+  Configured bindings take effect; unbound commands remain available by name.
+  Hints disappear when they cannot fit beside the full name.
 - [Org heading bodies and wrapped continuations](docs/tutorials/user-guide/06-org-notes.md#align-heading-bodies)
   align with their enclosing heading by default. Set `org.indent=false` for a
   flat outline with heading markers at the left margin and no added body spacing.

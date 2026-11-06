@@ -95,3 +95,87 @@ fn map_fallback() {
         );
     }
 }
+
+// The selector captures every modal state before command focus takes over.
+// Colon and M-x retain the same Visual owner and canonical completion text.
+#[test]
+fn state_hints() {
+    let config = format!(
+        "{VIM}\n[keys.vim_normal]\n'M-j'='save-buffer'\n[keys.vim_insert]\n'M-k'='save-buffer'\n[keys.vim_replace]\n'M-l'='save-buffer'\n[keys.vim_visual_character]\n'M-a'='save-buffer'\n[keys.vim_visual_line]\n'M-b'='save-buffer'\n[keys.vim_visual_block]\n'M-c'='save-buffer'"
+    );
+    for (case, entry, hint, colon) in [
+        ("normal colon", ModalCommand::Normal, "M-j", true),
+        ("normal Meta", ModalCommand::Normal, "M-j", false),
+        ("insert", ModalCommand::Insert, "M-k", false),
+        ("replace", ModalCommand::Replace, "M-l", false),
+        (
+            "Visual character",
+            ModalCommand::VisualCharacter,
+            "M-a",
+            true,
+        ),
+        ("Visual line", ModalCommand::VisualLine, "M-b", true),
+        ("Visual block", ModalCommand::VisualBlock, "M-c", true),
+    ] {
+        let mut editor = session(&config, "ab\ncd", 1);
+        editor.execute(Command::Modal(entry));
+        let state = editor.editing_state();
+        let point = editor.view().point;
+        let mark = editor.buffer().unwrap().mark();
+        let stamp = editor.buffer().unwrap().stamp();
+        editor.handle(if colon {
+            key(KeyCode::Char(':'))
+        } else {
+            modified('x', KeyModifiers::ALT)
+        });
+        editor.handle(Event::Paste("save-buffer".into()));
+        let frame = editor.frame().unwrap();
+        let first = frame
+            .rows()
+            .iter()
+            .find(|row| row.band() == rev::display::Band::Completion)
+            .unwrap();
+        assert_eq!(
+            first.text().split_whitespace().collect::<Vec<_>>(),
+            ["save-buffer", hint],
+            "{case}"
+        );
+        editor.handle(key(KeyCode::Tab));
+        assert!(
+            editor
+                .frame()
+                .unwrap()
+                .rows()
+                .iter()
+                .any(|row| row.text().starts_with("M-x save-buffer ")),
+            "{case}"
+        );
+        editor.handle(modified('g', KeyModifiers::CONTROL));
+        assert_eq!(editor.editing_state(), state, "{case}");
+        assert_eq!(editor.view().point, point, "{case}");
+        assert_eq!(editor.buffer().unwrap().mark(), mark, "{case}");
+        assert_eq!(editor.buffer().unwrap().stamp(), stamp, "{case}");
+    }
+}
+
+// Admitted digit prefixes may still be consumed as counts by actual grammar.
+// Read-only map iteration alone would falsely advertise this unreachable leaf.
+#[test]
+fn consumed_hint() {
+    let fixture = Fixture::new();
+    let config = fixture.write(
+        "config.toml",
+        &format!("{VIM}\n[keys.vim_normal]\n'1 a'='mouse-mode'"),
+    );
+    let startup = prepare(&config);
+    assert!(startup.diagnostic.is_none(), "{:?}", startup.diagnostic);
+    let mut input = rev::input::Input::with_settings(&startup.snapshot);
+    input.commands().unwrap();
+    assert_eq!(input.palette().unwrap().hint(Command::MouseMode), None);
+    input.cancel();
+    input.handle(key(KeyCode::Char('1')));
+    assert_ne!(
+        input.handle(key(KeyCode::Char('a'))),
+        rev::input::Outcome::Command(Command::MouseMode)
+    );
+}

@@ -1,13 +1,13 @@
 # Command Keybinding Hints Tracker
 
-Status: Approved
+Status: In progress
 Date: 2026-11-06
 Delivery set: rev-command-keybinding-hints
 Approved: product owner; continue the established preparation commits, plan, slicing, push and one autonomous Looper delivery through dev
 Plan: [Command Keybinding Hints Delivery](../plan/rev-command-keybinding-hints.md)
 Specification: [Command Keybinding Hints](../spec/editor-command-keybinding-hints.md)
 Concern: [Pending Work Index](../README.md)
-Ticket: [TKT-20261031095151](../ticket/ready/20261031095151-show-keybindings-beside-m-x-commands.md)
+Ticket: [TKT-20261031095151](../ticket/reviewing/20261031095151-show-keybindings-beside-m-x-commands.md)
 Active slice: Slice 1 - Effective hints
 Progress owner: retained Looper checkpoint and canonical validation receipts
 
@@ -20,7 +20,7 @@ Progress owner: retained Looper checkpoint and canonical validation receipts
 
 ## Slice 1: Effective hints
 
-State: ready
+State: reviewing
 Dependency: approved committed preparation on clean dev
 Requirements: KBH01-KBH05; retain UI02 and CMR01-CMR05
 Branch: `feat/rev-command-keybinding-hints-01-effective`
@@ -28,11 +28,11 @@ PR: pending
 Report: `ops/default/report/slices/rev-command-keybinding-hints/slice-1-effective.md`
 Validation: the five ordered Slice 1 commands recorded in the plan and local configuration
 
-- [ ] T1.1: Inspect effective sequences through actual dispatch ownership and
+- [x] T1.1: Inspect effective sequences through actual dispatch ownership and
   prepare a bounded originating-context snapshot before minibuffer activation.
-- [ ] T1.2: Paint normalized primary hints with complete cell-safe labels,
+- [x] T1.2: Paint normalized primary hints with complete cell-safe labels,
   preserving canonical names, selection, ranking, invocation and usage.
-- [ ] T1.3: Extend focused regression coverage, record the delivered outcome in
+- [x] T1.3: Extend focused regression coverage, record the delivered outcome in
   Unreleased and produce the implementation report and ticket evidence.
 
 ## Slice 2: Acceptance and guidance
@@ -56,8 +56,8 @@ Validation: the six ordered Slice 2 commands recorded in the plan and local conf
 
 The plan defines the exact ordered gate, environment, affected contracts,
 estimated cost, native/PTY limits and finite recovery authority. The local
-configuration freezes these commands before execution. No implementation,
-successful check, report or publication is claimed at preparation.
+configuration freezes these commands before execution. The original preparation made no implementation or validation claim. Slice 1
+review evidence is recorded below; publication remains outside this set.
 
 - [ ] Verify both canonical PRs integrated and reports delivered.
 - [ ] Verify gate prerequisites and run the selected unchanged gate on the
@@ -72,3 +72,15 @@ successful check, report or publication is claimed at preparation.
 Technical recovery retains the same run and consumed budgets under the plan's
 finite delegation. Main promotion, installation, release, tags, mirrors and
 other open tickets remain outside this delivery.
+
+## Slice 1 review evidence
+
+- T1.1 and T1.2 source: `c18cdc0b5bb3feb05074e4d2bcba07c0afcfba6b`.
+- T1.3 extends existing commands/modal/display tests, records one Unreleased
+  outcome and introduces the canonical Slice 1 report.
+- All five required slice commands passed locally: 336 tests (172 commands,
+  44 display, 120 modal), 85 documentation pages and 576 local links/anchors.
+- Eight focused hint tests passed, including configured/normalized sequences,
+  local ownership, all modal states, clipping, identity and actual cell colors.
+- Final clean-HEAD ordered evidence is recorded by Looper for the PR-reference
+  commit. Review readiness does not claim merge or the combined gate.

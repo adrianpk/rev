@@ -4,7 +4,7 @@ Status: Approved
 Date: 2026-11-06
 Approved: product owner; proceed with the established delivery process on 2026-11-06
 Format: OpenSpec capability addition
-Source: [TKT-20261031095151](../ticket/ready/20261031095151-show-keybindings-beside-m-x-commands.md); owner requested a formal specification before implementation
+Source: [TKT-20261031095151](../ticket/reviewing/20261031095151-show-keybindings-beside-m-x-commands.md); owner requested a formal specification before implementation
 Baselines: [Editor Interaction](editor-interaction.md), UI02; [Command Recency and Frequency](editor-command-ranking.md); [Configuration](editor-configuration.md); [Modal Editing](editor-modal-editing.md)
 Current reference: [Commands](../../../docs/reference/commands.md), [Bindings](../../../docs/reference/bindings.md), [Focused Prompts](../../../docs/reference/prompts.md)
 Plan: [Command Keybinding Hints Delivery](../plan/rev-command-keybinding-hints.md)

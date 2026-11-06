@@ -114,7 +114,10 @@ fn colon_ranking() {
             .iter()
             .find(|row| row.band() == rev::display::Band::Completion)
             .unwrap();
-        assert_eq!(first.text().trim(), "goto-line");
+        assert_eq!(
+            first.text().split_whitespace().collect::<Vec<_>>(),
+            ["goto-line", "M-g", "M-g"]
+        );
         editor.handle(Event::Paste("undo".into()));
         editor.handle(key(KeyCode::Tab));
         control(&mut editor, 'g');
@@ -125,7 +128,10 @@ fn colon_ranking() {
             .iter()
             .find(|row| row.band() == rev::display::Band::Completion)
             .unwrap();
-        assert_eq!(first.text().trim(), "goto-line");
+        assert_eq!(
+            first.text().split_whitespace().collect::<Vec<_>>(),
+            ["goto-line", "M-g", "M-g"]
+        );
         assert_eq!(text(&editor), "one\ntwo\nthree");
         assert_eq!(editor.editing_state(), Some(EditingState::Normal));
     }
