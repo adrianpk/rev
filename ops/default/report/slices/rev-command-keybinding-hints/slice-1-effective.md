@@ -1,11 +1,12 @@
 # Slice 1: Effective hints
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-command-keybinding-hints
 Plan: [Command Keybinding Hints Delivery](../../../plan/rev-command-keybinding-hints.md)
 Tracker: [Command Keybinding Hints Tracker](../../../tracker/rev-command-keybinding-hints.md)
 Branch: `feat/rev-command-keybinding-hints-01-effective`
 PR: `#294`
+Integrated: `05365b43a51f5aaa7217c489117afc78289b0abe`
 
 ## Purpose
 
@@ -35,8 +36,7 @@ T1.1 and T1.2 source is implemented in
 `c18cdc0b5bb3feb05074e4d2bcba07c0afcfba6b`. T1.3 is implemented in
 `844ec6c5fb9d0c6f71d1de2ca6f98538423d8d12`: existing-suite regressions, the Unreleased outcome and
 this report. Its immutable introduction is that same commit. Canonical
-[PR #294](https://forge.adrianpk.com/adrianpk/rev/pulls/294) targets `dev` and remains open for
-controller verification.
+[PR #294](https://forge.adrianpk.com/adrianpk/rev/pulls/294) merged into `dev` at that exact validated head on 2026-11-06.
 
 Input inspects only sequences already admitted by the effective maps, bounded
 at eight normalized chords. One isolated input probe owns a map snapshot and
@@ -118,3 +118,13 @@ Slice 2 owns the approved joint native/PTY acceptance, NO_COLOR journey,
 command/User Guide updates, Spore projection and interaction-baseline
 reconciliation. The combined full gate, merge and successor startup remain
 controller-owned. No publication, installation or release is included.
+
+## Integration
+
+Canonical PR #294 merged into dev at
+`05365b43a51f5aaa7217c489117afc78289b0abe`. Receipt
+`D6ITQPUQYZ5CJ5CUMWE6JOV236` passed the five ordered commands on that exact
+clean candidate, with 336 passing tests and the documentation checks above.
+The immutable introduction remains `844ec6c5fb9d0c6f71d1de2ca6f98538423d8d12`.
+Slice 2 now owns joint acceptance and guidance; this integration does not claim
+the combined delivery-set gate.

@@ -8,7 +8,7 @@ Plan: [Command Keybinding Hints Delivery](../plan/rev-command-keybinding-hints.m
 Specification: [Command Keybinding Hints](../spec/editor-command-keybinding-hints.md)
 Concern: [Pending Work Index](../README.md)
 Ticket: [TKT-20261031095151](../ticket/reviewing/20261031095151-show-keybindings-beside-m-x-commands.md)
-Active slice: Slice 1 - Effective hints
+Active slice: Slice 2 - Acceptance and guidance
 Progress owner: retained Looper checkpoint and canonical validation receipts
 
 ## Canonical slice map
@@ -20,7 +20,7 @@ Progress owner: retained Looper checkpoint and canonical validation receipts
 
 ## Slice 1: Effective hints
 
-State: reviewing
+State: completed
 Dependency: approved committed preparation on clean dev
 Requirements: KBH01-KBH05; retain UI02 and CMR01-CMR05
 Branch: `feat/rev-command-keybinding-hints-01-effective`
@@ -37,7 +37,7 @@ Validation: the five ordered Slice 1 commands recorded in the plan and local con
 
 ## Slice 2: Acceptance and guidance
 
-State: pending
+State: in_progress
 Dependency: Slice 1 integrated
 Requirements: KBH01-KBH05 together
 Branch: `test/rev-command-keybinding-hints-02-acceptance`
@@ -86,4 +86,8 @@ other open tickets remain outside this delivery.
 - Eight focused hint tests passed, including configured/normalized sequences,
   local ownership, all modal states, clipping, identity and actual cell colors.
 - Final clean-HEAD ordered evidence is recorded by Looper for the PR-reference
-  commit. Review readiness does not claim merge or the combined gate.
+  commit. PR #294 is integrated at that exact commit; the combined gate remains pending.
+
+Slice 1 integrated: `05365b43a51f5aaa7217c489117afc78289b0abe`. Its clean-HEAD
+receipt `D6ITQPUQYZ5CJ5CUMWE6JOV236` passed all five ordered commands. Canonical
+Forgejo confirms PR #294 merged into dev on 2026-11-06. Slice 2 is active.

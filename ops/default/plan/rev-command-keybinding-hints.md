@@ -10,7 +10,7 @@ Specification: [Command Keybinding Hints](../spec/editor-command-keybinding-hint
 Tracker: [Command Keybinding Hints Tracker](../tracker/rev-command-keybinding-hints.md)
 Concern: [Pending Work Index](../README.md)
 Ticket: [TKT-20261031095151](../ticket/reviewing/20261031095151-show-keybindings-beside-m-x-commands.md)
-Active slice: Slice 1 - Effective hints
+Active slice: Slice 2 - Acceptance and guidance
 
 ## Outcome and strategy
 
