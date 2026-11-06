@@ -4,6 +4,8 @@ Status: Approved
 Date: 2026-11-06
 Approved: product owner, 2026-11-06; specification/model and one autonomous Looper delivery through dev
 Specification: [Command Recency and Frequency](editor-command-ranking.md)
+Plan: [Command Ranking Delivery](../plan/rev-command-ranking.md)
+Tracker: [Command Ranking Tracker](../tracker/rev-command-ranking.md)
 Baseline model: [Configuration](editor-configuration-model.md)
 
 ## Location and scope

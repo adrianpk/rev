@@ -1,0 +1,87 @@
+# Command Ranking Tracker
+
+Status: Approved
+Date: 2026-11-06
+Delivery set: rev-command-ranking
+Approved: product owner; specification/model and the established preparation commits, three-slice plan, push and one autonomous Looper delivery through dev
+Plan: [Command Ranking Delivery](../plan/rev-command-ranking.md)
+Specification: [Command Recency and Frequency](../spec/editor-command-ranking.md)
+Model: [Command Usage Model](../spec/editor-command-ranking-model.md)
+Concern: [Pending Work Index](../README.md)
+Active slice: Slice 1, Session ranking
+Progress owner: retained Looper checkpoint and canonical validation receipts
+
+## Canonical slice map
+
+| Slice | Short name | Exact branch | Expected PR title | Report |
+| --- | --- | --- | --- | --- |
+| Slice 1 | Session ranking | `feat/rev-command-ranking-01-session` | `feat(commands): rank recent and frequent command candidates` | `ops/default/report/slices/rev-command-ranking/slice-1-session.md` |
+| Slice 2 | Persistent usage | `feat/rev-command-ranking-02-persistence` | `feat(commands): persist bounded command usage across sessions` | `ops/default/report/slices/rev-command-ranking/slice-2-persistence.md` |
+| Slice 3 | Acceptance and guidance | `test/rev-command-ranking-03-acceptance` | `test(commands): verify command ranking and document history` | `ops/default/report/slices/rev-command-ranking/slice-3-acceptance.md` |
+
+## Slice 1: Session ranking
+
+State: ready
+Dependency: approved committed preparation on clean dev
+Requirements: UI02, CMR01-CMR03 and derived ranking model
+Implementation: pending
+PR: pending
+Report: `ops/default/report/slices/rev-command-ranking/slice-1-session.md`
+Validation: pending; exact commands are in the plan and local configuration
+
+- [ ] T1.1: Deliver bounded usage and deterministic recent/frequent ranking
+  within match ranks, with canonical identities and no duplicates.
+- [ ] T1.2: Observe shared named dispatch once and capture stable snapshots;
+  preserve existing prompt and session-history controls.
+- [ ] T1.3: Verify native session behavior, document its delivered boundary
+  and add one Unreleased product outcome.
+
+## Slice 2: Persistent usage
+
+State: pending
+Dependency: Slice 1 integrated
+Requirements: UI02, CMR01-CMR05 and complete usage model
+Implementation: pending
+PR: pending
+Report: `ops/default/report/slices/rev-command-ranking/slice-2-persistence.md`
+Validation: pending; exact commands are in the plan and local configuration
+
+- [ ] T2.1: Deliver bounded versioned TOML/state storage with preserved invalid
+  records and enforced event, name and byte limits.
+- [ ] T2.2: Wire explicit ownership, nonblocking publication, pending-event
+  rebasing and safe failure/shutdown behavior.
+- [ ] T2.3: Deliver the command_usage target with real boundary/wiring checks;
+  update state/defaults references and the same Unreleased outcome.
+
+## Slice 3: Acceptance and guidance
+
+State: pending
+Dependency: Slice 2 integrated
+Requirements: UI02 and CMR01-CMR05 together
+Implementation: pending
+PR: pending
+Report: `ops/default/report/slices/rev-command-ranking/slice-3-acceptance.md`
+Validation: pending; exact commands are in the plan and local configuration
+
+- [ ] T3.1: Deliver bounded native, two-profile restart/PTY and paired-publisher
+  acceptance using existing Rust/Bash helpers and owned cleanup.
+- [ ] T3.2: Complete Diataxis and Markdown-derived Spore guidance; reconcile
+  affected baselines without replacing historical evidence.
+- [ ] T3.3: Record real report/commit/PR evidence, hand off the clean candidate
+  for the controller gate and close only after it passes.
+
+## Final gate and closure
+
+The plan's Final gate section and local configuration define the ordered gate
+and environment. No implementation, validation, timing or publication is claimed
+at planning.
+
+- [ ] Verify all three canonical PRs integrated and all reports delivered.
+- [ ] Pass the unchanged final gate on the exact clean candidate.
+- [ ] Record the receipt, commands, immutable report introductions, actual
+  timings, state/PTY cleanup and evidence limits.
+- [ ] Complete plan/tracker/specification/model and pending index.
+- [ ] Preserve separate keybinding-hint, main, release and installation boundaries.
+
+Technical recovery and final-gate repairs stay within the plan's finite
+delegation and the same retained run, conversation and consumed budgets.

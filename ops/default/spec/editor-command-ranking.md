@@ -7,6 +7,8 @@ Format: OpenSpec change specification
 Source: owner report that reopening M-x shows the same alphabetical list instead of the last used commands; proposed four recent plus four frequent entries
 Baselines: [Editor Interaction](editor-interaction.md), UI02; [Configuration](editor-configuration.md), CFG17; [Modal Editing](editor-modal-editing.md)
 Persistence model: [Command Usage Model](editor-command-ranking-model.md)
+Plan: [Command Ranking Delivery](../plan/rev-command-ranking.md)
+Tracker: [Command Ranking Tracker](../tracker/rev-command-ranking.md)
 Current reference: [Commands](../../../docs/reference/commands.md), [Focused Prompts](../../../docs/reference/prompts.md), [Defaults](../../../docs/reference/defaults.md)
 
 ## Purpose

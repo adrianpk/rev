@@ -24,7 +24,7 @@ retain their own specification/model state.
 
 | Topic | Artifacts | State and remaining decisions |
 | --- | --- | --- |
-| Command recency and frequency | [Spec](spec/editor-command-ranking.md), [model](spec/editor-command-ranking-model.md) | Approved on 2026-11-06 for the established preparation, plan, slicing, push and one autonomous Looper delivery through dev. Four recent commands precede four frequent commands within match ranks; a bounded 256-invocation window persists in XDG state. |
+| Command recency and frequency | [Spec](spec/editor-command-ranking.md), [model](spec/editor-command-ranking-model.md), [plan](plan/rev-command-ranking.md), [tracker](tracker/rev-command-ranking.md) | Approved on 2026-11-06 for one three-slice Looper delivery through dev. Four recent commands precede four frequent commands within match ranks; a bounded 256-invocation window persists in XDG state. Looper owns execution progress. |
 | Better file tree | [Spec](spec/editor-better-file-tree.md), [model](spec/editor-better-file-tree-model.md), [plan](plan/rev-better-file-tree.md), [tracker](tracker/rev-better-file-tree.md) | Delivered / Completed. Three slices through PRs #287-#289 deliver BFT01-BFT04: decorated default, explicit minimal labels, shared Nerd Fonts choice and Markdown/Spore guidance. The unchanged controller gate passed at `e0351ac918a760b7940e660494f2309d67bd30a4`, receipt `2WXLCTXPDKGL7ZMY7KI52IQSFP`; [Slice 3 closure](report/slices/rev-better-file-tree/slice-3-acceptance.md#delivery-set-closure) records exact evidence and font-rendering limits. |
 | Native Git integration | [Spec](spec/editor-git-integration.md), [model](spec/editor-git-integration-model.md), [plan](plan/rev-git-integration.md), [tracker](tracker/rev-git-integration.md) | Delivered / Completed. Fourteen slices through PRs #258-#271 and authorized repair #272 deliver native GIT01-GIT20 workflows, contextual bindings, installed-Git ownership, separate fetch/reviewed push, both local tag kinds and bounded process/source lifetime. The unchanged controller gate passed at `343850fb6914bf801dfa248b8cdd0e1c34ae1fef`, receipt `D6BU4EM7IWRUA3UHGDBE432UK3`; [Slice 14 closure](report/slices/rev-git-integration/slice-14-guidance.md#delivery-set-closure) records exact counts and evidence limits. |
 | Keybinding hints in M-x | [Ticket](ticket/open/20261031095151-show-keybindings-beside-m-x-commands.md) | Open. Show assigned shortcuts beside command candidates using effective bindings; preserve command completion and invocation. |
@@ -50,6 +50,12 @@ retain their own specification/model state.
 | External programs/extensions | [Spec](spec/editor-external-extensions.md), [model](spec/editor-external-extensions-model.md) | Optional exploration only. Explicit configuration, stdio and one child per invocation are the refined draft profile. Adoption itself is undecided; no scheduled delivery or baseline dependency. |
 
 ## Selected execution order
+
+On 2026-11-06 the owner approved Command Recency and Frequency and requested
+the established delivery process. The three-slice plan delivers session ranking,
+bounded persistence, then acceptance and Markdown/Spore guidance. Looper owns
+execution progress; the linked plan/tracker own the slice identities. Keybinding
+hints and other pending work retain their own approval boundaries.
 
 Better File Tree is Completed on 2026-11-06 after three canonical slices through
 PRs #287-#289. The unchanged controller gate passed at
