@@ -23,10 +23,15 @@ pub struct Palette {
     draft: String,
     policy: crate::config::Minibuffer,
     ai_commands: Vec<Command>,
+    usage: crate::command::usage::Usage,
 }
 
 impl Palette {
-    fn new(policy: &crate::config::Minibuffer, ai_commands: &[Command]) -> Result<Self, Error> {
+    fn new(
+        policy: &crate::config::Minibuffer,
+        ai_commands: &[Command],
+        usage: &crate::command::usage::Usage,
+    ) -> Result<Self, Error> {
         Ok(Self {
             prompt: Prompt::new("M-x ", "", policy.input_limit)?,
             query: None,
@@ -37,6 +42,7 @@ impl Palette {
             draft: String::new(),
             policy: policy.clone(),
             ai_commands: ai_commands.to_vec(),
+            usage: usage.clone(),
         })
     }
 
@@ -51,15 +57,23 @@ impl Palette {
             .chain(self.ai_commands.iter().copied())
             .filter(|command| command.name().contains(query))
             .collect();
-        candidates.sort_by(|a, b| {
-            (!a.name().starts_with(query), a.name()).cmp(&(!b.name().starts_with(query), b.name()))
-        });
-        match self.policy.r#match {
-            crate::config::Match::PrefixThenSubstring => {}
-            crate::config::Match::Prefix => {
-                candidates.retain(|command| command.name().starts_with(query))
+        if self.policy.r#match == crate::config::Match::Prefix {
+            candidates.retain(|command| command.name().starts_with(query));
+        }
+        let rank = |command: &Command| {
+            if command.name() == query {
+                0
+            } else if self.policy.r#match == crate::config::Match::PrefixThenSubstring
+                && !command.name().starts_with(query)
+            {
+                2
+            } else {
+                1
             }
-            crate::config::Match::Substring => candidates.sort_by(|a, b| a.name().cmp(b.name())),
+        };
+        candidates.sort_by_key(rank);
+        for group in candidates.chunk_by_mut(|a, b| rank(a) == rank(b)) {
+            self.usage.rank(group);
         }
         candidates
     }
@@ -210,7 +224,11 @@ impl Input {
     /// Opens command entry only from editing; session history survives cancel.
     pub fn commands(&mut self) -> Result<(), Error> {
         self.available()?;
-        self.context = Context::Command(Palette::new(&self.policy, &self.ai_commands)?);
+        self.context = Context::Command(Palette::new(
+            &self.policy,
+            &self.ai_commands,
+            &self.command_usage,
+        )?);
         self.clear_prefix();
         Ok(())
     }
@@ -237,6 +255,9 @@ impl Input {
             return outcome;
         }
         if let Outcome::Command(command) = outcome {
+            // M-x, modal colon and configured accept aliases share this path.
+            // Count before a handler can fail or open another argument prompt.
+            self.command_usage.record(command);
             self.history.retain(|previous| *previous != command);
             self.history.push_front(command);
             self.history.truncate(self.policy.history_limit);

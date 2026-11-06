@@ -149,6 +149,7 @@ pub struct Input {
     meta_deadline: Option<Instant>,
     suppress_repeat: bool,
     history: VecDeque<Command>,
+    command_usage: crate::command::usage::Usage,
     shell_history: shell::History,
     ai_commands: Vec<Command>,
     policy: crate::config::Minibuffer,

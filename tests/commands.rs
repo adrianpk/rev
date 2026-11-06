@@ -30,6 +30,8 @@ mod goto;
 mod palette;
 #[path = "commands/paste.rs"]
 mod paste;
+#[path = "commands/ranking.rs"]
+mod ranking;
 #[path = "commands/selection.rs"]
 mod selection;
 #[path = "commands/terminal.rs"]
