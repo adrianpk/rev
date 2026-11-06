@@ -37,7 +37,7 @@ Validation: the five ordered Slice 1 commands recorded in the plan and local con
 
 ## Slice 2: Acceptance and guidance
 
-State: in_progress
+State: reviewing
 Dependency: Slice 1 integrated
 Requirements: KBH01-KBH05 together
 Branch: `test/rev-command-keybinding-hints-02-acceptance`
@@ -45,11 +45,11 @@ PR: pending
 Report: `ops/default/report/slices/rev-command-keybinding-hints/slice-2-acceptance.md`
 Validation: the six ordered Slice 2 commands recorded in the plan and local configuration
 
-- [ ] T2.1: Deliver native matrix coverage and one bounded input/render PTY
+- [x] T2.1: Deliver native matrix coverage and one bounded input/render PTY
   journey per profile through the new Rust/Bash acceptance entrypoint.
-- [ ] T2.2: Complete contextual Diataxis guidance, Markdown-derived Spore and
+- [x] T2.2: Complete contextual Diataxis guidance, Markdown-derived Spore and
   affected baseline reconciliation before the final gate.
-- [ ] T2.3: Record actual task/commit/PR/report evidence and hand off the clean
+- [x] T2.3: Record actual task/commit/PR/report evidence and hand off the clean
   candidate for the controller gate; close only after it passes.
 
 ## Final gate and closure
@@ -91,3 +91,20 @@ other open tickets remain outside this delivery.
 Slice 1 integrated: `05365b43a51f5aaa7217c489117afc78289b0abe`. Its clean-HEAD
 receipt `D6ITQPUQYZ5CJ5CUMWE6JOV236` passed all five ordered commands. Canonical
 Forgejo confirms PR #294 merged into dev on 2026-11-06. Slice 2 is active.
+
+
+## Slice 2 review evidence
+
+- T2.1: `2a66698097f1a66ec1efbf18dc61c9f33c4990f7` adds the bounded
+  native/PTY entrypoint and preserves usage assertions for annotated rows.
+- T2.2: `266f6384283bbdc9c791d1c2c9250d510bfd3023` updates canonical
+  guidance and reconciles UI02 while preserving historical gate evidence.
+- The native matrix and both-profile focused PTY journeys pass. Each journey
+  observed 29,637 bytes, zero idle CPU ticks and restored terminal attributes;
+  all owned temporary fixtures were cleaned.
+- The six required commands pass locally: 15 command-usage tests, all-target
+  Clippy, Bash syntax and 85 documentation pages with 578 local links/anchors.
+  The local strict Spore build projects all 85 Markdown pages.
+- T2.3 introduces the Slice 2 report and records the canonical PR in a following
+  reference commit. Exact clean-HEAD evidence is recorded once for that commit.
+  Canonical integration and the combined controller gate remain pending.

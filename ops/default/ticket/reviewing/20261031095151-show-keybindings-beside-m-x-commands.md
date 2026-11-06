@@ -57,8 +57,9 @@ The owner requested formal specification before implementation on 2026-11-06.
 [Command Keybinding Hints](../../spec/editor-command-keybinding-hints.md)
 records the originating-context rules, primary-hint policy, rendering boundaries
 and acceptance scenarios. The owner approved continuation on 2026-11-06.
-Slice 1 implementation is reviewing through the approved plan, tracker and
-Looper delivery. The second slice and integrated controller gate remain pending.
+Slice 1 is integrated through PR #294. Slice 2 acceptance and guidance are
+reviewing through the approved plan, tracker and Looper delivery. The integrated
+controller gate remains pending.
 
 ## Slice 1 evidence
 
@@ -72,3 +73,14 @@ not close the ticket or claim the delivery-set gate.
 Canonical [PR #294](https://forge.adrianpk.com/adrianpk/rev/pulls/294) targets `dev` and
 links the immutable report introduction. The ticket remains reviewing through
 Slice 2 and the successful integrated controller gate.
+
+
+## Slice 2 evidence
+
+The [Slice 2 report](../../report/slices/rev-command-keybinding-hints/slice-2-acceptance.md)
+records the native matrix, both-profile bounded PTY journeys, canonical usage
+regressions and contextual Markdown/Spore guidance. Acceptance is implemented in
+`2a66698097f1a66ec1efbf18dc61c9f33c4990f7`; guidance and UI02 reconciliation
+are in `266f6384283bbdc9c791d1c2c9250d510bfd3023`. All 15 required usage tests
+pass; each focused PTY journey restores the terminal and records only one named
+identity. The ticket remains reviewing until the controller's combined gate.
