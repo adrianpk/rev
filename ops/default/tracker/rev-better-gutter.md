@@ -7,7 +7,7 @@ Approved: product owner; specification, three-slice preparation, push and one au
 Plan: [Better Gutter Delivery](../plan/rev-better-gutter.md)
 Specification: [Better Gutter](../spec/editor-better-gutter.md)
 Model: [Better Gutter Model](../spec/editor-better-gutter-model.md)
-Active slice: Slice 3 - Joint acceptance and guidance; implementation in progress
+Active slice: Slice 3 - Joint acceptance and guidance; reviewing
 Progress owner: retained Looper checkpoint and canonical validation receipts
 
 ## Canonical slice map
@@ -60,20 +60,28 @@ commands on that clean PR-reference HEAD, including all-target Clippy,
 
 ## Slice 3: Joint acceptance and guidance
 
-State: in progress
+State: reviewing
 Dependency: Slice 2 integrated
 Requirements: BMK03, BTG01-BTG04 together
-Implementation: pending
+Implementation: `0d1219ed67b779c65d75fddf2d8f0672ac9a8778` (T3.1),
+`da090457b897ffb0eedd3bc97691baab3aede4f9` (T3.2)
 PR: pending
 Report: `ops/default/report/slices/rev-better-gutter/slice-3-acceptance.md`
-Validation: pending; use the exact ordered Slice 3 commands in the plan.
+Validation: all six ordered Slice 3 commands passed locally, including
+all-target Clippy, 94 suite tests and documentation catalogs. Focused native
+acceptance, two bounded profile PTYs and the Markdown-derived Spore build passed.
+Record the exact clean-HEAD receipt after PR-reference bookkeeping.
 
-- [ ] T3.1: Deliver the bounded native Rust/Bash acceptance entrypoint and one
+- [x] T3.1: Deliver the bounded native Rust/Bash acceptance entrypoint and one
   representative owned PTY journey for each interaction profile.
-- [ ] T3.2: Complete Diataxis guidance and Markdown-derived Spore content;
+- [x] T3.2: Complete Diataxis guidance and Markdown-derived Spore content;
   reconcile affected baseline contracts without replacing historical evidence.
 - [ ] T3.3: Record real reports and task/commit/PR evidence, hand off the clean
   integrated candidate for the frozen final gate and close only after it passes.
+
+The Slice 3 report records completed implementation and local evidence.
+Its PR handoff precedes controller-owned integration, final gate and closure;
+T3.3 and the delivery-set closure checks remain open until those steps finish.
 
 ## Final gate and closure
 
