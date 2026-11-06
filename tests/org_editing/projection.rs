@@ -37,16 +37,18 @@ fn source_display() {
     };
     let frame = Frame::project(buffer, &view, size, "").unwrap();
     for (local, label, text) in [
-        (0, "   1 │", "◉ A"),
-        (1, "   4 │", "◉ B 界e\u{301}"),
-        (2, "   5 │", ":LOGBOOK:"),
-        (3, "   7 │", ":END:"),
-        (4, "   8 │", "◉ C"),
+        (0, "    1 │", "◉ A"),
+        (1, "    4 │", "◉ B 界e\u{301}"),
+        (2, "    5 │", "  :LOGBOOK:"),
+        (3, "    7 │", "  :END:"),
+        (4, "    8 │", "◉ C"),
     ] {
         assert!(
             frame.rows()[local]
                 .text()
-                .starts_with(&format!("{label} {text}"))
+                .starts_with(&format!("{label}{text}")),
+            "row {local}: {:?}",
+            frame.rows()[local].text()
         );
     }
     assert!(
@@ -66,7 +68,7 @@ fn source_display() {
         .unwrap();
     assert_eq!(hit.position, point);
     // Both the number separator and the independent marker reject source hits.
-    for column in [5, 6] {
+    for column in [0, 6] {
         assert_eq!(
             view.hit(buffer, area, Position { row: 1, column }).unwrap(),
             None

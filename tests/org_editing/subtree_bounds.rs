@@ -12,6 +12,8 @@ const OPERATIONS: [OrgCommand; 4] = [
 ];
 
 fn rejects(session: &mut Session, command: OrgCommand, message: &str) {
+    // Finish prior navigation and layout before capturing the rejection baseline.
+    settle(session);
     let before = (
         text(session),
         session.view().clone(),
