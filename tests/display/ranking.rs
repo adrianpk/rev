@@ -110,8 +110,8 @@ fn hint_geometry() {
     let stamp = editor.buffer().unwrap().stamp();
     for (case, width, visible) in [
         ("wide", 80, true),
-        ("exact", 17, true),
-        ("one short", 16, false),
+        ("exact", 19, true),
+        ("one short", 18, false),
         ("name only", 11, false),
         ("clipped", 8, false),
         ("zero", 0, false),
@@ -136,7 +136,13 @@ fn hint_geometry() {
             );
             if visible {
                 assert!(row.text().starts_with("save-buffer  "), "{case}");
-                assert!(row.text().ends_with("M-界"), "{case}");
+                assert!(row.text().trim_end().ends_with("[M-界]"), "{case}");
+                if width == 80 {
+                    assert!(
+                        row.text().find("M-界").unwrap() < 40,
+                        "{case}: distant hint"
+                    );
+                }
             } else {
                 assert!(!row.text().contains("M-"), "{case}");
             }
@@ -167,7 +173,7 @@ fn hint_geometry() {
 }
 
 // The actual frame writer uses status_text for unselected secondary cells and
-// selection colors across both fields, including the separating blank cells.
+// selection colors across the row, including the separating blank cells.
 #[test]
 fn hint_colors() {
     let mut editor = Session::empty(Size {
@@ -187,11 +193,11 @@ fn hint_colors() {
             .iter()
             .find(|row| row.band() == Band::Completion && row.selection().is_some() == selected)
             .unwrap();
-        assert!(
-            row.text()
-                .ends_with(if selected { "C-x C-c" } else { "C-x C-s" })
-        );
-        for column in [0, 40, 79] {
+        let hint = if selected { "[C-x C-c]" } else { "[C-x C-s]" };
+        let hint_column = row.text().find(hint).unwrap();
+        assert!(hint_column < 40, "shortcut must stay near its command");
+        assert!(!row.text().contains('—'), "missing descriptions stay blank");
+        for column in [0, hint_column, 79] {
             let cell = cells[&(usize::from(row.row()), column)];
             assert_eq!(
                 cell.background,
@@ -205,7 +211,7 @@ fn hint_colors() {
                 cell.foreground,
                 Some(if selected {
                     palette.selection_text
-                } else if column == 79 {
+                } else if column == hint_column {
                     palette.status_text
                 } else {
                     palette.foreground

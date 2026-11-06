@@ -116,7 +116,7 @@ fn colon_ranking() {
             .unwrap();
         assert_eq!(
             first.text().split_whitespace().collect::<Vec<_>>(),
-            ["goto-line", "M-g", "M-g"]
+            ["goto-line", "[M-g", "M-g]"]
         );
         editor.handle(Event::Paste("undo".into()));
         editor.handle(key(KeyCode::Tab));
@@ -130,7 +130,7 @@ fn colon_ranking() {
             .unwrap();
         assert_eq!(
             first.text().split_whitespace().collect::<Vec<_>>(),
-            ["goto-line", "M-g", "M-g"]
+            ["goto-line", "[M-g", "M-g]"]
         );
         assert_eq!(text(&editor), "one\ntwo\nthree");
         assert_eq!(editor.editing_state(), Some(EditingState::Normal));

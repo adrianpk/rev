@@ -60,8 +60,9 @@ pub(super) fn row(editor: &mut Session, name: &str) -> Result<Vec<String>> {
 }
 
 pub(super) fn check_row(editor: &mut Session, name: &str, hint: Option<&str>) -> Result<()> {
+    let hint = hint.map(|hint| format!("[{hint}]"));
     let expected: Vec<_> = std::iter::once(name)
-        .chain(hint.into_iter().flat_map(str::split_whitespace))
+        .chain(hint.as_deref().into_iter().flat_map(str::split_whitespace))
         .map(str::to_owned)
         .collect();
     assert_eq!(row(editor, name)?, expected, "{name}");

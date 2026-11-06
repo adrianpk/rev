@@ -35,7 +35,10 @@ pub(super) fn run(root: &Path) -> Result<()> {
             .iter()
             .find(|row| row.band() == Band::Completion && row.selection().is_some() == selected)
             .ok_or("missing colored row")?;
-        for column in [0, 40, 78] {
+        let hint_column = row.text().find('[').ok_or("missing shortcut field")?;
+        assert!(hint_column < 40, "shortcut must stay near its command");
+        assert!(!row.text().contains('—'), "missing descriptions stay blank");
+        for column in [0, hint_column, 78] {
             let cell = cells[&(usize::from(row.row()), column)];
             assert_eq!(
                 cell.background,
@@ -49,7 +52,7 @@ pub(super) fn run(root: &Path) -> Result<()> {
                 cell.foreground,
                 Some(if selected {
                     palette.selection_text
-                } else if column == 78 {
+                } else if column == hint_column {
                     palette.status_text
                 } else {
                     palette.foreground
@@ -62,8 +65,8 @@ pub(super) fn run(root: &Path) -> Result<()> {
     owner.handle(Event::Paste("save-buffer".into()));
     for (name, width, height, hint) in [
         ("wide", 80, 24, true),
-        ("exact", 17, 24, true),
-        ("one-short", 16, 24, false),
+        ("exact", 19, 24, true),
+        ("one-short", 18, 24, false),
         ("name-only", 11, 24, false),
         ("clipped", 8, 24, false),
         ("zero", 0, 0, false),
@@ -86,7 +89,10 @@ pub(super) fn run(root: &Path) -> Result<()> {
                 .ok_or("missing geometry row")?;
             assert_eq!(row.text().contains("M-界"), hint, "{name}");
             if hint {
-                assert!(row.text().starts_with("save-buffer  ") && row.text().ends_with("M-界"));
+                assert!(
+                    row.text().starts_with("save-buffer  ")
+                        && row.text().trim_end().ends_with("[M-界]")
+                );
             } else {
                 assert!(!row.text().contains("M-"), "{name}: partial shortcut");
             }
@@ -129,7 +135,10 @@ pub(super) fn run(root: &Path) -> Result<()> {
         .ok_or("missing scrolled selection")?
         .text()
         .to_owned();
-    assert!(selected.starts_with("copy-rectangle-as-kill") && selected.ends_with("C-x r M-w"));
+    assert!(
+        selected.starts_with("copy-rectangle-as-kill")
+            && selected.trim_end().ends_with("[C-x r M-w]")
+    );
     owner.handle(Event::Resize(0, 0));
     owner.frame()?;
     owner.handle(Event::Resize(80, 24));

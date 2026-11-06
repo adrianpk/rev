@@ -12,6 +12,8 @@ Baselines: [Editor Interaction](editor-interaction.md), UI02; [Command Recency a
 Current reference: [Commands](../../../docs/reference/commands.md), [Bindings](../../../docs/reference/bindings.md), [Focused Prompts](../../../docs/reference/prompts.md)
 Plan: [Command Keybinding Hints Delivery](../plan/rev-command-keybinding-hints.md)
 Tracker: [Command Keybinding Hints Tracker](../tracker/rev-command-keybinding-hints.md)
+Presentation revision: owner-approved direct-dev correction on 2026-11-06; the candidate/receipt above describe the original two-slice delivery
+Description authoring: [TKT-20261106202027](../ticket/open/20261106202027-complete-command-catalog-descriptions.md), separate from layout
 
 ## Purpose
 
@@ -48,15 +50,19 @@ The existing command-usage model remains unchanged.
 
 ## Presentation
 
-Keep command names at their current left edge and show one shortcut in an
-aligned secondary column, with at least two blank cells separating the fields.
-For a non-modal editor using the factory map, a bound row can look like:
+Keep command names at their current left edge. Use three fields: name, nearby
+left-aligned shortcut and optional description. Derive shared column starts
+from the visible candidate block, not from the panel's right edge. Separate
+fields by at least two blank cells. With factory non-modal bindings:
 
 ```text
-save-buffer                         C-x C-s
+save-buffer  [C-x C-s]
 ```
 
-An unbound command has only its name. An annotation is not part of that name.
+An unbound command leaves its shortcut field blank. Missing descriptions leave
+the description field blank, without dashes or other placeholders. Catalog
+summaries are optional metadata; writing every summary is the separate linked
+ticket, not a prerequisite for this layout. An annotation is not part of a name.
 Use the project's existing readable key notation, such as `C-x C-f` and `M-%`,
 with normalized terminal aliases represented once.
 
@@ -66,14 +72,15 @@ of the canonical formatted sequence. This is the deterministic selection policy,
 not a new configurable preference. One displayed hint does not remove other
 valid bindings.
 
-Command-name readability has priority. If a complete name, the separating gap
-and the complete hint do not fit, omit that row's hint and retain the existing
-name-clipping behavior. Never wrap a candidate onto another row or truncate a
-shortcut into a different-looking sequence. Align the secondary field within
-the candidate area without moving the names' left edge.
+Command-name readability has priority. Clip descriptions at terminal-cell
+boundaries and omit them when their column cannot fit. In narrow geometry,
+retain a complete bracketed shortcut immediately after its own name when the
+shared column cannot fit it. If the complete name, gap and bracketed hint still
+cannot fit, omit the hint and retain ordinary name clipping. Never wrap a
+candidate or truncate a shortcut into a different-looking sequence.
 
-Use existing palette roles: `palette.status_text` for unselected secondary
-text, and the existing selection foreground/background for the selected row.
+Use existing palette roles: `palette.status_text` for unselected shortcuts and
+descriptions, and existing selection foreground/background across the selected row.
 Under `NO_COLOR`, separation and selection remain readable without foreground
 color. No new palette schema is required.
 
@@ -123,7 +130,8 @@ Multiple reachable sequences SHALL use the shortest-then-lexical
 policy, independently of map iteration order.
 
 A command without a reachable binding SHALL remain a normal candidate with no
-annotation. This includes registered AI commands without configured shortcuts.
+shortcut annotation. Its optional description retains the same metadata rule.
+This includes registered AI commands without configured shortcuts.
 Do not invent a binding, infer one from a similar command's effects or label
 invocation through M-x itself as that command's shortcut.
 
@@ -143,10 +151,10 @@ invocation through M-x itself as that command's shortcut.
 
 ### Requirement: KBH03 Preserve command matching, ranking and identity
 
-Shortcut hints SHALL remain a separate field from canonical names. Matching,
+Shortcut hints and descriptions SHALL remain separate from canonical names. Matching,
 exact-name admission, the four-recent/four-frequent ordering, candidate selection,
 Tab completion and Return dispatch SHALL continue to use command identities and
-names only. Query text SHALL NOT match a candidate solely through its hint.
+names only. Query text SHALL NOT match a candidate solely through its hint or description.
 
 Annotations SHALL follow their command through filtering and scrolling rather
 than attaching to a prior row index. Tab SHALL insert only the canonical name.
@@ -171,9 +179,11 @@ Visual-selection ownership and argument prompts SHALL remain unchanged.
 ### Requirement: KBH04 Keep a single readable row under clipping and resize
 
 Each candidate SHALL retain one row within the existing candidate panel and
-`minibuffer.candidate_limit`. Names and hints SHALL use terminal-cell geometry,
-safe key notation and the existing palette/selection ownership. The hint is
-shown only when its complete sequence fits under the presentation policy.
+`minibuffer.candidate_limit`. Name, shortcut and description SHALL use shared
+nearby columns, terminal-cell geometry and existing palette/selection ownership.
+The shortcut SHALL be bracketed and left-aligned near its name rather than
+attached to the panel's right edge. It is shown only when its complete sequence
+fits under the presentation policy.
 
 Narrow or zero geometry SHALL preserve query, command identity and cancellation.
 Growing the terminal SHALL restore complete hints when they fit, without
@@ -225,6 +235,28 @@ admitted registered commands.
 - **THEN** the annotation remains associated with the captured command/context
 - **AND** repainting performs no binding mutation, command execution or I/O.
 
+### Requirement: KBH06 Consume optional descriptions without placeholder text
+
+The selector SHALL consume optional single-line catalog descriptions without
+duplicating command identity or dispatch. Missing/empty descriptions SHALL
+leave the field blank, with no dash, placeholder sentence or inferred text.
+Description metadata SHALL not enter filtering, prompt completion or usage.
+Catalog-wide summary authorship remains the separate linked ticket.
+
+#### Scenario: Available description
+
+- **GIVEN** a candidate has a description in its command metadata
+- **WHEN** the row has room for its description column
+- **THEN** it is displayed and clipped only at complete terminal-cell boundaries
+- **AND** name, shortcut and description retain one selection identity.
+
+#### Scenario: Missing description
+
+- **GIVEN** a candidate has no nonempty description
+- **WHEN** its row is painted
+- **THEN** the description field stays blank without placeholder marks
+- **AND** the name, effective shortcut and named invocation remain available.
+
 ## Documentation and acceptance
 
 Document hints and primary-binding selection in the command reference and the
@@ -261,3 +293,8 @@ records the exact successful command, immutable report introductions, timings,
 resource observations and local evidence limits. The source ticket is solved
 with resolution fixed. This closure changes no requirement, runtime, test,
 guide, dependency, configuration or persistence assertion.
+
+The owner subsequently requested adjacent shortcut/description columns directly
+on dev. The revised Presentation section, KBH03/KBH04 and new KBH06 define that
+post-delivery correction. Its validation belongs to the correction commit;
+the historical receipt above is not reused as evidence for the revised layout.

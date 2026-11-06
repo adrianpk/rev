@@ -100,6 +100,13 @@ impl Frame {
     fn command_rows(&mut self, palette: &Palette, panel: Panel) -> Result<(), Error> {
         let candidates = palette.candidates();
         let content = panel.content();
+        let columns = command_columns(
+            candidates
+                .iter()
+                .skip(palette.top())
+                .take(usize::from(content.height()))
+                .map(|command| (command.name(), palette.hint(*command))),
+        )?;
         for row in 0..content.height() {
             let index = palette.top() + usize::from(row);
             let command = candidates.get(index);
@@ -107,11 +114,47 @@ impl Frame {
                 .map(|command| command.name())
                 .unwrap_or("No matching commands");
             let hint = command.and_then(|command| palette.hint(*command));
-            let source = command_row(panel, row, label, hint, palette.selected() == Some(index))?;
+            let source = if let Some(command) = command {
+                command_row(
+                    panel,
+                    row,
+                    label,
+                    hint,
+                    command.description(),
+                    columns,
+                    palette.selected() == Some(index),
+                )?
+            } else {
+                candidate_row(panel, row, label, palette.selected() == Some(index))?
+            };
             self.blit(content, source)?;
         }
         Ok(())
     }
+}
+
+#[derive(Clone, Copy)]
+struct CommandColumns {
+    shortcut: usize,
+    description: usize,
+}
+
+fn command_columns<'a>(
+    rows: impl Iterator<Item = (&'a str, Option<&'a str>)>,
+) -> Result<CommandColumns, Error> {
+    let mut name_width = 0;
+    let mut shortcut_width = 0;
+    for (name, hint) in rows {
+        name_width = name_width.max(cells(name)?);
+        if let Some(hint) = hint {
+            shortcut_width = shortcut_width.max(cells(hint)? + 2);
+        }
+    }
+    let shortcut = name_width + 2;
+    Ok(CommandColumns {
+        shortcut,
+        description: shortcut + shortcut_width + 2,
+    })
 }
 
 fn command_row(
@@ -119,28 +162,50 @@ fn command_row(
     row: u16,
     label: &str,
     hint: Option<&str>,
+    description: Option<&str>,
+    columns: CommandColumns,
     selected: bool,
 ) -> Result<Row, Error> {
     let mut source = candidate_row(panel, row, label, selected)?;
-    let Some(hint) = hint else {
-        return Ok(source);
-    };
     let width = usize::from(panel.content().width());
     let name_cells = cells(label)?;
-    let hint_cells = cells(hint)?;
-    if name_cells + 2 + hint_cells > width {
-        return Ok(source);
+    let mut text = label.to_owned();
+    let mut end = name_cells;
+    if let Some(hint) = hint {
+        let hint_cells = cells(hint)? + 2;
+        // Keep a complete adjacent hint in narrow geometry even if another
+        // visible candidate makes the shared name column too wide.
+        let column = if columns.shortcut + hint_cells <= width {
+            columns.shortcut
+        } else {
+            name_cells + 2
+        };
+        if column + hint_cells <= width {
+            text.extend(std::iter::repeat_n(' ', column - end));
+            text.push('[');
+            text.push_str(hint);
+            text.push(']');
+            end = column + hint_cells;
+            source.faces.push(super::style::Face {
+                columns: panel.content().column() + column as u16
+                    ..panel.content().column() + end as u16,
+                tone: Tone::Secondary,
+            });
+        }
     }
-    // Right alignment keeps every complete hint in the secondary column while
-    // allowing each row to retain its full name and at least two blank cells.
-    let column = width - hint_cells;
-    let text = format!("{label}{}{hint}", " ".repeat(column - name_cells));
+    if let Some(description) = description.filter(|value| !value.trim().is_empty())
+        && columns.description < width
+        && columns.description >= end + 2
+    {
+        text.extend(std::iter::repeat_n(' ', columns.description - end));
+        text.push_str(description);
+        source.faces.push(super::style::Face {
+            columns: panel.content().column() + columns.description as u16
+                ..panel.content().column() + panel.content().width(),
+            tone: Tone::Secondary,
+        });
+    }
     source.text = clip::line(Glyphs::for_text(&text)?, 0, panel.content().width())?;
-    source.faces.push(super::style::Face {
-        columns: panel.content().column() + column as u16
-            ..panel.content().column() + panel.content().width(),
-        tone: Tone::Secondary,
-    });
     Ok(source)
 }
 
@@ -161,4 +226,65 @@ fn candidate_row(panel: Panel, row: u16, label: &str, selected: bool) -> Result<
         selection: selected.then_some(0..content.width()),
     }
     .projected(panel))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::window::Area;
+
+    // Real metadata and absent metadata share one layout. Narrow output loses
+    // description cells before a complete shortcut; no missing-text marker is added.
+    #[test]
+    fn command_annotations() {
+        let columns = command_columns([("save-buffer", Some("C-x C-s"))].into_iter()).unwrap();
+        for (case, width, description, expected) in [
+            (
+                "summary",
+                80,
+                Some("Write the buffer."),
+                "save-buffer  [C-x C-s]  Write the buffer.",
+            ),
+            ("missing", 80, None, "save-buffer  [C-x C-s]"),
+            ("empty", 80, Some(""), "save-buffer  [C-x C-s]"),
+            (
+                "clipped summary",
+                27,
+                Some("abcd"),
+                "save-buffer  [C-x C-s]  abc",
+            ),
+            ("exact shortcut", 22, Some("abcd"), "save-buffer  [C-x C-s]"),
+            ("no shortcut room", 21, Some("abcd"), "save-buffer"),
+        ] {
+            let panel = Panel::new(Area::new(7, 3, width, 1).unwrap(), false, false);
+            let row = command_row(
+                panel,
+                0,
+                "save-buffer",
+                Some("C-x C-s"),
+                description,
+                columns,
+                false,
+            )
+            .unwrap();
+            assert_eq!(row.text.trim_end(), expected, "{case}");
+        }
+    }
+
+    // Description clipping respects terminal cells and selection remains one
+    // full row even when an annotation has a secondary foreground role.
+    #[test]
+    fn description_cells() {
+        let columns = command_columns([("x", None)].into_iter()).unwrap();
+        let panel = Panel::new(Area::new(7, 3, 8, 1).unwrap(), false, true);
+        let row = command_row(panel, 0, "x", None, Some("界界"), columns, true).unwrap();
+        assert_eq!(row.text.trim_end(), "x    界");
+        let palette = crate::config::Palette::default();
+        for column in 7..15 {
+            assert_eq!(
+                row.colors(column, &palette),
+                super::super::style::Colors::new(palette.selection_text, palette.selection)
+            );
+        }
+    }
 }

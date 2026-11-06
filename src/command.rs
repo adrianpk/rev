@@ -724,6 +724,12 @@ impl Command {
         Self::Linear(LinearCommand::Pop),
     ];
 
+    /// Optional single-line catalog summary for command selectors.
+    /// Description authoring is independent from name, binding and dispatch.
+    pub fn description(&self) -> Option<&'static str> {
+        None
+    }
+
     pub fn name(&self) -> &str {
         match self {
             Self::AiDefined(name) => name.name(),

@@ -18,6 +18,8 @@ distinct-name M-p/M-n session navigation. State failures retain session ranking
 and report a non-modal diagnostic; they add no prompt or shutdown decision.
 Effective shortcut hints belong to the context where command entry opened;
 they remain separate from query text, matching, Tab completion and usage.
+Candidates use name, adjacent bracketed shortcut and optional description
+columns. Missing descriptions stay blank and annotations never enter query text.
 See [effective keybinding hints](commands.md#effective-keybinding-hints).
 The [command usage state reference](commands.md#command-usage-state) defines the
 user-wide path, bounded record and publication failures.

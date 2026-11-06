@@ -89,7 +89,7 @@ M-x and the modal colon selector show one effective shortcut beside a bound
 command. With the factory non-modal bindings, a row can look like:
 
 ```text
-save-buffer                         C-x C-s
+save-buffer  [C-x C-s]
 ```
 
 The hint describes the editing profile, modal state and input owner where you
@@ -103,14 +103,19 @@ When several reachable sequences invoke a command, the primary hint uses the
 fewest normalized chords, then lexical order of their formatted notation.
 Equivalent terminal spellings collapse: for example, `ESC j` and `M-j` describe
 one Meta chord. Other valid bindings remain available. An unbound command,
-including a registered AI command without a shortcut, shows only its name and
+including a registered AI command without a shortcut, leaves that field empty and
 remains invocable through M-x. The list does not invent a binding from a
 command's name or similar effects.
 
-Names retain their left edge; complete hints align at the right edge with at
-least two blank cells between the fields. If the full name, gap and full hint
-cannot fit, the hint disappears as a whole and the name keeps ordinary clipping.
-Growing the terminal restores hints when they fit. Selection covers both fields;
+Names retain their left edge. Shortcuts appear in a nearby left-aligned column,
+with brackets and at least two blank cells after the name. An optional command
+description occupies a third column. Missing descriptions stay blank.
+
+The visible candidate block determines shared column starts. Descriptions clip
+at complete terminal cells and disappear when their column cannot fit. Narrow
+rows can retain a complete shortcut immediately after their name; if name, gap
+and bracketed shortcut cannot fit, the hint disappears as a whole. Growing the
+terminal restores annotations when they fit. Selection covers the entire row;
 unselected secondary text uses `palette.status_text` on the normal background.
 Under `NO_COLOR`, spacing and full-row reverse-video selection remain readable.
 

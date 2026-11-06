@@ -246,8 +246,9 @@ fn context_hints() {
             .iter()
             .find(|row| row.text().starts_with(name))
             .unwrap();
+        let hint = hint.map(|hint| format!("[{hint}]"));
         let expected: Vec<_> = std::iter::once(name)
-            .chain(hint.into_iter().flat_map(str::split_whitespace))
+            .chain(hint.as_deref().into_iter().flat_map(str::split_whitespace))
             .collect();
         assert_eq!(
             row.text().split_whitespace().collect::<Vec<_>>(),
@@ -264,7 +265,8 @@ fn context_hints() {
             .unwrap()
             .rows()
             .iter()
-            .any(|row| row.text().starts_with("tree-refresh") && row.text().ends_with("M-j"))
+            .any(|row| row.text().starts_with("tree-refresh")
+                && row.text().trim_end().ends_with("[M-j]"))
     );
 }
 
@@ -310,8 +312,9 @@ fn terminal_hints() {
                             .collect::<Vec<_>>()
                     )
                 });
+            let hint = hint.map(|hint| format!("[{hint}]"));
             let expected: Vec<_> = std::iter::once(name)
-                .chain(hint.into_iter().flat_map(str::split_whitespace))
+                .chain(hint.as_deref().into_iter().flat_map(str::split_whitespace))
                 .collect();
             assert_eq!(
                 row.text().split_whitespace().collect::<Vec<_>>(),

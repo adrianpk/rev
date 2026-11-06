@@ -7,8 +7,9 @@ use std::time::{Duration, Instant};
 const DOCUMENT: &str = "retained source\nsecond line\n";
 
 fn candidate(frame: &str, name: &str, hint: Option<&str>) -> bool {
+    let hint = hint.map(|hint| format!("[{hint}]"));
     let expected: Vec<_> = std::iter::once(name)
-        .chain(hint.into_iter().flat_map(str::split_whitespace))
+        .chain(hint.as_deref().into_iter().flat_map(str::split_whitespace))
         .collect();
     // The editable query can scroll its label at narrow widths. Match the
     // complete candidate fields without using that label as row geometry.
