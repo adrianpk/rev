@@ -3,7 +3,7 @@
 Open a file, make a change and save it. Start there; no configuration is needed.
 
 If rev is not installed yet, follow [Install rev](../../how-to/install-rev.md).
-These chapters cover rev 0.5.0, using default key bindings and small files
+These chapters cover rev 0.6.0, using default key bindings and small files
 you create yourself. The default path uses Emacs direct entry; later
 chapters offer startup-selected modal editing, optional language servers, external reload, optional Pi editing, local shell text filters and integrated terminals.
 
@@ -29,8 +29,7 @@ Each chapter links to the next one and to its supporting reference.
 
 The [Git learning path](git/index.md) uses a small local repository to teach
 saved changes, selected commits and history. It is independent of Org and the
-everyday path above. Native Git guidance describes the current Unreleased
-capability; the released version is recorded in the changelog.
+everyday path above.
 
 ## Org mode
 

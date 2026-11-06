@@ -7,6 +7,8 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 
 ## Unreleased
 
+## 0.6.0 - 2026-11-06
+
 ### Added
 
 - M-x and modal colon command lists show one effective shortcut beside each
