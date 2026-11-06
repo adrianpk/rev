@@ -169,6 +169,10 @@ fn command_row(
     let mut source = candidate_row(panel, row, label, selected)?;
     let width = usize::from(panel.content().width());
     let name_cells = cells(label)?;
+    source.faces.push(super::style::Face {
+        columns: panel.content().column()..panel.content().column() + name_cells.min(width) as u16,
+        tone: Tone::CommandName,
+    });
     let mut text = label.to_owned();
     let mut end = name_cells;
     if let Some(hint) = hint {
@@ -277,14 +281,38 @@ mod tests {
     fn description_cells() {
         let columns = command_columns([("x", None)].into_iter()).unwrap();
         let panel = Panel::new(Area::new(7, 3, 8, 1).unwrap(), false, true);
-        let row = command_row(panel, 0, "x", None, Some("界界"), columns, true).unwrap();
-        assert_eq!(row.text.trim_end(), "x    界");
-        let palette = crate::config::Palette::default();
-        for column in 7..15 {
-            assert_eq!(
-                row.colors(column, &palette),
-                super::super::style::Colors::new(palette.selection_text, palette.selection)
-            );
+        let palette = crate::config::Palette {
+            syntax: crate::config::SyntaxPalette {
+                function: crate::config::Rgb(1, 2, 3),
+                ..Default::default()
+            },
+            ..Default::default()
+        };
+        for selected in [false, true] {
+            let row = command_row(panel, 0, "x", None, Some("界界"), columns, selected).unwrap();
+            assert_eq!(row.text.trim_end(), "x    界");
+            for column in 7..15 {
+                let foreground = if selected {
+                    palette.selection_text
+                } else if column == 7 {
+                    palette.syntax.function
+                } else if column >= 12 {
+                    palette.status_text
+                } else {
+                    palette.foreground
+                };
+                assert_eq!(
+                    row.colors(column, &palette),
+                    super::super::style::Colors::new(
+                        foreground,
+                        if selected {
+                            palette.selection
+                        } else {
+                            palette.background
+                        }
+                    )
+                );
+            }
         }
     }
 }

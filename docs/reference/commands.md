@@ -116,7 +116,10 @@ at complete terminal cells and disappear when their column cannot fit. Narrow
 rows can retain a complete shortcut immediately after their name; if name, gap
 and bracketed shortcut cannot fit, the hint disappears as a whole. Growing the
 terminal restores annotations when they fit. Selection covers the entire row;
-unselected secondary text uses `palette.status_text` on the normal background.
+unselected command names use the function accent, `palette.syntax.function`,
+while shortcuts and descriptions use `palette.status_text` on the normal
+background. The selected row keeps `palette.selection_text` and `palette.selection`
+across all fields. Command-name color is independent of source syntax highlighting.
 Under `NO_COLOR`, spacing and full-row reverse-video selection remain readable.
 
 Hints are presentation data. Queries match command names only, Tab inserts only

@@ -213,6 +213,8 @@ fn hint_colors() {
                     palette.selection_text
                 } else if column == hint_column {
                     palette.status_text
+                } else if column == 0 {
+                    palette.syntax.function
                 } else {
                     palette.foreground
                 })

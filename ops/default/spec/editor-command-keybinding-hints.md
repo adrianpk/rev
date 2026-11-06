@@ -79,8 +79,11 @@ shared column cannot fit it. If the complete name, gap and bracketed hint still
 cannot fit, omit the hint and retain ordinary name clipping. Never wrap a
 candidate or truncate a shortcut into a different-looking sequence.
 
-Use existing palette roles: `palette.status_text` for unselected shortcuts and
-descriptions, and existing selection foreground/background across the selected row.
+Use existing palette roles: `palette.syntax.function` for unselected command
+names, `palette.status_text` for shortcuts and descriptions, and existing
+selection foreground/background across the selected row. The function accent
+applies to command names independently of source syntax highlighting. These
+roles make names and shortcuts visibly distinct with rev's factory palette.
 Under `NO_COLOR`, separation and selection remain readable without foreground
 color. No new palette schema is required.
 
