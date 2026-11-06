@@ -25,7 +25,15 @@ fn prompt(frame: &str, expected: &str) -> bool {
 fn first_candidate(frame: &str, expected: &str) -> bool {
     (1..24)
         .find(|number| row(frame, *number).starts_with("M-x "))
-        .is_some_and(|number| row(frame, number + 1).trim() == expected)
+        .is_some_and(|number| {
+            // Shortcuts annotate the row without changing its ranked identity.
+            row(frame, number + 1)
+                .split("  ")
+                .next()
+                .unwrap_or_default()
+                .trim()
+                == expected
+        })
 }
 fn state(root: &Path) -> std::path::PathBuf {
     root.join("pty/state/rev/command-history.toml")

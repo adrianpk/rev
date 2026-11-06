@@ -220,12 +220,21 @@ fn session(root: &Path, path: &Path, policy: &str) -> Result<Session> {
     )
 }
 fn names(editor: &mut Session) -> Result<Vec<String>> {
+    // Compare rendered names, leaving shortcut and description columns to
+    // presentation acceptance. Preserve the complete no-match notice.
     Ok(editor
         .frame()?
         .rows()
         .iter()
         .filter(|row| row.band() == Band::Completion)
-        .map(|row| row.text().trim().to_owned())
+        .map(|row| {
+            row.text()
+                .split("  ")
+                .next()
+                .unwrap_or_default()
+                .trim()
+                .to_owned()
+        })
         .collect())
 }
 fn cancel(editor: &mut Session) {
