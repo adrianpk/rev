@@ -1,11 +1,12 @@
 # Slice 2: Acceptance and guidance
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-command-keybinding-hints
 Plan: [Command Keybinding Hints Delivery](../../../plan/rev-command-keybinding-hints.md)
 Tracker: [Command Keybinding Hints Tracker](../../../tracker/rev-command-keybinding-hints.md)
 Branch: `test/rev-command-keybinding-hints-02-acceptance`
 PR: [#295](https://forge.adrianpk.com/adrianpk/rev/pulls/295)
+Integrated: `3952b5915ec7048ec7892e4e51c61ec3094e7f5d`
 
 ## Purpose
 
@@ -138,6 +139,21 @@ same bounds and do not disable tests.
 
 The combined acceptance script and frozen integrated full gate remain
 controller-owned and have not been run by this worker. The source ticket stays
-reviewing until that gate passes. Canonical merge, final closure metadata and
-any successor startup remain controller actions. No main promotion, release,
+reviewing until that gate passes. Final closure metadata and any successor
+startup remain controller actions. No main promotion, release,
 tag, mirror or public guide publication is included.
+
+
+## Integration
+
+Canonical PR #295 merged into dev on 2026-11-06 at
+`3952b5915ec7048ec7892e4e51c61ec3094e7f5d`. Receipt
+`AFRA7O7QCHCSKEGJ3IXL7ZQO43` passed the six ordered Slice 2 commands on that
+exact clean candidate. Its immutable report introduction remains
+`543c5324ca45fbdf83c31fe272a3516b0c781f94`.
+
+Both recorded slices are delivered. The tracker records tool, target, syntax,
+input and output prerequisites verified before the controller gate. Closing
+these document entries changes the dev candidate; no prior slice receipt is
+claimed as full-gate evidence for that later commit. The delivery and ticket
+remain open until the controller validates the integrated candidate.

@@ -57,9 +57,9 @@ The owner requested formal specification before implementation on 2026-11-06.
 [Command Keybinding Hints](../../spec/editor-command-keybinding-hints.md)
 records the originating-context rules, primary-hint policy, rendering boundaries
 and acceptance scenarios. The owner approved continuation on 2026-11-06.
-Slice 1 is integrated through PR #294. Slice 2 acceptance and guidance are
-reviewing through the approved plan, tracker and Looper delivery. The integrated
-controller gate remains pending.
+Both slices are integrated through PRs #294 and #295, and their reports are
+delivered. The integrated controller gate remains pending, so this ticket
+retains its reviewing state.
 
 ## Slice 1 evidence
 
@@ -87,5 +87,7 @@ identity. The ticket remains reviewing until the controller's combined gate.
 
 Canonical [PR #295](https://forge.adrianpk.com/adrianpk/rev/pulls/295) targets `dev` and
 pins the Slice 2 report introduction `543c5324ca45fbdf83c31fe272a3516b0c781f94`.
-The current metadata identifies this active review; PR #294 and its original
-branch remain recorded in the Slice 1 report and tracker.
+PR #295 is integrated at `3952b5915ec7048ec7892e4e51c61ec3094e7f5d`, with
+successful Slice 2 receipt `AFRA7O7QCHCSKEGJ3IXL7ZQO43`. The metadata retains
+that review identity while awaiting the combined controller gate. PR #294 and
+its original branch remain recorded in the Slice 1 report and tracker.

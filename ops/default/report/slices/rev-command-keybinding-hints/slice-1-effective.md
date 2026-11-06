@@ -114,10 +114,10 @@ acceptance gate is not part of this worker result.
 
 ## Risks and Follow-ups
 
-Slice 2 owns the approved joint native/PTY acceptance, NO_COLOR journey,
+Slice 2 delivered the approved joint native/PTY acceptance, NO_COLOR journey,
 command/User Guide updates, Spore projection and interaction-baseline
-reconciliation. The combined full gate, merge and successor startup remain
-controller-owned. No publication, installation or release is included.
+reconciliation through PR #295. The combined full gate and successor startup
+remain controller-owned. No publication, installation or release is included.
 
 ## Integration
 
@@ -126,5 +126,5 @@ Canonical PR #294 merged into dev at
 `D6ITQPUQYZ5CJ5CUMWE6JOV236` passed the five ordered commands on that exact
 clean candidate, with 336 passing tests and the documentation checks above.
 The immutable introduction remains `844ec6c5fb9d0c6f71d1de2ca6f98538423d8d12`.
-Slice 2 now owns joint acceptance and guidance; this integration does not claim
-the combined delivery-set gate.
+Slice 2 subsequently delivered joint acceptance and guidance through PR #295;
+these integrations do not claim the combined delivery-set gate.

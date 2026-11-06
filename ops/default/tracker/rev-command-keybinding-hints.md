@@ -8,7 +8,7 @@ Plan: [Command Keybinding Hints Delivery](../plan/rev-command-keybinding-hints.m
 Specification: [Command Keybinding Hints](../spec/editor-command-keybinding-hints.md)
 Concern: [Pending Work Index](../README.md)
 Ticket: [TKT-20261031095151](../ticket/reviewing/20261031095151-show-keybindings-beside-m-x-commands.md)
-Active slice: Slice 2 - Acceptance and guidance
+Active slice: None - all recorded slices integrated; controller gate pending
 Progress owner: retained Looper checkpoint and canonical validation receipts
 
 ## Canonical slice map
@@ -37,7 +37,7 @@ Validation: the five ordered Slice 1 commands recorded in the plan and local con
 
 ## Slice 2: Acceptance and guidance
 
-State: reviewing
+State: completed
 Dependency: Slice 1 integrated
 Requirements: KBH01-KBH05 together
 Branch: `test/rev-command-keybinding-hints-02-acceptance`
@@ -59,7 +59,7 @@ estimated cost, native/PTY limits and finite recovery authority. The local
 configuration freezes these commands before execution. The original preparation made no implementation or validation claim. Slice 1
 review evidence is recorded below; publication remains outside this set.
 
-- [ ] Verify both canonical PRs integrated and reports delivered.
+- [x] Verify both canonical PRs integrated and reports delivered.
 - [ ] Verify gate prerequisites and run the selected unchanged gate on the
   exact clean dev candidate under controller ownership.
 - [ ] Record the successful receipt, exact commands, immutable introductions,
@@ -90,7 +90,8 @@ other open tickets remain outside this delivery.
 
 Slice 1 integrated: `05365b43a51f5aaa7217c489117afc78289b0abe`. Its clean-HEAD
 receipt `D6ITQPUQYZ5CJ5CUMWE6JOV236` passed all five ordered commands. Canonical
-Forgejo confirms PR #294 merged into dev on 2026-11-06. Slice 2 is active.
+Forgejo confirms PR #294 merged into dev on 2026-11-06. Slice 2 subsequently
+integrated through PR #295; no recorded slice remains active.
 
 
 ## Slice 2 review evidence
@@ -109,4 +110,32 @@ Forgejo confirms PR #294 merged into dev on 2026-11-06. Slice 2 is active.
   `543c5324ca45fbdf83c31fe272a3516b0c781f94`. Canonical [PR #295](https://forge.adrianpk.com/adrianpk/rev/pulls/295)
   targets dev and pins that immutable introduction. Its following reference
   commit records the review; exact clean-HEAD evidence is recorded once there.
-  Canonical integration and the combined controller gate remain pending.
+  Canonical PR #295 merged into dev at that exact validated head on 2026-11-06;
+  the combined controller gate remains pending.
+
+Slice 2 integrated: `3952b5915ec7048ec7892e4e51c61ec3094e7f5d`. Its clean-HEAD
+receipt `AFRA7O7QCHCSKEGJ3IXL7ZQO43` passed all six ordered commands, including
+15 command-usage tests. The immutable report introduction remains
+`543c5324ca45fbdf83c31fe272a3516b0c781f94`. Canonical Forgejo and Acta both
+confirm the merge. These slice receipts do not validate the later delivered-
+document commit or replace the controller's full gate.
+
+## Full-gate prerequisites
+
+Preparation on 2026-11-06 verified Rust/Cargo, rustfmt, Clippy, Bash, Git,
+script, stty, kill, timeout, Spore and guide asset utilities. Locked offline
+Cargo metadata resolves the dependency graph and admits the rev binary, all
+five selected test targets and all three selected examples. Native surface and
+PTY helpers, canonical guide inputs and Spore theme assets are readable.
+Target and temporary roots permit owned output creation; probes were removed.
+Linux PTY and process-observation access are available.
+
+These prerequisite-only commands passed:
+
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo metadata --locked --offline --format-version 1`
+- `bash -n scripts/check-command-keybinding-hints.sh`
+- `bash -n scripts/build-user-guide.sh`
+
+The worker did not run the combined acceptance script or full gate. The
+controller must validate the exact clean pushed dev candidate after this
+metadata closure. The plan's gate, resource limits and assertions are unchanged.

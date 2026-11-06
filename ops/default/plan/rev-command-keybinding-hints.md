@@ -10,7 +10,7 @@ Specification: [Command Keybinding Hints](../spec/editor-command-keybinding-hint
 Tracker: [Command Keybinding Hints Tracker](../tracker/rev-command-keybinding-hints.md)
 Concern: [Pending Work Index](../README.md)
 Ticket: [TKT-20261031095151](../ticket/reviewing/20261031095151-show-keybindings-beside-m-x-commands.md)
-Active slice: Slice 2 - Acceptance and guidance
+Active slice: None - all recorded slices integrated; controller gate pending
 
 ## Outcome and strategy
 
@@ -146,6 +146,14 @@ compilation. Selecting configuration keymaps avoids repeating unrelated
 configuration tests. Expect approximately 7-10 minutes with reusable artifacts;
 this is an estimate, not a deadline or a passing result. Record actual stage
 timings in the final report. Cold compilation may take longer.
+
+## Gate preparation
+
+Both recorded slices are integrated through canonical PRs #294 and #295, and
+both reports are delivered. The tracker records verified prerequisites.
+Primary dev contains only the integrated work and delivered-document closure;
+the controller owns the unchanged full gate above. The delivery remains In
+progress and the ticket reviewing until that exact integrated gate passes.
 
 ## Ticket lifecycle and closure
 
