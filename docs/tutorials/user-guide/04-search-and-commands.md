@@ -40,7 +40,7 @@ Press `M-x` and type `goto`. The prompt and matching command appear together:
 
 ```text
 M-x goto
-goto-line
+goto-line                         M-g M-g
 ```
 
 Press Tab to complete `goto-line`, then Enter to run it. At `Goto line:`,
@@ -52,12 +52,25 @@ Goto line: 2
 
 Press Enter. The cursor moves to the second line.
 
+The shortcut at the right belongs to the context where you opened the list.
+With the factory bindings, `M-g M-g` also runs `goto-line`. Configured shortcuts
+and local input owners can change the displayed hint. When several bindings
+work, rev shows the one with the fewest normalized chords, then the first in
+lexical order; your other valid bindings still work.
+
+A command with no shortcut shows only its name and stays available through M-x.
+A narrow list also hides a hint if the complete name, two-cell gap and complete
+shortcut cannot fit. Widening the terminal restores it. Hints do not participate
+in matching: Tab inserts only the command name, and Enter invokes that name once.
+See [Effective keybinding hints](../../reference/commands.md#effective-keybinding-hints)
+for context and display rules.
+
 Open `M-x` again without typing. The latest named command leads the list; after
 this exercise its first row is `goto-line`:
 
 ```text
 M-x
-goto-line
+goto-line                         M-g M-g
 ai-apply-result
 ai-cancel
 ...

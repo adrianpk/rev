@@ -25,6 +25,12 @@ Its [tracker](../tracker/rev-command-ranking.md) owns the separate ranking and
 persistence evidence; the completed candidate and original gate above remain
 historical interaction evidence.
 
+UI02 also incorporates the approved
+[command keybinding hints amendment](editor-command-keybinding-hints.md).
+Its [tracker](../tracker/rev-command-keybinding-hints.md) owns the separate
+hint-delivery validation and closure. This reconciliation preserves the original
+interaction candidate, ranking evidence and completed gate above.
+
 ## Native Org projection compatibility
 
 [Native Org](editor-org-mode.md) retains these panel, focus, clipping and prompt
@@ -69,6 +75,20 @@ order candidates within the configured text-match ranks from the
 alphabetical fallback. The selected candidate SHALL remain visible while
 navigating; an empty match SHALL have a clear empty state.
 
+Each bound command SHALL show one effective normalized shortcut from the
+originating profile, state and input owner, captured before command focus.
+Primary selection SHALL prefer the fewest normalized chords, then lexical
+formatted order. Local precedence, overrides and consumed input SHALL follow
+the existing dispatch owner. Unbound commands SHALL remain invocable by name.
+
+Hints SHALL remain separate from command identity, name matching, ranking, Tab
+text and usage. Complete hints SHALL align as secondary text after the full
+name and at least two blank cells. A hint that cannot fit SHALL be omitted
+wholly; existing name clipping and full-row selection SHALL remain effective,
+including under NO_COLOR. Inspection SHALL use finite admitted map sequences
+bounded at eight chords; painting SHALL reuse captured hints without I/O or
+command execution. The amendment defines detailed reachability and retirement.
+
 Up/Down and C-p/C-n SHALL select candidates; M-p/M-n SHALL retain their session
 command-history navigation. Tab SHALL complete the selected command name
 without executing it. Return SHALL dispatch the selected or exact typed command
@@ -90,6 +110,14 @@ SHALL retain its current behavior. Rendering SHALL NOT execute commands.
 - **WHEN** the completion panel cannot fit candidate rows after a resize
 - **THEN** the query and cancellation remain usable within available geometry
 - **AND** growing the terminal restores a coherent candidate list and selection.
+
+#### Scenario: Learn a bound command without changing its identity
+
+- **GIVEN** factory non-modal bindings and a selector opened from editing
+- **WHEN** the `save-buffer` candidate is visible at sufficient width
+- **THEN** its secondary field shows `C-x C-s`
+- **AND** Tab and Return use only `save-buffer`, with one named usage event
+- **AND** narrowing the row omits the entire hint without hiding the candidate.
 
 ### Requirement: UI03 Filesystem path completion
 

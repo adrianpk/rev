@@ -52,7 +52,8 @@ Candidate space borrows presentation rows without scrolling the retained editing
 workspace. When no candidate rows fit, the query and cancellation remain usable.
 Resize preserves the draft and selection; growing restores a coherent list.
 Rendering reads only the admitted command catalog and the selector's captured
-usage snapshot; it cannot execute a command or observe the filesystem.
+usage snapshot and prepared shortcut hints; it cannot execute a command or
+observe the filesystem.
 
 Candidate ranking counts the last 256 accepted M-x or modal colon invocations,
 including registered AI commands. Frequency counts repetitions in that window;
@@ -81,6 +82,44 @@ an explicit decision for each occurrence.
 
 See [Bindings](bindings.md) for the complete key map and [Scope and defaults](defaults.md)
 for file, history and retained-text policies.
+
+## Effective keybinding hints
+
+M-x and the modal colon selector show one effective shortcut beside a bound
+command. With the factory non-modal bindings, a row can look like:
+
+```text
+save-buffer                         C-x C-s
+```
+
+The hint describes the editing profile, modal state and input owner where you
+opened the selector. Configured overrides, inherited maps and local precedence
+apply. Opening from an Org view, Git view, file tree or live terminal can produce
+a different hint. Input consumed by that owner is not advertised as a source
+editing shortcut. The selector captures these hints before its prompt takes
+focus; reopening it observes the current valid origin and bindings.
+
+When several reachable sequences invoke a command, the primary hint uses the
+fewest normalized chords, then lexical order of their formatted notation.
+Equivalent terminal spellings collapse: for example, `ESC j` and `M-j` describe
+one Meta chord. Other valid bindings remain available. An unbound command,
+including a registered AI command without a shortcut, shows only its name and
+remains invocable through M-x. The list does not invent a binding from a
+command's name or similar effects.
+
+Names retain their left edge; complete hints align at the right edge with at
+least two blank cells between the fields. If the full name, gap and full hint
+cannot fit, the hint disappears as a whole and the name keeps ordinary clipping.
+Growing the terminal restores hints when they fit. Selection covers both fields;
+unselected secondary text uses `palette.status_text` on the normal background.
+Under `NO_COLOR`, spacing and full-row reverse-video selection remain readable.
+
+Hints are presentation data. Queries match command names only, Tab inserts only
+the canonical name, and Return dispatches and records that identity once. Hints
+follow the command through filtering, ranking and scrolling; they neither add
+usage events nor enter saved history. A changed origin retires its hints under
+the existing input-owner rules. Rendering reuses the captured labels without
+command execution, binding mutation or filesystem reads.
 
 ## Command usage state
 

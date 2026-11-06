@@ -16,6 +16,9 @@ invocation; Return records one before any argument stage. The 256-invocation
 window persists for ranking across editor starts and remains separate from
 distinct-name M-p/M-n session navigation. State failures retain session ranking
 and report a non-modal diagnostic; they add no prompt or shutdown decision.
+Effective shortcut hints belong to the context where command entry opened;
+they remain separate from query text, matching, Tab completion and usage.
+See [effective keybinding hints](commands.md#effective-keybinding-hints).
 The [command usage state reference](commands.md#command-usage-state) defines the
 user-wide path, bounded record and publication failures.
 
