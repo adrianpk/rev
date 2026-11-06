@@ -7,7 +7,7 @@ Approved: product owner; specification, three-slice preparation, push and one au
 Plan: [Better Gutter Delivery](../plan/rev-better-gutter.md)
 Specification: [Better Gutter](../spec/editor-better-gutter.md)
 Model: [Better Gutter Model](../spec/editor-better-gutter-model.md)
-Active slice: None; all three slices integrated, final-gate repair 1 reviewing
+Active slice: None; all three slices and repair 1 integrated, controller-owned final gate pending
 Progress owner: retained Looper checkpoint and canonical validation receipts
 
 ## Canonical slice map
@@ -87,21 +87,22 @@ controller-owned integrated final gate and delivery-set closure.
 
 ## Final-gate repair 1
 
-State: reviewing
+State: delivered
 Branch: `fix/rev-better-gutter-validation-1`
 Expected PR title: `fix(gutter): correct better gutter acceptance`
 PR: `#285`
+Integrated: `5473ef7c28b2ff978821faa37e0c9c9e3518c8e8`
 Report: `ops/default/report/slices/rev-better-gutter/slice-3-acceptance.md`
 Failed candidate: `10054d1fece9557d37923fa8be0d825727232ac7`
 Failed validation: `VIR36T3PHGW77O2D4MNMV64DGX`
 Diagnosis: `org_indentation::gutter_and_bookmark_identity` retained two old
-factory-dot expectations. Update both visible-marker and folded-marker-absence
+factory-dot expectations. Updated both visible-marker and folded-marker-absence
 assertions to the approved square while retaining the geometry/source checks.
 Implementation: `4f5d6da28d93d780d8b4a905f5d53100424f2203`
-Validation: all four injected checks passed locally, including all-target
-Clippy and 250 suite tests. The focused Org indentation regression passed all
-18 tests. Record clean-HEAD evidence after the repair PR-reference commit.
-The unchanged full gate remains controller-owned after repair integration.
+Validation: Looper receipt `S4UHXCYEFUXAHMB6ASP7PIB6PS` passed all four required
+commands against that clean PR-reference HEAD, including all-target Clippy and
+250 suite tests. The focused Org indentation regression also passed all 18 tests.
+Canonical PR #285 is merged; the unchanged full-gate retry remains controller-owned.
 
 ## Final gate and closure
 

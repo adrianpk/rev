@@ -113,9 +113,10 @@ gate or delivery-set completion.
 
 ### Final-gate repair 1
 
-Repair status: reviewing
+Repair status: delivered
 Branch: `fix/rev-better-gutter-validation-1`
 PR: `#285`
+Integrated: `5473ef7c28b2ff978821faa37e0c9c9e3518c8e8`
 Implementation: `4f5d6da28d93d780d8b4a905f5d53100424f2203`
 
 The controller's unchanged full gate failed at
@@ -152,9 +153,11 @@ passed all 18 tests, including the previously failing identity case. Initial
 cold compilation took 1m43s and the suite took 9.31s. Test fixtures completed
 and released their owned temporary files.
 
-The exact clean-HEAD batch is recorded through `looper validate` after the
-repair PR-reference commit. These focused results do not replace the unchanged
-full gate; the controller owns repair integration and that gate's retry.
+Looper receipt `S4UHXCYEFUXAHMB6ASP7PIB6PS` passed all four required commands
+against clean PR-reference HEAD `5473ef7c28b2ff978821faa37e0c9c9e3518c8e8`.
+Canonical PR #285 was verified merged into dev at that same commit.
+These focused results do not replace the unchanged full gate; the controller
+owns that gate's retry.
 
 ## Risks and Follow-ups
 
