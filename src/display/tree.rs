@@ -27,7 +27,7 @@ impl Frame {
         };
         let content = panel.content();
         for row in 0..content.height() {
-            let label = tree.line(row, content.width());
+            let label = tree.line(row, content.width())?;
             let source = Row {
                 row,
                 text: clip::line(Glyphs::for_text(&label)?, 0, content.width())?,

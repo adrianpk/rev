@@ -368,6 +368,7 @@ impl Session {
         let tree = crate::tree::Tree::startup(
             &buffers.snapshot().settings().tree,
             buffer.file().map(|file| file.path()),
+            buffers.snapshot().settings().gutter.nerd_fonts,
         )
         .map_err(|error| view::Error::WorkingDirectory(error.kind()))?;
         let windows = Windows::with_settings(view, buffers.snapshot())?;

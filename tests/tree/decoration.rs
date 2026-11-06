@@ -144,6 +144,17 @@ fn label_modes() {
             "    @ link.rs",
         ),
         (
+            "Nerd Fonts",
+            "tree.decorated=true\ngutter.nerd_fonts=true",
+            "▾ \u{f1b2} root.rs/",
+            "  ▸ \u{f07b} folder.md/",
+            "    \u{f121} main.rs",
+            "    \u{f0219} notes.org",
+            "    \u{e615} Cargo.toml",
+            "    \u{f15b} data.bin",
+            "    \u{f481} link.rs",
+        ),
+        (
             "minimal",
             "tree.decorated=false",
             "v root.rs/",
@@ -199,7 +210,10 @@ fn label_modes() {
         tree(&mut session, TreeCommand::Focus);
         tree(&mut session, TreeCommand::Next);
         tree(&mut session, TreeCommand::Expand);
-        let expected = directory.replace('▸', "▾").replace('>', "v");
+        let expected = directory
+            .replace('▸', "▾")
+            .replace('>', "v")
+            .replace('\u{f07b}', "\u{f07c}");
         assert!(
             session.frame().unwrap().rows()[1]
                 .text()
@@ -215,5 +229,15 @@ fn label_modes() {
                 .starts_with(&expected),
             "{name}"
         );
+        let replacement = fixture.write("replacement/main.rs", "retained");
+        for path in [replacement.as_path(), replacement.parent().unwrap()] {
+            session.load(path).unwrap();
+            assert!(
+                session.frame().unwrap().rows()[0]
+                    .text()
+                    .starts_with(&root.replace("root.rs", "replacement")),
+                "{name}: root change"
+            );
+        }
     }
 }

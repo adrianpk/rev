@@ -17,7 +17,7 @@ impl Tree {
     /// one. Directory aliases use the same component rules as canonical files.
     pub(crate) fn opening_directory(&self, path: &Path, size: Size) -> io::Result<Self> {
         let root = crate::file::directory(path)?;
-        let mut candidate = Self::configured(root, &self.policy);
+        let mut candidate = Self::configured(root, &self.policy, self.nerd_fonts);
         candidate.explicit_root = true;
         candidate.expand()?;
         candidate.focus(size)?;
@@ -33,7 +33,7 @@ impl Tree {
         let Some(parent) = path.parent().filter(|parent| Some(*parent) != self.root()) else {
             return Ok(None);
         };
-        let mut candidate = Self::configured(parent.to_owned(), &self.policy);
+        let mut candidate = Self::configured(parent.to_owned(), &self.policy, self.nerd_fonts);
         candidate.visible = self.visible;
         if candidate.visible {
             candidate.expand()?;

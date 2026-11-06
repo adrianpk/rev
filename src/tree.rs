@@ -30,6 +30,7 @@ pub struct Tree {
     selected: usize,
     top: usize,
     policy: crate::config::Tree,
+    nerd_fonts: bool,
     explicit_root: bool,
     initialized: bool,
     focus_pending: bool,
@@ -48,18 +49,27 @@ impl Tree {
     /// Observe no entries until explicit expansion or refresh; the supplied
     /// root and admitted policy determine initial visibility without focus.
     pub fn with_settings(root: PathBuf, settings: &crate::config::Snapshot) -> Self {
-        Self::configured(root, &settings.settings().tree)
+        Self::configured(
+            root,
+            &settings.settings().tree,
+            settings.settings().gutter.nerd_fonts,
+        )
     }
 
-    fn configured(root: PathBuf, policy: &crate::config::Tree) -> Self {
+    fn configured(root: PathBuf, policy: &crate::config::Tree, nerd_fonts: bool) -> Self {
         Self {
             policy: policy.clone(),
+            nerd_fonts,
             visible: policy.visible,
             ..Self::new(root)
         }
     }
 
-    pub(crate) fn startup(policy: &crate::config::Tree, file: Option<&Path>) -> io::Result<Self> {
+    pub(crate) fn startup(
+        policy: &crate::config::Tree,
+        file: Option<&Path>,
+        nerd_fonts: bool,
+    ) -> io::Result<Self> {
         let parent = file
             .and_then(Path::parent)
             .filter(|_| policy.root != crate::config::TreeRoot::Cwd);
@@ -67,7 +77,7 @@ impl Tree {
             Some(parent) => parent.to_path_buf(),
             None => std::env::current_dir()?,
         };
-        Ok(Self::configured(root, policy))
+        Ok(Self::configured(root, policy, nerd_fonts))
     }
 
     fn set_root(&mut self, root: PathBuf) {
@@ -193,9 +203,10 @@ impl Tree {
             .map(Entry::kind)
     }
 
-    pub(crate) fn line(&self, row: u16, width: u16) -> String {
-        self.row_entry(row)
-            .map(|entry| entry.label(width, self.policy.decorated))
-            .unwrap_or_default()
+    pub(crate) fn line(&self, row: u16, width: u16) -> Result<String, crate::coordinates::Error> {
+        match self.row_entry(row) {
+            Some(entry) => entry.label(width, self.policy.decorated, self.nerd_fonts),
+            None => Ok(String::new()),
+        }
     }
 }

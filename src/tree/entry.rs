@@ -141,7 +141,12 @@ impl Entry {
         }
     }
 
-    pub(super) fn label(&self, width: u16, decorated: bool) -> String {
+    pub(super) fn label(
+        &self,
+        width: u16,
+        decorated: bool,
+        nerd_fonts: bool,
+    ) -> Result<String, crate::coordinates::Error> {
         let marker = match (self.directory, self.expanded, self.symlink) {
             (true, true, _) => "v",
             (true, false, _) => ">",
@@ -154,14 +159,12 @@ impl Entry {
             } else {
                 " "
             };
-            format!("{disclosure} {} ", self.kind().symbol())
+            super::presentation::Prefix::new(self.depth, width)?
+                .render(disclosure, self.kind().symbol(nerd_fonts, self.expanded))?
         } else {
-            format!("{marker} ")
+            let indent = self.depth.min(usize::from(width.saturating_sub(4)) / 2);
+            format!("{}{marker} ", "  ".repeat(indent))
         };
-        let reserved = if decorated { 6 } else { 4 };
-        let indent = self
-            .depth
-            .min(usize::from(width.saturating_sub(reserved)) / 2);
         let name = self
             .path
             .file_name()
@@ -173,7 +176,7 @@ impl Entry {
             ""
         };
         let diagnostic = if self.incomplete { " [incomplete]" } else { "" };
-        format!("{}{prefix}{name}{slash}{diagnostic}", "  ".repeat(indent))
+        Ok(format!("{prefix}{name}{slash}{diagnostic}"))
     }
 }
 
