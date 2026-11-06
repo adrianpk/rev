@@ -1,11 +1,12 @@
 # Slice 2: Font icons and geometry
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-better-file-tree
 Plan: [Better File Tree Delivery](../../../plan/rev-better-file-tree.md)
 Tracker: [Better File Tree Tracker](../../../tracker/rev-better-file-tree.md)
 Branch: `feat/rev-better-file-tree-02-icons`
 PR: `#288`
+Integrated: `e86542d3fde474cad006a69aeb22ee873c062355`
 
 ## Purpose
 
@@ -106,9 +107,9 @@ the complete five-command run passed. No test was disabled or weakened.
 
 Observed successful command times were 2.72s formatting, 63.71s all-targets Clippy,
 69.08s tests, 1.08s documentation and 0.01s whitespace. Clippy built fresh check
-artifacts; the selected suites reused this worktree's test artifacts. The final
-PR-reference HEAD receives separate ordered clean-HEAD evidence through the
-controller's validate command. The receipt owns that candidate and timing.
+artifacts; the selected suites reused this worktree's test artifacts. Looper validate passed all five ordered commands on clean final HEAD
+`e86542d3fde474cad006a69aeb22ee873c062355`. Canonical PR #288 merged into dev
+at that same commit. The receipt owns that candidate and timing.
 Documentation validation checked 85 reachable pages, 571 local links/anchors,
 596 commands and 289 configuration entries against the live schema and sample.
 These slice checks do not replace the controller-owned final gate.

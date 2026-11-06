@@ -8,7 +8,7 @@ Plan: [Better File Tree Delivery](../plan/rev-better-file-tree.md)
 Specification: [Better File Tree](../spec/editor-better-file-tree.md)
 Model: [Better File Tree Model](../spec/editor-better-file-tree-model.md)
 Concern: [Pending Work Index](../README.md)
-Active slice: Slice 2, Font icons and geometry
+Active slice: Slice 3, Acceptance and guidance
 Progress owner: retained Looper checkpoint and canonical validation receipts
 
 ## Canonical slice map
@@ -39,13 +39,14 @@ Validation: five ordered commands passed locally; 271 tests plus two isolated NO
 
 ## Slice 2: Font icons and geometry
 
-State: reviewing
+State: delivered
 Dependency: Slice 1 integrated
 Requirements: BFT01-BFT04 and configuration model
 Implementation: T2.1 `bc83d6a729972d9e079e200926ce720dfde5f41c`; T2.2/native T2.3 `b1cdf00fa429dad260fb1550f7590944e7d4660e`; T2.3 guidance `ac3dee145daf7bebb7dd1a21c6148997fca3b864`
+Integrated: `e86542d3fde474cad006a69aeb22ee873c062355`
 PR: [#288](https://forge.adrianpk.com/adrianpk/rev/pulls/288)
 Report: `ops/default/report/slices/rev-better-file-tree/slice-2-icons.md`
-Validation: five required commands passed in order; 235 selected tests and two isolated NO_COLOR child checks. Final clean-HEAD evidence is recorded separately by Looper after PR references are committed.
+Validation: five required commands passed in order; 235 selected tests and two isolated NO_COLOR child checks. Looper validate passed all five commands on clean final HEAD `e86542d3fde474cad006a69aeb22ee873c062355`; canonical PR #288 merged at that commit.
 
 - [x] T2.1: Reuse `gutter.nerd_fonts` for fixed icons with one checked prefix
   geometry, unchanged nesting and complete directory/diagnostic distinctions.
@@ -56,7 +57,7 @@ Validation: five required commands passed in order; 235 selected tests and two i
 
 ## Slice 3: Acceptance and guidance
 
-State: pending
+State: in progress
 Dependency: Slice 2 integrated
 Requirements: BFT01-BFT04 together
 Implementation: pending
