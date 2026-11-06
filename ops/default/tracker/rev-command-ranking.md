@@ -41,8 +41,8 @@ Validation: all five required commands passed locally, including 328 tests; cano
 State: reviewing
 Dependency: Slice 1 integrated
 Requirements: UI02, CMR01-CMR05 and complete usage model
-Implementation: `380c07e992ba94d631f7e82d246cb1fc9f71391a` implements T2.1/T2.2; T2.3 completes real-boundary coverage, guidance and the report on this branch
-PR: pending
+Implementation: `380c07e992ba94d631f7e82d246cb1fc9f71391a` implements T2.1/T2.2; `397907bd342d83d54d83c13e7e0cb067fa2cb757` implements T2.3 and introduces the report
+PR: [#292](https://forge.adrianpk.com/adrianpk/rev/pulls/292), open against `dev`
 Report: `ops/default/report/slices/rev-command-ranking/slice-2-persistence.md`
 Validation: all five required commands passed locally, including 343 tests; canonical clean-HEAD evidence belongs to Looper receipts for the final PR-reference commit
 

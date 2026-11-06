@@ -5,7 +5,7 @@ Delivery set: rev-command-ranking
 Plan: [Command Ranking Delivery](../../../plan/rev-command-ranking.md)
 Tracker: [Command Ranking Tracker](../../../tracker/rev-command-ranking.md)
 Branch: `feat/rev-command-ranking-02-persistence`
-PR: pending
+PR: `#292`
 
 ## Purpose
 
@@ -36,8 +36,12 @@ selector ranking and input contracts from Slice 1.
 ## Implementation Notes
 
 T2.1 and T2.2 are implemented in
-`380c07e992ba94d631f7e82d246cb1fc9f71391a`. T2.3 adds the real-boundary test
-target, reference/defaults guidance, updated Unreleased entry and this report.
+`380c07e992ba94d631f7e82d246cb1fc9f71391a`. T2.3 is implemented in
+`397907bd342d83d54d83c13e7e0cb067fa2cb757`: the real-boundary test target,
+reference/defaults guidance, updated Unreleased entry and this report.
+Canonical [PR #292](https://forge.adrianpk.com/adrianpk/rev/pulls/292) targets
+`dev`. The report's immutable introduction is
+`397907bd342d83d54d83c13e7e0cb067fa2cb757`.
 Slice 1's report and tracker are closed against merged PR #291 at
 `17e16f07580cc32d743e6f8d34510dda14c85c2e`; the plan and tracker activate Slice 2.
 
