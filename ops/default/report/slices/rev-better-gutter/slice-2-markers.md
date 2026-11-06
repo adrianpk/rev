@@ -1,11 +1,12 @@
 # Slice 2: Fixed symbols and font flag
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-better-gutter
 Plan: [Better Gutter Delivery](../../../plan/rev-better-gutter.md)
 Tracker: [Better Gutter Tracker](../../../tracker/rev-better-gutter.md)
 Branch: `feat/rev-better-gutter-02-markers`
 PR: `#283`
+Integrated: `d35f78b3fbb39c501f10e36ac91cf13736a75429`
 
 ## Purpose
 
@@ -103,9 +104,10 @@ Observed command times were 3.60s for formatting, 88.96s for all-target Clippy,
 The initial focused configuration run compiled the isolated target in 1m59s
 and passed three bookmark-configuration tests.
 
-Before handoff, Looper must record these five commands against the final clean
-PR-reference HEAD. Its retained receipt identifies that candidate; local results
-do not replace the exact-HEAD evidence or the controller-owned final gate.
+Looper receipt `3MSR4YDCLRLALDOSOS6NTQE22V` passed these five commands against
+clean PR-reference HEAD `d35f78b3fbb39c501f10e36ac91cf13736a75429`.
+Canonical PR #283 was verified merged into dev at that same commit.
+These slice results do not replace the controller-owned final gate.
 Tests release their owned temporary fixtures.
 
 ## Risks and Follow-ups

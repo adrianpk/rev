@@ -7,7 +7,7 @@ Approved: product owner; specification, three-slice preparation, push and one au
 Plan: [Better Gutter Delivery](../plan/rev-better-gutter.md)
 Specification: [Better Gutter](../spec/editor-better-gutter.md)
 Model: [Better Gutter Model](../spec/editor-better-gutter-model.md)
-Active slice: Slice 2 - Fixed symbols and font flag; reviewing, awaiting controller integration
+Active slice: Slice 3 - Joint acceptance and guidance; implementation in progress
 Progress owner: retained Looper checkpoint and canonical validation receipts
 
 ## Canonical slice map
@@ -40,15 +40,16 @@ Focused completion and documentation checks also passed locally.
 
 ## Slice 2: Fixed symbols and font flag
 
-State: reviewing
+State: delivered
 Dependency: Slice 1 integrated
 Requirements: BMK03, BTG01, BTG04 and configuration model
 Implementation: `c59fea87a73273887736a3a362f0cd19db18875f` (T2.1-T2.3)
 PR: `#283`
 Report: `ops/default/report/slices/rev-better-gutter/slice-2-markers.md`
-Validation: all five required commands passed locally, including strict
-all-target Clippy, 250 suite tests and documentation catalogs. Looper must record
-those commands on the final clean PR-reference HEAD before handoff.
+Integrated: `d35f78b3fbb39c501f10e36ac91cf13736a75429`
+Validation: Looper receipt `3MSR4YDCLRLALDOSOS6NTQE22V` passed all five required
+commands on that clean PR-reference HEAD, including all-target Clippy,
+250 suite tests and documentation catalogs.
 
 - [x] T2.1: Deliver the startup boolean and its fixed mapping, with typed merge,
   provenance and ignored legacy marker-string compatibility.
@@ -59,7 +60,7 @@ those commands on the final clean PR-reference HEAD before handoff.
 
 ## Slice 3: Joint acceptance and guidance
 
-State: pending
+State: in progress
 Dependency: Slice 2 integrated
 Requirements: BMK03, BTG01-BTG04 together
 Implementation: pending
