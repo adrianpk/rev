@@ -54,7 +54,7 @@ Resize preserves the draft and selection; growing restores a coherent list.
 Rendering reads only the admitted command catalog and the selector's captured
 usage snapshot; it cannot execute a command or observe the filesystem.
 
-Session ranking counts the last 256 accepted M-x or modal colon invocations,
+Candidate ranking counts the last 256 accepted M-x or modal colon invocations,
 including registered AI commands. Frequency counts repetitions in that window;
 ties prefer the most recent invocation, then the canonical name. Each selector
 captures usage when it opens, so drawing and resize preserve the chosen identity.

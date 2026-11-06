@@ -23,13 +23,13 @@ the established preparation, plan, slicing, push and one autonomous Looper
 delivery through dev. Main promotion, release, installation and mirrors retain
 their separate authorization boundaries.
 
-## Current behavior
+## Behavior before this change
 
-`src/input/palette.rs` filters the native and registered AI command names and
-orders them by the configured match policy, then by name. The session already
-retains distinct accepted commands for M-p/M-n navigation, bounded by
-`minibuffer.history_limit` with default 128. That session history does not rank
-the candidate list and is not persisted.
+At the planning baseline, `src/input/palette.rs` filtered the native and registered
+AI command names by the configured match policy, then by name. The session
+already retained distinct accepted commands for M-p/M-n navigation, bounded by
+`minibuffer.history_limit` with default 128. That session history did not rank
+the candidate list and was not persisted.
 
 The new usage window is a separate bounded input to candidate ranking. It
 retains repeated invocations so frequency can be calculated. Existing history

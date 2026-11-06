@@ -20,6 +20,11 @@ UI03 now incorporates the complete approved [navigation amendment](editor-file-n
 through Slice 6 of [Wrap and Navigation](../plan/rev-wrap-navigation.md). The
 completed candidate and gate above identify the original interaction delivery.
 
+UI02 incorporates the approved [command ranking amendment](editor-command-ranking.md).
+Its [tracker](../tracker/rev-command-ranking.md) owns the separate ranking and
+persistence evidence; the completed candidate and original gate above remain
+historical interaction evidence.
+
 ## Native Org projection compatibility
 
 [Native Org](editor-org-mode.md) retains these panel, focus, clipping and prompt
@@ -57,16 +62,20 @@ respect editing/status/prompt minima. Style layers SHALL consume palette roles.
 ### Requirement: UI02 Vertical command completion
 
 M-x SHALL display its query followed by one candidate per row, using up to
-`minibuffer.candidate_limit` rows as geometry permits. It SHALL retain stable
-registry order within the configured match ranks. The selected candidate SHALL
-remain visible while navigating; an empty match has a clear empty state.
+`minibuffer.candidate_limit` rows as geometry permits. The modal colon selector
+SHALL use the same candidate ranking. Command recency and frequency SHALL
+order candidates within the configured text-match ranks from the
+[ranking amendment](editor-command-ranking.md#ordering), with deterministic
+alphabetical fallback. The selected candidate SHALL remain visible while
+navigating; an empty match SHALL have a clear empty state.
 
-Up/Down and C-p/C-n SHALL select candidates; M-p/M-n SHALL navigate session
-command history. Tab SHALL complete the selected command name without executing
-it. Return SHALL dispatch the selected or exact typed command once. The existing
-empty-query/no-match error behavior SHALL remain defined; opening M-x SHALL NOT
-execute the first command by accident. C-g SHALL cancel, discard the draft and
-restore prior editing focus. Rendering SHALL NOT perform command execution.
+Up/Down and C-p/C-n SHALL select candidates; M-p/M-n SHALL retain their session
+command-history navigation. Tab SHALL complete the selected command name
+without executing it. Return SHALL dispatch the selected or exact typed command
+once. The existing empty-query/no-match error behavior SHALL remain defined;
+opening M-x SHALL NOT execute the first command by accident. C-g SHALL cancel,
+discard the draft and restore prior editing focus. Modal Escape cancellation
+SHALL retain its current behavior. Rendering SHALL NOT execute commands.
 
 #### Scenario: Filter and choose a command
 

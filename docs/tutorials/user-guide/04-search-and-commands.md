@@ -52,6 +52,30 @@ Goto line: 2
 
 Press Enter. The cursor moves to the second line.
 
+Open `M-x` again without typing. The latest named command leads the list; after
+this exercise its first row is `goto-line`:
+
+```text
+M-x
+goto-line
+ai-apply-result
+ai-cancel
+...
+```
+
+Your list can differ if you have used other commands. Up to four distinct recent
+commands come first, followed by up to four other frequent commands and then
+the alphabetical remainder. Typing a query still gives better text matches
+priority. The modal profile's `:` selector uses the same ordering.
+
+M-x remembers the latest 256 named invocations across editor starts. Direct
+keyboard shortcuts do not enter that window. M-p/M-n recall distinct command
+names from the current session only; this recall is separate from saved ranking.
+Opening or canceling the list adds no usage. If history cannot be read or saved,
+a `Command usage: ...` message reports the problem and commands remain usable.
+See [Command usage state](../../reference/commands.md#command-usage-state)
+for storage and recovery details.
+
 M-x shows matching commands vertically. Up/Down selects a candidate; Tab
 completes it and Enter runs it. `C-g` leaves without running a command.
 When a keyboard shortcut is awkward to send from your terminal, the command

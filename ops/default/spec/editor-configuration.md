@@ -547,6 +547,15 @@ A valid policy change SHALL NOT silently make a partly applied transaction
 irreversible. If runtime policy replacement is supported, it SHALL be admitted
 coherently or leave the prior policy unchanged.
 
+`minibuffer.history_limit` SHALL bound distinct accepted command names for
+M-p/M-n navigation within the current session (default 128, range 1..4096).
+The separate [command usage window](editor-command-ranking-model.md) SHALL retain
+up to 256 repeated named invocations for persisted candidate ranking, with fixed
+four-recent/four-frequent policy values. `minibuffer.candidate_limit` SHALL limit
+visible rows, not either history's retained entries. No new configuration leaf
+or configuration migration is introduced. The command-ranking tracker owns its
+separate delivery evidence; this specification's historical gates are unchanged.
+
 #### Scenario: Lower retention below a compound operation
 
 - **GIVEN** the newest retained undo unit is a multi-line rectangle operation

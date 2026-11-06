@@ -70,7 +70,7 @@ acceptance.
 | --- | --- | --- |
 | User XDG config directory | `config.toml` and explicitly included TOML files. | Startup may publish the complete packaged template only when no entry exists; loading never rewrites existing settings. |
 | User XDG data directory | Durable user resources when a feature provides them. | No addon or resource installation is introduced here. |
-| User XDG state directory | Operational state when a feature provides it. | No session/history persistence schema is introduced here. |
+| User XDG state directory | Bounded operational state, including `rev/command-history.toml`. | The [command usage model](editor-command-ranking-model.md) owns persisted ranking; M-p/M-n navigation remains session-local. |
 | User XDG cache directory | Disposable derived data when a feature provides it. | Removing cache cannot remove settings or document text. |
 | Program image | Complete typed defaults, fixed commands, supported palette roles and the complete bootstrap template. | Startup does not depend on a sample/default file on disk. |
 | Distributed sample | Reference assignments and commented supported alternatives. | Documentation artifact; not an obligatory runtime input. |
@@ -206,8 +206,8 @@ No future-inventory entry extends this table implicitly.
 | `mouse.tree_activate_on_click` | Boolean, `true` | True/false | Global startup; false selects/focuses only; global mouse disablement wins |
 | `windows.split_ratio` | Float, `0.5` | Finite 0.1..0.9; clamp to geometry minima | Layout, global initial split |
 | `minibuffer.candidate_limit` | Integer, `8` | 1..32 rows, clipped to available geometry | Prompt completion, global |
-| `minibuffer.match` | String, `"prefix-then-substring"` | `prefix-then-substring`, `prefix`, `substring` | Command candidates only; deterministic registry order within rank |
-| `minibuffer.history_limit` | Integer, `128` | 1..4096 entries | Session command history, global |
+| `minibuffer.match` | String, `"prefix-then-substring"` | `prefix-then-substring`, `prefix`, `substring` | Command candidates only; exact name first, then fixed recent/frequent ranking within each match rank |
+| `minibuffer.history_limit` | Integer, `128` | 1..4096 entries | Distinct-name M-p/M-n history within the current session, global |
 | `minibuffer.input_limit` | Integer, `4096` | 1..65536 Unicode scalars | Existing prompt editor, global; excess input rejected visibly |
 | `history.group_limit` | Integer, `512` | 1..65536 complete groups | Buffer history, global |
 | `history.payload_target_bytes` | Integer, `67108864` | 1..1073741824 logical payload bytes; soft target | Buffer history; preserve newest coherent group |
@@ -236,6 +236,23 @@ New-file preferences never rewrite an existing file's BOM, separators or final
 newline. They apply once at buffer creation. Runtime key actions and explicit
 user edits retain normal command/history ownership. Candidate matching modes
 do not change filesystem matching or search case policy.
+
+### Command usage and session history
+
+[Command Usage Model](editor-command-ranking-model.md) owns the separate
+user-wide `rev/command-history.toml` state record. Its version 1 oldest-first
+array retains at most 256 repeated canonical names, bounded to 128 ASCII bytes
+each and 64 KiB input/output. It stores no arguments, paths, contents or permanent
+counts. Ranking derives four recent and four other frequent names within each
+match rank, then alphabetical remainder, from one snapshot per open selector.
+
+This state is not a configuration source or the M-p/M-n distinct session history.
+The existing candidate, history and input limits above retain their units and
+defaults. Pure session construction discovers no history; executable startup and
+explicit embedding owners load it passively and publish through bounded,
+nonblocking rebasing and atomic replacement. Invalid records remain preserved
+with nonfatal session-local fallback. The [ranking tracker](../tracker/rev-command-ranking.md)
+owns separate delivery evidence; historical configuration gates remain unchanged.
 
 ### File associations and precedence
 
