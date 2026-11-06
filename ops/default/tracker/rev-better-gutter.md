@@ -65,8 +65,9 @@ Dependency: Slice 2 integrated
 Requirements: BMK03, BTG01-BTG04 together
 Implementation: `0d1219ed67b779c65d75fddf2d8f0672ac9a8778` (T3.1),
 `da090457b897ffb0eedd3bc97691baab3aede4f9` (T3.2)
-PR: pending
+PR: `#284`
 Report: `ops/default/report/slices/rev-better-gutter/slice-3-acceptance.md`
+Report introduction: `cafc0f0a78197de885221e0581b311f067b21835` (T3.3 reporting)
 Validation: all six ordered Slice 3 commands passed locally, including
 all-target Clippy, 94 suite tests and documentation catalogs. Focused native
 acceptance, two bounded profile PTYs and the Markdown-derived Spore build passed.
