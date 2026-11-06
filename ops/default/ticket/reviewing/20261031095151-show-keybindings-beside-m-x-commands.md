@@ -11,10 +11,10 @@ source: chat
 reported_at: 2026-10-31T09:51:51Z
 ready_at: 2026-11-06T18:48:39Z
 started_at: 2026-11-06T18:58:38Z
-branch: feat/rev-command-keybinding-hints-01-effective
-reviewed_at: 2026-11-06T19:15:41Z
-pr: 294
-commits: [c18cdc0b5bb3feb05074e4d2bcba07c0afcfba6b, 844ec6c5fb9d0c6f71d1de2ca6f98538423d8d12]
+branch: test/rev-command-keybinding-hints-02-acceptance
+reviewed_at: 2026-11-06T19:45:54Z
+pr: 295
+commits: [c18cdc0b5bb3feb05074e4d2bcba07c0afcfba6b, 844ec6c5fb9d0c6f71d1de2ca6f98538423d8d12, 2a66698097f1a66ec1efbf18dc61c9f33c4990f7, 266f6384283bbdc9c791d1c2c9250d510bfd3023, 543c5324ca45fbdf83c31fe272a3516b0c781f94]
 ---
 
 # Show keybindings beside M-x commands
@@ -84,3 +84,8 @@ regressions and contextual Markdown/Spore guidance. Acceptance is implemented in
 are in `266f6384283bbdc9c791d1c2c9250d510bfd3023`. All 15 required usage tests
 pass; each focused PTY journey restores the terminal and records only one named
 identity. The ticket remains reviewing until the controller's combined gate.
+
+Canonical [PR #295](https://forge.adrianpk.com/adrianpk/rev/pulls/295) targets `dev` and
+pins the Slice 2 report introduction `543c5324ca45fbdf83c31fe272a3516b0c781f94`.
+The current metadata identifies this active review; PR #294 and its original
+branch remain recorded in the Slice 1 report and tracker.

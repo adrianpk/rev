@@ -5,7 +5,7 @@ Delivery set: rev-command-keybinding-hints
 Plan: [Command Keybinding Hints Delivery](../../../plan/rev-command-keybinding-hints.md)
 Tracker: [Command Keybinding Hints Tracker](../../../tracker/rev-command-keybinding-hints.md)
 Branch: `test/rev-command-keybinding-hints-02-acceptance`
-PR: pending canonical review
+PR: [#295](https://forge.adrianpk.com/adrianpk/rev/pulls/295)
 
 ## Purpose
 
@@ -53,8 +53,10 @@ changed annotation behavior. UI02 retains its original candidate/gate and the
 separate ranking evidence. Generated Spore output stays under ignored target
 paths; no publication or installation is performed.
 
-T2.3 introduces this report and records canonical review references in a
-following commit. The previous slice was closed and this slice activated in
+T2.3 introduces this report in `543c5324ca45fbdf83c31fe272a3516b0c781f94`.
+Canonical [PR #295](https://forge.adrianpk.com/adrianpk/rev/pulls/295) targets `dev` and
+links that full immutable introduction; its following reference commit records
+the canonical review without changing runtime or acceptance assertions. The previous slice was closed and this slice activated in
 `134b5daa3e9bbc1e46a8b6a8b2eb5f3797b6e7dc`, after live Forgejo confirmed
 PR #294 merged at `05365b43a51f5aaa7217c489117afc78289b0abe`.
 

@@ -41,7 +41,7 @@ State: reviewing
 Dependency: Slice 1 integrated
 Requirements: KBH01-KBH05 together
 Branch: `test/rev-command-keybinding-hints-02-acceptance`
-PR: pending
+PR: [#295](https://forge.adrianpk.com/adrianpk/rev/pulls/295)
 Report: `ops/default/report/slices/rev-command-keybinding-hints/slice-2-acceptance.md`
 Validation: the six ordered Slice 2 commands recorded in the plan and local configuration
 
@@ -105,6 +105,8 @@ Forgejo confirms PR #294 merged into dev on 2026-11-06. Slice 2 is active.
 - The six required commands pass locally: 15 command-usage tests, all-target
   Clippy, Bash syntax and 85 documentation pages with 578 local links/anchors.
   The local strict Spore build projects all 85 Markdown pages.
-- T2.3 introduces the Slice 2 report and records the canonical PR in a following
-  reference commit. Exact clean-HEAD evidence is recorded once for that commit.
+- T2.3 introduces the Slice 2 report in
+  `543c5324ca45fbdf83c31fe272a3516b0c781f94`. Canonical [PR #295](https://forge.adrianpk.com/adrianpk/rev/pulls/295)
+  targets dev and pins that immutable introduction. Its following reference
+  commit records the review; exact clean-HEAD evidence is recorded once there.
   Canonical integration and the combined controller gate remain pending.
