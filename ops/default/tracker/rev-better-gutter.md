@@ -24,7 +24,7 @@ State: reviewing
 Dependency: approved committed preparation on clean dev
 Requirements: BMK03, BTG02, BTG04
 Implementation: `f4698fc7b506a610cbbef6aa12f6e5bd459be019` (T1.1-T1.3)
-PR: pending
+PR: `#282`
 Report: `ops/default/report/slices/rev-better-gutter/slice-1-layout.md`
 Validation: local formatting, scoped strict Clippy, 223 approved suite tests,
 focused completion and documentation checks passed. Looper must record the
