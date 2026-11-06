@@ -228,6 +228,7 @@ fn syntax_palette(base: &mut SyntaxPalette, partial: &PartialSyntaxPalette) {
 
 fn gutter(base: &mut crate::gutter::Settings, partial: &PartialGutter) {
     scalar(&mut base.visible, partial.visible);
+    scalar(&mut base.nerd_fonts, partial.nerd_fonts);
     scalar(&mut base.mode, partial.mode);
     scalar(&mut base.current_line, partial.current_line);
     scalar(&mut base.side, partial.side);
@@ -451,9 +452,6 @@ fn bookmarks(base: &mut super::Bookmarks, partial: &super::PartialBookmarks) {
     }
     scalar(&mut base.save, partial.save);
     scalar(&mut base.markers, partial.markers);
-    if let Some(marker) = &partial.marker {
-        base.marker = marker.clone();
-    }
     count(&mut base.max_entries, partial.max_entries);
     count(&mut base.context_chars, partial.context_chars);
     count(&mut base.search_chars, partial.search_chars);

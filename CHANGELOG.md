@@ -49,8 +49,10 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 
 - [Bookmark markers](docs/reference/gutter.md#bookmark-markers) appear before
   left-side line numbers and after right-side numbers, keeping the separator
-  beside the text. Markers remain visible when numbers are hidden and yield
-  first when the pane is too narrow.
+  beside the text. The default is a blue square; set `gutter.nerd_fonts = true`
+  for the built-in flat Nerd Fonts bookmark. Older custom marker strings are
+  ignored, while explicit marker colors remain effective. Markers remain visible
+  when numbers are hidden and yield first when the pane is too narrow.
 
 ## 0.5.0 - 2026-11-04
 

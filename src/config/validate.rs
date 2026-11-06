@@ -710,19 +710,6 @@ fn resources(partial: &super::PartialOrg) -> Result<(), Failure> {
 }
 
 fn bookmarks(value: &super::PartialBookmarks) -> Result<(), Failure> {
-    if let Some(marker) = &value.marker {
-        use unicode_segmentation::UnicodeSegmentation;
-        use unicode_width::UnicodeWidthStr;
-        if marker.graphemes(true).count() != 1
-            || marker.chars().any(char::is_control)
-            || marker.width() != 1
-        {
-            return Err(Failure::new(
-                "bookmarks.marker",
-                "expected one printable non-control grapheme of terminal width one".into(),
-            ));
-        }
-    }
     integer("bookmarks.max_entries", value.max_entries, 1..=4096)?;
     integer("bookmarks.context_chars", value.context_chars, 16..=256)?;
     integer("bookmarks.search_chars", value.search_chars, 0..=1048576)?;

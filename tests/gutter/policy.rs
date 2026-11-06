@@ -7,6 +7,7 @@ use super::Buffers;
 pub(super) fn startup() -> Settings {
     Settings {
         visible: false,
+        nerd_fonts: true,
         mode: Mode::Relative,
         current_line: CurrentLine::Zero,
         side: Side::Right,
@@ -88,6 +89,7 @@ fn leaf_overrides() {
         );
         assert_eq!(effective.side, expected.side.unwrap_or(startup.side));
         assert_eq!(effective.format, startup.format);
+        assert_eq!(effective.nerd_fonts, startup.nerd_fonts);
     }
     assert_eq!(policy.effective(), startup);
 }

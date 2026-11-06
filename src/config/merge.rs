@@ -596,6 +596,11 @@ impl Merge {
 
     fn gutter(&mut self, base: &mut PartialGutter, later: &PartialGutter) {
         self.leaf(&["gutter", "visible"], &mut base.visible, &later.visible);
+        self.leaf(
+            &["gutter", "nerd_fonts"],
+            &mut base.nerd_fonts,
+            &later.nerd_fonts,
+        );
         self.leaf(&["gutter", "mode"], &mut base.mode, &later.mode);
         self.leaf(
             &["gutter", "current_line"],
@@ -1047,7 +1052,6 @@ impl Merge {
         self.leaf(&["bookmarks", "file"], &mut base.file, &later.file);
         self.leaf(&["bookmarks", "save"], &mut base.save, &later.save);
         self.leaf(&["bookmarks", "markers"], &mut base.markers, &later.markers);
-        self.leaf(&["bookmarks", "marker"], &mut base.marker, &later.marker);
         self.leaf(
             &["bookmarks", "max_entries"],
             &mut base.max_entries,

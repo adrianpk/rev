@@ -873,6 +873,7 @@ impl Keymaps {
 #[serde(default, deny_unknown_fields)]
 pub struct PartialGutter {
     pub visible: Option<bool>,
+    pub nerd_fonts: Option<bool>,
     pub mode: Option<crate::gutter::Mode>,
     pub current_line: Option<crate::gutter::CurrentLine>,
     pub side: Option<crate::gutter::Side>,

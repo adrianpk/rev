@@ -36,8 +36,10 @@ fn explicit_defaults() {
         }
     }
     assert_eq!(roles, 55);
-    assert_eq!(palette["gutter"]["bookmark"].as_str(), Some("#e0af68"));
-    assert_eq!(raw["gutter"].as_table().unwrap().len(), 7);
+    assert_eq!(palette["gutter"]["bookmark"].as_str(), Some("#7aa2f7"));
+    assert_eq!(raw["gutter"].as_table().unwrap().len(), 8);
+    assert_eq!(raw["gutter"]["nerd_fonts"].as_bool(), Some(false));
+    assert!(raw["bookmarks"].get("marker").is_none());
     assert_eq!(raw["mouse"].as_table().unwrap().len(), 3);
     assert_eq!(raw["mouse"]["tree_activate_on_click"].as_bool(), Some(true));
     assert_eq!(raw["org"]["headings"].as_table().unwrap().len(), 4);

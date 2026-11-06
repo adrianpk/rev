@@ -17,7 +17,6 @@ pub struct Bookmarks {
     pub file: Option<PathBuf>,
     pub save: BookmarkSave,
     pub markers: bool,
-    pub marker: String,
     pub max_entries: usize,
     pub context_chars: usize,
     pub search_chars: usize,
@@ -28,7 +27,6 @@ impl Default for Bookmarks {
             file: None,
             save: BookmarkSave::OnExit,
             markers: true,
-            marker: "●".into(),
             max_entries: 1024,
             context_chars: 64,
             search_chars: 262144,
@@ -41,8 +39,17 @@ pub struct PartialBookmarks {
     pub file: Option<PathBuf>,
     pub save: Option<BookmarkSave>,
     pub markers: Option<bool>,
+    /// Legacy input only. Decode its string shape, then discard its value.
+    #[serde(deserialize_with = "discard_marker")]
     pub marker: Option<String>,
     pub max_entries: Option<i64>,
     pub context_chars: Option<i64>,
     pub search_chars: Option<i64>,
+}
+
+fn discard_marker<'de, D: serde::Deserializer<'de>>(
+    deserializer: D,
+) -> Result<Option<String>, D::Error> {
+    String::deserialize(deserializer)?;
+    Ok(None)
 }

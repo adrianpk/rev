@@ -29,7 +29,7 @@ impl Frame {
                 Row {
                     row,
                     text: if source.is_some_and(|line| markers.contains(&line)) {
-                        view.bookmark_marker().into()
+                        view.gutter.startup().bookmark_marker().into()
                     } else {
                         " ".into()
                     },

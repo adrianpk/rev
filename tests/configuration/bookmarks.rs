@@ -10,7 +10,6 @@ fn storage_settings() {
     assert_eq!(defaults.file, None);
     assert_eq!(defaults.save, BookmarkSave::OnExit);
     assert!(defaults.markers);
-    assert_eq!(defaults.marker, "●");
     assert_eq!(
         (
             defaults.max_entries,
@@ -55,23 +54,23 @@ fn storage_settings() {
     assert_eq!(later.bookmarks.search_chars, Some(0));
 }
 
-// Marker glyphs are checked as complete Unicode graphemes and terminal cells,
-// with whole-candidate rejection and independent include provenance for leaves.
+// Legacy marker strings are accepted and discarded before publication, including
+// formerly invalid glyphs. Only the new font flag selects a built-in marker.
 #[test]
 fn marker_settings() {
-    for (name, marker, accepted) in [
-        ("factory", "●", true),
-        ("ascii", "*", true),
-        ("combined", "e\u{301}", true),
-        ("empty", "", false),
-        ("several", "ab", false),
-        ("wide", "界", false),
-        ("emoji", "👩‍💻", false),
-        ("orphan", "\u{301}", false),
-        ("nul", "\0", false),
-        ("escape", "\x1b", false),
-        ("tab", "\t", false),
-        ("newline", "\n", false),
+    for (name, marker) in [
+        ("old factory", "●"),
+        ("ascii", "*"),
+        ("combined", "e\u{301}"),
+        ("empty", ""),
+        ("several", "ab"),
+        ("wide", "界"),
+        ("emoji", "👩‍💻"),
+        ("orphan", "\u{301}"),
+        ("nul", "\0"),
+        ("escape", "\x1b"),
+        ("tab", "\t"),
+        ("newline", "\n"),
     ] {
         let literal = marker
             .chars()
@@ -87,7 +86,8 @@ fn marker_settings() {
             Path::new("markers.toml"),
             format!("bookmarks.marker=\"{literal}\"").as_bytes(),
         );
-        assert_eq!(result.is_ok(), accepted, "{name}");
+        let document = result.unwrap_or_else(|error| panic!("{name}: {error:?}"));
+        assert_eq!(document.bookmarks.marker, None, "{name}");
     }
     let f = Fixture::new();
     let base = f.write(
@@ -96,12 +96,12 @@ fn marker_settings() {
     );
     let root = f.write(
         "config.toml",
-        "include=['base.toml']\n[bookmarks]\nmarker='é'\n",
+        "include=['base.toml']\ngutter.nerd_fonts=true\n[bookmarks]\nmarker='é'\n",
     );
     let startup = prepare(&root);
     assert!(startup.diagnostic.is_none(), "{:?}", startup.diagnostic);
     assert!(!startup.snapshot.settings().bookmarks.markers);
-    assert_eq!(startup.snapshot.settings().bookmarks.marker, "é");
+    assert!(startup.snapshot.settings().gutter.nerd_fonts);
     assert_eq!(
         startup.snapshot.settings().palette.gutter.bookmark,
         rev::config::Rgb(0x12, 0x34, 0x56)
@@ -110,18 +110,26 @@ fn marker_settings() {
         startup.snapshot.origin(&["bookmarks", "markers"]),
         Some(base.as_path())
     );
-    assert_eq!(
-        startup.snapshot.origin(&["bookmarks", "marker"]),
-        Some(root.as_path())
-    );
+    assert_eq!(startup.snapshot.origin(&["bookmarks", "marker"]), None);
     assert_eq!(
         startup.snapshot.origin(&["palette", "gutter", "bookmark"]),
         Some(base.as_path())
     );
     f.write("config.toml", "bookmarks.marker='界'\neditor.tab_width=9\n");
-    let rejected = prepare(&root);
-    assert!(rejected.diagnostic.is_some());
-    assert_eq!(rejected.snapshot.settings(), &Settings::default());
+    let ignored = prepare(&root);
+    assert!(ignored.diagnostic.is_none());
+    assert_eq!(ignored.snapshot.settings().editor.tab_width, 9);
+    assert!(!ignored.snapshot.settings().gutter.nerd_fonts);
+    for value in ["true", "1", "[]", "{}"] {
+        assert!(
+            parse(
+                Path::new("config.toml"),
+                format!("bookmarks.marker={value}").as_bytes()
+            )
+            .is_err(),
+            "legacy input must remain a string: {value}"
+        );
+    }
     for value in ["'bad'", "true", "'#12345g'"] {
         assert!(
             parse(

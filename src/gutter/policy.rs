@@ -77,6 +77,7 @@ impl Default for Format {
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub struct Settings {
     pub visible: bool,
+    pub nerd_fonts: bool,
     pub mode: Mode,
     pub current_line: CurrentLine,
     pub side: Side,
@@ -87,11 +88,19 @@ impl Default for Settings {
     fn default() -> Self {
         Self {
             visible: true,
+            nerd_fonts: false,
             mode: Mode::Absolute,
             current_line: CurrentLine::Absolute,
             side: Side::Left,
             format: Format::default(),
         }
+    }
+}
+
+impl Settings {
+    /// Fixed one-cell presentation selected by the immutable startup preference.
+    pub(crate) fn bookmark_marker(self) -> &'static str {
+        if self.nerd_fonts { "\u{f02e}" } else { "■" }
     }
 }
 
@@ -140,6 +149,7 @@ impl Policy {
     pub fn effective(self) -> Settings {
         Settings {
             visible: self.overrides.visible.unwrap_or(self.startup.visible),
+            nerd_fonts: self.startup.nerd_fonts,
             mode: self.overrides.mode.unwrap_or(self.startup.mode),
             current_line: self
                 .overrides

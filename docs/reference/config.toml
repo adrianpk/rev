@@ -76,6 +76,8 @@ split_ratio = 0.5
 [gutter]
 # Boolean; initial per-view number visibility, subject to narrow-pane geometry.
 visible = true
+# Boolean; use the built-in Nerd Fonts bookmark instead of the ordinary square.
+nerd_fonts = false
 # "absolute" or "relative" logical line calculation.
 mode = "absolute"
 # "absolute", "zero" or "hidden" current-line label, independent of mode.
@@ -180,7 +182,6 @@ coalesce = true
 # "on-exit", "on-change" or "manual"; none saves source documents.
 save = "on-exit"
 markers = true # Initial per-view visibility, independent of number labels.
-marker = "●" # Exactly one printable non-control grapheme of terminal width one.
 max_entries = 1024 # 1..4096; excess rejects without eviction.
 context_chars = 64 # 16..256 Unicode scalars per side at each checkpoint.
 search_chars = 262144 # 0..1048576 total search scalars; zero disables relocation.
@@ -507,7 +508,7 @@ background = "#1a1b26"          # Number-field background.
 foreground = "#565f89"          # Ordinary logical labels.
 current_line = "#7aa2f7"        # Current-line label, also emphasized without color.
 separator = "#3b4261"           # One-cell number/text separator.
-bookmark = "#e0af68"            # Resolved logical-line bookmark marker.
+bookmark = "#7aa2f7"            # Resolved logical-line bookmark marker.
 
 # Complete built-in maps follow. Use existing fixed command/action names only.
 # Missing entries inherit; exact normalized overrides replace one chord.

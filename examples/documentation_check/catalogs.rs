@@ -330,6 +330,10 @@ fn schema(models: &Models) -> Result<BTreeSet<String>> {
             .ok_or_else(|| format!("missing schema model: {name}"))?;
         for (field, kind) in fields {
             let key = format!("{prefix}{field}");
+            // Accepted legacy input is discarded, so it is not a current setting.
+            if key == "bookmarks.marker" {
+                continue;
+            }
             if models.contains_key(kind) {
                 pending.push((kind, format!("{key}.")));
             } else {

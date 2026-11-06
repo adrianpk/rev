@@ -61,12 +61,13 @@ text remain unchanged. No command reloads, edits or persists configuration.
 
 ## Startup settings
 
-The optional `[gutter]` table sets `visible`, `mode`, `current_line`, `side`,
-`minimum_digits`, `left_padding` and `right_padding`. Its factory values are
+The number settings in the optional `[gutter]` table are `visible`, `mode`,
+`current_line`, `side`, `minimum_digits`, `left_padding` and `right_padding`. Their factory values are
 `true`, `"absolute"`, `"absolute"`, `"left"`, `4`, `0` and `1`, respectively.
 Minimum digits admit 1..20 and padding 0..4 cells. Width always accommodates
 the complete source count. `[palette.gutter]` supplies `background`, `foreground`,
-`current_line` and `separator` as six-digit RGB values.
+`current_line`, `separator` and `bookmark` as six-digit RGB values. The same
+gutter table also accepts the startup `nerd_fonts` flag described below.
 
 See the [complete sample](config.toml) and [value catalog](defaults.md#line-numbers)
 for all supported values. Includes and root leaves merge independently. Invalid
@@ -77,16 +78,16 @@ runtime reset continues using the running session's snapshot.
 
 Each editing view initially reserves one additional marker cell outside its
 number field, on `gutter.side`. A resolved bookmarked source line shows
-the configured glyph there, even when numbers are hidden. Several names on one
-line share one glyph. A simplified left-gutter example is:
+the selected built-in glyph there, even when numbers are hidden. Several names
+on one line share one glyph. A simplified left-gutter example is:
 
 ```text
-●   2 │TARGET here
+■   2 │TARGET here
     3 │next line
 ```
 
 On the right, the source-facing separator comes before the number field and the
-marker occupies the outermost cell: `TARGET here│   2 ●`. No folding column or
+marker occupies the outermost cell: `TARGET here│   2 ■`. No folding column or
 folding-specific padding is reserved. Number padding and the separator retain
 their configured widths. With numbers hidden, the marker remains at the outer
 edge beside the text.
@@ -103,13 +104,35 @@ space, numbers receive their existing complete field first. The marker is
 omitted before reducing available number geometry or the three-column text
 minimum, and reappears when space returns.
 
-`bookmarks.markers` defaults to `true`; `bookmarks.marker` defaults to `"●"`
-and must be one printable non-control grapheme of terminal width one.
-`palette.gutter.bookmark` defaults to `"#e0af68"`. See the
-[bookmark guide](../how-to/use-bookmarks.md) and
+`bookmarks.markers` defaults to `true`. The startup boolean `gutter.nerd_fonts`
+defaults to `false`, selecting the compiled square `■` (U+25A0). With `true`, rev
+uses the compiled flat bookmark `` (U+F02E, `nf-fa-bookmark`). Both occupy one
+terminal cell under rev's display policy and use `palette.gutter.bookmark`, whose
+default is `"#7aa2f7"`. Explicit palette overrides retain precedence.
+
+Set `nerd_fonts = true` in the existing `[gutter]` table only when the terminal
+font supports that glyph. Rev does not detect, install or select a font; a
+missing opted-in glyph may appear as a missing-character symbol. Configuration
+changes take effect on the next startup. Numbering resets do not change this
+startup preference, and there is no runtime font command or custom glyph input.
+
+See the [bookmark guide](../how-to/use-bookmarks.md) and
 [reference](commands.md#named-bookmarks) for setting, listing and saving names.
 
 In a folded native Org view, displayed labels retain original logical source
 line numbers across hidden ranges. Relative labels measure logical source-line
 distance from point, and current-line emphasis follows that same source identity.
 Number/text geometry and label width still use the canonical document line count.
+
+## Migrate older bookmark settings
+
+Older generated configurations may contain `bookmarks.marker = "●"` or a custom
+string. Rev accepts and discards that legacy string before publishing effective
+settings; it cannot select a marker or reject a configuration because of its
+grapheme count or width. Remove it when updating the file and use
+`gutter.nerd_fonts` to choose between the two built-in symbols. Other input types
+for the legacy key still reject through normal typed configuration validation.
+
+An old explicit `palette.gutter.bookmark = "#e0af68"` keeps its selected color.
+Change it to `"#7aa2f7"` or remove that entry to use the compiled blue. Rev does
+not rewrite existing configuration files.

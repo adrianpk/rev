@@ -63,7 +63,9 @@ fn rows(frame: &Frame) -> Vec<usize> {
         .rows()
         .iter()
         .enumerate()
-        .filter_map(|(row, line)| line.text().contains('●').then_some(row))
+        .filter_map(|(row, line)| {
+            (line.text().contains('■') || line.text().contains('\u{f02e}')).then_some(row)
+        })
         .collect()
 }
 
@@ -71,6 +73,79 @@ fn goto(s: &mut Session, line: usize) {
     s.execute(Command::GotoLine);
     s.handle(Event::Paste(line.to_string()));
     key(s, KeyCode::Enter);
+}
+
+// Real frames emit the selected compiled code point and blue palette role on
+// either side; an old explicit color overrides blue while a legacy glyph cannot.
+#[test]
+fn fixed_symbols() {
+    use rev::config::Rgb;
+    use unicode_width::UnicodeWidthStr;
+
+    for (name, settings, symbol, color) in [
+        ("omitted", "", '■', Rgb(0x7a, 0xa2, 0xf7)),
+        (
+            "plain",
+            "[gutter]\nnerd_fonts=false\n",
+            '■',
+            Rgb(0x7a, 0xa2, 0xf7),
+        ),
+        (
+            "nerd",
+            "[gutter]\nnerd_fonts=true\n",
+            '\u{f02e}',
+            Rgb(0x7a, 0xa2, 0xf7),
+        ),
+        (
+            "old color",
+            "marker='*'\n[gutter]\nnerd_fonts=true\n[palette.gutter]\nbookmark='#e0af68'\n",
+            '\u{f02e}',
+            Rgb(0xe0, 0xaf, 0x68),
+        ),
+    ] {
+        let f = fixture::Fixture::new();
+        let path = f.write("source", "alpha\nlast\n");
+        let mut s = configured(&f, settings);
+        s.load(&path).unwrap();
+        argument(&mut s, BookmarkCommand::Set, "A");
+        let record = s.bookmarks().get("A").unwrap().clone();
+        let before = (s.buffer().unwrap().stamp(), s.buffer().unwrap().state());
+        for side in [Side::Left, Side::Right] {
+            if side == Side::Right {
+                s.execute(Command::Gutter(rev::command::GutterCommand::ToggleSide));
+            }
+            let geometry = s
+                .view()
+                .gutter_geometry(s.buffer().unwrap(), area(24, 10))
+                .unwrap();
+            let marker = geometry.marker().unwrap();
+            let frame = s.frame().unwrap();
+            let cells = surface::draw(&frame);
+            let cell = cells[&(0, usize::from(marker.column()))];
+            assert_eq!(cell.character, symbol, "{name}/{side:?}");
+            assert_eq!(cell.foreground, Some(color), "{name}/{side:?}");
+            assert_eq!(symbol.to_string().width(), 1);
+            assert_eq!(frame.rows()[0].text().width(), 24);
+            assert_eq!(
+                frame.cursor(),
+                Some(Position {
+                    column: geometry.text().column(),
+                    row: 0
+                })
+            );
+            assert_eq!(rows(&frame), [0]);
+            s.execute(Command::Bookmark(BookmarkCommand::Markers));
+            assert!(rows(&s.frame().unwrap()).is_empty());
+            s.execute(Command::Bookmark(BookmarkCommand::Markers));
+        }
+        assert_eq!(s.bookmarks().get("A"), Some(&record));
+        assert_eq!(
+            (s.buffer().unwrap().stamp(), s.buffer().unwrap().state()),
+            before
+        );
+        assert!(s.buffer().unwrap().history().is_empty());
+        assert_eq!(std::fs::read_to_string(path).unwrap(), "alpha\nlast\n");
+    }
 }
 
 // Numbers retain their field and priority; markers use one independent cell
@@ -150,15 +225,15 @@ fn independent_fields() {
                 assert_eq!(rows(&frame), [1]);
                 let rendered = frame.rows()[1].text();
                 match (side, visible) {
-                    (Side::Left, true) => assert!(rendered.starts_with("●   2 │second")),
+                    (Side::Left, true) => assert!(rendered.starts_with("■   2 │second")),
                     (Side::Right, true) => {
                         assert!(rendered.starts_with("second"));
-                        assert!(rendered.ends_with("│   2 ●"));
+                        assert!(rendered.ends_with("│   2 ■"));
                     }
-                    (Side::Left, false) => assert!(rendered.starts_with("●second")),
+                    (Side::Left, false) => assert!(rendered.starts_with("■second")),
                     (Side::Right, false) => {
                         assert!(rendered.starts_with("second"));
-                        assert!(rendered.ends_with('●'));
+                        assert!(rendered.ends_with('■'));
                     }
                 }
                 let geometry = view
@@ -170,7 +245,7 @@ fn independent_fields() {
                         .text()
                         .chars()
                         .nth(usize::from(marker.column())),
-                    Some('●')
+                    Some('■')
                 );
                 assert_eq!(
                     view.hit(
@@ -364,11 +439,18 @@ fn view_policy() {
     let other = f.write("other", "other\n");
     let mut s = configured(
         &f,
-        "markers=false\nmarker='*'\n[palette.gutter]\nbookmark='#123456'\n",
+        "markers=false\nmarker='*'\n[gutter]\nnerd_fonts=true\n[palette.gutter]\nbookmark='#123456'\n",
     );
     s.load(&path).unwrap();
     argument(&mut s, BookmarkCommand::Set, "A");
     let record = s.bookmarks().get("A").unwrap().clone();
+    assert!(s.view().gutter.startup().nerd_fonts);
+    f.write("markers.toml", "gutter.nerd_fonts=false\n");
+    s.execute(Command::Gutter(rev::command::GutterCommand::Reset));
+    assert!(s.view().gutter.effective().nerd_fonts);
+    let restarted = rev::config::prepare(&f.0.join("markers.toml"));
+    assert!(restarted.diagnostic.is_none());
+    assert!(!restarted.snapshot.settings().gutter.nerd_fonts);
     assert!(!s.view().bookmark_markers);
     assert!(
         s.view()
@@ -390,7 +472,7 @@ fn view_policy() {
         .unwrap();
     let cells = surface::draw(&frame);
     let cell = cells[&(0, usize::from(marker.column()))];
-    assert_eq!(cell.character, '*');
+    assert_eq!(cell.character, '\u{f02e}');
     assert_eq!(cell.foreground, Some(rev::config::Rgb(0x12, 0x34, 0x56)));
     s.execute(Command::Split(Split::Below));
     let original = s.windows().selected_id();
@@ -438,7 +520,7 @@ fn view_policy() {
             .unwrap()
             .rows()
             .iter()
-            .any(|row| row.text().contains('*'))
+            .any(|row| row.text().contains('\u{f02e}'))
     );
     assert_eq!(s.bookmarks().get("A").unwrap().id(), record.id());
     assert!(!s.buffer().unwrap().is_modified());

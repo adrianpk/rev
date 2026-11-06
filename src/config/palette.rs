@@ -138,7 +138,7 @@ impl Default for GutterPalette {
             foreground: Rgb(0x56, 0x5f, 0x89),
             current_line: Rgb(0x7a, 0xa2, 0xf7),
             separator: Rgb(0x3b, 0x42, 0x61),
-            bookmark: Rgb(0xe0, 0xaf, 0x68),
+            bookmark: Rgb(0x7a, 0xa2, 0xf7),
         }
     }
 }

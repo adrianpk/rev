@@ -253,7 +253,7 @@ pub(super) fn run(root: &Path, binary: &Path, wrapper: &Path) -> Result<(), Box<
     first.send(b"\x1bxgoto-line\r2\r\x18rmpty\r")?;
     first.frame(|f| {
         f.contains("Bookmark set")
-            && f.contains('●')
+            && f.contains('■')
             && status(f, "> alpha.txt -- RW -- L2 C1 Text")
     })?;
     first.send(b"\x18rMpty\r")?;
@@ -265,17 +265,17 @@ pub(super) fn run(root: &Path, binary: &Path, wrapper: &Path) -> Result<(), Box<
     first.send(b"\x18u")?;
     first.frame(|f| f.contains("alpha.txt -- RW") && !f.contains("temporary edit"))?;
     first.send(b"\x18rbpty\r\x18\x32")?;
-    first.frame(|f| f.matches("alpha.txt -- RW").count() == 2 && f.matches('●').count() == 2)?;
+    first.frame(|f| f.matches("alpha.txt -- RW").count() == 2 && f.matches('■').count() == 2)?;
     first.send(b"\x1bxbookmark-markers-mode\r")?;
-    first.frame(|f| f.matches("alpha.txt -- RW").count() == 2 && f.matches('●').count() == 1)?;
+    first.frame(|f| f.matches("alpha.txt -- RW").count() == 2 && f.matches('■').count() == 1)?;
     first.send(b"\x1bxgutter-toggle-line-numbers\r\x1bxbookmark-markers-mode\r")?;
-    first.frame(|f| f.matches("alpha.txt -- RW").count() == 2 && f.matches('●').count() == 2)?;
+    first.frame(|f| f.matches("alpha.txt -- RW").count() == 2 && f.matches('■').count() == 2)?;
     first.send(b"\x1bxgutter-set-line-numbers-relative\r\x1bxgutter-toggle-line-number-side\r")?;
-    first.frame(|f| f.matches('●').count() == 2 && screen_row(f, 1).width() == 100)?;
+    first.frame(|f| f.matches('■').count() == 2 && screen_row(f, 1).width() == 100)?;
     for width in [80, 120, 100] {
         first.resize(width)?;
         first.frame(|f| {
-            screen_row(f, 1).width() == usize::from(width) && f.matches('●').count() == 2
+            screen_row(f, 1).width() == usize::from(width) && f.matches('■').count() == 2
         })?;
     }
     first.send(b"\x18rmpty second\r\x18rl")?;
@@ -284,7 +284,7 @@ pub(super) fn run(root: &Path, binary: &Path, wrapper: &Path) -> Result<(), Box<
     first
         .frame(|f| f.contains("*Bookmarks* [read-only] 1 entries") && !f.contains("pty second"))?;
     first.send(b"q\x1bxbookmark-save\r")?;
-    first.frame(|f| f.contains("Bookmarks saved") && f.matches('●').count() == 2)?;
+    first.frame(|f| f.contains("Bookmarks saved") && f.matches('■').count() == 2)?;
     first.finish()?;
     let first_bytes = first.bytes;
     drop(first);
@@ -299,7 +299,7 @@ pub(super) fn run(root: &Path, binary: &Path, wrapper: &Path) -> Result<(), Box<
     let mut second = Terminal::start(root, binary, wrapper, "origin.txt")?;
     second.send(b"\x18rbpty\r")?;
     second
-        .frame(|f| status(f, "> alpha.txt -- RW -- L2 C1 Text") && f.matches('●').count() == 1)?;
+        .frame(|f| status(f, "> alpha.txt -- RW -- L2 C1 Text") && f.matches('■').count() == 1)?;
     second.send(b"\x18rbmissing\r")?;
     second.frame(|f| f.contains("No bookmark") && f.contains("missing"))?;
     second.send(b"\x07")?;
@@ -309,7 +309,7 @@ pub(super) fn run(root: &Path, binary: &Path, wrapper: &Path) -> Result<(), Box<
     second.send(b"dx")?;
     second.frame(|f| f.contains("*Bookmarks* [read-only] 0 entries"))?;
     second.send(b"q\x1bxbookmark-save\r")?;
-    second.frame(|f| f.contains("Bookmarks saved") && !f.contains('●'))?;
+    second.frame(|f| f.contains("Bookmarks saved") && !f.contains('■'))?;
     // Once native work has settled, idle input has no periodic redraw.
     assert!(matches!(
         second

@@ -121,7 +121,6 @@ pub struct View {
     pub gutter: crate::gutter::Policy,
     /// Independent view presentation, inherited by splits and retained on rebind.
     pub bookmark_markers: bool,
-    bookmark_marker: String,
     pub preview: crate::org::preview::State,
     pub(crate) headings: std::sync::Arc<crate::config::Headings>,
     heading_pretty: Option<bool>,
@@ -168,7 +167,6 @@ impl View {
             jumps: crate::jump::History::default(),
             gutter: crate::gutter::Policy::default(),
             bookmark_markers: bookmarks.markers,
-            bookmark_marker: bookmarks.marker,
             preview: crate::org::preview::State::default(),
             headings: std::sync::Arc::new(crate::config::Headings::default()),
             heading_pretty: None,
@@ -194,7 +192,6 @@ impl View {
         let mut view = Self::new(buffer);
         view.gutter = crate::gutter::Policy::new(settings.settings().gutter);
         view.bookmark_markers = settings.settings().bookmarks.markers;
-        view.bookmark_marker = settings.settings().bookmarks.marker.clone();
         view.preview.enabled = settings.settings().org.preview.enabled;
         view.headings = std::sync::Arc::new(settings.settings().org.headings.clone());
         view.reset_heading_layout();
@@ -206,7 +203,6 @@ impl View {
     pub fn rebind(&mut self, buffer: &Buffer) {
         let gutter = self.gutter;
         let markers = self.bookmark_markers;
-        let marker = self.bookmark_marker.clone();
         let enabled = self.preview.enabled;
         let headings = self.headings.clone();
         let heading_pretty = self.heading_pretty;
@@ -215,15 +211,10 @@ impl View {
         self.jumps = jumps;
         self.gutter = gutter;
         self.bookmark_markers = markers;
-        self.bookmark_marker = marker;
         self.preview.enabled = enabled;
         self.headings = headings;
         self.heading_pretty = heading_pretty;
         self.reset_heading_layout();
-    }
-
-    pub(crate) fn bookmark_marker(&self) -> &str {
-        &self.bookmark_marker
     }
 
     pub(crate) fn clone_for_split(&self) -> Self {

@@ -77,6 +77,6 @@ pub(super) fn markers(session: &mut Session) -> Result<usize> {
         .frame()?
         .rows()
         .iter()
-        .map(|row| row.text().matches('●').count())
+        .map(|row| row.text().matches('■').count())
         .sum())
 }

@@ -9,14 +9,57 @@ use super::fixture::Fixture;
 fn partial_leaves() {
     let absent: Document = toml::from_str("").unwrap();
     assert_eq!(absent.gutter, PartialGutter::default());
+    assert!(!Settings::default().gutter.nerd_fonts);
     let explicit: Document =
-        toml::from_str("gutter.visible = false\ngutter.left_padding = 0\ngutter.mode = 'relative'")
+        toml::from_str("gutter.visible = false\ngutter.nerd_fonts = false\ngutter.left_padding = 0\ngutter.mode = 'relative'")
             .unwrap();
     assert_eq!(explicit.gutter.visible, Some(false));
+    assert_eq!(explicit.gutter.nerd_fonts, Some(false));
     assert_eq!(explicit.gutter.left_padding, Some(0));
     assert_eq!(explicit.gutter.mode, Some(Mode::Relative));
     assert_eq!(explicit.gutter.current_line, None);
     assert_eq!(explicit.gutter.minimum_digits, None);
+}
+
+// Font support merges as one startup boolean, with absent and explicit false
+// distinguished by the same include provenance used for every gutter leaf.
+#[test]
+fn font_precedence() {
+    for (name, inherited, explicit, expected) in [
+        ("inherited", true, None, true),
+        ("explicit false", true, Some(false), false),
+        ("explicit true", false, Some(true), true),
+    ] {
+        let fixture = Fixture::new();
+        let base = fixture.write("base.toml", &format!("gutter.nerd_fonts={inherited}"));
+        let mut text = String::from("include=['base.toml']\ngutter.side='right'\n");
+        if let Some(value) = explicit {
+            text.push_str(&format!("gutter.nerd_fonts={value}\n"));
+        }
+        let root = fixture.write("config.toml", &text);
+        let startup = prepare(&root);
+        assert!(
+            startup.diagnostic.is_none(),
+            "{name}: {:?}",
+            startup.diagnostic
+        );
+        assert_eq!(
+            startup.snapshot.settings().gutter.nerd_fonts,
+            expected,
+            "{name}"
+        );
+        assert_eq!(startup.snapshot.settings().gutter.side, Side::Right);
+        assert_eq!(
+            startup.snapshot.origin(&["gutter", "nerd_fonts"]),
+            Some(if explicit.is_some() {
+                root.as_path()
+            } else {
+                base.as_path()
+            }),
+            "{name}"
+        );
+        assert_eq!(std::fs::read_to_string(root).unwrap(), text);
+    }
 }
 
 // Root leaves override only their included siblings, including zero/false.
@@ -94,6 +137,10 @@ fn invalid_candidates() {
         ("excess right", "gutter.right_padding = 5"),
         ("float digits", "gutter.minimum_digits = 4.0"),
         ("wrong boolean", "gutter.visible = 1"),
+        ("font integer", "gutter.nerd_fonts = 1"),
+        ("font string", "gutter.nerd_fonts = 'true'"),
+        ("font array", "gutter.nerd_fonts = []"),
+        ("font table", "gutter.nerd_fonts = {}"),
         ("mode", "gutter.mode = 'visual'"),
         ("current", "gutter.current_line = 'relative'"),
         ("side", "gutter.side = 'center'"),
@@ -116,15 +163,20 @@ fn invalid_candidates() {
 // identifies the original source/leaf; no projected settings escape admission.
 #[test]
 fn included_rejection() {
-    let fixture = Fixture::new();
-    let base = fixture.write("base.toml", "gutter.minimum_digits = 21");
-    let root = fixture.write(
-        "config.toml",
-        "include = ['base.toml']\ngutter.minimum_digits = 4",
-    );
-    let startup = prepare(&root);
-    let diagnostic = startup.diagnostic.unwrap();
-    assert_eq!(diagnostic.source, base);
-    assert_eq!(diagnostic.key, ["gutter", "minimum_digits"]);
-    assert_eq!(startup.snapshot.settings(), &Settings::default());
+    for (key, invalid, valid) in [
+        ("minimum_digits", "21", "4"),
+        ("nerd_fonts", "'true'", "false"),
+    ] {
+        let fixture = Fixture::new();
+        let base = fixture.write("base.toml", &format!("gutter.{key}={invalid}"));
+        let root = fixture.write(
+            "config.toml",
+            &format!("include=['base.toml']\ngutter.{key}={valid}"),
+        );
+        let startup = prepare(&root);
+        let diagnostic = startup.diagnostic.unwrap();
+        assert_eq!(diagnostic.source, base);
+        assert_eq!(diagnostic.key, ["gutter", key]);
+        assert_eq!(startup.snapshot.settings(), &Settings::default());
+    }
 }
