@@ -5,7 +5,7 @@ Delivery set: rev-better-file-tree
 Plan: [Better File Tree Delivery](../../../plan/rev-better-file-tree.md)
 Tracker: [Better File Tree Tracker](../../../tracker/rev-better-file-tree.md)
 Branch: `feat/rev-better-file-tree-02-icons`
-PR: pending
+PR: `#288`
 
 ## Purpose
 
@@ -33,7 +33,7 @@ preserving canonical tree observations, input, palette and visibility policy.
 T2.1 is implemented in `bc83d6a729972d9e079e200926ce720dfde5f41c`. T2.2 and the T2.3 native interaction/font
 regressions are in `b1cdf00fa429dad260fb1550f7590944e7d4660e`. T2.3 also updates the reference, defaults sample,
 shared gutter documentation, existing Unreleased outcome and this report in its
-introduction commit.
+introduction commit `ac3dee145daf7bebb7dd1a21c6148997fca3b864`.
 
 `tree::Kind` owns both fixed catalogs. The tree retains the startup font choice
 from its admitted snapshot and forwards it through automatic file-parent and

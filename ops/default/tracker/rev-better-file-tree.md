@@ -42,8 +42,8 @@ Validation: five ordered commands passed locally; 271 tests plus two isolated NO
 State: reviewing
 Dependency: Slice 1 integrated
 Requirements: BFT01-BFT04 and configuration model
-Implementation: T2.1 `bc83d6a729972d9e079e200926ce720dfde5f41c`; T2.2/native T2.3 `b1cdf00fa429dad260fb1550f7590944e7d4660e`; T2.3 guidance in the report introduction commit
-PR: pending
+Implementation: T2.1 `bc83d6a729972d9e079e200926ce720dfde5f41c`; T2.2/native T2.3 `b1cdf00fa429dad260fb1550f7590944e7d4660e`; T2.3 guidance `ac3dee145daf7bebb7dd1a21c6148997fca3b864`
+PR: [#288](https://forge.adrianpk.com/adrianpk/rev/pulls/288)
 Report: `ops/default/report/slices/rev-better-file-tree/slice-2-icons.md`
 Validation: five required commands passed in order; 235 selected tests and two isolated NO_COLOR child checks. Final clean-HEAD evidence is recorded separately by Looper after PR references are committed.
 
