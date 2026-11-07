@@ -93,7 +93,7 @@ owned by the selected editing profile.
 All nine commands below passed during authoring and through `looper validate`
 on clean PR-reference HEAD `a662621b69d4bec9205296040d912772887a32e3`, also
 the integrated commit. This remains focused slice evidence. The separate
-delivery-set gate is pending and remains controller-owned.
+controller-owned delivery-set gate passed and is recorded below.
 
 - `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo fmt --all -- --check`
 - `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo clippy --locked --lib --bin rev -- -D warnings`
@@ -125,10 +125,38 @@ Rust/Cargo 1.98.0, Spore availability and the existing guide inputs. Primary and
 slice target directories remain separate. No primary build was active during
 preparation. Only this report, the tracker and the plan's active-slice metadata
 change after integration; runtime, tests, guide inputs, requirements and ordered
-commands remain unchanged. Bounded prerequisite validation runs on the resulting
-clean candidate; the worker starts no fixtures and does not run the full gate.
+commands remain unchanged. Four bounded prerequisite checks passed on clean
+candidate `d75db7c33994b51eeb6a3a01c0b05647105ab7c8`. The controller then ran
+the unchanged full gate on that candidate. Gate preparation started no fixtures.
+
+## Delivery-set closure
+
+Completed: 2026-11-08
+Validated candidate: `d75db7c33994b51eeb6a3a01c0b05647105ab7c8`
+Gate log: `FU4RKA7ANFGNAMEYBVMUXMDHTI`
+Acta gate verification: `01M6W3W7Y6F6T6YA0J9TPKSNYN`
+
+The controller passed the unchanged integrated gate on the exact clean candidate
+above. Its exact command was:
+
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo fmt --all -- --check && env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo clippy --locked --lib --bin rev -- -D warnings && env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test tree -- --test-threads=1 && env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test files directories -- --test-threads=1 && env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test commands -- tree_up_directory catalog_reference description tree_actions tree_transitions tree_open_sequence --test-threads=1 && env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test pointer tree -- --test-threads=1 && env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo run --locked --quiet --example documentation-check && env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 bash scripts/build-user-guide.sh && git diff --check`
+
+Results: 82 tree tests, three directory tests, six command tests and 16 pointer
+tests passed (107 selected tests). Formatting and lib/bin Clippy passed. Native
+catalogs checked 624 command names and 291 configuration entries. Documentation
+checked 91 reachable pages and 628 local links/anchors; Spore projected and built
+all 91 Markdown pages locally. The separate authoring presentation check remains
+the four-test evidence recorded above; it is not added to the frozen gate.
+
+Slice 1 of 1 completed through PR #312. The plan, tracker and specification are
+Completed, this report is delivered and the operational index reflects closure.
+Only the five approved documentation paths differ from the tested candidate.
+Closure preserves all requirements, scenarios, commands, assertions, runtime,
+tests and guide inputs. Bounded metadata/link/whitespace checks validate that
+documentation boundary and 165 local references; the successful gate is retained
+without a rerun.
+No fixtures, preview server or publication were started during closure.
 
 ## Risks and Follow-ups
 
-None recorded. The unchanged integrated gate and documentation-only closure
-remain with the controller.
+None recorded.

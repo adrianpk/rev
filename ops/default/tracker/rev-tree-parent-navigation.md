@@ -1,13 +1,14 @@
 # File Tree Parent Navigation Tracker
 
-Status: Approved
+Status: Completed
 Date: 2026-11-07
+Completed: 2026-11-08
 Delivery set: rev-tree-parent-navigation
 Approved: product owner requested specification, slicing, plan and Looper
 Plan: [Parent Navigation Delivery](../plan/rev-tree-parent-navigation.md)
 Specification: [File Tree Parent Navigation](../spec/editor-tree-parent-navigation.md)
 Concern: [Pending Editor Work](../README.md)
-Active slice: Slice 1 of 1 delivered; controller gate pending
+Active slice: Slice 1 of 1 completed; controller gate passed
 Progress owner: Looper checkpoint and canonical validation evidence
 
 ## Canonical slice map
@@ -53,13 +54,18 @@ Gate prerequisites: locked offline resolution covers 118 packages. Rust/Cargo
 1.98.0 and Spore are available; primary and slice builds retain separate target
 directories. No primary build was active during preparation. Preparation changes
 only the plan, tracker and report metadata. Runtime, tests, guide inputs,
-requirements and the ordered gate remain unchanged. The controller runs that
-gate on the resulting clean, pushed `dev` candidate before closure.
+requirements and the ordered gate remain unchanged. The controller passed that
+gate on exact clean `dev` candidate `d75db7c33994b51eeb6a3a01c0b05647105ab7c8`,
+log `FU4RKA7ANFGNAMEYBVMUXMDHTI`. Acta gate verification event
+`01M6W3W7Y6F6T6YA0J9TPKSNYN` records the confirmed result. See the
+[Slice 1 closure](../report/slices/rev-tree-parent-navigation/slice-1-parent.md#delivery-set-closure)
+for the exact command and results. Slice 1 of 1 completed; all five closure
+documents are reconciled without changing requirements, runtime or gate inputs.
 
 ## Final gate and closure
 
 - [x] Verify canonical integration and delivered report evidence.
-- [ ] Run the unchanged selected gate on exact clean dev.
-- [ ] Record tested commit and controller receipt.
-- [ ] Complete the specification, plan, tracker and index.
-- [ ] Verify only the five allowed documentation paths differ in closure.
+- [x] Run the unchanged selected gate on exact clean dev.
+- [x] Record tested commit and controller receipt.
+- [x] Complete the specification, plan, tracker and index.
+- [x] Verify only the five allowed documentation paths differ in closure.

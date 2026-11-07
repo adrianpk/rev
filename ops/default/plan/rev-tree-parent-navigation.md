@@ -1,7 +1,8 @@
 # File Tree Parent Navigation Delivery
 
-Status: Approved
+Status: Completed
 Date: 2026-11-07
+Completed: 2026-11-08
 Delivery set: rev-tree-parent-navigation
 Slice strategy: behavior-first
 Approved: product owner requested specification, slicing, plan and Looper
@@ -9,7 +10,7 @@ Planning baseline: `6fde63810e95b8e3a0e61b72714696354993d9c0`
 Specification: [File Tree Parent Navigation](../spec/editor-tree-parent-navigation.md)
 Tracker: [Parent Navigation Tracker](../tracker/rev-tree-parent-navigation.md)
 Concern: [Pending Editor Work](../README.md)
-Active slice: Slice 1 of 1 delivered; controller gate pending
+Active slice: Slice 1 of 1 completed; controller gate passed
 
 ## Outcome and authority
 
@@ -112,3 +113,15 @@ The exact closure allowlist is the index, this plan, its tracker, its
 specification and its one canonical report. Closure must not modify runtime,
 tests, requirements, selected command definitions, user-guide inputs or gate
 commands. Preserve retained run identity and consumed budgets during recovery.
+
+## Delivery-set closure
+
+Slice 1 of 1 completed through canonical PR #312, integrated at
+`a662621b69d4bec9205296040d912772887a32e3`. The controller passed the unchanged
+selected gate on `d75db7c33994b51eeb6a3a01c0b05647105ab7c8`, log
+`FU4RKA7ANFGNAMEYBVMUXMDHTI`. The
+[Slice 1 closure](../report/slices/rev-tree-parent-navigation/slice-1-parent.md#delivery-set-closure)
+records the exact command, 107 selected tests and local Markdown/Spore results.
+TUP01-TUP04 are delivered. This plan, the tracker and specification are Completed;
+the report remains delivered and the index reflects the verified outcome.
+Only the five approved documentation paths differ from the tested candidate.

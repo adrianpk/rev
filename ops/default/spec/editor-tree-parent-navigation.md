@@ -1,7 +1,8 @@
 # File Tree Parent Navigation
 
-Status: Approved
+Status: Completed
 Date: 2026-11-07
+Completed: 2026-11-08
 Inspection baseline: `6fde63810e95b8e3a0e61b72714696354993d9c0`
 Format: OpenSpec capability addition
 Approved: product owner requested specification, slicing, plan and one Looper delivery
@@ -154,3 +155,15 @@ colors, connectors, spacing and selected-entry treatment after each transition.
 Reuse the normal root and directory rows rather than introducing a plain-text
 parent row, duplicate navigation entries or a separate visual style. Respect
 existing display-cell widths and clipping so narrow trees stay aligned.
+
+## Completed delivery evidence
+
+TUP01-TUP04 are delivered through canonical
+[PR #312](https://forge.adrianpk.com/adrianpk/rev/pulls/312), integrated into
+`dev` at `a662621b69d4bec9205296040d912772887a32e3`. The controller passed the
+unchanged selected gate on `d75db7c33994b51eeb6a3a01c0b05647105ab7c8`, log
+`FU4RKA7ANFGNAMEYBVMUXMDHTI`. The
+[Slice 1 closure](../report/slices/rev-tree-parent-navigation/slice-1-parent.md#delivery-set-closure)
+records the exact command, 107 selected tests, catalog checks and local
+Markdown/Spore results. Plan and tracker are Completed; the report is delivered.
+Closure changes no requirement, scenario, command definition or tested input.
