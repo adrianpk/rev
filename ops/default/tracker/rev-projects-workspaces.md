@@ -27,17 +27,18 @@ Full gate: the exact ordered command in the plan and frozen local configuration
 
 ## Slice 1: Context state and catalog
 
-State: planned
+State: reviewing
 Dependency: approved committed preparation on clean dev
 Requirements: PW01, PW09, PW15, PW17-PW19, PW22
 Branch: `feat/rev-projects-workspaces-01-state`
 PR: pending
 Report: `ops/default/report/slices/rev-projects-workspaces/slice-1-state.md`
 Validation: the exact ordered Slice 1 commands in the plan/local configuration
+Implementation: T1.1/T1.2 in `834ee5bdf30d16d327b2da21a45e37c1281d7243`; T1.3 is introduced with the report and native fixtures. All five local implementation checks passed; the clean-HEAD controller receipt is required before PR handoff.
 
-- [ ] T1.1: Define typed context, artifact, root and session identities and the approved path/name/source-coordinate model; separate live, prepared and durable state.
-- [ ] T1.2: Implement the versioned aggregate contexts.toml codec and store with existing dependencies, checked revisions, bounded nonblocking publication, one atomic conversion commit point and preserved invalid input.
-- [ ] T1.3: Add tests/contexts.rs with meaningful native storage/domain cases, real isolated files, aliases/non-UTF-8 paths, stale writers, capacity rejection and publication-fault preservation; deliver the slice report.
+- [x] T1.1: Define typed context, artifact, root and session identities and the approved path/name/source-coordinate model; separate live, prepared and durable state.
+- [x] T1.2: Implement the versioned aggregate contexts.toml codec and store with existing dependencies, checked revisions, bounded nonblocking publication, one atomic conversion commit point and preserved invalid input.
+- [x] T1.3: Add tests/contexts.rs with meaningful native storage/domain cases, real isolated files, aliases/non-UTF-8 paths, stale writers, capacity rejection and publication-fault preservation; deliver the slice report.
 
 ## Slice 2: File and directory contexts
 
