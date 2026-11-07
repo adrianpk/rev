@@ -23,7 +23,7 @@ Progress owner: retained Looper checkpoint and canonical validation evidence
 State: reviewing
 Requirements: OIV01-OIV05 and the approved model
 Branch: `feat/rev-org-initial-visibility-01-policy`
-PR: pending
+PR: `#310`
 Report: `ops/default/report/slices/rev-org-initial-visibility/slice-1-policy.md`
 Validation: the twelve exact ordered commands in the plan and local configuration
 
@@ -38,7 +38,8 @@ Validation: the twelve exact ordered commands in the plan and local configuratio
 ## Task and commit evidence
 
 - T1.1-T1.2 and product guidance for T1.3: `83bfa87d005aac504af7c9a814e7b1403e7067cb`.
-- T1.3 report and reviewing ticket transition: introduced before canonical PR creation.
+- T1.3 report and reviewing ticket transition: `b8b5df26589b91b533af023ef1ae75eef312e9c1`.
+- Canonical PR: [#310](https://forge.adrianpk.com/adrianpk/rev/pulls/310), targeting dev.
 - Ordered slice preflight passed; the Looper receipt binds final clean PR HEAD.
 
 ## Final gate and closure

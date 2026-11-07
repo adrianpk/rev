@@ -5,7 +5,7 @@ Delivery set: rev-org-initial-visibility
 Plan: [Org Initial Visibility Delivery](../../../plan/rev-org-initial-visibility.md)
 Tracker: [Org Initial Visibility Tracker](../../../tracker/rev-org-initial-visibility.md)
 Branch: `feat/rev-org-initial-visibility-01-policy`
-PR: pending
+PR: `#310`
 
 ## Purpose
 
@@ -39,7 +39,9 @@ Implementation commit: `83bfa87d005aac504af7c9a814e7b1403e7067cb`.
 
 T1.1 and T1.2 share that coherent runtime/acceptance commit; T1.3 product
 documentation is included there. This report and the reviewing ticket transition
-complete T1.3. The subsequent PR-reference commit records the canonical PR.
+complete T1.3. Canonical PR [#310](https://forge.adrianpk.com/adrianpk/rev/pulls/310) targets dev.
+Report-introduction commit: `b8b5df26589b91b533af023ef1ae75eef312e9c1`.
+The PR-reference commit changes delivery metadata only.
 
 The existing bounded observation worker resolves metadata. The visibility owner
 retains heading levels and drawer bits; checked source ranges install atomically.
