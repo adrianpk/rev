@@ -30,7 +30,12 @@ impl Persistence {
     pub(in crate::session) fn locked(&self) -> bool {
         matches!(
             self.operation,
-            Some(Operation::Capture(_) | Operation::Publish(_) | Operation::Confirm { .. })
+            Some(
+                Operation::Capture(_)
+                    | Operation::Publish(_)
+                    | Operation::ManagementPublish
+                    | Operation::Confirm { .. }
+            )
         )
     }
     pub(in crate::session) fn departing(&self) -> bool {
@@ -44,6 +49,7 @@ pub(super) enum Operation {
         generation: Generation,
     },
     Restore(Box<Restore>),
+    ManagementPublish,
     Capture(Box<Capture>),
     Publish(After),
     Confirm {
@@ -54,6 +60,8 @@ pub(super) enum Operation {
 }
 pub(super) enum Request {
     List,
+    Manage(crate::command::Command),
+    ManageSelected(crate::command::Command, Record),
     Create { path: PathBuf, promote: bool },
     Open(Project),
     WorkspaceCreate,
@@ -67,6 +75,7 @@ pub(super) enum Output {
     Read(Catalog),
     Files(Vec<(FileEntry, Result<Ingress, String>)>),
     Published(context::Publication),
+    Candidate(Catalog),
 }
 pub(super) struct Ingress {
     path: PathBuf,
@@ -120,16 +129,21 @@ impl Session {
         if matches!(self.context_storage.operation, Some(Operation::Capture(_))) {
             self.context_storage.operation = None;
             self.context_prepared = None;
+            self.context_management = None;
             self.pending = None;
             self.input.cancel();
             return true;
         }
         if !self.context_storage.busy()
-            || matches!(self.context_storage.operation, Some(Operation::Publish(_)))
+            || matches!(
+                self.context_storage.operation,
+                Some(Operation::Publish(_) | Operation::ManagementPublish)
+            )
         {
             return false;
         }
         self.context_prepared = None;
+        self.context_management = None;
         self.context_storage.canceled = true;
         self.context_storage.job.cancel();
         self.pending = None;
@@ -161,6 +175,7 @@ impl Session {
     pub(super) fn read_projects(&mut self, request: Request) -> Action {
         if self.context_storage.busy()
             || self.context_membership.is_some()
+            || self.context_management.is_some()
             || self.context_prepared.is_some()
             || self.git_shutdown_active()
             || self.terminal_shutdown_active()
@@ -292,11 +307,18 @@ impl Session {
                 }
                 self.finish_context_departure(goal)
             }
+            (Some(Operation::ManagementPublish), Ok(Output::Published(publication))) => {
+                self.management_published(publication)
+            }
+            (Some(Operation::Publish(after)), Ok(Output::Candidate(candidate))) => {
+                self.management_captured(after, candidate)
+            }
             (Some(Operation::Publish(after)), Ok(Output::Published(publication))) => {
                 self.context_published(after, publication)
             }
             (_, Err(error)) => {
                 self.context_prepared = None;
+                self.context_management = None;
                 self.error(&format!("Contexts: {error}; live sources retained"))
             }
             _ => self.error("Project worker result did not match its owner; live sources retained"),
@@ -305,6 +327,10 @@ impl Session {
     fn projects_read(&mut self, request: Request, catalog: Catalog) -> Action {
         match request {
             Request::List => self.offer_projects(catalog.projects),
+            Request::Manage(command) => self.management_read(command, catalog),
+            Request::ManageSelected(command, record) => {
+                self.management_selected(command, record, catalog)
+            }
             Request::Create { path, promote } => {
                 let path = match NativePath::directory(&path) {
                     Ok(path) => path,
@@ -482,6 +508,9 @@ impl Session {
         if restore.files.is_empty() {
             if restore.selected {
                 restore.replacement.session.tree.edit();
+            }
+            if self.management_staging() {
+                return self.management_replacement(restore.replacement);
             }
             return self.begin_context(restore.replacement);
         }

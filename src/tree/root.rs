@@ -5,6 +5,15 @@ use super::Tree;
 use crate::view::Size;
 
 impl Tree {
+    /// A closed multi-root context has no implicit replacement browsing root.
+    /// A later explicit tree request can choose its ordinary standalone root.
+    pub(crate) fn without_context(&self) -> Self {
+        Self {
+            policy: self.policy.clone(),
+            nerd_fonts: self.nerd_fonts,
+            ..Self::default()
+        }
+    }
     pub(crate) fn hide_context(&mut self) {
         self.visible = false;
         self.edit();

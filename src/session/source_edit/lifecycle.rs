@@ -97,6 +97,14 @@ fn protected(command: Command) -> bool {
             | Command::WorkspaceAddDirectory
             | Command::WorkspaceAddProject
             | Command::WorkspaceRemoveRoot
+            | Command::ProjectRename
+            | Command::ProjectForget
+            | Command::ProjectSetRoot
+            | Command::ProjectPromoteToWorkspace
+            | Command::ProjectDuplicateAsWorkspace
+            | Command::WorkspaceRename
+            | Command::WorkspaceForget
+            | Command::WorkspaceSetRootPath
             | Command::Quit
             | Command::Buffer(_)
             | Command::Window(_)

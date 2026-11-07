@@ -117,6 +117,7 @@ pub struct Session {
     context_storage: contexts::projects::Persistence,
     context_record: Option<contexts::record::Record>,
     context_membership: Option<Box<contexts::workspaces::Membership>>,
+    context_management: Option<Box<contexts::management::Plan>>,
     context_root_identity: Option<(u64, u64)>,
     context_unavailable: Vec<crate::context::FileEntry>,
     context_positions: std::collections::BTreeMap<BufferId, contexts::positions::Position>,
@@ -216,6 +217,7 @@ enum AfterSave {
 }
 
 enum Pending {
+    ContextManagement(Box<contexts::management::Prompt>),
     WorkspaceName(Box<contexts::workspaces::Creation>),
     Workspaces(Vec<contexts::workspaces::WorkspaceChoice>),
     WorkspaceProjects(Vec<contexts::projects::Choice>),
@@ -433,6 +435,7 @@ impl Session {
             context_storage: Default::default(),
             context_record: None,
             context_membership: None,
+            context_management: None,
             context_root_identity: None,
             context_unavailable: Vec::new(),
             context_positions: Default::default(),
@@ -1051,6 +1054,14 @@ impl Session {
             Command::WorkspaceAddDirectory => self.workspace_add_directory(),
             Command::WorkspaceAddProject => self.workspace_add_project(),
             Command::WorkspaceRemoveRoot => self.workspace_remove_root(),
+            command @ (Command::ProjectRename
+            | Command::ProjectForget
+            | Command::ProjectSetRoot
+            | Command::ProjectPromoteToWorkspace
+            | Command::ProjectDuplicateAsWorkspace
+            | Command::WorkspaceRename
+            | Command::WorkspaceForget
+            | Command::WorkspaceSetRootPath) => self.manage_context(command),
             Command::SaveBuffer => self.save_buffer(),
             Command::RevertBuffer => self.revert_buffer(),
             Command::AiSaveCommand => self.ai_save_command(),

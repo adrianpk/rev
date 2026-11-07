@@ -190,6 +190,9 @@ impl Session {
         if self.git.engine.busy() {
             return self.error("Git cleanup remains owned; exit requires its guarded completion");
         }
+        if self.context_management.is_some() {
+            return self.capture_management();
+        }
         if self.context_checkpoint_needed() {
             return self.checkpoint_context(goal);
         }
@@ -235,6 +238,7 @@ impl Session {
         if quitting {
             self.context_prepared = None;
             self.context_membership = None;
+            self.context_management = None;
             self.cancel_terminal_shutdown();
             self.cancel_git_shutdown();
             self.pending = None;

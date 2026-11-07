@@ -29,6 +29,14 @@ Invoke these names through M-x or modal colon. They add no default bindings.
 | `workspace-add-directory` | Append an existing directory to the active Workspace. |
 | `workspace-add-project` | Select a Project and append only its directory, retaining optional provenance. |
 | `workspace-remove-root` | Select a root and resolve only files that lose coverage before committing removal. |
+| `project-rename` | Select a Project and change only its display name. |
+| `project-forget` | Remove Project metadata; active live work becomes a temporary directory. |
+| `project-set-root` | Select a Project and an existing replacement directory without moving files. |
+| `project-promote-to-workspace` | Convert a Project atomically to a fresh Workspace; active dirty text stays live. |
+| `project-duplicate-as-workspace` | Resolve source decisions, retain the Project and open an independent Workspace copy of its file session. |
+| `workspace-rename` | Select a Workspace and change only its display name. |
+| `workspace-forget` | Remove Workspace metadata; active work resolves source decisions and closes the context. |
+| `workspace-set-root-path` | Select a Workspace/root identity and an existing replacement directory. |
 
 Names are trimmed, case-sensitive and preserve Unicode. Empty names, control
 characters and duplicate names within the same artifact type are rejected while
@@ -99,6 +107,51 @@ cannot relocate a registered root or one of its ancestor directories.
 
 M-x works while the tree owns input. Modal colon belongs to Normal/Visual source
 editing; use C-g to return from tree focus before entering a colon command.
+
+## Lifecycle operations
+
+Lifecycle commands first select a Project or Workspace by typed identity, even
+when another context is active. Rename changes only the name and record revision;
+roots, selected snapshots and live buffers remain intact. Forget asks for `yes`
+and removes only registration and its owned session. Forgetting an active Project
+retains dirty buffers, positions and views in a temporary directory context.
+Forgetting an inactive artifact leaves current work unchanged. An active Workspace
+uses native clock, source and owned-job departure before removal, then closes to
+standalone editing with no chosen replacement root. Source directories and copied
+Workspace roots remain usable.
+
+`project-set-root` and `workspace-set-root-path` validate an existing replacement
+directory. Workspace relocation also selects the root by its ordinal, label and
+path. Artifact and root IDs remain stable; ordered root membership and its
+matching session revision advance together. Root-relative file and active-file
+references follow the new path; absolute loose entries retain their paths.
+Unavailable relative files remain saved entries with diagnostics. Source files
+are never moved or copied, and other artifacts retain their own paths. Another
+Project's directory and duplicate Workspace membership are rejected. Active
+relocation resolves source decisions and stages the remapped disk-backed session
+before publication; cancellation or storage failure retains live sources.
+
+`project-promote-to-workspace` asks for the new Workspace name, allocates fresh
+Workspace/root identities and remaps the source file and active references. Its
+single catalog replacement adds the Workspace/session and consumes the Project.
+Active conversion preserves live dirty text, buffer identities, histories and
+views without reopening them; inactive conversion uses the saved Project session
+and retains the current context. Unsaved text is never stored in the catalog.
+
+`project-duplicate-as-workspace` retains the original Project and its selected
+snapshot. It initializes a fresh independent Workspace from the active Project's
+file positions or its inactive saved session, then activates it. Native
+save/discard/cancel resolves modified and unnamed buffers in the departing
+context first. Cancel creates nothing. Discard restores the destination from
+disk; an approved save retains its ordinary filesystem effects. Later session
+checkpoints belong only to their selected artifact. Both artifacts still refer
+to the same source files, so external-change handling remains applicable.
+
+C-g cancels any picker or prompt before publication. Busy, stale, invalid or
+unsupported state never resets the catalog or removes source files. Root
+observations and source stamps are checked again before the durable replacement.
+A damaged selected snapshot blocks relocation/conversion/duplication; rename and
+forget remain available to manage its registration without interpreting it.
 
 ## Storage and ownership
 

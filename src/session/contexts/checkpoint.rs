@@ -19,6 +19,7 @@ pub(super) struct After {
     goal: Option<Goal>,
     roots: Vec<(PathBuf, (u64, u64))>,
     membership: Option<Box<Membership>>,
+    management: bool,
 }
 pub(super) struct Capture {
     after: After,
@@ -44,6 +45,19 @@ impl Session {
                 .context_prepared
                 .as_ref()
                 .is_some_and(|r| r.registration.is_some())
+    }
+    pub(in crate::session) fn capture_management(&mut self) -> Action {
+        self.start_context_capture(None, None, None, None)
+    }
+    pub(super) fn management_captured(&mut self, after: After, candidate: Catalog) -> Action {
+        if !after.management
+            || after.generation != self.context_generation
+            || !self.buffers.iter().map(|b| b.stamp()).eq(after.stamps)
+        {
+            self.context_management = None;
+            return self.error("Context source changed before publication; live work retained");
+        }
+        self.management_candidate(candidate)
     }
     pub(in crate::session) fn checkpoint_context(&mut self, goal: Goal) -> Action {
         self.start_context_capture(None, Some(goal), None, None)
@@ -74,10 +88,12 @@ impl Session {
         let Some(catalog) = self.context_storage.catalog.clone() else {
             return self.error("Context catalog is unavailable; live sources retained");
         };
+        let management = self.management_change();
         let owner = promotion
             .clone()
             .map(Record::Project)
-            .or_else(|| self.context_record.clone());
+            .or_else(|| self.context_record.clone())
+            .filter(|r| !management.as_ref().is_some_and(|m| m.forgets(&r.context())));
         if self
             .context_record
             .as_ref()
@@ -94,6 +110,11 @@ impl Session {
         let mut roots = Vec::new();
         if let Some(owner) = &owner {
             match owner {
+                Record::Project(project) if self.management_relocating() => {
+                    if let Some(identity) = observe(project.root.path.as_path()) {
+                        roots.push((project.root.path.as_path().to_owned(), identity));
+                    }
+                }
                 Record::Project(project) => {
                     let Some(identity) = promotion_identity.or(self.context_root_identity) else {
                         return self
@@ -174,6 +195,7 @@ impl Session {
             goal,
             roots,
             membership,
+            management: management.is_some(),
         };
         self.input.cancel();
         self.pending = None;
@@ -237,6 +259,10 @@ impl Session {
         } = *capture;
         let roots = after.roots.clone();
         let membership = after.membership.as_ref().map(|m| m.next.clone());
+        let after_management = after.management;
+        let management = self
+            .management_change()
+            .map(|change| (change, self.management_capture_source()));
         if let Err(e) = self
             .context_storage
             .job
@@ -254,7 +280,11 @@ impl Session {
                     entries,
                     unavailable,
                     membership,
+                    management,
                 )?;
+                if after_management {
+                    return Ok(Output::Candidate(candidate));
+                }
                 let prepared = catalog.prepare(candidate).map_err(|e| e.to_string())?;
                 if cancel.is_cancelled() {
                     return Err("Context publication canceled before effects".into());
@@ -339,6 +369,7 @@ fn candidate(
     entries: Vec<Captured>,
     unavailable: Vec<FileEntry>,
     membership: Option<Workspace>,
+    management: Option<(super::management::Change, bool)>,
 ) -> Result<Catalog, String> {
     let mut candidate = catalog.clone();
     let mut snapshot = Snapshot::default();
@@ -381,7 +412,9 @@ fn candidate(
         if snapshot.files.len() > context::MAX_FILES {
             return Err("Context session file capacity exceeded".into());
         }
-        if owner.current(&candidate).is_some() {
+        if !management.as_ref().is_some_and(|(_, captured)| *captured)
+            && owner.current(&candidate).is_some()
+        {
             owner.checkpoint(&mut candidate, snapshot.clone(), membership.as_ref())?;
         }
     }
@@ -390,11 +423,14 @@ fn candidate(
             .as_ref()
             .is_some_and(|o| o.context() == registration.context())
         {
-            snapshot
+            snapshot.clone()
         } else {
             Snapshot::default()
         };
         registration.insert(&mut candidate, initial)?;
+    }
+    if let Some((change, capture_source)) = management {
+        change.apply(&mut candidate, capture_source.then_some(snapshot))?;
     }
     Ok(candidate)
 }

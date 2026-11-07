@@ -1,4 +1,5 @@
 mod checkpoint;
+pub(super) mod management;
 pub(super) mod positions;
 pub(super) mod projects;
 pub(super) mod record;
@@ -258,6 +259,7 @@ impl Session {
     /// canceled, reclaim the staged context instead of retaining a hidden job.
     pub(super) fn retire_context_preparation(&mut self) {
         self.retire_workspace_membership();
+        self.retire_management();
         let Some(replacement) = &self.context_prepared else {
             return;
         };

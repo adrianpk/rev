@@ -48,6 +48,14 @@ Every command below is also available as `M-x` followed by its exact name.
 | `M-x workspace-add-directory`, `:workspace-add-directory` | `workspace-add-directory` | Append an existing directory to the active Workspace. |
 | `M-x workspace-add-project`, `:workspace-add-project` | `workspace-add-project` | Append a Project directory without importing its saved files. |
 | `M-x workspace-remove-root`, `:workspace-remove-root` | `workspace-remove-root` | Resolve only files losing coverage and remove their root membership. |
+| `M-x project-rename`, `:project-rename` | `project-rename` | Select a Project and change only its display name. |
+| `M-x project-forget`, `:project-forget` | `project-forget` | Remove Project metadata; active live work becomes a temporary directory. |
+| `M-x project-set-root`, `:project-set-root` | `project-set-root` | Select a Project and an existing replacement directory without moving files. |
+| `M-x project-promote-to-workspace`, `:project-promote-to-workspace` | `project-promote-to-workspace` | Convert a Project atomically to a fresh Workspace; active dirty text stays live. |
+| `M-x project-duplicate-as-workspace`, `:project-duplicate-as-workspace` | `project-duplicate-as-workspace` | Resolve source decisions, retain the Project and open an independent Workspace copy of its file session. |
+| `M-x workspace-rename`, `:workspace-rename` | `workspace-rename` | Select a Workspace and change only its display name. |
+| `M-x workspace-forget`, `:workspace-forget` | `workspace-forget` | Remove Workspace metadata; active work resolves source decisions and closes the context. |
+| `M-x workspace-set-root-path`, `:workspace-set-root-path` | `workspace-set-root-path` | Select a Workspace/root identity and an existing replacement directory. |
 | `M-x context-close`, `:context-close` | `context-close` | Resolve current source work, close its context and continue in an empty standalone buffer. |
 | `C-x C-s` | `save-buffer` | Save to the current destination. |
 | `C-x C-w` | `write-file` | Request another destination. |

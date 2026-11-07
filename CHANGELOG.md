@@ -12,6 +12,10 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 - Work with standalone files, temporary directories, named Projects and multi-root
   Workspaces. Create or promote a Project while retaining live work, or collect
   independent directories in a Workspace without importing Project sessions.
+  Rename or forget saved contexts without deleting files, relocate roots after
+  directories move, and convert or duplicate Projects as independent Workspaces.
+  Active conversion retains unsaved text; duplication resolves source decisions
+  before creating its destination.
   Select either by name to restore its files, loose files and source positions.
   Workspace roots keep separate tree routes, and removal resolves only files
   losing coverage while retaining directories and other open work. Leaving or

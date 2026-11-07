@@ -135,3 +135,21 @@ describes path completion in detail.
 Next: [Set Your Preferences](09-preferences.md).
 
 [Previous](04-search-and-commands.md) · [User Guide](index.md)
+
+## Manage saved contexts
+
+Use `project-rename` or `workspace-rename` to select an artifact and edit its name.
+Use `project-forget` or `workspace-forget` and type `yes` to remove its metadata.
+An active forgotten Project keeps its live work as a temporary directory. An
+active Workspace resolves source decisions and closes without choosing one of
+its roots as a replacement directory. Neither command deletes source files.
+
+If a directory moved, use `project-set-root` or `workspace-set-root-path` and
+select its existing replacement path. Relative saved files follow that path;
+missing files remain diagnosed entries. The command does not move directories.
+
+Use `project-promote-to-workspace` to convert a Project and retain active dirty
+text. Use `project-duplicate-as-workspace` to keep the Project and open a separate
+Workspace session. Duplication asks for source decisions first; C-g creates
+nothing. See [Lifecycle operations](../../reference/contexts.md#lifecycle-operations)
+for identity, relocation and session details.

@@ -33,6 +33,14 @@ impl Session {
                 | Command::WorkspaceAddDirectory
                 | Command::WorkspaceAddProject
                 | Command::WorkspaceRemoveRoot
+                | Command::ProjectRename
+                | Command::ProjectForget
+                | Command::ProjectSetRoot
+                | Command::ProjectPromoteToWorkspace
+                | Command::ProjectDuplicateAsWorkspace
+                | Command::WorkspaceRename
+                | Command::WorkspaceForget
+                | Command::WorkspaceSetRootPath
                 | Command::Buffer(_)
                 | Command::Split(_)
                 | Command::Window(_)

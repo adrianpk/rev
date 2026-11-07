@@ -525,3 +525,6 @@ mod projects;
 
 #[path = "workspaces.rs"]
 mod workspaces;
+
+#[path = "management.rs"]
+mod management;
