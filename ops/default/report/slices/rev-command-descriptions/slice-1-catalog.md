@@ -1,11 +1,12 @@
 # Slice 1: Complete descriptions
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-command-descriptions
 Plan: [Command Descriptions Delivery](../../../plan/rev-command-descriptions.md)
 Tracker: [Command Descriptions Tracker](../../../tracker/rev-command-descriptions.md)
 Branch: `feat/rev-command-descriptions-01-catalog`
 PR: `#307`
+Integrated: `bc32ff49587305185702c499010678c742795d19`
 
 ## Purpose
 
@@ -32,8 +33,8 @@ guard and native selector checks.
 T1.3: `489f3641fa50c17e5b965d1cba92a1452c2b5b2a` updates the command
 reference, Markdown User Guide, Unreleased notes and this report. Its commit is
 the report's immutable introduction. Canonical
-[PR #307](https://forge.adrianpk.com/adrianpk/rev/pulls/307) targets `dev`;
-integration remains pending.
+[PR #307](https://forge.adrianpk.com/adrianpk/rev/pulls/307) merged into `dev`
+at `bc32ff49587305185702c499010678c742795d19` on 2026-11-07.
 
 The public optional accessor delegates static summaries to the existing family
 owners. Parameterized requests use their canonical action summary. No parallel
@@ -84,9 +85,12 @@ combined inventory, 289 configuration entries, 91 reachable pages and 623 local
 links/anchors. The Spore build projected and rendered all 91 Markdown pages
 under ignored build output. No preview server or external publication was used.
 
-The final exact clean-HEAD evidence belongs to the controller validation receipt
-after the PR-reference commit. These are focused slice checks; integration,
-the dev gate and delivery-set closure remain controller-owned.
+The controller validator passed all nine ordered commands on the exact clean
+PR-reference HEAD `bc32ff49587305185702c499010678c742795d19`, which is also the
+verified integrated commit. This evidence covers the focused slice checks.
+The controller owns the integrated gate on the next clean dev candidate after
+these delivery entries are committed; that gate and delivery-set closure remain
+pending.
 
 During authoring, the catalog guard rejected wording altered during metadata
 generation; the exact approved summaries were restored. The hint-color check
@@ -95,6 +99,7 @@ secondary-text role through the final terminal cell. Focused reruns passed.
 
 ## Risks and Follow-ups
 
-No unresolved implementation risk is recorded. This report remains in review
-until canonical integration and the controller-owned gate complete. The ticket
-and approved delivery artifacts remain open for controller-owned closure.
+No unresolved implementation risk is recorded. Slice 1 is integrated and its
+delivery entries are closed. The ticket and approved delivery artifacts remain
+open until the controller-owned integrated gate passes and final closure is
+authorized by the current phase.
