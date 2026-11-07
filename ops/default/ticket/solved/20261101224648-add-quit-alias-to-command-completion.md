@@ -1,7 +1,13 @@
 ---
 id: TKT-20261101224648
 title: Add quit alias to command completion
-status: open
+status: solved
+resolution: fixed
+closed_at: 2026-11-07T21:59:14Z
+reviewed_at: 2026-11-07T21:59:14Z
+started_at: 2026-11-07T21:50:54Z
+branch: dev
+ready_at: 2026-11-07T21:50:54Z
 kind: task
 severity: unclassified
 priority: unclassified
@@ -9,7 +15,7 @@ scope: ui
 tags: commands, completion, modal
 source: chat
 reported_at: 2026-11-01T22:46:48Z
-commits: []
+commits: [ff19b4cd74313aadaab9455c346661c013250a32]
 ---
 
 # Add quit alias to command completion
@@ -36,9 +42,9 @@ without adding Vim Ex spellings or force-quit behavior.
 - Retain normal matching and completion behavior for other commands. This
   ticket does not introduce a separate modal command parser.
 
-## Current source observations
+## Capture-time source observations
 
-`src/command.rs` names the exit command `save-buffers-kill-terminal`. Its current
+`src/command.rs` named the exit command `save-buffers-kill-terminal`. Its
 name lookup and candidate matching use the fixed command catalog. The colon
 selector uses the same command interface as M-x; the alias must participate in
 that interface rather than exist only as a display label.
@@ -51,7 +57,26 @@ for clean sessions and modified buffers. Check saving, discarding and canceling
 an exit, including Escape cancellation in the modal profile. Preserve existing
 command lookup, completion, keybindings and catalog consistency.
 
-## Delivery boundary
+## Delivery
 
-Capture this as later work. Ticket creation does not implement the alias or
-start a delivery loop.
+The owner selected this bounded ticket for implementation on 2026-11-07.
+It is delivered directly on dev with the existing command catalog and exit owner.
+
+## Resolution
+
+Implemented in `ff19b4cd74313aadaab9455c346661c013250a32`. The quit spelling stays visible in the
+selector and its usage history, while dispatch, configured bindings, descriptions
+and shortcut inspection resolve to the existing guarded exit action.
+
+## Validation
+
+- Native command tests cover q/qu/qui completion, both editing profiles, shared
+  descriptions, effective shortcuts, configured alias bindings and absent Ex spellings.
+- Native recovery tests compare both names and C-x C-c for clean exit, save,
+  discard and cancellation, including the normal modal Escape deadline.
+- Existing exit recovery, selector selection, command catalog and description
+  guards pass. Org startup and repeated drawer-command regressions also pass.
+- Two real terminal sessions complete qui to quit, show the inherited shortcut,
+  exit successfully and restore terminal state without changing source files.
+- Formatting, Clippy, the 623-name documentation catalog and local Markdown-derived
+  Spore guide build pass.
