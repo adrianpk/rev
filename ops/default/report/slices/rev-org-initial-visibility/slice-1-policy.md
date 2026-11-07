@@ -1,11 +1,12 @@
 # Slice 1: Initial visibility and drawers
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-org-initial-visibility
 Plan: [Org Initial Visibility Delivery](../../../plan/rev-org-initial-visibility.md)
 Tracker: [Org Initial Visibility Tracker](../../../tracker/rev-org-initial-visibility.md)
 Branch: `feat/rev-org-initial-visibility-01-policy`
 PR: `#310`
+Integrated: `414fb6ac0f0321211b9b07ebf2b1c34c384e42e7`
 
 ## Purpose
 
@@ -41,7 +42,8 @@ T1.1 and T1.2 share that coherent runtime/acceptance commit; T1.3 product
 documentation is included there. This report and the reviewing ticket transition
 complete T1.3. Canonical PR [#310](https://forge.adrianpk.com/adrianpk/rev/pulls/310) targets dev.
 Report-introduction commit: `b8b5df26589b91b533af023ef1ae75eef312e9c1`.
-The PR-reference commit changes delivery metadata only.
+The PR-reference commit changes delivery metadata only. Canonical PR #310 was
+merged through Rebase + Fast-forward into dev at `414fb6ac0f0321211b9b07ebf2b1c34c384e42e7`.
 
 The existing bounded observation worker resolves metadata. The visibility owner
 retains heading levels and drawer bits; checked source ranges install atomically.
@@ -106,8 +108,12 @@ Focused AI-result checks passed 6 cases and configuration-reference checks passe
 Documentation checked 91 reachable pages and 628 local links/anchors; Spore
 strict check, link validation, rendering and anchor finishing passed.
 
+The twelve-command slice validation receipt covers clean PR HEAD
+`414fb6ac0f0321211b9b07ebf2b1c34c384e42e7`. The controller-owned integrated
+gate is pending after this delivered-document preparation.
+
 ## Risks and Follow-ups
 
-No unresolved implementation failures. Merge, the integrated full gate and
-delivery-set closure remain controller-owned. No external provider or fixture
+No unresolved implementation failures. Slice 1 is integrated. The integrated
+full gate and delivery-set closure remain controller-owned. No external provider or fixture
 was started, and no installation or publication was performed.

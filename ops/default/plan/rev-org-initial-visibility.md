@@ -11,7 +11,7 @@ Model: [Org Visibility Policy](../spec/editor-org-initial-visibility-model.md)
 Tracker: [Org Initial Visibility Tracker](../tracker/rev-org-initial-visibility.md)
 Ticket: [TKT-20261103111614](../ticket/reviewing/20261103111614-configure-org-drawer-visibility.md)
 Concern: [Pending Editor Work](../README.md)
-Active slice: Slice 1 - Initial visibility and drawers
+Active slice: none; Slice 1 of 1 delivered
 
 ## Outcome and slicing
 
@@ -113,6 +113,11 @@ binary. Verify free space before startup and do not alter other active builds
 or remove source/uncertain files to create capacity.
 
 ## Gate preparation and closure
+
+Slice 1 is delivered through canonical PR #310, integrated into dev at
+`414fb6ac0f0321211b9b07ebf2b1c34c384e42e7`. The report is delivered and the source
+ticket remains reviewing. Native gate prerequisites are available; the unchanged
+controller-owned integrated gate is pending.
 
 Keep the ticket reviewing and reports delivered for the integrated gate.
 After it passes, solve the ticket with resolution fixed and real lifecycle

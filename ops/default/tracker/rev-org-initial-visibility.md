@@ -1,6 +1,6 @@
 # Org Initial Visibility Tracker
 
-Status: Reviewing
+Status: Awaiting gate
 Date: 2026-11-07
 Delivery set: rev-org-initial-visibility
 Approved: product owner requested the specification, plan and Looper delivery
@@ -9,7 +9,7 @@ Specification: [Org Initial Visibility and Drawers](../spec/editor-org-initial-v
 Model: [Org Visibility Policy](../spec/editor-org-initial-visibility-model.md)
 Ticket: [TKT-20261103111614](../ticket/reviewing/20261103111614-configure-org-drawer-visibility.md)
 Concern: [Pending Editor Work](../README.md)
-Active slice: Slice 1 - Initial visibility and drawers
+Active slice: none; Slice 1 of 1 delivered
 Progress owner: retained Looper checkpoint and canonical validation evidence
 
 ## Canonical slice map
@@ -20,10 +20,11 @@ Progress owner: retained Looper checkpoint and canonical validation evidence
 
 ## Slice 1: Initial visibility and drawers
 
-State: reviewing
+State: delivered
 Requirements: OIV01-OIV05 and the approved model
 Branch: `feat/rev-org-initial-visibility-01-policy`
 PR: `#310`
+Integrated: `414fb6ac0f0321211b9b07ebf2b1c34c384e42e7`
 Report: `ops/default/report/slices/rev-org-initial-visibility/slice-1-policy.md`
 Validation: the twelve exact ordered commands in the plan and local configuration
 
@@ -44,11 +45,12 @@ Validation: the twelve exact ordered commands in the plan and local configuratio
 
 ## Final gate and closure
 
-- [ ] Verify canonical slice PR integration and delivered report evidence.
+- [x] Verify canonical slice PR integration and delivered report evidence.
 - [ ] Run the unchanged selected gate on exact clean dev and record its receipt.
 - [ ] Solve the ticket with resolution fixed and real commit/PR/lifecycle fields.
 - [ ] Complete plan, tracker, specification and model and reconcile the index.
 - [ ] Verify documentation-only closure preserves runtime and guide inputs.
 
-Preparation does not claim implementation or a successful gate. Quit alias,
+Slice 1 of 1 is delivered; the controller-owned integrated gate is pending.
+The source ticket remains reviewing until that gate passes. Quit alias,
 startup session restoration and other capability proposals remain separate.
