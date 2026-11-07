@@ -16,15 +16,16 @@ context; existing modified buffers require save/discard/cancel first. Its root
 survives files opened inside or outside it until
 another explicit directory replaces it. Without that choice, automatic roots
 follow the visiting file's resolved parent; explicit `tree.root = "cwd"` retains
-launch cwd. A session without a file uses its chosen directory or launch cwd.
+launch cwd. A standalone context without a file uses launch cwd when browsing is requested.
+Project roots and Workspace membership follow their [context ownership](contexts.md).
 Drawing and visible movement perform no filesystem reads or Git discovery.
 
 Tree visibility does not determine context kind. Showing the tree while editing
 standalone files uses the same file-parent/cwd browsing policy and preserves
 those buffers. Opening a directory never registers a Project or reads/replaces
 its saved session, even when that path is already registered. `context-close`
-resolves sources and owned jobs, then continues with one empty standalone buffer
-and a hidden tree. Bookmarks, command histories and kill-ring text remain available.
+resolves sources and owned jobs, then shows the startup screen over fresh standalone
+work with a hidden tree. Bookmarks, command histories and kill-ring text remain available.
 
 ## Workspace roots
 

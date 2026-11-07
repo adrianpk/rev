@@ -23,6 +23,8 @@ Use this section to look up exact behavior. For a guided start, read the
 - [Gallery](gallery.md): screenshots of rev in use, newest first.
 - [Files, directories, Projects and Workspaces](contexts.md): explicit registration, peer roots, selection and saved file sessions.
 
+- [Context state](context-state.md): exact TOML records, source coordinates, capacity and publication failures.
+
 ## Preferences and display
 
 - [Scope and defaults](defaults.md): startup discovery, the configuration catalog, file fidelity and limits.

@@ -31,6 +31,22 @@ Its [tracker](../tracker/rev-command-keybinding-hints.md) owns the separate
 hint-delivery validation and closure. This reconciliation preserves the original
 interaction candidate, ranking evidence and completed gate above.
 
+## Context ownership reconciliation
+
+The approved [Files, Directories, Projects and Workspaces](editor-projects-workspaces.md)
+contract refines opening and root ownership in Slice 8 of its
+[delivery](../plan/rev-projects-workspaces.md). Explicit files visit the current
+context; accepted directories prepare a fresh temporary context after native
+save/discard/cancel and owned-work departure. Cancellation retains current work;
+previously approved ordinary saves retain their filesystem effects. Opening a
+registered path does not resume or overwrite that Project's file session.
+Project/Workspace selection restores sessions explicitly, and Workspace roots
+remain ordered independent members. No-target executable startup shows the
+native five-action screen. Showing the tree does not change context identity.
+This reconciliation preserves all historical candidates, gates and completed
+statuses above; the context tracker owns its separate validation and closure.
+Pending tree-selection synchronization remains separate work.
+
 ## Native Org projection compatibility
 
 [Native Org](editor-org-mode.md) retains these panel, focus, clipping and prompt
@@ -135,10 +151,13 @@ refreshes SHALL preserve checked candidate identity or report its disappearance.
 Return after explicit navigation SHALL accept that candidate. Otherwise it
 SHALL accept the typed draft, including a genuinely new file, without forcing
 the first suggestion. An accepted directory SHALL close the prompt and open
-its browsing context; an empty draft SHALL accept the base directory. New files
-remain in-memory until save. Existing file identity/buffer reuse and unsaved
-text SHALL be preserved. C-g and failed operations SHALL preserve prior usable
-editor state. Completion and selection SHALL NOT create filesystem content.
+a fresh temporary directory context after native source/clock/job departure;
+an empty draft SHALL accept the base directory. A file visit SHALL stay within
+the current context and reuse canonical live buffers. New files remain in-memory
+until save. C-g and failed preparation SHALL retain usable current work; approved
+ordinary saves retain their disk effects. Opening a directory SHALL NOT register
+or replay a Project session. Completion and selection SHALL NOT create filesystem
+content.
 
 #### Scenario: Complete first and choose whether to open
 

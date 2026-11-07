@@ -337,3 +337,29 @@ crate roots and shared/new acceptance modules. Only owned completed fixtures
 are removed. Use `--native`, `--pty` or `--resources` for focused development.
 The ordinary command runs all three; the combined delivery gate remains a
 separate controller operation.
+
+
+## Projects, Workspaces and startup
+
+From the repository root, run the context acceptance entrypoint:
+
+```sh
+env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 bash scripts/check-projects-workspaces.sh
+```
+
+It uses Rust/Cargo, Bash, Linux procfs, util-linux `script`, `stty`, `kill` and
+GNU `timeout`, with isolated source files, HOME/XDG state and owned PTYs. No
+provider, user catalog or external service is required. Native cases cover
+ordinary and count/encoded-byte boundaries, cancellation, overflow preservation,
+two 512-file restore/checkpoint rounds and resource return. Printed service,
+resize, RSS, FD/thread and CPU observations describe that run; fixed storage
+capacities are not portable latency or memory guarantees.
+
+One bounded journey per profile starts three editors serially: no-target
+startup, explicit file and explicit directory. RGB/non-modal and NO_COLOR/modal
+paths exercise the startup screen, temporary opening of a registered directory,
+Project promotion, independent Workspace sessions, roots, conversion and
+canceled duplication. Each editor has an eight-second/1 MiB bound; profile and
+native groups have their own outer guards. The fixture checks source and
+configuration bytes, terminal restoration and owned-child cleanup.
+This focused entrypoint does not replace the controller's combined delivery gate.

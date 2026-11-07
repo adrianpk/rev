@@ -12,6 +12,8 @@ The tree is a separate filesystem view. It is not part of the editing-pane
 cycle. An explicitly opened directory remains its root across file visits.
 Otherwise the default follows the visiting file's parent, falling back to the
 launch directory without a file; `tree.root = "cwd"` retains the launch directory.
+Projects retain one explicit root; Workspaces retain ordered independent roots.
+See [Editing contexts](editing-contexts.md) for their ownership.
 
 ## Saving and history
 
@@ -27,7 +29,9 @@ you a chance to retain both versions before overwriting anything.
 
 Closing a modified buffer or quitting asks what to do with its text. Canceling
 keeps the session alive. A new process reads saved files with fresh undo history;
-rev does not restore a previous session automatically.
+rev does not restore the last application session automatically. Explicit
+Project/Workspace selection restores saved file references and source positions,
+with fresh file contents and history.
 
 See [Use Buffers and Panes](../tutorials/user-guide/03-buffers-and-panes.md)
 for a short exercise and [Failure recovery](../reference/recovery.md) for

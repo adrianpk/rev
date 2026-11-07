@@ -63,6 +63,22 @@ Org delivery acceptance is still pending its own controller gate; the three
 earlier validated candidates above and in the configuration baseline remain
 historical evidence for their original deliveries.
 
+## Context ownership reconciliation
+
+The approved [Files, Directories, Projects and Workspaces](editor-projects-workspaces.md)
+contract refines opening and root ownership in Slice 8 of its
+[delivery](../plan/rev-projects-workspaces.md). Explicit files visit the current
+context; accepted directories prepare a fresh temporary context after native
+save/discard/cancel and owned-work departure. Cancellation retains current work;
+previously approved ordinary saves retain their filesystem effects. Opening a
+registered path does not resume or overwrite that Project's file session.
+Project/Workspace selection restores sessions explicitly, and Workspace roots
+remain ordered independent members. No-target executable startup shows the
+native five-action screen. Showing the tree does not change context identity.
+This reconciliation preserves all historical candidates, gates and completed
+statuses above; the context tracker owns its separate validation and closure.
+Pending tree-selection synchronization remains separate work.
+
 ## Scope and priority
 
 Priorities, in order:
@@ -175,7 +191,7 @@ Configuration SHALL NOT introduce a scripting or theme-package runtime.
 #### Scenario: Ordinary offline editing
 
 - **GIVEN** a supported terminal with no network connection and the default non-modal profile
-- **WHEN** the user launches `rev` and types ordinary text
+- **WHEN** the user launches `rev`, chooses New Buffer and types ordinary text
 - **THEN** an editable terminal buffer receives the text directly
 - **AND** no interpreter, language server, or external editor service is required.
 
@@ -183,12 +199,14 @@ Configuration SHALL NOT introduce a scripting or theme-package runtime.
 
 Source: section 4.1. Acceptance: A01, A04.
 
-Launching `rev` without arguments MUST create an initially empty editable
-buffer and one editing window. **Design default:** one positional path opens
-that file, or a new unsaved visiting buffer if the path does not exist. A directory
-target SHALL choose that explicit tree root, show its immediate entries and focus
-the tree without replacing live documents or changing the process directory.
-Multiple positional paths MAY be added after the baseline is complete.
+Launching `rev` without arguments MUST show the native startup screen with
+New Buffer, Open File, Open Dir, Open Project and Open Workspace in that order.
+New Buffer SHALL start standalone editing after any retained context's checked
+departure. One positional file path SHALL bypass the screen and open that file,
+or a new visiting buffer if the path does not exist. A directory target SHALL
+open a temporary context, show its immediate tree entries and focus the tree
+without changing the process directory. Only zero or one OS path argument is
+accepted; no command-line flags or shell evaluation are added.
 Initialization failures MUST be legible in the original terminal and produce
 a nonzero exit status when startup cannot complete.
 
@@ -484,10 +502,13 @@ refreshes SHALL preserve checked candidate identity or report its disappearance.
 Return after explicit navigation SHALL accept that candidate. Otherwise it
 SHALL accept the typed draft, including a genuinely new file, without forcing
 the first suggestion. An accepted directory SHALL close the prompt and open
-its browsing context; an empty draft SHALL accept the base directory. New files
-remain in-memory until save. Existing file identity/buffer reuse and unsaved
-text SHALL be preserved. C-g and failed operations SHALL preserve prior usable
-editor state. Completion and selection SHALL NOT create filesystem content.
+a fresh temporary directory context after native source/clock/job departure;
+an empty draft SHALL accept the base directory. A file visit SHALL stay within
+the current context and reuse canonical live buffers. New files remain in-memory
+until save. C-g and failed preparation SHALL retain usable current work; approved
+ordinary saves retain their disk effects. Opening a directory SHALL NOT register
+or replay a Project session. Completion and selection SHALL NOT create filesystem
+content.
 
 #### Scenario: Complete first and choose whether to open
 
@@ -946,11 +967,14 @@ editor focus. Opening a file MUST use the common `find-file` machinery and
 display it in the selected editing window.
 
 **Design defaults:** `M-x toggle-file-tree` toggles the tree, with optional
-`C-x t t`. An accepted explicit directory SHALL remain the root across file
-visits. Otherwise `tree.root = "cwd"` SHALL use the launch directory; `auto`
+`C-x t t`. An accepted explicit directory SHALL remain its temporary context's
+root across file visits. Project/Workspace selection SHALL retain its own single
+root or ordered peer roots independently of tree visibility. In standalone
+browsing, `tree.root = "cwd"` SHALL use the launch directory; `auto`
 and `file-parent` SHALL follow the visiting file's parent, falling back to the
-launch directory without a file. An initially hidden tree SHALL expose its
-immediate entries on first presentation, leaving child directories collapsed.
+launch directory without a file. An initially hidden single-root tree SHALL
+expose its immediate entries on first presentation, leaving child directories
+collapsed. Workspace peer roots SHALL start collapsed and expand independently.
 Later hide/show SHALL preserve deliberate collapse, selection and scroll.
 Tree-specific public names MAY use `tree-open`, `tree-close`,
 `tree-refresh`, `tree-create`, `tree-rename`, and `tree-delete`. Exact tree keys

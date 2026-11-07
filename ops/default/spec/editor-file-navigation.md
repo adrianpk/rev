@@ -49,6 +49,22 @@ painting perform no new filesystem observation. Selection and active-buffer
 synchronization remain separate work. The presentation tracker owns its gate;
 the completed navigation candidate and receipt above retain their identity.
 
+## Context ownership reconciliation
+
+The approved [Files, Directories, Projects and Workspaces](editor-projects-workspaces.md)
+contract refines opening and root ownership in Slice 8 of its
+[delivery](../plan/rev-projects-workspaces.md). Explicit files visit the current
+context; accepted directories prepare a fresh temporary context after native
+save/discard/cancel and owned-work departure. Cancellation retains current work;
+previously approved ordinary saves retain their filesystem effects. Opening a
+registered path does not resume or overwrite that Project's file session.
+Project/Workspace selection restores sessions explicitly, and Workspace roots
+remain ordered independent members. No-target executable startup shows the
+native five-action screen. Showing the tree does not change context identity.
+This reconciliation preserves all historical candidates, gates and completed
+statuses above; the context tracker owns its separate validation and closure.
+Pending tree-selection synchronization remains separate work.
+
 ## ADDED Requirements
 
 ### Requirement: NAV01 Distinguish opening targets
@@ -69,14 +85,17 @@ and final acceptance SHALL remain distinct operations.
 
 - **GIVEN** an unsaved document and an accessible directory in find-file
 - **WHEN** the user explicitly accepts that directory as the opening target
-- **THEN** rev presents its browsing context
-- **AND** the document, unsaved changes and history remain available.
+- **THEN** rev requests native save/discard/cancel before replacing the context
+- **AND** cancel retains the document, unsaved changes and history
+- **AND** successful departure opens fresh temporary directory work without
+  registration or replay of a named Project session.
 
 ### Requirement: NAV02 Preserve explicit root intent
 
-An accepted explicit directory SHALL own the session's chosen tree root until
-another explicit directory choice replaces it. Visiting a file beneath that
-root SHALL NOT narrow it to the file's parent. Without an explicit root choice,
+An accepted explicit directory SHALL own its temporary context's chosen tree
+root until checked context replacement. Project roots and ordered Workspace
+membership SHALL use their explicit artifact ownership. Visiting a file beneath
+that root SHALL NOT narrow it to the file's parent. Without an explicit root choice,
 file-parent rooting SHALL apply according to the reconciled configuration
 precedence. Directory identity SHALL reuse existing checked path/alias rules.
 This context SHALL NOT grant AI transmission or filesystem authority.
@@ -90,8 +109,10 @@ This context SHALL NOT grant AI transmission or filesystem authority.
 
 ### Requirement: NAV03 Initialize first-level expansion once
 
-The first display of a newly initialized root SHALL reveal its immediate
-entries. Child directories SHALL stay collapsed until explicitly expanded.
+For a single-root browsing context, the first display of a newly initialized
+root SHALL reveal its immediate entries. Workspace peer roots SHALL start
+collapsed and expand independently under PW21. Child directories SHALL stay
+collapsed until explicitly expanded.
 Hide/show SHALL preserve deliberate later selection and expansion state.
 Directory observation SHALL remain bounded and outside rendering.
 
@@ -176,6 +197,7 @@ spelling without recursive discovery or incidental filesystem writes.
   visiting file's parent when present and launch cwd otherwise. Visiting files
   inside or outside a chosen explicit root preserves it; a subsequent explicit
   directory target replaces it. Path spelling alone does not establish intent.
+  This precedence governs standalone and temporary browsing; Project/Workspace roots remain artifact-owned.
 - Explicit directory opening requests a visible first-level-expanded tree even
   when startup tree.visible is false. File opening does not force visibility
   either way. A narrow terminal may temporarily hide the tree without losing
@@ -229,10 +251,13 @@ refreshes SHALL preserve checked candidate identity or report its disappearance.
 Return after explicit navigation SHALL accept that candidate. Otherwise it
 SHALL accept the typed draft, including a genuinely new file, without forcing
 the first suggestion. An accepted directory SHALL close the prompt and open
-its browsing context; an empty draft SHALL accept the base directory. New files
-remain in-memory until save. Existing file identity/buffer reuse and unsaved
-text SHALL be preserved. C-g and failed operations SHALL preserve prior usable
-editor state. Completion and selection SHALL NOT create filesystem content.
+a fresh temporary directory context after native source/clock/job departure;
+an empty draft SHALL accept the base directory. A file visit SHALL stay within
+the current context and reuse canonical live buffers. New files remain in-memory
+until save. C-g and failed preparation SHALL retain usable current work; approved
+ordinary saves retain their disk effects. Opening a directory SHALL NOT register
+or replay a Project session. Completion and selection SHALL NOT create filesystem
+content.
 
 #### Scenario: Complete first and choose whether to open
 

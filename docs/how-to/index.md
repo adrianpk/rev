@@ -17,6 +17,11 @@ session, start with the [User Guide](../tutorials/user-guide/index.md).
 - [Use integrated terminals](use-integrated-terminal.md): open shells, move live tools, copy output and close owned jobs.
 - [Run a shell command or text filter](run-shell-command.md): process selected unsaved text, insert output and inspect failures.
 
+## Saved contexts
+
+- [Compose a Workspace](compose-workspace.md): collect roots, remove membership, convert or duplicate a Project.
+- [Manage saved contexts](manage-saved-contexts.md): rename, reconnect moved roots and forget registrations while retaining source files.
+
 ## Git
 
 - [Review and commit changes](review-and-commit.md): exact paths, hunks, groups, discard, normal commits, amend and fixup.

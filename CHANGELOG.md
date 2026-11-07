@@ -9,23 +9,18 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 
 ### Added
 
-- Start `rev` with native New Buffer, Open File, Open Dir, Open Project and Open
-  Workspace actions, or open an explicit path directly. The startup screen keeps
-  current work available when a picker is canceled and fits small or color-free
-  terminals. Work with standalone files, temporary directories, named Projects and multi-root
-  Workspaces. Create or promote a Project while retaining live work, or collect
-  independent directories in a Workspace without importing Project sessions.
-  Rename or forget saved contexts without deleting files, relocate roots after
-  directories move, and convert or duplicate Projects as independent Workspaces.
-  Active conversion retains unsaved text; duplication resolves source decisions
-  before creating its destination.
-  Select either by name to restore its files, loose files and source positions.
-  Workspace roots keep separate tree routes, and removal resolves only files
-  losing coverage while retaining directories and other open work. Leaving or
-  quitting saves the context's file session after source decisions; unavailable
-  files and roots retain their metadata. `open-directory` keeps ordinary directory
-  work temporary, `generate-new-buffer` adds an unnamed buffer, and `context-close`
-  returns to the startup screen. All commands are available through M-x and modal colon.
+- [Work with files, Projects and Workspaces](docs/tutorials/user-guide/20-projects-and-workspaces.md).
+  Start `rev` with five native opening actions, or pass a file/directory directly.
+  Keep ordinary directory work temporary, promote it to a named Project while
+  retaining live edits, or collect independent roots in a Workspace. Return by
+  name to restore files, loose files and source positions after normal
+  save/discard/cancel decisions. Missing files and roots retain their metadata.
+  Rename or forget registrations without deleting sources, reconnect moved roots,
+  and convert or duplicate Projects as independent Workspace sessions. Root
+  removal resolves only files losing coverage. `dashboard-open` retains current
+  work behind the startup screen; `context-close` resolves it and returns there.
+  The screen fits small and color-free terminals. Context commands use M-x or
+  modal colon with existing bindings unchanged.
 
 ## 0.6.0 - 2026-11-06
 

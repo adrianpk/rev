@@ -10,6 +10,9 @@ A Workspace owns zero or more ordered directory roots and its own file session.
 It can contain plain directories and directories selected from Projects. Adding a
 Project directory retains its registration and does not import its saved files.
 
+For a guided exercise, see [Return to Projects and Workspaces](../tutorials/user-guide/20-projects-and-workspaces.md).
+For exact record fields and bounds, see [Context state](context-state.md).
+
 ## Commands
 
 Invoke these names through M-x or modal colon. They add no default bindings.
@@ -85,7 +88,9 @@ Nerd Fonts and pointer input are optional.
 ## File sessions
 
 Project and Workspace sessions contain file-backed buffers in native buffer
-order, the active file, logical cursor positions and source-anchored viewports. In-root files use
+order, the active file, one-based logical-line/Unicode-scalar cursor positions
+and source-anchored viewports. Pane splits, tree expansion and undo history are
+not restored. In-root files use
 root-relative references; explicitly visited outside files remain absolute loose
 files. Unnamed text, terminal contents, process handles and transient results are
 excluded. Promotion retains unsaved text in memory; it does not save that text
@@ -202,7 +207,9 @@ that warning as an unregistered context and create another copy.
 The initial bounds are 256 Projects, 128 Workspaces, 64 roots per Workspace, 512 files per
 session, 256 UTF-8 bytes per name, 4096 native bytes per path, 2 MiB per encoded
 session and 8 MiB per catalog. Overflow rejects the operation without truncating
-saved work. Restoration admits at most 16 files per cooperative pass. One owned
+saved work. Counts and encoded-byte limits apply together; simultaneous maxima
+need not fit. The [state reference](context-state.md) defines every field and
+publication failure. Restoration admits at most 16 files per cooperative pass. One owned
 IO job performs state reads, file ingress or publication; no polling remains for
 context work after it settles.
 

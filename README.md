@@ -40,6 +40,12 @@ Open Dir, Open Project and Open Workspace. An explicit path opens directly.
 If the file does not exist, saving
 creates it. The editor runs offline.
 
+Directory opening stays temporary. Use `M-x project-promote` to name the current
+directory while retaining live work, or `M-x workspace-create` to collect independent
+roots. Select a Project or Workspace by name to restore its file session.
+Follow [Return to Projects and Workspaces](docs/tutorials/user-guide/20-projects-and-workspaces.md)
+for a short exercise, or consult the [context reference](docs/reference/contexts.md).
+
 Startup preferences load from `$XDG_CONFIG_HOME/rev/config.toml`, defaulting to
 `~/.config/rev/config.toml`. See [startup configuration](docs/reference/defaults.md#startup-configuration)
 for discovery, defaults and the [complete reference sample](docs/reference/config.toml).

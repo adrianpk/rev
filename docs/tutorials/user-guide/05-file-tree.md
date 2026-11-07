@@ -26,8 +26,8 @@ the children. Source files use `λ`, configuration files `=`, other files `·`
 and symlinks `@`. The symbols remain useful without color.
 
 The tree starts at the parent directory of the file used to launch rev.
-Launching without a file uses the current directory. File visits follow the
-file's parent unless you chose a directory explicitly or configured cwd rooting.
+After New Buffer, manually showing the tree uses the launch directory. File
+visits follow the file's parent unless you chose a directory explicitly or configured cwd rooting.
 An explicit directory root stays selected when you visit files elsewhere.
 
 To return to the tree, press `C-x t f`. Right expands a directory; Left
@@ -59,36 +59,11 @@ do not register a named Project or overwrite a Project's saved session.
 `M-x generate-new-buffer` adds an unnamed buffer to your current work. To leave
 all current buffers while keeping rev open, run `M-x context-close`. It uses the
 same save/discard/cancel decisions as quitting and settles owned work before
-returning to an empty standalone buffer. In Vim-style editing, invoke the same
-names after `:`.
+returning to the startup screen over fresh standalone work. In Vim-style editing,
+invoke the same names after `:`.
 
-To keep this directory as a named Project, run `M-x project-promote`, edit the
-proposed name and press Enter. Your open buffers, unsaved text and views stay in
-place. Alternatively, `M-x project-create` chooses a directory and name before
-opening a fresh Project. Existing directory aliases offer the registered Project
-instead of replacing its saved session.
-
-Use `M-x project-switch-project` or `M-x project-list` to return by name. Type part
-of the name, Tab to fill the offered label and Enter to select it. Leaving a
-Project or quitting checkpoints its ordered file buffers and positions after
-source decisions. Loose files outside its root are included; unnamed text and
-terminal state are excluded. Missing files are reported and skipped without
-creating empty replacements. See [Project sessions](../../reference/contexts.md)
-for cancellation, state location and storage failure behavior.
-
-To collect several directories, run `M-x workspace-create` and enter a name.
-The empty Workspace offers `workspace-add-directory`. Add your backend and
-frontend directories with that command; each appears as a collapsed peer root.
-Use `workspace-add-project` to select a registered Project's directory while
-keeping its saved files independent. Expand and browse each root normally.
-
-Return with `workspace-open` or `workspace-list`. Its own files and positions
-restore, including loose files. Missing roots stay listed while available roots
-remain usable. `workspace-remove-root` removes membership, keeps files covered by
-another root and asks about dirty files that lose coverage. Cancel keeps the root
-and sources; removing the last root leaves a valid empty Workspace. See
-[Workspace roots](../../reference/contexts.md#workspace-roots) for the exact policy.
-M-x works from tree focus; C-g returns to modal source editing before `:`.
+The next chapter turns a temporary directory into a named Project, then builds
+an independent Workspace. See [Return to Projects and Workspaces](20-projects-and-workspaces.md).
 
 To combine browsing with editing, start with `rev .`, use `C-x C-f` and Tab to
 complete a file, then press Enter. Split with `C-x 3` and click another file in
@@ -132,24 +107,12 @@ The [file tree reference](../../reference/file-tree.md) covers file creation,
 rename, deletion and refresh. [Focused prompts](../../reference/prompts.md)
 describes path completion in detail.
 
-Next: [Set Your Preferences](09-preferences.md).
+Next: [Return to Projects and Workspaces](20-projects-and-workspaces.md).
 
 [Previous](04-search-and-commands.md) · [User Guide](index.md)
 
 ## Manage saved contexts
 
-Use `project-rename` or `workspace-rename` to select an artifact and edit its name.
-Use `project-forget` or `workspace-forget` and type `yes` to remove its metadata.
-An active forgotten Project keeps its live work as a temporary directory. An
-active Workspace resolves source decisions and returns to the startup screen without choosing one of
-its roots as a replacement directory. Neither command deletes source files.
-
-If a directory moved, use `project-set-root` or `workspace-set-root-path` and
-select its existing replacement path. Relative saved files follow that path;
-missing files remain diagnosed entries. The command does not move directories.
-
-Use `project-promote-to-workspace` to convert a Project and retain active dirty
-text. Use `project-duplicate-as-workspace` to keep the Project and open a separate
-Workspace session. Duplication asks for source decisions first; C-g creates
-nothing. See [Lifecycle operations](../../reference/contexts.md#lifecycle-operations)
-for identity, relocation and session details.
+Use [Manage saved contexts](../../how-to/manage-saved-contexts.md) to rename,
+reconnect or forget registrations. [Compose a Workspace](../../how-to/compose-workspace.md)
+covers independent membership, conversion and duplication.

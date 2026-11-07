@@ -5,6 +5,7 @@
     @page[id = "guide-03-buffers-and-panes"]
     @page[id = "guide-04-search-and-commands"]
     @page[id = "guide-05-file-tree"]
+    @page[id = "guide-20-projects-and-workspaces"]
     @page[id = "guide-09-preferences"]
     @page[id = "guide-10-complete-names"]
     @page[id = "guide-11-modal-editing"]

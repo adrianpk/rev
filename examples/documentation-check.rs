@@ -16,6 +16,7 @@ const EDITOR: &[&str] = &[
     "03-buffers-and-panes.md",
     "04-search-and-commands.md",
     "05-file-tree.md",
+    "20-projects-and-workspaces.md",
     "09-preferences.md",
     "10-complete-names.md",
     "11-modal-editing.md",
@@ -410,7 +411,7 @@ mod tests {
                 "editor next",
                 "05-file-tree.md",
                 "index.md",
-                Some("09-preferences.md"),
+                Some("20-projects-and-workspaces.md"),
                 true,
             ),
             (

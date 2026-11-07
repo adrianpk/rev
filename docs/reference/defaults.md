@@ -3,7 +3,9 @@
 ## Runtime and invocation
 
 The executable is `rev`. It runs in a terminal and accepts zero arguments or
-one file or directory path. With no path it opens an unnamed `*scratch*` buffer.
+one file or directory path. With no path it shows the native five-action
+[startup screen](contexts.md#startup-screen). New Buffer enters standalone work;
+an explicit path bypasses the screen.
 A nonexistent file path opens an empty visiting buffer without creating disk entries.
 An explicit directory target opens its visible, first-level-expanded tree.
 Otherwise the tree starts hidden unless configured visible; file visits use their
@@ -536,7 +538,9 @@ previous application's cursor color. See [Terminal input](terminal-input.md#pale
 - [Find-file](prompts.md) starts at the visiting file's parent, otherwise a chosen
   directory or launch cwd. Tab completes the highlighted full path, initially
   the first suggestion, and keeps the prompt open. Return accepts a directory
-  as its expanded tree context.
+  as a fresh temporary directory context after native source/departure decisions.
+  A file visit stays within the current context; an ordinary directory opening
+  never registers a Project or replays its saved session.
   Return uses an explicit selection, otherwise the freely typed filename, including
   a new name. Canonical aliases reuse dirty buffers; new names remain in memory
   until save. Errors retain the draft and original buffer. Observation is bounded

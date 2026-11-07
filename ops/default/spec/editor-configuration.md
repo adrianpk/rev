@@ -588,6 +588,15 @@ be configured when supported. Window/display preferences MAY affect initial
 geometry and presentation. They SHALL respect minimum geometry, symlink-cycle
 safety, live buffer ownership, and deterministic focus behavior.
 
+Under the approved [context contract](editor-projects-workspaces.md), these
+preferences SHALL NOT register a Project or replace Workspace membership.
+Standalone tree requests retain file-parent/cwd policy; explicit temporary and
+Project roots retain their context ownership, and Workspaces retain peer roots.
+Executable startup without a target shows the native startup screen. Named
+file-session restoration requires explicit Project/Workspace selection. This
+reconciliation belongs to the [context delivery](../tracker/rev-projects-workspaces.md);
+the historical configuration candidate and completed gate remain unchanged.
+
 Preference changes SHALL NOT delete buffers, rename files, recursively traverse
 an unbounded tree, or override pending user decisions.
 

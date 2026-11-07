@@ -5,6 +5,8 @@
 - [Buffers, panes and saved files](editing-model.md): how live text, views,
   history and files relate.
 
+- [Editing contexts](editing-contexts.md): temporary work, named sessions and independent root ownership.
+
 ## Git
 
 - [Git ownership](git-ownership.md): live source, saved files, observations and owned process lifetimes.

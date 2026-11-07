@@ -31,6 +31,12 @@ closing a command selector can return to Visual selection or an outer component.
 A save/quit decision is canceled without accepting a save or discard choice.
 See [terminal input](terminal-input.md#meta-and-escape) for reporting details.
 
+The [startup screen](contexts.md#startup-screen) uses these same command and
+path prompts. C-g in a nested picker returns to the screen; C-g on the screen
+returns to its retained editing context. Accepting a directory prepares a fresh
+temporary context through save/discard/cancel. Accepting a file visits it within
+the current context. Browsing either prompt creates no registration.
+
 ## Stages
 
 | Operation | Sequence |

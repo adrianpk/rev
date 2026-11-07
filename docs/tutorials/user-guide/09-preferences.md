@@ -98,4 +98,4 @@ when different file types need different values.
 
 Next: [Complete Names](10-complete-names.md).
 
-[Previous](05-file-tree.md) · [User Guide](index.md)
+[Previous](20-projects-and-workspaces.md) · [User Guide](index.md)
