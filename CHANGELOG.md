@@ -9,6 +9,9 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 
 ### Added
 
+- Every built-in command shows a concise description in M-x and modal colon
+  lists, including commands without shortcuts and context-specific actions.
+  Descriptions clip to the available width; Tab still completes only the name.
 - [Work with files, Projects and Workspaces](docs/tutorials/user-guide/20-projects-and-workspaces.md).
   Start `rev` with four native opening actions, or pass a file/directory directly.
   Open… accepts either a file or a directory through the same path selector.

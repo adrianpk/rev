@@ -89,7 +89,7 @@ M-x and the modal colon selector show one effective shortcut beside a bound
 command. With the factory non-modal bindings, a row can look like:
 
 ```text
-save-buffer  [C-x C-s]
+save-buffer  [C-x C-s]  Save to the current destination.
 ```
 
 The hint describes the editing profile, modal state and input owner where you
@@ -108,8 +108,11 @@ remains invocable through M-x. The list does not invent a binding from a
 command's name or similar effects.
 
 Names retain their left edge. Shortcuts appear in a nearby left-aligned column,
-with brackets and at least two blank cells after the name. An optional command
-description occupies a third column. Missing descriptions stay blank.
+with brackets and at least two blank cells after the name. Every built-in command
+has a single-line description in the third column, including unbound commands
+and context-local actions. Aliases share their canonical action's description.
+User-defined AI commands can omit description metadata; that field stays blank
+without a placeholder. Their saved instructions never become selector text.
 
 The visible candidate block determines shared column starts. Descriptions clip
 at complete terminal cells and disappear when their column cannot fit. Narrow

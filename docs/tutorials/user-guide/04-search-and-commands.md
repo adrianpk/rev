@@ -36,11 +36,12 @@ accepted replacement. Save the result with `C-x C-s`.
 
 ## Run a named command
 
-Press `M-x` and type `goto`. The prompt and matching command appear together:
+Press `M-x` and type `goto`. The prompt and matching command appear together
+in a sufficiently wide terminal:
 
 ```text
 M-x goto
-goto-line  [M-g M-g]
+goto-line  [M-g M-g]  Go to a one-based logical line number.
 ```
 
 Press Tab to complete `goto-line`, then Enter to run it. At `Goto line:`,
@@ -59,8 +60,9 @@ work, rev shows the one with the fewest normalized chords, then the first in
 lexical order; your other valid bindings still work.
 
 A command with no shortcut leaves that field empty and stays available through M-x.
-Descriptions appear in a third column when available; missing descriptions leave
-it blank. A narrow list hides a hint if the complete name, two-cell gap and complete
+Every built-in command has a description in the third column, including commands
+without shortcuts. User-defined AI commands without descriptions leave that
+column blank. A narrow list hides a hint if the complete name, two-cell gap and complete
 bracketed shortcut cannot fit. Widening the terminal restores it. Annotations do not participate
 in matching: Tab inserts only the command name, and Enter invokes that name once.
 See [Effective keybinding hints](../../reference/commands.md#effective-keybinding-hints)
@@ -71,9 +73,9 @@ this exercise its first row is `goto-line`:
 
 ```text
 M-x
-goto-line        [M-g M-g]
-ai-apply-result
-ai-cancel
+goto-line        [M-g M-g]  Go to a one-based logical line number.
+ai-apply-result             Apply the selected proposal once to its original checked target.
+ai-cancel                   Cancel the active invocation or AI-owned input/result.
 ...
 ```
 

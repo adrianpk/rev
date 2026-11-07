@@ -1,6 +1,6 @@
 # Command Descriptions Tracker
 
-Status: Ready
+Status: Reviewing
 Date: 2026-11-07
 Delivery set: rev-command-descriptions
 Approved: product owner; complete the catalog in one implementation slice
@@ -18,7 +18,7 @@ Progress owner: retained Looper checkpoint and canonical validation evidence
 
 ## Slice 1: Complete descriptions
 
-State: ready
+State: reviewing
 Dependency: approved committed preparation on clean dev
 Requirements: CDS01-CDS05
 Branch: `feat/rev-command-descriptions-01-catalog`
@@ -26,11 +26,11 @@ PR: pending
 Report: `ops/default/report/slices/rev-command-descriptions/slice-1-catalog.md`
 Validation: the nine exact ordered commands in the plan and local configuration
 
-- [ ] T1.1: Populate canonical command/family metadata with every specified
+- [x] T1.1: Populate canonical command/family metadata with every specified
   built-in summary, retaining aliases and optional user-command metadata.
-- [ ] T1.2: Verify all names/texts against the spec and add bounded native
+- [x] T1.2: Verify all names/texts against the spec and add bounded native
   description coverage in both input profiles; preserve existing selector rules.
-- [ ] T1.3: Complete reference, User Guide, Unreleased and Spore guidance;
+- [x] T1.3: Complete reference, User Guide, Unreleased and Spore guidance;
   introduce the slice report and record the actual commit/PR/check evidence.
 
 ## Final gate and closure
@@ -42,5 +42,8 @@ Validation: the nine exact ordered commands in the plan and local configuration
 - [ ] Complete the report, plan, tracker, specification and index within the
   configured exact closure paths.
 
-Preparation defines the inventory and delivery contract only. No description
-implementation, validation pass or completed slice is claimed here.
+The slice implementation and nine ordered local checks passed. The canonical
+report records task/commit correspondence, six selected tests, documentation
+checks and the 91-page Spore build. Exact clean-HEAD evidence follows the final
+PR-reference commit through the controller validator. Integration and the dev
+gate remain pending; no delivered slice or completed set is claimed here.
