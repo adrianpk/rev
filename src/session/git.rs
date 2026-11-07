@@ -572,6 +572,11 @@ impl Session {
             Command::ProjectCreate => self.project_create(),
             Command::ProjectPromote => self.project_promote(),
             Command::ProjectSwitch | Command::ProjectList => self.project_list(),
+            Command::WorkspaceCreate => self.workspace_create(),
+            Command::WorkspaceOpen | Command::WorkspaceList => self.workspace_list(),
+            Command::WorkspaceAddDirectory => self.workspace_add_directory(),
+            Command::WorkspaceAddProject => self.workspace_add_project(),
+            Command::WorkspaceRemoveRoot => self.workspace_remove_root(),
             Command::ExecuteExtended => self.extended(),
             Command::KeyboardQuit => {
                 if let Some(action) = self.cancel_git_discard() {

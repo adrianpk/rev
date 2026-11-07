@@ -31,6 +31,7 @@ fn configured(fixture: &Fixture, enabled: bool, activate: bool) -> Session {
     )
     .unwrap();
     session.load(&fixture.0.join("root")).unwrap();
+    session.load(&path).unwrap();
     session.execute(Command::KeyboardQuit);
     session.insert('!');
     session.frame().unwrap();

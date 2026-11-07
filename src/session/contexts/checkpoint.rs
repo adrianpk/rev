@@ -3,12 +3,14 @@ use std::path::PathBuf;
 
 use crate::buffer::{BufferId, Stamp};
 use crate::context::{
-    self, Catalog, Context, FileEntry, FileReference, Generation, Project, SavedSession, Snapshot,
-    SourcePosition, Store, Viewport,
+    self, Catalog, Context, FileEntry, FileReference, Generation, Project, Snapshot,
+    SourcePosition, Store, Viewport, Workspace,
 };
 
 use super::super::{Action, Session, quit::Goal};
 use super::projects::{Operation, Output, identity_matches};
+use super::record::Record;
+use super::workspaces::{Membership, observe};
 
 pub(super) struct After {
     generation: Generation,
@@ -16,12 +18,13 @@ pub(super) struct After {
     promotion: Option<Project>,
     goal: Option<Goal>,
     roots: Vec<(PathBuf, (u64, u64))>,
+    membership: Option<Box<Membership>>,
 }
 pub(super) struct Capture {
     after: After,
     catalog: Catalog,
-    owner: Option<Project>,
-    registration: Option<Project>,
+    owner: Option<Record>,
+    registration: Option<Record>,
     files: VecDeque<BufferId>,
     entries: Vec<Captured>,
     unavailable: Vec<FileEntry>,
@@ -36,56 +39,76 @@ struct Captured {
 
 impl Session {
     pub(in crate::session) fn context_checkpoint_needed(&self) -> bool {
-        self.context_project.is_some()
+        self.context_record.is_some()
             || self
                 .context_prepared
                 .as_ref()
                 .is_some_and(|r| r.registration.is_some())
     }
     pub(in crate::session) fn checkpoint_context(&mut self, goal: Goal) -> Action {
-        self.start_context_capture(None, Some(goal), None)
+        self.start_context_capture(None, Some(goal), None, None)
     }
     pub(in crate::session) fn capture_project_promotion(
         &mut self,
         project: Project,
         identity: (u64, u64),
     ) -> Action {
-        self.start_context_capture(Some(project), None, Some(identity))
+        self.start_context_capture(Some(project), None, Some(identity), None)
+    }
+    pub(super) fn capture_membership(&mut self, membership: Box<Membership>) -> Action {
+        self.start_context_capture(None, None, None, Some(membership))
     }
     fn start_context_capture(
         &mut self,
         promotion: Option<Project>,
         goal: Option<Goal>,
         promotion_identity: Option<(u64, u64)>,
+        mut membership: Option<Box<Membership>>,
     ) -> Action {
         if self.context_storage.busy() {
-            return self.error("Project state work is already pending");
+            return self.error("Context state work is already pending");
         }
-        if let Err(error) = self.context_generation.next() {
-            return self.error(&error.to_string());
+        if let Err(e) = self.context_generation.next() {
+            return self.error(&e.to_string());
         }
         let Some(catalog) = self.context_storage.catalog.clone() else {
-            return self.error("Project catalog is unavailable; live sources retained");
+            return self.error("Context catalog is unavailable; live sources retained");
         };
-        let owner = promotion.clone().or_else(|| self.context_project.clone());
-        if let Some(project) = &self.context_project
-            && !catalog.projects.iter().any(|p| p == project)
+        let owner = promotion
+            .clone()
+            .map(Record::Project)
+            .or_else(|| self.context_record.clone());
+        if self
+            .context_record
+            .as_ref()
+            .is_some_and(|r| !r.matches(&catalog))
         {
             self.context_prepared = None;
-            return self.error("Active Project changed in storage; live sources retained");
+            return self.error("Active context changed in storage; live sources retained");
         }
-        let registration = promotion.clone().or_else(|| {
+        let registration = promotion.clone().map(Record::Project).or_else(|| {
             self.context_prepared
                 .as_ref()
                 .and_then(|r| r.registration.clone())
         });
         let mut roots = Vec::new();
-        if let Some(project) = &owner {
-            let identity = promotion_identity.or(self.context_root_identity);
-            let Some(identity) = identity else {
-                return self.error("Project root identity is unavailable; live sources retained");
-            };
-            roots.push((project.root.path.as_path().to_owned(), identity));
+        if let Some(owner) = &owner {
+            match owner {
+                Record::Project(project) => {
+                    let Some(identity) = promotion_identity.or(self.context_root_identity) else {
+                        return self
+                            .error("Project root identity is unavailable; live sources retained");
+                    };
+                    roots.push((project.root.path.as_path().to_owned(), identity));
+                }
+                Record::Workspace(workspace) => {
+                    for root in &workspace.roots {
+                        if let Some(identity) = observe(root.path.as_path()) {
+                            roots.push((root.path.as_path().to_owned(), identity));
+                        }
+                    }
+                }
+            }
         }
         if let Some(replacement) = &self.context_prepared {
             if replacement.expected != self.context_generation {
@@ -95,23 +118,46 @@ impl Session {
                 Context::Directory(path) => Some(path),
                 Context::Project(_) => replacement
                     .session
-                    .context_project
+                    .context_record
                     .as_ref()
-                    .map(|p| &p.root.path),
+                    .and_then(|r| r.roots().first())
+                    .map(|r| &r.path),
                 _ => None,
             };
             if let (Some(path), Some(identity)) = (root, replacement.root_identity) {
                 roots.push((path.as_path().to_owned(), identity));
             }
+            roots.extend(
+                replacement
+                    .workspace_observations
+                    .iter()
+                    .filter_map(|(path, identity)| {
+                        identity.map(|i| (path.as_path().to_owned(), i))
+                    }),
+            );
+        }
+        if let Some(membership) = &mut membership {
+            roots.extend(membership.observations.clone());
+            membership.closing = match self.buffers.prepare_closing(&membership.closed) {
+                Ok(c) => Some(c),
+                Err(e) => return self.error(&e.to_string()),
+            };
         }
         if !roots.iter().all(|(p, i)| identity_matches(p, *i)) {
             self.context_prepared = None;
-            return self.error("Prepared Project root changed; live sources retained");
+            return self.error("Prepared context root changed; live sources retained");
         }
         let files: VecDeque<_> = if owner.is_some() {
             self.buffers
                 .iter()
-                .filter(|b| b.file().is_some() && !b.is_transient() && b.terminal().is_none())
+                .filter(|b| {
+                    b.file().is_some()
+                        && !b.is_transient()
+                        && b.terminal().is_none()
+                        && !membership
+                            .as_ref()
+                            .is_some_and(|m| m.closed.contains(&b.id()))
+                })
                 .map(|b| b.id())
                 .collect()
         } else {
@@ -119,7 +165,7 @@ impl Session {
         };
         if files.len() > context::MAX_FILES {
             self.context_prepared = None;
-            return self.error("Project session file capacity exceeded; live sources retained");
+            return self.error("Context session file capacity exceeded; live sources retained");
         }
         let after = After {
             generation: self.context_generation,
@@ -127,6 +173,7 @@ impl Session {
             promotion,
             goal,
             roots,
+            membership,
         };
         self.input.cancel();
         self.pending = None;
@@ -140,7 +187,7 @@ impl Session {
             unavailable: self.context_unavailable.clone(),
             active: self.view().point.stamp.buffer,
         })));
-        self.message("Capturing Project session; live sources retained")
+        self.message("Capturing context session; live sources retained")
     }
     pub(in crate::session) fn advance_context_capture(&mut self) -> Action {
         let Some(Operation::Capture(mut capture)) = self.context_storage.operation.take() else {
@@ -167,9 +214,9 @@ impl Session {
             }
             Ok(())
         })();
-        if let Err(error) = result {
+        if let Err(e) = result {
             self.context_prepared = None;
-            return self.error(&format!("Project session: {error}; live sources retained"));
+            return self.error(&format!("Context session: {e}; live sources retained"));
         }
         if !capture.files.is_empty() {
             self.context_storage.operation = Some(Operation::Capture(capture));
@@ -177,7 +224,7 @@ impl Session {
         }
         let Some(path) = self.context_storage.path.clone() else {
             self.context_prepared = None;
-            return self.error("Project storage is unavailable; live sources retained");
+            return self.error("Context storage is unavailable; live sources retained");
         };
         let Capture {
             after,
@@ -189,30 +236,41 @@ impl Session {
             ..
         } = *capture;
         let roots = after.roots.clone();
-        let stamp = self.view().point.stamp;
-        if let Err(error) = self.context_storage.job.start(stamp, move |cancel| {
-            if cancel.is_cancelled() {
-                return Err("Project publication canceled before effects".into());
-            }
-            if !roots.iter().all(|(p, i)| identity_matches(p, *i)) {
-                return Err("Project root changed before publication".into());
-            }
-            let candidate = candidate(&catalog, owner, registration, entries, unavailable)?;
-            let prepared = catalog.prepare(candidate).map_err(|e| e.to_string())?;
-            if cancel.is_cancelled() {
-                return Err("Project publication canceled before effects".into());
-            }
-            let (store, _) = Store::open(&path).map_err(|e| e.to_string())?;
-            store
-                .publish(&prepared)
-                .map(Output::Published)
-                .map_err(|e| e.to_string())
-        }) {
+        let membership = after.membership.as_ref().map(|m| m.next.clone());
+        if let Err(e) = self
+            .context_storage
+            .job
+            .start(self.view().point.stamp, move |cancel| {
+                if cancel.is_cancelled() {
+                    return Err("Context publication canceled before effects".into());
+                }
+                if !roots.iter().all(|(p, i)| identity_matches(p, *i)) {
+                    return Err("Context root changed before publication".into());
+                }
+                let candidate = candidate(
+                    &catalog,
+                    owner,
+                    registration,
+                    entries,
+                    unavailable,
+                    membership,
+                )?;
+                let prepared = catalog.prepare(candidate).map_err(|e| e.to_string())?;
+                if cancel.is_cancelled() {
+                    return Err("Context publication canceled before effects".into());
+                }
+                let (store, _) = Store::open(&path).map_err(|e| e.to_string())?;
+                store
+                    .publish(&prepared)
+                    .map(Output::Published)
+                    .map_err(|e| e.to_string())
+            })
+        {
             self.context_prepared = None;
-            return self.error(&error.to_string());
+            return self.error(&e.to_string());
         }
         self.context_storage.operation = Some(Operation::Publish(after));
-        self.message("Publishing Project state; live sources retained")
+        self.message("Publishing context state; live sources retained")
     }
     pub(super) fn context_published(
         &mut self,
@@ -220,37 +278,36 @@ impl Session {
         publication: context::Publication,
     ) -> Action {
         let warning = publication.durability_warning;
-        let source_current = after.generation == self.context_generation
+        let current = after.generation == self.context_generation
             && self.buffers.iter().map(|b| b.stamp()).eq(after.stamps);
         self.context_storage.catalog = Some(publication.catalog);
-        // Publication is the commit point. Adopt its record even when a later
-        // source/root check prevents departure; never retry under a fresh ID.
         if let Some(project) = after.promotion {
             self.context = Context::Project(project.id.clone());
             self.context_root_identity = after.roots.first().map(|(_, i)| *i);
-            self.context_project = Some(project);
+            self.context_record = Some(Record::Project(project));
             self.context_generation = match self.context_generation.next() {
                 Ok(g) => g,
                 Err(e) => return self.error(&e.to_string()),
             };
         }
-        if let Some(active) = &self.context_project {
-            self.context_project = self
-                .context_storage
-                .catalog
-                .as_ref()
-                .and_then(|c| c.projects.iter().find(|p| p.id == active.id))
-                .cloned();
+        if let (Some(active), Some(catalog)) = (&self.context_record, &self.context_storage.catalog)
+        {
+            self.context_record = active.current(catalog);
         }
-        if !source_current {
+        if !current {
             self.context_prepared = None;
+            if let Some(Record::Workspace(w)) = &self.context_record {
+                self.tree.workspace_roots(&w.roots);
+            }
             return self
-                .error("Project state published; source changed and departure was canceled");
+                .error("Context state published; source changed and departure was canceled");
         }
-        let action = if let Some(goal) = after.goal {
+        let action = if let Some(membership) = after.membership {
+            self.publish_membership(*membership)
+        } else if let Some(goal) = after.goal {
             if !after.roots.iter().all(|(p, i)| identity_matches(p, *i)) {
                 self.context_prepared = None;
-                self.error("Project state published; root changed and departure was canceled")
+                self.error("Context state published; root changed and departure was canceled")
             } else {
                 self.finish_context_departure(goal)
             }
@@ -259,9 +316,9 @@ impl Session {
         };
         if matches!(after.goal, Some(Goal::Context(_)))
             && self.context_generation == after.generation
-            && !self.echo.starts_with("Project state published")
+            && !self.echo.contains("state published")
         {
-            let message = format!("Project state published; {}", self.echo);
+            let message = format!("Context state published; {}", self.echo);
             self.error(&message);
         }
         if let Some(warning) = warning {
@@ -277,15 +334,18 @@ impl Session {
 }
 fn candidate(
     catalog: &Catalog,
-    owner: Option<Project>,
-    registration: Option<Project>,
+    owner: Option<Record>,
+    registration: Option<Record>,
     entries: Vec<Captured>,
     unavailable: Vec<FileEntry>,
+    membership: Option<Workspace>,
 ) -> Result<Catalog, String> {
     let mut candidate = catalog.clone();
     let mut snapshot = Snapshot::default();
     if let Some(owner) = &owner {
-        let roots = std::slice::from_ref(&owner.root);
+        let roots = membership
+            .as_ref()
+            .map_or_else(|| owner.roots(), |m| m.roots.as_slice());
         for entry in entries {
             let reference = capture_reference(&entry.path, roots)?;
             if snapshot.files.iter().any(|e| e.file == reference) {
@@ -300,65 +360,51 @@ fn candidate(
                 viewport: Some(entry.viewport),
             });
         }
-        for entry in unavailable {
+        for mut entry in unavailable {
+            if membership.is_some()
+                && let FileReference::RootRelative { root, .. } = &entry.file
+                && !roots.iter().any(|r| r.id == *root)
+            {
+                let path = entry
+                    .file
+                    .resolve(owner.roots())
+                    .map_err(|e| e.to_string())?;
+                entry.file = capture_reference(&path, roots)?;
+                if matches!(entry.file, FileReference::LooseAbsolute(_)) {
+                    continue;
+                }
+            }
             if !snapshot.files.iter().any(|e| e.file == entry.file) {
                 snapshot.files.push(entry);
             }
         }
         if snapshot.files.len() > context::MAX_FILES {
-            return Err("Project session file capacity exceeded".into());
+            return Err("Context session file capacity exceeded".into());
         }
-        if let Some(index) = candidate.projects.iter().position(|p| p.id == owner.id) {
-            if candidate.projects[index] != *owner {
-                return Err("Active Project revision changed".into());
-            }
-            let mut next = owner.clone();
-            next.revision = next.revision.next().map_err(|e| e.to_string())?;
-            next.session_ref.revision = next
-                .session_ref
-                .revision
-                .next()
-                .map_err(|e| e.to_string())?;
-            let index_session = candidate
-                .sessions
-                .iter()
-                .position(|s| s.reference == owner.session_ref)
-                .ok_or("Active Project session disappeared")?;
-            candidate.sessions[index_session] = SavedSession::new(
-                next.session_ref.clone(),
-                next.roots_revision,
-                snapshot.clone(),
-            );
-            candidate.projects[index] = next;
+        if owner.current(&candidate).is_some() {
+            owner.checkpoint(&mut candidate, snapshot.clone(), membership.as_ref())?;
         }
     }
-    if let Some(project) = registration {
-        if candidate.projects.iter().any(|p| p.id == project.id) {
-            return Err("Project identity is already registered".into());
-        }
-        let initial = if owner.as_ref().is_some_and(|o| o.id == project.id) {
+    if let Some(registration) = registration {
+        let initial = if owner
+            .as_ref()
+            .is_some_and(|o| o.context() == registration.context())
+        {
             snapshot
         } else {
             Snapshot::default()
         };
-        candidate.sessions.push(SavedSession::new(
-            project.session_ref.clone(),
-            project.roots_revision,
-            initial,
-        ));
-        candidate.projects.push(project);
+        registration.insert(&mut candidate, initial)?;
     }
     Ok(candidate)
 }
-fn capture_reference(
+pub(super) fn capture_reference(
     path: &std::path::Path,
     roots: &[context::Root],
 ) -> Result<FileReference, String> {
     if path.exists() {
         return FileReference::capture(path, roots).map_err(|e| e.to_string());
     }
-    // A formerly loaded file may disappear. Preserve its reference without
-    // manufacturing a source buffer or weakening symlink-prefix validation.
     let reference = match roots
         .iter()
         .filter_map(|root| {

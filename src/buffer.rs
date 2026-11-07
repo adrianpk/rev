@@ -15,6 +15,7 @@ mod visits;
 pub(crate) use visits::Visit;
 mod whitespace;
 
+pub(crate) use lifecycle::Closing;
 pub use lifecycle::Kill;
 pub use save::{Confirmation, Save, SaveRequest};
 pub use whitespace::Whitespace;

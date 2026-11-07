@@ -42,7 +42,16 @@ impl Tree {
         if !entry.directory || entry.expanded {
             return Ok(());
         }
-        let children = entry.children(&self.policy)?;
+        let children = match entry.children(&self.policy) {
+            Ok(children) => children,
+            Err(error) => {
+                if entry.depth == 0 && entry.root_id.is_some() {
+                    self.entries[self.selected].unavailable = true;
+                }
+                return Err(error);
+            }
+        };
+        self.entries[self.selected].unavailable = false;
         self.entries[self.selected].expanded = true;
         self.entries[self.selected].incomplete = children.incomplete;
         if self.selected == 0 {

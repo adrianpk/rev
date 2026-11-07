@@ -167,6 +167,12 @@ fn protected(command: Command) -> bool {
             | Command::ProjectPromote
             | Command::ProjectSwitch
             | Command::ProjectList
+            | Command::WorkspaceCreate
+            | Command::WorkspaceOpen
+            | Command::WorkspaceList
+            | Command::WorkspaceAddDirectory
+            | Command::WorkspaceAddProject
+            | Command::WorkspaceRemoveRoot
             | Command::Buffer(_)
             | Command::Window(WindowCommand::Delete | WindowCommand::Keep)
     )

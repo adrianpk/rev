@@ -12,6 +12,7 @@ use crate::org::Job;
 use super::super::{Action, Pending, Session};
 use super::Replacement;
 use super::checkpoint::{After, Capture};
+use super::record::Record;
 
 #[derive(Default)]
 pub(in crate::session) struct Persistence {
@@ -55,6 +56,12 @@ pub(super) enum Request {
     List,
     Create { path: PathBuf, promote: bool },
     Open(Project),
+    WorkspaceCreate,
+    WorkspaceList,
+    WorkspaceOpen(context::Workspace),
+    WorkspaceDirectory(PathBuf),
+    WorkspaceProjects,
+    WorkspaceProject(Project),
 }
 pub(super) enum Output {
     Read(Catalog),
@@ -80,15 +87,15 @@ pub(in crate::session) struct Creation {
     generation: Generation,
 }
 pub(in crate::session) struct Choice {
-    label: String,
-    project: Project,
+    pub(super) label: String,
+    pub(super) project: Project,
 }
 
 impl Session {
     /// Opt an embedded session into one host-owned state file. Pure constructors
     /// never discover or read the user's catalog. Configure before Project use.
     pub fn set_context_storage(&mut self, path: PathBuf) -> std::io::Result<()> {
-        if self.context_storage.busy() || self.context_project.is_some() {
+        if self.context_storage.busy() || self.context_record.is_some() {
             return Err(std::io::Error::other("Project state is already owned"));
         }
         NativePath::absolute(&path).map_err(std::io::Error::other)?;
@@ -151,8 +158,9 @@ impl Session {
     pub(in crate::session) fn project_list(&mut self) -> Action {
         self.read_projects(Request::List)
     }
-    fn read_projects(&mut self, request: Request) -> Action {
+    pub(super) fn read_projects(&mut self, request: Request) -> Action {
         if self.context_storage.busy()
+            || self.context_membership.is_some()
             || self.context_prepared.is_some()
             || self.git_shutdown_active()
             || self.terminal_shutdown_active()
@@ -172,7 +180,7 @@ impl Session {
             return self.error(&error);
         }
         let Some(path) = self.context_storage.path.clone() else {
-            return self.error("Project storage is not configured by this session's host");
+            return self.error("Context storage is not configured by this session's host");
         };
         self.context_storage.canceled = false;
         let generation = self.context_generation;
@@ -191,7 +199,7 @@ impl Session {
             request,
             generation,
         });
-        self.message("Reading Projects; live sources retained")
+        self.message("Reading contexts; live sources retained")
     }
     pub(in crate::session) fn confirm_project_context(
         &mut self,
@@ -223,7 +231,7 @@ impl Session {
             generation,
             stamps,
         });
-        self.message("Checking selected Project before activation; live sources retained")
+        self.message("Checking selected context before activation; live sources retained")
     }
     pub(in crate::session) fn context_remaining(&self) -> Option<Duration> {
         if self.context_storage.job.is_active() {
@@ -279,7 +287,7 @@ impl Session {
                 {
                     self.context_prepared = None;
                     return self.error(
-                        "Selected Project changed before activation; live sources retained",
+                        "Selected context changed before activation; live sources retained",
                     );
                 }
                 self.finish_context_departure(goal)
@@ -289,7 +297,7 @@ impl Session {
             }
             (_, Err(error)) => {
                 self.context_prepared = None;
-                self.error(&format!("Projects: {error}; live sources retained"))
+                self.error(&format!("Contexts: {error}; live sources retained"))
             }
             _ => self.error("Project worker result did not match its owner; live sources retained"),
         }
@@ -339,29 +347,14 @@ impl Session {
                 }
                 self.prepare_project(expected, &catalog)
             }
+            request => self.workspaces_read(request, catalog),
         }
     }
     fn offer_projects(&mut self, projects: Vec<Project>) -> Action {
         if projects.is_empty() {
             return self.message("No registered Projects; use project-create or project-promote");
         }
-        let choices: Vec<_> = projects
-            .into_iter()
-            .map(|project| Choice {
-                label: format!(
-                    "{} — {}",
-                    project.name.as_str(),
-                    project
-                        .root
-                        .path
-                        .as_path()
-                        .display()
-                        .to_string()
-                        .escape_default()
-                ),
-                project,
-            })
-            .collect();
+        let choices = project_choices(projects);
         let labels = choices.iter().map(|c| c.label.clone()).collect();
         if let Err(error) = self.input.names_argument("Project: ", "", labels) {
             return self.error(&error.to_string());
@@ -425,31 +418,59 @@ impl Session {
             return self.error("Project directory changed; live sources retained");
         }
         replacement.session.context = Context::Project(project.id.clone());
-        replacement.session.context_project = Some(project.clone());
-        replacement.registration = Some(project);
+        replacement.session.context_record = Some(Record::Project(project.clone()));
+        replacement.registration = Some(Record::Project(project));
         self.begin_context(replacement)
     }
     fn prepare_project(&mut self, project: Project, catalog: &Catalog) -> Action {
-        let snapshot = match catalog.session(&project.session_ref).map(|s| &s.snapshot) {
+        self.prepare_record(Record::Project(project), catalog)
+    }
+    pub(super) fn prepare_record(&mut self, record: Record, catalog: &Catalog) -> Action {
+        let snapshot = match catalog.session(record.session_ref()).map(|s| &s.snapshot) {
             Some(Ok(snapshot)) => snapshot.clone(),
             Some(Err(error)) => {
                 return self.error(&format!(
-                    "Project {} has a damaged session: {error}; saved bytes retained",
-                    project.name.as_str()
+                    "{} {} has a damaged session: {error}; saved bytes retained",
+                    record.kind(),
+                    record.name()
                 ));
             }
             None => return self.error("Selected Project session is unavailable"),
         };
-        let mut replacement = match self.prepare_context(Some(project.root.path.as_path())) {
-            Ok(r) => r,
-            Err(error) => {
-                return self.error(&format!(
-                    "Project root unavailable: {error}; registration retained"
-                ));
+        let mut replacement = match &record {
+            Record::Project(project) => {
+                match self.prepare_context(Some(project.root.path.as_path())) {
+                    Ok(r) => r,
+                    Err(error) => {
+                        return self.error(&format!(
+                            "Project root unavailable: {error}; registration retained"
+                        ));
+                    }
+                }
+            }
+            Record::Workspace(workspace) => {
+                let mut replacement = match self.prepare_context(None) {
+                    Ok(r) => r,
+                    Err(e) => return self.error(&e.to_string()),
+                };
+                replacement.session.tree =
+                    self.tree
+                        .opening_workspace(workspace.id.clone(), &workspace.roots, self.size);
+                replacement.workspace_observations = workspace
+                    .roots
+                    .iter()
+                    .map(|root| {
+                        (
+                            root.path.clone(),
+                            super::workspaces::observe(root.path.as_path()),
+                        )
+                    })
+                    .collect();
+                replacement
             }
         };
-        replacement.session.context = Context::Project(project.id.clone());
-        replacement.session.context_project = Some(project);
+        replacement.session.context = record.context();
+        replacement.session.context_record = Some(record);
         self.load_project_batch(Restore {
             replacement,
             files: snapshot.files.into(),
@@ -468,16 +489,14 @@ impl Session {
             .files
             .drain(..restore.files.len().min(context::FILE_ADMISSION_STEPS))
             .collect();
-        let roots = vec![
-            restore
-                .replacement
-                .session
-                .context_project
-                .as_ref()
-                .expect("prepared Project owns root")
-                .root
-                .clone(),
-        ];
+        let roots = restore
+            .replacement
+            .session
+            .context_record
+            .as_ref()
+            .expect("prepared context owns roots")
+            .roots()
+            .to_vec();
         let stamp = self.view().point.stamp;
         if let Err(error) = self.context_storage.job.start(stamp, move |cancel| {
             let files = entries
@@ -549,7 +568,7 @@ fn load_entry(entry: &FileEntry, roots: &[context::Root]) -> Result<Ingress, Str
 pub(super) fn identity_matches(path: &Path, identity: (u64, u64)) -> bool {
     std::fs::metadata(path).is_ok_and(|m| m.is_dir() && (m.dev(), m.ino()) == identity)
 }
-fn same_directory(left: &Path, right: &Path) -> bool {
+pub(super) fn same_directory(left: &Path, right: &Path) -> bool {
     if left == right {
         return true;
     }
@@ -576,4 +595,24 @@ fn new_project(path: NativePath, name: context::Name) -> Result<Project, context
             origin_project_id: None,
         },
     })
+}
+
+pub(super) fn project_choices(projects: Vec<Project>) -> Vec<Choice> {
+    projects
+        .into_iter()
+        .map(|project| Choice {
+            label: format!(
+                "{} — {}",
+                project.name.as_str(),
+                project
+                    .root
+                    .path
+                    .as_path()
+                    .display()
+                    .to_string()
+                    .escape_default()
+            ),
+            project,
+        })
+        .collect()
 }

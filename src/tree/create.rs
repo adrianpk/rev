@@ -74,6 +74,7 @@ impl Tree {
     /// Observe a published child and select it. Errors describe observation,
     /// never undo or conceal the creation that already succeeded on disk.
     pub fn reveal_created(&mut self, path: &Path) -> io::Result<()> {
+        let route = self.selected().and_then(|e| e.root_id.clone());
         let refreshed = self.refresh();
         let parent = path
             .parent()
@@ -81,7 +82,7 @@ impl Tree {
         self.selected = self
             .entries
             .iter()
-            .position(|entry| entry.path() == parent)
+            .position(|entry| entry.path() == parent && entry.root_id == route)
             .ok_or_else(|| {
                 failure(
                     "refresh created entry",
@@ -93,7 +94,7 @@ impl Tree {
         self.selected = self
             .entries
             .iter()
-            .position(|entry| entry.path() == path)
+            .position(|entry| entry.path() == path && entry.root_id == route)
             .ok_or_else(|| {
                 failure(
                     "refresh created entry",

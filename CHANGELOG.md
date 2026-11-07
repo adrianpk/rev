@@ -9,14 +9,16 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 
 ### Added
 
-- Work with standalone files, temporary directories and named Projects.
-  `project-create` registers a directory; `project-promote` keeps current buffers,
-  views and unsaved text while naming temporary directory work. Select a Project
-  by name to restore its files, loose files and source positions. Leaving it or
-  quitting saves its file session after source decisions; missing files are
-  reported without creating replacements. `open-directory` keeps ordinary
-  directory work temporary, `generate-new-buffer` adds an unnamed buffer, and
-  `context-close` keeps rev open. All are available through M-x and modal colon.
+- Work with standalone files, temporary directories, named Projects and multi-root
+  Workspaces. Create or promote a Project while retaining live work, or collect
+  independent directories in a Workspace without importing Project sessions.
+  Select either by name to restore its files, loose files and source positions.
+  Workspace roots keep separate tree routes, and removal resolves only files
+  losing coverage while retaining directories and other open work. Leaving or
+  quitting saves the context's file session after source decisions; unavailable
+  files and roots retain their metadata. `open-directory` keeps ordinary directory
+  work temporary, `generate-new-buffer` adds an unnamed buffer, and `context-close`
+  keeps rev open. All commands are available through M-x and modal colon.
 
 ## 0.6.0 - 2026-11-06
 

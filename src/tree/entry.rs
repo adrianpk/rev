@@ -3,9 +3,12 @@ use std::io;
 use std::path::{Path, PathBuf};
 
 /// One observed entry in visible preorder. Symlinks are always leaves.
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct Entry {
     pub(super) path: PathBuf,
+    pub(super) root_id: Option<crate::context::RootId>,
+    pub(super) root_label: Option<String>,
+    pub(super) unavailable: bool,
     pub(super) depth: usize,
     pub(super) directory: bool,
     pub(super) symlink: bool,
@@ -19,6 +22,13 @@ pub(super) struct Children {
 }
 
 impl Entry {
+    /// Workspace membership identity, independent from an overlapping path.
+    pub fn root_id(&self) -> Option<&crate::context::RootId> {
+        self.root_id.as_ref()
+    }
+    pub fn unavailable(&self) -> bool {
+        self.unavailable
+    }
     pub fn path(&self) -> &Path {
         &self.path
     }
@@ -38,6 +48,9 @@ impl Entry {
     pub(super) fn root(path: PathBuf) -> Self {
         Self {
             path,
+            root_id: None,
+            root_label: None,
+            unavailable: false,
             depth: 0,
             directory: true,
             symlink: false,
@@ -52,6 +65,9 @@ impl Entry {
             .file_type();
         Ok(Self {
             path,
+            root_id: None,
+            root_label: None,
+            unavailable: false,
             depth,
             directory: kind.is_dir(),
             symlink: kind.is_symlink(),
@@ -106,7 +122,9 @@ impl Entry {
             }
             name_bytes += bytes;
             if policy.show_hidden || !child.file_name().as_encoded_bytes().starts_with(b".") {
-                children.push(Self::observe(child.path(), self.depth + 1)?);
+                let mut entry = Self::observe(child.path(), self.depth + 1)?;
+                entry.root_id = self.root_id.clone();
+                children.push(entry);
             }
             if index + 1 == ENTRY_LIMIT || name_bytes == NAME_BYTE_LIMIT {
                 incomplete = true;
@@ -166,16 +184,27 @@ impl Entry {
             format!("{}{marker} ", "  ".repeat(indent))
         };
         let name = self
-            .path
-            .file_name()
-            .unwrap_or(self.path.as_os_str())
-            .to_string_lossy();
+            .root_label
+            .as_deref()
+            .map(std::borrow::Cow::Borrowed)
+            .unwrap_or_else(|| {
+                self.path
+                    .file_name()
+                    .unwrap_or(self.path.as_os_str())
+                    .to_string_lossy()
+            });
         let slash = if self.directory && self.path.file_name().is_some() {
             "/"
         } else {
             ""
         };
-        let diagnostic = if self.incomplete { " [incomplete]" } else { "" };
+        let diagnostic = if self.unavailable {
+            " [unavailable]"
+        } else if self.incomplete {
+            " [incomplete]"
+        } else {
+            ""
+        };
         Ok(format!("{prefix}{name}{slash}{diagnostic}"))
     }
 }

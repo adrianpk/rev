@@ -21,7 +21,7 @@ impl Session {
 
     fn load_target(&mut self, path: &Path, directories: bool) -> io::Result<()> {
         if self.context_storage.locked() {
-            return Err(io::Error::other("Project state publication is pending"));
+            return Err(io::Error::other("Context state publication is pending"));
         }
         self.remember_context_position();
         self.bookmark_visit = None;
@@ -132,6 +132,10 @@ impl Session {
     }
     fn file_argument(&mut self, pending: Option<Pending>, path: String) -> Action {
         match pending {
+            Some(Pending::WorkspaceName(c)) => self.workspace_name(*c, &path),
+            Some(Pending::Workspaces(c)) => self.workspace_selected(c, &path),
+            Some(Pending::WorkspaceProjects(c)) => self.workspace_project_selected(c, &path),
+            Some(Pending::WorkspaceRoot(c)) => self.workspace_root_selected(*c, &path),
             Some(Pending::ProjectName(creation)) => self.project_name(*creation, &path),
             Some(Pending::Projects(choices)) => self.project_selected(choices, &path),
             Some(Pending::GitWorktree(prompt)) => self.git_worktree_argument(*prompt, &path),

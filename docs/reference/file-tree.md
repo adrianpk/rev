@@ -26,6 +26,20 @@ its saved session, even when that path is already registered. `context-close`
 resolves sources and owned jobs, then continues with one empty standalone buffer
 and a hidden tree. Bookmarks, command histories and kill-ring text remain available.
 
+## Workspace roots
+
+[Workspaces](contexts.md#workspace-roots) display ordered peer roots rather than
+one common parent. They start collapsed and expand independently. Equal basenames
+include their path in the label, while pointer hits retain the root identity.
+Overlapping routes reuse the same canonical source buffer. The footer shows
+`Workspace *` during tree focus.
+
+Missing roots remain visible as `[unavailable]`; empty membership shows an add-root
+hint and never substitutes launch cwd. Root addition/removal uses the named
+Workspace operations, which preserve directories and resolve only affected
+sources. Ordinary file visits do not change this membership. Refresh reobserves
+only retained expansions and preserves unavailable root records.
+
 ## Presentation
 
 The default tree uses ordinary symbols and semantic colors. This presentation

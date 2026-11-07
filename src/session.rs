@@ -113,8 +113,10 @@ pub struct Session {
     context_prepared: Option<Box<contexts::Replacement>>,
     directory_prompt: bool,
     project_directory_prompt: bool,
+    workspace_directory_prompt: bool,
     context_storage: contexts::projects::Persistence,
-    context_project: Option<crate::context::Project>,
+    context_record: Option<contexts::record::Record>,
+    context_membership: Option<Box<contexts::workspaces::Membership>>,
     context_root_identity: Option<(u64, u64)>,
     context_unavailable: Vec<crate::context::FileEntry>,
     context_positions: std::collections::BTreeMap<BufferId, contexts::positions::Position>,
@@ -214,6 +216,10 @@ enum AfterSave {
 }
 
 enum Pending {
+    WorkspaceName(Box<contexts::workspaces::Creation>),
+    Workspaces(Vec<contexts::workspaces::WorkspaceChoice>),
+    WorkspaceProjects(Vec<contexts::projects::Choice>),
+    WorkspaceRoot(Box<contexts::workspaces::RootPicker>),
     ProjectName(Box<contexts::projects::Creation>),
     Projects(Vec<contexts::projects::Choice>),
     GitDiscard(Box<git::discard::Consent>),
@@ -423,8 +429,10 @@ impl Session {
             context_prepared: None,
             directory_prompt: false,
             project_directory_prompt: false,
+            workspace_directory_prompt: false,
             context_storage: Default::default(),
-            context_project: None,
+            context_record: None,
+            context_membership: None,
             context_root_identity: None,
             context_unavailable: Vec::new(),
             context_positions: Default::default(),
@@ -891,7 +899,7 @@ impl Session {
             return self.message("Project preparation canceled; live sources retained");
         }
         if self.context_storage.locked() {
-            return self.message("Project state publication is pending; live sources retained");
+            return self.message("Context state publication is pending; live sources retained");
         }
         self.remember_context_position();
         if let Some(action) = self.git_command(command) {
@@ -1038,6 +1046,11 @@ impl Session {
             Command::ProjectCreate => self.project_create(),
             Command::ProjectPromote => self.project_promote(),
             Command::ProjectSwitch | Command::ProjectList => self.project_list(),
+            Command::WorkspaceCreate => self.workspace_create(),
+            Command::WorkspaceOpen | Command::WorkspaceList => self.workspace_list(),
+            Command::WorkspaceAddDirectory => self.workspace_add_directory(),
+            Command::WorkspaceAddProject => self.workspace_add_project(),
+            Command::WorkspaceRemoveRoot => self.workspace_remove_root(),
             Command::SaveBuffer => self.save_buffer(),
             Command::RevertBuffer => self.revert_buffer(),
             Command::AiSaveCommand => self.ai_save_command(),
@@ -1121,7 +1134,7 @@ impl Session {
     /// joins. Control bytes can enter only through explicit implemented commands.
     pub fn insert(&mut self, character: char) -> Action {
         if self.context_storage.locked() {
-            return self.message("Project publication owns source admission");
+            return self.message("Context publication owns source admission");
         }
         if self.git_visible() {
             return self.message("Git presentation is read-only");

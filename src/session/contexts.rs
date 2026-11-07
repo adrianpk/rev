@@ -1,6 +1,8 @@
 mod checkpoint;
 pub(super) mod positions;
 pub(super) mod projects;
+pub(super) mod record;
+pub(super) mod workspaces;
 
 use std::io;
 use std::os::unix::fs::MetadataExt;
@@ -16,7 +18,8 @@ pub(super) struct Replacement {
     session: Session,
     expected: Generation,
     root_identity: Option<(u64, u64)>,
-    registration: Option<crate::context::Project>,
+    registration: Option<record::Record>,
+    workspace_observations: Vec<(crate::context::NativePath, Option<(u64, u64)>)>,
 }
 
 impl Session {
@@ -31,7 +34,7 @@ impl Session {
     pub(in crate::session) fn project_confirmation_needed(&self) -> bool {
         self.context_prepared
             .as_ref()
-            .is_some_and(|r| r.session.context_project.is_some())
+            .is_some_and(|r| r.session.context_record.is_some())
     }
 
     pub(super) fn generate_new_buffer(&mut self) -> Action {
@@ -71,7 +74,8 @@ impl Session {
         &self,
         directory: Option<&Path>,
     ) -> io::Result<Replacement> {
-        if self.context_storage.busy()
+        if self.context_membership.is_some()
+            || self.context_storage.busy()
             || self.context_prepared.is_some()
             || self.git_shutdown_active()
             || self.terminal_shutdown_active()
@@ -126,6 +130,7 @@ impl Session {
             expected: self.context_generation,
             root_identity,
             registration: None,
+            workspace_observations: Vec::new(),
         })
     }
     pub(in crate::session) fn begin_context(&mut self, replacement: Replacement) -> Action {
@@ -151,9 +156,10 @@ impl Session {
             Context::Directory(path) => Some(path),
             Context::Project(_) => replacement
                 .session
-                .context_project
+                .context_record
                 .as_ref()
-                .map(|p| &p.root.path),
+                .and_then(|r| r.roots().first())
+                .map(|r| &r.path),
             _ => None,
         };
         if let Some(path) = root {
@@ -164,6 +170,15 @@ impl Session {
             }) {
                 return self.error("Prepared directory changed; live sources retained");
             }
+        }
+        if !replacement
+            .workspace_observations
+            .iter()
+            .all(|(path, expected)| {
+                expected.is_none_or(|expected| projects::identity_matches(path.as_path(), expected))
+            })
+        {
+            return self.error("Prepared Workspace root changed; live sources retained");
         }
         let bookmarks = match self.buffers.context_bookmarks() {
             Ok(bookmarks) => bookmarks,
@@ -211,9 +226,19 @@ impl Session {
         destination.sync_input_context();
         destination.prepare_bookmark_markers();
         let project = matches!(destination.context, Context::Project(_));
+        let workspace = matches!(destination.context, Context::Workspace(_));
+        let unavailable_roots = destination
+            .tree
+            .entries()
+            .iter()
+            .filter(|e| e.depth() == 0 && e.unavailable())
+            .count();
         let missing = destination.context_unavailable.len();
         let directory = matches!(destination.context, Context::Directory(_));
         std::mem::swap(self, destination);
+        if workspace {
+            return self.message(&format!("Workspace opened; {unavailable_roots} unavailable root(s), {missing} unavailable saved file(s) retained; workspace-add-directory adds a root"));
+        }
         if project {
             return self.message(&format!(
                 "Project opened; {missing} unavailable saved file(s) retained"
@@ -232,6 +257,7 @@ impl Session {
     /// Source continuations own the departure token. Once a prompt fails or is
     /// canceled, reclaim the staged context instead of retaining a hidden job.
     pub(super) fn retire_context_preparation(&mut self) {
+        self.retire_workspace_membership();
         let Some(replacement) = &self.context_prepared else {
             return;
         };

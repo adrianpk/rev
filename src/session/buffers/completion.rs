@@ -7,7 +7,10 @@ impl Session {
         self.buffers.iter().map(|b| b.name().to_owned()).collect()
     }
 
-    pub(super) fn refresh_buffer_completion(&mut self, closed: crate::buffer::BufferId) {
+    pub(in crate::session) fn refresh_buffer_completion(
+        &mut self,
+        closed: crate::buffer::BufferId,
+    ) {
         let Some(Pending::Buffer {
             command: crate::command::BufferCommand::Switch,
             default,

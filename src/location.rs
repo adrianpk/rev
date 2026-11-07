@@ -5,7 +5,7 @@ use crate::{
     coordinates::Scalar,
     file::{Context, Location},
 };
-pub(crate) use registry::{Shared, Snapshot};
+pub(crate) use registry::{Closing, Shared, Snapshot};
 use std::sync::{Arc, Mutex};
 
 #[derive(Clone, Debug)]

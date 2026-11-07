@@ -522,3 +522,6 @@ fn retained_analysis_choice() {
 
 #[path = "projects.rs"]
 mod projects;
+
+#[path = "workspaces.rs"]
+mod workspaces;

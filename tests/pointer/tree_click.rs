@@ -16,8 +16,10 @@ pub(super) fn editor(fixture: &Fixture) -> Session {
         height: 12,
     })
     .unwrap();
-    session.load(&source).unwrap();
+    // Directory selection starts a fresh context; admit the retained source
+    // inside it before exercising pointer ownership and dirty-source checks.
     session.load(&fixture.0.join("root")).unwrap();
+    session.load(&source).unwrap();
     session.execute(Command::KeyboardQuit);
     session
 }

@@ -21,7 +21,7 @@ Use this section to look up exact behavior. For a guided start, read the
 - [File tree](file-tree.md): root selection, focus and filesystem operations.
 - [Rectangles](rectangles.md): display-column selection and separate retained rows.
 - [Gallery](gallery.md): screenshots of rev in use, newest first.
-- [Files, directories and Projects](contexts.md): explicit registration, selection and saved file sessions.
+- [Files, directories, Projects and Workspaces](contexts.md): explicit registration, peer roots, selection and saved file sessions.
 
 ## Preferences and display
 

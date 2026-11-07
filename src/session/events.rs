@@ -153,7 +153,7 @@ impl Session {
             return self.execute(crate::command::Command::KeyboardQuit);
         }
         if self.context_storage.locked() && !matches!(event, Event::Resize(_, _)) {
-            return self.message("Project state publication is pending; live sources retained");
+            return self.message("Context state publication is pending; live sources retained");
         }
         self.remember_context_position();
         let action = match self.defer_layout_event(event, now) {

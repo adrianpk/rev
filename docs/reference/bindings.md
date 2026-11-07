@@ -42,6 +42,12 @@ Every command below is also available as `M-x` followed by its exact name.
 | `M-x project-promote`, `:project-promote` | `project-promote` | Register the temporary directory while retaining live work. |
 | `M-x project-switch-project`, `:project-switch-project` | `project-switch-project` | Restore a Project selected by name/path. |
 | `M-x project-list`, `:project-list` | `project-list` | Open the same Project picker. |
+| `M-x workspace-create`, `:workspace-create` | `workspace-create` | Name and open an empty Workspace. |
+| `M-x workspace-open`, `:workspace-open` | `workspace-open` | Restore a Workspace selected by name/path. |
+| `M-x workspace-list`, `:workspace-list` | `workspace-list` | Open the same Workspace picker. |
+| `M-x workspace-add-directory`, `:workspace-add-directory` | `workspace-add-directory` | Append an existing directory to the active Workspace. |
+| `M-x workspace-add-project`, `:workspace-add-project` | `workspace-add-project` | Append a Project directory without importing its saved files. |
+| `M-x workspace-remove-root`, `:workspace-remove-root` | `workspace-remove-root` | Resolve only files losing coverage and remove their root membership. |
 | `M-x context-close`, `:context-close` | `context-close` | Resolve current source work, close its context and continue in an empty standalone buffer. |
 | `C-x C-s` | `save-buffer` | Save to the current destination. |
 | `C-x C-w` | `write-file` | Request another destination. |

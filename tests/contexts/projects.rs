@@ -1,7 +1,7 @@
 use super::*;
 use std::time::{Duration, Instant};
 
-fn ready(session: &mut Session, mut condition: impl FnMut(&mut Session) -> bool) {
+pub(super) fn ready(session: &mut Session, mut condition: impl FnMut(&mut Session) -> bool) {
     let until = Instant::now() + Duration::from_secs(5);
     while !condition(session) {
         assert!(
@@ -13,7 +13,7 @@ fn ready(session: &mut Session, mut condition: impl FnMut(&mut Session) -> bool)
         std::thread::sleep(Duration::from_millis(1));
     }
 }
-fn prompt(session: &mut Session, label: &str) -> bool {
+pub(super) fn prompt(session: &mut Session, label: &str) -> bool {
     session
         .frame()
         .unwrap()
@@ -21,7 +21,7 @@ fn prompt(session: &mut Session, label: &str) -> bool {
         .iter()
         .any(|r| r.text().contains(label))
 }
-fn configured(f: &fixture::Fixture, profile: &str) -> Session {
+pub(super) fn configured(f: &fixture::Fixture, profile: &str) -> Session {
     let mut session = editor(f, profile);
     session
         .set_context_storage(f.0.join("state/contexts.toml"))
@@ -45,7 +45,7 @@ pub(super) fn promote(session: &mut Session, profile: &str, title: &str) {
     name(session, title);
     ready(session, |s| matches!(s.context(), Context::Project(_)));
 }
-fn choose(session: &mut Session, profile: &str, title: &str) {
+pub(super) fn choose(session: &mut Session, profile: &str, title: &str) {
     named(session, profile, "project-switch-project");
     ready(session, |s| prompt(s, "Project:"));
     session.handle(Event::Paste(title.into()));
@@ -240,7 +240,7 @@ fn unavailable_sources() {
     assert_eq!(fs::read(&state).unwrap(), bytes);
     fs::write(&state, "invalid catalog").unwrap();
     session.execute(Command::ProjectList);
-    ready(&mut session, |s| s.echo().contains("Projects:"));
+    ready(&mut session, |s| s.echo().contains("Contexts:"));
     assert_eq!(fs::read_to_string(state).unwrap(), "invalid catalog");
 }
 

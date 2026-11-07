@@ -195,3 +195,86 @@ impl Buffers {
         }
     }
 }
+
+/// Every fallible close admission, including the last-buffer replacement, is
+/// staged before a Workspace membership publication can become durable.
+pub(crate) struct Closing {
+    stamps: Vec<Stamp>,
+    locations: crate::location::Closing,
+    bookmarks: crate::bookmark::Bookmarks,
+    scratch: Option<Buffer>,
+    replacement: BufferId,
+}
+impl Buffers {
+    pub(crate) fn prepare_closing(&self, ids: &[BufferId]) -> Result<Closing, Error> {
+        let mut bookmarks = self
+            .bookmarks
+            .lock()
+            .expect("bookmark owner poisoned")
+            .clone();
+        let mut locations = Vec::new();
+        let mut stamps = Vec::new();
+        for id in ids {
+            let buffer = self.get(*id)?;
+            bookmarks.checkpoint(buffer, true)?;
+            locations.extend(
+                self.locations
+                    .lock()
+                    .expect("location owner poisoned")
+                    .prepare_close(buffer)?,
+            );
+            stamps.push(buffer.stamp());
+        }
+        let retained = self
+            .iter()
+            .find(|b| !ids.contains(&b.id()) && b.terminal().is_none())
+            .map(Buffer::id);
+        let scratch = if retained.is_none() {
+            Some(Buffer::new("", &self.settings.settings().files)?)
+        } else {
+            None
+        };
+        let replacement = retained
+            .or_else(|| scratch.as_ref().map(Buffer::id))
+            .ok_or(Error::Exhausted)?;
+        Ok(Closing {
+            stamps,
+            locations,
+            bookmarks,
+            scratch,
+            replacement,
+        })
+    }
+    pub(crate) fn publish_closing(
+        &mut self,
+        closing: Closing,
+    ) -> Result<(Vec<BufferId>, BufferId), Error> {
+        for stamp in &closing.stamps {
+            self.get(stamp.buffer)?.current(*stamp)?;
+        }
+        if let Some(mut buffer) = closing.scratch {
+            buffer.name = "*scratch*".into();
+            self.insert(buffer);
+        }
+        let mut closed = Vec::new();
+        for stamp in closing.stamps {
+            let buffer = self
+                .entries
+                .remove(&stamp.buffer)
+                .expect("admitted close retains source");
+            if let Some(file) = buffer.file {
+                self.files.remove(file.path());
+            }
+            if self.initial == stamp.buffer {
+                self.initial = closing.replacement;
+            }
+            closed.push(stamp.buffer);
+        }
+        *self.bookmarks.lock().expect("bookmark owner poisoned") = closing.bookmarks;
+        self.locations
+            .lock()
+            .expect("location owner poisoned")
+            .publish_close(closing.locations);
+        Ok((closed, closing.replacement))
+    }
+}

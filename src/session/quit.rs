@@ -20,10 +20,13 @@ pub(super) enum Goal {
     #[default]
     Exit,
     Context(crate::context::Generation),
+    Roots(crate::context::Generation),
 }
 impl Goal {
     pub(super) fn label(self) -> &'static str {
-        if self == Self::Exit {
+        if matches!(self, Self::Roots(_)) {
+            "Remove root"
+        } else if self == Self::Exit {
             "Quit"
         } else {
             "Leave context"
@@ -36,6 +39,7 @@ impl Goal {
 #[derive(Default)]
 pub(super) struct Sources {
     discarded: Vec<crate::buffer::Stamp>,
+    targets: Option<Vec<BufferId>>,
     pub(super) goal: Goal,
 }
 impl Sources {
@@ -47,7 +51,13 @@ impl Sources {
     pub(super) fn permits(&self, buffers: &crate::buffer::Buffers) -> bool {
         buffers
             .iter()
-            .filter(|buffer| buffer.is_modified())
+            .filter(|buffer| {
+                buffer.is_modified()
+                    && self
+                        .targets
+                        .as_ref()
+                        .is_none_or(|ids| ids.contains(&buffer.id()))
+            })
             .all(|buffer| self.discarded.contains(&buffer.stamp()))
     }
 }
@@ -91,8 +101,32 @@ impl Session {
         })
     }
 
+    pub(in crate::session) fn begin_scoped_departure(
+        &mut self,
+        goal: Goal,
+        targets: Vec<BufferId>,
+    ) -> Action {
+        let buffers = targets
+            .iter()
+            .filter(|id| self.buffers.get(**id).is_ok_and(|b| b.is_modified()))
+            .copied()
+            .collect();
+        self.ask_quit(Quit {
+            buffers,
+            question: String::new(),
+            sources: Sources {
+                goal,
+                targets: Some(targets),
+                ..Sources::default()
+            },
+        })
+    }
+
     fn ask_quit(&mut self, mut quit: Quit) -> Action {
         let Some(id) = quit.buffers.front() else {
+            if let Goal::Roots(generation) = quit.sources.goal {
+                return self.finish_workspace_sources(generation, quit.sources);
+            }
             return self.finish_bookmark_quit(quit.sources);
         };
         let buffer = match self.buffers.get(*id) {
@@ -166,6 +200,9 @@ impl Session {
     }
 
     pub(in crate::session) fn finish_context_departure(&mut self, goal: Goal) -> Action {
+        if matches!(goal, Goal::Roots(_)) {
+            return self.error("Root removal requires its scoped source owner");
+        }
         if let Goal::Context(generation) = goal {
             return self.activate_context(generation);
         }
@@ -197,6 +234,7 @@ impl Session {
         );
         if quitting {
             self.context_prepared = None;
+            self.context_membership = None;
             self.cancel_terminal_shutdown();
             self.cancel_git_shutdown();
             self.pending = None;

@@ -146,6 +146,12 @@ impl Session {
                 | Command::ProjectPromote
                 | Command::ProjectSwitch
                 | Command::ProjectList
+                | Command::WorkspaceCreate
+                | Command::WorkspaceOpen
+                | Command::WorkspaceList
+                | Command::WorkspaceAddDirectory
+                | Command::WorkspaceAddProject
+                | Command::WorkspaceRemoveRoot
         ) {
             return None;
         }

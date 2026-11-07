@@ -74,6 +74,12 @@ pub enum Command {
     ProjectPromote,
     ProjectSwitch,
     ProjectList,
+    WorkspaceCreate,
+    WorkspaceOpen,
+    WorkspaceList,
+    WorkspaceAddDirectory,
+    WorkspaceAddProject,
+    WorkspaceRemoveRoot,
     GotoLine,
     MouseMode,
     VisualLineMode,
@@ -120,7 +126,7 @@ pub enum Command {
 }
 
 impl Command {
-    pub const ALL: [Self; 603] = [
+    pub const ALL: [Self; 609] = [
         Self::Git(GitCommand::Clone),
         Self::Git(GitCommand::CloneShallow),
         Self::Git(GitCommand::CloneBare),
@@ -426,6 +432,12 @@ impl Command {
         Self::ProjectPromote,
         Self::ProjectSwitch,
         Self::ProjectList,
+        Self::WorkspaceCreate,
+        Self::WorkspaceOpen,
+        Self::WorkspaceList,
+        Self::WorkspaceAddDirectory,
+        Self::WorkspaceAddProject,
+        Self::WorkspaceRemoveRoot,
         Self::GotoLine,
         Self::MouseMode,
         Self::VisualLineMode,
@@ -785,6 +797,12 @@ impl Command {
             Self::ProjectPromote => "project-promote",
             Self::ProjectSwitch => "project-switch-project",
             Self::ProjectList => "project-list",
+            Self::WorkspaceCreate => "workspace-create",
+            Self::WorkspaceOpen => "workspace-open",
+            Self::WorkspaceList => "workspace-list",
+            Self::WorkspaceAddDirectory => "workspace-add-directory",
+            Self::WorkspaceAddProject => "workspace-add-project",
+            Self::WorkspaceRemoveRoot => "workspace-remove-root",
             Self::GotoLine => "goto-line",
             Self::SaveBuffer => "save-buffer",
             Self::RevertBuffer => "revert-buffer",

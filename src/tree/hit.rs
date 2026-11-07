@@ -6,7 +6,9 @@ use super::Tree;
 /// and clipped text never supply an opening path or a replacement row index.
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct Hit {
-    root: PathBuf,
+    root: Option<PathBuf>,
+    workspace: Option<crate::context::WorkspaceId>,
+    root_id: Option<crate::context::RootId>,
     top: usize,
     index: usize,
     path: PathBuf,
@@ -20,7 +22,9 @@ impl Tree {
     pub fn hit(&self, row: u16) -> Option<Hit> {
         let entry = self.row_entry(row)?;
         Some(Hit {
-            root: self.root.clone()?,
+            root: self.root.clone(),
+            workspace: self.workspace.as_ref().map(|(id, _)| id.clone()),
+            root_id: entry.root_id.clone(),
             top: self.top,
             index: self.top + usize::from(row),
             path: entry.path.clone(),
@@ -32,13 +36,17 @@ impl Tree {
     /// Select only the retained root, viewport slot and entry identity together.
     /// A changed projection cannot substitute another row. This performs no IO.
     pub fn select_hit(&mut self, hit: &Hit) -> bool {
-        if self.root.as_ref() != Some(&hit.root) || self.top != hit.top {
+        if self.root != hit.root
+            || self.workspace.as_ref().map(|(id, _)| id) != hit.workspace.as_ref()
+            || self.top != hit.top
+        {
             return false;
         }
         let Some(entry) = self.entries.get(hit.index) else {
             return false;
         };
-        if entry.path != hit.path
+        if entry.root_id != hit.root_id
+            || entry.path != hit.path
             || entry.directory != hit.directory
             || entry.symlink != hit.symlink
         {

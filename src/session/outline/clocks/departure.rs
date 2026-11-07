@@ -5,6 +5,7 @@ use crate::session::Pending;
 pub(in crate::session) enum Departure {
     Quit,
     Context(crate::context::Generation),
+    Roots(crate::context::Generation),
     Close(BufferId),
 }
 pub(in crate::session) enum Prompt {
@@ -13,6 +14,12 @@ pub(in crate::session) enum Prompt {
     Stored(crate::org::io::ClockState),
 }
 impl Prompt {
+    pub(in crate::session) fn root_departure(&self) -> Option<crate::context::Generation> {
+        match self {
+            Self::Departure(Departure::Roots(g)) => Some(*g),
+            _ => None,
+        }
+    }
     pub(in crate::session) fn context_departure(&self) -> Option<crate::context::Generation> {
         match self {
             Self::Departure(Departure::Context(generation)) => Some(*generation),
@@ -82,6 +89,7 @@ impl Session {
             Departure::Context(generation) => {
                 self.begin_departure(crate::session::quit::Goal::Context(generation))
             }
+            Departure::Roots(generation) => self.begin_workspace_sources(generation),
             Departure::Close(id) => self.kill_buffer(id),
         })
     }

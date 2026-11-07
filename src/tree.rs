@@ -7,6 +7,7 @@ mod presentation;
 mod refresh;
 mod rename;
 mod root;
+mod workspace;
 
 pub use create::{CreateKind, Creation};
 pub use entry::Entry;
@@ -24,6 +25,7 @@ use crate::view::Size;
 #[derive(Default)]
 pub struct Tree {
     root: Option<PathBuf>,
+    workspace: Option<(crate::context::WorkspaceId, Vec<crate::context::Root>)>,
     visible: bool,
     focused: bool,
     entries: Vec<Entry>,
@@ -111,6 +113,10 @@ impl Tree {
     }
 
     pub fn root(&self) -> Option<&Path> {
+        if let Some((_, roots)) = &self.workspace {
+            let id = self.selected()?.root_id.as_ref()?;
+            return roots.iter().find(|r| &r.id == id).map(|r| r.path.as_path());
+        }
         self.root.as_deref()
     }
     pub fn visible(&self) -> bool {
@@ -139,7 +145,7 @@ impl Tree {
     }
 
     pub(crate) fn focus(&mut self, size: Size) -> io::Result<()> {
-        if self.root.is_none() {
+        if self.root.is_none() && self.workspace.is_none() {
             self.set_root(std::env::current_dir()?);
         }
         self.initialize()?;
@@ -166,6 +172,9 @@ impl Tree {
 
     /// Report incomplete retained directory observations without further IO.
     pub fn diagnostic(&self) -> Option<&'static str> {
+        if self.entries.iter().any(|e| e.unavailable) {
+            return Some("Workspace contains unavailable roots; membership is retained");
+        }
         self.entries
             .iter()
             .any(|entry| entry.incomplete)
@@ -190,7 +199,17 @@ impl Tree {
     }
 
     pub(crate) fn status(&self) -> &str {
-        if self.focused { "Tree *" } else { "Tree" }
+        if self.workspace.is_some() {
+            if self.focused {
+                "Workspace *"
+            } else {
+                "Workspace"
+            }
+        } else if self.focused {
+            "Tree *"
+        } else {
+            "Tree"
+        }
     }
 
     fn row_entry(&self, row: u16) -> Option<&Entry> {
@@ -206,6 +225,9 @@ impl Tree {
     pub(crate) fn line(&self, row: u16, width: u16) -> Result<String, crate::coordinates::Error> {
         match self.row_entry(row) {
             Some(entry) => entry.label(width, self.policy.decorated, self.nerd_fonts),
+            None if self.workspace.is_some() && self.entries.is_empty() && row == 0 => {
+                Ok("No roots; workspace-add-directory".into())
+            }
             None => Ok(String::new()),
         }
     }

@@ -24,6 +24,7 @@ impl Session {
         }
         self.directory_prompt = directory;
         self.project_directory_prompt = false;
+        self.workspace_directory_prompt = false;
         let home = std::env::var_os("HOME").map(PathBuf::from);
         self.pending = Some(Pending::Path(Box::new(Navigation::new(base, home))));
         self.message("")
@@ -78,6 +79,12 @@ impl Session {
             Ok(path) => {
                 if self.directory_prompt && !path.is_dir() {
                     return self.error("Open directory requires an existing directory");
+                }
+                if self.workspace_directory_prompt {
+                    self.workspace_directory_prompt = false;
+                    self.input.cancel();
+                    self.pending = None;
+                    return self.workspace_directory(path);
                 }
                 if self.project_directory_prompt {
                     self.project_directory_prompt = false;

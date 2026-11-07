@@ -76,6 +76,20 @@ terminal state are excluded. Missing files are reported and skipped without
 creating empty replacements. See [Project sessions](../../reference/contexts.md)
 for cancellation, state location and storage failure behavior.
 
+To collect several directories, run `M-x workspace-create` and enter a name.
+The empty Workspace offers `workspace-add-directory`. Add your backend and
+frontend directories with that command; each appears as a collapsed peer root.
+Use `workspace-add-project` to select a registered Project's directory while
+keeping its saved files independent. Expand and browse each root normally.
+
+Return with `workspace-open` or `workspace-list`. Its own files and positions
+restore, including loose files. Missing roots stay listed while available roots
+remain usable. `workspace-remove-root` removes membership, keeps files covered by
+another root and asks about dirty files that lose coverage. Cancel keeps the root
+and sources; removing the last root leaves a valid empty Workspace. See
+[Workspace roots](../../reference/contexts.md#workspace-roots) for the exact policy.
+M-x works from tree focus; C-g returns to modal source editing before `:`.
+
 To combine browsing with editing, start with `rev .`, use `C-x C-f` and Tab to
 complete a file, then press Enter. Split with `C-x 3` and click another file in
 the tree: it opens in the editing pane you last selected. Each pane wraps at its
