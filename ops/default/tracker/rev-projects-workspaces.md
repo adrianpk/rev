@@ -77,17 +77,18 @@ Integration: PR #300 merged into dev at `ff3b361ece896a42155c8817f0e51dc0e6a78fa
 
 ## Slice 4: Workspace roots and trees
 
-State: active
+State: reviewing
 Dependency: Slice 3 integrated
 Requirements: PW09-PW11, PW15-PW16, PW18-PW22
 Branch: `feat/rev-projects-workspaces-04-workspaces`
 PR: pending
 Report: `ops/default/report/slices/rev-projects-workspaces/slice-4-workspaces.md`
 Validation: the exact ordered Slice 4 commands in the plan/local configuration
+Implementation: T4.1/T4.2/T4.3 in `8a356b7dd14b33ac7c6e2cb3760f3dde1725362a`, including eight new Workspace cases, peer-root geometry/identity, scoped native closure and delivered guidance. All five implementation commands passed, including 45 context, 67 pointer and 71 tree tests; final clean-HEAD evidence remains controller-owned.
 
-- [ ] T4.1: Deliver empty Workspace creation, named selection/listing and independent basic sessions. Add directories or Project-derived paths without importing Project sessions or consuming registrations.
-- [ ] T4.2: Project ordered root identities into the existing decorated/minimal tree, retaining lazy discovery, Nerd Fonts policy, hit geometry and canonical buffers across aliases/overlap. Preserve unavailable roots and their saved entries.
-- [ ] T4.3: Deliver checked root removal, remapping surviving overlapping file references and resolving only affected buffers before committing membership. Test empty/partial/unavailable roots, both profiles and native pointer/keyboard behavior; document delivered workflows.
+- [x] T4.1: Deliver empty Workspace creation, named selection/listing and independent basic sessions. Add directories or Project-derived paths without importing Project sessions or consuming registrations.
+- [x] T4.2: Project ordered root identities into the existing decorated/minimal tree, retaining lazy discovery, Nerd Fonts policy, hit geometry and canonical buffers across aliases/overlap. Preserve unavailable roots and their saved entries.
+- [x] T4.3: Deliver checked root removal, remapping surviving overlapping file references and resolving only affected buffers before committing membership. Test empty/partial/unavailable roots, both profiles and native pointer/keyboard behavior; document delivered workflows.
 
 ## Slice 5: Artifact lifecycle and conversion
 
