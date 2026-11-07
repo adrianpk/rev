@@ -1,7 +1,7 @@
 ---
 id: TKT-20261031093408
 title: Highlight tree selection and synchronize the active buffer
-status: open
+status: ready
 kind: follow_up
 severity: unclassified
 priority: unclassified
@@ -9,6 +9,7 @@ scope: ui
 tags: tree, selection, buffers
 source: chat
 reported_at: 2026-10-31T09:34:08Z
+ready_at: 2026-11-07T15:19:21Z
 commits: []
 ---
 
@@ -41,18 +42,28 @@ the editing pane has focus, rather than assuming the editor has no selection
 style anywhere. This is static inspection supporting the owner's report, not
 a separate terminal reproduction.
 
-## Decisions before development
+## Approved specification
 
-- With different files in multiple panes, define which view drives the active
-  file indication. The active or most recently active editing pane is a candidate.
-- Distinguish keyboard tree selection from the active-file indication so that
-  navigating unopened entries is not immediately reset by synchronization.
-  Decide whether separate visual states or an explicit transition policy is needed.
-- Define behavior for unnamed buffers, files outside the chosen root, aliases,
-  collapsed ancestors and unavailable entries. Do not imply a different file
-  is active or introduce automatic root changes to make a marker appear.
-- Select palette-role reuse and any focus-dependent contrast before adding new
-  configuration. Exact colors and automatic expansion/reveal are not selected.
+Owner decision on 2026-11-06: synchronization must be configurable and enabled
+by default. [File Tree Selection and Active Buffer](../../spec/editor-tree-selection.md)
+and its model record the field and complete focus/reveal rules. The 2026-11-07
+revision reconciles the behavior with current Project/Workspace roots. The owner
+approved the specification and requested a plan, slicing, tracker and Looper.
+
+- Follow the active editing pane; tree/prompt focus retains its editing origin.
+  Use one visible highlight, with separate manual browsing and active-file
+  identities so keyboard navigation is not reset by following.
+- Keep selected-row feedback after focus leaves the tree. Reuse existing tree
+  selection colors and NO_COLOR reverse video in both tree presentations.
+- Match only reliable loaded entries. Scroll to a loaded offscreen file on an
+  actual follow transition; preserve collapsed directories and explicit roots.
+  Unnamed, out-of-root, filtered or unavailable targets have no active-file mark.
+- In overlapping Workspace routes, retain an eligible matching route or use
+  declared root order, without duplicating the buffer or highlighting two rows.
+
+The [plan](../../plan/rev-tree-selection.md) and
+[tracker](../../tracker/rev-tree-selection.md) define one implementation slice.
+The ticket is ready; its actual start and later transitions belong to that run.
 
 ## Acceptance direction
 

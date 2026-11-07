@@ -13,7 +13,7 @@ Configuration model: [Better File Tree Model](editor-better-file-tree-model.md)
 Plan: [Better File Tree Delivery](../plan/rev-better-file-tree.md)
 Tracker: [Better File Tree Tracker](../tracker/rev-better-file-tree.md)
 Current interface: [File tree reference](../../../docs/reference/file-tree.md)
-Related follow-up: [Tree selection and active-buffer synchronization](../ticket/open/20261031093408-highlight-tree-selection-and-sync-active-buffer.md)
+Related follow-up: [Tree selection and active-buffer synchronization](../ticket/ready/20261031093408-highlight-tree-selection-and-sync-active-buffer.md)
 
 ## Purpose
 
