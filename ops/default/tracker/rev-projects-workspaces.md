@@ -132,10 +132,10 @@ State: reviewing
 Dependency: Slice 6 integrated
 Requirements: PW01-PW22 together
 Branch: `test/rev-projects-workspaces-07-acceptance`
-PR: pending
+PR: [#304](https://forge.adrianpk.com/adrianpk/rev/pulls/304)
 Report: `ops/default/report/slices/rev-projects-workspaces/slice-7-acceptance.md`
 Validation: the exact ordered Slice 7 commands in the plan/local configuration
-Implementation: T7.1/T7.2/T7.3 in `953634c3341543395ef51180796d71f0e7b79d08`. All six implementation commands passed, including all-target Clippy and 62 context cases. The focused acceptance script passed native ordinary/count/byte boundaries, two 512-file rounds, cancellation/overflow/resource checks and three serial PTY starts per profile. Exact measurements and memory costs are in the report; final clean-HEAD evidence remains controller-owned.
+Implementation: T7.1/T7.2/T7.3 in `953634c3341543395ef51180796d71f0e7b79d08`. Report introduction in `f65b3a341e0d2c214b97a25810146e9955ecca6c`. All six implementation commands passed, including all-target Clippy and 62 context cases. The focused acceptance script passed native ordinary/count/byte boundaries, two 512-file rounds, cancellation/overflow/resource checks and three serial PTY starts per profile. Exact measurements and memory costs are in the report; final clean-HEAD evidence remains controller-owned.
 
 - [x] T7.1: Create examples/projects-workspaces-acceptance.rs and scripts/check-projects-workspaces.sh with the existing Rust/Bash surface and PTY helpers; keep domain/storage variants in native cases and real editor journeys representative.
 - [x] T7.2: Cover one bounded real journey per profile across startup, explicit targets, promotion, Project/Workspace selection, sessions, membership, conversion, duplicate/cancel and shutdown. Exercise banner fitting/NO_COLOR, tree variants and Unicode source anchors without multiplying the entire matrix through PTYs.

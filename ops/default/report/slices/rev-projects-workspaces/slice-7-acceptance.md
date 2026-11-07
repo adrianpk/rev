@@ -5,7 +5,9 @@ Delivery set: rev-projects-workspaces
 Plan: [Projects and Workspaces Delivery](../../../plan/rev-projects-workspaces.md)
 Tracker: [Projects and Workspaces Tracker](../../../tracker/rev-projects-workspaces.md)
 Branch: `test/rev-projects-workspaces-07-acceptance`
-PR: pending
+PR: `#304`
+Canonical PR: [#304](https://forge.adrianpk.com/adrianpk/rev/pulls/304)
+Report introduction: [immutable report](https://forge.adrianpk.com/adrianpk/rev/src/commit/f65b3a341e0d2c214b97a25810146e9955ecca6c/ops/default/report/slices/rev-projects-workspaces/slice-7-acceptance.md)
 
 ## Purpose
 
