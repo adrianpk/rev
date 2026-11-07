@@ -149,10 +149,10 @@ State: reviewing
 Dependency: Slice 7 integrated
 Requirements: PW23 and joint PW01-PW22 reconciliation
 Branch: `docs/rev-projects-workspaces-08-guidance`
-PR: pending
+PR: [#305](https://forge.adrianpk.com/adrianpk/rev/pulls/305)
 Report: `ops/default/report/slices/rev-projects-workspaces/slice-8-guidance.md`
 Validation: the exact ordered Slice 8 commands in the plan/local configuration
-Implementation: T8.1/T8.2 and the Unreleased/gate-preparation portion of T8.3 in `eba31a7072fbe1e4ad78e3f89b034e5ec0c48391`. All six implementation checks passed; the checker covered 91 pages, 622 local links, 618 commands and 289 configuration entries. Seven checker tests and the local Spore build passed. T8.3 remains unchecked for its controller-owned post-integration gate/closure portion.
+Implementation: T8.1/T8.2 and the Unreleased/gate-preparation portion of T8.3 in `eba31a7072fbe1e4ad78e3f89b034e5ec0c48391`. All six implementation checks passed; the checker covered 91 pages, 622 local links, 618 commands and 289 configuration entries. Seven checker tests and the local Spore build passed. Report introduction: `533813a14bf21856d9d04890b0b28c05bf05eff7`; canonical PR #305. T8.3 remains unchecked for its controller-owned post-integration gate/closure portion.
 
 - [x] T8.1: Complete the Diataxis guidance with short CLI examples, a guided file/directory/Project/Workspace path, focused lifecycle how-tos, exact command/state/limit reference and a concise context explanation. Use small textual UI examples where helpful.
 - [x] T8.2: Keep Markdown as the source for Spore and reconcile CLI/navigation/interaction baselines with approved context ownership. Retain historical evidence and unrelated pending work; document no inactive startup.restore_session option as current functionality.
