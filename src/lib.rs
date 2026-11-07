@@ -6,6 +6,7 @@ pub mod buffer;
 pub mod command;
 mod completion;
 pub mod config;
+pub mod context;
 pub mod coordinates;
 pub mod display;
 pub mod file;
