@@ -5,7 +5,7 @@ Delivery set: rev-tree-parent-navigation
 Plan: [Parent Navigation Delivery](../../../plan/rev-tree-parent-navigation.md)
 Tracker: [Parent Navigation Tracker](../../../tracker/rev-tree-parent-navigation.md)
 Branch: `feat/rev-tree-parent-navigation-01-parent`
-PR: pending
+PR: `#312`
 Integrated: pending
 
 ## Purpose
@@ -41,10 +41,15 @@ description, binding and acceptance. It aligns the compiled registry, command
 and binding references, packaged configuration sample and live description
 inventory at 624 names. Historical description delivery evidence remains unchanged.
 
-T1.3 introduces this report and updates tree/reference guidance, the tree map's
+T1.3: `22c7a47ad13f8623058ce3c78934aa1e3a157046` introduces this report and
+updates tree/reference guidance, the tree map's
 24-entry count, Markdown User Guide and reader-facing Unreleased behavior.
 The Spore build projects the Markdown sources to ignored local output; it does
 not maintain a second versioned guide or publish a site.
+
+Canonical [PR #312](https://forge.adrianpk.com/adrianpk/rev/pulls/312) targets
+`dev` with the approved title. Its report link uses the introduction commit
+above. Integration remains pending with the controller.
 
 The Tree owner prepares the complete observation before any live assignment.
 Session routing applies the existing tree-focus admission and repeat suppression;

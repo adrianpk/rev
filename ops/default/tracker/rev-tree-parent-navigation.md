@@ -21,7 +21,7 @@ Progress owner: Looper checkpoint and canonical validation evidence
 State: reviewing
 Requirements: TUP01-TUP04
 Branch: `feat/rev-tree-parent-navigation-01-parent`
-PR: pending
+PR: `#312`
 Integrated: pending
 Report: `ops/default/report/slices/rev-tree-parent-navigation/slice-1-parent.md`
 Validation: the nine exact ordered checks in the plan and local configuration
@@ -39,8 +39,10 @@ T1.1: `d5e64b2fc37f98b51f887dbef87030cd665f24f4` implements checked parent
 observation and fixed-root policy.
 T1.2: `341e6755d878f749d92aed316381fff376d2f076` integrates the command,
 binding, catalogs and native acceptance.
-T1.3: the report-introduction commit records guidance, Unreleased notes, the
-24-entry tree map and the canonical report. The final PR-reference HEAD must
+T1.3: `22c7a47ad13f8623058ce3c78934aa1e3a157046` introduces guidance,
+Unreleased notes, the 24-entry tree map and the canonical report.
+Canonical [PR #312](https://forge.adrianpk.com/adrianpk/rev/pulls/312) targets
+`dev` with the approved title and immutable report link. The final PR-reference HEAD must
 pass the nine unchanged commands through the controller validator before handoff.
 The controller owns execution state; this document does not replace its
 checkpoint or invent integration/validation results.
