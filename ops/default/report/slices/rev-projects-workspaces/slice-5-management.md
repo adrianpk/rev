@@ -5,7 +5,9 @@ Delivery set: rev-projects-workspaces
 Plan: [Projects and Workspaces Delivery](../../../plan/rev-projects-workspaces.md)
 Tracker: [Projects and Workspaces Tracker](../../../tracker/rev-projects-workspaces.md)
 Branch: `feat/rev-projects-workspaces-05-management`
-PR: pending
+PR: `#302`
+Canonical PR: [#302](https://forge.adrianpk.com/adrianpk/rev/pulls/302)
+Report introduction: [immutable report](https://forge.adrianpk.com/adrianpk/rev/src/commit/5813d3f9dfaba049598fac448f48defef434c1b9/ops/default/report/slices/rev-projects-workspaces/slice-5-management.md)
 
 ## Purpose
 

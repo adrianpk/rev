@@ -98,10 +98,10 @@ State: reviewing
 Dependency: Slice 4 integrated
 Requirements: PW07-PW08, PW12-PW14, PW17-PW19, PW22
 Branch: `feat/rev-projects-workspaces-05-management`
-PR: pending
+PR: [#302](https://forge.adrianpk.com/adrianpk/rev/pulls/302)
 Report: `ops/default/report/slices/rev-projects-workspaces/slice-5-management.md`
 Validation: the exact ordered Slice 5 commands in the plan/local configuration
-Implementation: T5.1/T5.2 and T5.3 native cases/guidance in `71ec2ee2b563e1a547b3f5e02edf49567a617e3c`, including ten lifecycle cases, atomic conversion/duplication, checked relocation and source-preserving rename/forget. All five implementation commands passed, including 55 context, 75 file and 25 recovery tests; final clean-HEAD evidence remains controller-owned.
+Implementation: T5.1/T5.2 and T5.3 native cases/guidance in `71ec2ee2b563e1a547b3f5e02edf49567a617e3c`, including ten lifecycle cases, atomic conversion/duplication, checked relocation and source-preserving rename/forget. Report introduction in `5813d3f9dfaba049598fac448f48defef434c1b9`. All five implementation commands passed, including 55 context, 75 file and 25 recovery tests; final clean-HEAD evidence remains controller-owned.
 
 - [x] T5.1: Deliver rename/forget and explicit root relocation with stable IDs, root-relative remapping and unchanged source directories. Forgetting an active Project retains its live directory work; forgetting an active Workspace resolves sources and leaves no arbitrary replacement root.
 - [x] T5.2: Deliver atomic Project-to-Workspace conversion and independent duplication, including active/inactive sources, fresh Workspace/root IDs, retained live dirty text where permitted and cancellation before duplicate publication.
