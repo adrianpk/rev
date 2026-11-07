@@ -1,7 +1,7 @@
 ---
 id: TKT-20261031093408
 title: Highlight tree selection and synchronize the active buffer
-status: in_progress
+status: reviewing
 kind: follow_up
 severity: unclassified
 priority: unclassified
@@ -12,7 +12,8 @@ reported_at: 2026-10-31T09:34:08Z
 ready_at: 2026-11-07T15:19:21Z
 started_at: 2026-11-07T17:17:52Z
 branch: feat/rev-tree-selection-01-follow
-commits: [0b5e987a20a02bbef1d7c53a1ae91749ab42b813]
+reviewed_at: 2026-11-07T17:40:15Z
+commits: [0b5e987a20a02bbef1d7c53a1ae91749ab42b813, 88087201423c6ea4e331d0328fd295ae94942607]
 ---
 
 # Highlight tree selection and synchronize the active buffer
@@ -65,8 +66,8 @@ approved the specification and requested a plan, slicing, tracker and Looper.
 
 The [plan](../../plan/rev-tree-selection.md) and
 [tracker](../../tracker/rev-tree-selection.md) define one implementation slice.
-Implementation has started in the approved Slice 1 branch; review and closure
-remain with this delivery.
+Slice 1 implementation and native checks are complete. Canonical review and
+controller-owned integration remain pending.
 
 ## Acceptance direction
 
@@ -82,3 +83,9 @@ This follows the solved [clicked-entry ticket](../solved/20261030231016-select-t
 and [File and Directory Navigation](../../spec/editor-file-navigation.md).
 Their delivered behavior and historical evidence remain intact. This ticket
 captures later work; it does not reopen rev-wrap-navigation or start implementation.
+
+## Implementation evidence
+
+The [Slice 1 report](../../report/slices/rev-tree-selection/slice-1-follow.md)
+records delivered behavior, native validation, task commits and canonical review.
+The ticket enters reviewing; integration and final-gate closure remain pending.

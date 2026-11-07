@@ -9,6 +9,10 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 
 ### Added
 
+- File-tree selection stays visible after opening a file. By default, the tree
+  follows the active editing file across buffers and panes, scrolling loaded
+  matches into view while preserving collapsed folders and chosen roots.
+  Set `tree.follow_active_buffer = false` to retain manual selection instead.
 - Every built-in command shows a concise description in M-x and modal colon
   lists, including commands without shortcuts and context-specific actions.
   Descriptions clip to the available width; Tab still completes only the name.

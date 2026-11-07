@@ -7,7 +7,7 @@ Approved: product owner; one-slice plan, tracker and Looper delivery
 Plan: [File Tree Selection Delivery](../plan/rev-tree-selection.md)
 Specification: [File Tree Selection and Active Buffer](../spec/editor-tree-selection.md)
 Model: [Tree Selection Policy](../spec/editor-tree-selection-model.md)
-Ticket: [TKT-20261031093408](../ticket/in_progress/20261031093408-highlight-tree-selection-and-sync-active-buffer.md)
+Ticket: [TKT-20261031093408](../ticket/reviewing/20261031093408-highlight-tree-selection-and-sync-active-buffer.md)
 Concern: [Pending Editor Work](../README.md)
 Active slice: Slice 1 - Selection and following
 Progress owner: retained Looper checkpoint and canonical validation evidence
@@ -20,7 +20,7 @@ Progress owner: retained Looper checkpoint and canonical validation evidence
 
 ## Slice 1: Selection and following
 
-State: in_progress
+State: reviewing
 Dependency: approved preparation on clean dev; command-description set closed
 Requirements: TSV01-TSV04 and the approved configuration/model policy
 Branch: `feat/rev-tree-selection-01-follow`
@@ -43,6 +43,6 @@ Validation: the ten exact ordered commands in the plan and local configuration
 - [ ] Complete the plan, tracker, specification and model and reconcile the index.
 - [ ] Preserve tested runtime and guide inputs during documentation-only closure.
 
-Slice 1 implementation is in progress. The integrated gate and delivery closure
-remain pending with the controller. Other pending visibility, alias and capability
-work remains separate.
+Slice 1 implementation and native checks are complete; canonical PR references
+are pending. The integrated gate and delivery closure remain with the controller.
+Other pending visibility, alias and capability work remains separate.

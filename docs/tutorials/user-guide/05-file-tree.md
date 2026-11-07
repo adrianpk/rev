@@ -6,6 +6,29 @@ From your notes session, open the neighboring `todo.txt` through the file tree.
 2. Its immediate entries are already shown. Use Up/Down to select `todo.txt`.
 3. Press Enter to open it. Keyboard focus returns to the editing pane.
 
+The `todo.txt` row stays highlighted after it opens, including when it was
+already displayed. Switch to `notes.txt` with `C-x b`: the highlight follows
+the active file. In split panes, selecting another editing pane follows that
+pane's file. The matching row scrolls into view if it is already loaded.
+
+Press `C-x t f` and browse another entry without opening it. That entry gets
+the highlight while the tree has focus. Press Tab or `C-g` to return to editing;
+the highlight returns to the active file, and your browsing position is retained
+for the next tree visit. A collapsed folder stays collapsed. An unnamed buffer
+or a file outside the chosen tree has no active-file highlight.
+
+To keep your manual selection while switching editing buffers, edit the setting
+in the existing `[tree]` table and restart:
+
+```toml
+[tree]
+follow_active_buffer = false
+```
+
+Set it to true and restart to restore following. The default is true when the
+setting is absent. Both choices keep persistent selection feedback without
+changing your text or undo history.
+
 You can also click `todo.txt` to select and open it. Clicking a directory
 expands or collapses it. For selection-only clicks, set
 `mouse.tree_activate_on_click = false` in startup configuration, then use Enter

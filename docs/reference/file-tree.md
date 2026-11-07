@@ -4,7 +4,9 @@
 hidden. First display expands the root's immediate entries and focuses the
 retained selection. Child directories stay collapsed. Later hide/show preserves
 deliberate collapse and selection.
-The focused selection uses its palette colors, or reverse video with `NO_COLOR`. The footer shows `Tree *` while the tree owns workspace input.
+Selection stays visible after focus returns to editing, using its palette
+colors or reverse video with `NO_COLOR`. The footer shows `Tree *` and the
+terminal cursor belongs to the tree only while it owns workspace input.
 The editor's selected window, text, point, mark and undo history remain live.
 The tree and editing panes share Unicode separators and connected junctions;
 content and footer stay inside reserved cells alongside nested splits.
@@ -19,6 +21,35 @@ follow the visiting file's resolved parent; explicit `tree.root = "cwd"` retains
 launch cwd. A standalone context without a file uses launch cwd when browsing is requested.
 Project roots and Workspace membership follow their [context ownership](contexts.md).
 Drawing and visible movement perform no filesystem reads or Git discovery.
+
+## Selection and active files
+
+The startup setting `tree.follow_active_buffer = true` is the default, including
+when omitted from an existing configuration. While editing owns focus, the tree
+highlights the active pane's visiting file if its row is loaded. Switching
+buffers or editing panes follows that file. A loaded offscreen match scrolls
+into view on that transition; ordinary repainting and point movement preserve
+manual scrolling. Returning to the tree restores its separate browsing selection.
+Browsing unopened entries does not switch buffers. Prompts retain their
+originating tree or editing role.
+
+Set `tree.follow_active_buffer = false` in your existing `[tree]` table and
+restart to keep the last manual tree selection highlighted while changing
+editing buffers. Persistent feedback works in both minimal and decorated
+presentation, with either symbol catalog and with `NO_COLOR`.
+
+Following never expands a collapsed directory, exposes a filtered entry,
+shows a hidden tree or replaces an explicit root. Unnamed/non-file buffers,
+outside files and missing loaded matches have no active-file highlight.
+Explicit expansion or refresh can make a file eligible again. In an overlapping
+Workspace, a matching browsing route wins; otherwise the first loaded match
+in declared root order wins. Only one row is highlighted.
+
+Matching uses admitted source identities, including aliases established by a
+successful visit. An unobserved alias is not inferred from its label. Refresh
+retires old alias evidence; another successful visit can establish it again.
+Following and drawing perform no extra filesystem reads and leave source bytes,
+dirty state, point, mark and history unchanged.
 
 Tree visibility does not determine context kind. Showing the tree while editing
 standalone files uses the same file-parent/cwd browsing policy and preserves
@@ -86,7 +117,7 @@ No content read, language server or parser is needed for classification.
 
 The `palette.tree_entries` foregrounds apply only in decorated mode.
 `palette.tree` remains the pane background; `palette.tree_selected` and
-`palette.tree_selected_text` keep focused selection readable. Structural
+`palette.tree_selected_text` keep selection readable across focus changes. Structural
 symbols and reverse-video selection remain available with `NO_COLOR`.
 See [Scope and defaults](defaults.md) for startup values and palette defaults.
 

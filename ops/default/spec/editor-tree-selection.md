@@ -6,7 +6,7 @@ Updated: 2026-11-07
 Inspection baseline: `978deacc49f6f5f948cea2070919ce91031f67a2`
 Format: OpenSpec capability addition
 Approved: product owner; prepare the plan, slicing and tracker and start one Looper delivery on 2026-11-07
-Source: [TKT-20261031093408](../ticket/in_progress/20261031093408-highlight-tree-selection-and-sync-active-buffer.md)
+Source: [TKT-20261031093408](../ticket/reviewing/20261031093408-highlight-tree-selection-and-sync-active-buffer.md)
 Baselines: [File navigation](editor-file-navigation.md), [Better file tree](editor-better-file-tree.md), [Files, Directories, Projects and Workspaces](editor-projects-workspaces.md)
 Model: [Tree Selection Policy](editor-tree-selection-model.md)
 Owner decision: active-buffer synchronization is configurable and enabled by default
