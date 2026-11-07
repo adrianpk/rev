@@ -9,6 +9,10 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 
 ### Added
 
+- Run `quit` from M-x or modal colon as a shorter name for the existing guarded
+  exit. Complete `qui` with Tab; saving, discarding, cancellation and active-process
+  decisions stay the same as with `C-x C-c`.
+
 - Choose how new Org views open with `org.startup_folded` or document STARTUP
   metadata. Keep ordinary text visible with drawers hidden using `showall`,
   choose heading-only states, or retain the fully visible `showeverything`

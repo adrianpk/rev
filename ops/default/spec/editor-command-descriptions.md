@@ -138,8 +138,9 @@ do not maintain a separate description list in publication templates.
 - **WHEN** the native catalog guard runs
 - **THEN** it fails and identifies the missing command.
 
-Current catalog: 622 canonical built-in commands, including four Org visibility
-commands added by the Org Initial Visibility delivery. The 618-command snapshot
+Current catalog: 623 built-in names: 622 canonical commands and the `quit` alias.
+The alias reuses the exit action's description and effective shortcut. Four Org
+visibility commands were added by the Org Initial Visibility delivery. The 618-command snapshot
 and completed delivery evidence below retain their original baseline meaning.
 
 ## Approved description inventory
@@ -192,6 +193,7 @@ Full behavior and prerequisites remain in the linked command references.
 | `other-window` | Cycle editing views. |
 | `previous-line` | Move up one visual row when wrapped, otherwise one logical row; retain the intended display column. |
 | `query-replace` | Confirm each literal replacement. |
+| `quit` | Exit rev after resolving unsaved work and active processes. |
 | `recenter-top-bottom` | Cycle point's line through center/top/bottom. |
 | `rectangle-mark-mode` | Toggle display-column selection. |
 | `revert-buffer` | Reload a checked disk image; confirm before discarding unsaved text. |

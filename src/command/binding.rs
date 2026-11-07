@@ -44,12 +44,14 @@ impl PromptAction {
 
 impl Binding {
     pub fn named(name: &str) -> Option<Self> {
-        Command::named(name).map(Self::Command).or_else(|| {
-            PromptAction::ALL
-                .into_iter()
-                .find(|action| action.name() == name)
-                .map(Self::Prompt)
-        })
+        Command::named(name)
+            .map(|command| Self::Command(command.canonical()))
+            .or_else(|| {
+                PromptAction::ALL
+                    .into_iter()
+                    .find(|action| action.name() == name)
+                    .map(Self::Prompt)
+            })
     }
 
     pub fn name(&self) -> &str {

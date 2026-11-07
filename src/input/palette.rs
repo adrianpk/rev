@@ -56,7 +56,9 @@ impl Palette {
     /// Prepared annotation keyed by canonical identity, independent of rows,
     /// matching, ranking and prompt text.
     pub fn hint(&self, command: Command) -> Option<&str> {
-        self.hints.get(command.name()).map(String::as_str)
+        self.hints
+            .get(command.canonical().name())
+            .map(String::as_str)
     }
 
     pub(super) fn retire_hints(&mut self) {

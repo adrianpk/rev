@@ -68,6 +68,12 @@ keeps its snapshot while other instances or its own publisher update usage.
 
 Argument-taking commands continue with their existing path, buffer or decision
 prompts. Named edits use the same read-only admission and history as bindings.
+
+`quit` is an alias for `save-buffers-kill-terminal`, the action bound to
+`C-x C-c`. Both names use the same save, discard, cancellation and active-process
+decisions. In either selector, `qui` followed by Tab completes `quit`. Shorter
+queries such as `q` also match other commands; choose the desired row normally.
+There are no separate `q`, `qa` or force-quit commands.
 Opening and editing M-x is transient input, so a named `yank-pop` can still use
 the current yank range; cancellation or an unrelated invoked command ends it.
 Names are literal registry entries, with no expression or language interpretation.
@@ -176,7 +182,7 @@ compiled M-x name once.
 | --- | --- |
 | Optional server transport | `lsp-mode`, `lsp-status`, `lsp-connect`, `lsp-disconnect`, `lsp-restart`, `lsp-setup`, `lsp-reload-settings`, `lsp-servers`, `lsp-select-server`, `lsp-install-server`, `lsp-update-server`, `lsp-remove-server`, `lsp-cancel-installation` |
 | Native completion | `completion-at-point`, `completion-next`, `completion-previous`, `completion-accept`, `completion-cancel`, `completion-mode`, `completion-auto-mode` |
-| Command and session | `execute-extended-command`, `keyboard-quit`, `save-buffers-kill-terminal` |
+| Command and session | `execute-extended-command`, `keyboard-quit`, `save-buffers-kill-terminal`, `quit` |
 | [Workspaces](contexts.md#workspace-roots) | `workspace-create`, `workspace-open`, `workspace-list`, `workspace-add-directory`, `workspace-add-project`, `workspace-remove-root`, `workspace-rename`, `workspace-forget`, `workspace-set-root-path` |
 | [Projects](contexts.md) | `project-create`, `project-promote`, `project-switch-project`, `project-list`, `project-rename`, `project-forget`, `project-set-root`, `project-promote-to-workspace`, `project-duplicate-as-workspace` |
 | Files | `find-file`, `generate-new-buffer`, `open-directory`, `context-close`, `dashboard-open`, `save-buffer`, `write-file`, `revert-buffer` |

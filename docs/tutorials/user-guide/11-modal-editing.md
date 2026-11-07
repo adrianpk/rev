@@ -103,6 +103,11 @@ enter `1` and press Enter. Colon opens the same vertical command selector as
 For example, `:save-buffer` invokes the normal save command. Use full names;
 `:w`, `:q`, Ex ranges and trailing arguments are not command forms here.
 
+`:quit` exits with the same save/discard decisions as `C-x C-c`. To complete its
+name, press `:`, type `qui`, press Tab, then Enter. Tab is optional when `quit`
+is already highlighted. Shorter queries can also match commands such as
+`query-replace`; use the normal candidate list to choose.
+
 Press Escape to cancel a command or argument prompt; `C-g` also works.
 Canceling the selector retains a compatible Visual selection. Press Escape
 again to leave Visual. A

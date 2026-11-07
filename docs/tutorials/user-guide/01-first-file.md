@@ -60,6 +60,8 @@ Both lines are still there. Leave the file open for the next chapter.
 When you quit with unsaved changes, `y` saves, `n` leaves those changes unsaved
 and `C-g` cancels quitting. A clean buffer needs no decision.
 
+`M-x quit` provides the same exit by name.
+
 For a short recipe outside this exercise, see
 [Edit and save files](../../how-to/edit-files.md).
 

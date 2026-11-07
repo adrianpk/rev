@@ -35,6 +35,7 @@ Every command below is also available as `M-x` followed by its exact name.
 | Escape or `C-g` in a completion popup | `completion-cancel` | Dismiss the popup without editing source. |
 | `C-g` | `keyboard-quit` | Cancel the current interaction or deactivate the region. |
 | `C-x C-c` | `save-buffers-kill-terminal` | Guarded session exit. |
+| `M-x quit`, `:quit` | `quit` | Alias for the same guarded session exit. |
 | `C-x C-f` | `find-file` | Open a file or directory; available in editing and tree focus. |
 | `M-x generate-new-buffer`, `:generate-new-buffer` | `generate-new-buffer` | Add an unnamed buffer in the active context. |
 | `M-x open-directory`, `:open-directory` | `open-directory` | Choose an existing directory and replace the context after source decisions and owned cleanup. |

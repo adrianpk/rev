@@ -7,6 +7,90 @@ fn switch(session: &mut Session, name: &str) {
     session.handle(press(KeyCode::Enter));
 }
 
+// Both names and the existing binding enter the same exit coordinator. Named
+// entry works in both profiles; save/discard/cancel preserve their authority.
+#[test]
+fn quit_alias_decisions() {
+    for profile in ["non-modal", "modal"] {
+        for entry in ["quit", "save-buffers-kill-terminal", "C-x C-c"] {
+            for choice in ["clean", "save", "discard", "cancel"] {
+                let fixture = Fixture::new();
+                let settings = format!(
+                    "editor.interaction_profile='{profile}'\ntree.visible=false\ncompletion.automatic=false"
+                );
+                let startup =
+                    rev::config::prepare(&fixture.file("config.toml", settings.as_bytes()));
+                assert!(startup.diagnostic.is_none(), "{:?}", startup.diagnostic);
+                let target = fixture.file("notes.txt", b"base");
+                let mut buffers = Buffers::with_settings(startup.snapshot.clone()).unwrap();
+                let id = buffers.visit(&target).unwrap();
+                if choice != "clean" {
+                    edit(buffers.get_mut(id).unwrap(), "changed ");
+                }
+                let view = View::with_settings(buffers.get(id).unwrap(), &startup.snapshot);
+                let mut session = Session::new(
+                    buffers,
+                    view,
+                    Size {
+                        width: 100,
+                        height: 24,
+                    },
+                )
+                .unwrap();
+                let action = if entry == "C-x C-c" {
+                    session.handle(Event::Key(KeyEvent::new(
+                        KeyCode::Char('x'),
+                        KeyModifiers::CONTROL,
+                    )));
+                    session.handle(Event::Key(KeyEvent::new(
+                        KeyCode::Char('c'),
+                        KeyModifiers::CONTROL,
+                    )))
+                } else {
+                    let open = if profile == "modal" {
+                        press(KeyCode::Char(':'))
+                    } else {
+                        Event::Key(KeyEvent::new(KeyCode::Char('x'), KeyModifiers::ALT))
+                    };
+                    session.handle(open);
+                    session.handle(Event::Paste(entry.into()));
+                    session.handle(press(KeyCode::Enter))
+                };
+                if choice == "clean" {
+                    assert_eq!(action, Action::Exit, "{profile}: {entry}");
+                } else {
+                    assert_eq!(action, Action::Redraw, "{profile}: {entry}: {choice}");
+                    assert!(session.echo().starts_with("Quit:"), "{}", session.echo());
+                    match choice {
+                        "save" => assert_eq!(answer(&mut session, 'y'), Action::Exit),
+                        "discard" => assert_eq!(answer(&mut session, 'n'), Action::Exit),
+                        _ => {
+                            if profile == "modal" {
+                                let now = std::time::Instant::now();
+                                session.handle_at(press(KeyCode::Esc), now);
+                                session.expire_input(now + rev::input::META_TIMEOUT);
+                            } else {
+                                cancel(&mut session);
+                            }
+                            assert_eq!(session.echo(), "Quit");
+                            assert!(session.buffer().unwrap().is_modified());
+                            assert_eq!(text(&session), "changed base");
+                        }
+                    }
+                }
+                assert_eq!(
+                    fs::read(&target).unwrap(),
+                    if choice == "save" {
+                        b"changed base".as_slice()
+                    } else {
+                        b"base".as_slice()
+                    }
+                );
+            }
+        }
+    }
+}
+
 // Save/discard decisions cover hidden named/unnamed owners once, preserving
 // all buffers while earlier completed files and later destinations are distinct.
 #[test]

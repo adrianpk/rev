@@ -198,3 +198,51 @@ fn escape_history() {
         Outcome::Command(Command::Newline)
     );
 }
+
+// The quit spelling completes through both ordinary selectors, reuses effective
+// action hints and descriptions, and can be assigned wherever exit is allowed.
+#[test]
+fn quit_alias_completion() {
+    let alias = Command::named("quit").expect("quit alias");
+    assert_eq!(alias.name(), "quit");
+    assert_eq!(alias.description(), Command::Quit.description());
+    for name in ["q", "qa", "qa!", "quit!"] {
+        assert_eq!(Command::named(name), None, "{name}");
+    }
+    for (profile, binding, hint) in [
+        ("non-modal", "", "C-x C-c"),
+        ("modal", "", "C-x C-c"),
+        ("non-modal", "[keys.editor]\n'M-j'='quit'", "M-j"),
+        ("modal", "[keys.vim_normal]\n'M-j'='quit'", "M-j"),
+    ] {
+        let fixture = super::config_fixture::Fixture::new();
+        let startup = rev::config::prepare(&fixture.write(
+            "config.toml",
+            &format!("editor.interaction_profile='{profile}'\n{binding}"),
+        ));
+        assert!(startup.diagnostic.is_none(), "{:?}", startup.diagnostic);
+        let mut input = Input::with_settings(&startup.snapshot);
+        for prefix in ["q", "qu", "qui"] {
+            input.commands().unwrap();
+            input.handle(Event::Paste(prefix.into()));
+            let palette = input.palette().unwrap();
+            assert_eq!(palette.hint(alias), Some(hint), "{profile}: {binding}");
+            let position = palette
+                .candidates()
+                .iter()
+                .position(|c| *c == alias)
+                .unwrap();
+            for _ in 0..position {
+                input.handle(key(KeyCode::Down));
+            }
+            input.handle(key(KeyCode::Tab));
+            assert_eq!(input.prompt().unwrap().text(), "quit", "{prefix}");
+            assert_eq!(input.handle(key(KeyCode::Enter)), Outcome::Command(alias));
+        }
+        input.handle(control('x'));
+        assert_eq!(input.handle(control('c')), Outcome::Command(Command::Quit));
+        if !binding.is_empty() {
+            assert_eq!(input.handle(meta('j')), Outcome::Command(Command::Quit));
+        }
+    }
+}

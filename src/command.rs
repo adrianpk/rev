@@ -66,6 +66,7 @@ pub enum Command {
     SearchBackward,
     ExecuteExtended,
     Quit,
+    QuitAlias,
     FindFile,
     GenerateNewBuffer,
     OpenDirectory,
@@ -135,7 +136,7 @@ pub enum Command {
 }
 
 impl Command {
-    pub const ALL: [Self; 622] = [
+    pub const ALL: [Self; 623] = [
         Self::Git(GitCommand::Clone),
         Self::Git(GitCommand::CloneShallow),
         Self::Git(GitCommand::CloneBare),
@@ -433,6 +434,7 @@ impl Command {
         Self::SearchBackward,
         Self::ExecuteExtended,
         Self::Quit,
+        Self::QuitAlias,
         Self::FindFile,
         Self::GenerateNewBuffer,
         Self::OpenDirectory,
@@ -778,7 +780,7 @@ impl Command {
         if matches!(self, Self::AiDefined(_)) {
             None
         } else {
-            Some(self.builtin_description())
+            Some(self.canonical().builtin_description())
         }
     }
 
@@ -843,6 +845,7 @@ impl Command {
             Self::Gutter(command) => command.name(),
             Self::ExecuteExtended => "execute-extended-command",
             Self::Quit => "save-buffers-kill-terminal",
+            Self::QuitAlias => "quit",
             Self::FindFile => "find-file",
             Self::GenerateNewBuffer => "generate-new-buffer",
             Self::OpenDirectory => "open-directory",
@@ -1039,6 +1042,14 @@ impl Command {
 
     pub fn named(name: &str) -> Option<Self> {
         Self::ALL.into_iter().find(|command| command.name() == name)
+    }
+
+    /// Keep selector spellings distinct while sharing one action and its guards.
+    pub(crate) fn canonical(self) -> Self {
+        match self {
+            Self::QuitAlias => Self::Quit,
+            command => command,
+        }
     }
 
     /// Fixed-name matches: prefixes first, then substrings, lexical within each.

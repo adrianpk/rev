@@ -910,6 +910,7 @@ impl Session {
 
     /// Executes the same implemented command enum produced by key bindings.
     pub fn execute(&mut self, command: Command) -> Action {
+        let command = command.canonical();
         if command == Command::KeyboardQuit && self.cancel_context_operation() {
             return self.message("Project preparation canceled; live sources retained");
         }
