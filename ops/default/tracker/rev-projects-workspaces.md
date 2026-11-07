@@ -64,10 +64,10 @@ State: reviewing
 Dependency: Slice 2 integrated
 Requirements: PW05-PW06, PW15-PW16, PW18-PW20, PW22
 Branch: `feat/rev-projects-workspaces-03-projects`
-PR: pending
+PR: [#300](https://forge.adrianpk.com/adrianpk/rev/pulls/300)
 Report: `ops/default/report/slices/rev-projects-workspaces/slice-3-projects.md`
 Validation: the exact ordered Slice 3 commands in the plan/local configuration
-Implementation: T3.1/T3.2/T3.3 in `d099a88b3562df9ce4ef3ad611ecf23f7a869782`, including nine new Project cases, persistent terminal departure and delivered guidance. All five implementation commands passed, including 37 context, 49 integrated-terminal and 25 recovery tests; final clean-HEAD evidence remains controller-owned.
+Implementation: T3.1/T3.2/T3.3 in `d099a88b3562df9ce4ef3ad611ecf23f7a869782`, including nine new Project cases, persistent terminal departure and delivered guidance; report introduction in `fc97a4f8a17e0776bddc24d6523da67611d8150c`. All five implementation commands passed, including 37 context, 49 integrated-terminal and 25 recovery tests; final clean-HEAD evidence remains controller-owned.
 
 - [x] T3.1: Deliver explicit project-create/project-promote and named project selection/listing, with unique roots/names, typed picker identities and no implicit path-based promotion.
 - [x] T3.2: Capture ordered file-backed buffers, active file, source cursor/view anchors and loose files; restore using native loaders and checked source coordinates. Protect dirty/unnamed sources and preserve missing-file/root diagnostics without creating replacement files.
