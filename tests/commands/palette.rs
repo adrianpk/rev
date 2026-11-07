@@ -591,7 +591,8 @@ fn admission_geometry() {
 }
 
 // Public name and binding catalogs must match the live registry exactly once.
-// Both formats use this oracle so documentation cannot silently hide drift.
+// Reference names and approved summaries use the live registry as their oracle,
+// so an omitted, duplicated or inaccurate built-in description fails here.
 #[test]
 fn catalog_reference() {
     use std::collections::BTreeSet;
@@ -647,6 +648,41 @@ fn catalog_reference() {
             "{name}: duplicate documented name"
         );
         assert_eq!(documented, live, "{name}");
+    }
+    let specification = include_str!("../../ops/default/spec/editor-command-descriptions.md");
+    let mut descriptions = std::collections::BTreeMap::new();
+    for line in specification
+        .lines()
+        .filter_map(|line| line.strip_prefix("| `"))
+    {
+        let (name, description) = line.split_once("` | ").unwrap();
+        let description = description.strip_suffix(" |").unwrap();
+        assert!(
+            !description.trim().is_empty()
+                && description == description.trim()
+                && !description.chars().any(char::is_control),
+            "{name}: invalid description"
+        );
+        assert!(
+            descriptions.insert(name, description).is_none(),
+            "{name}: duplicate description"
+        );
+    }
+    assert_eq!(
+        descriptions
+            .keys()
+            .map(|name| (*name).to_owned())
+            .collect::<BTreeSet<_>>(),
+        live,
+        "description inventory"
+    );
+    for command in Command::ALL {
+        assert_eq!(
+            command.description(),
+            Some(descriptions[command.name()]),
+            "{}: approved description",
+            command.name()
+        );
     }
 }
 

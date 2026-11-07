@@ -136,7 +136,16 @@ fn hint_geometry() {
             );
             if visible {
                 assert!(row.text().starts_with("save-buffer  "), "{case}");
-                assert!(row.text().trim_end().ends_with("[M-界]"), "{case}");
+                if width == 80 {
+                    assert!(
+                        row.text()
+                            .trim_end()
+                            .ends_with("Save to the current destination."),
+                        "{case}"
+                    );
+                } else {
+                    assert!(row.text().trim_end().ends_with("[M-界]"), "{case}");
+                }
                 if width == 80 {
                     assert!(
                         row.text().find("M-界").unwrap() < 40,
@@ -195,9 +204,22 @@ fn hint_colors() {
             .unwrap();
         let hint = if selected { "[C-x C-c]" } else { "[C-x C-s]" };
         let hint_column = row.text().find(hint).unwrap();
+        let description_column = row
+            .text()
+            .find(if selected { "Exit rev" } else { "Save to" })
+            .unwrap();
         assert!(hint_column < 40, "shortcut must stay near its command");
-        assert!(!row.text().contains('—'), "missing descriptions stay blank");
-        for column in [0, hint_column, 79] {
+        assert!(
+            !row.text().contains('—'),
+            "descriptions need no placeholder"
+        );
+        for column in [
+            0,
+            hint_column,
+            description_column - 1,
+            description_column,
+            79,
+        ] {
             let cell = cells[&(usize::from(row.row()), column)];
             assert_eq!(
                 cell.background,
@@ -211,7 +233,7 @@ fn hint_colors() {
                 cell.foreground,
                 Some(if selected {
                     palette.selection_text
-                } else if column == hint_column {
+                } else if column == hint_column || column >= description_column {
                     palette.status_text
                 } else if column == 0 {
                     palette.syntax.function

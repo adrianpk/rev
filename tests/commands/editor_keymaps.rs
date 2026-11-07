@@ -532,3 +532,94 @@ fn hint_identity() {
         Command::SaveBuffer
     );
 }
+
+// Both entry gestures paint canonical summaries for bound, unbound and local
+// actions. Optional user metadata stays blank; annotations never become query
+// matches, Tab text or source edits.
+#[test]
+fn description_rows() {
+    use rev::display::Band;
+    for (profile, entry) in [("non-modal", meta('x')), ("modal", character(':'))] {
+        let config = format!(
+            "editor.interaction_profile='{profile}'\n[tree]\nvisible=false\n[ai.commands.review]\nprompt='Private review instructions.'\ninput='buffer'\ncontext='input'\noutput='explanation'"
+        );
+        for (name, hint, description) in [
+            (
+                "save-buffer",
+                Some("C-x C-s"),
+                Some("Save to the current destination."),
+            ),
+            (
+                "undo-redo",
+                if profile == "modal" {
+                    Some("C-r")
+                } else {
+                    None
+                },
+                Some("Reapply the next redo group."),
+            ),
+            (
+                "org-table-import",
+                None,
+                Some("Import table data from a CSV or TSV file."),
+            ),
+            ("ai-review", None, None),
+        ] {
+            let case = format!("{profile}: {name}");
+            let mut session = editor(&config, "sample");
+            session.handle(Event::Resize(180, 24));
+            let stamp = session.buffer().unwrap().stamp();
+            session.handle(entry.clone());
+            session.handle(Event::Paste(name.into()));
+            let frame = session.frame().unwrap();
+            let row = frame
+                .rows()
+                .iter()
+                .find(|row| {
+                    row.band() == Band::Completion
+                        && row.text().split_whitespace().next() == Some(name)
+                })
+                .unwrap();
+            assert_eq!(row.text().contains('['), hint.is_some(), "{case}");
+            if let Some(hint) = hint {
+                assert!(row.text().contains(&format!("[{hint}]")), "{case}");
+            }
+            if let Some(description) = description {
+                assert!(
+                    row.text().trim_end().ends_with(description),
+                    "{case}: {}",
+                    row.text()
+                );
+            } else {
+                assert_eq!(row.text().trim(), name, "{case}");
+            }
+            assert!(
+                !row.text().contains("Private review instructions."),
+                "{case}"
+            );
+            session.handle(key(KeyCode::Tab));
+            assert!(
+                session
+                    .frame()
+                    .unwrap()
+                    .rows()
+                    .iter()
+                    .any(|row| { row.text().starts_with(&format!("M-x {name} ")) }),
+                "{case}: name-only completion"
+            );
+            assert_eq!(session.buffer().unwrap().stamp(), stamp, "{case}");
+            session.handle(control('g'));
+            if let Some(description) = description {
+                session.handle(entry.clone());
+                session.handle(Event::Paste(description.into()));
+                assert!(
+                    session.frame().unwrap().rows().iter().any(|row| {
+                        row.band() == Band::Completion
+                            && row.text().trim_end() == "No matching commands"
+                    }),
+                    "{case}: description-only match"
+                );
+            }
+        }
+    }
+}
