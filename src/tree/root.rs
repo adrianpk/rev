@@ -1,10 +1,54 @@
 use std::io;
 use std::path::Path;
 
-use super::Tree;
+use super::{Entry, Tree};
 use crate::view::Size;
 
 impl Tree {
+    /// Observe an automatic root's parent before publishing any new state.
+    /// Fixed roots perform no IO. The previous directory must remain a loaded
+    /// directory, including when the ordinary observation limit is reached.
+    pub fn up_directory(&mut self) -> io::Result<()> {
+        if self.explicit_root
+            || self.workspace.is_some()
+            || self.policy.root == crate::config::TreeRoot::Cwd
+        {
+            return Err(io::Error::other("File tree root is fixed"));
+        }
+        let previous = self
+            .root
+            .as_deref()
+            .ok_or_else(|| io::Error::other("File tree has no root"))?;
+        let parent = previous
+            .parent()
+            .filter(|path| !path.as_os_str().is_empty())
+            .ok_or_else(|| io::Error::other("File tree root has no parent"))?;
+        let mut root = Entry::root(parent.to_owned());
+        let children = root.children(&self.policy)?;
+        let selected = children
+            .entries
+            .iter()
+            .position(|entry| entry.path == previous && entry.directory)
+            .ok_or_else(|| {
+                io::Error::other("Parent listing cannot represent the previous directory")
+            })?;
+        root.expanded = true;
+        root.incomplete = children.incomplete;
+        let mut entries = Vec::with_capacity(children.entries.len() + 1);
+        entries.push(root);
+        entries.extend(children.entries);
+
+        self.root = Some(parent.to_owned());
+        self.entries = entries;
+        self.selected = selected + 1;
+        self.top = 0;
+        self.initialized = true;
+        self.active = None;
+        self.follow_dirty = true;
+        self.follow_pending = false;
+        Ok(())
+    }
+
     /// A closed multi-root context has no implicit replacement browsing root.
     /// A later explicit tree request can choose its ordinary standalone root.
     pub(crate) fn without_context(&self) -> Self {
