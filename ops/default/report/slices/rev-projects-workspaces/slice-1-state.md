@@ -1,11 +1,12 @@
 # Slice 1: Context state and catalog
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-projects-workspaces
 Plan: [Projects and Workspaces Delivery](../../../plan/rev-projects-workspaces.md)
 Tracker: [Projects and Workspaces Tracker](../../../tracker/rev-projects-workspaces.md)
 Branch: `feat/rev-projects-workspaces-01-state`
 PR: `#298`
+Integrated: `975564c53cf7c6f420c7d7b3fbb8d5f46950e710`
 
 ## Purpose
 
@@ -50,7 +51,7 @@ The runtime foundation is introduced in
 The tests and report are introduced in
 `fd3d8f51132f3a74b9ce8824084f128df5d1b664`.
 Canonical [PR #298](https://forge.adrianpk.com/adrianpk/rev/pulls/298) targets
-`dev`; integration remains controller-owned. The report's immutable introduction
+`dev` and was merged by the controller on 2026-11-07. The report's immutable introduction
 is [retained here](https://forge.adrianpk.com/adrianpk/rev/src/commit/fd3d8f51132f3a74b9ce8824084f128df5d1b664/ops/default/report/slices/rev-projects-workspaces/slice-1-state.md).
 
 The codec uses the existing TOML parser and `toml_edit` escaping. Its path shape
@@ -93,9 +94,9 @@ No changelog entry is added for this internal foundation.
 
 ## Validation
 
-All five implementation checks passed locally. The final clean branch HEAD
-requires the same ordered commands through `looper validate`; its exact
-candidate and receipt remain in controller-owned evidence outside the repository.
+All five commands passed through `looper validate` on clean candidate
+`975564c53cf7c6f420c7d7b3fbb8d5f46950e710`, receipt
+`3P5AYMCUAW33ZSH3VMPNL3LEAS`. The controller integrated that exact candidate.
 
 - `cargo fmt --all -- --check`
 - `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo clippy --locked --lib --bin rev -- -D warnings`

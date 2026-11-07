@@ -8,7 +8,7 @@ Specification: [Files, Directories, Projects and Workspaces](../spec/editor-proj
 Model: [Project and Workspace Model](../spec/editor-projects-workspaces-model.md)
 Concern: [Pending Work Index](../README.md)
 Plan: [Projects and Workspaces Delivery](../plan/rev-projects-workspaces.md)
-Active slice: Slice 1 - Context state and catalog
+Active slice: Slice 2 - File and directory contexts
 Progress owner: retained Looper checkpoint and canonical validation receipts
 Full gate: the exact ordered command in the plan and frozen local configuration
 
@@ -27,7 +27,7 @@ Full gate: the exact ordered command in the plan and frozen local configuration
 
 ## Slice 1: Context state and catalog
 
-State: reviewing
+State: delivered
 Dependency: approved committed preparation on clean dev
 Requirements: PW01, PW09, PW15, PW17-PW19, PW22
 Branch: `feat/rev-projects-workspaces-01-state`
@@ -35,6 +35,7 @@ PR: [#298](https://forge.adrianpk.com/adrianpk/rev/pulls/298)
 Report: `ops/default/report/slices/rev-projects-workspaces/slice-1-state.md`
 Validation: the exact ordered Slice 1 commands in the plan/local configuration
 Implementation: T1.1/T1.2 in `834ee5bdf30d16d327b2da21a45e37c1281d7243`; T1.3 and the report introduction in `fd3d8f51132f3a74b9ce8824084f128df5d1b664`. All five local implementation checks passed; the clean-HEAD controller receipt is required before PR handoff.
+Integration: PR #298 merged into dev at `975564c53cf7c6f420c7d7b3fbb8d5f46950e710`; all five clean-HEAD commands passed in receipt `3P5AYMCUAW33ZSH3VMPNL3LEAS`.
 
 - [x] T1.1: Define typed context, artifact, root and session identities and the approved path/name/source-coordinate model; separate live, prepared and durable state.
 - [x] T1.2: Implement the versioned aggregate contexts.toml codec and store with existing dependencies, checked revisions, bounded nonblocking publication, one atomic conversion commit point and preserved invalid input.
@@ -42,7 +43,7 @@ Implementation: T1.1/T1.2 in `834ee5bdf30d16d327b2da21a45e37c1281d7243`; T1.3 an
 
 ## Slice 2: File and directory contexts
 
-State: planned
+State: implementing
 Dependency: Slice 1 integrated
 Requirements: PW01, PW04, PW06, PW18-PW20, PW22
 Branch: `feat/rev-projects-workspaces-02-directories`
