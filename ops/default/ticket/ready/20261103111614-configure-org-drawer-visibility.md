@@ -1,7 +1,7 @@
 ---
 id: TKT-20261103111614
 title: Configure Org drawer visibility
-status: open
+status: ready
 kind: task
 severity: unclassified
 priority: unclassified
@@ -9,6 +9,7 @@ scope: ui
 tags: org-mode, drawers, visibility
 source: chat
 reported_at: 2026-11-03T11:16:14Z
+ready_at: 2026-11-07T18:58:12Z
 commits: []
 ---
 
@@ -71,18 +72,24 @@ bounded change.
 - Let a future generated Org explanation initialize REQUEST collapsed using
   this native visibility owner, rather than duplicating folding inside AI code.
 
-## Decisions before development
+## Approved specification and delivery
 
-- Select the exact configuration key and ordinary Org-file default after
-  comparing the Emacs states with rev's existing behavior.
-- Decide the supported per-file #+STARTUP subset and its precedence, if included;
-  do not imply support for every startup directive.
-- Define public whole-buffer command names and reconcile the existing
-  org-show-all/global-cycle behavior explicitly. Preserve historical behavior
-  until that compatibility choice is approved.
-- Define initial-policy behavior for new split views and for a reload that
-  invalidates structural observations, while retaining deliberate runtime folds
-  where the existing source/view rules permit them.
+On 2026-11-07 the owner requested specification, planning and Looper delivery.
+[Org Initial Visibility and Drawers](../../spec/editor-org-initial-visibility.md)
+and its [model](../../spec/editor-org-initial-visibility-model.md) define the
+complete policy. The [plan](../../plan/rev-org-initial-visibility.md) and
+[tracker](../../tracker/rev-org-initial-visibility.md) select one vertical slice.
+
+- Preserve showeverything as the ordinary-file compatibility default. Support
+  overview, content, showall and showeverything through org.startup_folded.
+- Recognized document STARTUP metadata overrides configuration. Ignore unrelated
+  words and literal/drawer examples; last recognized token in source order wins.
+- Add org-hide-all-drawers, org-show-all-drawers, org-toggle-all-drawers and
+  org-cycle-set-startup-visibility with complete descriptions in both selectors.
+- Keep initial policy one-time and per-view. Explicit choices suppress pending
+  initialization; splits clone current folds. Edits/reload retire stale ranges
+  without automatically reapplying startup. Preserve current org-show-all,
+  cycling, source navigation and deliberate AI REQUEST initialization.
 
 ## Acceptance direction
 
@@ -97,12 +104,12 @@ and navigation/selection continue to use canonical source positions.
 
 The later Pi acceptance adjustment now presents AI results as native Org with
 REQUEST initially folded. That solved presentation change leaves this general
-Org startup/whole-view visibility ticket open; it is outside the heading-marker
+Org startup/whole-view visibility ticket pending; it is outside the heading-marker
 delivery.
 
 This is an Org visibility ticket, related to the delivered
 [Org Mode specification](../../spec/editor-org-mode.md) and the
 [visibility reference](../../../../docs/reference/org-mode.md).
-Formatting live AI explanations as Org and adapting their prose to different
-input types remain a separate presentation change. The preview is static; this
-capture starts no implementation, configuration migration or Looper run.
+The separate AI presentation delivery is complete. This ready ticket owns only
+the approved general visibility behavior. Implementation, validation and later
+lifecycle transitions belong to the recorded Looper delivery.

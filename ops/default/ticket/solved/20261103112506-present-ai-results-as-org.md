@@ -102,7 +102,7 @@ that applying a proposal inserts no presentation markup or request metadata.
 ## Relationship and delivery boundary
 
 Coordinate native visibility behavior with
-[Configure Org drawer visibility](../open/20261103111614-configure-org-drawer-visibility.md).
+[Configure Org drawer visibility](../ready/20261103111614-configure-org-drawer-visibility.md).
 That ticket owns general Org startup/runtime policy; this ticket owns AI result
 presentation and the default explanation instruction. Preserve the delivered
 [Pi integration](../../spec/editor-ai-pi-integration.md) evidence.
