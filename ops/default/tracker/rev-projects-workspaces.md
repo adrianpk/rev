@@ -8,7 +8,7 @@ Specification: [Files, Directories, Projects and Workspaces](../spec/editor-proj
 Model: [Project and Workspace Model](../spec/editor-projects-workspaces-model.md)
 Concern: [Pending Work Index](../README.md)
 Plan: [Projects and Workspaces Delivery](../plan/rev-projects-workspaces.md)
-Active slice: Slice 5 - Artifact lifecycle and conversion
+Active slice: Slice 6 - Startup screen and shared consumers
 Progress owner: retained Looper checkpoint and canonical validation receipts
 Full gate: the exact ordered command in the plan and frozen local configuration
 
@@ -94,7 +94,7 @@ Integration: PR #301 merged into dev at `84a934fa2813486fa43944b30e36e01f1f6b35c
 
 ## Slice 5: Artifact lifecycle and conversion
 
-State: reviewing
+State: delivered
 Dependency: Slice 4 integrated
 Requirements: PW07-PW08, PW12-PW14, PW17-PW19, PW22
 Branch: `feat/rev-projects-workspaces-05-management`
@@ -103,13 +103,15 @@ Report: `ops/default/report/slices/rev-projects-workspaces/slice-5-management.md
 Validation: the exact ordered Slice 5 commands in the plan/local configuration
 Implementation: T5.1/T5.2 and T5.3 native cases/guidance in `71ec2ee2b563e1a547b3f5e02edf49567a617e3c`, including ten lifecycle cases, atomic conversion/duplication, checked relocation and source-preserving rename/forget. Report introduction in `5813d3f9dfaba049598fac448f48defef434c1b9`. All five implementation commands passed, including 55 context, 75 file and 25 recovery tests; final clean-HEAD evidence remains controller-owned.
 
+Integration: PR #302 merged into dev at `2d81d9c84ae59e85188d683a9366cd5afc9b2511`; all five clean-HEAD commands passed in receipt `DVFB3US2DUFPIZ3YSTJQ55MI47`.
+
 - [x] T5.1: Deliver rename/forget and explicit root relocation with stable IDs, root-relative remapping and unchanged source directories. Forgetting an active Project retains its live directory work; forgetting an active Workspace resolves sources and leaves no arbitrary replacement root.
 - [x] T5.2: Deliver atomic Project-to-Workspace conversion and independent duplication, including active/inactive sources, fresh Workspace/root IDs, retained live dirty text where permitted and cancellation before duplicate publication.
 - [x] T5.3: Test both sides of durable commit, restart recovery, stale writers, invalid/corrupt state, moved roots, root/name conflicts and source/session preservation. Keep revisions and all logical references consistent; document the lifecycle operations.
 
 ## Slice 6: Startup screen and shared consumers
 
-State: planned
+State: active
 Dependency: Slice 5 integrated
 Requirements: PW01-PW04, PW20-PW22; accepted P01/P03/P18
 Branch: `feat/rev-projects-workspaces-06-startup`

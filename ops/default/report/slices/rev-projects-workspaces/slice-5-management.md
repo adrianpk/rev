@@ -1,6 +1,6 @@
 # Slice 5: Artifact lifecycle and conversion
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-projects-workspaces
 Plan: [Projects and Workspaces Delivery](../../../plan/rev-projects-workspaces.md)
 Tracker: [Projects and Workspaces Tracker](../../../tracker/rev-projects-workspaces.md)
@@ -8,6 +8,9 @@ Branch: `feat/rev-projects-workspaces-05-management`
 PR: `#302`
 Canonical PR: [#302](https://forge.adrianpk.com/adrianpk/rev/pulls/302)
 Report introduction: [immutable report](https://forge.adrianpk.com/adrianpk/rev/src/commit/5813d3f9dfaba049598fac448f48defef434c1b9/ops/default/report/slices/rev-projects-workspaces/slice-5-management.md)
+
+Integrated: PR #302 merged into dev at `2d81d9c84ae59e85188d683a9366cd5afc9b2511`.
+Validation receipt: `DVFB3US2DUFPIZ3YSTJQ55MI47`; all five required ordered commands passed on that clean HEAD.
 
 ## Purpose
 
