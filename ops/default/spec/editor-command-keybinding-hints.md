@@ -13,7 +13,7 @@ Current reference: [Commands](../../../docs/reference/commands.md), [Bindings](.
 Plan: [Command Keybinding Hints Delivery](../plan/rev-command-keybinding-hints.md)
 Tracker: [Command Keybinding Hints Tracker](../tracker/rev-command-keybinding-hints.md)
 Presentation revision: owner-approved direct-dev correction on 2026-11-06; the candidate/receipt above describe the original two-slice delivery
-Description authoring: [TKT-20261106202027](../ticket/open/20261106202027-complete-command-catalog-descriptions.md), separate from layout
+Description authoring: [TKT-20261106202027](../ticket/ready/20261106202027-complete-command-catalog-descriptions.md) and [Command Descriptions](editor-command-descriptions.md), approved separately from the delivered layout
 
 ## Purpose
 

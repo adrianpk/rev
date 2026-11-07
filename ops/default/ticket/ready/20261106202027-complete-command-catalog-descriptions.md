@@ -1,7 +1,7 @@
 ---
 id: TKT-20261106202027
 title: Complete command catalog descriptions
-status: open
+status: ready
 kind: task
 severity: unclassified
 priority: unclassified
@@ -9,6 +9,7 @@ scope: ui
 tags: commands, descriptions, completion
 source: chat
 reported_at: 2026-11-06T20:20:27Z
+ready_at: 2026-11-07T12:32:08Z
 commits: []
 ---
 
@@ -24,6 +25,13 @@ Populating every description is separate work and must not delay that layout.
 
 This ticket captures the later catalog pass. It is not a new invocation mode,
 command-search policy or requirement to reproduce another editor's command set.
+
+On 2026-11-07 the owner approved this work, required a complete specification
+of every function's description, and selected one implementation slice. The
+[Command Descriptions specification](../../spec/editor-command-descriptions.md)
+defines all 618 current canonical commands and their exact selector text.
+The [plan](../../plan/rev-command-descriptions.md) and
+[tracker](../../tracker/rev-command-descriptions.md) own the single-slice delivery.
 
 ## Expected outcome
 
@@ -55,9 +63,8 @@ Do not multiply all catalog entries through complete terminal journeys.
 
 ## Dependency and delivery boundary
 
-The separate selector-presentation change establishes the optional metadata
-accessor and adjacent shortcut column, leaving missing descriptions blank.
-Complete the built-in descriptions in one coordinated pass after that accessor exists. This ticket
-does not populate the catalog or start a controller during capture.
+The optional metadata accessor and three-column selector are already delivered.
+Complete the built-in descriptions in the approved single slice through Looper;
+retain the optional fallback for user-defined commands.
 
 Related baseline: [Command Keybinding Hints](../../spec/editor-command-keybinding-hints.md).
