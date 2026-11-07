@@ -1,12 +1,15 @@
 # File Tree Selection and Active Buffer
 
-Status: Approved
+Status: Completed
+Completed: 2026-11-07
+Validated candidate: `27e222f65a81bbdb0d3aece0e7279877faf997b2`
+Gate log: `KGGQSFRVEFDYE7B4A3KIT2FGIO`
 Date: 2026-11-06
 Updated: 2026-11-07
 Inspection baseline: `978deacc49f6f5f948cea2070919ce91031f67a2`
 Format: OpenSpec capability addition
 Approved: product owner; prepare the plan, slicing and tracker and start one Looper delivery on 2026-11-07
-Source: [TKT-20261031093408](../ticket/reviewing/20261031093408-highlight-tree-selection-and-sync-active-buffer.md)
+Source: [TKT-20261031093408](../ticket/solved/20261031093408-highlight-tree-selection-and-sync-active-buffer.md)
 Baselines: [File navigation](editor-file-navigation.md), [Better file tree](editor-better-file-tree.md), [Files, Directories, Projects and Workspaces](editor-projects-workspaces.md)
 Model: [Tree Selection Policy](editor-tree-selection-model.md)
 Owner decision: active-buffer synchronization is configurable and enabled by default
@@ -24,10 +27,10 @@ The owner approved configurability and the enabled default. On 2026-11-07 the
 owner approved this complete focus, matching and reveal policy and requested the
 plan, slicing, tracker and Looper delivery. One implementation slice is selected.
 
-## Current behavior
+## Baseline observations
 
-`src/display/tree.rs` paints the selected row only while the tree panel is
-active. `src/tree.rs` owns selection and listing identity. Native file opening
+Before this delivery, `src/display/tree.rs` painted the selected row only
+while the tree panel was active. `src/tree.rs` owns selection and listing identity. Native file opening
 already distinguishes explicit roots from automatic file-parent roots. Workspace
 rows also carry member root identity, independently of their displayed name.
 Existing `palette.tree_selected` and `palette.tree_selected_text` roles already
@@ -35,8 +38,9 @@ define full-row selection colors; the missing behavior is their continued
 use outside tree focus and following actual editing-buffer transitions.
 This addition reuses those owners instead of adding a second file navigator.
 
-These are current source observations, not a completed feature claim. The
-specification is maintained separately from the command-description delivery.
+These baseline observations motivated the delivered capability. The completed
+implementation and gate evidence are recorded in the
+[Slice 1 report](../report/slices/rev-tree-selection/slice-1-follow.md).
 
 ## Policy
 
@@ -232,8 +236,10 @@ alter context registrations or affect save/discard/cancel decisions.
 
 The approved reveal boundary preserves collapsed directories: following reveals
 only entries already present in the loaded listing, not hidden descendants.
-The linked plan/tracker own the single implementation slice and its selected
-gate; this specification does not claim that the feature is already delivered.
+Slice 1 delivered TSV01-TSV04 through canonical PR #308. The controller passed
+the selected gate on `27e222f65a81bbdb0d3aece0e7279877faf997b2`; the linked report
+records its exact command and evidence. Requirements and scenarios retain
+the approved acceptance contract.
 
 Cover configured true/false and omission/invalid values, already displayed files,
 buffer switching, two panes, tree browsing, click preferences, missing rows,

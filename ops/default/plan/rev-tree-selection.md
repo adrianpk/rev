@@ -1,6 +1,9 @@
 # File Tree Selection Delivery
 
-Status: Approved
+Status: Completed
+Completed: 2026-11-07
+Validated candidate: `27e222f65a81bbdb0d3aece0e7279877faf997b2`
+Gate log: `KGGQSFRVEFDYE7B4A3KIT2FGIO`
 Date: 2026-11-07
 Delivery set: rev-tree-selection
 Slice strategy: behavior-first
@@ -9,9 +12,9 @@ Planning baseline: `fe49403440011e48e5e46b3196394cb0fc39f035`
 Specification: [File Tree Selection and Active Buffer](../spec/editor-tree-selection.md)
 Model: [Tree Selection Policy](../spec/editor-tree-selection-model.md)
 Tracker: [File Tree Selection Tracker](../tracker/rev-tree-selection.md)
-Ticket: [TKT-20261031093408](../ticket/reviewing/20261031093408-highlight-tree-selection-and-sync-active-buffer.md)
+Ticket: [TKT-20261031093408](../ticket/solved/20261031093408-highlight-tree-selection-and-sync-active-buffer.md)
 Concern: [Pending Editor Work](../README.md)
-Active slice: Slice 1 - Selection and following
+Active slice: None - Slice 1 of 1 completed
 
 ## Outcome and strategy
 
@@ -119,3 +122,14 @@ this plan, tracker, specification and model Completed, and reconcile the index.
 The local configuration includes the exact ready/in_progress/reviewing/solved
 ticket paths so its source and destination are authorized. No runtime, test or
 published-guide input changes are allowed after the gate.
+
+## Delivery result
+
+Slice 1 of 1 is integrated through canonical PR #308. The controller passed the
+unchanged combined gate on `27e222f65a81bbdb0d3aece0e7279877faf997b2` in log
+`KGGQSFRVEFDYE7B4A3KIT2FGIO`. The report is delivered and the source
+ticket is solved with resolution fixed. Plan, tracker, specification, model and
+index are reconciled; only configured closure documents differ from the tested
+candidate. Runtime, tests, guide inputs and acceptance assertions are preserved.
+See the [delivery closure](../report/slices/rev-tree-selection/slice-1-follow.md#delivery-set-closure)
+for the exact command and evidence.

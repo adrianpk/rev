@@ -1,6 +1,9 @@
 # Tree Selection Policy
 
-Status: Approved
+Status: Completed
+Completed: 2026-11-07
+Validated candidate: `27e222f65a81bbdb0d3aece0e7279877faf997b2`
+Gate log: `KGGQSFRVEFDYE7B4A3KIT2FGIO`
 Date: 2026-11-06
 Updated: 2026-11-07
 Inspection baseline: `978deacc49f6f5f948cea2070919ce91031f67a2`

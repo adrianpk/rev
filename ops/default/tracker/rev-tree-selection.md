@@ -1,15 +1,18 @@
 # File Tree Selection Tracker
 
-Status: In progress
+Status: Completed
+Completed: 2026-11-07
+Validated candidate: `27e222f65a81bbdb0d3aece0e7279877faf997b2`
+Gate log: `KGGQSFRVEFDYE7B4A3KIT2FGIO`
 Date: 2026-11-07
 Delivery set: rev-tree-selection
 Approved: product owner; one-slice plan, tracker and Looper delivery
 Plan: [File Tree Selection Delivery](../plan/rev-tree-selection.md)
 Specification: [File Tree Selection and Active Buffer](../spec/editor-tree-selection.md)
 Model: [Tree Selection Policy](../spec/editor-tree-selection-model.md)
-Ticket: [TKT-20261031093408](../ticket/reviewing/20261031093408-highlight-tree-selection-and-sync-active-buffer.md)
+Ticket: [TKT-20261031093408](../ticket/solved/20261031093408-highlight-tree-selection-and-sync-active-buffer.md)
 Concern: [Pending Editor Work](../README.md)
-Active slice: None - Slice 1 of 1 integrated; final gate pending
+Active slice: None - Slice 1 of 1 completed
 Progress owner: retained Looper checkpoint and canonical validation evidence
 
 ## Canonical slice map
@@ -39,10 +42,10 @@ Validation: the ten exact ordered commands in the plan and local configuration
 ## Final gate and closure
 
 - [x] Verify the single canonical PR integrated and its report recorded.
-- [ ] Run the unchanged selected gate on exact clean dev and record its evidence.
-- [ ] Mark the report delivered and the ticket solved with resolution fixed.
-- [ ] Complete the plan, tracker, specification and model and reconcile the index.
-- [ ] Preserve tested runtime and guide inputs during documentation-only closure.
+- [x] Run the unchanged selected gate on exact clean dev and record its evidence.
+- [x] Mark the report delivered and the ticket solved with resolution fixed.
+- [x] Complete the plan, tracker, specification and model and reconcile the index.
+- [x] Preserve tested runtime and guide inputs during documentation-only closure.
 
 Slice 1 of 1 is integrated through canonical PR #308 and its report is delivered.
 The ten ordered slice checks passed through the controller validator on the
@@ -50,10 +53,14 @@ clean PR-reference and integrated commit `b3e77ecb57a3dfd3d141a911ae319ccf72ab2e
 
 Gate preparation verified locked offline metadata for 118 packages, Rust/Cargo
 1.98.0, Spore and guide inputs, independent target directories and no active
-primary-checkout build. Only report/tracker delivery metadata changes after
-integration. The controller will run the unchanged ten-command gate against
-the prepared clean, pushed dev HEAD. The source ticket remains reviewing; final
-gate evidence, ticket resolution and delivery-set closure are pending.
+primary-checkout build. Gate preparation changed only report/tracker delivery
+metadata after integration. The controller passed the unchanged combined gate on
+`27e222f65a81bbdb0d3aece0e7279877faf997b2`, log `KGGQSFRVEFDYE7B4A3KIT2FGIO`.
+The report is delivered, the source ticket is solved with resolution fixed and
+the plan, specification, model and index are Completed or reconciled. Closure
+changes only the configured documentation paths; tested inputs and assertions
+remain unchanged. The [delivery closure](../report/slices/rev-tree-selection/slice-1-follow.md#delivery-set-closure)
+records the exact command and evidence scope.
 Other pending visibility, alias and capability work remains separate.
 
 Task commits: T1.1 `0b5e987a20a02bbef1d7c53a1ae91749ab42b813`;

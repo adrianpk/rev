@@ -1,7 +1,9 @@
 ---
 id: TKT-20261031093408
 title: Highlight tree selection and synchronize the active buffer
-status: reviewing
+status: solved
+resolution: fixed
+closed_at: 2026-11-07T17:56:49Z
 kind: follow_up
 severity: unclassified
 priority: unclassified
@@ -14,7 +16,7 @@ started_at: 2026-11-07T17:17:52Z
 branch: feat/rev-tree-selection-01-follow
 pr: 308
 reviewed_at: 2026-11-07T17:40:15Z
-commits: [0b5e987a20a02bbef1d7c53a1ae91749ab42b813, 88087201423c6ea4e331d0328fd295ae94942607, 750da5ece50597b114c3fff02150793219bb2ab2]
+commits: [0b5e987a20a02bbef1d7c53a1ae91749ab42b813, 88087201423c6ea4e331d0328fd295ae94942607, 750da5ece50597b114c3fff02150793219bb2ab2, b3e77ecb57a3dfd3d141a911ae319ccf72ab2ef8, 27e222f65a81bbdb0d3aece0e7279877faf997b2]
 ---
 
 # Highlight tree selection and synchronize the active buffer
@@ -37,10 +39,10 @@ selected entry and synchronize that indication with the displayed buffer.
 - Reuse native tree, view and palette ownership. Highlighting must not modify
   source text, create history, open files or replace an explicitly chosen root.
 
-## Current source observations
+## Baseline source observations
 
-src/display/tree.rs admits the selected-row decoration only when panel.active()
-is true. Existing palette.tree_selected and palette.tree_selected_text roles
+Before this delivery, src/display/tree.rs admitted selected-row decoration
+only when panel.active() was true. Existing palette.tree_selected and palette.tree_selected_text roles
 already exist. The requested change therefore includes visible selection while
 the editing pane has focus, rather than assuming the editor has no selection
 style anywhere. This is static inspection supporting the owner's report, not
@@ -67,8 +69,8 @@ approved the specification and requested a plan, slicing, tracker and Looper.
 
 The [plan](../../plan/rev-tree-selection.md) and
 [tracker](../../tracker/rev-tree-selection.md) define one implementation slice.
-Slice 1 implementation and native checks are complete. Canonical review and
-controller-owned integration remain pending.
+Slice 1 and canonical integration are complete. The controller full gate passed
+`27e222f65a81bbdb0d3aece0e7279877faf997b2` before documentation closure.
 
 ## Acceptance direction
 
@@ -88,8 +90,18 @@ captures later work; it does not reopen rev-wrap-navigation or start implementat
 ## Implementation evidence
 
 The [Slice 1 report](../../report/slices/rev-tree-selection/slice-1-follow.md)
-records delivered behavior, native validation, task commits and canonical review.
-The ticket enters reviewing; integration and final-gate closure remain pending.
+records delivered behavior, native validation, task commits, canonical integration
+and successful final-gate evidence. The ticket is solved with resolution fixed.
 
-Canonical [PR #308](https://forge.adrianpk.com/adrianpk/rev/pulls/308) targets
-dev. The report introduction is `750da5ece50597b114c3fff02150793219bb2ab2`.
+Canonical [PR #308](https://forge.adrianpk.com/adrianpk/rev/pulls/308) merged into
+dev at `b3e77ecb57a3dfd3d141a911ae319ccf72ab2ef8`. The report introduction is `750da5ece50597b114c3fff02150793219bb2ab2`.
+
+## Resolution
+
+Fixed: selection remains visible after activation and follows the active editing
+file by default, with configurable manual selection and preserved source/root
+ownership. The unchanged controller gate passed candidate `27e222f65a81bbdb0d3aece0e7279877faf997b2`
+in log `KGGQSFRVEFDYE7B4A3KIT2FGIO`: 98 selected Rust tests, native
+catalogs, documentation links and the local Spore guide build. The
+[delivery closure](../../report/slices/rev-tree-selection/slice-1-follow.md#delivery-set-closure)
+records the exact command and evidence scope.

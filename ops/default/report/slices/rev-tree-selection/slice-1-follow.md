@@ -120,18 +120,42 @@ exact displacement and source-state checks.
 
 The controller validator passed all ten ordered commands on clean PR-reference
 HEAD `b3e77ecb57a3dfd3d141a911ae319ccf72ab2ef8`, also the verified integrated
-commit. This is focused slice evidence; the integrated delivery-set gate remains
-pending on the prepared dev candidate.
+commit. This remains the original focused slice evidence; the separate integrated
+delivery-set gate is recorded below.
 
 Gate preparation verified locked offline dependency metadata for 118 packages,
 Rust/Cargo 1.98.0, Spore availability and the approved guide inputs. Primary and
 slice worktrees retain separate target directories. No primary-checkout build
-was active during preparation. Only this report and the tracker change after
-integration; runtime, tests and published-guide inputs remain unchanged.
+was active during preparation. Gate preparation changed only this report and
+the tracker after integration; runtime, tests and guide inputs were preserved.
 
-The ticket remains reviewing until the controller gate and final closure.
+The ticket is solved with resolution fixed after the successful controller gate
+and documentation closure.
 Fixtures use existing native owners; no preview server or external publication
 is part of this validation.
+
+## Delivery-set closure
+
+Completed: 2026-11-07
+Validated candidate: `27e222f65a81bbdb0d3aece0e7279877faf997b2`
+Gate log: `KGGQSFRVEFDYE7B4A3KIT2FGIO`
+
+The controller passed the unchanged integrated gate on the exact clean candidate
+above. Its exact command was:
+
+- `export CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 && cargo fmt --all -- --check && cargo clippy --locked --all-targets -- -D warnings && cargo test --locked --test tree -- --test-threads=1 && cargo test --locked --test pointer tree -- --test-threads=1 && cargo test --locked --test display tree -- --test-threads=1 && cargo test --locked --test contexts peer_tree_routes -- --test-threads=1 && cargo test --locked --test commands catalog_reference -- --test-threads=1 && cargo run --locked --quiet --example documentation-check && bash scripts/build-user-guide.sh && git diff --check`
+
+Results: 77 tree tests, 16 pointer tests, three display tests, one overlapping
+Workspace route case and one command-catalog guard passed (98 selected tests).
+Formatting and all-target Clippy passed. Native catalogs verified 618 commands
+and 290 configuration entries; documentation verified 91 reachable pages and
+623 local links/anchors. Spore projected and built all 91 Markdown pages locally.
+
+The plan, tracker, specification and model are Completed. The report is delivered,
+the source ticket is solved with resolution fixed and its index entry is updated.
+Only the configured closure documents differ from the tested candidate; runtime,
+tests, guide inputs, slice identities and required assertions remain unchanged.
+Closure starts no test fixtures, preview server, release or external publication.
 
 ## Risks and Follow-ups
 
