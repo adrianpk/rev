@@ -28,26 +28,34 @@ impl Frame {
         let content = panel.content();
         for row in 0..content.height() {
             let label = tree.line(row, content.width())?;
+            let selected = tree.row_selected(row);
+            // The tree and a live source region can occupy the same screen row.
+            // Its selected face preserves both independent surface indications.
+            let source_selection = self.rows[usize::from(content.row() + row)]
+                .selection
+                .is_some();
             let source = Row {
                 row,
                 text: clip::line(Glyphs::for_text(&label)?, 0, content.width())?,
                 syntax: Vec::new(),
                 band: Band::Document,
-                tone: super::Tone::Tree(tree.row_kind(row)),
+                tone: if selected {
+                    super::Tone::TreeSelected
+                } else {
+                    super::Tone::Tree(tree.row_kind(row))
+                },
                 faces: Vec::new(),
                 search: None,
-                selection: (panel.active() && row == tree.selected_row())
-                    .then_some(0..content.width()),
+                selection: (selected && !source_selection).then_some(0..content.width()),
             }
             .projected(panel);
             self.blit(content, source)?;
         }
         self.tree_status(tree, panel)?;
         if panel.active() {
-            self.cursor = panel.position(Position {
-                column: 0,
-                row: tree.selected_row(),
-            });
+            self.cursor = tree
+                .selected_row()
+                .and_then(|row| panel.position(Position { column: 0, row }));
         }
         Ok(())
     }

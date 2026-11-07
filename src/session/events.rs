@@ -161,6 +161,7 @@ impl Session {
             Err(action) => action,
         };
         self.retire_context_preparation();
+        self.follow_tree();
         if action != Action::Exit {
             self.activate_lsp();
             self.observe_files();

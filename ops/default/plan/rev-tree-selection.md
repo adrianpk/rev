@@ -9,7 +9,7 @@ Planning baseline: `fe49403440011e48e5e46b3196394cb0fc39f035`
 Specification: [File Tree Selection and Active Buffer](../spec/editor-tree-selection.md)
 Model: [Tree Selection Policy](../spec/editor-tree-selection-model.md)
 Tracker: [File Tree Selection Tracker](../tracker/rev-tree-selection.md)
-Ticket: [TKT-20261031093408](../ticket/ready/20261031093408-highlight-tree-selection-and-sync-active-buffer.md)
+Ticket: [TKT-20261031093408](../ticket/in_progress/20261031093408-highlight-tree-selection-and-sync-active-buffer.md)
 Concern: [Pending Editor Work](../README.md)
 Active slice: Slice 1 - Selection and following
 

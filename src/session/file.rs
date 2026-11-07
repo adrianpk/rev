@@ -97,15 +97,18 @@ impl Session {
         self.pending = None;
         self.echo_kind = crate::display::Message::Normal;
         self.echo.clear();
-        self.refresh_ingress_tree(observed, root_changed);
+        self.refresh_ingress_tree(observed.as_deref(), root_changed);
+        if let Some(source) = observed {
+            self.tree.admit_file(path, &source);
+        }
         self.activate_lsp();
         Ok(())
     }
 
-    fn refresh_ingress_tree(&mut self, observed: Option<std::path::PathBuf>, root_changed: bool) {
+    fn refresh_ingress_tree(&mut self, observed: Option<&Path>, root_changed: bool) {
         if !root_changed
             && let Some(path) = observed
-            && let Err(error) = self.tree.observe_path(&path)
+            && let Err(error) = self.tree.observe_path(path)
         {
             self.echo = format!("Opened {}; tree refresh failed: {error}", path.display());
             self.echo_kind = crate::display::Message::Warning;

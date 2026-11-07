@@ -5,6 +5,7 @@ use std::path::{Path, PathBuf};
 /// One observed entry in visible preorder. Symlinks are always leaves.
 #[derive(Clone, Debug)]
 pub struct Entry {
+    pub(super) source: Option<PathBuf>,
     pub(super) path: PathBuf,
     pub(super) root_id: Option<crate::context::RootId>,
     pub(super) root_label: Option<String>,
@@ -47,6 +48,7 @@ impl Entry {
 
     pub(super) fn root(path: PathBuf) -> Self {
         Self {
+            source: None,
             path,
             root_id: None,
             root_label: None,
@@ -64,6 +66,7 @@ impl Entry {
             .map_err(|e| failure("inspect entry", &path, e))?
             .file_type();
         Ok(Self {
+            source: None,
             path,
             root_id: None,
             root_label: None,

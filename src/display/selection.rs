@@ -140,7 +140,7 @@ impl Row {
         let monochrome = crossterm::style::Colored::ansi_color_disabled_memoized();
         reverse(
             writer,
-            monochrome && covers(&self.selection, column),
+            monochrome && (covers(&self.selection, column) || tone == super::Tone::TreeSelected),
             &mut attributes.reversed,
         )?;
         underline(

@@ -383,6 +383,7 @@ impl Session {
             .present()
             .map_err(|error| view::Error::WorkingDirectory(error.kind()))?;
         session.prepare_bookmark_markers();
+        session.follow_tree();
         session.activate_lsp();
         session.observe_files();
         Ok(session)
@@ -933,6 +934,7 @@ impl Session {
             return action;
         }
         let action = self.execute_now(command);
+        self.follow_tree();
         self.retire_context_preparation();
         self.activate_lsp();
         self.observe_files();

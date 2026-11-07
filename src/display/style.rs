@@ -34,6 +34,7 @@ pub(super) enum Tone {
     Status(bool),
     Border(bool),
     Tree(Option<crate::tree::Kind>),
+    TreeSelected,
     Gutter(crate::gutter::Role),
     Message(Message),
     Completion(crate::completion::Kind),
@@ -106,6 +107,7 @@ impl Tone {
                 }),
                 palette.tree,
             ),
+            Self::TreeSelected => Colors::new(palette.tree_selected_text, palette.tree_selected),
             Self::Gutter(role) => Colors::new(
                 gutter_color(role, &palette.gutter),
                 palette.gutter.background,
@@ -179,7 +181,9 @@ impl Row {
             .is_some_and(|range| covers(range, column))
         {
             return match tone {
-                Tone::Tree(_) => Colors::new(palette.tree_selected_text, palette.tree_selected),
+                Tone::Tree(_) | Tone::TreeSelected => {
+                    Colors::new(palette.tree_selected_text, palette.tree_selected)
+                }
                 Tone::Completion(kind) => Colors::new(kind_color(kind, palette), palette.selection),
                 _ => Colors::new(palette.selection_text, palette.selection),
             };

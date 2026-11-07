@@ -404,6 +404,7 @@ edit limits and finite lifecycle.
 | `kill_ring.capacity` | Integer 1..=4096 | `32` | Session; linear entries, separate from retained rectangle rows. |
 | `kill_ring.coalesce` | Boolean | `true` | Session; consecutive compatible directional kills join; unrelated commands still end the chain. |
 | `tree.decorated` | Boolean | `true` | Startup; kind symbols and semantic entry colors, with the catalog chosen by gutter.nerd_fonts. Set false for the existing minimal labels. |
+| `tree.follow_active_buffer` | Boolean | `true` | Startup; highlight the active editing file when its row is loaded. Reveal offscreen matches without expanding directories or replacing roots. False retains the manual selection across buffer changes. |
 | `tree.visible` | Boolean | `false` | Initial show preference; showing never steals editor focus. Narrow geometry can temporarily hide the pane. |
 | `tree.width` | Integer 1..=512 | `24` | Session; preferred tree columns, constrained by its frame share and complete editor geometry. |
 | `tree.max_fraction` | Finite float 0.1..=0.5 | `0.3333333333333333` | Session; maximum terminal-width fraction for the tree. The divider is separate. |

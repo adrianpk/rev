@@ -389,6 +389,11 @@ impl Merge {
 
     fn tree(&mut self, base: &mut PartialTree, later: &PartialTree) {
         self.leaf(
+            &["tree", "follow_active_buffer"],
+            &mut base.follow_active_buffer,
+            &later.follow_active_buffer,
+        );
+        self.leaf(
             &["tree", "decorated"],
             &mut base.decorated,
             &later.decorated,

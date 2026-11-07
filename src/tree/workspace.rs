@@ -32,6 +32,7 @@ impl Tree {
             return;
         };
         let owner = owner.clone();
+        self.follow_dirty = true;
         let selected = self.selected().map(|e| (e.root_id.clone(), e.path.clone()));
         let previous = std::mem::take(&mut self.entries);
         for root in roots {

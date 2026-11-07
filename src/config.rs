@@ -635,6 +635,8 @@ pub struct PartialKillRing {
 #[derive(Clone, Debug, PartialEq)]
 pub struct Tree {
     pub visible: bool,
+    /// Follow admitted active-file entries while editing owns focus.
+    pub follow_active_buffer: bool,
     /// Startup presentation only; visibility and navigation keep their own policy.
     pub decorated: bool,
     /// 1..=512 preferred columns, constrained by available geometry.
@@ -650,6 +652,7 @@ impl Default for Tree {
     fn default() -> Self {
         Self {
             visible: false,
+            follow_active_buffer: true,
             decorated: true,
             width: 24,
             max_fraction: 0.3333333333333333,
@@ -664,6 +667,7 @@ impl Default for Tree {
 #[serde(default, deny_unknown_fields)]
 pub struct PartialTree {
     pub visible: Option<bool>,
+    pub follow_active_buffer: Option<bool>,
     pub decorated: Option<bool>,
     pub width: Option<i64>,
     pub max_fraction: Option<f64>,

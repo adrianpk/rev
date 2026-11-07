@@ -20,8 +20,10 @@ fn roles(palette: &TreePalette) -> [(&'static str, Rgb); 7] {
 fn defaults() {
     let absent: Document = toml::from_str("").unwrap();
     assert_eq!(absent.tree.decorated, None);
+    assert_eq!(absent.tree.follow_active_buffer, None);
     let settings = Settings::default();
     assert!(settings.tree.decorated);
+    assert!(settings.tree.follow_active_buffer);
     assert!(!settings.tree.visible);
     assert!(!settings.gutter.nerd_fonts);
     for ((name, actual), expected) in roles(&settings.palette.tree_entries).into_iter().zip([
@@ -35,50 +37,55 @@ fn defaults() {
 // font, visibility, background and selection preferences remain independent.
 #[test]
 fn precedence() {
-    for (name, inherited, explicit, expected) in [
-        ("omitted", "", "", true),
-        ("included false", "tree.decorated=false", "", false),
-        (
-            "root false",
-            "tree.decorated=true",
-            "tree.decorated=false",
-            false,
-        ),
-        (
-            "root true",
-            "tree.decorated=false",
-            "tree.decorated=true",
-            true,
-        ),
-    ] {
-        let fixture = Fixture::new();
-        let base = fixture.write("base.toml", inherited);
-        let text = format!("include=['base.toml']\ngutter.nerd_fonts=true\n{explicit}");
-        let root = fixture.write("config.toml", &text);
-        let startup = prepare(&root);
-        assert!(
-            startup.diagnostic.is_none(),
-            "{name}: {:?}",
-            startup.diagnostic
-        );
-        let settings = startup.snapshot.settings();
-        assert_eq!(settings.tree.decorated, expected, "{name}");
-        assert!(!settings.tree.visible, "{name}");
-        assert!(settings.gutter.nerd_fonts, "{name}");
-        assert_eq!(settings.palette, Settings::default().palette, "{name}");
-        let origin = if !explicit.is_empty() {
-            Some(root.as_path())
-        } else if !inherited.is_empty() {
-            Some(base.as_path())
-        } else {
-            None
-        };
-        assert_eq!(
-            startup.snapshot.origin(&["tree", "decorated"]),
-            origin,
-            "{name}"
-        );
-        assert_eq!(std::fs::read_to_string(root).unwrap(), text);
+    for field in ["decorated", "follow_active_buffer"] {
+        for (name, inherited, explicit, expected) in [
+            ("omitted", "", "", true),
+            ("included false", "tree.decorated=false", "", false),
+            (
+                "root false",
+                "tree.decorated=true",
+                "tree.decorated=false",
+                false,
+            ),
+            (
+                "root true",
+                "tree.decorated=false",
+                "tree.decorated=true",
+                true,
+            ),
+        ] {
+            let inherited = inherited.replace("decorated", field);
+            let explicit = explicit.replace("decorated", field);
+            let fixture = Fixture::new();
+            let base = fixture.write("base.toml", &inherited);
+            let text = format!("include=['base.toml']\ngutter.nerd_fonts=true\n{explicit}");
+            let root = fixture.write("config.toml", &text);
+            let startup = prepare(&root);
+            assert!(
+                startup.diagnostic.is_none(),
+                "{name}: {:?}",
+                startup.diagnostic
+            );
+            let settings = startup.snapshot.settings();
+            let actual = if field == "decorated" {
+                settings.tree.decorated
+            } else {
+                settings.tree.follow_active_buffer
+            };
+            assert_eq!(actual, expected, "{field}: {name}");
+            assert!(!settings.tree.visible, "{name}");
+            assert!(settings.gutter.nerd_fonts, "{name}");
+            assert_eq!(settings.palette, Settings::default().palette, "{name}");
+            let origin = if !explicit.is_empty() {
+                Some(root.as_path())
+            } else if !inherited.is_empty() {
+                Some(base.as_path())
+            } else {
+                None
+            };
+            assert_eq!(startup.snapshot.origin(&["tree", field]), origin, "{name}");
+            assert_eq!(std::fs::read_to_string(root).unwrap(), text);
+        }
     }
 }
 
@@ -141,6 +148,13 @@ fn rejected_leaves() {
             )
         })
         .to_vec();
+    for value in ["1", "'false'", "[]", "{}"] {
+        cases.push((
+            "tree.follow_active_buffer".into(),
+            value.into(),
+            "true".into(),
+        ));
+    }
     for (name, _) in roles(&TreePalette::default()) {
         for invalid in ["'#12345g'", "'#fff'", "1"] {
             cases.push((

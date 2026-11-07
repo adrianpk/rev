@@ -4,6 +4,7 @@ use super::{Action, Session};
 
 impl Session {
     pub(super) fn sync_input_context(&mut self) {
+        self.follow_tree();
         self.input.set_startup(self.startup_screen.is_some());
         if self.startup_screen.is_some() {
             return;

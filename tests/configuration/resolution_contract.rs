@@ -68,6 +68,7 @@ files.bom = true
         },
         tree: Tree {
             visible: true,
+            follow_active_buffer: true,
             decorated: true,
             width: 31,
             max_fraction: 0.4,

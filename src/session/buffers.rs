@@ -78,6 +78,7 @@ impl Session {
         self.terminal_source_focus();
         self.input.cancel();
         self.pending = None;
+        self.follow_tree();
         self.message("")
     }
 

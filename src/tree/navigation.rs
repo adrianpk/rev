@@ -9,6 +9,8 @@ impl Tree {
         if rows == 0 {
             return false;
         }
+        // Explicit wheel intent supersedes a follow reveal awaiting its frame.
+        self.follow_pending = false;
         let before = (self.top, self.selected);
         let last = self.entries.len().saturating_sub(1);
         self.top = if backward {
@@ -59,6 +61,7 @@ impl Tree {
         }
         self.entries
             .splice(self.selected + 1..self.selected + 1, children.entries);
+        self.follow_dirty = true;
         Ok(())
     }
 
@@ -71,6 +74,7 @@ impl Tree {
         if entry.expanded {
             let end = self.descendants_end(self.selected);
             self.entries.drain(self.selected + 1..end);
+            self.follow_dirty = true;
             self.entries[self.selected].expanded = false;
             self.entries[self.selected].incomplete = false;
         } else if depth > 0 {

@@ -41,6 +41,7 @@ impl Session {
         if let Some(message) = session.tree.diagnostic() {
             session.notice(message);
         }
+        session.follow_tree();
         session.startup_clock_state();
         session.prepare_bookmark_markers();
         let usage_diagnostic = session.startup_command_usage();

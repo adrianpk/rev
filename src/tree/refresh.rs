@@ -8,6 +8,7 @@ impl Tree {
     /// stay collapsed. A failed branch collapses while other observations stay
     /// usable; selection falls back to the nearest remaining visible ancestor.
     pub fn refresh(&mut self) -> io::Result<()> {
+        self.follow_dirty = true;
         if self.workspace.is_some() {
             return self.refresh_workspace();
         }

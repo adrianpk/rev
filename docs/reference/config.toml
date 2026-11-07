@@ -190,6 +190,7 @@ search_chars = 262144 # 0..1048576 total search scalars; zero disables relocatio
 # are available without factory bindings.
 
 [tree]
+follow_active_buffer = true # Follow loaded active-file rows; false retains manual selection.
 decorated = true         # Kind symbols and entry colors; false keeps minimal labels.
 # Boolean; initial visibility. Tiny/narrow terminals can hide the pane.
 visible = false

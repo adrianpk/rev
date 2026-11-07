@@ -147,6 +147,7 @@ fn kill_ring(base: &mut KillRing, partial: &PartialKillRing) {
 }
 
 fn tree(base: &mut Tree, partial: &PartialTree) {
+    scalar(&mut base.follow_active_buffer, partial.follow_active_buffer);
     scalar(&mut base.decorated, partial.decorated);
     scalar(&mut base.visible, partial.visible);
     count(&mut base.width, partial.width);

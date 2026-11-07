@@ -45,6 +45,7 @@ fn scalar_defaults() {
     assert_eq!(settings.tree.root, TreeRoot::Auto);
     assert!(settings.tree.show_hidden);
     assert!(settings.tree.decorated);
+    assert!(settings.tree.follow_active_buffer);
     assert!(settings.tree.directories_first);
     assert_eq!(settings.gutter, rev::gutter::Settings::default());
     assert!(settings.language.is_empty());

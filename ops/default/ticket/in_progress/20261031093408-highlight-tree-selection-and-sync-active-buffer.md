@@ -1,7 +1,7 @@
 ---
 id: TKT-20261031093408
 title: Highlight tree selection and synchronize the active buffer
-status: ready
+status: in_progress
 kind: follow_up
 severity: unclassified
 priority: unclassified
@@ -10,6 +10,8 @@ tags: tree, selection, buffers
 source: chat
 reported_at: 2026-10-31T09:34:08Z
 ready_at: 2026-11-07T15:19:21Z
+started_at: 2026-11-07T17:17:52Z
+branch: feat/rev-tree-selection-01-follow
 commits: []
 ---
 
@@ -63,7 +65,8 @@ approved the specification and requested a plan, slicing, tracker and Looper.
 
 The [plan](../../plan/rev-tree-selection.md) and
 [tracker](../../tracker/rev-tree-selection.md) define one implementation slice.
-The ticket is ready; its actual start and later transitions belong to that run.
+Implementation has started in the approved Slice 1 branch; review and closure
+remain with this delivery.
 
 ## Acceptance direction
 

@@ -1,6 +1,7 @@
 mod create;
 mod delete;
 mod entry;
+mod follow;
 mod hit;
 mod navigation;
 mod presentation;
@@ -36,6 +37,11 @@ pub struct Tree {
     explicit_root: bool,
     initialized: bool,
     focus_pending: bool,
+    active_view: Option<crate::window::ViewId>,
+    active_path: Option<PathBuf>,
+    active: Option<usize>,
+    follow_dirty: bool,
+    follow_pending: bool,
 }
 
 impl Tree {
@@ -88,6 +94,7 @@ impl Tree {
         self.selected = 0;
         self.top = 0;
         self.initialized = false;
+        self.follow_dirty = true;
     }
 
     pub fn entries(&self) -> &[Entry] {
@@ -102,14 +109,28 @@ impl Tree {
         if height == 0 {
             return;
         }
-        self.top = self.top.min(self.selected);
-        if self.selected - self.top >= height {
-            self.top = self.selected + 1 - height;
+        let selected = if self.focused || !self.policy.follow_active_buffer {
+            self.selected
+        } else {
+            if !self.follow_pending {
+                return;
+            }
+            self.follow_pending = false;
+            let Some(active) = self.active else {
+                return;
+            };
+            active
+        };
+        self.top = self.top.min(selected);
+        if selected - self.top >= height {
+            self.top = selected + 1 - height;
         }
     }
 
-    pub(crate) fn selected_row(&self) -> u16 {
-        (self.selected - self.top) as u16
+    pub(crate) fn selected_row(&self) -> Option<u16> {
+        self.selected
+            .checked_sub(self.top)
+            .and_then(|row| u16::try_from(row).ok())
     }
 
     pub fn root(&self) -> Option<&Path> {
@@ -182,6 +203,7 @@ impl Tree {
     }
 
     pub(crate) fn edit(&mut self) {
+        self.follow_dirty |= self.focused || self.focus_pending;
         self.focused = false;
         self.focus_pending = false;
     }
@@ -195,6 +217,7 @@ impl Tree {
             self.focus_pending = false;
             self.focused = true;
         }
+        self.follow_dirty |= hidden || self.follow_pending;
         hidden
     }
 

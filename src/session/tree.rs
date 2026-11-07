@@ -10,6 +10,17 @@ use crate::view::Size;
 use super::{Action, Pending, Session};
 
 impl Session {
+    pub(super) fn follow_tree(&mut self) {
+        let path = self
+            .buffers
+            .get(self.windows.selected().point.stamp.buffer)
+            .ok()
+            .filter(|_| !self.terminals.focused)
+            .and_then(|buffer| buffer.file())
+            .map(|file| file.path());
+        self.tree.follow(self.windows.selected_id(), path);
+    }
+
     pub fn tree(&self) -> &Tree {
         &self.tree
     }
