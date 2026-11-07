@@ -2,6 +2,10 @@
 
 Screenshots of rev in use.
 
+## Startup screen
+
+![rev startup screen with the compact logo and actions for a new buffer, file, directory, Project and Workspace](images/rev-startup.png)
+
 ## Code and Org with indentation
 
 ![rev with the decorated file tree, code and a blue bookmark marker beside indented Org tasks, dates, a table and a source block](images/rev-rust-org.png)

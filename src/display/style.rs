@@ -78,11 +78,24 @@ fn color(Rgb(r, g, b): Rgb) -> Color {
     Color::Rgb { r, g, b }
 }
 
+// The asset is matted against black, without alpha. Its brightest channel
+// estimates coverage so dark edges blend into the canvas and saturated colors stay.
+fn artwork_color(Rgb(r, g, b): Rgb, Rgb(red, green, blue): Rgb) -> Rgb {
+    let transparent = u16::from(255 - r.max(g).max(b));
+    let channel = |source: u8, background: u8| {
+        (u16::from(source) + (u16::from(background) * transparent + 127) / 255) as u8
+    };
+    Rgb(channel(r, red), channel(g, green), channel(b, blue))
+}
+
 impl Tone {
     fn colors(self, palette: &Palette) -> Colors {
         match self {
-            Self::Startup => Colors::new(palette.foreground, Rgb(0, 0, 0)),
-            Self::Artwork(foreground, background) => Colors::new(foreground, background),
+            Self::Startup => Colors::new(palette.foreground, palette.background),
+            Self::Artwork(foreground, background) => Colors::new(
+                artwork_color(foreground, palette.background),
+                artwork_color(background, palette.background),
+            ),
             Self::Status(true) => Colors::new(palette.status_text, palette.status),
             Self::Status(false) => Colors::new(palette.status_text, palette.status_inactive),
             Self::Border(true) => Colors::new(palette.border_active, palette.background),

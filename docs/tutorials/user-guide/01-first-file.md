@@ -11,7 +11,7 @@ In your terminal, run:
 rev notes.txt
 ```
 
-You can also start `rev` without a path, choose Open File with the arrows and
+You can also start `rev` without a path, choose Open… with the arrows and
 Enter, then enter `notes.txt` in the native file prompt. New Buffer starts
 standalone unnamed work; the other actions open a directory, Project or Workspace.
 C-g cancels a picker or returns from the startup screen.

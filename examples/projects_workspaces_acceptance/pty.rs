@@ -134,7 +134,7 @@ fn startup(root: &Path, profile: &str, terminal: &mut Terminal, first: &Path) ->
     dashboard(terminal)?;
     if profile == "non-modal" {
         assert!(terminal.contains("38;2;129;74;255m") || terminal.contains("48;2;129;74;255m"));
-        assert!(terminal.contains("48;2;0;0;0m"));
+        assert!(terminal.contains("48;2;26;27;38m"));
     } else {
         assert!(!terminal.contains("38;2;") && !terminal.contains("48;2;"));
         assert!(terminal.contains("\x1b[7m"));
@@ -147,11 +147,11 @@ fn startup(root: &Path, profile: &str, terminal: &mut Terminal, first: &Path) ->
     terminal.resize(24, 80)?;
     dashboard(terminal)?;
     terminal.idle()?;
-    // This is the dashboard Open Dir action, rather than a command alias.
-    terminal.send(b"\x1b[B\x1b[B\r")?;
+    // The dashboard Open action accepts a directory through the path selector.
+    terminal.send(b"\x1b[B\r")?;
     argument(
         terminal,
-        "Open directory:",
+        "Find file:",
         first.parent().unwrap().to_str().unwrap(),
     )?;
     let label = tree_label(profile);
@@ -207,7 +207,7 @@ fn project_work(
     named(terminal, profile, "context-close")?;
     dashboard(terminal)?;
     // The dashboard Open Project action restores the saved source anchor.
-    terminal.send(b"\x1b[B\x1b[B\x1b[B\r")?;
+    terminal.send(b"\x1b[B\x1b[B\r")?;
     pick(terminal, "Project:", "Atlas")?;
     terminal.frame(|f| visible(f, "界e\u{301} line") && visible(f, "L2 C4"))?;
     Ok(project)
@@ -308,7 +308,7 @@ fn membership(root: &Path, profile: &str, terminal: &mut Terminal, peer: &Path) 
     terminal.frame(|f| !visible(f, "Workspace *"))?;
     named(terminal, profile, "context-close")?;
     dashboard(terminal)?;
-    terminal.send(b"\x1b[B\x1b[B\x1b[B\x1b[B\r")?;
+    terminal.send(b"\x1b[B\x1b[B\x1b[B\r")?;
     pick(terminal, "Workspace:", "Copy")?;
     terminal.frame(|f| visible(f, "peer source"))?;
     named(terminal, profile, "workspace-remove-root")?;

@@ -2,6 +2,9 @@ use crate::config::Rgb;
 use std::ops::Range;
 use std::sync::OnceLock;
 
+pub(super) const WIDTH: u16 = 58;
+pub(super) const HEIGHT: u16 = 8;
+
 pub(super) struct Run {
     pub columns: Range<u16>,
     pub foreground: Rgb,
@@ -12,13 +15,13 @@ pub(super) struct Row {
     pub runs: Vec<Run>,
 }
 
-/// The bundled asset admits only RGB SGR and reset. It is parsed once into 1,300
+/// The bundled asset admits only RGB SGR and reset. It is parsed once into 464
 /// native cells; escape bytes never reach row text or a terminal write path.
 pub(super) fn get() -> &'static [Row] {
     static ROWS: OnceLock<Vec<Row>> = OnceLock::new();
     ROWS.get_or_init(|| {
-        parse(include_str!("../../session/startup/rev-logo.ans"))
-            .expect("bundled startup artwork must satisfy its admitted 100x13 RGB shape")
+        parse(include_str!("../../session/startup/rev-logo-small.ans"))
+            .expect("bundled startup artwork must satisfy its admitted 58x8 RGB shape")
     })
 }
 fn parse(asset: &str) -> Result<Vec<Row>, &'static str> {
@@ -26,7 +29,7 @@ fn parse(asset: &str) -> Result<Vec<Row>, &'static str> {
     let mut background = Rgb(0, 0, 0);
     let mut rows = Vec::new();
     for line in asset.lines() {
-        if rows.len() >= 13 {
+        if rows.len() >= usize::from(HEIGHT) {
             return Err("artwork row limit");
         }
         let mut remaining = line;
@@ -51,7 +54,7 @@ fn parse(asset: &str) -> Result<Vec<Row>, &'static str> {
                 let glyph = remaining.chars().next().ok_or("missing artwork cell")?;
                 if glyph.is_control()
                     || unicode_width::UnicodeWidthChar::width(glyph) != Some(1)
-                    || column >= 100
+                    || column >= WIDTH
                 {
                     return Err("invalid artwork cell");
                 }
@@ -72,12 +75,12 @@ fn parse(asset: &str) -> Result<Vec<Row>, &'static str> {
                 remaining = &remaining[glyph.len_utf8()..];
             }
         }
-        if column != 100 {
+        if column != WIDTH {
             return Err("artwork width");
         }
         rows.push(Row { text, runs });
     }
-    if rows.len() != 13 {
+    if rows.len() != usize::from(HEIGHT) {
         return Err("artwork height");
     }
     Ok(rows)

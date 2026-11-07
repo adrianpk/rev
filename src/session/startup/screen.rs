@@ -11,16 +11,14 @@ use std::time::Instant;
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub(super) enum Choice {
     NewBuffer,
-    OpenFile,
-    OpenDir,
+    Open,
     OpenProject,
     OpenWorkspace,
 }
 impl Choice {
-    const ALL: [Self; 5] = [
+    const ALL: [Self; 4] = [
         Self::NewBuffer,
-        Self::OpenFile,
-        Self::OpenDir,
+        Self::Open,
         Self::OpenProject,
         Self::OpenWorkspace,
     ];
@@ -33,8 +31,7 @@ impl Choice {
     fn command(self) -> Command {
         match self {
             Self::NewBuffer => Command::GenerateNewBuffer,
-            Self::OpenFile => Command::FindFile,
-            Self::OpenDir => Command::OpenDirectory,
+            Self::Open => Command::FindFile,
             Self::OpenProject => Command::ProjectSwitch,
             Self::OpenWorkspace => Command::WorkspaceOpen,
         }
@@ -115,10 +112,10 @@ impl Session {
         };
         let old = screen.selected.index();
         let next = match selection {
-            Selection::Next => (old + 1).min(4),
+            Selection::Next => (old + 1).min(Choice::ALL.len() - 1),
             Selection::Previous => old.saturating_sub(1),
             Selection::First => 0,
-            Selection::Last => 4,
+            Selection::Last => Choice::ALL.len() - 1,
             Selection::Accept => old,
         };
         screen.selected = Choice::ALL[next];

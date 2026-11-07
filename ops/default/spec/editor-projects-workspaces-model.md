@@ -190,13 +190,18 @@ between validation and access. Display labels never select filesystem objects.
 | Prepared replacement | Destination descriptor, expected revisions, staged observations and owned cancellation token |
 
 Dashboard selection is an action identity, not a row index into banner text.
+Its four actions are New Buffer, Open…, Open Project and Open Workspace. Open…
+reuses path acceptance for files and directories without a new persisted entity.
 The built-in banner is presentation input rather than user state. Terminal size
 determines its full or compact projection without changing the selected action
 or return-context token. Artwork, cell measurements and banner row offsets are
 not serialized into the registry or a Project/Workspace session.
-The supplied asset is 100 by 13 cells with RGB foreground/background runs. Its
-black startup content background is a surface presentation choice, not a mutation
-of buffer palette preferences. Color-disabled presentation uses the plain `rev`
+The active compact asset is 58 by 8 cells with RGB foreground/background runs;
+the full-size original remains alongside it.
+Startup uses the current buffer background and composites the asset's black-matted
+edges against it without changing source artwork or buffer palette preferences.
+The preferred three-row menu gap shrinks on short terminals. Neither presentation
+choice is serialized into context state. Color-disabled presentation uses the plain `rev`
 label rather than flattening the colored half-block artwork into monochrome.
 
 Preparation stages are resolve, validate, source-decision, capture, durable

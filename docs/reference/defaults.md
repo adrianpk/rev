@@ -3,7 +3,7 @@
 ## Runtime and invocation
 
 The executable is `rev`. It runs in a terminal and accepts zero arguments or
-one file or directory path. With no path it shows the native five-action
+one file or directory path. With no path it shows the native four-action
 [startup screen](contexts.md#startup-screen). New Buffer enters standalone work;
 an explicit path bypasses the screen.
 A nonexistent file path opens an empty visiting buffer without creating disk entries.

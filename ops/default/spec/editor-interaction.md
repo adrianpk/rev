@@ -42,7 +42,7 @@ previously approved ordinary saves retain their filesystem effects. Opening a
 registered path does not resume or overwrite that Project's file session.
 Project/Workspace selection restores sessions explicitly, and Workspace roots
 remain ordered independent members. No-target executable startup shows the
-native five-action screen. Showing the tree does not change context identity.
+native four-action screen. Showing the tree does not change context identity.
 This reconciliation preserves all historical candidates, gates and completed
 statuses above; the context tracker owns its separate validation and closure.
 Pending tree-selection synchronization remains separate work.

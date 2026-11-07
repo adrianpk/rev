@@ -4,14 +4,9 @@ use super::{Error, Face, Frame, Position, Tone, clip};
 use crate::coordinates::Glyphs;
 use crate::view::Size;
 
-const LABELS: [&str; 5] = [
-    "New Buffer",
-    "Open File",
-    "Open Dir",
-    "Open Project",
-    "Open Workspace",
-];
+const LABELS: [&str; 4] = ["New Buffer", "Open…", "Open Project", "Open Workspace"];
 const ACTION_WIDTH: u16 = 16;
+const MENU_GAP: u16 = 3;
 
 /// One disposable placement shared by painting and pointer admission. No banner
 /// row, offscreen action or stale resize geometry can become a source text hit.
@@ -32,13 +27,18 @@ impl Layout {
         } else {
             size.height
         };
-        let full = color && size.width >= 100 && height >= 19;
+        let actions = LABELS.len() as u16;
+        let full = color && size.width >= artwork::WIDTH && height > artwork::HEIGHT + actions;
         let (title, gap, rows) = if full {
-            (13, 1, 5)
-        } else if height >= 7 {
-            (1, 1, 5)
+            (
+                artwork::HEIGHT,
+                (height - artwork::HEIGHT - actions).min(MENU_GAP),
+                actions,
+            )
+        } else if height >= actions + 2 {
+            (1, (height - actions - 1).min(MENU_GAP), actions)
         } else if height >= 2 {
-            (1, 0, (height - 1).min(5))
+            (1, 0, (height - 1).min(actions))
         } else {
             (0, 0, height)
         };
@@ -48,7 +48,7 @@ impl Layout {
         Self {
             full,
             title_row: (title > 0).then_some(top),
-            banner_column: size.width.saturating_sub(100) / 2,
+            banner_column: size.width.saturating_sub(artwork::WIDTH) / 2,
             list_row: top + title + gap,
             list_column: size.width.saturating_sub(width) / 2,
             width,
@@ -102,7 +102,9 @@ impl Frame {
                         "{}{}{}",
                         " ".repeat(usize::from(layout.banner_column)),
                         source.text,
-                        " ".repeat(usize::from(self.size.width - layout.banner_column - 100))
+                        " ".repeat(usize::from(
+                            self.size.width - layout.banner_column - artwork::WIDTH
+                        ))
                     );
                     row.faces = source
                         .runs

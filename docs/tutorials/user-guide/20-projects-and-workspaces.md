@@ -19,17 +19,16 @@ rev notes/notes.txt
 ```
 
 The file opens directly as standalone editing. Run `M-x dashboard-open`. The
-startup screen keeps that file available behind it. Its five actions are:
+startup screen keeps that file available behind it. Its four actions are:
 
 ```text
 New Buffer
-Open File
-Open Dir
+Open…
 Open Project
 Open Workspace
 ```
 
-Use arrows and Enter to choose Open Dir, then accept the displayed `notes`
+Use arrows and Enter to choose Open…, then accept the displayed `notes`
 directory in the native path prompt. The prompt starts at the visiting file's
 parent; Enter accepts that offered directory. The tree opens there. Modified or
 unnamed work must first pass the ordinary save/discard/cancel decisions. This is temporary

@@ -35,9 +35,9 @@ See [startup configuration](defaults.md#startup-configuration).
 File input must be UTF-8 without NUL bytes. Existing BOM and line-ending details
 are preserved; see [text and files](defaults.md#text-and-files).
 
-The startup screen offers New Buffer, Open File, Open Dir, Open Project and Open
-Workspace in that order. Arrows and Enter navigate; modal j/k and colon retain
-the native input conventions. M-x opens the command selector. C-g cancels a
+The startup screen offers New Buffer, Open…, Open Project and Open Workspace
+in that order. Open… accepts files and directories. Arrows and Enter navigate;
+modal j/k and colon retain the native input conventions. M-x opens the command selector. C-g cancels a
 picker or returns to retained editing. See [Startup screen](contexts.md#startup-screen)
 for presentation, pointer and named-context behavior.
 

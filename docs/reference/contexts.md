@@ -56,14 +56,16 @@ keeps live work without replaying saved state or asking for discard.
 
 ## Startup screen
 
-Executable startup without a target shows New Buffer, Open File, Open Dir, Open
-Project and Open Workspace. An explicit file or directory opens directly. Library
-constructors remain passive; embedded hosts can call `dashboard-open` explicitly.
+Executable startup without a target shows New Buffer, Open…, Open Project and
+Open Workspace. Open… accepts either a file or a directory. An explicit path
+opens directly. Library constructors remain passive; embedded hosts can call
+`dashboard-open` explicitly.
 Automatic restoration of the last application session is separate.
 
 `dashboard-open` retains current work until a replacement succeeds. New Buffer
-uses the normal checked departure to start standalone work. Open File uses
-`find-file` within the retained context; Open Dir uses `open-directory`. Project
+uses the normal checked departure to start standalone work. Open… uses
+`find-file`: files open within the retained context; directories enter a temporary
+directory context after the normal departure decisions. Project
 and Workspace actions use their typed native pickers and independent sessions.
 Choosing the active artifact returns to its live work. Empty pickers name their
 creation commands. Opening or canceling a picker creates no registration.
@@ -78,7 +80,10 @@ or its retained document. Pointer press/release activates only a matching action
 artwork and spacing have no actions, and resized gestures are canceled.
 
 The supplied Unicode/RGB banner appears above a compact centered action group on
-a black content background. It is built-in artwork rather than a buffer, file or
+the same configured background as text buffers. Its dark edges blend into that
+background without changing the original artwork. Three blank rows separate the
+banner and menu when space permits; smaller terminals reduce the gap to keep
+actions visible. The banner is built-in artwork rather than a buffer, file or
 saved entry. Source palettes remain unchanged. Narrow or short terminals show a
 plain `rev` label and scroll the actions to keep selection visible. Zero-sized
 presentation retains action identity. `NO_COLOR` also uses the plain label with

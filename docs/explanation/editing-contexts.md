@@ -33,7 +33,7 @@ are live editor state rather than this basic file snapshot.
 The startup screen is a view over a retained context, not another document.
 Opening a picker can be canceled without losing that context. Successful
 replacement retires the old context through its existing source and job owners.
-At process startup, rev shows the five actions; named sessions restore only when
+At process startup, rev shows the four actions; named sessions restore only when
 explicitly selected. There is no automatic last-application-session restoration.
 
 A root also gives existing per-source services a directory boundary. A Workspace

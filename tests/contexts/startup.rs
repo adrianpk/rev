@@ -81,7 +81,7 @@ fn retained_work_and_selectors() {
     }
 }
 
-// All five actions call the ordinary command owners. New Buffer starts fresh
+// All four actions call the ordinary command owners. New Buffer starts fresh
 // standalone work after accepted source decisions; files/directories stay
 // temporary and typed catalog selection restores the independent artifact.
 #[test]
@@ -95,7 +95,7 @@ fn action_dispatch() {
         projects::promote(&mut s, profile, "Project");
         let saved = catalog(&f);
         show(&mut s);
-        select(&mut s, 3);
+        select(&mut s, 2);
         key(&mut s, KeyCode::Enter);
         ready(&mut s, |s| prompt(s, "Project:"));
         s.handle(Event::Paste("Project".into()));
@@ -111,9 +111,9 @@ fn action_dispatch() {
         assert!(!s.dashboard_visible());
         assert!(matches!(s.context(), Context::Project(_)));
         show(&mut s);
-        select(&mut s, 2);
+        select(&mut s, 1);
         key(&mut s, KeyCode::Enter);
-        assert!(prompt(&mut s, "Open directory:"));
+        assert!(prompt(&mut s, "Find file:"));
         s.handle(Event::Paste(
             source.parent().unwrap().to_str().unwrap().into(),
         ));
@@ -140,7 +140,7 @@ fn action_dispatch() {
         key(&mut s, KeyCode::Enter);
         ready(&mut s, |s| matches!(s.context(), Context::Workspace(_)));
         show(&mut s);
-        select(&mut s, 4);
+        select(&mut s, 3);
         key(&mut s, KeyCode::Enter);
         ready(&mut s, |s| prompt(s, "Workspace:"));
         s.handle(Event::Paste("Workspace".into()));
@@ -155,8 +155,8 @@ fn action_dispatch() {
     }
 }
 
-// The full artwork uses native RGB cells on black without changing the source
-// palette. Compact/zero/one-row projections preserve selected action identity.
+// Artwork follows the frame background without retaining a black rectangle or
+// changing source palettes. Resized projections preserve action and hit geometry.
 #[test]
 fn artwork_and_resize() {
     if std::env::var_os("REV_STARTUP_MONO_CHILD").is_some() {
@@ -177,19 +177,65 @@ fn artwork_and_resize() {
             .iter()
             .filter(|r| r.text().contains('▀') || r.text().contains('▄'))
             .count(),
-        13
+        8
     );
     for row in frame.rows() {
         assert_eq!(unicode_width::UnicodeWidthStr::width(row.text()), 120);
         assert!(!row.text().contains('\x1b'));
     }
+    let banner_end = frame
+        .rows()
+        .iter()
+        .rposition(|r| r.text().contains('▀'))
+        .unwrap();
+    let menu_start = frame
+        .rows()
+        .iter()
+        .position(|r| r.text().contains("New Buffer"))
+        .unwrap();
+    assert_eq!(menu_start - banner_end - 1, 3);
+    assert!(
+        frame.rows()[banner_end + 1..menu_start]
+            .iter()
+            .all(|row| row.text().trim().is_empty())
+    );
     let mut output = Vec::new();
     frame.write(&mut output).unwrap();
     let output = String::from_utf8(output).unwrap();
-    assert!(output.contains("48;2;0;0;0m"));
+    assert!(output.contains("48;2;26;27;38m"));
+    assert!(!output.contains("48;2;0;0;0m"));
     assert!(output.contains("38;2;129;74;255m") || output.contains("48;2;129;74;255m"));
-    select(&mut s, 4);
-    for (width, height) in [(50, 10), (5, 3), (0, 0), (1, 1), (20, 1), (120, 30)] {
+    for (case, background, expected) in [
+        ("custom", rev::config::Rgb(51, 34, 68), "48;2;51;34;68m"),
+        ("black", rev::config::Rgb(0, 0, 0), "48;2;0;0;0m"),
+    ] {
+        let palette = rev::config::Palette {
+            background,
+            ..rev::config::Palette::default()
+        };
+        let mut output = Vec::new();
+        s.frame()
+            .unwrap()
+            .with_palette(&palette)
+            .write(&mut output)
+            .unwrap();
+        let output = String::from_utf8(output).unwrap();
+        assert!(output.contains(expected), "{case}");
+        if case == "custom" {
+            assert!(!output.contains("48;2;0;0;0m"));
+        }
+        assert!(output.contains("38;2;129;74;255m") || output.contains("48;2;129;74;255m"));
+    }
+    select(&mut s, 3);
+    for (width, height) in [
+        (120, 20),
+        (50, 10),
+        (5, 3),
+        (0, 0),
+        (1, 1),
+        (20, 1),
+        (120, 30),
+    ] {
         s.handle(Event::Resize(width, height));
         let frame = s.poll_frame().unwrap();
         assert_eq!(frame.rows().len(), usize::from(height));
@@ -209,7 +255,7 @@ fn artwork_and_resize() {
                 1
             );
         }
-        if width < 100 || height < 20 {
+        if width < 58 || height < 14 {
             assert!(
                 frame
                     .rows()
@@ -222,7 +268,7 @@ fn artwork_and_resize() {
             frame.write(&mut output).unwrap();
             let output = String::from_utf8(output).unwrap();
             assert!(
-                output.contains("48;2;0;0;0m"),
+                output.contains("48;2;26;27;38m"),
                 "{width}x{height}: {output:?}"
             );
         }
@@ -248,7 +294,7 @@ fn pointer_actions() {
     if !s.mouse_enabled() {
         s.execute(Command::MouseMode);
     }
-    let (x, y) = action_row(&mut s, "Open File");
+    let (x, y) = action_row(&mut s, "Open…");
     mouse(&mut s, MouseEventKind::Down(MouseButton::Left), 10, 5);
     mouse(&mut s, MouseEventKind::Up(MouseButton::Left), 10, 5);
     assert!(s.dashboard_visible());

@@ -7,6 +7,7 @@ Gate receipt: `ZS6AIYOX66WRNHE5ICPVA46GIP`
 Approved: product owner, 2026-11-07; core specification/model and the established preparation, plan, slicing, push and single Looper delivery through dev
 Date: 2026-11-06
 Updated: 2026-11-07
+Presentation refinement: owner-approved shared buffer background and wider logo/menu spacing, 2026-11-07; original delivery evidence remains historical
 Format: OpenSpec capability addition with explicit baseline reconciliation
 Authority: approved core delivery; the linked plan/tracker govern execution; P19 remains a separate future specification and set
 Source: owner-supplied `rev-projects-workspaces-spec.md`, 482 lines; SHA-256 `a84ef8a7f8a3f112caee98deb817cc5e164923cfd836e77f3e8f101b1e28d589`
@@ -14,7 +15,8 @@ Inspection baseline: `fabf9d4370fd52bf1c93709bfd645ee2264cd7e6`
 Model: [Project and Workspace Model](editor-projects-workspaces-model.md)
 Plan: [Projects and Workspaces Delivery](../plan/rev-projects-workspaces.md)
 Tracker: [Projects and Workspaces Tracker](../tracker/rev-projects-workspaces.md)
-Artwork: [Supplied startup banner](../../../src/session/startup/rev-logo.ans)
+Artwork: [Compact startup banner](../../../src/session/startup/rev-logo-small.ans)
+Original artwork: [Preserved full-size banner](../../../src/session/startup/rev-logo.ans)
 Baselines: [File navigation](editor-file-navigation.md), NAV01-NAV06; [Interaction](editor-interaction.md); [Configuration](editor-configuration.md)
 Related contracts: [Pi integration](editor-ai-pi-integration.md), PI03/PI08; [Language servers](../../../docs/reference/language-servers.md); [Integrated terminals](../../../docs/reference/integrated-terminal.md)
 
@@ -36,17 +38,18 @@ from proposed defaults. This draft preserves that distinction: source-confirmed
 means classified that way by the supplied reference, not implementation approval
 or evidence that the repository already provides the behavior.
 
-The source-confirmed direction covers direct directory opening, a five-action
+The source-confirmed direction covers direct directory opening, a native
 dashboard, standalone files, temporary directories, named one-root Projects,
 restorable buffers/positions, application-owned state, multi-root Workspaces,
 promotion versus duplication, lifecycle commands and explicit membership.
 Agent context aggregation is outside the feature.
 
 The owner's additional startup-screen requirement includes a rev wordmark made
-from Unicode text art. The supplied `rev-logo.ans` fixes that artwork: UTF-8,
-100 columns by 13 rows, 35,650 bytes, using U+2580 upper-half blocks and RGB
+from Unicode text art. The supplied `rev-logo-small.ans` is the active artwork: UTF-8,
+58 columns by 8 rows, 12,975 bytes, using U+2580 upper-half blocks and RGB
 foreground/background SGR sequences on black. Its SHA-256 is
-`0b427846a5a84cb525c812f25e4e28c08a2117254e21e21cd617b04e26628d62`.
+`4922a0ce647b3a52976d80266ec12b4ac3f58687bbf48716123a617f57c5b567`.
+The full-size `rev-logo.ans` remains alongside it, unchanged.
 The source contains color/reset sequences, not cursor movement or terminal
 commands. The owner requested that its surrounding background fit the artwork.
 
@@ -80,7 +83,7 @@ its implementation remains deferred.
 | P15 | Apply the model's finite catalog, root, session, byte and staged-work profile; validate ordinary and boundary costs in delivery | Engineering baseline approved on 2026-11-07 |
 | P16 | Reuse existing public command names and add only distinct context operations | Repository reconciliation |
 | P17 | Resolve overlapping root ownership by the most specific containing root, then stored order | Review proposal |
-| P18 | Center the supplied banner/action group on a black startup content area; prioritize actionable rows and a plain label on small or color-disabled terminals | Owner-supplied artwork and startup presentation proposal |
+| P18 | Center the supplied banner/action group on the configured buffer background, adapting its black-matted edges; prefer three blank rows before the menu while preserving actions on small terminals | Owner-approved presentation refinement on 2026-11-07; source artwork retained |
 | P19 | Reserve TOML `startup.restore_session`, default `false`, for a later Startup Session Restoration specification and delivery set | Name/default approved; state capture, restoration behavior and implementation explicitly deferred on 2026-11-07 |
 
 The owner confirmed dashboard-first startup for this delivery. The core scope
@@ -229,24 +232,27 @@ flags or interpret shell syntax.
 
 ### Requirement: PW03 Provide a native dashboard with reversible selection
 
-The dashboard SHALL offer, in order, New Buffer, Open File, Open Dir, Open Project
-and Open Workspace. Select the first action initially. Reuse native selection,
+The dashboard SHALL offer, in order, New Buffer, Open…, Open Project and Open
+Workspace. Open… SHALL use the existing path selector to accept either a file
+or a directory. Select the first action initially. Reuse native selection,
 keyboard/pointer admission, palette roles and cancellation in both input profiles.
 It SHALL be navigable UI rather than editable text. Opening it over existing
 work SHALL retain that work until a replacement succeeds.
 
-The dashboard SHALL present the supplied `rev-logo.ans` above its actions as
-built-in, static artwork. Preserve its Unicode blocks, RGB foreground/background
-colors and internal spacing. Interpret its admitted color/reset sequences as
+The dashboard SHALL present the supplied `rev-logo-small.ans` above its actions as
+built-in, static artwork. Preserve the source Unicode blocks, RGB foreground/background
+colors and internal spacing. Adapt the black-matted foreground/background colors
+to the configured canvas when painting, keeping saturated logo colors and the
+original source asset intact. Interpret its admitted color/reset sequences as
 native styled cells during asset preparation or loading; do not send raw file
 escapes outside the renderer. This requires no general terminal emulation or
 external conversion program at startup. The artwork SHALL be passive: keyboard
 selection and pointer activation address actions, not banner rows or spacing.
 No Nerd Fonts setting is required to display its ordinary Unicode blocks.
 
-Under P18, give the startup content area the artwork's black background, including
-the area around the banner. Keep editing-buffer palette preferences unchanged;
-returning to editing restores the ordinary buffer presentation. Place the banner
+Under P18, give the startup content area the same configured background as text
+buffers, including the area around the banner. Keep editing-buffer palette
+preferences unchanged. Place the banner
 and action list together as one compact centered group when the terminal fits
 them. Keep action labels left-aligned within the group and use existing
 foreground/selection roles. Measure and clip by terminal
@@ -258,6 +264,8 @@ Resize SHALL retain action identity and any retained return context.
 
 Use the existing input conventions for moving between actions, accepting one,
 opening a command selector and canceling a picker in each editing profile.
+Prefer three blank rows between the banner and actions, reducing that gap on
+short terminals to preserve the existing full-banner and action visibility bounds.
 The screen SHALL remain usable with color disabled and pointer input disabled.
 With `NO_COLOR`, omit the full artwork and use a plain `rev` label instead:
 removing colors from the supplied half-block image would produce a solid
@@ -276,7 +284,7 @@ and selection rather than forcing the artwork's background.
 - **GIVEN** no entries of the selected artifact type
 - **WHEN** its picker opens
 - **THEN** it explains the empty state and exposes the corresponding creation command
-- **AND** the five-action dashboard need not become a management screen.
+- **AND** the four-action dashboard need not become a management screen.
 
 #### Scenario: Banner is presentation rather than an editing target
 
@@ -304,9 +312,10 @@ and selection rather than forcing the artwork's background.
 
 ### Requirement: PW04 Keep standalone and directory workflows temporary
 
-Dashboard Open File SHALL start standalone editing with no automatic tree or
-associated browsing root. In an active context, ordinary `find-file` file visits
-SHALL retain it; files outside its roots are loose buffers, not new roots.
+Dashboard Open… SHALL use ordinary `find-file` acceptance. File visits SHALL
+retain the current context; from standalone editing they SHALL NOT add an
+automatic tree or associated browsing root. Files outside an active context's
+roots are loose buffers, not new roots.
 Explicit directory acceptance SHALL enter a temporary directory context through
 the checked replacement path. Leaving a temporary context SHALL NOT register it
 or create a named context session.
@@ -809,7 +818,7 @@ The core specification and model are approved together. The model defines source
 coordinates, one atomic TOML catalog and finite bounds; this specification defines
 standalone tree requests and dashboard cancellation. P19 is deferred and is not
 part of core implementation, slicing or validation.
-The supplied banner's geometry, RGB colors and black surrounding background
+The supplied banner's geometry, source RGB colors and palette-matched presentation
 are part of PW03 acceptance. Its asset does not require a different context
 model or an additional delivery set.
 

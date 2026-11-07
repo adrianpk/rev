@@ -74,7 +74,7 @@ previously approved ordinary saves retain their filesystem effects. Opening a
 registered path does not resume or overwrite that Project's file session.
 Project/Workspace selection restores sessions explicitly, and Workspace roots
 remain ordered independent members. No-target executable startup shows the
-native five-action screen. Showing the tree does not change context identity.
+native four-action screen. Showing the tree does not change context identity.
 This reconciliation preserves all historical candidates, gates and completed
 statuses above; the context tracker owns its separate validation and closure.
 Pending tree-selection synchronization remains separate work.
@@ -200,7 +200,8 @@ Configuration SHALL NOT introduce a scripting or theme-package runtime.
 Source: section 4.1. Acceptance: A01, A04.
 
 Launching `rev` without arguments MUST show the native startup screen with
-New Buffer, Open File, Open Dir, Open Project and Open Workspace in that order.
+New Buffer, Open…, Open Project and Open Workspace in that order. Open… accepts
+either a file or a directory through the existing path selector.
 New Buffer SHALL start standalone editing after any retained context's checked
 departure. One positional file path SHALL bypass the screen and open that file,
 or a new visiting buffer if the path does not exist. A directory target SHALL

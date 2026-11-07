@@ -10,7 +10,8 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 ### Added
 
 - [Work with files, Projects and Workspaces](docs/tutorials/user-guide/20-projects-and-workspaces.md).
-  Start `rev` with five native opening actions, or pass a file/directory directly.
+  Start `rev` with four native opening actions, or pass a file/directory directly.
+  Open… accepts either a file or a directory through the same path selector.
   Keep ordinary directory work temporary, promote it to a named Project while
   retaining live edits, or collect independent roots in a Workspace. Return by
   name to restore files, loose files and source positions after normal
@@ -19,7 +20,9 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
   and convert or duplicate Projects as independent Workspace sessions. Root
   removal resolves only files losing coverage. `dashboard-open` retains current
   work behind the startup screen; `context-close` resolves it and returns there.
-  The screen fits small and color-free terminals. Context commands use M-x or
+  The screen uses a compact logo, shares the text-buffer background, blends the
+  logo's dark edges into it and separates the logo from its menu with more space. It fits small
+  and color-free terminals. Context commands use M-x or
   modal colon with existing bindings unchanged.
 
 ## 0.6.0 - 2026-11-06
