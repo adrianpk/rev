@@ -540,7 +540,7 @@ previous application's cursor color. See [Terminal input](terminal-input.md#pale
 
 - [M-x](commands.md) keeps a query above a bounded vertical command list, with
   selection, Tab completion and separate M-p/M-n session history. Return invokes
-  the selected or exact/nonempty matching command once; C-g cancels.
+  the highlighted command once, including with an empty query; C-g cancels.
 - Editing panes, tree and completion rows share composition rules. The tree has
   no editing-window identity, so `C-x o` cycles editing panes only. Candidate rows
   borrow space without scrolling retained document views; tiny/zero geometry

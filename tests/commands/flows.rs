@@ -225,10 +225,14 @@ fn argument_feedback() {
 // editing C-g regains its normal navigation boundary instead of a stale prompt.
 #[test]
 fn entry_retirement() {
-    for name in ["next-line", "absent-command", ""] {
+    for (name, column) in [
+        ("next-line", Some(8)),
+        ("absent-command", Some(8)),
+        ("", None),
+    ] {
         let mut session = editor();
         named(&mut session, name);
-        assert_eq!(session.view().column, Some(8), "{name}");
+        assert_eq!(session.view().column, column, "{name}");
         session.handle(super::control('g'));
         assert_eq!(session.view().column, None, "{name}");
         assert_eq!(text(&session), "0123456789\nx\nend");

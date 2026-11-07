@@ -30,10 +30,10 @@ back into the editor.
   end without changing the query. The selected row stays visible as the list
   scrolls. Tab fills the selected command name without executing or cycling it;
   the original matching set remains available for further navigation.
-- Return invokes an explicitly selected candidate, otherwise an exact typed name
-  or the first match for a nonempty query. Opening M-x and pressing Return with
-  an empty query reports `No command entered`; explicit navigation or completion
-  is required to choose from the unfiltered list. Unknown names report
+- Return invokes the highlighted candidate, including the first row when the
+  query is empty. Reopen M-x and press Return to repeat the latest named command
+  when it leads the list; Tab completion is optional. Explicit navigation takes
+  precedence over an exact typed name. Unknown names report
   `Unknown command` and restore the workspace without changing document text.
   Tab or navigation with no matches retains command focus and reports
   `No matching command`.

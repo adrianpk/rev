@@ -168,7 +168,7 @@ pub(super) fn run(root: &Path) -> Result<()> {
         if name == "empty" {
             assert!(rows.windows(2).all(|pair| pair[0] < pair[1]));
             key(&mut editor, KeyCode::Enter);
-            assert_eq!(editor.echo(), "No command entered");
+            assert_eq!(editor.echo(), "No AI result is ready");
         } else {
             // Inspect the writer's actual selected colors, not just row metadata.
             let frame = editor.frame()?;

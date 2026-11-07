@@ -156,12 +156,11 @@ fn named_history() {
     assert_eq!(session.buffer().unwrap().history().len(), 1);
 }
 
-// Empty or unknown names close the prompt with a diagnostic, preserve text and
+// Unknown names close the prompt with a diagnostic, preserve text and
 // qualified point/state, and leave the next fresh editing press usable.
 #[test]
 fn unknown_names() {
     let cases = [
-        ("", "No command entered"),
         ("absent-command", "Unknown command"),
         ("newline;save-buffers-kill-terminal", "Unknown command"),
         ("FIND", "Unknown command"),

@@ -850,7 +850,8 @@ restoring stale offsets. Typing MUST filter known commands;
 prefix or substring matching SHOULD be supported with deterministic ordering.
 The vertical candidate list follows UI02: query editing, selection, explicit
 completion and history navigation retain distinct state. `TAB` MUST complete a
-candidate; `RET` MUST invoke the explicitly selected or fully typed command.
+candidate; `RET` MUST invoke the highlighted command, including the first
+candidate when the query is empty. Opening the selector alone MUST NOT invoke it.
 The shared composition reserves completion rows without discarding editing views. Unknown names MUST report a concise error,
 return control to editing, and leave document text unchanged.
 

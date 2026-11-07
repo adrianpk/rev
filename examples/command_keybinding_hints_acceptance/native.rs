@@ -275,6 +275,6 @@ fn registered(root: &Path) -> Result<()> {
     let mut editor = editor(&root.join("session"), "")?;
     editor.execute(Command::ExecuteExtended);
     key(&mut editor, KeyCode::Enter);
-    assert_eq!(editor.echo(), "No command entered");
+    assert_eq!(editor.echo(), "No AI result is ready");
     Ok(())
 }

@@ -107,9 +107,9 @@ command execution. The amendment defines detailed reachability and retirement.
 
 Up/Down and C-p/C-n SHALL select candidates; M-p/M-n SHALL retain their session
 command-history navigation. Tab SHALL complete the selected command name
-without executing it. Return SHALL dispatch the selected or exact typed command
-once. The existing empty-query/no-match error behavior SHALL remain defined;
-opening M-x SHALL NOT execute the first command by accident. C-g SHALL cancel,
+without executing it. Return SHALL dispatch the highlighted command once,
+including the first candidate when the query is empty. An unknown name SHALL
+report an error. Opening M-x alone SHALL NOT execute a command. C-g SHALL cancel,
 discard the draft and restore prior editing focus. Modal Escape cancellation
 SHALL retain its current behavior. Rendering SHALL NOT execute commands.
 

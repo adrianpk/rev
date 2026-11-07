@@ -44,7 +44,7 @@ M-x goto
 goto-line  [M-g M-g]  Go to a one-based logical line number.
 ```
 
-Press Tab to complete `goto-line`, then Enter to run it. At `Goto line:`,
+Press Enter to run the highlighted `goto-line` command. At `Goto line:`,
 enter `2`:
 
 ```text
@@ -84,6 +84,9 @@ commands come first, followed by up to four other frequent commands and then
 the alphabetical remainder. Typing a query still gives better text matches
 priority. The modal profile's `:` selector uses the same ordering.
 
+Press Enter to run the highlighted command again without typing its name.
+Tab can fill the name in the prompt, but is not required to run it.
+
 M-x remembers the latest 256 named invocations across editor starts. Direct
 keyboard shortcuts do not enter that window. M-p/M-n recall distinct command
 names from the current session only; this recall is separate from saved ranking.
@@ -92,8 +95,8 @@ a `Command usage: ...` message reports the problem and commands remain usable.
 See [Command usage state](../../reference/commands.md#command-usage-state)
 for storage and recovery details.
 
-M-x shows matching commands vertically. Up/Down selects a candidate; Tab
-completes it and Enter runs it. `C-g` leaves without running a command.
+M-x shows matching commands vertically. Up/Down selects a candidate and Enter
+runs it. Tab completes its name. `C-g` leaves without running a command.
 When a keyboard shortcut is awkward to send from your terminal, the command
 name provides another route. Query replace, for example, is `query-replace`.
 

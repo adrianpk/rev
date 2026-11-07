@@ -63,7 +63,7 @@ def selected_style(frame, name, colored):
 def selected_command(session, root):
     target = root / "selected-copy.txt"
     step(session, b"\x1bx", b"M-x ")
-    step(session, b"\r", b"No command entered")
+    step(session, b"\r", b"No AI result is ready")
     step(session, b"\x1bxfile" + b"\x1b[B" * 4 + b"\r", b"Write file: ")
     step(session, PTY["paste_wire"](str(target).encode()), str(target).encode())
     step(session, b"\r", b"Saved ")
@@ -103,7 +103,7 @@ def case(root, colored):
         assert path.read_bytes() == b"retained\n"
     finally:
         session.close()
-    print(f"PASS candidate/history navigation, selected native file arguments, empty-query guard, resize/cancel and {'RGB' if colored else 'NO_COLOR'} selection")
+    print(f"PASS candidate/history navigation, selected native file arguments, empty-query acceptance, resize/cancel and {'RGB' if colored else 'NO_COLOR'} selection")
 
 
 def main():

@@ -45,12 +45,17 @@ fn candidate_keys() {
     }
 }
 
-// A default highlight alone cannot accept an empty query. Explicit navigation
+// Return accepts the default highlight with an empty query. Explicit navigation
 // overrides an exact draft, while a freely typed exact name keeps its identity.
 #[test]
 fn acceptance_rules() {
     for (name, text, events, expected) in [
-        ("empty", "", vec![], Outcome::Message("No command entered")),
+        (
+            "empty",
+            "",
+            vec![],
+            Outcome::Command(Command::AiApplyResult),
+        ),
         (
             "exact",
             "kill-word",
@@ -171,7 +176,7 @@ fn separate_history() {
     assert_eq!(input.prompt().unwrap().text(), "");
     assert_eq!(
         input.handle(key(KeyCode::Enter)),
-        Outcome::Message("No command entered")
+        Outcome::Command(Command::Newline)
     );
 }
 
@@ -190,6 +195,6 @@ fn escape_history() {
     }
     assert_eq!(
         input.handle(key(KeyCode::Enter)),
-        Outcome::Message("No command entered")
+        Outcome::Command(Command::Newline)
     );
 }

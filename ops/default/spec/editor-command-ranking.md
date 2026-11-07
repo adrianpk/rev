@@ -77,9 +77,9 @@ navigating; an empty match SHALL have a clear empty state.
 
 Up/Down and C-p/C-n SHALL select candidates; M-p/M-n SHALL retain their session
 command-history navigation. Tab SHALL complete the selected command name
-without executing it. Return SHALL dispatch the selected or exact typed command
-once. The existing empty-query/no-match error behavior SHALL remain defined;
-opening M-x SHALL NOT execute the first command by accident. C-g SHALL cancel,
+without executing it. Return SHALL dispatch the highlighted command once,
+including the first candidate when the query is empty. An unknown name SHALL
+report an error. Opening M-x alone SHALL NOT execute a command. C-g SHALL cancel,
 discard the draft and restore prior editing focus. Modal Escape cancellation
 SHALL retain its current behavior. Rendering SHALL NOT execute commands.
 
@@ -96,6 +96,13 @@ SHALL retain its current behavior. Rendering SHALL NOT execute commands.
 - **WHEN** the completion panel cannot fit candidate rows after a resize
 - **THEN** the query and cancellation remain usable within available geometry
 - **AND** growing the terminal restores a coherent candidate list and selection.
+
+#### Scenario: Repeat a highlighted recent command
+
+- **GIVEN** the latest named command is highlighted first after reopening M-x
+- **WHEN** the user presses Return with an empty query
+- **THEN** that command invokes its existing handler once without requiring Tab
+- **AND** opening or canceling the selector alone does not invoke it.
 
 ## ADDED Requirements
 

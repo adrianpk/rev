@@ -38,6 +38,12 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
   and color-free terminals. Context commands use M-x or
   modal colon with existing bindings unchanged.
 
+### Fixed
+
+- Enter runs the highlighted command in M-x and modal colon even when the query
+  is empty. Repeat the latest named command directly without completing its name
+  with Tab first.
+
 ## 0.6.0 - 2026-11-06
 
 ### Added

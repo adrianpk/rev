@@ -15,8 +15,8 @@ pub struct Palette {
     prompt: Prompt,
     query: Option<String>,
     selected: usize,
-    // A painted default row is not an invocation. Only explicit navigation
-    // may accept a candidate while the query itself is still empty.
+    // Explicit navigation overrides an exact draft. The default highlight
+    // remains ready for Return, including when the query is empty.
     chosen: bool,
     top: usize,
     history: Option<usize>,
@@ -194,9 +194,6 @@ impl Palette {
         if self.chosen {
             return Outcome::Command(self.candidates()[self.selected]);
         }
-        if self.prompt.text().is_empty() {
-            return Outcome::Message("No command entered");
-        }
         let command = self
             .candidates()
             .iter()
@@ -205,6 +202,7 @@ impl Palette {
             .or_else(|| self.candidates().first().copied());
         match command {
             Some(command) => Outcome::Command(command),
+            None if self.prompt.text().is_empty() => Outcome::Message("No command entered"),
             None => Outcome::Message("Unknown command"),
         }
     }

@@ -267,3 +267,58 @@ fn all_drawers_visibility() {
     assert_eq!(text(&session), source);
     assert!(session.buffer().unwrap().history().is_empty());
 }
+
+// Return accepts the highlighted recent command without a query or Tab, in
+// both selectors. Repeated invocation alternates drawer bodies; cancel is inert.
+#[test]
+fn repeat_drawer_command() {
+    let source = "* Root\n:PROPERTIES:\n:ID: one\n:END:\nprose\n:REQUEST:\nrequest\n:END:\n";
+    for profile in ["non-modal", "modal"] {
+        let (_fixture, mut session) = editor(
+            &format!("editor.interaction_profile='{profile}'"),
+            "notes.org",
+            source,
+        );
+        settle(&mut session);
+        let stamp = session.buffer().unwrap().stamp();
+        let open = if profile == "modal" {
+            key(KeyCode::Char(':'))
+        } else {
+            meta('x')
+        };
+        for invocation in 0..33 {
+            session.handle(open.clone());
+            if invocation == 0 {
+                session.handle(Event::Paste("org-toggle-all-drawers".into()));
+            }
+            let frame = session.frame().unwrap();
+            let selected = frame
+                .rows()
+                .iter()
+                .find(|row| {
+                    row.band() == rev::display::Band::Completion && row.selection().is_some()
+                })
+                .unwrap();
+            assert!(selected.text().starts_with("org-toggle-all-drawers"));
+            session.handle(key(KeyCode::Enter));
+            settle(&mut session);
+            assert_eq!(session.echo(), "org-toggle-all-drawers", "{profile}");
+            for row in [2, 6] {
+                assert_eq!(
+                    visible(&session).contains(&row),
+                    invocation % 2 == 1,
+                    "{profile}: invocation {invocation}, source row {row}"
+                );
+            }
+        }
+        let before = visible(&session);
+        session.handle(open);
+        session.frame().unwrap();
+        session.handle(control('g'));
+        settle(&mut session);
+        assert_eq!(visible(&session), before, "{profile}");
+        assert_eq!(text(&session), source, "{profile}");
+        assert_eq!(session.buffer().unwrap().stamp(), stamp, "{profile}");
+        assert!(session.buffer().unwrap().history().is_empty(), "{profile}");
+    }
+}
