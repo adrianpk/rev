@@ -14,6 +14,7 @@ pub struct Hit {
     path: PathBuf,
     directory: bool,
     symlink: bool,
+    parent: bool,
 }
 
 impl Tree {
@@ -30,6 +31,7 @@ impl Tree {
             path: entry.path.clone(),
             directory: entry.directory,
             symlink: entry.symlink,
+            parent: entry.parent,
         })
     }
 
@@ -49,6 +51,7 @@ impl Tree {
             || entry.path != hit.path
             || entry.directory != hit.directory
             || entry.symlink != hit.symlink
+            || entry.parent != hit.parent
         {
             return false;
         }

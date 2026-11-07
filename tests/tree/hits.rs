@@ -12,7 +12,7 @@ fn retained_identity() {
         fixture.write("root/other", "other");
         let mut tree = Tree::new(fixture.0.join("root"));
         tree.expand().unwrap();
-        let hit = tree.hit(1).unwrap();
+        let hit = tree.hit(2).unwrap();
         match change {
             "shift" => {
                 fixture.write("root/aaa", "unrelated");

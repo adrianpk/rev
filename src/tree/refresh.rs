@@ -25,11 +25,10 @@ impl Tree {
             .filter(|entry| entry.expanded)
             .map(|entry| entry.path.clone())
             .collect();
-        self.entries.clear();
+        self.entries = self.root_entries(root.clone());
         self.selected = 0;
         self.top = 0;
         let observed = Entry::observe(root.clone(), 0);
-        self.entries.push(Entry::root(root));
         self.entries[0] = observed?;
         let result = self.refresh_expanded(&expanded);
         self.selected = selected
@@ -49,7 +48,8 @@ impl Tree {
                     Ok(children) => {
                         self.entries[index].expanded = true;
                         self.entries[index].incomplete = children.incomplete;
-                        self.entries.splice(index + 1..index + 1, children.entries);
+                        let start = self.children_start(index);
+                        self.entries.splice(start..start, children.entries);
                     }
                     Err(error) => {
                         first_error.get_or_insert(error);

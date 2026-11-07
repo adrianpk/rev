@@ -57,8 +57,9 @@ fn first_presentation() {
         }
         fs::set_permissions(&child, permissions).unwrap();
         assert!(session.tree().entries()[0].expanded());
-        assert_eq!(session.tree().entries().len(), 3);
-        assert!(!session.tree().entries()[1].expanded());
+        assert_eq!(session.tree().entries().len(), 4);
+        assert!(session.tree().entries()[1].is_parent());
+        assert!(!session.tree().entries()[2].expanded());
         assert_eq!(text(&session), "retained");
         assert!(session.buffer().unwrap().history().is_empty());
     }
@@ -89,13 +90,13 @@ fn retained_initialization() {
     fs::set_permissions(&root, permissions).unwrap();
     assert_eq!(action, Action::Redraw);
     frame.unwrap();
-    assert_eq!(session.tree().entries().len(), 1);
+    assert_eq!(session.tree().entries().len(), 2);
     assert!(!session.tree().entries()[0].expanded());
     let other = fixture.write("other/main.txt", "other");
     session.load(&other).unwrap();
     assert_eq!(session.tree().root(), other.parent());
     assert!(session.tree().entries()[0].expanded());
-    assert_eq!(session.tree().entries().len(), 2);
+    assert_eq!(session.tree().entries().len(), 3);
 }
 
 // A narrow directory opening retains initialized browsing/focus intent. A

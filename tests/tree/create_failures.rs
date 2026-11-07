@@ -15,7 +15,7 @@ fn captured_directory() {
     fixture.directory("b");
     let mut tree = fixture.tree();
     tree.expand().unwrap();
-    tree.move_selection(true);
+    choose(&mut tree, &fixture.path("a"));
     let creation = tree.prepare_create(CreateKind::File).unwrap();
     tree.move_selection(true);
     let path = creation.publish("new.txt").unwrap();
@@ -23,7 +23,7 @@ fn captured_directory() {
     assert!(!fixture.path("b/new.txt").exists());
     tree.reveal_created(&path).unwrap();
     assert_eq!(tree.selected().unwrap().path(), path);
-    assert_eq!(tree.entries().len(), 4);
+    assert_eq!(tree.entries().len(), 5);
 }
 
 // Publication revalidates the captured parent. Deletion or replacement with
@@ -36,7 +36,7 @@ fn parent_changes() {
         fixture.directory("outside");
         let mut tree = fixture.tree();
         tree.expand().unwrap();
-        tree.move_selection(true);
+        choose(&mut tree, &fixture.path("a"));
         let creation = tree.prepare_create(CreateKind::File).unwrap();
         fs::remove_dir(fixture.path("a")).unwrap();
         match replacement {
@@ -103,9 +103,9 @@ fn published_creation() {
     fixture.file("blocked/old");
     let mut tree = fixture.tree();
     tree.expand().unwrap();
-    tree.move_selection(true);
+    choose(&mut tree, &fixture.path("blocked"));
     tree.expand().unwrap();
-    tree.move_selection(false);
+    choose(&mut tree, &fixture.0);
     let path = tree
         .prepare_create(CreateKind::File)
         .unwrap()

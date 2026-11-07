@@ -15,6 +15,7 @@ pub struct Entry {
     pub(super) symlink: bool,
     pub(super) expanded: bool,
     pub(super) incomplete: bool,
+    pub(super) parent: bool,
 }
 
 pub(super) struct Children {
@@ -42,6 +43,10 @@ impl Entry {
     pub fn is_symlink(&self) -> bool {
         self.symlink
     }
+    /// A navigation row rather than an observed filesystem entry.
+    pub fn is_parent(&self) -> bool {
+        self.parent
+    }
     pub fn expanded(&self) -> bool {
         self.expanded
     }
@@ -58,6 +63,17 @@ impl Entry {
             symlink: false,
             expanded: false,
             incomplete: false,
+            parent: false,
+        }
+    }
+
+    pub(super) fn parent(path: PathBuf) -> Self {
+        Self {
+            parent: true,
+            directory: false,
+            depth: 1,
+            root_label: Some("..".into()),
+            ..Self::root(path)
         }
     }
 
@@ -76,10 +92,21 @@ impl Entry {
             symlink: kind.is_symlink(),
             expanded: false,
             incomplete: false,
+            parent: false,
         })
     }
 
+    pub(super) fn filesystem_path(&self) -> io::Result<&Path> {
+        if self.parent {
+            return Err(io::Error::other("Parent entry is for navigation only"));
+        }
+        Ok(&self.path)
+    }
+
     pub(crate) fn verify(&self) -> io::Result<()> {
+        if self.parent {
+            return Ok(());
+        }
         let current = Self::observe(self.path.clone(), self.depth)?;
         if current.directory != self.directory || current.symlink != self.symlink {
             return Err(failure(
@@ -155,7 +182,7 @@ impl Entry {
             Kind::Root
         } else if self.symlink {
             Kind::Symlink
-        } else if self.directory {
+        } else if self.directory || self.parent {
             Kind::Directory
         } else {
             Kind::file(self.path.file_name().unwrap_or(self.path.as_os_str()))
@@ -180,8 +207,12 @@ impl Entry {
             } else {
                 " "
             };
-            super::presentation::Prefix::new(self.depth, width)?
-                .render(disclosure, self.kind().symbol(nerd_fonts, self.expanded))?
+            let icon = if self.parent {
+                if nerd_fonts { "\u{f148}" } else { "↑" }
+            } else {
+                self.kind().symbol(nerd_fonts, self.expanded)
+            };
+            super::presentation::Prefix::new(self.depth, width)?.render(disclosure, icon)?
         } else {
             let indent = self.depth.min(usize::from(width.saturating_sub(4)) / 2);
             format!("{}{marker} ", "  ".repeat(indent))

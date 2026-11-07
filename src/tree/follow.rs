@@ -24,6 +24,7 @@ impl Tree {
         }
         let matches = |entry: &Entry| {
             !entry.directory
+                && !entry.parent
                 && !entry.unavailable
                 && path.is_some_and(|path| {
                     if entry.symlink {

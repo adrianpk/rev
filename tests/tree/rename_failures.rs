@@ -252,7 +252,7 @@ fn renamed_root() {
     let mut tree = Tree::new(fixture.path("root"));
     let rename = tree.prepare_rename().unwrap();
     tree.expand().unwrap();
-    tree.move_selection(true);
+    choose(&mut tree, &fixture.path("root/sub"));
     tree.expand().unwrap();
     tree.move_selection(true);
     let mut buffers = Buffers::new().unwrap();
@@ -265,7 +265,7 @@ fn renamed_root() {
         fixture.path("renamed-root/sub/item")
     );
     assert!(tree.entries()[0].expanded());
-    assert!(tree.entries()[1].expanded());
+    assert!(tree.entries()[2].expanded());
     assert_eq!(
         buffers
             .visit(&fixture.path("renamed-root/sub/item"))

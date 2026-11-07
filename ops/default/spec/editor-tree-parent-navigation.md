@@ -3,6 +3,7 @@
 Status: Completed
 Date: 2026-11-07
 Completed: 2026-11-08
+Updated: 2026-11-08
 Inspection baseline: `6fde63810e95b8e3a0e61b72714696354993d9c0`
 Format: OpenSpec capability addition
 Approved: product owner requested specification, slicing, plan and one Looper delivery
@@ -152,9 +153,43 @@ views, existing listing bounds and all current tree presentations.
 
 Decorated presentation SHALL retain its existing Nerd Fonts icons, semantic
 colors, connectors, spacing and selected-entry treatment after each transition.
-Reuse the normal root and directory rows rather than introducing a plain-text
-parent row, duplicate navigation entries or a separate visual style. Respect
+Reuse the normal decorated layout for the parent action rather than introducing
+duplicate navigation entries or a separate visual style. Respect
 existing display-cell widths and clipping so narrow trees stay aligned.
+
+## Approved follow-up: parent navigation row
+
+On 2026-11-08 the owner requested a mouse/Enter alternative to the delivered
+caret action. This follow-up is separate from the completed one-slice gate;
+its historical candidate, receipt and closure evidence remain unchanged.
+
+### Requirement: TUP05 Activate parent navigation from a dedicated row
+
+An eligible unanchored root SHALL expose one synthetic .. row directly below
+the root heading, including while collapsed. It SHALL use the ordinary parent
+action on Enter and the configured mouse activation policy. The selected return
+directory, root admission, failure preservation and fixed-root boundaries SHALL
+be identical to caret invocation.
+
+The row SHALL use the directory palette with an upward symbol from the selected
+ordinary/Nerd Fonts catalog, preserving current cell alignment and selection.
+Fixed roots and filesystem roots SHALL omit it. Creation, rename and deletion
+SHALL reject the navigation row before filesystem mutation or confirmation.
+It SHALL remain independent of sorting, filtering and directory-entry bounds.
+
+#### Scenario: Keyboard and mouse navigation
+
+- **GIVEN** an automatic tree rooted inside another directory
+- **WHEN** the user activates .. with Enter or an admitted primary click
+- **THEN** the existing parent action runs and the directory just left remains
+  selected and visible with the same source and context state.
+
+#### Scenario: Selection-only, collapse and fixed roots
+
+- **GIVEN** selection-only clicks or a collapsed automatic root
+- **WHEN** the parent row is selected, refreshed or shown again
+- **THEN** it remains a navigation target and selection-only waits for Enter
+- **AND** an explicitly anchored or filesystem root never displays the row.
 
 ## Completed delivery evidence
 

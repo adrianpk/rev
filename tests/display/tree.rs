@@ -47,7 +47,7 @@ fn parent_presentation() {
                     source.parent().unwrap()
                 );
                 let frame = session.frame().unwrap();
-                assert_eq!(frame.cursor().unwrap(), Position { row: 1, column: 0 });
+                assert_eq!(frame.cursor().unwrap(), Position { row: 2, column: 0 });
                 assert!(frame.rows().iter().all(|r| r.text().width() == 100));
                 let cells = surface::draw(&frame);
                 for (row, entry) in session.tree().entries().iter().enumerate() {
@@ -55,7 +55,7 @@ fn parent_presentation() {
                         frame.rows()[row].text().split('│').next().unwrap().width(),
                         width
                     );
-                    let selected = row == 1;
+                    let selected = row == 2;
                     let expected = if selected {
                         palette.tree_selected_text
                     } else if !decorated {
@@ -99,7 +99,7 @@ fn parent_presentation() {
                         "  ▸ / child/"
                     };
                     assert!(frame.rows()[0].text().starts_with(root));
-                    assert!(frame.rows()[1].text().starts_with(child));
+                    assert!(frame.rows()[2].text().starts_with(child));
                 }
                 assert!(!session.buffer().unwrap().is_modified());
             }
@@ -269,14 +269,14 @@ fn tree_and_region() {
         let mark = session.buffer().unwrap().mark();
         let point = session.view().point;
         let frame = session.frame().unwrap();
-        let region = frame.rows()[1].selection().unwrap();
+        let region = frame.rows()[2].selection().unwrap();
         assert!(region.start > 24);
         let cells = surface::draw(&frame);
         for column in 0..24 {
             assert_eq!(
                 (
-                    cells[&(1, column)].foreground,
-                    cells[&(1, column)].background
+                    cells[&(2, column)].foreground,
+                    cells[&(2, column)].background
                 ),
                 (
                     Some(palette.tree_selected_text),
@@ -287,8 +287,8 @@ fn tree_and_region() {
         for column in usize::from(region.start)..usize::from(region.end) {
             assert_eq!(
                 (
-                    cells[&(1, column)].foreground,
-                    cells[&(1, column)].background
+                    cells[&(2, column)].foreground,
+                    cells[&(2, column)].background
                 ),
                 (Some(palette.selection_text), Some(palette.selection))
             );
@@ -359,7 +359,7 @@ fn no_color() {
             "    λ main.rs"
         };
         assert!(frame.rows()[0].text().starts_with(root));
-        assert!(frame.rows()[1].text().starts_with(source));
+        assert!(frame.rows()[2].text().starts_with(source));
         let mut bytes = Vec::new();
         frame.write(&mut bytes).unwrap();
         let output = String::from_utf8(bytes).unwrap();
@@ -369,7 +369,7 @@ fn no_color() {
         session.handle(Event::Key(KeyEvent::new(KeyCode::Tab, KeyModifiers::NONE)));
         let frame = session.frame().unwrap();
         assert_eq!(frame.rows()[0].selection(), None);
-        assert_eq!(frame.rows()[1].selection(), Some(0..24));
+        assert_eq!(frame.rows()[2].selection(), Some(0..24));
         assert!(frame.cursor().unwrap().column > 24);
         let mut bytes = Vec::new();
         frame.write(&mut bytes).unwrap();

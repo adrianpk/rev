@@ -5,14 +5,27 @@ use super::{Entry, Tree};
 use crate::view::Size;
 
 impl Tree {
+    fn fixed_root(&self) -> bool {
+        self.explicit_root
+            || self.workspace.is_some()
+            || self.policy.root == crate::config::TreeRoot::Cwd
+    }
+
+    pub(super) fn root_entries(&self, root: std::path::PathBuf) -> Vec<Entry> {
+        let parent = (!self.fixed_root())
+            .then(|| root.parent().filter(|path| !path.as_os_str().is_empty()))
+            .flatten()
+            .map(|path| Entry::parent(path.to_owned()));
+        let mut entries = vec![Entry::root(root)];
+        entries.extend(parent);
+        entries
+    }
+
     /// Observe an automatic root's parent before publishing any new state.
     /// Fixed roots perform no IO. The previous directory must remain a loaded
     /// directory, including when the ordinary observation limit is reached.
     pub fn up_directory(&mut self) -> io::Result<()> {
-        if self.explicit_root
-            || self.workspace.is_some()
-            || self.policy.root == crate::config::TreeRoot::Cwd
-        {
+        if self.fixed_root() {
             return Err(io::Error::other("File tree root is fixed"));
         }
         let previous = self
@@ -34,13 +47,14 @@ impl Tree {
             })?;
         root.expanded = true;
         root.incomplete = children.incomplete;
-        let mut entries = Vec::with_capacity(children.entries.len() + 1);
-        entries.push(root);
+        let mut entries = self.root_entries(parent.to_owned());
+        let selected = selected + entries.len();
+        entries[0] = root;
         entries.extend(children.entries);
 
         self.root = Some(parent.to_owned());
         self.entries = entries;
-        self.selected = selected + 1;
+        self.selected = selected;
         self.top = 0;
         self.initialized = true;
         self.active = None;
@@ -74,8 +88,7 @@ impl Tree {
     /// one. Directory aliases use the same component rules as canonical files.
     pub(crate) fn opening_directory(&self, path: &Path, size: Size) -> io::Result<Self> {
         let root = crate::file::directory(path)?;
-        let mut candidate = Self::configured(root, &self.policy, self.nerd_fonts);
-        candidate.explicit_root = true;
+        let mut candidate = Self::configured(root, &self.policy, self.nerd_fonts, true);
         candidate.expand()?;
         candidate.focus(size)?;
         Ok(candidate)
@@ -90,7 +103,8 @@ impl Tree {
         let Some(parent) = path.parent().filter(|parent| Some(*parent) != self.root()) else {
             return Ok(None);
         };
-        let mut candidate = Self::configured(parent.to_owned(), &self.policy, self.nerd_fonts);
+        let mut candidate =
+            Self::configured(parent.to_owned(), &self.policy, self.nerd_fonts, false);
         candidate.visible = self.visible;
         if candidate.visible {
             candidate.expand()?;

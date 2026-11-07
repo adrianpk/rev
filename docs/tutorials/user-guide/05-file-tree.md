@@ -39,6 +39,7 @@ named `notes`; other entries are omitted:
 
 ```text
 ▾ ◆ notes/
+    ↑ ..
     ≡ notes.txt
     ≡ todo.txt
 ```
@@ -52,8 +53,10 @@ The tree starts at the parent directory of the file used to launch rev.
 After New Buffer, manually showing the tree uses the launch directory. File
 visits follow the file's parent unless you chose a directory explicitly or configured cwd rooting.
 
-With the tree focused, press `^` to show its parent directory. The directory
-you just left stays selected and scrolls into view; press Enter to expand it
+With the tree focused, press `^` to show its parent directory. You can also
+select the `..` row and press Enter, or click it with default mouse activation.
+A selection-only click waits for Enter. The directory you just left stays
+selected and scrolls into view; press Enter to expand it
 again. Repeat `^` to move up another level. `M-x tree-up-directory` does the
 same in both profiles. Explicit directory, Project, Workspace and configured
 cwd roots stay fixed. At the filesystem root there is no parent. If the parent
@@ -115,6 +118,7 @@ Your file rows now look like this, with the same navigation and click behavior:
 
 ```text
 v notes/
+    ..
     notes.txt
     todo.txt
 ```

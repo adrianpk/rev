@@ -38,6 +38,7 @@ fn listing_policy() {
             .entries()
             .iter()
             .skip(1)
+            .filter(|entry| !entry.is_parent())
             .map(|entry| entry.path().file_name().unwrap().to_str().unwrap())
             .collect();
         assert_eq!(names, expected);
@@ -53,6 +54,7 @@ fn listing_policy() {
             tree.entries()
                 .iter()
                 .skip(1)
+                .filter(|entry| !entry.is_parent())
                 .map(|entry| entry.path().file_name().unwrap().to_str().unwrap())
                 .collect::<Vec<_>>(),
             expected
@@ -196,7 +198,7 @@ fn memory_only_draw() {
         .iter()
         .map(|entry| entry.path().to_path_buf())
         .collect();
-    assert_eq!(observed.len(), 2);
+    assert_eq!(observed.len(), 3);
     std::fs::rename(&root, fixture.0.join("moved")).unwrap();
     session.execute(Command::ExecuteExtended);
     session.handle(Event::Paste("find".into()));

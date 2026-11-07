@@ -188,6 +188,15 @@ fn label_modes() {
         for (row, entry) in session.tree().entries().iter().enumerate() {
             let expected = match entry.kind() {
                 Kind::Root => root,
+                Kind::Directory if entry.is_parent() => {
+                    if config.contains("decorated=false") {
+                        "    .."
+                    } else if config.contains("nerd_fonts=true") {
+                        "    \u{f148} .."
+                    } else {
+                        "    ↑ .."
+                    }
+                }
                 Kind::Directory => directory,
                 Kind::Source => source,
                 Kind::Document => document,
@@ -209,17 +218,19 @@ fn label_modes() {
         }
         tree(&mut session, TreeCommand::Focus);
         tree(&mut session, TreeCommand::Next);
+        tree(&mut session, TreeCommand::Next);
         tree(&mut session, TreeCommand::Expand);
         let expected = directory
             .replace('▸', "▾")
             .replace('>', "v")
             .replace('\u{f07b}', "\u{f07c}");
         assert!(
-            session.frame().unwrap().rows()[1]
+            session.frame().unwrap().rows()[2]
                 .text()
                 .starts_with(&expected),
             "{name}"
         );
+        tree(&mut session, TreeCommand::Previous);
         tree(&mut session, TreeCommand::Previous);
         tree(&mut session, TreeCommand::Collapse);
         let expected = root.replace('▾', "▸").replacen('v', ">", 1);

@@ -517,6 +517,7 @@ fn tree_open_sequence() {
     session.execute(Command::Tree(TreeCommand::Expand));
     session.handle(key(KeyCode::Down));
     session.handle(key(KeyCode::Down));
+    session.handle(key(KeyCode::Down));
     let original = session.buffer().unwrap().id();
     session.handle(meta('z'));
     assert_eq!(text(&session), "retained");

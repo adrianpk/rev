@@ -46,7 +46,7 @@ fn renamed_file() {
     let mark = buffer.mark();
     let mut tree = fixture.tree();
     tree.expand().unwrap();
-    tree.move_selection(true);
+    choose(&mut tree, &fixture.path("old.txt"));
     let renamed = buffers
         .rename(tree.prepare_rename().unwrap(), "new.txt")
         .unwrap();

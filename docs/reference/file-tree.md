@@ -89,6 +89,7 @@ factory default remains false. Restart after changing either preference.
 | --- | --- | --- | --- |
 | Root | `◆` | `` U+F1B2 | `palette.tree_entries.root` |
 | Directory | `/` | `` U+F07B closed; `` U+F07C open | `palette.tree_entries.directory` |
+| Parent navigation | `↑` | `` U+F148 | `palette.tree_entries.directory` |
 | Source file | `λ` | `` U+F121 | `palette.tree_entries.source` |
 | Document | `≡` | `󰈙` U+F0219 | `palette.tree_entries.document` |
 | Configuration | `=` | `` U+E615 | `palette.tree_entries.configuration` |
@@ -185,6 +186,15 @@ requires tree focus. M-x names and bound keys use the same handlers.
 
 ### Parent directories
 
+An automatic root with an available parent has one `..` navigation row directly
+below its heading, including while the root is collapsed. Select it and press
+Enter, or click it with the normal activation policy, to run tree-up-directory.
+With mouse.tree_activate_on_click disabled, a click only selects it; Enter
+activates it. The row uses the current ordinary/Nerd Fonts symbol catalog and
+directory color. It is not a filesystem entry and cannot be renamed, deleted
+or used as the destination of a create action. It does not consume the directory
+observation limit or enumerate its target while drawing.
+
 Press `^` in the tree or invoke `M-x tree-up-directory` from tree focus to
 show the parent of an automatic root. Both editing profiles use this tree-local
 binding. The directory just left becomes the selected, visible entry; Enter
@@ -197,7 +207,8 @@ source caret input retains its ordinary editing behavior.
 Explicit directory roots, Project roots, Workspace membership and configured
 `tree.root = "cwd"` stay fixed and report `File tree root is fixed` without
 observing outside their boundary. An automatic root at `/` reports that it has
-no parent. An anchor is a navigation policy, not a filesystem sandbox.
+no parent. These fixed roots and filesystem roots have no `..` navigation row.
+An anchor is a navigation policy, not a filesystem sandbox.
 
 The transition observes only the parent's direct children with the same filters,
 ordering, symlink policy and limits described below. It publishes the root,

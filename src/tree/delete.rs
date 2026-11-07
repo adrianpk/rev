@@ -9,6 +9,6 @@ impl Tree {
         let entry = self
             .selected()
             .ok_or_else(|| io::Error::other("no tree selection"))?;
-        Deletion::capture(entry.path())
+        Deletion::capture(entry.filesystem_path()?)
     }
 }

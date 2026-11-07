@@ -59,8 +59,8 @@ impl Tree {
         if self.selected == 0 {
             self.initialized = true;
         }
-        self.entries
-            .splice(self.selected + 1..self.selected + 1, children.entries);
+        let start = self.children_start(self.selected);
+        self.entries.splice(start..start, children.entries);
         self.follow_dirty = true;
         Ok(())
     }
@@ -73,7 +73,15 @@ impl Tree {
         let depth = entry.depth;
         if entry.expanded {
             let end = self.descendants_end(self.selected);
+            let parent = self
+                .entries
+                .get(self.selected + 1)
+                .filter(|entry| entry.parent)
+                .cloned();
             self.entries.drain(self.selected + 1..end);
+            if let Some(parent) = parent {
+                self.entries.insert(self.selected + 1, parent);
+            }
             self.follow_dirty = true;
             self.entries[self.selected].expanded = false;
             self.entries[self.selected].incomplete = false;
@@ -90,6 +98,9 @@ impl Tree {
         let Some(entry) = self.selected() else {
             return Ok(());
         };
+        if entry.parent {
+            return self.up_directory();
+        }
         if !entry.directory {
             return Err(super::entry::failure(
                 "toggle directory",

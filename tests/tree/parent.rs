@@ -182,6 +182,13 @@ fn fixed_roots() {
         tree(&mut session, TreeCommand::Focus);
         session.frame().unwrap();
         let root = session.tree().root().unwrap().to_owned();
+        assert!(
+            session
+                .tree()
+                .entries()
+                .iter()
+                .all(|entry| !entry.is_parent())
+        );
         let before = entries(&session);
         let selected = session.tree().selected().unwrap().path().to_owned();
         let context = session.context().clone();
@@ -338,14 +345,14 @@ fn bounded_parent() {
         );
         assert_eq!(tree.selected().unwrap().path(), path);
         if admitted {
-            assert_eq!(tree.entries().len(), rev::file::completion::ENTRY_LIMIT + 1);
+            assert_eq!(tree.entries().len(), rev::file::completion::ENTRY_LIMIT + 2);
             assert!(
                 tree.diagnostic()
                     .unwrap()
                     .contains("Incomplete tree listing")
             );
         } else {
-            assert_eq!(tree.entries().len(), 1);
+            assert_eq!(tree.entries().len(), 2);
             assert!(result.unwrap_err().to_string().contains("cannot represent"));
         }
     }
@@ -364,4 +371,112 @@ fn filesystem_root() {
     assert_eq!(tree.root(), Some(Path::new("/")));
     assert_eq!(tree.entries().len(), 1);
     assert!(!tree.entries()[0].expanded());
+}
+
+// The parent row routes keyboard and pointer activation through the same checked
+// transition; selection-only clicks leave source and root intact until Enter.
+#[test]
+fn parent_entry() {
+    use crossterm::event::{MouseButton, MouseEvent, MouseEventKind};
+
+    for (profile, route, decorated, nerd_fonts) in [
+        ("non-modal", "enter", true, true),
+        ("modal", "enter", true, false),
+        ("non-modal", "click", true, true),
+        ("non-modal", "select-only", false, true),
+    ] {
+        let f = config_fixture::Fixture::new();
+        let file = f.write("parent/child/source.txt", "retained");
+        let config = format!(
+            "editor.interaction_profile='{profile}'\ntree.decorated={decorated}\ngutter.nerd_fonts={nerd_fonts}\nmouse.tree_activate_on_click={}",
+            route != "select-only"
+        );
+        let mut session = configured(&f, &config, &file);
+        session.insert('!');
+        let stamp = session.buffer().unwrap().stamp();
+        let history = session.buffer().unwrap().history().len();
+        tree(&mut session, TreeCommand::Focus);
+        if route == "enter" {
+            tree(&mut session, TreeCommand::Collapse);
+        }
+        let frame = session.frame().unwrap();
+        let row = &frame.rows()[1];
+        assert!(
+            row.text()
+                .split('│')
+                .next()
+                .unwrap()
+                .trim_end()
+                .ends_with("..")
+        );
+        if route == "enter" {
+            tree(&mut session, TreeCommand::Next);
+        } else {
+            session.handle(Event::Mouse(MouseEvent {
+                kind: MouseEventKind::Down(MouseButton::Left),
+                column: 1,
+                row: row.row(),
+                modifiers: KeyModifiers::NONE,
+            }));
+        }
+        if route != "click" {
+            assert_eq!(session.tree().root(), file.parent());
+            tree(&mut session, TreeCommand::Refresh);
+            session.handle(key(KeyCode::Enter));
+        }
+        assert_eq!(session.tree().root(), Some(f.0.join("parent").as_path()));
+        assert_eq!(
+            session.tree().selected().unwrap().path(),
+            file.parent().unwrap()
+        );
+        assert!(session.tree().focused());
+        assert_eq!(session.buffer().unwrap().stamp(), stamp);
+        assert_eq!(session.buffer().unwrap().history().len(), history);
+        assert_eq!(text(&session), "!retained");
+    }
+}
+
+// Navigation never grants filesystem mutation authority. Refresh and collapse
+// preserve the parent row, while a retained hit cannot target a different root.
+#[test]
+fn parent_entry_identity() {
+    let f = config_fixture::Fixture::new();
+    let file = f.write("parent/child/source.txt", "retained");
+    let mut tree = Tree::new(file.parent().unwrap().to_owned());
+    tree.expand().unwrap();
+    let hit = tree.hit(1).unwrap();
+    assert!(tree.select_hit(&hit));
+    assert!(tree.selected().unwrap().is_parent());
+    for kind in [
+        rev::tree::CreateKind::File,
+        rev::tree::CreateKind::Directory,
+    ] {
+        assert!(
+            tree.prepare_create(kind)
+                .err()
+                .unwrap()
+                .to_string()
+                .contains("navigation only")
+        );
+    }
+    assert!(
+        tree.prepare_delete()
+            .err()
+            .unwrap()
+            .to_string()
+            .contains("navigation only")
+    );
+    assert!(
+        tree.prepare_rename()
+            .err()
+            .unwrap()
+            .to_string()
+            .contains("navigation only")
+    );
+    tree.refresh().unwrap();
+    assert!(tree.selected().unwrap().is_parent());
+    tree.activate().unwrap();
+    assert_eq!(tree.root(), Some(f.0.join("parent").as_path()));
+    assert!(!tree.select_hit(&hit));
+    assert_eq!(fs::read_to_string(file).unwrap(), "retained");
 }

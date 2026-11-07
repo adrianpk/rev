@@ -9,8 +9,9 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 
 ### Added
 
-- Press `^` in an automatic file tree to browse its parent while keeping the
-  directory just left selected and visible. `tree-up-directory` works in both
+- Press `^` or activate the `..` row in an automatic file tree to browse its
+  parent while keeping the directory just left selected and visible.
+  `tree-up-directory` works in both
   profiles; explicitly opened directories, Projects, Workspaces and configured
   cwd roots stay fixed. Your editing context, unsaved text and split panes stay
   intact, and later file visits retain automatic parent following.

@@ -51,6 +51,9 @@ impl Session {
             return self.message("No tree entry selected");
         };
         self.input.suppress_repeat();
+        if entry.is_parent() {
+            return self.tree_navigation(crate::command::TreeCommand::UpDirectory);
+        }
         if entry.is_directory() {
             return self.tree_navigation(crate::command::TreeCommand::Activate);
         }

@@ -62,7 +62,7 @@ impl Tree {
         let entry = self
             .selected()
             .ok_or_else(|| io::Error::other("no tree selection"))?;
-        let metadata = directory(entry.path())?;
+        let metadata = directory(entry.filesystem_path()?)?;
         Ok(Creation {
             directory: entry.path().to_path_buf(),
             kind,

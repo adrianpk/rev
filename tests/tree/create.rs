@@ -30,7 +30,7 @@ fn creation() {
             assert_eq!(fs::read(&path).unwrap(), b"");
         }
         tree.reveal_created(&path).unwrap();
-        assert_eq!(tree.entries().len(), 2);
+        assert_eq!(tree.entries().len(), 3);
         assert_eq!(tree.selected().unwrap().path(), path);
         assert!(tree.entries()[0].expanded());
     }

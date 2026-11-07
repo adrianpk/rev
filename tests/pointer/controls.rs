@@ -174,13 +174,13 @@ fn tree_distance() {
     assert!(!session.tree().focused());
     assert_eq!(
         session.tree().selected().unwrap().path(),
-        fixture.0.join("file-05")
+        fixture.0.join("file-04")
     );
     assert_eq!(session.tree().entries().len(), entries);
     assert!(
         session.frame().unwrap().rows()[0]
             .text()
-            .contains("file-05")
+            .contains("file-04")
     );
     assert_eq!(session.view(), &before);
     assert!(session.buffer().unwrap().history().is_empty());

@@ -56,8 +56,8 @@ fn full_row_actions() {
                         session.execute(Command::Tree(TreeCommand::Previous));
                     }
                     session.frame().unwrap();
-                    let expected = session.tree().hit(2).unwrap();
-                    let position = Position { column, row: 2 };
+                    let expected = session.tree().hit(3).unwrap();
+                    let position = Position { column, row: 3 };
                     let composition =
                         Composition::workspace(session.windows(), session.tree(), size(), 0)
                             .unwrap();
@@ -77,16 +77,16 @@ fn full_row_actions() {
                     );
                     assert_eq!(session.tree().selected().unwrap().path(), target);
                     assert_eq!(session.tree().focused(), !activate);
-                    assert_eq!(session.tree().hit(2), Some(expected));
+                    assert_eq!(session.tree().hit(3), Some(expected));
                     assert_eq!(
-                        session.frame().unwrap().rows()[2].selection(),
+                        session.frame().unwrap().rows()[3].selection(),
                         Some(0..width)
                     );
                     if !activate {
                         session.execute(Command::KeyboardQuit);
                         let frame = session.frame().unwrap();
-                        assert_eq!(frame.rows()[1].selection(), Some(0..width));
-                        assert_eq!(frame.rows()[2].selection(), None);
+                        assert_eq!(frame.rows()[2].selection(), Some(0..width));
+                        assert_eq!(frame.rows()[3].selection(), None);
                     }
                     if activate {
                         assert_eq!(session.buffer().unwrap().file().unwrap().path(), target);
@@ -128,7 +128,7 @@ fn cached_viewport() {
             session.handle(press(Position { column, row: 0 }));
             assert_eq!(
                 session.tree().selected().unwrap().path(),
-                fixture.0.join("root/02-界é.txt")
+                fixture.0.join("root/01-界é.txt")
             );
             assert_eq!(session.tree().hit(0), Some(current.clone()));
         }

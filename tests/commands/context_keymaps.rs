@@ -217,7 +217,9 @@ fn tree_actions() {
     );
     let stamp = session.buffer().unwrap().stamp();
     session.handle(meta('l'));
-    assert_eq!(session.tree().entries().len(), 3);
+    assert_eq!(session.tree().entries().len(), 4);
+    session.handle(meta('j'));
+    assert!(session.tree().selected().unwrap().is_parent());
     session.handle(meta('j'));
     assert!(session.tree().selected().unwrap().path().ends_with("a.txt"));
     session.handle(phase(meta('j'), KeyEventKind::Repeat));

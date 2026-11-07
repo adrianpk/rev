@@ -52,7 +52,7 @@ fn clipped_names() {
                 let composition = Composition::workspace(&windows, &tree, size, 0);
                 if !size.usable() {
                     assert!(composition.is_none());
-                    assert_eq!(tree.entries().len(), 3);
+                    assert_eq!(tree.entries().len(), 4);
                     continue;
                 }
                 let composition = composition.unwrap();
@@ -66,7 +66,7 @@ fn clipped_names() {
                 );
                 if let Some(panel) = composition.tree() {
                     assert_eq!(panel.content().width(), width);
-                    let actual = frame.rows()[2].text().split('│').next().unwrap();
+                    let actual = frame.rows()[3].text().split('│').next().unwrap();
                     let expected = if nerd_fonts {
                         expected.replace('≡', "\u{f0219}")
                     } else {
@@ -74,7 +74,7 @@ fn clipped_names() {
                     };
                     assert_eq!(actual, expected, "{nerd_fonts}/{width}/{columns}");
                     if width == 24 {
-                        assert!(frame.rows()[1].text().contains("ctl^[[31m.txt"));
+                        assert!(frame.rows()[2].text().contains("ctl^[[31m.txt"));
                     }
                     let mut bytes = Vec::new();
                     frame.write(&mut bytes).unwrap();

@@ -9,7 +9,7 @@ impl Tree {
         let entry = self
             .selected()
             .ok_or_else(|| io::Error::other("no tree selection"))?;
-        Rename::capture(entry.path())
+        Rename::capture(entry.filesystem_path()?)
     }
 
     /// Rebase only loaded paths, then refresh the same expanded branches.

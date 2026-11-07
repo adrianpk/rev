@@ -47,11 +47,7 @@ pub struct Tree {
 impl Tree {
     /// Create a retained collapsed root without reading its directory.
     pub fn new(root: PathBuf) -> Self {
-        Self {
-            entries: vec![Entry::root(root.clone())],
-            root: Some(root),
-            ..Self::default()
-        }
+        Self::configured(root, &crate::config::Tree::default(), false, false)
     }
 
     /// Observe no entries until explicit expansion or refresh; the supplied
@@ -61,16 +57,25 @@ impl Tree {
             root,
             &settings.settings().tree,
             settings.settings().gutter.nerd_fonts,
+            false,
         )
     }
 
-    fn configured(root: PathBuf, policy: &crate::config::Tree, nerd_fonts: bool) -> Self {
-        Self {
+    fn configured(
+        root: PathBuf,
+        policy: &crate::config::Tree,
+        nerd_fonts: bool,
+        explicit_root: bool,
+    ) -> Self {
+        let mut tree = Self {
             policy: policy.clone(),
             nerd_fonts,
+            explicit_root,
             visible: policy.visible,
-            ..Self::new(root)
-        }
+            ..Self::default()
+        };
+        tree.set_root(root);
+        tree
     }
 
     pub(crate) fn startup(
@@ -85,16 +90,26 @@ impl Tree {
             Some(parent) => parent.to_path_buf(),
             None => std::env::current_dir()?,
         };
-        Ok(Self::configured(root, policy, nerd_fonts))
+        Ok(Self::configured(root, policy, nerd_fonts, false))
     }
 
     fn set_root(&mut self, root: PathBuf) {
-        self.entries = vec![Entry::root(root.clone())];
+        self.entries = self.root_entries(root.clone());
         self.root = Some(root);
         self.selected = 0;
         self.top = 0;
         self.initialized = false;
         self.follow_dirty = true;
+    }
+
+    fn children_start(&self, index: usize) -> usize {
+        index
+            + 1
+            + usize::from(
+                self.entries
+                    .get(index + 1)
+                    .is_some_and(|entry| entry.parent),
+            )
     }
 
     pub fn entries(&self) -> &[Entry] {

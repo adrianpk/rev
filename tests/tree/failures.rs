@@ -35,19 +35,23 @@ fn deep_branches() {
     for depth in 0..200 {
         assert_eq!(tree.selected().unwrap().depth(), depth);
         tree.expand().unwrap();
-        assert_eq!(tree.entries().len(), depth + 2);
+        assert_eq!(tree.entries().len(), depth + 3);
+        if depth == 0 {
+            tree.move_selection(true);
+            assert!(tree.selected().unwrap().is_parent());
+        }
         tree.move_selection(true);
     }
     assert_eq!(selected(&tree), path);
     tree.expand().unwrap();
     tree.move_selection(true);
-    assert_eq!(tree.entries().len(), 202);
+    assert_eq!(tree.entries().len(), 203);
     tree.refresh().unwrap();
     assert_eq!(selected(&tree), path.join("end"));
     tree.collapse();
     tree.collapse();
     assert_eq!(selected(&tree), path);
-    assert_eq!(tree.entries().len(), 201);
+    assert_eq!(tree.entries().len(), 202);
 }
 
 // Directory links, parent/self cycles, chains and dangling links are equally
@@ -70,7 +74,7 @@ fn symlink_leaves() {
         choose(&mut tree, &fixture.path(name));
         assert!(tree.selected().unwrap().is_symlink());
         tree.expand().unwrap();
-        assert_eq!(tree.entries().len(), 6);
+        assert_eq!(tree.entries().len(), 7);
         assert!(
             tree.activate()
                 .unwrap_err()
@@ -79,7 +83,7 @@ fn symlink_leaves() {
         );
     }
     tree.refresh().unwrap();
-    assert_eq!(tree.entries().len(), 6);
+    assert_eq!(tree.entries().len(), 7);
     assert!(tree.entries().iter().all(|entry| entry.depth() <= 1));
 }
 
@@ -94,7 +98,7 @@ fn denied_branch() {
     fixture.file("b/old");
     let mut tree = fixture.tree();
     tree.expand().unwrap();
-    tree.move_selection(true);
+    choose(&mut tree, &fixture.path("a"));
     tree.expand().unwrap();
     choose(&mut tree, &fixture.path("b"));
     tree.expand().unwrap();
@@ -135,7 +139,7 @@ fn deleted_directory() {
     fixture.file("keep");
     let mut tree = fixture.tree();
     tree.expand().unwrap();
-    tree.move_selection(true);
+    choose(&mut tree, &fixture.path("gone"));
     fs::remove_dir(fixture.path("gone")).unwrap();
     let error = tree.expand().unwrap_err();
     assert_eq!(error.kind(), ErrorKind::NotFound);
@@ -146,7 +150,7 @@ fn deleted_directory() {
     tree.collapse();
     tree.refresh().unwrap();
     assert_eq!(selected(&tree), fixture.0);
-    assert_eq!(tree.entries().len(), 2);
+    assert_eq!(tree.entries().len(), 3);
 }
 
 // A missing root clears stale descendants, remains selected and collapsed,
@@ -157,17 +161,17 @@ fn missing_root() {
     fixture.file("old");
     let mut tree = fixture.tree();
     tree.expand().unwrap();
-    tree.move_selection(true);
+    choose(&mut tree, &fixture.path("old"));
     fs::remove_dir_all(&fixture.0).unwrap();
     assert_eq!(tree.refresh().unwrap_err().kind(), ErrorKind::NotFound);
-    assert_eq!(tree.entries().len(), 1);
+    assert_eq!(tree.entries().len(), 2);
     assert_eq!(selected(&tree), fixture.0);
     assert!(!tree.selected().unwrap().expanded());
     fs::create_dir(&fixture.0).unwrap();
     fixture.file("new");
     tree.refresh().unwrap();
     tree.expand().unwrap();
-    tree.move_selection(true);
+    choose(&mut tree, &fixture.path("new"));
     assert_eq!(selected(&tree), fixture.path("new"));
 }
 
@@ -180,7 +184,7 @@ fn replaced_directory() {
     fixture.file("a/old");
     let mut tree = fixture.tree();
     tree.expand().unwrap();
-    tree.move_selection(true);
+    choose(&mut tree, &fixture.path("a"));
     fs::remove_dir_all(fixture.path("a")).unwrap();
     symlink(&fixture.0, fixture.path("a")).unwrap();
     assert!(
@@ -189,7 +193,7 @@ fn replaced_directory() {
             .to_string()
             .contains("entry is not a directory")
     );
-    assert_eq!(tree.entries().len(), 2);
+    assert_eq!(tree.entries().len(), 3);
     tree.refresh().unwrap();
     assert!(tree.selected().unwrap().is_symlink());
     assert!(!tree.selected().unwrap().is_directory());
@@ -204,7 +208,7 @@ fn replaced_directory() {
     tree.refresh().unwrap();
     assert_eq!(selected(&tree), fixture.path("a"));
     assert!(tree.selected().unwrap().is_symlink());
-    assert_eq!(tree.entries().len(), 2);
+    assert_eq!(tree.entries().len(), 3);
 }
 
 // External rename/add/remove changes become visible only on refresh. Renamed
@@ -217,7 +221,7 @@ fn external_changes() {
     fixture.file("gone");
     let mut tree = fixture.tree();
     tree.expand().unwrap();
-    tree.move_selection(true);
+    choose(&mut tree, &fixture.path("a"));
     tree.expand().unwrap();
     tree.move_selection(true);
     fs::rename(fixture.path("a"), fixture.path("z")).unwrap();
@@ -226,10 +230,10 @@ fn external_changes() {
     assert_eq!(selected(&tree), fixture.path("a/old"));
     tree.refresh().unwrap();
     assert_eq!(selected(&tree), fixture.0);
-    assert_eq!(tree.entries().len(), 3);
-    assert_eq!(tree.entries()[1].path(), fixture.path("z"));
-    assert!(!tree.entries()[1].expanded());
-    assert_eq!(tree.entries()[2].path(), fixture.path("added"));
+    assert_eq!(tree.entries().len(), 4);
+    assert_eq!(tree.entries()[2].path(), fixture.path("z"));
+    assert!(!tree.entries()[2].expanded());
+    assert_eq!(tree.entries()[3].path(), fixture.path("added"));
 }
 
 // Native filename ordering and path identity retain distinct non-UTF8 names,
@@ -246,12 +250,12 @@ fn native_names() {
     }
     let mut tree = fixture.tree();
     tree.expand().unwrap();
-    let paths: Vec<_> = tree.entries()[1..]
+    let paths: Vec<_> = tree.entries()[2..]
         .iter()
         .map(|entry| entry.path().to_path_buf())
         .collect();
     assert_eq!(paths, names.map(|name| fixture.0.join(name)));
-    tree.move_selection(true);
+    choose(&mut tree, &paths[0]);
     tree.refresh().unwrap();
     assert_eq!(selected(&tree), paths[0]);
     for path in paths {

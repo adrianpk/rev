@@ -248,12 +248,12 @@ fn deleted_root() {
     assert!(buffers.delete(recursive(&root)).is_complete());
     assert_eq!(tree.refresh().unwrap_err().kind(), ErrorKind::NotFound);
     assert_eq!(tree.selected().unwrap().path(), root);
-    assert_eq!(tree.entries().len(), 1);
+    assert_eq!(tree.entries().len(), 2);
     assert!(!buffers.save(id).unwrap().is_complete());
     assert!(!root.exists());
     assert_eq!(text(buffers.get(id).unwrap()), "retained");
     fs::create_dir(&root).unwrap();
     tree.refresh().unwrap();
     tree.expand().unwrap();
-    assert_eq!(tree.entries().len(), 1);
+    assert_eq!(tree.entries().len(), 2);
 }

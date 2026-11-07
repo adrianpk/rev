@@ -69,9 +69,9 @@ fn ordering() {
     fixture.file("界.txt");
     symlink(fixture.path("a"), fixture.path("link")).unwrap();
     let mut tree = fixture.tree();
-    assert_eq!(tree.entries().len(), 1);
+    assert_eq!(tree.entries().len(), 2);
     tree.expand().unwrap();
-    let names: Vec<_> = tree.entries()[1..]
+    let names: Vec<_> = tree.entries()[2..]
         .iter()
         .map(|entry| entry.path().file_name().unwrap().to_str().unwrap())
         .collect();
@@ -98,14 +98,16 @@ fn visible_walk() {
     fixture.file("a/deep/item");
     fixture.file("last");
     let mut tree = fixture.tree();
-    tree.move_selection(true);
-    assert_eq!(tree.entries().len(), 1);
+    tree.move_selection(false);
+    assert_eq!(tree.entries().len(), 2);
     tree.expand().unwrap();
     tree.move_selection(true);
+    assert!(tree.selected().unwrap().is_parent());
+    tree.move_selection(true);
     tree.expand().unwrap();
-    assert_eq!(tree.entries().len(), 4);
+    assert_eq!(tree.entries().len(), 5);
     tree.expand().unwrap();
-    assert_eq!(tree.entries().len(), 4);
+    assert_eq!(tree.entries().len(), 5);
     tree.move_selection(true);
     assert_eq!(selected(&tree), fixture.path("a/deep"));
     tree.expand().unwrap();
@@ -114,11 +116,11 @@ fn visible_walk() {
     tree.collapse();
     assert_eq!(selected(&tree), fixture.path("a/deep"));
     tree.collapse();
-    assert_eq!(tree.entries().len(), 4);
+    assert_eq!(tree.entries().len(), 5);
     tree.collapse();
     assert_eq!(selected(&tree), fixture.path("a"));
     tree.collapse();
-    assert_eq!(tree.entries().len(), 3);
+    assert_eq!(tree.entries().len(), 4);
     tree.move_selection(true);
     tree.move_selection(true);
     assert_eq!(selected(&tree), fixture.path("last"));
@@ -126,7 +128,7 @@ fn visible_walk() {
     tree.collapse();
     tree.move_selection(false);
     assert_eq!(selected(&tree), fixture.0);
-    assert_eq!(tree.entries().len(), 1);
+    assert_eq!(tree.entries().len(), 2);
 }
 
 // Refresh reloads open branches, leaves unopened subtrees lazy and retains
@@ -138,7 +140,7 @@ fn refreshed_selection() {
     fixture.file("a/keep");
     let mut tree = fixture.tree();
     tree.expand().unwrap();
-    tree.move_selection(true);
+    choose(&mut tree, &fixture.path("a"));
     tree.expand().unwrap();
     choose(&mut tree, &fixture.path("a/keep"));
     fixture.file("a/first");
@@ -190,7 +192,7 @@ fn command_navigation() {
     );
     super::named(&mut session, "tree-collapse");
     super::named(&mut session, "tree-refresh");
-    assert_eq!(session.tree().entries().len(), 1);
+    assert_eq!(session.tree().entries().len(), 2);
     session.handle(super::key(KeyCode::Tab));
     session.execute(Command::History(rev::command::History::Undo));
     assert_eq!(super::text(&session), "");

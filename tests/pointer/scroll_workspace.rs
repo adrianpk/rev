@@ -112,17 +112,17 @@ fn loaded_tree_bounds() {
     session.execute(Command::Tree(TreeCommand::Expand));
     session.handle(key(KeyCode::Tab, KeyModifiers::NONE));
     let before = session.view().clone();
-    std::fs::remove_file(fixture.0.join("file-02")).unwrap();
+    std::fs::remove_file(fixture.0.join("file-01")).unwrap();
     session.handle(wheel(false, 1, 0));
     assert_eq!(
         session.tree().selected().unwrap().path(),
-        fixture.0.join("file-02")
+        fixture.0.join("file-01")
     );
     for _ in 0..16 {
         session.handle(wheel(false, 1, 0));
     }
     assert_eq!(session.tree().selected().unwrap().path(), path);
-    assert_eq!(session.tree().entries().len(), 18);
+    assert_eq!(session.tree().entries().len(), 19);
     assert_eq!(session.handle(wheel(false, 1, 0)), Action::Wait);
     assert!(session.frame().unwrap().rows()[0].text().contains("zz.txt"));
     for _ in 0..16 {
@@ -130,7 +130,7 @@ fn loaded_tree_bounds() {
     }
     assert_eq!(
         session.tree().selected().unwrap().path(),
-        fixture.0.join("file-08")
+        fixture.0.join("file-07")
     );
     assert_eq!(session.handle(wheel(true, 1, 0)), Action::Wait);
     assert!(!session.tree().focused());
