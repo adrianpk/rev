@@ -78,6 +78,16 @@ fn full_row_actions() {
                     assert_eq!(session.tree().selected().unwrap().path(), target);
                     assert_eq!(session.tree().focused(), !activate);
                     assert_eq!(session.tree().hit(2), Some(expected));
+                    assert_eq!(
+                        session.frame().unwrap().rows()[2].selection(),
+                        Some(0..width)
+                    );
+                    if !activate {
+                        session.execute(Command::KeyboardQuit);
+                        let frame = session.frame().unwrap();
+                        assert_eq!(frame.rows()[1].selection(), Some(0..width));
+                        assert_eq!(frame.rows()[2].selection(), None);
+                    }
                     if activate {
                         assert_eq!(session.buffer().unwrap().file().unwrap().path(), target);
                     } else {

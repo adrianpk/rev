@@ -4,6 +4,8 @@
 mod config_fixture;
 #[path = "tree/decoration.rs"]
 mod decoration;
+#[path = "tree/follow.rs"]
+mod follow;
 #[path = "tree/geometry.rs"]
 mod geometry;
 #[path = "tree/hits.rs"]

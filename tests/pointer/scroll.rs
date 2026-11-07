@@ -101,21 +101,24 @@ fn tree_target() {
     session.execute(Command::Tree(TreeCommand::Expand));
     session.handle(key(KeyCode::Tab, KeyModifiers::NONE));
     let root_row = tree_row(&mut session);
+    // Default following can establish a lower initial viewport. Preserve the
+    // configured three-row wheel displacement from that rendered observation.
+    let expected_row = session.frame().unwrap().rows()[3]
+        .text()
+        .chars()
+        .take(usize::from(session.tree().width(size())))
+        .collect::<String>();
+    let expected_path = fixture
+        .0
+        .join(expected_row.split_whitespace().last().unwrap());
     let before = session.view().clone();
     let entries = session.tree().entries().len();
     assert_eq!(session.handle(wheel(false, 1, 0)), Action::Redraw);
     assert!(!session.tree().focused());
     assert_eq!(session.view(), &before);
     assert_eq!(session.tree().entries().len(), entries);
-    assert_eq!(
-        session.tree().selected().unwrap().path(),
-        fixture.0.join("file-02")
-    );
-    assert!(
-        session.frame().unwrap().rows()[0]
-            .text()
-            .contains("file-02")
-    );
+    assert_eq!(session.tree().selected().unwrap().path(), expected_path);
+    assert_eq!(tree_row(&mut session), expected_row);
     let composition =
         rev::panel::Composition::workspace(session.windows(), session.tree(), size(), 0).unwrap();
     let status = composition.tree().unwrap().status().unwrap();

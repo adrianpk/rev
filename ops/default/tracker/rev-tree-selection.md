@@ -30,7 +30,7 @@ Validation: the ten exact ordered commands in the plan and local configuration
 
 - [x] T1.1: Record actual ticket start and implement default-on configuration,
   separate browsing/active-file identity and event-owned loaded-entry matching.
-- [ ] T1.2: Deliver persistent single-row rendering and native acceptance for
+- [x] T1.2: Deliver persistent single-row rendering and native acceptance for
   focus, manual navigation, missing targets, overlapping roots and unchanged source.
 - [ ] T1.3: Complete Diataxis/Spore and Unreleased guidance; introduce the report,
   record task/commit/PR evidence and move the ticket to reviewing before the gate.

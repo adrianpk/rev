@@ -73,11 +73,27 @@ fn clicked_file() {
     assert_eq!(session.windows().selected_id(), peer);
     assert!(!session.tree().focused());
     assert_eq!(source(&session), "bravo");
+    assert_eq!(
+        session.frame().unwrap().rows()[usize::from(target.row)].selection(),
+        Some(0..24)
+    );
+    let current = session.buffer().unwrap().stamp();
+    session.handle(press(target));
+    assert_eq!(session.buffer().unwrap().stamp(), current);
+    assert_eq!(
+        session.frame().unwrap().rows()[usize::from(target.row)].selection(),
+        Some(0..24)
+    );
     assert_eq!(session.windows().get(original).unwrap().point, point);
     session.select_view(original).unwrap();
     assert_eq!(session.buffer().unwrap().stamp(), stamp);
     assert_eq!(session.buffer().unwrap().history().len(), history);
     assert_eq!(source(&session), "!retained\ntext");
+    let selected = cell(&mut session, "source.txt");
+    assert_eq!(
+        session.frame().unwrap().rows()[usize::from(selected.row)].selection(),
+        Some(0..24)
+    );
     assert_eq!(
         std::fs::read(fixture.0.join("root/source.txt")).unwrap(),
         b"retained\ntext"
@@ -243,6 +259,7 @@ fn refreshed_viewport() {
     session.execute(Command::Tree(rev::command::TreeCommand::Focus));
     session.execute(Command::Tree(rev::command::TreeCommand::Refresh));
     session.execute(Command::KeyboardQuit);
+    session.load(&fixture.0.join("root/alpha.txt")).unwrap();
     session.handle(Event::Resize(100, 8));
     session.frame().unwrap();
     for _ in 0..2 {
@@ -274,4 +291,40 @@ fn refreshed_viewport() {
         session.tree().root(),
         Some(fixture.0.join("root").as_path())
     );
+}
+
+// A file transition can scroll a different loaded row under the pointer.
+// Release never activates that new occupant or changes the selected source.
+#[test]
+fn tree_follow_release() {
+    let fixture = Fixture::new();
+    let mut session = editor(&fixture);
+    for index in 0..24 {
+        fixture.write(&format!("root/file{index:02}.txt"), "retained");
+    }
+    session.execute(Command::Tree(rev::command::TreeCommand::Focus));
+    session.execute(Command::Tree(rev::command::TreeCommand::Refresh));
+    session.execute(Command::KeyboardQuit);
+    session.load(&fixture.0.join("root/alpha.txt")).unwrap();
+    let target = cell(&mut session, "alpha.txt");
+    session.handle(press(target));
+    let hit = session.tree().hit(target.row).unwrap();
+    session.load(&fixture.0.join("root/source.txt")).unwrap();
+    let point = session.view().point;
+    let frame = session.frame().unwrap();
+    assert!(
+        frame
+            .rows()
+            .iter()
+            .any(|r| r.selection() == Some(0..24) && r.text().contains("source.txt"))
+    );
+    assert_ne!(session.tree().hit(target.row), Some(hit));
+    session.handle(mouse(MouseEventKind::Up(MouseButton::Left), target));
+    assert_eq!(session.view().point, point);
+    assert_eq!(
+        session.buffer().unwrap().file().unwrap().path(),
+        fixture.0.join("root/source.txt")
+    );
+    assert_eq!(source(&session), "retained\ntext");
+    assert!(session.buffer().unwrap().history().is_empty());
 }

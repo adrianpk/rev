@@ -62,7 +62,10 @@ fn entry_colors() {
                 Kind::File => 6,
                 Kind::Symlink => 7,
             };
-            let expected = if decorated {
+            let active = entry.path() == fixture.0.join("root/main.rs");
+            let expected = if active {
+                palette.tree_selected_text
+            } else if decorated {
                 Rgb(channel, 2, 3)
             } else {
                 palette.foreground
@@ -73,7 +76,14 @@ fn entry_colors() {
                 let cell = cells[&(row, column)];
                 assert_eq!(
                     (cell.foreground, cell.background),
-                    (Some(expected), Some(palette.tree)),
+                    (
+                        Some(expected),
+                        Some(if active {
+                            palette.tree_selected
+                        } else {
+                            palette.tree
+                        })
+                    ),
                     "{decorated} {:?}",
                     entry.kind()
                 );
@@ -97,7 +107,26 @@ fn entry_colors() {
             }
         }
         session.handle(Event::Key(KeyEvent::new(KeyCode::Tab, KeyModifiers::NONE)));
+        let active_row = session
+            .tree()
+            .entries()
+            .iter()
+            .position(|e| e.path() == fixture.0.join("root/main.rs"))
+            .unwrap();
         let cells = surface::draw(&session.frame().unwrap());
+        for column in 0..24 {
+            assert_eq!(
+                (
+                    cells[&(active_row, column)].foreground,
+                    cells[&(active_row, column)].background
+                ),
+                (
+                    Some(palette.tree_selected_text),
+                    Some(palette.tree_selected)
+                )
+            );
+        }
+        assert!(session.frame().unwrap().cursor().unwrap().column > 24);
         assert_eq!(
             cells[&(1, 6)].foreground,
             Some(if decorated {
@@ -106,6 +135,69 @@ fn entry_colors() {
                 palette.foreground
             })
         );
+        assert!(!session.buffer().unwrap().is_modified());
+    }
+}
+
+// Persistent tree feedback must coexist with an active multiline source region
+// on the same screen row, preserving both palette roles and source state.
+#[test]
+fn tree_and_region() {
+    for decorated in [false, true] {
+        let fixture = config_fixture::Fixture::new();
+        let source = fixture.write("root/main.rs", "first\nsecond\nthird");
+        let startup = prepare(&fixture.write(
+            "config.toml",
+            &format!("tree.visible=true\ntree.decorated={decorated}"),
+        ));
+        assert!(startup.diagnostic.is_none());
+        let palette = startup.snapshot.settings().palette.clone();
+        let mut buffers = Buffers::with_settings(startup.snapshot).unwrap();
+        let id = buffers.visit(&source).unwrap();
+        let view = View::new(buffers.get(id).unwrap());
+        let mut session = Session::new(
+            buffers,
+            view,
+            Size {
+                width: 100,
+                height: 12,
+            },
+        )
+        .unwrap();
+        session.execute(Command::Region(rev::command::RegionCommand::Set));
+        session.execute(Command::Motion(rev::command::Motion::BufferEnd));
+        let stamp = session.buffer().unwrap().stamp();
+        let mark = session.buffer().unwrap().mark();
+        let point = session.view().point;
+        let frame = session.frame().unwrap();
+        let region = frame.rows()[1].selection().unwrap();
+        assert!(region.start > 24);
+        let cells = surface::draw(&frame);
+        for column in 0..24 {
+            assert_eq!(
+                (
+                    cells[&(1, column)].foreground,
+                    cells[&(1, column)].background
+                ),
+                (
+                    Some(palette.tree_selected_text),
+                    Some(palette.tree_selected)
+                )
+            );
+        }
+        for column in usize::from(region.start)..usize::from(region.end) {
+            assert_eq!(
+                (
+                    cells[&(1, column)].foreground,
+                    cells[&(1, column)].background
+                ),
+                (Some(palette.selection_text), Some(palette.selection))
+            );
+        }
+        assert_eq!(session.buffer().unwrap().stamp(), stamp);
+        assert_eq!(session.buffer().unwrap().mark(), mark);
+        assert_eq!(session.view().point, point);
+        assert!(session.buffer().unwrap().history().is_empty());
         assert!(!session.buffer().unwrap().is_modified());
     }
 }
@@ -131,7 +223,7 @@ fn no_color() {
     }
     for (decorated, nerd_fonts) in [(false, false), (false, true), (true, false), (true, true)] {
         let fixture = config_fixture::Fixture::new();
-        let source = fixture.write("root/main.rs", "retained");
+        let source = fixture.write("root/main.rs", "first\nsecond\nthird");
         let startup = prepare(&fixture.write(
             "config.toml",
             &format!(
@@ -175,6 +267,25 @@ fn no_color() {
         assert!(!output.contains("38;2;") && !output.contains("48;2;"));
         assert!(output.contains("\x1b[7m"));
         assert!(output.contains(root) && output.contains(source));
+        session.handle(Event::Key(KeyEvent::new(KeyCode::Tab, KeyModifiers::NONE)));
+        let frame = session.frame().unwrap();
+        assert_eq!(frame.rows()[0].selection(), None);
+        assert_eq!(frame.rows()[1].selection(), Some(0..24));
+        assert!(frame.cursor().unwrap().column > 24);
+        let mut bytes = Vec::new();
+        frame.write(&mut bytes).unwrap();
+        let output = String::from_utf8(bytes).unwrap();
+        assert!(!output.contains("38;2;") && !output.contains("48;2;"));
+        assert!(output.contains("\x1b[7m"));
+        session.execute(Command::Region(rev::command::RegionCommand::Set));
+        session.execute(Command::Motion(rev::command::Motion::BufferEnd));
+        let frame = session.frame().unwrap();
+        assert!(frame.rows()[1].selection().unwrap().start > 24);
+        let mut bytes = Vec::new();
+        frame.write(&mut bytes).unwrap();
+        let output = String::from_utf8(bytes).unwrap();
+        assert!(!output.contains("38;2;") && !output.contains("48;2;"));
+        assert!(output.matches("\x1b[7m").count() >= 4);
         assert!(!session.buffer().unwrap().is_modified());
     }
 }

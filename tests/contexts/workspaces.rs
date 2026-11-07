@@ -175,6 +175,8 @@ fn peer_tree_routes() {
         session.execute(Command::Tree(TreeCommand::Next));
         session.execute(Command::Tree(TreeCommand::Open));
         assert_eq!(session.buffer().unwrap().file().unwrap().path(), nested);
+        let frame = session.frame().unwrap();
+        assert_eq!(frame.rows()[2].selection(), Some(0..24));
         let id = session.buffer().unwrap().id();
         session.insert('!');
         let stamp = session.buffer().unwrap().stamp();
@@ -184,6 +186,25 @@ fn peer_tree_routes() {
         session.execute(Command::Tree(TreeCommand::Open));
         assert_eq!(session.buffer().unwrap().id(), id);
         assert_eq!(session.buffer().unwrap().stamp(), stamp);
+        let frame = session.frame().unwrap();
+        let marked = frame
+            .rows()
+            .iter()
+            .filter(|r| r.selection() == Some(0..24))
+            .collect::<Vec<_>>();
+        assert_eq!(marked.len(), 1);
+        assert_eq!(marked[0].row(), 5);
+        // No matching browsing route: deterministic declared-root order wins.
+        selected_root(&mut session, &roots[1].id);
+        session.execute(Command::KeyboardQuit);
+        let frame = session.frame().unwrap();
+        let marked = frame
+            .rows()
+            .iter()
+            .filter(|r| r.selection() == Some(0..24))
+            .collect::<Vec<_>>();
+        assert_eq!(marked.len(), 1);
+        assert_eq!(marked[0].row(), 2);
         assert_eq!(
             session
                 .tree()

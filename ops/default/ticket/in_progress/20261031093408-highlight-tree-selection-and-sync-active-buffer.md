@@ -12,7 +12,7 @@ reported_at: 2026-10-31T09:34:08Z
 ready_at: 2026-11-07T15:19:21Z
 started_at: 2026-11-07T17:17:52Z
 branch: feat/rev-tree-selection-01-follow
-commits: []
+commits: [0b5e987a20a02bbef1d7c53a1ae91749ab42b813]
 ---
 
 # Highlight tree selection and synchronize the active buffer
