@@ -1,11 +1,13 @@
 # Slice 3: Project registration and sessions
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-projects-workspaces
 Plan: [Projects and Workspaces Delivery](../../../plan/rev-projects-workspaces.md)
 Tracker: [Projects and Workspaces Tracker](../../../tracker/rev-projects-workspaces.md)
 Branch: `feat/rev-projects-workspaces-03-projects`
 PR: `#300`
+Integrated: `ff3b361ece896a42155c8817f0e51dc0e6a78fa8`
+Clean-HEAD validation: `RQHF6UOSYCWWOIEMAVPQQSAL4G` (all five ordered checks passed)
 Canonical PR: [#300](https://forge.adrianpk.com/adrianpk/rev/pulls/300)
 Report introduction: [immutable report](https://forge.adrianpk.com/adrianpk/rev/src/commit/fc97a4f8a17e0776bddc24d6523da67611d8150c/ops/default/report/slices/rev-projects-workspaces/slice-3-projects.md)
 

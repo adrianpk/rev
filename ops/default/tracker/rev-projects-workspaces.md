@@ -8,7 +8,7 @@ Specification: [Files, Directories, Projects and Workspaces](../spec/editor-proj
 Model: [Project and Workspace Model](../spec/editor-projects-workspaces-model.md)
 Concern: [Pending Work Index](../README.md)
 Plan: [Projects and Workspaces Delivery](../plan/rev-projects-workspaces.md)
-Active slice: Slice 3 - Project registration and sessions
+Active slice: Slice 4 - Workspace roots and trees
 Progress owner: retained Looper checkpoint and canonical validation receipts
 Full gate: the exact ordered command in the plan and frozen local configuration
 
@@ -60,7 +60,7 @@ Integration: PR #299 merged into dev at `4a1b2ddfef6e15a97f0c50d86c46df582612b88
 
 ## Slice 3: Project registration and sessions
 
-State: reviewing
+State: delivered
 Dependency: Slice 2 integrated
 Requirements: PW05-PW06, PW15-PW16, PW18-PW20, PW22
 Branch: `feat/rev-projects-workspaces-03-projects`
@@ -69,13 +69,15 @@ Report: `ops/default/report/slices/rev-projects-workspaces/slice-3-projects.md`
 Validation: the exact ordered Slice 3 commands in the plan/local configuration
 Implementation: T3.1/T3.2/T3.3 in `d099a88b3562df9ce4ef3ad611ecf23f7a869782`, including nine new Project cases, persistent terminal departure and delivered guidance; report introduction in `fc97a4f8a17e0776bddc24d6523da67611d8150c`. All five implementation commands passed, including 37 context, 49 integrated-terminal and 25 recovery tests; final clean-HEAD evidence remains controller-owned.
 
+Integration: PR #300 merged into dev at `ff3b361ece896a42155c8817f0e51dc0e6a78fa8`; all five clean-HEAD commands passed in receipt `RQHF6UOSYCWWOIEMAVPQQSAL4G`.
+
 - [x] T3.1: Deliver explicit project-create/project-promote and named project selection/listing, with unique roots/names, typed picker identities and no implicit path-based promotion.
 - [x] T3.2: Capture ordered file-backed buffers, active file, source cursor/view anchors and loose files; restore using native loaders and checked source coordinates. Protect dirty/unnamed sources and preserve missing-file/root diagnostics without creating replacement files.
 - [x] T3.3: Wire checkpoint ownership into accepted context departure and clean quit; selecting the same artifact is a no-op. Test source decisions, live promotion, restoration, clocks/terminal shutdown ownership and storage failures; document delivered commands and session behavior.
 
 ## Slice 4: Workspace roots and trees
 
-State: planned
+State: active
 Dependency: Slice 3 integrated
 Requirements: PW09-PW11, PW15-PW16, PW18-PW22
 Branch: `feat/rev-projects-workspaces-04-workspaces`
