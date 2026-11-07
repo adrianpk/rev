@@ -148,3 +148,9 @@ views, existing listing bounds and all current tree presentations.
 - **WHEN** the tree moves up
 - **THEN** the same root and selected return entry are presented through
   existing layout and selection behavior.
+
+Decorated presentation SHALL retain its existing Nerd Fonts icons, semantic
+colors, connectors, spacing and selected-entry treatment after each transition.
+Reuse the normal root and directory rows rather than introducing a plain-text
+parent row, duplicate navigation entries or a separate visual style. Respect
+existing display-cell widths and clipping so narrow trees stay aligned.

@@ -51,6 +51,8 @@ Requirements: TUP01-TUP04.
   failures, selection/scroll, remapping and source/view immutability. Include
   a meaningful command acceptance test matching tree_up_directory. Reuse
   fixtures; no new test harness or external service is required.
+  Check the decorated Nerd Fonts projection after upward navigation, including
+  existing icons, semantic colors, connectors, selected rows and narrow widths.
 - T1.3: Update the file-tree reference, default binding/command references and
   live command-description inventory/counts. Preserve historical delivery
   claims. Add brief guidance to the file-tree User Guide and rebuild its
