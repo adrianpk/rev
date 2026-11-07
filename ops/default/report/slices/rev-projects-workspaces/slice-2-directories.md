@@ -5,7 +5,7 @@ Delivery set: rev-projects-workspaces
 Plan: [Projects and Workspaces Delivery](../../../plan/rev-projects-workspaces.md)
 Tracker: [Projects and Workspaces Tracker](../../../tracker/rev-projects-workspaces.md)
 Branch: `feat/rev-projects-workspaces-02-directories`
-PR: pending
+PR: `#299`
 
 ## Purpose
 
@@ -63,6 +63,10 @@ commands and the complete inventories are documented at delivery; Unreleased
 contains one combined reader-facing outcome through changelog-normalize.
 The implementation, native fixtures and public guidance are introduced in
 `5032eb9f5161c718a7dd820eb374376263e54bb8`.
+The report introduction is `ab0f958003ad81ac8dc59d8f79c45d7e8e3416f8`.
+Canonical [PR #299](https://forge.adrianpk.com/adrianpk/rev/pulls/299) targets
+`dev`; integration remains controller-owned. The report's immutable introduction
+is [retained here](https://forge.adrianpk.com/adrianpk/rev/src/commit/ab0f958003ad81ac8dc59d8f79c45d7e8e3416f8/ops/default/report/slices/rev-projects-workspaces/slice-2-directories.md).
 
 ## Contracts Added or Changed
 
