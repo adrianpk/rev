@@ -60,17 +60,18 @@ Integration: PR #299 merged into dev at `4a1b2ddfef6e15a97f0c50d86c46df582612b88
 
 ## Slice 3: Project registration and sessions
 
-State: active
+State: reviewing
 Dependency: Slice 2 integrated
 Requirements: PW05-PW06, PW15-PW16, PW18-PW20, PW22
 Branch: `feat/rev-projects-workspaces-03-projects`
 PR: pending
 Report: `ops/default/report/slices/rev-projects-workspaces/slice-3-projects.md`
 Validation: the exact ordered Slice 3 commands in the plan/local configuration
+Implementation: T3.1/T3.2/T3.3 in `d099a88b3562df9ce4ef3ad611ecf23f7a869782`, including nine new Project cases, persistent terminal departure and delivered guidance. All five implementation commands passed, including 37 context, 49 integrated-terminal and 25 recovery tests; final clean-HEAD evidence remains controller-owned.
 
-- [ ] T3.1: Deliver explicit project-create/project-promote and named project selection/listing, with unique roots/names, typed picker identities and no implicit path-based promotion.
-- [ ] T3.2: Capture ordered file-backed buffers, active file, source cursor/view anchors and loose files; restore using native loaders and checked source coordinates. Protect dirty/unnamed sources and preserve missing-file/root diagnostics without creating replacement files.
-- [ ] T3.3: Wire checkpoint ownership into accepted context departure and clean quit; selecting the same artifact is a no-op. Test source decisions, live promotion, restoration, clocks/terminal shutdown ownership and storage failures; document delivered commands and session behavior.
+- [x] T3.1: Deliver explicit project-create/project-promote and named project selection/listing, with unique roots/names, typed picker identities and no implicit path-based promotion.
+- [x] T3.2: Capture ordered file-backed buffers, active file, source cursor/view anchors and loose files; restore using native loaders and checked source coordinates. Protect dirty/unnamed sources and preserve missing-file/root diagnostics without creating replacement files.
+- [x] T3.3: Wire checkpoint ownership into accepted context departure and clean quit; selecting the same artifact is a no-op. Test source decisions, live promotion, restoration, clocks/terminal shutdown ownership and storage failures; document delivered commands and session behavior.
 
 ## Slice 4: Workspace roots and trees
 
