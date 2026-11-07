@@ -22,7 +22,7 @@ State: reviewing
 Dependency: approved committed preparation on clean dev
 Requirements: CDS01-CDS05
 Branch: `feat/rev-command-descriptions-01-catalog`
-PR: pending
+PR: `#307`
 Report: `ops/default/report/slices/rev-command-descriptions/slice-1-catalog.md`
 Validation: the nine exact ordered commands in the plan and local configuration
 

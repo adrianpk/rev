@@ -5,7 +5,7 @@ Delivery set: rev-command-descriptions
 Plan: [Command Descriptions Delivery](../../../plan/rev-command-descriptions.md)
 Tracker: [Command Descriptions Tracker](../../../tracker/rev-command-descriptions.md)
 Branch: `feat/rev-command-descriptions-01-catalog`
-PR: pending
+PR: `#307`
 
 ## Purpose
 
@@ -29,9 +29,11 @@ T1.1: `9ea81860949a33f592cb03c8cafa72764d38d0e5` populates the existing
 command and family metadata owners.
 T1.2: `812e42fc4319b4a624b9111a264e2906f29504f0` extends the existing catalog
 guard and native selector checks.
-T1.3 updates the command reference, Markdown User Guide, Unreleased notes and
-this report. Its commit is the report's immutable introduction; the PR-reference
-commit records that identity.
+T1.3: `489f3641fa50c17e5b965d1cba92a1452c2b5b2a` updates the command
+reference, Markdown User Guide, Unreleased notes and this report. Its commit is
+the report's immutable introduction. Canonical
+[PR #307](https://forge.adrianpk.com/adrianpk/rev/pulls/307) targets `dev`;
+integration remains pending.
 
 The public optional accessor delegates static summaries to the existing family
 owners. Parameterized requests use their canonical action summary. No parallel
