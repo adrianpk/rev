@@ -1,6 +1,6 @@
 # Slice 6: Startup screen and shared consumers
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-projects-workspaces
 Plan: [Projects and Workspaces Delivery](../../../plan/rev-projects-workspaces.md)
 Tracker: [Projects and Workspaces Tracker](../../../tracker/rev-projects-workspaces.md)
@@ -8,6 +8,9 @@ Branch: `feat/rev-projects-workspaces-06-startup`
 PR: `#303`
 Canonical PR: [#303](https://forge.adrianpk.com/adrianpk/rev/pulls/303)
 Report introduction: [immutable report](https://forge.adrianpk.com/adrianpk/rev/src/commit/3e05e14b6920a6286c1935e854bdbfb6d7e9cfc3/ops/default/report/slices/rev-projects-workspaces/slice-6-startup.md)
+
+Integrated: PR #303 merged into dev at `03751136d7b40e2ac823b1966db32384cbcefb87`.
+Validation receipt: `NN4DLRPWKWD25RFT4J52MTWJKY`; all five required ordered commands passed on that clean HEAD.
 
 ## Purpose
 
