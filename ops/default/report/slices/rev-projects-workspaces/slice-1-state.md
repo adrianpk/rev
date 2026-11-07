@@ -5,7 +5,7 @@ Delivery set: rev-projects-workspaces
 Plan: [Projects and Workspaces Delivery](../../../plan/rev-projects-workspaces.md)
 Tracker: [Projects and Workspaces Tracker](../../../tracker/rev-projects-workspaces.md)
 Branch: `feat/rev-projects-workspaces-01-state`
-PR: pending
+PR: `#298`
 
 ## Purpose
 
@@ -47,6 +47,11 @@ retains its allocated IDs. Cooperating writers reject a stale complete catalog;
 automatic rebasing of independent additions is not needed to prevent lost writes.
 The runtime foundation is introduced in
 `834ee5bdf30d16d327b2da21a45e37c1281d7243`.
+The tests and report are introduced in
+`fd3d8f51132f3a74b9ce8824084f128df5d1b664`.
+Canonical [PR #298](https://forge.adrianpk.com/adrianpk/rev/pulls/298) targets
+`dev`; integration remains controller-owned. The report's immutable introduction
+is [retained here](https://forge.adrianpk.com/adrianpk/rev/src/commit/fd3d8f51132f3a74b9ce8824084f128df5d1b664/ops/default/report/slices/rev-projects-workspaces/slice-1-state.md).
 
 The codec uses the existing TOML parser and `toml_edit` escaping. Its path shape
 matches bookmarks: exactly one UTF-8 `path` or lossless native `path_bytes`
