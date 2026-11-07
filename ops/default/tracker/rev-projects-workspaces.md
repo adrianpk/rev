@@ -8,7 +8,7 @@ Specification: [Files, Directories, Projects and Workspaces](../spec/editor-proj
 Model: [Project and Workspace Model](../spec/editor-projects-workspaces-model.md)
 Concern: [Pending Work Index](../README.md)
 Plan: [Projects and Workspaces Delivery](../plan/rev-projects-workspaces.md)
-Active slice: Slice 8 - Guidance and gate preparation
+Active slice: None - all eight slices delivered; controller full gate pending
 Progress owner: retained Looper checkpoint and canonical validation receipts
 Full gate: the exact ordered command in the plan and frozen local configuration
 
@@ -145,7 +145,7 @@ Integration: PR #304 merged into dev at `277dbabb068c10bf3bdc011bebe5e2c845519af
 
 ## Slice 8: Guidance and gate preparation
 
-State: reviewing
+State: delivered
 Dependency: Slice 7 integrated
 Requirements: PW23 and joint PW01-PW22 reconciliation
 Branch: `docs/rev-projects-workspaces-08-guidance`
@@ -154,6 +154,8 @@ Report: `ops/default/report/slices/rev-projects-workspaces/slice-8-guidance.md`
 Validation: the exact ordered Slice 8 commands in the plan/local configuration
 Implementation: T8.1/T8.2 and the Unreleased/gate-preparation portion of T8.3 in `eba31a7072fbe1e4ad78e3f89b034e5ec0c48391`. All six implementation checks passed; the checker covered 91 pages, 622 local links, 618 commands and 289 configuration entries. Seven checker tests and the local Spore build passed. Report introduction: `533813a14bf21856d9d04890b0b28c05bf05eff7`; canonical PR #305. T8.3 remains unchecked for its controller-owned post-integration gate/closure portion.
 
+Integration: PR #305 merged into dev at `cecd8205c7f61f503e9c4c1da963cefe6686600f`; all six clean-HEAD commands passed in receipt `COXYQZ74QJZGY2OD4BJK355A66`.
+
 - [x] T8.1: Complete the Diataxis guidance with short CLI examples, a guided file/directory/Project/Workspace path, focused lifecycle how-tos, exact command/state/limit reference and a concise context explanation. Use small textual UI examples where helpful.
 - [x] T8.2: Keep Markdown as the source for Spore and reconcile CLI/navigation/interaction baselines with approved context ownership. Retain historical evidence and unrelated pending work; document no inactive startup.restore_session option as current functionality.
 - [ ] T8.3: Deliver all reports and exact task/commit/PR evidence, finalize one coherent Unreleased outcome and prepare the clean integrated candidate for the frozen controller gate. After it passes, close only the configured documentation paths and record actual evidence.
@@ -161,18 +163,26 @@ Implementation: T8.1/T8.2 and the Unreleased/gate-preparation portion of T8.3 in
 
 ## Final gate and closure
 
-These tasks remain pending until actual evidence exists. Looper owns progress;
+The remaining tasks stay pending until actual evidence exists. Looper owns progress;
 this document records canonical task/commit/PR/report links, not another execution
 controller.
 
-- [ ] Verify all eight canonical PRs integrated into dev and all reports delivered.
-- [ ] Verify the new target, acceptance script, guide tools and isolated fixtures
+- [x] Verify all eight canonical PRs integrated into dev and all reports delivered.
+- [x] Verify the new target, acceptance script, guide tools and isolated fixtures
   are admitted before the unchanged controller gate.
 - [ ] Pass the frozen combined gate on the exact clean integrated candidate.
 - [ ] Record candidate/receipt, commands, actual phase timings, resource and
   PTY observations, owned cleanup and evidence limits.
 - [ ] Complete plan, tracker, specification/model and index within the thirteen
   configured closure paths; preserve the tested runtime and assertions.
+
+Gate preparation: all frozen-gate targets resolve in locked offline Cargo
+metadata (118 packages); the editor and three required examples built in the
+primary checkout in 44.65 seconds. Script syntax, tool versions, cached grammar
+sources, isolated HOME/XDG creation and a real PTY wrapper/termios smoke check
+passed. The owned fixture was removed. No acceptance journey or combined gate
+ran here. Exact prerequisite build/syntax commands are recorded in the Slice 8
+report. T8.3 and the three remaining closure checks await controller gate evidence.
 
 Only bounded technical recovery and two scoped final-gate repair PRs are
 delegated under the plan. P19 full startup-state restoration, other pending

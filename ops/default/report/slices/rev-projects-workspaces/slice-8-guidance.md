@@ -1,6 +1,6 @@
 # Slice 8: Guidance and gate preparation
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-projects-workspaces
 Plan: [Projects and Workspaces Delivery](../../../plan/rev-projects-workspaces.md)
 Tracker: [Projects and Workspaces Tracker](../../../tracker/rev-projects-workspaces.md)
@@ -8,6 +8,8 @@ Branch: `docs/rev-projects-workspaces-08-guidance`
 PR: `#305`
 Canonical PR: [#305](https://forge.adrianpk.com/adrianpk/rev/pulls/305)
 Report introduction: [immutable report](https://forge.adrianpk.com/adrianpk/rev/src/commit/533813a14bf21856d9d04890b0b28c05bf05eff7/ops/default/report/slices/rev-projects-workspaces/slice-8-guidance.md)
+
+Integrated: PR #305 merged into dev at `cecd8205c7f61f503e9c4c1da963cefe6686600f`; all six required commands passed on that clean HEAD in receipt `COXYQZ74QJZGY2OD4BJK355A66`.
 
 ## Purpose
 
@@ -63,7 +65,7 @@ retain their original introductions and detailed validation evidence:
 
 T8.3's report/changelog and gate preparation are delivered here. Its post-gate
 closure portion remains pending with the tracker final-gate checklist. The
-controller must merge Slice 8, validate the exact integrated candidate, then
+controller has merged Slice 8 and must validate the exact integrated candidate, then
 complete only the configured documentation paths. This report does not claim
 that the delivery set or its core specification is complete.
 
@@ -94,8 +96,8 @@ that the delivery set or its core specification is complete.
 
 ## Validation
 
-Implementation-time required checks passed in this order. Final clean-HEAD
-controller evidence must follow the PR-reference commit and push:
+Implementation-time required checks passed in this order. The final PR-reference
+HEAD was pushed and its six-command clean-HEAD receipt is recorded above:
 
 - `cargo fmt --all -- --check` — passed.
 - `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo clippy --locked --all-targets -- -D warnings` — passed.
@@ -125,10 +127,27 @@ combined delivery gate. Slice 7 retains its actual capacity, latency, memory,
 resource, terminal and fixture observations; they are not relabeled as new
 integrated-candidate evidence.
 
+Gate preparation also passed on the integrated source:
+
+- `cargo metadata --locked --offline --format-version 1` — passed.
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo build --locked --offline --bin rev --example projects-workspaces-acceptance --example documentation-check --example userguide-publication` — passed.
+- `bash -n scripts/check-projects-workspaces.sh` — passed.
+- `bash -n scripts/build-user-guide.sh` — passed.
+
+All frozen-gate targets were admitted with 118 cached packages. The selected
+primary-checkout editor and three examples compiled in 44.65 seconds. Rust/Cargo
+1.98, rust-analyzer 0.3.3089, Bash, Git, Spore, cc, Python 3, util-linux script and
+core utilities are available. Cached Rust/Python grammar parser/scanner sources
+are present for owned fixtures. The Pi external-executable override is absent.
+An owned temporary HOME/XDG fixture ran the existing PTY wrapper with `/bin/true`,
+verified `REV_TTY_RESTORED`, created no user catalog and was removed afterward.
+This admits tools and isolation; it does not execute an editor journey or prove
+the combined behavior. No full gate ran during preparation.
+
 ## Risks and Follow-ups
 
-- Controller-owned merge, the frozen combined gate and final documentation-only
-  closure remain pending. Gate receipts, actual phase/resource observations and
-  all eight delivered report states must be recorded before set closure.
+- The frozen controller gate and final documentation-only closure remain pending.
+  All eight slice PRs and reports are delivered. The actual combined-gate candidate,
+  receipt, phase/resource observations and closure evidence remain to be recorded.
 - The build proves local Markdown projection and links, not publication, browser
   deployment, automatic last-session restoration or portable performance bounds.

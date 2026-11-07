@@ -10,7 +10,7 @@ Concern: [Pending Work Index](../README.md)
 Slice strategy: one complete state-storage foundation, then behavior-first increments, combined acceptance and guidance
 Planning baseline: 1a2587840dd29a20600de15566d7a778f605f0cb
 Tracker: [Projects and Workspaces Tracker](../tracker/rev-projects-workspaces.md)
-Active slice: Slice 8 - Guidance and gate preparation
+Active slice: None - all eight slices delivered; controller full gate pending
 Full gate: `export CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 && cargo fmt --all -- --check && cargo clippy --locked --all-targets -- -D warnings && cargo test --locked --lib --test contexts --test configuration --test commands --test modal --test display --test files --test tree --test recovery --test pointer -- --test-threads=1 && cargo test --locked --test git_integration source -- --test-threads=1 && cargo test --locked --test integrated_terminal lifecycle -- --test-threads=1 && cargo test --locked --test shell_commands lifecycle -- --test-threads=1 && cargo test --locked --test pi --test lsp -- --test-threads=1 && bash scripts/check-projects-workspaces.sh && cargo run --locked --quiet --example documentation-check && bash scripts/build-user-guide.sh && git diff --check`
 
 ## Outcome and strategy
@@ -267,6 +267,27 @@ rather than chaining every earlier feature acceptance script or rerunning the
 complete Git history/network matrix. Estimated warm-build cost is 8-15 minutes
 under ordinary host load, plus compilation and the new measured acceptance
 work. This is a planning estimate, not a timeout or a reported result.
+
+## Gate preparation
+
+All eight canonical PRs (#298-#305) are merged into dev; the last integration is
+`cecd8205c7f61f503e9c4c1da963cefe6686600f`. All eight reports are delivered.
+The final Slice 8 clean-HEAD receipt `COXYQZ74QJZGY2OD4BJK355A66` passed its
+six required commands. This is slice evidence, not the combined delivery gate.
+
+The gate prerequisites were admitted on the integrated source: all selected
+Cargo test/example targets resolve, 118 packages and the Rust/Python grammar
+fixture sources are available offline, and the editor, context acceptance helper,
+documentation checker and User Guide projector build with the approved resource
+profile. Rust/Cargo 1.98, rust-analyzer, Bash, Git, Spore, cc, Python 3 and the
+required Linux/PTY utilities are available. Pi regression tests use their owned
+peer fixture; no external executable override is present.
+
+An owned temporary HOME/XDG fixture exercised the existing PTY wrapper with
+`/bin/true`, verified terminal-attribute restoration and was removed afterward.
+No editor acceptance journey or combined gate was executed in preparation.
+The tracker records the admitted prerequisites; the controller must run the
+unchanged gate below on the resulting clean, pushed dev candidate.
 
 ## Frozen final gate
 
