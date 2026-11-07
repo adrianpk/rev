@@ -24,6 +24,7 @@ retain their own specification/model state.
 
 | Topic | Artifacts | State and remaining decisions |
 | --- | --- | --- |
+| Files, directories, Projects and Workspaces | [Spec](spec/editor-projects-workspaces.md), [model](spec/editor-projects-workspaces-model.md), [plan](plan/rev-projects-workspaces.md), [tracker](tracker/rev-projects-workspaces.md) | Approved on 2026-11-07. Eight slices in one Looper run deliver native contexts, the atomic TOML catalog, basic named sessions, multi-root trees, lifecycle commands and the supplied startup banner. Full automatic startup-state restoration is [deferred](spec/editor-projects-workspaces.md#deferred-specification-startup-session-restoration); startup.restore_session is reserved for that future set. |
 | Command recency and frequency | [Spec](spec/editor-command-ranking.md), [model](spec/editor-command-ranking-model.md), [plan](plan/rev-command-ranking.md), [tracker](tracker/rev-command-ranking.md) | Delivered / Completed. Three slices through PRs #291-#293 deliver UI02 and CMR01-CMR05: recent/frequent ranking within match ranks, bounded persisted usage, native/PTY acceptance and Markdown/Spore guidance. The unchanged controller gate passed at `fea4fffdfa3e66d8a7d7f1cc031a6637199424af`, receipt `342LB2K3MYK2Z2JS5ESVI4WSNP`; [Slice 3 closure](report/slices/rev-command-ranking/slice-3-acceptance.md#delivery-set-closure) records the exact command, 503 tests, measured acceptance, cleanup and evidence limits. |
 | Better file tree | [Spec](spec/editor-better-file-tree.md), [model](spec/editor-better-file-tree-model.md), [plan](plan/rev-better-file-tree.md), [tracker](tracker/rev-better-file-tree.md) | Delivered / Completed. Three slices through PRs #287-#289 deliver BFT01-BFT04: decorated default, explicit minimal labels, shared Nerd Fonts choice and Markdown/Spore guidance. The unchanged controller gate passed at `e0351ac918a760b7940e660494f2309d67bd30a4`, receipt `2WXLCTXPDKGL7ZMY7KI52IQSFP`; [Slice 3 closure](report/slices/rev-better-file-tree/slice-3-acceptance.md#delivery-set-closure) records exact evidence and font-rendering limits. |
 | Native Git integration | [Spec](spec/editor-git-integration.md), [model](spec/editor-git-integration-model.md), [plan](plan/rev-git-integration.md), [tracker](tracker/rev-git-integration.md) | Delivered / Completed. Fourteen slices through PRs #258-#271 and authorized repair #272 deliver native GIT01-GIT20 workflows, contextual bindings, installed-Git ownership, separate fetch/reviewed push, both local tag kinds and bounded process/source lifetime. The unchanged controller gate passed at `343850fb6914bf801dfa248b8cdd0e1c34ae1fef`, receipt `D6BU4EM7IWRUA3UHGDBE432UK3`; [Slice 14 closure](report/slices/rev-git-integration/slice-14-guidance.md#delivery-set-closure) records exact counts and evidence limits. |
@@ -51,6 +52,14 @@ retain their own specification/model state.
 | External programs/extensions | [Spec](spec/editor-external-extensions.md), [model](spec/editor-external-extensions-model.md) | Optional exploration only. Explicit configuration, stdio and one child per invocation are the refined draft profile. Adoption itself is undecided; no scheduled delivery or baseline dependency. |
 
 ## Selected execution order
+
+On 2026-11-07 the owner approved the Files, Directories, Projects and Workspaces
+core specification/model and the established preparation, slicing, push and
+single autonomous Looper delivery through dev. The eight-slice plan starts with
+the complete state/catalog owner, then directory, Project and Workspace behavior,
+lifecycle management, startup, acceptance and Markdown/Spore guidance. Looper
+owns live progress. Other pending drafts and full startup-state restoration keep
+their separate scope and approval boundaries.
 
 On 2026-11-06 the owner approved continuation from the formal Command Keybinding
 Hints specification. The two-slice plan delivers effective annotations, then
