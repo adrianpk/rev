@@ -1,7 +1,9 @@
 ---
 id: TKT-20261106202027
 title: Complete command catalog descriptions
-status: ready
+status: solved
+resolution: fixed
+closed_at: 2026-11-07T17:09:52Z
 kind: task
 severity: unclassified
 priority: unclassified
@@ -10,7 +12,10 @@ tags: commands, descriptions, completion
 source: chat
 reported_at: 2026-11-06T20:20:27Z
 ready_at: 2026-11-07T12:32:08Z
-commits: []
+branch: feat/rev-command-descriptions-01-catalog
+reviewed_at: 2026-11-07T12:51:06Z
+pr: 307
+commits: [9ea81860949a33f592cb03c8cafa72764d38d0e5, 812e42fc4319b4a624b9111a264e2906f29504f0, 489f3641fa50c17e5b965d1cba92a1452c2b5b2a, bc32ff49587305185702c499010678c742795d19]
 ---
 
 # Complete command catalog descriptions
@@ -68,3 +73,18 @@ Complete the built-in descriptions in the approved single slice through Looper;
 retain the optional fallback for user-defined commands.
 
 Related baseline: [Command Keybinding Hints](../../spec/editor-command-keybinding-hints.md).
+
+## Resolution
+
+Fixed through canonical [PR #307](https://forge.adrianpk.com/adrianpk/rev/pulls/307),
+merged into dev at `bc32ff49587305185702c499010678c742795d19`. All 618 built-ins
+now expose their exact approved summary through the existing command metadata;
+user-defined commands retain the blank optional fallback.
+
+The controller passed the unchanged integrated gate at
+`978deacc49f6f5f948cea2070919ce91031f67a2`, with log `A6S4H3BKQFKIG4WEYTWGATYYE4`.
+The [Slice 1 closure](../../report/slices/rev-command-descriptions/slice-1-catalog.md#delivery-set-closure)
+records its exact command, six selected tests, full catalog guard, representative
+selector profiles, documentation checks and the 91-page local Spore build.
+The specification, plan and tracker are Completed. Only the approved operational
+documentation closure paths differ from that tested candidate.

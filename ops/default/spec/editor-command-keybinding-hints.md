@@ -13,7 +13,7 @@ Current reference: [Commands](../../../docs/reference/commands.md), [Bindings](.
 Plan: [Command Keybinding Hints Delivery](../plan/rev-command-keybinding-hints.md)
 Tracker: [Command Keybinding Hints Tracker](../tracker/rev-command-keybinding-hints.md)
 Presentation revision: owner-approved direct-dev correction on 2026-11-06; the candidate/receipt above describe the original two-slice delivery
-Description authoring: [TKT-20261106202027](../ticket/ready/20261106202027-complete-command-catalog-descriptions.md) and [Command Descriptions](editor-command-descriptions.md), approved separately from the delivered layout
+Description authoring: [TKT-20261106202027](../ticket/solved/20261106202027-complete-command-catalog-descriptions.md) and [Command Descriptions](editor-command-descriptions.md), Completed separately from the delivered layout through PR #307
 
 ## Purpose
 
@@ -301,3 +301,11 @@ The owner subsequently requested adjacent shortcut/description columns directly
 on dev. The revised Presentation section, KBH03/KBH04 and new KBH06 define that
 post-delivery correction. Its validation belongs to the correction commit;
 the historical receipt above is not reused as evidence for the revised layout.
+
+The separately approved command-description catalog is now Completed through
+PR #307. Its unchanged controller gate passed at `978deacc49f6f5f948cea2070919ce91031f67a2`,
+with log `A6S4H3BKQFKIG4WEYTWGATYYE4`; its
+[Slice 1 closure](../report/slices/rev-command-descriptions/slice-1-catalog.md#delivery-set-closure)
+records exact coverage and validation. KBH06 retains the optional fallback for
+user-defined commands. The original keybinding-delivery candidate and receipt
+above retain their historical scope.

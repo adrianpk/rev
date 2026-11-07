@@ -1,13 +1,16 @@
 # Command Descriptions Tracker
 
-Status: Awaiting gate
+Status: Completed
+Completed: 2026-11-07
+Validated candidate: `978deacc49f6f5f948cea2070919ce91031f67a2`
+Gate log: `A6S4H3BKQFKIG4WEYTWGATYYE4`
 Date: 2026-11-07
 Delivery set: rev-command-descriptions
 Approved: product owner; complete the catalog in one implementation slice
 Plan: [Command Descriptions Delivery](../plan/rev-command-descriptions.md)
 Specification: [Command Descriptions](../spec/editor-command-descriptions.md)
-Ticket: [TKT-20261106202027](../ticket/ready/20261106202027-complete-command-catalog-descriptions.md)
-Active slice: None - all recorded slices integrated; awaiting the integrated gate
+Ticket: [TKT-20261106202027](../ticket/solved/20261106202027-complete-command-catalog-descriptions.md)
+Active slice: None - Slice 1 of 1 completed
 Progress owner: retained Looper checkpoint and canonical validation evidence
 
 ## Canonical slice map
@@ -37,17 +40,21 @@ Validation: the nine exact ordered commands in the plan and local configuration
 ## Final gate and closure
 
 - [x] Verify the single canonical PR integrated and its report recorded.
-- [ ] Run the unchanged focused gate on the exact clean dev candidate.
-- [ ] Record successful evidence and its actual scope.
-- [ ] Move the ticket to solved with resolution fixed and update all links.
-- [ ] Complete the report, plan, tracker, specification and index within the
+- [x] Run the unchanged focused gate on the exact clean dev candidate.
+- [x] Record successful evidence and its actual scope.
+- [x] Move the ticket to solved with resolution fixed and update all links.
+- [x] Complete the report, plan, tracker, specification and index within the
   configured exact closure paths.
 
 Slice 1 of 1 is integrated through canonical PR #307 and its report is delivered.
 The controller validator passed all nine ordered commands on the exact clean
 PR-reference and integrated commit `bc32ff49587305185702c499010678c742795d19`.
-The report preserves task/commit correspondence, six selected tests,
-documentation checks and the 91-page Spore build. No additional gate fixture or
-runtime prerequisite is required. The controller must run the unchanged gate on
-the next clean, pushed dev candidate; final acceptance and delivery-set closure
-remain pending. The gate was not run during preparation.
+The report preserves task/commit correspondence and the original slice evidence.
+The controller subsequently passed the unchanged integrated gate at
+`978deacc49f6f5f948cea2070919ce91031f67a2`, with log `A6S4H3BKQFKIG4WEYTWGATYYE4`:
+six selected tests, 618 commands per combined inventory, 289 configuration
+entries, 91 reachable pages, 623 local links/anchors and the 91-page Spore build.
+The [slice closure](../report/slices/rev-command-descriptions/slice-1-catalog.md#delivery-set-closure)
+records its exact command and evidence scope. The ticket is solved with
+resolution fixed; the plan, tracker and specification are Completed. Only the
+approved documentation closure paths differ from the tested candidate.

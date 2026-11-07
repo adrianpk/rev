@@ -1,6 +1,9 @@
 # Command Descriptions Delivery
 
-Status: Approved
+Status: Completed
+Completed: 2026-11-07
+Validated candidate: `978deacc49f6f5f948cea2070919ce91031f67a2`
+Gate log: `A6S4H3BKQFKIG4WEYTWGATYYE4`
 Date: 2026-11-07
 Delivery set: rev-command-descriptions
 Slice strategy: behavior-first
@@ -8,8 +11,8 @@ Approved: product owner; implement the complete catalog in one slice through the
 Planning baseline: `c8ccf85472618bf61d8860d998d71cd39ebb1bf2`
 Specification: [Command Descriptions](../spec/editor-command-descriptions.md)
 Tracker: [Command Descriptions Tracker](../tracker/rev-command-descriptions.md)
-Ticket: [TKT-20261106202027](../ticket/ready/20261106202027-complete-command-catalog-descriptions.md)
-Active slice: Slice 1 - Complete descriptions
+Ticket: [TKT-20261106202027](../ticket/solved/20261106202027-complete-command-catalog-descriptions.md)
+Active slice: None - Slice 1 of 1 completed
 
 ## Outcome and strategy
 
@@ -97,3 +100,14 @@ solved with resolution fixed, and this plan/tracker/specification Completed.
 Update all ticket links and the pending index. The local configuration admits
 only those exact documentation paths after the gate; keep runtime, tests and
 generated guide inputs unchanged during closure.
+
+## Completed delivery evidence
+
+Slice 1 of 1 delivered CDS01-CDS05 through canonical PR #307, integrated at
+`bc32ff49587305185702c499010678c742795d19`. The controller passed the unchanged
+integrated gate at `978deacc49f6f5f948cea2070919ce91031f67a2`, with log `A6S4H3BKQFKIG4WEYTWGATYYE4`.
+The [slice closure](../report/slices/rev-command-descriptions/slice-1-catalog.md#delivery-set-closure)
+records the exact gate command, six selected tests, complete catalog coverage,
+documentation checks and the local 91-page Spore build. The source ticket is
+solved with resolution fixed. Closure changes only the approved operational
+documentation paths and preserves all tested runtime, test and guide inputs.

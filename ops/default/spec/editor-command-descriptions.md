@@ -1,12 +1,15 @@
 # Command Descriptions
 
-Status: Approved
+Status: Completed
+Completed: 2026-11-07
+Validated candidate: `978deacc49f6f5f948cea2070919ce91031f67a2`
+Gate log: `A6S4H3BKQFKIG4WEYTWGATYYE4`
 Date: 2026-11-07
 Approved: product owner; complete all built-in descriptions in one implementation slice
 Format: OpenSpec capability addition
 Inspection baseline: `c8ccf85472618bf61d8860d998d71cd39ebb1bf2`
 Catalog snapshot: 618 canonical built-in commands
-Ticket: [TKT-20261106202027](../ticket/ready/20261106202027-complete-command-catalog-descriptions.md)
+Ticket: [TKT-20261106202027](../ticket/solved/20261106202027-complete-command-catalog-descriptions.md)
 Plan: [Command Descriptions Delivery](../plan/rev-command-descriptions.md)
 Tracker: [Command Descriptions Tracker](../tracker/rev-command-descriptions.md)
 Baseline: [Command Keybinding Hints](editor-command-keybinding-hints.md), KBH06
@@ -823,3 +826,15 @@ Full behavior and prerequisites remain in the linked command references.
 | `org-toggle-radio-button` | Select a radio checkbox at the current level. |
 | `org-up-heading-safe` | Visit the parent heading. |
 | `org-update-statistics-cookies` | Update current item/heading statistics. |
+
+## Completed delivery evidence
+
+CDS01-CDS05 are delivered through canonical PR #307. All 618 built-ins match
+the exact approved inventory, while user-defined commands retain optional
+metadata. The controller passed the unchanged gate at `978deacc49f6f5f948cea2070919ce91031f67a2`,
+with log `A6S4H3BKQFKIG4WEYTWGATYYE4`. The
+[Slice 1 closure](../report/slices/rev-command-descriptions/slice-1-catalog.md#delivery-set-closure)
+records its exact command, six selected tests, full catalog guard, representative
+M-x/modal colon presentation checks and Markdown/Spore documentation validation.
+The ticket is solved with resolution fixed. This closure changes no requirement,
+inventory definition, runtime, test, guide input or historical delivery evidence.

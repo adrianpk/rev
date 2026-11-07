@@ -88,9 +88,9 @@ under ignored build output. No preview server or external publication was used.
 The controller validator passed all nine ordered commands on the exact clean
 PR-reference HEAD `bc32ff49587305185702c499010678c742795d19`, which is also the
 verified integrated commit. This evidence covers the focused slice checks.
-The controller owns the integrated gate on the next clean dev candidate after
-these delivery entries are committed; that gate and delivery-set closure remain
-pending.
+The controller subsequently passed the unchanged integrated gate at
+`978deacc49f6f5f948cea2070919ce91031f67a2`. Its separate evidence is recorded below;
+the original slice result remains tied to its own validated commit.
 
 During authoring, the catalog guard rejected wording altered during metadata
 generation; the exact approved summaries were restored. The hint-color check
@@ -99,7 +99,31 @@ secondary-text role through the final terminal cell. Focused reruns passed.
 
 ## Risks and Follow-ups
 
-No unresolved implementation risk is recorded. Slice 1 is integrated and its
-delivery entries are closed. The ticket and approved delivery artifacts remain
-open until the controller-owned integrated gate passes and final closure is
-authorized by the current phase.
+None recorded. Slice 1 is integrated, the ticket is solved with resolution
+fixed, and the plan, tracker and specification are Completed.
+
+## Delivery-set closure
+
+The controller passed the unchanged integrated gate on immutable candidate
+`978deacc49f6f5f948cea2070919ce91031f67a2` on 2026-11-07. Its candidate-keyed check
+record and log `A6S4H3BKQFKIG4WEYTWGATYYE4` were verified before closure.
+The exact successful command was:
+
+- `export CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 && cargo fmt --all -- --check && cargo clippy --locked --lib --bin rev -- -D warnings && cargo test --locked --lib display::completion::tests -- --test-threads=1 && cargo test --locked --test commands catalog_reference -- --test-threads=1 && cargo test --locked --test commands description -- --test-threads=1 && cargo test --locked --test display hint -- --test-threads=1 && cargo run --locked --quiet --example documentation-check && bash scripts/build-user-guide.sh && git diff --check`
+
+The four test selections passed six tests: two completion unit tests, the
+618-command exact catalog-reference guard, one eight-case selector/profile test
+and two hint geometry/color tests. Documentation validation passed 618 commands
+in each combined inventory, 289 configuration entries, 91 reachable pages and
+623 local links/anchors. The Markdown-derived Spore build rendered 91 pages
+under ignored local build output. These are the approved focused delivery-set
+checks.
+
+PR #307 remains integrated at `bc32ff49587305185702c499010678c742795d19`.
+The report's immutable introduction remains
+`489f3641fa50c17e5b965d1cba92a1452c2b5b2a`. The source
+[ticket](../../../ticket/solved/20261106202027-complete-command-catalog-descriptions.md)
+is solved with resolution fixed. Closure updates only the configured operational
+documents and ticket paths after the tested candidate; all requirements,
+approved inventory text, runtime, tests, guide inputs and earlier gate evidence
+remain unchanged. No additional validation fixture was started during closure.
