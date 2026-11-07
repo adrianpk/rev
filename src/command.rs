@@ -136,7 +136,7 @@ pub enum Command {
 }
 
 impl Command {
-    pub const ALL: [Self; 623] = [
+    pub const ALL: [Self; 624] = [
         Self::Git(GitCommand::Clone),
         Self::Git(GitCommand::CloneShallow),
         Self::Git(GitCommand::CloneBare),
@@ -429,6 +429,7 @@ impl Command {
         Self::Tree(TreeCommand::Collapse),
         Self::Tree(TreeCommand::Activate),
         Self::Tree(TreeCommand::Refresh),
+        Self::Tree(TreeCommand::UpDirectory),
         Self::QueryReplace,
         Self::SearchForward,
         Self::SearchBackward,

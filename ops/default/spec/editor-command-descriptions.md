@@ -138,9 +138,10 @@ do not maintain a separate description list in publication templates.
 - **WHEN** the native catalog guard runs
 - **THEN** it fails and identifies the missing command.
 
-Current catalog: 623 built-in names: 622 canonical commands and the `quit` alias.
+Current catalog: 624 built-in names: 623 canonical commands and the `quit` alias.
 The alias reuses the exit action's description and effective shortcut. Four Org
-visibility commands were added by the Org Initial Visibility delivery. The 618-command snapshot
+visibility commands were added by the Org Initial Visibility delivery.
+`tree-up-directory` is added by File Tree Parent Navigation. The 618-command snapshot
 and completed delivery evidence below retain their original baseline meaning.
 
 ## Approved description inventory
@@ -258,6 +259,7 @@ Full behavior and prerequisites remain in the linked command references.
 | `tree-open` | Open a file or toggle a directory. |
 | `tree-previous-line` | Select the preceding visible entry. |
 | `tree-refresh` | Reload already opened tree branches. |
+| `tree-up-directory` | Show the parent directory of an unanchored file tree. |
 | `tree-rename` | Rename one entry and reconcile visited paths. |
 | `tree-toggle-directory` | Toggle a directory; leaves report an error. |
 

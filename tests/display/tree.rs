@@ -8,6 +8,105 @@ use rev::tree::Kind;
 
 use super::*;
 
+// Parent navigation uses ordinary root/directory rows and semantic terminal
+// cells, including Nerd Fonts, full-row selection and narrow split geometry.
+#[test]
+fn parent_presentation() {
+    for decorated in [false, true] {
+        for nerd_fonts in [false, true] {
+            for width in [1, 6, 24, 40] {
+                let f = config_fixture::Fixture::new();
+                let source = f.write("parent/child/main.rs", "retained");
+                for name in ["main.rs", "notes.org", "Cargo.toml", "data.bin"] {
+                    f.write(&format!("parent/{name}"), "");
+                }
+                symlink("child", f.0.join("parent/link")).unwrap();
+                let startup = prepare(&f.write("config.toml", &format!(
+                    "tree.width={width}\ntree.max_fraction=0.5\ntree.decorated={decorated}\ngutter.nerd_fonts={nerd_fonts}"
+                )));
+                assert!(startup.diagnostic.is_none());
+                let palette = startup.snapshot.settings().palette.clone();
+                let mut buffers = Buffers::with_settings(startup.snapshot).unwrap();
+                let id = buffers.visit(&source).unwrap();
+                let view = View::new(buffers.get(id).unwrap());
+                let mut session = Session::new(
+                    buffers,
+                    view,
+                    Size {
+                        width: 100,
+                        height: 16,
+                    },
+                )
+                .unwrap();
+                session.execute(Command::Split(rev::command::Split::Right));
+                session.execute(Command::Tree(TreeCommand::Focus));
+                session.execute(Command::Tree(TreeCommand::UpDirectory));
+                assert_eq!(session.tree().root(), source.parent().unwrap().parent());
+                assert_eq!(
+                    session.tree().selected().unwrap().path(),
+                    source.parent().unwrap()
+                );
+                let frame = session.frame().unwrap();
+                assert_eq!(frame.cursor().unwrap(), Position { row: 1, column: 0 });
+                assert!(frame.rows().iter().all(|r| r.text().width() == 100));
+                let cells = surface::draw(&frame);
+                for (row, entry) in session.tree().entries().iter().enumerate() {
+                    assert_eq!(
+                        frame.rows()[row].text().split('│').next().unwrap().width(),
+                        width
+                    );
+                    let selected = row == 1;
+                    let expected = if selected {
+                        palette.tree_selected_text
+                    } else if !decorated {
+                        palette.foreground
+                    } else {
+                        match entry.kind() {
+                            Kind::Root => palette.tree_entries.root,
+                            Kind::Directory => palette.tree_entries.directory,
+                            Kind::Source => palette.tree_entries.source,
+                            Kind::Document => palette.tree_entries.document,
+                            Kind::Configuration => palette.tree_entries.configuration,
+                            Kind::File => palette.tree_entries.file,
+                            Kind::Symlink => palette.tree_entries.symlink,
+                        }
+                    };
+                    for column in 0..width {
+                        assert_eq!(cells[&(row, column)].foreground, Some(expected));
+                        assert_eq!(
+                            cells[&(row, column)].background,
+                            Some(if selected {
+                                palette.tree_selected
+                            } else {
+                                palette.tree
+                            })
+                        );
+                    }
+                }
+                if width >= 24 {
+                    let root = if !decorated {
+                        "v parent/"
+                    } else if nerd_fonts {
+                        "▾ \u{f1b2} parent/"
+                    } else {
+                        "▾ ◆ parent/"
+                    };
+                    let child = if !decorated {
+                        "  > child/"
+                    } else if nerd_fonts {
+                        "  ▸ \u{f07b} child/"
+                    } else {
+                        "  ▸ / child/"
+                    };
+                    assert!(frame.rows()[0].text().starts_with(root));
+                    assert!(frame.rows()[1].text().starts_with(child));
+                }
+                assert!(!session.buffer().unwrap().is_modified());
+            }
+        }
+    }
+}
+
 // Actual terminal cells use each configured entry foreground over the existing
 // background. Focused selection wins; minimal mode ignores all new foregrounds.
 #[test]

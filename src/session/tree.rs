@@ -238,6 +238,10 @@ impl Session {
                 self.input.suppress_repeat();
                 self.tree.refresh()
             }
+            TreeCommand::UpDirectory => {
+                self.input.suppress_repeat();
+                self.tree.up_directory()
+            }
             _ => unreachable!("presentation commands route before tree navigation"),
         };
         match result {

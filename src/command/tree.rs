@@ -13,6 +13,7 @@ pub enum TreeCommand {
     Collapse,
     Activate,
     Refresh,
+    UpDirectory,
 }
 
 impl TreeCommand {
@@ -63,6 +64,7 @@ impl TreeCommand {
             Self::Collapse => "tree-collapse",
             Self::Activate => "tree-toggle-directory",
             Self::Refresh => "tree-refresh",
+            Self::UpDirectory => "tree-up-directory",
             _ => unreachable!("entry commands route before navigation names"),
         }
     }
@@ -75,6 +77,7 @@ impl TreeCommand {
             Self::Collapse => "Collapse or select the parent.",
             Self::Activate => "Toggle a directory; leaves report an error.",
             Self::Refresh => "Reload already opened tree branches.",
+            Self::UpDirectory => "Show the parent directory of an unanchored file tree.",
             _ => unreachable!("entry commands route before navigation names"),
         }
     }

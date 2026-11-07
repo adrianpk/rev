@@ -442,6 +442,7 @@ const MINIBUFFER: &[(&str, &str)] = &[
 ];
 
 const TREE: &[(&str, &str)] = &[
+    ("^", "tree-up-directory"),
     ("C-x g", "git-status"),
     ("C-x C-f", "find-file"),
     ("C-g", "keyboard-quit"),

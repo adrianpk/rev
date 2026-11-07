@@ -638,6 +638,7 @@ bookmark = "#7aa2f7"            # Resolved logical-line bookmark marker.
 "C-r" = "isearch-backward"
 
 [keys.tree]
+"^" = "tree-up-directory"
 "C-x g" = "git-status"
 "C-x C-f" = "find-file"
 "C-g" = "keyboard-quit"

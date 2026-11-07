@@ -12,6 +12,8 @@ mod geometry;
 mod hits;
 #[path = "tree/initialization.rs"]
 mod initialization;
+#[path = "tree/parent.rs"]
+mod parent;
 #[path = "tree/preferences.rs"]
 mod preferences;
 

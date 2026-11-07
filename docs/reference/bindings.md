@@ -228,6 +228,7 @@ Every command below is also available as `M-x` followed by its exact name.
 | Down, `C-n` in tree | `tree-next-line` | Select the next visible entry. |
 | Right, `C-f` in tree | `tree-expand` | Lazily expand a directory. |
 | Left, `C-b` in tree | `tree-collapse` | Collapse or select the parent. |
+| `^` in tree | `tree-up-directory` | Show the parent directory of an unanchored file tree. |
 | `M-x tree-toggle-directory` | `tree-toggle-directory` | Toggle a directory; leaves report an error. |
 | `C-x t r` | `tree-refresh` | Reload already opened tree branches. |
 | Return in tree, `C-x t o` | `tree-open` | Open a file or toggle a directory. |
@@ -844,6 +845,7 @@ releases and held acceptance keys cannot submit a newly acquired argument.
 | Down, `C-n` | `tree-next-line` |
 | Right, `C-f` | `tree-expand` |
 | Left, `C-b` | `tree-collapse` |
+| `^` | `tree-up-directory` |
 | `RET`, `C-x t o` | `tree-open` |
 | `C-x C-c` | `save-buffers-kill-terminal` |
 | `C-x t t` | `toggle-file-tree` |
