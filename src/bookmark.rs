@@ -102,6 +102,7 @@ impl Record {
     }
 }
 
+#[derive(Clone)]
 pub struct Bookmarks {
     entries: BTreeMap<String, Record>,
     next_id: u64,

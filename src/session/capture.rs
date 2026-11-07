@@ -160,6 +160,9 @@ fn protected(command: Command) -> bool {
     matches!(
         command,
         Command::Quit
+            | Command::GenerateNewBuffer
+            | Command::OpenDirectory
+            | Command::ContextClose
             | Command::Buffer(_)
             | Command::Window(WindowCommand::Delete | WindowCommand::Keep)
     )

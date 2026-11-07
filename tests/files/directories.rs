@@ -45,8 +45,8 @@ fn text(session: &Session) -> String {
         .to_string()
 }
 
-// Directory opening preserves a dirty shared document and exact undo state.
-// Explicit roots survive nested/outside files and aliases under every policy.
+// Canceled directory replacement preserves a dirty shared document and exact
+// undo state. Accepted roots survive nested/outside file visits under every policy.
 #[test]
 fn root_precedence() {
     for policy in ["auto", "file-parent", "cwd"] {
@@ -66,9 +66,9 @@ fn root_precedence() {
             .map(|(id, view)| (id, view.point))
             .collect::<Vec<_>>();
         let history = session.buffer().unwrap().history().len();
+        let old_root = session.tree().root().unwrap().to_owned();
         accept(&mut session, fixture.0.join("alias/..").to_str().unwrap());
-        assert_eq!(session.tree().root(), Some(root.as_path()));
-        assert!(session.tree().visible() && session.tree().focused());
+        assert_eq!(session.tree().root(), Some(old_root.as_path()));
         assert_eq!(session.view().point, point);
         assert_eq!(
             session
@@ -80,8 +80,18 @@ fn root_precedence() {
         );
         assert_eq!(session.buffer().unwrap().history().len(), history);
         assert_eq!(text(&session), "!source");
+        session.execute(Command::KeyboardQuit);
+        assert_eq!(session.view().point, point);
+        assert_eq!(text(&session), "!source");
+        session.execute(Command::History(History::Undo));
+        assert_eq!(text(&session), "source");
+        accept(&mut session, fixture.0.join("alias/..").to_str().unwrap());
+        assert_eq!(session.tree().root(), Some(root.as_path()));
+        assert!(session.tree().visible() && session.tree().focused());
         assert_eq!(session.tree().entries().len(), 2);
         assert!(!session.tree().entries()[1].expanded());
+        session.load(&nested).unwrap();
+        session.insert('!');
         for path in [&outside, &nested] {
             session.load(path).unwrap();
             assert_eq!(session.tree().root(), Some(root.as_path()));
@@ -96,8 +106,8 @@ fn root_precedence() {
     }
 }
 
-// An empty accepted draft denotes the prompt base. Directory-only sessions
-// retain their scratch identity and reuse the chosen context for later paths.
+// An empty accepted draft denotes the prompt base. A directory owns a fresh
+// scratch context and retains its chosen root through subsequent file visits.
 #[test]
 fn empty_directory() {
     let fixture = Fixture::new();
@@ -106,7 +116,8 @@ fn empty_directory() {
     let mut session = editor(&fixture, "tree.visible = false");
     let original = session.view().point;
     session.load(&root).unwrap();
-    assert_eq!(session.view().point, original);
+    assert_ne!(session.view().point.stamp.buffer, original.stamp.buffer);
+    assert_eq!(session.view().point.position, original.position);
     assert!(session.buffer().unwrap().file().is_none());
     assert_eq!(session.tree().entries().len(), 1);
     assert!(session.tree().entries()[0].expanded());
@@ -133,9 +144,10 @@ fn rejected_directory() {
     fs::create_dir(fixture.0.join("denied")).unwrap();
     symlink("loop", fixture.0.join("loop")).unwrap();
     let mut session = editor(&fixture, "");
+    session.load(first.parent().unwrap()).unwrap();
     session.load(&first).unwrap();
     session.insert('!');
-    session.load(first.parent().unwrap()).unwrap();
+    session.execute(Command::Tree(TreeCommand::Focus));
     session.frame().unwrap();
     let view = session.view().clone();
     let history = session.buffer().unwrap().history().len();

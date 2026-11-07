@@ -10,6 +10,7 @@ mod buffers;
 mod capture;
 mod command_usage;
 mod completion;
+mod contexts;
 mod git;
 mod lsp;
 mod shell;
@@ -107,6 +108,10 @@ pub enum Action {
 /// Owns the live editing session. Native events and named commands use the same
 /// handlers; all text mutations publish through the checked buffer edit owner.
 pub struct Session {
+    context: crate::context::Context,
+    context_generation: crate::context::Generation,
+    context_prepared: Option<Box<contexts::Replacement>>,
+    directory_prompt: bool,
     observation: observation::Work,
     reload: reload::Work,
     ai: ai::Work,
@@ -367,6 +372,15 @@ impl Session {
     }
 
     fn from_buffers(buffers: Buffers, view: View, size: Size) -> Result<Self, view::Error> {
+        Self::from_buffers_with_wake(buffers, view, size, Default::default())
+    }
+
+    fn from_buffers_with_wake(
+        buffers: Buffers,
+        view: View,
+        size: Size,
+        wake: std::sync::Arc<crate::file::watch::Wake>,
+    ) -> Result<Self, view::Error> {
         let buffer = buffers.get(view.point.stamp.buffer)?;
         view.check_point(buffer)?;
         let tree = crate::tree::Tree::startup(
@@ -387,7 +401,7 @@ impl Session {
         );
         let completion_policy = buffers.snapshot().settings().completion.clone();
         let lsp = crate::lsp::Client::new(buffers.snapshot().settings().lsp.clone());
-        let observation = observation::Work::default();
+        let observation = observation::Work::with_wake(wake);
         let terminals = terminals::Work::new(
             &buffers.snapshot().settings().terminal,
             std::env::current_dir().map_err(|e| view::Error::WorkingDirectory(e.kind()))?,
@@ -396,6 +410,10 @@ impl Session {
         let git = git::Work::new(buffers.snapshot(), observation.wake.clone())
             .map_err(|e| view::Error::WorkingDirectory(e.kind()))?;
         Ok(Self {
+            context: crate::context::Context::Standalone,
+            context_generation: crate::context::Generation::INITIAL,
+            context_prepared: None,
+            directory_prompt: false,
             git,
             observation,
             terminals,
@@ -869,6 +887,7 @@ impl Session {
             return action;
         }
         let action = self.execute_now(command);
+        self.retire_context_preparation();
         self.activate_lsp();
         self.observe_files();
         action
@@ -992,6 +1011,9 @@ impl Session {
         match command {
             Command::Quit => self.quit(),
             Command::FindFile => self.find_file(),
+            Command::GenerateNewBuffer => self.generate_new_buffer(),
+            Command::OpenDirectory => self.open_directory(),
+            Command::ContextClose => self.close_context(),
             Command::SaveBuffer => self.save_buffer(),
             Command::RevertBuffer => self.revert_buffer(),
             Command::AiSaveCommand => self.ai_save_command(),

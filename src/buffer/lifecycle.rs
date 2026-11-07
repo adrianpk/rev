@@ -31,6 +31,25 @@ impl Kill {
 }
 
 impl Buffers {
+    /// Retire all source references before a checked context replacement.
+    /// Work on a bounded copy so an invalid bookmark leaves the owner unchanged.
+    pub(crate) fn context_bookmarks(&self) -> Result<crate::bookmark::Bookmarks, Error> {
+        let mut bookmarks = self
+            .bookmarks
+            .lock()
+            .expect("bookmark owner poisoned")
+            .clone();
+        for buffer in self.iter().filter(|buffer| buffer.terminal().is_none()) {
+            bookmarks.checkpoint(buffer, true)?;
+        }
+        Ok(bookmarks)
+    }
+    pub(crate) fn inherit_bookmarks(&mut self, owner: crate::bookmark::Shared) {
+        self.bookmarks = owner;
+        for buffer in self.entries.values_mut() {
+            buffer.bookmarks = self.bookmarks.clone();
+        }
+    }
     pub(crate) fn terminal(&mut self, id: crate::term::SessionId) -> Result<BufferId, Error> {
         let mut buffer = Buffer::new("", &self.settings.settings().files)?;
         buffer.name = if id.number() == 1 {

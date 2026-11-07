@@ -36,6 +36,9 @@ Every command below is also available as `M-x` followed by its exact name.
 | `C-g` | `keyboard-quit` | Cancel the current interaction or deactivate the region. |
 | `C-x C-c` | `save-buffers-kill-terminal` | Guarded session exit. |
 | `C-x C-f` | `find-file` | Open a file or directory; available in editing and tree focus. |
+| `M-x generate-new-buffer`, `:generate-new-buffer` | `generate-new-buffer` | Add an unnamed buffer in the active context. |
+| `M-x open-directory`, `:open-directory` | `open-directory` | Choose an existing directory and replace the context after source decisions and owned cleanup. |
+| `M-x context-close`, `:context-close` | `context-close` | Resolve current source work, close its context and continue in an empty standalone buffer. |
 | `C-x C-s` | `save-buffer` | Save to the current destination. |
 | `C-x C-w` | `write-file` | Request another destination. |
 | `M-x revert-buffer`, `:revert-buffer` | `revert-buffer` | Reload a checked disk image; confirm before discarding unsaved text. |

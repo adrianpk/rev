@@ -8,13 +8,21 @@ use super::{Action, Pending, Session};
 
 impl Session {
     pub(super) fn start_path(&mut self) -> Action {
+        self.start_path_mode(false)
+    }
+    pub(super) fn start_path_mode(&mut self, directory: bool) -> Action {
         let base = match self.path_base() {
             Ok(base) => base,
             Err(error) => return self.error(&error.to_string()),
         };
-        if let Err(error) = self.input.path_argument() {
+        if let Err(error) = self.input.path_argument(if directory {
+            "Open directory: "
+        } else {
+            "Find file: "
+        }) {
             return self.error(&error.to_string());
         }
+        self.directory_prompt = directory;
         let home = std::env::var_os("HOME").map(PathBuf::from);
         self.pending = Some(Pending::Path(Box::new(Navigation::new(base, home))));
         self.message("")
@@ -67,6 +75,9 @@ impl Session {
         };
         match navigation.accept() {
             Ok(path) => {
+                if self.directory_prompt && !path.is_dir() {
+                    return self.error("Open directory requires an existing directory");
+                }
                 let _ = self.load(&path);
             }
             Err(error) => return self.error(&error.to_string()),

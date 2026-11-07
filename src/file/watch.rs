@@ -49,6 +49,14 @@ pub(crate) struct Wake {
     armed: AtomicBool,
 }
 impl Wake {
+    /// A replacement inherits host signal permission, never a retired source's
+    /// ready flag. Each context owns its own notification lifetime.
+    pub(crate) fn replacement(&self) -> Arc<Self> {
+        Arc::new(Self {
+            ready: AtomicBool::new(false),
+            armed: AtomicBool::new(self.armed.load(Ordering::Acquire)),
+        })
+    }
     pub fn ready(&self) -> bool {
         self.ready.load(Ordering::Acquire)
     }

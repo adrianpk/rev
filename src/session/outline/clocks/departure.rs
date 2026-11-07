@@ -4,12 +4,21 @@ use crate::session::Pending;
 
 pub(in crate::session) enum Departure {
     Quit,
+    Context(crate::context::Generation),
     Close(BufferId),
 }
 pub(in crate::session) enum Prompt {
     Departure(Departure),
     Recovery(Box<super::recovery::Recovery>),
     Stored(crate::org::io::ClockState),
+}
+impl Prompt {
+    pub(in crate::session) fn context_departure(&self) -> Option<crate::context::Generation> {
+        match self {
+            Self::Departure(Departure::Context(generation)) => Some(*generation),
+            _ => None,
+        }
+    }
 }
 impl Session {
     pub(in crate::session) fn clock_departure(&mut self, departure: Departure) -> Action {
@@ -70,6 +79,9 @@ impl Session {
         }
         Ok(match departure {
             Departure::Quit => self.begin_quit(),
+            Departure::Context(generation) => {
+                self.begin_departure(crate::session::quit::Goal::Context(generation))
+            }
             Departure::Close(id) => self.kill_buffer(id),
         })
     }

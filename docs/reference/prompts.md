@@ -69,9 +69,13 @@ the draft and focus. C-g cancels without visiting a candidate or editing text.
 Return after explicit candidate navigation accepts that exact observed path,
 independently of its safe display label. With a freely typed draft, Return accepts
 the draft even when suggestions exist. The initial highlight alone does not
-choose a candidate. An accepted directory closes the prompt and opens its
-visible, first-level-expanded tree without replacing document text. An empty
-accepted draft opens the base directory. Tab completion stays inside the prompt.
+choose a candidate. An accepted directory prepares a fresh temporary context
+with a visible, first-level-expanded tree. Modified sources use the native
+save/discard/cancel decisions before replacement. Cancel retains their text,
+history and views; accepted ordinary saves remain on disk. An empty accepted
+draft opens the base directory through the same checked departure. The
+`open-directory` command uses this path picker but rejects file targets.
+Tab completion stays inside the prompt.
 Directory symlinks remain list leaves until explicitly accepted. A removed
 selected path reports an error instead of becoming a new file implicitly.
 

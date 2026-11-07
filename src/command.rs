@@ -67,6 +67,9 @@ pub enum Command {
     ExecuteExtended,
     Quit,
     FindFile,
+    GenerateNewBuffer,
+    OpenDirectory,
+    ContextClose,
     GotoLine,
     MouseMode,
     VisualLineMode,
@@ -113,7 +116,7 @@ pub enum Command {
 }
 
 impl Command {
-    pub const ALL: [Self; 596] = [
+    pub const ALL: [Self; 599] = [
         Self::Git(GitCommand::Clone),
         Self::Git(GitCommand::CloneShallow),
         Self::Git(GitCommand::CloneBare),
@@ -412,6 +415,9 @@ impl Command {
         Self::ExecuteExtended,
         Self::Quit,
         Self::FindFile,
+        Self::GenerateNewBuffer,
+        Self::OpenDirectory,
+        Self::ContextClose,
         Self::GotoLine,
         Self::MouseMode,
         Self::VisualLineMode,
@@ -764,6 +770,9 @@ impl Command {
             Self::ExecuteExtended => "execute-extended-command",
             Self::Quit => "save-buffers-kill-terminal",
             Self::FindFile => "find-file",
+            Self::GenerateNewBuffer => "generate-new-buffer",
+            Self::OpenDirectory => "open-directory",
+            Self::ContextClose => "context-close",
             Self::GotoLine => "goto-line",
             Self::SaveBuffer => "save-buffer",
             Self::RevertBuffer => "revert-buffer",

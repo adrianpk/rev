@@ -10,12 +10,21 @@ The tree and editing panes share Unicode separators and connected junctions;
 content and footer stay inside reserved cells alongside nested splits.
 
 Startup and `C-x C-f` accept a file or directory. An explicit directory opens
-its tree even when startup visibility is false, without allocating file text or
-changing launch cwd. Its root survives files opened inside or outside it until
+its tree even when startup visibility is false, without reading source contents
+or changing launch cwd. Directory acceptance prepares a fresh temporary editing
+context; existing modified buffers require save/discard/cancel first. Its root
+survives files opened inside or outside it until
 another explicit directory replaces it. Without that choice, automatic roots
 follow the visiting file's resolved parent; explicit `tree.root = "cwd"` retains
 launch cwd. A session without a file uses its chosen directory or launch cwd.
 Drawing and visible movement perform no filesystem reads or Git discovery.
+
+Tree visibility does not determine context kind. Showing the tree while editing
+standalone files uses the same file-parent/cwd browsing policy and preserves
+those buffers. Opening a directory never registers a Project or reads/replaces
+its saved session, even when that path is already registered. `context-close`
+resolves sources and owned jobs, then continues with one empty standalone buffer
+and a hidden tree. Bookmarks, command histories and kill-ring text remain available.
 
 ## Presentation
 

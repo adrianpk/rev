@@ -16,6 +16,14 @@ pub(super) struct Work {
     notices: BTreeMap<BufferId, Disk>,
     limited: bool,
 }
+impl Work {
+    pub(super) fn with_wake(wake: Arc<Wake>) -> Self {
+        Self {
+            wake,
+            ..Self::default()
+        }
+    }
+}
 
 impl Session {
     /// Reconcile only in-memory file associations. Registration, metadata and

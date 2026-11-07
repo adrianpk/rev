@@ -147,6 +147,7 @@ impl Session {
             Ok(event) => self.handle_ready_at(event, now),
             Err(action) => action,
         };
+        self.retire_context_preparation();
         if action != Action::Exit {
             self.activate_lsp();
             self.observe_files();
@@ -219,6 +220,7 @@ impl Session {
         self.observe_files();
         self.qualify_one_normal();
         let action = self.expire_owned_input(now);
+        self.retire_context_preparation();
         self.complete_one_normal();
         action
     }

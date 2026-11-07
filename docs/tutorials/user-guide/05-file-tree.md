@@ -39,7 +39,9 @@ use Tab to fill the highlighted suggestion. The first match is highlighted,
 even when several names share a prefix. Up/Down chooses another suggestion;
 Tab fills it and Enter opens it.
 Tab continues through a completed directory inside the prompt. Enter accepts
-the directory itself, closes the prompt and opens its tree.
+the directory itself and prepares a fresh temporary editing context. Save or
+discard existing modified buffers when asked; `C-g` cancels the replacement and
+retains them. The new context opens the directory's tree.
 
 With `todo.txt` highlighted, typing `to` and pressing Tab fills the prompt even
 when `tomorrow.txt` also matches:
@@ -51,6 +53,14 @@ Find file: todo.txt
 Run `rev .` to browse the current directory, or pass another directory path.
 Its tree opens with immediate entries shown and child directories collapsed.
 Hiding and showing it later preserves your selection and deliberate collapse.
+Use `M-x open-directory` for a directory-only prompt. These temporary directories
+do not register a named Project or overwrite a Project's saved session.
+
+`M-x generate-new-buffer` adds an unnamed buffer to your current work. To leave
+all current buffers while keeping rev open, run `M-x context-close`. It uses the
+same save/discard/cancel decisions as quitting and settles owned work before
+returning to an empty standalone buffer. In Vim-style editing, invoke the same
+names after `:`.
 
 To combine browsing with editing, start with `rev .`, use `C-x C-f` and Tab to
 complete a file, then press Enter. Split with `C-x 3` and click another file in

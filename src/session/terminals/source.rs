@@ -20,6 +20,9 @@ impl Session {
                 | Command::ExecuteExtended
                 | Command::KeyboardQuit
                 | Command::Quit
+                | Command::GenerateNewBuffer
+                | Command::OpenDirectory
+                | Command::ContextClose
                 | Command::Buffer(_)
                 | Command::Split(_)
                 | Command::Window(_)

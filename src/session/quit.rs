@@ -9,12 +9,34 @@ pub(super) struct Quit {
     pub(super) question: String,
     sources: Sources,
 }
+impl Quit {
+    pub(super) fn goal(&self) -> Goal {
+        self.sources.goal
+    }
+}
+
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
+pub(super) enum Goal {
+    #[default]
+    Exit,
+    Context(crate::context::Generation),
+}
+impl Goal {
+    pub(super) fn label(self) -> &'static str {
+        if self == Self::Exit {
+            "Quit"
+        } else {
+            "Leave context"
+        }
+    }
+}
 
 /// Permission to discard specific modified source revisions for this exit.
 /// A later publication requires another source decision, even during cleanup.
 #[derive(Default)]
 pub(super) struct Sources {
     discarded: Vec<crate::buffer::Stamp>,
+    pub(super) goal: Goal,
 }
 impl Sources {
     fn remember(&mut self, buffer: &crate::buffer::Buffer) {
@@ -44,6 +66,10 @@ impl Session {
         self.begin_quit()
     }
     pub(super) fn begin_quit(&mut self) -> Action {
+        self.context_prepared = None;
+        self.begin_departure(Goal::Exit)
+    }
+    pub(super) fn begin_departure(&mut self, goal: Goal) -> Action {
         self.cancel_git_shutdown();
         let buffers = self
             .buffers
@@ -54,7 +80,10 @@ impl Session {
         self.ask_quit(Quit {
             buffers,
             question: String::new(),
-            sources: Sources::default(),
+            sources: Sources {
+                goal,
+                ..Sources::default()
+            },
         })
     }
 
@@ -66,7 +95,11 @@ impl Session {
             Ok(buffer) => buffer,
             Err(error) => return self.error(&error.to_string()),
         };
-        quit.question = format!("Quit: {:?}? y=save, n=discard, C-g=cancel", buffer.name());
+        let operation = quit.sources.goal.label();
+        quit.question = format!(
+            "{operation}: {:?}? y=save, n=discard, C-g=cancel",
+            buffer.name()
+        );
         if let Err(error) = self.input.decision("Save before quitting?") {
             return self.error(&error.to_string());
         }
@@ -115,9 +148,12 @@ impl Session {
         self.ask_quit(quit)
     }
 
-    pub(super) fn finish_editor_quit(&mut self) -> Action {
+    pub(super) fn finish_editor_quit(&mut self, goal: Goal) -> Action {
         if self.git.engine.busy() {
             return self.error("Git cleanup remains owned; exit requires its guarded completion");
+        }
+        if let Goal::Context(generation) = goal {
+            return self.activate_context(generation);
         }
         self.end_timer_session();
         self.installation.cancel();
@@ -146,6 +182,7 @@ impl Session {
             )
         );
         if quitting {
+            self.context_prepared = None;
             self.cancel_terminal_shutdown();
             self.cancel_git_shutdown();
             self.pending = None;

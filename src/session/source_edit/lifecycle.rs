@@ -84,6 +84,9 @@ fn protected(command: Command) -> bool {
         Command::SaveBuffer
             | Command::WriteFile
             | Command::FindFile
+            | Command::GenerateNewBuffer
+            | Command::OpenDirectory
+            | Command::ContextClose
             | Command::Quit
             | Command::Buffer(_)
             | Command::Window(_)

@@ -48,6 +48,17 @@ impl Session {
             severity = crate::display::Message::Warning;
             notice.push_str(&format!("; tree refresh failed: {error}"));
         }
+        if let crate::context::Context::Directory(path) = &mut self.context
+            && let Some(root) = self.tree.chosen_root()
+        {
+            match crate::context::NativePath::absolute(root) {
+                Ok(root) => *path = root,
+                Err(error) => {
+                    severity = crate::display::Message::Warning;
+                    notice.push_str(&format!("; temporary context root: {error}"));
+                }
+            }
+        }
         if self.buffers.snapshot().settings().bookmarks.save
             == crate::config::BookmarkSave::OnChange
             && self.bookmarks().is_dirty()

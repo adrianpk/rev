@@ -135,7 +135,13 @@ impl Session {
         }
         if matches!(
             command,
-            Command::Tree(_) | Command::Quit | Command::MouseMode | Command::FindFile
+            Command::Tree(_)
+                | Command::Quit
+                | Command::MouseMode
+                | Command::FindFile
+                | Command::GenerateNewBuffer
+                | Command::OpenDirectory
+                | Command::ContextClose
         ) {
             return None;
         }

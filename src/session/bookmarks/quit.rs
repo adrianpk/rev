@@ -24,7 +24,11 @@ impl Session {
         sources: crate::session::quit::Sources,
     ) -> Action {
         if let Err(error) = self.input.names_argument(
-            "Quit bookmarks (retry/discard/cancel): ",
+            if sources.goal == crate::session::quit::Goal::Exit {
+                "Quit bookmarks (retry/discard/cancel): "
+            } else {
+                "Context bookmarks (retry/discard/cancel): "
+            },
             "",
             vec!["retry".into(), "discard".into(), "cancel".into()],
         ) {
@@ -41,7 +45,10 @@ impl Session {
         match answer {
             "retry" => self.finish_bookmark_quit(sources),
             "discard" => self.prepare_git_quit(sources),
-            "cancel" => self.message("Quit canceled; unsaved bookmarks retained"),
+            "cancel" => self.message(&format!(
+                "{} canceled; unsaved bookmarks retained",
+                sources.goal.label()
+            )),
             _ => self.bookmark_quit_prompt("Choose retry, discard or cancel; C-g cancels", sources),
         }
     }

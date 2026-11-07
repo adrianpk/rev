@@ -12,12 +12,23 @@ pub(super) enum Shutdown {
     Idle,
     Closing(Sources),
 }
+impl Shutdown {
+    pub(in crate::session) fn context_goal(&self) -> Option<crate::session::quit::Goal> {
+        match self {
+            Self::Closing(sources) => Some(sources.goal),
+            Self::Idle => None,
+        }
+    }
+}
 struct Closure {
     id: SessionId,
     kill: Option<Kill>,
 }
 
 impl Session {
+    pub(in crate::session) fn terminal_context_goal(&self) -> Option<crate::session::quit::Goal> {
+        self.terminals.shutdown.context_goal()
+    }
     pub(in crate::session) fn terminal_shutdown_active(&self) -> bool {
         matches!(self.terminals.shutdown, Shutdown::Closing(_))
     }
@@ -49,8 +60,10 @@ impl Session {
         if let Err(error) = self.input.decision("Terminate terminal sessions?") {
             return self.error(&error.to_string());
         }
-        let message =
-            format!("Quit: terminate {live} terminal sessions? y=terminate, n=cancel, C-g=cancel");
+        let message = format!(
+            "{}: terminate {live} terminal sessions? y=terminate, n=cancel, C-g=cancel",
+            sources.goal.label()
+        );
         self.pending = Some(Pending::TerminalQuit {
             message: message.clone(),
             sources,
@@ -65,7 +78,10 @@ impl Session {
         self.input.cancel();
         if !accepted {
             self.cancel_git_shutdown();
-            return self.message("Quit canceled; terminal sessions retained");
+            return self.message(&format!(
+                "{} canceled; terminal sessions retained",
+                sources.goal.label()
+            ));
         }
         self.begin_terminal_shutdown(sources)
     }
@@ -94,7 +110,7 @@ impl Session {
             return Ok(());
         }
         let closures = self.prepare_terminal_shutdown()?;
-        self.wait_terminal_shutdown()?;
+        self.wait_terminal_shutdown(sources.goal)?;
         self.terminals.shutdown = Shutdown::Closing(sources);
         for closure in closures {
             self.terminals
@@ -124,15 +140,20 @@ impl Session {
         }
         Ok(closures)
     }
-    fn wait_terminal_shutdown(&mut self) -> Result<(), String> {
+    fn wait_terminal_shutdown(&mut self, goal: crate::session::quit::Goal) -> Result<(), String> {
         self.input
             .decision("Closing terminals")
             .map_err(|e| e.to_string())?;
+        let waiting = if goal == crate::session::quit::Goal::Exit {
+            WAITING
+        } else {
+            "Terminal cleanup pending; C-g cancels context departure"
+        };
         self.pending = Some(Pending::TerminalShutdown {
-            message: WAITING.into(),
+            message: waiting.into(),
         });
         self.echo_kind = crate::display::Message::Normal;
-        self.echo = WAITING.into();
+        self.echo = waiting.into();
         Ok(())
     }
     pub(in crate::session) fn terminal_shutdown_answer(&mut self, accepted: bool) -> Action {
@@ -141,7 +162,9 @@ impl Session {
             self.input.cancel();
             return self.message("Quit canceled; approved terminal cleanup continues");
         }
-        match self.wait_terminal_shutdown() {
+        match self
+            .wait_terminal_shutdown(self.terminals.shutdown.context_goal().unwrap_or_default())
+        {
             Ok(()) => Action::Redraw,
             Err(error) => {
                 self.cancel_terminal_shutdown();
@@ -199,6 +222,6 @@ impl Session {
             };
             return self.begin_git_shutdown(sources);
         }
-        self.finish_editor_quit()
+        self.finish_editor_quit(sources.goal)
     }
 }

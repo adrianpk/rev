@@ -79,7 +79,13 @@ impl Session {
             }
             return Some(self.close_bookmark_list());
         }
-        if command == Command::Quit {
+        if matches!(
+            command,
+            Command::Quit
+                | Command::GenerateNewBuffer
+                | Command::OpenDirectory
+                | Command::ContextClose
+        ) {
             self.bookmark_list = None;
             self.sync_input_context();
             return None;

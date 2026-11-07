@@ -838,7 +838,8 @@ fn canceled_find() {
 }
 
 // Argument cursors belong to the echo row and remain bounded through narrow,
-// one-row and zero-size frames. Empty submission reports an error and consumes Enter.
+// one-row and zero-size frames. Empty submission accepts a fresh directory
+// context; tree input cannot mutate its new scratch source before focus returns.
 #[test]
 fn prompt_geometry() {
     use unicode_width::UnicodeWidthStr;
@@ -877,9 +878,15 @@ fn prompt_geometry() {
     session.handle(press(KeyCode::Enter));
     assert!(session.tree().visible() && session.tree().focused());
     assert!(session.tree().entries()[0].expanded());
-    assert_eq!(snapshot(&session), before);
+    let directory = snapshot(&session);
+    assert_ne!(directory.stamp.buffer, before.stamp.buffer);
+    assert_eq!(directory.bytes, before.bytes);
+    assert_eq!(directory.mark, before.mark);
+    assert_eq!(directory.history, before.history);
+    assert_eq!(directory.redo, before.redo);
+    assert_eq!(directory.file, before.file);
     session.handle(press(KeyCode::Char('z')));
-    assert_eq!(snapshot(&session), before);
+    assert_eq!(snapshot(&session), directory);
     session.handle(chord('g'));
     session.handle(press(KeyCode::Char('z')));
     assert_eq!(text(session.buffer().unwrap()), "z");

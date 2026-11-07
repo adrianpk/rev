@@ -5,6 +5,10 @@ use super::Tree;
 use crate::view::Size;
 
 impl Tree {
+    pub(crate) fn hide_context(&mut self) {
+        self.visible = false;
+        self.edit();
+    }
     pub(crate) fn chosen_root(&self) -> Option<&Path> {
         if self.explicit_root {
             self.root()

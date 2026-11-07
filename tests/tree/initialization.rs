@@ -109,8 +109,11 @@ fn narrow_intent() {
         height: 8,
     })
     .unwrap();
-    let point = session.view().point;
+    let original = session.view().point;
     session.load(&fixture.0.join("root")).unwrap();
+    let point = session.view().point;
+    assert_ne!(point.stamp.buffer, original.stamp.buffer);
+    assert_eq!(point.position, original.position);
     assert!(session.tree().visible() && !session.tree().focused());
     assert!(session.tree().entries()[0].expanded());
     session.handle(Event::Resize(80, 12));

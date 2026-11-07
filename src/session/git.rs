@@ -566,6 +566,9 @@ impl Session {
         }
         Some(match command {
             Command::Quit => self.quit(),
+            Command::GenerateNewBuffer => self.generate_new_buffer(),
+            Command::OpenDirectory => self.open_directory(),
+            Command::ContextClose => self.close_context(),
             Command::ExecuteExtended => self.extended(),
             Command::KeyboardQuit => {
                 if let Some(action) = self.cancel_git_discard() {

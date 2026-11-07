@@ -3,9 +3,9 @@ use crossterm::event::KeyCode;
 use super::{Context, Error, Input, Key, Outcome, Prompt, Selection};
 
 impl Input {
-    pub(crate) fn path_argument(&mut self) -> Result<(), Error> {
+    pub(crate) fn path_argument(&mut self, label: &'static str) -> Result<(), Error> {
         self.available()?;
-        self.context = Context::Path(Prompt::new("Find file: ", "", self.policy.input_limit)?);
+        self.context = Context::Path(Prompt::new(label, "", self.policy.input_limit)?);
         self.clear_prefix();
         Ok(())
     }

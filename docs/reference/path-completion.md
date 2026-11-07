@@ -44,10 +44,14 @@ Native Return resolves the explicitly navigated candidate from its original path
 without navigation it uses the literal draft, including new names. Acceptance
 checks only that requested identity, following symlinks there rather than during
 listing. The session prepares an accepted directory's bounded tree observation
-before closing the prompt and replacing its browsing context. An empty draft
+before closing the prompt and starting checked context replacement. Existing
+source save/discard/cancel and owned-process decisions complete before the
+replacement becomes active. A canceled departure retains the current context;
+an approved save is an ordinary filesystem effect. An empty draft
 accepts the prompt base. Files pass to the existing canonical visit owner. Missing selected paths, unsupported encodings, denied access and file
 ingress errors retain the prompt and active buffer. Observation, completion and
-acceptance never publish saves or create filesystem entries.
+path preparation never publish saves or create filesystem entries. Later
+accepted source-save decisions retain their usual effects.
 
 ## Queries and identity
 

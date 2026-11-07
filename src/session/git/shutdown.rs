@@ -19,7 +19,8 @@ impl Session {
             return self.error(&error.to_string());
         }
         let message = format!(
-            "Quit: terminate owned Git operations {operations:?}? y=terminate, n=cancel, C-g=cancel"
+            "{}: terminate owned Git operations {operations:?}? y=terminate, n=cancel, C-g=cancel",
+            sources.goal.label()
         );
         self.pending = Some(Pending::GitQuit {
             operations,
@@ -37,7 +38,10 @@ impl Session {
         self.input.cancel();
         if !accepted {
             self.cancel_git_shutdown();
-            return self.message("Quit canceled; Git operations retained");
+            return self.message(&format!(
+                "{} canceled; Git operations retained",
+                sources.goal.label()
+            ));
         }
         self.git.exit_operations = operations;
         self.finish_terminal_quit(sources)
@@ -55,7 +59,7 @@ impl Session {
                 .error("Source or owned Git work changed; quit canceled before Git termination");
         }
         if !self.git.engine.busy() {
-            return self.finish_editor_quit();
+            return self.finish_editor_quit(sources.goal);
         }
         // Consent is for captured identities only. A completed job cannot make
         // that consent apply to a replacement operation in the same context.
@@ -77,10 +81,20 @@ impl Session {
             self.cancel_git_shutdown();
             return self.error(&error.to_string());
         }
+        let waiting = if self
+            .git
+            .shutdown
+            .as_ref()
+            .is_some_and(|sources| sources.goal != crate::session::quit::Goal::Exit)
+        {
+            "Git cleanup pending; C-g cancels context departure, approved cleanup continues"
+        } else {
+            WAITING
+        };
         self.pending = Some(Pending::GitShutdown {
-            message: WAITING.into(),
+            message: waiting.into(),
         });
-        self.message(WAITING)
+        self.message(waiting)
     }
     pub(in crate::session) fn git_shutdown_answer(&mut self, accepted: bool) -> Action {
         if !accepted {
@@ -118,6 +132,6 @@ impl Session {
         if self.git.engine.busy() {
             return Action::Wait;
         }
-        self.finish_editor_quit()
+        self.finish_editor_quit(sources.goal)
     }
 }

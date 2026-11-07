@@ -6,8 +6,11 @@ use super::{Action, Pending, Session};
 impl Session {
     /// Failed ingress changes only the error echo. Existing buffers, history,
     /// point, scroll and input context remain available without lossy replacement.
+    /// Directory admission can start source decisions; the context changes only
+    /// after their accepted continuation and owned cleanup complete.
     pub fn load(&mut self, path: &Path) -> io::Result<()> {
         let result = self.load_target(path, true);
+        self.retire_context_preparation();
         self.observe_files();
         result
     }
@@ -105,17 +108,8 @@ impl Session {
     }
 
     fn ingress_directory(&mut self, path: &Path) -> io::Result<()> {
-        let tree = self.tree.opening_directory(path, self.size)?;
         self.stop_typing().map_err(io::Error::other)?;
-        self.tree = tree;
-        self.input.cancel();
-        self.pending = None;
-        let message = self
-            .tree
-            .diagnostic()
-            .unwrap_or("Directory opened in file tree");
-        self.message(message);
-        Ok(())
+        self.request_directory(path)
     }
 
     pub(super) fn find_file(&mut self) -> Action {

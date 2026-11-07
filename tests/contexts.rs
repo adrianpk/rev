@@ -2,6 +2,8 @@
 
 #[path = "contexts/domain.rs"]
 mod domain;
+#[path = "contexts/editor.rs"]
+mod editor;
 #[path = "configuration/fixture.rs"]
 mod fixture;
 #[path = "contexts/storage.rs"]

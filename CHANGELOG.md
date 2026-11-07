@@ -7,6 +7,15 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 
 ## Unreleased
 
+### Added
+
+- Work with standalone files or temporary directory contexts. `open-directory`
+  starts fresh directory work after save/discard/cancel decisions, and
+  `context-close` leaves current buffers while keeping rev open. Ordinary file
+  visits retain the chosen directory; `generate-new-buffer` adds an unnamed
+  buffer. These commands work through M-x and modal colon without registering
+  Projects or replacing their saved sessions.
+
 ## 0.6.0 - 2026-11-06
 
 ### Added
