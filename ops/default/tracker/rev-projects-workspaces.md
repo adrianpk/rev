@@ -115,10 +115,10 @@ State: reviewing
 Dependency: Slice 5 integrated
 Requirements: PW01-PW04, PW20-PW22; accepted P01/P03/P18
 Branch: `feat/rev-projects-workspaces-06-startup`
-PR: pending
+PR: [#303](https://forge.adrianpk.com/adrianpk/rev/pulls/303)
 Report: `ops/default/report/slices/rev-projects-workspaces/slice-6-startup.md`
 Validation: the exact ordered Slice 6 commands in the plan/local configuration
-Implementation: T6.1/T6.2/T6.3 in `79fe9a6b29412c2ca714b6becf4d58bef70d6f2f`, including seven native startup cases, one command-origin display case, isolated CLI/NO_COLOR coverage, source-specific consumers and delivered guidance. All five implementation commands passed, including 172 command, 62 context, 45 display and 120 modal tests; final clean-HEAD evidence remains controller-owned.
+Implementation: T6.1/T6.2/T6.3 in `79fe9a6b29412c2ca714b6becf4d58bef70d6f2f`, including seven native startup cases, one command-origin display case, isolated CLI/NO_COLOR coverage, source-specific consumers and delivered guidance. Report introduction in `3e05e14b6920a6286c1935e854bdbfb6d7e9cfc3`. All five implementation commands passed, including 172 command, 62 context, 45 display and 120 modal tests; final clean-HEAD evidence remains controller-owned.
 
 - [x] T6.1: Show the native startup screen for no-target executable startup; explicit paths still open directly. Wire all five actions to the implemented domain operations, retaining cancel/return behavior, native selectors, ranking, hints and both editing profiles.
 - [x] T6.2: Render the supplied src/session/startup/rev-logo.ans as passive native styled cells on a matching black content area. Preserve its hash, RGB/Unicode artwork and buffer palettes; use a plain rev label for NO_COLOR or insufficient space and retain action identity during resize.

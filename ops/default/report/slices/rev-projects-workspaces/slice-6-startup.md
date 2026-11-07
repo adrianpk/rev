@@ -5,7 +5,9 @@ Delivery set: rev-projects-workspaces
 Plan: [Projects and Workspaces Delivery](../../../plan/rev-projects-workspaces.md)
 Tracker: [Projects and Workspaces Tracker](../../../tracker/rev-projects-workspaces.md)
 Branch: `feat/rev-projects-workspaces-06-startup`
-PR: pending
+PR: `#303`
+Canonical PR: [#303](https://forge.adrianpk.com/adrianpk/rev/pulls/303)
+Report introduction: [immutable report](https://forge.adrianpk.com/adrianpk/rev/src/commit/3e05e14b6920a6286c1935e854bdbfb6d7e9cfc3/ops/default/report/slices/rev-projects-workspaces/slice-6-startup.md)
 
 ## Purpose
 
