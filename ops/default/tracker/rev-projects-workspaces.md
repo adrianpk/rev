@@ -43,17 +43,18 @@ Integration: PR #298 merged into dev at `975564c53cf7c6f420c7d7b3fbb8d5f46950e71
 
 ## Slice 2: File and directory contexts
 
-State: implementing
+State: reviewing
 Dependency: Slice 1 integrated
 Requirements: PW01, PW04, PW06, PW18-PW20, PW22
 Branch: `feat/rev-projects-workspaces-02-directories`
 PR: pending
 Report: `ops/default/report/slices/rev-projects-workspaces/slice-2-directories.md`
 Validation: the exact ordered Slice 2 commands in the plan/local configuration
+Implementation: T2.1/T2.2 and T2.3 native cases/guidance in `5032eb9f5161c718a7dd820eb374376263e54bb8`; the report is introduced with this tracker update. All five implementation checks passed, including 28 context, 75 file and 71 tree tests; final clean-HEAD evidence remains controller-owned.
 
-- [ ] T2.1: Admit standalone and directory contexts around existing file/tree owners. Preserve real source editing/saving, direct file/directory targets and explicit root intent; opening a directory never registers a Project or overwrites its saved session.
-- [ ] T2.2: Add generate-new-buffer, open-directory and context-close through native commands and checked replacement. Preserve in-context find-file visits and loose buffers; reuse source save/discard/cancel and owned-job retirement without exiting the application.
-- [ ] T2.3: Verify both profiles, standalone manual tree requests, directory cancellation, canonical buffer reuse, source stamps and stale asynchronous completions. Document each public operation actually delivered and update Unreleased through changelog-normalize.
+- [x] T2.1: Admit standalone and directory contexts around existing file/tree owners. Preserve real source editing/saving, direct file/directory targets and explicit root intent; opening a directory never registers a Project or overwrites its saved session.
+- [x] T2.2: Add generate-new-buffer, open-directory and context-close through native commands and checked replacement. Preserve in-context find-file visits and loose buffers; reuse source save/discard/cancel and owned-job retirement without exiting the application.
+- [x] T2.3: Verify both profiles, standalone manual tree requests, directory cancellation, canonical buffer reuse, source stamps and stale asynchronous completions. Document each public operation actually delivered and update Unreleased through changelog-normalize.
 
 ## Slice 3: Project registration and sessions
 
