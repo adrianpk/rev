@@ -9,7 +9,7 @@ Planning baseline: `6fde63810e95b8e3a0e61b72714696354993d9c0`
 Specification: [File Tree Parent Navigation](../spec/editor-tree-parent-navigation.md)
 Tracker: [Parent Navigation Tracker](../tracker/rev-tree-parent-navigation.md)
 Concern: [Pending Editor Work](../README.md)
-Active slice: Slice 1 of 1, implementation review
+Active slice: Slice 1 of 1 delivered; controller gate pending
 
 ## Outcome and authority
 

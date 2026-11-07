@@ -1,12 +1,12 @@
 # Slice 1: Parent navigation
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-tree-parent-navigation
 Plan: [Parent Navigation Delivery](../../../plan/rev-tree-parent-navigation.md)
 Tracker: [Parent Navigation Tracker](../../../tracker/rev-tree-parent-navigation.md)
 Branch: `feat/rev-tree-parent-navigation-01-parent`
 PR: `#312`
-Integrated: pending
+Integrated: `a662621b69d4bec9205296040d912772887a32e3`
 
 ## Purpose
 
@@ -47,9 +47,10 @@ updates tree/reference guidance, the tree map's
 The Spore build projects the Markdown sources to ignored local output; it does
 not maintain a second versioned guide or publish a site.
 
-Canonical [PR #312](https://forge.adrianpk.com/adrianpk/rev/pulls/312) targets
-`dev` with the approved title. Its report link uses the introduction commit
-above. Integration remains pending with the controller.
+Canonical [PR #312](https://forge.adrianpk.com/adrianpk/rev/pulls/312) merged
+into `dev` at `a662621b69d4bec9205296040d912772887a32e3` on 2026-11-07.
+Its report link uses the introduction commit above. Acta merge event
+`01M6W3FGV2GP1T21XRC3EHB8J8` records the same Rebase + Fast-forward integration.
 
 The Tree owner prepares the complete observation before any live assignment.
 Session routing applies the existing tree-focus admission and repeat suppression;
@@ -89,11 +90,10 @@ owned by the selected editing profile.
 
 ## Validation
 
-All nine commands below passed during authoring. The final clean PR-reference
-HEAD is validated through `looper validate` with the same unchanged commands
-in canonical order. Its saved receipt is the
-authoritative candidate evidence; integration and the delivery-set gate remain
-controller-owned.
+All nine commands below passed during authoring and through `looper validate`
+on clean PR-reference HEAD `a662621b69d4bec9205296040d912772887a32e3`, also
+the integrated commit. This remains focused slice evidence. The separate
+delivery-set gate is pending and remains controller-owned.
 
 - `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo fmt --all -- --check`
 - `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo clippy --locked --lib --bin rev -- -D warnings`
@@ -120,7 +120,15 @@ and documented tree-map count. No acceptance assertion, traversal limit or
 required command was removed or weakened. Fixtures use the existing native
 owners and remove their own temporary directories; no external service is needed.
 
+Gate preparation verified locked offline dependency resolution for 118 packages,
+Rust/Cargo 1.98.0, Spore availability and the existing guide inputs. Primary and
+slice target directories remain separate. No primary build was active during
+preparation. Only this report, the tracker and the plan's active-slice metadata
+change after integration; runtime, tests, guide inputs, requirements and ordered
+commands remain unchanged. Bounded prerequisite validation runs on the resulting
+clean candidate; the worker starts no fixtures and does not run the full gate.
+
 ## Risks and Follow-ups
 
-None recorded. Canonical integration, the unchanged integrated gate and
-documentation-only closure remain with the controller.
+None recorded. The unchanged integrated gate and documentation-only closure
+remain with the controller.

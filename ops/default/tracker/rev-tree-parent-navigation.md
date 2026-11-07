@@ -7,7 +7,7 @@ Approved: product owner requested specification, slicing, plan and Looper
 Plan: [Parent Navigation Delivery](../plan/rev-tree-parent-navigation.md)
 Specification: [File Tree Parent Navigation](../spec/editor-tree-parent-navigation.md)
 Concern: [Pending Editor Work](../README.md)
-Active slice: Slice 1 of 1, implementation review
+Active slice: Slice 1 of 1 delivered; controller gate pending
 Progress owner: Looper checkpoint and canonical validation evidence
 
 ## Canonical slice map
@@ -18,11 +18,11 @@ Progress owner: Looper checkpoint and canonical validation evidence
 
 ## Slice 1: Parent navigation
 
-State: reviewing
+State: delivered
 Requirements: TUP01-TUP04
 Branch: `feat/rev-tree-parent-navigation-01-parent`
 PR: `#312`
-Integrated: pending
+Integrated: `a662621b69d4bec9205296040d912772887a32e3`
 Report: `ops/default/report/slices/rev-tree-parent-navigation/slice-1-parent.md`
 Validation: the nine exact ordered checks in the plan and local configuration
 
@@ -41,15 +41,24 @@ T1.2: `341e6755d878f749d92aed316381fff376d2f076` integrates the command,
 binding, catalogs and native acceptance.
 T1.3: `22c7a47ad13f8623058ce3c78934aa1e3a157046` introduces guidance,
 Unreleased notes, the 24-entry tree map and the canonical report.
-Canonical [PR #312](https://forge.adrianpk.com/adrianpk/rev/pulls/312) targets
-`dev` with the approved title and immutable report link. The final PR-reference HEAD must
-pass the nine unchanged commands through the controller validator before handoff.
+Canonical [PR #312](https://forge.adrianpk.com/adrianpk/rev/pulls/312) merged
+into `dev` at `a662621b69d4bec9205296040d912772887a32e3`, with the approved
+title and immutable report link. The same clean PR-reference HEAD passed all
+nine unchanged slice checks through the controller validator. Acta merge event
+`01M6W3FGV2GP1T21XRC3EHB8J8` confirms the integration.
 The controller owns execution state; this document does not replace its
 checkpoint or invent integration/validation results.
 
+Gate prerequisites: locked offline resolution covers 118 packages. Rust/Cargo
+1.98.0 and Spore are available; primary and slice builds retain separate target
+directories. No primary build was active during preparation. Preparation changes
+only the plan, tracker and report metadata. Runtime, tests, guide inputs,
+requirements and the ordered gate remain unchanged. The controller runs that
+gate on the resulting clean, pushed `dev` candidate before closure.
+
 ## Final gate and closure
 
-- [ ] Verify canonical integration and delivered report evidence.
+- [x] Verify canonical integration and delivered report evidence.
 - [ ] Run the unchanged selected gate on exact clean dev.
 - [ ] Record tested commit and controller receipt.
 - [ ] Complete the specification, plan, tracker and index.
