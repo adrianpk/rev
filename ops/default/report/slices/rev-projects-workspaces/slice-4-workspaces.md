@@ -133,3 +133,15 @@ and pushed. The delivery-set full gate remains controller-owned.
 Lifecycle rename/forget/relocation/conversion, startup actions, representative
 terminal acceptance and resource measurements remain in their existing successor
 slices. This report does not claim combined gate or measured-capacity acceptance.
+
+
+## Delivery-set closure
+
+The approved successor slices and controller combined gate are now complete.
+The unchanged gate passed at `6bbc6138ac9227beca51e6b86f759bbf39e36c94` in receipt
+`ZS6AIYOX66WRNHE5ICPVA46GIP` on 2026-11-07. See the
+[Slice 8 closure](slice-8-guidance.md#delivery-set-closure) for exact integrated
+commands, test/phase timings, actual native/PTY/resource measurements and owned
+cleanup. Pending-successor statements above describe this slice's handoff;
+its original commands, counts, measurements and evidence limits retain their
+original candidate identities.

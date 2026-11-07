@@ -1,6 +1,9 @@
 # Files, Directories, Projects and Workspaces Tracker
 
-Status: Approved
+Status: Completed
+Completed: 2026-11-07
+Validated candidate: `6bbc6138ac9227beca51e6b86f759bbf39e36c94`
+Gate receipt: `ZS6AIYOX66WRNHE5ICPVA46GIP`
 Approved: product owner, 2026-11-07; approved core specification/model and the established preparation commits, ordered slicing, push and single autonomous Looper delivery through dev
 Date: 2026-11-07
 Delivery set: rev-projects-workspaces
@@ -8,7 +11,7 @@ Specification: [Files, Directories, Projects and Workspaces](../spec/editor-proj
 Model: [Project and Workspace Model](../spec/editor-projects-workspaces-model.md)
 Concern: [Pending Work Index](../README.md)
 Plan: [Projects and Workspaces Delivery](../plan/rev-projects-workspaces.md)
-Active slice: None - all eight slices delivered; controller full gate pending
+Active slice: None - all eight slices delivered; full gate passed; delivery set closed
 Progress owner: retained Looper checkpoint and canonical validation receipts
 Full gate: the exact ordered command in the plan and frozen local configuration
 
@@ -152,28 +155,28 @@ Branch: `docs/rev-projects-workspaces-08-guidance`
 PR: [#305](https://forge.adrianpk.com/adrianpk/rev/pulls/305)
 Report: `ops/default/report/slices/rev-projects-workspaces/slice-8-guidance.md`
 Validation: the exact ordered Slice 8 commands in the plan/local configuration
-Implementation: T8.1/T8.2 and the Unreleased/gate-preparation portion of T8.3 in `eba31a7072fbe1e4ad78e3f89b034e5ec0c48391`. All six implementation checks passed; the checker covered 91 pages, 622 local links, 618 commands and 289 configuration entries. Seven checker tests and the local Spore build passed. Report introduction: `533813a14bf21856d9d04890b0b28c05bf05eff7`; canonical PR #305. T8.3 remains unchecked for its controller-owned post-integration gate/closure portion.
+Implementation: T8.1/T8.2 and the Unreleased/gate-preparation portion of T8.3 in `eba31a7072fbe1e4ad78e3f89b034e5ec0c48391`. All six implementation checks passed; the checker covered 91 pages, 622 local links, 618 commands and 289 configuration entries. Seven checker tests and the local Spore build passed. Report introduction: `533813a14bf21856d9d04890b0b28c05bf05eff7`; canonical PR #305. T8.3 is closed after the controller gate and the configured documentation closure recorded below.
 
 Integration: PR #305 merged into dev at `cecd8205c7f61f503e9c4c1da963cefe6686600f`; all six clean-HEAD commands passed in receipt `COXYQZ74QJZGY2OD4BJK355A66`.
 
 - [x] T8.1: Complete the Diataxis guidance with short CLI examples, a guided file/directory/Project/Workspace path, focused lifecycle how-tos, exact command/state/limit reference and a concise context explanation. Use small textual UI examples where helpful.
 - [x] T8.2: Keep Markdown as the source for Spore and reconcile CLI/navigation/interaction baselines with approved context ownership. Retain historical evidence and unrelated pending work; document no inactive startup.restore_session option as current functionality.
-- [ ] T8.3: Deliver all reports and exact task/commit/PR evidence, finalize one coherent Unreleased outcome and prepare the clean integrated candidate for the frozen controller gate. After it passes, close only the configured documentation paths and record actual evidence.
+- [x] T8.3: Deliver all reports and exact task/commit/PR evidence, finalize one coherent Unreleased outcome and prepare the clean integrated candidate for the frozen controller gate. After it passes, close only the configured documentation paths and record actual evidence.
 
 
 ## Final gate and closure
 
-The remaining tasks stay pending until actual evidence exists. Looper owns progress;
+The checklist is complete against the controller evidence below. Looper owns progress;
 this document records canonical task/commit/PR/report links, not another execution
 controller.
 
 - [x] Verify all eight canonical PRs integrated into dev and all reports delivered.
 - [x] Verify the new target, acceptance script, guide tools and isolated fixtures
   are admitted before the unchanged controller gate.
-- [ ] Pass the frozen combined gate on the exact clean integrated candidate.
-- [ ] Record candidate/receipt, commands, actual phase timings, resource and
+- [x] Pass the frozen combined gate on the exact clean integrated candidate.
+- [x] Record candidate/receipt, commands, actual phase timings, resource and
   PTY observations, owned cleanup and evidence limits.
-- [ ] Complete plan, tracker, specification/model and index within the thirteen
+- [x] Complete plan, tracker, specification/model and index within the thirteen
   configured closure paths; preserve the tested runtime and assertions.
 
 Gate preparation: all frozen-gate targets resolve in locked offline Cargo
@@ -182,8 +185,18 @@ primary checkout in 44.65 seconds. Script syntax, tool versions, cached grammar
 sources, isolated HOME/XDG creation and a real PTY wrapper/termios smoke check
 passed. The owned fixture was removed. No acceptance journey or combined gate
 ran here. Exact prerequisite build/syntax commands are recorded in the Slice 8
-report. T8.3 and the three remaining closure checks await controller gate evidence.
+report. These are preparation observations, separate from the successful combined
+gate below.
 
-Only bounded technical recovery and two scoped final-gate repair PRs are
+The frozen combined gate passed `6bbc6138ac9227beca51e6b86f759bbf39e36c94` in receipt
+`ZS6AIYOX66WRNHE5ICPVA46GIP` on 2026-11-07, elapsed 817.18 seconds. All 1,036 selected
+Rust tests passed with no failures or ignored cases; native/resource acceptance,
+both-profile PTYs, documentation inventories and local guide rendering passed.
+[Slice 8 closure](../report/slices/rev-projects-workspaces/slice-8-guidance.md#delivery-set-closure) records exact commands, timings, measured costs, cleanup
+and evidence limits. All eight reports are delivered; the core specification/model,
+plan and tracker are Completed. Only configured closure documentation differs
+from the tested candidate; source and acceptance assertions are preserved.
+
+The approved bounded technical recovery and two scoped final-gate repair PRs were
 delegated under the plan. P19 full startup-state restoration, other pending
 features, main promotion, installation, releases and mirrors stay separate.

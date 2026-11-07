@@ -121,3 +121,15 @@ Later slices must invoke storage from the approved owned I/O path, integrate
 source decisions and live lifetimes, and measure the combined ordinary/capacity
 profile. The store preserves usable metadata when a session payload is damaged;
 invalid catalog or ownership headers reject the catalog as a whole.
+
+
+## Delivery-set closure
+
+The approved successor slices and controller combined gate are now complete.
+The unchanged gate passed at `6bbc6138ac9227beca51e6b86f759bbf39e36c94` in receipt
+`ZS6AIYOX66WRNHE5ICPVA46GIP` on 2026-11-07. See the
+[Slice 8 closure](slice-8-guidance.md#delivery-set-closure) for exact integrated
+commands, test/phase timings, actual native/PTY/resource measurements and owned
+cleanup. Pending-successor statements above describe this slice's handoff;
+its original commands, counts, measurements and evidence limits retain their
+original candidate identities.

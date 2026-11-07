@@ -2,7 +2,7 @@
 
 Status: proposed
 Date: 2026-11-06
-Scope: pending behavior after the completed Better Gutter, Org visual-indentation, native Git, integrated-terminal, native shell-command, native completion, optional LSP, modal editing, server-management, Pi/reload and heading-presentation deliveries
+Scope: pending behavior after the completed Better Gutter, Org visual-indentation, native Git, integrated-terminal, native shell-command, native completion, optional LSP, modal editing, server-management, Pi/reload, heading-presentation, and Files, Directories, Projects and Workspaces deliveries
 Owner decision: Better Gutter is Completed after three slices and repair #285; Org visual indentation is Completed after four canonical slices; native shell commands, text filters and integrated terminals are Completed; native Git integration is Completed after fourteen slices and authorized repair #272; other proposals retain their separate approval boundaries
 
 This index connects the pending tickets, capability specifications and models.
@@ -24,7 +24,7 @@ retain their own specification/model state.
 
 | Topic | Artifacts | State and remaining decisions |
 | --- | --- | --- |
-| Files, directories, Projects and Workspaces | [Spec](spec/editor-projects-workspaces.md), [model](spec/editor-projects-workspaces-model.md), [plan](plan/rev-projects-workspaces.md), [tracker](tracker/rev-projects-workspaces.md) | Approved on 2026-11-07. Eight slices in one Looper run deliver native contexts, the atomic TOML catalog, basic named sessions, multi-root trees, lifecycle commands and the supplied startup banner. Full automatic startup-state restoration is [deferred](spec/editor-projects-workspaces.md#deferred-specification-startup-session-restoration); startup.restore_session is reserved for that future set. |
+| Files, directories, Projects and Workspaces | [Spec](spec/editor-projects-workspaces.md), [model](spec/editor-projects-workspaces-model.md), [plan](plan/rev-projects-workspaces.md), [tracker](tracker/rev-projects-workspaces.md) | Delivered / Completed. Eight slices through PRs #298-#305 deliver native contexts, the atomic TOML catalog, basic named sessions, independent roots, lifecycle commands and the native startup screen. The unchanged controller gate passed at `6bbc6138ac9227beca51e6b86f759bbf39e36c94`, receipt `ZS6AIYOX66WRNHE5ICPVA46GIP`; [Slice 8 closure](report/slices/rev-projects-workspaces/slice-8-guidance.md#delivery-set-closure) records exact commands, 1,036 selected tests, timings, measured costs and owned cleanup. Full automatic startup-state restoration remains [deferred](spec/editor-projects-workspaces.md#deferred-specification-startup-session-restoration); startup.restore_session stays reserved for that future set. |
 | Command recency and frequency | [Spec](spec/editor-command-ranking.md), [model](spec/editor-command-ranking-model.md), [plan](plan/rev-command-ranking.md), [tracker](tracker/rev-command-ranking.md) | Delivered / Completed. Three slices through PRs #291-#293 deliver UI02 and CMR01-CMR05: recent/frequent ranking within match ranks, bounded persisted usage, native/PTY acceptance and Markdown/Spore guidance. The unchanged controller gate passed at `fea4fffdfa3e66d8a7d7f1cc031a6637199424af`, receipt `342LB2K3MYK2Z2JS5ESVI4WSNP`; [Slice 3 closure](report/slices/rev-command-ranking/slice-3-acceptance.md#delivery-set-closure) records the exact command, 503 tests, measured acceptance, cleanup and evidence limits. |
 | Better file tree | [Spec](spec/editor-better-file-tree.md), [model](spec/editor-better-file-tree-model.md), [plan](plan/rev-better-file-tree.md), [tracker](tracker/rev-better-file-tree.md) | Delivered / Completed. Three slices through PRs #287-#289 deliver BFT01-BFT04: decorated default, explicit minimal labels, shared Nerd Fonts choice and Markdown/Spore guidance. The unchanged controller gate passed at `e0351ac918a760b7940e660494f2309d67bd30a4`, receipt `2WXLCTXPDKGL7ZMY7KI52IQSFP`; [Slice 3 closure](report/slices/rev-better-file-tree/slice-3-acceptance.md#delivery-set-closure) records exact evidence and font-rendering limits. |
 | Native Git integration | [Spec](spec/editor-git-integration.md), [model](spec/editor-git-integration-model.md), [plan](plan/rev-git-integration.md), [tracker](tracker/rev-git-integration.md) | Delivered / Completed. Fourteen slices through PRs #258-#271 and authorized repair #272 deliver native GIT01-GIT20 workflows, contextual bindings, installed-Git ownership, separate fetch/reviewed push, both local tag kinds and bounded process/source lifetime. The unchanged controller gate passed at `343850fb6914bf801dfa248b8cdd0e1c34ae1fef`, receipt `D6BU4EM7IWRUA3UHGDBE432UK3`; [Slice 14 closure](report/slices/rev-git-integration/slice-14-guidance.md#delivery-set-closure) records exact counts and evidence limits. |
@@ -54,12 +54,14 @@ retain their own specification/model state.
 ## Selected execution order
 
 On 2026-11-07 the owner approved the Files, Directories, Projects and Workspaces
-core specification/model and the established preparation, slicing, push and
-single autonomous Looper delivery through dev. The eight-slice plan starts with
-the complete state/catalog owner, then directory, Project and Workspace behavior,
-lifecycle management, startup, acceptance and Markdown/Spore guidance. Looper
-owns live progress. Other pending drafts and full startup-state restoration keep
-their separate scope and approval boundaries.
+core and one eight-slice Looper delivery through dev. All eight canonical PRs
+(#298-#305) are integrated and reports delivered. The unchanged controller gate
+passed at `6bbc6138ac9227beca51e6b86f759bbf39e36c94`, receipt `ZS6AIYOX66WRNHE5ICPVA46GIP`, with
+1,036 selected Rust tests, native/resource acceptance, both-profile PTYs and local
+Markdown/Spore guidance. The core specification/model, plan and tracker are
+Completed; [Slice 8 closure](report/slices/rev-projects-workspaces/slice-8-guidance.md#delivery-set-closure)
+records exact evidence. Other pending drafts and full startup-state restoration
+keep their separate scope and approval boundaries.
 
 On 2026-11-06 the owner approved continuation from the formal Command Keybinding
 Hints specification. The two-slice plan delivers effective annotations, then

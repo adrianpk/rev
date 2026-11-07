@@ -1,6 +1,9 @@
 # Files, Directories, Projects and Workspaces Delivery
 
-Status: Approved
+Status: Completed
+Completed: 2026-11-07
+Validated candidate: `6bbc6138ac9227beca51e6b86f759bbf39e36c94`
+Gate receipt: `ZS6AIYOX66WRNHE5ICPVA46GIP`
 Approved: product owner, 2026-11-07; approved core specification/model and the established preparation commits, ordered slicing, push and single autonomous Looper delivery through dev
 Date: 2026-11-07
 Delivery set: rev-projects-workspaces
@@ -10,7 +13,7 @@ Concern: [Pending Work Index](../README.md)
 Slice strategy: one complete state-storage foundation, then behavior-first increments, combined acceptance and guidance
 Planning baseline: 1a2587840dd29a20600de15566d7a778f605f0cb
 Tracker: [Projects and Workspaces Tracker](../tracker/rev-projects-workspaces.md)
-Active slice: None - all eight slices delivered; controller full gate pending
+Active slice: None - all eight slices delivered; full gate passed; delivery set closed
 Full gate: `export CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 && cargo fmt --all -- --check && cargo clippy --locked --all-targets -- -D warnings && cargo test --locked --lib --test contexts --test configuration --test commands --test modal --test display --test files --test tree --test recovery --test pointer -- --test-threads=1 && cargo test --locked --test git_integration source -- --test-threads=1 && cargo test --locked --test integrated_terminal lifecycle -- --test-threads=1 && cargo test --locked --test shell_commands lifecycle -- --test-threads=1 && cargo test --locked --test pi --test lsp -- --test-threads=1 && bash scripts/check-projects-workspaces.sh && cargo run --locked --quiet --example documentation-check && bash scripts/build-user-guide.sh && git diff --check`
 
 ## Outcome and strategy
@@ -286,8 +289,9 @@ peer fixture; no external executable override is present.
 An owned temporary HOME/XDG fixture exercised the existing PTY wrapper with
 `/bin/true`, verified terminal-attribute restoration and was removed afterward.
 No editor acceptance journey or combined gate was executed in preparation.
-The tracker records the admitted prerequisites; the controller must run the
-unchanged gate below on the resulting clean, pushed dev candidate.
+The tracker records the admitted prerequisites. The controller subsequently
+passed the unchanged gate below on the clean integrated candidate recorded in
+the closure section. No gate was rerun for documentation closure.
 
 ## Frozen final gate
 
@@ -307,6 +311,19 @@ ready_for_gate. Do not change the command after execution starts.
     cargo run --locked --quiet --example documentation-check && \
     bash scripts/build-user-guide.sh && \
     git diff --check
+
+## Delivery-set closure
+
+All eight canonical slices (#298-#305) are integrated into dev and every report
+is delivered. The controller passed the exact frozen gate at `6bbc6138ac9227beca51e6b86f759bbf39e36c94`
+in receipt `ZS6AIYOX66WRNHE5ICPVA46GIP` on 2026-11-07. The 817.18-second run passed
+1,036 selected Rust tests, native capacity/resource acceptance, both-profile PTYs,
+618-command/289-setting documentation checks and the 91-page local Spore build.
+[Slice 8 closure](../report/slices/rev-projects-workspaces/slice-8-guidance.md#delivery-set-closure) records the exact command, suite timings, actual resource
+measurements, cleanup and evidence limits. Post-gate changes are restricted to
+the thirteen documentation paths below; tested source and assertions are unchanged.
+The core specification/model and tracker are Completed. P19 and unrelated pending
+work retain their existing separate boundaries.
 
 ## Closure paths
 

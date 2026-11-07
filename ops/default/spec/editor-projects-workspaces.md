@@ -1,6 +1,9 @@
 # Files, Directories, Projects and Workspaces
 
-Status: Approved
+Status: Completed
+Completed: 2026-11-07
+Validated candidate: `6bbc6138ac9227beca51e6b86f759bbf39e36c94`
+Gate receipt: `ZS6AIYOX66WRNHE5ICPVA46GIP`
 Approved: product owner, 2026-11-07; core specification/model and the established preparation, plan, slicing, push and single Looper delivery through dev
 Date: 2026-11-06
 Updated: 2026-11-07
@@ -815,3 +818,15 @@ consumers without broadening AI/LSP/tool authority. Execute the combined approve
 scope, including startup presentation, through one ordered delivery plan/tracker
 and one retained Looper run. Gate and closure evidence remain delivery outputs;
 specification approval does not claim implementation or validation success.
+
+
+## Delivery-set closure
+
+The approved core is Completed through eight canonical slices (#298-#305).
+The controller passed the unchanged combined gate at `6bbc6138ac9227beca51e6b86f759bbf39e36c94`,
+receipt `ZS6AIYOX66WRNHE5ICPVA46GIP`, on 2026-11-07. [Slice 8 closure](../report/slices/rev-projects-workspaces/slice-8-guidance.md#delivery-set-closure)
+records the exact command, 1,036 selected Rust tests, native/PTY/resource
+measurements, local Markdown/Spore validation, cleanup and limits of the evidence.
+The specification's PW01-PW23 and the model's fixed capacity/publication contracts
+remain unchanged. Completed refers to this core; P19 full startup-state restoration
+remains deferred to its separate specification and delivery.
