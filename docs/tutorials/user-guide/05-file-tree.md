@@ -141,7 +141,7 @@ Next: [Set Your Preferences](09-preferences.md).
 Use `project-rename` or `workspace-rename` to select an artifact and edit its name.
 Use `project-forget` or `workspace-forget` and type `yes` to remove its metadata.
 An active forgotten Project keeps its live work as a temporary directory. An
-active Workspace resolves source decisions and closes without choosing one of
+active Workspace resolves source decisions and returns to the startup screen without choosing one of
 its roots as a replacement directory. Neither command deletes source files.
 
 If a directory moved, use `project-set-root` or `workspace-set-root-path` and

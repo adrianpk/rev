@@ -569,6 +569,7 @@ impl Session {
             Command::GenerateNewBuffer => self.generate_new_buffer(),
             Command::OpenDirectory => self.open_directory(),
             Command::ContextClose => self.close_context(),
+            Command::DashboardOpen => self.dashboard_open(),
             Command::ProjectCreate => self.project_create(),
             Command::ProjectPromote => self.project_promote(),
             Command::ProjectSwitch | Command::ProjectList => self.project_list(),

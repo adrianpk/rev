@@ -20,6 +20,8 @@ fn lifetime() {
     let source = Roots::from_env().unwrap().config.join("editing.toml");
     std::fs::write(&source, "editor.tab_width = 2\neditor.indent_width = 6\npalette.foreground = '#040506'\nkeys.editor.M-j = 'insert-tab'").unwrap();
     let mut restarted = launch(None);
+    start_editing(&mut running);
+    start_editing(&mut restarted);
     running.handle(meta('j'));
     restarted.handle(meta('j'));
     assert_eq!(text(&running), "\n");

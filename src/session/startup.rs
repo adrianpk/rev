@@ -1,3 +1,5 @@
+mod screen;
+pub(super) use screen::Screen;
 use std::io;
 use std::path::Path;
 
@@ -11,6 +13,14 @@ impl Session {
     /// Discover and freeze user settings before creating any buffer or input
     /// owner. Library `empty`/`new` constructors retain explicit host ownership.
     pub fn startup(path: Option<&Path>, size: Size) -> io::Result<Self> {
+        let cwd = std::env::current_dir()?;
+        let path = path.map(|path| {
+            if path.is_absolute() {
+                path.to_owned()
+            } else {
+                cwd.join(path)
+            }
+        });
         let startup = Startup::provision();
         let buffers = Buffers::with_settings(startup.snapshot).map_err(io::Error::other)?;
         let view = View::with_settings(
@@ -22,8 +32,12 @@ impl Session {
         let mut session = Self::from_buffers(buffers, view, size).map_err(io::Error::other)?;
         session.startup_bookmarks();
         session.startup_contexts();
-        session.startup_file(path)?;
-        session.tree.present()?;
+        session.startup_file(path.as_deref())?;
+        if path.is_some() {
+            session.tree.present()?;
+        } else {
+            session.dashboard_open();
+        }
         if let Some(message) = session.tree.diagnostic() {
             session.notice(message);
         }

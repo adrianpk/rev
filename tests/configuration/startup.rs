@@ -60,6 +60,17 @@ fn launch(path: Option<&Path>) -> Session {
     .unwrap()
 }
 
+const STARTUP_HELP: &str =
+    "Arrows select; Enter opens; M-x or modal colon runs commands; C-g returns";
+
+// Configuration fixtures enter New Buffer through the delivered startup action
+// before checking source editing. All policy, palette and disk assertions remain.
+fn start_editing(session: &mut Session) {
+    assert!(session.dashboard_visible());
+    session.handle(key(KeyCode::Enter));
+    assert!(!session.dashboard_visible(), "{}", session.echo());
+}
+
 fn key(code: KeyCode) -> Event {
     Event::Key(KeyEvent::new(code, KeyModifiers::NONE))
 }
@@ -138,6 +149,7 @@ fn consumers() {
     assert!(session.tree().entries().len() > 1);
     let mut fresh = launch(None);
     assert!(fresh.buffer().unwrap().has_bom());
+    start_editing(&mut fresh);
     fresh.handle(meta('j'));
     fresh.handle(key(KeyCode::Tab));
     assert_eq!(text(&fresh), "\r\n  ");

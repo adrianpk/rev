@@ -9,7 +9,10 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 
 ### Added
 
-- Work with standalone files, temporary directories, named Projects and multi-root
+- Start `rev` with native New Buffer, Open File, Open Dir, Open Project and Open
+  Workspace actions, or open an explicit path directly. The startup screen keeps
+  current work available when a picker is canceled and fits small or color-free
+  terminals. Work with standalone files, temporary directories, named Projects and multi-root
   Workspaces. Create or promote a Project while retaining live work, or collect
   independent directories in a Workspace without importing Project sessions.
   Rename or forget saved contexts without deleting files, relocate roots after
@@ -22,7 +25,7 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
   quitting saves the context's file session after source decisions; unavailable
   files and roots retain their metadata. `open-directory` keeps ordinary directory
   work temporary, `generate-new-buffer` adds an unnamed buffer, and `context-close`
-  keeps rev open. All commands are available through M-x and modal colon.
+  returns to the startup screen. All commands are available through M-x and modal colon.
 
 ## 0.6.0 - 2026-11-06
 

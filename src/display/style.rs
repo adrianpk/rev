@@ -25,6 +25,8 @@ pub enum Message {
 pub(super) enum Tone {
     #[default]
     Document,
+    Startup,
+    Artwork(Rgb, Rgb),
     CommandName,
     Secondary,
     Git(super::git::Role, bool),
@@ -79,6 +81,8 @@ fn color(Rgb(r, g, b): Rgb) -> Color {
 impl Tone {
     fn colors(self, palette: &Palette) -> Colors {
         match self {
+            Self::Startup => Colors::new(palette.foreground, Rgb(0, 0, 0)),
+            Self::Artwork(foreground, background) => Colors::new(foreground, background),
             Self::Status(true) => Colors::new(palette.status_text, palette.status),
             Self::Status(false) => Colors::new(palette.status_text, palette.status_inactive),
             Self::Border(true) => Colors::new(palette.border_active, palette.background),

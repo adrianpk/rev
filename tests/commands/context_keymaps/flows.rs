@@ -12,10 +12,14 @@ fn path_accept_aliases() {
         "",
     );
     session.load(&source).unwrap();
-    let stamp = session.buffer().unwrap().stamp();
+    let prior = session.buffer().unwrap().stamp();
     session.execute(Command::FindFile);
     session.handle(meta('k'));
     session.handle(meta('a'));
+    let stamp = session.buffer().unwrap().stamp();
+    assert_ne!(stamp.buffer, prior.buffer);
+    assert!(session.buffer().unwrap().file().is_none());
+    assert_eq!(text(&session), "");
     session.handle(phase(meta('a'), KeyEventKind::Repeat));
     session.handle(phase(meta('a'), KeyEventKind::Release));
     assert_eq!(session.buffer().unwrap().stamp(), stamp);
@@ -26,7 +30,6 @@ fn path_accept_aliases() {
     assert!(session.tree().focused() && session.tree().entries()[0].expanded());
     session.handle(control('x'));
     session.handle(control('f'));
-    session.handle(Event::Paste("child/".into()));
     session.handle(meta('k'));
     session.handle(meta('a'));
     assert_eq!(session.buffer().unwrap().file().unwrap().path(), target);
@@ -58,7 +61,9 @@ fn path_directory_bound() {
         Some(fixture.0.join("root/long directory").as_path())
     );
     assert!(session.tree().focused());
-    assert_eq!(session.buffer().unwrap().stamp(), stamp);
+    assert_ne!(session.buffer().unwrap().stamp().buffer, stamp.buffer);
+    assert!(session.buffer().unwrap().file().is_none());
+    assert_eq!(text(&session), "");
     session.handle(control('x'));
     session.handle(control('f'));
     session.handle(Event::Paste("new".into()));
@@ -72,7 +77,12 @@ fn path_directory_bound() {
             .path()
             .ends_with("new")
     );
-    assert!(!fixture.0.join("root/new").exists());
+    assert_eq!(
+        session.buffer().unwrap().file().unwrap().path(),
+        fixture.0.join("root/long directory/new")
+    );
+    assert!(!fixture.0.join("root/long directory/new").exists());
+    assert_eq!(std::fs::read(source).unwrap(), b"retained");
 }
 
 // Configured candidate and completion aliases route to the active file prompt,

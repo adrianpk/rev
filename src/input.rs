@@ -136,6 +136,7 @@ pub struct Input {
     chords: Vec<Key>,
     keymaps: keymap::Effective,
     workspace_tree: bool,
+    workspace_startup: bool,
     workspace_bookmarks: bool,
     workspace_git: bool,
     workspace_git_commit: bool,
@@ -322,6 +323,7 @@ impl Input {
     fn focused(&mut self, key: Key) -> Outcome {
         match &mut self.context {
             Context::Search(prompt) => search::handle(prompt, key),
+            Context::Editing if self.workspace_startup => inventory::handle(key),
             Context::Editing => self.literal(key),
             Context::Argument(prompt) | Context::Calendar(prompt) => prompt.handle(key),
             Context::Shell(prompt) => self.shell_history.handle(prompt, key),

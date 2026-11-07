@@ -23,6 +23,7 @@ impl Session {
                 | Command::GenerateNewBuffer
                 | Command::OpenDirectory
                 | Command::ContextClose
+                | Command::DashboardOpen
                 | Command::ProjectCreate
                 | Command::ProjectPromote
                 | Command::ProjectSwitch

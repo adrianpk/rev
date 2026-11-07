@@ -135,12 +135,16 @@ impl Session {
     }
 
     pub(super) fn activate_lsp(&mut self) {
+        if self.startup_screen.is_some() {
+            return;
+        }
         if self.terminals.focused || !self.lsp.enabled() {
             return;
         }
         let id = self.windows.selected().point.stamp.buffer;
+        let root = self.source_root().map(ToOwned::to_owned);
         if let Ok(buffer) = self.buffers.get_mut(id) {
-            self.lsp.attach_buffer(buffer, self.tree.chosen_root());
+            self.lsp.attach_buffer(buffer, root.as_deref());
         }
     }
 
@@ -157,10 +161,13 @@ impl Session {
                     .is_some_and(|file| file.path() == outcome.target())
             })
             .map(|buffer| buffer.id());
-        if let Some(id) = id
-            && let Ok(buffer) = self.buffers.get_mut(id)
-        {
-            self.lsp.saved_buffer(buffer, self.tree.chosen_root());
+        if let Some(id) = id {
+            let root = self
+                .source_root_for(outcome.target())
+                .map(ToOwned::to_owned);
+            if let Ok(buffer) = self.buffers.get_mut(id) {
+                self.lsp.saved_buffer(buffer, root.as_deref());
+            }
         }
     }
 

@@ -56,7 +56,8 @@ Every command below is also available as `M-x` followed by its exact name.
 | `M-x workspace-rename`, `:workspace-rename` | `workspace-rename` | Select a Workspace and change only its display name. |
 | `M-x workspace-forget`, `:workspace-forget` | `workspace-forget` | Remove Workspace metadata; active work resolves source decisions and closes the context. |
 | `M-x workspace-set-root-path`, `:workspace-set-root-path` | `workspace-set-root-path` | Select a Workspace/root identity and an existing replacement directory. |
-| `M-x context-close`, `:context-close` | `context-close` | Resolve current source work, close its context and continue in an empty standalone buffer. |
+| `M-x context-close`, `:context-close` | `context-close` | Resolve current source work, close its context and return to the startup screen. |
+| `M-x dashboard-open`, `:dashboard-open` | `dashboard-open` | Retain current work and show the native startup actions. |
 | `C-x C-s` | `save-buffer` | Save to the current destination. |
 | `C-x C-w` | `write-file` | Request another destination. |
 | `M-x revert-buffer`, `:revert-buffer` | `revert-buffer` | Reload a checked disk image; confirm before discarding unsaved text. |

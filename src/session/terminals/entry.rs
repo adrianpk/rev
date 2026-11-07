@@ -4,7 +4,12 @@ use std::path::PathBuf;
 
 impl Session {
     pub(super) fn terminal_directory(&self, here: bool) -> PathBuf {
-        if !here && let Some(directory) = self.tree.chosen_root() {
+        let root = if self.tree.focused() {
+            self.tree.chosen_root()
+        } else {
+            self.source_root()
+        };
+        if !here && let Some(directory) = root {
             return directory.to_owned();
         }
         if here

@@ -195,9 +195,13 @@ impl Session {
             self.expire_escape(now)
         };
         if let Event::Resize(width, height) = event {
+            self.resize_startup();
             let action = self.resize(width, height);
             self.sync_input_context();
             return action;
+        }
+        if self.startup_screen.is_some() {
+            return self.startup_input(event, now);
         }
         if let Some(action) = self.git_input(&event) {
             return action;

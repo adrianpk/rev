@@ -72,6 +72,14 @@ impl Input {
         self.meta_deadline = None;
     }
 
+    pub(crate) fn set_startup(&mut self, shown: bool) {
+        if self.workspace_startup != shown {
+            self.retire_command_hints();
+            self.clear_prefix();
+            self.suppress_repeat = true;
+            self.workspace_startup = shown;
+        }
+    }
     pub(crate) fn set_tree_focus(&mut self, focused: bool) {
         if self.workspace_tree != focused {
             self.retire_command_hints();

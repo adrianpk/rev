@@ -109,6 +109,7 @@ pub enum Action {
 /// handlers; all text mutations publish through the checked buffer edit owner.
 pub struct Session {
     context: crate::context::Context,
+    startup_screen: Option<startup::Screen>,
     context_generation: crate::context::Generation,
     context_prepared: Option<Box<contexts::Replacement>>,
     directory_prompt: bool,
@@ -427,6 +428,7 @@ impl Session {
             .map_err(|e| view::Error::WorkingDirectory(e.kind()))?;
         Ok(Self {
             context: crate::context::Context::Standalone,
+            startup_screen: None,
             context_generation: crate::context::Generation::INITIAL,
             context_prepared: None,
             directory_prompt: false,
@@ -600,6 +602,10 @@ impl Session {
     /// Advance cold native projection by one bounded batch. An unfinished
     /// projection has no source cursor/hits; remaining_input owns its next wake.
     pub fn poll_frame(&mut self) -> Result<Frame, view::Error> {
+        if self.startup_screen.is_some() {
+            self.refresh_frame()?;
+            return self.startup_frame();
+        }
         if self.git_visible() {
             self.refresh_frame()?;
             if self.git_visible() {
@@ -649,7 +655,9 @@ impl Session {
         // hosts may observe ready jobs through frame() without synthesizing input.
         self.expire_shell();
         self.expire_git();
-        self.resize_terminal();
+        if self.startup_screen.is_none() {
+            self.resize_terminal();
+        }
         self.expire_terminals();
         self.invalidate_completion();
         for (_, view) in self.windows.iter() {
@@ -675,6 +683,9 @@ impl Session {
     }
 
     fn project_frame(&mut self) -> Result<Frame, view::Error> {
+        if self.startup_screen.is_some() {
+            return self.startup_frame();
+        }
         if self.git_visible() {
             return self.git_frame();
         }
@@ -905,6 +916,9 @@ impl Session {
             return self.message("Context state publication is pending; live sources retained");
         }
         self.remember_context_position();
+        if let Some(action) = self.startup_command(command) {
+            return action;
+        }
         if let Some(action) = self.git_command(command) {
             return action;
         }
@@ -1046,6 +1060,7 @@ impl Session {
             Command::GenerateNewBuffer => self.generate_new_buffer(),
             Command::OpenDirectory => self.open_directory(),
             Command::ContextClose => self.close_context(),
+            Command::DashboardOpen => self.dashboard_open(),
             Command::ProjectCreate => self.project_create(),
             Command::ProjectPromote => self.project_promote(),
             Command::ProjectSwitch | Command::ProjectList => self.project_list(),
@@ -1229,6 +1244,9 @@ impl Session {
 
     fn resize(&mut self, width: u16, height: u16) -> Action {
         self.size = Size { width, height };
+        if self.startup_screen.is_some() {
+            return Action::Redraw;
+        }
         let terminal = self.resize_terminal();
         if terminal != Action::Wait {
             return terminal;

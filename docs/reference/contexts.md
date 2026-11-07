@@ -16,9 +16,10 @@ Invoke these names through M-x or modal colon. They add no default bindings.
 
 | Command | Behavior |
 | --- | --- |
-| `generate-new-buffer` | Add an unnamed buffer to the current context. |
+| `generate-new-buffer` | Add an unnamed buffer to current editing; from the startup screen, resolve departure and start fresh standalone work. |
 | `open-directory` | Choose an existing directory and replace the context after source decisions. |
-| `context-close` | Resolve current work and continue in an empty standalone buffer. |
+| `context-close` | Resolve current work and return to the startup screen over fresh standalone work. |
+| `dashboard-open` | Show the native startup screen while retaining current buffers, views and context identity. |
 | `project-create` | Choose an existing directory, edit its proposed basename and register a Project before opening it. |
 | `project-promote` | Name and register the current temporary directory while retaining its buffers, dirty text, cursor positions and views. |
 | `project-switch-project` | Select a registered Project by name/path and restore its saved file session. |
@@ -49,6 +50,37 @@ The picker filters names and paths. Use arrows to choose an entry, or type a
 query and Tab to complete its label, then Enter. Selection retains the stored
 artifact ID and checks its record again before opening. Choosing the active ID
 keeps live work without replaying saved state or asking for discard.
+
+## Startup screen
+
+Executable startup without a target shows New Buffer, Open File, Open Dir, Open
+Project and Open Workspace. An explicit file or directory opens directly. Library
+constructors remain passive; embedded hosts can call `dashboard-open` explicitly.
+Automatic restoration of the last application session is separate.
+
+`dashboard-open` retains current work until a replacement succeeds. New Buffer
+uses the normal checked departure to start standalone work. Open File uses
+`find-file` within the retained context; Open Dir uses `open-directory`. Project
+and Workspace actions use their typed native pickers and independent sessions.
+Choosing the active artifact returns to its live work. Empty pickers name their
+creation commands. Opening or canceling a picker creates no registration.
+
+Arrows and Enter select actions, with native C-p/C-n in the non-modal profile and
+j/k in the modal profile. M-x or modal colon opens the usual command selector,
+including ranking, configured effective hints and name-only completion. Other
+explicitly selected named commands return to retained editing before running
+their existing handlers. C-g cancels a prompt to the startup screen; C-g from the
+screen returns to retained work. Source typing and paste cannot edit the screen
+or its retained document. Pointer press/release activates only a matching action;
+artwork and spacing have no actions, and resized gestures are canceled.
+
+The supplied Unicode/RGB banner appears above a compact centered action group on
+a black content background. It is built-in artwork rather than a buffer, file or
+saved entry. Source palettes remain unchanged. Narrow or short terminals show a
+plain `rev` label and scroll the actions to keep selection visible. Zero-sized
+presentation retains action identity. `NO_COLOR` also uses the plain label with
+the ordinary monochrome renderer, visible marker and reverse-video selection.
+Nerd Fonts and pointer input are optional.
 
 ## File sessions
 
@@ -117,7 +149,7 @@ and removes only registration and its owned session. Forgetting an active Projec
 retains dirty buffers, positions and views in a temporary directory context.
 Forgetting an inactive artifact leaves current work unchanged. An active Workspace
 uses native clock, source and owned-job departure before removal, then closes to
-standalone editing with no chosen replacement root. Source directories and copied
+the startup screen over standalone work with no chosen replacement root. Source directories and copied
 Workspace roots remain usable.
 
 `project-set-root` and `workspace-set-root-path` validate an existing replacement
@@ -178,6 +210,14 @@ Embedded `Session::new`/`empty` callers supply their own state path through
 `Session::set_context_storage`; they never discover user state implicitly.
 Persistent context selection retains existing per-file service authority. It does not run
 shell commands, enable analysis or load executable configuration from a root.
+Workspace AI defaults and LSP boundaries use the selected source's most specific
+root; loose sources retain their parent. An explicit AI directory still takes
+precedence. Default terminals use the selected source root while editing, or the
+chosen tree root while the tree owns focus; terminal-here keeps its existing
+per-file/process cwd behavior. Git and shell jobs retain their per-file directory
+selection. No consumer receives a union of peer roots. Org source ownership,
+global bookmarks, command usage and kill-ring state remain with their native
+owners across context changes.
 
 This is explicit named Project/Workspace restoration. Automatic restoration of the last
 application session on executable startup is not provided by these commands.

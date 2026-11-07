@@ -63,6 +63,9 @@ impl Session {
     }
 
     pub(super) fn select_candidate(&mut self, selection: Selection) -> Action {
+        if self.startup_screen.is_some() && self.pending.is_none() {
+            return self.startup_selection(selection);
+        }
         if let Some(Pending::Path(path)) = &mut self.pending {
             path.navigate(selection == Selection::Previous);
             return Action::Redraw;

@@ -14,7 +14,7 @@ impl Session {
         self.ai
             .directory
             .clone()
-            .or_else(|| self.tree.chosen_root().map(ToOwned::to_owned))
+            .or_else(|| self.source_root().map(ToOwned::to_owned))
             .or_else(|| {
                 self.buffer()
                     .ok()

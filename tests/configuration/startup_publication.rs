@@ -18,15 +18,16 @@ fn first_start() {
         );
         assert!(!root.exists());
         let mut session = launch(None);
-        assert_eq!(session.echo(), "C-x C-c: exit");
+        assert_eq!(session.echo(), STARTUP_HELP);
         assert_eq!(std::fs::read(&root).unwrap(), default_template().as_bytes());
         assert_eq!(
             session.buffer().unwrap().policy(),
             &prepare(&root).snapshot.settings().editor
         );
+        start_editing(&mut session);
         session.handle(key(KeyCode::Tab));
         assert_eq!(text(&session), "    ");
-        assert_eq!(launch(None).echo(), "C-x C-c: exit");
+        assert_eq!(launch(None).echo(), STARTUP_HELP);
         return;
     }
     for fallback in [false, true] {
@@ -197,7 +198,7 @@ fn concurrent_startup() {
         std::fs::write(marker, "ready").unwrap();
         wait_for(|| Path::new("release").exists());
         let session = launch(None);
-        assert_eq!(session.echo(), "C-x C-c: exit");
+        assert_eq!(session.echo(), STARTUP_HELP);
         let root = Roots::from_env().unwrap().config_file();
         assert_eq!(std::fs::read(root).unwrap(), default_template().as_bytes());
         return;

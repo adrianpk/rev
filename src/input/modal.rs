@@ -84,6 +84,7 @@ impl Input {
     pub(super) fn modal_editing(&self) -> bool {
         self.profile == InteractionProfile::Modal
             && self.focus() == Focus::Editing
+            && !self.workspace_startup
             && !self.workspace_tree
             && !self.workspace_bookmarks
             && !self.workspace_git

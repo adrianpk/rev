@@ -8,13 +8,14 @@ use rev::config::Snapshot;
 fn missing_source() {
     if isolated() {
         let mut session = launch(None);
-        assert_eq!(session.echo(), "C-x C-c: exit");
+        assert_eq!(session.echo(), STARTUP_HELP);
         assert!(!session.tree().visible());
         assert!(!session.buffer().unwrap().has_bom());
         assert_eq!(
             session.buffer().unwrap().policy(),
             &rev::config::Editor::default()
         );
+        start_editing(&mut session);
         session.handle(key(KeyCode::Tab));
         assert_eq!(text(&session), "    ");
         return;
@@ -110,6 +111,7 @@ fn unreadable_sources() {
             Startup::from_env().snapshot,
             Snapshot::default().with_root(&Roots::from_env().unwrap().config_file())
         );
+        start_editing(&mut session);
         session.handle(key(KeyCode::Tab));
         assert_eq!(text(&session), "    ");
         return;
@@ -153,6 +155,7 @@ fn unresolved_environment() {
         assert!(session.echo().contains("environment"));
         assert!(session.echo().contains("XDG_CONFIG_HOME"));
         assert_eq!(Startup::from_env().snapshot, Snapshot::default());
+        start_editing(&mut session);
         session.handle(key(KeyCode::Tab));
         assert_eq!(text(&session), "    ");
         return;

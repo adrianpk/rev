@@ -222,3 +222,75 @@ fn hint_colors() {
         }
     }
 }
+
+// Startup shares the admitted command origin, ranking and hint resolver. A
+// configured action shortcut remains effective while source-edit shortcuts do
+// not claim dispatch authority over the read-only screen.
+#[test]
+fn startup_command_origin() {
+    use rev::buffer::Buffers;
+    use rev::view::View;
+    for profile in ["non-modal", "modal"] {
+        let f = crate::config_fixture::Fixture::new();
+        let map = if profile == "modal" {
+            "vim_normal"
+        } else {
+            "editor"
+        };
+        let settings=rev::config::prepare(&f.write("startup.toml", &format!("editor.interaction_profile='{profile}'\n[keys.{map}]\n'M-界'='find-file'\n'M-文'='undo'")));
+        assert!(settings.diagnostic.is_none(), "{:?}", settings.diagnostic);
+        let buffers = Buffers::with_settings(settings.snapshot).unwrap();
+        let view = View::new(buffers.get(buffers.initial()).unwrap());
+        let mut s = Session::new(
+            buffers,
+            view,
+            Size {
+                width: 100,
+                height: 24,
+            },
+        )
+        .unwrap();
+        s.execute(Command::DashboardOpen);
+        s.execute(Command::ExecuteExtended);
+        s.handle(Event::Paste("find-file".into()));
+        let frame = s.frame().unwrap();
+        let row = frame
+            .rows()
+            .iter()
+            .find(|r| r.band() == Band::Completion && r.text().contains("find-file"))
+            .unwrap();
+        assert!(row.text().contains("[M-界]"));
+        key(&mut s, KeyCode::Enter);
+        assert!(s.dashboard_visible());
+        s.execute(Command::KeyboardQuit);
+        assert!(s.dashboard_visible());
+        s.execute(Command::ExecuteExtended);
+        s.handle(Event::Paste("undo".into()));
+        let frame = s.frame().unwrap();
+        assert!(
+            frame
+                .rows()
+                .iter()
+                .filter(|r| r.band() == Band::Completion && r.text().contains("undo"))
+                .all(|r| !r.text().contains("[M-文]"))
+        );
+        s.execute(Command::KeyboardQuit);
+        assert!(s.dashboard_visible());
+        s.execute(Command::ExecuteExtended);
+        let ranked = names(&mut s);
+        assert_eq!(ranked[0], "find-file");
+        s.execute(Command::KeyboardQuit);
+        s.handle(Event::Key(KeyEvent::new(
+            KeyCode::Char('界'),
+            KeyModifiers::ALT,
+        )));
+        assert!(s.dashboard_visible());
+        assert!(
+            s.frame()
+                .unwrap()
+                .rows()
+                .iter()
+                .any(|r| r.text().contains("Find file:"))
+        );
+    }
+}

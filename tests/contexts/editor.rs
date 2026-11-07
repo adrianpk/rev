@@ -528,3 +528,6 @@ mod workspaces;
 
 #[path = "management.rs"]
 mod management;
+
+#[path = "startup.rs"]
+mod startup;

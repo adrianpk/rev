@@ -35,7 +35,9 @@ rev notes.txt
 
 Run `rev .` to browse the current directory with its immediate entries shown.
 A relative or absolute directory path opens the same tree context.
-Run `rev` without a path for an empty buffer. If the file does not exist, saving
+Run `rev` without a path for the native startup screen: New Buffer, Open File,
+Open Dir, Open Project and Open Workspace. An explicit path opens directly.
+If the file does not exist, saving
 creates it. The editor runs offline.
 
 Startup preferences load from `$XDG_CONFIG_HOME/rev/config.toml`, defaulting to

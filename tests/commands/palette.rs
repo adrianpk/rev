@@ -360,6 +360,10 @@ fn catalog_dispatch() {
             assert_eq!(named(&mut direct, command.name()), Action::Redraw);
             direct.execute(Command::KeyboardQuit);
         }
+        let initial = (
+            direct.buffer().unwrap().id(),
+            palette.buffer().unwrap().id(),
+        );
         let action = direct.execute(command);
         assert_ne!(
             direct.echo(),
@@ -383,12 +387,40 @@ fn catalog_dispatch() {
         // Accepted exit has no subsequent redraw; startup echo is not an
         // observable handler result once both routes have returned Exit.
         if action != Action::Exit {
-            assert_eq!(
-                surface(&mut direct),
-                surface(&mut palette),
-                "{}",
-                command.name()
-            );
+            if command == Command::GenerateNewBuffer {
+                assert_ne!(direct.buffer().unwrap().id(), initial.0);
+                assert_ne!(palette.buffer().unwrap().id(), initial.1);
+                assert!(direct.buffer().unwrap().file().is_none());
+                assert!(palette.buffer().unwrap().file().is_none());
+                // Untitled names include their process-wide buffer identity.
+                // Compare every row and the full status after those exact names.
+                let left = format!("> {}", direct.buffer().unwrap().name());
+                let right = format!("> {}", palette.buffer().unwrap().name());
+                let direct_rows = surface(&mut direct);
+                let palette_rows = surface(&mut palette);
+                assert_eq!(direct_rows.len(), palette_rows.len());
+                for (a, b) in direct_rows.iter().zip(&palette_rows) {
+                    if let Some(tail) = a.strip_prefix(&left) {
+                        assert_eq!(
+                            Some(tail.trim_end()),
+                            b.strip_prefix(&right).map(str::trim_end)
+                        );
+                        assert_eq!(
+                            unicode_width::UnicodeWidthStr::width(a.as_str()),
+                            unicode_width::UnicodeWidthStr::width(b.as_str())
+                        );
+                    } else {
+                        assert_eq!(a, b);
+                    }
+                }
+            } else {
+                assert_eq!(
+                    surface(&mut direct),
+                    surface(&mut palette),
+                    "{}",
+                    command.name()
+                );
+            }
         }
         assert_ne!(
             palette.echo(),

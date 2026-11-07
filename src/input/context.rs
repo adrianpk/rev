@@ -55,6 +55,13 @@ impl Input {
         if self.focus() != Focus::Editing {
             return MapContext::Minibuffer;
         }
+        if self.workspace_startup {
+            return if self.profile == crate::config::InteractionProfile::Modal {
+                MapContext::VimNormal
+            } else {
+                MapContext::Editor
+            };
+        }
         if self.workspace_git_commit {
             return MapContext::GitCommit;
         }
@@ -303,6 +310,52 @@ impl Input {
             self.clear_prefix();
             self.suppress_repeat = true;
             self.workspace_bookmarks = active;
+        }
+    }
+}
+
+impl Input {
+    pub(crate) fn startup_command(command: Command) -> bool {
+        use crate::command::{ModalCommand, navigation::Target};
+        match command {
+            Command::DashboardOpen
+            | Command::KeyboardQuit
+            | Command::Modal(ModalCommand::Normal)
+            | Command::ExecuteExtended
+            | Command::Quit
+            | Command::MouseMode
+            | Command::Newline
+            | Command::Scroll(_)
+            | Command::Motion(
+                Motion::BufferStart | Motion::BufferEnd | Motion::LineStart | Motion::LineEnd,
+            )
+            | Command::GenerateNewBuffer
+            | Command::FindFile
+            | Command::OpenDirectory
+            | Command::ContextClose
+            | Command::ProjectCreate
+            | Command::ProjectPromote
+            | Command::ProjectSwitch
+            | Command::ProjectList
+            | Command::WorkspaceCreate
+            | Command::WorkspaceOpen
+            | Command::WorkspaceList
+            | Command::WorkspaceAddDirectory
+            | Command::WorkspaceAddProject
+            | Command::WorkspaceRemoveRoot
+            | Command::ProjectRename
+            | Command::ProjectForget
+            | Command::ProjectSetRoot
+            | Command::ProjectPromoteToWorkspace
+            | Command::ProjectDuplicateAsWorkspace
+            | Command::WorkspaceRename
+            | Command::WorkspaceForget
+            | Command::WorkspaceSetRootPath => true,
+            Command::Navigate(n) => matches!(
+                n.target,
+                Target::Line(_) | Target::Buffer(_) | Target::LineStart | Target::LineEnd
+            ),
+            _ => false,
         }
     }
 }

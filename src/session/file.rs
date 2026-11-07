@@ -84,6 +84,7 @@ impl Session {
         self.stop_typing().map_err(io::Error::other)?;
         // All recoverable work is complete before registry/view publication.
         let id = self.buffers.publish_visit(visit);
+        self.leave_dashboard();
         if self.windows.selected().point.stamp.buffer != id {
             *self.windows.selected_mut() = view;
         }

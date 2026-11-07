@@ -397,6 +397,7 @@ impl Session {
             return self.error("Select an offered Project identity");
         };
         if self.context == Context::Project(choice.project.id.clone()) {
+            self.leave_dashboard();
             return self.message("Project is already active; live work retained");
         }
         self.read_projects(Request::Open(choice.project))

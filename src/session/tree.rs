@@ -15,6 +15,9 @@ impl Session {
     }
 
     pub(super) fn composition(&self) -> Option<crate::panel::Composition> {
+        if self.startup_screen.is_some() {
+            return self.source_composition(self.size);
+        }
         let rows = self.terminal_rows();
         // Command candidates occupy the source prompt's former row. Keep the
         // terminal separator outside that region, including a single result.
@@ -36,10 +39,16 @@ impl Session {
     }
 
     fn source_composition(&self, size: Size) -> Option<crate::panel::Composition> {
+        let hidden = crate::tree::Tree::default();
+        let tree = if self.startup_screen.is_some() {
+            &hidden
+        } else {
+            &self.tree
+        };
         if let Some(names) = self.input.names() {
             return crate::panel::Composition::completion(
                 &self.windows,
-                &self.tree,
+                tree,
                 size,
                 names.requested_rows(),
             );
@@ -47,7 +56,7 @@ impl Session {
         if let Some(palette) = self.input.palette() {
             return crate::panel::Composition::completion(
                 &self.windows,
-                &self.tree,
+                tree,
                 size,
                 palette.requested_rows(),
             );
@@ -55,7 +64,7 @@ impl Session {
         if let Some(path) = self.path_navigation() {
             return crate::panel::Composition::completion(
                 &self.windows,
-                &self.tree,
+                tree,
                 size,
                 path.requested_rows(
                     self.buffers
@@ -71,7 +80,7 @@ impl Session {
         } else {
             0
         };
-        crate::panel::Composition::workspace(&self.windows, &self.tree, size, rows)
+        crate::panel::Composition::workspace(&self.windows, tree, size, rows)
     }
 
     pub(super) fn editing_size(&self) -> Size {
@@ -142,6 +151,7 @@ impl Session {
                 | Command::GenerateNewBuffer
                 | Command::OpenDirectory
                 | Command::ContextClose
+                | Command::DashboardOpen
                 | Command::ProjectCreate
                 | Command::ProjectPromote
                 | Command::ProjectSwitch

@@ -19,6 +19,7 @@ pub mod preview;
 mod prompt;
 mod search;
 mod selection;
+pub(crate) mod startup;
 mod status;
 mod style;
 mod syntax;

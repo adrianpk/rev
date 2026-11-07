@@ -70,6 +70,7 @@ pub enum Command {
     GenerateNewBuffer,
     OpenDirectory,
     ContextClose,
+    DashboardOpen,
     ProjectCreate,
     ProjectPromote,
     ProjectSwitch,
@@ -134,7 +135,7 @@ pub enum Command {
 }
 
 impl Command {
-    pub const ALL: [Self; 617] = [
+    pub const ALL: [Self; 618] = [
         Self::Git(GitCommand::Clone),
         Self::Git(GitCommand::CloneShallow),
         Self::Git(GitCommand::CloneBare),
@@ -436,6 +437,7 @@ impl Command {
         Self::GenerateNewBuffer,
         Self::OpenDirectory,
         Self::ContextClose,
+        Self::DashboardOpen,
         Self::ProjectCreate,
         Self::ProjectPromote,
         Self::ProjectSwitch,
@@ -809,6 +811,7 @@ impl Command {
             Self::GenerateNewBuffer => "generate-new-buffer",
             Self::OpenDirectory => "open-directory",
             Self::ContextClose => "context-close",
+            Self::DashboardOpen => "dashboard-open",
             Self::ProjectCreate => "project-create",
             Self::ProjectPromote => "project-promote",
             Self::ProjectSwitch => "project-switch-project",

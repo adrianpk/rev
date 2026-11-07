@@ -22,7 +22,7 @@ impl Input {
             .bindings()
             .map(|(sequence, _)| sequence.clone())
             .collect();
-        if self.workspace_completion {
+        if self.workspace_completion && !self.workspace_startup {
             sequences.extend(
                 self.keymaps
                     .map(super::keymap::Context::Completion)
@@ -59,7 +59,9 @@ impl Input {
     }
 
     fn resolve_hint(&mut self, sequence: &Sequence) -> Option<Command> {
-        if let Some(owner) = self.workspace_terminal {
+        if !self.workspace_startup
+            && let Some(owner) = self.workspace_terminal
+        {
             let first = sequence.chords()[0];
             if owner.copy {
                 // Copy-mode Return belongs to its terminal owner, not newline.
@@ -82,7 +84,10 @@ impl Input {
         let last = sequence.chords().len() - 1;
         for (index, chord) in sequence.chords().iter().enumerate() {
             match self.handle_at(Event::Key(KeyEvent::new(chord.code, chord.modifiers)), now) {
-                Outcome::Command(command) if index == last => return Some(command),
+                Outcome::Command(command) if index == last => {
+                    return (!self.workspace_startup || Self::startup_command(command))
+                        .then_some(command);
+                }
                 Outcome::Prefix(_) if index < last => {}
                 _ => return None,
             }
@@ -104,6 +109,7 @@ impl Input {
             chords: Vec::new(),
             keymaps: self.keymaps.clone(),
             workspace_tree: self.workspace_tree,
+            workspace_startup: self.workspace_startup,
             workspace_bookmarks: self.workspace_bookmarks,
             workspace_git: self.workspace_git,
             workspace_git_commit: self.workspace_git_commit,

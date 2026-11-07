@@ -4,6 +4,10 @@ use super::{Action, Session};
 
 impl Session {
     pub(super) fn sync_input_context(&mut self) {
+        self.input.set_startup(self.startup_screen.is_some());
+        if self.startup_screen.is_some() {
+            return;
+        }
         self.input.set_git(self.git_visible());
         self.input.set_git_commit(self.git_composing());
         if self.git_visible() {

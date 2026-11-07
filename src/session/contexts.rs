@@ -17,6 +17,7 @@ use super::{Action, AfterSave, Pending, Session, quit::Goal};
 
 pub(super) struct Replacement {
     session: Session,
+    pub(super) startup: bool,
     expected: Generation,
     root_identity: Option<(u64, u64)>,
     registration: Option<record::Record>,
@@ -27,6 +28,25 @@ impl Session {
     /// Observes context intent independently from tree visibility or file paths.
     pub fn context(&self) -> &Context {
         &self.context
+    }
+    /// Workspace services use the selected source's most specific root, never
+    /// the first peer root or a union of all roots. Loose files keep their parent.
+    pub(in crate::session) fn source_root(&self) -> Option<&Path> {
+        let file = self.buffer().ok().and_then(|b| b.file()).map(|f| f.path());
+        file.and_then(|p| self.source_root_for(p))
+            .or_else(|| self.tree.chosen_root())
+    }
+    pub(in crate::session) fn source_root_for<'a>(&'a self, path: &'a Path) -> Option<&'a Path> {
+        match &self.context_record {
+            Some(record::Record::Workspace(w)) => w
+                .roots
+                .iter()
+                .filter(|r| path.starts_with(r.path.as_path()))
+                .max_by_key(|r| r.path.as_path().components().count())
+                .map(|r| r.path.as_path())
+                .or_else(|| path.parent()),
+            _ => self.tree.chosen_root(),
+        }
     }
     pub fn context_generation(&self) -> Generation {
         self.context_generation
@@ -42,6 +62,9 @@ impl Session {
         if self.input.focus() != crate::input::Focus::Editing {
             return self.error("A prompt owns buffer creation");
         }
+        if self.startup_screen.is_some() {
+            return self.startup_new_buffer();
+        }
         match self.buffers.create("") {
             Ok(id) => {
                 self.tree.edit();
@@ -56,7 +79,10 @@ impl Session {
     }
     pub(super) fn close_context(&mut self) -> Action {
         match self.prepare_context(None) {
-            Ok(replacement) => self.begin_context(replacement),
+            Ok(mut replacement) => {
+                replacement.startup = true;
+                self.begin_context(replacement)
+            }
             Err(error) => self.error(&error.to_string()),
         }
     }
@@ -128,6 +154,7 @@ impl Session {
         session.context_root_identity = root_identity;
         Ok(Replacement {
             session,
+            startup: false,
             expected: self.context_generation,
             root_identity,
             registration: None,
@@ -236,7 +263,11 @@ impl Session {
             .count();
         let missing = destination.context_unavailable.len();
         let directory = matches!(destination.context, Context::Directory(_));
+        let startup = replacement.startup;
         std::mem::swap(self, destination);
+        if startup {
+            return self.dashboard_open();
+        }
         if workspace {
             return self.message(&format!("Workspace opened; {unavailable_roots} unavailable root(s), {missing} unavailable saved file(s) retained; workspace-add-directory adds a root"));
         }

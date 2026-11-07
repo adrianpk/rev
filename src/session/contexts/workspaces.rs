@@ -184,6 +184,7 @@ impl Session {
             return self.error("Select an offered Workspace identity");
         };
         if self.context == Context::Workspace(choice.workspace.id.clone()) {
+            self.leave_dashboard();
             return self.message("Workspace is already active; live work retained");
         }
         self.read_projects(Request::WorkspaceOpen(choice.workspace))

@@ -485,6 +485,7 @@ impl Session {
             match self.prepare_context(None) {
                 Ok(mut r) => {
                     r.session.tree = self.tree.without_context();
+                    r.startup = true;
                     self.management_replacement(r)
                 }
                 Err(e) => {
