@@ -1,6 +1,6 @@
 # Slice 7: Combined native and terminal acceptance
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-projects-workspaces
 Plan: [Projects and Workspaces Delivery](../../../plan/rev-projects-workspaces.md)
 Tracker: [Projects and Workspaces Tracker](../../../tracker/rev-projects-workspaces.md)
@@ -8,6 +8,8 @@ Branch: `test/rev-projects-workspaces-07-acceptance`
 PR: `#304`
 Canonical PR: [#304](https://forge.adrianpk.com/adrianpk/rev/pulls/304)
 Report introduction: [immutable report](https://forge.adrianpk.com/adrianpk/rev/src/commit/f65b3a341e0d2c214b97a25810146e9955ecca6c/ops/default/report/slices/rev-projects-workspaces/slice-7-acceptance.md)
+
+Integrated: PR #304 merged into dev at `277dbabb068c10bf3bdc011bebe5e2c845519afc`; all six clean-HEAD commands passed in receipt `KKQIRFTGHTBUIST5T7J3T2ZQTP`.
 
 ## Purpose
 

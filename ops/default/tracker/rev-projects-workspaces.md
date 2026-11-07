@@ -8,7 +8,7 @@ Specification: [Files, Directories, Projects and Workspaces](../spec/editor-proj
 Model: [Project and Workspace Model](../spec/editor-projects-workspaces-model.md)
 Concern: [Pending Work Index](../README.md)
 Plan: [Projects and Workspaces Delivery](../plan/rev-projects-workspaces.md)
-Active slice: Slice 7 - Combined native and terminal acceptance
+Active slice: Slice 8 - Guidance and gate preparation
 Progress owner: retained Looper checkpoint and canonical validation receipts
 Full gate: the exact ordered command in the plan and frozen local configuration
 
@@ -128,7 +128,7 @@ Integration: PR #303 merged into dev at `03751136d7b40e2ac823b1966db32384cbcefb8
 
 ## Slice 7: Combined native and terminal acceptance
 
-State: reviewing
+State: delivered
 Dependency: Slice 6 integrated
 Requirements: PW01-PW22 together
 Branch: `test/rev-projects-workspaces-07-acceptance`
@@ -137,13 +137,15 @@ Report: `ops/default/report/slices/rev-projects-workspaces/slice-7-acceptance.md
 Validation: the exact ordered Slice 7 commands in the plan/local configuration
 Implementation: T7.1/T7.2/T7.3 in `953634c3341543395ef51180796d71f0e7b79d08`. Report introduction in `f65b3a341e0d2c214b97a25810146e9955ecca6c`. All six implementation commands passed, including all-target Clippy and 62 context cases. The focused acceptance script passed native ordinary/count/byte boundaries, two 512-file rounds, cancellation/overflow/resource checks and three serial PTY starts per profile. Exact measurements and memory costs are in the report; final clean-HEAD evidence remains controller-owned.
 
+Integration: PR #304 merged into dev at `277dbabb068c10bf3bdc011bebe5e2c845519afc`; all six clean-HEAD commands passed in receipt `KKQIRFTGHTBUIST5T7J3T2ZQTP`.
+
 - [x] T7.1: Create examples/projects-workspaces-acceptance.rs and scripts/check-projects-workspaces.sh with the existing Rust/Bash surface and PTY helpers; keep domain/storage variants in native cases and real editor journeys representative.
 - [x] T7.2: Cover one bounded real journey per profile across startup, explicit targets, promotion, Project/Workspace selection, sessions, membership, conversion, duplicate/cancel and shutdown. Exercise banner fitting/NO_COLOR, tree variants and Unicode source anchors without multiplying the entire matrix through PTYs.
 - [x] T7.3: Probe ordinary and capacity-bound catalog/session work, responsiveness, retained allocations and idle scheduling; measure the approved profile rather than assuming it. Preserve source/configuration bytes, restore TTYs and reap only owned processes; deliver evidence and the report.
 
 ## Slice 8: Guidance and gate preparation
 
-State: planned
+State: active
 Dependency: Slice 7 integrated
 Requirements: PW23 and joint PW01-PW22 reconciliation
 Branch: `docs/rev-projects-workspaces-08-guidance`
