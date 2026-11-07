@@ -87,6 +87,10 @@ fn protected(command: Command) -> bool {
             | Command::GenerateNewBuffer
             | Command::OpenDirectory
             | Command::ContextClose
+            | Command::ProjectCreate
+            | Command::ProjectPromote
+            | Command::ProjectSwitch
+            | Command::ProjectList
             | Command::Quit
             | Command::Buffer(_)
             | Command::Window(_)

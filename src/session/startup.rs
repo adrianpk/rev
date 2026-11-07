@@ -21,6 +21,7 @@ impl Session {
         // configured visibility must not enumerate an unrelated launch cwd.
         let mut session = Self::from_buffers(buffers, view, size).map_err(io::Error::other)?;
         session.startup_bookmarks();
+        session.startup_contexts();
         session.startup_file(path)?;
         session.tree.present()?;
         if let Some(message) = session.tree.diagnostic() {

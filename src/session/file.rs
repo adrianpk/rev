@@ -20,6 +20,10 @@ impl Session {
     }
 
     fn load_target(&mut self, path: &Path, directories: bool) -> io::Result<()> {
+        if self.context_storage.locked() {
+            return Err(io::Error::other("Project state publication is pending"));
+        }
+        self.remember_context_position();
         self.bookmark_visit = None;
         self.bookmark_iteration = None;
         if self.tangling.is_some() || self.execution.is_some() || self.feeds.is_some() {
@@ -72,7 +76,7 @@ impl Session {
         let root_changed = tree.is_some();
         let mut view = self.windows.selected().clone();
         if view.point.stamp.buffer != buffer.id() {
-            view.rebind(buffer);
+            view = self.context_view(buffer);
         }
         let jump = self
             .prepare_jump_to(buffer, view.point)
@@ -128,6 +132,8 @@ impl Session {
     }
     fn file_argument(&mut self, pending: Option<Pending>, path: String) -> Action {
         match pending {
+            Some(Pending::ProjectName(creation)) => self.project_name(*creation, &path),
+            Some(Pending::Projects(choices)) => self.project_selected(choices, &path),
             Some(Pending::GitWorktree(prompt)) => self.git_worktree_argument(*prompt, &path),
             Some(Pending::GitRepository(prompt)) => self.git_repository_argument(*prompt, &path),
             Some(Pending::GitTagPrompt(prompt)) => self.git_tag_argument(*prompt, &path),

@@ -85,6 +85,10 @@ impl Session {
                 | Command::GenerateNewBuffer
                 | Command::OpenDirectory
                 | Command::ContextClose
+                | Command::ProjectCreate
+                | Command::ProjectPromote
+                | Command::ProjectSwitch
+                | Command::ProjectList
         ) {
             self.bookmark_list = None;
             self.sync_input_context();

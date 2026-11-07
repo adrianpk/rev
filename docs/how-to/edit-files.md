@@ -45,3 +45,9 @@ Use [Recover edits](recover-edits.md) when a file operation fails. For a guided
 exercise, follow [Edit Your First File](../tutorials/user-guide/01-first-file.md).
 The [file and prompt reference](../reference/prompts.md) gives the exact path,
 completion and confirmation rules.
+
+To register the current temporary directory without replacing its live buffers,
+run `M-x project-promote`. Use `M-x project-create` to choose another existing
+directory and name. Return through `M-x project-switch-project` or
+`M-x project-list`; see [Project sessions](../reference/contexts.md) for what is
+saved and how source decisions and unavailable files are handled.

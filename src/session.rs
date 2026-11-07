@@ -112,6 +112,12 @@ pub struct Session {
     context_generation: crate::context::Generation,
     context_prepared: Option<Box<contexts::Replacement>>,
     directory_prompt: bool,
+    project_directory_prompt: bool,
+    context_storage: contexts::projects::Persistence,
+    context_project: Option<crate::context::Project>,
+    context_root_identity: Option<(u64, u64)>,
+    context_unavailable: Vec<crate::context::FileEntry>,
+    context_positions: std::collections::BTreeMap<BufferId, contexts::positions::Position>,
     observation: observation::Work,
     reload: reload::Work,
     ai: ai::Work,
@@ -208,6 +214,8 @@ enum AfterSave {
 }
 
 enum Pending {
+    ProjectName(Box<contexts::projects::Creation>),
+    Projects(Vec<contexts::projects::Choice>),
     GitDiscard(Box<git::discard::Consent>),
     GitWorktree(Box<git::repository::worktrees::Prompt>),
     GitRepository(Box<git::repository::Prompt>),
@@ -414,6 +422,12 @@ impl Session {
             context_generation: crate::context::Generation::INITIAL,
             context_prepared: None,
             directory_prompt: false,
+            project_directory_prompt: false,
+            context_storage: Default::default(),
+            context_project: None,
+            context_root_identity: None,
+            context_unavailable: Vec::new(),
+            context_positions: Default::default(),
             git,
             observation,
             terminals,
@@ -873,6 +887,13 @@ impl Session {
 
     /// Executes the same implemented command enum produced by key bindings.
     pub fn execute(&mut self, command: Command) -> Action {
+        if command == Command::KeyboardQuit && self.cancel_context_operation() {
+            return self.message("Project preparation canceled; live sources retained");
+        }
+        if self.context_storage.locked() {
+            return self.message("Project state publication is pending; live sources retained");
+        }
+        self.remember_context_position();
         if let Some(action) = self.git_command(command) {
             return action;
         }
@@ -1014,6 +1035,9 @@ impl Session {
             Command::GenerateNewBuffer => self.generate_new_buffer(),
             Command::OpenDirectory => self.open_directory(),
             Command::ContextClose => self.close_context(),
+            Command::ProjectCreate => self.project_create(),
+            Command::ProjectPromote => self.project_promote(),
+            Command::ProjectSwitch | Command::ProjectList => self.project_list(),
             Command::SaveBuffer => self.save_buffer(),
             Command::RevertBuffer => self.revert_buffer(),
             Command::AiSaveCommand => self.ai_save_command(),
@@ -1096,6 +1120,9 @@ impl Session {
     /// Inserts one printable scalar, retaining a valid grapheme cursor after
     /// joins. Control bytes can enter only through explicit implemented commands.
     pub fn insert(&mut self, character: char) -> Action {
+        if self.context_storage.locked() {
+            return self.message("Project publication owns source admission");
+        }
         if self.git_visible() {
             return self.message("Git presentation is read-only");
         }

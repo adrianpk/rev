@@ -38,6 +38,10 @@ Every command below is also available as `M-x` followed by its exact name.
 | `C-x C-f` | `find-file` | Open a file or directory; available in editing and tree focus. |
 | `M-x generate-new-buffer`, `:generate-new-buffer` | `generate-new-buffer` | Add an unnamed buffer in the active context. |
 | `M-x open-directory`, `:open-directory` | `open-directory` | Choose an existing directory and replace the context after source decisions and owned cleanup. |
+| `M-x project-create`, `:project-create` | `project-create` | Choose a directory, name it and open the registered Project. |
+| `M-x project-promote`, `:project-promote` | `project-promote` | Register the temporary directory while retaining live work. |
+| `M-x project-switch-project`, `:project-switch-project` | `project-switch-project` | Restore a Project selected by name/path. |
+| `M-x project-list`, `:project-list` | `project-list` | Open the same Project picker. |
 | `M-x context-close`, `:context-close` | `context-close` | Resolve current source work, close its context and continue in an empty standalone buffer. |
 | `C-x C-s` | `save-buffer` | Save to the current destination. |
 | `C-x C-w` | `write-file` | Request another destination. |

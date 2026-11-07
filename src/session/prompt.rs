@@ -57,6 +57,9 @@ impl Session {
     }
 
     fn prepare_keyboard_quit(&mut self) -> Option<Action> {
+        if self.cancel_context_operation() {
+            return Some(self.message("Canceling Project preparation; live sources retained"));
+        }
         if let Some(action) = self.cancel_git_ref() {
             return Some(action);
         }

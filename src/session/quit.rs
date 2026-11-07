@@ -54,6 +54,10 @@ impl Sources {
 
 impl Session {
     pub(super) fn quit(&mut self) -> Action {
+        if self.context_storage.busy() {
+            return self
+                .error("Project preparation is pending; cancel or finish it before quitting");
+        }
         if self.git_shutdown_active() {
             return self.advance_git_shutdown();
         }
@@ -152,6 +156,16 @@ impl Session {
         if self.git.engine.busy() {
             return self.error("Git cleanup remains owned; exit requires its guarded completion");
         }
+        if self.context_checkpoint_needed() {
+            return self.checkpoint_context(goal);
+        }
+        if self.project_confirmation_needed() {
+            return self.confirm_project_context(goal);
+        }
+        self.finish_context_departure(goal)
+    }
+
+    pub(in crate::session) fn finish_context_departure(&mut self, goal: Goal) -> Action {
         if let Goal::Context(generation) = goal {
             return self.activate_context(generation);
         }

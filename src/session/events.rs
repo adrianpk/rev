@@ -67,7 +67,11 @@ impl Session {
     /// The native owner blocks indefinitely without deadlines or ready input.
     /// No periodic wake is introduced by an armed click or an inside drag.
     pub fn remaining_input(&self, now: Instant) -> Option<Duration> {
+        if self.context_storage.locked() {
+            return self.context_remaining();
+        }
         [
+            self.context_remaining(),
             self.input.remaining(now),
             self.input.command_usage_remaining(),
             self.completion_remaining(now),
@@ -143,6 +147,15 @@ impl Session {
 
     /// Expire Escape before dispatch; pointer deadlines wait until input is drained.
     pub fn handle_at(&mut self, event: Event, now: Instant) -> Action {
+        if self.context_storage.locked()
+            && matches!(&event, Event::Key(key) if crate::input::Key::normalize(*key).is_some_and(|k| k.code == crossterm::event::KeyCode::Char('g') && k.modifiers == crossterm::event::KeyModifiers::CONTROL))
+        {
+            return self.execute(crate::command::Command::KeyboardQuit);
+        }
+        if self.context_storage.locked() && !matches!(event, Event::Resize(_, _)) {
+            return self.message("Project state publication is pending; live sources retained");
+        }
+        self.remember_context_position();
         let action = match self.defer_layout_event(event, now) {
             Ok(event) => self.handle_ready_at(event, now),
             Err(action) => action,
@@ -226,6 +239,9 @@ impl Session {
     }
 
     fn expire_owned_input(&mut self, now: Instant) -> Action {
+        if self.context_storage.locked() {
+            return self.expire_contexts();
+        }
         [
             if self.layout_active() {
                 Action::Wait
@@ -251,6 +267,7 @@ impl Session {
             self.expire_layout(),
             self.advance_terminal_shutdown(),
             self.advance_git_shutdown(),
+            self.expire_contexts(),
         ]
         .into_iter()
         .rev()

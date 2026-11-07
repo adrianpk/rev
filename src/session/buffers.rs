@@ -66,8 +66,7 @@ impl Session {
             return self.select_terminal(terminal);
         }
         if self.windows.selected().point.stamp.buffer != id {
-            let mut view = self.view().clone();
-            view.rebind(buffer);
+            let view = self.context_view(buffer);
             let jump = match self.prepare_jump_to(buffer, view.point) {
                 Ok(jump) => jump,
                 Err(error) => return self.error(&error.to_string()),
@@ -158,6 +157,7 @@ impl Session {
             Ok(buffer) => buffer,
             Err(error) => return self.error(&error.to_string()),
         };
+        self.context_positions.remove(&closed);
         self.windows.replace_buffer(closed, buffer);
         self.lsp.closed(closed);
         self.recent_clocks.retain(|p| p.stamp.buffer != closed);

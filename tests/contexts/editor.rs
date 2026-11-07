@@ -400,6 +400,11 @@ fn renamed_temporary_root() {
 // activates the replacement without returning an application-exit action.
 #[test]
 fn terminal_departure() {
+    for persistent in [false, true] {
+        terminal_context_departure(persistent);
+    }
+}
+fn terminal_context_departure(persistent: bool) {
     use rev::command::TerminalCommand;
     let f = fixture::Fixture::new();
     let script = f.write("terminal.sh", "printf READY\nwhile :; do sleep 1; done\n");
@@ -422,6 +427,15 @@ fn terminal_departure() {
         },
     )
     .unwrap();
+    if persistent {
+        let source = f.write("root/source", "source");
+        session
+            .set_context_storage(f.0.join("state/contexts.toml"))
+            .unwrap();
+        session.load(source.parent().unwrap()).unwrap();
+        session.load(&source).unwrap();
+        projects::promote(&mut session, "non-modal", "Terminal work");
+    }
     session.execute(Command::Terminal(TerminalCommand::NewBuffer));
     let deadline = std::time::Instant::now() + std::time::Duration::from_secs(3);
     let pid = loop {
@@ -466,6 +480,16 @@ fn terminal_departure() {
     assert!(!Path::new("/proc").join(pid.to_string()).exists());
     assert_eq!(session.context(), &Context::Standalone);
     assert_eq!(text(&session), "");
+    if persistent {
+        let catalog = projects::catalog(&f);
+        let saved = catalog
+            .session(&catalog.projects[0].session_ref)
+            .unwrap()
+            .snapshot
+            .as_ref()
+            .unwrap();
+        assert_eq!(saved.files.len(), 1);
+    }
 }
 
 // Context replacement cannot re-enable analysis that the user disabled at
@@ -495,3 +519,6 @@ fn retained_analysis_choice() {
     session.execute(Command::Lsp(LspCommand::Mode));
     assert!(!matches!(session.lsp_status(), rev::lsp::Status::Disabled));
 }
+
+#[path = "projects.rs"]
+mod projects;

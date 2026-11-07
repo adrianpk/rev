@@ -15,6 +15,15 @@ impl Session {
             Ok(rename) => rename,
             Err(error) => return self.error(&error.to_string()),
         };
+        if self
+            .context_project
+            .as_ref()
+            .is_some_and(|p| p.root.path.as_path() == rename.source())
+        {
+            return self.error(
+                "Registered Project roots require explicit relocation; source directory retained",
+            );
+        }
         if let Err(error) = self.input.argument("Rename to: ", "") {
             return self.error(&error.to_string());
         }

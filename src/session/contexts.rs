@@ -1,3 +1,7 @@
+mod checkpoint;
+pub(super) mod positions;
+pub(super) mod projects;
+
 use std::io;
 use std::os::unix::fs::MetadataExt;
 use std::path::Path;
@@ -12,6 +16,7 @@ pub(super) struct Replacement {
     session: Session,
     expected: Generation,
     root_identity: Option<(u64, u64)>,
+    registration: Option<crate::context::Project>,
 }
 
 impl Session {
@@ -21,6 +26,12 @@ impl Session {
     }
     pub fn context_generation(&self) -> Generation {
         self.context_generation
+    }
+
+    pub(in crate::session) fn project_confirmation_needed(&self) -> bool {
+        self.context_prepared
+            .as_ref()
+            .is_some_and(|r| r.session.context_project.is_some())
     }
 
     pub(super) fn generate_new_buffer(&mut self) -> Action {
@@ -56,8 +67,12 @@ impl Session {
         }
         Ok(())
     }
-    fn prepare_context(&self, directory: Option<&Path>) -> io::Result<Replacement> {
-        if self.context_prepared.is_some()
+    pub(in crate::session) fn prepare_context(
+        &self,
+        directory: Option<&Path>,
+    ) -> io::Result<Replacement> {
+        if self.context_storage.busy()
+            || self.context_prepared.is_some()
             || self.git_shutdown_active()
             || self.terminal_shutdown_active()
         {
@@ -105,13 +120,15 @@ impl Session {
                 None
             }
         };
+        session.context_root_identity = root_identity;
         Ok(Replacement {
             session,
             expected: self.context_generation,
             root_identity,
+            registration: None,
         })
     }
-    fn begin_context(&mut self, replacement: Replacement) -> Action {
+    pub(in crate::session) fn begin_context(&mut self, replacement: Replacement) -> Action {
         let expected = replacement.expected;
         if let Err(error) = expected.next() {
             return self.error(&error.to_string());
@@ -130,7 +147,16 @@ impl Session {
         if replacement.expected != expected || self.context_generation != expected {
             return self.error("Context preparation is stale; live sources retained");
         }
-        if let Context::Directory(path) = &replacement.session.context {
+        let root = match &replacement.session.context {
+            Context::Directory(path) => Some(path),
+            Context::Project(_) => replacement
+                .session
+                .context_project
+                .as_ref()
+                .map(|p| &p.root.path),
+            _ => None,
+        };
+        if let Some(path) = root {
             let current = std::fs::metadata(path.as_path());
             if !current.is_ok_and(|metadata| {
                 metadata.is_dir()
@@ -180,11 +206,19 @@ impl Session {
         destination.org_clock = self.org_clock;
         destination.timer_clock = self.timer_clock;
         destination.mouse_enabled = self.mouse_enabled;
+        std::mem::swap(&mut destination.context_storage, &mut self.context_storage);
         destination.context_generation = generation;
         destination.sync_input_context();
         destination.prepare_bookmark_markers();
+        let project = matches!(destination.context, Context::Project(_));
+        let missing = destination.context_unavailable.len();
         let directory = matches!(destination.context, Context::Directory(_));
         std::mem::swap(self, destination);
+        if project {
+            return self.message(&format!(
+                "Project opened; {missing} unavailable saved file(s) retained"
+            ));
+        }
         let message = if directory {
             self.tree
                 .diagnostic()
@@ -230,7 +264,7 @@ impl Session {
             .shutdown
             .as_ref()
             .is_some_and(|sources| sources.goal == goal);
-        if !pending && !terminal && !git {
+        if !pending && !terminal && !git && !self.context_storage.departing() {
             self.context_prepared = None;
         }
     }

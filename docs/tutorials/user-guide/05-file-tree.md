@@ -62,6 +62,20 @@ same save/discard/cancel decisions as quitting and settles owned work before
 returning to an empty standalone buffer. In Vim-style editing, invoke the same
 names after `:`.
 
+To keep this directory as a named Project, run `M-x project-promote`, edit the
+proposed name and press Enter. Your open buffers, unsaved text and views stay in
+place. Alternatively, `M-x project-create` chooses a directory and name before
+opening a fresh Project. Existing directory aliases offer the registered Project
+instead of replacing its saved session.
+
+Use `M-x project-switch-project` or `M-x project-list` to return by name. Type part
+of the name, Tab to fill the offered label and Enter to select it. Leaving a
+Project or quitting checkpoints its ordered file buffers and positions after
+source decisions. Loose files outside its root are included; unnamed text and
+terminal state are excluded. Missing files are reported and skipped without
+creating empty replacements. See [Project sessions](../../reference/contexts.md)
+for cancellation, state location and storage failure behavior.
+
 To combine browsing with editing, start with `rev .`, use `C-x C-f` and Tab to
 complete a file, then press Enter. Split with `C-x 3` and click another file in
 the tree: it opens in the editing pane you last selected. Each pane wraps at its

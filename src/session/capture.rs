@@ -163,6 +163,10 @@ fn protected(command: Command) -> bool {
             | Command::GenerateNewBuffer
             | Command::OpenDirectory
             | Command::ContextClose
+            | Command::ProjectCreate
+            | Command::ProjectPromote
+            | Command::ProjectSwitch
+            | Command::ProjectList
             | Command::Buffer(_)
             | Command::Window(WindowCommand::Delete | WindowCommand::Keep)
     )

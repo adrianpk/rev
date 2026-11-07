@@ -569,6 +569,9 @@ impl Session {
             Command::GenerateNewBuffer => self.generate_new_buffer(),
             Command::OpenDirectory => self.open_directory(),
             Command::ContextClose => self.close_context(),
+            Command::ProjectCreate => self.project_create(),
+            Command::ProjectPromote => self.project_promote(),
+            Command::ProjectSwitch | Command::ProjectList => self.project_list(),
             Command::ExecuteExtended => self.extended(),
             Command::KeyboardQuit => {
                 if let Some(action) = self.cancel_git_discard() {
