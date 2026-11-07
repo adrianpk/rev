@@ -7,7 +7,59 @@ use crate::org::{Outline, Source, SourceRange, Visibility};
 
 use super::{Error, View};
 
+/// Transient presentation retained by the existing live-buffer position owner.
+/// Offsets remain revision-bound, and each window keeps its own choices.
+#[derive(Clone)]
+pub(crate) struct Presentation {
+    folds: Option<super::fold::Folds>,
+    visibility: Option<Arc<Visibility>>,
+    initialized: bool,
+    suppressed: bool,
+}
+
 impl View {
+    pub(crate) fn org_presentation(&self) -> Presentation {
+        Presentation {
+            folds: self.folds.clone(),
+            visibility: self.visibility.clone(),
+            initialized: self.visibility_initialized,
+            suppressed: self.startup_suppressed,
+        }
+    }
+
+    pub(crate) fn restore_org_presentation(&mut self, state: &Presentation) {
+        self.folds = state.folds.clone();
+        self.visibility = state.visibility.clone();
+        self.visibility_initialized = state.initialized;
+        self.startup_suppressed = state.suppressed;
+    }
+
+    pub(crate) fn pending_org_visibility(&self) -> bool {
+        !self.visibility_initialized && !self.startup_suppressed
+    }
+
+    pub(crate) fn suppress_org_startup(&mut self) {
+        self.startup_suppressed = true;
+    }
+
+    pub(crate) fn initial_org_visibility(
+        &mut self,
+        buffer: &Buffer,
+        model: Arc<Outline>,
+        configured: crate::config::StartupVisibility,
+    ) -> Result<(), String> {
+        if !self.pending_org_visibility() || !model.startup_ready() {
+            return Ok(());
+        }
+        let next = Visibility::new(model)
+            .startup(configured)
+            .map_err(str::to_owned)?;
+        self.install_visibility(buffer, next)
+            .map_err(|e| e.to_string())?;
+        self.visibility_initialized = true;
+        Ok(())
+    }
+
     pub(crate) fn initial_org_drawer(
         &mut self,
         buffer: &Buffer,
@@ -49,6 +101,7 @@ impl View {
         buffer: &Buffer,
         model: Arc<Outline>,
         command: OrgCommand,
+        configured: crate::config::StartupVisibility,
     ) -> Result<(), String> {
         let byte = Coordinates::new(buffer)
             .map_err(|e| e.to_string())?
@@ -61,9 +114,16 @@ impl View {
             .filter(|v| v.model.stamp == buffer.stamp())
             .map(|v| v.as_ref().clone())
             .unwrap_or_else(|| Visibility::new(model));
-        let next = current.change(command, byte).map_err(str::to_owned)?;
+        let next = if command == OrgCommand::CycleSetStartupVisibility {
+            current.startup(configured)
+        } else {
+            current.change(command, byte)
+        }
+        .map_err(str::to_owned)?;
         self.install_visibility(buffer, next)
-            .map_err(|e| e.to_string())
+            .map_err(|e| e.to_string())?;
+        self.visibility_initialized = true;
+        Ok(())
     }
     fn install_visibility(&mut self, buffer: &Buffer, next: Visibility) -> Result<(), Error> {
         let spans = next.spans();

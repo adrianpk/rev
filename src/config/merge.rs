@@ -39,6 +39,11 @@ impl Document {
         merge.git(&mut self.git, &later.git);
         merge.terminal(&mut self.terminal, &later.terminal);
         merge.headings(&mut self.org.headings, &later.org.headings);
+        merge.leaf(
+            &["org", "startup_folded"],
+            &mut self.org.startup_folded,
+            &later.org.startup_folded,
+        );
         merge.leaf(&["org", "indent"], &mut self.org.indent, &later.org.indent);
         merge.leaf(
             &["org", "enabled"],

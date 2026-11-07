@@ -3,7 +3,8 @@
 For a first outline, follow [Write Org Notes](../tutorials/user-guide/06-org-notes.md).
 
 An admitted `.org` file or `M-x org-mode` uses native Org mode. Source starts
-fully visible. Visibility controls change only the selected editing view; they also
+fully visible by default; [initial visibility](#initial-visibility) can select
+another outline or drawer state. Visibility controls change only the selected editing view; they also
 work on read-only text. Folding never changes saved bytes, modification state,
 regions or undo history.
 
@@ -63,6 +64,47 @@ shortcut or TOML write is added. The [body alignment exercise](../tutorials/user
 shows both layouts; [exact controls](org/commands.md#visual-indentation) and
 [configuration](org/configuration.md) describe their lifetime and bounds.
 
+## Initial visibility
+
+Set the startup preference in TOML:
+
+```toml
+[org]
+startup_folded = "showeverything"
+```
+
+| Value | New-view presentation |
+| --- | --- |
+| `overview` | Top-level headings, with heading bodies hidden. |
+| `content` | All headings, with heading bodies hidden. |
+| `showall` | All headings and ordinary bodies, with drawer bodies hidden. |
+| `showeverything` | All source, including drawer bodies; the compatibility default. |
+
+A recognized `#+STARTUP:` keyword overrides configuration for its document,
+including keywords outside the preamble. Keyword and token matching ignores
+case. The last recognized visibility token in source order wins, including
+multiple words on a line. Unknown words do not erase an earlier recognized
+choice. Source/example/literal blocks and drawer contents cannot override it.
+Source spelling remains intact. Unsupported TOML values reject configuration.
+
+Initialization waits for complete current native structure. Explicit visibility
+choices made while it is pending take precedence. A split inherits current
+folds; later commands affect only the selected pane. Buffer switches, repaint,
+resize, edits and disk reload do not reapply startup. Existing revision checks
+retire stale ranges. Closing and reopening a view initializes anew. Generated
+AI results keep their deliberate REQUEST fold instead of applying this policy.
+
+Use `org-cycle-set-startup-visibility` to restore the current document or configured
+policy explicitly. Use `org-hide-all-drawers`, `org-show-all-drawers` or
+`org-toggle-all-drawers` to control only valid property/custom drawer bodies.
+Toggle hides all when any drawer is open, otherwise shows all. Heading/body folds,
+ordinary text, source coordinates, mark and undo history stay intact. Both
+delimiters remain visible unless a containing heading is folded. Empty targets
+are harmless; malformed/incomplete structure cannot authorize uncertain folds.
+These named commands work through M-x and modal colon, including in read-only
+Org buffers, and have no factory shortcut. Existing `org-show-all` continues
+to reveal everything. Source navigation and search still reveal their targets.
+
 ## Keys and named commands
 
 | Key | Command | Behavior |
@@ -82,6 +124,8 @@ M-x provides the same handlers and these direct choices:
 | `org-overview`, `org-content`, `org-show-all` | The selected view. |
 | `org-hide-subtree`, `org-show-children`, `org-show-subtree` | The heading at point or containing point. |
 | `org-hide-drawer`, `org-show-drawer`, `org-toggle-drawer` | The drawer containing point. |
+| `org-hide-all-drawers`, `org-show-all-drawers`, `org-toggle-all-drawers` | Valid drawer bodies throughout the selected view. |
+| `org-cycle-set-startup-visibility` | Restore current document/configuration startup visibility. |
 
 TAB requires a heading line or admitted drawer. Ordinary body text, literal block
 text and unavailable structural targets report that no target is available.

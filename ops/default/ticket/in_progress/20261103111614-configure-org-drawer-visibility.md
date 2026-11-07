@@ -1,7 +1,7 @@
 ---
 id: TKT-20261103111614
 title: Configure Org drawer visibility
-status: ready
+status: in_progress
 kind: task
 severity: unclassified
 priority: unclassified
@@ -10,6 +10,8 @@ tags: org-mode, drawers, visibility
 source: chat
 reported_at: 2026-11-03T11:16:14Z
 ready_at: 2026-11-07T18:58:12Z
+started_at: 2026-11-07T19:10:01Z
+branch: feat/rev-org-initial-visibility-01-policy
 commits: []
 ---
 

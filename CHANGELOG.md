@@ -9,6 +9,12 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 
 ### Added
 
+- Choose how new Org views open with `org.startup_folded` or document STARTUP
+  metadata. Keep ordinary text visible with drawers hidden using `showall`,
+  choose heading-only states, or retain the fully visible `showeverything`
+  default. Hide, show or toggle all drawers in the selected pane, and restore
+  its startup policy explicitly without changing source or other panes.
+
 - File-tree selection stays visible after opening a file. By default, the tree
   follows the active editing file across buffers and panes, scrolling loaded
   matches into view while preserving collapsed folders and chosen roots.

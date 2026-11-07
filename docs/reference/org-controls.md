@@ -5,8 +5,8 @@ The [Org command catalog](org/commands.md) and [editor catalog](commands.md)
 together list every compiled M-x name once. The
 [Org binding reference](org/bindings.md) describes keys and focus ownership.
 The [complete sample](config.toml), also embedded in the executable, contains
-all 178 schema/catalog entries, 54 RGB roles and 263 local default bindings
-across eight contexts. [Org configuration](org/configuration.md) and
+all 291 schema/catalog entries, 71 RGB roles and 1252 local default bindings
+across 25 contexts. [Org configuration](org/configuration.md) and
 [core defaults](defaults.md) own their types, bounds and factory values.
 Empty arrays disable optional declarations; they do not hide
 an implicit program, source scan or destination.
@@ -20,7 +20,7 @@ file, process or publication consent.
 
 | Capability and reference | Native entry commands | Startup preferences or fixed policy |
 | --- | --- | --- |
-| [Mode, visibility and outline](org-mode.md) | `org-mode`, `text-mode`, `org-cycle`, `org-shifttab`, `org-show-all`, `org-insert-heading`, `org-promote-subtree` | `org.enabled`; views start fully visible and retain independent runtime folds. |
+| [Mode, visibility and outline](org-mode.md) | `org-mode`, `text-mode`, `org-cycle`, `org-shifttab`, `org-show-all`, `org-hide-all-drawers`, `org-cycle-set-startup-visibility`, `org-insert-heading`, `org-promote-subtree` | `org.enabled`, `org.startup_folded`; recognized document STARTUP tokens override the fully visible default. Drawer-only commands and reset retain per-view runtime choices. |
 | [Lists and checkboxes](org-mode.md) | `org-insert-item`, `org-toggle-checkbox`, `org-update-statistics-cookies` | Native list structure and progress use canonical source. |
 | [Tasks and dependencies](org-mode.md) | `org-todo`, `org-todo-set`, `org-inspect-todo` | `org.todo.sequence`, `finished`, `log_done`, `log_repeat`, `log_drawer`, `block_children`. |
 | [Tags and properties](org-mode.md) | `org-set-tags-command`, `org-set-property`, `org-inspect-property`, `org-match-tags` | `org.tags.inherit`, `org.properties.inherit`; admitted document declarations affect data semantics. |

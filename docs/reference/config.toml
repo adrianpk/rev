@@ -212,6 +212,9 @@ enabled = true
 # Runtime org-indent-mode, org-indent-enable and org-indent-disable
 # override this preference per live buffer without writing TOML.
 indent = true
+# New-view outline and drawer state: overview, content, showall or showeverything.
+# Recognized document STARTUP tokens override this preference.
+startup_folded = "showeverything"
 
 [org.headings]
 # Source stars stay intact. Each marker occupies one terminal cell.

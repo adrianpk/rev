@@ -1,13 +1,13 @@
 # Org Initial Visibility Tracker
 
-Status: Ready
+Status: In progress
 Date: 2026-11-07
 Delivery set: rev-org-initial-visibility
 Approved: product owner requested the specification, plan and Looper delivery
 Plan: [Org Initial Visibility Delivery](../plan/rev-org-initial-visibility.md)
 Specification: [Org Initial Visibility and Drawers](../spec/editor-org-initial-visibility.md)
 Model: [Org Visibility Policy](../spec/editor-org-initial-visibility-model.md)
-Ticket: [TKT-20261103111614](../ticket/ready/20261103111614-configure-org-drawer-visibility.md)
+Ticket: [TKT-20261103111614](../ticket/in_progress/20261103111614-configure-org-drawer-visibility.md)
 Concern: [Pending Editor Work](../README.md)
 Active slice: Slice 1 - Initial visibility and drawers
 Progress owner: retained Looper checkpoint and canonical validation evidence
@@ -20,16 +20,16 @@ Progress owner: retained Looper checkpoint and canonical validation evidence
 
 ## Slice 1: Initial visibility and drawers
 
-State: ready
+State: in_progress
 Requirements: OIV01-OIV05 and the approved model
 Branch: `feat/rev-org-initial-visibility-01-policy`
 PR: pending
 Report: `ops/default/report/slices/rev-org-initial-visibility/slice-1-policy.md`
 Validation: the twelve exact ordered commands in the plan and local configuration
 
-- [ ] T1.1: Record ticket start and implement startup configuration, structural
+- [x] T1.1: Record ticket start and implement startup configuration, structural
   metadata and checked one-time view initialization with source/AI compatibility.
-- [ ] T1.2: Add the four complete named actions and native configuration,
+- [x] T1.2: Add the four complete named actions and native configuration,
   visibility, source/reveal and both-profile acceptance without duplicate identity.
 - [ ] T1.3: Reconcile live command/configuration references and descriptions,
   Org Markdown/Spore guidance, Unreleased notes and the canonical report; move

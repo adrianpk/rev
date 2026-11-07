@@ -217,6 +217,15 @@ read once at startup. Global values apply throughout that session; the four
 floats have distinct types; use `0.5`, not `0`, for a float share. Widths describe
 terminal display columns/cells, never bytes or Unicode scalar positions.
 
+### Org initial visibility
+
+`org.startup_folded` defaults to `showeverything`, preserving fully visible
+ordinary Org files. Select `overview` for top-level headings, `content` for all
+headings without bodies, or `showall` for visible ordinary text with drawer
+bodies hidden. Recognized document STARTUP tokens override configuration. The
+[initial visibility reference](org-mode.md#initial-visibility) explains one-time
+per-view admission, reset, drawer-only controls and structural protection.
+
 ### Org heading presentation
 
 | Key | Type and bounds | Default | Scope and effect |

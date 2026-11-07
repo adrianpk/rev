@@ -2,47 +2,64 @@ use crate::buffer::{Buffer, BufferId, edit::Point};
 use crate::context::{SourcePosition, Viewport};
 use crate::coordinates::{Coordinates, LineByte, Scalar};
 use crate::view::View;
+use crate::window::ViewId;
+use std::collections::BTreeMap;
 
 use super::super::Session;
 
-/// Only source anchors survive a buffer visit. Native view caches and split
-/// layout remain owned by their existing windows, not by durable sessions.
-#[derive(Clone, Copy)]
+/// Source anchors and window-local Org choices survive live buffer switches.
+/// This transient state is never serialized into durable sessions.
+#[derive(Clone)]
 pub(in crate::session) struct Position {
     point: Point,
     top: usize,
     wrap_start: Scalar,
     left: usize,
+    org: BTreeMap<ViewId, crate::view::OrgPresentation>,
 }
 impl Position {
-    fn from_view(view: &View) -> Self {
+    fn from_view(view: &View, org: BTreeMap<ViewId, crate::view::OrgPresentation>) -> Self {
         Self {
             point: view.point,
             top: view.top,
             wrap_start: view.wrap_start,
             left: view.left,
+            org,
         }
     }
-    fn apply(self, view: &mut View, buffer: &Buffer) {
+    fn apply(&self, view: &mut View, buffer: &Buffer, id: ViewId) {
         if self.point.stamp == buffer.stamp() {
             view.point = self.point;
             view.top = self.top;
             view.wrap_start = self.wrap_start;
             view.left = self.left;
         }
+        if let Some(state) = self.org.get(&id) {
+            view.restore_org_presentation(state);
+        }
     }
 }
 impl Session {
     pub(in crate::session) fn remember_context_position(&mut self) {
         let view = self.windows.selected();
+        let buffer = view.point.stamp.buffer;
+        let mut org = self
+            .context_positions
+            .remove(&buffer)
+            .map(|p| p.org)
+            .unwrap_or_default();
+        // The live buffer catalog and live windows bound retention. Closed
+        // buffers already retire their position entry through the normal owner.
+        org.retain(|id, _| self.windows.get(*id).is_ok());
+        org.insert(self.windows.selected_id(), view.org_presentation());
         self.context_positions
-            .insert(view.point.stamp.buffer, Position::from_view(view));
+            .insert(buffer, Position::from_view(view, org));
     }
     pub(in crate::session) fn context_view(&self, buffer: &Buffer) -> View {
         let mut view = self.view().clone();
         view.rebind(buffer);
         if let Some(position) = self.context_positions.get(&buffer.id()) {
-            position.apply(&mut view, buffer);
+            position.apply(&mut view, buffer, self.windows.selected_id());
         }
         view
     }
@@ -118,7 +135,7 @@ impl Session {
             view.left = saved.horizontal_cells;
         }
         self.context_positions
-            .insert(id, Position::from_view(&view));
+            .insert(id, Position::from_view(&view, BTreeMap::new()));
         Ok(view)
     }
 }

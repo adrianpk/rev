@@ -135,7 +135,7 @@ pub enum Command {
 }
 
 impl Command {
-    pub const ALL: [Self; 618] = [
+    pub const ALL: [Self; 622] = [
         Self::Git(GitCommand::Clone),
         Self::Git(GitCommand::CloneShallow),
         Self::Git(GitCommand::CloneBare),
@@ -475,6 +475,10 @@ impl Command {
         Self::Org(OrgCommand::HideDrawer),
         Self::Org(OrgCommand::ShowDrawer),
         Self::Org(OrgCommand::ToggleDrawer),
+        Self::Org(OrgCommand::HideAllDrawers),
+        Self::Org(OrgCommand::ShowAllDrawers),
+        Self::Org(OrgCommand::ToggleAllDrawers),
+        Self::Org(OrgCommand::CycleSetStartupVisibility),
         Self::Org(OrgCommand::InsertHeading),
         Self::Org(OrgCommand::NextHeading),
         Self::Org(OrgCommand::PreviousHeading),

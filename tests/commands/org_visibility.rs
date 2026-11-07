@@ -25,7 +25,7 @@ fn visibility_keys() {
         input.handle(Event::Key(KeyEvent::new(KeyCode::Tab, KeyModifiers::SHIFT))),
         Outcome::Command(Command::Org(OrgCommand::GlobalCycle))
     );
-    assert_eq!(Command::matching("org-").len(), 234);
+    assert_eq!(Command::matching("org-").len(), 238);
     for command in OrgCommand::ALL {
         assert_eq!(Command::named(command.name()), Some(Command::Org(command)));
     }
@@ -41,6 +41,45 @@ fn visibility_keys() {
         input.handle(key(KeyCode::Tab)),
         Outcome::Command(Command::InsertTab)
     );
+}
+
+// These four names are unique shared identities with complete selector metadata
+// and no factory shortcut in either profile or any local context.
+#[test]
+fn visibility_metadata() {
+    use rev::input::keymap::Context;
+    for (command, description) in [
+        (
+            OrgCommand::HideAllDrawers,
+            "Hide all valid Org drawer bodies in the selected view.",
+        ),
+        (
+            OrgCommand::ShowAllDrawers,
+            "Show all valid Org drawer bodies in the selected view.",
+        ),
+        (
+            OrgCommand::ToggleAllDrawers,
+            "Toggle all valid Org drawer bodies in the selected view.",
+        ),
+        (
+            OrgCommand::CycleSetStartupVisibility,
+            "Restore the selected Org view's configured or document startup visibility.",
+        ),
+    ] {
+        let identity = Command::Org(command);
+        assert_eq!(Command::named(command.name()), Some(identity));
+        assert_eq!(identity.description(), Some(description));
+        assert_eq!(Command::ALL.iter().filter(|c| **c == identity).count(), 1);
+        for context in Context::ALL {
+            assert!(
+                context
+                    .defaults()
+                    .iter()
+                    .all(|(_, name)| *name != command.name()),
+                "{context:?}"
+            );
+        }
+    }
 }
 
 // Explicit recalculation has one compiled catalog and context binding. The

@@ -56,6 +56,25 @@ impl Session {
         if self.org_interaction_pending() {
             return self.message("Org structural observation is pending; C-g cancels");
         }
+        if matches!(
+            command,
+            OrgCommand::Cycle
+                | OrgCommand::GlobalCycle
+                | OrgCommand::Overview
+                | OrgCommand::Contents
+                | OrgCommand::HideSubtree
+                | OrgCommand::ShowChildren
+                | OrgCommand::ShowSubtree
+                | OrgCommand::HideDrawer
+                | OrgCommand::ShowDrawer
+                | OrgCommand::ToggleDrawer
+                | OrgCommand::HideAllDrawers
+                | OrgCommand::ShowAllDrawers
+                | OrgCommand::ToggleAllDrawers
+                | OrgCommand::CycleSetStartupVisibility
+        ) {
+            self.windows.selected_mut().suppress_org_startup();
+        }
         self.start_outline_request(command)
     }
     fn start_outline_request(&mut self, command: OrgCommand) -> Action {
@@ -299,9 +318,12 @@ impl Session {
                     .buffers
                     .get(self.view().point.stamp.buffer)
                     .map_err(|e| e.to_string())?;
-                self.windows
-                    .selected_mut()
-                    .org_visibility(buffer, model, command)
+                self.windows.selected_mut().org_visibility(
+                    buffer,
+                    model,
+                    command,
+                    self.buffers.snapshot().settings().org.startup_folded,
+                )
             }
         }
     }

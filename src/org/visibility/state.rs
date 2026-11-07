@@ -12,6 +12,19 @@ impl Visibility {
             OrgCommand::Overview => self.global(1),
             OrgCommand::Contents => self.global(2),
             OrgCommand::ShowAll => self.global(0),
+            OrgCommand::HideAllDrawers
+            | OrgCommand::ShowAllDrawers
+            | OrgCommand::ToggleAllDrawers => {
+                if !self.model.malformed.is_empty() {
+                    return Err("Org drawer observation is malformed");
+                }
+                let hide = match command {
+                    OrgCommand::HideAllDrawers => true,
+                    OrgCommand::ShowAllDrawers => false,
+                    _ => self.drawers.iter().any(|hidden| !hidden),
+                };
+                self.drawers.fill(hide);
+            }
             _ => return self.local(command, byte),
         }
         Ok(())

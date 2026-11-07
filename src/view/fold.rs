@@ -101,12 +101,14 @@ impl View {
         }
         self.folds = Some(folds);
         self.visibility = None;
+        self.startup_suppressed = true;
         self.reset_navigation();
         Ok(())
     }
 
     pub fn clear_folds(&mut self) -> bool {
         self.visibility_initialized = true;
+        self.startup_suppressed = true;
         self.visibility = None;
         self.folds.take().is_some()
     }

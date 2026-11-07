@@ -138,6 +138,10 @@ do not maintain a separate description list in publication templates.
 - **WHEN** the native catalog guard runs
 - **THEN** it fails and identifies the missing command.
 
+Current catalog: 622 canonical built-in commands, including four Org visibility
+commands added by the Org Initial Visibility delivery. The 618-command snapshot
+and completed delivery evidence below retain their original baseline meaning.
+
 ## Approved description inventory
 
 Each row gives a canonical name and its exact plain-text selector description.
@@ -664,6 +668,7 @@ Full behavior and prerequisites remain in the linked command references.
 | `org-content` | Show every heading without section bodies. |
 | `org-ctrl-c-ctrl-c` | Apply the contextual Org action for the table, timestamp, heading or list at point. |
 | `org-cycle` | Cycle heading or drawer visibility in native Org. |
+| `org-cycle-set-startup-visibility` | Restore the selected Org view's configured or document startup visibility. |
 | `org-date-from-calendar` | Insert the previously selected calendar date. |
 | `org-dblock-update` | Refresh a recognized clocktable or columnview body. |
 | `org-deadline` | Set the current heading's DEADLINE timestamp. |
@@ -704,6 +709,7 @@ Full behavior and prerequisites remain in the linked command references.
 | `org-habit-toggle-habits-only-for-today` | Toggle graphs only for today. |
 | `org-habit-toggle-show-all-today` | Include all habits on today's agenda. |
 | `org-hide-drawer` | Hide only the current drawer body. |
+| `org-hide-all-drawers` | Hide all valid Org drawer bodies in the selected view. |
 | `org-hide-subtree` | Hide the containing heading body and descendants. |
 | `org-inc-effort` | Cycle declared EFFORT_ALL choices. |
 | `org-indent-disable` | Disable visual heading and body indentation in the current Org buffer. |
@@ -773,6 +779,7 @@ Full behavior and prerequisites remain in the linked command references.
 | `org-shifttab` | Cycle overview, contents and show-all in this view. |
 | `org-shiftup` | Increase the timestamp field at point, or cycle heading priority. |
 | `org-show-all` | Show all source in this view. |
+| `org-show-all-drawers` | Show all valid Org drawer bodies in the selected view. |
 | `org-show-children` | Show direct child headings. |
 | `org-show-drawer` | Show the current drawer body. |
 | `org-show-subtree` | Show the entire containing subtree. |
@@ -823,6 +830,7 @@ Full behavior and prerequisites remain in the linked command references.
 | `org-toggle-checkbox` | Toggle checked source and update progress. |
 | `org-toggle-checkbox-presence` | Add or remove checkbox source explicitly. |
 | `org-toggle-drawer` | Toggle only the current drawer body. |
+| `org-toggle-all-drawers` | Toggle all valid Org drawer bodies in the selected view. |
 | `org-toggle-radio-button` | Select a radio checkbox at the current level. |
 | `org-up-heading-safe` | Visit the parent heading. |
 | `org-update-statistics-cookies` | Update current item/heading statistics. |

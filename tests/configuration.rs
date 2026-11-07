@@ -9,6 +9,8 @@ mod org_export;
 mod org_headings;
 #[path = "configuration/org_indentation.rs"]
 mod org_indentation;
+#[path = "configuration/org_visibility.rs"]
+mod org_visibility;
 #[path = "configuration/shell.rs"]
 mod shell;
 #[path = "configuration/terminal.rs"]

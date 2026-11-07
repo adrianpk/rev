@@ -168,9 +168,21 @@ pub enum Newline {
     Crlf,
 }
 
+/// Initial presentation for a new Org view; document STARTUP metadata may override it.
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Deserialize)]
+#[serde(rename_all = "lowercase")]
+pub enum StartupVisibility {
+    Overview,
+    Content,
+    Showall,
+    #[default]
+    Showeverything,
+}
+
 /// Native Org availability; individual buffers retain explicit mode choices.
 #[derive(Clone, Debug, PartialEq)]
 pub struct Org {
+    pub startup_folded: StartupVisibility,
     pub headings: Headings,
     pub enabled: bool,
     pub indent: bool,
@@ -201,6 +213,7 @@ pub struct Org {
 impl Default for Org {
     fn default() -> Self {
         Self {
+            startup_folded: StartupVisibility::default(),
             headings: Headings::default(),
             enabled: true,
             indent: true,
@@ -233,6 +246,7 @@ impl Default for Org {
 #[derive(Clone, Debug, Default, PartialEq, Deserialize)]
 #[serde(default, deny_unknown_fields)]
 pub struct PartialOrg {
+    pub startup_folded: Option<StartupVisibility>,
     pub headings: PartialHeadings,
     pub enabled: Option<bool>,
     pub indent: Option<bool>,

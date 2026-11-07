@@ -4,6 +4,7 @@ mod insertion;
 pub(crate) use tags::{ClockInsertion, ClockObservation};
 mod model;
 mod navigation;
+mod startup;
 mod state;
 mod subtree;
 mod tags;
@@ -57,6 +58,7 @@ pub(crate) struct Outline {
     tags: tags::Tags,
     archive_location: Result<Option<String>, String>,
     column_format: Result<Option<String>, String>,
+    startup: Option<crate::config::StartupVisibility>,
 }
 
 /// One current native line observation, including preamble and body ownership.
@@ -117,6 +119,7 @@ impl Outline {
         model.tags = tags::Tags::observe(structure, text, cancel);
         model.archive_location = archive::declaration(structure, text, cancel);
         model.column_format = reports::columns::declaration(structure, text, cancel);
+        model.startup = startup::declaration(&model, structure, text, cancel);
         model
     }
     fn heading(&self, byte: usize) -> Option<usize> {

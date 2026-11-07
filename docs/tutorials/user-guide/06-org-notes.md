@@ -118,6 +118,42 @@ this exercise. To cycle visibility across the whole document, use Shift-Tab.
 Folding changes the view, not the saved file. Search can still find folded
 text and reveal its containing entry.
 
+## Open notes with drawers hidden
+
+Add this drawer under the `Trip` heading, before `Equipment`, then save:
+
+```org
+:REQUEST:
+Route research and packing details.
+:END:
+```
+
+Run `M-x org-hide-all-drawers`. The request details disappear, while the Trip
+text and drawer delimiters remain visible. Run `M-x org-show-all-drawers` to
+reveal them. `M-x org-toggle-all-drawers` hides all drawers when any is open,
+otherwise opens them all. These operations leave your outline folds and saved
+text intact. In the modal profile, type `:` followed by the same command name.
+
+To make this document start with ordinary text visible and drawers hidden, add
+this line at the start, then save:
+
+```org
+#+STARTUP: showall
+```
+
+Run `M-x org-cycle-set-startup-visibility` to apply that policy to the current
+pane. The drawer body is hidden again. It also applies when opening a new view.
+Editing this keyword does not repeatedly change an existing pane's choice.
+`M-x org-show-all` still exposes all source, including drawer bodies.
+
+For a preference across files, set `startup_folded = "showall"` under `[org]`
+in your [configuration](09-preferences.md). A recognized document keyword takes
+precedence. The default `showeverything` shows all content; `overview` shows
+top-level headings and `content` shows every heading without bodies. See the
+[visibility reference](../../reference/org-mode.md#initial-visibility) for exact
+precedence, split-pane and reload behavior. None of these visibility commands
+changes source bytes, dirty state or editing history.
+
 ## Move between headings
 
 On `* Trip`, press `C-c C-n` to visit the next visible heading. On a child

@@ -7,6 +7,7 @@ pub(crate) use indentation::Projection;
 mod navigation;
 mod scroll;
 mod visibility;
+pub(crate) use visibility::Presentation as OrgPresentation;
 mod visual;
 mod wrap;
 pub(crate) use wrap::Budget as LayoutBudget;
@@ -137,6 +138,7 @@ pub struct View {
     folds: Option<fold::Folds>,
     visibility: Option<std::sync::Arc<crate::org::Visibility>>,
     visibility_initialized: bool,
+    startup_suppressed: bool,
     alignment: scroll::Alignment,
     tab_width: usize,
 }
@@ -181,6 +183,7 @@ impl View {
             folds: None,
             visibility: None,
             visibility_initialized: false,
+            startup_suppressed: false,
             alignment: scroll::Alignment::Center,
             tab_width: buffer.policy().tab_width,
         }

@@ -99,6 +99,7 @@ impl Session {
         self.poll_org();
         self.ai_result_visibility();
         self.finish_org_request();
+        self.initial_org_visibility();
         if self.org.job.is_active() || self.capture_blocks_input() {
             return;
         }
@@ -113,7 +114,9 @@ impl Session {
         let Some(id) = self.visible_org().into_iter().find(|id| {
             self.buffers.get(*id).is_ok_and(|buffer| {
                 buffer.needs_org_colors()
-                    || (self.pretty_org(*id) || self.ai_result_buffer(*id))
+                    || (self.pretty_org(*id)
+                        || self.ai_result_buffer(*id)
+                        || self.pending_org_visibility(*id))
                         && buffer.needs_org_outline()
             })
         }) else {
@@ -142,6 +145,37 @@ impl Session {
         self.windows
             .iter()
             .any(|(_, view)| view.point.stamp.buffer == id && view.pretty_headings())
+    }
+
+    fn pending_org_visibility(&self, id: BufferId) -> bool {
+        self.windows
+            .iter()
+            .any(|(_, view)| view.point.stamp.buffer == id && view.pending_org_visibility())
+    }
+
+    fn initial_org_visibility(&mut self) {
+        let configured = self.buffers.snapshot().settings().org.startup_folded;
+        let views: Vec<_> = self
+            .windows
+            .iter()
+            .filter(|(_, view)| {
+                view.pending_org_visibility() && !self.ai_result_buffer(view.point.stamp.buffer)
+            })
+            .map(|(id, view)| (id, view.point.stamp.buffer))
+            .collect();
+        for (id, buffer_id) in views {
+            let Ok(buffer) = self.buffers.get(buffer_id) else {
+                continue;
+            };
+            let Some(model) = buffer.org_outline().cloned() else {
+                continue;
+            };
+            if let Ok(view) = self.windows.get_mut(id)
+                && let Err(error) = view.initial_org_visibility(buffer, model, configured)
+            {
+                self.error(&error);
+            }
+        }
     }
 
     fn start_org(&mut self, id: BufferId) {
@@ -178,6 +212,7 @@ impl Session {
                 && (buffer.org_colors_admitted()
                     || self.pretty_org(source.buffer)
                     || self.ai_result_buffer(source.buffer)
+                    || self.pending_org_visibility(source.buffer)
                     || self
                         .org
                         .request

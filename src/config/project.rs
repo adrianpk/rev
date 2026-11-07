@@ -30,6 +30,10 @@ pub(super) fn settings(document: &Document) -> Settings {
     settings.terminal = document.terminal.project();
     scalar(&mut settings.org.enabled, document.org.enabled);
     scalar(&mut settings.org.indent, document.org.indent);
+    scalar(
+        &mut settings.org.startup_folded,
+        document.org.startup_folded,
+    );
     headings(&mut settings.org.headings, &document.org.headings);
     scalar(&mut settings.org.tags.inherit, document.org.tags.inherit);
     if let Some(names) = &document.org.properties.inherit {

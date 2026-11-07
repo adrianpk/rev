@@ -319,6 +319,51 @@ mod tests {
         generated_proposal("generated")
     }
 
+    // General startup cannot override deliberately folded REQUEST presentation,
+    // even with an overview preference. Later explicit full reveal stays final.
+    #[test]
+    fn startup_visibility() {
+        use crate::command::{Command, OrgCommand};
+        for policy in ["overview", "content", "showall", "showeverything"] {
+            let fixture = fixture::Fixture::new();
+            let settings = crate::config::prepare(
+                &fixture.write("config.toml", &format!("org.startup_folded='{policy}'")),
+            )
+            .snapshot;
+            let (mut session, _) = generated_with_settings("generated", settings);
+            let buffer = session
+                .buffers
+                .get_mut(session.view().point.stamp.buffer)
+                .unwrap();
+            let scan = crate::org::ColorScan::new(buffer, crate::org::Limits::default()).unwrap();
+            buffer
+                .install_org_coloring(scan.run(&crate::org::Cancellation::default()))
+                .unwrap();
+            session.refresh_org();
+            let buffer = session.buffer().unwrap();
+            let folded = session.view().visible_lines(buffer);
+            assert!(folded < buffer.len_lines(), "{policy}");
+            assert!(
+                session
+                    .frame()
+                    .unwrap()
+                    .rows()
+                    .iter()
+                    .any(|r| r.text().contains("generated")),
+                "{policy}"
+            );
+            session.execute(Command::Org(OrgCommand::ShowAll));
+            session.refresh_org();
+            let buffer = session.buffer().unwrap();
+            assert_eq!(
+                session.view().visible_lines(buffer),
+                buffer.len_lines(),
+                "{policy}"
+            );
+            assert!(buffer.history().is_empty());
+        }
+    }
+
     fn generated_proposal(generated: &str) -> (Session, BufferId) {
         generated_with_settings(generated, crate::config::Snapshot::default())
     }

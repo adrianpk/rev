@@ -91,6 +91,10 @@ source, agenda, calendar and draft actions require their stated owner.
 | M-x org-hide-drawer | `org-hide-drawer` | Hide only the current drawer body. |
 | M-x org-show-drawer | `org-show-drawer` | Show the current drawer body. |
 | M-x org-toggle-drawer | `org-toggle-drawer` | Toggle only the current drawer body. |
+| M-x org-hide-all-drawers | `org-hide-all-drawers` | Hide all valid Org drawer bodies in the selected view. |
+| M-x org-show-all-drawers | `org-show-all-drawers` | Show all valid Org drawer bodies in the selected view. |
+| M-x org-toggle-all-drawers | `org-toggle-all-drawers` | Toggle all valid Org drawer bodies in the selected view. |
+| M-x org-cycle-set-startup-visibility | `org-cycle-set-startup-visibility` | Restore the selected Org view's configured or document startup visibility. |
 | M-x org-insert-heading | `org-insert-heading` | Insert a heading at the current level through one checked edit. |
 | M-RET in Org | `org-meta-return` | Insert a heading or continue the precise current list item. |
 | M-S-Left in Org | `org-outdent-item-tree` | Outdent the whole item and its nested source. |

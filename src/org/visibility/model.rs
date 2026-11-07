@@ -18,6 +18,7 @@ pub(super) fn observe(structure: &Structure, cancel: &Cancellation) -> Outline {
         tags: Default::default(),
         archive_location: Ok(None),
         column_format: Ok(None),
+        startup: None,
     };
     for node in structure.raw_nodes() {
         if cancel.is_cancelled() {
@@ -118,7 +119,7 @@ fn block(result: &mut Outline, node: &crate::org::structure::Raw, eof: usize) {
     result.blocked.push(node.source.start..end);
 }
 
-fn merge(ranges: &mut Vec<std::ops::Range<usize>>) {
+pub(super) fn merge(ranges: &mut Vec<std::ops::Range<usize>>) {
     ranges.sort_by_key(|range| range.start);
     let mut merged: Vec<std::ops::Range<usize>> = Vec::new();
     for range in ranges.drain(..) {

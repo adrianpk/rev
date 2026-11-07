@@ -9,7 +9,7 @@ Planning baseline: `70c4e95bbd31a3550f5928ccaa1fbc1b8945ab23`
 Specification: [Org Initial Visibility and Drawers](../spec/editor-org-initial-visibility.md)
 Model: [Org Visibility Policy](../spec/editor-org-initial-visibility-model.md)
 Tracker: [Org Initial Visibility Tracker](../tracker/rev-org-initial-visibility.md)
-Ticket: [TKT-20261103111614](../ticket/ready/20261103111614-configure-org-drawer-visibility.md)
+Ticket: [TKT-20261103111614](../ticket/in_progress/20261103111614-configure-org-drawer-visibility.md)
 Concern: [Pending Editor Work](../README.md)
 Active slice: Slice 1 - Initial visibility and drawers
 

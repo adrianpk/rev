@@ -12,7 +12,7 @@ see [Org bindings](bindings.md) and the [capability map](../org-controls.md).
 | Visual indentation | `org-indent-mode`, `org-indent-enable`, `org-indent-disable` |
 | Heading presentation | `org-pretty-headings-mode`, `org-reset-heading-presentation` |
 | Native mode | `org-mode`, `text-mode` |
-| Org visibility | `org-cycle`, `org-shifttab`, `org-overview`, `org-content`, `org-show-all`, `org-hide-subtree`, `org-show-children`, `org-show-subtree`, `org-hide-drawer`, `org-show-drawer`, `org-toggle-drawer` |
+| Org visibility | `org-cycle`, `org-shifttab`, `org-overview`, `org-content`, `org-show-all`, `org-hide-subtree`, `org-show-children`, `org-show-subtree`, `org-hide-drawer`, `org-show-drawer`, `org-toggle-drawer`, `org-hide-all-drawers`, `org-show-all-drawers`, `org-toggle-all-drawers`, `org-cycle-set-startup-visibility` |
 | Org estimates | `org-priority`, `org-priority-up`, `org-priority-down`, `org-inspect-priority`, `org-set-effort`, `org-inc-effort`, `org-inspect-effort` |
 | Org timestamps | `org-timestamp`, `org-timestamp-inactive`, `org-schedule`, `org-deadline`, `org-goto-calendar`, `org-date-from-calendar` |
 | Org query agendas | `org-todo-list`, `org-search-view`, `org-tags-view` |
@@ -50,6 +50,24 @@ see [Org bindings](bindings.md) and the [capability map](../org-controls.md).
 | Org property columns | `org-columns`, `org-columns-insert-dblock` |
 | Org table interchange | `org-table-import`, `org-table-export` |
 | Org recalculation | `org-table-recalculate`, `org-table-recalculate-cell`, `org-table-recalculate-column` |
+
+## Initial visibility and drawers
+
+A new view uses `org.startup_folded`, unless a recognized document STARTUP
+visibility token overrides it. The [visibility reference](../org-mode.md#initial-visibility)
+compares the four states and their lifetime.
+
+Run org-hide-all-drawers, org-show-all-drawers or org-toggle-all-drawers to
+change valid property and custom drawer bodies in the selected view. They keep
+heading/body folds and ordinary prose intact. Toggle hides all when any drawer
+is open; otherwise it shows all. Empty targets are harmless. Malformed or
+incomplete observations cannot supply global drawer ranges.
+
+Run org-cycle-set-startup-visibility to resolve the current document or configured
+startup state again. Existing org-show-all still reveals all source, including
+drawers. All four additions are available through M-x and modal colon with no
+factory shortcut, including on read-only Org source. They do not edit, save or
+create undo entries.
 
 ## Visual indentation
 
