@@ -8,7 +8,7 @@ Specification: [Files, Directories, Projects and Workspaces](../spec/editor-proj
 Model: [Project and Workspace Model](../spec/editor-projects-workspaces-model.md)
 Concern: [Pending Work Index](../README.md)
 Plan: [Projects and Workspaces Delivery](../plan/rev-projects-workspaces.md)
-Active slice: Slice 4 - Workspace roots and trees
+Active slice: Slice 5 - Artifact lifecycle and conversion
 Progress owner: retained Looper checkpoint and canonical validation receipts
 Full gate: the exact ordered command in the plan and frozen local configuration
 
@@ -77,7 +77,7 @@ Integration: PR #300 merged into dev at `ff3b361ece896a42155c8817f0e51dc0e6a78fa
 
 ## Slice 4: Workspace roots and trees
 
-State: reviewing
+State: delivered
 Dependency: Slice 3 integrated
 Requirements: PW09-PW11, PW15-PW16, PW18-PW22
 Branch: `feat/rev-projects-workspaces-04-workspaces`
@@ -86,13 +86,15 @@ Report: `ops/default/report/slices/rev-projects-workspaces/slice-4-workspaces.md
 Validation: the exact ordered Slice 4 commands in the plan/local configuration
 Implementation: T4.1/T4.2/T4.3 in `8a356b7dd14b33ac7c6e2cb3760f3dde1725362a`, including eight new Workspace cases, peer-root geometry/identity, scoped native closure and delivered guidance; report introduction in `2b9b7916024932d59cf6463d2bbb85d3f29090f8`. All five implementation commands passed, including 45 context, 67 pointer and 71 tree tests; final clean-HEAD evidence remains controller-owned.
 
+Integration: PR #301 merged into dev at `84a934fa2813486fa43944b30e36e01f1f6b35cc`; all five clean-HEAD commands passed in receipt `BGN6A2WAMKCHDOVMPKIVCR5SL3`.
+
 - [x] T4.1: Deliver empty Workspace creation, named selection/listing and independent basic sessions. Add directories or Project-derived paths without importing Project sessions or consuming registrations.
 - [x] T4.2: Project ordered root identities into the existing decorated/minimal tree, retaining lazy discovery, Nerd Fonts policy, hit geometry and canonical buffers across aliases/overlap. Preserve unavailable roots and their saved entries.
 - [x] T4.3: Deliver checked root removal, remapping surviving overlapping file references and resolving only affected buffers before committing membership. Test empty/partial/unavailable roots, both profiles and native pointer/keyboard behavior; document delivered workflows.
 
 ## Slice 5: Artifact lifecycle and conversion
 
-State: planned
+State: active
 Dependency: Slice 4 integrated
 Requirements: PW07-PW08, PW12-PW14, PW17-PW19, PW22
 Branch: `feat/rev-projects-workspaces-05-management`

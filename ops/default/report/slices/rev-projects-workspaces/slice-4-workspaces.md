@@ -1,6 +1,6 @@
 # Slice 4: Workspace roots and trees
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-projects-workspaces
 Plan: [Projects and Workspaces Delivery](../../../plan/rev-projects-workspaces.md)
 Tracker: [Projects and Workspaces Tracker](../../../tracker/rev-projects-workspaces.md)
@@ -8,6 +8,9 @@ Branch: `feat/rev-projects-workspaces-04-workspaces`
 PR: `#301`
 Canonical PR: [#301](https://forge.adrianpk.com/adrianpk/rev/pulls/301)
 Report introduction: [immutable report](https://forge.adrianpk.com/adrianpk/rev/src/commit/2b9b7916024932d59cf6463d2bbb85d3f29090f8/ops/default/report/slices/rev-projects-workspaces/slice-4-workspaces.md)
+
+Integrated: PR #301 merged into dev at `84a934fa2813486fa43944b30e36e01f1f6b35cc`.
+Validation receipt: `BGN6A2WAMKCHDOVMPKIVCR5SL3`; all five required ordered commands passed on that clean HEAD.
 
 ## Purpose
 

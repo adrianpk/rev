@@ -10,7 +10,7 @@ Concern: [Pending Work Index](../README.md)
 Slice strategy: one complete state-storage foundation, then behavior-first increments, combined acceptance and guidance
 Planning baseline: 1a2587840dd29a20600de15566d7a778f605f0cb
 Tracker: [Projects and Workspaces Tracker](../tracker/rev-projects-workspaces.md)
-Active slice: Slice 4 - Workspace roots and trees
+Active slice: Slice 5 - Artifact lifecycle and conversion
 Full gate: `export CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 && cargo fmt --all -- --check && cargo clippy --locked --all-targets -- -D warnings && cargo test --locked --lib --test contexts --test configuration --test commands --test modal --test display --test files --test tree --test recovery --test pointer -- --test-threads=1 && cargo test --locked --test git_integration source -- --test-threads=1 && cargo test --locked --test integrated_terminal lifecycle -- --test-threads=1 && cargo test --locked --test shell_commands lifecycle -- --test-threads=1 && cargo test --locked --test pi --test lsp -- --test-threads=1 && bash scripts/check-projects-workspaces.sh && cargo run --locked --quiet --example documentation-check && bash scripts/build-user-guide.sh && git diff --check`
 
 ## Outcome and strategy
