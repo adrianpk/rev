@@ -81,10 +81,10 @@ State: reviewing
 Dependency: Slice 3 integrated
 Requirements: PW09-PW11, PW15-PW16, PW18-PW22
 Branch: `feat/rev-projects-workspaces-04-workspaces`
-PR: pending
+PR: [#301](https://forge.adrianpk.com/adrianpk/rev/pulls/301)
 Report: `ops/default/report/slices/rev-projects-workspaces/slice-4-workspaces.md`
 Validation: the exact ordered Slice 4 commands in the plan/local configuration
-Implementation: T4.1/T4.2/T4.3 in `8a356b7dd14b33ac7c6e2cb3760f3dde1725362a`, including eight new Workspace cases, peer-root geometry/identity, scoped native closure and delivered guidance. All five implementation commands passed, including 45 context, 67 pointer and 71 tree tests; final clean-HEAD evidence remains controller-owned.
+Implementation: T4.1/T4.2/T4.3 in `8a356b7dd14b33ac7c6e2cb3760f3dde1725362a`, including eight new Workspace cases, peer-root geometry/identity, scoped native closure and delivered guidance; report introduction in `2b9b7916024932d59cf6463d2bbb85d3f29090f8`. All five implementation commands passed, including 45 context, 67 pointer and 71 tree tests; final clean-HEAD evidence remains controller-owned.
 
 - [x] T4.1: Deliver empty Workspace creation, named selection/listing and independent basic sessions. Add directories or Project-derived paths without importing Project sessions or consuming registrations.
 - [x] T4.2: Project ordered root identities into the existing decorated/minimal tree, retaining lazy discovery, Nerd Fonts policy, hit geometry and canonical buffers across aliases/overlap. Preserve unavailable roots and their saved entries.
