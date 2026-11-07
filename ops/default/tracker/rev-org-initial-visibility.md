@@ -1,13 +1,13 @@
 # Org Initial Visibility Tracker
 
-Status: In progress
+Status: Reviewing
 Date: 2026-11-07
 Delivery set: rev-org-initial-visibility
 Approved: product owner requested the specification, plan and Looper delivery
 Plan: [Org Initial Visibility Delivery](../plan/rev-org-initial-visibility.md)
 Specification: [Org Initial Visibility and Drawers](../spec/editor-org-initial-visibility.md)
 Model: [Org Visibility Policy](../spec/editor-org-initial-visibility-model.md)
-Ticket: [TKT-20261103111614](../ticket/in_progress/20261103111614-configure-org-drawer-visibility.md)
+Ticket: [TKT-20261103111614](../ticket/reviewing/20261103111614-configure-org-drawer-visibility.md)
 Concern: [Pending Editor Work](../README.md)
 Active slice: Slice 1 - Initial visibility and drawers
 Progress owner: retained Looper checkpoint and canonical validation evidence
@@ -20,7 +20,7 @@ Progress owner: retained Looper checkpoint and canonical validation evidence
 
 ## Slice 1: Initial visibility and drawers
 
-State: in_progress
+State: reviewing
 Requirements: OIV01-OIV05 and the approved model
 Branch: `feat/rev-org-initial-visibility-01-policy`
 PR: pending
@@ -31,9 +31,15 @@ Validation: the twelve exact ordered commands in the plan and local configuratio
   metadata and checked one-time view initialization with source/AI compatibility.
 - [x] T1.2: Add the four complete named actions and native configuration,
   visibility, source/reveal and both-profile acceptance without duplicate identity.
-- [ ] T1.3: Reconcile live command/configuration references and descriptions,
+- [x] T1.3: Reconcile live command/configuration references and descriptions,
   Org Markdown/Spore guidance, Unreleased notes and the canonical report; move
   the ticket to reviewing before gate preparation.
+
+## Task and commit evidence
+
+- T1.1-T1.2 and product guidance for T1.3: `83bfa87d005aac504af7c9a814e7b1403e7067cb`.
+- T1.3 report and reviewing ticket transition: introduced before canonical PR creation.
+- Ordered slice preflight passed; the Looper receipt binds final clean PR HEAD.
 
 ## Final gate and closure
 

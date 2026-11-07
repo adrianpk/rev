@@ -6,7 +6,7 @@ Updated: 2026-11-07
 Inspection baseline: `70c4e95bbd31a3550f5928ccaa1fbc1b8945ab23`
 Format: OpenSpec capability addition
 Approved: product owner requested specification, planning and one Looper delivery on 2026-11-07
-Source: [TKT-20261103111614](../ticket/in_progress/20261103111614-configure-org-drawer-visibility.md)
+Source: [TKT-20261103111614](../ticket/reviewing/20261103111614-configure-org-drawer-visibility.md)
 Baseline: [Native Org](editor-org-mode.md), ORG03 and ORG05
 Model: [Org Visibility Policy](editor-org-initial-visibility-model.md)
 Plan: [Org Initial Visibility Delivery](../plan/rev-org-initial-visibility.md)
