@@ -1,6 +1,6 @@
 # Org Visibility Policy
 
-Status: Approved
+Status: Completed
 Date: 2026-11-06
 Updated: 2026-11-07
 Specification: [Org Initial Visibility and Drawers](editor-org-initial-visibility.md)
@@ -64,3 +64,9 @@ The specification defines four new unique canonical names and their exact
 descriptions. Extend existing command/Org catalogs and the current description
 inventory; retain all previous definitions and historical baseline evidence.
 No aliases, new keybinding context or factory shortcut is introduced.
+
+## Completed delivery evidence
+
+Canonical PR #310 is integrated into dev. The unchanged controller gate passed
+at `dc31493589c9a35eff79edebe1765a76a3fa4651`. The [Slice 1 closure](../report/slices/rev-org-initial-visibility/slice-1-policy.md#delivery-set-closure)
+records OIV01-OIV05, model, exact command and gate log evidence.

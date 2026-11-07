@@ -1,12 +1,12 @@
 # Org Initial Visibility and Drawers
 
-Status: Approved
+Status: Completed
 Date: 2026-11-06
 Updated: 2026-11-07
 Inspection baseline: `70c4e95bbd31a3550f5928ccaa1fbc1b8945ab23`
 Format: OpenSpec capability addition
 Approved: product owner requested specification, planning and one Looper delivery on 2026-11-07
-Source: [TKT-20261103111614](../ticket/reviewing/20261103111614-configure-org-drawer-visibility.md)
+Source: [TKT-20261103111614](../ticket/solved/20261103111614-configure-org-drawer-visibility.md)
 Baseline: [Native Org](editor-org-mode.md), ORG03 and ORG05
 Model: [Org Visibility Policy](editor-org-initial-visibility-model.md)
 Plan: [Org Initial Visibility Delivery](../plan/rev-org-initial-visibility.md)
@@ -207,3 +207,9 @@ Project Markdown into Spore and update Unreleased. Native source/configuration
 fixtures cover both editing profiles, all policies, Unicode/EOF, read-only
 buffers, split/reload and delayed observation, including source-state safety.
 Use existing limits and owners; do not introduce a separate folding subsystem.
+
+## Completed delivery evidence
+
+Canonical PR #310 is integrated into dev. The unchanged controller gate passed
+at `dc31493589c9a35eff79edebe1765a76a3fa4651`. The [Slice 1 closure](../report/slices/rev-org-initial-visibility/slice-1-policy.md#delivery-set-closure)
+records OIV01-OIV05, model, exact command and gate log evidence.

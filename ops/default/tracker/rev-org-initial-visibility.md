@@ -1,13 +1,13 @@
 # Org Initial Visibility Tracker
 
-Status: Awaiting gate
+Status: Completed
 Date: 2026-11-07
 Delivery set: rev-org-initial-visibility
 Approved: product owner requested the specification, plan and Looper delivery
 Plan: [Org Initial Visibility Delivery](../plan/rev-org-initial-visibility.md)
 Specification: [Org Initial Visibility and Drawers](../spec/editor-org-initial-visibility.md)
 Model: [Org Visibility Policy](../spec/editor-org-initial-visibility-model.md)
-Ticket: [TKT-20261103111614](../ticket/reviewing/20261103111614-configure-org-drawer-visibility.md)
+Ticket: [TKT-20261103111614](../ticket/solved/20261103111614-configure-org-drawer-visibility.md)
 Concern: [Pending Editor Work](../README.md)
 Active slice: none; Slice 1 of 1 delivered
 Progress owner: retained Looper checkpoint and canonical validation evidence
@@ -46,11 +46,14 @@ Validation: the twelve exact ordered commands in the plan and local configuratio
 ## Final gate and closure
 
 - [x] Verify canonical slice PR integration and delivered report evidence.
-- [ ] Run the unchanged selected gate on exact clean dev and record its receipt.
-- [ ] Solve the ticket with resolution fixed and real commit/PR/lifecycle fields.
-- [ ] Complete plan, tracker, specification and model and reconcile the index.
-- [ ] Verify documentation-only closure preserves runtime and guide inputs.
+- [x] Run the unchanged selected gate on exact clean dev and record its receipt.
+- [x] Solve the ticket with resolution fixed and real commit/PR/lifecycle fields.
+- [x] Complete plan, tracker, specification and model and reconcile the index.
+- [x] Verify documentation-only closure preserves runtime and guide inputs.
 
-Slice 1 of 1 is delivered; the controller-owned integrated gate is pending.
-The source ticket remains reviewing until that gate passes. Quit alias,
+Slice 1 of 1 is delivered and this delivery set is Completed. The source ticket
+is solved as fixed after the unchanged controller-owned gate passed at
+`dc31493589c9a35eff79edebe1765a76a3fa4651`. Gate log: `dc31493589c9a35eff79edebe1765a76a3fa4651.WGY3SYJSVJNN2WPJHND5EIZSCL.log`.
+[Delivery-set closure](../report/slices/rev-org-initial-visibility/slice-1-policy.md#delivery-set-closure)
+records the exact gate command and documentation boundary. Quit alias,
 startup session restoration and other capability proposals remain separate.

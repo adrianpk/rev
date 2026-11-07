@@ -1,7 +1,9 @@
 ---
 id: TKT-20261103111614
 title: Configure Org drawer visibility
-status: reviewing
+status: solved
+resolution: fixed
+closed_at: 2026-11-07T19:30:47Z
 kind: task
 severity: unclassified
 priority: unclassified
@@ -14,7 +16,7 @@ started_at: 2026-11-07T19:10:01Z
 branch: feat/rev-org-initial-visibility-01-policy
 pr: 310
 reviewed_at: 2026-11-07T19:20:46Z
-commits: [83bfa87d005aac504af7c9a814e7b1403e7067cb, b8b5df26589b91b533af023ef1ae75eef312e9c1]
+commits: [83bfa87d005aac504af7c9a814e7b1403e7067cb, b8b5df26589b91b533af023ef1ae75eef312e9c1, 414fb6ac0f0321211b9b07ebf2b1c34c384e42e7, dc31493589c9a35eff79edebe1765a76a3fa4651]
 ---
 
 # Configure Org drawer visibility
@@ -107,13 +109,13 @@ and navigation/selection continue to use canonical source positions.
 ## Relationship and delivery boundary
 
 The later Pi acceptance adjustment now presents AI results as native Org with
-REQUEST initially folded. That solved presentation change leaves this general
-Org startup/whole-view visibility ticket pending; it is outside the heading-marker
-delivery.
+REQUEST initially folded. This general Org startup/whole-view visibility
+follow-up is now delivered separately through canonical PR #310.
 
 This is an Org visibility ticket, related to the delivered
 [Org Mode specification](../../spec/editor-org-mode.md) and the
 [visibility reference](../../../../docs/reference/org-mode.md).
-The separate AI presentation delivery is complete. This ready ticket owns only
-the approved general visibility behavior. Implementation, validation and later
-lifecycle transitions belong to the recorded Looper delivery.
+The separate AI presentation delivery remains complete. This ticket is solved
+as fixed after the unchanged controller gate passed OIV01-OIV05 at
+`dc31493589c9a35eff79edebe1765a76a3fa4651`. The [Slice 1 closure](../../report/slices/rev-org-initial-visibility/slice-1-policy.md#delivery-set-closure)
+records the canonical PR, lifecycle and gate evidence.

@@ -1,6 +1,6 @@
 # Org Initial Visibility Delivery
 
-Status: Approved
+Status: Completed
 Date: 2026-11-07
 Delivery set: rev-org-initial-visibility
 Slice strategy: behavior-first
@@ -9,7 +9,7 @@ Planning baseline: `70c4e95bbd31a3550f5928ccaa1fbc1b8945ab23`
 Specification: [Org Initial Visibility and Drawers](../spec/editor-org-initial-visibility.md)
 Model: [Org Visibility Policy](../spec/editor-org-initial-visibility-model.md)
 Tracker: [Org Initial Visibility Tracker](../tracker/rev-org-initial-visibility.md)
-Ticket: [TKT-20261103111614](../ticket/reviewing/20261103111614-configure-org-drawer-visibility.md)
+Ticket: [TKT-20261103111614](../ticket/solved/20261103111614-configure-org-drawer-visibility.md)
 Concern: [Pending Editor Work](../README.md)
 Active slice: none; Slice 1 of 1 delivered
 
@@ -116,8 +116,9 @@ or remove source/uncertain files to create capacity.
 
 Slice 1 is delivered through canonical PR #310, integrated into dev at
 `414fb6ac0f0321211b9b07ebf2b1c34c384e42e7`. The report is delivered and the source
-ticket remains reviewing. Native gate prerequisites are available; the unchanged
-controller-owned integrated gate is pending.
+ticket is solved as fixed. The unchanged controller-owned integrated gate passed
+at `dc31493589c9a35eff79edebe1765a76a3fa4651`; [delivery-set closure](../report/slices/rev-org-initial-visibility/slice-1-policy.md#delivery-set-closure)
+records exact command and log evidence. OIV01-OIV05 and the model are Completed.
 
 Keep the ticket reviewing and reports delivered for the integrated gate.
 After it passes, solve the ticket with resolution fixed and real lifecycle

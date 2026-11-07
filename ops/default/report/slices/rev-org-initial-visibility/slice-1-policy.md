@@ -109,11 +109,41 @@ Documentation checked 91 reachable pages and 628 local links/anchors; Spore
 strict check, link validation, rendering and anchor finishing passed.
 
 The twelve-command slice validation receipt covers clean PR HEAD
-`414fb6ac0f0321211b9b07ebf2b1c34c384e42e7`. The controller-owned integrated
-gate is pending after this delivered-document preparation.
+`414fb6ac0f0321211b9b07ebf2b1c34c384e42e7`. The unchanged controller-owned
+integrated gate subsequently passed at `dc31493589c9a35eff79edebe1765a76a3fa4651`.
 
 ## Risks and Follow-ups
 
-No unresolved implementation failures. Slice 1 is integrated. The integrated
-full gate and delivery-set closure remain controller-owned. No external provider or fixture
-was started, and no installation or publication was performed.
+None recorded. No external provider or owned service fixture was required.
+No installation or publication was performed.
+
+
+## Delivery-set closure
+
+Status: Completed
+Requirements: OIV01-OIV05 and the approved model
+Canonical PR: [#310](https://forge.adrianpk.com/adrianpk/rev/pulls/310), merged into dev
+Integrated implementation: `414fb6ac0f0321211b9b07ebf2b1c34c384e42e7`
+Tested candidate: `dc31493589c9a35eff79edebe1765a76a3fa4651`
+Gate log: `dc31493589c9a35eff79edebe1765a76a3fa4651.WGY3SYJSVJNN2WPJHND5EIZSCL.log`
+
+The controller passed this exact unchanged command sequence on the immutable
+candidate before documentation closure:
+
+- Passed: `export CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 && cargo fmt --all -- --check && cargo clippy --locked --all-targets -- -D warnings && cargo test --locked --test org_editing visibility -- --test-threads=1 && cargo test --locked --test org_editing fold -- --test-threads=1 && cargo test --locked --test commands visibility -- --test-threads=1 && cargo test --locked --test commands catalog_reference -- --test-threads=1 && cargo test --locked --test commands description -- --test-threads=1 && cargo test --locked --test display hint -- --test-threads=1 && cargo test --locked --test configuration org_visibility -- --test-threads=1 && cargo run --locked --quiet --example documentation-check && bash scripts/build-user-guide.sh && git diff --check`
+
+All selected filters executed tests: 19 visibility, 9 fold, 4 command visibility,
+1 catalog reference, 1 command-description, 2 display-hint and 2 configuration
+visibility tests. Catalog verification passed 622 commands and 291 configuration
+entries. Documentation checked 91 pages and 628 local links/anchors; the Spore
+User Guide projection and build passed.
+
+The plan, tracker, specification and model are Completed. The source ticket is
+[solved as fixed](../../../ticket/solved/20261103111614-configure-org-drawer-visibility.md)
+with its original lifecycle timestamps, branch, PR and real commit evidence.
+The earlier AI presentation ticket links to that solved follow-up.
+
+Only the injected closure documents differ after the tested candidate. Runtime,
+tests, required assertions, command definitions, guide inputs, canonical slice
+identity and the ordered gate remain unchanged. No gate was rerun during closure;
+no owned test fixture required shutdown.
