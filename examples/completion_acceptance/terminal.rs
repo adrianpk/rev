@@ -27,7 +27,20 @@ pub(crate) struct Terminal {
 
 impl Terminal {
     pub(crate) fn start(root: &Path, binary: &Path, wrapper: &Path, name: &str) -> Result<Self> {
-        let mut child = Command::new("script")
+        Self::launch(root, binary, wrapper, Some(name))
+    }
+
+    #[allow(
+        dead_code,
+        reason = "Context acceptance also exercises no-target startup."
+    )]
+    pub(crate) fn start_no_target(root: &Path, binary: &Path, wrapper: &Path) -> Result<Self> {
+        Self::launch(root, binary, wrapper, None)
+    }
+
+    fn launch(root: &Path, binary: &Path, wrapper: &Path, name: Option<&str>) -> Result<Self> {
+        let mut command = Command::new("script");
+        command
             .args([
                 "-q",
                 "-e",
@@ -42,8 +55,11 @@ impl Terminal {
             ])
             .arg(wrapper)
             .arg("--pty-child")
-            .arg(binary)
-            .arg(root.join("workspace").join(name))
+            .arg(binary);
+        if let Some(name) = name {
+            command.arg(root.join("workspace").join(name));
+        }
+        let mut child = command
             .env("HOME", root.join("pty/home"))
             .env("XDG_CONFIG_HOME", root.join("pty/config"))
             .env("XDG_DATA_HOME", root.join("pty/data"))
@@ -68,7 +84,11 @@ impl Terminal {
             editor: String::new(),
             dimensions: None,
         };
-        terminal.wait(|text| text.contains("REV_EDITOR_PID=") && text.contains(name))?;
+        let marker = name
+            .and_then(|name| Path::new(name).file_name())
+            .and_then(|name| name.to_str())
+            .unwrap_or("New Buffer");
+        terminal.wait(|text| text.contains("REV_EDITOR_PID=") && text.contains(marker))?;
         terminal.editor = terminal
             .output
             .lines()
@@ -77,7 +97,7 @@ impl Terminal {
             .trim()
             .to_owned();
         terminal.dimensions = dimensions(&terminal.output);
-        terminal.frame(|frame| frame.contains(name))?;
+        terminal.frame(|frame| frame.contains(marker))?;
         Ok(terminal)
     }
 

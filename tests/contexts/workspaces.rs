@@ -374,7 +374,7 @@ fn scoped_removal() {
         key(&mut session, KeyCode::Char('y'));
         assert!(session.echo().contains("Remove root:"));
         key(&mut session, KeyCode::Char('n'));
-        ready(&mut session, |s| workspace_state_empty(s));
+        ready(&mut session, workspace_state_empty);
         assert_eq!(session.context(), &Context::Workspace(first.id));
         assert_eq!(session.buffer().unwrap().stamp(), loose_stamp);
         assert_eq!(text(&session), "lloose");
