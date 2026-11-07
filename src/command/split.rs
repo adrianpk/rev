@@ -7,4 +7,11 @@ impl Split {
             Self::Right => "split-window-right",
         }
     }
+
+    pub(crate) fn description(self) -> &'static str {
+        match self {
+            Self::Below => "Split into upper/lower views.",
+            Self::Right => "Split into left/right views.",
+        }
+    }
 }

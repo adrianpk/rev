@@ -15,4 +15,13 @@ impl RectangleCommand {
             Self::Yank => "yank-rectangle",
         }
     }
+
+    pub(crate) fn description(self) -> &'static str {
+        match self {
+            Self::Mark => "Toggle display-column selection.",
+            Self::Copy => "Retain selected rectangle rows.",
+            Self::Kill => "Remove and retain the rectangle as one edit.",
+            Self::Yank => "Insert retained rows with required padding.",
+        }
+    }
 }

@@ -19,6 +19,13 @@ impl Mode {
             Self::Org => "org-mode",
         }
     }
+
+    pub(crate) fn description(self) -> &'static str {
+        match self {
+            Self::Text => "Select ordinary text editing.",
+            Self::Org => "Select native Org for the current buffer.",
+        }
+    }
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]

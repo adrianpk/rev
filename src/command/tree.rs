@@ -42,6 +42,19 @@ impl TreeCommand {
         }
     }
 
+    pub(crate) fn description(self) -> &'static str {
+        match self {
+            Self::Delete => "Confirm removal, including separate recursive consent.",
+            Self::Rename => "Rename one entry and reconcile visited paths.",
+            Self::Open => "Open a file or toggle a directory.",
+            Self::CreateFile => "Create an empty file at the selected directory.",
+            Self::CreateDirectory => "Create a directory at the selected directory.",
+            Self::Toggle => "Show or hide the left tree.",
+            Self::Focus => "Focus the visible tree.",
+            _ => self.navigation_description(),
+        }
+    }
+
     fn navigation_name(self) -> &'static str {
         match self {
             Self::Previous => "tree-previous-line",
@@ -50,6 +63,18 @@ impl TreeCommand {
             Self::Collapse => "tree-collapse",
             Self::Activate => "tree-toggle-directory",
             Self::Refresh => "tree-refresh",
+            _ => unreachable!("entry commands route before navigation names"),
+        }
+    }
+
+    fn navigation_description(self) -> &'static str {
+        match self {
+            Self::Previous => "Select the preceding visible entry.",
+            Self::Next => "Select the next visible entry.",
+            Self::Expand => "Lazily expand a directory.",
+            Self::Collapse => "Collapse or select the parent.",
+            Self::Activate => "Toggle a directory; leaves report an error.",
+            Self::Refresh => "Reload already opened tree branches.",
             _ => unreachable!("entry commands route before navigation names"),
         }
     }

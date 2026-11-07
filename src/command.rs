@@ -769,9 +769,13 @@ impl Command {
     ];
 
     /// Optional single-line catalog summary for command selectors.
-    /// Description authoring is independent from name, binding and dispatch.
+    /// Built-ins own fixed summaries; user-defined commands can omit metadata.
     pub fn description(&self) -> Option<&'static str> {
-        None
+        if matches!(self, Self::AiDefined(_)) {
+            None
+        } else {
+            Some(self.builtin_description())
+        }
     }
 
     pub fn name(&self) -> &str {
@@ -787,6 +791,20 @@ impl Command {
             _ => self.family_name(),
         }
     }
+
+    fn builtin_description(&self) -> &'static str {
+        match self {
+            Self::AiDefined(_) => unreachable!("user commands retain optional metadata"),
+            Self::Navigate(request) => request.description(),
+            Self::Edit(request) => request.description(),
+            Self::Modal(command) => command.description(),
+            Self::Bookmark(command) => command.description(),
+            Self::Motion(motion) => motion.description(),
+            Self::Scroll(scroll) => scroll.description(),
+            Self::History(history) => history.description(),
+            _ => self.family_description(),
+        }
+    }
     fn family_name(self) -> &'static str {
         match self {
             Self::Git(command) => command.name(),
@@ -798,6 +816,20 @@ impl Command {
             Self::Linear(command) => command.name(),
             Self::Whitespace(command) => command.name(),
             _ => self.action_name(),
+        }
+    }
+
+    fn family_description(self) -> &'static str {
+        match self {
+            Self::Git(command) => command.description(),
+            Self::Terminal(command) => command.description(),
+            Self::Buffer(command) => command.description(),
+            Self::Split(split) => split.description(),
+            Self::Window(command) => command.description(),
+            Self::Kill(command) => command.description(),
+            Self::Linear(command) => command.description(),
+            Self::Whitespace(command) => command.description(),
+            _ => self.action_description(),
         }
     }
 
@@ -856,6 +888,93 @@ impl Command {
         }
     }
 
+    fn action_description(self) -> &'static str {
+        match self {
+            Self::Rectangle(command) => command.description(),
+            Self::Gutter(command) => command.description(),
+            Self::ExecuteExtended => "Find and invoke a command.",
+            Self::Quit => "Exit rev after resolving unsaved work and active processes.",
+            Self::FindFile => "Open a file or directory.",
+            Self::GenerateNewBuffer => "Add an unnamed buffer in the active context.",
+            Self::OpenDirectory => {
+                "Choose an existing directory and replace the context after source decisions and owned cleanup."
+            }
+            Self::ContextClose => {
+                "Resolve current source work, close its context and return to the startup screen."
+            }
+            Self::DashboardOpen => "Retain current work and show the native startup actions.",
+            Self::ProjectCreate => "Choose a directory, name it and open the registered Project.",
+            Self::ProjectPromote => "Register the temporary directory while retaining live work.",
+            Self::ProjectSwitch => "Restore a Project selected by name/path.",
+            Self::ProjectList => "Choose a registered Project and restore its file session.",
+            Self::WorkspaceCreate => "Name and open an empty Workspace.",
+            Self::WorkspaceOpen => "Restore a Workspace selected by name/path.",
+            Self::WorkspaceList => "Choose a Workspace and restore its file session.",
+            Self::WorkspaceAddDirectory => "Append an existing directory to the active Workspace.",
+            Self::WorkspaceAddProject => {
+                "Append a Project directory without importing its saved files."
+            }
+            Self::WorkspaceRemoveRoot => {
+                "Resolve only files losing coverage and remove their root membership."
+            }
+            Self::ProjectRename => "Select a Project and change only its display name.",
+            Self::ProjectForget => {
+                "Remove Project metadata; active live work becomes a temporary directory."
+            }
+            Self::ProjectSetRoot => {
+                "Select a Project and an existing replacement directory without moving files."
+            }
+            Self::ProjectPromoteToWorkspace => {
+                "Convert a Project atomically to a fresh Workspace; active dirty text stays live."
+            }
+            Self::ProjectDuplicateAsWorkspace => {
+                "Resolve source decisions, retain the Project and open an independent Workspace copy of its file session."
+            }
+            Self::WorkspaceRename => "Select a Workspace and change only its display name.",
+            Self::WorkspaceForget => {
+                "Remove Workspace metadata; active work resolves source decisions and closes the context."
+            }
+            Self::WorkspaceSetRootPath => {
+                "Select a Workspace/root identity and an existing replacement directory."
+            }
+            Self::GotoLine => "Go to a one-based logical line number.",
+            Self::SaveBuffer => "Save to the current destination.",
+            Self::RevertBuffer => {
+                "Reload a checked disk image; confirm before discarding unsaved text."
+            }
+            Self::AiExplain => "Explain the selected text using the chosen AI context.",
+            Self::AiPrompt => {
+                "Request an AI transformation of the selection or insertion at point."
+            }
+            Self::AiImplement => "Generate an implementation at point from an instruction.",
+            Self::AiApplyResult => {
+                "Apply the selected proposal once to its original checked target."
+            }
+            Self::AiDiscardResult => "Discard the pending result without editing source.",
+            Self::AiSetDirectory => "Choose a session-local AI context root.",
+            Self::AiSelectModel => "Choose a Pi-reported provider/model for this editor session.",
+            Self::AiResetSession => "Start fresh owned history on the next explicit invocation.",
+            Self::AiDisconnect => "Stop the Pi connection while keeping its history and results.",
+            Self::AiCancel => "Cancel the active invocation or AI-owned input/result.",
+            Self::AiSaveCommand => "Save the successful literal instruction as a reusable command.",
+            Self::ShellCommand => "Run a shell command and retain its output.",
+            Self::ShellCommandOnRegion => "Run a shell command with the selected text as input.",
+            Self::ShellFilterRegion => {
+                "Replace the selection with a successful shell command's output."
+            }
+            Self::ShellCommandInsert => "Insert a successful shell command's output at point.",
+            Self::ShellCommandCancel => {
+                "Cancel the owned invocation; originating editing C-g also cancels after inner input owners."
+            }
+            Self::ShellCommandOutput => {
+                "Visit the last retained read-only plain-text result or diagnostics."
+            }
+            Self::WriteFile => "Save the current buffer to another destination.",
+            Self::KeyboardQuit => "Cancel the current interaction or deactivate the region.",
+            _ => self.search_description(),
+        }
+    }
+
     fn search_name(self) -> &'static str {
         match self {
             Self::Lsp(command) => command.name(),
@@ -871,6 +990,25 @@ impl Command {
         }
     }
 
+    fn search_description(self) -> &'static str {
+        match self {
+            Self::Lsp(command) => command.description(),
+            Self::Completion(command) => command.description(),
+            Self::Region(command) => command.description(),
+            Self::Tree(command) => command.description(),
+            Self::MouseMode => {
+                "Toggle native pointer support for this session without writing settings."
+            }
+            Self::VisualLineMode => {
+                "Toggle word-aware wrapping for this buffer and all its views without changing source or settings."
+            }
+            Self::QueryReplace => "Confirm each literal replacement.",
+            Self::SearchForward => "Incremental literal forward search.",
+            Self::SearchBackward => "Incremental literal backward search.",
+            _ => self.edit_description(),
+        }
+    }
+
     fn edit_name(self) -> &'static str {
         match self {
             Self::Mode(mode) => mode.name(),
@@ -879,6 +1017,18 @@ impl Command {
             Self::InsertTab => "insert-tab",
             Self::BackwardDeleteChar => "backward-delete-char",
             Self::DeleteChar => "delete-char",
+            _ => unreachable!("non-edit commands delegate their names before edit lookup"),
+        }
+    }
+
+    fn edit_description(self) -> &'static str {
+        match self {
+            Self::Mode(mode) => mode.description(),
+            Self::Org(command) => command.description(),
+            Self::Newline => "Insert the buffer's preferred line separator.",
+            Self::InsertTab => "Insert indentation using the active tabs and spaces settings.",
+            Self::BackwardDeleteChar => "Delete the preceding grapheme.",
+            Self::DeleteChar => "Delete the following grapheme.",
             _ => unreachable!("non-edit commands delegate their names before edit lookup"),
         }
     }

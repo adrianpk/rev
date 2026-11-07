@@ -18,6 +18,14 @@ impl KillCommand {
         }
     }
 
+    pub(crate) fn description(self) -> &'static str {
+        match self {
+            Self::Line => "Kill to logical line end, then its separator.",
+            Self::Word => "Kill toward the next word end.",
+            Self::BackwardWord => "Kill toward the preceding word start.",
+        }
+    }
+
     pub(crate) fn range(
         self,
         coordinates: &Coordinates<'_>,

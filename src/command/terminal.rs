@@ -46,6 +46,27 @@ impl TerminalCommand {
             .unwrap_or_else(|| self.placement_name())
     }
 
+    pub(crate) fn description(self) -> &'static str {
+        match self {
+            Self::NextPrompt => return "Navigate the next captured OSC 133 prompt.",
+            Self::PreviousPrompt => return "Navigate the previous captured OSC 133 prompt.",
+            Self::NextError => return "Visit an actually recognized retained error location.",
+            Self::OpenLink => {
+                return "Explicitly activate the validated link at live or frozen point.";
+            }
+            Self::CopyMode => {
+                return "Freeze retained output for native navigation, selection and search.";
+            }
+            Self::CopyModeDone => return "Resume live input without sending Return to the child.",
+            _ => {}
+        }
+        if self == Self::SendNextKey {
+            return "Send the next key directly to the terminal process.";
+        }
+        self.transfer_description()
+            .unwrap_or_else(|| self.placement_description())
+    }
+
     fn transfer_name(self) -> Option<&'static str> {
         Some(match self {
             Self::Yank => "terminal-yank",
@@ -57,6 +78,23 @@ impl TerminalCommand {
             Self::ResetCursorPoint => "terminal-reset-cursor-point",
             Self::Undo => "terminal-undo",
             Self::Send(key) => key.name(),
+            _ => return None,
+        })
+    }
+
+    fn transfer_description(self) -> Option<&'static str> {
+        Some(match self {
+            Self::Yank => "Paste the newest retained text using active bracket framing.",
+            Self::YankPop => "Rotate only while the preceding paste remains wholly queued.",
+            Self::Clear => "Send C-l through ordinary child input.",
+            Self::ClearScrollback => {
+                "Clear retained history and copy projections, preserving live screen/input."
+            }
+            Self::BeginningOfLine => "Move to the frozen copy line start.",
+            Self::EndOfLine => "Move to the frozen copy line end.",
+            Self::ResetCursorPoint => "Align copy point with a still-represented live cursor.",
+            Self::Undo => "Send C-_ to the child without source undo.",
+            Self::Send(key) => key.description(),
             _ => return None,
         })
     }
@@ -75,10 +113,42 @@ impl TerminalCommand {
         }
     }
 
+    fn placement_description(self) -> &'static str {
+        match self {
+            Self::Open => {
+                "Open or select the instance default interactive terminal in the lower panel."
+            }
+            Self::Toggle => {
+                "Hide or restore the lower terminal panel without restarting the child."
+            }
+            Self::NewBuffer => {
+                "Create an independent terminal directly in the selected editing pane."
+            }
+            Self::MoveToBuffer => "Move the current terminal into the selected editing pane.",
+            Self::MoveToPanel => "Dock the same session in the lower panel.",
+            Self::New => "Create an independent lower-panel session.",
+            Self::List => "Select or inspect retained terminal sessions.",
+            Self::Rename => {
+                "Give the selected terminal buffer a unique name without changing its identity."
+            }
+            _ => self.entry_description(),
+        }
+    }
+
     fn entry_name(self) -> &'static str {
         match self {
             Self::OpenHere => "terminal-open-here",
             Self::OpenOtherPane => "terminal-open-other-pane",
+            _ => unreachable!("directory entry commands only"),
+        }
+    }
+
+    fn entry_description(self) -> &'static str {
+        match self {
+            Self::OpenHere => "Create a session from the current resource's directory context.",
+            Self::OpenOtherPane => {
+                "Select a terminal in the next pane, creating a right split when needed."
+            }
             _ => unreachable!("directory entry commands only"),
         }
     }
@@ -111,6 +181,17 @@ impl TerminalKey {
             _ => self.movement_name(),
         }
     }
+
+    pub(crate) fn description(self) -> &'static str {
+        match self {
+            Self::Return => "Send Return with the live mode-aware VT encoder.",
+            Self::Tab => "Send Tab with the live mode-aware VT encoder.",
+            Self::Escape => "Send Escape with the live mode-aware VT encoder.",
+            Self::Backspace => "Send Backspace with the live mode-aware VT encoder.",
+            Self::Delete => "Send Delete with the live mode-aware VT encoder.",
+            _ => self.movement_description(),
+        }
+    }
     fn movement_name(self) -> &'static str {
         match self {
             Self::Up => "terminal-send-up",
@@ -120,6 +201,19 @@ impl TerminalKey {
             Self::Prior => "terminal-send-prior",
             Self::Next => "terminal-send-next",
             Self::Space => "terminal-send-space",
+            _ => unreachable!("movement/space send names"),
+        }
+    }
+
+    fn movement_description(self) -> &'static str {
+        match self {
+            Self::Up => "Send Up with the live mode-aware VT encoder.",
+            Self::Down => "Send Down with the live mode-aware VT encoder.",
+            Self::Left => "Send Left with the live mode-aware VT encoder.",
+            Self::Right => "Send Right with the live mode-aware VT encoder.",
+            Self::Prior => "Send PageUp with the live mode-aware VT encoder.",
+            Self::Next => "Send PageDown with the live mode-aware VT encoder.",
+            Self::Space => "Send Space with the live mode-aware VT encoder.",
             _ => unreachable!("movement/space send names"),
         }
     }

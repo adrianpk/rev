@@ -11,4 +11,11 @@ impl RegionCommand {
             Self::Exchange => "exchange-point-and-mark",
         }
     }
+
+    pub(crate) fn description(self) -> &'static str {
+        match self {
+            Self::Set => "Activate a linear region at point.",
+            Self::Exchange => "Exchange point and mark.",
+        }
+    }
 }

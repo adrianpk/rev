@@ -38,12 +38,44 @@ impl ModalCommand {
             _ => self.visual_name(),
         }
     }
+
+    pub(crate) fn description(self) -> &'static str {
+        match self {
+            Self::Normal => "Return to Normal, preserving the native point.",
+            Self::Insert => "Enter Insert at point.",
+            Self::Replace => "Enter persistent Replace with an underline cursor.",
+            Self::InsertAfter => {
+                "Enter Insert after the current grapheme, stopping at logical EOL."
+            }
+            Self::InsertLineFirst => "Enter Insert at the first non-whitespace boundary.",
+            Self::InsertLineEnd => "Enter Insert at logical EOL.",
+            Self::OpenBelow => "Open one logical line below and enter Insert.",
+            Self::OpenAbove => "Open one logical line above and enter Insert.",
+            _ => self.visual_description(),
+        }
+    }
     fn visual_name(self) -> &'static str {
         match self {
             Self::VisualCharacter => "modal-enter-visual-character",
             Self::VisualLine => "modal-enter-visual-line",
             Self::VisualBlock => "modal-enter-visual-block",
             Self::Once => "modal-one-normal-command",
+            _ => unreachable!("ordinary state names are handled first"),
+        }
+    }
+
+    fn visual_description(self) -> &'static str {
+        match self {
+            Self::VisualCharacter => {
+                "Select the current grapheme, convert shape or leave a repeated Character state."
+            }
+            Self::VisualLine => {
+                "Select complete logical lines, convert shape or leave a repeated Line state."
+            }
+            Self::VisualBlock => {
+                "Select inclusive logical grapheme columns, convert shape or leave a repeated Block state."
+            }
+            Self::Once => "Admit one complete Normal command, then resume compatible insertion.",
             _ => unreachable!("ordinary state names are handled first"),
         }
     }

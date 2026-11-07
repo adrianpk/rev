@@ -24,6 +24,13 @@ impl Whitespace {
             Self::Untabify => "untabify",
         }
     }
+
+    pub(crate) fn description(self) -> &'static str {
+        match self {
+            Self::Tabify => "Compress the marked whitespace at effective tab stops when shorter.",
+            Self::Untabify => "Expand marked literal tabs while preserving text columns.",
+        }
+    }
 }
 
 impl Buffer {

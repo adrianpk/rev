@@ -24,4 +24,17 @@ impl GutterCommand {
             Self::Reset => "gutter-reset-numbering",
         }
     }
+
+    pub(crate) fn description(self) -> &'static str {
+        match self {
+            Self::Toggle => "Hide or restore numbers, retaining mode.",
+            Self::CycleMode => "Alternate absolute and relative, retaining visibility.",
+            Self::Absolute => "Show absolute logical line numbers.",
+            Self::Relative => "Show distances from this view's logical point.",
+            Self::CycleCurrentLine => "Cycle absolute, zero and hidden current labels.",
+            Self::ToggleSide => "Move this view's number field left or right.",
+            Self::Inspect => "Report effective policy and startup/view override sources.",
+            Self::Reset => "Restore this view's immutable startup policy.",
+        }
+    }
 }

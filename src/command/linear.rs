@@ -15,4 +15,13 @@ impl LinearCommand {
             Self::Pop => "yank-pop",
         }
     }
+
+    pub(crate) fn description(self) -> &'static str {
+        match self {
+            Self::Kill => "Remove the active linear region into the ring.",
+            Self::Copy => "Copy the active linear region.",
+            Self::Yank => "Insert the newest linear ring entry.",
+            Self::Pop => "Rotate the current yank's exact insertion range.",
+        }
+    }
 }

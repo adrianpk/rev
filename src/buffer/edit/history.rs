@@ -27,6 +27,13 @@ impl History {
         }
     }
 
+    pub(crate) fn description(self) -> &'static str {
+        match self {
+            Self::Undo => "Undo a buffer-local group.",
+            Self::Redo => "Reapply the next redo group.",
+        }
+    }
+
     pub(super) fn unavailable(self) -> &'static str {
         match self {
             Self::Undo => "Nothing to undo",

@@ -26,6 +26,21 @@ impl Motion {
         }
     }
 
+    pub(crate) fn description(self) -> &'static str {
+        match self {
+            Self::ForwardChar => "Move over one grapheme.",
+            Self::BackwardChar => "Move back one grapheme.",
+            Self::LineStart => {
+                "Move to visual line start when wrapped, otherwise logical line start."
+            }
+            Self::LineEnd => "Move to visual line end when wrapped, otherwise logical line end.",
+            Self::BufferStart => "Move to buffer start.",
+            Self::BufferEnd => "Move to buffer end.",
+            Self::ForwardWord => "Move to the next word end.",
+            Self::BackwardWord => "Move to the preceding word start.",
+        }
+    }
+
     pub(crate) fn target(
         self,
         coordinates: &Coordinates<'_>,

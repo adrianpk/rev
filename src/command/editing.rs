@@ -76,6 +76,34 @@ impl Editing {
         }
     }
 
+    pub(crate) fn description(self) -> &'static str {
+        match self.action {
+            Action::Delete => "Delete one checked target into the shared kill ring.",
+            Action::Change => {
+                "Retain/delete the target, then enter Insert after successful publication."
+            }
+            Action::Copy => {
+                "Copy the target to the shared kill ring without editing or moving point."
+            }
+            Action::Indent => {
+                "Indent each intersecting logical line by one active indentation unit."
+            }
+            Action::Outdent => {
+                "Outdent each intersecting logical line by one active indentation unit."
+            }
+            Action::DeleteEnd => {
+                "Delete through the logical content-end boundary; a count selects following lines."
+            }
+            Action::ChangeEnd => {
+                "Change through the logical content-end boundary, then enter Insert."
+            }
+            Action::CopyEnd => {
+                "Copy through the logical content-end boundary, retaining linear shape."
+            }
+            _ => self.direct_description(),
+        }
+    }
+
     fn direct_name(self) -> &'static str {
         match self.action {
             Action::DeleteForward => "modal-delete-forward",
@@ -87,6 +115,37 @@ impl Editing {
             Action::SelectInner => "modal-select-inner-object",
             Action::SelectAround => "modal-select-around-object",
             Action::Repeat => "modal-repeat-last-change",
+            _ => unreachable!("operator names delegate before direct edit lookup"),
+        }
+    }
+
+    fn direct_description(self) -> &'static str {
+        match self.action {
+            Action::DeleteForward => {
+                "Delete counted whole graphemes within this logical line, preserving retained text."
+            }
+            Action::DeleteBackward => {
+                "Delete counted preceding whole graphemes within this logical line, preserving retained text."
+            }
+            Action::Replace => {
+                "Replace counted complete graphemes within this logical line with one printable Unicode scalar."
+            }
+            Action::PasteAfter => {
+                "Paste retained text after the current grapheme, or after this logical line for linewise text."
+            }
+            Action::PasteBefore => {
+                "Paste retained text at point, or before this logical line for linewise text."
+            }
+            Action::Join => "Join logical lines, adjusting the whitespace between them.",
+            Action::SelectInner => {
+                "Select a counted inner word or paragraph through native endpoints."
+            }
+            Action::SelectAround => {
+                "Select a counted word or paragraph with its surrounding whitespace."
+            }
+            Action::Repeat => {
+                "Resolve and repeat the latest admitted semantic change; a count overrides its count."
+            }
             _ => unreachable!("operator names delegate before direct edit lookup"),
         }
     }

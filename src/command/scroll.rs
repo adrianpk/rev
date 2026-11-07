@@ -18,6 +18,20 @@ impl Scroll {
         }
     }
 
+    pub(crate) fn description(self) -> &'static str {
+        match self {
+            Self::NextLine => {
+                "Move down one visual row when wrapped, otherwise one logical row; retain the intended display column."
+            }
+            Self::PreviousLine => {
+                "Move up one visual row when wrapped, otherwise one logical row; retain the intended display column."
+            }
+            Self::PageForward => "Advance one page.",
+            Self::PageBackward => "Move back one page.",
+            Self::Recenter => "Cycle point's line through center/top/bottom.",
+        }
+    }
+
     pub(crate) fn backward(self) -> bool {
         matches!(self, Self::PreviousLine | Self::PageBackward)
     }
