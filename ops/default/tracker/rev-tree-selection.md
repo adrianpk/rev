@@ -9,7 +9,7 @@ Specification: [File Tree Selection and Active Buffer](../spec/editor-tree-selec
 Model: [Tree Selection Policy](../spec/editor-tree-selection-model.md)
 Ticket: [TKT-20261031093408](../ticket/reviewing/20261031093408-highlight-tree-selection-and-sync-active-buffer.md)
 Concern: [Pending Editor Work](../README.md)
-Active slice: Slice 1 - Selection and following
+Active slice: None - Slice 1 of 1 integrated; final gate pending
 Progress owner: retained Looper checkpoint and canonical validation evidence
 
 ## Canonical slice map
@@ -20,11 +20,12 @@ Progress owner: retained Looper checkpoint and canonical validation evidence
 
 ## Slice 1: Selection and following
 
-State: reviewing
+State: delivered
 Dependency: approved preparation on clean dev; command-description set closed
 Requirements: TSV01-TSV04 and the approved configuration/model policy
 Branch: `feat/rev-tree-selection-01-follow`
 PR: `#308`
+Integrated: `b3e77ecb57a3dfd3d141a911ae319ccf72ab2ef8`
 Report: `ops/default/report/slices/rev-tree-selection/slice-1-follow.md`
 Validation: the ten exact ordered commands in the plan and local configuration
 
@@ -37,16 +38,22 @@ Validation: the ten exact ordered commands in the plan and local configuration
 
 ## Final gate and closure
 
-- [ ] Verify the single canonical PR integrated and its report recorded.
+- [x] Verify the single canonical PR integrated and its report recorded.
 - [ ] Run the unchanged selected gate on exact clean dev and record its evidence.
 - [ ] Mark the report delivered and the ticket solved with resolution fixed.
 - [ ] Complete the plan, tracker, specification and model and reconcile the index.
 - [ ] Preserve tested runtime and guide inputs during documentation-only closure.
 
-Slice 1 implementation and native checks are complete. Canonical PR #308
-targets dev and links the immutable report introduction. The final PR-reference
-HEAD requires the ten ordered controller validate checks before handoff; the
-integrated gate and delivery closure remain with the controller.
+Slice 1 of 1 is integrated through canonical PR #308 and its report is delivered.
+The ten ordered slice checks passed through the controller validator on the
+clean PR-reference and integrated commit `b3e77ecb57a3dfd3d141a911ae319ccf72ab2ef8`.
+
+Gate preparation verified locked offline metadata for 118 packages, Rust/Cargo
+1.98.0, Spore and guide inputs, independent target directories and no active
+primary-checkout build. Only report/tracker delivery metadata changes after
+integration. The controller will run the unchanged ten-command gate against
+the prepared clean, pushed dev HEAD. The source ticket remains reviewing; final
+gate evidence, ticket resolution and delivery-set closure are pending.
 Other pending visibility, alias and capability work remains separate.
 
 Task commits: T1.1 `0b5e987a20a02bbef1d7c53a1ae91749ab42b813`;

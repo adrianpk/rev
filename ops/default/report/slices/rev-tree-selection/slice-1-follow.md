@@ -1,11 +1,12 @@
 # Slice 1: Selection and following
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-tree-selection
 Plan: [File Tree Selection Delivery](../../../plan/rev-tree-selection.md)
 Tracker: [File Tree Selection Tracker](../../../tracker/rev-tree-selection.md)
 Branch: `feat/rev-tree-selection-01-follow`
 PR: `#308`
+Integrated: `b3e77ecb57a3dfd3d141a911ae319ccf72ab2ef8`
 
 ## Purpose
 
@@ -40,8 +41,10 @@ T1.2: `88087201423c6ea4e331d0328fd295ae94942607` adds native acceptance and
 extends the existing pointer, display and Workspace route guards.
 T1.3: `750da5ece50597b114c3fff02150793219bb2ab2` introduces this report and updates
 the tree reference, Markdown User Guide and Unreleased notes. Canonical
-[PR #308](https://forge.adrianpk.com/adrianpk/rev/pulls/308) targets `dev`; the
-report link in its body uses that immutable introduction commit.
+[PR #308](https://forge.adrianpk.com/adrianpk/rev/pulls/308) merged into `dev`
+at `b3e77ecb57a3dfd3d141a911ae319ccf72ab2ef8` on 2026-11-07. Its report link
+uses that immutable introduction commit. Acta merge event
+`01M6VHWFD6K0H0G94VQ89QEGD0` records the same integration.
 
 Tree state retains the editing view/path and one optional loaded match. Listing
 publication invalidates that match; input/context transitions recompute it only
@@ -115,10 +118,20 @@ coordinates and explicit scroll intent correct those cases. Existing wheel
 assertions now account for the default-follow viewport while retaining their
 exact displacement and source-state checks.
 
-Final clean PR-reference HEAD evidence belongs to the controller validate
-receipt, recorded after the reference commit. The integrated delivery-set gate
-and later closure remain controller-owned. Fixtures use existing native owners;
-no preview server or external publication is part of this validation.
+The controller validator passed all ten ordered commands on clean PR-reference
+HEAD `b3e77ecb57a3dfd3d141a911ae319ccf72ab2ef8`, also the verified integrated
+commit. This is focused slice evidence; the integrated delivery-set gate remains
+pending on the prepared dev candidate.
+
+Gate preparation verified locked offline dependency metadata for 118 packages,
+Rust/Cargo 1.98.0, Spore availability and the approved guide inputs. Primary and
+slice worktrees retain separate target directories. No primary-checkout build
+was active during preparation. Only this report and the tracker change after
+integration; runtime, tests and published-guide inputs remain unchanged.
+
+The ticket remains reviewing until the controller gate and final closure.
+Fixtures use existing native owners; no preview server or external publication
+is part of this validation.
 
 ## Risks and Follow-ups
 
