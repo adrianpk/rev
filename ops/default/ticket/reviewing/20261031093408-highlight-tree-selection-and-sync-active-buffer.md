@@ -12,8 +12,9 @@ reported_at: 2026-10-31T09:34:08Z
 ready_at: 2026-11-07T15:19:21Z
 started_at: 2026-11-07T17:17:52Z
 branch: feat/rev-tree-selection-01-follow
+pr: 308
 reviewed_at: 2026-11-07T17:40:15Z
-commits: [0b5e987a20a02bbef1d7c53a1ae91749ab42b813, 88087201423c6ea4e331d0328fd295ae94942607]
+commits: [0b5e987a20a02bbef1d7c53a1ae91749ab42b813, 88087201423c6ea4e331d0328fd295ae94942607, 750da5ece50597b114c3fff02150793219bb2ab2]
 ---
 
 # Highlight tree selection and synchronize the active buffer
@@ -89,3 +90,6 @@ captures later work; it does not reopen rev-wrap-navigation or start implementat
 The [Slice 1 report](../../report/slices/rev-tree-selection/slice-1-follow.md)
 records delivered behavior, native validation, task commits and canonical review.
 The ticket enters reviewing; integration and final-gate closure remain pending.
+
+Canonical [PR #308](https://forge.adrianpk.com/adrianpk/rev/pulls/308) targets
+dev. The report introduction is `750da5ece50597b114c3fff02150793219bb2ab2`.

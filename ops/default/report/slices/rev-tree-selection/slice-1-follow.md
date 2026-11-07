@@ -5,7 +5,7 @@ Delivery set: rev-tree-selection
 Plan: [File Tree Selection Delivery](../../../plan/rev-tree-selection.md)
 Tracker: [File Tree Selection Tracker](../../../tracker/rev-tree-selection.md)
 Branch: `feat/rev-tree-selection-01-follow`
-PR: pending
+PR: `#308`
 
 ## Purpose
 
@@ -38,8 +38,10 @@ T1.1: `0b5e987a20a02bbef1d7c53a1ae91749ab42b813` adds the startup policy,
 retained matching state, event boundaries and shared presentation.
 T1.2: `88087201423c6ea4e331d0328fd295ae94942607` adds native acceptance and
 extends the existing pointer, display and Workspace route guards.
-T1.3: this report introduction updates the tree reference, Markdown User Guide
-and Unreleased notes. Canonical commit and PR references follow at handoff.
+T1.3: `750da5ece50597b114c3fff02150793219bb2ab2` introduces this report and updates
+the tree reference, Markdown User Guide and Unreleased notes. Canonical
+[PR #308](https://forge.adrianpk.com/adrianpk/rev/pulls/308) targets `dev`; the
+report link in its body uses that immutable introduction commit.
 
 Tree state retains the editing view/path and one optional loaded match. Listing
 publication invalidates that match; input/context transitions recompute it only
