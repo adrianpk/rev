@@ -8,7 +8,7 @@ Specification: [Files, Directories, Projects and Workspaces](../spec/editor-proj
 Model: [Project and Workspace Model](../spec/editor-projects-workspaces-model.md)
 Concern: [Pending Work Index](../README.md)
 Plan: [Projects and Workspaces Delivery](../plan/rev-projects-workspaces.md)
-Active slice: Slice 2 - File and directory contexts
+Active slice: Slice 3 - Project registration and sessions
 Progress owner: retained Looper checkpoint and canonical validation receipts
 Full gate: the exact ordered command in the plan and frozen local configuration
 
@@ -43,7 +43,7 @@ Integration: PR #298 merged into dev at `975564c53cf7c6f420c7d7b3fbb8d5f46950e71
 
 ## Slice 2: File and directory contexts
 
-State: reviewing
+State: delivered
 Dependency: Slice 1 integrated
 Requirements: PW01, PW04, PW06, PW18-PW20, PW22
 Branch: `feat/rev-projects-workspaces-02-directories`
@@ -52,13 +52,15 @@ Report: `ops/default/report/slices/rev-projects-workspaces/slice-2-directories.m
 Validation: the exact ordered Slice 2 commands in the plan/local configuration
 Implementation: T2.1/T2.2 and T2.3 native cases/guidance in `5032eb9f5161c718a7dd820eb374376263e54bb8`; report introduction in `ab0f958003ad81ac8dc59d8f79c45d7e8e3416f8`. All five implementation checks passed, including 28 context, 75 file and 71 tree tests; final clean-HEAD evidence remains controller-owned.
 
+Integration: PR #299 merged into dev at `4a1b2ddfef6e15a97f0c50d86c46df582612b884`; all five clean-HEAD commands passed in receipt `EKTPDNJVFR73HFHROBLVI2EBKW`.
+
 - [x] T2.1: Admit standalone and directory contexts around existing file/tree owners. Preserve real source editing/saving, direct file/directory targets and explicit root intent; opening a directory never registers a Project or overwrites its saved session.
 - [x] T2.2: Add generate-new-buffer, open-directory and context-close through native commands and checked replacement. Preserve in-context find-file visits and loose buffers; reuse source save/discard/cancel and owned-job retirement without exiting the application.
 - [x] T2.3: Verify both profiles, standalone manual tree requests, directory cancellation, canonical buffer reuse, source stamps and stale asynchronous completions. Document each public operation actually delivered and update Unreleased through changelog-normalize.
 
 ## Slice 3: Project registration and sessions
 
-State: planned
+State: active
 Dependency: Slice 2 integrated
 Requirements: PW05-PW06, PW15-PW16, PW18-PW20, PW22
 Branch: `feat/rev-projects-workspaces-03-projects`

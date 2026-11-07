@@ -1,11 +1,13 @@
 # Slice 2: File and directory contexts
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-projects-workspaces
 Plan: [Projects and Workspaces Delivery](../../../plan/rev-projects-workspaces.md)
 Tracker: [Projects and Workspaces Tracker](../../../tracker/rev-projects-workspaces.md)
 Branch: `feat/rev-projects-workspaces-02-directories`
 PR: `#299`
+Integrated: `4a1b2ddfef6e15a97f0c50d86c46df582612b884`
+Clean-HEAD validation: `EKTPDNJVFR73HFHROBLVI2EBKW` (all five ordered checks passed)
 
 ## Purpose
 
