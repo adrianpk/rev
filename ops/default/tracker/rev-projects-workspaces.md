@@ -111,17 +111,18 @@ Integration: PR #302 merged into dev at `2d81d9c84ae59e85188d683a9366cd5afc9b251
 
 ## Slice 6: Startup screen and shared consumers
 
-State: active
+State: reviewing
 Dependency: Slice 5 integrated
 Requirements: PW01-PW04, PW20-PW22; accepted P01/P03/P18
 Branch: `feat/rev-projects-workspaces-06-startup`
 PR: pending
 Report: `ops/default/report/slices/rev-projects-workspaces/slice-6-startup.md`
 Validation: the exact ordered Slice 6 commands in the plan/local configuration
+Implementation: T6.1/T6.2/T6.3 in `79fe9a6b29412c2ca714b6becf4d58bef70d6f2f`, including seven native startup cases, one command-origin display case, isolated CLI/NO_COLOR coverage, source-specific consumers and delivered guidance. All five implementation commands passed, including 172 command, 62 context, 45 display and 120 modal tests; final clean-HEAD evidence remains controller-owned.
 
-- [ ] T6.1: Show the native startup screen for no-target executable startup; explicit paths still open directly. Wire all five actions to the implemented domain operations, retaining cancel/return behavior, native selectors, ranking, hints and both editing profiles.
-- [ ] T6.2: Render the supplied src/session/startup/rev-logo.ans as passive native styled cells on a matching black content area. Preserve its hash, RGB/Unicode artwork and buffer palettes; use a plain rev label for NO_COLOR or insufficient space and retain action identity during resize.
-- [ ] T6.3: Verify per-file/root authority for Git, Pi, LSP, shell jobs, terminals, Org and global bookmarks/usage. A Workspace is not automatic cross-root AI context or service activation. Extend focused startup/command/modal/display cases and document the delivered entrypoints.
+- [x] T6.1: Show the native startup screen for no-target executable startup; explicit paths still open directly. Wire all five actions to the implemented domain operations, retaining cancel/return behavior, native selectors, ranking, hints and both editing profiles.
+- [x] T6.2: Render the supplied src/session/startup/rev-logo.ans as passive native styled cells on a matching black content area. Preserve its hash, RGB/Unicode artwork and buffer palettes; use a plain rev label for NO_COLOR or insufficient space and retain action identity during resize.
+- [x] T6.3: Verify per-file/root authority for Git, Pi, LSP, shell jobs, terminals, Org and global bookmarks/usage. A Workspace is not automatic cross-root AI context or service activation. Extend focused startup/command/modal/display cases and document the delivered entrypoints.
 
 ## Slice 7: Combined native and terminal acceptance
 
