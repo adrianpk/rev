@@ -51,6 +51,15 @@ and symlinks `@`. The symbols remain useful without color.
 The tree starts at the parent directory of the file used to launch rev.
 After New Buffer, manually showing the tree uses the launch directory. File
 visits follow the file's parent unless you chose a directory explicitly or configured cwd rooting.
+
+With the tree focused, press `^` to show its parent directory. The directory
+you just left stays selected and scrolls into view; press Enter to expand it
+again. Repeat `^` to move up another level. `M-x tree-up-directory` does the
+same in both profiles. Explicit directory, Project, Workspace and configured
+cwd roots stay fixed. At the filesystem root there is no parent. If the parent
+cannot be listed or your previous directory cannot be shown, the tree stays
+where it was and explains the reason. Going up preserves your text, split panes
+and editing context; later file visits still follow their parent directories.
 An explicit directory root stays selected when you visit files elsewhere.
 
 To return to the tree, press `C-x t f`. Right expands a directory; Left

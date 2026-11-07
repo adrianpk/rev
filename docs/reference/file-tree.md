@@ -183,6 +183,39 @@ The corresponding names are `tree-previous-line`, `tree-next-line`,
 `tree-expand`, `tree-collapse` and `tree-toggle-directory`. Tree navigation
 requires tree focus. M-x names and bound keys use the same handlers.
 
+### Parent directories
+
+Press `^` in the tree or invoke `M-x tree-up-directory` from tree focus to
+show the parent of an automatic root. Both editing profiles use this tree-local
+binding. The directory just left becomes the selected, visible entry; Enter
+expands it to return to its children. Repeating the command moves up another
+level. Left/C-b still collapses or selects a parent already loaded in the tree.
+Remap the action through `[keys.tree]`; the command selector shows its effective
+binding. Source-focused invocation reports that the tree is not focused, and
+source caret input retains its ordinary editing behavior.
+
+Explicit directory roots, Project roots, Workspace membership and configured
+`tree.root = "cwd"` stay fixed and report `File tree root is fixed` without
+observing outside their boundary. An automatic root at `/` reports that it has
+no parent. An anchor is a navigation policy, not a filesystem sandbox.
+
+The transition observes only the parent's direct children with the same filters,
+ordering, symlink policy and limits described below. It publishes the root,
+listing and selected return directory together. An unreadable or missing parent,
+or a listing that cannot represent the previous directory, preserves the root,
+loaded entries, selection, scroll and focus. A bounded incomplete listing is
+accepted only when it contains that directory, with the ordinary incomplete
+diagnostic. A filtered, vanished or symlink-replaced return directory is refused.
+
+Going up retains tree focus, editing context and process cwd. It does not anchor
+automatic browsing: later file visits still follow their parent directories.
+Buffers, split views, points, marks, dirty text and undo history remain intact;
+no Project or state files are created. Minimal and decorated rows use their
+existing icons, semantic colors, connectors, selection and clipping, including
+Nerd Fonts and narrow trees. No additional parent row is inserted.
+
+### Listing and refresh
+
 Children sort directories first, then by the native filename order;
 comparison is case-sensitive and independent of locale. Dot entries are shown.
 Each expansion reads only that directory's direct children. Collapsing removes

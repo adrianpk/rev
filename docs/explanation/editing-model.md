@@ -13,6 +13,9 @@ cycle. An explicitly opened directory remains its root across file visits.
 Otherwise the default follows the visiting file's parent, falling back to the
 launch directory without a file; `tree.root = "cwd"` retains the launch directory.
 Projects retain one explicit root; Workspaces retain ordered independent roots.
+With tree focus, `^` moves an automatic root up and selects the directory just
+left. It preserves the editing context and later automatic file following;
+explicit directory, Project, Workspace and configured cwd roots stay fixed.
 See [Editing contexts](editing-contexts.md) for their ownership.
 
 ## Saving and history
