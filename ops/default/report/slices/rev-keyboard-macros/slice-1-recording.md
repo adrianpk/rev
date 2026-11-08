@@ -92,18 +92,27 @@ ordered execution; no successful slice acceptance is claimed.
 
 ## Risks and Follow-ups
 
-PR preparation is blocked by the required commands selection. At the unchanged
+The earlier required commands selection blocked PR preparation. At the unchanged
 primary baseline `e2432a0ceec9a556e336a1cf2b1a4caa8b7c4a6f`, the description
 oracle already omits prefix-argument, universal-argument, digit-argument and
 negative-argument. The new macro descriptions are synchronized; these four
-existing entries are still missing. A focused exact catalog reproduction fails
+existing entries were missing. A focused exact catalog reproduction failed
 the same inventory assertion after the macro synchronization.
 
-The approved plan explicitly says not to repair unrelated command-catalog
-expectation debt. Resolving this baseline gap therefore needs an explicit scope
-decision or a separately integrated correction. No assertion, frozen command or
-existing prefix-argument description was changed. The compliant canonical PR
-remains pending because required successful validation is unavailable.
+On 2026-11-08 the owner explicitly authorized correcting these four entries and
+resuming the same run. This is the bounded exception to the plan's catalog-debt
+exclusion: synchronize prefix-argument, universal-argument, digit-argument and
+negative-argument with their already compiled descriptions. No runtime, test,
+assertion, gate or controller configuration change is authorized by this repair.
+
+The four entries are now present. The focused check passed on the working
+correction before commit:
+
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test commands palette::catalog_reference -- --exact --test-threads=1` — PASS: one exact catalog test.
+
+The retained worker must obtain fresh exact-HEAD evidence for the unchanged seven
+required commands and prepare the canonical PR. The earlier failing receipt is
+historical context, not acceptance evidence for the corrected candidate.
 
 Later approved slices own named-command and accepted-prompt capture, completion,
 ring/repeat maps, append/counters, nonpositive repetition, queries/regions, named

@@ -27,13 +27,13 @@ Progress owner: selected Looper checkpoint and canonical validation evidence
 
 ## Slice 1: Recording and replay
 
-State: blocked
+State: pending revalidation
 Dependency: published approved preparation and controller preflight.
 Branch: feat/rev-keyboard-macros-01-recording
 PR: pending
 Integrated: pending
 Report: ops/default/report/slices/rev-keyboard-macros/slice-1-recording.md
-Validation: macros 14/14, editing 114/114 and documentation checks passed; required commands selection passed 51/52 and is blocked by palette::catalog_reference. See the canonical report; no slice acceptance is claimed.
+Validation: earlier macros 14/14, editing 114/114 and documentation checks passed. The owner-authorized four-entry catalog correction passes the exact catalog guard; the unchanged seven required checks still need fresh candidate evidence. No slice acceptance is claimed.
 
 - [x] T1.1: Add bounded recording/runner ownership, normalized key/text capture, F3/F4 and C-x controls, indicators, cancellation and positive prefix replay through normal input.
 - [x] T1.2: Deliver native per-iteration undo boundaries, typed stops, modal entry checks and cooperative scheduling without an idle worker; unsupported input transfers stop explicitly.
@@ -41,11 +41,11 @@ Validation: macros 14/14, editing 114/114 and documentation checks passed; requi
 
 Implementation and the canonical report are retained on the injected branch.
 T1.3 includes the native macros target, five macro catalog entries and Unreleased
-outcome, but required acceptance remains blocked. The baseline description oracle
-omits four already-present prefix-argument commands. The plan excludes unrelated
-catalog debt; an explicit scope decision or separately integrated baseline
-correction is required before canonical PR preparation can finish. No frozen
-checks, acceptance assertions or later slice identities were changed.
+outcome. On 2026-11-08, the owner explicitly authorized adding the four missing
+prefix-argument descriptions and resuming this retained run. That bounded exception
+to the earlier catalog-debt exclusion is applied and its focused guard passes.
+The worker must rerun the unchanged required selection and finish canonical PR
+preparation. No frozen checks, assertions, runtime or later slice identities changed.
 
 ## Slice 2: Named commands and prompt capture
 

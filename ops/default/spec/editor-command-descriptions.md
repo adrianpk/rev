@@ -839,6 +839,18 @@ Full behavior and prerequisites remain in the linked command references.
 | `org-up-heading-safe` | Visit the parent heading. |
 | `org-update-statistics-cookies` | Update current item/heading statistics. |
 
+## Command prefix argument descriptions
+
+These delivered helpers retain their existing compiled descriptions. The alias
+uses the same description as its canonical command.
+
+| Command | Description |
+| --- | --- |
+| `prefix-argument` | Set an argument for the next command. |
+| `universal-argument` | Set an argument for the next command. |
+| `digit-argument` | Add a digit to the pending command argument. |
+| `negative-argument` | Set the sign of the pending command argument. |
+
 ## Keyboard macro descriptions
 
 The first recording/replay increment adds the following descriptions from the
