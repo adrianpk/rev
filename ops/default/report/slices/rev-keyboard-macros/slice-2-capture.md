@@ -5,12 +5,14 @@ Delivery set: rev-keyboard-macros
 Plan: [Keyboard Macros Delivery](../../../plan/rev-keyboard-macros.md)
 Tracker: [Keyboard Macros Tracker](../../../tracker/rev-keyboard-macros.md)
 Branch: `feat/rev-keyboard-macros-02-capture`
-PR: pending
+PR: [#320](https://forge.adrianpk.com/adrianpk/rev/pulls/320)
 
 ## Purpose
 
 Deliver T2.1-T2.3: retain accepted native command identities, prompt values and
 literal completion edits without replaying selector presentation or consent.
+
+T2.1-T2.3: [native capture implementation](https://forge.adrianpk.com/adrianpk/rev/commit/838968c735dd6903f9632e96095aa0acb0667af9).
 
 ## Delivered Behavior
 
