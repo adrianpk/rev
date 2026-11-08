@@ -24,7 +24,7 @@ retain their own specification/model state.
 
 | Topic | Artifacts | State and remaining decisions |
 | --- | --- | --- |
-| Command prefix arguments | [Spec](spec/editor-prefix-arguments.md), [plan](plan/rev-prefix-arguments.md), [tracker](tracker/rev-prefix-arguments.md) | Approved; one four-slice Looper run authorized. The set delivers familiar count entry, command-specific movement/edit/history meaning, contextual ownership and joint acceptance. Keyboard Macros is a later dependent draft. |
+| Command prefix arguments | [Spec](spec/editor-prefix-arguments.md), [plan](plan/rev-prefix-arguments.md), [tracker](tracker/rev-prefix-arguments.md) | Delivered / Completed. Four slices through PRs #314-#317 deliver ARG01-ARG06: checked prefix entry, command-specific movement/edit/history meaning, contextual ownership and native acceptance with User Guide/reference guidance. The unchanged controller gate passed at `7cfef9be78fad975040ccd78dcb9cfebe32b28cd`, receipt `ZGGKKSNDW2ZMWGRELYH5WWFTZV`; [Slice 4 closure](report/slices/rev-prefix-arguments/slice-4-acceptance.md#delivery-set-closure) records the exact command, 207 selected tests and local Markdown/Spore results. Keyboard Macros retains its separate draft and approval boundary. |
 | File tree parent navigation | [Spec](spec/editor-tree-parent-navigation.md), [plan](plan/rev-tree-parent-navigation.md), [tracker](tracker/rev-tree-parent-navigation.md) | Delivered / Completed. One slice through PR #312 delivers TUP01-TUP04: tree-up-directory and tree-local ^ browse automatic ancestors while retaining the selected return directory and editing state. Explicit directory, Project, Workspace and configured cwd roots stay fixed. The unchanged controller gate passed at `d75db7c33994b51eeb6a3a01c0b05647105ab7c8`, log `FU4RKA7ANFGNAMEYBVMUXMDHTI`; [Slice 1 closure](report/slices/rev-tree-parent-navigation/slice-1-parent.md#delivery-set-closure) records the exact command, 107 selected tests and local Markdown/Spore results. |
 | Files, directories, Projects and Workspaces | [Spec](spec/editor-projects-workspaces.md), [model](spec/editor-projects-workspaces-model.md), [plan](plan/rev-projects-workspaces.md), [tracker](tracker/rev-projects-workspaces.md) | Delivered / Completed. Eight slices through PRs #298-#305 deliver native contexts, the atomic TOML catalog, basic named sessions, independent roots, lifecycle commands and the native startup screen. The unchanged controller gate passed at `6bbc6138ac9227beca51e6b86f759bbf39e36c94`, receipt `ZS6AIYOX66WRNHE5ICPVA46GIP`; [Slice 8 closure](report/slices/rev-projects-workspaces/slice-8-guidance.md#delivery-set-closure) records exact commands, 1,036 selected tests, timings, measured costs and owned cleanup. Full automatic startup-state restoration remains [deferred](spec/editor-projects-workspaces.md#deferred-specification-startup-session-restoration); startup.restore_session stays reserved for that future set. |
 | Command recency and frequency | [Spec](spec/editor-command-ranking.md), [model](spec/editor-command-ranking-model.md), [plan](plan/rev-command-ranking.md), [tracker](tracker/rev-command-ranking.md) | Delivered / Completed. Three slices through PRs #291-#293 deliver UI02 and CMR01-CMR05: recent/frequent ranking within match ranks, bounded persisted usage, native/PTY acceptance and Markdown/Spore guidance. The unchanged controller gate passed at `fea4fffdfa3e66d8a7d7f1cc031a6637199424af`, receipt `342LB2K3MYK2Z2JS5ESVI4WSNP`; [Slice 3 closure](report/slices/rev-command-ranking/slice-3-acceptance.md#delivery-set-closure) records the exact command, 503 tests, measured acceptance, cleanup and evidence limits. |
@@ -55,6 +55,17 @@ retain their own specification/model state.
 | External programs/extensions | [Spec](spec/editor-external-extensions.md), [model](spec/editor-external-extensions-model.md) | Optional exploration only. Explicit configuration, stdio and one child per invocation are the refined draft profile. Adoption itself is undecided; no scheduled delivery or baseline dependency. |
 
 ## Selected execution order
+
+Command Prefix Arguments is Completed on 2026-11-08 after all four canonical
+PRs (#314-#317) integrated into dev. The unchanged controller gate passed at
+`7cfef9be78fad975040ccd78dcb9cfebe32b28cd`, receipt
+`ZGGKKSNDW2ZMWGRELYH5WWFTZV`, with 207 selected native tests, complete
+command/configuration catalogs and the strict local Markdown/Spore User Guide
+build. The specification, plan and tracker are Completed; all four reports are
+delivered. [Slice 4 closure](report/slices/rev-prefix-arguments/slice-4-acceptance.md#delivery-set-closure)
+retains the exact command, immutable report identities and evidence limits.
+Keyboard Macros and other pending topics keep their separate approval boundaries;
+this completion does not start a successor delivery.
 
 On 2026-11-07 the owner approved the Files, Directories, Projects and Workspaces
 core and one eight-slice Looper delivery through dev. All eight canonical PRs

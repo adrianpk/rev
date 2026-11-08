@@ -12,7 +12,8 @@ Integrated: `57afa0a31ffcb56ee9bff6da0135e7e75a628248`
 
 Apply checked prefix arguments to native source edits, kills, yank and history.
 T2.1, T2.2 and T2.3 are implemented and canonically integrated through PR #315
-(Rebase + Fast-forward). The delivery-set gate remains controller-owned.
+(Rebase + Fast-forward). The delivery-set gate has since passed; the
+[Slice 4 closure](slice-4-acceptance.md#delivery-set-closure) retains its evidence.
 
 ## Delivered Behavior
 
@@ -110,5 +111,6 @@ History is explicitly progressive and cancellation does not roll it back.
 The remaining positioning, scrolling, tree, shell/context/modal policies were
 subsequently integrated in [Slice 3](slice-3-contexts.md). Joint acceptance and
 guidance are recorded in [Slice 4](slice-4-acceptance.md), now integrated through
-canonical PR #317. The integrated delivery-set gate and final documentation-only
-closure remain controller-owned and pending.
+canonical PR #317. The controller passed the integrated delivery-set gate at
+`7cfef9be78fad975040ccd78dcb9cfebe32b28cd`; [Slice 4 closure](slice-4-acceptance.md#delivery-set-closure)
+records acceptance and the completed documentation-only closure.

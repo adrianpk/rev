@@ -1,6 +1,7 @@
 # Command Prefix Arguments Tracker
 
-Status: Approved
+Status: Completed
+Completed: 2026-11-08
 Date: 2026-11-08
 Delivery set: rev-prefix-arguments
 Approved: product owner approved the specification and requested plan/slicing
@@ -8,7 +9,7 @@ Execution authorized: one four-slice Looper run, 2026-11-08
 Plan: [Command Prefix Arguments Delivery](../plan/rev-prefix-arguments.md)
 Specification: [Command Prefix Arguments](../spec/editor-prefix-arguments.md)
 Concern: [Pending Editor Work](../README.md)
-Active slice: none; all four slices delivered, controller-owned integrated gate pending
+Active slice: none; all four slices delivered and the controller-owned integrated gate passed
 Progress owner: the authorized Looper checkpoint and canonical validation evidence
 
 ## Canonical slice map
@@ -43,7 +44,7 @@ T1.2 wrapping preflight.
 The shared layout preflight settles initial Org presentation before block/table
 workers capture their view. This resolves the two baseline wrapping failures
 without changing source/view admission or test assertions. All selected slice
-checks pass. Canonical PR #314 is integrated; the delivery-set gate remains pending.
+checks pass. Canonical PR #314 is integrated; the delivery-set gate has since passed.
 
 ## Slice 2: Counted edits and history
 
@@ -105,10 +106,10 @@ T4.3 evidence and prior-report follow-ups.
 ## Final gate and closure
 
 - [x] Verify all four canonical integrations and delivered report identities.
-- [ ] Run the unchanged ten-command selected gate on exact clean dev.
-- [ ] Record tested candidate, controller receipt and actual acceptance results.
-- [ ] Complete specification, plan and tracker and reconcile the index.
-- [ ] Confirm only the eight configured closure documents changed afterward.
+- [x] Run the unchanged ten-command selected gate on exact clean dev.
+- [x] Record tested candidate, controller receipt and actual acceptance results.
+- [x] Complete specification, plan and tracker and reconcile the index.
+- [x] Confirm only the eight configured closure documents changed afterward.
 
 All four canonical PRs (#314-#317) are merged into dev and their report statuses
 are delivered. Their integrated heads are ancestors of primary dev; each PR's
@@ -122,9 +123,17 @@ its publication inputs and the selected native test modules are present. Build
 space and the primary checkout's separate target directory were checked. No
 provider service, new dependency or additional fixture setup is required.
 
-Only delivered-document entries change during gate preparation. The frozen ten
-commands and acceptance conditions remain unchanged. The controller must bind
-the selected gate to the exact clean, pushed dev candidate after this preparation.
-The worker has not run that integrated gate or marked delivery-set acceptance.
-The retained execution checkpoint owns live progress and exact clean-HEAD
-receipts. Documentation-only closure remains pending until the gate passes.
+The controller passed the unchanged ten-command gate, executed as one ordered
+`&&` chain, on clean immutable dev candidate
+`7cfef9be78fad975040ccd78dcb9cfebe32b28cd`, receipt
+`ZGGKKSNDW2ZMWGRELYH5WWFTZV`. All 207 selected tests passed: commands 36,
+editing 114, wrapping 26, modal 28 and shell 3. Catalogs passed 628 commands and
+291 settings; documentation passed 92 pages and 638 local links/anchors. The
+strict local Spore build projected and rendered 92 Markdown pages.
+
+The [Slice 4 closure](../report/slices/rev-prefix-arguments/slice-4-acceptance.md#delivery-set-closure)
+retains the exact command, immutable report introductions, measured suite
+timings and evidence limits. All reports are delivered; the specification,
+plan, tracker and index entry are Completed. Only the eight configured Markdown
+closure paths differ from the tested candidate. Requirements, command policies,
+runtime, tests, guide inputs and gate assertions retain their tested content.

@@ -1,6 +1,7 @@
 # Command Prefix Arguments
 
-Status: Approved
+Status: Completed
+Completed: 2026-11-08
 Date: 2026-11-07
 Updated: 2026-11-08
 Format: OpenSpec capability addition
@@ -335,3 +336,14 @@ history/kill-ring behavior, bounds and idle resource behavior.
 Keep the User Guide's first example to C-u 5 C-n. Explain distinct meanings
 through a few concrete tasks; place complete policy/bounds and raw-form details
 in reference material. Markdown is the source for the Spore projection.
+
+## Delivery completion
+
+ARG01-ARG06 are delivered through canonical PRs #314-#317. The unchanged
+controller gate passed on clean immutable dev candidate
+`7cfef9be78fad975040ccd78dcb9cfebe32b28cd`, receipt
+`ZGGKKSNDW2ZMWGRELYH5WWFTZV`. The [Slice 4 closure](../report/slices/rev-prefix-arguments/slice-4-acceptance.md#delivery-set-closure)
+records joint native acceptance, exact commands, catalogs and local User Guide
+validation. This status update preserves every approved requirement, scenario,
+command policy and resource bound. Keyboard Macros retains its separate draft
+and approval boundary.

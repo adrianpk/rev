@@ -13,7 +13,8 @@ Integrated: `c558786beb1925902b749dd89f3a2e09810a5412`
 Deliver checked transient command arguments and signed native movement. T1.1,
 T1.2 and T1.3 are implemented and the selected slice checks pass. Canonical
 integration completed through PR #314 (Rebase + Fast-forward). The delivery-set
-gate remains controller-owned.
+gate has since passed; [Slice 4 closure](slice-4-acceptance.md#delivery-set-closure)
+retains the integrated evidence.
 
 ## Delivered Behavior
 
@@ -102,5 +103,7 @@ command results outside the repository.
 Counted editing/history and the remaining contextual policies were subsequently
 integrated in [Slice 2](slice-2-editing.md) and [Slice 3](slice-3-contexts.md).
 [Slice 4](slice-4-acceptance.md) completes joint acceptance and guidance and is
-integrated through canonical PR #317. The integrated delivery-set gate and final
-documentation-only closure remain controller-owned and pending.
+integrated through canonical PR #317. The controller passed the integrated
+delivery-set gate at `7cfef9be78fad975040ccd78dcb9cfebe32b28cd`;
+[Slice 4 closure](slice-4-acceptance.md#delivery-set-closure) records acceptance
+and the completed documentation-only closure.

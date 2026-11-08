@@ -12,9 +12,9 @@ Integrated: `98d4cc896ed0662c01a648745c554f187f569db4`
 
 Complete T4.1 joint native acceptance, T4.2 reader guidance and discovery
 reconciliation, and T4.3 reviewable evidence for the unchanged selected checks.
-Canonical PR #317 is integrated through Rebase + Fast-forward. The integrated
-delivery-set gate and documentation-only closure remain controller-owned and
-pending.
+Canonical PR #317 is integrated through Rebase + Fast-forward. The controller
+passed the unchanged integrated delivery-set gate; the permitted Markdown-only
+closure is recorded below.
 
 ## Delivered Behavior
 
@@ -94,8 +94,9 @@ checks through the controller's exact-HEAD validation command before integration
 Canonical Forgejo state and Acta record all four integrations; their heads are
 ancestors of primary dev and all reports are delivered. Each canonical PR links
 the immutable commit that introduced its recorded report. The PR checks remain
-evidence for their exact slice candidates; the controller must run the selected
-integrated gate on clean dev after gate-preparation documentation is committed.
+evidence for their exact slice candidates. The controller subsequently passed
+the selected integrated gate on the clean dev gate-preparation candidate,
+recorded in Delivery-set closure below.
 
 ## Files of Interest
 
@@ -112,7 +113,8 @@ integrated gate on clean dev after gate-preparation documentation is committed.
 
 These are the frozen ten-command Slice 4 PR checks in canonical order. The
 controller receipt binds their execution to the clean PR-reference HEAD. The
-integrated primary-dev gate and delivery-set closure remain pending.
+integrated primary-dev gate has its separate candidate and receipt in
+Delivery-set closure below.
 
 - Passed: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo fmt --all -- --check`
 - Passed: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo clippy --locked --lib --bin rev -- -D warnings`
@@ -129,7 +131,64 @@ integrated primary-dev gate and delivery-set closure remain pending.
 
 Cancellation of native history is progressive and retains completed groups.
 All four canonical integrations and report identities are verified. The
-controller must run the unchanged selected gate on exact clean dev and perform
-the approved Markdown-only closure after it passes. Main promotion, releases,
-guide deployment, binary installation and successor startup are outside this
-worker turn.
+controller passed the selected integrated gate, followed by the approved
+Markdown-only closure. This is the approved selected gate, not the exhaustive
+repository suite. Main promotion, releases, guide deployment, binary installation
+and successor startup retain their separate authority boundaries.
+
+## Delivery-set closure
+
+Completed: 2026-11-08. All four canonical PRs (#314-#317) are merged into dev
+and their reports are delivered. The controller passed the unchanged selected
+integrated gate on clean immutable candidate
+`7cfef9be78fad975040ccd78dcb9cfebe32b28cd`, receipt
+`ZGGKKSNDW2ZMWGRELYH5WWFTZV`. Its supplied evidence and log bind the following
+exact successful command to that candidate:
+
+```sh
+env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo fmt --all -- --check && env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo clippy --locked --lib --bin rev -- -D warnings && env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test commands -- prefix_arguments context_isolation transient_isolation prompt_reset workspace_reset tree_up_directory tree_actions tree_transitions tree_open_sequence --test-threads=1 && env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test editing -- --test-threads=1 && env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test wrapping -- --test-threads=1 && env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test modal -- count operator navigation prefix_arguments --test-threads=1 && env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test shell_commands prefix_arguments -- --test-threads=1 && env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo run --locked --quiet --example documentation-check && env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 bash scripts/build-user-guide.sh && git diff --check
+```
+
+All five selected native targets passed with no failed or ignored tests:
+
+| Target | Passed | Logged test time |
+| --- | --- | --- |
+| commands | 36 | 22.99s |
+| editing | 114 | 43.65s |
+| wrapping | 26 | 7.84s |
+| modal | 28 | 34.00s |
+| shell_commands | 3 | 1.61s |
+| Total | 207 | Individual suite timings above |
+
+Formatting, strict lib/bin Clippy and whitespace checks passed. The Clippy
+stage took 17.40s. The log reports stage and suite timings; no aggregate gate
+duration is inferred. Native fixtures cover the approved policy matrix, both
+profiles, raw PTY ownership, real shell one-execution behavior, Unicode/CRLF,
+region/read-only admission, history/kill-ring behavior, exact generated-byte
+bounds, source invalidation, cancellation and idle release. The Acceptance
+Coverage table maps ARG01-ARG06 to the retained native cases.
+
+Catalog validation passed all 628 command names and 291 configuration entries.
+Documentation passed 92 reachable pages and 638 local links/anchors. The strict
+Spore guide build projected and rendered 92 Markdown pages into the existing
+ignored local output. This establishes local guide validation and does not
+claim deployed publication or physical-terminal rendering.
+
+The tests retain their existing isolated fixture owners. Closure inspection
+found no selected gate test runner still active; no process was stopped and no
+new fixture or persistent service was started during closure.
+
+Immutable report introductions:
+
+- [Slice 1](https://forge.adrianpk.com/adrianpk/rev/src/commit/1b47ffb80d805a3625fed42bd6309df5fc03780a/ops/default/report/slices/rev-prefix-arguments/slice-1-entry.md), canonical PR #314.
+- [Slice 2](https://forge.adrianpk.com/adrianpk/rev/src/commit/a59daebb930f7dcd5b8c2ffbc6754919d610c6e5/ops/default/report/slices/rev-prefix-arguments/slice-2-editing.md), canonical PR #315.
+- [Slice 3](https://forge.adrianpk.com/adrianpk/rev/src/commit/abe171179e7bb8b9a192a09a6406d91ba2e901e4/ops/default/report/slices/rev-prefix-arguments/slice-3-contexts.md), canonical PR #316.
+- [Slice 4](https://forge.adrianpk.com/adrianpk/rev/src/commit/db092556ac056d06b93f341e4cd93da6f32d9515/ops/default/report/slices/rev-prefix-arguments/slice-4-acceptance.md), canonical PR #317.
+
+ARG01-ARG06, all twelve tracker tasks and the four recorded slices are delivered.
+The specification, plan, tracker and index entry are Completed. Only the eight
+configured Markdown closure paths differ from the tested candidate. Requirements,
+scenarios, command policies, runtime, tests, guide inputs and every required gate
+assertion retain their tested content. The progressive native-history cancellation
+contract remains unchanged. Main promotion, tags, releases, binary installation,
+guide deployment, mirror publication and successor startup were not performed.

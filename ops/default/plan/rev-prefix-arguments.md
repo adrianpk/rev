@@ -1,6 +1,7 @@
 # Command Prefix Arguments Delivery
 
-Status: Approved
+Status: Completed
+Completed: 2026-11-08
 Date: 2026-11-08
 Delivery set: rev-prefix-arguments
 Slice strategy: behavior-first
@@ -10,7 +11,7 @@ Planning baseline: `2bde2d1b1cccdaf536c17fbd86938eb42cbfc896`
 Specification: [Command Prefix Arguments](../spec/editor-prefix-arguments.md)
 Tracker: [Command Prefix Arguments Tracker](../tracker/rev-prefix-arguments.md)
 Concern: [Pending Editor Work](../README.md)
-Active slice: all four slices integrated; controller-owned integrated gate pending
+Active slice: none; all four slices delivered and the controller-owned integrated gate passed
 
 ## Outcome and strategy
 
@@ -177,3 +178,14 @@ The exact closure allowlist is these eight Markdown files:
 Closure cannot change runtime, tests, requirements, command policies, guide
 inputs or gate definitions. Macro drafts and their persistence model remain
 outside this delivery and outside its closure allowlist.
+
+## Completion evidence
+
+All four recorded slices are delivered through canonical PRs #314-#317. The
+controller passed the unchanged selected gate on clean immutable dev candidate
+`7cfef9be78fad975040ccd78dcb9cfebe32b28cd`, receipt
+`ZGGKKSNDW2ZMWGRELYH5WWFTZV`. The [Slice 4 closure](../report/slices/rev-prefix-arguments/slice-4-acceptance.md#delivery-set-closure)
+records the exact command, 207 selected tests, complete catalogs and local
+Markdown/Spore guide validation. The specification, tracker and index are
+reconciled as Completed. Only the eight permitted Markdown closure paths differ
+from the tested candidate; the approved gate and behavior remain unchanged.
