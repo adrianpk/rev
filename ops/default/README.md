@@ -57,6 +57,10 @@ retain their own specification/model state.
 
 ## Pending proposals
 
+- [File-tree width and horizontal navigation](ticket/open/20261108175339-improve-file-tree-panel-width-and-horizontal-navigation.md)
+  has completed product alignment. Stable automatic fitting, manual four-column
+  adjustment, direct one-column arrow navigation, keybindings and TOML policy
+  are agreed. The canonical ticket remains open for separate implementation.
 - [Delimiter Pairs](spec/editor-delimiter-pairs.md) and its
   [model](spec/editor-delimiter-pairs-model.md) remain Draft. Depth coloring and
   the restrained match alternative are settled; editing defaults, context rules,
