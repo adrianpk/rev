@@ -15,6 +15,12 @@ uses public methods, session handles, source units and error/lifecycle rules fro
 the parent model. It does not import private native types or retain editor pointers.
 The implementation language and SDK choice do not change the authority boundary.
 
+The package's source repository follows the project organization convention
+rev/{repo-name}; its concrete repository name remains open. The editor
+repository rev/rev is a separate host source. Repository moves do not change
+package IDs, target-project identity, command IDs, retained runs or storage keys
+implicitly. The specification links the independent migration task.
+
 The proposed wire-version string in the parent manifest remains illustrative.
 Select an exact API revision and finite capability profile before a prototype
 executes, and record them with acceptance evidence. Compatibility is negotiated
@@ -39,6 +45,7 @@ behavior, not the fact that two documents link to one another.
 | Execution profile | Exact project/root, Pi/worker grants, checks/integration rules, finite budgets/deadlines, ownership/settlement policy | Required before Start; RPC command deadlines are separate from the admitted package job's lifetime. |
 | Execution observation | Run/candidate identity, operation identity, outcome, evidence reference, reconciliation state | Determines progress; model prose is not a successful validation receipt. |
 | View binding | Workflow ID, role, draft/run/progress presentation, native handles, last rendered domain revision | Drafts are editable before Start; run contract views are read-only; progress is derived separately. |
+| Attention summary | Workflow/run/task reference, human-readable reason, observed state and admitted next actions | Presentation derived from evidence; internal IDs stay in inspection and an unresolved result cannot appear completed. |
 | Source observation | Artifact identity, source path, native stamp when present, last known disk digest, last plugin-write observation | Detects divergence; neither a path nor a filesystem notification alone is the frozen contract. |
 
 These are conceptual fields, not an instruction to add a database, one file per

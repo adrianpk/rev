@@ -11,6 +11,7 @@ Host contract: Plugin System draft 0.1 and its model; proposed compatibility, no
 Parent: [Plugin System](editor-plugin-system.md)
 Model: [Workflow Context, Artifacts and Execution](editor-development-workflow-model.md)
 Existing integration: [Pi Integration](editor-ai-pi-integration.md)
+Repository direction: [rev organization](https://forge.adrianpk.com/rev); associated repository name remains to be selected
 
 ## Purpose
 
@@ -44,6 +45,13 @@ The package may be built in another repository and installed through the plugin
 ecosystem. Package version, host API revision, target project, artifact generation
 and execution run have separate identities. The target project is selected
 explicitly; it is not inferred from the package or editor source directory.
+
+The project repository family belongs under rev/{repo-name} on the canonical
+forge. The editor's location is rev/rev; this package's repository name is not
+yet selected. The [repository continuation ticket](../ticket/solved/20261108214514-move-editor-repository-to-rev-organization.md)
+records the retained historical repository and new development location. A
+repository location is distinct from a package ID, command namespace, target
+project or runtime storage identity.
 
 ## Owner direction
 
@@ -90,6 +98,34 @@ Questionnaire presentation is still open: one question at a time, an editable
 question/answer buffer, or both. Every supported presentation must allow revisiting
 and editing previous questions and answers. Their identities and history must
 not depend on the selected layout.
+
+### Initial interaction baseline
+
+Use a consistent workflow context that connects the objective, source material,
+questions, documents and execution observations. Ordinary views lead with the
+human-readable objective, selected target, current work and next useful action.
+Detailed identities, revisions, grants and evidence stay available through
+inspection without becoming required ordinary command input.
+
+Keep user input, model proposals, questions, execution progress and checked
+results visibly distinct. A conversational view may complement the editable
+material; it does not replace the source buffers or their revision relationships.
+The established material remains revisitable until Start. During execution,
+separate drafting can prepare later work without rewriting the admitted run.
+
+Start admits the reviewed bundle and its execution policy. Internal transitions
+then follow that policy without requiring the user to resubmit every slice.
+When work needs attention, show the affected task/check, the reason and the
+available recovery action. A hidden view remains different from a paused run.
+
+Preserve these baseline interactions for the first working version. Review a
+different layout or interaction when it resolves a concrete incompatibility or
+an observed usability issue. The pending UX/UI questionnaire refines that baseline
+rather than requiring a new workflow vocabulary or an entirely new design.
+
+The reviewed bundle remains implementation intake and the single tracker remains
+its human progress artifact. These interactions do not introduce a ticket queue,
+multi-project factory or prescribed worktree/container topology.
 
 ## Context and generation
 
@@ -400,12 +436,20 @@ contract snapshot and make that run's contract views read-only inside the packag
 
 Slice/task completion SHALL follow observed validation and integration outcomes.
 The progress view and tracker SHALL identify unavailable or unreconciled evidence.
+Ordinary progress SHALL lead with the task, meaningful state and next available
+action; internal identifiers and raw transcripts remain inspectable detail.
 
 #### Scenario: Worker reports success but validation fails
 - **GIVEN** a worker claims the slice is complete
 - **WHEN** the configured candidate validation fails
 - **THEN** the slice remains incomplete
 - **AND** the status view exposes the failed check and retained candidate.
+
+#### Scenario: Work needs attention
+- **GIVEN** an admitted run cannot continue a task without reconciliation
+- **WHEN** the user opens its status view
+- **THEN** the view identifies the task, concrete reason and available next action
+- **AND** the user does not need an internal run or process ID to understand it.
 
 ### Requirement: WFP06 Keep Pi workflow authority independent
 
