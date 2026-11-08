@@ -5,7 +5,7 @@ Delivery set: rev-prefix-arguments
 Plan: [`ops/default/plan/rev-prefix-arguments.md`](../../../plan/rev-prefix-arguments.md)
 Tracker: [`ops/default/tracker/rev-prefix-arguments.md`](../../../tracker/rev-prefix-arguments.md)
 Branch: `feat/rev-prefix-arguments-01-entry`
-PR: pending
+PR: `#314`
 
 ## Purpose
 

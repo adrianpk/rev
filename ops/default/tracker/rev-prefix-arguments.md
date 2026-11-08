@@ -25,7 +25,7 @@ Progress owner: the authorized Looper checkpoint and canonical validation eviden
 State: reviewing
 Dependency: approved preparation published; execution authorized.
 Branch: `feat/rev-prefix-arguments-01-entry`
-PR: pending
+PR: [#314](https://forge.adrianpk.com/adrianpk/rev/pulls/314)
 Integrated: pending
 Report: `ops/default/report/slices/rev-prefix-arguments/slice-1-entry.md`
 Validation: formatting, Clippy, commands (22/22), wrapping (26/26), documentation and whitespace passed. See the canonical report for exact commands; the final clean-HEAD receipt is controller-owned.
@@ -33,6 +33,10 @@ Validation: formatting, Clippy, commands (22/22), wrapping (26/26), documentatio
 - [x] T1.1: Define transient argument forms, canonical helpers/alias, complete descriptions, effective bindings and checked entry/cancellation.
 - [x] T1.2: Carry arguments through native input and M-x; deliver signed character/word/vertical movement with ordinary wrapping units and preserve existing C-u routes.
 - [x] T1.3: Add prefix_arguments native cases, update current catalogs and incremental references, and introduce the canonical report.
+
+Task commits: `1b47ffb80d805a3625fed42bd6309df5fc03780a` implements
+T1.1-T1.3; `5dc05dee3044da581a964b47e9abe68504649ff6` completes the
+T1.2 wrapping preflight.
 
 ### Slice 1 validation
 
