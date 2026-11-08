@@ -5,12 +5,14 @@ Delivery set: rev-keyboard-macros
 Plan: [Keyboard Macros Delivery](../../../plan/rev-keyboard-macros.md)
 Tracker: [Keyboard Macros Tracker](../../../tracker/rev-keyboard-macros.md)
 Branch: `feat/rev-keyboard-macros-03-ring`
-PR: pending
+PR: [#321](https://forge.adrianpk.com/adrianpk/rev/pulls/321)
 
 ## Purpose
 
 Deliver T3.1-T3.3: a global bounded ring, temporary repeat controls, checked
 append and per-definition integer counters through native editing and prompts.
+
+T3.1-T3.3: [native ring and counter implementation](https://forge.adrianpk.com/adrianpk/rev/commit/68ec75071860e531f96046b4b99b63cbec8541f9).
 
 ## Delivered Behavior
 

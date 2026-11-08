@@ -66,17 +66,19 @@ T2.1-T2.3 implementation: [838968c735dd](https://forge.adrianpk.com/adrianpk/rev
 
 ## Slice 3: Ring, append and counters
 
-State: active
+State: reviewing
 Dependency: Slice 2 integrated through PR #320.
 Branch: feat/rev-keyboard-macros-03-ring
-PR: pending
+PR: [#321](https://forge.adrianpk.com/adrianpk/rev/pulls/321)
 Integrated: pending
 Report: ops/default/report/slices/rev-keyboard-macros/slice-3-ring.md
-Validation: exact ordered slice selection in the plan and frozen configuration
+Validation: development checks passed: 17 ring/counter cases, 52 selected command cases, 114 editing cases, formatting, strict lib/bin Clippy, documentation/catalog checks and whitespace. Focused macro regression/admission checks also passed (26 and 8 cases). The controller validator must record the unchanged seven-command selection on the final clean PR head after its PR-reference commit; delivery-set acceptance remains controller-owned.
 
-- [ ] T3.1: Deliver the global bounded ring, rotate/swap/delete/second-call actions, temporary repeat maps and append variants with independent named-snapshot semantics.
-- [ ] T3.2: Implement current/previous/iteration-start counters, checked operations, captured formats and the two fully documented macro configuration leaves.
-- [ ] T3.3: Verify counter formats/overflow, repeated controls, append failures, history grouping, bounds and catalog/default consistency through ring/counter fixtures.
+- [x] T3.1: Deliver the global bounded ring, rotate/swap/delete/second-call actions, temporary repeat maps and append variants with independent named-snapshot semantics.
+- [x] T3.2: Implement current/previous/iteration-start counters, checked operations, captured formats and the two fully documented macro configuration leaves.
+- [x] T3.3: Verify counter formats/overflow, repeated controls, append failures, history grouping, bounds and catalog/default consistency through ring/counter fixtures.
+
+T3.1-T3.3 implementation: [68ec75071860](https://forge.adrianpk.com/adrianpk/rev/commit/68ec75071860e531f96046b4b99b63cbec8541f9). Canonical PR #321 carries the implementation and report; integration remains pending.
 
 ## Slice 4: Queries, regions and nested execution
 
