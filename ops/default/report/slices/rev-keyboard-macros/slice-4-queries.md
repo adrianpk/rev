@@ -103,7 +103,9 @@ Additional development checks:
 
 ## Risks and Follow-ups
 
-Nested fixtures exercise user-entered runs during manual editing. Dynamic named
-calls and their cycle/depth admission remain Slice 5. Persistent library and
-definition/menu editing retain their recorded later slices. Full PTY and
-large-buffer acceptance remain Slice 8.
+Nested fixtures in this slice exercise user-entered runs during manual editing.
+Slices 5-8 now deliver dynamic named calls with cycle/depth admission, persistent
+library, definition/menu editing and complete PTY and large-buffer acceptance.
+The [Slice 8 closure](slice-8-acceptance.md#delivery-set-closure) records the
+passing integrated gate. This report retains its original slice receipt and
+validation scope.

@@ -106,7 +106,9 @@ Focused development checks:
 
 ## Risks and Follow-ups
 
-Snapshot tests pin real recorded definitions; they do not claim named command
-admission. Queries, region execution, nested calls, naming, persistence and
-definition/menu editing retain their later recorded slices. Full PTY and
-large-buffer acceptance remain Slice 8.
+Snapshot tests in this slice pin real recorded definitions; named command
+admission belongs to Slice 5. Slices 4-8 now deliver queries, region execution,
+nested calls, naming, persistence, definition/menu editing and complete PTY and
+large-buffer acceptance. The [Slice 8 closure](slice-8-acceptance.md#delivery-set-closure)
+records the passing integrated gate. This slice's receipt and scope remain
+historical evidence.

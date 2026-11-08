@@ -1,7 +1,8 @@
 # Keyboard Macros Tracker
 
-Status: Approved
+Status: Completed
 Date: 2026-11-08
+Completed: 2026-11-08
 Delivery set: rev-keyboard-macros
 Approved: owner requested the delivery workflow and delegated reference-compatible decisions on 2026-11-08
 Execution authorized: one eight-slice Looper run with automatic integration into dev
@@ -9,7 +10,7 @@ Plan: [Keyboard Macros Delivery](../plan/rev-keyboard-macros.md)
 Specification: [Keyboard Macros](../spec/editor-keyboard-macros.md)
 Model: [Macro Library and State Ownership](../spec/editor-keyboard-macros-model.md)
 Concern: [Pending Editor Work](../README.md)
-Active slice: None; all eight slices integrated, awaiting the controller gate
+Active slice: None; all eight slices delivered and the controller gate passed
 Progress owner: selected Looper checkpoint and canonical validation evidence
 
 ## Canonical slice map
@@ -161,20 +162,26 @@ Validation: all ten frozen commands passed at clean final PR head c13f145e89efa5
 ## Final gate and closure
 
 - [x] Verify eight canonical integrations and delivered report identities.
-- [ ] Run the unchanged ten-command selected gate on exact clean dev.
-- [ ] Record tested candidate, controller receipt and actual acceptance coverage.
-- [ ] Complete specification/model/plan/tracker and reconcile the index.
-- [ ] Confirm only the thirteen configured closure documents changed afterward.
+- [x] Run the unchanged ten-command selected gate on exact clean dev.
+- [x] Record tested candidate, controller receipt and actual acceptance coverage.
+- [x] Complete specification/model/plan/tracker and reconcile the index.
+- [x] Confirm only the thirteen configured closure documents changed afterward.
 
 All eight canonical PRs are merged into dev. Their immutable report links,
 integration ancestry and ordered clean-head receipts have been verified against
-Forgejo, Git and Acta. Cargo and Spore are available, the guide build script passes
-`bash -n scripts/build-user-guide.sh`, and no Cargo or Rust compiler process was
-active during preparation. The frozen ten-command selection and environment are
-unchanged.
+Forgejo, Git and Acta. The controller passed the unchanged ten-command selection
+at immutable clean candidate `0b67a3659b4ec63e5188b062e255c2f9b19900c1`, receipt
+`CAGQYNBGGZFQHTATRQRSHDE4K2`. All 325 selected tests passed: 110 macro, 52 command,
+114 editing, 45 modal and 4 completion cases. Formatting, strict Clippy,
+680-command/295-entry catalogs, 99 reachable pages, 681 local links/anchors,
+strict local Spore generation and whitespace checks passed.
 
-The integrated-dev gate has not run. The controller must capture the exact clean,
-pushed dev candidate after this metadata update and run the selected gate before
-delivery-set closure. Earlier receipts remain slice evidence. Specification,
-model, plan and tracker completion and index reconciliation remain pending.
-Retained controller state owns live progress.
+KMA01-KMA09, the model and all 24 tasks are delivered. The specification/model,
+plan and tracker are Completed, and the index is reconciled. The
+[Slice 8 closure](../report/slices/rev-keyboard-macros/slice-8-acceptance.md#delivery-set-closure)
+records the exact combined command, actual evidence and immutable report
+introductions. Earlier receipts remain slice evidence. Closure changes only the
+thirteen permitted Markdown paths and preserves requirements, runtime, tests,
+guide inputs and the frozen gate. No selected test runner remains active; no
+unrelated process was stopped. Main promotion, release, publication, installation
+and successor startup retain their separate authority boundaries.

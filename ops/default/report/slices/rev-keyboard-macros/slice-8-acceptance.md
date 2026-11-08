@@ -90,8 +90,8 @@ All ten frozen slice commands passed at clean final PR head
 `c13f145e89efa5320961d6ee49caf408032b8392`, recorded once through the controller
 validator after the PR-reference commit with receipt
 `R27ZEACBE2XPSIL7VS7PWG5FVO`. Forgejo and Acta confirm canonical integration
-through PR #326. This remains pre-integration slice evidence; the controller
-still owns the exact integrated-dev delivery-set gate.
+through PR #326. This remains pre-integration slice evidence. The controller's
+later exact integrated-dev gate is recorded in the delivery-set closure below.
 
 - `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo fmt --all -- --check` — pass.
 - `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo clippy --locked --lib --bin rev -- -D warnings` — pass.
@@ -118,8 +118,8 @@ not hard realtime or total-process memory guarantees.
 
 All eight slice reports are delivered, their integration commits are ancestors
 of dev, and each report matches its actual ordered receipt. The integrated-dev
-gate remains pending. Closure retains the plan's thirteen-file Markdown boundary
-and cannot change runtime, tests, guide inputs or requirements.
+gate passed as recorded below. Closure retains the plan's thirteen-file Markdown
+boundary and cannot change runtime, tests, guide inputs or requirements.
 
 | Requirement | Native acceptance retained or added |
 | --- | --- |
@@ -135,10 +135,73 @@ and cannot change runtime, tests, guide inputs or requirements.
 
 ## Risks and Follow-ups
 
-The integrated-dev gate and documentation-only closure remain controller work.
-No main promotion, tag, release, mirror or site publication, binary install
-or global configuration change is performed. PTY evidence is for the local Linux
-terminal boundary and does not prove every terminal emulator or provider. Native
+The controller passed the integrated-dev gate; this documentation-only closure
+records that evidence. No main promotion, tag, release, mirror or site publication,
+binary install or global configuration change is performed. PTY evidence is for
+the local Linux terminal boundary and does not prove every terminal emulator or provider. Native
 atomic primitives retain their documented cooperative rather than hard realtime
 boundary. Saved definitions remain valuable user content; explicit backup and
 conflict-aware saving apply after this delivery.
+
+## Delivery-set closure
+
+Completed: 2026-11-08. All eight canonical PRs (#319-#326) are merged into dev
+and their reports are delivered. The controller passed the unchanged selected
+integrated gate on clean immutable candidate
+`0b67a3659b4ec63e5188b062e255c2f9b19900c1`, receipt
+`CAGQYNBGGZFQHTATRQRSHDE4K2`. Its supplied evidence and log bind the following
+exact successful command to that candidate:
+
+```sh
+env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo fmt --all -- --check && env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo clippy --locked --lib --bin rev -- -D warnings && env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test macros -- --test-threads=1 && env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test commands -- prefix_arguments palette ranking context_isolation transient_isolation prompt_reset workspace_reset --test-threads=1 && env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test editing -- --test-threads=1 && env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test modal -- prefix_arguments repeat count operator navigation --test-threads=1 && env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test completion -- manual_edit cancel stale --test-threads=1 && env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo run --locked --quiet --example documentation-check && env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 bash scripts/build-user-guide.sh && git diff --check
+```
+
+All five selected native targets passed with no failed or ignored tests:
+
+| Target | Passed | Logged test time |
+| --- | --- | --- |
+| macros | 110 | 62.32s |
+| commands | 52 | 195.09s |
+| editing | 114 | 45.50s |
+| modal | 45 | 52.84s |
+| completion | 4 | 3.26s |
+| Total | 325 | Individual suite timings above |
+
+Formatting, strict lib/bin Clippy and whitespace checks passed. These are logged
+suite timings; no aggregate gate duration is inferred. The full macro target
+retains native source/history, input/command/prompt capture, query/region,
+ring/counter, named/bound snapshot, persistent-library, concurrency and definition
+editing acceptance. It also runs the real executable PTY, restart, large-source
+cancellation, idle and terminal-restoration journeys mapped to KMA01-KMA09 above.
+The earlier focused timing and RSS observations remain development evidence,
+rather than measurements from this controller run.
+
+Catalog validation passed 680 command names and 295 configuration entries.
+Documentation passed 99 reachable pages and 681 local links/anchors. The strict
+Spore guide build projected and rendered 99 Markdown pages into the existing
+ignored local output. This establishes local guide validation; it does not
+claim deployed publication or every physical terminal's rendering.
+
+The tests retain their isolated fixture owners. Closure inspection found no
+selected gate runner or owned macro PTY child still active. No process was
+stopped and no fixture or persistent service was started during closure.
+Existing interactive editor processes were preserved.
+
+Immutable report introductions:
+
+- [Slice 1](https://forge.adrianpk.com/adrianpk/rev/src/commit/ee097b5e41c321f83c3a0af1b0013ddeb1d7f2d2/ops/default/report/slices/rev-keyboard-macros/slice-1-recording.md), canonical PR #319.
+- [Slice 2](https://forge.adrianpk.com/adrianpk/rev/src/commit/838968c735dd6903f9632e96095aa0acb0667af9/ops/default/report/slices/rev-keyboard-macros/slice-2-capture.md), canonical PR #320.
+- [Slice 3](https://forge.adrianpk.com/adrianpk/rev/src/commit/68ec75071860e531f96046b4b99b63cbec8541f9/ops/default/report/slices/rev-keyboard-macros/slice-3-ring.md), canonical PR #321.
+- [Slice 4](https://forge.adrianpk.com/adrianpk/rev/src/commit/f421903f80a606c529190e45cd51ccdecbbabdc6/ops/default/report/slices/rev-keyboard-macros/slice-4-queries.md), canonical PR #322.
+- [Slice 5](https://forge.adrianpk.com/adrianpk/rev/src/commit/c504fcb0653d76cc6553796cc0c16b1716ed5a7b/ops/default/report/slices/rev-keyboard-macros/slice-5-names.md), canonical PR #323.
+- [Slice 6](https://forge.adrianpk.com/adrianpk/rev/src/commit/5871093638f7093b496cfd81d3cce2fc1d84f2c5/ops/default/report/slices/rev-keyboard-macros/slice-6-library.md), canonical PR #324.
+- [Slice 7](https://forge.adrianpk.com/adrianpk/rev/src/commit/17dcf0772016131104782240f155684e76cf25f7/ops/default/report/slices/rev-keyboard-macros/slice-7-editing.md), canonical PR #325.
+- [Slice 8](https://forge.adrianpk.com/adrianpk/rev/src/commit/050e6a6a616daed392ea87afec130d7f379bf875/ops/default/report/slices/rev-keyboard-macros/slice-8-acceptance.md), canonical PR #326.
+
+KMA01-KMA09, the model, all 24 tracker tasks and the eight recorded slices are
+delivered. Specification/model, plan and tracker are Completed, and the index
+entry is reconciled. Only the thirteen configured Markdown closure paths differ
+from the tested candidate. Requirements, scenarios, model data contracts, runtime,
+tests, guide inputs, limits and every required gate assertion retain their tested
+content. Main promotion, tags, releases, binary installation, guide deployment,
+mirror publication and successor startup were not performed.

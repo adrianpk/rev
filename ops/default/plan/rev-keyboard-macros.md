@@ -1,7 +1,8 @@
 # Keyboard Macros Delivery
 
-Status: Approved
+Status: Completed
 Date: 2026-11-08
+Completed: 2026-11-08
 Delivery set: rev-keyboard-macros
 Slice strategy: behavior-first
 Approved: owner requested spec/model, plan, slicing and one Looper run; delegated remaining reference-compatible decisions
@@ -10,7 +11,7 @@ Specification: [Keyboard Macros](../spec/editor-keyboard-macros.md)
 Model: [Macro Library and State Ownership](../spec/editor-keyboard-macros-model.md)
 Tracker: [Keyboard Macros Tracker](../tracker/rev-keyboard-macros.md)
 Concern: [Pending Editor Work](../README.md)
-Active slice: None; all eight slices integrated, awaiting the controller gate
+Active slice: None; all eight slices delivered and the controller gate passed
 
 ## Outcome, prerequisites and authority
 
@@ -235,3 +236,16 @@ No runtime, tests, guide inputs, requirements, model data contracts, command
 semantics, limits, checks or gate definitions may change in closure. An actual
 integration correction follows the retained controller's supported recovery
 authority; it does not justify unapproved side fixes or weakened assertions.
+
+## Delivery-set closure
+
+All eight canonical PRs (#319-#326) are integrated into dev and their reports are
+delivered. The controller passed the unchanged selected gate at immutable clean
+candidate `0b67a3659b4ec63e5188b062e255c2f9b19900c1`, receipt
+`CAGQYNBGGZFQHTATRQRSHDE4K2`. KMA01-KMA09, the model and all 24 tasks are
+delivered. The [Slice 8 closure](../report/slices/rev-keyboard-macros/slice-8-acceptance.md#delivery-set-closure)
+records the exact successful command, 325 selected tests, documentation results,
+immutable report identities and evidence limits. Specification/model, plan,
+tracker and the index entry are Completed. Only the thirteen permitted Markdown
+paths change after validation; runtime, tests, guide inputs and every requirement
+and gate assertion retain their tested content. No successor is started.

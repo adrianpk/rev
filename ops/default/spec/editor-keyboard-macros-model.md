@@ -1,10 +1,11 @@
 # Macro Library and State Ownership
 
-Status: Approved
+Status: Completed
 Date: 2026-11-07
 Updated: 2026-11-08
 Inspection baseline: c86c11383f7de33d56dec17422d87ca2fbfcdc6f
 Approved: owner delegated reference-compatible decisions on 2026-11-08
+Completed: 2026-11-08; [delivery-set closure](../report/slices/rev-keyboard-macros/slice-8-acceptance.md#delivery-set-closure)
 Specification: [Keyboard Macros](editor-keyboard-macros.md)
 Dependency: [Command Prefix Arguments](editor-prefix-arguments.md)
 Plan: [Keyboard Macros Delivery](../plan/rev-keyboard-macros.md)

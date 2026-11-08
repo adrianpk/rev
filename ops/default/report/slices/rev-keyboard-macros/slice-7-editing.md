@@ -107,7 +107,9 @@ Additional development checks:
 
 ## Risks and Follow-ups
 
-Full integrated KMA01-KMA09 acceptance, real PTY journeys, large-buffer probes and
-complete User Guide/how-to acceptance remain Slice 8. Source edits made while
-step editing are real and remain after cancellation; ordinary native undo owns
-them. Editing stays session-local until an explicit named save is confirmed.
+Slice 8 now delivers integrated KMA01-KMA09 acceptance, real PTY journeys,
+large-buffer probes and complete User Guide/how-to guidance. Its
+[delivery-set closure](slice-8-acceptance.md#delivery-set-closure) records the
+passing integrated gate separately from this slice's receipt. Source edits made
+while step editing are real and remain after cancellation; ordinary native undo
+owns them. Editing stays session-local until an explicit named save is confirmed.

@@ -111,6 +111,8 @@ Additional development checks:
 
 ## Risks and Follow-ups
 
-Persistent library encoding, explicit save/reload/delete and inert TOML export
-remain Slice 6. Definition/menu editing remains Slice 7. Full integrated, PTY,
-restart and large-buffer acceptance remains Slice 8.
+Slice 6 now delivers persistent library encoding, explicit save/reload/delete
+and inert TOML export. Slice 7 delivers definition/menu editing, and Slice 8
+delivers integrated, PTY, restart and large-buffer acceptance. The
+[Slice 8 closure](slice-8-acceptance.md#delivery-set-closure) records the passing
+integrated gate. This report retains its original slice receipt and scope.

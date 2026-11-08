@@ -1,12 +1,13 @@
 # Keyboard Macros
 
-Status: Approved
+Status: Completed
 Date: 2026-11-07
 Updated: 2026-11-08
 Format: OpenSpec capability addition
 Inspection baseline: c86c11383f7de33d56dec17422d87ca2fbfcdc6f
 Approved: owner delegated remaining behavior decisions to the documented reference workflow on 2026-11-08
 Execution authorized: finish specification/model, plan, slicing and one Looper run
+Completed: 2026-11-08; [delivery-set closure](../report/slices/rev-keyboard-macros/slice-8-acceptance.md#delivery-set-closure)
 Dependency: [Command Prefix Arguments](editor-prefix-arguments.md), Delivered / Completed
 Model: [Macro Library and State Ownership](editor-keyboard-macros-model.md)
 Plan: [Keyboard Macros Delivery](../plan/rev-keyboard-macros.md)

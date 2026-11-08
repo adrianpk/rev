@@ -79,8 +79,8 @@ native publication budget rejects excess generated text before publication.
 All seven ordered slice checks passed at clean HEAD
 `527f36827597ab688f28262680c5225601773340`, recorded by controller validation
 receipt `JD7OTKMTNO3NK2M5FC7K4Z6HDB`. PR #319 is canonically merged into `dev`.
-The integrated delivery-set gate and real
-PTY acceptance were not run.
+The integrated delivery-set gate and real PTY acceptance were not run for this
+slice; their later evidence is recorded in the delivery-set closure below.
 
 - `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo fmt --all -- --check` — PASS.
 - `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo clippy --locked --lib --bin rev -- -D warnings` — PASS.
@@ -103,8 +103,12 @@ applies that bounded exception to the plan's catalog-debt exclusion. No runtime,
 test, assertion, gate or controller configuration changed in the repair. The
 unchanged seven-command selection now passes, including the catalog assertion.
 
-Later approved slices own named-command and accepted-prompt capture, completion,
-ring/repeat maps, append/counters, nonpositive repetition, queries/regions, named
-snapshots, explicit persistence, definition/menu editing and complete guidance.
-Those surfaces are explicitly unavailable in this increment. Real PTY and large
-buffer acceptance remain assigned to Slice 8.
+This increment excluded the later slices' named-command and accepted-prompt
+capture, completion, ring/repeat maps, append/counters, nonpositive repetition,
+queries/regions, named snapshots, explicit persistence, definition/menu editing
+and complete guidance. Slices 2-8 now deliver those surfaces, real PTY journeys
+and large-buffer acceptance. The unchanged integrated gate passed at
+`0b67a3659b4ec63e5188b062e255c2f9b19900c1`, receipt
+`CAGQYNBGGZFQHTATRQRSHDE4K2`; [Slice 8 closure](slice-8-acceptance.md#delivery-set-closure)
+records the separate delivery-set evidence. The slice receipt above remains
+bound to its original head and checks.

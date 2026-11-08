@@ -99,7 +99,9 @@ Additional development checks:
 
 ## Risks and Follow-ups
 
-Definition editing and the macro menu remain Slice 7. Full integrated, PTY,
-large-buffer and complete user-journey acceptance remains Slice 8. A committed
-write can report uncertain durability after directory synchronization or final
-observation fails; its exact candidate remains retained and revision checked.
+Slices 7 and 8 now deliver definition editing, the macro menu, integrated PTY
+journeys, large-buffer probes and complete user guidance. The
+[Slice 8 closure](slice-8-acceptance.md#delivery-set-closure) records the passing
+integrated gate separately from this slice's receipt. A committed write can
+report uncertain durability after directory synchronization or final observation
+fails; its exact candidate remains retained and revision checked.

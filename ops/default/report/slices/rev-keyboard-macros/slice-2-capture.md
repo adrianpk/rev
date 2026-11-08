@@ -100,6 +100,9 @@ Built-in command names cannot disappear in a live session. The missing-name
 fixture changes only the retained name of a real recording to exercise resolver
 refusal; it does not claim dynamic named-macro admission, which belongs to Slice 5.
 
-Later slices retain ownership of ring/repeat maps, append/counters, macro query
-pauses, regions/nested execution, named definitions, explicit persistence and
-definition/menu editing. Complete PTY and large-buffer acceptance remain Slice 8.
+Slices 3-8 now deliver the subsequent ring/repeat maps, append/counters, macro
+query pauses, regions/nested execution, named definitions, explicit persistence,
+definition/menu editing and complete PTY/large-buffer acceptance. The
+[Slice 8 closure](slice-8-acceptance.md#delivery-set-closure) records the passing
+integrated gate and evidence limits. This report retains its original slice
+receipt and validation scope.
