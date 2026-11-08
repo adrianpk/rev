@@ -69,7 +69,7 @@ T2.3 references, Unreleased guidance and local validation reporting.
 State: reviewing
 Dependency: Slice 2 integrated.
 Branch: `feat/rev-prefix-arguments-03-contexts`
-PR: pending
+PR: [#316](https://forge.adrianpk.com/adrianpk/rev/pulls/316)
 Integrated: pending
 Report: `ops/default/report/slices/rev-prefix-arguments/slice-3-contexts.md`
 Validation: formatting, Clippy, commands (32/32), modal (28/28), real shell (3/3), documentation and whitespace passed. Exact commands are in the canonical report; the final clean-HEAD receipt is controller-owned.
@@ -79,7 +79,8 @@ Validation: formatting, Clippy, commands (32/32), modal (28/28), real shell (3/3
 - [x] T3.3: Verify cooperative work, cancellation, revision/owner invalidation, resource bounds and idle behavior through native command/modal/shell fixtures and record the report.
 
 Task commits: `bc1301031337d2a27dd6bdab04558d371efd1796` implements
-T3.1, T3.2 and T3.3 native acceptance. The report-introduction commit completes
+T3.1, T3.2 and T3.3 native acceptance;
+`abe171179e7bb8b9a192a09a6406d91ba2e901e4` introduces the report and completes
 T3.3 references, Unreleased guidance and local validation reporting.
 
 ## Slice 4: Acceptance and guidance

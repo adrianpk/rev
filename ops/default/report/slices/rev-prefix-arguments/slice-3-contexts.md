@@ -5,7 +5,7 @@ Delivery set: rev-prefix-arguments
 Plan: [`ops/default/plan/rev-prefix-arguments.md`](../../../plan/rev-prefix-arguments.md)
 Tracker: [`ops/default/tracker/rev-prefix-arguments.md`](../../../tracker/rev-prefix-arguments.md)
 Branch: `feat/rev-prefix-arguments-03-contexts`
-PR: pending
+PR: [#316](https://forge.adrianpk.com/adrianpk/rev/pulls/316)
 
 ## Purpose
 
@@ -64,8 +64,9 @@ repeat loop is introduced.
 
 Commit `5b264dee4a5f250830b25f6c07f1d4bf9f20553f` closes Slice 2 records.
 Commit `bc1301031337d2a27dd6bdab04558d371efd1796` implements T3.1 and
-T3.2 and the native acceptance portion of T3.3. This report, current command
-reference and cohesive Unreleased outcome complete T3.3.
+T3.2 and the native acceptance portion of T3.3. Commit
+`abe171179e7bb8b9a192a09a6406d91ba2e901e4` introduces this report and completes
+T3.3 with the current command reference and cohesive Unreleased outcome.
 
 The preceding Slice 2 report/tracker entries are closed after canonical PR #315
 integration at `57afa0a31ffcb56ee9bff6da0135e7e75a628248`. The controller selected
