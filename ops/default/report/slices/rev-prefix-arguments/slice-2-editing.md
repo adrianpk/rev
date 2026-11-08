@@ -5,7 +5,7 @@ Delivery set: rev-prefix-arguments
 Plan: [`ops/default/plan/rev-prefix-arguments.md`](../../../plan/rev-prefix-arguments.md)
 Tracker: [`ops/default/tracker/rev-prefix-arguments.md`](../../../tracker/rev-prefix-arguments.md)
 Branch: `feat/rev-prefix-arguments-02-editing`
-PR: pending
+PR: [#315](https://forge.adrianpk.com/adrianpk/rev/pulls/315)
 
 ## Purpose
 
@@ -63,8 +63,9 @@ command repetition loop is introduced.
 Commit `665e5f956ba41ac52703785e85617177db481aba` closes the verified Slice 1 records and activates this
 controller-selected slice. Commit
 `8a34b5ae72b9ef09a0fcebdaa8c245dd9444d9aa` implements T2.1 and T2.2 and the
-native acceptance portion of T2.3. This report, current command reference and
-cohesive Unreleased outcome complete T2.3.
+native acceptance portion of T2.3. Commit
+`a59daebb930f7dcd5b8c2ffbc6754919d610c6e5` introduces this report and completes
+T2.3 with the current command reference and cohesive Unreleased outcome.
 
 ## Contracts Added or Changed
 

@@ -50,7 +50,7 @@ checks pass. Canonical PR #314 is integrated; the delivery-set gate remains pend
 State: reviewing
 Dependency: Slice 1 integrated.
 Branch: `feat/rev-prefix-arguments-02-editing`
-PR: pending
+PR: [#315](https://forge.adrianpk.com/adrianpk/rev/pulls/315)
 Integrated: pending
 Report: `ops/default/report/slices/rev-prefix-arguments/slice-2-editing.md`
 Validation: formatting, Clippy, selected commands (24/24), editing (110/110), documentation and whitespace passed. See the canonical report for exact commands; the final clean-HEAD receipt is controller-owned.
@@ -60,7 +60,8 @@ Validation: formatting, Clippy, selected commands (24/24), editing (110/110), do
 - [x] T2.3: Extend real native editing/ring/history fixtures and prefix_arguments command acceptance; update the report and completed user-visible Unreleased outcome.
 
 Task commits: `8a34b5ae72b9ef09a0fcebdaa8c245dd9444d9aa` implements
-T2.1, T2.2 and T2.3 native acceptance. The report-introduction commit completes
+T2.1, T2.2 and T2.3 native acceptance;
+`a59daebb930f7dcd5b8c2ffbc6754919d610c6e5` introduces the report and completes
 T2.3 references, Unreleased guidance and local validation reporting.
 
 ## Slice 3: Contextual argument behavior
