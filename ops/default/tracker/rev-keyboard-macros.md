@@ -3,6 +3,7 @@
 Status: Approved
 Date: 2026-11-08
 Delivery set: rev-keyboard-macros
+Approved: owner requested the delivery workflow and delegated reference-compatible decisions on 2026-11-08
 Execution authorized: one eight-slice Looper run with automatic integration into dev
 Plan: [Keyboard Macros Delivery](../plan/rev-keyboard-macros.md)
 Specification: [Keyboard Macros](../spec/editor-keyboard-macros.md)
