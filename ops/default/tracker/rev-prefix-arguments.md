@@ -8,7 +8,7 @@ Execution authorized: one four-slice Looper run, 2026-11-08
 Plan: [Command Prefix Arguments Delivery](../plan/rev-prefix-arguments.md)
 Specification: [Command Prefix Arguments](../spec/editor-prefix-arguments.md)
 Concern: [Pending Editor Work](../README.md)
-Active slice: Slice 4 of 4, reviewing
+Active slice: none; all four slices delivered, controller-owned integrated gate pending
 Progress owner: the authorized Looper checkpoint and canonical validation evidence
 
 ## Canonical slice map
@@ -85,11 +85,11 @@ T3.3 references, Unreleased guidance and local validation reporting.
 
 ## Slice 4: Acceptance and guidance
 
-State: reviewing
+State: delivered
 Dependency: Slice 3 integrated.
 Branch: `test/rev-prefix-arguments-04-acceptance`
 PR: [#317](https://forge.adrianpk.com/adrianpk/rev/pulls/317)
-Integrated: pending
+Integrated: `98d4cc896ed0662c01a648745c554f187f569db4` (canonical PR #317, Rebase + Fast-forward)
 Report: `ops/default/report/slices/rev-prefix-arguments/slice-4-acceptance.md`
 Validation: all ten unchanged PR checks passed locally: formatting, Clippy, commands (36/36), editing (114/114), wrapping (26/26), modal (28/28), shell (3/3), documentation, strict Spore guide build and whitespace. Exact clean-HEAD evidence remains controller-owned.
 
@@ -104,12 +104,27 @@ T4.3 evidence and prior-report follow-ups.
 
 ## Final gate and closure
 
-- [ ] Verify all four canonical integrations and delivered report identities.
+- [x] Verify all four canonical integrations and delivered report identities.
 - [ ] Run the unchanged ten-command selected gate on exact clean dev.
 - [ ] Record tested candidate, controller receipt and actual acceptance results.
 - [ ] Complete specification, plan and tracker and reconcile the index.
 - [ ] Confirm only the eight configured closure documents changed afterward.
 
-Slices 1, 2 and 3 are canonically integrated. Slice 4 is reviewing. Its merge,
-the exact integrated gate and documentation-only closure remain pending. The retained execution checkpoint owns live progress and exact
-clean-HEAD receipts. Delivery-set acceptance remains pending.
+All four canonical PRs (#314-#317) are merged into dev and their report statuses
+are delivered. Their integrated heads are ancestors of primary dev; each PR's
+immutable report link matches the commit that introduced its recorded report.
+Forgejo and Acta independently confirm the four integrations.
+
+Gate prerequisites are ready: Cargo, Rust and Spore are available; locked offline
+Cargo metadata resolves all 118 packages with their source manifests present.
+The existing guide build script passes `bash -n scripts/build-user-guide.sh`;
+its publication inputs and the selected native test modules are present. Build
+space and the primary checkout's separate target directory were checked. No
+provider service, new dependency or additional fixture setup is required.
+
+Only delivered-document entries change during gate preparation. The frozen ten
+commands and acceptance conditions remain unchanged. The controller must bind
+the selected gate to the exact clean, pushed dev candidate after this preparation.
+The worker has not run that integrated gate or marked delivery-set acceptance.
+The retained execution checkpoint owns live progress and exact clean-HEAD
+receipts. Documentation-only closure remains pending until the gate passes.

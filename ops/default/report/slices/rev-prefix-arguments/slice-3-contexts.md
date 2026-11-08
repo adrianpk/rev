@@ -72,8 +72,8 @@ T3.3 with the current command reference and cohesive Unreleased outcome.
 
 The preceding Slice 2 report/tracker entries are closed after canonical PR #315
 integration at `57afa0a31ffcb56ee9bff6da0135e7e75a628248`. The controller selected
-this slice; it has since activated Slice 4 after canonical integration. The
-combined gate remains pending.
+this slice; Slice 4 has since integrated through canonical PR #317. All four
+slices are delivered; the combined gate remains pending.
 
 ## Contracts Added or Changed
 
@@ -117,5 +117,5 @@ These checks do not claim the integrated delivery-set gate.
 
 History retains the approved progressive cancellation behavior from Slice 2.
 The complete joint acceptance sweep, final reference reconciliation and User
-Guide build belong to approved Slice 4, now selected by the controller. The
-integrated gate remains controller-owned.
+Guide build are delivered in Slice 4 through canonical PR #317. The integrated
+gate and final documentation-only closure remain controller-owned and pending.

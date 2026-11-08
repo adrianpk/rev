@@ -10,7 +10,7 @@ Planning baseline: `2bde2d1b1cccdaf536c17fbd86938eb42cbfc896`
 Specification: [Command Prefix Arguments](../spec/editor-prefix-arguments.md)
 Tracker: [Command Prefix Arguments Tracker](../tracker/rev-prefix-arguments.md)
 Concern: [Pending Editor Work](../README.md)
-Active slice: Slice 1 of 4, pending execution startup
+Active slice: all four slices integrated; controller-owned integrated gate pending
 
 ## Outcome and strategy
 

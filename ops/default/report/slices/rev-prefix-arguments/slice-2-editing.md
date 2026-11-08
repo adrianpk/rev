@@ -109,5 +109,6 @@ command results outside the repository.
 History is explicitly progressive and cancellation does not roll it back.
 The remaining positioning, scrolling, tree, shell/context/modal policies were
 subsequently integrated in [Slice 3](slice-3-contexts.md). Joint acceptance and
-guidance are recorded in [Slice 4](slice-4-acceptance.md); canonical integration
-of that slice and the delivery-set gate remain controller-owned.
+guidance are recorded in [Slice 4](slice-4-acceptance.md), now integrated through
+canonical PR #317. The integrated delivery-set gate and final documentation-only
+closure remain controller-owned and pending.

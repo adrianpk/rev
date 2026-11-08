@@ -101,5 +101,6 @@ command results outside the repository.
 
 Counted editing/history and the remaining contextual policies were subsequently
 integrated in [Slice 2](slice-2-editing.md) and [Slice 3](slice-3-contexts.md).
-[Slice 4](slice-4-acceptance.md) completes joint acceptance and guidance; its
-canonical integration and the delivery-set gate remain controller-owned.
+[Slice 4](slice-4-acceptance.md) completes joint acceptance and guidance and is
+integrated through canonical PR #317. The integrated delivery-set gate and final
+documentation-only closure remain controller-owned and pending.

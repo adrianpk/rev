@@ -1,18 +1,20 @@
 # Slice 4: Acceptance and guidance
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-prefix-arguments
 Plan: [`ops/default/plan/rev-prefix-arguments.md`](../../../plan/rev-prefix-arguments.md)
 Tracker: [`ops/default/tracker/rev-prefix-arguments.md`](../../../tracker/rev-prefix-arguments.md)
 Branch: `test/rev-prefix-arguments-04-acceptance`
 PR: [#317](https://forge.adrianpk.com/adrianpk/rev/pulls/317)
+Integrated: `98d4cc896ed0662c01a648745c554f187f569db4`
 
 ## Purpose
 
 Complete T4.1 joint native acceptance, T4.2 reader guidance and discovery
 reconciliation, and T4.3 reviewable evidence for the unchanged selected checks.
-This is PR preparation. Canonical integration, the integrated delivery-set gate
-and documentation-only closure remain controller-owned.
+Canonical PR #317 is integrated through Rebase + Fast-forward. The integrated
+delivery-set gate and documentation-only closure remain controller-owned and
+pending.
 
 ## Delivered Behavior
 
@@ -75,7 +77,8 @@ Commit `f6c7f72c47bfb0d4e48b4e6bc94cd4806ef1e27c` implements T4.1.
 Commit `87d715d7f0ccd0f7da3022f1891adb8708646a97` implements T4.2.
 Commit `db092556ac056d06b93f341e4cd93da6f32d9515` introduces this report
 and completes T4.3 tracker/report reconciliation. The final PR-reference commit
-is validated through the controller's exact-HEAD command.
+`98d4cc896ed0662c01a648745c554f187f569db4` passed the ten unchanged ordered
+checks through the controller's exact-HEAD validation command before integration.
 
 ## Canonical Integration Evidence
 
@@ -85,10 +88,14 @@ is validated through the controller's exact-HEAD command.
   `57afa0a31ffcb56ee9bff6da0135e7e75a628248`.
 - Slice 3: PR [#316](https://forge.adrianpk.com/adrianpk/rev/pulls/316),
   `83d283bee834bdc428e48d3390af5adcf2d01d91`.
+- Slice 4: PR [#317](https://forge.adrianpk.com/adrianpk/rev/pulls/317),
+  `98d4cc896ed0662c01a648745c554f187f569db4`.
 
-Canonical Forgejo state and Acta record those integrations; all three heads are
-ancestors of clean primary dev. Slice 4 remains reviewing until its controller-
-owned merge. Its PR checks do not prove acceptance of a future integrated head.
+Canonical Forgejo state and Acta record all four integrations; their heads are
+ancestors of primary dev and all reports are delivered. Each canonical PR links
+the immutable commit that introduced its recorded report. The PR checks remain
+evidence for their exact slice candidates; the controller must run the selected
+integrated gate on clean dev after gate-preparation documentation is committed.
 
 ## Files of Interest
 
@@ -121,7 +128,8 @@ integrated primary-dev gate and delivery-set closure remain pending.
 ## Risks and Follow-ups
 
 Cancellation of native history is progressive and retains completed groups.
-The controller must still integrate this PR, verify all four canonical heads,
-run the unchanged selected gate on exact clean dev and perform the approved
-Markdown-only closure. Main promotion, releases, guide deployment, binary
-installation and successor startup are outside this worker turn.
+All four canonical integrations and report identities are verified. The
+controller must run the unchanged selected gate on exact clean dev and perform
+the approved Markdown-only closure after it passes. Main promotion, releases,
+guide deployment, binary installation and successor startup are outside this
+worker turn.
