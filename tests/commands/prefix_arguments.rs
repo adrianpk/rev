@@ -174,7 +174,11 @@ fn digit_termination() {
         input.handle(event);
     }
     assert_eq!(input.prefix_argument().value(), 64);
-    assert!(matches!(input.handle(character('1')), Outcome::Editing(_)));
+    let Outcome::TextInvocation(invocation) = input.handle(character('1')) else {
+        panic!("terminated digits must retain their text argument");
+    };
+    assert_eq!(invocation.text, "1");
+    assert_eq!(invocation.argument.value(), 64);
     assert!(!input.prefix_argument().supplied());
 }
 
@@ -468,4 +472,59 @@ fn idle_and_modal() {
         Command::named("next-line"),
         Some(Command::Scroll(Scroll::NextLine))
     ));
+}
+
+// A terminated digit is source text with its original numeric argument, and
+// the next physical edit uses ordinary single-entry behavior.
+#[test]
+fn counted_text_transfer() {
+    let mut session = editor("", "", 80);
+    count(&mut session, "5");
+    session.handle(control('u'));
+    session.handle(character('7'));
+    settle(&mut session);
+    assert_eq!(text(&session), "77777");
+    assert_eq!(session.buffer().unwrap().history().len(), 1);
+    session.handle(character('x'));
+    assert_eq!(text(&session), "77777x");
+    assert_eq!(session.buffer().unwrap().history().len(), 2);
+}
+
+// Named counted edits record one accepted command and consume their argument;
+// native history replays those existing groups without synthetic grouping.
+#[test]
+fn counted_edit_selection() {
+    let fixture = super::config_fixture::Fixture::new();
+    let path = fixture.0.join("command-history.toml");
+    let history = rev::command::usage::History::open(&path);
+    let mut session = editor("", "a\r\nb", 80).with_command_usage(history);
+    count(&mut session, "2");
+    named(&mut session, "newline");
+    settle(&mut session);
+    assert_eq!(text(&session), "\r\n\r\na\r\nb");
+    named(&mut session, "newline");
+    settle(&mut session);
+    assert_eq!(text(&session), "\r\n\r\n\r\na\r\nb");
+    count(&mut session, "2");
+    named(&mut session, "undo");
+    settle(&mut session);
+    assert_eq!(text(&session), "a\r\nb");
+    assert!(session.buffer().unwrap().history().is_empty());
+    session.flush_command_usage().unwrap();
+    let stored: toml::Value = toml::from_str(&std::fs::read_to_string(&path).unwrap()).unwrap();
+    let names = stored["commands"].as_array().unwrap();
+    assert_eq!(
+        names
+            .iter()
+            .filter(|name| name.as_str() == Some("newline"))
+            .count(),
+        2
+    );
+    assert_eq!(
+        names
+            .iter()
+            .filter(|name| name.as_str() == Some("undo"))
+            .count(),
+        1
+    );
 }

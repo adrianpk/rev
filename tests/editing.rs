@@ -7,6 +7,8 @@ mod surface;
 mod config_fixture;
 #[path = "editing/preferences.rs"]
 mod preferences;
+#[path = "editing/prefix_arguments.rs"]
+mod prefix_arguments;
 
 #[path = "editing/kills.rs"]
 mod kills;

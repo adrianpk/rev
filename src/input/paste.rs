@@ -5,7 +5,7 @@ impl Input {
     pub(super) fn paste(&mut self, text: String) -> Outcome {
         if matches!(
             self.context,
-            Context::Command(_) | Context::ArgumentDigit(_)
+            Context::Editing | Context::Command(_) | Context::ArgumentDigit(_)
         ) {
             self.clear_sequence();
         } else {

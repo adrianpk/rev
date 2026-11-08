@@ -552,6 +552,20 @@ fn insert(text: &mut Rope, mut position: usize, fragment: &Rope) -> Result<(), E
 }
 
 impl Prepared {
+    /// Admit a resulting mark on the private candidate, preserving the original
+    /// mark for native undo and applying normal grapheme endpoint adjustment.
+    pub(crate) fn set_mark(&mut self, mark: Scalar) -> Result<(), Error> {
+        let coordinates =
+            Coordinates::for_text(self.text.slice(..), self.record.after, self.tab_width);
+        let mark = if coordinates.is_boundary(mark)? {
+            mark
+        } else {
+            coordinates.next(mark)?
+        };
+        self.record.after_mark = Some(mark);
+        Ok(())
+    }
+
     pub(in crate::buffer) fn saved_output(&self) -> (&Rope, Stamp, State) {
         (&self.text, self.record.after, self.record.after_state)
     }

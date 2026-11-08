@@ -23,6 +23,14 @@ pub struct Invocation {
     pub origin: InvocationOrigin,
 }
 
+/// One admitted source-text entry and its transient editor argument.
+#[derive(Debug, PartialEq, Eq)]
+pub struct TextInvocation {
+    pub text: String,
+    pub argument: PrefixArgument,
+    pub origin: InvocationOrigin,
+}
+
 #[derive(Debug, Default)]
 pub(super) struct State {
     value: PrefixArgument,
@@ -202,6 +210,21 @@ impl Input {
                     origin: argument.origin.expect("supplied input has an origin"),
                 }))
             }
+            Outcome::Editing(key)
+                if self.argument.value.supplied()
+                    && self.focus() == Focus::Editing
+                    && matches!(key.plain(), Some(KeyCode::Char(c)) if !c.is_control()) =>
+            {
+                let KeyCode::Char(character) = key.code else {
+                    unreachable!()
+                };
+                self.text_invocation(character.to_string())
+            }
+            Outcome::Paste(text)
+                if self.argument.value.supplied() && self.focus() == Focus::Editing =>
+            {
+                self.text_invocation(text)
+            }
             Outcome::Editing(_) | Outcome::Paste(_) | Outcome::Pointer(_)
                 if self.focus() == Focus::Editing =>
             {
@@ -214,6 +237,15 @@ impl Input {
             }
             _ => outcome,
         }
+    }
+
+    fn text_invocation(&mut self, text: String) -> Outcome {
+        let argument = std::mem::take(&mut self.argument);
+        Outcome::TextInvocation(Box::new(TextInvocation {
+            text,
+            argument: argument.value,
+            origin: argument.origin.expect("supplied text has an origin"),
+        }))
     }
 
     pub(crate) fn invocation_current(&self, origin: InvocationOrigin) -> bool {

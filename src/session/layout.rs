@@ -17,6 +17,8 @@ const INPUT_LIMIT: usize = 256;
 enum Request {
     Command(Command),
     Invocation(Invocation),
+    ArgumentText,
+    ArgumentHistory,
     Pointer(crate::pointer::Event, Instant),
 }
 
@@ -33,10 +35,13 @@ struct Held {
     size: Size,
 }
 
-/// One pure layout-dependent operation and a finite FIFO of later native input.
+/// One bounded native operation and a finite FIFO of later input. Movement and
+/// edit plans stay private; history retains completed native group replays.
 /// The host stops reading before this FIFO fills; it never discards typed input.
 #[derive(Default)]
 pub(super) struct Work {
+    pub(super) text: Option<super::arguments::Text>,
+    pub(super) history: Option<super::arguments::Replay>,
     pub(super) movement: Option<super::arguments::Movement>,
     held: Option<Held>,
     input: VecDeque<Deferred>,
@@ -68,6 +73,8 @@ impl Session {
         if Input::interrupt(&event) {
             self.layout.held = None;
             self.layout.movement = None;
+            self.layout.text = None;
+            self.layout.history = None;
             self.layout.interrupt = true;
             // One interrupt may follow the full ordinary-input allowance.
             if self.layout.input.len() <= INPUT_LIMIT {
@@ -97,6 +104,8 @@ impl Session {
         if command == Command::KeyboardQuit {
             self.layout.held = None;
             self.layout.movement = None;
+            self.layout.text = None;
+            self.layout.history = None;
             self.layout.interrupt = true;
             if self.layout.input.len() <= INPUT_LIMIT {
                 self.layout.input.push_back(Deferred::Command(command));
@@ -180,6 +189,14 @@ impl Session {
         self.prepare_request(Request::Invocation(invocation))
     }
 
+    pub(super) fn layout_argument_text(&mut self) -> Option<Action> {
+        self.prepare_request(Request::ArgumentText)
+    }
+
+    pub(super) fn layout_argument_history(&mut self) -> Option<Action> {
+        self.prepare_request(Request::ArgumentHistory)
+    }
+
     fn prepare_request(&mut self, request: Request) -> Option<Action> {
         match self.prepare_layout_request(request) {
             Ok(()) => None,
@@ -203,12 +220,17 @@ impl Session {
             }
             Err(error) => {
                 self.layout.movement = None;
+                self.layout.text = None;
+                self.layout.history = None;
                 Some(self.error(&error.to_string()))
             }
         }
     }
 
     fn prepare_layout_request(&mut self, request: Request) -> Result<(), Error> {
+        if matches!(request, Request::ArgumentHistory) {
+            return self.prepare_argument_history();
+        }
         let work = Arc::new(Mutex::new(LayoutBudget::new()));
         let scopes = self.layout_scopes(work.clone())?;
         let work = scopes.0.first().expect("live windows own a source").work();
@@ -239,6 +261,8 @@ impl Session {
 
     fn prepared_request(&mut self, request: Request) -> Result<(), Error> {
         match request {
+            Request::ArgumentText => self.prepare_argument_text(),
+            Request::ArgumentHistory => unreachable!("history uses progressive native admission"),
             Request::Invocation(invocation) => self.prepare_argument_movement(invocation),
             Request::Command(Command::Edit(request)) => self.editing_preflight(request),
             Request::Command(Command::Navigate(request)) => {
@@ -297,7 +321,10 @@ impl Session {
     fn replay_held(&mut self, held: Held) -> Action {
         let valid = held.selected == self.windows.selected_id()
             && match held.request {
-                Request::Command(_) | Request::Invocation(_) => held.point == self.view().point,
+                Request::Command(_)
+                | Request::Invocation(_)
+                | Request::ArgumentText
+                | Request::ArgumentHistory => held.point == self.view().point,
                 Request::Pointer(..) => {
                     held.size == self.size
                         && held.views.len() == self.windows.iter().len()
@@ -308,6 +335,8 @@ impl Session {
             };
         if !valid {
             self.layout.movement = None;
+            self.layout.text = None;
+            self.layout.history = None;
             self.message("Layout source or geometry changed")
         } else if let Some(outcome) = self.prepare_request(held.request) {
             outcome
@@ -315,6 +344,8 @@ impl Session {
             match held.request {
                 Request::Command(command) => self.execute_now(command),
                 Request::Invocation(invocation) => self.publish_argument_movement(invocation),
+                Request::ArgumentText => self.publish_argument_text(),
+                Request::ArgumentHistory => self.publish_argument_history(),
                 Request::Pointer(event, now) => self.pointer_now(event, now),
             }
         }

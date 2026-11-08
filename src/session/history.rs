@@ -9,7 +9,7 @@ impl Session {
         self.finish(result.map(|()| true))
     }
 
-    fn replay(&mut self, direction: History) -> Result<(), Error> {
+    pub(super) fn replay(&mut self, direction: History) -> Result<(), Error> {
         let buffer = self
             .buffers
             .get_mut(self.windows.selected().point.stamp.buffer)?;

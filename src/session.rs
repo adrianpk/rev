@@ -863,6 +863,7 @@ impl Session {
                 self.retire_command();
                 self.execute_invocation(*invocation)
             }
+            Outcome::TextInvocation(invocation) => self.execute_argument_text(*invocation),
             Outcome::ArgumentPrefix(_) => self.argument_feedback(),
             _ => self.argument_outcome(outcome, now),
         }

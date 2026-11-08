@@ -76,3 +76,103 @@ impl Session {
         Ok(changed)
     }
 }
+
+impl Session {
+    pub(super) fn argument_yank(&mut self, invocation: crate::input::Invocation) -> super::Action {
+        use crate::command::{ArgumentForm, LinearCommand};
+        if self.context_storage.locked() || self.terminals.focused || self.terminal_copy_active() {
+            return self.error("Source text is read-only");
+        }
+        let value = invocation.argument.value();
+        let plain = matches!(invocation.argument.form(), ArgumentForm::PlainPrefix { .. });
+        let pop = invocation.command == crate::command::Command::Linear(LinearCommand::Pop);
+        if pop && value == 0 {
+            return self.message("");
+        }
+        if !pop && !plain && value <= 0 {
+            return self.error("Yank requires a positive entry number");
+        }
+        self.command_boundary(invocation.command);
+        self.finish_repeat_entry();
+        if let Err(error) = self.stop_typing() {
+            return self.error(&error.to_string());
+        }
+        let result = if pop {
+            self.rotate_argument_yank(value)
+        } else {
+            self.select_argument_yank(if plain { 0 } else { (value - 1) as usize }, plain)
+        };
+        self.sync_input_context();
+        match result {
+            Ok(changed) => self.finish(Ok(changed)),
+            Err(error) => self.error(&error.to_string()),
+        }
+    }
+
+    fn rotate_argument_yank(&mut self, distance: i32) -> Result<bool, Error> {
+        let capture = self.yank.take().ok_or(Error::Yank)?;
+        if capture.view != self.windows.selected_id()
+            || capture.source.stamp != self.view().point.stamp
+        {
+            return Err(Error::Yank);
+        }
+        let (rotation, text) = self
+            .kills
+            .rotate(capture.rotation, distance)
+            .ok_or(Error::Yank)?;
+        self.buffer()
+            .map_err(edit::Error::from)?
+            .check_edit_payload(text.len_bytes())?;
+        let text = text.to_string();
+        Ok(self.publish_yank(capture.source.range, &text, rotation)?)
+    }
+
+    fn select_argument_yank(&mut self, index: usize, exchange: bool) -> Result<bool, Error> {
+        let text = self.kills.entry(index).ok_or(Error::EmptyRing)?;
+        self.buffer()
+            .map_err(edit::Error::from)?
+            .check_edit_payload(text.len_bytes())?;
+        let text = text.to_string();
+        let at = self.view().point.position.0;
+        if !exchange {
+            return Ok(self.publish_yank(at..at, &text, index)?);
+        }
+        // Prepare point and mark with the source transaction. No fallible
+        // endpoint change remains after publication, including joined clusters.
+        let buffer = self
+            .buffers
+            .get_mut(self.view().point.stamp.buffer)
+            .map_err(edit::Error::from)?;
+        let points = self.windows.points(buffer)?;
+        let end = at
+            .checked_add(text.chars().count())
+            .ok_or(edit::Error::Capacity)?;
+        let replacement = edit::Replacement {
+            source: buffer.span(at..at).map_err(edit::Error::from)?,
+            text,
+        };
+        let mut prepared = buffer.prepare(
+            &[replacement],
+            &points.values,
+            Some(edit::Cursor {
+                index: points.initiator,
+                position: crate::coordinates::Scalar(at),
+            }),
+        )?;
+        prepared.set_mark(crate::coordinates::Scalar(end))?;
+        prepared.set_origin(self.windows.selected_id());
+        self.windows.publish(buffer, prepared, points)?;
+        self.published_repeat_boundary();
+        self.windows.selected_mut().reset_navigation();
+        self.yank = Some(Capture {
+            source: Span {
+                stamp: self.view().point.stamp,
+                range: at..end,
+            },
+            view: self.windows.selected_id(),
+            rotation: index,
+        });
+        self.sync_input_context();
+        Ok(true)
+    }
+}

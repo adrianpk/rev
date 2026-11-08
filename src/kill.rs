@@ -74,7 +74,19 @@ impl KillRing {
     }
 
     pub(crate) fn older(&self, index: usize) -> Option<(usize, &Rope)> {
-        let next = index.checked_add(1)?.checked_rem(self.entries.len())?;
+        self.rotate(index, 1)
+    }
+
+    pub(crate) fn entry(&self, index: usize) -> Option<&Rope> {
+        self.entries.get(index).map(|entry| &entry.text)
+    }
+
+    pub(crate) fn rotate(&self, index: usize, distance: i32) -> Option<(usize, &Rope)> {
+        let len = i64::try_from(self.entries.len()).ok()?;
+        if len == 0 {
+            return None;
+        }
+        let next = (i64::try_from(index).ok()? + i64::from(distance)).rem_euclid(len) as usize;
         Some((next, &self.entries.get(next)?.text))
     }
 

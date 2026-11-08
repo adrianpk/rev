@@ -1,5 +1,5 @@
 mod argument;
-pub use argument::{Invocation, InvocationOrigin};
+pub use argument::{Invocation, InvocationOrigin, TextInvocation};
 mod completion;
 mod context;
 mod dispatch;
@@ -81,6 +81,7 @@ pub enum Outcome {
     Prefix(Prefix),
     Command(Command),
     Invocation(Box<Invocation>),
+    TextInvocation(Box<TextInvocation>),
     ArgumentPrefix(Command),
     Editing(Key),
     Paste(String),
