@@ -1,3 +1,5 @@
+mod capture;
+mod literal;
 mod runner;
 
 use std::sync::Arc;
@@ -8,8 +10,8 @@ use crossterm::event::Event;
 
 use super::{Action, Session};
 use crate::command::{Command, MacroCommand, PrefixArgument};
-use crate::input::{Focus, Input, Outcome};
-use crate::macros::{Definition, Entry, Recorder, Runner, Status, Step, Stop, StopReason};
+use crate::input::{Focus, Input};
+use crate::macros::{Definition, Entry, Recorder, Runner, Status, Stop, StopReason};
 
 impl Session {
     pub fn macro_status(&self) -> Status {
@@ -18,6 +20,20 @@ impl Session {
 
     pub fn macro_stop(&self) -> Option<Stop> {
         self.macros.stop
+    }
+
+    /// Observe native layout or fresh-consent ownership without advancing it.
+    /// Consent has no automatic macro wake; the host waits for ordinary input.
+    pub fn macro_wait(&self) -> Option<crate::macros::Wait> {
+        self.macros.runner.as_ref().and_then(|run| {
+            if run.consent.is_some() {
+                Some(crate::macros::Wait::Consent)
+            } else if run.waiting {
+                Some(crate::macros::Wait::Layout)
+            } else {
+                None
+            }
+        })
     }
 
     fn macro_entry(&self) -> Entry {
@@ -38,7 +54,11 @@ impl Session {
             && self.completion.is_none()
     }
 
-    fn stop_macro(&mut self, reason: StopReason, message: &str) -> Action {
+    pub(super) fn stop_macro(&mut self, reason: StopReason, message: &str) -> Action {
+        if self.macros.active() {
+            self.restore_search();
+            self.pending = None;
+        }
         self.macros.fail(reason);
         self.buffers.automatic_group(None);
         self.input.cancel();
@@ -68,6 +88,25 @@ impl Session {
             self.stop_macro(StopReason::Canceled, "Keyboard macro canceled");
             return None;
         }
+        if self
+            .macros
+            .runner
+            .as_ref()
+            .is_some_and(|run| run.consent.is_some())
+        {
+            let current = (self.windows.selected_id(), self.view().point);
+            if self
+                .macros
+                .runner
+                .as_ref()
+                .is_some_and(|run| run.expected != current)
+            {
+                return Some(
+                    self.stop_macro(StopReason::OwnerChanged, "Macro consent source changed"),
+                );
+            }
+            return None;
+        }
         if matches!(event, Event::Paste(_) | Event::Mouse(_))
             || matches!(event, Event::Key(key) if key.kind != crossterm::event::KeyEventKind::Release)
         {
@@ -87,81 +126,17 @@ impl Session {
         if matches!(command, Command::Macro(_)) && !self.macros.expanded {
             return None;
         }
+        if self.macros.expanded && matches!(command, Command::Completion(_)) {
+            return Some(self.stop_macro(
+                StopReason::Unsupported,
+                "Macro completion requires a captured literal edit",
+            ));
+        }
         if (!self.macros.expanded && !self.macros.dispatching) || !supported(command) {
             return Some(self.stop_macro(
                 StopReason::Unsupported,
                 "Keyboard macro stopped before unsupported command",
             ));
-        }
-        None
-    }
-
-    pub(super) fn macro_capture_outcome(&mut self, outcome: &Outcome) -> Option<Action> {
-        if self.macros.expanded || self.macros.recorder.is_none() {
-            return None;
-        }
-        let command = match outcome {
-            Outcome::Command(command) => Some(*command),
-            Outcome::Invocation(invocation) => Some(invocation.command),
-            _ => None,
-        };
-        if command.is_some_and(|c| matches!(c, Command::Macro(_))) {
-            return None;
-        }
-        if command == Some(Command::KeyboardQuit) {
-            self.macros.fail(StopReason::Canceled);
-            return None;
-        }
-        if matches!(outcome, Outcome::Ignored) {
-            return None;
-        }
-        if matches!(outcome, Outcome::Message(_) | Outcome::Pointer(_)) {
-            return Some(self.stop_macro(
-                StopReason::Unsupported,
-                "Keyboard macro recording stopped before unsupported input",
-            ));
-        }
-        if matches!(outcome, Outcome::Paste(text) if text.is_empty()) {
-            return None;
-        }
-        if matches!(outcome, Outcome::Paste(text) if text.contains('\0')) {
-            return Some(self.stop_macro(
-                StopReason::Unsupported,
-                "Keyboard macro recording stopped before rejected paste",
-            ));
-        }
-        let text_bytes = match outcome {
-            Outcome::Paste(text) => text.len(),
-            Outcome::TextInvocation(text) => text.text.len(),
-            _ => 0,
-        };
-        if text_bytes > crate::macros::DEFINITION_BYTES {
-            return Some(self.stop_macro(
-                StopReason::CaptureLimit,
-                "Keyboard macro recording limit exceeded",
-            ));
-        }
-        let step = self
-            .input
-            .logical_key
-            .map(Step::Key)
-            .or_else(|| match outcome {
-                Outcome::Paste(text) => Some(Step::Text(text.clone())),
-                Outcome::TextInvocation(text) => Some(Step::Text(text.text.clone())),
-                _ => None,
-            });
-        if let Some(step) = step {
-            let recorder = self.macros.recorder.as_mut().expect("capture owner");
-            if let Err(reason) = recorder.stage(step) {
-                return Some(self.stop_macro(reason, "Keyboard macro recording limit exceeded"));
-            }
-            if !matches!(
-                outcome,
-                Outcome::Prefix(_) | Outcome::ArgumentPrefix(_) | Outcome::Changed
-            ) && let Err(reason) = recorder.accept()
-            {
-                return Some(self.stop_macro(reason, "Keyboard macro recording limit exceeded"));
-            }
         }
         None
     }
@@ -261,18 +236,23 @@ impl Session {
             waiting: false,
             group: crate::buffer::edit::AutomaticGroup::new(budget.clone()),
             budget,
+            arguments: Default::default(),
+            trigger: Default::default(),
+            consent: None,
         });
         self.message("Keyboard macro playing")
     }
 }
 
+#[cfg(test)]
+mod tests;
+
 fn supported(command: Command) -> bool {
     if matches!(
         command,
-        Command::Navigate(crate::command::Navigation {
-            target: crate::command::navigation::Target::Search(_),
-            ..
-        })
+        Command::Completion(
+            crate::command::CompletionCommand::Mode | crate::command::CompletionCommand::AutoMode
+        )
     ) {
         return false;
     }
@@ -298,5 +278,16 @@ fn supported(command: Command) -> bool {
             | Command::UniversalArgument
             | Command::DigitArgument
             | Command::NegativeArgument
+            | Command::ExecuteExtended
+            | Command::SearchForward
+            | Command::SearchBackward
+            | Command::QueryReplace
+            | Command::FindFile
+            | Command::GotoLine
+            | Command::SaveBuffer
+            | Command::WriteFile
+            | Command::Buffer(_)
+            | Command::GenerateNewBuffer
+            | Command::Completion(_)
     )
 }

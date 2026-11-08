@@ -30,6 +30,14 @@ struct Candidate {
 }
 
 impl State {
+    pub(in crate::session) fn macro_role(&self) -> Option<crate::macros::Role> {
+        match self.stage {
+            Stage::Query => Some(crate::macros::Role::ReplaceQuery),
+            Stage::Replacement(_) => Some(crate::macros::Role::Replacement),
+            Stage::Decision(_) => None,
+        }
+    }
+
     pub(super) fn deciding(&self) -> bool {
         matches!(self.stage, Stage::Decision(_))
     }
@@ -42,6 +50,12 @@ impl Session {
             Err(error) => return self.error(&error.to_string()),
         };
         if buffer.is_readonly() {
+            if self.macros.active() {
+                return self.stop_macro(
+                    crate::macros::StopReason::NativeFailure,
+                    "Macro replacement source is read-only",
+                );
+            }
             return self.message(&edit::Error::ReadOnly.to_string());
         }
         let owner = Owner {
@@ -113,6 +127,9 @@ impl Session {
             Ok(pattern) => pattern,
             Err(error) => return self.error(&error.to_string()),
         };
+        if !self.macro_accept_argument(crate::macros::Role::ReplaceQuery, query) {
+            return Action::Redraw;
+        }
         self.replace_prompt(
             State {
                 owner,
@@ -125,6 +142,9 @@ impl Session {
     fn replace_value(&mut self, owner: Owner, pattern: Pattern, replacement: String) -> Action {
         if replacement.contains('\0') {
             return self.message("Replacement contains NUL; binary input rejected");
+        }
+        if !self.macro_accept_argument(crate::macros::Role::Replacement, &replacement) {
+            return Action::Redraw;
         }
         self.replace_next(owner, pattern, replacement)
     }

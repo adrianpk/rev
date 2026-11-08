@@ -41,6 +41,13 @@ pub(super) struct State {
 }
 
 impl Input {
+    pub(crate) fn invocation_origin(&self) -> InvocationOrigin {
+        InvocationOrigin {
+            context: self.map_context(),
+            source: self.navigation_source,
+        }
+    }
+
     pub fn prefix_argument(&self) -> PrefixArgument {
         self.argument.value
     }

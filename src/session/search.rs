@@ -113,8 +113,31 @@ impl Session {
             return Action::Redraw;
         }
         match action {
-            SearchAction::Repeat(direction) => self.search(direction),
+            SearchAction::Repeat(direction) => {
+                let value = self
+                    .input
+                    .prompt()
+                    .map(|prompt| prompt.text().to_owned())
+                    .unwrap_or_default();
+                if !self.macro_accept_argument(crate::macros::Role::SearchRepeat(direction), &value)
+                {
+                    return Action::Redraw;
+                }
+                self.search(direction)
+            }
             SearchAction::Accept => {
+                if let Some(Pending::Search(state)) = &self.pending {
+                    if self.macros.active() && !state.query.is_empty() && state.found.is_none() {
+                        return self.stop_macro(
+                            crate::macros::StopReason::NativeFailure,
+                            "Macro search has no match",
+                        );
+                    }
+                    let value = state.query.clone();
+                    if !self.macro_accept_argument(crate::macros::Role::Search, &value) {
+                        return Action::Redraw;
+                    }
+                }
                 if let Some(action) = self.accept_operator_search() {
                     return action;
                 }

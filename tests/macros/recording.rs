@@ -120,7 +120,7 @@ fn preserve_previous() {
             StopReason::Canceled,
         ),
         ("empty", vec![key(KeyCode::F(4))], StopReason::Empty),
-        ("selector", vec![meta('x')], StopReason::Unsupported),
+        ("unsupported job", vec![meta('!')], StopReason::Unsupported),
         (
             "binary paste",
             vec![Event::Paste("bad\0text".into())],

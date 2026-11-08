@@ -46,8 +46,34 @@ impl Session {
             self.buffers.named(name)
         };
         let Some(id) = id else {
+            if self.macros.active() {
+                return self.stop_macro(
+                    crate::macros::StopReason::NativeFailure,
+                    "Macro buffer name is unavailable",
+                );
+            }
             return self.message("No buffer with that name");
         };
+        if self.macros.active()
+            && self
+                .buffers
+                .get(id)
+                .is_ok_and(|buffer| buffer.terminal().is_some())
+        {
+            return self.stop_macro(
+                crate::macros::StopReason::Unsupported,
+                "Macro cannot transfer to a terminal",
+            );
+        }
+        let accepted = self
+            .buffers
+            .get(id)
+            .expect("resolved buffer")
+            .name()
+            .to_owned();
+        if !self.macro_accept_argument(crate::macros::Role::Buffer, &accepted) {
+            return Action::Redraw;
+        }
         match command {
             BufferCommand::Switch => self.activate(id),
             BufferCommand::Kill => self.kill_buffer(id),

@@ -1517,11 +1517,26 @@ notifications are excluded. Both profiles share controls; modal entry state must
 match before replay and before each further iteration. Playback yields after at
 most 256 inputs or a four-millisecond cooperative target, with no idle worker.
 
-This increment accepts ordinary native editing, movement, modal operations,
-regions, kill/yank and pane commands. Named-command/prompt capture, completion,
-file/buffer selection, external jobs and context replacement stop explicitly
-before their handlers. Append, counters, ring/repeat maps, nonpositive repetition,
-queries, named definitions and persistence arrive in later increments.
+M-x and modal colon retain the accepted canonical command and typed prefix once.
+Selector queries, completion and candidate navigation are excluded; changing
+ranking or the selector's key binding cannot retarget that invocation. Commands
+entered by ordinary keys continue to use the current effective keymap.
+
+File and buffer selection, goto, literal searches and query-replace retain their
+accepted values with native prompt roles. Rebinding a key to an incompatible
+prompt stops playback before its argument can be reassigned. A failed search
+stops subsequent steps. Manual completion retains its literal replacement ranges,
+expected source text and cursor result; replay checks applicability without
+requesting a provider or depending on a popup row.
+
+Save/overwrite and replacement decisions pause at their native prompts for fresh
+input. Recorded consent is never reused. Waiting for an answer has no automatic
+macro wake; C-g cancels while retaining partial source edits in the iteration's
+undo unit. Ordinary editing, movement, modal operations, regions, kill/yank and
+pane commands remain available. External jobs, terminal transfers and context
+replacement stop explicitly before starting. Append, counters, ring/repeat maps,
+nonpositive repetition, macro queries, named definitions and persistence arrive
+in later increments.
 
 | Command | Description |
 | --- | --- |

@@ -371,7 +371,10 @@ impl Session {
         completion.edits(self.buffer().map_err(|e| e.to_string())?)
     }
 
-    fn apply_completion(&mut self, edit: Edits) -> Result<(), crate::buffer::edit::Error> {
+    pub(super) fn apply_completion(
+        &mut self,
+        edit: Edits,
+    ) -> Result<(), crate::buffer::edit::Error> {
         let buffer = self.buffers.get_mut(edit.0[0].source.stamp.buffer)?;
         let points = self.windows.points(buffer)?;
         let cursor = Cursor {
@@ -380,6 +383,8 @@ impl Session {
         };
         let mut prepared = buffer.prepare(&edit.0, &points.values, Some(cursor))?;
         prepared.set_origin(self.windows.selected_id());
+        self.macro_capture_completion(&edit)?;
+        let buffer = self.buffers.get_mut(edit.0[0].source.stamp.buffer)?;
         self.windows.publish(buffer, prepared, points)?;
         self.windows.selected_mut().reset_navigation();
         self.published_repeat_boundary();

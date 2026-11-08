@@ -80,6 +80,12 @@ impl Session {
         };
         match navigation.accept() {
             Ok(path) => {
+                if self.macros.active() && path.is_dir() {
+                    return self.stop_macro(
+                        crate::macros::StopReason::Unsupported,
+                        "Macro cannot replace a directory context",
+                    );
+                }
                 if self.directory_prompt && !path.is_dir() {
                     return self.error("Open directory requires an existing directory");
                 }
@@ -94,6 +100,17 @@ impl Session {
                     self.input.cancel();
                     self.pending = None;
                     return self.project_directory(path, false);
+                }
+                if self.macros.active() {
+                    let Some(value) = path.to_str() else {
+                        return self.stop_macro(
+                            crate::macros::StopReason::Unsupported,
+                            "Macro path is not UTF-8",
+                        );
+                    };
+                    if !self.macro_accept_argument(crate::macros::Role::Path, value) {
+                        return Action::Redraw;
+                    }
                 }
                 let _ = self.load(&path);
             }

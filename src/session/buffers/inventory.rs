@@ -24,6 +24,13 @@ impl Session {
             _ => return self.message("No buffer list is pending"),
         };
         if selection == Selection::Accept {
+            if self.macros.active() && !terminals {
+                let name = match self.buffers.get(id) {
+                    Ok(buffer) => buffer.name().to_owned(),
+                    Err(error) => return self.error(&error.to_string()),
+                };
+                return self.buffer_argument(crate::command::BufferCommand::Switch, id, &name);
+            }
             return self.activate(id);
         }
         let Some(next) = self.inventory_target(id, selection, terminals) else {

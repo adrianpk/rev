@@ -50,6 +50,10 @@ impl Session {
             }
             _ => match self.continue_search(search, count) {
                 Ok(true) => self.message(""),
+                Ok(false) if self.macros.active() => self.stop_macro(
+                    crate::macros::StopReason::NativeFailure,
+                    "Macro search continuation has no match",
+                ),
                 Ok(false) => self.message("No match"),
                 Err(error) => self.error(&error.to_string()),
             },

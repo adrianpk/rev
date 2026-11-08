@@ -80,3 +80,6 @@ fn record(session: &mut Session, events: impl IntoIterator<Item = Event>) {
 mod recording;
 #[path = "macros/runner.rs"]
 mod runner;
+
+#[path = "macros/capture.rs"]
+mod capture;

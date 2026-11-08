@@ -71,7 +71,11 @@ impl Session {
             return self.context_remaining();
         }
         [
-            self.macros.runner.as_ref().map(|_| Duration::ZERO),
+            self.macros
+                .runner
+                .as_ref()
+                .filter(|run| run.consent.is_none())
+                .map(|_| Duration::ZERO),
             self.context_remaining(),
             self.input.remaining(now),
             self.input.command_usage_remaining(),
@@ -228,7 +232,11 @@ impl Session {
             return action;
         }
         self.macros.dispatching = true;
+        self.macro_consent_group(true);
         let action = self.dispatch_completion_outcome(outcome, now);
+        self.macro_consent_group(false);
+        self.macro_finish_capture();
+        self.macro_consent_progress();
         self.macros.dispatching = false;
         self.terminals.host_cancel = false;
         if action == Action::Wait {

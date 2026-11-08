@@ -43,6 +43,12 @@ impl Session {
 
     pub(super) fn execute_invocation(&mut self, invocation: Invocation) -> Action {
         if !self.input.invocation_current(invocation.origin) {
+            if self.macros.active() {
+                return self.stop_macro(
+                    crate::macros::StopReason::OwnerChanged,
+                    "Macro command argument origin changed",
+                );
+            }
             return self.message("Command argument origin changed");
         }
         if let Some(action) = self.macro_command_guard(invocation.command) {

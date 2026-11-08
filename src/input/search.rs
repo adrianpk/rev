@@ -10,6 +10,20 @@ pub enum SearchAction {
 }
 
 impl Input {
+    pub(crate) fn search_literal(&mut self, text: &str) -> Result<(), Error> {
+        let Context::Search(prompt) = &mut self.context else {
+            return Err(Error::Busy);
+        };
+        if text.chars().any(|c| c.is_control() && c != '\t') {
+            return Err(Error::Control);
+        }
+        prompt.replace("")?;
+        match prompt.literal_paste(text) {
+            Outcome::Changed => Ok(()),
+            _ => Err(Error::Limit),
+        }
+    }
+
     pub fn search(&mut self, direction: Direction) -> Result<(), Error> {
         self.available()?;
         self.context = Context::Search(Prompt::new(label(direction), "", self.policy.input_limit)?);

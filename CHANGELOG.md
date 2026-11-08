@@ -13,7 +13,11 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
   macro with F4 or C-x e. Positive prefix arguments repeat the recording;
   each replay iteration has its own undo unit. C-g stops playback while keeping
   edits already made. Recording controls also work in the modal profile, with
-  checked entry states and bounded cooperative playback.
+  checked entry states and bounded cooperative playback. M-x and modal colon
+  recordings retain accepted commands and prompt values, including file/buffer
+  selection, goto, searches and replacement. Manual completion replays checked
+  literal text without a provider; save and replacement decisions require fresh
+  answers during playback.
 
 - Supply counts with `C-u`, Meta digits or a negative prefix to move by
   characters, words or ordinary rows, insert repeated text, delete or kill a

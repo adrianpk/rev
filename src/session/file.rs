@@ -174,6 +174,9 @@ impl Session {
     fn file_destination_argument(&mut self, pending: Option<Pending>, path: String) -> Action {
         match pending {
             Some(Pending::Write { buffer, after }) => {
+                if !self.macro_accept_argument(crate::macros::Role::Write, &path) {
+                    return Action::Redraw;
+                }
                 self.save_to(buffer, Some(Path::new(&path)), after)
             }
             Some(Pending::Buffer { command, default }) => {

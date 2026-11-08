@@ -1310,6 +1310,10 @@ impl Session {
                 run.budget.load(std::sync::atomic::Ordering::Relaxed) == usize::MAX
             });
         if active_macro {
+            self.restore_search();
+            self.pending = None;
+            self.input.cancel();
+            self.buffers.automatic_group(None);
             self.macros.fail(if budget {
                 crate::macros::StopReason::TextBudget
             } else {

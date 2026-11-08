@@ -9,7 +9,7 @@ Plan: [Keyboard Macros Delivery](../plan/rev-keyboard-macros.md)
 Specification: [Keyboard Macros](../spec/editor-keyboard-macros.md)
 Model: [Macro Library and State Ownership](../spec/editor-keyboard-macros-model.md)
 Concern: [Pending Editor Work](../README.md)
-Active slice: Slice 2 of 8, named commands and prompt capture
+Active slice: Slice 2 of 8, reviewing; canonical PR preparation
 Progress owner: selected Looper checkpoint and canonical validation evidence
 
 ## Canonical slice map
@@ -50,17 +50,17 @@ assertions, runtime or later slice identities changed in the repair.
 
 ## Slice 2: Named commands and prompt capture
 
-State: active
+State: reviewing
 Dependency: Slice 1 integrated through PR #319.
 Branch: feat/rev-keyboard-macros-02-capture
 PR: pending
 Integrated: pending
 Report: ops/default/report/slices/rev-keyboard-macros/slice-2-capture.md
-Validation: exact ordered slice selection in the plan and frozen configuration
+Validation: development checks passed: 11 native capture cases, 52 selected command cases, 4 selected completion cases, formatting, lib/bin Clippy and documentation/catalog checks. All 25 macro integration cases and 5 focused native admission cases also pass. Final clean-HEAD evidence follows the PR-reference commit through controller validation; integration and delivery-set acceptance remain pending.
 
-- [ ] T2.1: Normalize accepted M-x/colon invocations to one canonical name with typed prefix and role-qualified prompt values; preserve ordinary-key current-map semantics.
-- [ ] T2.2: Integrate search, paths/buffer arguments, literal completion contracts, fresh-consent pauses and typed stop/wait observation without replaying selector rows or echo parsing.
-- [ ] T2.3: Verify both profiles, changed ranking/bindings, provider-independent completion, missing names, unsupported jobs and exactly-once effects in native capture fixtures.
+- [x] T2.1: Normalize accepted M-x/colon invocations to one canonical name with typed prefix and role-qualified prompt values; preserve ordinary-key current-map semantics.
+- [x] T2.2: Integrate search, paths/buffer arguments, literal completion contracts, fresh-consent pauses and typed stop/wait observation without replaying selector rows or echo parsing.
+- [x] T2.3: Verify both profiles, changed ranking/bindings, provider-independent completion, missing names, unsupported jobs and exactly-once effects in native capture fixtures.
 
 ## Slice 3: Ring, append and counters
 

@@ -8,6 +8,9 @@ use crate::config::InteractionProfile;
 use crate::input::{EditingState, Key};
 use crate::window::ViewId;
 
+mod capture;
+pub(crate) use capture::{Argument, CommandStep, CompletionEdit, LiteralCompletion, Role};
+
 pub(crate) const STEP_LIMIT: usize = 4_096;
 pub(crate) const DEFINITION_BYTES: usize = 256 * 1024;
 pub(crate) const RUN_STEPS: usize = 1_000_000;
@@ -18,6 +21,13 @@ pub enum Status {
     Idle,
     Recording,
     Playing,
+}
+
+/// Native ownership that suspends automatic input without reusing consent.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum Wait {
+    Consent,
+    Layout,
 }
 
 /// Typed failure evidence, independent of human-facing message text.
@@ -33,6 +43,8 @@ pub enum StopReason {
     StepBudget,
     TimeBudget,
     TextBudget,
+    MissingCommand,
+    PromptMismatch,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -52,19 +64,19 @@ pub(crate) struct Entry {
 pub(crate) enum Step {
     Key(Key),
     Text(String),
+    Command(CommandStep),
+    Completion(LiteralCompletion),
 }
 
 impl Step {
     // Reserve a conservative bound on an inert encoded key/text step, including
     // TOML escaping. This also bounds pending prefixes before publication.
-    fn bytes(&self) -> usize {
+    pub(super) fn bytes(&self) -> usize {
         match self {
             Self::Key(_) => 48,
-            Self::Text(text) if text.len() > DEFINITION_BYTES => usize::MAX,
-            Self::Text(text) => toml_edit::Value::from(text.as_str())
-                .to_string()
-                .len()
-                .saturating_add(64),
+            Self::Text(text) => capture::text_bytes(text),
+            Self::Command(command) => command.bytes(),
+            Self::Completion(edit) => edit.bytes(),
         }
     }
 }
@@ -80,6 +92,8 @@ pub(crate) struct Recorder {
     pending: Vec<Step>,
     bytes: usize,
     pending_bytes: usize,
+    pub selecting: bool,
+    pub command: Option<CommandStep>,
 }
 
 impl Recorder {
@@ -90,6 +104,8 @@ impl Recorder {
             pending: Vec::new(),
             bytes: 512,
             pending_bytes: 0,
+            selecting: false,
+            command: None,
         }
     }
 
@@ -113,6 +129,40 @@ impl Recorder {
         self.steps.append(&mut self.pending);
         Ok(())
     }
+
+    pub fn discard_pending(&mut self) {
+        self.pending.clear();
+        self.pending_bytes = 0;
+    }
+
+    pub fn begin_command(&mut self, mut command: CommandStep, named: bool) {
+        if !named {
+            command.keys = Some(std::mem::take(&mut self.pending));
+        }
+        self.discard_pending();
+        self.selecting = false;
+        self.command = Some(command);
+    }
+
+    pub fn argument(&mut self, value: Argument) -> Result<(), StopReason> {
+        let command = self.command.as_mut().ok_or(StopReason::PromptMismatch)?;
+        if command.arguments.len() >= 32 || value.value.len() > DEFINITION_BYTES {
+            return Err(StopReason::CaptureLimit);
+        }
+        command.arguments.push(value);
+        if self.bytes.saturating_add(command.bytes()) > DEFINITION_BYTES {
+            return Err(StopReason::CaptureLimit);
+        }
+        Ok(())
+    }
+
+    pub fn finish_command(&mut self) -> Result<(), StopReason> {
+        if let Some(command) = self.command.take() {
+            self.stage(Step::Command(command))?;
+            self.accept()?;
+        }
+        Ok(())
+    }
 }
 
 pub(crate) struct Runner {
@@ -126,6 +176,9 @@ pub(crate) struct Runner {
     pub waiting: bool,
     pub budget: Arc<AtomicUsize>,
     pub group: Arc<crate::buffer::edit::AutomaticGroup>,
+    pub arguments: std::collections::VecDeque<Argument>,
+    pub trigger: std::collections::VecDeque<Step>,
+    pub consent: Option<Instant>,
 }
 
 #[derive(Default)]

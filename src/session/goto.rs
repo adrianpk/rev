@@ -34,7 +34,12 @@ impl Session {
             }
         };
         match self.move_to_line(line) {
-            Ok(()) => self.message(""),
+            Ok(()) => {
+                if !self.macro_accept_argument(crate::macros::Role::Line, draft) {
+                    return Action::Redraw;
+                }
+                self.message("")
+            }
             Err(error) => self.error(&error.to_string()),
         }
     }
