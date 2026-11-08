@@ -826,3 +826,115 @@ fn terminal_ownership() {
         session.shutdown_terminals().unwrap();
     }
 }
+
+// The literal User Guide gesture moves five ordinary rows in both entry
+// profiles. Named selection, source ownership and one-shot fallback stay joint.
+#[test]
+fn guide_journey() {
+    for profile in ["non-modal", "modal"] {
+        let mut session = editor(
+            &format!("editor.interaction_profile='{profile}'"),
+            &"row\r\n".repeat(8),
+            80,
+        );
+        if profile == "modal" {
+            session.execute(Command::Modal(rev::command::ModalCommand::Insert));
+        }
+        count(&mut session, "5");
+        session.handle(control('n'));
+        settle(&mut session);
+        assert_eq!(session.view().point.position, Scalar(25));
+        count(&mut session, "2");
+        named(&mut session, "goto-line");
+        settle(&mut session);
+        assert_eq!(session.view().point.position, Scalar(5));
+        count(&mut session, "3");
+        session.handle(character('!'));
+        settle(&mut session);
+        assert_eq!(text(&session), format!("row\r\n!!!{}", "row\r\n".repeat(7)));
+        assert_eq!(session.buffer().unwrap().history().len(), 1);
+        session.execute(Command::History(rev::command::History::Undo));
+        assert_eq!(text(&session), "row\r\n".repeat(8));
+        assert_eq!(session.view().point.position, Scalar(5));
+    }
+}
+
+// A zero or positive prefix on an unlisted command still invokes it once.
+// Splitting creates one pane and consumes the count before the next movement.
+#[test]
+fn one_shot_fallback() {
+    for profile in ["non-modal", "modal"] {
+        for number in ["0", "5"] {
+            let mut session = editor(
+                &format!("editor.interaction_profile='{profile}'"),
+                "abcdef",
+                80,
+            );
+            named(&mut session, "prefix-argument");
+            for digit in number.chars() {
+                session.handle(character(digit));
+            }
+            named(&mut session, Command::Split(Split::Right).name());
+            settle(&mut session);
+            assert_eq!(session.windows().order().len(), 2, "{profile} {number}");
+            named(&mut session, "forward-char");
+            settle(&mut session);
+            assert_eq!(session.view().point.position, Scalar(1));
+            assert_eq!(text(&session), "abcdef");
+        }
+    }
+}
+
+// A typed invocation retains raw plain/integer distinctions for a native caller;
+// creating a fresh input owner never restores a pending argument or preference.
+#[test]
+fn transient_reuse() {
+    for (events, form) in [
+        (
+            vec![control('u'), control('u')],
+            ArgumentForm::PlainPrefix { depth: 2 },
+        ),
+        (vec![meta('1'), character('6')], ArgumentForm::Integer(16)),
+        (vec![meta('-')], ArgumentForm::NegativeOnly),
+    ] {
+        let mut input = Input::default();
+        for event in events {
+            input.handle(event);
+        }
+        let Outcome::Invocation(invocation) = input.handle(control('f')) else {
+            panic!("missing native invocation");
+        };
+        let retained = *invocation;
+        assert_eq!(retained.argument.form(), form);
+        assert!(!input.prefix_argument().supplied());
+        let fresh = Input::default();
+        assert_eq!(fresh.prefix_argument().form(), ArgumentForm::Absent);
+        assert_eq!(fresh.remaining(Instant::now()), None);
+        assert_eq!(retained.command, Command::Motion(Motion::ForwardChar));
+    }
+}
+
+// Every compiled selector command, including all four prefix names, keeps a
+// complete single-line description; the universal alias shares its identity.
+#[test]
+fn discovery_inventory() {
+    for command in Command::ALL {
+        let description = command
+            .description()
+            .unwrap_or_else(|| panic!("{} lacks a description", command.name()));
+        assert!(!description.trim().is_empty(), "{}", command.name());
+        assert!(!description.contains(['\n', '\r']), "{}", command.name());
+    }
+    assert_eq!(
+        Command::UniversalArgument.description(),
+        Command::PrefixArgument.description()
+    );
+    for name in [
+        "prefix-argument",
+        "universal-argument",
+        "digit-argument",
+        "negative-argument",
+    ] {
+        assert!(Command::named(name).unwrap().description().is_some());
+    }
+}

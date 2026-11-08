@@ -69,7 +69,11 @@ fn text(session: &Session) -> String {
 }
 
 fn stocked(entries: &[&str], target: &str) -> Session {
-    let mut session = editor("", "", 0);
+    stocked_with("", entries, target)
+}
+
+fn stocked_with(config: &str, entries: &[&str], target: &str) -> Session {
+    let mut session = editor(config, "", 0);
     for entry in entries {
         let len = session.buffer().unwrap().len_chars();
         session.replace(0..len, entry).unwrap();
@@ -484,4 +488,130 @@ fn yank_orientation() {
     named(&mut session, "yank-pop");
     assert_eq!(text(&session), "<é界>");
     assert_eq!(session.echo(), "No current yank to replace");
+}
+
+// The generated-text bound counts UTF-8 bytes: exactly 8 MiB is one undoable
+// publication; a product just beyond it is refused before source/history change.
+#[test]
+fn byte_boundary() {
+    let unit = format!("{}ab", "界".repeat(2730));
+    assert_eq!(unit.len(), 8192);
+    let mut session = editor("", "", 0);
+    count(&mut session, "1024");
+    session.handle(Event::Paste(unit.clone()));
+    settle(&mut session);
+    assert_eq!(session.buffer().unwrap().len_bytes(), 8 * 1024 * 1024);
+    assert_eq!(session.buffer().unwrap().history().len(), 1);
+    assert_eq!(session.buffer().unwrap().stamp().revision, 2);
+    session.execute(Command::History(History::Undo));
+    assert_eq!(text(&session), "");
+    let before = super::snapshot(session.buffer().unwrap(), &[session.view().point]);
+    count(&mut session, "1024");
+    session.handle(Event::Paste(format!("{unit}x")));
+    settle(&mut session);
+    assert_eq!(
+        super::snapshot(session.buffer().unwrap(), &[session.view().point]),
+        before
+    );
+}
+
+// A supplied line count ignores actual soft-wrapped visual fragments. Its
+// absent counterpart keeps the existing visual kill behavior on the same text.
+#[test]
+fn wrapped_line_count() {
+    let first = "word ".repeat(30);
+    let source = format!("{first}\r\nnext\r\nlast");
+    let mut ordinary = editor("editor.soft_wrap = true", &source, 0);
+    ordinary.execute(Command::Kill(rev::command::KillCommand::Line));
+    settle(&mut ordinary);
+    let ordinary_kill = ordinary.killed_text().unwrap().to_string();
+    assert!(ordinary_kill.len() < first.len());
+    let mut counted = editor("editor.soft_wrap = true", &source, 0);
+    count(&mut counted, "1");
+    named(&mut counted, "kill-line");
+    settle(&mut counted);
+    assert_eq!(
+        counted.killed_text().unwrap().to_string(),
+        format!("{first}\r\n")
+    );
+    assert_eq!(text(&counted), "next\r\nlast");
+    assert_eq!(counted.buffer().unwrap().history().len(), 1);
+    counted.execute(Command::History(History::Undo));
+    assert_eq!(text(&counted), source);
+}
+
+// The documented third-entry binding selects old text once, while negative
+// word kills prepend through the same chain in both ordinary/modal entry.
+#[test]
+fn integrated_ring() {
+    for profile in ["non-modal", "modal"] {
+        let config = format!("editor.interaction_profile='{profile}'");
+        let mut session = stocked_with(&config, &["old", "middle", "new"], "<>");
+        if profile == "modal" {
+            session.execute(Command::Modal(rev::command::ModalCommand::Insert));
+        }
+        count(&mut session, "3");
+        session.handle(control('y'));
+        settle(&mut session);
+        assert_eq!(text(&session), "old<>");
+        assert_eq!(session.view().point.position, Scalar(3));
+        let mut session = editor(
+            &format!("editor.interaction_profile='{profile}'"),
+            "one two three",
+            13,
+        );
+        if profile == "modal" {
+            session.execute(Command::Modal(rev::command::ModalCommand::Insert));
+        }
+        for expected in ["three", "two three"] {
+            count(&mut session, "-1");
+            named(&mut session, "kill-word");
+            settle(&mut session);
+            assert_eq!(
+                session.killed_text().unwrap().to_string(),
+                expected,
+                "{profile}"
+            );
+            assert_eq!(session.kill_ring().count(), 1);
+        }
+        assert_eq!(text(&session), "one ");
+        assert_eq!(session.buffer().unwrap().history().len(), 2);
+        count(&mut session, "2");
+        named(&mut session, "undo");
+        settle(&mut session);
+        assert_eq!(text(&session), "one two three");
+        count(&mut session, "2");
+        named(&mut session, "undo-redo");
+        settle(&mut session);
+        assert_eq!(text(&session), "one ");
+    }
+}
+
+// Every nonnegative insertion policy treats zero as inert and refuses a
+// negative count, including native tab and source-specific newline preparation.
+#[test]
+fn insertion_refusal() {
+    for profile in ["non-modal", "modal"] {
+        for number in ["0", "-2"] {
+            for command in ["newline", "insert-tab"] {
+                let mut session = editor(
+                    &format!("editor.interaction_profile='{profile}'"),
+                    "a\r\nb",
+                    1,
+                );
+                if profile == "modal" {
+                    session.execute(Command::Modal(rev::command::ModalCommand::Insert));
+                }
+                let before = super::snapshot(session.buffer().unwrap(), &[session.view().point]);
+                count(&mut session, number);
+                named(&mut session, command);
+                settle(&mut session);
+                assert_eq!(
+                    super::snapshot(session.buffer().unwrap(), &[session.view().point]),
+                    before,
+                    "{profile} {number} {command}"
+                );
+            }
+        }
+    }
 }
