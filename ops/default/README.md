@@ -55,6 +55,13 @@ retain their own specification/model state.
 | Integrated terminals | [Spec](spec/editor-integrated-terminal.md), [model](spec/editor-integrated-terminal-model.md), [plan](plan/rev-integrated-terminal.md), [tracker](tracker/rev-integrated-terminal.md) | Delivered / Completed. Eight slices through PRs #248-#255 and authorized readiness repair #256 deliver lower-panel/direct-buffer shells, same-process relocation, multiple sessions, native input/copy and owned shutdown. The unchanged combined controller gate passed TRM01-TRM11 with native/PTY/resource acceptance and Markdown/Spore guidance. |
 | External programs/extensions | [Spec](spec/editor-external-extensions.md), [model](spec/editor-external-extensions-model.md) | Optional exploration only. Explicit configuration, stdio and one child per invocation are the refined draft profile. Adoption itself is undecided; no scheduled delivery or baseline dependency. |
 
+## Pending proposals
+
+- [Delimiter Pairs](spec/editor-delimiter-pairs.md) and its
+  [model](spec/editor-delimiter-pairs-model.md) remain Draft. Depth coloring and
+  the restrained match alternative are settled; editing defaults, context rules,
+  bindings and measured bounds still need review before planning.
+
 ## Selected execution order
 
 Keyboard Macros is Completed on 2026-11-08 after all eight canonical PRs
