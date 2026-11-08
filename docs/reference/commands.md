@@ -144,8 +144,24 @@ history replays remain applied. Large distance/history work yields through the
 existing bounded input owner; pending atomic edits can be canceled before
 publication and source changes revoke their preparation.
 
-Other commands currently consume an argument and run once. Positioning, tree
-rows and additional contextual policies are pending. Existing
+For line start/end, N selects N-1 ordinary rows before choosing the native row
+boundary. Supplied beginning/end-of-buffer arguments select N tenths from that
+end, clamped to source bounds and snapped to a complete native boundary.
+Supplied page scrolling counts signed rows; absent input keeps page scrolling.
+Recenter uses a supplied content-row offset from the top, or from the bottom
+for negative values, clamped to pane geometry. Without an argument it cycles.
+A positive supplied goto-line value selects its one-based logical line directly;
+nonpositive input refuses, and absent input retains the prompt.
+
+Tree next/previous counts select signed distances through already loaded rows,
+including the parent row, without expansion or directory reads. Other tree
+commands retain their local one-shot behavior. A supplied argument reaching
+named shell-command selects insertion once; shell-command-on-region selects
+the existing checked filter once. It does not launch N jobs.
+
+All remaining commands consume an argument and run once. Native modal counts
+and editor prefixes refuse an ambiguous combination in either order, including
+an explicitly selected helper through M-x. Existing
 `C-u M-!`, `C-u M-\|`, `C-u C-c C-v t` and agenda `C-u K` continuations retain
 precedence. Configured continuations can share a prefix helper key. Modal
 Normal/Visual `C-u` retains half-page movement; Insert/Replace inherit editor

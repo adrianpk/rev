@@ -8,7 +8,7 @@ Execution authorized: one four-slice Looper run, 2026-11-08
 Plan: [Command Prefix Arguments Delivery](../plan/rev-prefix-arguments.md)
 Specification: [Command Prefix Arguments](../spec/editor-prefix-arguments.md)
 Concern: [Pending Editor Work](../README.md)
-Active slice: Slice 3 of 4, implementing
+Active slice: Slice 3 of 4, reviewing
 Progress owner: the authorized Looper checkpoint and canonical validation evidence
 
 ## Canonical slice map
@@ -66,17 +66,21 @@ T2.3 references, Unreleased guidance and local validation reporting.
 
 ## Slice 3: Contextual argument behavior
 
-State: implementing
+State: reviewing
 Dependency: Slice 2 integrated.
 Branch: `feat/rev-prefix-arguments-03-contexts`
 PR: pending
 Integrated: pending
 Report: `ops/default/report/slices/rev-prefix-arguments/slice-3-contexts.md`
-Validation: focused subset defined in the plan
+Validation: formatting, Clippy, commands (32/32), modal (28/28), real shell (3/3), documentation and whitespace passed. Exact commands are in the canonical report; the final clean-HEAD receipt is controller-owned.
 
-- [ ] T3.1: Complete line/buffer positioning, row-based supplied scrolling, recentering, direct goto-line and loaded tree-row counts.
-- [ ] T3.2: Complete named shell variants, C-u continuation/remapping precedence, input-owner admission and modal count conflict/Escape behavior.
-- [ ] T3.3: Verify cooperative work, cancellation, revision/owner invalidation, resource bounds and idle behavior through native command/modal/shell fixtures and record the report.
+- [x] T3.1: Complete line/buffer positioning, row-based supplied scrolling, recentering, direct goto-line and loaded tree-row counts.
+- [x] T3.2: Complete named shell variants, C-u continuation/remapping precedence, input-owner admission and modal count conflict/Escape behavior.
+- [x] T3.3: Verify cooperative work, cancellation, revision/owner invalidation, resource bounds and idle behavior through native command/modal/shell fixtures and record the report.
+
+Task commits: `bc1301031337d2a27dd6bdab04558d371efd1796` implements
+T3.1, T3.2 and T3.3 native acceptance. The report-introduction commit completes
+T3.3 references, Unreleased guidance and local validation reporting.
 
 ## Slice 4: Acceptance and guidance
 

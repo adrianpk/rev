@@ -12,7 +12,9 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 - Supply counts with `C-u`, Meta digits or a negative prefix to move by
   characters, words or ordinary rows, insert repeated text, delete or kill a
   combined span, select/rotate a yank, or undo/redo existing history groups.
-  Counted edits stay in one undo step. Arguments also pass through M-x;
+  Counted edits stay in one undo step. Set line/buffer positions, scroll by
+  rows, choose a recenter offset or move through loaded tree rows. Arguments
+  pass through M-x, including the existing shell insertion/filter variants;
   `C-g` cancels pending work, retaining history groups already replayed.
 
 - Press `^` or activate the `..` row in an automatic file tree to browse its
