@@ -66,6 +66,18 @@ Their process owners and wire protocols do not automatically become the plugin
 host. A future approved change must reconcile the editor baseline and the older
 extension draft before declaring this interface supported.
 
+### Repository organization
+
+The project uses the [rev forge organization](https://forge.adrianpk.com/rev).
+The editor repository is rev/rev and associated project repositories follow
+rev/{repo-name}. The [repository continuation](../ticket/solved/20261108214514-move-editor-repository-to-rev-organization.md)
+retains adrianpk/rev as history rather than transferring its forge records.
+Package/catalog repository names still need explicit selection.
+
+Repository ownership and plugin namespaces are separate contracts. A source
+repository location does not automatically select the package publisher ID,
+reserve a native command prefix or change installed package identity.
+
 ## Current native foundation
 
 The inspected source already provides:

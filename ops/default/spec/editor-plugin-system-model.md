@@ -36,6 +36,10 @@ database schema. Protocol methods and TOML examples are not current interfaces.
 
 Namespacing does not grant operating-system isolation or editor authority by
 itself. Activation and admitted capabilities remain separate from identity.
+The canonical forge's rev/{repo-name} organization convention identifies source
+repositories, not protocol package IDs. A source repository change preserves installed
+package, command and state identities unless a separate reviewed migration changes
+those contracts explicitly.
 
 ## Candidate manifest
 
