@@ -9,7 +9,7 @@ Plan: [Keyboard Macros Delivery](../plan/rev-keyboard-macros.md)
 Specification: [Keyboard Macros](../spec/editor-keyboard-macros.md)
 Model: [Macro Library and State Ownership](../spec/editor-keyboard-macros-model.md)
 Concern: [Pending Editor Work](../README.md)
-Active slice: Slice 7 of 8, definition editing and macro menu
+Active slice: Slice 8 of 8, acceptance and guidance
 Progress owner: selected Looper checkpoint and canonical validation evidence
 
 ## Canonical slice map
@@ -130,14 +130,14 @@ T6.1-T6.3 implementation: [5871093638f7](https://forge.adrianpk.com/adrianpk/rev
 
 ## Slice 7: Definition editing and macro menu
 
-State: reviewing
+State: delivered
 Dependency: Slice 6 integrated through PR #324.
 Branch: feat/rev-keyboard-macros-07-editing
 PR: [#325](https://forge.adrianpk.com/adrianpk/rev/pulls/325)
 Implementation: [17dcf0772016](https://forge.adrianpk.com/adrianpk/rev/commit/17dcf0772016131104782240f155684e76cf25f7)
-Integrated: pending controller review and integration
+Integrated: 88088e42aff78b0c4e31937f5668357548f1af12 on dev through canonical PR #325
 Report: ops/default/report/slices/rev-keyboard-macros/slice-7-editing.md
-Validation: development checks passed: 26 editing workflow cases, 52 selected commands, 114 editing cases, 45 selected modal cases, formatting, strict Clippy, 680-command/295-entry documentation and whitespace. Additional 24 native owner/storage cases and all 106 macro integration cases passed. Exact clean final PR-head evidence and canonical review remain pending.
+Validation: all eight required commands passed at clean final PR head 88088e42aff78b0c4e31937f5668357548f1af12 with receipt 4JAKW7HCNV45UD2PQMFPMP6HKA: 26 editing workflow, 52 selected command, 114 editing and 45 modal cases; formatting, strict Clippy, 680-command/295-entry documentation and whitespace. Additional 24 native owner/storage cases and 106 macro integration cases passed during development. Forgejo and Acta confirm integration; delivery-set acceptance remains controller-owned.
 
 - [x] T7.1: Deliver checked TOML definition buffers, key/region helpers, 300-input lossage projection and target revision checks without implicit saving.
 - [x] T7.2: Implement bounded step editing and the read-only macro menu with stable rows, property edits, marks/flags/copy/delete confirmation and named contextual actions.
@@ -145,8 +145,8 @@ Validation: development checks passed: 26 editing workflow cases, 52 selected co
 
 ## Slice 8: Acceptance and guidance
 
-State: pending
-Dependency: Slice 7 integrated.
+State: active
+Dependency: Slice 7 integrated through PR #325.
 Branch: test/rev-keyboard-macros-08-acceptance
 PR: pending
 Integrated: pending

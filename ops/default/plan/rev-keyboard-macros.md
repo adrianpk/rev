@@ -10,7 +10,7 @@ Specification: [Keyboard Macros](../spec/editor-keyboard-macros.md)
 Model: [Macro Library and State Ownership](../spec/editor-keyboard-macros-model.md)
 Tracker: [Keyboard Macros Tracker](../tracker/rev-keyboard-macros.md)
 Concern: [Pending Editor Work](../README.md)
-Active slice: Slice 7 of 8, definition editing and macro menu
+Active slice: Slice 8 of 8, acceptance and guidance
 
 ## Outcome, prerequisites and authority
 

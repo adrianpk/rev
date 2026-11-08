@@ -1,12 +1,12 @@
 # Slice 7: Definition editing and macro menu
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-keyboard-macros
 Plan: [Keyboard Macros Delivery](../../../plan/rev-keyboard-macros.md)
 Tracker: [Keyboard Macros Tracker](../../../tracker/rev-keyboard-macros.md)
 Branch: `feat/rev-keyboard-macros-07-editing`
 PR: [#325](https://forge.adrianpk.com/adrianpk/rev/pulls/325)
-Integrated: pending controller review and integration
+Integrated: 88088e42aff78b0c4e31937f5668357548f1af12 on dev through canonical PR #325
 Implementation: [17dcf0772016](https://forge.adrianpk.com/adrianpk/rev/commit/17dcf0772016131104782240f155684e76cf25f7)
 
 ## Purpose
@@ -86,10 +86,10 @@ external language, dependency or implicit persistence path is introduced.
 
 ## Validation
 
-Development checks below passed in the owned worktree. Exact clean final PR-head
-evidence is recorded separately through the controller validator after the
-PR-reference commits. These checks do not establish the delivery-set gate or
-PTY acceptance.
+The unchanged eight-command selection passed at clean final PR head
+88088e42aff78b0c4e31937f5668357548f1af12 with controller receipt
+4JAKW7HCNV45UD2PQMFPMP6HKA. Forgejo and Acta confirm integration through PR #325.
+These checks do not establish the delivery-set gate or PTY acceptance.
 
 - `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo fmt --all -- --check` — pass.
 - `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo clippy --locked --lib --bin rev -- -D warnings` — pass.
