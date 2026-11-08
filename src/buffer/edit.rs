@@ -5,7 +5,11 @@ mod grouping;
 pub(crate) use automatic::AutomaticGroup;
 mod history;
 mod locations;
+mod macro_lines;
 mod mapping;
+pub(crate) use macro_lines::{
+    LINE_LIMIT as MACRO_LINE_LIMIT, MacroLines, WeakLines as WeakMacroLines,
+};
 mod observe;
 pub(crate) use observe::{Observer, Published};
 mod reload;
@@ -194,6 +198,7 @@ impl Transaction {
 /// A private copy-on-write candidate; dropping it cancels without publication.
 /// Publication rechecks the live revision, read-only state, points, and mark.
 pub struct Prepared {
+    macro_lines: Vec<macro_lines::Mapped>,
     syntax: Vec<tree_sitter::InputEdit>,
     text: Rope,
     crlf: usize,
@@ -340,7 +345,9 @@ impl Buffer {
         self.prepare_location_anchors(&mut record, &coordinates)?;
         record.bytes = record.payload();
         let syntax = syntax::edits(&self.text, &record.changes)?;
+        let macro_lines = macro_lines::prepare(self, &record, &coordinates)?;
         Ok(Prepared {
+            macro_lines,
             syntax,
             text,
             crlf,
@@ -426,6 +433,7 @@ impl Buffer {
             .lock()
             .expect("location owner poisoned")
             .publish(after, &after_locations);
+        macro_lines::publish(prepared.macro_lines, after);
         self.typing = match prepared.operation {
             Operation::Typing => Some(after),
             _ => None,
@@ -458,6 +466,7 @@ impl Buffer {
             return Err(Error::ChangedPositions);
         }
         self.admit_anchors(prepared)?;
+        macro_lines::admit(self, &prepared.macro_lines)?;
         self.admit_group(prepared)?;
         self.reserve(prepared.operation)?;
         Ok(())

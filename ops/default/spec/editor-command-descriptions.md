@@ -875,6 +875,10 @@ commands enter this shared live catalog only when their native handlers arrive.
 | `kmacro-set-counter` | Set or reset the current macro counter. |
 | `kmacro-add-counter` | Add to or restore the current macro counter. |
 | `kmacro-set-format` | Set the integer format for macro counters. |
+| `apply-macro-to-region-lines` | Run the current macro on logical lines in the region. |
+| `kbd-macro-query` | Add a confirmation or editing pause to a macro. |
+| `exit-recursive-edit` | Resume a macro after its manual editing pause. |
+| `abort-recursive-edit` | Abort a macro editing pause and its playback. |
 
 ## Completed delivery evidence
 

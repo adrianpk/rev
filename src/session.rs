@@ -882,6 +882,7 @@ impl Session {
             Outcome::Argument(path) => self.argument(path),
             Outcome::PathAccept => self.accept_path(),
             Outcome::Decision(accepted) => self.decision(accepted),
+            Outcome::MacroQuery(answer) => self.macro_query_answer(answer),
             Outcome::Selection(selection) => self.select_candidate(selection),
             Outcome::Complete => self.complete_argument(),
             Outcome::Changed => self.input_changed(),

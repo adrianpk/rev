@@ -1534,7 +1534,8 @@ input. Recorded consent is never reused. Waiting for an answer has no automatic
 macro wake; C-g cancels while retaining partial source edits in the iteration's
 undo unit. Ordinary editing, movement, modal operations, regions, kill/yank and
 pane commands remain available. External jobs, terminal transfers and context
-replacement stop explicitly before starting. Macro queries, named definitions and persistence arrive in later increments.
+replacement stop explicitly before starting. Named definitions and persistence
+arrive in later increments.
 
 | Command | Description |
 | --- | --- |
@@ -1554,6 +1555,10 @@ replacement stop explicitly before starting. Macro queries, named definitions an
 | `kmacro-set-counter` | Set or reset the current macro counter. |
 | `kmacro-add-counter` | Add to or restore the current macro counter. |
 | `kmacro-set-format` | Set the integer format for macro counters. |
+| `apply-macro-to-region-lines` | Run the current macro on logical lines in the region. |
+| `kbd-macro-query` | Add a confirmation or editing pause to a macro. |
+| `exit-recursive-edit` | Resume a macro after its manual editing pause. |
+| `abort-recursive-edit` | Abort a macro editing pause and its playback. |
 
 The session ring is shared across buffers and retains up to `macros.ring_limit`
 recordings (default 8, range 1..32). Cycle older/newer, swap the first two, delete
@@ -1585,3 +1590,26 @@ answer restores %d; invalid formats leave the previous format intact. Outside
 capture/playback it selects the initial format for new recordings. A format
 change inside a recording is retained at that point; other definitions keep
 their own counter state and initial format. Ring bodies are immutable snapshots.
+
+C-x q records a query marker without interrupting the first recording. On replay,
+Space/y continues, Backspace/n skips the rest of this iteration and Enter/q ends
+the remaining run. C-r enters native manual editing; C-M-c returns to that same
+query. A supplied prefix on C-x q records an unconditional editing pause, entered
+during both recording and replay. Manual input is never captured. C-M-c resumes;
+C-] or C-g aborts the active pause/run while retaining real source effects.
+
+Manual pauses show their bounded depth (at most four) and have no automatic
+polling deadline. They retain the source view, buffer and startup profile;
+external source changes invalidate resume. Native manual edits use the current
+mode and remain in the outer playback iteration's undo unit. User-entered nested
+runs share its step, iteration, generated-text and active-time budgets. Explicit
+query, consent and manual wait time does not consume active automatic time.
+The C-] abort gesture and its M-x key hint are local to manual macro editing.
+
+C-x C-k r applies the current definition once at each original logical line
+beginning inside the active half-open region, up to 65,536 targets. A region
+ending at the next line's beginning excludes that line; wrapped display rows add
+no targets. Native edits map the original line anchors. Inserted rows add none,
+deleted source lines are skipped, and replacing a line's first character retains
+that line. Each executed target has its own native undo unit and all targets
+share the same outer budgets. Cancellation and failure retain partial edits.

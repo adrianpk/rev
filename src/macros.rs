@@ -2,6 +2,8 @@
 use std::sync::Arc;
 use std::sync::atomic::AtomicUsize;
 use std::time::Instant;
+mod execution;
+pub(crate) use execution::{Limits, PAUSE_LIMIT, Pause, Region};
 
 use crate::buffer::edit::Point;
 use crate::config::InteractionProfile;
@@ -30,6 +32,8 @@ pub enum Status {
 pub enum Wait {
     Consent,
     Layout,
+    Query,
+    Editing,
 }
 
 /// Typed failure evidence, independent of human-facing message text.
@@ -48,6 +52,9 @@ pub enum StopReason {
     MissingCommand,
     PromptMismatch,
     CounterOverflow,
+    PauseLimit,
+    RegionLimit,
+    IterationBudget,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -63,6 +70,12 @@ pub(crate) struct Entry {
     pub mode: Option<EditingState>,
 }
 
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub(crate) enum QueryMode {
+    Confirm,
+    Edit,
+}
+
 #[derive(Clone)]
 pub(crate) enum Step {
     Key(Key),
@@ -71,6 +84,7 @@ pub(crate) enum Step {
     Completion(LiteralCompletion),
     Counter(counter::Operation),
     Redisplay,
+    Query(QueryMode),
 }
 
 impl Step {
@@ -83,7 +97,7 @@ impl Step {
             Self::Command(command) => command.bytes(),
             Self::Completion(edit) => edit.bytes(),
             Self::Counter(operation) => operation.bytes(),
-            Self::Redisplay => 48,
+            Self::Redisplay | Self::Query(_) => 48,
         }
     }
 }
@@ -203,12 +217,14 @@ pub(crate) struct Runner {
     pub iterations: Option<usize>,
     pub iteration: usize,
     pub step: usize,
-    pub dispatched: usize,
-    pub started: Instant,
+    pub limits: Arc<Limits>,
+    pub query: bool,
+    pub region: Option<Region>,
     pub expected: (ViewId, Point),
     pub waiting: bool,
     pub budget: Arc<AtomicUsize>,
     pub group: Arc<crate::buffer::edit::AutomaticGroup>,
+    pub outer_group: Option<Arc<crate::buffer::edit::AutomaticGroup>>,
     pub arguments: std::collections::VecDeque<Argument>,
     pub trigger: std::collections::VecDeque<Step>,
     pub consent: Option<Instant>,
@@ -226,6 +242,7 @@ pub(crate) struct State {
     pub expanded: bool,
     pub dispatching: bool,
     pub stop: Option<Stop>,
+    pub pauses: Vec<Pause>,
 }
 
 #[derive(Clone, Copy)]
@@ -248,6 +265,7 @@ impl Default for State {
             expanded: false,
             dispatching: false,
             stop: None,
+            pauses: Vec::new(),
         }
     }
 }
@@ -258,6 +276,14 @@ impl State {
             &run.counter
         } else if let Some(recorder) = &self.recorder {
             &recorder.counter
+        } else if let Some(pause) = self.pauses.last() {
+            if let Some(run) = &pause.runner {
+                &run.counter
+            } else if let Some(recorder) = &pause.recorder {
+                &recorder.counter
+            } else {
+                &self.scratch
+            }
         } else {
             self.ring
                 .front()
@@ -270,6 +296,14 @@ impl State {
             run.counter = counter;
         } else if let Some(recorder) = &mut self.recorder {
             recorder.counter = counter;
+        } else if let Some(pause) = self.pauses.last_mut() {
+            if let Some(run) = &mut pause.runner {
+                run.counter = counter;
+            } else if let Some(recorder) = &mut pause.recorder {
+                recorder.counter = counter;
+            } else {
+                self.scratch = counter;
+            }
         } else if let Some(definition) = self.ring.front_mut() {
             let mut updated = (**definition).clone();
             updated.counter = counter;
@@ -283,12 +317,16 @@ impl State {
     // its immutable definition even if the ring is rotated or later edited.
     pub fn finish_run(&mut self) -> Option<Runner> {
         let run = self.runner.take()?;
+        self.publish_counter(&run);
+        Some(run)
+    }
+
+    fn publish_counter(&mut self, run: &Runner) {
         if let Some(definition) = self.ring.iter_mut().find(|d| d.id == run.definition.id) {
             let mut updated = (**definition).clone();
             updated.counter = run.counter.clone();
             *definition = Arc::new(updated);
         }
-        Some(run)
     }
 
     pub fn publish(&mut self, recorder: Recorder, limit: usize) -> Result<(), StopReason> {
@@ -326,22 +364,39 @@ impl State {
             Status::Recording
         } else if self.runner.is_some() {
             Status::Playing
+        } else if let Some(pause) = self.pauses.last() {
+            if pause.recorder.is_some() {
+                Status::Recording
+            } else {
+                Status::Playing
+            }
         } else {
             Status::Idle
         }
     }
 
     pub fn active(&self) -> bool {
-        self.recorder.is_some() || self.runner.is_some()
+        self.recorder.is_some() || self.runner.is_some() || !self.pauses.is_empty()
     }
 
     pub fn fail(&mut self, reason: StopReason) {
         self.repeat = None;
+        let current = self.runner.as_ref().or_else(|| {
+            self.pauses
+                .iter()
+                .rev()
+                .find_map(|pause| pause.runner.as_ref())
+        });
         self.stop = Some(Stop {
             reason,
-            iteration: self.runner.as_ref().map_or(0, |r| r.iteration + 1),
-            step: self.runner.as_ref().map_or(0, |r| r.step),
+            iteration: current.map_or(0, |run| run.iteration + 1),
+            step: current.map_or(0, |run| run.step),
         });
+        for pause in std::mem::take(&mut self.pauses) {
+            if let Some(run) = pause.runner {
+                self.publish_counter(&run);
+            }
+        }
         self.recorder = None;
         self.finish_run();
     }

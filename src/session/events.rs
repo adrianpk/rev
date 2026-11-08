@@ -74,7 +74,7 @@ impl Session {
             self.macros
                 .runner
                 .as_ref()
-                .filter(|run| run.consent.is_none())
+                .filter(|run| run.consent.is_none() && !run.query)
                 .map(|_| Duration::ZERO),
             self.context_remaining(),
             self.input.remaining(now),
@@ -233,11 +233,14 @@ impl Session {
             return action;
         }
         self.macros.dispatching = true;
-        self.macro_consent_group(true);
+        let macro_group = self.macro_user_group();
         let action = self.dispatch_completion_outcome(outcome, now);
-        self.macro_consent_group(false);
+        if macro_group {
+            self.buffers.automatic_group(None);
+        }
         self.macro_finish_capture();
         self.macro_consent_progress();
+        self.macro_manual_progress();
         self.macros.dispatching = false;
         self.terminals.host_cancel = false;
         if action == Action::Wait {

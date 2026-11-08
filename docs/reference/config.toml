@@ -537,6 +537,9 @@ bookmark = "#7aa2f7"            # Resolved logical-line bookmark marker.
 # Terminal aliases, key availability and focus rules are described in bindings.md.
 
 [keys.editor]
+"C-x C-k r" = "apply-macro-to-region-lines"
+"C-x q" = "kbd-macro-query"
+"C-M-c" = "exit-recursive-edit"
 "F3" = "kmacro-start-macro-or-insert-counter"
 "F4" = "kmacro-end-or-call-macro"
 "C-x (" = "kmacro-start-macro"
@@ -919,6 +922,9 @@ bookmark = "#7aa2f7"            # Resolved logical-line bookmark marker.
 # modal editing maps are independent of keys.editor. Local components keep priority.
 
 [keys.vim_normal]
+"C-x C-k r" = "apply-macro-to-region-lines"
+"C-x q" = "kbd-macro-query"
+"C-M-c" = "exit-recursive-edit"
 "F3" = "kmacro-start-macro-or-insert-counter"
 "F4" = "kmacro-end-or-call-macro"
 "C-x (" = "kmacro-start-macro"
@@ -1089,6 +1095,9 @@ bookmark = "#7aa2f7"            # Resolved logical-line bookmark marker.
 "." = "modal-repeat-last-change"
 
 [keys.vim_insert]
+"C-x C-k r" = "apply-macro-to-region-lines"
+"C-x q" = "kbd-macro-query"
+"C-M-c" = "exit-recursive-edit"
 "F3" = "kmacro-start-macro-or-insert-counter"
 "F4" = "kmacro-end-or-call-macro"
 "C-x (" = "kmacro-start-macro"
@@ -1202,6 +1211,9 @@ bookmark = "#7aa2f7"            # Resolved logical-line bookmark marker.
 "C-o" = "modal-one-normal-command"
 
 [keys.vim_replace]
+"C-x C-k r" = "apply-macro-to-region-lines"
+"C-x q" = "kbd-macro-query"
+"C-M-c" = "exit-recursive-edit"
 "F3" = "kmacro-start-macro-or-insert-counter"
 "F4" = "kmacro-end-or-call-macro"
 "C-x (" = "kmacro-start-macro"
@@ -1315,6 +1327,9 @@ bookmark = "#7aa2f7"            # Resolved logical-line bookmark marker.
 
 
 [keys.vim_visual_character]
+"C-x C-k r" = "apply-macro-to-region-lines"
+"C-x q" = "kbd-macro-query"
+"C-M-c" = "exit-recursive-edit"
 "F3" = "kmacro-start-macro-or-insert-counter"
 "F4" = "kmacro-end-or-call-macro"
 "C-x (" = "kmacro-start-macro"
@@ -1467,6 +1482,9 @@ bookmark = "#7aa2f7"            # Resolved logical-line bookmark marker.
 "a" = "modal-select-around-object"
 
 [keys.vim_visual_line]
+"C-x C-k r" = "apply-macro-to-region-lines"
+"C-x q" = "kbd-macro-query"
+"C-M-c" = "exit-recursive-edit"
 "F3" = "kmacro-start-macro-or-insert-counter"
 "F4" = "kmacro-end-or-call-macro"
 "C-x (" = "kmacro-start-macro"
@@ -1619,6 +1637,9 @@ bookmark = "#7aa2f7"            # Resolved logical-line bookmark marker.
 "a" = "modal-select-around-object"
 
 [keys.vim_visual_block]
+"C-x C-k r" = "apply-macro-to-region-lines"
+"C-x q" = "kbd-macro-query"
+"C-M-c" = "exit-recursive-edit"
 "F3" = "kmacro-start-macro-or-insert-counter"
 "F4" = "kmacro-end-or-call-macro"
 "C-x (" = "kmacro-start-macro"

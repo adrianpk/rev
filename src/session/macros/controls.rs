@@ -5,6 +5,9 @@ use crate::macros::Repeat;
 impl Session {
     pub(super) fn macro_start_recording(&mut self, argument: PrefixArgument) -> Action {
         self.macros.repeat = None;
+        if !self.macros.pauses.is_empty() {
+            return self.message("Resume or abort manual macro editing before recording");
+        }
         if self.macros.recorder.is_some() {
             return self.stop_macro(
                 StopReason::Unsupported,
@@ -62,6 +65,7 @@ impl Session {
             self.macros.recorder = Some(recorder);
             return self.message("Def: appending keyboard macro");
         }
+        self.macro_child_finished();
         self.message("Keyboard macro finished")
     }
 

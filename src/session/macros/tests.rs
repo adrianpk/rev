@@ -6,6 +6,7 @@ use crate::input::Input;
 use crate::session::Pending;
 use crate::view::View;
 use crossterm::event::{KeyCode, KeyEvent, KeyModifiers};
+use std::time::Instant;
 
 fn key(code: KeyCode, modifiers: KeyModifiers) -> Event {
     Event::Key(KeyEvent::new(code, modifiers))
@@ -105,12 +106,81 @@ fn ring_budget() {
         session.handle(key(KeyCode::Char('X'), KeyModifiers::NONE));
         session.handle(key(KeyCode::F(4), KeyModifiers::NONE));
         session.start_macro(count);
-        session.macros.runner.as_mut().unwrap().dispatched = crate::macros::RUN_STEPS - 1;
+        session.macros.runner.as_ref().unwrap().limits.steps.store(
+            crate::macros::RUN_STEPS - 1,
+            std::sync::atomic::Ordering::Relaxed,
+        );
         session.expire_input(Instant::now());
         assert_eq!(text(&session), "XXabcdef");
         assert_eq!(session.macro_status(), Status::Idle);
         assert_eq!(session.macro_stop().map(|stop| stop.reason), expected);
     }
+}
+
+// A user-entered child run inherits the outer step and text budgets while a
+// manual frame is suspended. Resuming a child cannot renew either allowance.
+#[test]
+fn queries_budget() {
+    let mut session = session();
+    session.handle(key(KeyCode::F(3), KeyModifiers::NONE));
+    session.handle(key(KeyCode::Char('4'), KeyModifiers::ALT));
+    session.handle(key(KeyCode::Char('x'), KeyModifiers::CONTROL));
+    session.handle(key(KeyCode::Char('q'), KeyModifiers::NONE));
+    session.handle(key(
+        KeyCode::Char('c'),
+        KeyModifiers::CONTROL | KeyModifiers::ALT,
+    ));
+    session.handle(key(KeyCode::Char('X'), KeyModifiers::NONE));
+    session.handle(key(KeyCode::F(4), KeyModifiers::NONE));
+    replay(&mut session);
+    let outer = session.macros.pauses[0]
+        .runner
+        .as_ref()
+        .unwrap()
+        .limits
+        .clone();
+    outer.steps.store(
+        crate::macros::RUN_STEPS - 1,
+        std::sync::atomic::Ordering::Relaxed,
+    );
+    session.handle(key(KeyCode::F(4), KeyModifiers::NONE));
+    session.expire_input(Instant::now());
+    let child = session.macros.pauses[1].runner.as_ref().unwrap();
+    assert!(Arc::ptr_eq(&outer, &child.limits));
+    assert!(Arc::ptr_eq(&outer.text, &child.budget));
+    session.handle(key(
+        KeyCode::Char('c'),
+        KeyModifiers::CONTROL | KeyModifiers::ALT,
+    ));
+    session.expire_input(Instant::now());
+    assert_eq!(session.macro_stop().unwrap().reason, StopReason::StepBudget);
+    assert_eq!(session.macro_status(), Status::Idle);
+    assert!(session.macros.pauses.is_empty());
+    assert_eq!(text(&session), "Xabcdef");
+}
+
+// Original region targets use one shared allowance; reaching the final
+// permitted step cannot publish the next line's source edit under a new budget.
+#[test]
+fn regions_budget() {
+    let mut session = session();
+    session.handle(key(KeyCode::F(3), KeyModifiers::NONE));
+    session.handle(key(KeyCode::Char('X'), KeyModifiers::NONE));
+    session.handle(key(KeyCode::F(4), KeyModifiers::NONE));
+    session.replace(0..7, "a\nb\n").unwrap();
+    session.execute(Command::Motion(Motion::BufferStart));
+    session.execute(Command::Region(crate::command::RegionCommand::Set));
+    session.execute(Command::Motion(Motion::BufferEnd));
+    session.execute(Command::Macro(MacroCommand::ApplyLines));
+    session.macros.runner.as_ref().unwrap().limits.steps.store(
+        crate::macros::RUN_STEPS - 1,
+        std::sync::atomic::Ordering::Relaxed,
+    );
+    session.expire_input(Instant::now());
+    assert_eq!(text(&session), "Xa\nb\n");
+    assert_eq!(session.macro_stop().unwrap().reason, StopReason::StepBudget);
+    session.execute(Command::History(crate::command::History::Undo));
+    assert_eq!(text(&session), "a\nb\n");
 }
 
 fn replay(session: &mut Session) {

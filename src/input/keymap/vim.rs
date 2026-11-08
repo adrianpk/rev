@@ -24,7 +24,7 @@ pub(super) fn normal() -> &'static [(&'static str, &'static str)] {
                 key.starts_with("M-")
                     || key.starts_with("C-x ")
                     || key.starts_with("C-c ")
-                    || matches!(*key, "C-g" | "C-l" | "C-_" | "F3" | "F4")
+                    || matches!(*key, "C-g" | "C-l" | "C-_" | "F3" | "F4" | "C-M-c")
             })
             .collect();
         bindings.extend([
@@ -80,7 +80,7 @@ fn visual_bindings(block: bool) -> Vec<(&'static str, &'static str)> {
             key.starts_with("M-")
                 || key.starts_with("C-x ")
                 || key.starts_with("C-c ")
-                || matches!(*key, "C-g" | "C-l" | "C-_" | "F3" | "F4")
+                || matches!(*key, "C-g" | "C-l" | "C-_" | "F3" | "F4" | "C-M-c")
         })
         .collect();
     bindings.extend(PANES);

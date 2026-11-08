@@ -20,7 +20,10 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
   answers during playback. Keep several recordings in a shared bounded ring,
   cycle or swap them, append input and repeat with temporary keys. Insert checked
   integer counters with per-macro formats. Zero or negative replay counts run
-  until a native stop, cancellation or the finite budget.
+  until a native stop, cancellation or the finite budget. Add C-x q queries to
+  continue, skip or stop replay, or pause for manual editing and resume with C-M-c.
+  Apply a recording to original logical lines in a region; inserted lines add
+  no targets and deleted lines are skipped.
 
 - Supply counts with `C-u`, Meta digits or a negative prefix to move by
   characters, words or ordinary rows, insert repeated text, delete or kill a

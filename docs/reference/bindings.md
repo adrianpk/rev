@@ -709,6 +709,10 @@ bounds, cancellation and the currently delivered counted movement policies.
 | C-x C-k C-c | `kmacro-set-counter` | Set or reset the current macro counter. |
 | C-x C-k C-a | `kmacro-add-counter` | Add to or restore the current macro counter. |
 | C-x C-k C-f | `kmacro-set-format` | Set the integer format for macro counters. |
+| C-x C-k r | `apply-macro-to-region-lines` | Run the current macro on logical lines in the region. |
+| C-x q | `kbd-macro-query` | Add a confirmation or editing pause to a macro. |
+| C-M-c | `exit-recursive-edit` | Resume a macro after its manual editing pause. |
+| C-] during manual macro editing | `abort-recursive-edit` | Abort a macro editing pause and its playback. |
 
 F3 and F4 are logical function-key reports. Their effective bindings remain
 configurable in ordinary editor and modal contexts. C-g cancels capture/playback

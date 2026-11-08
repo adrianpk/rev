@@ -1,4 +1,4 @@
-/// Native recording, ring and checked counter controls.
+/// Native keyboard macro controls.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum MacroCommand {
     StartOrCounter,
@@ -17,6 +17,10 @@ pub enum MacroCommand {
     SetCounter,
     AddCounter,
     SetFormat,
+    ApplyLines,
+    Query,
+    Resume,
+    Abort,
 }
 
 impl MacroCommand {
@@ -38,6 +42,10 @@ impl MacroCommand {
             Self::SetCounter => "kmacro-set-counter",
             Self::AddCounter => "kmacro-add-counter",
             Self::SetFormat => "kmacro-set-format",
+            Self::ApplyLines => "apply-macro-to-region-lines",
+            Self::Query => "kbd-macro-query",
+            Self::Resume => "exit-recursive-edit",
+            Self::Abort => "abort-recursive-edit",
         }
     }
 
@@ -59,6 +67,10 @@ impl MacroCommand {
             Self::SetCounter => "Set or reset the current macro counter.",
             Self::AddCounter => "Add to or restore the current macro counter.",
             Self::SetFormat => "Set the integer format for macro counters.",
+            Self::ApplyLines => "Run the current macro on logical lines in the region.",
+            Self::Query => "Add a confirmation or editing pause to a macro.",
+            Self::Resume => "Resume a macro after its manual editing pause.",
+            Self::Abort => "Abort a macro editing pause and its playback.",
         }
     }
 }

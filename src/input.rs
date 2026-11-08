@@ -8,8 +8,10 @@ mod hints;
 mod inventory;
 mod key;
 pub mod keymap;
+mod macros;
 mod meta;
 mod modal;
+pub use macros::MacroQuery;
 pub use modal::EditingState;
 mod names;
 pub(crate) use names::Names;
@@ -88,6 +90,7 @@ pub enum Outcome {
     Argument(String),
     PathAccept,
     Decision(bool),
+    MacroQuery(MacroQuery),
     Message(&'static str),
 }
 
@@ -124,6 +127,7 @@ enum Context {
     Path(Prompt),
     Literal(Prompt),
     ReplaceDecision,
+    MacroQuery,
     Decision(&'static str),
     Inventory,
 }
@@ -133,6 +137,7 @@ enum Context {
 #[derive(Debug, Default)]
 pub struct Input {
     pub(crate) logical_key: Option<Key>,
+    pub(crate) macro_editing: bool,
     profile: crate::config::InteractionProfile,
     editing_state: EditingState,
     editing_owner: Option<(crate::window::ViewId, crate::buffer::BufferId)>,
@@ -199,7 +204,9 @@ impl Input {
             Context::Editing => Focus::Editing,
             Context::Search(_) => Focus::Search,
             Context::Command(_) => Focus::Command,
-            Context::Decision(_) | Context::ReplaceDecision => Focus::Decision,
+            Context::Decision(_) | Context::ReplaceDecision | Context::MacroQuery => {
+                Focus::Decision
+            }
             Context::Inventory => Focus::Inventory,
             _ => Focus::Argument,
         }
@@ -228,6 +235,7 @@ impl Input {
         match &self.context {
             Context::Command(_) => Some("M-x "),
             Context::ReplaceDecision => Some(replace::QUESTION),
+            Context::MacroQuery => Some(macros::QUESTION),
             Context::Decision(label) => Some(label),
             Context::Inventory => Some("Buffers: arrows move, Enter selects, C-g cancels"),
             _ => self.prompt().map(Prompt::label),
@@ -328,6 +336,10 @@ impl Input {
             self.cancel();
             return Outcome::Command(Command::KeyboardQuit);
         }
+        if self.macro_editing && self.focus() == Focus::Editing && key.control(']') {
+            self.clear_prefix();
+            return Outcome::Command(Command::Macro(crate::command::MacroCommand::Abort));
+        }
         if self.focus() == Focus::Decision {
             return self.decision_key(key);
         }
@@ -345,6 +357,7 @@ impl Input {
             Context::Path(prompt) => path::handle(prompt, key),
             Context::Literal(prompt) => replace::argument(prompt, key),
             Context::ReplaceDecision => replace::answer(key),
+            Context::MacroQuery => macros::answer(key),
             Context::Decision(_) => decide(key),
             Context::Inventory => inventory::handle(key),
             _ => self.chooser_key(key),
@@ -364,6 +377,7 @@ impl Input {
             outcome,
             Outcome::Argument(_)
                 | Outcome::Decision(_)
+                | Outcome::MacroQuery(_)
                 | Outcome::Selection(Selection::Accept)
                 | Outcome::Search(SearchAction::Accept)
         ) {

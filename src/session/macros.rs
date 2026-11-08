@@ -2,12 +2,12 @@ mod capture;
 mod controls;
 mod counters;
 mod literal;
+mod queries;
+mod regions;
 mod repeat;
 mod runner;
 
 use std::sync::Arc;
-use std::sync::atomic::AtomicUsize;
-use std::time::Instant;
 
 use crossterm::event::Event;
 
@@ -25,11 +25,16 @@ impl Session {
         self.macros.stop
     }
 
-    /// Observe native layout or fresh-consent ownership without advancing it.
-    /// Consent has no automatic macro wake; the host waits for ordinary input.
+    /// Observe native layout, consent, query or manual editing ownership.
+    /// User waits have no automatic macro wake; the host waits for native input.
     pub fn macro_wait(&self) -> Option<crate::macros::Wait> {
+        if self.macros.runner.is_none() && !self.macros.pauses.is_empty() {
+            return Some(crate::macros::Wait::Editing);
+        }
         self.macros.runner.as_ref().and_then(|run| {
-            if run.consent.is_some() {
+            if run.query {
+                Some(crate::macros::Wait::Query)
+            } else if run.consent.is_some() {
                 Some(crate::macros::Wait::Consent)
             } else if run.waiting {
                 Some(crate::macros::Wait::Layout)
@@ -63,6 +68,7 @@ impl Session {
             self.pending = None;
         }
         self.macros.fail(reason);
+        self.input.macro_editing = false;
         self.buffers.automatic_group(None);
         self.input.cancel();
         let detail = self.macros.stop.map_or(String::new(), |stop| {
@@ -78,6 +84,17 @@ impl Session {
     /// Physical input cannot interleave with an automatic step. Resize and
     /// cancellation retain their native owners; the run itself never blocks IO.
     pub(super) fn macro_input_guard(&mut self, event: &Event) -> Option<Action> {
+        self.input.macro_editing = self.macro_manual();
+        if !self.macros.expanded && self.macro_manual() {
+            if Input::interrupt(event) {
+                self.stop_macro(StopReason::Canceled, "Keyboard macro canceled");
+                return None;
+            }
+            if let Some(action) = self.macro_manual_guard() {
+                return Some(action);
+            }
+            return None;
+        }
         if self.macros.recorder.is_some() && matches!(event, Event::Mouse(_)) {
             return Some(self.stop_macro(
                 StopReason::Unsupported,
@@ -95,7 +112,7 @@ impl Session {
             .macros
             .runner
             .as_ref()
-            .is_some_and(|run| run.consent.is_some())
+            .is_some_and(|run| run.consent.is_some() || run.query)
         {
             let current = (self.windows.selected_id(), self.view().point);
             if self
@@ -129,6 +146,18 @@ impl Session {
             self.stop_macro(StopReason::Canceled, "Keyboard macro canceled");
             return None;
         }
+        if self.macro_manual() {
+            if let Some(action) = self.macro_manual_guard() {
+                return Some(action);
+            }
+            if supported(command) || matches!(command, Command::Macro(_)) {
+                return None;
+            }
+            return Some(self.stop_macro(
+                StopReason::Unsupported,
+                "Manual macro editing stopped before unsupported command",
+            ));
+        }
         if matches!(command, Command::Macro(_)) && !self.macros.expanded {
             return None;
         }
@@ -141,6 +170,7 @@ impl Session {
                         | MacroCommand::AddCounter
                         | MacroCommand::SetFormat
                         | MacroCommand::Redisplay
+                        | MacroCommand::Query
                 )
             )
         {
@@ -169,6 +199,19 @@ impl Session {
         self.finish_repeat_entry();
         if let Err(error) = self.stop_typing() {
             return self.error(&error.to_string());
+        }
+        match command {
+            MacroCommand::Query => return self.macro_query_command(argument),
+            MacroCommand::Resume => return self.macro_resume(),
+            MacroCommand::Abort => {
+                return if self.macro_manual() {
+                    self.stop_macro(StopReason::Canceled, "Macro editing aborted")
+                } else {
+                    self.message("No macro editing pause is active")
+                };
+            }
+            MacroCommand::ApplyLines => return self.macro_region_start(),
+            _ => {}
         }
         if command == MacroCommand::StartOrCounter && self.macros.recorder.is_some() {
             return self.macro_counter_command(MacroCommand::InsertCounter, argument);
@@ -272,7 +315,31 @@ impl Session {
             });
             return self.message("Keyboard macro entry profile or source state differs");
         }
-        let budget = Arc::new(AtomicUsize::new(0));
+        let limits = self
+            .macros
+            .pauses
+            .iter()
+            .rev()
+            .find_map(|pause| pause.runner.as_ref().map(|run| run.limits.clone()))
+            .unwrap_or_else(|| Arc::new(crate::macros::Limits::new()));
+        if !limits.iteration() {
+            return self.stop_macro(
+                StopReason::IterationBudget,
+                "Keyboard macro iteration limit reached",
+            );
+        }
+        limits.resume();
+        let budget = limits.text.clone();
+        let outer_group = self
+            .macros
+            .pauses
+            .iter()
+            .rev()
+            .find_map(|pause| pause.runner.as_ref().map(|run| run.group.clone()));
+        let group = outer_group
+            .clone()
+            .unwrap_or_else(|| crate::buffer::edit::AutomaticGroup::new(budget.clone()));
+        self.input.macro_editing = false;
         self.macros.stop = None;
         let mut counter = definition.counter.clone();
         counter.iteration_start = counter.current;
@@ -284,11 +351,13 @@ impl Session {
             iterations: (count > 0).then_some(count as usize),
             iteration: 0,
             step: 0,
-            dispatched: 0,
-            started: Instant::now(),
+            limits,
+            query: false,
+            region: None,
             expected: (self.windows.selected_id(), self.view().point),
             waiting: false,
-            group: crate::buffer::edit::AutomaticGroup::new(budget.clone()),
+            group,
+            outer_group,
             budget,
             arguments: Default::default(),
             trigger: Default::default(),

@@ -3,6 +3,7 @@ use crate::input::{Focus, Invocation};
 use crate::macros::{Argument, Role, Step, StopReason};
 use crate::session::{Action, Pending, Session};
 use crossterm::event::{Event, KeyEvent};
+use std::sync::atomic::Ordering;
 use std::time::{Duration, Instant};
 
 impl Session {
@@ -16,7 +17,7 @@ impl Session {
                 .macros
                 .runner
                 .as_ref()
-                .is_some_and(|run| run.consent.is_some())
+                .is_some_and(|run| run.consent.is_some() || run.query)
         {
             return Action::Wait;
         }
@@ -35,7 +36,7 @@ impl Session {
                     "Keyboard macro source owner changed",
                 );
             }
-            if run.started.elapsed() >= Duration::from_secs(60) {
+            if run.limits.elapsed() >= Duration::from_secs(60) {
                 return self.stop_macro(
                     StopReason::TimeBudget,
                     "Keyboard macro active time limit reached",
@@ -47,7 +48,7 @@ impl Session {
                 && run.iterations == Some(run.iteration + 1)
                 && self.pending.is_none()
                 && self.input.focus() == Focus::Editing;
-            if run.dispatched >= crate::macros::RUN_STEPS && !completed {
+            if run.limits.steps.load(Ordering::Relaxed) >= crate::macros::RUN_STEPS && !completed {
                 return self.stop_macro(
                     StopReason::StepBudget,
                     "Keyboard macro logical step limit reached",
@@ -61,8 +62,9 @@ impl Session {
             };
             let step = if argument.is_none() && trigger.is_none() {
                 if self.macro_consent_pending() {
-                    self.macros.runner.as_mut().expect("live runner").consent =
-                        Some(Instant::now());
+                    let run = self.macros.runner.as_mut().expect("live runner");
+                    run.consent = Some(Instant::now());
+                    run.limits.pause();
                     return Action::Redraw;
                 }
                 if self.pending.is_some() || self.input.focus() != Focus::Editing {
@@ -73,6 +75,9 @@ impl Session {
                 }
                 let run = self.macros.runner.as_mut().expect("live runner");
                 if run.step == run.definition.steps.len() {
+                    if run.region.is_some() {
+                        return self.macro_region_next();
+                    }
                     run.iteration += 1;
                     if Some(run.iteration) == run.iterations {
                         return self.macro_run_finished();
@@ -83,10 +88,18 @@ impl Session {
                             "Keyboard macro did not restore its entry state for another iteration",
                         );
                     }
+                    if !run.limits.iteration() {
+                        return self.stop_macro(
+                            StopReason::IterationBudget,
+                            "Keyboard macro iteration limit reached",
+                        );
+                    }
                     run.step = 0;
                     run.counter.iteration_start = run.counter.current;
                     run.counter.format = run.definition.initial_format.clone();
-                    run.group = crate::buffer::edit::AutomaticGroup::new(run.budget.clone());
+                    run.group = run.outer_group.clone().unwrap_or_else(|| {
+                        crate::buffer::edit::AutomaticGroup::new(run.budget.clone())
+                    });
                 }
                 let step = run.definition.steps[run.step].clone();
                 run.step += 1;
@@ -96,7 +109,7 @@ impl Session {
             };
             let refresh = matches!(step, Some(Step::Redisplay));
             let run = self.macros.runner.as_mut().expect("live runner");
-            run.dispatched += 1;
+            run.limits.steps.fetch_add(1, Ordering::Relaxed);
             self.buffers.automatic_group(Some(run.group.clone()));
             self.macros.expanded = true;
             if let Some(trigger) = trigger {
@@ -113,7 +126,7 @@ impl Session {
             if let Some(run) = self.macros.runner.as_mut() {
                 run.expected = expected;
                 run.waiting = waiting;
-                if run.consent.is_some() {
+                if run.consent.is_some() || run.query {
                     return Action::Redraw;
                 }
             } else {
@@ -138,6 +151,9 @@ impl Session {
                 self.macro_counter_operation(operation);
             }
             Step::Redisplay => {}
+            Step::Query(mode) => {
+                self.macro_query_mode(mode);
+            }
             Step::Completion(edit) => {
                 if let Err(error) = self.replay_macro_completion(edit) {
                     self.error(&error);
@@ -196,7 +212,9 @@ impl Session {
                 .expect("live runner")
                 .arguments
                 .push_front(argument);
-            self.macros.runner.as_mut().expect("live runner").consent = Some(Instant::now());
+            let run = self.macros.runner.as_mut().expect("live runner");
+            run.consent = Some(Instant::now());
+            run.limits.pause();
             return;
         }
         let role = self.macro_prompt_role();
@@ -267,15 +285,28 @@ impl Session {
             )
     }
 
-    pub(in crate::session) fn macro_consent_group(&mut self, active: bool) {
-        if let Some(run) = self
+    pub(in crate::session) fn macro_user_group(&mut self) -> bool {
+        let run = self
             .macros
             .runner
             .as_ref()
-            .filter(|run| run.consent.is_some())
-        {
-            self.buffers
-                .automatic_group(active.then(|| run.group.clone()));
+            .filter(|run| run.consent.is_some() || run.query)
+            .or_else(|| {
+                self.macro_manual()
+                    .then(|| {
+                        self.macros
+                            .pauses
+                            .iter()
+                            .rev()
+                            .find_map(|pause| pause.runner.as_ref())
+                    })
+                    .flatten()
+            });
+        if let Some(run) = run {
+            self.buffers.automatic_group(Some(run.group.clone()));
+            true
+        } else {
+            false
         }
     }
 
@@ -291,19 +322,34 @@ impl Session {
             if self.pending.is_none()
                 || (self.input.focus() != Focus::Decision && !run.arguments.is_empty())
             {
-                let paused = run.consent.take().expect("consent pause").elapsed();
-                run.started += paused;
+                run.consent.take().expect("consent pause");
+                run.limits.resume();
             }
         }
     }
 
     pub(in crate::session) fn macro_layout_group(&mut self, active: bool) {
-        let group = active
-            .then(|| self.macros.runner.as_ref().map(|r| r.group.clone()))
-            .flatten();
-        // Idle layout polling does not own an automatic history group.
-        if self.macros.runner.is_some() {
-            self.buffers.automatic_group(group);
+        if self.macro_manual() {
+            if active {
+                self.macro_manual_guard();
+            } else if self.macros.pauses.last().is_some_and(|pause| pause.waiting) {
+                self.macro_manual_progress();
+            }
+        }
+        let run = self.macros.runner.as_ref().or_else(|| {
+            self.macro_manual()
+                .then(|| {
+                    self.macros
+                        .pauses
+                        .iter()
+                        .rev()
+                        .find_map(|pause| pause.runner.as_ref())
+                })
+                .flatten()
+        });
+        if let Some(run) = run {
+            self.buffers
+                .automatic_group(active.then(|| run.group.clone()));
         }
         self.macros.expanded = active && self.macros.runner.is_some();
         self.macros.dispatching = active && self.macros.recorder.is_some() && self.layout_active();

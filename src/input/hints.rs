@@ -22,6 +22,9 @@ impl Input {
             .bindings()
             .map(|(sequence, _)| sequence.clone())
             .collect();
+        if self.macro_editing {
+            sequences.insert(Sequence::parse("C-]").expect("native macro abort key"));
+        }
         if self.workspace_completion && !self.workspace_startup {
             sequences.extend(
                 self.keymaps
@@ -102,6 +105,7 @@ impl Input {
         // The probe owns no persistence worker, live prompt, pending operator,
         // usage events or shell history. Only admitted maps and origin matter.
         Self {
+            macro_editing: self.macro_editing,
             logical_key: None,
             profile: self.profile,
             editing_state: self.editing_state,

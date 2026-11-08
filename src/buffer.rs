@@ -146,6 +146,7 @@ pub enum Resource {
 pub struct Buffer {
     resource: Resource,
     observer: Option<std::sync::Arc<dyn edit::Observer>>,
+    macro_lines: Vec<edit::WeakMacroLines>,
     pub(crate) bookmarks: crate::bookmark::Shared,
     pub(crate) locations: crate::location::Shared,
     pub(crate) bookmark_rows: std::sync::Mutex<crate::bookmark::markers::Cache>,
@@ -216,6 +217,7 @@ impl Buffer {
         Ok(Self {
             resource: Resource::Text,
             observer: None,
+            macro_lines: Vec::new(),
             bookmarks: crate::bookmark::Shared::default(),
             locations: crate::location::Shared::default(),
             bookmark_rows: std::sync::Mutex::default(),
