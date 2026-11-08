@@ -98,17 +98,19 @@ T4.1-T4.3 implementation: [f421903f80a6](https://forge.adrianpk.com/adrianpk/rev
 
 ## Slice 5: Named snapshots and key bindings
 
-State: active
+State: reviewing
 Dependency: Slice 4 integrated through PR #322.
 Branch: feat/rev-keyboard-macros-05-names
-PR: pending
+PR: [#323](https://forge.adrianpk.com/adrianpk/rev/pulls/323)
 Integrated: pending
 Report: ops/default/report/slices/rev-keyboard-macros/slice-5-names.md
-Validation: exact ordered slice selection in the plan and frozen configuration
+Validation: all seven required development checks passed: 14 selected names cases, 52 command regressions, 45 modal cases, formatting, strict lib/bin Clippy, documentation/catalog checks and whitespace. Additional development checks passed all 70 macro integration cases and 16 native admission/budget cases. Final clean-HEAD evidence is recorded separately by the controller validator after PR references; delivery-set acceptance remains controller-owned.
 
-- [ ] T5.1: Admit bounded independent named snapshots as native dynamic commands with canonical identities, optional descriptions, M-x/colon ranking and effective key hints.
-- [ ] T5.2: Implement naming/replacement and session key capture, reserved slots, consent and collision precedence while preserving compiled, prompt, AI and user-configured owners.
-- [ ] T5.3: Verify both profiles, pinned nested named calls, cycle/depth rejection, missing definitions, namespace/binding collisions, session-only naming and command-history behavior through names fixtures.
+- [x] T5.1: Admit bounded independent named snapshots as native dynamic commands with canonical identities, optional descriptions, M-x/colon ranking and effective key hints.
+- [x] T5.2: Implement naming/replacement and session key capture, reserved slots, consent and collision precedence while preserving compiled, prompt, AI and user-configured owners.
+- [x] T5.3: Verify both profiles, pinned nested named calls, cycle/depth rejection, missing definitions, namespace/binding collisions, session-only naming and command-history behavior through names fixtures.
+
+T5.1-T5.3 implementation: [c504fcb0653d](https://forge.adrianpk.com/adrianpk/rev/commit/c504fcb0653d76cc6553796cc0c16b1716ed5a7b). Canonical PR #323 carries the implementation and immutable report; integration remains pending.
 
 ## Slice 6: Explicit persistent library
 
