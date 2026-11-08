@@ -1,12 +1,12 @@
 # Slice 6: Explicit persistent library
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-keyboard-macros
 Plan: [Keyboard Macros Delivery](../../../plan/rev-keyboard-macros.md)
 Tracker: [Keyboard Macros Tracker](../../../tracker/rev-keyboard-macros.md)
 Branch: `feat/rev-keyboard-macros-06-library`
 PR: [#324](https://forge.adrianpk.com/adrianpk/rev/pulls/324)
-Integrated: pending
+Integrated: 8dc058da7f79590c91bfde404141d3791cbaab82 on dev through canonical PR #324
 Implementation: [5871093638f7](https://forge.adrianpk.com/adrianpk/rev/commit/5871093638f7093b496cfd81d3cce2fc1d84f2c5)
 
 ## Purpose
@@ -78,8 +78,9 @@ immutable bodies and participate in the existing 48 MiB retention admission.
 
 ## Validation
 
-The required development selection passed. Final clean-HEAD evidence is recorded
-separately by the controller validator after implementation and PR references.
+The unchanged six-command selection passed at clean final PR head
+8dc058da7f79590c91bfde404141d3791cbaab82 with controller receipt
+QFA4M3BABLADH7E7IZSWXVNQIK. Forgejo and Acta confirm integration through PR #324.
 These checks do not establish the integrated delivery-set gate or PTY acceptance.
 
 - `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo fmt --all -- --check` — pass.
