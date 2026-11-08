@@ -1,11 +1,12 @@
 # Slice 1: Recording and replay
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-keyboard-macros
 Plan: [Keyboard Macros Delivery](../../../plan/rev-keyboard-macros.md)
 Tracker: [Keyboard Macros Tracker](../../../tracker/rev-keyboard-macros.md)
 Branch: `feat/rev-keyboard-macros-01-recording`
 PR: [#319](https://forge.adrianpk.com/adrianpk/rev/pulls/319)
+Integrated: `527f36827597ab688f28262680c5225601773340` on `dev`
 
 ## Purpose
 
@@ -76,8 +77,9 @@ native publication budget rejects excess generated text before publication.
 ## Validation
 
 All seven ordered slice checks passed at clean HEAD
-`c27600d50ae15d6897272b2ef273697d3b98c363`, recorded by controller validation
-receipt `MGFGZPZUIDPKGVFAFR4ZMWFEWJ`. The integrated delivery-set gate and real
+`527f36827597ab688f28262680c5225601773340`, recorded by controller validation
+receipt `JD7OTKMTNO3NK2M5FC7K4Z6HDB`. PR #319 is canonically merged into `dev`.
+The integrated delivery-set gate and real
 PTY acceptance were not run.
 
 - `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo fmt --all -- --check` — PASS.
@@ -88,9 +90,8 @@ PTY acceptance were not run.
 - `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo run --locked --quiet --example documentation-check` — PASS: 633 command entries, 291 configuration entries, 92 reachable pages and 639 local links/anchors.
 - `git diff --check` — PASS.
 
-The unchanged seven-command slice selection also applies after PR-reference
-commits. Fresh controller evidence identifies that final clean HEAD and ordered
-execution; a passing slice receipt does not establish delivery-set acceptance.
+The receipt identifies the final clean PR-reference HEAD and ordered execution;
+a passing slice receipt does not establish delivery-set acceptance.
 
 ## Risks and Follow-ups
 

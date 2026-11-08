@@ -9,7 +9,7 @@ Plan: [Keyboard Macros Delivery](../plan/rev-keyboard-macros.md)
 Specification: [Keyboard Macros](../spec/editor-keyboard-macros.md)
 Model: [Macro Library and State Ownership](../spec/editor-keyboard-macros-model.md)
 Concern: [Pending Editor Work](../README.md)
-Active slice: Slice 1 of 8, reviewing; canonical PR #319
+Active slice: Slice 2 of 8, named commands and prompt capture
 Progress owner: selected Looper checkpoint and canonical validation evidence
 
 ## Canonical slice map
@@ -27,13 +27,13 @@ Progress owner: selected Looper checkpoint and canonical validation evidence
 
 ## Slice 1: Recording and replay
 
-State: reviewing
+State: delivered
 Dependency: published approved preparation and controller preflight.
 Branch: feat/rev-keyboard-macros-01-recording
 PR: [#319](https://forge.adrianpk.com/adrianpk/rev/pulls/319)
-Integrated: pending
+Integrated: 527f36827597ab688f28262680c5225601773340 on dev through canonical PR #319
 Report: ops/default/report/slices/rev-keyboard-macros/slice-1-recording.md
-Validation: all seven required commands passed at clean c27600d50ae15d6897272b2ef273697d3b98c363 with receipt MGFGZPZUIDPKGVFAFR4ZMWFEWJ: macros 14/14, selected commands 52/52, editing 114/114, formatting, Clippy, documentation and diff checks. Fresh exact-HEAD evidence for PR-reference commits is recorded through controller validation. Integration and delivery-set acceptance remain controller-owned.
+Validation: all seven required commands passed at clean final PR head 527f36827597ab688f28262680c5225601773340 with receipt JD7OTKMTNO3NK2M5FC7K4Z6HDB: macros 14/14, selected commands 52/52, editing 114/114, formatting, Clippy, documentation and diff checks. Forgejo and Acta confirm integration. Delivery-set acceptance remains controller-owned.
 
 - [x] T1.1: Add bounded recording/runner ownership, normalized key/text capture, F3/F4 and C-x controls, indicators, cancellation and positive prefix replay through normal input.
 - [x] T1.2: Deliver native per-iteration undo boundaries, typed stops, modal entry checks and cooperative scheduling without an idle worker; unsupported input transfers stop explicitly.
@@ -50,8 +50,8 @@ assertions, runtime or later slice identities changed in the repair.
 
 ## Slice 2: Named commands and prompt capture
 
-State: pending
-Dependency: Slice 1 integrated.
+State: active
+Dependency: Slice 1 integrated through PR #319.
 Branch: feat/rev-keyboard-macros-02-capture
 PR: pending
 Integrated: pending
