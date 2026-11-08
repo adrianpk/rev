@@ -9,7 +9,7 @@ Plan: [Keyboard Macros Delivery](../plan/rev-keyboard-macros.md)
 Specification: [Keyboard Macros](../spec/editor-keyboard-macros.md)
 Model: [Macro Library and State Ownership](../spec/editor-keyboard-macros-model.md)
 Concern: [Pending Editor Work](../README.md)
-Active slice: Slice 2 of 8, reviewing; canonical PR #320
+Active slice: Slice 3 of 8, ring, append and counters
 Progress owner: selected Looper checkpoint and canonical validation evidence
 
 ## Canonical slice map
@@ -50,13 +50,13 @@ assertions, runtime or later slice identities changed in the repair.
 
 ## Slice 2: Named commands and prompt capture
 
-State: reviewing
+State: delivered
 Dependency: Slice 1 integrated through PR #319.
 Branch: feat/rev-keyboard-macros-02-capture
 PR: [#320](https://forge.adrianpk.com/adrianpk/rev/pulls/320)
-Integrated: pending
+Integrated: e92a1f3e0f5a700d1fe52c1860fffab5a097bea7 on dev through canonical PR #320
 Report: ops/default/report/slices/rev-keyboard-macros/slice-2-capture.md
-Validation: development checks passed: 11 native capture cases, 52 selected command cases, 4 selected completion cases, formatting, lib/bin Clippy and documentation/catalog checks. All 25 macro integration cases and 5 focused native admission cases also pass. Final clean-HEAD evidence follows the PR-reference commit through controller validation; integration and delivery-set acceptance remain pending.
+Validation: all seven required checks passed at clean final PR head e92a1f3e0f5a700d1fe52c1860fffab5a097bea7 with receipt CTGMHPV3BOOPKLL2GBEWHP7ZFX: capture 11/11, selected commands 52/52, completion 4/4, formatting, Clippy, documentation and whitespace. Development coverage also passed all 25 macro cases and 5 focused admission cases. Forgejo and Acta confirm integration; delivery-set acceptance remains controller-owned.
 
 - [x] T2.1: Normalize accepted M-x/colon invocations to one canonical name with typed prefix and role-qualified prompt values; preserve ordinary-key current-map semantics.
 - [x] T2.2: Integrate search, paths/buffer arguments, literal completion contracts, fresh-consent pauses and typed stop/wait observation without replaying selector rows or echo parsing.
@@ -66,8 +66,8 @@ T2.1-T2.3 implementation: [838968c735dd](https://forge.adrianpk.com/adrianpk/rev
 
 ## Slice 3: Ring, append and counters
 
-State: pending
-Dependency: Slice 2 integrated.
+State: active
+Dependency: Slice 2 integrated through PR #320.
 Branch: feat/rev-keyboard-macros-03-ring
 PR: pending
 Integrated: pending

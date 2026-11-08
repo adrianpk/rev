@@ -1,11 +1,12 @@
 # Slice 2: Named commands and prompt capture
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-keyboard-macros
 Plan: [Keyboard Macros Delivery](../../../plan/rev-keyboard-macros.md)
 Tracker: [Keyboard Macros Tracker](../../../tracker/rev-keyboard-macros.md)
 Branch: `feat/rev-keyboard-macros-02-capture`
 PR: [#320](https://forge.adrianpk.com/adrianpk/rev/pulls/320)
+Integrated: `e92a1f3e0f5a700d1fe52c1860fffab5a097bea7` on `dev`
 
 ## Purpose
 
@@ -75,8 +76,9 @@ No dependency, provider fixture, new runtime worker or persistence surface is ad
 
 ## Validation
 
-Development checks below passed before final PR metadata. The controller records
-fresh ordered evidence on the final clean PR head after its reference commit.
+All seven ordered checks passed at clean final PR head
+`e92a1f3e0f5a700d1fe52c1860fffab5a097bea7`, recorded by controller receipt
+`CTGMHPV3BOOPKLL2GBEWHP7ZFX`. Forgejo and Acta confirm PR #320 merged into `dev`.
 These checks do not establish the integrated delivery-set gate or real PTY acceptance.
 
 - `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo fmt --all -- --check` — PASS.
