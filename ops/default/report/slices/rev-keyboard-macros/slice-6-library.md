@@ -5,9 +5,9 @@ Delivery set: rev-keyboard-macros
 Plan: [Keyboard Macros Delivery](../../../plan/rev-keyboard-macros.md)
 Tracker: [Keyboard Macros Tracker](../../../tracker/rev-keyboard-macros.md)
 Branch: `feat/rev-keyboard-macros-06-library`
-PR: pending
+PR: [#324](https://forge.adrianpk.com/adrianpk/rev/pulls/324)
 Integrated: pending
-Implementation: pending
+Implementation: [5871093638f7](https://forge.adrianpk.com/adrianpk/rev/commit/5871093638f7093b496cfd81d3cce2fc1d84f2c5)
 
 ## Purpose
 

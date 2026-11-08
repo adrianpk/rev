@@ -117,7 +117,7 @@ T5.1-T5.3 implementation: [c504fcb0653d](https://forge.adrianpk.com/adrianpk/rev
 State: reviewing
 Dependency: Slice 5 integrated through PR #323.
 Branch: feat/rev-keyboard-macros-06-library
-PR: pending
+PR: [#324](https://forge.adrianpk.com/adrianpk/rev/pulls/324)
 Integrated: pending
 Report: ops/default/report/slices/rev-keyboard-macros/slice-6-library.md
 Validation: all six required development checks passed: 24 selected library/name cases, 52 selected command cases, formatting, strict lib/bin Clippy, documentation/catalog checks and whitespace. Additional development checks passed all 80 macro cases and 20 native admission/storage cases, including publication faults and revision exhaustion. Final clean-HEAD evidence is recorded separately after PR references; delivery-set acceptance remains controller-owned.
@@ -125,6 +125,8 @@ Validation: all six required development checks passed: 24 selected library/name
 - [x] T6.1: Implement schema-1 library encoding/admission and private concern-owned state publication with exact limits, nonblocking locks, revisions and fresh-record concurrency.
 - [x] T6.2: Deliver explicit save/reload/delete and inert TOML export, startup admission, optional prefixed binding inclusion and preservation of unsaved/conflicting state.
 - [x] T6.3: Verify restart, absent/invalid/oversized/symlink state, unrelated concurrent writes, stale same-record conflicts, uncertain publication and unchanged sibling stores.
+
+T6.1-T6.3 implementation: [5871093638f7](https://forge.adrianpk.com/adrianpk/rev/commit/5871093638f7093b496cfd81d3cce2fc1d84f2c5). Canonical PR #324 carries the implementation and immutable report; integration remains pending.
 
 ## Slice 7: Definition editing and macro menu
 
