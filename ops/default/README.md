@@ -66,6 +66,12 @@ retain their own specification/model state.
   Multi-buffer text access, checked edits, namespaced commands, local bindings
   and events are candidate API surfaces. No runtime, package manager or stable
   interface has been adopted; the earlier one-shot extension draft stays distinct.
+- [Development Workflow Plugin](spec/editor-development-workflow.md) and its
+  [model](spec/editor-development-workflow-model.md) remain Draft. Editable context
+  and questionnaires generate a revisable specification/slices/plan and one tracker;
+  Start freezes one execution contract. It depends on the experimental public
+  plugin API, may live in a separate repository, and still needs its UX/UI review
+  and execution/storage contracts before planning.
 
 ## Selected execution order
 

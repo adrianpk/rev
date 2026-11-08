@@ -9,7 +9,7 @@ Implementation authority: proposal only; no delivery set or prototype is started
 Review scope: canonical experimental proposal; independent of completed native deliveries
 Inspection baseline: 39f69965e8a5
 Model: [Plugin Identity, Protocol and State](editor-plugin-system-model.md)
-Exploratory case: a separate Development Workflow Plugin proposal tests the public contract; additional API needs require review
+Exploratory case: [Development Workflow Plugin](editor-development-workflow.md) tests the public contract; additional API needs require review
 Related exploration: [External Extensions](editor-external-extensions.md)
 Baseline: [rev Editor](rev-editor.md)
 
