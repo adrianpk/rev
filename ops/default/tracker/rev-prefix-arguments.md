@@ -88,7 +88,7 @@ T3.3 references, Unreleased guidance and local validation reporting.
 State: reviewing
 Dependency: Slice 3 integrated.
 Branch: `test/rev-prefix-arguments-04-acceptance`
-PR: pending
+PR: [#317](https://forge.adrianpk.com/adrianpk/rev/pulls/317)
 Integrated: pending
 Report: `ops/default/report/slices/rev-prefix-arguments/slice-4-acceptance.md`
 Validation: all ten unchanged PR checks passed locally: formatting, Clippy, commands (36/36), editing (114/114), wrapping (26/26), modal (28/28), shell (3/3), documentation, strict Spore guide build and whitespace. Exact clean-HEAD evidence remains controller-owned.
@@ -98,8 +98,9 @@ Validation: all ten unchanged PR checks passed locally: formatting, Clippy, comm
 - [x] T4.3: Finalize reports and task evidence, verify clean canonical integration and prepare the unchanged selected controller gate; closure remains separate.
 
 Task commits: `f6c7f72c47bfb0d4e48b4e6bc94cd4806ef1e27c` implements T4.1;
-`87d715d7f0ccd0f7da3022f1891adb8708646a97` implements T4.2. The canonical
-report-introduction commit completes T4.3 evidence and prior-report follow-ups.
+`87d715d7f0ccd0f7da3022f1891adb8708646a97` implements T4.2;
+`db092556ac056d06b93f341e4cd93da6f32d9515` introduces the report and completes
+T4.3 evidence and prior-report follow-ups.
 
 ## Final gate and closure
 

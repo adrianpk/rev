@@ -5,7 +5,7 @@ Delivery set: rev-prefix-arguments
 Plan: [`ops/default/plan/rev-prefix-arguments.md`](../../../plan/rev-prefix-arguments.md)
 Tracker: [`ops/default/tracker/rev-prefix-arguments.md`](../../../tracker/rev-prefix-arguments.md)
 Branch: `test/rev-prefix-arguments-04-acceptance`
-PR: pending
+PR: [#317](https://forge.adrianpk.com/adrianpk/rev/pulls/317)
 
 ## Purpose
 
@@ -73,8 +73,9 @@ It does not add a parallel guide source or edit generated publication files.
 
 Commit `f6c7f72c47bfb0d4e48b4e6bc94cd4806ef1e27c` implements T4.1.
 Commit `87d715d7f0ccd0f7da3022f1891adb8708646a97` implements T4.2.
-This report and the tracker/report reconciliation complete T4.3. The final
-PR-reference commit is validated through the controller's exact-HEAD command.
+Commit `db092556ac056d06b93f341e4cd93da6f32d9515` introduces this report
+and completes T4.3 tracker/report reconciliation. The final PR-reference commit
+is validated through the controller's exact-HEAD command.
 
 ## Canonical Integration Evidence
 
