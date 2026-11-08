@@ -1,12 +1,12 @@
 # Slice 5: Named snapshots and key bindings
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-keyboard-macros
 Plan: [Keyboard Macros Delivery](../../../plan/rev-keyboard-macros.md)
 Tracker: [Keyboard Macros Tracker](../../../tracker/rev-keyboard-macros.md)
 Branch: `feat/rev-keyboard-macros-05-names`
 PR: [#323](https://forge.adrianpk.com/adrianpk/rev/pulls/323)
-Integrated: pending
+Integrated: fd2852594452d93c4f3c4e6bb1db9d7876e113e6 on dev through canonical PR #323
 Implementation: [c504fcb0653d](https://forge.adrianpk.com/adrianpk/rev/commit/c504fcb0653d76cc6553796cc0c16b1716ed5a7b)
 
 ## Purpose
@@ -90,8 +90,9 @@ effects. No dependency, idle worker or new configuration leaf is introduced.
 
 ## Validation
 
-The development selection passed. The controller validator must record the
-unchanged ordered selection on the final clean PR head after PR references.
+The unchanged seven-command selection passed at clean final PR head
+fd2852594452d93c4f3c4e6bb1db9d7876e113e6 with controller validation receipt
+Q25WPHZR3D75SFH4MPTMUNWLYO. Forgejo and Acta confirm integration through PR #323.
 These focused checks do not establish the integrated delivery-set gate or PTY
 acceptance.
 

@@ -10,7 +10,7 @@ Specification: [Keyboard Macros](../spec/editor-keyboard-macros.md)
 Model: [Macro Library and State Ownership](../spec/editor-keyboard-macros-model.md)
 Tracker: [Keyboard Macros Tracker](../tracker/rev-keyboard-macros.md)
 Concern: [Pending Editor Work](../README.md)
-Active slice: Slice 5 of 8, named snapshots and key bindings
+Active slice: Slice 6 of 8, explicit persistent library
 
 ## Outcome, prerequisites and authority
 

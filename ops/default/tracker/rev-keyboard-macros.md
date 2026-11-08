@@ -9,7 +9,7 @@ Plan: [Keyboard Macros Delivery](../plan/rev-keyboard-macros.md)
 Specification: [Keyboard Macros](../spec/editor-keyboard-macros.md)
 Model: [Macro Library and State Ownership](../spec/editor-keyboard-macros-model.md)
 Concern: [Pending Editor Work](../README.md)
-Active slice: Slice 5 of 8, named snapshots and key bindings
+Active slice: Slice 6 of 8, explicit persistent library
 Progress owner: selected Looper checkpoint and canonical validation evidence
 
 ## Canonical slice map
@@ -98,24 +98,24 @@ T4.1-T4.3 implementation: [f421903f80a6](https://forge.adrianpk.com/adrianpk/rev
 
 ## Slice 5: Named snapshots and key bindings
 
-State: reviewing
+State: delivered
 Dependency: Slice 4 integrated through PR #322.
 Branch: feat/rev-keyboard-macros-05-names
 PR: [#323](https://forge.adrianpk.com/adrianpk/rev/pulls/323)
-Integrated: pending
+Integrated: fd2852594452d93c4f3c4e6bb1db9d7876e113e6 on dev through canonical PR #323
 Report: ops/default/report/slices/rev-keyboard-macros/slice-5-names.md
-Validation: all seven required development checks passed: 14 selected names cases, 52 command regressions, 45 modal cases, formatting, strict lib/bin Clippy, documentation/catalog checks and whitespace. Additional development checks passed all 70 macro integration cases and 16 native admission/budget cases. Final clean-HEAD evidence is recorded separately by the controller validator after PR references; delivery-set acceptance remains controller-owned.
+Validation: all seven required commands passed at clean final PR head fd2852594452d93c4f3c4e6bb1db9d7876e113e6 with receipt Q25WPHZR3D75SFH4MPTMUNWLYO: 14 selected names cases, 52 command regressions, 45 modal cases, formatting, strict lib/bin Clippy, documentation/catalog checks and whitespace. Additional development checks passed all 70 macro integration cases and 16 native admission/budget cases. Forgejo and Acta confirm integration; delivery-set acceptance remains controller-owned.
 
 - [x] T5.1: Admit bounded independent named snapshots as native dynamic commands with canonical identities, optional descriptions, M-x/colon ranking and effective key hints.
 - [x] T5.2: Implement naming/replacement and session key capture, reserved slots, consent and collision precedence while preserving compiled, prompt, AI and user-configured owners.
 - [x] T5.3: Verify both profiles, pinned nested named calls, cycle/depth rejection, missing definitions, namespace/binding collisions, session-only naming and command-history behavior through names fixtures.
 
-T5.1-T5.3 implementation: [c504fcb0653d](https://forge.adrianpk.com/adrianpk/rev/commit/c504fcb0653d76cc6553796cc0c16b1716ed5a7b). Canonical PR #323 carries the implementation and immutable report; integration remains pending.
+T5.1-T5.3 implementation: [c504fcb0653d](https://forge.adrianpk.com/adrianpk/rev/commit/c504fcb0653d76cc6553796cc0c16b1716ed5a7b). Canonical PR #323 carries the implementation and immutable report; integration is confirmed.
 
 ## Slice 6: Explicit persistent library
 
-State: pending
-Dependency: Slice 5 integrated.
+State: active
+Dependency: Slice 5 integrated through PR #323.
 Branch: feat/rev-keyboard-macros-06-library
 PR: pending
 Integrated: pending
