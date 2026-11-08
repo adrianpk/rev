@@ -10,7 +10,7 @@ Specification: [Keyboard Macros](../spec/editor-keyboard-macros.md)
 Model: [Macro Library and State Ownership](../spec/editor-keyboard-macros-model.md)
 Tracker: [Keyboard Macros Tracker](../tracker/rev-keyboard-macros.md)
 Concern: [Pending Editor Work](../README.md)
-Active slice: Slice 8 of 8, acceptance and guidance
+Active slice: None; all eight slices integrated, awaiting the controller gate
 
 ## Outcome, prerequisites and authority
 

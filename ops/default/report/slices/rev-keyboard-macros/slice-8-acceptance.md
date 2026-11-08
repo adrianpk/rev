@@ -1,12 +1,12 @@
 # Slice 8: Acceptance and guidance
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-keyboard-macros
 Plan: [Keyboard Macros Delivery](../../../plan/rev-keyboard-macros.md)
 Tracker: [Keyboard Macros Tracker](../../../tracker/rev-keyboard-macros.md)
 Branch: `test/rev-keyboard-macros-08-acceptance`
 PR: [#326](https://forge.adrianpk.com/adrianpk/rev/pulls/326)
-Integrated: pending controller review and integration
+Integrated: c13f145e89efa5320961d6ee49caf408032b8392 on dev through canonical PR #326
 Implementation: [050e6a6a616d](https://forge.adrianpk.com/adrianpk/rev/commit/050e6a6a616daed392ea87afec130d7f379bf875)
 
 ## Purpose
@@ -86,9 +86,11 @@ checks and renders that projection under target; it does not publish a site.
 
 ## Validation
 
-All ten frozen slice commands passed in the owned worktree. Exact clean final
-PR-head evidence is recorded once through the controller validator after the
-PR-reference commits. This is pre-integration slice evidence; the controller
+All ten frozen slice commands passed at clean final PR head
+`c13f145e89efa5320961d6ee49caf408032b8392`, recorded once through the controller
+validator after the PR-reference commit with receipt
+`R27ZEACBE2XPSIL7VS7PWG5FVO`. Forgejo and Acta confirm canonical integration
+through PR #326. This remains pre-integration slice evidence; the controller
 still owns the exact integrated-dev delivery-set gate.
 
 - `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo fmt --all -- --check` — pass.
@@ -114,10 +116,10 @@ successfully. Four 350 ms idle epochs emitted no output and consumed zero child
 CPU ticks; observed peak RSS was 33,620–34,448 KiB. These are local observations,
 not hard realtime or total-process memory guarantees.
 
-Reports for Slices 1–7 are delivered, their integration commits are ancestors of
-this candidate, and each report matches its actual ordered receipt. Slice 8 stays
-reviewing until canonical integration. Closure retains the plan's thirteen-file
-Markdown boundary and cannot change runtime, tests, guide inputs or requirements.
+All eight slice reports are delivered, their integration commits are ancestors
+of dev, and each report matches its actual ordered receipt. The integrated-dev
+gate remains pending. Closure retains the plan's thirteen-file Markdown boundary
+and cannot change runtime, tests, guide inputs or requirements.
 
 | Requirement | Native acceptance retained or added |
 | --- | --- |
@@ -133,8 +135,8 @@ Markdown boundary and cannot change runtime, tests, guide inputs or requirements
 
 ## Risks and Follow-ups
 
-Merge, the integrated-dev gate and documentation-only closure remain controller
-work. No main promotion, tag, release, mirror or site publication, binary install
+The integrated-dev gate and documentation-only closure remain controller work.
+No main promotion, tag, release, mirror or site publication, binary install
 or global configuration change is performed. PTY evidence is for the local Linux
 terminal boundary and does not prove every terminal emulator or provider. Native
 atomic primitives retain their documented cooperative rather than hard realtime

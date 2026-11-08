@@ -9,7 +9,7 @@ Plan: [Keyboard Macros Delivery](../plan/rev-keyboard-macros.md)
 Specification: [Keyboard Macros](../spec/editor-keyboard-macros.md)
 Model: [Macro Library and State Ownership](../spec/editor-keyboard-macros-model.md)
 Concern: [Pending Editor Work](../README.md)
-Active slice: Slice 8 of 8, acceptance and guidance
+Active slice: None; all eight slices integrated, awaiting the controller gate
 Progress owner: selected Looper checkpoint and canonical validation evidence
 
 ## Canonical slice map
@@ -145,14 +145,14 @@ Validation: all eight required commands passed at clean final PR head 88088e42af
 
 ## Slice 8: Acceptance and guidance
 
-State: reviewing
+State: delivered
 Dependency: Slice 7 integrated through PR #325.
 Branch: test/rev-keyboard-macros-08-acceptance
 PR: [#326](https://forge.adrianpk.com/adrianpk/rev/pulls/326)
 Implementation: [050e6a6a616d](https://forge.adrianpk.com/adrianpk/rev/commit/050e6a6a616daed392ea87afec130d7f379bf875)
-Integrated: pending controller review and integration
+Integrated: c13f145e89efa5320961d6ee49caf408032b8392 on dev through canonical PR #326
 Report: ops/default/report/slices/rev-keyboard-macros/slice-8-acceptance.md
-Validation: all ten frozen commands passed in the owned worktree: 110 macro integration cases including real PTY journeys, 52 command, 114 editing, 45 modal and 4 completion cases; formatting, strict Clippy, 680-command/295-entry/99-page documentation, local Spore generation and whitespace. Additional 6 native owner and 7 documentation cases passed. Exact clean final PR-head evidence and canonical integration remain pending.
+Validation: all ten frozen commands passed at clean final PR head c13f145e89efa5320961d6ee49caf408032b8392 with receipt R27ZEACBE2XPSIL7VS7PWG5FVO: 110 macro integration cases including real PTY journeys, 52 command, 114 editing, 45 modal and 4 completion cases; formatting, strict Clippy, 680-command/295-entry/99-page documentation, local Spore generation and whitespace. Additional 6 native owner and 7 documentation cases passed during development. Forgejo and Acta confirm integration; delivery-set acceptance remains controller-owned.
 
 - [x] T8.1: Complete integrated KMA01-KMA09 acceptance, representative real PTY function-key/C-x journeys, restart and concurrent storage boundaries plus large-buffer cancellation/idle probes.
 - [x] T8.2: Add concise User Guide and how-to paths, complete command/default/state references and explanation; keep Markdown-derived Spore and the complete sample configuration aligned.
@@ -160,12 +160,21 @@ Validation: all ten frozen commands passed in the owned worktree: 110 macro inte
 
 ## Final gate and closure
 
-- [ ] Verify eight canonical integrations and delivered report identities.
+- [x] Verify eight canonical integrations and delivered report identities.
 - [ ] Run the unchanged ten-command selected gate on exact clean dev.
 - [ ] Record tested candidate, controller receipt and actual acceptance coverage.
 - [ ] Complete specification/model/plan/tracker and reconcile the index.
 - [ ] Confirm only the thirteen configured closure documents changed afterward.
 
-No implementation or validation result is claimed by this preparation. Retained
-controller state owns live progress. Task evidence must use actual commits, PRs,
-checks and reports rather than inferred activity.
+All eight canonical PRs are merged into dev. Their immutable report links,
+integration ancestry and ordered clean-head receipts have been verified against
+Forgejo, Git and Acta. Cargo and Spore are available, the guide build script passes
+`bash -n scripts/build-user-guide.sh`, and no Cargo or Rust compiler process was
+active during preparation. The frozen ten-command selection and environment are
+unchanged.
+
+The integrated-dev gate has not run. The controller must capture the exact clean,
+pushed dev candidate after this metadata update and run the selected gate before
+delivery-set closure. Earlier receipts remain slice evidence. Specification,
+model, plan and tracker completion and index reconciliation remain pending.
+Retained controller state owns live progress.
