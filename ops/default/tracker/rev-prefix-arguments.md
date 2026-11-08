@@ -8,7 +8,7 @@ Execution authorized: one four-slice Looper run, 2026-11-08
 Plan: [Command Prefix Arguments Delivery](../plan/rev-prefix-arguments.md)
 Specification: [Command Prefix Arguments](../spec/editor-prefix-arguments.md)
 Concern: [Pending Editor Work](../README.md)
-Active slice: Slice 2 of 4, reviewing
+Active slice: Slice 3 of 4, implementing
 Progress owner: the authorized Looper checkpoint and canonical validation evidence
 
 ## Canonical slice map
@@ -47,11 +47,11 @@ checks pass. Canonical PR #314 is integrated; the delivery-set gate remains pend
 
 ## Slice 2: Counted edits and history
 
-State: reviewing
+State: delivered
 Dependency: Slice 1 integrated.
 Branch: `feat/rev-prefix-arguments-02-editing`
 PR: [#315](https://forge.adrianpk.com/adrianpk/rev/pulls/315)
-Integrated: pending
+Integrated: `57afa0a31ffcb56ee9bff6da0135e7e75a628248` (canonical PR #315, Rebase + Fast-forward)
 Report: `ops/default/report/slices/rev-prefix-arguments/slice-2-editing.md`
 Validation: formatting, Clippy, selected commands (24/24), editing (110/110), documentation and whitespace passed. See the canonical report for exact commands; the final clean-HEAD receipt is controller-owned.
 
@@ -66,7 +66,7 @@ T2.3 references, Unreleased guidance and local validation reporting.
 
 ## Slice 3: Contextual argument behavior
 
-State: pending
+State: implementing
 Dependency: Slice 2 integrated.
 Branch: `feat/rev-prefix-arguments-03-contexts`
 PR: pending
@@ -100,6 +100,6 @@ Validation: focused subset defined in the plan; final slice uses the unchanged c
 - [ ] Complete specification, plan and tracker and reconcile the index.
 - [ ] Confirm only the eight configured closure documents changed afterward.
 
-Slice 1 is canonically integrated. Slice 2 is active; Slices 3 and 4 remain
+Slices 1 and 2 are canonically integrated. Slice 3 is active; Slice 4 remains
 pending. The retained execution checkpoint owns live progress and exact
 clean-HEAD receipts. Delivery-set acceptance remains pending.

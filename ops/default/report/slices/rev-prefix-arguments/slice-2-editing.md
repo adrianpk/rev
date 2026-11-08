@@ -1,17 +1,18 @@
 # Slice 2: Counted edits and history
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-prefix-arguments
 Plan: [`ops/default/plan/rev-prefix-arguments.md`](../../../plan/rev-prefix-arguments.md)
 Tracker: [`ops/default/tracker/rev-prefix-arguments.md`](../../../tracker/rev-prefix-arguments.md)
 Branch: `feat/rev-prefix-arguments-02-editing`
 PR: [#315](https://forge.adrianpk.com/adrianpk/rev/pulls/315)
+Integrated: `57afa0a31ffcb56ee9bff6da0135e7e75a628248`
 
 ## Purpose
 
 Apply checked prefix arguments to native source edits, kills, yank and history.
-T2.1, T2.2 and T2.3 are implemented. Canonical integration and the delivery-set
-gate remain controller-owned.
+T2.1, T2.2 and T2.3 are implemented and canonically integrated through PR #315
+(Rebase + Fast-forward). The delivery-set gate remains controller-owned.
 
 ## Delivered Behavior
 
@@ -108,4 +109,5 @@ command results outside the repository.
 History is explicitly progressive and cancellation does not roll it back.
 Remaining positioning, scrolling, tree, shell/context/modal policies and joint
 resource acceptance remain in approved Slice 3; complete joint guidance remains
-in Slice 4. No successor or integrated gate has been started by this worker.
+in Slice 4. The controller activated Slice 3 after verifying this integration;
+the integrated gate remains pending.
