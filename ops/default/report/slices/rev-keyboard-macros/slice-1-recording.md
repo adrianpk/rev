@@ -1,6 +1,6 @@
 # Slice 1: Recording and replay
 
-Status: drafting
+Status: reviewing
 Delivery set: rev-keyboard-macros
 Plan: [Keyboard Macros Delivery](../../../plan/rev-keyboard-macros.md)
 Tracker: [Keyboard Macros Tracker](../../../tracker/rev-keyboard-macros.md)
@@ -75,44 +75,32 @@ native publication budget rejects excess generated text before publication.
 
 ## Validation
 
-Development check outcomes (the integrated delivery-set gate and real PTY
-acceptance were not run):
+All seven ordered slice checks passed at clean HEAD
+`c27600d50ae15d6897272b2ef273697d3b98c363`, recorded by controller validation
+receipt `MGFGZPZUIDPKGVFAFR4ZMWFEWJ`. The integrated delivery-set gate and real
+PTY acceptance were not run.
 
 - `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo fmt --all -- --check` — PASS.
 - `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo clippy --locked --lib --bin rev -- -D warnings` — PASS.
 - `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test macros -- recording runner --test-threads=1` — PASS: 14 recording/runner cases.
-- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test commands -- prefix_arguments palette ranking context_isolation transient_isolation prompt_reset workspace_reset --test-threads=1` — FAIL: 51 of 52 cases passed; palette::catalog_reference rejects the pre-existing description inventory gap.
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test commands -- prefix_arguments palette ranking context_isolation transient_isolation prompt_reset workspace_reset --test-threads=1` — PASS: 52 command cases, including palette::catalog_reference.
 - `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test editing -- --test-threads=1` — PASS: 114 editing cases.
 - `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo run --locked --quiet --example documentation-check` — PASS: 633 command entries, 291 configuration entries, 92 reachable pages and 639 local links/anchors.
 - `git diff --check` — PASS.
 
-The unchanged seven-command slice selection is retained for controller validation
-on the exact clean implementation HEAD. Its receipt owns candidate identity and
-ordered execution; no successful slice acceptance is claimed.
+The unchanged seven-command slice selection also applies after PR-reference
+commits. Fresh controller evidence identifies that final clean HEAD and ordered
+execution; a passing slice receipt does not establish delivery-set acceptance.
 
 ## Risks and Follow-ups
 
-The earlier required commands selection blocked PR preparation. At the unchanged
-primary baseline `e2432a0ceec9a556e336a1cf2b1a4caa8b7c4a6f`, the description
-oracle already omits prefix-argument, universal-argument, digit-argument and
-negative-argument. The new macro descriptions are synchronized; these four
-existing entries were missing. A focused exact catalog reproduction failed
-the same inventory assertion after the macro synchronization.
-
-On 2026-11-08 the owner explicitly authorized correcting these four entries and
-resuming the same run. This is the bounded exception to the plan's catalog-debt
-exclusion: synchronize prefix-argument, universal-argument, digit-argument and
-negative-argument with their already compiled descriptions. No runtime, test,
-assertion, gate or controller configuration change is authorized by this repair.
-
-The four entries are now present. The focused check passed on the working
-correction before commit:
-
-- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test commands palette::catalog_reference -- --exact --test-threads=1` — PASS: one exact catalog test.
-
-The retained worker must obtain fresh exact-HEAD evidence for the unchanged seven
-required commands and prepare the canonical PR. The earlier failing receipt is
-historical context, not acceptance evidence for the corrected candidate.
+Receipt `NSK6367K3IZTF5IQM2YKDPQ7ZO` exposed four existing missing description
+oracle entries. On 2026-11-08 the owner explicitly authorized restoring only
+prefix-argument, universal-argument, digit-argument and negative-argument to match
+their compiled descriptions. Repair `c27600d50ae15d6897272b2ef273697d3b98c363`
+applies that bounded exception to the plan's catalog-debt exclusion. No runtime,
+test, assertion, gate or controller configuration changed in the repair. The
+unchanged seven-command selection now passes, including the catalog assertion.
 
 Later approved slices own named-command and accepted-prompt capture, completion,
 ring/repeat maps, append/counters, nonpositive repetition, queries/regions, named

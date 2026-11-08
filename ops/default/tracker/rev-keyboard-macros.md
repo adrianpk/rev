@@ -9,7 +9,7 @@ Plan: [Keyboard Macros Delivery](../plan/rev-keyboard-macros.md)
 Specification: [Keyboard Macros](../spec/editor-keyboard-macros.md)
 Model: [Macro Library and State Ownership](../spec/editor-keyboard-macros-model.md)
 Concern: [Pending Editor Work](../README.md)
-Active slice: Slice 1 of 8, selected validation blocked by existing catalog debt
+Active slice: Slice 1 of 8, reviewing; canonical PR preparation
 Progress owner: selected Looper checkpoint and canonical validation evidence
 
 ## Canonical slice map
@@ -27,25 +27,26 @@ Progress owner: selected Looper checkpoint and canonical validation evidence
 
 ## Slice 1: Recording and replay
 
-State: pending revalidation
+State: reviewing
 Dependency: published approved preparation and controller preflight.
 Branch: feat/rev-keyboard-macros-01-recording
 PR: pending
 Integrated: pending
 Report: ops/default/report/slices/rev-keyboard-macros/slice-1-recording.md
-Validation: earlier macros 14/14, editing 114/114 and documentation checks passed. The owner-authorized four-entry catalog correction passes the exact catalog guard; the unchanged seven required checks still need fresh candidate evidence. No slice acceptance is claimed.
+Validation: all seven required commands passed at clean c27600d50ae15d6897272b2ef273697d3b98c363 with receipt MGFGZPZUIDPKGVFAFR4ZMWFEWJ: macros 14/14, selected commands 52/52, editing 114/114, formatting, Clippy, documentation and diff checks. PR-reference commits require fresh evidence for the final clean candidate. Integration and delivery-set acceptance remain controller-owned.
 
 - [x] T1.1: Add bounded recording/runner ownership, normalized key/text capture, F3/F4 and C-x controls, indicators, cancellation and positive prefix replay through normal input.
 - [x] T1.2: Deliver native per-iteration undo boundaries, typed stops, modal entry checks and cooperative scheduling without an idle worker; unsupported input transfers stop explicitly.
-- [ ] T1.3: Introduce the native macros integration target and recording/runner fixtures; align command/default catalogs and record the first usable Unreleased outcome.
+- [x] T1.3: Introduce the native macros integration target and recording/runner fixtures; align command/default catalogs and record the first usable Unreleased outcome.
 
 Implementation and the canonical report are retained on the injected branch.
 T1.3 includes the native macros target, five macro catalog entries and Unreleased
 outcome. On 2026-11-08, the owner explicitly authorized adding the four missing
 prefix-argument descriptions and resuming this retained run. That bounded exception
-to the earlier catalog-debt exclusion is applied and its focused guard passes.
-The worker must rerun the unchanged required selection and finish canonical PR
-preparation. No frozen checks, assertions, runtime or later slice identities changed.
+to the earlier catalog-debt exclusion is applied, and the unchanged seven-command
+selection passes. The worker is preparing the canonical PR and will record fresh
+evidence after its reference commit. No frozen checks, assertions, runtime or later
+slice identities changed in the repair.
 
 ## Slice 2: Named commands and prompt capture
 
