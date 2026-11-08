@@ -1,5 +1,9 @@
 # External Extensions
 
+Related proposal: [Plugin System](editor-plugin-system.md) explores a broader
+experimental public API. It is a candidate successor, not an adopted amendment
+of this one-shot profile. Both proposals retain separate review decisions.
+
 Status: draft
 Date: 2026-10-29
 Reviewed: 2026-11-03

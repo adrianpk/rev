@@ -61,6 +61,11 @@ retain their own specification/model state.
   [model](spec/editor-delimiter-pairs-model.md) remain Draft. Depth coloring and
   the restrained match alternative are settled; editing defaults, context rules,
   bindings and measured bounds still need review before planning.
+- [Plugin System](spec/editor-plugin-system.md) and its
+  [model](spec/editor-plugin-system-model.md) remain experimental Draft proposals.
+  Multi-buffer text access, checked edits, namespaced commands, local bindings
+  and events are candidate API surfaces. No runtime, package manager or stable
+  interface has been adopted; the earlier one-shot extension draft stays distinct.
 
 ## Selected execution order
 
