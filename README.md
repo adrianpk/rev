@@ -80,8 +80,9 @@ See the [changelog](CHANGELOG.md) for changes.
 
 ## Links
 
-- [Website](https://rev.adrianpk.com/)
-- [User Guide](https://rev.adrianpk.com/userguide/)
+- [Website](https://reveditor.org/)
+- [User Guide](https://reveditor.org/userguide/)
+- [Official repo](https://forge.adrianpk.com/rev/rev)
 - [Codeberg mirror](https://codeberg.org/adrianpk/rev)
 - [GitHub mirror](https://github.com/adrianpk/rev)
 
