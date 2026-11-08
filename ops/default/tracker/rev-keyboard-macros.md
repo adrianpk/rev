@@ -9,7 +9,7 @@ Plan: [Keyboard Macros Delivery](../plan/rev-keyboard-macros.md)
 Specification: [Keyboard Macros](../spec/editor-keyboard-macros.md)
 Model: [Macro Library and State Ownership](../spec/editor-keyboard-macros-model.md)
 Concern: [Pending Editor Work](../README.md)
-Active slice: Slice 4 of 8, queries, regions and nested execution
+Active slice: Slice 5 of 8, named snapshots and key bindings
 Progress owner: selected Looper checkpoint and canonical validation evidence
 
 ## Canonical slice map
@@ -82,24 +82,24 @@ T3.1-T3.3 implementation: [68ec75071860](https://forge.adrianpk.com/adrianpk/rev
 
 ## Slice 4: Queries, regions and nested execution
 
-State: reviewing
+State: delivered
 Dependency: Slice 3 integrated through PR #321.
 Branch: feat/rev-keyboard-macros-04-queries
 PR: [#322](https://forge.adrianpk.com/adrianpk/rev/pulls/322)
-Integrated: pending
+Integrated: f996b57938532efce6a7735715dc901b39efcce9 on dev through canonical PR #322
 Report: ops/default/report/slices/rev-keyboard-macros/slice-4-queries.md
-Validation: all eight required development checks passed: 22 query/region/runner cases, 52 selected command cases, 114 editing cases, 45 selected modal cases, formatting, strict lib/bin Clippy, documentation/catalog checks and whitespace. Focused development checks also passed (36 macro regressions and 12 native admission/budget cases). Final clean-HEAD evidence is recorded separately by the controller validator after this PR-reference commit; delivery-set acceptance remains controller-owned.
+Validation: all eight frozen checks passed at clean final PR head f996b57938532efce6a7735715dc901b39efcce9 with receipt ZAI7MBMIESFSLEZGAISN2H6LAF: 22 query/region/runner cases, 52 selected command cases, 114 editing cases, 45 selected modal cases, formatting, strict lib/bin Clippy, documentation/catalog checks and whitespace. Focused development checks also passed (36 macro regressions and 12 native admission/budget cases). Forgejo and Acta confirm integration; delivery-set acceptance remains controller-owned.
 
 - [x] T4.1: Implement query continue/skip/stop choices and bounded native manual-edit pause/resume/abort, excluding manual input from recording.
 - [x] T4.2: Apply definitions to checked original logical region-line anchors and enforce shared run budgets across region iterations and admitted manual pauses.
 - [x] T4.3: Validate Unicode/wrapping, line insert/delete remapping, cancellation/partial history, source invalidation, pause ownership and idle release in native fixtures.
 
-T4.1-T4.3 implementation: [f421903f80a6](https://forge.adrianpk.com/adrianpk/rev/commit/f421903f80a606c529190e45cd51ccdecbbabdc6). Canonical PR #322 carries the implementation and immutable report; integration remains pending.
+T4.1-T4.3 implementation: [f421903f80a6](https://forge.adrianpk.com/adrianpk/rev/commit/f421903f80a606c529190e45cd51ccdecbbabdc6). Canonical PR #322 carries the implementation and immutable report; integration is confirmed.
 
 ## Slice 5: Named snapshots and key bindings
 
-State: pending
-Dependency: Slice 4 integrated.
+State: active
+Dependency: Slice 4 integrated through PR #322.
 Branch: feat/rev-keyboard-macros-05-names
 PR: pending
 Integrated: pending

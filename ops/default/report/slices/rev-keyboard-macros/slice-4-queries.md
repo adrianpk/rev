@@ -1,12 +1,12 @@
 # Slice 4: Queries, regions and nested execution
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-keyboard-macros
 Plan: [Keyboard Macros Delivery](../../../plan/rev-keyboard-macros.md)
 Tracker: [Keyboard Macros Tracker](../../../tracker/rev-keyboard-macros.md)
 Branch: `feat/rev-keyboard-macros-04-queries`
 PR: [#322](https://forge.adrianpk.com/adrianpk/rev/pulls/322)
-Integrated: pending
+Integrated: f996b57938532efce6a7735715dc901b39efcce9 on dev through canonical PR #322
 Implementation: [f421903f80a6](https://forge.adrianpk.com/adrianpk/rev/commit/f421903f80a606c529190e45cd51ccdecbbabdc6)
 
 ## Purpose
@@ -82,10 +82,10 @@ Skipped-target work yields within the existing 256-input/four-millisecond turns.
 
 ## Validation
 
-The development selection passed. The controller validator must record the
-unchanged ordered selection on the final clean PR head after the PR-reference
-commit. These checks do not establish the integrated delivery-set gate or PTY
-acceptance.
+All eight required commands passed on clean final PR head f996b57938532efce6a7735715dc901b39efcce9
+with receipt ZAI7MBMIESFSLEZGAISN2H6LAF. Forgejo and Acta confirm integration
+through PR #322. These checks do not establish the integrated delivery-set gate
+or PTY acceptance.
 
 - `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo fmt --all -- --check` — pass.
 - `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo clippy --locked --lib --bin rev -- -D warnings` — pass.
