@@ -82,17 +82,19 @@ T3.1-T3.3 implementation: [68ec75071860](https://forge.adrianpk.com/adrianpk/rev
 
 ## Slice 4: Queries, regions and nested execution
 
-State: active
+State: reviewing
 Dependency: Slice 3 integrated through PR #321.
 Branch: feat/rev-keyboard-macros-04-queries
-PR: pending
+PR: [#322](https://forge.adrianpk.com/adrianpk/rev/pulls/322)
 Integrated: pending
 Report: ops/default/report/slices/rev-keyboard-macros/slice-4-queries.md
-Validation: exact ordered slice selection in the plan and frozen configuration
+Validation: all eight required development checks passed: 22 query/region/runner cases, 52 selected command cases, 114 editing cases, 45 selected modal cases, formatting, strict lib/bin Clippy, documentation/catalog checks and whitespace. Focused development checks also passed (36 macro regressions and 12 native admission/budget cases). Final clean-HEAD evidence is recorded separately by the controller validator after this PR-reference commit; delivery-set acceptance remains controller-owned.
 
-- [ ] T4.1: Implement query continue/skip/stop choices and bounded native manual-edit pause/resume/abort, excluding manual input from recording.
-- [ ] T4.2: Apply definitions to checked original logical region-line anchors and enforce shared run budgets across region iterations and admitted manual pauses.
-- [ ] T4.3: Validate Unicode/wrapping, line insert/delete remapping, cancellation/partial history, source invalidation, pause ownership and idle release in native fixtures.
+- [x] T4.1: Implement query continue/skip/stop choices and bounded native manual-edit pause/resume/abort, excluding manual input from recording.
+- [x] T4.2: Apply definitions to checked original logical region-line anchors and enforce shared run budgets across region iterations and admitted manual pauses.
+- [x] T4.3: Validate Unicode/wrapping, line insert/delete remapping, cancellation/partial history, source invalidation, pause ownership and idle release in native fixtures.
+
+T4.1-T4.3 implementation: [f421903f80a6](https://forge.adrianpk.com/adrianpk/rev/commit/f421903f80a606c529190e45cd51ccdecbbabdc6). Canonical PR #322 carries the implementation and immutable report; integration remains pending.
 
 ## Slice 5: Named snapshots and key bindings
 
