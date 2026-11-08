@@ -16,6 +16,8 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
   rows, choose a recenter offset or move through loaded tree rows. Arguments
   pass through M-x, including the existing shell insertion/filter variants;
   `C-g` cancels pending work, retaining history groups already replayed.
+  Follow the [prefix argument guide](docs/how-to/use-prefix-arguments.md) for
+  counted movement, insertion, yank selection and history tasks.
 
 - Press `^` or activate the `..` row in an automatic file tree to browse its
   parent while keeping the directory just left selected and visible.

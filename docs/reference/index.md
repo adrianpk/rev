@@ -8,6 +8,7 @@ Use this section to look up exact behavior. For a guided start, read the
 - [Command-line interface](cli.md): invocation, file arguments and unsupported options.
 - [Bindings](bindings.md): complete keys and names for editing and focused commands.
 - [Commands](commands.md): M-x matching, completion, history and implemented names.
+- [Command prefix arguments](commands.md#command-prefix-arguments): forms, counts, contextual policies and limits.
 - [Focused prompts](prompts.md): arguments, path completion, decisions and cancellation.
 - [Search and replacement](search.md): literal smart-case queries and per-match replacement.
 - [Native completion](completion.md): automatic/manual names, structural language contexts and checked acceptance.

@@ -42,6 +42,12 @@ settings reject the whole candidate into complete non-modal defaults. Follow
 [Choose Modal Editing](../tutorials/user-guide/11-modal-editing.md) for a small
 startup and editing exercise.
 
+Editor prefix input is available by default through C-u, Meta digits and
+Meta minus in non-modal editing and modal Insert/Replace. Normal/Visual C-u
+keeps half-page movement. Pending arguments are transient and add no startup
+preference; see [Command Prefix Arguments](commands.md#command-prefix-arguments)
+for the complete defaults, policies and limits.
+
 ## Shell command preferences
 
 These global preferences are frozen at startup. Commands run only after explicit

@@ -53,6 +53,11 @@ Goto line: 2
 
 Press Enter. The cursor moves to the second line.
 
+You can supply that line before opening M-x: `C-u 2 M-x goto-line` followed by
+Enter selects line two directly. The prefix belongs to the chosen command;
+editing its name or moving through candidates does not insert counted source
+text. `C-g` cancels the pending selection and argument.
+
 The shortcut beside the name belongs to the context where you opened the list.
 With the factory bindings, `M-g M-g` also runs `goto-line`. Configured shortcuts
 and local input owners can change the displayed hint. When several bindings

@@ -98,6 +98,20 @@ argument. `C-u` after numeric entry terminates that entry. `C-g` discards it.
 The echo area shows its form and value. Magnitude cannot exceed 1,000,000;
 overflow refuses and clears the pending argument rather than clamping it.
 
+Argument form remains distinct from its numeric interpretation:
+
+| Input form | Numeric interpretation | Meaning retained |
+| --- | --- | --- |
+| No argument | 1 | The ordinary command behavior, including page scrolling and recenter cycling |
+| Plain prefix | 4 to the power d | C-u repeated d times; yank selects the newest entry and exchanges point/mark orientation |
+| Explicit decimal, including zero | That signed integer | Numeric form; positive yank selects the Nth newest entry once |
+| Negative-only | -1 | M-- or C-u minus; negative-only form |
+
+`C-u` after a number ends numeric entry: `C-u 6 4 C-u 1` inserts sixty-four
+copies of the literal digit `1`. Explicit negative zero remains zero for command
+policy; extending it with a digit retains the negative sign. A fresh editor
+session has no pending argument, and there is no argument persistence setting.
+
 `prefix-argument` and its alias `universal-argument` share a handler,
 description, usage identity and effective shortcut. Named `digit-argument`
 opens a one-digit prompt and restores the originating role. Configured helper
@@ -109,7 +123,7 @@ Cancellation, an unknown command, an invalid sequence or a changed input owner
 retires it. Accepted names count once in command usage. A later physical
 repeat uses the ordinary command distance.
 
-Signed arguments currently apply to `forward-char`, `backward-char`,
+Signed arguments apply to `forward-char`, `backward-char`,
 `forward-word`, `backward-word`, `next-line` and `previous-line`. Negative
 values reverse direction; zero leaves point unchanged. Character motion uses
 whole native graphemes and CRLF boundaries. Word motion uses existing word
@@ -120,8 +134,8 @@ before the destination is published.
 
 Counted source edits use one native preparation and one undo group, separated
 from neighboring typing. Literal characters and admitted paste insert N copies;
-an active region is replaced once. Newline uses the source's LF/CRLF policy.
-Tab repeats the native indentation step at each resulting display column.
+an active region is replaced once. `newline` uses the source's LF/CRLF policy.
+`insert-tab` repeats the native indentation step at each resulting display column.
 These insertions accept nonnegative counts, with zero inert and negative values
 refused. Generated UTF-8 text is limited to 8 MiB before allocation/publication.
 Signed `delete-char` and `backward-delete-char` traverse native graphemes;
@@ -165,7 +179,21 @@ an explicitly selected helper through M-x. Existing
 `C-u M-!`, `C-u M-\|`, `C-u C-c C-v t` and agenda `C-u K` continuations retain
 precedence. Configured continuations can share a prefix helper key. Modal
 Normal/Visual `C-u` retains half-page movement; Insert/Replace inherit editor
-entry. Modal Escape cancels pending editor prefix input.
+entry. Modal Escape cancels pending editor prefix input. Raw PTY input,
+argument/search prompts and completion navigation keep their existing owners.
+Commands without a policy above, including file operations, saves, quit, Org
+structural edits, rectangles and Git/AI actions, execute once.
+
+Count-aware traversal and history yield between at most 256 native steps with
+a 4 ms cooperative target; one native atomic operation is not a hard real-time
+guarantee. Pending arguments add no permanent idle poll. Cancellation before an
+atomic edit publishes leaves source, ring and history unchanged; completed
+native undo/redo groups remain applied. The numeric ceiling and 8 MiB generated
+UTF-8 bound apply before publication, without silently clamping the argument.
+
+For task examples, see [Use command prefix arguments](../how-to/use-prefix-arguments.md).
+Start with [Move and Edit Text](../tutorials/user-guide/02-edit-text.md) for the
+short guided exercise.
 
 ## Effective keybinding hints
 

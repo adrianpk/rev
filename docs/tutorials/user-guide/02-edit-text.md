@@ -9,7 +9,14 @@ Use the arrow keys to move through the text. `C-a` moves to the beginning of
 the current visual row; `C-e` moves to its end. Long source lines wrap at word
 boundaries to fit the pane. Up/Down and `C-n`/`C-p` follow those visible rows.
 
-Move to the beginning of `Pack the notebook.` with Up and `C-a`.
+Try `C-u 5 C-n` to request five ordinary rows. In this short note, movement
+stops at the end; a wrapped continuation also counts as a row. `C-u` starts an
+argument, `5` chooses the distance and `C-n` consumes it once. The echo area
+shows the pending value. `C-g` cancels it before a command runs.
+
+`C-u 2 C-p` requests two rows upward; `C-u - 2 C-n` requests the same direction
+through a negative count. Run `M-x beginning-of-buffer` to return to the first
+line, then use `C-a` to reach the beginning of `Pack the notebook.`.
 
 In a narrow pane, one longer source line can look like this:
 
@@ -46,8 +53,15 @@ clipboard. To move a selected region instead of copying it, use `C-w`, then
 Press `C-x u`. The inserted copy disappears; the new line you created before
 it remains. Each accepted paste is one undo step.
 
+Try `C-u 3 !` to insert `!!!`. One `C-x u` removes all three characters:
+a counted insertion is one undo step. The argument has already been consumed,
+so the next ordinary character inserts once.
+
 Save with `C-x C-s`. You can also select text by dragging with the primary
-mouse button, or paste text through your terminal.
+mouse button, or paste text through your terminal. For more tasks, see
+[Use command prefix arguments](../../how-to/use-prefix-arguments.md); the
+[complete policy](../../reference/commands.md#command-prefix-arguments)
+explains counts whose meaning differs from repeated insertion.
 
 The [binding reference](../../reference/bindings.md) lists word, page and
 whole-buffer movement. [Rectangles](../../reference/rectangles.md) describes
