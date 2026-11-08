@@ -55,6 +55,12 @@ retain their own specification/model state.
 | Integrated terminals | [Spec](spec/editor-integrated-terminal.md), [model](spec/editor-integrated-terminal-model.md), [plan](plan/rev-integrated-terminal.md), [tracker](tracker/rev-integrated-terminal.md) | Delivered / Completed. Eight slices through PRs #248-#255 and authorized readiness repair #256 deliver lower-panel/direct-buffer shells, same-process relocation, multiple sessions, native input/copy and owned shutdown. The unchanged combined controller gate passed TRM01-TRM11 with native/PTY/resource acceptance and Markdown/Spore guidance. |
 | External programs/extensions | [Spec](spec/editor-external-extensions.md), [model](spec/editor-external-extensions-model.md) | Optional exploration only. Explicit configuration, stdio and one child per invocation are the refined draft profile. Adoption itself is undecided; no scheduled delivery or baseline dependency. |
 
+The [repository continuation](ticket/solved/20261108214514-move-editor-repository-to-rev-organization.md)
+is solved. Development continues in rev/rev from dc5142ce, with adrianpk/rev
+retained as history. The legacy README notice is merged, the new repository and
+organization are public, and anonymous source access is verified. Associated
+repositories use rev/{repo-name}; concrete package names remain open.
+
 ## Pending proposals
 
 - [File-tree width and horizontal navigation](ticket/open/20261108175339-improve-file-tree-panel-width-and-horizontal-navigation.md)

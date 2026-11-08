@@ -1,7 +1,7 @@
 # Install rev
 
 You need Linux, Rust 1.98 or newer, Cargo and a C compiler.
-Use a local checkout of the [rev source](https://forge.adrianpk.com/adrianpk/rev).
+Use a local checkout of the [rev source](https://forge.adrianpk.com/rev/rev).
 
 From the repository root, run:
 
