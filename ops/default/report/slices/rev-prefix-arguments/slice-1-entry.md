@@ -1,6 +1,6 @@
 # Slice 1: Prefix entry and movement
 
-Status: drafting
+Status: reviewing
 Delivery set: rev-prefix-arguments
 Plan: [`ops/default/plan/rev-prefix-arguments.md`](../../../plan/rev-prefix-arguments.md)
 Tracker: [`ops/default/tracker/rev-prefix-arguments.md`](../../../tracker/rev-prefix-arguments.md)
@@ -10,8 +10,8 @@ PR: pending
 ## Purpose
 
 Deliver checked transient command arguments and signed native movement. T1.1,
-T1.2 and T1.3 are implemented. Required wrapping validation remains blocked;
-this slice is not ready for canonical PR preparation or integration.
+T1.2 and T1.3 are implemented and the selected slice checks pass. Canonical
+integration and the delivery-set gate remain controller-owned.
 
 ## Delivered Behavior
 
@@ -32,6 +32,8 @@ this slice is not ready for canonical PR preparation or integration.
   publication. A fresh physical repeat uses the ordinary distance.
 - Existing shell, Org and agenda C-u continuations retain active-map precedence.
   Other commands consume the argument and execute once.
+- Wrapped Org block and table operations settle initial presentation through
+  the existing layout owner before capturing their checked source/view origin.
 
 ## Implementation Notes
 
@@ -44,6 +46,13 @@ most 256 native steps per turn, also checking the existing 4 ms input budget.
 The selected native view is published only after the destination resolves.
 Existing source/layout admission and endpoint behavior remain authoritative.
 Boxed invocation outcomes keep the existing input error variants small.
+
+Required wrapping checks exposed an initialization race already present at
+preparation baseline `c268f429e78a73631eb7fddae69d6722bf6109c7`.
+Block/table workers could capture a view before initial Org visibility changed
+it. The shared layout preflight now lets the existing Org owner finish that
+presentation before capture. The source/view guards and test assertions remain
+unchanged; explicit visibility controls retain their existing owner.
 
 T1.1 supplies entry, registry identity, descriptions and effective bindings.
 T1.2 supplies invocation transport and native movement.
@@ -79,24 +88,14 @@ command results outside the repository.
 - Passed: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo fmt --all -- --check`
 - Passed: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo clippy --locked --lib --bin rev -- -D warnings`
 - Passed, 22 tests including 14 prefix cases: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test commands -- prefix_arguments context_isolation transient_isolation prompt_reset workspace_reset tree_up_directory tree_actions tree_transitions tree_open_sequence --test-threads=1`
-- Failed, 24 passed and 2 failed: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test wrapping -- --test-threads=1`
+- Passed, 26 tests: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test wrapping -- --test-threads=1`
 - Passed, 628 commands, 291 configuration entries, 91 pages and 629 links:
   `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo run --locked --quiet --example documentation-check`
-- Baseline comparison failed in the same two cases at clean source baseline
-  `c268f429e78a73631eb7fddae69d6722bf6109c7`:
-  `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test wrapping -- org::source_draft org::table_fields --test-threads=1`.
-  All owned modifications were restored byte-for-byte after this comparison.
+- Passed, 2 focused wrapped Org regressions:
+  `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test wrapping -- org::source_draft org::table_fields --test-threads=1`
 - Passed: `git diff --check`
 
 ## Risks and Follow-ups
-
-Required wrapping validation fails in pre-existing Org cases:
-`org::source_draft` retains the parent buffer with "Source block or view changed
-during observation"; `org::table_fields` remains at Scalar(2) instead of
-Scalar(21). Both failures reproduce on the approved preparation baseline without
-this slice's changes. Acceptance and assertions remain unchanged. Canonical PR
-preparation is blocked until the required failures are resolved under the
-appropriate authority.
 
 Counted edits/history, remaining contextual policies and complete joint guidance
 remain in their approved later slices. No successor has been activated.

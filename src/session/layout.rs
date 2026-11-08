@@ -248,7 +248,19 @@ impl Session {
             Request::Command(Command::Modal(command)) => self.modal_target(command).map(|_| ()),
             Request::Command(Command::Motion(motion)) => self.motion_target(motion).map(|_| ()),
             Request::Command(Command::Kill(command)) => self.kill_span(command).map(|_| ()),
-            Request::Command(Command::Org(_)) => self.revealing_view().map(|_| ()),
+            Request::Command(Command::Org(command)) => {
+                if command.source_block() || command.table() {
+                    // These workers retain the complete view. Let the existing
+                    // Org owner finish initial presentation before capturing it.
+                    self.refresh_org();
+                    if self.view().pending_org_visibility()
+                        && self.org.remaining(Instant::now()).is_some()
+                    {
+                        return Err(crate::coordinates::Error::Pending.into());
+                    }
+                }
+                self.revealing_view().map(|_| ())
+            }
             Request::Command(_) => unreachable!("only layout-dependent commands are prepared"),
             Request::Pointer(event, _) => self.prepare_pointer(event),
         }

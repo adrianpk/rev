@@ -8,7 +8,7 @@ Execution authorized: one four-slice Looper run, 2026-11-08
 Plan: [Command Prefix Arguments Delivery](../plan/rev-prefix-arguments.md)
 Specification: [Command Prefix Arguments](../spec/editor-prefix-arguments.md)
 Concern: [Pending Editor Work](../README.md)
-Active slice: Slice 1 of 4, implementation complete; required focused validation blocked
+Active slice: Slice 1 of 4, reviewing
 Progress owner: the authorized Looper checkpoint and canonical validation evidence
 
 ## Canonical slice map
@@ -22,31 +22,24 @@ Progress owner: the authorized Looper checkpoint and canonical validation eviden
 
 ## Slice 1: Prefix entry and movement
 
-State: implementation complete; validation blocked
+State: reviewing
 Dependency: approved preparation published; execution authorized.
 Branch: `feat/rev-prefix-arguments-01-entry`
 PR: pending
 Integrated: pending
 Report: `ops/default/report/slices/rev-prefix-arguments/slice-1-entry.md`
-Validation: formatting, Clippy, commands (22/22), and documentation passed; required wrapping failed (24/26). See the canonical report for commands and baseline evidence.
+Validation: formatting, Clippy, commands (22/22), wrapping (26/26), documentation and whitespace passed. See the canonical report for exact commands; the final clean-HEAD receipt is controller-owned.
 
 - [x] T1.1: Define transient argument forms, canonical helpers/alias, complete descriptions, effective bindings and checked entry/cancellation.
 - [x] T1.2: Carry arguments through native input and M-x; deliver signed character/word/vertical movement with ordinary wrapping units and preserve existing C-u routes.
 - [x] T1.3: Add prefix_arguments native cases, update current catalogs and incremental references, and introduce the canonical report.
 
-### Slice 1 validation blocker
+### Slice 1 validation
 
-The required wrapping target fails in `org::source_draft` and
-`org::table_fields`. Both failures reproduce at the approved preparation
-baseline `c268f429e78a73631eb7fddae69d6722bf6109c7` without Slice 1 changes.
-The former reports "Source block or view changed during observation" and
-retains the parent buffer; the latter leaves Scalar(2) instead of Scalar(21).
-The slice report records the focused baseline comparison and exact commands.
-
-No canonical PR has been opened. Required commands and assertions are unchanged;
-this unit is not ready for integration. Resolution of these pre-existing
-required failures remains outside the delivered prefix entry/movement change.
-The retained checkpoint and exact clean-HEAD validation receipt own continuation.
+The shared layout preflight settles initial Org presentation before block/table
+workers capture their view. This resolves the two baseline wrapping failures
+without changing source/view admission or test assertions. All selected slice
+checks pass. Canonical integration and the delivery-set gate remain pending.
 
 ## Slice 2: Counted edits and history
 
@@ -98,7 +91,7 @@ Validation: focused subset defined in the plan; final slice uses the unchanged c
 - [ ] Complete specification, plan and tracker and reconcile the index.
 - [ ] Confirm only the eight configured closure documents changed afterward.
 
-Slice 1 implementation and its focused validation blocker are recorded above.
+Slice 1 implementation and focused validation are recorded above.
 No canonical integration or delivery-set acceptance is claimed. The retained
 execution checkpoint owns live progress and the exact clean-HEAD receipt; later
 slices remain pending.
