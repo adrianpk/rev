@@ -47,6 +47,7 @@ mod execution;
 mod feeds;
 mod previews;
 pub use feeds::FeedOutcome;
+mod macros;
 mod modal;
 mod mode;
 mod motion;
@@ -175,6 +176,7 @@ pub struct Session {
     visual_source: Option<crate::buffer::Stamp>,
     one_normal: Option<jumps::Continuation>,
     repeat: repeat::State,
+    macros: crate::macros::State,
     yank: Option<yank::Capture>,
     selection: Option<pointer::Selection>,
     mouse_enabled: bool,
@@ -499,6 +501,7 @@ impl Session {
             visual_source: None,
             one_normal: None,
             repeat: repeat::State::default(),
+            macros: Default::default(),
             yank: None,
             selection: None,
             mouse_enabled,
@@ -918,6 +921,12 @@ impl Session {
     /// Executes the same implemented command enum produced by key bindings.
     pub fn execute(&mut self, command: Command) -> Action {
         let command = command.canonical();
+        if let Some(action) = self.macro_command_guard(command) {
+            return action;
+        }
+        if let Command::Macro(control) = command {
+            return self.macro_command(control, Default::default());
+        }
         if command.prefix_control() {
             return self.execute_prefix_control(command);
         }
@@ -1276,7 +1285,13 @@ impl Session {
     fn finish(&mut self, result: Result<bool, buffer::edit::Error>) -> Action {
         match result {
             Ok(true) => self.message(""),
-            Ok(false) => self.message("Buffer boundary"),
+            Ok(false) => {
+                if self.macros.active() && (self.macros.expanded || self.macros.dispatching) {
+                    self.error("Buffer boundary")
+                } else {
+                    self.message("Buffer boundary")
+                }
+            }
             Err(error) => self.error(&error.to_string()),
         }
     }
@@ -1288,7 +1303,32 @@ impl Session {
     }
 
     fn error(&mut self, message: &str) -> Action {
-        let action = self.message(message);
+        let active_macro =
+            self.macros.active() && (self.macros.expanded || self.macros.dispatching);
+        let budget =
+            self.macros.runner.as_ref().is_some_and(|run| {
+                run.budget.load(std::sync::atomic::Ordering::Relaxed) == usize::MAX
+            });
+        if active_macro {
+            self.macros.fail(if budget {
+                crate::macros::StopReason::TextBudget
+            } else {
+                crate::macros::StopReason::NativeFailure
+            });
+        }
+        let detail = self
+            .macros
+            .stop
+            .filter(|stop| active_macro && stop.iteration > 0)
+            .map_or(String::new(), |stop| {
+                format!(" (macro iteration {}, step {})", stop.iteration, stop.step)
+            });
+        let message = if budget {
+            "Keyboard macro generated text limit reached"
+        } else {
+            message
+        };
+        let action = self.message(&format!("{message}{detail}"));
         self.echo_kind = Message::Error;
         action
     }

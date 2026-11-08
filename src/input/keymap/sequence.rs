@@ -97,7 +97,9 @@ fn modifiers(mut text: &str) -> Result<(KeyModifiers, &str), SyntaxError> {
 }
 
 fn code(name: &str) -> Result<KeyCode, SyntaxError> {
-    let named = named_code(name).or_else(|| navigation(name));
+    let named = named_code(name)
+        .or_else(|| navigation(name))
+        .or_else(|| function(name));
     if let Some(code) = named {
         return Ok(code);
     }
@@ -109,6 +111,17 @@ fn code(name: &str) -> Result<KeyCode, SyntaxError> {
         ));
     }
     Ok(KeyCode::Char(character))
+}
+
+fn function(name: &str) -> Option<KeyCode> {
+    let name = name.strip_prefix('F').or_else(|| name.strip_prefix('f'))?;
+    if name.starts_with('0') {
+        return None;
+    }
+    name.parse::<u8>()
+        .ok()
+        .filter(|number| *number > 0)
+        .map(KeyCode::F)
 }
 
 fn navigation(name: &str) -> Option<KeyCode> {
@@ -172,6 +185,7 @@ fn code_order(code: KeyCode) -> (u8, u32) {
         KeyCode::Backspace => (4, 0),
         KeyCode::Delete => (5, 0),
         KeyCode::Esc => (6, 0),
+        KeyCode::F(number) => (8, u32::from(number)),
         _ => (7, navigation_order(code)),
     }
 }
@@ -194,6 +208,7 @@ fn supported(code: KeyCode) -> bool {
     matches!(
         code,
         KeyCode::Char(_)
+            | KeyCode::F(1..=255)
             | KeyCode::Enter
             | KeyCode::Tab
             | KeyCode::BackTab
@@ -238,6 +253,9 @@ fn write_modifiers(output: &mut fmt::Formatter<'_>, modifiers: KeyModifiers) -> 
 }
 
 fn key_name(code: KeyCode) -> String {
+    if let KeyCode::F(number) = code {
+        return format!("F{number}");
+    }
     if let KeyCode::Char(character) = code {
         return if character == ' ' {
             "SPC".into()

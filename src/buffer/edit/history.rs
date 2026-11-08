@@ -56,8 +56,12 @@ impl Buffer {
         points: &mut [Point],
         initiator: Option<usize>,
     ) -> Result<(), Error> {
-        let prepared = self.prepare_history(direction, points, initiator)?;
-        self.publish(prepared, points)
+        let count = self.history_unit(direction).max(1);
+        for _ in 0..count {
+            let prepared = self.prepare_history(direction, points, initiator)?;
+            self.publish(prepared, points)?;
+        }
+        Ok(())
     }
 
     pub(crate) fn prepare_history(
@@ -154,17 +158,46 @@ impl Buffer {
             self.history_bytes = self.history_bytes.saturating_sub(discarded.bytes);
         }
         self.history_bytes = self.history_bytes.saturating_add(record.bytes);
-        self.history.push_back(record);
+        self.push_history(record);
         self.prune();
     }
 
+    pub(super) fn push_history(&mut self, record: Transaction) {
+        if record.automatic.is_none()
+            || self
+                .history
+                .back()
+                .is_none_or(|last| !last.same_automatic(&record))
+        {
+            self.history_units += 1;
+        }
+        self.history.push_back(record);
+    }
+
+    pub(super) fn pop_history(&mut self) -> Option<Transaction> {
+        let record = self.history.pop_back()?;
+        if record.automatic.is_none()
+            || self
+                .history
+                .back()
+                .is_none_or(|last| !last.same_automatic(&record))
+        {
+            self.history_units -= 1;
+        }
+        Some(record)
+    }
+
     fn transfer(&mut self, direction: History) -> Result<(), Error> {
-        let (source, target) = match direction {
-            History::Undo => (&mut self.history, &mut self.redo),
-            History::Redo => (&mut self.redo, &mut self.history),
-        };
-        let record = source.pop_back().ok_or(Error::History(direction))?;
-        target.push_back(record);
+        match direction {
+            History::Undo => {
+                let record = self.pop_history().ok_or(Error::History(direction))?;
+                self.redo.push_back(record);
+            }
+            History::Redo => {
+                let record = self.redo.pop_back().ok_or(Error::History(direction))?;
+                self.push_history(record);
+            }
+        }
         Ok(())
     }
 }

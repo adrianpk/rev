@@ -83,6 +83,12 @@ pub(super) fn org_bindings(context: Context) -> &'static [(&'static str, &'stati
 }
 
 pub(super) const EDITOR: &[(&str, &str)] = &[
+    ("F3", "kmacro-start-macro-or-insert-counter"),
+    ("F4", "kmacro-end-or-call-macro"),
+    ("C-x (", "kmacro-start-macro"),
+    ("C-x C-k C-s", "kmacro-start-macro"),
+    ("C-x )", "kmacro-end-macro"),
+    ("C-x e", "kmacro-end-and-call-macro"),
     ("C-u", "prefix-argument"),
     ("M-0", "digit-argument"),
     ("M-1", "digit-argument"),

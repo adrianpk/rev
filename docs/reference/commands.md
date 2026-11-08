@@ -1501,3 +1501,32 @@ failure, cancellation, timeout and output-limit facts remain visible. Compatible
 Status is refreshed after possible effects; an unavailable or changed repository
 identity preserves the last confirmed observation with failed freshness. No
 automatic retry, inferred safe effect, rollback or repository recreation occurs.
+
+## Keyboard recording and replay
+
+F3 starts a fresh recording and shows Def in the active status area. F4 finishes
+without replay; another F4 replays once. C-x e finishes and replays once more.
+A positive prefix before playback requests that many iterations. A positive count
+on C-x ) includes the recording pass. Each playback iteration is one native undo
+unit per affected buffer; C-g retains completed and partial edits while canceling.
+Empty, canceled, unsupported and oversized recordings preserve the previous macro.
+
+Recording retains normalized logical keys and exact pasted text. Replay uses the
+current effective keymap and native source admission. Releases and presentation
+notifications are excluded. Both profiles share controls; modal entry state must
+match before replay and before each further iteration. Playback yields after at
+most 256 inputs or a four-millisecond cooperative target, with no idle worker.
+
+This increment accepts ordinary native editing, movement, modal operations,
+regions, kill/yank and pane commands. Named-command/prompt capture, completion,
+file/buffer selection, external jobs and context replacement stop explicitly
+before their handlers. Append, counters, ring/repeat maps, nonpositive repetition,
+queries, named definitions and persistence arrive in later increments.
+
+| Command | Description |
+| --- | --- |
+| `kmacro-start-macro-or-insert-counter` | Start recording, or insert the current macro counter. Counter insertion is not yet available. |
+| `kmacro-start-macro` | Start or append to a keyboard macro. Append is not yet available. |
+| `kmacro-end-macro` | Finish recording a keyboard macro. |
+| `kmacro-end-or-call-macro` | Finish recording, or run the current keyboard macro. |
+| `kmacro-end-and-call-macro` | Finish recording and run the current keyboard macro. |

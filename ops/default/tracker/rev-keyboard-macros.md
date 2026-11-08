@@ -9,7 +9,7 @@ Plan: [Keyboard Macros Delivery](../plan/rev-keyboard-macros.md)
 Specification: [Keyboard Macros](../spec/editor-keyboard-macros.md)
 Model: [Macro Library and State Ownership](../spec/editor-keyboard-macros-model.md)
 Concern: [Pending Editor Work](../README.md)
-Active slice: Slice 1 of 8, pending execution startup
+Active slice: Slice 1 of 8, selected validation blocked by existing catalog debt
 Progress owner: selected Looper checkpoint and canonical validation evidence
 
 ## Canonical slice map
@@ -27,17 +27,25 @@ Progress owner: selected Looper checkpoint and canonical validation evidence
 
 ## Slice 1: Recording and replay
 
-State: pending
+State: blocked
 Dependency: published approved preparation and controller preflight.
 Branch: feat/rev-keyboard-macros-01-recording
 PR: pending
 Integrated: pending
 Report: ops/default/report/slices/rev-keyboard-macros/slice-1-recording.md
-Validation: exact ordered slice selection in the plan and frozen configuration
+Validation: macros 14/14, editing 114/114 and documentation checks passed; required commands selection passed 51/52 and is blocked by palette::catalog_reference. See the canonical report; no slice acceptance is claimed.
 
-- [ ] T1.1: Add bounded recording/runner ownership, normalized key/text capture, F3/F4 and C-x controls, indicators, cancellation and positive prefix replay through normal input.
-- [ ] T1.2: Deliver native per-iteration undo boundaries, typed stops, modal entry checks and cooperative scheduling without an idle worker; unsupported input transfers stop explicitly.
+- [x] T1.1: Add bounded recording/runner ownership, normalized key/text capture, F3/F4 and C-x controls, indicators, cancellation and positive prefix replay through normal input.
+- [x] T1.2: Deliver native per-iteration undo boundaries, typed stops, modal entry checks and cooperative scheduling without an idle worker; unsupported input transfers stop explicitly.
 - [ ] T1.3: Introduce the native macros integration target and recording/runner fixtures; align command/default catalogs and record the first usable Unreleased outcome.
+
+Implementation and the canonical report are retained on the injected branch.
+T1.3 includes the native macros target, five macro catalog entries and Unreleased
+outcome, but required acceptance remains blocked. The baseline description oracle
+omits four already-present prefix-argument commands. The plan excludes unrelated
+catalog debt; an explicit scope decision or separately integrated baseline
+correction is required before canonical PR preparation can finish. No frozen
+checks, acceptance assertions or later slice identities were changed.
 
 ## Slice 2: Named commands and prompt capture
 

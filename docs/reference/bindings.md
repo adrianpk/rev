@@ -689,6 +689,21 @@ Pending arguments pass through M-x and incomplete chord sequences. See
 [Command Prefix Arguments](commands.md#command-prefix-arguments) for forms,
 bounds, cancellation and the currently delivered counted movement policies.
 
+## Keyboard recording and replay
+
+| Keys | Command | Result |
+| --- | --- | --- |
+| F3 | `kmacro-start-macro-or-insert-counter` | Start a fresh recording; counter insertion is unavailable in this increment. |
+| C-x (, C-x C-k C-s | `kmacro-start-macro` | Start a fresh recording; append is unavailable in this increment. |
+| C-x ) | `kmacro-end-macro` | Finish; a positive count includes the recording pass. |
+| F4 | `kmacro-end-or-call-macro` | Finish without replay, or run the previous recording. |
+| C-x e | `kmacro-end-and-call-macro` | Finish if necessary and run the recording. |
+
+F3 and F4 are logical function-key reports. Their effective bindings remain
+configurable in ordinary editor and modal contexts. C-g cancels capture/playback
+without rolling back real source changes. See [macro commands](commands.md#keyboard-recording-and-replay)
+for entry checks, undo grouping and the current recording boundaries.
+
 ## Configuration keymap contracts
 
 The [complete reference sample](config.toml) spells out every default target in
@@ -735,7 +750,8 @@ A sequence has one through eight normalized chords separated by ASCII whitespace
 Each chord is one printable scalar or a named key. Names are case-insensitive:
 `RET`/`Return`/`Enter`, `TAB`, `SPC`/`Space`, `DEL`/`Backspace`, `Delete`,
 `ESC`/`Escape`, `NULL`, `Left`, `Right`, `Up`, `Down`, `Home`, `End`, `PageUp`,
-`PageDown`, `BackTab`. `Delete` removes forward; `DEL` means Backspace.
+`PageDown`, `BackTab`, and logical function keys `F1` through `F255` without
+leading zeroes. `Delete` removes forward; `DEL` means Backspace.
 
 `C-` adds Control and `M-`/`A-` adds Alt/Meta; modifiers can combine but cannot
 repeat. `S-` applies to named keys. For text, use the actual uppercase or shifted

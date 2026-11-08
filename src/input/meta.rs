@@ -38,6 +38,10 @@ impl Input {
 
     fn escape(&mut self, now: Instant) -> Outcome {
         if self.modal_editing() {
+            self.logical_key = Some(super::Key {
+                code: KeyCode::Esc,
+                modifiers: KeyModifiers::NONE,
+            });
             self.clear_prefix();
             self.suppress_repeat = true;
             return Outcome::Command(crate::command::Command::Modal(

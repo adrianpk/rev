@@ -45,6 +45,12 @@ impl Session {
         if !self.input.invocation_current(invocation.origin) {
             return self.message("Command argument origin changed");
         }
+        if let Some(action) = self.macro_command_guard(invocation.command) {
+            return action;
+        }
+        if let Command::Macro(control) = invocation.command {
+            return self.macro_command(control, invocation.argument);
+        }
         if self.terminals.focused
             || self.capture_blocks_input()
             || self.tangling.is_some()

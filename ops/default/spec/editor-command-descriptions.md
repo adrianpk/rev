@@ -839,6 +839,20 @@ Full behavior and prerequisites remain in the linked command references.
 | `org-up-heading-safe` | Visit the parent heading. |
 | `org-update-statistics-cookies` | Update current item/heading statistics. |
 
+## Keyboard macro descriptions
+
+The first recording/replay increment adds the following descriptions from the
+approved [Keyboard Macros specification](editor-keyboard-macros.md). Later macro
+commands enter this shared live catalog only when their native handlers arrive.
+
+| Command | Description |
+| --- | --- |
+| `kmacro-start-macro-or-insert-counter` | Start recording, or insert the current macro counter. |
+| `kmacro-start-macro` | Start or append to a keyboard macro. |
+| `kmacro-end-macro` | Finish recording a keyboard macro. |
+| `kmacro-end-or-call-macro` | Finish recording, or run the current keyboard macro. |
+| `kmacro-end-and-call-macro` | Finish recording and run the current keyboard macro. |
+
 ## Completed delivery evidence
 
 CDS01-CDS05 are delivered through canonical PR #307. All 618 built-ins match

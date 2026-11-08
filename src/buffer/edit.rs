@@ -1,6 +1,8 @@
+mod automatic;
 mod bookmarks;
 mod continuation;
 mod grouping;
+pub(crate) use automatic::AutomaticGroup;
 mod history;
 mod locations;
 mod mapping;
@@ -172,6 +174,7 @@ pub struct Transaction {
     cursor: Option<usize>,
     origin: Option<crate::window::ViewId>,
     permutation: Option<Permutation>,
+    automatic: Option<std::sync::Arc<AutomaticGroup>>,
 }
 
 impl Transaction {
@@ -330,6 +333,7 @@ impl Buffer {
             cursor: None,
             origin: None,
             permutation,
+            automatic: self.automatic.clone(),
         };
         record.after_mark = mapping::map_mark(&record, &coordinates)?;
         record.after_bookmarks = bookmarks::map(&record, &coordinates)?;
@@ -367,6 +371,16 @@ impl Buffer {
     /// this buffer; unchanged source snapshots are required before any mutation.
     pub fn publish(&mut self, prepared: Prepared, points: &mut [Point]) -> Result<(), Error> {
         self.admit_publication(&prepared, points)?;
+        if let Some(group) = &self.automatic {
+            group.charge(
+                prepared
+                    .record
+                    .changes
+                    .iter()
+                    .map(|change| change.inserted.len_bytes())
+                    .sum(),
+            )?;
+        }
         let observation = self
             .observer
             .as_ref()
@@ -527,14 +541,25 @@ impl Buffer {
     }
 
     fn prune(&mut self) {
-        // Prune whole groups only, always retaining the newest coherent group
-        // even when its payload alone exceeds the soft target.
-        while self.history.len() > 1
-            && (self.history.len() > self.history_policy.group_limit
+        // An automatic iteration is indivisible even when it contains several
+        // native records. Retain its primitive mappings rather than flattening
+        // unchanged source ranges into a replacement.
+        while self.history_units > 1
+            && (self.history_units > self.history_policy.group_limit
                 || self.history_bytes > self.history_policy.payload_target_bytes)
         {
-            if let Some(record) = self.history.pop_front() {
-                self.history_bytes = self.history_bytes.saturating_sub(record.bytes);
+            self.history_units -= 1;
+            let first = self.history.pop_front().expect("retained history unit");
+            self.history_bytes = self.history_bytes.saturating_sub(first.bytes);
+            if first.automatic.is_some() {
+                while self
+                    .history
+                    .front()
+                    .is_some_and(|next| first.same_automatic(next))
+                {
+                    let removed = self.history.pop_front().expect("same unit");
+                    self.history_bytes = self.history_bytes.saturating_sub(removed.bytes);
+                }
             }
         }
     }

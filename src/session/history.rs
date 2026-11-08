@@ -13,10 +13,13 @@ impl Session {
         let buffer = self
             .buffers
             .get_mut(self.windows.selected().point.stamp.buffer)?;
-        let points = self.windows.points(buffer)?;
-        let initiator = points.history_initiator(buffer, direction);
-        let prepared = buffer.prepare_history(direction, &points.values, Some(initiator))?;
-        self.windows.publish(buffer, prepared, points)?;
+        let count = buffer.history_unit(direction).max(1);
+        for _ in 0..count {
+            let points = self.windows.points(buffer)?;
+            let initiator = points.history_initiator(buffer, direction);
+            let prepared = buffer.prepare_history(direction, &points.values, Some(initiator))?;
+            self.windows.publish(buffer, prepared, points)?;
+        }
         Ok(())
     }
 }

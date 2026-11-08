@@ -7,7 +7,12 @@ impl Session {
     pub(super) fn activity_frame(&self, frame: &mut Frame) -> Result<(), Error> {
         let timer = self.timer_status();
         let shell = self.shell_status();
-        if timer.is_none() && shell.is_none() {
+        let macro_status = match self.macro_status() {
+            crate::macros::Status::Recording => Some("Def"),
+            crate::macros::Status::Playing => Some("Macro"),
+            crate::macros::Status::Idle => None,
+        };
+        if timer.is_none() && shell.is_none() && macro_status.is_none() {
             return Ok(());
         }
         let buffer = self.buffer()?;
@@ -15,7 +20,12 @@ impl Session {
         if buffer.external_change_notice().is_some() {
             label.push_str(" disk: revert-buffer");
         }
-        for activity in timer.as_deref().into_iter().chain(shell) {
+        for activity in timer
+            .as_deref()
+            .into_iter()
+            .chain(shell)
+            .chain(macro_status)
+        {
             label.push(' ');
             label.push_str(activity);
         }

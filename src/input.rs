@@ -132,6 +132,7 @@ enum Context {
 /// opening a prompt clears pending prefixes, and cancellation restores editing.
 #[derive(Debug, Default)]
 pub struct Input {
+    pub(crate) logical_key: Option<Key>,
     profile: crate::config::InteractionProfile,
     editing_state: EditingState,
     editing_owner: Option<(crate::window::ViewId, crate::buffer::BufferId)>,
@@ -259,6 +260,7 @@ impl Input {
     /// before the event; callers must dispatch `expire` first so cancellation
     /// reaches the focused owner before fresh input, as well as during idle polls.
     pub fn handle_at(&mut self, event: Event, now: Instant) -> Outcome {
+        self.logical_key = None;
         self.expire(now);
         if let Event::Mouse(event) = event {
             let outcome = self.pointer(event);
@@ -321,6 +323,7 @@ impl Input {
     }
 
     fn route(&mut self, key: Key) -> Outcome {
+        self.logical_key = Some(key);
         if key.control('g') {
             self.cancel();
             return Outcome::Command(Command::KeyboardQuit);

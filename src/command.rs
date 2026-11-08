@@ -16,7 +16,9 @@ pub use git::GitCommand;
 mod kill;
 mod linear;
 mod lsp;
+mod macros;
 mod modal;
+pub use macros::MacroCommand;
 mod motion;
 pub mod navigation;
 pub use modal::ModalCommand;
@@ -54,6 +56,7 @@ pub use window::WindowCommand;
 /// Only commands with a working handler belong in the public registry.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum Command {
+    Macro(MacroCommand),
     Git(GitCommand),
     Terminal(TerminalCommand),
     Modal(ModalCommand),
@@ -142,7 +145,12 @@ pub enum Command {
 }
 
 impl Command {
-    pub const ALL: [Self; 628] = [
+    pub const ALL: [Self; 633] = [
+        Self::Macro(MacroCommand::StartOrCounter),
+        Self::Macro(MacroCommand::Start),
+        Self::Macro(MacroCommand::End),
+        Self::Macro(MacroCommand::EndOrCall),
+        Self::Macro(MacroCommand::EndAndCall),
         Self::PrefixArgument,
         Self::UniversalArgument,
         Self::DigitArgument,
@@ -797,6 +805,7 @@ impl Command {
 
     pub fn name(&self) -> &str {
         match self {
+            Self::Macro(command) => command.name(),
             Self::AiDefined(name) => name.name(),
             Self::Navigate(request) => request.name(),
             Self::Edit(request) => request.name(),
@@ -811,6 +820,7 @@ impl Command {
 
     fn builtin_description(&self) -> &'static str {
         match self {
+            Self::Macro(command) => command.description(),
             Self::AiDefined(_) => unreachable!("user commands retain optional metadata"),
             Self::Navigate(request) => request.description(),
             Self::Edit(request) => request.description(),

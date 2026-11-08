@@ -17,6 +17,7 @@ mod jump;
 mod kill;
 mod location;
 pub mod lsp;
+pub mod macros;
 pub mod org;
 pub mod panel;
 pub mod pointer;

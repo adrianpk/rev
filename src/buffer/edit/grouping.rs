@@ -50,7 +50,7 @@ impl Buffer {
     ) -> Result<(), Error> {
         let record = match group {
             Some(group) => {
-                let previous = self.history.pop_back().ok_or(Error::HistoryState)?;
+                let previous = self.pop_history().ok_or(Error::HistoryState)?;
                 self.history_bytes = self.history_bytes.saturating_sub(previous.bytes);
                 group
             }
@@ -102,7 +102,8 @@ impl Transaction {
     }
 
     pub(super) fn same_context(&self, next: &Self) -> bool {
-        self.after_state == next.before_state
+        self.same_automatic(next)
+            && self.after_state == next.before_state
             && self.after_points == next.before_points
             && self.after_bookmarks == next.before_bookmarks
             && self.after_locations == next.before_locations

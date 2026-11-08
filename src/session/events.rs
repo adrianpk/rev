@@ -71,6 +71,7 @@ impl Session {
             return self.context_remaining();
         }
         [
+            self.macros.runner.as_ref().map(|_| Duration::ZERO),
             self.context_remaining(),
             self.input.remaining(now),
             self.input.command_usage_remaining(),
@@ -147,6 +148,9 @@ impl Session {
 
     /// Expire Escape before dispatch; pointer deadlines wait until input is drained.
     pub fn handle_at(&mut self, event: Event, now: Instant) -> Action {
+        if let Some(action) = self.macro_input_guard(&event) {
+            return action;
+        }
         if self.context_storage.locked()
             && matches!(&event, Event::Key(key) if crate::input::Key::normalize(*key).is_some_and(|k| k.code == crossterm::event::KeyCode::Char('g') && k.modifiers == crossterm::event::KeyModifiers::CONTROL))
         {
@@ -220,7 +224,12 @@ impl Session {
                 || self.pending.is_some()
                 || self.input.prefix().is_some());
         let outcome = self.input.handle_at(event, now);
+        if let Some(action) = self.macro_capture_outcome(&outcome) {
+            return action;
+        }
+        self.macros.dispatching = true;
         let action = self.dispatch_completion_outcome(outcome, now);
+        self.macros.dispatching = false;
         self.terminals.host_cancel = false;
         if action == Action::Wait {
             return expired;
@@ -273,6 +282,7 @@ impl Session {
             self.advance_terminal_shutdown(),
             self.advance_git_shutdown(),
             self.expire_contexts(),
+            self.expire_macro(),
         ]
         .into_iter()
         .rev()
@@ -292,6 +302,13 @@ impl Session {
     }
 
     fn expire_layout(&mut self) -> Action {
+        self.macro_layout_group(true);
+        let action = self.expire_layout_native();
+        self.macro_layout_group(false);
+        action
+    }
+
+    fn expire_layout_native(&mut self) -> Action {
         if self.git_visible() {
             return Action::Wait;
         }

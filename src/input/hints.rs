@@ -102,6 +102,7 @@ impl Input {
         // The probe owns no persistence worker, live prompt, pending operator,
         // usage events or shell history. Only admitted maps and origin matter.
         Self {
+            logical_key: None,
             profile: self.profile,
             editing_state: self.editing_state,
             editing_owner: self.editing_owner,
