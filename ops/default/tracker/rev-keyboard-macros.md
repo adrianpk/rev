@@ -148,8 +148,9 @@ Validation: all eight required commands passed at clean final PR head 88088e42af
 State: reviewing
 Dependency: Slice 7 integrated through PR #325.
 Branch: test/rev-keyboard-macros-08-acceptance
-PR: pending
-Integrated: pending
+PR: [#326](https://forge.adrianpk.com/adrianpk/rev/pulls/326)
+Implementation: [050e6a6a616d](https://forge.adrianpk.com/adrianpk/rev/commit/050e6a6a616daed392ea87afec130d7f379bf875)
+Integrated: pending controller review and integration
 Report: ops/default/report/slices/rev-keyboard-macros/slice-8-acceptance.md
 Validation: all ten frozen commands passed in the owned worktree: 110 macro integration cases including real PTY journeys, 52 command, 114 editing, 45 modal and 4 completion cases; formatting, strict Clippy, 680-command/295-entry/99-page documentation, local Spore generation and whitespace. Additional 6 native owner and 7 documentation cases passed. Exact clean final PR-head evidence and canonical integration remain pending.
 
