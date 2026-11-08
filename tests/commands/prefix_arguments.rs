@@ -528,3 +528,301 @@ fn counted_edit_selection() {
         1
     );
 }
+
+// Line endpoints use N-1 ordinary rows, including zero and negative values.
+// Wrapped and logical policies match the same native uncounted steps.
+#[test]
+fn positioned_rows() {
+    let source = "short\r\n0123456789012345678901234567890123456789\r\n界é long text here\r\nlast";
+    for wrapped in [false, true] {
+        for (number, rows, backward) in [
+            ("3", 2, false),
+            ("1", 0, false),
+            ("0", 1, true),
+            ("-1", 2, true),
+        ] {
+            for (name, motion) in [
+                ("move-beginning-of-line", Motion::LineStart),
+                ("move-end-of-line", Motion::LineEnd),
+            ] {
+                let config = format!("editor.soft_wrap = {wrapped}");
+                let mut counted = editor(&config, source, 25);
+                let mut ordinary = editor(&config, source, 25);
+                for session in [&mut counted, &mut ordinary] {
+                    for _ in 0..3 {
+                        session.execute(Command::Scroll(Scroll::NextLine));
+                        settle(session);
+                    }
+                }
+                for _ in 0..rows {
+                    ordinary.execute(Command::Scroll(if backward {
+                        Scroll::PreviousLine
+                    } else {
+                        Scroll::NextLine
+                    }));
+                    settle(&mut ordinary);
+                }
+                ordinary.execute(Command::Motion(motion));
+                settle(&mut ordinary);
+                count(&mut counted, number);
+                named(&mut counted, name);
+                settle(&mut counted);
+                assert_eq!(
+                    counted.view().point.position,
+                    ordinary.view().point.position,
+                    "{wrapped} {number} {name}"
+                );
+                assert_eq!(text(&counted), source);
+            }
+        }
+    }
+}
+
+// Fractional buffer positions clamp and snap complete Unicode/CRLF boundaries;
+// a supplied goto-line bypasses its prompt and rejects nonpositive input.
+#[test]
+fn absolute_positions() {
+    for (name, number, expected) in [
+        ("beginning-of-buffer", "0", 0),
+        ("end-of-buffer", "0", 10),
+        ("beginning-of-buffer", "5", 4),
+        ("end-of-buffer", "5", 4),
+        ("beginning-of-buffer", "10", 10),
+        ("end-of-buffer", "10", 0),
+        ("beginning-of-buffer", "-3", 0),
+        ("end-of-buffer", "-3", 10),
+        ("beginning-of-buffer", "1000000", 10),
+        ("end-of-buffer", "1000000", 0),
+    ] {
+        let mut session = editor("", "aé\r\n👩\u{200d}💻e\u{301}z", 80);
+        count(&mut session, number);
+        named(&mut session, name);
+        settle(&mut session);
+        assert_eq!(
+            session.view().point.position,
+            Scalar(expected),
+            "{number} {name}"
+        );
+        assert!(session.buffer().unwrap().history().is_empty());
+    }
+    for (number, expected) in [("3", 7), ("1000000", 12), ("0", 0), ("-2", 0)] {
+        let mut session = editor("", "a\r\nbé\r\n界\nend", 80);
+        count(&mut session, number);
+        named(&mut session, "goto-line");
+        settle(&mut session);
+        assert!(
+            !session
+                .frame()
+                .unwrap()
+                .rows()
+                .iter()
+                .any(|row| row.text().starts_with("Goto line: "))
+        );
+        assert_eq!(
+            session.view().point.position,
+            Scalar(expected),
+            "goto {number}"
+        );
+    }
+}
+
+// Supplied page commands move rows rather than multiplying full pages. Signed
+// reversal and zero retain native desired-column and point admission.
+#[test]
+fn supplied_scrolling() {
+    for wrapped in [false, true] {
+        for (name, number, scroll) in [
+            ("scroll-up-command", "3", Scroll::NextLine),
+            ("scroll-down-command", "-3", Scroll::NextLine),
+        ] {
+            let config = format!("editor.soft_wrap = {wrapped}");
+            let source = "0123456789012345678901234567890123456789\n".repeat(20);
+            let mut counted = editor(&config, &source, 25);
+            let mut ordinary = editor(&config, &source, 25);
+            for _ in 0..3 {
+                ordinary.execute(Command::Scroll(scroll));
+                settle(&mut ordinary);
+            }
+            count(&mut counted, number);
+            named(&mut counted, name);
+            settle(&mut counted);
+            assert_eq!(
+                counted.view().point.position,
+                ordinary.view().point.position,
+                "{wrapped} {name}"
+            );
+            let point = counted.view().point;
+            count(&mut counted, "0");
+            named(&mut counted, name);
+            settle(&mut counted);
+            assert_eq!(counted.view().point, point);
+        }
+    }
+}
+
+// Recenter arguments are offsets within pane content, including bottom-relative
+// negatives and large values clamped to geometry rather than document size.
+#[test]
+fn supplied_recenter() {
+    for (number, offset) in [
+        ("0", 0),
+        ("2", 2),
+        ("-1", 11),
+        ("1000000", 11),
+        ("-1000000", 0),
+    ] {
+        let mut session = editor("", &"line\n".repeat(60), 80);
+        count(&mut session, "21");
+        named(&mut session, "goto-line");
+        settle(&mut session);
+        let point = session.view().point;
+        count(&mut session, number);
+        named(&mut session, "recenter-top-bottom");
+        settle(&mut session);
+        assert_eq!(session.view().point, point);
+        assert_eq!(session.view().top, 20 - offset, "{number}");
+    }
+}
+
+// Counted tree aliases select only loaded rows, including the parent. Removed
+// fixture paths cannot cause navigation I/O, expansion or source mutation.
+#[test]
+fn loaded_tree_rows() {
+    for profile in ["non-modal", "modal"] {
+        let fixture = super::config_fixture::Fixture::new();
+        let path = fixture.write("root/a.txt", "retained");
+        for name in ["b.txt", "c.txt", "d.txt"] {
+            fixture.write(&format!("root/{name}"), "other");
+        }
+        let startup = rev::config::prepare(&fixture.write(
+            "config.toml",
+            &format!("editor.interaction_profile = '{profile}'"),
+        ));
+        let mut buffers = Buffers::with_settings(startup.snapshot).unwrap();
+        let id = buffers.visit(&path).unwrap();
+        let view = View::new(buffers.get(id).unwrap());
+        let mut session = Session::new(
+            buffers,
+            view,
+            Size {
+                width: 80,
+                height: 14,
+            },
+        )
+        .unwrap();
+        session.execute(Command::Tree(rev::command::TreeCommand::Focus));
+        let loaded = session.tree().entries().len();
+        let origin = session
+            .tree()
+            .entries()
+            .iter()
+            .position(|entry| entry.path() == path)
+            .unwrap();
+        for _ in 0..loaded {
+            session.execute(Command::Tree(rev::command::TreeCommand::Previous));
+        }
+        for _ in 0..origin {
+            session.execute(Command::Tree(rev::command::TreeCommand::Next));
+        }
+        assert_eq!(session.tree().selected().unwrap().path(), path);
+        let point = session.view().point;
+        named(&mut session, "prefix-argument");
+        session.handle(character('2'));
+        named(&mut session, "tree-next-line");
+        assert!(session.tree().selected().unwrap().path().ends_with("c.txt"));
+        std::fs::remove_file(&path).unwrap();
+        named(&mut session, "prefix-argument");
+        session.handle(character('-'));
+        session.handle(character('2'));
+        named(&mut session, "next-line");
+        assert!(session.tree().selected().unwrap().path().ends_with("a.txt"));
+        named(&mut session, "prefix-argument");
+        session.handle(character('1'));
+        named(&mut session, "tree-previous-line");
+        assert!(session.tree().selected().unwrap().is_parent());
+        assert_eq!(session.tree().entries().len(), loaded);
+        assert_eq!(session.view().point, point);
+        assert_eq!(text(&session), "retained");
+    }
+}
+
+// Source revision changes retire positioning plans and release queued input.
+// A large refused aggregate leaves source/history intact and no idle count job.
+#[test]
+fn contextual_bounds() {
+    let source = "row\n".repeat(3000);
+    let mut session = editor("", &source, 80);
+    count(&mut session, "1000000");
+    named(&mut session, "move-end-of-line");
+    assert_eq!(session.view().point.position, Scalar(0));
+    session.replace(0..0, "z").unwrap();
+    let point = session.view().point;
+    settle(&mut session);
+    assert_eq!(session.view().point, point);
+    count(&mut session, "1000000");
+    session.handle(Event::Paste("123456789".into()));
+    settle(&mut session);
+    assert_eq!(text(&session), format!("z{source}"));
+    assert_eq!(session.buffer().unwrap().history().len(), 1);
+    assert_eq!(session.remaining_input(Instant::now()), None);
+}
+
+// Prompt and structural input owners retire source arguments at entry. Prompt
+// text remains ordinary editing data, and a later source command moves once.
+#[test]
+fn contextual_owners() {
+    for owner in ["argument", "search", "org"] {
+        let mut input = Input::default();
+        input.handle(control('u'));
+        input.handle(character('5'));
+        match owner {
+            "argument" => input.argument("Value: ", "").unwrap(),
+            "search" => input.search(rev::search::Direction::Forward).unwrap(),
+            _ => input.set_org_context(Some(rev::input::OrgContext::Agenda)),
+        }
+        assert!(!input.prefix_argument().supplied(), "{owner}");
+        input.handle(Event::Paste("literal 2".into()));
+        assert!(!input.prefix_argument().supplied(), "{owner}");
+        input.cancel();
+        input.set_org_context(None);
+        assert_eq!(
+            input.handle(control('f')),
+            Outcome::Command(Command::Motion(Motion::ForwardChar))
+        );
+    }
+}
+
+// Raw PTY input owns C-u and digits in both profiles. Returning to source must
+// not inherit a count; only this test's terminal child is stopped afterward.
+#[test]
+fn terminal_ownership() {
+    use rev::command::TerminalCommand;
+    for profile in ["non-modal", "modal"] {
+        let fixture = super::config_fixture::Fixture::new();
+        let script = fixture.write(
+            "child.sh",
+            "while IFS= read -r line; do printf '%s\\n' \"$line\"; done\n",
+        );
+        let config = format!(
+            "editor.interaction_profile='{profile}'\nterminal.program='/bin/sh'\nterminal.args=[{}]",
+            serde_json::to_string(&script.to_string_lossy()).unwrap()
+        );
+        let mut session = editor(&config, "native", 80);
+        session.handle(Event::Resize(80, 24));
+        session.execute(Command::Terminal(TerminalCommand::Open));
+        assert!(session.terminal_focused(), "{}", session.echo());
+        session.handle(control('u'));
+        session.handle(character('3'));
+        session.handle(character('x'));
+        session.handle(key(KeyCode::Enter));
+        assert_eq!(text(&session), "native");
+        assert!(session.buffer().unwrap().history().is_empty());
+        session.execute(Command::Terminal(TerminalCommand::Toggle));
+        assert!(!session.terminal_focused());
+        named(&mut session, "forward-char");
+        settle(&mut session);
+        assert_eq!(session.view().point.position, Scalar(1));
+        assert_eq!(text(&session), "native");
+        session.shutdown_terminals().unwrap();
+    }
+}

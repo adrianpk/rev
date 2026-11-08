@@ -25,14 +25,19 @@ impl Tree {
 
     /// Move only within the loaded visible preorder; endpoints do not wrap.
     pub fn move_selection(&mut self, forward: bool) {
-        if forward {
-            self.selected = self
-                .selected
-                .saturating_add(1)
-                .min(self.entries.len().saturating_sub(1));
+        self.move_selection_by(forward, 1);
+    }
+
+    /// Counted selection uses only the already loaded preorder, including the
+    /// parent row. It does not expand, refresh or visit any path.
+    pub(crate) fn move_selection_by(&mut self, forward: bool, distance: usize) {
+        self.selected = if forward {
+            self.selected
+                .saturating_add(distance)
+                .min(self.entries.len().saturating_sub(1))
         } else {
-            self.selected = self.selected.saturating_sub(1);
-        }
+            self.selected.saturating_sub(distance)
+        };
     }
 
     /// Read one directory's direct children completely before publishing them.

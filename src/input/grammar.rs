@@ -61,7 +61,9 @@ impl Input {
             && key.code == KeyCode::Char('x')
             && key.modifiers == KeyModifiers::ALT
         {
+            let conflict = self.grammar.count.is_some() || self.grammar.operator.is_some();
             self.clear_prefix();
+            self.retain_modal_argument_conflict(conflict);
             return None;
         }
         if let Some(request) = self.grammar.character {

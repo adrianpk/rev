@@ -40,6 +40,12 @@ impl Input {
         {
             return self.prefix_control(command, Some(key));
         }
+        if self.prefix_argument().supplied()
+            && (self.grammar.count.is_some() || self.grammar.operator.is_some())
+        {
+            self.clear_prefix();
+            return Outcome::Message("Editor prefix conflicts with modal count/operator");
+        }
         let binding = match self.navigation_binding(binding) {
             Ok(binding) => binding,
             Err(outcome) => return outcome,

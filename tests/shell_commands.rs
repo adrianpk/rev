@@ -8,6 +8,8 @@ mod fixture;
 mod interaction;
 #[path = "shell_commands/lifecycle.rs"]
 mod lifecycle;
+#[path = "shell_commands/prefix_arguments.rs"]
+mod prefix_arguments;
 #[path = "shell_commands/regions.rs"]
 mod regions;
 #[path = "shell_commands/status.rs"]

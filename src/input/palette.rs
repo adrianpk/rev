@@ -237,6 +237,9 @@ impl Input {
     /// Opens command entry only from editing; session history survives cancel.
     pub fn commands(&mut self) -> Result<(), Error> {
         self.available()?;
+        if self.grammar.count.is_some() || self.grammar.operator.is_some() {
+            self.retain_modal_argument_conflict(true);
+        }
         self.context = Context::Command(Palette::new(
             &self.policy,
             &self.ai_commands,

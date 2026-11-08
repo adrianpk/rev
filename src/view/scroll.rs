@@ -143,13 +143,45 @@ impl View {
             return Ok(());
         }
         let rows = usize::from(size.text_rows());
+        let (offset, next) = self.alignment.step(rows);
+        self.align_offset(point, size, buffer, offset)?;
+        self.alignment = next;
+        Ok(())
+    }
+    /// Align point at a supplied content-row offset, clamped to pane geometry.
+    pub(crate) fn recenter_at(
+        &mut self,
+        buffer: &Buffer,
+        size: Size,
+        offset: usize,
+    ) -> Result<(), Error> {
+        let point = self.cell(buffer)?;
+        self.reveal_fold(buffer, point.row)?;
+        self.sync_policy(buffer);
+        if !size.usable() {
+            return Ok(());
+        }
+        self.align_offset(
+            point,
+            size,
+            buffer,
+            offset.min(usize::from(size.text_rows()).saturating_sub(1)),
+        )?;
+        self.alignment = Alignment::Center;
+        Ok(())
+    }
+
+    fn align_offset(
+        &mut self,
+        point: Cell,
+        size: Size,
+        buffer: &Buffer,
+        offset: usize,
+    ) -> Result<(), Error> {
         let width = self.text_width(buffer, size)?;
         self.sync_wrap_width((buffer.soft_wrap() && width > 0).then_some(width));
-        let (offset, next) = self.alignment.step(rows);
         if buffer.soft_wrap() && width > 0 {
-            self.align_wrapped(buffer, width, offset)?;
-            self.alignment = next;
-            return Ok(());
+            return self.align_wrapped(buffer, width, offset);
         }
         let row = self
             .project_row(buffer, point.row)
@@ -157,7 +189,6 @@ impl View {
         self.top = self
             .source_at(buffer, row.saturating_sub(offset))
             .ok_or(crate::coordinates::Error::Overflow)?;
-        self.alignment = next;
         Ok(())
     }
 }

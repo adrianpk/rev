@@ -22,6 +22,8 @@ mod objects;
 mod operator_safety;
 #[path = "modal/operators.rs"]
 mod operators;
+#[path = "modal/prefix_arguments.rs"]
+mod prefix_arguments;
 #[path = "modal/presentation.rs"]
 mod presentation;
 #[path = "modal/repeat.rs"]

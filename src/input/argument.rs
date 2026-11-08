@@ -35,6 +35,7 @@ pub struct TextInvocation {
 pub(super) struct State {
     value: PrefixArgument,
     terminated: bool,
+    modal_conflict: bool,
     origin: Option<InvocationOrigin>,
     continuation: Option<(Vec<Key>, usize)>,
 }
@@ -74,7 +75,10 @@ impl Input {
             self.clear_argument();
             return Outcome::Message("Prefix argument requires editor input focus");
         }
-        if self.grammar.count.is_some() || self.grammar.operator.is_some() {
+        if self.grammar.count.is_some()
+            || self.grammar.operator.is_some()
+            || self.argument.modal_conflict
+        {
             self.clear_prefix();
             return Outcome::Message("Editor prefix conflicts with modal count/operator");
         }
@@ -210,6 +214,10 @@ impl Input {
                     origin: argument.origin.expect("supplied input has an origin"),
                 }))
             }
+            Outcome::Command(_) => {
+                self.clear_argument();
+                outcome
+            }
             Outcome::Editing(key)
                 if self.argument.value.supplied()
                     && self.focus() == Focus::Editing
@@ -246,6 +254,10 @@ impl Input {
             argument: argument.value,
             origin: argument.origin.expect("supplied text has an origin"),
         }))
+    }
+
+    pub(super) fn retain_modal_argument_conflict(&mut self, conflict: bool) {
+        self.argument.modal_conflict = conflict;
     }
 
     pub(crate) fn invocation_current(&self, origin: InvocationOrigin) -> bool {
