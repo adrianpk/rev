@@ -164,7 +164,7 @@ impl Session {
                     command.arguments.into();
                 if let Some(keys) = command.keys {
                     self.macros.runner.as_mut().expect("live runner").trigger = keys.into();
-                } else if let Some(native) = Command::named(&command.name) {
+                } else if let Some(native) = self.input.command_named(&command.name) {
                     self.sync_input_context();
                     if command.argument.supplied() {
                         self.execute_invocation(Invocation {

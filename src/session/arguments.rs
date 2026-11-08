@@ -57,6 +57,12 @@ impl Session {
         if let Command::Macro(control) = invocation.command {
             return self.macro_command(control, invocation.argument);
         }
+        if let Command::MacroNamed(name) = invocation.command {
+            return self.macro_named_call(name, invocation.argument);
+        }
+        if let Command::MacroBinding(id) = invocation.command {
+            return self.macro_bound_call(id, invocation.argument);
+        }
         if self.terminals.focused
             || self.capture_blocks_input()
             || self.tangling.is_some()

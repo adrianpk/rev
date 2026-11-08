@@ -48,6 +48,216 @@ fn text(session: &Session) -> String {
         .to_string()
 }
 
+// Optional metadata stays with the canonical dynamic identity and is rendered
+// as inert single-line text. The record ceiling is independent of shared bodies.
+#[test]
+fn names_metadata() {
+    use crate::command::MacroName;
+    use crate::macros::Named;
+    let mut session = session();
+    record(&mut session, false, "");
+    let source = session.macros.ring.front().unwrap().clone();
+    for index in 0..256 {
+        let name = MacroName::new(&format!("item-{index}")).unwrap();
+        let definition = session.macros.snapshot(&source).unwrap();
+        session
+            .macros
+            .name_snapshot(
+                name,
+                Named {
+                    definition,
+                    source: (source.id, source.revision),
+                    description: (index == 0).then(|| "a\n".repeat(256)),
+                },
+            )
+            .unwrap();
+    }
+    let name = MacroName::new("extra-item").unwrap();
+    let definition = session.macros.snapshot(&source).unwrap();
+    assert!(
+        session
+            .macros
+            .name_snapshot(
+                name,
+                Named {
+                    definition,
+                    source: (source.id, source.revision),
+                    description: None
+                }
+            )
+            .is_err()
+    );
+    assert_eq!(session.macros.names.len(), 256);
+    let name = MacroName::new("item-0").unwrap();
+    let definition = session.macros.snapshot(&source).unwrap();
+    assert!(
+        session
+            .macros
+            .name_snapshot(
+                name,
+                Named {
+                    definition,
+                    source: (source.id, source.revision),
+                    description: Some("a".repeat(513))
+                }
+            )
+            .is_err()
+    );
+    session.sync_macro_catalog();
+    session.execute(Command::ExecuteExtended);
+    let palette = session.input.palette().unwrap();
+    assert_eq!(
+        palette.description(Command::MacroNamed(name)),
+        Some("a ".repeat(256).as_str())
+    );
+    assert_eq!(
+        palette.description(Command::MacroNamed(MacroName::new("item-1").unwrap())),
+        None
+    );
+    session.frame().unwrap();
+}
+
+// Real distinct large bodies reach the aggregate memory ceiling before the
+// record ceiling. Admission preserves the last valid ring/name on refusal.
+#[test]
+fn names_memory() {
+    use crate::command::MacroName;
+    use crate::macros::{Named, State, Step};
+    let entry = session().macro_entry();
+    let mut state = State::default();
+    let mut refused = false;
+    for index in 0..256 {
+        let previous = state.ring.front().cloned();
+        let mut recorder = Recorder::new(entry);
+        recorder
+            .stage(Step::Text(format!("{index}{}", "x".repeat(220_000))))
+            .unwrap();
+        recorder.accept().unwrap();
+        match state.publish(recorder, 1) {
+            Ok(()) => {}
+            Err(reason) => {
+                assert_eq!(reason, StopReason::RetainedMemory);
+                assert!(Arc::ptr_eq(
+                    previous.as_ref().unwrap(),
+                    state.ring.front().unwrap()
+                ));
+                refused = true;
+                break;
+            }
+        }
+        let source = state.ring.front().unwrap().clone();
+        let definition = match state.snapshot(&source) {
+            Ok(definition) => definition,
+            Err(reason) => {
+                assert_eq!(reason, StopReason::RetainedMemory);
+                refused = true;
+                break;
+            }
+        };
+        let before = state.names.len();
+        if let Err(error) = state.name_snapshot(
+            MacroName::new(&format!("item-{index}")).unwrap(),
+            Named {
+                definition,
+                source: (source.id, source.revision),
+                description: None,
+            },
+        ) {
+            assert!(error.contains("48 MiB"));
+            assert_eq!(state.names.len(), before);
+            refused = true;
+            break;
+        }
+    }
+    assert!(refused);
+    assert!((2..256).contains(&state.names.len()));
+}
+
+// A removed captured command cannot be retargeted by a candidate row or ring
+// index. An admitted nested call cannot renew the outer logical-step budget.
+#[test]
+fn names_admission() {
+    use crate::command::MacroName;
+    use crate::macros::Named;
+    for missing in [false, true] {
+        let mut session = session();
+        record(&mut session, false, "");
+        let source = session.macros.ring.front().unwrap().clone();
+        let name = MacroName::new("part").unwrap();
+        let definition = session.macros.snapshot(&source).unwrap();
+        session
+            .macros
+            .name_snapshot(
+                name,
+                Named {
+                    definition,
+                    source: (source.id, source.revision),
+                    description: None,
+                },
+            )
+            .unwrap();
+        session.sync_macro_catalog();
+        session.handle(key(KeyCode::F(3), KeyModifiers::NONE));
+        session.handle(key(KeyCode::Char('x'), KeyModifiers::ALT));
+        session.handle(Event::Paste("part".into()));
+        session.handle(key(KeyCode::Enter, KeyModifiers::NONE));
+        for _ in 0..16 {
+            if session.macros.runner.is_none() {
+                break;
+            }
+            session.expire_input(Instant::now());
+        }
+        assert!(session.macros.runner.is_none());
+        session.handle(key(KeyCode::F(4), KeyModifiers::NONE));
+        let before = text(&session);
+        if missing {
+            session.macros.names.remove(&name);
+            session.sync_macro_catalog();
+        }
+        session.start_macro(1);
+        if !missing {
+            session.macros.runner.as_ref().unwrap().limits.steps.store(
+                crate::macros::RUN_STEPS - 1,
+                std::sync::atomic::Ordering::Relaxed,
+            );
+        }
+        session.expire_input(Instant::now());
+        if session.macros.runner.is_some() {
+            session.expire_input(Instant::now());
+        }
+        assert_eq!(
+            session.macro_stop().unwrap().reason,
+            if missing {
+                StopReason::MissingCommand
+            } else {
+                StopReason::StepBudget
+            }
+        );
+        assert_eq!(text(&session), before);
+        assert!(session.macros.runner.is_none());
+    }
+}
+
+// Replacing a directory context carries session definitions and source keys
+// with the editor owner; it does not turn the replacement into a fresh session.
+#[test]
+fn names_context() {
+    let mut session = session();
+    session.handle(key(KeyCode::F(3), KeyModifiers::NONE));
+    session.handle(key(KeyCode::Char('f'), KeyModifiers::CONTROL));
+    session.handle(key(KeyCode::F(4), KeyModifiers::NONE));
+    session.execute(Command::Macro(MacroCommand::Name));
+    session.handle(Event::Paste("move-item".into()));
+    session.handle(key(KeyCode::Enter, KeyModifiers::NONE));
+    session.execute(Command::Macro(MacroCommand::Bind));
+    session.handle(key(KeyCode::Char('7'), KeyModifiers::NONE));
+    let replacement = session.prepare_context(None).unwrap();
+    session.begin_context(replacement);
+    assert!(session.input.command_named("move-item").is_some());
+    assert_eq!(session.macros.names.len(), 1);
+    assert_eq!(session.macros.bindings.len(), 1);
+}
+
 // Appending replaces an immutable body revision. A previously pinned value
 // retains its body/counter even after metadata updates, rotation and eviction.
 #[test]

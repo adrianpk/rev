@@ -90,6 +90,8 @@ pub(super) const EDITOR: &[(&str, &str)] = &[
     ("C-x )", "kmacro-end-macro"),
     ("C-x e", "kmacro-end-and-call-macro"),
     ("C-x C-k r", "apply-macro-to-region-lines"),
+    ("C-x C-k n", "kmacro-name-last-macro"),
+    ("C-x C-k b", "kmacro-bind-to-key"),
     ("C-x q", "kbd-macro-query"),
     ("C-M-c", "exit-recursive-edit"),
     ("C-x C-k C-k", "kmacro-end-or-call-macro-repeat"),

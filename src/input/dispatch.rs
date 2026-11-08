@@ -8,6 +8,9 @@ impl Input {
         if let Some(outcome) = self.argument_entry(key) {
             return outcome;
         }
+        if let Some(outcome) = self.macro_bound(key) {
+            return outcome;
+        }
         if let Some(outcome) = self.grammar_key(key) {
             return outcome;
         }
@@ -119,6 +122,14 @@ impl Input {
     }
 
     pub(super) fn repeatable(&self, key: Key) -> bool {
+        if self.macro_bindings_active()
+            && self
+                .macro_bindings
+                .keys()
+                .any(|sequence| sequence.chords().first() == Some(&key))
+        {
+            return false;
+        }
         if let Some(repeatable) = self.completion_repeat(key) {
             return repeatable;
         }

@@ -120,7 +120,7 @@ impl Frame {
                     row,
                     label,
                     hint,
-                    command.description(),
+                    palette.description(*command),
                     columns,
                     palette.selected() == Some(index),
                 )?

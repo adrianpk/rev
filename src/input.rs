@@ -8,6 +8,7 @@ mod hints;
 mod inventory;
 mod key;
 pub mod keymap;
+pub(crate) mod macro_bindings;
 mod macros;
 mod meta;
 mod modal;
@@ -91,6 +92,7 @@ pub enum Outcome {
     PathAccept,
     Decision(bool),
     MacroQuery(MacroQuery),
+    MacroKey(keymap::Sequence),
     Message(&'static str),
 }
 
@@ -128,6 +130,7 @@ enum Context {
     Literal(Prompt),
     ReplaceDecision,
     MacroQuery,
+    MacroKey(macro_bindings::Capture),
     Decision(&'static str),
     Inventory,
 }
@@ -169,6 +172,9 @@ pub struct Input {
     command_usage: crate::command::usage::History,
     shell_history: shell::History,
     ai_commands: Vec<Command>,
+    macro_commands: Vec<Command>,
+    macro_descriptions: std::collections::BTreeMap<String, String>,
+    macro_bindings: std::collections::BTreeMap<keymap::Sequence, Command>,
     policy: crate::config::Minibuffer,
 }
 
@@ -218,6 +224,7 @@ impl Input {
 
     pub fn prompt(&self) -> Option<&Prompt> {
         match &self.context {
+            Context::MacroKey(capture) => Some(&capture.prompt),
             Context::Search(prompt) => Some(prompt),
             Context::Command(palette) => Some(palette.prompt()),
             Context::Names(names) => Some(names.prompt()),
@@ -236,6 +243,7 @@ impl Input {
             Context::Command(_) => Some("M-x "),
             Context::ReplaceDecision => Some(replace::QUESTION),
             Context::MacroQuery => Some(macros::QUESTION),
+            Context::MacroKey(capture) => Some(capture.prompt.label()),
             Context::Decision(label) => Some(label),
             Context::Inventory => Some("Buffers: arrows move, Enter selects, C-g cancels"),
             _ => self.prompt().map(Prompt::label),
@@ -335,6 +343,9 @@ impl Input {
         if key.control('g') {
             self.cancel();
             return Outcome::Command(Command::KeyboardQuit);
+        }
+        if matches!(self.context, Context::MacroKey(_)) {
+            return self.macro_key(key);
         }
         if self.macro_editing && self.focus() == Focus::Editing && key.control(']') {
             self.clear_prefix();

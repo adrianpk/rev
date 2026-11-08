@@ -5,6 +5,8 @@ mod argument;
 pub use argument::{ArgumentForm, PrefixArgument};
 mod binding;
 pub use ai_name::AiName;
+mod macro_name;
+pub use macro_name::MacroName;
 mod bookmark;
 mod buffer;
 mod completion;
@@ -57,6 +59,9 @@ pub use window::WindowCommand;
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum Command {
     Macro(MacroCommand),
+    MacroNamed(MacroName),
+    /// An anonymous session binding; absent from the named command inventory.
+    MacroBinding(u64),
     Git(GitCommand),
     Terminal(TerminalCommand),
     Modal(ModalCommand),
@@ -145,7 +150,7 @@ pub enum Command {
 }
 
 impl Command {
-    pub const ALL: [Self; 648] = [
+    pub const ALL: [Self; 650] = [
         Self::Macro(MacroCommand::StartOrCounter),
         Self::Macro(MacroCommand::Start),
         Self::Macro(MacroCommand::End),
@@ -166,6 +171,8 @@ impl Command {
         Self::Macro(MacroCommand::Query),
         Self::Macro(MacroCommand::Resume),
         Self::Macro(MacroCommand::Abort),
+        Self::Macro(MacroCommand::Name),
+        Self::Macro(MacroCommand::Bind),
         Self::PrefixArgument,
         Self::UniversalArgument,
         Self::DigitArgument,
@@ -811,7 +818,10 @@ impl Command {
     /// Optional single-line catalog summary for command selectors.
     /// Built-ins own fixed summaries; user-defined commands can omit metadata.
     pub fn description(&self) -> Option<&'static str> {
-        if matches!(self, Self::AiDefined(_)) {
+        if matches!(
+            self,
+            Self::AiDefined(_) | Self::MacroNamed(_) | Self::MacroBinding(_)
+        ) {
             None
         } else {
             Some(self.canonical().builtin_description())
@@ -821,6 +831,8 @@ impl Command {
     pub fn name(&self) -> &str {
         match self {
             Self::Macro(command) => command.name(),
+            Self::MacroNamed(name) => name.name(),
+            Self::MacroBinding(_) => "kmacro-bound-input",
             Self::AiDefined(name) => name.name(),
             Self::Navigate(request) => request.name(),
             Self::Edit(request) => request.name(),
@@ -836,7 +848,9 @@ impl Command {
     fn builtin_description(&self) -> &'static str {
         match self {
             Self::Macro(command) => command.description(),
-            Self::AiDefined(_) => unreachable!("user commands retain optional metadata"),
+            Self::AiDefined(_) | Self::MacroNamed(_) | Self::MacroBinding(_) => {
+                unreachable!("user commands retain optional metadata")
+            }
             Self::Navigate(request) => request.description(),
             Self::Edit(request) => request.description(),
             Self::Modal(command) => command.description(),

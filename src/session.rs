@@ -221,6 +221,9 @@ enum AfterSave {
 }
 
 enum Pending {
+    MacroName(Box<macros::names::Draft>),
+    MacroBind(Box<macros::names::Draft>),
+    MacroConsent(Box<macros::names::Consent>),
     MacroCounter {
         command: crate::command::MacroCommand,
         view: crate::window::ViewId,
@@ -883,6 +886,7 @@ impl Session {
             Outcome::PathAccept => self.accept_path(),
             Outcome::Decision(accepted) => self.decision(accepted),
             Outcome::MacroQuery(answer) => self.macro_query_answer(answer),
+            Outcome::MacroKey(sequence) => self.macro_key_argument(sequence),
             Outcome::Selection(selection) => self.select_candidate(selection),
             Outcome::Complete => self.complete_argument(),
             Outcome::Changed => self.input_changed(),
@@ -932,6 +936,12 @@ impl Session {
         }
         if let Command::Macro(control) = command {
             return self.macro_command(control, Default::default());
+        }
+        if let Command::MacroNamed(name) = command {
+            return self.macro_named_call(name, Default::default());
+        }
+        if let Command::MacroBinding(id) = command {
+            return self.macro_bound_call(id, Default::default());
         }
         if command.prefix_control() {
             return self.execute_prefix_control(command);
@@ -1109,6 +1119,8 @@ impl Session {
             Command::RevertBuffer => self.revert_buffer(),
             Command::AiSaveCommand => self.ai_save_command(),
             Command::AiDefined(name) => self.ai_defined(name),
+            Command::MacroNamed(name) => self.macro_named_call(name, Default::default()),
+            Command::MacroBinding(id) => self.macro_bound_call(id, Default::default()),
             Command::AiExplain => self.ai_command(ai::Kind::Explain),
             Command::AiPrompt => self.ai_command(ai::Kind::Prompt),
             Command::AiImplement => self.ai_command(ai::Kind::Implement),

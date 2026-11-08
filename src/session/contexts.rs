@@ -238,6 +238,8 @@ impl Session {
             .buffers
             .inherit_bookmarks(self.buffers.bookmarks.clone());
         destination.input.inherit_histories(&mut self.input);
+        std::mem::swap(&mut destination.macros, &mut self.macros);
+        destination.sync_macro_catalog();
         std::mem::swap(&mut destination.kills, &mut self.kills);
         std::mem::swap(&mut destination.rectangle, &mut self.rectangle);
         std::mem::swap(

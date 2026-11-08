@@ -23,6 +23,7 @@ pub struct Palette {
     draft: String,
     policy: crate::config::Minibuffer,
     ai_commands: Vec<Command>,
+    descriptions: BTreeMap<String, String>,
     usage: crate::command::usage::Usage,
     hints: BTreeMap<String, String>,
 }
@@ -33,6 +34,7 @@ impl Palette {
         ai_commands: &[Command],
         usage: &crate::command::usage::Usage,
         hints: BTreeMap<String, String>,
+        descriptions: BTreeMap<String, String>,
     ) -> Result<Self, Error> {
         Ok(Self {
             prompt: Prompt::new("M-x ", "", policy.input_limit)?,
@@ -46,6 +48,7 @@ impl Palette {
             ai_commands: ai_commands.to_vec(),
             usage: usage.clone(),
             hints,
+            descriptions,
         })
     }
 
@@ -59,6 +62,14 @@ impl Palette {
         self.hints
             .get(command.canonical().name())
             .map(String::as_str)
+    }
+
+    /// Optional metadata remains keyed by the admitted dynamic identity.
+    pub fn description(&self, command: Command) -> Option<&str> {
+        self.descriptions
+            .get(command.name())
+            .map(String::as_str)
+            .or_else(|| command.description())
     }
 
     pub(super) fn retire_hints(&mut self) {
@@ -240,11 +251,18 @@ impl Input {
         if self.grammar.count.is_some() || self.grammar.operator.is_some() {
             self.retain_modal_argument_conflict(true);
         }
+        let commands: Vec<_> = self
+            .ai_commands
+            .iter()
+            .chain(&self.macro_commands)
+            .copied()
+            .collect();
         self.context = Context::Command(Palette::new(
             &self.policy,
-            &self.ai_commands,
+            &commands,
             &self.command_usage.snapshot(),
             self.command_hints(),
+            self.macro_descriptions.clone(),
         )?);
         self.clear_sequence();
         Ok(())

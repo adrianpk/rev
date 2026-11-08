@@ -55,6 +55,9 @@ impl Session {
             });
             run.waiting = waiting;
         }
+        if let Err(reason) = self.macros.admit_memory(None) {
+            return self.stop_macro(reason, "Macro region exceeds retained memory");
+        }
         action
     }
 

@@ -57,8 +57,14 @@ impl Session {
                 "Macro append did not restore its entry state",
             );
         }
-        let run = self.macros.finish_run().expect("completed runner");
+        let mut run = self.macros.finish_run().expect("completed runner");
         self.buffers.automatic_group(None);
+        if let Some(mut parent) = run.parent.take() {
+            parent.expected = (self.windows.selected_id(), self.view().point);
+            parent.waiting = self.layout_active();
+            self.macros.runner = Some(*parent);
+            return self.message("Named macro returned");
+        }
         if run.append {
             let mut recorder = Recorder::append(&run.definition);
             recorder.counter = run.counter;

@@ -89,6 +89,8 @@ mod counters;
 #[path = "macros/ring.rs"]
 mod ring;
 
+#[path = "macros/names.rs"]
+mod names;
 #[path = "macros/queries.rs"]
 mod queries;
 #[path = "macros/regions.rs"]

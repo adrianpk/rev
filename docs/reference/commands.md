@@ -1534,8 +1534,7 @@ input. Recorded consent is never reused. Waiting for an answer has no automatic
 macro wake; C-g cancels while retaining partial source edits in the iteration's
 undo unit. Ordinary editing, movement, modal operations, regions, kill/yank and
 pane commands remain available. External jobs, terminal transfers and context
-replacement stop explicitly before starting. Named definitions and persistence
-arrive in later increments.
+replacement stop explicitly before starting. Persistent libraries and definition editing arrive in later increments.
 
 | Command | Description |
 | --- | --- |
@@ -1559,6 +1558,8 @@ arrive in later increments.
 | `kbd-macro-query` | Add a confirmation or editing pause to a macro. |
 | `exit-recursive-edit` | Resume a macro after its manual editing pause. |
 | `abort-recursive-edit` | Abort a macro editing pause and its playback. |
+| `kmacro-name-last-macro` | Give the current macro a session command name. |
+| `kmacro-bind-to-key` | Bind a session macro to a key sequence. |
 
 The session ring is shared across buffers and retains up to `macros.ring_limit`
 recordings (default 8, range 1..32). Cycle older/newer, swap the first two, delete
@@ -1613,3 +1614,27 @@ no targets. Native edits map the original line anchors. Inserted rows add none,
 deleted source lines are skipped, and replacing a line's first character retains
 that line. Each executed target has its own native undo unit and all targets
 share the same outer budgets. Cancellation and failure retain partial edits.
+
+
+C-x C-k n names an independent snapshot of the current recording for this editor
+session. Names use 1..64 lowercase ASCII letters, digits and hyphens, beginning
+with a letter. Compiled commands, prompt actions and admitted AI commands retain
+their names. Replacing another session snapshot requires a fresh confirmation.
+Ring append, rotation, eviction and playback do not mutate earlier named values.
+M-x and modal colon expose these names with ordinary ranking and effective key
+hints. An absent description adds no placeholder text.
+
+C-x C-k b reads a native key sequence for the current recording. A single digit
+or uppercase letter selects its C-x C-k slot. A matching named snapshot supplies
+the target; otherwise the binding retains an independent anonymous snapshot.
+Replacing an occupied source key or prefix requires confirmation. Cancellation
+and prefix-argument keys stay reserved. The session layer applies only to source
+editing; prompts, local components and raw terminals retain their own keys.
+Configured maps remain intact beneath the explicit session override.
+
+Named calls in recordings retain their canonical name. Each call pins its current
+snapshot on admission, shares the outer undo group and budgets, and returns to
+its native caller. Recursive name cycles and more than sixteen active call frames
+stop before admitting the child. Naming and binding create no library file and
+perform no implicit save. Names and bindings each admit at most 256 session
+entries, within the shared 48 MiB retained-memory ceiling.

@@ -712,6 +712,8 @@ bounds, cancellation and the currently delivered counted movement policies.
 | C-x C-k r | `apply-macro-to-region-lines` | Run the current macro on logical lines in the region. |
 | C-x q | `kbd-macro-query` | Add a confirmation or editing pause to a macro. |
 | C-M-c | `exit-recursive-edit` | Resume a macro after its manual editing pause. |
+| C-x C-k n | `kmacro-name-last-macro` | Give the current macro a session command name. |
+| C-x C-k b | `kmacro-bind-to-key` | Bind a session macro to a key sequence. |
 | C-] during manual macro editing | `abort-recursive-edit` | Abort a macro editing pause and its playback. |
 
 F3 and F4 are logical function-key reports. Their effective bindings remain

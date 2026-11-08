@@ -25,6 +25,9 @@ impl Input {
         if self.macro_editing {
             sequences.insert(Sequence::parse("C-]").expect("native macro abort key"));
         }
+        if self.macro_bindings_active() {
+            sequences.extend(self.macro_bindings.keys().cloned());
+        }
         if self.workspace_completion && !self.workspace_startup {
             sequences.extend(
                 self.keymaps
@@ -138,6 +141,9 @@ impl Input {
             command_usage: Default::default(),
             shell_history: Default::default(),
             ai_commands: Vec::new(),
+            macro_commands: Vec::new(),
+            macro_descriptions: Default::default(),
+            macro_bindings: self.macro_bindings.clone(),
             policy: self.policy.clone(),
         }
     }

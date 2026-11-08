@@ -23,7 +23,9 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
   until a native stop, cancellation or the finite budget. Add C-x q queries to
   continue, skip or stop replay, or pause for manual editing and resume with C-M-c.
   Apply a recording to original logical lines in a region; inserted lines add
-  no targets and deleted lines are skipped.
+  no targets and deleted lines are skipped. Name independent session snapshots
+  as M-x or colon commands, bind them to source keys and reuse them from other
+  recordings without changing their native undo or execution limits.
 
 - Supply counts with `C-u`, Meta digits or a negative prefix to move by
   characters, words or ordinary rows, insert repeated text, delete or kill a

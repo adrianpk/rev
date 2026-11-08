@@ -1,7 +1,9 @@
+mod calls;
 mod capture;
 mod controls;
 mod counters;
 mod literal;
+pub(in crate::session) mod names;
 mod queries;
 mod regions;
 mod repeat;
@@ -158,6 +160,9 @@ impl Session {
                 "Manual macro editing stopped before unsupported command",
             ));
         }
+        if matches!(command, Command::MacroNamed(_) | Command::MacroBinding(_)) {
+            return None;
+        }
         if matches!(command, Command::Macro(_)) && !self.macros.expanded {
             return None;
         }
@@ -201,6 +206,8 @@ impl Session {
             return self.error(&error.to_string());
         }
         match command {
+            MacroCommand::Name => return self.macro_name_prompt(false),
+            MacroCommand::Bind => return self.macro_name_prompt(true),
             MacroCommand::Query => return self.macro_query_command(argument),
             MacroCommand::Resume => return self.macro_resume(),
             MacroCommand::Abort => {
@@ -304,10 +311,31 @@ impl Session {
         let Some(definition) = self.macros.ring.front().cloned() else {
             return self.message("No keyboard macro is available");
         };
+        self.start_definition(definition, count, None)
+    }
+
+    fn start_definition(
+        &mut self,
+        definition: Arc<crate::macros::Definition>,
+        count: i32,
+        name: Option<crate::command::MacroName>,
+    ) -> Action {
+        if let Err(reason) = self.macro_call_admission(name) {
+            return self.stop_macro(
+                reason,
+                "Macro call cycle, depth or retained-memory limit reached",
+            );
+        }
         if definition.steps.is_empty() {
             return self.stop_macro(StopReason::Empty, "Empty keyboard macro cannot run");
         }
         if !self.macro_source() || definition.entry != self.macro_entry() {
+            if self.macros.active() {
+                return self.stop_macro(
+                    StopReason::EntryState,
+                    "Called macro entry profile or source state differs",
+                );
+            }
             self.macros.stop = Some(Stop {
                 reason: StopReason::EntryState,
                 iteration: 1,
@@ -315,12 +343,15 @@ impl Session {
             });
             return self.message("Keyboard macro entry profile or source state differs");
         }
-        let limits = self
-            .macros
-            .pauses
-            .iter()
-            .rev()
-            .find_map(|pause| pause.runner.as_ref().map(|run| run.limits.clone()))
+        let ancestor = self.macros.runner.as_ref().or_else(|| {
+            self.macros
+                .pauses
+                .iter()
+                .rev()
+                .find_map(|pause| pause.runner.as_ref())
+        });
+        let limits = ancestor
+            .map(|run| run.limits.clone())
             .unwrap_or_else(|| Arc::new(crate::macros::Limits::new()));
         if !limits.iteration() {
             return self.stop_macro(
@@ -330,12 +361,7 @@ impl Session {
         }
         limits.resume();
         let budget = limits.text.clone();
-        let outer_group = self
-            .macros
-            .pauses
-            .iter()
-            .rev()
-            .find_map(|pause| pause.runner.as_ref().map(|run| run.group.clone()));
+        let outer_group = ancestor.map(|run| run.group.clone());
         let group = outer_group
             .clone()
             .unwrap_or_else(|| crate::buffer::edit::AutomaticGroup::new(budget.clone()));
@@ -344,7 +370,10 @@ impl Session {
         let mut counter = definition.counter.clone();
         counter.iteration_start = counter.current;
         counter.format = definition.initial_format.clone();
+        let parent = self.macros.runner.take().map(Box::new);
         self.macros.runner = Some(Runner {
+            name,
+            parent,
             counter,
             append: false,
             definition,
@@ -381,7 +410,9 @@ fn supported(command: Command) -> bool {
     }
     matches!(
         command,
-        Command::Motion(_)
+        Command::MacroNamed(_)
+            | Command::MacroBinding(_)
+            | Command::Motion(_)
             | Command::Navigate(_)
             | Command::Edit(_)
             | Command::Modal(_)

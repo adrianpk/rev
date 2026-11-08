@@ -53,6 +53,24 @@ impl Session {
         if recorder.command.is_some() {
             return None;
         }
+        if let Some(command @ Command::MacroNamed(_)) = command {
+            let argument = match outcome {
+                Outcome::Invocation(invocation) => invocation.argument,
+                _ => PrefixArgument::default(),
+            };
+            recorder.selecting = false;
+            recorder.discard_pending();
+            recorder.begin_command(
+                CommandStep {
+                    name: command.name().into(),
+                    argument,
+                    keys: None,
+                    arguments: Vec::new(),
+                },
+                true,
+            );
+            return None;
+        }
         if let Some(Command::Completion(control)) = command {
             recorder.selecting = false;
             if control == CompletionCommand::AtPoint {
@@ -165,6 +183,12 @@ impl Session {
     }
 
     pub(in crate::session) fn macro_finish_capture(&mut self) {
+        if self.macros.recorder.is_some()
+            && let Err(reason) = self.macros.admit_memory(None)
+        {
+            self.stop_macro(reason, "Macro retained memory exceeds 48 MiB");
+            return;
+        }
         if self.pending.is_none()
             && !self.layout_active()
             && self.input.focus() == crate::input::Focus::Editing

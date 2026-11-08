@@ -21,6 +21,8 @@ pub enum MacroCommand {
     Query,
     Resume,
     Abort,
+    Name,
+    Bind,
 }
 
 impl MacroCommand {
@@ -46,6 +48,8 @@ impl MacroCommand {
             Self::Query => "kbd-macro-query",
             Self::Resume => "exit-recursive-edit",
             Self::Abort => "abort-recursive-edit",
+            Self::Name => "kmacro-name-last-macro",
+            Self::Bind => "kmacro-bind-to-key",
         }
     }
 
@@ -71,6 +75,8 @@ impl MacroCommand {
             Self::Query => "Add a confirmation or editing pause to a macro.",
             Self::Resume => "Resume a macro after its manual editing pause.",
             Self::Abort => "Abort a macro editing pause and its playback.",
+            Self::Name => "Give the current macro a session command name.",
+            Self::Bind => "Bind a session macro to a key sequence.",
         }
     }
 }

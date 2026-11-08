@@ -136,6 +136,7 @@ impl Session {
     }
     fn file_argument(&mut self, pending: Option<Pending>, path: String) -> Action {
         match pending {
+            Some(Pending::MacroName(draft)) => self.macro_name_argument(*draft, &path),
             Some(Pending::MacroCounter {
                 command,
                 view,

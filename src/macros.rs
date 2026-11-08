@@ -4,6 +4,8 @@ use std::sync::atomic::AtomicUsize;
 use std::time::Instant;
 mod execution;
 pub(crate) use execution::{Limits, PAUSE_LIMIT, Pause, Region};
+mod names;
+pub(crate) use names::{CALL_LIMIT, NAME_LIMIT, Named, Target};
 
 use crate::buffer::edit::Point;
 use crate::config::InteractionProfile;
@@ -55,6 +57,9 @@ pub enum StopReason {
     PauseLimit,
     RegionLimit,
     IterationBudget,
+    CallCycle,
+    CallDepth,
+    RetainedMemory,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -104,6 +109,7 @@ impl Step {
 
 #[derive(Clone)]
 pub(crate) struct Definition {
+    pub retained_bytes: usize,
     pub id: u64,
     pub revision: u64,
     pub counter: Counter,
@@ -211,6 +217,8 @@ impl Recorder {
 }
 
 pub(crate) struct Runner {
+    pub name: Option<crate::command::MacroName>,
+    pub parent: Option<Box<Runner>>,
     pub counter: Counter,
     pub append: bool,
     pub definition: Arc<Definition>,
@@ -231,6 +239,9 @@ pub(crate) struct Runner {
 }
 
 pub(crate) struct State {
+    pub catalog_revision: u64,
+    pub names: std::collections::BTreeMap<crate::command::MacroName, Named>,
+    pub bindings: std::collections::BTreeMap<crate::input::keymap::Sequence, Target>,
     pub ring: std::collections::VecDeque<Arc<Definition>>,
     next_id: u64,
     pub default_format: String,
@@ -254,6 +265,9 @@ pub(crate) enum Repeat {
 impl Default for State {
     fn default() -> Self {
         Self {
+            catalog_revision: 0,
+            names: Default::default(),
+            bindings: Default::default(),
             ring: Default::default(),
             next_id: 0,
             default_format: "%d".into(),
@@ -327,6 +341,22 @@ impl State {
             updated.counter = run.counter.clone();
             *definition = Arc::new(updated);
         }
+        for named in self.names.values_mut() {
+            if named.definition.id == run.definition.id {
+                let mut updated = (*named.definition).clone();
+                updated.counter = run.counter.clone();
+                named.definition = Arc::new(updated);
+            }
+        }
+        for target in self.bindings.values_mut() {
+            if let Target::Snapshot(definition) = target
+                && definition.id == run.definition.id
+            {
+                let mut updated = (**definition).clone();
+                updated.counter = run.counter.clone();
+                *definition = Arc::new(updated);
+            }
+        }
     }
 
     pub fn publish(&mut self, recorder: Recorder, limit: usize) -> Result<(), StopReason> {
@@ -346,15 +376,18 @@ impl State {
             self.next_id = id;
             (id, 1)
         };
-        self.ring.retain(|definition| definition.id != id);
-        self.ring.push_front(Arc::new(Definition {
+        let definition = Arc::new(Definition {
+            retained_bytes: recorder.bytes + recorder.steps.len() * std::mem::size_of::<Step>(),
             id,
             revision,
             entry: recorder.entry,
             steps: recorder.steps.into(),
             counter: recorder.counter,
             initial_format: recorder.initial_format,
-        }));
+        });
+        self.admit_memory(Some(&definition))?;
+        self.ring.retain(|definition| definition.id != id);
+        self.ring.push_front(definition);
         self.ring.truncate(limit);
         Ok(())
     }
@@ -393,11 +426,17 @@ impl State {
             step: current.map_or(0, |run| run.step),
         });
         for pause in std::mem::take(&mut self.pauses) {
-            if let Some(run) = pause.runner {
-                self.publish_counter(&run);
+            let mut run = pause.runner;
+            while let Some(frame) = run {
+                self.publish_counter(&frame);
+                run = frame.parent.map(|parent| *parent);
             }
         }
         self.recorder = None;
-        self.finish_run();
+        let mut run = self.runner.take();
+        while let Some(frame) = run {
+            self.publish_counter(&frame);
+            run = frame.parent.map(|parent| *parent);
+        }
     }
 }

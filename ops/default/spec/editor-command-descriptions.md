@@ -879,6 +879,8 @@ commands enter this shared live catalog only when their native handlers arrive.
 | `kbd-macro-query` | Add a confirmation or editing pause to a macro. |
 | `exit-recursive-edit` | Resume a macro after its manual editing pause. |
 | `abort-recursive-edit` | Abort a macro editing pause and its playback. |
+| `kmacro-name-last-macro` | Give the current macro a session command name. |
+| `kmacro-bind-to-key` | Bind a session macro to a key sequence. |
 
 ## Completed delivery evidence
 

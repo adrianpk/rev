@@ -50,6 +50,12 @@ impl Session {
     ) -> Action {
         let result = (|| {
             let identity = crate::command::AiName::new(name)?;
+            if matches!(
+                self.input.command_named(identity.name()),
+                Some(crate::command::Command::MacroNamed(_))
+            ) {
+                return Err("AI name collides with a session macro command".into());
+            }
             let active = &self.buffers.snapshot().settings().ai.commands;
             let captured = prompt.edit.snapshot().map_err(|e| e.to_string())?;
             if active.contains_key(name) || captured.settings().ai.commands.contains_key(name) {
