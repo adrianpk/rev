@@ -8,7 +8,7 @@ Execution authorized: one four-slice Looper run, 2026-11-08
 Plan: [Command Prefix Arguments Delivery](../plan/rev-prefix-arguments.md)
 Specification: [Command Prefix Arguments](../spec/editor-prefix-arguments.md)
 Concern: [Pending Editor Work](../README.md)
-Active slice: Slice 1 of 4, pending execution startup
+Active slice: Slice 1 of 4, implementation complete; required focused validation blocked
 Progress owner: the authorized Looper checkpoint and canonical validation evidence
 
 ## Canonical slice map
@@ -22,17 +22,31 @@ Progress owner: the authorized Looper checkpoint and canonical validation eviden
 
 ## Slice 1: Prefix entry and movement
 
-State: pending
-Dependency: published approved preparation and explicit execution startup.
+State: implementation complete; validation blocked
+Dependency: approved preparation published; execution authorized.
 Branch: `feat/rev-prefix-arguments-01-entry`
 PR: pending
 Integrated: pending
 Report: `ops/default/report/slices/rev-prefix-arguments/slice-1-entry.md`
-Validation: focused subset defined in the plan
+Validation: formatting, Clippy, commands (22/22), and documentation passed; required wrapping failed (24/26). See the canonical report for commands and baseline evidence.
 
-- [ ] T1.1: Define transient argument forms, canonical helpers/alias, complete descriptions, effective bindings and checked entry/cancellation.
-- [ ] T1.2: Carry arguments through native input and M-x; deliver signed character/word/vertical movement with ordinary wrapping units and preserve existing C-u routes.
-- [ ] T1.3: Add prefix_arguments native cases, update current catalogs and incremental references, and introduce the canonical report.
+- [x] T1.1: Define transient argument forms, canonical helpers/alias, complete descriptions, effective bindings and checked entry/cancellation.
+- [x] T1.2: Carry arguments through native input and M-x; deliver signed character/word/vertical movement with ordinary wrapping units and preserve existing C-u routes.
+- [x] T1.3: Add prefix_arguments native cases, update current catalogs and incremental references, and introduce the canonical report.
+
+### Slice 1 validation blocker
+
+The required wrapping target fails in `org::source_draft` and
+`org::table_fields`. Both failures reproduce at the approved preparation
+baseline `c268f429e78a73631eb7fddae69d6722bf6109c7` without Slice 1 changes.
+The former reports "Source block or view changed during observation" and
+retains the parent buffer; the latter leaves Scalar(2) instead of Scalar(21).
+The slice report records the focused baseline comparison and exact commands.
+
+No canonical PR has been opened. Required commands and assertions are unchanged;
+this unit is not ready for integration. Resolution of these pre-existing
+required failures remains outside the delivered prefix entry/movement change.
+The retained checkpoint and exact clean-HEAD validation receipt own continuation.
 
 ## Slice 2: Counted edits and history
 
@@ -84,7 +98,7 @@ Validation: focused subset defined in the plan; final slice uses the unchanged c
 - [ ] Complete specification, plan and tracker and reconcile the index.
 - [ ] Confirm only the eight configured closure documents changed afterward.
 
-No implementation, integration or validation outcome is claimed by this
-preparation. The retained execution checkpoint owns live progress; update these
-records with actual task commits, PR identities and receipts rather than
-parallel inferred activity.
+Slice 1 implementation and its focused validation blocker are recorded above.
+No canonical integration or delivery-set acceptance is claimed. The retained
+execution checkpoint owns live progress and the exact clean-HEAD receipt; later
+slices remain pending.

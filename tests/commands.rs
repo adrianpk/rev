@@ -21,6 +21,8 @@ mod org_headings;
 mod org_visibility;
 #[path = "commands/preferences.rs"]
 mod preferences;
+#[path = "commands/prefix_arguments.rs"]
+mod prefix_arguments;
 
 #[path = "commands/flows.rs"]
 mod flows;

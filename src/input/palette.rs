@@ -243,7 +243,7 @@ impl Input {
             &self.command_usage.snapshot(),
             self.command_hints(),
         )?);
-        self.clear_prefix();
+        self.clear_sequence();
         Ok(())
     }
 
@@ -271,12 +271,23 @@ impl Input {
         if let Outcome::Command(command) = outcome {
             // M-x, modal colon and configured accept aliases share this path.
             // Count before a handler can fail or open another argument prompt.
-            self.command_usage.record(command);
+            let identity = if command == Command::UniversalArgument {
+                Command::PrefixArgument
+            } else {
+                command
+            };
+            self.command_usage.record(identity);
             self.history.retain(|previous| *previous != command);
             self.history.push_front(command);
             self.history.truncate(self.policy.history_limit);
         }
-        self.cancel();
+        if matches!(outcome, Outcome::Command(_)) {
+            self.context = Context::Editing;
+            self.clear_sequence();
+            self.suppress_repeat = true;
+        } else {
+            self.cancel();
+        }
         outcome
     }
 }

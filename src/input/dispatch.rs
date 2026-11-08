@@ -5,6 +5,9 @@ use super::{Input, Key, Outcome, Prefix};
 
 impl Input {
     pub(super) fn mapped(&mut self, key: Key) -> Outcome {
+        if let Some(outcome) = self.argument_entry(key) {
+            return outcome;
+        }
         if let Some(outcome) = self.grammar_key(key) {
             return outcome;
         }
@@ -24,7 +27,19 @@ impl Input {
         self.unmatched(key, continued)
     }
 
-    fn bound(&mut self, binding: Binding, key: Key, custom: bool, continued: bool) -> Outcome {
+    pub(super) fn bound(
+        &mut self,
+        binding: Binding,
+        key: Key,
+        custom: bool,
+        continued: bool,
+    ) -> Outcome {
+        if self.focus() == super::Focus::Editing
+            && let Binding::Command(command) = binding
+            && command.prefix_control()
+        {
+            return self.prefix_control(command, Some(key));
+        }
         let binding = match self.navigation_binding(binding) {
             Ok(binding) => binding,
             Err(outcome) => return outcome,
@@ -35,7 +50,7 @@ impl Input {
 
     pub(super) fn unmatched(&mut self, key: Key, continued: bool) -> Outcome {
         let operator = self.grammar.operator.is_some();
-        self.clear_prefix();
+        self.clear_sequence();
         if operator {
             return Outcome::Message("Undefined operator target");
         }
@@ -55,6 +70,9 @@ impl Input {
     /// The bounded pending sequence is input state, independent of buffer text.
     /// Built-in prefixes keep their public identities and existing notices.
     pub fn prefix_label(&self) -> Option<String> {
+        if let Some(label) = self.argument_label() {
+            return Some(label);
+        }
         if let Some(label) = self.navigation_label() {
             return Some(label);
         }
@@ -66,6 +84,11 @@ impl Input {
     }
 
     pub(super) fn clear_prefix(&mut self) {
+        self.clear_argument();
+        self.clear_sequence();
+    }
+
+    pub(super) fn clear_sequence(&mut self) {
         self.grammar = Default::default();
         self.prefix = None;
         self.chords.clear();

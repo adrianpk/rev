@@ -4,6 +4,7 @@ mod agenda_custom;
 mod agenda_queries;
 mod agenda_sources;
 mod ai;
+mod arguments;
 mod assets;
 mod bookmarks;
 mod buffers;
@@ -858,6 +859,11 @@ impl Session {
         match outcome {
             Outcome::Search(action) => self.search_action(action),
             Outcome::Command(command) => self.command_outcome(command),
+            Outcome::Invocation(invocation) => {
+                self.retire_command();
+                self.execute_invocation(*invocation)
+            }
+            Outcome::ArgumentPrefix(_) => self.argument_feedback(),
             _ => self.argument_outcome(outcome, now),
         }
     }
@@ -911,6 +917,9 @@ impl Session {
     /// Executes the same implemented command enum produced by key bindings.
     pub fn execute(&mut self, command: Command) -> Action {
         let command = command.canonical();
+        if command.prefix_control() {
+            return self.execute_prefix_control(command);
+        }
         if command == Command::KeyboardQuit && self.cancel_context_operation() {
             return self.message("Project preparation canceled; live sources retained");
         }

@@ -1,3 +1,5 @@
+mod argument;
+pub use argument::{Invocation, InvocationOrigin};
 mod completion;
 mod context;
 mod dispatch;
@@ -78,6 +80,8 @@ pub enum Outcome {
     Selection(Selection),
     Prefix(Prefix),
     Command(Command),
+    Invocation(Box<Invocation>),
+    ArgumentPrefix(Command),
     Editing(Key),
     Paste(String),
     Argument(String),
@@ -112,6 +116,7 @@ enum Context {
     Search(Prompt),
     Command(Palette),
     Argument(Prompt),
+    ArgumentDigit(Prompt),
     Shell(Prompt),
     Names(Names),
     Calendar(Prompt),
@@ -132,6 +137,7 @@ pub struct Input {
     context: Context,
     prefix: Option<Prefix>,
     grammar: grammar::Grammar,
+    argument: argument::State,
     navigation_source: Option<(crate::window::ViewId, crate::buffer::edit::Point)>,
     chords: Vec<Key>,
     keymaps: keymap::Effective,
@@ -208,6 +214,7 @@ impl Input {
             Context::Names(names) => Some(names.prompt()),
             Context::Calendar(prompt)
             | Context::Argument(prompt)
+            | Context::ArgumentDigit(prompt)
             | Context::Shell(prompt)
             | Context::Path(prompt)
             | Context::Literal(prompt) => Some(prompt),
@@ -253,10 +260,12 @@ impl Input {
     pub fn handle_at(&mut self, event: Event, now: Instant) -> Outcome {
         self.expire(now);
         if let Event::Mouse(event) = event {
-            return self.pointer(event);
+            let outcome = self.pointer(event);
+            return self.argument_outcome(outcome);
         }
         if let Event::Paste(text) = event {
-            return self.paste(text);
+            let outcome = self.paste(text);
+            return self.argument_outcome(outcome);
         }
         let Event::Key(event) = event else {
             return Outcome::Ignored;
@@ -275,7 +284,8 @@ impl Input {
         if let Some(outcome) = self.completion_key(key) {
             return outcome;
         }
-        self.meta_key(key, now)
+        let outcome = self.meta_key(key, now);
+        self.argument_outcome(outcome)
     }
 
     fn pointer(&self, event: crossterm::event::MouseEvent) -> Outcome {
@@ -326,6 +336,7 @@ impl Input {
             Context::Editing if self.workspace_startup => inventory::handle(key),
             Context::Editing => self.literal(key),
             Context::Argument(prompt) | Context::Calendar(prompt) => prompt.handle(key),
+            Context::ArgumentDigit(_) => self.argument_digit(key),
             Context::Shell(prompt) => self.shell_history.handle(prompt, key),
             Context::Path(prompt) => path::handle(prompt, key),
             Context::Literal(prompt) => replace::argument(prompt, key),

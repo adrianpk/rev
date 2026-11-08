@@ -46,7 +46,11 @@ impl Usage {
             .iter()
             .filter_map(|command| {
                 usage
-                    .get(command.name())
+                    .get(if *command == Command::UniversalArgument {
+                        Command::PrefixArgument.name()
+                    } else {
+                        command.name()
+                    })
                     .map(|&(count, last)| (command.name(), count, last))
             })
             .collect();

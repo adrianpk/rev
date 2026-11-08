@@ -1,6 +1,8 @@
 use crate::search::Direction;
 use navigation::{Find, Screen, Search, Target, Word};
 mod ai_name;
+mod argument;
+pub use argument::{ArgumentForm, PrefixArgument};
 mod binding;
 pub use ai_name::AiName;
 mod bookmark;
@@ -65,6 +67,10 @@ pub enum Command {
     SearchForward,
     SearchBackward,
     ExecuteExtended,
+    PrefixArgument,
+    UniversalArgument,
+    DigitArgument,
+    NegativeArgument,
     Quit,
     QuitAlias,
     FindFile,
@@ -136,7 +142,11 @@ pub enum Command {
 }
 
 impl Command {
-    pub const ALL: [Self; 624] = [
+    pub const ALL: [Self; 628] = [
+        Self::PrefixArgument,
+        Self::UniversalArgument,
+        Self::DigitArgument,
+        Self::NegativeArgument,
         Self::Git(GitCommand::Clone),
         Self::Git(GitCommand::CloneShallow),
         Self::Git(GitCommand::CloneBare),
@@ -845,6 +855,10 @@ impl Command {
             Self::Rectangle(command) => command.name(),
             Self::Gutter(command) => command.name(),
             Self::ExecuteExtended => "execute-extended-command",
+            Self::PrefixArgument => "prefix-argument",
+            Self::UniversalArgument => "universal-argument",
+            Self::DigitArgument => "digit-argument",
+            Self::NegativeArgument => "negative-argument",
             Self::Quit => "save-buffers-kill-terminal",
             Self::QuitAlias => "quit",
             Self::FindFile => "find-file",
@@ -901,6 +915,9 @@ impl Command {
             Self::Rectangle(command) => command.description(),
             Self::Gutter(command) => command.description(),
             Self::ExecuteExtended => "Find and invoke a command.",
+            Self::PrefixArgument => "Set an argument for the next command.",
+            Self::DigitArgument => "Add a digit to the pending command argument.",
+            Self::NegativeArgument => "Set the sign of the pending command argument.",
             Self::Quit => "Exit rev after resolving unsaved work and active processes.",
             Self::FindFile => "Open a file or directory.",
             Self::GenerateNewBuffer => "Add an unnamed buffer in the active context.",
@@ -1049,6 +1066,7 @@ impl Command {
     pub(crate) fn canonical(self) -> Self {
         match self {
             Self::QuitAlias => Self::Quit,
+            Self::UniversalArgument => Self::PrefixArgument,
             command => command,
         }
     }
@@ -1115,6 +1133,15 @@ impl Command {
                 | Self::Linear(_)
                 | Self::SearchForward
                 | Self::SearchBackward
+        )
+    }
+}
+
+impl Command {
+    pub(crate) fn prefix_control(self) -> bool {
+        matches!(
+            self.canonical(),
+            Self::PrefixArgument | Self::DigitArgument | Self::NegativeArgument
         )
     }
 }

@@ -30,6 +30,9 @@ impl Input {
     pub(crate) fn observe_navigation(&mut self, view: ViewId, point: Point) {
         let observation = Some((view, point));
         if self.navigation_source != observation {
+            if self.prefix_argument().supplied() {
+                self.clear_prefix();
+            }
             if self.navigation_pending() {
                 self.clear_prefix();
             }
@@ -153,7 +156,7 @@ impl Input {
             }
             _ => {
                 let pending = self.grammar.operator.is_some() || count.is_some();
-                self.clear_prefix();
+                self.clear_sequence();
                 if pending {
                     Err(Outcome::Message("Unsupported operator/count target"))
                 } else {

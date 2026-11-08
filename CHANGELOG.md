@@ -9,6 +9,10 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 
 ### Added
 
+- Supply movement distances with `C-u`, Meta digits or a negative prefix, then
+  move by characters, words or ordinary rows. For example, `C-u 5 C-n` moves
+  five rows. Arguments also pass through M-x; C-g cancels pending input.
+
 - Press `^` or activate the `..` row in an automatic file tree to browse its
   parent while keeping the directory just left selected and visible.
   `tree-up-directory` works in both

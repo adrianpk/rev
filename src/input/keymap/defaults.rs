@@ -83,6 +83,18 @@ pub(super) fn org_bindings(context: Context) -> &'static [(&'static str, &'stati
 }
 
 pub(super) const EDITOR: &[(&str, &str)] = &[
+    ("C-u", "prefix-argument"),
+    ("M-0", "digit-argument"),
+    ("M-1", "digit-argument"),
+    ("M-2", "digit-argument"),
+    ("M-3", "digit-argument"),
+    ("M-4", "digit-argument"),
+    ("M-5", "digit-argument"),
+    ("M-6", "digit-argument"),
+    ("M-7", "digit-argument"),
+    ("M-8", "digit-argument"),
+    ("M-9", "digit-argument"),
+    ("M--", "negative-argument"),
     ("C-x g", "git-status"),
     ("C-c a", "org-agenda"),
     ("C-c c", "org-capture"),

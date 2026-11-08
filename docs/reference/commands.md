@@ -89,6 +89,42 @@ an explicit decision for each occurrence.
 See [Bindings](bindings.md) for the complete key map and [Scope and defaults](defaults.md)
 for file, history and retained-text policies.
 
+## Command Prefix Arguments
+
+Use `C-u 5 C-n` to move five ordinary rows. `C-u` supplies four and another
+`C-u` multiplies a plain prefix by four. `M-0` through `M-9` begin decimal
+entry; ordinary or Meta digits extend it. `M--` or `C-u -` begins a negative
+argument. `C-u` after numeric entry terminates that entry. `C-g` discards it.
+The echo area shows its form and value. Magnitude cannot exceed 1,000,000;
+overflow refuses and clears the pending argument rather than clamping it.
+
+`prefix-argument` and its alias `universal-argument` share a handler,
+description, usage identity and effective shortcut. Named `digit-argument`
+opens a one-digit prompt and restores the originating role. Configured helper
+bindings use the same input owner and checks as the defaults.
+
+A supplied argument travels through M-x to its accepted command. Prompt
+editing, candidate navigation, Tab, drawing and resizing leave it intact.
+Cancellation, an unknown command, an invalid sequence or a changed input owner
+retires it. Accepted names count once in command usage. A later physical
+repeat uses the ordinary command distance.
+
+Signed arguments currently apply to `forward-char`, `backward-char`,
+`forward-word`, `backward-word`, `next-line` and `previous-line`. Negative
+values reverse direction; zero leaves point unchanged. Character motion uses
+whole native graphemes and CRLF boundaries. Word motion uses existing word
+boundaries. Vertical motion keeps the desired column and uses ordinary visual
+rows when wrapped, otherwise logical rows. Movement stops at native endpoints.
+Large traversals yield through the existing input owner and can be canceled
+before the destination is published.
+
+Other commands currently consume an argument and run once. Counted editing,
+positioning, tree rows and additional contextual policies are pending. Existing
+`C-u M-!`, `C-u M-\|`, `C-u C-c C-v t` and agenda `C-u K` continuations retain
+precedence. Configured continuations can share a prefix helper key. Modal
+Normal/Visual `C-u` retains half-page movement; Insert/Replace inherit editor
+entry. Modal Escape cancels pending editor prefix input.
+
 ## Effective keybinding hints
 
 M-x and the modal colon selector show one effective shortcut beside a bound
@@ -182,6 +218,7 @@ compiled M-x name once.
 | --- | --- |
 | Optional server transport | `lsp-mode`, `lsp-status`, `lsp-connect`, `lsp-disconnect`, `lsp-restart`, `lsp-setup`, `lsp-reload-settings`, `lsp-servers`, `lsp-select-server`, `lsp-install-server`, `lsp-update-server`, `lsp-remove-server`, `lsp-cancel-installation` |
 | Native completion | `completion-at-point`, `completion-next`, `completion-previous`, `completion-accept`, `completion-cancel`, `completion-mode`, `completion-auto-mode` |
+| Command Prefix Arguments | `prefix-argument`, `universal-argument`, `digit-argument`, `negative-argument` |
 | Command and session | `execute-extended-command`, `keyboard-quit`, `save-buffers-kill-terminal`, `quit` |
 | [Workspaces](contexts.md#workspace-roots) | `workspace-create`, `workspace-open`, `workspace-list`, `workspace-add-directory`, `workspace-add-project`, `workspace-remove-root`, `workspace-rename`, `workspace-forget`, `workspace-set-root-path` |
 | [Projects](contexts.md) | `project-create`, `project-promote`, `project-switch-project`, `project-list`, `project-rename`, `project-forget`, `project-set-root`, `project-promote-to-workspace`, `project-duplicate-as-workspace` |

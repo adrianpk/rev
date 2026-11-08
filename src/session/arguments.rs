@@ -1,0 +1,187 @@
+use std::time::Instant;
+
+use crate::command::{Command, Motion, Scroll};
+use crate::coordinates::Coordinates;
+use crate::input::{Invocation, Outcome};
+use crate::view::{Error, Size, View};
+
+use super::{Action, Session};
+
+#[derive(Clone, Copy)]
+enum MovementKind {
+    Motion(Motion),
+    Row(Scroll),
+}
+
+/// Disposable planning progress. The selected view is published only after the
+/// whole movement resolves; the existing deferred-input owner services C-g.
+pub(super) struct Movement {
+    invocation: Invocation,
+    size: Size,
+    candidate: View,
+    remaining: usize,
+    kind: MovementKind,
+}
+
+impl Session {
+    pub(super) fn argument_feedback(&mut self) -> Action {
+        if matches!(self.pending, Some(super::Pending::Command)) {
+            self.pending = None;
+            self.retire_command_origin();
+        }
+        let label = self.input.prefix_label().unwrap_or_default();
+        self.focus_message(&label)
+    }
+
+    pub(super) fn execute_invocation(&mut self, invocation: Invocation) -> Action {
+        if !self.input.invocation_current(invocation.origin) {
+            return self.message("Command argument origin changed");
+        }
+        if !self.argument_movement(invocation.command) {
+            // Commands acquire numeric meaning only through their native policy.
+            return self.execute(invocation.command);
+        }
+        if let Some(action) = self.layout_invocation(invocation) {
+            return action;
+        }
+        self.publish_argument_movement(invocation)
+    }
+
+    pub(super) fn argument_movement(&self, command: Command) -> bool {
+        self.source_layout_focus()
+            && matches!(
+                command,
+                Command::Motion(
+                    Motion::ForwardChar
+                        | Motion::BackwardChar
+                        | Motion::ForwardWord
+                        | Motion::BackwardWord
+                ) | Command::Scroll(Scroll::NextLine | Scroll::PreviousLine)
+            )
+    }
+
+    pub(super) fn prepare_argument_movement(
+        &mut self,
+        invocation: Invocation,
+    ) -> Result<(), Error> {
+        let size = self.pane_size();
+        let mut movement = self
+            .layout
+            .movement
+            .take()
+            .filter(|work| work.invocation == invocation && work.size == size)
+            .unwrap_or_else(|| Movement {
+                invocation,
+                size,
+                candidate: self.view().clone(),
+                remaining: invocation.argument.value().unsigned_abs() as usize,
+                kind: movement_kind(invocation.command, invocation.argument.value() < 0),
+            });
+        let result = self.advance_argument_movement(&mut movement);
+        self.layout.movement = Some(movement);
+        result
+    }
+
+    fn advance_argument_movement(&self, work: &mut Movement) -> Result<(), Error> {
+        let buffer = self.buffer()?;
+        work.candidate.check_source(buffer)?;
+        let coordinates = Coordinates::new(buffer)?;
+        let started = Instant::now();
+        for _ in 0..256 {
+            if work.remaining == 0 {
+                return Ok(());
+            }
+            let point = work.candidate.point.position;
+            match work.kind {
+                MovementKind::Motion(motion) => {
+                    work.candidate.point.position = match motion {
+                        Motion::ForwardChar => coordinates.next_observed(point)?,
+                        Motion::BackwardChar => coordinates.previous_observed(point)?,
+                        _ => motion.target(&coordinates, point)?,
+                    };
+                    work.candidate.reset_navigation();
+                }
+                MovementKind::Row(scroll) => {
+                    let width = work.candidate.text_width(buffer, work.size)?;
+                    if buffer.soft_wrap() && width > 0 {
+                        work.candidate.visual_scroll(buffer, width, scroll, 1)?;
+                    } else {
+                        work.candidate.scroll(buffer, scroll, 1)?;
+                    }
+                }
+            }
+            work.remaining -= 1;
+            if work.candidate.point.position == point {
+                work.remaining = 0;
+            }
+            if started.elapsed() >= super::events::INPUT_BATCH_TIME {
+                break;
+            }
+        }
+        if work.remaining == 0 {
+            Ok(())
+        } else {
+            Err(crate::coordinates::Error::Pending.into())
+        }
+    }
+
+    pub(super) fn publish_argument_movement(&mut self, invocation: Invocation) -> Action {
+        let Some(work) = self.layout.movement.take() else {
+            return self.message("Command argument movement retired");
+        };
+        if work.invocation != invocation
+            || !self.input.invocation_current(invocation.origin)
+            || work.remaining != 0
+        {
+            return self.message("Command argument origin changed");
+        }
+        if invocation.argument.value() == 0 {
+            return self.message("");
+        }
+        self.command_boundary(invocation.command);
+        if let Err(error) = self.stop_typing() {
+            return self.error(&error.to_string());
+        }
+        let result = self.place_view(work.candidate);
+        self.sync_input_context();
+        match result {
+            Ok(()) => self.message(""),
+            Err(error) => self.error(&error.to_string()),
+        }
+    }
+
+    pub(super) fn execute_prefix_control(&mut self, command: Command) -> Action {
+        let outcome = self.input.prefix_control(command, None);
+        match outcome {
+            Outcome::ArgumentPrefix(_) => self.argument_feedback(),
+            Outcome::Message(message) => self.message(message),
+            _ => unreachable!("prefix helper emits input feedback"),
+        }
+    }
+}
+
+fn movement_kind(command: Command, reverse: bool) -> MovementKind {
+    match command {
+        Command::Motion(motion) => MovementKind::Motion(if reverse {
+            match motion {
+                Motion::ForwardChar => Motion::BackwardChar,
+                Motion::BackwardChar => Motion::ForwardChar,
+                Motion::ForwardWord => Motion::BackwardWord,
+                Motion::BackwardWord => Motion::ForwardWord,
+                _ => unreachable!("only distance motions admit signed arguments"),
+            }
+        } else {
+            motion
+        }),
+        Command::Scroll(scroll) => MovementKind::Row(if reverse {
+            if scroll == Scroll::NextLine {
+                Scroll::PreviousLine
+            } else {
+                Scroll::NextLine
+            }
+        } else {
+            scroll
+        }),
+        _ => unreachable!("counted movement policy checked before preparation"),
+    }
+}

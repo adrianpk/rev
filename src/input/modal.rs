@@ -73,6 +73,7 @@ impl Input {
     pub(crate) fn editing_owner(&mut self, view: ViewId, buffer: BufferId) {
         let owner = Some((view, buffer));
         if self.editing_owner != owner {
+            self.clear_prefix();
             self.retire_command_hints();
             if self.profile == InteractionProfile::Modal {
                 self.set_editing_state(EditingState::Normal);

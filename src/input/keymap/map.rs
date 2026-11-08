@@ -79,10 +79,11 @@ impl Map {
     ) -> Result<Self, Error> {
         let local = Self::compile(context, overrides, commands)?;
         let mut map = parent.clone();
-        map.entries.retain(|inherited, _| {
+        map.entries.retain(|inherited, entry| {
             !local.entries.keys().any(|key| {
                 inherited.chords().starts_with(key.chords())
-                    || key.chords().starts_with(inherited.chords())
+                    || (key.chords().starts_with(inherited.chords())
+                        && entry.target != Binding::Command(Command::PrefixArgument))
             })
         });
         map.entries.extend(local.entries);
@@ -156,10 +157,8 @@ impl Map {
     pub fn is_prefix(&self, sequence: &Sequence) -> bool {
         self.entries
             .range(sequence.clone()..)
-            .next()
-            .is_some_and(|(next, _)| {
-                next != sequence && next.chords().starts_with(sequence.chords())
-            })
+            .find(|(next, _)| *next != sequence)
+            .is_some_and(|(next, _)| next.chords().starts_with(sequence.chords()))
     }
 
     /// Decision stages may wait only for cancellation sequences. Other mapped
@@ -185,7 +184,9 @@ impl Map {
         for ((prefix, first), (sequence, second)) in
             self.entries.iter().zip(self.entries.iter().skip(1))
         {
-            if sequence.chords().starts_with(prefix.chords()) {
+            if sequence.chords().starts_with(prefix.chords())
+                && first.target != Binding::Command(Command::PrefixArgument)
+            {
                 return Err(conflict(context, first, second));
             }
         }

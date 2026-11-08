@@ -13,6 +13,10 @@ Every command below is also available as `M-x` followed by its exact name.
 | Keys | Command | Result |
 | --- | --- | --- |
 | `M-x` | `execute-extended-command` | Find and invoke a command. |
+| `C-u` in non-modal or modal Insert/Replace | `prefix-argument` | Set an argument for the next command; repeated plain prefixes multiply by four. |
+| `C-u`, `M-x universal-argument` | `universal-argument` | Alias of prefix-argument with the same handler, description and effective shortcut. |
+| `M-0` through `M-9` | `digit-argument` | Begin/extend decimal argument input; named invocation opens a one-digit prompt. |
+| `M--` | `negative-argument` | Set or change the pending argument sign; negative-only means minus one. |
 | `M-x lsp-mode` | `lsp-mode` | Toggle optional owned server transport for this session. |
 | `M-x lsp-connect` | `lsp-connect` | Restore this buffer eligibility without enabling globally disabled LSP. |
 | `M-x lsp-disconnect` | `lsp-disconnect` | Exclude this canonical buffer across all its views until restored or closed. |
@@ -680,6 +684,10 @@ For live terminal key ownership and copy controls, see the
 | `D` in Refs | `git-branch-delete` | Confirm non-forced local deletion. |
 | `t` in Refs | `git-tag-create` | Confirm a local lightweight tag or explicitly compose an annotated tag. |
 | `T` in Refs | `git-tag-delete` | Confirm deletion of the exact local tag object. |
+
+Pending arguments pass through M-x and incomplete chord sequences. See
+[Command Prefix Arguments](commands.md#command-prefix-arguments) for forms,
+bounds, cancellation and the currently delivered counted movement policies.
 
 ## Configuration keymap contracts
 

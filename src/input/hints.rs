@@ -10,7 +10,7 @@ use crate::command::{Command, TreeCommand};
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub(super) struct TerminalOwner {
     id: crate::term::SessionId,
-    copy: bool,
+    pub(super) copy: bool,
 }
 
 impl Input {
@@ -55,6 +55,9 @@ impl Input {
                 hints.entry(command.name().to_owned()).or_insert(label);
             }
         }
+        if let Some(label) = hints.get("prefix-argument").cloned() {
+            hints.insert("universal-argument".into(), label);
+        }
         hints
     }
 
@@ -84,11 +87,11 @@ impl Input {
         let last = sequence.chords().len() - 1;
         for (index, chord) in sequence.chords().iter().enumerate() {
             match self.handle_at(Event::Key(KeyEvent::new(chord.code, chord.modifiers)), now) {
-                Outcome::Command(command) if index == last => {
+                Outcome::Command(command) | Outcome::ArgumentPrefix(command) if index == last => {
                     return (!self.workspace_startup || Self::startup_command(command))
                         .then_some(command);
                 }
-                Outcome::Prefix(_) if index < last => {}
+                Outcome::Prefix(_) | Outcome::ArgumentPrefix(_) if index < last => {}
                 _ => return None,
             }
         }
@@ -105,6 +108,7 @@ impl Input {
             context: Default::default(),
             prefix: None,
             grammar: Default::default(),
+            argument: Default::default(),
             navigation_source: None,
             chords: Vec::new(),
             keymaps: self.keymaps.clone(),
@@ -136,6 +140,7 @@ impl Input {
     pub(crate) fn set_terminal_owner(&mut self, id: Option<crate::term::SessionId>, copy: bool) {
         let owner = id.map(|id| TerminalOwner { id, copy });
         if self.workspace_terminal != owner {
+            self.clear_prefix();
             self.retire_command_hints();
             self.workspace_terminal = owner;
         }
