@@ -1,11 +1,12 @@
 # Slice 3: Ring, append and counters
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-keyboard-macros
 Plan: [Keyboard Macros Delivery](../../../plan/rev-keyboard-macros.md)
 Tracker: [Keyboard Macros Tracker](../../../tracker/rev-keyboard-macros.md)
 Branch: `feat/rev-keyboard-macros-03-ring`
 PR: [#321](https://forge.adrianpk.com/adrianpk/rev/pulls/321)
+Integrated: `5d6fbda76008460de56b7e16ae937866ec55060a` on `dev`
 
 ## Purpose
 
@@ -85,10 +86,10 @@ native grouping across idle input polling.
 
 ## Validation
 
-Development commands below passed while preparing this slice. The controller
-validator must record the unchanged ordered selection on the final clean PR head
-after the PR-reference commit. These results do not establish the integrated
-delivery-set gate or real PTY acceptance.
+All seven ordered checks passed at clean final PR head
+`5d6fbda76008460de56b7e16ae937866ec55060a`, recorded by controller receipt
+`L6HOGAMA6WBFYKQ3HBDPEB4YVB`. Forgejo and Acta confirm PR #321 merged into `dev`.
+These checks do not establish the integrated delivery-set gate or real PTY acceptance.
 
 - `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo fmt --all -- --check` — PASS.
 - `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo clippy --locked --lib --bin rev -- -D warnings` — PASS.
