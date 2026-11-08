@@ -1,9 +1,10 @@
-//! Bounded session-only keyboard capture and pinned automatic playback.
+//! Bounded keyboard capture, pinned playback and explicitly saved definitions.
 use std::sync::Arc;
 use std::sync::atomic::AtomicUsize;
 use std::time::Instant;
 mod execution;
 pub(crate) use execution::{Limits, PAUSE_LIMIT, Pause, Region};
+pub(crate) mod library;
 mod names;
 pub(crate) use names::{CALL_LIMIT, NAME_LIMIT, Named, Target};
 
@@ -240,6 +241,7 @@ pub(crate) struct Runner {
 
 pub(crate) struct State {
     pub catalog_revision: u64,
+    pub library: Option<library::Store>,
     pub names: std::collections::BTreeMap<crate::command::MacroName, Named>,
     pub bindings: std::collections::BTreeMap<crate::input::keymap::Sequence, Target>,
     pub ring: std::collections::VecDeque<Arc<Definition>>,
@@ -266,6 +268,7 @@ impl Default for State {
     fn default() -> Self {
         Self {
             catalog_revision: 0,
+            library: None,
             names: Default::default(),
             bindings: Default::default(),
             ring: Default::default(),

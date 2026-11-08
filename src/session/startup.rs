@@ -45,12 +45,18 @@ impl Session {
         session.startup_clock_state();
         session.prepare_bookmark_markers();
         let usage_diagnostic = session.startup_command_usage();
+        let library_diagnostic = session.startup_macro_library();
         let diagnostic = match (startup.diagnostic, usage_diagnostic) {
             (Some(config), Some(usage)) => Some(format!("Configuration: {config}; {usage}")),
             (Some(config), None) => Some(format!("Configuration: {config}")),
             (None, usage) => usage,
         };
-        if let Some(diagnostic) = diagnostic {
+        let diagnostic = [diagnostic, library_diagnostic]
+            .into_iter()
+            .flatten()
+            .collect::<Vec<_>>()
+            .join("; ");
+        if !diagnostic.is_empty() {
             session.notice(&diagnostic);
         }
         Ok(session)

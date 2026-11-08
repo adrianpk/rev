@@ -72,6 +72,9 @@ impl Session {
 
     pub(super) fn decision(&mut self, accepted: bool) -> Action {
         match self.pending.take() {
+            Some(Pending::MacroLibraryConsent(consent)) => {
+                self.macro_library_answer(*consent, accepted)
+            }
             Some(Pending::MacroConsent(consent)) => self.macro_name_consent(*consent, accepted),
             Some(Pending::GitDiscard(consent)) => self.git_discard_answer(*consent, accepted),
             Some(Pending::GitRef(consent)) => self.git_ref_answer(*consent, accepted),
@@ -196,6 +199,7 @@ impl Session {
             return Action::Redraw;
         }
         let question = match &self.pending {
+            Some(Pending::MacroLibraryConsent(consent)) => Some(consent.question()),
             Some(Pending::MacroConsent(consent)) => Some(consent.question()),
             Some(Pending::Replace(state)) if state.deciding() => {
                 Some("Replace occurrence? [y/n/q]")

@@ -136,6 +136,10 @@ window is separate from the configured distinct-name M-p/M-n history below.
 See [Command usage state](commands.md#command-usage-state) for the versioned
 format, 64 KiB bound, concurrent publication and nonfatal failure behavior.
 
+The [saved macro library](macro-library.md) reads `macros/library.toml` at startup
+without execution or directory creation. Only explicit save/delete writes this
+private concern; ordinary naming, replay and exit never save it implicitly.
+
 Publication exposes a complete synchronized file without replacing a concurrent
 winner. Every existing entry is preserved, including empty/invalid files,
 directories and dangling symbolic links. Pure location, parsing, loading and

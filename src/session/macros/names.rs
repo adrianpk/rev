@@ -103,6 +103,7 @@ impl Session {
             Err(reason) => return self.stop_macro(reason, "Macro snapshot admission failed"),
         };
         let named = Named {
+            saved: self.macros.names.get(&name).and_then(|n| n.saved.clone()),
             definition,
             source: (draft.source.id, draft.source.revision),
             description: self

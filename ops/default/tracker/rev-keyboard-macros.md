@@ -114,17 +114,17 @@ T5.1-T5.3 implementation: [c504fcb0653d](https://forge.adrianpk.com/adrianpk/rev
 
 ## Slice 6: Explicit persistent library
 
-State: active
+State: reviewing
 Dependency: Slice 5 integrated through PR #323.
 Branch: feat/rev-keyboard-macros-06-library
 PR: pending
 Integrated: pending
 Report: ops/default/report/slices/rev-keyboard-macros/slice-6-library.md
-Validation: exact ordered slice selection in the plan and frozen configuration
+Validation: all six required development checks passed: 24 selected library/name cases, 52 selected command cases, formatting, strict lib/bin Clippy, documentation/catalog checks and whitespace. Additional development checks passed all 80 macro cases and 20 native admission/storage cases, including publication faults and revision exhaustion. Final clean-HEAD evidence is recorded separately after PR references; delivery-set acceptance remains controller-owned.
 
-- [ ] T6.1: Implement schema-1 library encoding/admission and private concern-owned state publication with exact limits, nonblocking locks, revisions and fresh-record concurrency.
-- [ ] T6.2: Deliver explicit save/reload/delete and inert TOML export, startup admission, optional prefixed binding inclusion and preservation of unsaved/conflicting state.
-- [ ] T6.3: Verify restart, absent/invalid/oversized/symlink state, unrelated concurrent writes, stale same-record conflicts, uncertain publication and unchanged sibling stores.
+- [x] T6.1: Implement schema-1 library encoding/admission and private concern-owned state publication with exact limits, nonblocking locks, revisions and fresh-record concurrency.
+- [x] T6.2: Deliver explicit save/reload/delete and inert TOML export, startup admission, optional prefixed binding inclusion and preservation of unsaved/conflicting state.
+- [x] T6.3: Verify restart, absent/invalid/oversized/symlink state, unrelated concurrent writes, stale same-record conflicts, uncertain publication and unchanged sibling stores.
 
 ## Slice 7: Definition editing and macro menu
 

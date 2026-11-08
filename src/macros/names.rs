@@ -10,6 +10,7 @@ pub(crate) struct Named {
     pub definition: Arc<Definition>,
     pub source: (u64, u64),
     pub description: Option<String>,
+    pub saved: Option<library::Saved>,
 }
 
 #[derive(Clone)]
@@ -43,6 +44,11 @@ impl State {
             .chain(self.names.values().map(|named| &named.definition))
         {
             retained.definition(definition);
+        }
+        for named in self.names.values() {
+            if let Some(saved) = &named.saved {
+                retained.definition(&saved.baseline);
+            }
         }
         for target in self.bindings.values() {
             if let Target::Snapshot(definition) = target {

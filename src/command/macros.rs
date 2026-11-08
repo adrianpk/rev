@@ -23,6 +23,10 @@ pub enum MacroCommand {
     Abort,
     Name,
     Bind,
+    Save,
+    Load,
+    DeleteSaved,
+    Export,
 }
 
 impl MacroCommand {
@@ -50,6 +54,10 @@ impl MacroCommand {
             Self::Abort => "abort-recursive-edit",
             Self::Name => "kmacro-name-last-macro",
             Self::Bind => "kmacro-bind-to-key",
+            Self::Save => "kmacro-save",
+            Self::Load => "kmacro-load",
+            Self::DeleteSaved => "kmacro-delete",
+            Self::Export => "insert-kbd-macro",
         }
     }
 
@@ -77,6 +85,10 @@ impl MacroCommand {
             Self::Abort => "Abort a macro editing pause and its playback.",
             Self::Name => "Give the current macro a session command name.",
             Self::Bind => "Bind a session macro to a key sequence.",
+            Self::Save => "Save a named macro in the persistent library.",
+            Self::Load => "Reload saved macros without running them.",
+            Self::DeleteSaved => "Explicitly remove a macro from the saved library.",
+            Self::Export => "Insert a named macro definition as TOML text.",
         }
     }
 }

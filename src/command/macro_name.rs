@@ -9,6 +9,16 @@ impl MacroName {
     /// Validate syntax and the fixed command/action namespace. The session
     /// separately checks its currently admitted dynamic command identities.
     pub fn new(name: &str) -> Result<Self, String> {
+        let value = Self::stored_name(name)?;
+        if super::Binding::named(name).is_some() || name == "kmacro-bound-input" {
+            return Err("Macro name collides with a compiled command or prompt action".into());
+        }
+        Ok(value)
+    }
+
+    /// Stored records may be quarantined by the current command namespace.
+    /// Deletion still needs their bounded lexical identity without dispatch.
+    pub(crate) fn stored_name(name: &str) -> Result<Self, String> {
         if name.is_empty()
             || name.len() > 64
             || !name.as_bytes()[0].is_ascii_lowercase()
@@ -17,9 +27,6 @@ impl MacroName {
                 .all(|b| b.is_ascii_lowercase() || b.is_ascii_digit() || b == b'-')
         {
             return Err("Macro names require 1..=64 lowercase ASCII letters/digits/hyphens, starting with a letter".into());
-        }
-        if super::Binding::named(name).is_some() || name == "kmacro-bound-input" {
-            return Err("Macro name collides with a compiled command or prompt action".into());
         }
         let mut value = Self {
             bytes: [0; 64],

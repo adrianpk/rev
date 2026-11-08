@@ -65,6 +65,7 @@ fn names_metadata() {
             .name_snapshot(
                 name,
                 Named {
+                    saved: None,
                     definition,
                     source: (source.id, source.revision),
                     description: (index == 0).then(|| "a\n".repeat(256)),
@@ -80,6 +81,7 @@ fn names_metadata() {
             .name_snapshot(
                 name,
                 Named {
+                    saved: None,
                     definition,
                     source: (source.id, source.revision),
                     description: None
@@ -96,6 +98,7 @@ fn names_metadata() {
             .name_snapshot(
                 name,
                 Named {
+                    saved: None,
                     definition,
                     source: (source.id, source.revision),
                     description: Some("a".repeat(513))
@@ -158,6 +161,7 @@ fn names_memory() {
         if let Err(error) = state.name_snapshot(
             MacroName::new(&format!("item-{index}")).unwrap(),
             Named {
+                saved: None,
                 definition,
                 source: (source.id, source.revision),
                 description: None,
@@ -190,6 +194,7 @@ fn names_admission() {
             .name_snapshot(
                 name,
                 Named {
+                    saved: None,
                     definition,
                     source: (source.id, source.revision),
                     description: None,

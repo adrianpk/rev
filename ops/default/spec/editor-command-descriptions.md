@@ -881,6 +881,10 @@ commands enter this shared live catalog only when their native handlers arrive.
 | `abort-recursive-edit` | Abort a macro editing pause and its playback. |
 | `kmacro-name-last-macro` | Give the current macro a session command name. |
 | `kmacro-bind-to-key` | Bind a session macro to a key sequence. |
+| `kmacro-save` | Save a named macro in the persistent library. |
+| `kmacro-load` | Reload saved macros without running them. |
+| `kmacro-delete` | Explicitly remove a macro from the saved library. |
+| `insert-kbd-macro` | Insert a named macro definition as TOML text. |
 
 ## Completed delivery evidence
 

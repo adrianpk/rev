@@ -95,3 +95,6 @@ mod names;
 mod queries;
 #[path = "macros/regions.rs"]
 mod regions;
+
+#[path = "macros/library.rs"]
+mod library;

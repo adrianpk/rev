@@ -1534,7 +1534,7 @@ input. Recorded consent is never reused. Waiting for an answer has no automatic
 macro wake; C-g cancels while retaining partial source edits in the iteration's
 undo unit. Ordinary editing, movement, modal operations, regions, kill/yank and
 pane commands remain available. External jobs, terminal transfers and context
-replacement stop explicitly before starting. Persistent libraries and definition editing arrive in later increments.
+replacement stop explicitly before starting. Definition editing arrives in the next increment.
 
 | Command | Description |
 | --- | --- |
@@ -1560,6 +1560,10 @@ replacement stop explicitly before starting. Persistent libraries and definition
 | `abort-recursive-edit` | Abort a macro editing pause and its playback. |
 | `kmacro-name-last-macro` | Give the current macro a session command name. |
 | `kmacro-bind-to-key` | Bind a session macro to a key sequence. |
+| `kmacro-save` | Save a named macro in the persistent library. |
+| `kmacro-load` | Reload saved macros without running them. |
+| `kmacro-delete` | Explicitly remove a macro from the saved library. |
+| `insert-kbd-macro` | Insert a named macro definition as TOML text. |
 
 The session ring is shared across buffers and retains up to `macros.ring_limit`
 recordings (default 8, range 1..32). Cycle older/newer, swap the first two, delete
@@ -1638,3 +1642,12 @@ its native caller. Recursive name cycles and more than sixteen active call frame
 stop before admitting the child. Naming and binding create no library file and
 perform no implicit save. Names and bindings each admit at most 256 session
 entries, within the shared 48 MiB retained-memory ceiling.
+
+
+`kmacro-save`, `kmacro-load` and `kmacro-delete` explicitly manage named snapshots
+in the private [saved macro library](macro-library.md). Startup and reload admit
+definitions without executing them. A raw prefix on save or `insert-kbd-macro`
+includes the binding; an unprefixed replacement announces removal of a previously
+saved binding. Export inserts inert schema-1 TOML with normal source undo and no
+library write. Reload preserves unsaved local changes, and concurrent saves check
+the selected record revision while retaining unrelated records.

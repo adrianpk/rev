@@ -152,6 +152,22 @@ impl Input {
     /// Inspect every ordinary profile map before replacing a source binding.
     /// The layer never participates in prompts, components or raw terminals.
     pub(crate) fn macro_binding_check(&self, sequence: &Sequence) -> Result<bool, String> {
+        self.macro_binding_check_except(sequence, None)
+    }
+
+    pub(crate) fn macro_library_binding_check(
+        &self,
+        sequence: &Sequence,
+        name: MacroName,
+    ) -> Result<bool, String> {
+        self.macro_binding_check_except(sequence, Some(name))
+    }
+
+    fn macro_binding_check_except(
+        &self,
+        sequence: &Sequence,
+        except: Option<MacroName>,
+    ) -> Result<bool, String> {
         let first = sequence.chords()[0];
         if first.modifiers == crossterm::event::KeyModifiers::ALT
             && matches!(first.code, KeyCode::Char(c) if c.is_ascii_digit() || c == '-')
@@ -165,10 +181,10 @@ impl Input {
         {
             return Err("Macro bindings cannot replace reserved cancellation".into());
         }
-        let mut occupied = self
-            .macro_bindings
-            .keys()
-            .any(|key| overlaps(key, sequence));
+        let mut occupied = self.macro_bindings.iter().any(|(key, target)| {
+            !matches!(target, Command::MacroNamed(n) if Some(*n) == except)
+                && overlaps(key, sequence)
+        });
         for context in MapContext::ALL {
             for (key, target) in self.keymaps.map(context).bindings() {
                 if !overlaps(key, sequence) {

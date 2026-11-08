@@ -714,6 +714,10 @@ bounds, cancellation and the currently delivered counted movement policies.
 | C-M-c | `exit-recursive-edit` | Resume a macro after its manual editing pause. |
 | C-x C-k n | `kmacro-name-last-macro` | Give the current macro a session command name. |
 | C-x C-k b | `kmacro-bind-to-key` | Bind a session macro to a key sequence. |
+| Named command | `kmacro-save` | Save a named macro in the persistent library. |
+| Named command | `kmacro-load` | Reload saved macros without running them. |
+| Named command | `kmacro-delete` | Explicitly remove a macro from the saved library. |
+| Named command | `insert-kbd-macro` | Insert a named macro definition as TOML text. |
 | C-] during manual macro editing | `abort-recursive-edit` | Abort a macro editing pause and its playback. |
 
 F3 and F4 are logical function-key reports. Their effective bindings remain

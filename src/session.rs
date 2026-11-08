@@ -221,6 +221,8 @@ enum AfterSave {
 }
 
 enum Pending {
+    MacroLibrary(Box<macros::library::Prompt>),
+    MacroLibraryConsent(Box<macros::library::Consent>),
     MacroName(Box<macros::names::Draft>),
     MacroBind(Box<macros::names::Draft>),
     MacroConsent(Box<macros::names::Consent>),

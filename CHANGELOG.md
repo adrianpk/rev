@@ -25,7 +25,10 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
   Apply a recording to original logical lines in a region; inserted lines add
   no targets and deleted lines are skipped. Name independent session snapshots
   as M-x or colon commands, bind them to source keys and reuse them from other
-  recordings without changing their native undo or execution limits.
+  recordings without changing their native undo or execution limits. Explicitly
+  save named definitions as private TOML, reload them without execution, delete
+  saved records or insert inert TOML into source. Include bindings only with a
+  prefix; reload preserves unsaved changes and saves detect concurrent conflicts.
 
 - Supply counts with `C-u`, Meta digits or a negative prefix to move by
   characters, words or ordinary rows, insert repeated text, delete or kill a

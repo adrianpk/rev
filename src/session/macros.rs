@@ -2,6 +2,7 @@ mod calls;
 mod capture;
 mod controls;
 mod counters;
+pub(in crate::session) mod library;
 mod literal;
 pub(in crate::session) mod names;
 mod queries;
@@ -206,6 +207,10 @@ impl Session {
             return self.error(&error.to_string());
         }
         match command {
+            MacroCommand::Save
+            | MacroCommand::Load
+            | MacroCommand::DeleteSaved
+            | MacroCommand::Export => return self.macro_library_command(command, argument),
             MacroCommand::Name => return self.macro_name_prompt(false),
             MacroCommand::Bind => return self.macro_name_prompt(true),
             MacroCommand::Query => return self.macro_query_command(argument),
