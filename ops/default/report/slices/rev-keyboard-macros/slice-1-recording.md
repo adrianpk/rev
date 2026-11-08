@@ -5,7 +5,7 @@ Delivery set: rev-keyboard-macros
 Plan: [Keyboard Macros Delivery](../../../plan/rev-keyboard-macros.md)
 Tracker: [Keyboard Macros Tracker](../../../tracker/rev-keyboard-macros.md)
 Branch: `feat/rev-keyboard-macros-01-recording`
-PR: pending
+PR: [#319](https://forge.adrianpk.com/adrianpk/rev/pulls/319)
 
 ## Purpose
 
