@@ -133,8 +133,9 @@ T6.1-T6.3 implementation: [5871093638f7](https://forge.adrianpk.com/adrianpk/rev
 State: reviewing
 Dependency: Slice 6 integrated through PR #324.
 Branch: feat/rev-keyboard-macros-07-editing
-PR: pending
-Integrated: pending
+PR: [#325](https://forge.adrianpk.com/adrianpk/rev/pulls/325)
+Implementation: [17dcf0772016](https://forge.adrianpk.com/adrianpk/rev/commit/17dcf0772016131104782240f155684e76cf25f7)
+Integrated: pending controller review and integration
 Report: ops/default/report/slices/rev-keyboard-macros/slice-7-editing.md
 Validation: development checks passed: 26 editing workflow cases, 52 selected commands, 114 editing cases, 45 selected modal cases, formatting, strict Clippy, 680-command/295-entry documentation and whitespace. Additional 24 native owner/storage cases and all 106 macro integration cases passed. Exact clean final PR-head evidence and canonical review remain pending.
 
