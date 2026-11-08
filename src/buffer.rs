@@ -520,6 +520,15 @@ impl Buffers {
         Ok(self.insert(buffer))
     }
 
+    pub(crate) fn macro_draft(&mut self, text: &str) -> Result<BufferId, Error> {
+        let mut buffer = Buffer::new(text, &self.settings.settings().files)?;
+        buffer.name = "*Macro Definition*".into();
+        buffer.transient = true;
+        buffer.source_language = Some("toml".into());
+        buffer.default_newline = crate::config::Newline::Lf;
+        Ok(self.insert(buffer))
+    }
+
     pub(crate) fn source_draft(&mut self, text: &str, language: &str) -> Result<BufferId, Error> {
         let mut buffer = Buffer::new(text, &self.settings.settings().files)?;
         buffer.name = "*Org Source*".into();

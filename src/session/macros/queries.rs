@@ -155,6 +155,18 @@ impl Session {
     }
 
     pub(super) fn macro_child_finished(&mut self) {
+        if self
+            .macros
+            .step_editor
+            .as_ref()
+            .is_some_and(|e| e.capturing)
+        {
+            self.macro_step_capture_progress();
+            if let Some(run) = self.macros.pauses.last().and_then(|p| p.runner.as_ref()) {
+                run.limits.pause();
+            }
+            return;
+        }
         if !self.macro_manual() {
             return;
         }

@@ -1534,7 +1534,8 @@ input. Recorded consent is never reused. Waiting for an answer has no automatic
 macro wake; C-g cancels while retaining partial source edits in the iteration's
 undo unit. Ordinary editing, movement, modal operations, regions, kill/yank and
 pane commands remain available. External jobs, terminal transfers and context
-replacement stop explicitly before starting. Definition editing arrives in the next increment.
+replacement stop explicitly before starting. Definition and step editing use the same checked session snapshots; see
+[macro editing](macro-editing.md) for draft, recent-input and menu contracts.
 
 | Command | Description |
 | --- | --- |
@@ -1564,6 +1565,32 @@ replacement stop explicitly before starting. Definition editing arrives in the n
 | `kmacro-load` | Reload saved macros without running them. |
 | `kmacro-delete` | Explicitly remove a macro from the saved library. |
 | `insert-kbd-macro` | Insert a named macro definition as TOML text. |
+| `kmacro-edit-macro` | Edit the current keyboard macro definition. |
+| `kmacro-edit-macro-repeat` | Edit the current macro and enable ring repeat keys. |
+| `edit-kbd-macro` | Select a named or bound macro to edit. |
+| `kmacro-edit-lossage` | Make a macro from recent recordable input. |
+| `kmacro-step-edit-macro` | Execute and edit a macro one step at a time. |
+| `list-keyboard-macros` | List and manage the session macro ring. |
+| `edmacro-finish-edit` | Apply a checked macro definition draft. |
+| `edmacro-insert-key` | Insert the next key sequence in macro notation. |
+| `edmacro-set-macro-to-region-lines` | Use complete selected definition lines as the macro body. |
+| `kmacro-menu-edit-position` | Change the selected macro's ring position. |
+| `kmacro-menu-transpose` | Move the selected macro above its predecessor. |
+| `kmacro-menu-edit-counter` | Change the selected macro counter. |
+| `kmacro-menu-edit-format` | Change the selected macro counter format. |
+| `kmacro-menu-edit-keys` | Edit the selected macro definition. |
+| `kmacro-menu-edit-column` | Edit the selected macro property. |
+| `kmacro-menu-flag-for-deletion` | Flag selected macros for ring deletion. |
+| `kmacro-menu-do-flagged-delete` | Remove flagged macros from the ring. |
+| `kmacro-menu-mark` | Mark selected macros for menu operations. |
+| `kmacro-menu-do-copy` | Duplicate selected macros in the ring. |
+| `kmacro-menu-do-delete` | Confirm removal of selected ring macros. |
+| `kmacro-menu-unmark` | Clear selected macro marks and deletion flags. |
+| `kmacro-menu-unmark-backward` | Clear a macro mark and move backward. |
+| `kmacro-menu-unmark-all` | Clear all macro menu marks and flags. |
+| `kmacro-menu-refresh` | Refresh the macro menu. |
+| `kmacro-menu-quit` | Close the macro menu and restore its source view. |
+| `kmacro-menu-help` | Show the macro menu commands and bindings. |
 
 The session ring is shared across buffers and retains up to `macros.ring_limit`
 recordings (default 8, range 1..32). Cycle older/newer, swap the first two, delete

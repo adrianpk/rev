@@ -5,6 +5,14 @@ use super::{Action, Session};
 impl Session {
     pub(super) fn sync_input_context(&mut self) {
         self.follow_tree();
+        let macro_context = if self.macro_definition_selected() {
+            Some(crate::input::keymap::Context::MacroDefinition)
+        } else if self.macro_menu_active() {
+            Some(crate::input::keymap::Context::MacroMenu)
+        } else {
+            None
+        };
+        self.input.set_macro_context(macro_context);
         self.input.set_startup(self.startup_screen.is_some());
         if self.startup_screen.is_some() {
             return;

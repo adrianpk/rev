@@ -9,11 +9,26 @@ impl Session {
         &mut self,
         edits: &Edits,
     ) -> Result<(), Error> {
-        if self.macros.expanded || self.macros.recorder.is_none() {
+        if self.macros.expanded
+            || (self.macros.recorder.is_none() && self.macros.recent.draft.is_none())
+        {
             return Ok(());
         }
         let point = self.view().point.position.0;
         let captured = self.literal_completion(edits, point);
+        if let Some(recorder) = &mut self.macros.recent.draft {
+            let result = captured.clone().and_then(|literal| {
+                recorder.discard_pending();
+                recorder.stage(Step::Completion(literal))?;
+                recorder.accept()
+            });
+            if result.is_err() {
+                self.macros.recent.draft = None;
+            }
+        }
+        if self.macros.recorder.is_none() {
+            return Ok(());
+        }
         let result = captured.and_then(|literal| {
             let recorder = self.macros.recorder.as_mut().expect("capture owner");
             recorder.discard_pending();

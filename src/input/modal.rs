@@ -87,6 +87,7 @@ impl Input {
             && self.focus() == Focus::Editing
             && !self.workspace_startup
             && !self.workspace_tree
+            && self.workspace_macro.is_none()
             && !self.workspace_bookmarks
             && !self.workspace_git
             && !self.workspace_git_commit

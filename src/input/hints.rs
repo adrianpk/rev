@@ -123,6 +123,7 @@ impl Input {
             workspace_tree: self.workspace_tree,
             workspace_startup: self.workspace_startup,
             workspace_bookmarks: self.workspace_bookmarks,
+            workspace_macro: self.workspace_macro,
             workspace_git: self.workspace_git,
             workspace_git_commit: self.workspace_git_commit,
             workspace_git_history: self.workspace_git_history,

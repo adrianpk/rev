@@ -51,6 +51,7 @@ impl Context {
         matches!(
             self,
             Self::Editor
+                | Self::MacroDefinition
                 | Self::GitCommit
                 | Self::Org
                 | Self::OrgCapture
@@ -74,6 +75,17 @@ impl Context {
             Self::OrgCalendar => calendar(target) || minibuffer(target),
             Self::Minibuffer => minibuffer(target),
             Self::Tree => tree(target),
+            Self::MacroMenu => matches!(
+                target,
+                Binding::Command(
+                    Command::Macro(_)
+                        | Command::KeyboardQuit
+                        | Command::ExecuteExtended
+                        | Command::Scroll(_)
+                        | Command::Motion(_)
+                        | Command::Region(_)
+                )
+            ),
             Self::BookmarkList => bookmark_list(target),
             Self::Git
             | Self::GitHistory

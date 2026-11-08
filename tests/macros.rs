@@ -98,3 +98,13 @@ mod regions;
 
 #[path = "macros/library.rs"]
 mod library;
+
+#[path = "macros/definition_editor.rs"]
+mod definition_editor;
+#[path = "macros/lossage.rs"]
+mod lossage;
+#[path = "macros/menu.rs"]
+mod menu;
+
+#[path = "macros/step_edit.rs"]
+mod step_edit;

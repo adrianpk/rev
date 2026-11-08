@@ -2,13 +2,17 @@ mod calls;
 mod capture;
 mod controls;
 mod counters;
+pub(in crate::session) mod definition;
 pub(in crate::session) mod library;
 mod literal;
+pub(in crate::session) mod menu;
 pub(in crate::session) mod names;
 mod queries;
+mod recent;
 mod regions;
 mod repeat;
 mod runner;
+mod step_edit;
 
 use std::sync::Arc;
 
@@ -31,6 +35,15 @@ impl Session {
     /// Observe native layout, consent, query or manual editing ownership.
     /// User waits have no automatic macro wake; the host waits for native input.
     pub fn macro_wait(&self) -> Option<crate::macros::Wait> {
+        if self
+            .macros
+            .step_editor
+            .as_ref()
+            .is_some_and(|e| e.asking || e.input.is_some())
+        {
+            return Some(crate::macros::Wait::Step);
+        }
+
         if self.macros.runner.is_none() && !self.macros.pauses.is_empty() {
             return Some(crate::macros::Wait::Editing);
         }
@@ -54,8 +67,10 @@ impl Session {
         }
     }
 
-    fn macro_source(&self) -> bool {
+    pub(in crate::session) fn macro_source(&self) -> bool {
         self.source_layout_focus()
+            && !self.macro_definition_selected()
+            && !self.macro_menu_active()
             && self.input.focus() == Focus::Editing
             && !self.terminals.focused
             && self.startup_screen.is_none()
@@ -66,6 +81,10 @@ impl Session {
     }
 
     pub(super) fn stop_macro(&mut self, reason: StopReason, message: &str) -> Action {
+        if self.macros.recent_capturing {
+            self.macros.recorder = None;
+            return Action::Wait;
+        }
         if self.macros.active() {
             self.restore_search();
             self.pending = None;
@@ -211,6 +230,34 @@ impl Session {
             | MacroCommand::Load
             | MacroCommand::DeleteSaved
             | MacroCommand::Export => return self.macro_library_command(command, argument),
+            MacroCommand::StepEdit => return self.macro_step_start(),
+            MacroCommand::List => return self.macro_menu_open(),
+            MacroCommand::MenuPosition
+            | MacroCommand::MenuTranspose
+            | MacroCommand::MenuCounter
+            | MacroCommand::MenuFormat
+            | MacroCommand::MenuKeys
+            | MacroCommand::MenuColumn
+            | MacroCommand::MenuFlag
+            | MacroCommand::MenuFlaggedDelete
+            | MacroCommand::MenuMark
+            | MacroCommand::MenuCopy
+            | MacroCommand::MenuDelete
+            | MacroCommand::MenuUnmark
+            | MacroCommand::MenuUnmarkBackward
+            | MacroCommand::MenuUnmarkAll
+            | MacroCommand::MenuRefresh
+            | MacroCommand::MenuQuit
+            | MacroCommand::MenuHelp => {
+                return self.message("Open the macro menu before using its local commands");
+            }
+            MacroCommand::Edit
+            | MacroCommand::EditRepeat
+            | MacroCommand::EditNamed
+            | MacroCommand::Lossage
+            | MacroCommand::FinishEdit
+            | MacroCommand::InsertKey
+            | MacroCommand::RegionLines => return self.macro_definition_command(command),
             MacroCommand::Name => return self.macro_name_prompt(false),
             MacroCommand::Bind => return self.macro_name_prompt(true),
             MacroCommand::Query => return self.macro_query_command(argument),

@@ -551,3 +551,102 @@ fn search_continuation() {
     assert_eq!(text(&session), "abcdef");
     assert!(session.macros.ring.is_empty());
 }
+
+// A concurrent owner revision cannot redirect a completed step edit. Publication
+// checks the pinned snapshot even after real source work has already completed.
+#[test]
+fn step_edit_stale() {
+    let mut session = session();
+    record(&mut session, false, "");
+    session.execute(Command::Macro(MacroCommand::StepEdit));
+    session.expire_input(Instant::now());
+    let original = session.macros.ring.front().unwrap().clone();
+    let mut changed = (*original).clone();
+    changed.revision += 1;
+    let changed = Arc::new(changed);
+    session.macros.ring[0] = changed.clone();
+    session.handle(key(KeyCode::Char('c'), KeyModifiers::NONE));
+    drain_macro(&mut session);
+    assert!(Arc::ptr_eq(session.macros.ring.front().unwrap(), &changed));
+    assert_eq!(session.macro_status(), Status::Idle);
+    assert!(session.echo().contains("changed"), "{}", session.echo());
+}
+
+// Step editing shares the original run allowances. Continuing after a question
+// cannot renew consumed input budget, and failure preserves the old body.
+#[test]
+fn step_edit_budget() {
+    let mut session = session();
+    record(&mut session, false, "");
+    let original = session.macros.ring.front().unwrap().clone();
+    session.execute(Command::Macro(MacroCommand::StepEdit));
+    session.expire_input(Instant::now());
+    let limits = session.macros.runner.as_ref().unwrap().limits.clone();
+    limits.steps.store(
+        crate::macros::RUN_STEPS - 1,
+        std::sync::atomic::Ordering::Relaxed,
+    );
+    session.handle(key(KeyCode::Char('c'), KeyModifiers::NONE));
+    drain_macro(&mut session);
+    assert_eq!(session.macro_stop().unwrap().reason, StopReason::StepBudget);
+    assert_eq!(
+        session.macros.ring.front().unwrap().steps.len(),
+        original.steps.len()
+    );
+    assert_eq!(session.macro_status(), Status::Idle);
+}
+
+// Source point changes while waiting stop before another effect and cannot
+// republish a candidate against an obsolete native source owner.
+#[test]
+fn step_edit_owner() {
+    let mut session = session();
+    record(&mut session, false, "");
+    session.execute(Command::Macro(MacroCommand::StepEdit));
+    session.expire_input(Instant::now());
+    let original = session.macros.ring.front().unwrap().clone();
+    let end = session.buffer().unwrap().len_chars();
+    session.replace(end..end, "foreign").unwrap();
+    session.handle(key(KeyCode::Char('y'), KeyModifiers::NONE));
+    assert_eq!(
+        session.macro_stop().unwrap().reason,
+        StopReason::OwnerChanged
+    );
+    let retained = session.macros.ring.front().unwrap();
+    assert_eq!(
+        (retained.id, retained.revision),
+        (original.id, original.revision)
+    );
+    assert!(Arc::ptr_eq(&retained.steps, &original.steps));
+}
+
+fn drain_macro(session: &mut Session) {
+    let deadline = Instant::now() + std::time::Duration::from_secs(5);
+    while session
+        .remaining_input(Instant::now())
+        .is_some_and(|wait| wait.is_zero())
+    {
+        assert!(Instant::now() < deadline);
+        session.expire_input(Instant::now());
+    }
+}
+
+// An already-admitted native layout completion can remap the source point. The
+// next step question must observe that completion before checking its owner.
+#[test]
+fn step_edit_layout() {
+    let mut session = session();
+    record(&mut session, false, "");
+    session.execute(Command::Macro(MacroCommand::StepEdit));
+    let before = text(&session);
+    let run = session.macros.runner.as_mut().unwrap();
+    run.waiting = true;
+    run.expected.1.position = crate::coordinates::Scalar(0);
+    session.expire_input(Instant::now());
+    assert_eq!(session.macro_wait(), Some(crate::macros::Wait::Step));
+    assert_eq!(text(&session), before);
+    assert!(session.macro_stop().is_none());
+    session.handle(key(KeyCode::Char('c'), KeyModifiers::NONE));
+    drain_macro(&mut session);
+    assert_eq!(session.macro_status(), Status::Idle);
+}

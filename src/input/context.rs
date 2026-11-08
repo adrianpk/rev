@@ -89,6 +89,9 @@ impl Input {
         if self.workspace_git {
             return MapContext::Git;
         }
+        if let Some(context) = self.workspace_macro {
+            return context;
+        }
         if self.workspace_bookmarks {
             return MapContext::BookmarkList;
         }
@@ -357,5 +360,21 @@ impl Input {
             ),
             _ => false,
         }
+    }
+}
+
+impl Input {
+    pub(crate) fn set_macro_context(&mut self, context: Option<MapContext>) {
+        if self.workspace_macro != context {
+            self.retire_command_hints();
+            self.clear_prefix();
+            self.workspace_macro = context;
+        }
+    }
+    pub(crate) fn restore_macro_mode(&mut self, state: Option<super::EditingState>) {
+        if let Some(state) = state {
+            self.editing_state = state;
+        }
+        self.clear_prefix();
     }
 }

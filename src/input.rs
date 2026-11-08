@@ -13,7 +13,9 @@ mod macros;
 mod meta;
 mod modal;
 pub use macros::MacroQuery;
+mod step_edit;
 pub use modal::EditingState;
+pub use step_edit::MacroStep;
 mod names;
 pub(crate) use names::Names;
 mod org;
@@ -92,6 +94,7 @@ pub enum Outcome {
     PathAccept,
     Decision(bool),
     MacroQuery(MacroQuery),
+    MacroStep(MacroStep),
     MacroKey(keymap::Sequence),
     Message(&'static str),
 }
@@ -130,6 +133,7 @@ enum Context {
     Literal(Prompt),
     ReplaceDecision,
     MacroQuery,
+    MacroStep(String),
     MacroKey(macro_bindings::Capture),
     Decision(&'static str),
     Inventory,
@@ -154,6 +158,7 @@ pub struct Input {
     workspace_tree: bool,
     workspace_startup: bool,
     workspace_bookmarks: bool,
+    workspace_macro: Option<keymap::Context>,
     workspace_git: bool,
     workspace_git_commit: bool,
     workspace_git_history: bool,
@@ -210,9 +215,10 @@ impl Input {
             Context::Editing => Focus::Editing,
             Context::Search(_) => Focus::Search,
             Context::Command(_) => Focus::Command,
-            Context::Decision(_) | Context::ReplaceDecision | Context::MacroQuery => {
-                Focus::Decision
-            }
+            Context::Decision(_)
+            | Context::ReplaceDecision
+            | Context::MacroQuery
+            | Context::MacroStep(_) => Focus::Decision,
             Context::Inventory => Focus::Inventory,
             _ => Focus::Argument,
         }
@@ -242,6 +248,7 @@ impl Input {
         match &self.context {
             Context::Command(_) => Some("M-x "),
             Context::ReplaceDecision => Some(replace::QUESTION),
+            Context::MacroStep(label) => Some(label),
             Context::MacroQuery => Some(macros::QUESTION),
             Context::MacroKey(capture) => Some(capture.prompt.label()),
             Context::Decision(label) => Some(label),
@@ -368,6 +375,7 @@ impl Input {
             Context::Path(prompt) => path::handle(prompt, key),
             Context::Literal(prompt) => replace::argument(prompt, key),
             Context::ReplaceDecision => replace::answer(key),
+            Context::MacroStep(_) => step_edit::answer(key),
             Context::MacroQuery => macros::answer(key),
             Context::Decision(_) => decide(key),
             Context::Inventory => inventory::handle(key),
@@ -389,6 +397,7 @@ impl Input {
             Outcome::Argument(_)
                 | Outcome::Decision(_)
                 | Outcome::MacroQuery(_)
+                | Outcome::MacroStep(_)
                 | Outcome::Selection(Selection::Accept)
                 | Outcome::Search(SearchAction::Accept)
         ) {

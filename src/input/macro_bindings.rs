@@ -11,6 +11,7 @@ pub(super) struct Capture {
     local: Option<MapContext>,
     modal: bool,
     pub prompt: Prompt,
+    binding: bool,
 }
 
 pub(crate) fn overlaps(a: &Sequence, b: &Sequence) -> bool {
@@ -59,6 +60,7 @@ impl Input {
         self.focus() == Focus::Editing
             && !self.workspace_startup
             && !self.workspace_tree
+            && self.workspace_macro.is_none()
             && !self.workspace_bookmarks
             && !self.workspace_git
             && self.workspace_terminal.is_none()
@@ -96,13 +98,28 @@ impl Input {
     }
 
     pub(crate) fn macro_key_capture(&mut self) -> Result<(), Error> {
+        self.macro_key_capture_for(true)
+    }
+    pub(crate) fn macro_literal_key_capture(&mut self) -> Result<(), Error> {
+        self.macro_key_capture_for(false)
+    }
+    fn macro_key_capture_for(&mut self, binding: bool) -> Result<(), Error> {
         self.available()?;
         self.context = Context::MacroKey(Capture {
             keys: Vec::new(),
+            binding,
             context: self.map_context(),
             local: self.workspace_org.map(super::OrgContext::keymap),
             modal: self.modal_editing(),
-            prompt: Prompt::new("Bind macro key: ", "", self.policy.input_limit)?,
+            prompt: Prompt::new(
+                if binding {
+                    "Bind macro key: "
+                } else {
+                    "Insert macro key: "
+                },
+                "",
+                self.policy.input_limit,
+            )?,
         });
         self.clear_prefix();
         Ok(())
@@ -120,7 +137,8 @@ impl Input {
             capture.keys.pop();
             return Outcome::Message("Key has no admitted native binding notation");
         };
-        if capture.keys.len() == 1
+        if capture.binding
+            && capture.keys.len() == 1
             && let Some(KeyCode::Char(c)) = key.plain()
             && (c.is_ascii_digit() || c.is_ascii_uppercase())
         {

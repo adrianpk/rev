@@ -30,6 +30,8 @@ pub enum Context {
     Minibuffer,
     Tree,
     BookmarkList,
+    MacroDefinition,
+    MacroMenu,
     Git,
     GitCommit,
     GitHistory,
@@ -47,7 +49,7 @@ pub enum Context {
 }
 
 impl Context {
-    pub const ALL: [Self; 25] = [
+    pub const ALL: [Self; 27] = [
         Self::VimNormal,
         Self::VimInsert,
         Self::VimReplace,
@@ -59,6 +61,8 @@ impl Context {
         Self::Minibuffer,
         Self::Tree,
         Self::BookmarkList,
+        Self::MacroDefinition,
+        Self::MacroMenu,
         Self::Git,
         Self::GitCommit,
         Self::GitHistory,
@@ -82,6 +86,8 @@ impl Context {
             Self::Minibuffer => "minibuffer",
             Self::Tree => "tree",
             Self::BookmarkList => "bookmark_list",
+            Self::MacroDefinition => "macro_definition",
+            Self::MacroMenu => "macro_menu",
             Self::Git => "git",
             Self::GitCommit => "git_commit",
             Self::GitHistory => "git_history",
@@ -122,6 +128,7 @@ impl Context {
     /// text, decisions and Escape timing remain with their existing owners.
     pub fn defaults(self) -> &'static [(&'static str, &'static str)] {
         match self {
+            Self::MacroDefinition => defaults::macro_definition_complete(),
             Self::GitCommit => defaults::commit_complete(),
             Self::Org => defaults::org_complete(),
             Self::OrgCalendar => defaults::calendar_complete(),
@@ -148,6 +155,8 @@ pub struct Effective {
     minibuffer: Map,
     tree: Map,
     bookmark_list: Map,
+    macro_definition: Map,
+    macro_menu: Map,
     git: Map,
     git_commit: Map,
     git_history: Map,
@@ -184,6 +193,8 @@ impl Effective {
             Context::Minibuffer => &self.minibuffer,
             Context::Tree => &self.tree,
             Context::BookmarkList => &self.bookmark_list,
+            Context::MacroDefinition => &self.macro_definition,
+            Context::MacroMenu => &self.macro_menu,
             Context::Git => &self.git,
             Context::GitCommit => &self.git_commit,
             Context::GitHistory => &self.git_history,
@@ -239,6 +250,13 @@ pub(crate) fn compile_ai(
         org_capture,
         org_source_edit,
         git_commit: Map::overlay(&editor, Context::GitCommit, &keys.git_commit, commands)?,
+        macro_definition: Map::overlay(
+            &editor,
+            Context::MacroDefinition,
+            &keys.macro_definition,
+            commands,
+        )?,
+        macro_menu: Map::compile(Context::MacroMenu, &keys.macro_menu, commands)?,
         editor,
         minibuffer,
         tree: Map::compile(Context::Tree, &keys.tree, commands)?,

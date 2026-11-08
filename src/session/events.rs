@@ -152,6 +152,9 @@ impl Session {
 
     /// Expire Escape before dispatch; pointer deadlines wait until input is drained.
     pub fn handle_at(&mut self, event: Event, now: Instant) -> Action {
+        if let Some(action) = self.macro_step_input_guard(&event) {
+            return action;
+        }
         if let Some(action) = self.macro_input_guard(&event) {
             return action;
         }
@@ -227,8 +230,10 @@ impl Session {
             && (self.input.focus() != crate::input::Focus::Editing
                 || self.pending.is_some()
                 || self.input.prefix().is_some());
+        let recent_source = self.macro_source();
         let outcome = self.input.handle_at(event, now);
         let outcome = self.macro_repeat_outcome(outcome);
+        self.macro_recent_outcome(&outcome, recent_source);
         if let Some(action) = self.macro_capture_outcome(&outcome) {
             return action;
         }
@@ -241,6 +246,7 @@ impl Session {
         self.macro_finish_capture();
         self.macro_consent_progress();
         self.macro_manual_progress();
+        self.macro_step_capture_progress();
         self.macros.dispatching = false;
         self.terminals.host_cancel = false;
         if action == Action::Wait {

@@ -272,13 +272,13 @@ Both use M-x or modal colon and leave this configuration unchanged.
 | `language` | Map of language IDs to partial tables | `{}` | IDs start with `[a-z]`, then contain only `[a-z0-9-]`; no grammar installation is implied. |
 | `files.associations` | Map of exact basenames or `*.suffix` to language IDs | `{}` | User rules override built-in recognition; see language rules below. |
 | `keys.completion` | Map of popup chord sequences to completion commands | Compiled map | Active cursor popup; all 7 entries are active in the sample. Escape is a reserved literal cancellation. |
-| `keys.editor` | Map of chord sequences to existing editor command names | Compiled map | Non-modal editing focus; all 115 entries are active in the sample. |
-| `keys.vim_normal` | Map of chord sequences to canonical commands | Compiled map | modal Normal editing; state entry, navigation/counts/search, operators, transfer, jump history, Replace, dot repetition, colon commands and native pane controls. The sample declares all 173 entries. |
-| `keys.vim_insert` | Map of chord sequences to canonical commands | Compiled map | modal Insert editing; independent native factories and one-Normal-command C-o. The sample declares all 116 entries. |
-| `keys.vim_replace` | Map of chord sequences to canonical commands | Compiled map | modal Replace editing; native modified controls, whole-grapheme overwrite and underline cursor. The sample declares all 115 entries. |
-| `keys.vim_visual_character` | Map of chord sequences to canonical commands | Compiled map | Visual Character navigation, inclusive selection and shared operators. The sample declares all 155 entries. |
-| `keys.vim_visual_line` | Map of chord sequences to canonical commands | Compiled map | Visual Line navigation, complete logical lines and shared operators. The sample declares all 155 entries. |
-| `keys.vim_visual_block` | Map of chord sequences to canonical commands | Compiled map | Visual Block navigation and atomic block delete/change/copy with logical grapheme columns. The sample declares all 151 entries. |
+| `keys.editor` | Map of chord sequences to existing editor command names | Compiled map | Non-modal editing focus; all 120 entries are active in the sample. |
+| `keys.vim_normal` | Map of chord sequences to canonical commands | Compiled map | modal Normal editing; state entry, navigation/counts/search, operators, transfer, jump history, Replace, dot repetition, colon commands and native pane controls. The sample declares all 178 entries. |
+| `keys.vim_insert` | Map of chord sequences to canonical commands | Compiled map | modal Insert editing; independent native factories and one-Normal-command C-o. The sample declares all 121 entries. |
+| `keys.vim_replace` | Map of chord sequences to canonical commands | Compiled map | modal Replace editing; native modified controls, whole-grapheme overwrite and underline cursor. The sample declares all 120 entries. |
+| `keys.vim_visual_character` | Map of chord sequences to canonical commands | Compiled map | Visual Character navigation, inclusive selection and shared operators. The sample declares all 160 entries. |
+| `keys.vim_visual_line` | Map of chord sequences to canonical commands | Compiled map | Visual Line navigation, complete logical lines and shared operators. The sample declares all 160 entries. |
+| `keys.vim_visual_block` | Map of chord sequences to canonical commands | Compiled map | Visual Block navigation and atomic block delete/change/copy with logical grapheme columns. The sample declares all 156 entries. |
 | `keys.minibuffer` | Map of chord sequences to admitted prompt actions/commands | Compiled map | Prompt focus; all 22 entries are active in the sample. |
 | `keys.git_refs` | Map of chord sequences to native ref commands | Compiled map | Ref inspection, explicit fetch, reviewed upstream push and confirmed local branch/tag actions in both profiles; all 49 entries are active in the sample. |
 | `keys.git_worktree` | Map of chord sequences to native worktree commands | Compiled map | Exact linked-worktree identities, checked Status visits and reviewed create/lock/unlock/prune/remove in both profiles; all 27 entries are active in the sample. |
@@ -288,6 +288,8 @@ Both use M-x or modal colon and leave this configuration unchanged.
 | `keys.git_inspect` | Map of chord sequences to read-only Git inspection commands | Compiled map | Revision, reflog, blame and historical bytes in both profiles; all 22 entries are active in the sample. |
 | `keys.git_history` | Map of chord sequences to admitted Git navigation commands | Compiled map | History in both profiles, with reviewed ordered cherry-pick/revert; all 29 entries are active in the sample. |
 | `keys.git_commit` | Map of chord sequences to native composer commands | Compiled map | Inherits editor keys for commit/tag messages and prepared literal argument composition in both profiles; all 4 entries are active in the sample. |
+| `keys.macro_definition` | Map of chord sequences to native definition commands | Compiled map | Inherits ordinary editor text input in both profiles; all 3 entries are active as local overrides in the sample. |
+| `keys.macro_menu` | Map of chord sequences to native macro menu commands | Compiled map | Read-only ring component; all 29 entries are active in the sample, including native selection and recovery. |
 | `keys.git` | Map of chord sequences to admitted Git commands | Compiled map | One native Git interaction owner in both profiles; all 72 entries are active in the sample. |
 | `keys.bookmark_list` | Map of chord sequences to admitted bookmark-list commands | Compiled map | Read-only bookmark view; all 16 entries are active in the sample. Prompts retain their own input maps. |
 | `keys.tree` | Map of chord sequences to admitted tree commands | Compiled map | Tree focus; all 24 entries are active in the sample. |
@@ -645,7 +647,8 @@ Explicit [external grammar assets](syntax.md#external-grammar-assets) can admit
 another language or replace bundled syntax. Failed admission retains bundled
 syntax when available; unsupported identities and syntax failures retain editable
 plain presentation. TOML startup
-preferences configure existing actions. This version has no plugins, macros,
+preferences configure existing actions. [Keyboard macros](macro-editing.md) use
+native session input and explicit TOML persistence. This version has no plugins,
 package runtime, LSP, automatic indentation, OS clipboard bridge, regex/project
 search or session
 persistence. The command catalog describes the implemented editing subset.

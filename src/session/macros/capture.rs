@@ -170,6 +170,7 @@ impl Session {
         if self.macros.expanded {
             return true;
         }
+        self.macro_recent_argument(role, value);
         if let Some(recorder) = self.macros.recorder.as_mut()
             && let Err(reason) = recorder.argument(Argument {
                 role,
@@ -183,6 +184,7 @@ impl Session {
     }
 
     pub(in crate::session) fn macro_finish_capture(&mut self) {
+        self.macro_recent_finish();
         if self.macros.recorder.is_some()
             && let Err(reason) = self.macros.admit_memory(None)
         {

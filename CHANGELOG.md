@@ -29,6 +29,10 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
   save named definitions as private TOML, reload them without execution, delete
   saved records or insert inert TOML into source. Include bindings only with a
   prefix; reload preserves unsaved changes and saves detect concurrent conflicts.
+  Edit checked TOML drafts, build a macro from recent recordable input, or execute
+  and change a definition one step at a time. Manage ring properties, marks,
+  copies and checked deletion in a read-only menu; edits stay in the session
+  until explicitly saved.
 
 - Supply counts with `C-u`, Meta digits or a negative prefix to move by
   characters, words or ordinary rows, insert repeated text, delete or kill a

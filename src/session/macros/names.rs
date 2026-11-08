@@ -61,6 +61,20 @@ impl Session {
         self.message("")
     }
 
+    pub(super) fn macro_name_source(&mut self, source: Arc<crate::macros::Definition>) -> Action {
+        let draft = Draft {
+            source,
+            view: self.windows.selected_id(),
+            point: self.view().point,
+            generation: self.macros.catalog_revision,
+        };
+        if let Err(e) = self.input.argument("Macro command name: ", "") {
+            return self.error(&e.to_string());
+        }
+        self.pending = Some(super::super::Pending::MacroName(Box::new(draft)));
+        self.message("")
+    }
+
     fn macro_draft_current(&self, draft: &Draft) -> bool {
         draft.view == self.windows.selected_id()
             && draft.point == self.view().point

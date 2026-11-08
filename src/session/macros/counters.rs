@@ -157,6 +157,11 @@ impl Session {
             self.macros.default_format = format.clone();
             return self.message("Macro counter format set for new recordings");
         }
+        if !self.macros.expanded {
+            self.macros
+                .recent
+                .push(self.macro_entry(), Step::Counter(operation));
+        }
         self.macros.set_counter(state);
         self.message("Macro counter updated")
     }

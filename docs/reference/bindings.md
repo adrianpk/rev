@@ -718,12 +718,43 @@ bounds, cancellation and the currently delivered counted movement policies.
 | Named command | `kmacro-load` | Reload saved macros without running them. |
 | Named command | `kmacro-delete` | Explicitly remove a macro from the saved library. |
 | Named command | `insert-kbd-macro` | Insert a named macro definition as TOML text. |
+| C-x C-k Enter | `kmacro-edit-macro` | Edit the current keyboard macro definition. |
+| C-x C-k C-e | `kmacro-edit-macro-repeat` | Edit the current macro and enable ring repeat keys. |
+| C-x C-k e | `edit-kbd-macro` | Select a named or bound macro to edit. |
+| C-x C-k l | `kmacro-edit-lossage` | Make a macro from recent recordable input. |
+| C-x C-k Space | `kmacro-step-edit-macro` | Execute and edit a macro one step at a time. |
+| Named command | `list-keyboard-macros` | List and manage the session macro ring. |
+| C-c C-c in a macro definition buffer | `edmacro-finish-edit` | Apply a checked macro definition draft. |
+| C-c C-q in a macro definition buffer | `edmacro-insert-key` | Insert the next key sequence in macro notation. |
+| C-c C-r in a macro definition buffer | `edmacro-set-macro-to-region-lines` | Use complete selected definition lines as the macro body. |
+| # | `kmacro-menu-edit-position` | Change the selected macro's ring position. |
+| C-x C-t | `kmacro-menu-transpose` | Move the selected macro above its predecessor. |
+| c | `kmacro-menu-edit-counter` | Change the selected macro counter. |
+| f | `kmacro-menu-edit-format` | Change the selected macro counter format. |
+| e | `kmacro-menu-edit-keys` | Edit the selected macro definition. |
+| Enter | `kmacro-menu-edit-column` | Edit the selected macro property. |
+| d | `kmacro-menu-flag-for-deletion` | Flag selected macros for ring deletion. |
+| x | `kmacro-menu-do-flagged-delete` | Remove flagged macros from the ring. |
+| m | `kmacro-menu-mark` | Mark selected macros for menu operations. |
+| C | `kmacro-menu-do-copy` | Duplicate selected macros in the ring. |
+| D | `kmacro-menu-do-delete` | Confirm removal of selected ring macros. |
+| u | `kmacro-menu-unmark` | Clear selected macro marks and deletion flags. |
+| Backspace | `kmacro-menu-unmark-backward` | Clear a macro mark and move backward. |
+| U | `kmacro-menu-unmark-all` | Clear all macro menu marks and flags. |
+| g | `kmacro-menu-refresh` | Refresh the macro menu. |
+| q | `kmacro-menu-quit` | Close the macro menu and restore its source view. |
+| ? | `kmacro-menu-help` | Show the macro menu commands and bindings. |
 | C-] during manual macro editing | `abort-recursive-edit` | Abort a macro editing pause and its playback. |
 
 F3 and F4 are logical function-key reports. Their effective bindings remain
 configurable in ordinary editor and modal contexts. C-g cancels capture/playback
 without rolling back real source changes. See [macro commands](commands.md#keyboard-recording-and-replay)
 for entry checks, undo grouping and the current recording boundaries.
+
+Definition buffers inherit ordinary editor text input in both profiles and add
+C-c C-c/C-q/C-r. The read-only menu uses its own map; Tab/BackTab or Left/Right
+select a property column, Up/Down select a row, and C-SPC starts its row region.
+See [macro editing](macro-editing.md) for role-qualified step choices.
 
 ## Configuration keymap contracts
 
@@ -738,6 +769,9 @@ non-modal overrides do not leak into those states. Local Org editing/capture/sou
 resolve independent state factories. M-x and C-g remain protected recovery in modal editing.
 Escape/C-[ is a state transition while modal editing owns input, so a standalone
 Escape cannot become a configurable command prefix there.
+
+`keys.macro_definition` overlays the ordinary editor map for inert TOML drafts;
+`keys.macro_menu` owns the read-only ring view. Neither changes the source mode.
 
 `keys.completion` supplies the active popup map; Escape remains literal cancel.
 `keys.editor`, `keys.minibuffer`, `keys.tree` and `keys.git` inherit independent complete

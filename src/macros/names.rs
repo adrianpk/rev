@@ -36,6 +36,15 @@ impl State {
     }
 
     pub fn admit_memory(&self, extra: Option<&Arc<Definition>>) -> Result<(), StopReason> {
+        self.memory_admission(extra.into_iter())
+    }
+    pub fn admit_definitions(&self, extra: &[Arc<Definition>]) -> Result<(), StopReason> {
+        self.memory_admission(extra.iter())
+    }
+    fn memory_admission<'a>(
+        &self,
+        extra: impl Iterator<Item = &'a Arc<Definition>>,
+    ) -> Result<(), StopReason> {
         let mut retained = Retained::default();
         retained.bytes += self.names.len() * 4096 + self.bindings.len() * 1024;
         for definition in self
@@ -55,8 +64,24 @@ impl State {
                 retained.definition(definition);
             }
         }
-        if let Some(definition) = extra {
+        if let Some(editor) = &self.step_editor {
+            retained.definition(editor.target.source());
+            retained.definition(&editor.candidate);
+        }
+        if let Some(definition) = &self.draft_pin {
             retained.definition(definition);
+        }
+        for definition in extra {
+            retained.definition(definition);
+        }
+        retained.bytes += self
+            .recent
+            .entries
+            .iter()
+            .map(|(_, s)| s.bytes() + std::mem::size_of::<(Entry, Step)>())
+            .sum::<usize>();
+        if let Some(recorder) = &self.recent.draft {
+            retained.recorder(recorder);
         }
         if let Some(recorder) = &self.recorder {
             retained.recorder(recorder);

@@ -75,6 +75,7 @@ impl Session {
             Some(Pending::MacroLibraryConsent(consent)) => {
                 self.macro_library_answer(*consent, accepted)
             }
+            Some(Pending::MacroMenuConsent(consent)) => self.macro_menu_answer(*consent, accepted),
             Some(Pending::MacroConsent(consent)) => self.macro_name_consent(*consent, accepted),
             Some(Pending::GitDiscard(consent)) => self.git_discard_answer(*consent, accepted),
             Some(Pending::GitRef(consent)) => self.git_ref_answer(*consent, accepted),
@@ -200,6 +201,7 @@ impl Session {
         }
         let question = match &self.pending {
             Some(Pending::MacroLibraryConsent(consent)) => Some(consent.question()),
+            Some(Pending::MacroMenuConsent(consent)) => Some(consent.question()),
             Some(Pending::MacroConsent(consent)) => Some(consent.question()),
             Some(Pending::Replace(state)) if state.deciding() => {
                 Some("Replace occurrence? [y/n/q]")

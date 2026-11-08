@@ -145,6 +145,8 @@ pub struct Session {
     bookmark_visit: Option<bookmarks::Navigation>,
     bookmark_storage: bookmarks::Persistence,
     bookmark_list: Option<bookmarks::List>,
+    macro_draft: Option<macros::definition::Draft>,
+    macro_menu: Option<macros::menu::Menu>,
     bookmark_iteration: Option<bookmarks::Iteration>,
     buffers: Buffers,
     org: org::Work,
@@ -221,6 +223,11 @@ enum AfterSave {
 }
 
 enum Pending {
+    MacroStepKey,
+    MacroMenuPrompt(Box<macros::menu::Prompt>),
+    MacroMenuConsent(Box<macros::menu::Consent>),
+    MacroEditSelect,
+    MacroDefinitionKey,
     MacroLibrary(Box<macros::library::Prompt>),
     MacroLibraryConsent(Box<macros::library::Consent>),
     MacroName(Box<macros::names::Draft>),
@@ -480,6 +487,8 @@ impl Session {
             bookmark_visit: None,
             bookmark_storage,
             bookmark_list: None,
+            macro_draft: None,
+            macro_menu: None,
             bookmark_iteration: None,
             buffers,
             org: org::Work::default(),
@@ -745,6 +754,7 @@ impl Session {
         self.query_frame(frame, composition)?;
         self.agenda_results_frame(frame, composition)?;
         self.bookmark_list_frame(frame, composition)?;
+        self.macro_menu_frame(frame, composition)?;
         self.terminal_frame(frame, composition)
     }
 
@@ -866,6 +876,9 @@ impl Session {
     }
 
     fn apply_outcome(&mut self, outcome: Outcome, now: std::time::Instant) -> Action {
+        if self.macro_menu_active() && matches!(outcome, Outcome::Paste(_)) {
+            return self.message("Read-only macro menu; q returns to source");
+        }
         if self.bookmark_list_active() && matches!(outcome, Outcome::Paste(_)) {
             return self.message("Read-only bookmark list; q returns to source");
         }
@@ -887,7 +900,18 @@ impl Session {
             Outcome::Argument(path) => self.argument(path),
             Outcome::PathAccept => self.accept_path(),
             Outcome::Decision(accepted) => self.decision(accepted),
+            Outcome::MacroStep(answer) => self.macro_step_answer(answer),
             Outcome::MacroQuery(answer) => self.macro_query_answer(answer),
+            Outcome::MacroKey(sequence) if matches!(self.pending, Some(Pending::MacroStepKey)) => {
+                self.pending = None;
+                self.macro_step_key(sequence)
+            }
+            Outcome::MacroKey(sequence)
+                if matches!(self.pending, Some(Pending::MacroDefinitionKey)) =>
+            {
+                self.pending = None;
+                self.macro_definition_key(sequence)
+            }
             Outcome::MacroKey(sequence) => self.macro_key_argument(sequence),
             Outcome::Selection(selection) => self.select_candidate(selection),
             Outcome::Complete => self.complete_argument(),
@@ -911,6 +935,18 @@ impl Session {
     }
 
     fn blocked_input(&self, outcome: &Outcome) -> Option<&'static str> {
+        if self.macro_menu_active()
+            && matches!(
+                outcome,
+                Outcome::Pointer(_)
+                    | Outcome::Editing(_)
+                    | Outcome::Paste(_)
+                    | Outcome::TextInvocation(_)
+            )
+        {
+            return Some("Read-only macro menu; q returns to source");
+        }
+
         if self.bookmark_list_active()
             && matches!(outcome, Outcome::Pointer(_) | Outcome::Editing(_))
         {
@@ -933,6 +969,12 @@ impl Session {
     /// Executes the same implemented command enum produced by key bindings.
     pub fn execute(&mut self, command: Command) -> Action {
         let command = command.canonical();
+        if let Some(action) = self.macro_menu_command(command) {
+            return action;
+        }
+        if let Some(action) = self.macro_definition_guard(command) {
+            return action;
+        }
         if let Some(action) = self.macro_command_guard(command) {
             return action;
         }

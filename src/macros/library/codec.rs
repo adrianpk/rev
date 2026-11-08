@@ -828,3 +828,84 @@ fn parse_key(text: &str) -> Result<Key, Error> {
 #[cfg(test)]
 #[path = "codec/tests.rs"]
 pub(super) mod tests;
+
+impl Record {
+    /// A session edit pins its process-local target separately from any saved
+    /// identity/revision. Applying a draft never advances persistent metadata.
+    pub fn draft(
+        target: &super::super::editing::Selection,
+        description: Option<String>,
+    ) -> Result<Self, Error> {
+        let source = target.source();
+        let named = Named {
+            definition: source.clone(),
+            source: (source.id, source.revision),
+            description,
+            saved: None,
+        };
+        let mut record = Self::capture(
+            MacroName::new(target.name()).map_err(|_| Error::Invalid("draft name"))?,
+            &named,
+            None,
+        )?;
+        record.id = format!("{:032x}", source.id);
+        record.revision = source.revision;
+        Ok(record)
+    }
+    pub fn draft_text(&self) -> Result<String, Error> {
+        self.definition(0)?;
+        let mut table = self.table()?;
+        let steps = table.remove("steps").ok_or(Error::Invalid("draft steps"))?;
+        let values = steps.as_array().ok_or(Error::Invalid("draft step array"))?;
+        if values.is_empty() {
+            table["steps"] = toml_edit::value(Array::new());
+        } else {
+            let mut tables = ArrayOfTables::new();
+            for value in values {
+                let inline = value
+                    .as_inline_table()
+                    .ok_or(Error::Invalid("draft step table"))?;
+                let mut step = Table::new();
+                for (key, value) in inline.iter() {
+                    step[key] = Item::Value(value.clone());
+                }
+                tables.push(step);
+            }
+            table["steps"] = Item::ArrayOfTables(tables);
+        }
+        let mut doc = DocumentMut::new();
+        doc["schema_version"] = toml_edit::value(1);
+        doc["revision"] = toml_edit::value(1);
+        let mut records = ArrayOfTables::new();
+        records.push(table);
+        doc["macros"] = Item::ArrayOfTables(records);
+        Ok(doc.to_string())
+    }
+    pub fn key_notation(keys: &Sequence) -> Result<String, Error> {
+        let mut text = String::new();
+        for key in keys.chords() {
+            text.push_str("[[macros.steps]]\nkind = \"key\"\nkey = ");
+            text.push_str(&Value::from(key_text(*key)?).to_string());
+            text.push('\n');
+        }
+        Ok(text)
+    }
+    pub fn region_body(&self, fragment: &str) -> Result<Self, Error> {
+        let mut base = self.clone();
+        base.steps.clear();
+        let mut text = base.draft_text()?.replace("steps = []\n", "");
+        text.push_str(fragment);
+        let mut catalog = Catalog::decode(Some(text.as_bytes()))?;
+        if catalog.macros.len() != 1 {
+            return Err(Error::Invalid("one definition body"));
+        }
+        let mut candidate = catalog.macros.remove(0);
+        let steps = std::mem::take(&mut candidate.steps);
+        if candidate != base {
+            return Err(Error::Invalid("selected lines contain definition metadata"));
+        }
+        candidate.steps = steps;
+        candidate.definition(0)?;
+        Ok(candidate)
+    }
+}

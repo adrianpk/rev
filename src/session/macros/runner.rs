@@ -23,13 +23,18 @@ impl Session {
         }
         let started = Instant::now();
         for _ in 0..256 {
-            let entry = self.macro_entry();
             let point = (self.windows.selected_id(), self.view().point);
-            let run = self.macros.runner.as_mut().expect("live runner");
-            if run.waiting {
+            if let Some(run) = &mut self.macros.runner
+                && run.waiting
+            {
                 run.expected = point;
                 run.waiting = false;
             }
+            if let Some(action) = self.macro_step_boundary() {
+                return action;
+            }
+            let entry = self.macro_entry();
+            let run = self.macros.runner.as_mut().expect("live runner");
             if point != run.expected {
                 return self.stop_macro(
                     StopReason::OwnerChanged,
@@ -100,6 +105,12 @@ impl Session {
                     run.group = run.outer_group.clone().unwrap_or_else(|| {
                         crate::buffer::edit::AutomaticGroup::new(run.budget.clone())
                     });
+                }
+                if run.parent.is_none()
+                    && let Some(editor) = &mut self.macros.step_editor
+                    && !editor.capturing
+                {
+                    editor.allowance = editor.allowance.saturating_sub(1);
                 }
                 let step = run.definition.steps[run.step].clone();
                 run.step += 1;
@@ -292,6 +303,13 @@ impl Session {
             .as_ref()
             .filter(|run| run.consent.is_some() || run.query)
             .or_else(|| {
+                self.macros
+                    .step_editor
+                    .as_ref()
+                    .filter(|e| e.capturing)
+                    .and_then(|_| self.macros.pauses.last().and_then(|p| p.runner.as_ref()))
+            })
+            .or_else(|| {
                 self.macro_manual()
                     .then(|| {
                         self.macros
@@ -337,15 +355,20 @@ impl Session {
             }
         }
         let run = self.macros.runner.as_ref().or_else(|| {
-            self.macro_manual()
-                .then(|| {
-                    self.macros
-                        .pauses
-                        .iter()
-                        .rev()
-                        .find_map(|pause| pause.runner.as_ref())
-                })
-                .flatten()
+            (self.macro_manual()
+                || self
+                    .macros
+                    .step_editor
+                    .as_ref()
+                    .is_some_and(|e| e.capturing))
+            .then(|| {
+                self.macros
+                    .pauses
+                    .iter()
+                    .rev()
+                    .find_map(|pause| pause.runner.as_ref())
+            })
+            .flatten()
         });
         if let Some(run) = run {
             self.buffers

@@ -21,6 +21,11 @@ pub(super) fn source_complete() -> &'static [(&'static str, &'static str)] {
         LazyLock::new(|| complete(EDITOR, ORG_SOURCE_EDIT));
     &COMPLETE
 }
+pub(super) fn macro_definition_complete() -> &'static [(&'static str, &'static str)] {
+    static COMPLETE: LazyLock<Vec<(&str, &str)>> =
+        LazyLock::new(|| complete(EDITOR, MACRO_DEFINITION));
+    &COMPLETE
+}
 pub(super) fn commit_complete() -> &'static [(&'static str, &'static str)] {
     static COMPLETE: LazyLock<Vec<(&str, &str)>> = LazyLock::new(|| complete(EDITOR, GIT_COMMIT));
     &COMPLETE
@@ -47,6 +52,8 @@ pub(super) fn bindings(context: Context) -> &'static [(&'static str, &'static st
         Context::Minibuffer => MINIBUFFER,
         Context::Tree => TREE,
         Context::BookmarkList => BOOKMARK_LIST,
+        Context::MacroDefinition => MACRO_DEFINITION,
+        Context::MacroMenu => MACRO_MENU,
         Context::Git => GIT,
         Context::GitHistory => GIT_HISTORY,
         Context::GitInspect => GIT_INSPECT,
@@ -92,6 +99,11 @@ pub(super) const EDITOR: &[(&str, &str)] = &[
     ("C-x C-k r", "apply-macro-to-region-lines"),
     ("C-x C-k n", "kmacro-name-last-macro"),
     ("C-x C-k b", "kmacro-bind-to-key"),
+    ("C-x C-k RET", "kmacro-edit-macro"),
+    ("C-x C-k C-e", "kmacro-edit-macro-repeat"),
+    ("C-x C-k e", "edit-kbd-macro"),
+    ("C-x C-k l", "kmacro-edit-lossage"),
+    ("C-x C-k SPC", "kmacro-step-edit-macro"),
     ("C-x q", "kbd-macro-query"),
     ("C-M-c", "exit-recursive-edit"),
     ("C-x C-k C-k", "kmacro-end-or-call-macro-repeat"),
@@ -758,4 +770,41 @@ const GIT_CONFLICT: &[(&str, &str)] = &[
     ("PageDown", "scroll-up-command"),
     ("M-<", "beginning-of-buffer"),
     ("M->", "end-of-buffer"),
+];
+
+const MACRO_DEFINITION: &[(&str, &str)] = &[
+    ("C-c C-c", "edmacro-finish-edit"),
+    ("C-c C-q", "edmacro-insert-key"),
+    ("C-c C-r", "edmacro-set-macro-to-region-lines"),
+];
+const MACRO_MENU: &[(&str, &str)] = &[
+    ("#", "kmacro-menu-edit-position"),
+    ("C-x C-t", "kmacro-menu-transpose"),
+    ("c", "kmacro-menu-edit-counter"),
+    ("f", "kmacro-menu-edit-format"),
+    ("e", "kmacro-menu-edit-keys"),
+    ("RET", "kmacro-menu-edit-column"),
+    ("d", "kmacro-menu-flag-for-deletion"),
+    ("x", "kmacro-menu-do-flagged-delete"),
+    ("m", "kmacro-menu-mark"),
+    ("C", "kmacro-menu-do-copy"),
+    ("D", "kmacro-menu-do-delete"),
+    ("u", "kmacro-menu-unmark"),
+    ("Backspace", "kmacro-menu-unmark-backward"),
+    ("U", "kmacro-menu-unmark-all"),
+    ("g", "kmacro-menu-refresh"),
+    ("q", "kmacro-menu-quit"),
+    ("?", "kmacro-menu-help"),
+    ("C-g", "keyboard-quit"),
+    ("M-x", "execute-extended-command"),
+    (":", "execute-extended-command"),
+    ("Down", "next-line"),
+    ("Up", "previous-line"),
+    ("C-n", "next-line"),
+    ("C-p", "previous-line"),
+    ("C-SPC", "set-mark-command"),
+    ("TAB", "forward-char"),
+    ("BackTab", "backward-char"),
+    ("Left", "backward-char"),
+    ("Right", "forward-char"),
 ];

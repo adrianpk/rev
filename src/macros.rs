@@ -2,10 +2,13 @@
 use std::sync::Arc;
 use std::sync::atomic::AtomicUsize;
 use std::time::Instant;
+pub(crate) mod editing;
 mod execution;
 pub(crate) use execution::{Limits, PAUSE_LIMIT, Pause, Region};
 pub(crate) mod library;
 mod names;
+pub(crate) mod recent;
+pub(crate) mod step_edit;
 pub(crate) use names::{CALL_LIMIT, NAME_LIMIT, Named, Target};
 
 use crate::buffer::edit::Point;
@@ -37,6 +40,7 @@ pub enum Wait {
     Layout,
     Query,
     Editing,
+    Step,
 }
 
 /// Typed failure evidence, independent of human-facing message text.
@@ -242,6 +246,10 @@ pub(crate) struct Runner {
 pub(crate) struct State {
     pub catalog_revision: u64,
     pub library: Option<library::Store>,
+    pub draft_pin: Option<Arc<Definition>>,
+    pub recent: recent::Recent,
+    pub recent_capturing: bool,
+    pub step_editor: Option<step_edit::Editor>,
     pub names: std::collections::BTreeMap<crate::command::MacroName, Named>,
     pub bindings: std::collections::BTreeMap<crate::input::keymap::Sequence, Target>,
     pub ring: std::collections::VecDeque<Arc<Definition>>,
@@ -269,6 +277,10 @@ impl Default for State {
         Self {
             catalog_revision: 0,
             library: None,
+            draft_pin: None,
+            recent: Default::default(),
+            recent_capturing: false,
+            step_editor: None,
             names: Default::default(),
             bindings: Default::default(),
             ring: Default::default(),
@@ -416,6 +428,7 @@ impl State {
     }
 
     pub fn fail(&mut self, reason: StopReason) {
+        self.step_editor = None;
         self.repeat = None;
         let current = self.runner.as_ref().or_else(|| {
             self.pauses

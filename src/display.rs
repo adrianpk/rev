@@ -15,6 +15,7 @@ mod native_completion;
 pub use agenda::AgendaDisplay;
 pub use habit::HabitDisplay;
 mod inventory;
+mod macro_menu;
 pub mod preview;
 mod prompt;
 mod search;

@@ -130,17 +130,17 @@ T6.1-T6.3 implementation: [5871093638f7](https://forge.adrianpk.com/adrianpk/rev
 
 ## Slice 7: Definition editing and macro menu
 
-State: active
+State: reviewing
 Dependency: Slice 6 integrated through PR #324.
 Branch: feat/rev-keyboard-macros-07-editing
 PR: pending
 Integrated: pending
 Report: ops/default/report/slices/rev-keyboard-macros/slice-7-editing.md
-Validation: exact ordered slice selection in the plan and frozen configuration
+Validation: development checks passed: 26 editing workflow cases, 52 selected commands, 114 editing cases, 45 selected modal cases, formatting, strict Clippy, 680-command/295-entry documentation and whitespace. Additional 24 native owner/storage cases and all 106 macro integration cases passed. Exact clean final PR-head evidence and canonical review remain pending.
 
-- [ ] T7.1: Deliver checked TOML definition buffers, key/region helpers, 300-input lossage projection and target revision checks without implicit saving.
-- [ ] T7.2: Implement bounded step editing and the read-only macro menu with stable rows, property edits, marks/flags/copy/delete confirmation and named contextual actions.
-- [ ] T7.3: Verify cancelled/stale/invalid editor drafts, step changes and retained source effects, menu targeting, all local actions, both-profile focus and complete descriptions.
+- [x] T7.1: Deliver checked TOML definition buffers, key/region helpers, 300-input lossage projection and target revision checks without implicit saving.
+- [x] T7.2: Implement bounded step editing and the read-only macro menu with stable rows, property edits, marks/flags/copy/delete confirmation and named contextual actions.
+- [x] T7.3: Verify cancelled/stale/invalid editor drafts, step changes and retained source effects, menu targeting, all local actions, both-profile focus and complete descriptions.
 
 ## Slice 8: Acceptance and guidance
 

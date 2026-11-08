@@ -50,6 +50,9 @@ impl Session {
     }
 
     pub(super) fn macro_run_finished(&mut self) -> Action {
+        if let Some(action) = self.macro_step_finished() {
+            return action;
+        }
         let run = self.macros.runner.as_ref().expect("completed runner");
         if run.append && (!self.macro_source() || self.macro_entry() != run.definition.entry) {
             return self.stop_macro(

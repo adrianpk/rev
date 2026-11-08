@@ -51,6 +51,12 @@ impl Session {
             }
             return self.message("Command argument origin changed");
         }
+        if let Some(action) = self.macro_menu_command(invocation.command) {
+            return action;
+        }
+        if let Some(action) = self.macro_definition_guard(invocation.command) {
+            return action;
+        }
         if let Some(action) = self.macro_command_guard(invocation.command) {
             return action;
         }
