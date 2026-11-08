@@ -9,9 +9,11 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 
 ### Added
 
-- Supply movement distances with `C-u`, Meta digits or a negative prefix, then
-  move by characters, words or ordinary rows. For example, `C-u 5 C-n` moves
-  five rows. Arguments also pass through M-x; C-g cancels pending input.
+- Supply counts with `C-u`, Meta digits or a negative prefix to move by
+  characters, words or ordinary rows, insert repeated text, delete or kill a
+  combined span, select/rotate a yank, or undo/redo existing history groups.
+  Counted edits stay in one undo step. Arguments also pass through M-x;
+  `C-g` cancels pending work, retaining history groups already replayed.
 
 - Press `^` or activate the `..` row in an automatic file tree to browse its
   parent while keeping the directory just left selected and visible.

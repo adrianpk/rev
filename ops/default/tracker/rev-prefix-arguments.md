@@ -8,7 +8,7 @@ Execution authorized: one four-slice Looper run, 2026-11-08
 Plan: [Command Prefix Arguments Delivery](../plan/rev-prefix-arguments.md)
 Specification: [Command Prefix Arguments](../spec/editor-prefix-arguments.md)
 Concern: [Pending Editor Work](../README.md)
-Active slice: Slice 2 of 4, implementing
+Active slice: Slice 2 of 4, reviewing
 Progress owner: the authorized Looper checkpoint and canonical validation evidence
 
 ## Canonical slice map
@@ -47,17 +47,21 @@ checks pass. Canonical PR #314 is integrated; the delivery-set gate remains pend
 
 ## Slice 2: Counted edits and history
 
-State: implementing
+State: reviewing
 Dependency: Slice 1 integrated.
 Branch: `feat/rev-prefix-arguments-02-editing`
 PR: pending
 Integrated: pending
 Report: `ops/default/report/slices/rev-prefix-arguments/slice-2-editing.md`
-Validation: focused subset defined in the plan
+Validation: formatting, Clippy, selected commands (24/24), editing (110/110), documentation and whitespace passed. See the canonical report for exact commands; the final clean-HEAD receipt is controller-owned.
 
-- [ ] T2.1: Implement counted literal/newline/tab/deletion preparation, region precedence, generated-byte admission and one native undo unit.
-- [ ] T2.2: Implement logical-line/word kill spans, earlier-entry yank, signed yank rotation and bounded native undo/redo groups.
-- [ ] T2.3: Extend real native editing/ring/history fixtures and prefix_arguments command acceptance; update the report and completed user-visible Unreleased outcome.
+- [x] T2.1: Implement counted literal/newline/tab/deletion preparation, region precedence, generated-byte admission and one native undo unit.
+- [x] T2.2: Implement logical-line/word kill spans, earlier-entry yank, signed yank rotation and bounded native undo/redo groups.
+- [x] T2.3: Extend real native editing/ring/history fixtures and prefix_arguments command acceptance; update the report and completed user-visible Unreleased outcome.
+
+Task commits: `8a34b5ae72b9ef09a0fcebdaa8c245dd9444d9aa` implements
+T2.1, T2.2 and T2.3 native acceptance. The report-introduction commit completes
+T2.3 references, Unreleased guidance and local validation reporting.
 
 ## Slice 3: Contextual argument behavior
 

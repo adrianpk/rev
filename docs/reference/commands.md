@@ -118,8 +118,34 @@ rows when wrapped, otherwise logical rows. Movement stops at native endpoints.
 Large traversals yield through the existing input owner and can be canceled
 before the destination is published.
 
-Other commands currently consume an argument and run once. Counted editing,
-positioning, tree rows and additional contextual policies are pending. Existing
+Counted source edits use one native preparation and one undo group, separated
+from neighboring typing. Literal characters and admitted paste insert N copies;
+an active region is replaced once. Newline uses the source's LF/CRLF policy.
+Tab repeats the native indentation step at each resulting display column.
+These insertions accept nonnegative counts, with zero inert and negative values
+refused. Generated UTF-8 text is limited to 8 MiB before allocation/publication.
+Signed `delete-char` and `backward-delete-char` traverse native graphemes;
+a live region takes precedence once, and zero preserves it.
+
+Signed `kill-word` and `backward-kill-word` prepare one combined directional
+span. Supplied `kill-line` counts logical lines even when wrapped: positive N
+includes N line endings where present, zero kills to the current logical line
+start, and negative N kills back to the start of the abs(N)th preceding line.
+Ordinary kill-line keeps its existing to-end/at-end behavior. Prefix entry
+preserves native kill-chain append/prepend behavior.
+
+A positive numeric `yank` selects the Nth newest retained ring entry once.
+A plain prefix selects the newest and leaves point before the insertion and
+mark after it. Nonpositive numeric values refuse. `yank-pop` rotates the current
+yank by a signed count; zero leaves its checked insertion span intact.
+`undo` and `undo-redo` replay N existing native groups for nonnegative N. Zero
+is inert; negative values refuse. At a boundary or cancellation, completed
+history replays remain applied. Large distance/history work yields through the
+existing bounded input owner; pending atomic edits can be canceled before
+publication and source changes revoke their preparation.
+
+Other commands currently consume an argument and run once. Positioning, tree
+rows and additional contextual policies are pending. Existing
 `C-u M-!`, `C-u M-\|`, `C-u C-c C-v t` and agenda `C-u K` continuations retain
 precedence. Configured continuations can share a prefix helper key. Modal
 Normal/Visual `C-u` retains half-page movement; Insert/Replace inherit editor
