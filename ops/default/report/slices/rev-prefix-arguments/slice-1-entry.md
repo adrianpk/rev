@@ -1,17 +1,19 @@
 # Slice 1: Prefix entry and movement
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-prefix-arguments
 Plan: [`ops/default/plan/rev-prefix-arguments.md`](../../../plan/rev-prefix-arguments.md)
 Tracker: [`ops/default/tracker/rev-prefix-arguments.md`](../../../tracker/rev-prefix-arguments.md)
 Branch: `feat/rev-prefix-arguments-01-entry`
-PR: `#314`
+PR: [#314](https://forge.adrianpk.com/adrianpk/rev/pulls/314)
+Integrated: `c558786beb1925902b749dd89f3a2e09810a5412`
 
 ## Purpose
 
 Deliver checked transient command arguments and signed native movement. T1.1,
 T1.2 and T1.3 are implemented and the selected slice checks pass. Canonical
-integration and the delivery-set gate remain controller-owned.
+integration completed through PR #314 (Rebase + Fast-forward). The delivery-set
+gate remains controller-owned.
 
 ## Delivered Behavior
 
@@ -98,4 +100,5 @@ command results outside the repository.
 ## Risks and Follow-ups
 
 Counted edits/history, remaining contextual policies and complete joint guidance
-remain in their approved later slices. No successor has been activated.
+remain in their approved later slices. The controller activated Slice 2 after
+verifying canonical integration of this slice.

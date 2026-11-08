@@ -8,7 +8,7 @@ Execution authorized: one four-slice Looper run, 2026-11-08
 Plan: [Command Prefix Arguments Delivery](../plan/rev-prefix-arguments.md)
 Specification: [Command Prefix Arguments](../spec/editor-prefix-arguments.md)
 Concern: [Pending Editor Work](../README.md)
-Active slice: Slice 1 of 4, reviewing
+Active slice: Slice 2 of 4, implementing
 Progress owner: the authorized Looper checkpoint and canonical validation evidence
 
 ## Canonical slice map
@@ -22,11 +22,11 @@ Progress owner: the authorized Looper checkpoint and canonical validation eviden
 
 ## Slice 1: Prefix entry and movement
 
-State: reviewing
+State: delivered
 Dependency: approved preparation published; execution authorized.
 Branch: `feat/rev-prefix-arguments-01-entry`
 PR: [#314](https://forge.adrianpk.com/adrianpk/rev/pulls/314)
-Integrated: pending
+Integrated: `c558786beb1925902b749dd89f3a2e09810a5412` (canonical PR #314, Rebase + Fast-forward)
 Report: `ops/default/report/slices/rev-prefix-arguments/slice-1-entry.md`
 Validation: formatting, Clippy, commands (22/22), wrapping (26/26), documentation and whitespace passed. See the canonical report for exact commands; the final clean-HEAD receipt is controller-owned.
 
@@ -43,11 +43,11 @@ T1.2 wrapping preflight.
 The shared layout preflight settles initial Org presentation before block/table
 workers capture their view. This resolves the two baseline wrapping failures
 without changing source/view admission or test assertions. All selected slice
-checks pass. Canonical integration and the delivery-set gate remain pending.
+checks pass. Canonical PR #314 is integrated; the delivery-set gate remains pending.
 
 ## Slice 2: Counted edits and history
 
-State: pending
+State: implementing
 Dependency: Slice 1 integrated.
 Branch: `feat/rev-prefix-arguments-02-editing`
 PR: pending
@@ -95,7 +95,6 @@ Validation: focused subset defined in the plan; final slice uses the unchanged c
 - [ ] Complete specification, plan and tracker and reconcile the index.
 - [ ] Confirm only the eight configured closure documents changed afterward.
 
-Slice 1 implementation and focused validation are recorded above.
-No canonical integration or delivery-set acceptance is claimed. The retained
-execution checkpoint owns live progress and the exact clean-HEAD receipt; later
-slices remain pending.
+Slice 1 is canonically integrated. Slice 2 is active; Slices 3 and 4 remain
+pending. The retained execution checkpoint owns live progress and exact
+clean-HEAD receipts. Delivery-set acceptance remains pending.
