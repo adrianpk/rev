@@ -39,3 +39,10 @@ or seven cells they keep the complete state label. The Emacs status is unchanged
 Where the terminal accepts DECSCUSR, Normal uses a steady block and Insert a
 steady bar. Exit resets the terminal's configured cursor shape; the status label
 remains authoritative when cursor-shape feedback is unavailable.
+
+## Keyboard macros
+
+Def marks native recording; Macro marks automatic playback, Macro? a query and
+Macro edit the active bounded manual pause depth. Source edits remain real during
+recording, playback and manual editing. The [macro reference](keyboard-macros.md)
+explains cancellation, per-iteration undo and explicit-only saved definitions.

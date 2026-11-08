@@ -133,6 +133,6 @@ enter `checkpoint` and press Enter. The name is removed; the file is unchanged.
 The [bookmark guide](../../how-to/use-bookmarks.md)
 explains replacement, deletion, checked reopening and storage recovery.
 
-Next: [Browse Files](05-file-tree.md).
+Next: [Record and Replay Editing](21-keyboard-macros.md).
 
 [Previous](03-buffers-and-panes.md) · [User Guide](index.md)

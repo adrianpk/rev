@@ -41,7 +41,7 @@ impl Session {
         let run = self.macros.runner.as_mut().expect("query playback owner");
         run.query = true;
         run.limits.pause();
-        self.message("")
+        self.focus_message("")
     }
 
     pub(in crate::session) fn macro_query_answer(&mut self, answer: MacroQuery) -> Action {
@@ -116,7 +116,7 @@ impl Session {
                 if let Err(error) = self.input.macro_query() {
                     return self.error(&error.to_string());
                 }
-                return self.message("");
+                return self.focus_message("");
             }
             run.limits.resume();
         }

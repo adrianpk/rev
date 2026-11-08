@@ -88,7 +88,7 @@ impl Session {
         if let Err(e) = self.input.macro_step(label) {
             return self.error(&e.to_string());
         }
-        self.message("")
+        self.focus_message("")
     }
     pub(in crate::session) fn macro_step_answer(&mut self, answer: MacroStep) -> Action {
         if self.macros.step_editor.as_ref().is_none_or(|e| !e.asking) {

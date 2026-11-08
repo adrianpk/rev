@@ -108,3 +108,9 @@ mod menu;
 
 #[path = "macros/step_edit.rs"]
 mod step_edit;
+
+#[path = "macros/pty.rs"]
+mod pty;
+
+#[path = "macros/acceptance.rs"]
+mod acceptance;

@@ -7,6 +7,8 @@
 
 - [Editing contexts](editing-contexts.md): temporary work, named sessions and independent root ownership.
 
+- [Keyboard macro ownership](keyboard-macro-ownership.md): native input, independent snapshots, history, explicit saving and finite work.
+
 ## Git
 
 - [Git ownership](git-ownership.md): live source, saved files, observations and owned process lifetimes.

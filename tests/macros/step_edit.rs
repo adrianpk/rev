@@ -4,6 +4,14 @@ fn start(s: &mut Session) {
     feed(s, [control('x'), control('k'), character(' ')]);
     settle(s);
     assert_eq!(s.macro_wait(), Some(Wait::Step), "{}", s.echo());
+    assert!(
+        s.frame()
+            .unwrap()
+            .rows()
+            .iter()
+            .any(|r| r.text().contains("Step 1:")),
+        "the next logical step must be visible"
+    );
 }
 fn answer(s: &mut Session, event: Event) {
     s.handle(event);

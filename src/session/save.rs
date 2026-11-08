@@ -218,6 +218,14 @@ impl Session {
             Some(Pending::GitQuit { message, .. } | Pending::GitShutdown { message }) => {
                 Some(message.as_str())
             }
+            _ if self.input.focus() == crate::input::Focus::Decision
+                && matches!(
+                    self.macro_wait(),
+                    Some(crate::macros::Wait::Query | crate::macros::Wait::Step)
+                ) =>
+            {
+                self.input.label()
+            }
             _ => None,
         };
         if let Some(question) = question {

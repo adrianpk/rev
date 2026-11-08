@@ -1504,6 +1504,9 @@ automatic retry, inferred safe effect, rollback or repository recreation occurs.
 
 ## Keyboard recording and replay
 
+Follow the [recording lesson](../tutorials/user-guide/21-keyboard-macros.md) for a
+first macro, or the [macro reference](keyboard-macros.md) for all related contracts.
+
 F3 starts a fresh recording and shows Def in the active status area. F4 finishes
 without replay; another F4 replays once. C-x e finishes and replays once more.
 A positive prefix before playback requests that many iterations. A positive count

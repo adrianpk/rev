@@ -8,6 +8,8 @@ Use this section to look up exact behavior. For a guided start, read the
 - [Command-line interface](cli.md): invocation, file arguments and unsupported options.
 - [Bindings](bindings.md): complete keys and names for editing and focused commands.
 - [Commands](commands.md): M-x matching, completion, history and implemented names.
+- [Keyboard macros](keyboard-macros.md): command, binding, state and limit references.
+- [Saved macro library](macro-library.md): inert TOML definitions, explicit persistence, revision conflicts and backup.
 - [Macro editing](macro-editing.md): checked TOML drafts, recent input, step choices and the read-only ring menu.
 - [Command prefix arguments](commands.md#command-prefix-arguments): forms, counts, contextual policies and limits.
 - [Focused prompts](prompts.md): arguments, path completion, decisions and cancellation.

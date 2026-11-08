@@ -145,7 +145,7 @@ describes path completion in detail.
 
 Next: [Return to Projects and Workspaces](20-projects-and-workspaces.md).
 
-[Previous](04-search-and-commands.md) · [User Guide](index.md)
+[Previous](21-keyboard-macros.md) · [User Guide](index.md)
 
 ## Manage saved contexts
 

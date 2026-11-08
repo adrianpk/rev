@@ -145,17 +145,17 @@ Validation: all eight required commands passed at clean final PR head 88088e42af
 
 ## Slice 8: Acceptance and guidance
 
-State: active
+State: reviewing
 Dependency: Slice 7 integrated through PR #325.
 Branch: test/rev-keyboard-macros-08-acceptance
 PR: pending
 Integrated: pending
 Report: ops/default/report/slices/rev-keyboard-macros/slice-8-acceptance.md
-Validation: exact ordered slice selection in the plan and frozen configuration
+Validation: all ten frozen commands passed in the owned worktree: 110 macro integration cases including real PTY journeys, 52 command, 114 editing, 45 modal and 4 completion cases; formatting, strict Clippy, 680-command/295-entry/99-page documentation, local Spore generation and whitespace. Additional 6 native owner and 7 documentation cases passed. Exact clean final PR-head evidence and canonical integration remain pending.
 
-- [ ] T8.1: Complete integrated KMA01-KMA09 acceptance, representative real PTY function-key/C-x journeys, restart and concurrent storage boundaries plus large-buffer cancellation/idle probes.
-- [ ] T8.2: Add concise User Guide and how-to paths, complete command/default/state references and explanation; keep Markdown-derived Spore and the complete sample configuration aligned.
-- [ ] T8.3: Finalize all reports and task evidence, reconcile catalogs and Unreleased outcomes, and prepare the unchanged selected integrated controller gate and documentation-only closure.
+- [x] T8.1: Complete integrated KMA01-KMA09 acceptance, representative real PTY function-key/C-x journeys, restart and concurrent storage boundaries plus large-buffer cancellation/idle probes.
+- [x] T8.2: Add concise User Guide and how-to paths, complete command/default/state references and explanation; keep Markdown-derived Spore and the complete sample configuration aligned.
+- [x] T8.3: Finalize all reports and task evidence, reconcile catalogs and Unreleased outcomes, and prepare the unchanged selected integrated controller gate and documentation-only closure.
 
 ## Final gate and closure
 

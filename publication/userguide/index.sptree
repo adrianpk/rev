@@ -4,6 +4,7 @@
     @page[id = "guide-02-edit-text"]
     @page[id = "guide-03-buffers-and-panes"]
     @page[id = "guide-04-search-and-commands"]
+    @page[id = "guide-21-keyboard-macros"]
     @page[id = "guide-05-file-tree"]
     @page[id = "guide-20-projects-and-workspaces"]
     @page[id = "guide-09-preferences"]

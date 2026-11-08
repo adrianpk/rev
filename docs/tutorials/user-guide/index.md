@@ -11,17 +11,18 @@ chapters offer startup-selected modal editing, optional language servers, extern
 2. [Move and Edit Text](02-edit-text.md): move by a count, select, copy and undo text.
 3. [Use Buffers and Panes](03-buffers-and-panes.md): keep two files open and arrange their views.
 4. [Search and Run Commands](04-search-and-commands.md): find text, use M-x and keep named locations.
-5. [Browse Files](05-file-tree.md): expand the tree and open a neighboring file.
-6. [Return to Projects and Workspaces](20-projects-and-workspaces.md): promote a directory and restore independent named sessions.
-7. [Set Your Preferences](09-preferences.md): change indentation at startup and line numbers during a session.
-8. [Complete Names](10-complete-names.md): choose an observed name near the cursor and undo its insertion.
-9. [Choose Modal Editing](11-modal-editing.md): select the optional modal profile, compose edits and use shared commands.
-10. [Set Up Language Servers](12-language-servers.md): select or acquire a server, complete unsaved text and manage its lifecycle.
+5. [Record and Replay Editing](21-keyboard-macros.md): record one line edit, replay it and undo one iteration.
+6. [Browse Files](05-file-tree.md): expand the tree and open a neighboring file.
+7. [Return to Projects and Workspaces](20-projects-and-workspaces.md): promote a directory and restore independent named sessions.
+8. [Set Your Preferences](09-preferences.md): change indentation at startup and line numbers during a session.
+9. [Complete Names](10-complete-names.md): choose an observed name near the cursor and undo its insertion.
+10. [Choose Modal Editing](11-modal-editing.md): select the optional modal profile, compose edits and use shared commands.
+11. [Set Up Language Servers](12-language-servers.md): select or acquire a server, complete unsaved text and manage its lifecycle.
 
-11. [Follow External File Changes](13-file-reload.md): observe a replacement, keep unsaved text and explicitly reload.
-12. [Edit with Pi](14-ai-editing.md): inspect and accept a proposal, undo it and reuse an instruction.
-13. [Run Shell Commands](15-shell-commands.md): sort unsaved text, inspect output and undo a checked filter.
-14. [Use an Integrated Terminal](16-integrated-terminal.md): open shells, move a running tool, inspect output and close owned sessions.
+12. [Follow External File Changes](13-file-reload.md): observe a replacement, keep unsaved text and explicitly reload.
+13. [Edit with Pi](14-ai-editing.md): inspect and accept a proposal, undo it and reuse an instruction.
+14. [Run Shell Commands](15-shell-commands.md): sort unsaved text, inspect output and undo a checked filter.
+15. [Use an Integrated Terminal](16-integrated-terminal.md): open shells, move a running tool, inspect output and close owned sessions.
 
 Read in order when learning, or return directly to a chapter you need.
 Each chapter links to the next one and to its supporting reference.

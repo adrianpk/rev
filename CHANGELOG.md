@@ -32,7 +32,9 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
   Edit checked TOML drafts, build a macro from recent recordable input, or execute
   and change a definition one step at a time. Manage ring properties, marks,
   copies and checked deletion in a read-only menu; edits stay in the session
-  until explicitly saved.
+  until explicitly saved. Query and step questions show their native answer
+  choices. Follow the [keyboard macro lesson](docs/tutorials/user-guide/21-keyboard-macros.md)
+  and task guides for recording, counted/region replay and explicit saving.
 
 - Supply counts with `C-u`, Meta digits or a negative prefix to move by
   characters, words or ordinary rows, insert repeated text, delete or kill a

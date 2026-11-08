@@ -15,6 +15,7 @@ const EDITOR: &[&str] = &[
     "02-edit-text.md",
     "03-buffers-and-panes.md",
     "04-search-and-commands.md",
+    "21-keyboard-macros.md",
     "05-file-tree.md",
     "20-projects-and-workspaces.md",
     "09-preferences.md",
@@ -431,7 +432,7 @@ mod tests {
             ),
         ] {
             let previous = if chapter == "05-file-tree.md" {
-                "04-search-and-commands.md"
+                "21-keyboard-macros.md"
             } else {
                 "07-org-tasks-and-agenda.md"
             };
