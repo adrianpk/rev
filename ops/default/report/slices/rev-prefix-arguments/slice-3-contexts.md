@@ -1,17 +1,19 @@
 # Slice 3: Contextual argument behavior
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-prefix-arguments
 Plan: [`ops/default/plan/rev-prefix-arguments.md`](../../../plan/rev-prefix-arguments.md)
 Tracker: [`ops/default/tracker/rev-prefix-arguments.md`](../../../tracker/rev-prefix-arguments.md)
 Branch: `feat/rev-prefix-arguments-03-contexts`
 PR: [#316](https://forge.adrianpk.com/adrianpk/rev/pulls/316)
+Integrated: `83d283bee834bdc428e48d3390af5adcf2d01d91`
 
 ## Purpose
 
 Complete T3.1, T3.2 and T3.3 positioning, scrolling, loaded-tree and shell policies
 while preserving native input ownership and bounded execution. Canonical
-integration and the delivery-set gate remain controller-owned.
+PR #316 is integrated through Rebase + Fast-forward; the delivery-set gate
+remains controller-owned.
 
 ## Delivered Behavior
 
@@ -70,7 +72,8 @@ T3.3 with the current command reference and cohesive Unreleased outcome.
 
 The preceding Slice 2 report/tracker entries are closed after canonical PR #315
 integration at `57afa0a31ffcb56ee9bff6da0135e7e75a628248`. The controller selected
-this slice; Slice 4 and the combined gate remain pending.
+this slice; it has since activated Slice 4 after canonical integration. The
+combined gate remains pending.
 
 ## Contracts Added or Changed
 
@@ -114,5 +117,5 @@ These checks do not claim the integrated delivery-set gate.
 
 History retains the approved progressive cancellation behavior from Slice 2.
 The complete joint acceptance sweep, final reference reconciliation and User
-Guide build belong to approved Slice 4. No successor or integrated gate has been
-started by this worker.
+Guide build belong to approved Slice 4, now selected by the controller. The
+integrated gate remains controller-owned.
