@@ -107,7 +107,7 @@ command results outside the repository.
 ## Risks and Follow-ups
 
 History is explicitly progressive and cancellation does not roll it back.
-Remaining positioning, scrolling, tree, shell/context/modal policies and joint
-resource acceptance remain in approved Slice 3; complete joint guidance remains
-in Slice 4. The controller activated Slice 3 after verifying this integration;
-the integrated gate remains pending.
+The remaining positioning, scrolling, tree, shell/context/modal policies were
+subsequently integrated in [Slice 3](slice-3-contexts.md). Joint acceptance and
+guidance are recorded in [Slice 4](slice-4-acceptance.md); canonical integration
+of that slice and the delivery-set gate remain controller-owned.

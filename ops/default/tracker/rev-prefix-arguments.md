@@ -8,7 +8,7 @@ Execution authorized: one four-slice Looper run, 2026-11-08
 Plan: [Command Prefix Arguments Delivery](../plan/rev-prefix-arguments.md)
 Specification: [Command Prefix Arguments](../spec/editor-prefix-arguments.md)
 Concern: [Pending Editor Work](../README.md)
-Active slice: Slice 4 of 4, implementing
+Active slice: Slice 4 of 4, reviewing
 Progress owner: the authorized Looper checkpoint and canonical validation evidence
 
 ## Canonical slice map
@@ -85,17 +85,21 @@ T3.3 references, Unreleased guidance and local validation reporting.
 
 ## Slice 4: Acceptance and guidance
 
-State: implementing
+State: reviewing
 Dependency: Slice 3 integrated.
 Branch: `test/rev-prefix-arguments-04-acceptance`
 PR: pending
 Integrated: pending
 Report: `ops/default/report/slices/rev-prefix-arguments/slice-4-acceptance.md`
-Validation: focused subset defined in the plan; final slice uses the unchanged combined selection
+Validation: all ten unchanged PR checks passed locally: formatting, Clippy, commands (36/36), editing (114/114), wrapping (26/26), modal (28/28), shell (3/3), documentation, strict Spore guide build and whitespace. Exact clean-HEAD evidence remains controller-owned.
 
-- [ ] T4.1: Complete integrated native acceptance for every command policy and both-profile ownership transitions, with representative large-count and cancellation cases.
-- [ ] T4.2: Reconcile complete command/binding/default references and description inventory; add concise User Guide/how-to/reference guidance and build the Markdown-derived Spore guide.
-- [ ] T4.3: Finalize reports and task evidence, verify clean canonical integration and prepare the unchanged selected controller gate; closure remains separate.
+- [x] T4.1: Complete integrated native acceptance for every command policy and both-profile ownership transitions, with representative large-count and cancellation cases.
+- [x] T4.2: Reconcile complete command/binding/default references and description inventory; add concise User Guide/how-to/reference guidance and build the Markdown-derived Spore guide.
+- [x] T4.3: Finalize reports and task evidence, verify clean canonical integration and prepare the unchanged selected controller gate; closure remains separate.
+
+Task commits: `f6c7f72c47bfb0d4e48b4e6bc94cd4806ef1e27c` implements T4.1;
+`87d715d7f0ccd0f7da3022f1891adb8708646a97` implements T4.2. The canonical
+report-introduction commit completes T4.3 evidence and prior-report follow-ups.
 
 ## Final gate and closure
 
@@ -105,5 +109,6 @@ Validation: focused subset defined in the plan; final slice uses the unchanged c
 - [ ] Complete specification, plan and tracker and reconcile the index.
 - [ ] Confirm only the eight configured closure documents changed afterward.
 
-Slices 1, 2 and 3 are canonically integrated. Slice 4 is active. The retained execution checkpoint owns live progress and exact
+Slices 1, 2 and 3 are canonically integrated. Slice 4 is reviewing. Its merge,
+the exact integrated gate and documentation-only closure remain pending. The retained execution checkpoint owns live progress and exact
 clean-HEAD receipts. Delivery-set acceptance remains pending.

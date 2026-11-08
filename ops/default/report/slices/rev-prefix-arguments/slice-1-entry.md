@@ -99,6 +99,7 @@ command results outside the repository.
 
 ## Risks and Follow-ups
 
-Counted edits/history, remaining contextual policies and complete joint guidance
-remain in their approved later slices. The controller activated Slice 2 after
-verifying canonical integration of this slice.
+Counted editing/history and the remaining contextual policies were subsequently
+integrated in [Slice 2](slice-2-editing.md) and [Slice 3](slice-3-contexts.md).
+[Slice 4](slice-4-acceptance.md) completes joint acceptance and guidance; its
+canonical integration and the delivery-set gate remain controller-owned.
