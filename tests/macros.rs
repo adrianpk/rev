@@ -83,3 +83,8 @@ mod runner;
 
 #[path = "macros/capture.rs"]
 mod capture;
+
+#[path = "macros/counters.rs"]
+mod counters;
+#[path = "macros/ring.rs"]
+mod ring;

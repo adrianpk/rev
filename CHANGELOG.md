@@ -17,7 +17,10 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
   recordings retain accepted commands and prompt values, including file/buffer
   selection, goto, searches and replacement. Manual completion replays checked
   literal text without a provider; save and replacement decisions require fresh
-  answers during playback.
+  answers during playback. Keep several recordings in a shared bounded ring,
+  cycle or swap them, append input and repeat with temporary keys. Insert checked
+  integer counters with per-macro formats. Zero or negative replay counts run
+  until a native stop, cancellation or the finite budget.
 
 - Supply counts with `C-u`, Meta digits or a negative prefix to move by
   characters, words or ordinary rows, insert repeated text, delete or kill a

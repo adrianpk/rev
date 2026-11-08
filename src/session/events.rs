@@ -228,6 +228,7 @@ impl Session {
                 || self.pending.is_some()
                 || self.input.prefix().is_some());
         let outcome = self.input.handle_at(event, now);
+        let outcome = self.macro_repeat_outcome(outcome);
         if let Some(action) = self.macro_capture_outcome(&outcome) {
             return action;
         }

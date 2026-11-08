@@ -41,7 +41,13 @@ impl Session {
                     "Keyboard macro active time limit reached",
                 );
             }
-            if run.dispatched >= crate::macros::RUN_STEPS {
+            let completed = run.step == run.definition.steps.len()
+                && run.trigger.is_empty()
+                && run.arguments.is_empty()
+                && run.iterations == Some(run.iteration + 1)
+                && self.pending.is_none()
+                && self.input.focus() == Focus::Editing;
+            if run.dispatched >= crate::macros::RUN_STEPS && !completed {
                 return self.stop_macro(
                     StopReason::StepBudget,
                     "Keyboard macro logical step limit reached",
@@ -68,10 +74,8 @@ impl Session {
                 let run = self.macros.runner.as_mut().expect("live runner");
                 if run.step == run.definition.steps.len() {
                     run.iteration += 1;
-                    if run.iteration == run.iterations {
-                        self.macros.runner = None;
-                        self.buffers.automatic_group(None);
-                        return self.message("Keyboard macro finished");
+                    if Some(run.iteration) == run.iterations {
+                        return self.macro_run_finished();
                     }
                     if entry != run.definition.entry {
                         return self.stop_macro(
@@ -80,6 +84,8 @@ impl Session {
                         );
                     }
                     run.step = 0;
+                    run.counter.iteration_start = run.counter.current;
+                    run.counter.format = run.definition.initial_format.clone();
                     run.group = crate::buffer::edit::AutomaticGroup::new(run.budget.clone());
                 }
                 let step = run.definition.steps[run.step].clone();
@@ -88,6 +94,7 @@ impl Session {
             } else {
                 None
             };
+            let refresh = matches!(step, Some(Step::Redisplay));
             let run = self.macros.runner.as_mut().expect("live runner");
             run.dispatched += 1;
             self.buffers.automatic_group(Some(run.group.clone()));
@@ -112,7 +119,7 @@ impl Session {
             } else {
                 return Action::Redraw;
             };
-            if waiting || started.elapsed() >= crate::session::events::INPUT_BATCH_TIME {
+            if waiting || refresh || started.elapsed() >= crate::session::events::INPUT_BATCH_TIME {
                 break;
             }
         }
@@ -127,6 +134,10 @@ impl Session {
             Step::Text(text) => {
                 self.handle(Event::Paste(text));
             }
+            Step::Counter(operation) => {
+                self.macro_counter_operation(operation);
+            }
+            Step::Redisplay => {}
             Step::Completion(edit) => {
                 if let Err(error) = self.replay_macro_completion(edit) {
                     self.error(&error);
@@ -265,8 +276,6 @@ impl Session {
         {
             self.buffers
                 .automatic_group(active.then(|| run.group.clone()));
-        } else if !active {
-            self.buffers.automatic_group(None);
         }
     }
 
@@ -292,7 +301,10 @@ impl Session {
         let group = active
             .then(|| self.macros.runner.as_ref().map(|r| r.group.clone()))
             .flatten();
-        self.buffers.automatic_group(group);
+        // Idle layout polling does not own an automatic history group.
+        if self.macros.runner.is_some() {
+            self.buffers.automatic_group(group);
+        }
         self.macros.expanded = active && self.macros.runner.is_some();
         self.macros.dispatching = active && self.macros.recorder.is_some() && self.layout_active();
     }

@@ -44,6 +44,8 @@ pub(crate) mod lsp_validation;
 pub(crate) mod mutation;
 pub use edit::{Publication, SettingsEdit};
 pub use lsp::{Lsp, PartialLsp, PartialServer, Preference, Server};
+mod macros;
+pub use macros::{Macros, PartialMacros};
 mod bookmarks;
 pub use bookmarks::{BookmarkSave, Bookmarks, PartialBookmarks};
 mod diagnostic;
@@ -89,6 +91,7 @@ pub struct Settings {
     pub minibuffer: Minibuffer,
     pub history: History,
     pub kill_ring: KillRing,
+    pub macros: Macros,
     pub tree: Tree,
     pub syntax: Syntax,
     pub org: Org,
@@ -122,6 +125,7 @@ pub struct Document {
     pub minibuffer: PartialMinibuffer,
     pub history: PartialHistory,
     pub kill_ring: PartialKillRing,
+    pub macros: PartialMacros,
     pub tree: PartialTree,
     pub syntax: PartialSyntax,
     pub org: PartialOrg,

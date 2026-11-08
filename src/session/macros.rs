@@ -1,5 +1,8 @@
 mod capture;
+mod controls;
+mod counters;
 mod literal;
+mod repeat;
 mod runner;
 
 use std::sync::Arc;
@@ -11,7 +14,7 @@ use crossterm::event::Event;
 use super::{Action, Session};
 use crate::command::{Command, MacroCommand, PrefixArgument};
 use crate::input::{Focus, Input};
-use crate::macros::{Definition, Entry, Recorder, Runner, Status, Stop, StopReason};
+use crate::macros::{Entry, Recorder, Runner, Status, Stop, StopReason};
 
 impl Session {
     pub fn macro_status(&self) -> Status {
@@ -116,6 +119,9 @@ impl Session {
     }
 
     pub(super) fn macro_command_guard(&mut self, command: Command) -> Option<Action> {
+        if command == Command::KeyboardQuit {
+            self.macros.repeat = None;
+        }
         if !self.macros.active() {
             return None;
         }
@@ -124,6 +130,20 @@ impl Session {
             return None;
         }
         if matches!(command, Command::Macro(_)) && !self.macros.expanded {
+            return None;
+        }
+        if self.macros.expanded
+            && matches!(
+                command,
+                Command::Macro(
+                    MacroCommand::InsertCounter
+                        | MacroCommand::SetCounter
+                        | MacroCommand::AddCounter
+                        | MacroCommand::SetFormat
+                        | MacroCommand::Redisplay
+                )
+            )
+        {
             return None;
         }
         if self.macros.expanded && matches!(command, Command::Completion(_)) {
@@ -150,6 +170,28 @@ impl Session {
         if let Err(error) = self.stop_typing() {
             return self.error(&error.to_string());
         }
+        if command == MacroCommand::StartOrCounter && self.macros.recorder.is_some() {
+            return self.macro_counter_command(MacroCommand::InsertCounter, argument);
+        }
+        if matches!(
+            command,
+            MacroCommand::InsertCounter
+                | MacroCommand::SetCounter
+                | MacroCommand::AddCounter
+                | MacroCommand::SetFormat
+        ) {
+            return self.macro_counter_command(command, argument);
+        }
+        if command == MacroCommand::Redisplay {
+            if let Some(recorder) = &mut self.macros.recorder
+                && let Err(reason) = recorder
+                    .stage(crate::macros::Step::Redisplay)
+                    .and_then(|()| recorder.accept())
+            {
+                return self.stop_macro(reason, "Keyboard macro recording limit exceeded");
+            }
+            return self.message("");
+        }
         if self.macros.expanded || self.macros.runner.is_some() {
             return self.stop_macro(
                 StopReason::Unsupported,
@@ -157,22 +199,21 @@ impl Session {
             );
         }
         if matches!(command, MacroCommand::Start | MacroCommand::StartOrCounter) {
-            if self.macros.recorder.is_some() || argument.supplied() {
-                return self.stop_macro(
-                    StopReason::Unsupported,
-                    "Macro append and counters are not available in this delivery increment",
-                );
-            }
-            if !self.macro_source() {
-                return self.message("Keyboard macro requires ordinary source editing");
-            }
-            self.macros.stop = None;
-            self.macros.recorder = Some(Recorder::new(self.macro_entry()));
-            return self.message("Def: recording keyboard macro");
+            return self.macro_start_recording(argument);
+        }
+        if matches!(
+            command,
+            MacroCommand::Next
+                | MacroCommand::Previous
+                | MacroCommand::Delete
+                | MacroCommand::Swap
+                | MacroCommand::CallSecond
+        ) {
+            return self.macro_ring_command(command, argument);
         }
         let recorded = self.macros.recorder.is_some();
         if let Some(recorder) = self.macros.recorder.take() {
-            if recorder.steps.is_empty() {
+            if recorder.steps.len() == recorder.original_len {
                 self.macros.stop = Some(Stop {
                     reason: StopReason::Empty,
                     iteration: 0,
@@ -180,19 +221,19 @@ impl Session {
                 });
                 return self.message("Empty recording discarded; previous macro retained");
             }
-            self.macros.last = Some(Arc::new(Definition {
-                entry: recorder.entry,
-                steps: recorder.steps,
-            }));
+            let limit = self.buffers.snapshot().settings().macros.ring_limit;
+            if let Err(reason) = self.macros.publish(recorder, limit) {
+                return self.stop_macro(reason, "Keyboard macro definition revision limit reached");
+            }
         } else if command == MacroCommand::End {
             return self.message("No keyboard macro is being recorded");
         }
         let count = if recorded {
             match command {
                 MacroCommand::EndOrCall => 0,
-                MacroCommand::End => {
+                MacroCommand::End if argument.value() > 0 => {
                     if argument.supplied() {
-                        argument.value().saturating_sub(1)
+                        argument.value() - 1
                     } else {
                         0
                     }
@@ -202,19 +243,27 @@ impl Session {
         } else {
             argument.value()
         };
-        if count == 0 && recorded {
+        self.macros.repeat = match command {
+            MacroCommand::EndAndCall => Some(crate::macros::Repeat::EndCall),
+            MacroCommand::CallRepeat => Some(crate::macros::Repeat::Ring),
+            _ => None,
+        };
+        if count == 0
+            && recorded
+            && (command == MacroCommand::EndOrCall || !argument.supplied() || argument.value() > 0)
+        {
             return self.message("Keyboard macro recorded");
         }
-        if count <= 0 {
-            return self.message("Keyboard macro currently requires a positive replay count");
-        }
-        self.start_macro(count as usize)
+        self.start_macro(count)
     }
 
-    fn start_macro(&mut self, iterations: usize) -> Action {
-        let Some(definition) = self.macros.last.clone() else {
+    fn start_macro(&mut self, count: i32) -> Action {
+        let Some(definition) = self.macros.ring.front().cloned() else {
             return self.message("No keyboard macro is available");
         };
+        if definition.steps.is_empty() {
+            return self.stop_macro(StopReason::Empty, "Empty keyboard macro cannot run");
+        }
         if !self.macro_source() || definition.entry != self.macro_entry() {
             self.macros.stop = Some(Stop {
                 reason: StopReason::EntryState,
@@ -225,9 +274,14 @@ impl Session {
         }
         let budget = Arc::new(AtomicUsize::new(0));
         self.macros.stop = None;
+        let mut counter = definition.counter.clone();
+        counter.iteration_start = counter.current;
+        counter.format = definition.initial_format.clone();
         self.macros.runner = Some(Runner {
+            counter,
+            append: false,
             definition,
-            iterations,
+            iterations: (count > 0).then_some(count as usize),
             iteration: 0,
             step: 0,
             dispatched: 0,

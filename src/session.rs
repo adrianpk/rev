@@ -221,6 +221,11 @@ enum AfterSave {
 }
 
 enum Pending {
+    MacroCounter {
+        command: crate::command::MacroCommand,
+        view: crate::window::ViewId,
+        point: crate::buffer::edit::Point,
+    },
     ContextManagement(Box<contexts::management::Prompt>),
     WorkspaceName(Box<contexts::workspaces::Creation>),
     Workspaces(Vec<contexts::workspaces::WorkspaceChoice>),

@@ -1534,14 +1534,54 @@ input. Recorded consent is never reused. Waiting for an answer has no automatic
 macro wake; C-g cancels while retaining partial source edits in the iteration's
 undo unit. Ordinary editing, movement, modal operations, regions, kill/yank and
 pane commands remain available. External jobs, terminal transfers and context
-replacement stop explicitly before starting. Append, counters, ring/repeat maps,
-nonpositive repetition, macro queries, named definitions and persistence arrive
-in later increments.
+replacement stop explicitly before starting. Macro queries, named definitions and persistence arrive in later increments.
 
 | Command | Description |
 | --- | --- |
-| `kmacro-start-macro-or-insert-counter` | Start recording, or insert the current macro counter. Counter insertion is not yet available. |
-| `kmacro-start-macro` | Start or append to a keyboard macro. Append is not yet available. |
+| `kmacro-start-macro-or-insert-counter` | Start recording, or insert the current macro counter. |
+| `kmacro-start-macro` | Start or append to a keyboard macro. |
 | `kmacro-end-macro` | Finish recording a keyboard macro. |
 | `kmacro-end-or-call-macro` | Finish recording, or run the current keyboard macro. |
 | `kmacro-end-and-call-macro` | Finish recording and run the current keyboard macro. |
+| `kmacro-end-or-call-macro-repeat` | Run the current macro and enable ring repeat keys. |
+| `kmacro-call-ring-2nd-repeat` | Run the second macro and enable ring repeat keys. |
+| `kmacro-cycle-ring-next` | Select the next older keyboard macro. |
+| `kmacro-cycle-ring-previous` | Select the next newer keyboard macro. |
+| `kmacro-delete-ring-head` | Remove the current macro from the session ring. |
+| `kmacro-swap-ring` | Exchange the first two macros in the ring. |
+| `kmacro-redisplay` | Refresh the display during macro playback. |
+| `kmacro-insert-counter` | Insert a macro counter value. |
+| `kmacro-set-counter` | Set or reset the current macro counter. |
+| `kmacro-add-counter` | Add to or restore the current macro counter. |
+| `kmacro-set-format` | Set the integer format for macro counters. |
+
+The session ring is shared across buffers and retains up to `macros.ring_limit`
+recordings (default 8, range 1..32). Cycle older/newer, swap the first two, delete
+the selected entry or run the second without changing selection. Ring operations
+leave a temporary map for C-k/C-l/C-n/C-p/C-d/C-t. After C-x e, bare e repeats.
+An unrelated key leaves either map and is processed normally; C-g cancels it.
+Zero and negative replay counts continue until a native failure, cancellation or
+the finite run budget. Successful saturated movement is not a stopping condition.
+
+Any start prefix appends to the selected definition. A plain C-u runs it once
+before recording more input; a double C-u skips that run. Setting
+`macros.execute_before_append = false` also skips it. A failed preliminary run
+prevents append capture while retaining its real edits and the previous body.
+Canceled, empty or oversized append capture also retains the previous body.
+
+Each fresh recording starts its counters at zero. F3 during recording or
+`kmacro-insert-counter` inserts current, remembers it as previous and increments
+by one or an explicit numeric prefix. A plain prefix inserts previous without
+changing current. Set/add accept signed 64-bit values from their native prompts
+or a numeric prefix. A plain set prefix restores the iteration-start value during
+playback; a plain add prefix restores the last value inserted by any macro.
+Arithmetic overflow stops explicitly before the overflowing insertion or update.
+Each replay iteration keeps its native undo boundary, including counter edits.
+
+`kmacro-set-format` accepts one d/o/x/X integer conversion, surrounding literals,
+%% and sign/alignment/alternate/zero flags. Decimal width and precision are at
+most 128, formats at most 256 UTF-8 bytes and results at most 512 bytes. An empty
+answer restores %d; invalid formats leave the previous format intact. Outside
+capture/playback it selects the initial format for new recordings. A format
+change inside a recording is retained at that point; other definitions keep
+their own counter state and initial format. Ring bodies are immutable snapshots.

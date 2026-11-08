@@ -693,11 +693,22 @@ bounds, cancellation and the currently delivered counted movement policies.
 
 | Keys | Command | Result |
 | --- | --- | --- |
-| F3 | `kmacro-start-macro-or-insert-counter` | Start a fresh recording; counter insertion is unavailable in this increment. |
-| C-x (, C-x C-k C-s | `kmacro-start-macro` | Start a fresh recording; append is unavailable in this increment. |
+| F3 | `kmacro-start-macro-or-insert-counter` | Start recording, or insert its counter while recording. |
+| C-x (, C-x C-k C-s | `kmacro-start-macro` | Start recording; any supplied prefix appends. |
 | C-x ) | `kmacro-end-macro` | Finish; a positive count includes the recording pass. |
 | F4 | `kmacro-end-or-call-macro` | Finish without replay, or run the previous recording. |
 | C-x e | `kmacro-end-and-call-macro` | Finish if necessary and run the recording. |
+| C-x C-k C-k | `kmacro-end-or-call-macro-repeat` | Run the current macro and enable ring repeat keys. |
+| C-x C-k C-l | `kmacro-call-ring-2nd-repeat` | Run the second macro and enable ring repeat keys. |
+| C-x C-k C-n | `kmacro-cycle-ring-next` | Select the next older keyboard macro. |
+| C-x C-k C-p | `kmacro-cycle-ring-previous` | Select the next newer keyboard macro. |
+| C-x C-k C-d | `kmacro-delete-ring-head` | Remove the current macro from the session ring. |
+| C-x C-k C-t | `kmacro-swap-ring` | Exchange the first two macros in the ring. |
+| C-x C-k d | `kmacro-redisplay` | Refresh the display during macro playback. |
+| C-x C-k C-i | `kmacro-insert-counter` | Insert a macro counter value. |
+| C-x C-k C-c | `kmacro-set-counter` | Set or reset the current macro counter. |
+| C-x C-k C-a | `kmacro-add-counter` | Add to or restore the current macro counter. |
+| C-x C-k C-f | `kmacro-set-format` | Set the integer format for macro counters. |
 
 F3 and F4 are logical function-key reports. Their effective bindings remain
 configurable in ordinary editor and modal contexts. C-g cancels capture/playback

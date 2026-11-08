@@ -51,6 +51,7 @@ fn checked_document(
     super::terminal::validate(&document.terminal)?;
     completion_and_lsp(document)?;
     bookmarks(&document.bookmarks)?;
+    integer("macros.ring_limit", document.macros.ring_limit, 1..=32)?;
     gutter(document)?;
     layout(document)?;
     palette(&document.palette)?;

@@ -1,4 +1,4 @@
-/// Native recording controls. Later macro surfaces have separate delivery units.
+/// Native recording, ring and checked counter controls.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum MacroCommand {
     StartOrCounter,
@@ -6,6 +6,17 @@ pub enum MacroCommand {
     End,
     EndOrCall,
     EndAndCall,
+    CallRepeat,
+    CallSecond,
+    Next,
+    Previous,
+    Delete,
+    Swap,
+    Redisplay,
+    InsertCounter,
+    SetCounter,
+    AddCounter,
+    SetFormat,
 }
 
 impl MacroCommand {
@@ -16,6 +27,17 @@ impl MacroCommand {
             Self::End => "kmacro-end-macro",
             Self::EndOrCall => "kmacro-end-or-call-macro",
             Self::EndAndCall => "kmacro-end-and-call-macro",
+            Self::CallRepeat => "kmacro-end-or-call-macro-repeat",
+            Self::CallSecond => "kmacro-call-ring-2nd-repeat",
+            Self::Next => "kmacro-cycle-ring-next",
+            Self::Previous => "kmacro-cycle-ring-previous",
+            Self::Delete => "kmacro-delete-ring-head",
+            Self::Swap => "kmacro-swap-ring",
+            Self::Redisplay => "kmacro-redisplay",
+            Self::InsertCounter => "kmacro-insert-counter",
+            Self::SetCounter => "kmacro-set-counter",
+            Self::AddCounter => "kmacro-add-counter",
+            Self::SetFormat => "kmacro-set-format",
         }
     }
 
@@ -26,6 +48,17 @@ impl MacroCommand {
             Self::End => "Finish recording a keyboard macro.",
             Self::EndOrCall => "Finish recording, or run the current keyboard macro.",
             Self::EndAndCall => "Finish recording and run the current keyboard macro.",
+            Self::CallRepeat => "Run the current macro and enable ring repeat keys.",
+            Self::CallSecond => "Run the second macro and enable ring repeat keys.",
+            Self::Next => "Select the next older keyboard macro.",
+            Self::Previous => "Select the next newer keyboard macro.",
+            Self::Delete => "Remove the current macro from the session ring.",
+            Self::Swap => "Exchange the first two macros in the ring.",
+            Self::Redisplay => "Refresh the display during macro playback.",
+            Self::InsertCounter => "Insert a macro counter value.",
+            Self::SetCounter => "Set or reset the current macro counter.",
+            Self::AddCounter => "Add to or restore the current macro counter.",
+            Self::SetFormat => "Set the integer format for macro counters.",
         }
     }
 }

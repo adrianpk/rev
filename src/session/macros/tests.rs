@@ -47,6 +47,72 @@ fn text(session: &Session) -> String {
         .to_string()
 }
 
+// Appending replaces an immutable body revision. A previously pinned value
+// retains its body/counter even after metadata updates, rotation and eviction.
+#[test]
+fn ring_snapshot() {
+    let mut session = session();
+    record(&mut session, false, "");
+    let pinned = session.macros.ring.front().unwrap().clone();
+    let steps = pinned.steps.len();
+    session.handle(key(KeyCode::Char('u'), KeyModifiers::CONTROL));
+    session.handle(key(KeyCode::Char('u'), KeyModifiers::CONTROL));
+    session.handle(key(KeyCode::F(3), KeyModifiers::NONE));
+    session.handle(key(KeyCode::F(3), KeyModifiers::NONE));
+    session.handle(key(KeyCode::F(4), KeyModifiers::NONE));
+    let updated = session.macros.ring.front().unwrap();
+    assert_eq!(updated.id, pinned.id);
+    assert_eq!(updated.revision, pinned.revision + 1);
+    assert_eq!(updated.steps.len(), steps + 1);
+    assert_eq!(pinned.steps.len(), steps);
+    assert_eq!(pinned.counter.current, 0);
+    assert_eq!(updated.counter.current, 1);
+    session.execute(Command::Macro(MacroCommand::Delete));
+    assert!(session.macros.ring.is_empty());
+    assert_eq!(pinned.steps.len(), steps);
+}
+
+// The same encoded/step admission applies to appended and fresh bodies; an
+// append at the exact step ceiling cannot publish a partial new revision.
+#[test]
+fn ring_append_limit() {
+    let mut session = session();
+    session.handle(key(KeyCode::F(3), KeyModifiers::NONE));
+    for _ in 0..crate::macros::STEP_LIMIT {
+        session.handle(key(KeyCode::Char('f'), KeyModifiers::CONTROL));
+    }
+    session.handle(key(KeyCode::F(4), KeyModifiers::NONE));
+    let pinned = session.macros.ring.front().unwrap().clone();
+    session.handle(key(KeyCode::Char('u'), KeyModifiers::CONTROL));
+    session.handle(key(KeyCode::Char('u'), KeyModifiers::CONTROL));
+    session.handle(key(KeyCode::F(3), KeyModifiers::NONE));
+    session.handle(key(KeyCode::Char('X'), KeyModifiers::NONE));
+    assert_eq!(
+        session.macro_stop().unwrap().reason,
+        StopReason::CaptureLimit
+    );
+    assert!(Arc::ptr_eq(&pinned, session.macros.ring.front().unwrap()));
+    assert_eq!(text(&session), "abcdef");
+}
+
+// Seed only already-consumed budget on a real admitted run. Its final allowed
+// step may complete a positive count; nonpositive repetition must stop by budget.
+#[test]
+fn ring_budget() {
+    for (count, expected) in [(1, None), (0, Some(StopReason::StepBudget))] {
+        let mut session = session();
+        session.handle(key(KeyCode::F(3), KeyModifiers::NONE));
+        session.handle(key(KeyCode::Char('X'), KeyModifiers::NONE));
+        session.handle(key(KeyCode::F(4), KeyModifiers::NONE));
+        session.start_macro(count);
+        session.macros.runner.as_mut().unwrap().dispatched = crate::macros::RUN_STEPS - 1;
+        session.expire_input(Instant::now());
+        assert_eq!(text(&session), "XXabcdef");
+        assert_eq!(session.macro_status(), Status::Idle);
+        assert_eq!(session.macro_stop().map(|stop| stop.reason), expected);
+    }
+}
+
 fn replay(session: &mut Session) {
     session.handle(key(KeyCode::F(4), KeyModifiers::NONE));
     let deadline = Instant::now() + std::time::Duration::from_secs(5);
@@ -98,8 +164,8 @@ fn current_bindings() {
 fn missing_name() {
     let mut session = session();
     record(&mut session, true, "forward-char");
-    let definition = Arc::get_mut(session.macros.last.as_mut().unwrap()).unwrap();
-    let crate::macros::Step::Command(command) = &mut definition.steps[0] else {
+    let definition = Arc::get_mut(session.macros.ring.front_mut().unwrap()).unwrap();
+    let crate::macros::Step::Command(command) = &mut Arc::make_mut(&mut definition.steps)[0] else {
         panic!("named recording")
     };
     command.name = "missing-native-command".into();
@@ -198,5 +264,5 @@ fn search_continuation() {
     );
     assert_eq!(session.macro_status(), Status::Idle);
     assert_eq!(text(&session), "abcdef");
-    assert!(session.macros.last.is_none());
+    assert!(session.macros.ring.is_empty());
 }

@@ -11,6 +11,9 @@ impl Session {
         if self.macros.expanded || self.macros.recorder.is_none() {
             return None;
         }
+        if matches!(self.pending, Some(Pending::MacroCounter { .. })) {
+            return None;
+        }
         let command = match outcome {
             Outcome::Command(command) | Outcome::ArgumentPrefix(command) => Some(*command),
             Outcome::Invocation(invocation) => Some(invocation.command),

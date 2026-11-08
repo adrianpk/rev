@@ -864,6 +864,17 @@ commands enter this shared live catalog only when their native handlers arrive.
 | `kmacro-end-macro` | Finish recording a keyboard macro. |
 | `kmacro-end-or-call-macro` | Finish recording, or run the current keyboard macro. |
 | `kmacro-end-and-call-macro` | Finish recording and run the current keyboard macro. |
+| `kmacro-end-or-call-macro-repeat` | Run the current macro and enable ring repeat keys. |
+| `kmacro-call-ring-2nd-repeat` | Run the second macro and enable ring repeat keys. |
+| `kmacro-cycle-ring-next` | Select the next older keyboard macro. |
+| `kmacro-cycle-ring-previous` | Select the next newer keyboard macro. |
+| `kmacro-delete-ring-head` | Remove the current macro from the session ring. |
+| `kmacro-swap-ring` | Exchange the first two macros in the ring. |
+| `kmacro-redisplay` | Refresh the display during macro playback. |
+| `kmacro-insert-counter` | Insert a macro counter value. |
+| `kmacro-set-counter` | Set or reset the current macro counter. |
+| `kmacro-add-counter` | Add to or restore the current macro counter. |
+| `kmacro-set-format` | Set the integer format for macro counters. |
 
 ## Completed delivery evidence
 

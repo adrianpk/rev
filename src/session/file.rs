@@ -136,6 +136,11 @@ impl Session {
     }
     fn file_argument(&mut self, pending: Option<Pending>, path: String) -> Action {
         match pending {
+            Some(Pending::MacroCounter {
+                command,
+                view,
+                point,
+            }) => self.macro_counter_argument(command, view, point, &path),
             Some(Pending::ContextManagement(p)) => self.management_argument(*p, &path),
             Some(Pending::WorkspaceName(c)) => self.workspace_name(*c, &path),
             Some(Pending::Workspaces(c)) => self.workspace_selected(c, &path),

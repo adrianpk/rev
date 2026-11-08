@@ -9,7 +9,9 @@ use crate::input::{EditingState, Key};
 use crate::window::ViewId;
 
 mod capture;
+pub(crate) mod counter;
 pub(crate) use capture::{Argument, CommandStep, CompletionEdit, LiteralCompletion, Role};
+use counter::Counter;
 
 pub(crate) const STEP_LIMIT: usize = 4_096;
 pub(crate) const DEFINITION_BYTES: usize = 256 * 1024;
@@ -45,6 +47,7 @@ pub enum StopReason {
     TextBudget,
     MissingCommand,
     PromptMismatch,
+    CounterOverflow,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -66,6 +69,8 @@ pub(crate) enum Step {
     Text(String),
     Command(CommandStep),
     Completion(LiteralCompletion),
+    Counter(counter::Operation),
+    Redisplay,
 }
 
 impl Step {
@@ -77,16 +82,27 @@ impl Step {
             Self::Text(text) => capture::text_bytes(text),
             Self::Command(command) => command.bytes(),
             Self::Completion(edit) => edit.bytes(),
+            Self::Counter(operation) => operation.bytes(),
+            Self::Redisplay => 48,
         }
     }
 }
 
+#[derive(Clone)]
 pub(crate) struct Definition {
+    pub id: u64,
+    pub revision: u64,
+    pub counter: Counter,
+    pub initial_format: String,
     pub entry: Entry,
-    pub steps: Vec<Step>,
+    pub steps: Arc<[Step]>,
 }
 
 pub(crate) struct Recorder {
+    pub counter: Counter,
+    pub initial_format: String,
+    pub append: Option<u64>,
+    pub original_len: usize,
     pub entry: Entry,
     pub steps: Vec<Step>,
     pending: Vec<Step>,
@@ -100,13 +116,28 @@ impl Recorder {
     pub fn new(entry: Entry) -> Self {
         Self {
             entry,
+            counter: Counter::default(),
+            initial_format: "%d".into(),
+            append: None,
+            original_len: 0,
             steps: Vec::new(),
             pending: Vec::new(),
-            bytes: 512,
+            bytes: 4096,
             pending_bytes: 0,
             selecting: false,
             command: None,
         }
+    }
+
+    pub fn append(definition: &Definition) -> Self {
+        let mut recorder = Self::new(definition.entry);
+        recorder.steps = definition.steps.to_vec();
+        recorder.bytes += recorder.steps.iter().map(Step::bytes).sum::<usize>();
+        recorder.original_len = recorder.steps.len();
+        recorder.append = Some(definition.id);
+        recorder.counter = definition.counter.clone();
+        recorder.initial_format = definition.initial_format.clone();
+        recorder
     }
 
     pub fn stage(&mut self, step: Step) -> Result<(), StopReason> {
@@ -166,8 +197,10 @@ impl Recorder {
 }
 
 pub(crate) struct Runner {
+    pub counter: Counter,
+    pub append: bool,
     pub definition: Arc<Definition>,
-    pub iterations: usize,
+    pub iterations: Option<usize>,
     pub iteration: usize,
     pub step: usize,
     pub dispatched: usize,
@@ -181,9 +214,13 @@ pub(crate) struct Runner {
     pub consent: Option<Instant>,
 }
 
-#[derive(Default)]
 pub(crate) struct State {
-    pub last: Option<Arc<Definition>>,
+    pub ring: std::collections::VecDeque<Arc<Definition>>,
+    next_id: u64,
+    pub default_format: String,
+    pub scratch: Counter,
+    pub last_inserted: i64,
+    pub repeat: Option<Repeat>,
     pub recorder: Option<Recorder>,
     pub runner: Option<Runner>,
     pub expanded: bool,
@@ -191,7 +228,99 @@ pub(crate) struct State {
     pub stop: Option<Stop>,
 }
 
+#[derive(Clone, Copy)]
+pub(crate) enum Repeat {
+    EndCall,
+    Ring,
+}
+
+impl Default for State {
+    fn default() -> Self {
+        Self {
+            ring: Default::default(),
+            next_id: 0,
+            default_format: "%d".into(),
+            scratch: Counter::default(),
+            last_inserted: 0,
+            repeat: None,
+            recorder: None,
+            runner: None,
+            expanded: false,
+            dispatching: false,
+            stop: None,
+        }
+    }
+}
+
 impl State {
+    pub fn counter(&self) -> &Counter {
+        if let Some(run) = &self.runner {
+            &run.counter
+        } else if let Some(recorder) = &self.recorder {
+            &recorder.counter
+        } else {
+            self.ring
+                .front()
+                .map_or(&self.scratch, |definition| &definition.counter)
+        }
+    }
+
+    pub fn set_counter(&mut self, counter: Counter) {
+        if let Some(run) = &mut self.runner {
+            run.counter = counter;
+        } else if let Some(recorder) = &mut self.recorder {
+            recorder.counter = counter;
+        } else if let Some(definition) = self.ring.front_mut() {
+            let mut updated = (**definition).clone();
+            updated.counter = counter;
+            *definition = Arc::new(updated);
+        } else {
+            self.scratch = counter;
+        }
+    }
+
+    // Replace metadata by identity; an already admitted runner or snapshot keeps
+    // its immutable definition even if the ring is rotated or later edited.
+    pub fn finish_run(&mut self) -> Option<Runner> {
+        let run = self.runner.take()?;
+        if let Some(definition) = self.ring.iter_mut().find(|d| d.id == run.definition.id) {
+            let mut updated = (**definition).clone();
+            updated.counter = run.counter.clone();
+            *definition = Arc::new(updated);
+        }
+        Some(run)
+    }
+
+    pub fn publish(&mut self, recorder: Recorder, limit: usize) -> Result<(), StopReason> {
+        let (id, revision) = if let Some(id) = recorder.append {
+            let revision = self
+                .ring
+                .iter()
+                .find(|d| d.id == id)
+                .and_then(|d| d.revision.checked_add(1))
+                .ok_or(StopReason::CaptureLimit)?;
+            (id, revision)
+        } else {
+            let id = self
+                .next_id
+                .checked_add(1)
+                .ok_or(StopReason::CaptureLimit)?;
+            self.next_id = id;
+            (id, 1)
+        };
+        self.ring.retain(|definition| definition.id != id);
+        self.ring.push_front(Arc::new(Definition {
+            id,
+            revision,
+            entry: recorder.entry,
+            steps: recorder.steps.into(),
+            counter: recorder.counter,
+            initial_format: recorder.initial_format,
+        }));
+        self.ring.truncate(limit);
+        Ok(())
+    }
+
     pub fn status(&self) -> Status {
         if self.recorder.is_some() {
             Status::Recording
@@ -207,14 +336,13 @@ impl State {
     }
 
     pub fn fail(&mut self, reason: StopReason) {
-        if self.active() {
-            self.stop = Some(Stop {
-                reason,
-                iteration: self.runner.as_ref().map_or(0, |r| r.iteration + 1),
-                step: self.runner.as_ref().map_or(0, |r| r.step),
-            });
-            self.recorder = None;
-            self.runner = None;
-        }
+        self.repeat = None;
+        self.stop = Some(Stop {
+            reason,
+            iteration: self.runner.as_ref().map_or(0, |r| r.iteration + 1),
+            step: self.runner.as_ref().map_or(0, |r| r.step),
+        });
+        self.recorder = None;
+        self.finish_run();
     }
 }

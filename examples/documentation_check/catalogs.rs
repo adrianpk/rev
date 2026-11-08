@@ -256,6 +256,7 @@ fn models(root: &Path) -> Result<Models> {
         "src/config/headings.rs",
         "src/config/palette.rs",
         "src/config/bookmarks.rs",
+        "src/config/macros.rs",
         "src/config/completion.rs",
         "src/config/lsp.rs",
         "src/config/ai.rs",

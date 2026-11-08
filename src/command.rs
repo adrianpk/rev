@@ -145,12 +145,23 @@ pub enum Command {
 }
 
 impl Command {
-    pub const ALL: [Self; 633] = [
+    pub const ALL: [Self; 644] = [
         Self::Macro(MacroCommand::StartOrCounter),
         Self::Macro(MacroCommand::Start),
         Self::Macro(MacroCommand::End),
         Self::Macro(MacroCommand::EndOrCall),
         Self::Macro(MacroCommand::EndAndCall),
+        Self::Macro(MacroCommand::CallRepeat),
+        Self::Macro(MacroCommand::CallSecond),
+        Self::Macro(MacroCommand::Next),
+        Self::Macro(MacroCommand::Previous),
+        Self::Macro(MacroCommand::Delete),
+        Self::Macro(MacroCommand::Swap),
+        Self::Macro(MacroCommand::Redisplay),
+        Self::Macro(MacroCommand::InsertCounter),
+        Self::Macro(MacroCommand::SetCounter),
+        Self::Macro(MacroCommand::AddCounter),
+        Self::Macro(MacroCommand::SetFormat),
         Self::PrefixArgument,
         Self::UniversalArgument,
         Self::DigitArgument,

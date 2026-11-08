@@ -32,7 +32,7 @@ impl Session {
         }
         self.finish(result)
     }
-    fn paste_entry(&mut self, text: &str) -> Result<bool, crate::buffer::edit::Error> {
+    pub(super) fn paste_entry(&mut self, text: &str) -> Result<bool, crate::buffer::edit::Error> {
         if self
             .editing_state()
             .is_some_and(crate::input::EditingState::text_entry)

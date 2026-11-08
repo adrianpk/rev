@@ -18,6 +18,12 @@ pub(super) fn settings(document: &Document) -> Settings {
     minibuffer(&mut settings.minibuffer, &document.minibuffer);
     history(&mut settings.history, &document.history);
     kill_ring(&mut settings.kill_ring, &document.kill_ring);
+    if let Some(value) = document.macros.ring_limit {
+        settings.macros.ring_limit = value as usize;
+    }
+    if let Some(value) = document.macros.execute_before_append {
+        settings.macros.execute_before_append = value;
+    }
     tree(&mut settings.tree, &document.tree);
     syntax(&mut settings.syntax, &document.syntax);
     files(&mut settings.files, &document.files);

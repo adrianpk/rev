@@ -268,13 +268,13 @@ Both use M-x or modal colon and leave this configuration unchanged.
 | `language` | Map of language IDs to partial tables | `{}` | IDs start with `[a-z]`, then contain only `[a-z0-9-]`; no grammar installation is implied. |
 | `files.associations` | Map of exact basenames or `*.suffix` to language IDs | `{}` | User rules override built-in recognition; see language rules below. |
 | `keys.completion` | Map of popup chord sequences to completion commands | Compiled map | Active cursor popup; all 7 entries are active in the sample. Escape is a reserved literal cancellation. |
-| `keys.editor` | Map of chord sequences to existing editor command names | Compiled map | Non-modal editing focus; all 93 entries are active in the sample. |
-| `keys.vim_normal` | Map of chord sequences to canonical commands | Compiled map | modal Normal editing; state entry, navigation/counts/search, operators, transfer, jump history, Replace, dot repetition, colon commands and native pane controls. The sample declares all 151 entries. |
-| `keys.vim_insert` | Map of chord sequences to canonical commands | Compiled map | modal Insert editing; independent native factories and one-Normal-command C-o. The sample declares all 94 entries. |
-| `keys.vim_replace` | Map of chord sequences to canonical commands | Compiled map | modal Replace editing; native modified controls, whole-grapheme overwrite and underline cursor. The sample declares all 93 entries. |
-| `keys.vim_visual_character` | Map of chord sequences to canonical commands | Compiled map | Visual Character navigation, inclusive selection and shared operators. The sample declares all 133 entries. |
-| `keys.vim_visual_line` | Map of chord sequences to canonical commands | Compiled map | Visual Line navigation, complete logical lines and shared operators. The sample declares all 133 entries. |
-| `keys.vim_visual_block` | Map of chord sequences to canonical commands | Compiled map | Visual Block navigation and atomic block delete/change/copy with logical grapheme columns. The sample declares all 129 entries. |
+| `keys.editor` | Map of chord sequences to existing editor command names | Compiled map | Non-modal editing focus; all 110 entries are active in the sample. |
+| `keys.vim_normal` | Map of chord sequences to canonical commands | Compiled map | modal Normal editing; state entry, navigation/counts/search, operators, transfer, jump history, Replace, dot repetition, colon commands and native pane controls. The sample declares all 168 entries. |
+| `keys.vim_insert` | Map of chord sequences to canonical commands | Compiled map | modal Insert editing; independent native factories and one-Normal-command C-o. The sample declares all 111 entries. |
+| `keys.vim_replace` | Map of chord sequences to canonical commands | Compiled map | modal Replace editing; native modified controls, whole-grapheme overwrite and underline cursor. The sample declares all 110 entries. |
+| `keys.vim_visual_character` | Map of chord sequences to canonical commands | Compiled map | Visual Character navigation, inclusive selection and shared operators. The sample declares all 150 entries. |
+| `keys.vim_visual_line` | Map of chord sequences to canonical commands | Compiled map | Visual Line navigation, complete logical lines and shared operators. The sample declares all 150 entries. |
+| `keys.vim_visual_block` | Map of chord sequences to canonical commands | Compiled map | Visual Block navigation and atomic block delete/change/copy with logical grapheme columns. The sample declares all 146 entries. |
 | `keys.minibuffer` | Map of chord sequences to admitted prompt actions/commands | Compiled map | Prompt focus; all 22 entries are active in the sample. |
 | `keys.git_refs` | Map of chord sequences to native ref commands | Compiled map | Ref inspection, explicit fetch, reviewed upstream push and confirmed local branch/tag actions in both profiles; all 49 entries are active in the sample. |
 | `keys.git_worktree` | Map of chord sequences to native worktree commands | Compiled map | Exact linked-worktree identities, checked Status visits and reviewed create/lock/unlock/prune/remove in both profiles; all 27 entries are active in the sample. |
@@ -416,6 +416,8 @@ edit limits and finite lifecycle.
 | `completion.popup_rows` | Integer 1..=32 | `10` | Candidate rows, clipped inside the selected pane with a single border. |
 | `history.group_limit` | Integer 1..=65536 | `512` | Per buffer; maximum retained coherent undo/redo groups. Pruning never splits an operation. |
 | `history.payload_target_bytes` | Integer 1..=1073741824 | `67108864` | Per buffer; soft logical fragment-payload target in bytes, not resident memory. The newest complete group survives excess. |
+| `macros.ring_limit` | Integer 1..=32 | `8` | Session; bounded ring shared across source buffers; eviction retains independent snapshots. |
+| `macros.execute_before_append` | Boolean | `true` | Session; pre-execute a prefixed append unless double plain C-u skips it. |
 | `kill_ring.capacity` | Integer 1..=4096 | `32` | Session; linear entries, separate from retained rectangle rows. |
 | `kill_ring.coalesce` | Boolean | `true` | Session; consecutive compatible directional kills join; unrelated commands still end the chain. |
 | `tree.decorated` | Boolean | `true` | Startup; kind symbols and semantic entry colors, with the catalog chosen by gutter.nerd_fonts. Set false for the existing minimal labels. |

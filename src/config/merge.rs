@@ -29,6 +29,16 @@ impl Document {
         merge.minibuffer(&mut self.minibuffer, &later.minibuffer);
         merge.history(&mut self.history, &later.history);
         merge.kill_ring(&mut self.kill_ring, &later.kill_ring);
+        merge.leaf(
+            &["macros", "ring_limit"],
+            &mut self.macros.ring_limit,
+            &later.macros.ring_limit,
+        );
+        merge.leaf(
+            &["macros", "execute_before_append"],
+            &mut self.macros.execute_before_append,
+            &later.macros.execute_before_append,
+        );
         merge.tree(&mut self.tree, &later.tree);
         merge.syntax(&mut self.syntax, &later.syntax);
         merge.bookmarks(&mut self.bookmarks, &later.bookmarks);

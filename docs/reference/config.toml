@@ -175,6 +175,12 @@ capacity = 32
 # Boolean; join consecutive compatible directional kills into one entry.
 coalesce = true
 
+[macros]
+# Integer 1..=32; shared in-memory ring, independent of saved/named snapshots.
+ring_limit = 8
+# Boolean; execute once before prefixed append, except double plain C-u.
+execute_before_append = true
+
 [bookmarks]
 # Unset file uses $XDG_DATA_HOME/rev/bookmarks.toml (HOME fallback .local/share/rev).
 # Optional absolute destination; no shell expansion or startup source visits.
@@ -531,6 +537,23 @@ bookmark = "#7aa2f7"            # Resolved logical-line bookmark marker.
 # Terminal aliases, key availability and focus rules are described in bindings.md.
 
 [keys.editor]
+"F3" = "kmacro-start-macro-or-insert-counter"
+"F4" = "kmacro-end-or-call-macro"
+"C-x (" = "kmacro-start-macro"
+"C-x C-k C-s" = "kmacro-start-macro"
+"C-x )" = "kmacro-end-macro"
+"C-x e" = "kmacro-end-and-call-macro"
+"C-x C-k C-k" = "kmacro-end-or-call-macro-repeat"
+"C-x C-k C-l" = "kmacro-call-ring-2nd-repeat"
+"C-x C-k C-n" = "kmacro-cycle-ring-next"
+"C-x C-k C-p" = "kmacro-cycle-ring-previous"
+"C-x C-k C-d" = "kmacro-delete-ring-head"
+"C-x C-k C-t" = "kmacro-swap-ring"
+"C-x C-k d" = "kmacro-redisplay"
+"C-x C-k C-i" = "kmacro-insert-counter"
+"C-x C-k C-c" = "kmacro-set-counter"
+"C-x C-k C-a" = "kmacro-add-counter"
+"C-x C-k C-f" = "kmacro-set-format"
 "C-u" = "prefix-argument"
 "M-0" = "digit-argument"
 "M-1" = "digit-argument"
@@ -896,6 +919,23 @@ bookmark = "#7aa2f7"            # Resolved logical-line bookmark marker.
 # modal editing maps are independent of keys.editor. Local components keep priority.
 
 [keys.vim_normal]
+"F3" = "kmacro-start-macro-or-insert-counter"
+"F4" = "kmacro-end-or-call-macro"
+"C-x (" = "kmacro-start-macro"
+"C-x C-k C-s" = "kmacro-start-macro"
+"C-x )" = "kmacro-end-macro"
+"C-x e" = "kmacro-end-and-call-macro"
+"C-x C-k C-k" = "kmacro-end-or-call-macro-repeat"
+"C-x C-k C-l" = "kmacro-call-ring-2nd-repeat"
+"C-x C-k C-n" = "kmacro-cycle-ring-next"
+"C-x C-k C-p" = "kmacro-cycle-ring-previous"
+"C-x C-k C-d" = "kmacro-delete-ring-head"
+"C-x C-k C-t" = "kmacro-swap-ring"
+"C-x C-k d" = "kmacro-redisplay"
+"C-x C-k C-i" = "kmacro-insert-counter"
+"C-x C-k C-c" = "kmacro-set-counter"
+"C-x C-k C-a" = "kmacro-add-counter"
+"C-x C-k C-f" = "kmacro-set-format"
 "M-0" = "digit-argument"
 "M-1" = "digit-argument"
 "M-2" = "digit-argument"
@@ -1049,6 +1089,23 @@ bookmark = "#7aa2f7"            # Resolved logical-line bookmark marker.
 "." = "modal-repeat-last-change"
 
 [keys.vim_insert]
+"F3" = "kmacro-start-macro-or-insert-counter"
+"F4" = "kmacro-end-or-call-macro"
+"C-x (" = "kmacro-start-macro"
+"C-x C-k C-s" = "kmacro-start-macro"
+"C-x )" = "kmacro-end-macro"
+"C-x e" = "kmacro-end-and-call-macro"
+"C-x C-k C-k" = "kmacro-end-or-call-macro-repeat"
+"C-x C-k C-l" = "kmacro-call-ring-2nd-repeat"
+"C-x C-k C-n" = "kmacro-cycle-ring-next"
+"C-x C-k C-p" = "kmacro-cycle-ring-previous"
+"C-x C-k C-d" = "kmacro-delete-ring-head"
+"C-x C-k C-t" = "kmacro-swap-ring"
+"C-x C-k d" = "kmacro-redisplay"
+"C-x C-k C-i" = "kmacro-insert-counter"
+"C-x C-k C-c" = "kmacro-set-counter"
+"C-x C-k C-a" = "kmacro-add-counter"
+"C-x C-k C-f" = "kmacro-set-format"
 "C-u" = "prefix-argument"
 "M-0" = "digit-argument"
 "M-1" = "digit-argument"
@@ -1145,6 +1202,23 @@ bookmark = "#7aa2f7"            # Resolved logical-line bookmark marker.
 "C-o" = "modal-one-normal-command"
 
 [keys.vim_replace]
+"F3" = "kmacro-start-macro-or-insert-counter"
+"F4" = "kmacro-end-or-call-macro"
+"C-x (" = "kmacro-start-macro"
+"C-x C-k C-s" = "kmacro-start-macro"
+"C-x )" = "kmacro-end-macro"
+"C-x e" = "kmacro-end-and-call-macro"
+"C-x C-k C-k" = "kmacro-end-or-call-macro-repeat"
+"C-x C-k C-l" = "kmacro-call-ring-2nd-repeat"
+"C-x C-k C-n" = "kmacro-cycle-ring-next"
+"C-x C-k C-p" = "kmacro-cycle-ring-previous"
+"C-x C-k C-d" = "kmacro-delete-ring-head"
+"C-x C-k C-t" = "kmacro-swap-ring"
+"C-x C-k d" = "kmacro-redisplay"
+"C-x C-k C-i" = "kmacro-insert-counter"
+"C-x C-k C-c" = "kmacro-set-counter"
+"C-x C-k C-a" = "kmacro-add-counter"
+"C-x C-k C-f" = "kmacro-set-format"
 "C-u" = "prefix-argument"
 "M-0" = "digit-argument"
 "M-1" = "digit-argument"
@@ -1241,6 +1315,23 @@ bookmark = "#7aa2f7"            # Resolved logical-line bookmark marker.
 
 
 [keys.vim_visual_character]
+"F3" = "kmacro-start-macro-or-insert-counter"
+"F4" = "kmacro-end-or-call-macro"
+"C-x (" = "kmacro-start-macro"
+"C-x C-k C-s" = "kmacro-start-macro"
+"C-x )" = "kmacro-end-macro"
+"C-x e" = "kmacro-end-and-call-macro"
+"C-x C-k C-k" = "kmacro-end-or-call-macro-repeat"
+"C-x C-k C-l" = "kmacro-call-ring-2nd-repeat"
+"C-x C-k C-n" = "kmacro-cycle-ring-next"
+"C-x C-k C-p" = "kmacro-cycle-ring-previous"
+"C-x C-k C-d" = "kmacro-delete-ring-head"
+"C-x C-k C-t" = "kmacro-swap-ring"
+"C-x C-k d" = "kmacro-redisplay"
+"C-x C-k C-i" = "kmacro-insert-counter"
+"C-x C-k C-c" = "kmacro-set-counter"
+"C-x C-k C-a" = "kmacro-add-counter"
+"C-x C-k C-f" = "kmacro-set-format"
 "M-0" = "digit-argument"
 "M-1" = "digit-argument"
 "M-2" = "digit-argument"
@@ -1376,6 +1467,23 @@ bookmark = "#7aa2f7"            # Resolved logical-line bookmark marker.
 "a" = "modal-select-around-object"
 
 [keys.vim_visual_line]
+"F3" = "kmacro-start-macro-or-insert-counter"
+"F4" = "kmacro-end-or-call-macro"
+"C-x (" = "kmacro-start-macro"
+"C-x C-k C-s" = "kmacro-start-macro"
+"C-x )" = "kmacro-end-macro"
+"C-x e" = "kmacro-end-and-call-macro"
+"C-x C-k C-k" = "kmacro-end-or-call-macro-repeat"
+"C-x C-k C-l" = "kmacro-call-ring-2nd-repeat"
+"C-x C-k C-n" = "kmacro-cycle-ring-next"
+"C-x C-k C-p" = "kmacro-cycle-ring-previous"
+"C-x C-k C-d" = "kmacro-delete-ring-head"
+"C-x C-k C-t" = "kmacro-swap-ring"
+"C-x C-k d" = "kmacro-redisplay"
+"C-x C-k C-i" = "kmacro-insert-counter"
+"C-x C-k C-c" = "kmacro-set-counter"
+"C-x C-k C-a" = "kmacro-add-counter"
+"C-x C-k C-f" = "kmacro-set-format"
 "M-0" = "digit-argument"
 "M-1" = "digit-argument"
 "M-2" = "digit-argument"
@@ -1511,6 +1619,23 @@ bookmark = "#7aa2f7"            # Resolved logical-line bookmark marker.
 "a" = "modal-select-around-object"
 
 [keys.vim_visual_block]
+"F3" = "kmacro-start-macro-or-insert-counter"
+"F4" = "kmacro-end-or-call-macro"
+"C-x (" = "kmacro-start-macro"
+"C-x C-k C-s" = "kmacro-start-macro"
+"C-x )" = "kmacro-end-macro"
+"C-x e" = "kmacro-end-and-call-macro"
+"C-x C-k C-k" = "kmacro-end-or-call-macro-repeat"
+"C-x C-k C-l" = "kmacro-call-ring-2nd-repeat"
+"C-x C-k C-n" = "kmacro-cycle-ring-next"
+"C-x C-k C-p" = "kmacro-cycle-ring-previous"
+"C-x C-k C-d" = "kmacro-delete-ring-head"
+"C-x C-k C-t" = "kmacro-swap-ring"
+"C-x C-k d" = "kmacro-redisplay"
+"C-x C-k C-i" = "kmacro-insert-counter"
+"C-x C-k C-c" = "kmacro-set-counter"
+"C-x C-k C-a" = "kmacro-add-counter"
+"C-x C-k C-f" = "kmacro-set-format"
 "M-0" = "digit-argument"
 "M-1" = "digit-argument"
 "M-2" = "digit-argument"
