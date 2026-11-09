@@ -64,18 +64,18 @@ Validation: all five frozen commands passed through Looper on clean published HE
 
 ## Slice 3: Core editing and projection
 
-State: in progress
+State: reviewing
 Dependency: Slice 2 integrated
 Branch: refactor/rev-architecture-quality-03-core
 PR: pending
 Report: ops/default/report/slices/rev-architecture-quality/slice-3-core.md
-Implementation: bab0731eebfa4b92059590c56f112213b45b0163
+Implementation: c32cd4fa544f4201811e97c9ea582554f4044c4c
 Progress: source bounds and scoped Clippy pass; maintainer-approved fixture corrections resolve the four reproduced baseline display/gutter failures without runtime changes
-Validation: focused calendar, palette/display and wrapped-overlay checks pass after fixture correction; complete frozen clean-HEAD validation and PR preparation remain pending
+Validation: all four frozen commands passed at clean published HEAD c32cd4fa544f4201811e97c9ea582554f4044c4c in receipt M7NMDK3UAPRMHFQWELEZHOI6JJ; the published PR-reference head requires fresh ordered evidence
 
 - [x] T3.1: Correct selected ownership/representation diagnostics and existing source bounds in buffers, source coordinates, views, windows, display, syntax, gutter/tree and terminal-emulation owners.
 - [x] T3.2: Extract coherent decision/preparation/projection functions while preserving source units, revision checks, local history, shared views, caches and existing work/resource ceilings.
-- [ ] T3.3: Validate checked editing, Unicode/grapheme/visual projection, selection, syntax and view restoration with the actual native owners; record any legitimate invariant exceptions narrowly.
+- [x] T3.3: Validate checked editing, Unicode/grapheme/visual projection, selection, syntax and view restoration with the actual native owners; record any legitimate invariant exceptions narrowly.
 
 ## Slice 4: Configuration and persistent concerns
 
