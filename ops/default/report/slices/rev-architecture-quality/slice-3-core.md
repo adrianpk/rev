@@ -1,12 +1,13 @@
 # Slice 3: Core editing and projection
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-architecture-quality
 Plan: [Architecture Quality Delivery](../../../plan/rev-architecture-quality.md)
 Tracker: [Architecture Quality Tracker](../../../tracker/rev-architecture-quality.md)
 Branch: `refactor/rev-architecture-quality-03-core`
 PR: #17 - https://forge.adrianpk.com/rev/rev/pulls/17
 Implementation: c32cd4fa544f4201811e97c9ea582554f4044c4c
+Integrated: 09e5ea218c54675bdf44c53d2c2443efa243e8a1 through canonical PR #17
 
 ## Purpose
 
@@ -78,10 +79,11 @@ No dependency, wire, state or configuration-format change is introduced.
 
 ## Validation
 
-All four frozen commands passed in canonical order on clean published HEAD
-c32cd4fa544f4201811e97c9ea582554f4044c4c through Looper receipt
-M7NMDK3UAPRMHFQWELEZHOI6JJ. The published PR-reference commit requires its own
-fresh ordered receipt before worker handoff.
+All four frozen commands passed in canonical order through Looper on clean
+published PR-reference HEAD 09e5ea218c54675bdf44c53d2c2443efa243e8a1, now integrated
+through canonical PR #17. The earlier prerequisite check on
+c32cd4fa544f4201811e97c9ea582554f4044c4c is recorded in receipt
+M7NMDK3UAPRMHFQWELEZHOI6JJ.
 
 1. `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 bash scripts/check-quality.sh --scope src/lib.rs --scope src/main.rs --scope src/search.rs --scope src/search --scope src/rectangle.rs --scope src/rectangle --scope src/pointer.rs --scope src/pointer --scope src/panel.rs --scope src/panel --scope src/kill.rs --scope src/jump.rs --scope src/buffer.rs --scope src/buffer --scope src/coordinates.rs --scope src/coordinates --scope src/view.rs --scope src/view --scope src/window.rs --scope src/window --scope src/display.rs --scope src/display --scope src/syntax.rs --scope src/syntax --scope src/gutter.rs --scope src/gutter --scope src/tree.rs --scope src/tree --scope src/term.rs --scope src/term`
 2. `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --test editing --test coordinates --test display --test windows --test syntax --test pointer --test gutter --test tree --test core -- --test-threads=1`

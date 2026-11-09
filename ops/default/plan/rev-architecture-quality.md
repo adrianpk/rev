@@ -9,7 +9,7 @@ Planning baseline: abbf0c21eeae1680c02c7a477fa0894d7996a393
 Specification: [Architecture Quality and Commit Checks](../spec/editor-architecture-quality.md)
 Review: [Architecture and Ownership Nit Review](../report/rev-architecture-nit-review.md)
 Concern: [Pending Editor Work](../README.md)
-Active slice: Slice 3 - Core editing and projection
+Active slice: Slice 4 - Configuration and persistent concerns
 Tracker: [Architecture Quality Tracker](../tracker/rev-architecture-quality.md)
 
 ## Outcome and authority
