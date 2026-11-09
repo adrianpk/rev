@@ -9,3 +9,6 @@ mod declarations;
 mod fixture;
 #[path = "plugins/lifecycle.rs"]
 mod lifecycle;
+
+#[path = "plugins/buffers.rs"]
+mod buffers;

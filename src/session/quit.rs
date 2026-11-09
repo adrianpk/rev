@@ -216,8 +216,10 @@ impl Session {
         Action::Exit
     }
 
-    pub(super) fn cancel_quit(&mut self) -> bool {
-        let quitting = matches!(
+    /// Read-only admission guard for native operations that add sources after
+    /// departure has already captured its consent and source set.
+    pub(super) fn quit_pending(&self) -> bool {
+        matches!(
             self.pending,
             Some(
                 Pending::Quit(_)
@@ -235,7 +237,11 @@ impl Session {
                         ..
                     }
             )
-        );
+        )
+    }
+
+    pub(super) fn cancel_quit(&mut self) -> bool {
+        let quitting = self.quit_pending();
         if quitting {
             self.context_prepared = None;
             self.context_membership = None;

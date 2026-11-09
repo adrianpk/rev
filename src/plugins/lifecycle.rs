@@ -1,5 +1,6 @@
 //! One owned process generation per package in an editor. Input exchanges only
 //! bounded work with supervisors; spawning, pipe I/O and reaping stay outside it.
+pub(crate) mod editor;
 mod process;
 mod worker;
 
@@ -101,6 +102,7 @@ impl Default for Inspection {
 struct Budget {
     pending: AtomicUsize,
     bytes: AtomicUsize,
+    ingress: AtomicUsize,
 }
 fn reserve(counter: &AtomicUsize, count: usize, limit: usize) -> bool {
     counter
@@ -135,6 +137,7 @@ struct Shared {
     stderr: VecDeque<u8>,
     cleanup: String,
     finished: bool,
+    requests: VecDeque<editor::Request>,
 }
 struct Connection {
     shared: Mutex<Shared>,
@@ -143,6 +146,7 @@ struct Connection {
     ready: AtomicBool,
     pending: Arc<AtomicUsize>,
     calls: SyncSender<Call>,
+    responses: SyncSender<editor::Response>,
     wake: Arc<Wake>,
 }
 impl Connection {
@@ -264,6 +268,7 @@ impl Host {
             .ok_or("Plugin generations exhausted")?;
         let generation = Generation::new(self.next.to_string()).map_err(|e| e.to_string())?;
         let (calls, incoming) = mpsc::sync_channel(16);
+        let (responses, replies) = mpsc::sync_channel(16);
         let connection = Arc::new(Connection {
             shared: Mutex::new(Shared {
                 state: State::Activating,
@@ -273,6 +278,7 @@ impl Host {
                 stderr: VecDeque::new(),
                 cleanup: String::new(),
                 finished: false,
+                requests: VecDeque::new(),
             }),
             control: eventfd(0, EventfdFlags::CLOEXEC | EventfdFlags::NONBLOCK)
                 .map_err(|e| format!("Plugin control unavailable: {e}"))?,
@@ -280,6 +286,7 @@ impl Host {
             ready: AtomicBool::new(false),
             pending: Arc::default(),
             calls,
+            responses,
             wake: self.wake.clone(),
         });
         let state = connection.clone();
@@ -289,7 +296,17 @@ impl Host {
         let budget = self.budget.clone();
         let thread = std::thread::Builder::new()
             .name("plugin-supervisor".into())
-            .spawn(move || worker::run(declaration, session, epoch, state, budget, incoming))
+            .spawn(move || {
+                worker::run(
+                    declaration,
+                    session,
+                    epoch,
+                    state,
+                    budget,
+                    incoming,
+                    replies,
+                )
+            })
             .map_err(|e| format!("Plugin supervisor unavailable: {e}"))?;
         self.slots.insert(
             package.manifest.plugin.id.clone(),
@@ -473,9 +490,10 @@ impl Host {
                     notices.push(notice);
                 }
             }
-            slot.connection
-                .ready
-                .store(!shared.notices.is_empty(), Ordering::Release);
+            slot.connection.ready.store(
+                !shared.notices.is_empty() || !shared.requests.is_empty(),
+                Ordering::Release,
+            );
             if shared.finished && slot.restart && !self.closing {
                 slot.restart = false;
                 restart.push(slot.package.clone());
@@ -495,6 +513,31 @@ impl Host {
             }
         }
         notices
+    }
+    pub fn owns(&self, handle: &Handle) -> bool {
+        handle.session == self.session
+    }
+    pub fn request(&mut self, service: &mut Service) -> Option<editor::Request> {
+        let keys: Vec<_> = self.slots.keys().cloned().collect();
+        for offset in 0..keys.len() {
+            let index = (self.cursor + offset) % keys.len();
+            let slot = self.slots.get(&keys[index]).expect("owned slot");
+            let Ok(mut shared) = slot.connection.shared.try_lock() else {
+                continue;
+            };
+            if shared.requests.is_empty() {
+                continue;
+            }
+            if !service.take() {
+                return None;
+            }
+            let request = shared.requests.pop_front().expect("ready editor request");
+            self.cursor = (index + 1) % keys.len();
+            if !slot.retired && request.live() {
+                return Some(request);
+            }
+        }
+        None
     }
     pub fn inspect(&self, id: &PackageId) -> Inspection {
         let Some(slot) = self.slots.get(id) else {

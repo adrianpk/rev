@@ -51,6 +51,33 @@ impl Buffers {
         Ok(Visit::New(Box::new(buffer), path))
     }
 
+    pub(crate) fn resolved_buffer(&self, location: &file::Location) -> Option<BufferId> {
+        self.files.get(location.path()).copied()
+    }
+
+    /// Install ingress prepared outside native input. Recheck the canonical
+    /// registry after preparation so concurrent opens cannot duplicate a source
+    /// or replace an existing buffer's unsaved text.
+    pub(crate) fn prepare_resolved_visit(
+        &self,
+        location: file::Location,
+        loaded: Option<file::Loaded>,
+    ) -> io::Result<Visit> {
+        if let Some(id) = self.resolved_buffer(&location) {
+            self.get(id).map_err(io::Error::other)?;
+            return Ok(Visit::Existing(id));
+        }
+        let mut buffer = match loaded {
+            Some(loaded) => Buffer::from_loaded(loaded).map_err(io::Error::other)?,
+            None => Buffer::new("", &self.settings.settings().files).map_err(io::Error::other)?,
+        };
+        let path = location.path().to_owned();
+        buffer.name = self.label(&location.basename().to_string_lossy());
+        buffer.file = Some(location);
+        buffer.apply_settings(&self.settings);
+        Ok(Visit::New(Box::new(buffer), path))
+    }
+
     pub(crate) fn prepare_observed_visit(
         &self,
         path: &Path,

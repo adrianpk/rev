@@ -168,6 +168,35 @@ impl Windows {
         Ok(id)
     }
 
+    /// Publish an explicit display target without selecting another pane or
+    /// changing input ownership. Structural fit is checked before publication.
+    pub(crate) fn show(
+        &mut self,
+        pane: ViewId,
+        view: View,
+        split: Option<Split>,
+        size: Size,
+    ) -> Result<ViewId, Error> {
+        self.get(pane)?;
+        if let Some(direction) = split {
+            self.area(pane, size)
+                .ok_or(Error::DoesNotFit)?
+                .divide(direction, self.ratios.default)
+                .ok_or(Error::DoesNotFit)?;
+            let id = ViewId::next()?;
+            let mut layout = self.layout.clone();
+            if !layout.split(pane, id, direction) {
+                return Err(Error::Missing(pane));
+            }
+            self.views.insert(id, view);
+            self.layout = layout;
+            Ok(id)
+        } else {
+            self.views.insert(pane, view);
+            Ok(pane)
+        }
+    }
+
     pub(crate) fn reveal(
         &mut self,
         buffers: &Buffers,

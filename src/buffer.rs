@@ -145,6 +145,7 @@ pub enum Resource {
 
 pub struct Buffer {
     resource: Resource,
+    plugin_owner: Option<rev_plugin_sdk::identity::PackageId>,
     observer: Option<std::sync::Arc<dyn edit::Observer>>,
     macro_lines: Vec<edit::WeakMacroLines>,
     pub(crate) bookmarks: crate::bookmark::Shared,
@@ -216,6 +217,7 @@ impl Buffer {
         };
         Ok(Self {
             resource: Resource::Text,
+            plugin_owner: None,
             observer: None,
             macro_lines: Vec::new(),
             bookmarks: crate::bookmark::Shared::default(),
@@ -288,6 +290,12 @@ impl Buffer {
     /// Transient text participates in checked edits, never source publication.
     pub fn is_transient(&self) -> bool {
         self.transient
+    }
+
+    /// Provenance of an ordinary package-created source, independent of the
+    /// lifetime of its process or any current handler generation.
+    pub fn plugin_owner(&self) -> Option<&rev_plugin_sdk::identity::PackageId> {
+        self.plugin_owner.as_ref()
     }
 
     pub fn resource(&self) -> Resource {
@@ -509,6 +517,26 @@ impl Buffers {
     pub fn create(&mut self, text: &str) -> Result<BufferId, Error> {
         let buffer = Buffer::new(text, &self.settings.settings().files)?;
         Ok(self.insert(buffer))
+    }
+
+    pub(crate) fn prepare_plugin_create(
+        &self,
+        owner: rev_plugin_sdk::identity::PackageId,
+        name: &str,
+        text: &str,
+        read_only: bool,
+    ) -> Result<Buffer, Error> {
+        let mut buffer = Buffer::new(text, &self.settings.settings().files)?;
+        buffer.name = self.label(name);
+        buffer.plugin_owner = Some(owner);
+        buffer.read_only = read_only;
+        // Initial package output is unsaved user content. Native close/quit
+        // decisions must protect it even though creation is not an undo edit.
+        if !text.is_empty() {
+            buffer.state.sequence = 1;
+            buffer.next_state = 2;
+        }
+        Ok(buffer)
     }
 
     pub(crate) fn capture_draft(&mut self, text: &str) -> Result<BufferId, Error> {

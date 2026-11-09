@@ -13,8 +13,10 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
   commands in M-x and the modal selector without starting their programs.
   Run trusted local packages on command use, selected startup or declared native
   triggers, then inspect, cancel, deactivate or restart their owned processes
-  while continuing to edit. Contributed keybindings and package-to-editor
-  operations remain unavailable.
+  while continuing to edit. Packages can read hidden and unsaved text, open
+  files, create ordinary result buffers and display them in native panes.
+  Result text survives package deactivation. Contributed keybindings, source
+  edits and package-requested saves remain unavailable.
 
 - Record native editing with F3 and finish with F4, then replay the last keyboard
   macro with F4 or C-x e. Positive prefix arguments repeat the recording;

@@ -42,10 +42,13 @@ impl Handshake {
             handlers: List::default(),
         })
     }
-    /// The lifecycle increment implements host-to-package command callbacks.
-    /// Package-to-host editor operations remain separately rejected by `admit`.
+    /// Advertise the native operations implemented by the connected host.
     pub(crate) fn commands(mut self, commands: Vec<CommandId>) -> Result<Self, RpcError> {
-        self.offer.capabilities = List::new(vec![Capability::Commands])?;
+        self.offer.capabilities = List::new(vec![
+            Capability::Commands,
+            Capability::Buffers,
+            Capability::Display,
+        ])?;
         self.request.id = OpaqueId::new(format!("initialize:{}", self.offer.generation))
             .map_err(|_| RpcError::application(ErrorKind::InvalidArguments))?;
         self.request.params = serde_json::to_value(&self.offer)
@@ -100,7 +103,23 @@ impl Handshake {
                 RpcError::application(ErrorKind::UnsupportedInvocation).for_request(&request.id)
             );
         }
-        // The protocol slice deliberately publishes no executable editor method.
-        Err(RpcError::application(ErrorKind::UnsupportedMethod).for_request(&request.id))
+        let capability = match request.method.as_str() {
+            BuffersList::NAME
+            | BuffersOpen::NAME
+            | BuffersCreate::NAME
+            | BuffersDescribe::NAME
+            | BuffersRead::NAME => Capability::Buffers,
+            BuffersShow::NAME => Capability::Display,
+            _ => {
+                return Err(
+                    RpcError::application(ErrorKind::UnsupportedMethod).for_request(&request.id)
+                );
+            }
+        };
+        if self.offer.capabilities.contains(&capability) {
+            Ok(())
+        } else {
+            Err(RpcError::application(ErrorKind::UnsupportedMethod).for_request(&request.id))
+        }
     }
 }

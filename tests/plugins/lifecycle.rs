@@ -75,12 +75,12 @@ struct Spec<'a> {
     activation: &'a str,
     ignore_term: bool,
 }
-struct Editor {
-    fixture: Fixture,
-    session: Session,
+pub(super) struct Editor {
+    pub(super) fixture: Fixture,
+    pub(super) session: Session,
 }
 impl Editor {
-    fn new(profile: &str, mode: &str, activation: &str, startup: bool) -> Self {
+    pub(super) fn new(profile: &str, mode: &str, activation: &str, startup: bool) -> Self {
         Self::packages(
             profile,
             &[Spec {
@@ -150,8 +150,13 @@ recording = "reject"
             fixture.write(&name, &manifest);
             manifests.push(name);
         }
-        let path = fixture.write("config.toml", &format!("[editor]\ninteraction_profile='{profile}'\n[plugins]\nenabled=true\nmanifests={}\nstartup={}",
-            serde_json::to_string(&manifests).unwrap(), serde_json::to_string(startup).unwrap()));
+        let terminal = if specs.iter().any(|s| s.mode == "buffers") {
+            "\n[terminal]\nprogram='/bin/sh'\nargs=['-c', 'exec sleep 30']"
+        } else {
+            ""
+        };
+        let path = fixture.write("config.toml", &format!("[editor]\ninteraction_profile='{profile}'\n[plugins]\nenabled=true\nmanifests={}\nstartup={}{}",
+            serde_json::to_string(&manifests).unwrap(), serde_json::to_string(startup).unwrap(), terminal));
         let prepared = config::prepare(&path);
         assert!(prepared.diagnostic.is_none(), "{:?}", prepared.diagnostic);
         let mut buffers = Buffers::with_settings(prepared.snapshot).unwrap();
@@ -168,22 +173,22 @@ recording = "reject"
         .unwrap();
         Self { fixture, session }
     }
-    fn path(&self, name: &str) -> PathBuf {
+    pub(super) fn path(&self, name: &str) -> PathBuf {
         self.fixture.0.join("field.notes").join(name)
     }
-    fn status(&self) -> rev::plugins::lifecycle::Inspection {
+    pub(super) fn status(&self) -> rev::plugins::lifecycle::Inspection {
         self.session.plugin_status("field.notes").unwrap()
     }
-    fn call(&mut self, id: &str) {
+    pub(super) fn call(&mut self, id: &str) {
         self.session
             .execute(Command::PluginDefined(PluginName::new(id).unwrap()));
     }
-    fn manage(&mut self, command: PluginCommand) {
+    pub(super) fn manage(&mut self, command: PluginCommand) {
         self.session.execute(Command::Plugin(command));
         self.session.handle(Event::Paste("field.notes".into()));
         self.session.handle(key(KeyCode::Enter));
     }
-    fn wait(&mut self, mut condition: impl FnMut(&Self) -> bool) {
+    pub(super) fn wait(&mut self, mut condition: impl FnMut(&Self) -> bool) {
         let deadline = Instant::now() + Duration::from_secs(8);
         loop {
             self.session.expire_input(Instant::now());
@@ -204,8 +209,10 @@ recording = "reject"
 impl Drop for Editor {
     fn drop(&mut self) {
         let result = self.session.shutdown_plugins();
+        let terminals = self.session.shutdown_terminals();
         if !std::thread::panicking() {
             result.unwrap();
+            terminals.unwrap();
         }
     }
 }
@@ -297,7 +304,10 @@ fn lazy_profiles() {
             1
         );
         let offers = lines(&editor.path("offers"));
-        assert_eq!(offers[0]["capabilities"], serde_json::json!(["commands"]));
+        assert_eq!(
+            offers[0]["capabilities"],
+            serde_json::json!(["commands", "buffers", "display"])
+        );
     }
 }
 

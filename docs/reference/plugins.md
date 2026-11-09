@@ -145,10 +145,10 @@ initial handler before publishing active state. Handlers must belong to commands
 in that package's admitted manifest, with distinct command and handler IDs.
 A declared command with no accepted handler reports command_unavailable.
 
-The commands capability currently enables host-to-package command.invoke and
-command.cancel. Package-to-host commands, buffer, edit, display, binding, event,
-message and state operations return correlated unsupported_method errors; no
-native editor operation is enabled by schema availability. Requests before
+The commands capability enables host-to-package command.invoke and command.cancel.
+The buffers and display capabilities enable the six native operations below.
+Package-to-host command invocation, edits, save/close, bindings, events, messages
+and state operations still return correlated unsupported_method errors. Requests before
 initialization return unsupported_invocation. An incompatible acknowledgement,
 malformed or oversized stdout, EOF, process exit or deadline retires the generation.
 Stdout is protocol-only. Stderr is a byte-bounded diagnostic ring; display replaces
@@ -180,6 +180,65 @@ Library hosts use Session::shutdown_plugins before discarding owned resources;
 it reports uncertainty after a five-second observation bound. Dropping a library
 session submits retirement to the owning supervisors without waiting on input.
 
+## Native text buffers and display
+
+Buffer and pane handles contain the host session and an opaque native identity.
+Names, file paths and list positions are not handles. Closed or replaced sources
+invalidate their earlier handles; a later open receives a new native identity.
+A process restart does not destroy a still-live buffer or change its handle.
+Foreign-session handles fail with missing_buffer; foreign or closed pane targets
+fail with unsupported_invocation. Responses retain their request and generation.
+Queued work loses authority on cancellation, deactivation, disconnect or expiry.
+
+| Method | Parameters and result | Native behavior |
+| --- | --- | --- |
+| buffers.list | page with cursor and limit 1..256; optional kind; returns buffers and next | Enumerates current ordinary text buffers, including hidden and unsaved sources. kind is null or text; terminal/generated filters return unsupported_resource. |
+| buffers.open | path; returns a buffer descriptor | Reuses the canonical native file identity, including aliases and existing unsaved text. A new visit is hidden. A missing path creates an empty visiting buffer without writing a file. |
+| buffers.create | name, text, read_only; returns a descriptor | Creates an ordinary hidden unsaved text buffer. Native unique-name rules apply. Nonempty output is modified and protected by native close/quit decisions. |
+| buffers.describe | buffer handle; returns a descriptor | Reports the current source revision, scalar length, name, visiting path, read-only/modified flags, disk observation and package provenance. |
+| buffers.read | buffer, half-open range, optional expected_revision; returns stamp, range and text | Reads exact in-memory text independently of selection or focus. A mismatched revision returns stale_revision. |
+| buffers.show | buffer, optional pane, placement; returns pane handle | Displays in an existing pane or a new split. It does not select another pane. Null pane resolves the selected pane once when native service admits the request. |
+
+Positions count Unicode scalar values. Combining marks, astral characters, CR
+and LF each occupy their own source scalar; bytes, graphemes and display cells
+are different units. Invalid scalar bounds return invalid_range. Reads return
+at most 512 KiB of UTF-8 text, checked before copying; larger ranges return
+limit_exceeded and can be split into adjacent revision-qualified reads.
+
+Descriptors contain stamp.buffer, stamp.revision and expected_disk. Source
+revision and saved/disk state are separate observations. expected_disk is absent
+or a lossless opaque token for the native disk observation, with no filesystem
+probe during describe/read. Its presence grants no save or overwrite authority.
+List continuations contain the host session and last native identity. They
+resume the current registry in stable identity order, rather than freezing a
+cross-page snapshot. A foreign or malformed cursor returns invalid_arguments.
+
+Open uses the existing native path resolver. Relative paths follow the host's
+native process directory; absolute paths avoid ambiguity with the package's
+manifest working directory. Empty paths, NUL and URL schemes are invalid.
+Resolution and strict regular-file UTF-8 ingress run on the supervisor, with
+16 MiB per new file and 16 MiB aggregate retained ingress. Exhausted aggregate
+ingress returns busy. Canonical reuse is checked both before loading and before
+publication, so a concurrent open cannot replace unsaved text or duplicate a
+source. File observation changes during the read return stale_revision. Invalid
+UTF-8, NUL-containing files and non-regular resources return unsupported_resource.
+
+Create accepts up to 512 KiB of text and a nonempty name up to 4000 UTF-8 bytes
+without control characters. Native labels add unique suffixes on collision.
+Created buffers retain package provenance after process retirement and remain
+available through ordinary buffer navigation. They are not generated native
+inventories and do not imply a file write. Terminal buffers, native inventories
+and other transient resources are excluded from the text API.
+
+Placement is current, split_horizontal (below) or split_vertical (right).
+Native pane fit and lifetime checks precede display publication. Prompts,
+terminal/tree focus, retained source interactions and macro replay refuse show
+with unsupported_invocation instead of transferring their input ownership.
+Pass the invocation's captured pane to target that original pane after focus
+changes. Reads and creation do not change the selected source or open a prompt.
+Open/create return busy while native departure or context publication has frozen
+its source set; reads and listing remain available during those decisions.
+
 ## Admission limits
 
 | Resource | Ceiling |
@@ -191,9 +250,11 @@ session submits retirement to the owning supervisors without waiting on input.
 | Literal argv | 64 strings, 4096 bytes each, 64 KiB total; NUL rejected |
 | Paths | 4096 UTF-8 bytes; nonempty local paths without NUL or URL schemes |
 | Active processes | 8 per independent editor, including generations still stopping |
-| Pending command requests | 16 per package; 64 per editor, including calls waiting for initialization |
+| Pending RPC requests | 16 per package; 64 per editor across both directions, including initialization waits, native queues and prepared replies |
 | UTF-8 frame / outbound bytes | 4 MiB per frame and package queue; 16 MiB queued per editor |
-| Startup / command deadline | 5 seconds / 60 seconds |
+| Text read or create / list page | 512 KiB UTF-8 / 256 descriptors |
+| New-file ingress | 16 MiB per file and aggregate retained ingress |
+| Startup / RPC deadline | 5 seconds / 60 seconds |
 | TERM grace / force-reap observation | 2 seconds / 2 seconds |
 | Stderr ring | 128 KiB per active package |
 | Native activation observations | First 4096 ordinary text buffers in stable native identity order; explicit notice on overflow |

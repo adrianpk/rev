@@ -80,16 +80,16 @@ Validation: all seven frozen ordered commands passed locally, plus 22 focused pr
 
 ## Slice 4: Independent text buffers
 
-State: ready
+State: reviewing
 Dependency: Slice 3 integrated
 Branch: feat/rev-plugin-system-04-buffers
 PR: pending
 Report: ops/default/report/slices/rev-plugin-system/slice-4-buffers.md
-Validation: pending; exact ordered commands in the plan and controller configuration
+Validation: all eight frozen commands passed locally; fresh focused validation passed 31 plugin tests and standalone fixture formatting. Final clean-HEAD controller evidence precedes handoff.
 
-- [ ] T4.1: Implement list/open/create/describe/read/show using native opaque handles and source stamps, including hidden and unsaved text independently of focus.
-- [ ] T4.2: Capture invocation point/selection/pane/revision and reuse native path identity; create ordinary unsaved buffers with package provenance and reject unsupported native resource kinds.
-- [ ] T4.3: Verify Unicode ranges, display placement, foreign/stale/closed handles, revision observations and focus changes with the real Session/buffer/view owners.
+- [x] T4.1: Implement list/open/create/describe/read/show using native opaque handles and source stamps, including hidden and unsaved text independently of focus.
+- [x] T4.2: Capture invocation point/selection/pane/revision and reuse native path identity; create ordinary unsaved buffers with package provenance and reject unsupported native resource kinds.
+- [x] T4.3: Verify Unicode ranges, display placement, foreign/stale/closed handles, revision observations and focus changes with the real Session/buffer/view owners.
 
 ## Slice 5: Atomic edits and history
 

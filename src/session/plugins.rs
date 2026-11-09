@@ -4,6 +4,7 @@ use super::{Action, Pending, Session};
 use crate::plugins::lifecycle::{Host, Inspection, Service};
 use rev_plugin_sdk::identity::{Revision, ScalarRange, Stamp};
 mod activation;
+mod buffers;
 
 #[derive(Default)]
 pub(super) struct Work {
@@ -134,6 +135,7 @@ impl Session {
     pub(super) fn expire_plugins(&mut self) -> Action {
         let mut service = Service::new();
         let mut notices = self.plugins.host.service(&mut service);
+        self.serve_plugin_buffers(&mut service);
         self.advance_plugin_activation(&mut service, &mut notices);
         if let Some(notice) = notices.pop() {
             self.plugins.notice = Some(notice);

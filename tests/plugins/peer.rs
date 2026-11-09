@@ -30,6 +30,51 @@ fn record_message(directory: &std::path::Path, name: &str, message: &Message) {
         std::str::from_utf8(&bytes).unwrap().trim_end(),
     );
 }
+// Scripted raw requests retain public wire framing while allowing invalid and
+// cross-session inputs which the typed SDK intentionally refuses to construct.
+fn buffer_script(directory: &std::path::Path, input: &mut impl Read, output: &mut impl Write) {
+    let mut decoder = Decoder::new(4 * 1024 * 1024).unwrap();
+    let mut bytes = [0; 8192];
+    for sequence in 0..1000 {
+        let path = directory.join(format!("request-{sequence}"));
+        let deadline = Instant::now() + Duration::from_secs(20);
+        while !path.exists() {
+            if Instant::now() >= deadline {
+                return;
+            }
+            std::thread::sleep(Duration::from_millis(1));
+        }
+        let request = fs::read(path).unwrap();
+        output.write_all(&request).unwrap();
+        output.flush().unwrap();
+        let mut complete = false;
+        while !complete {
+            let count = input.read(&mut bytes).unwrap();
+            if count == 0 {
+                return;
+            }
+            let mut offset = 0;
+            while offset < count {
+                let (used, message) = decoder.receive(&bytes[offset..count]).unwrap();
+                offset += used;
+                let Some(message) = message else {
+                    continue;
+                };
+                match &message {
+                    Message::Success(_) | Message::Failure(_) => {
+                        let data = encode(&message, 4 * 1024 * 1024).unwrap();
+                        let temp = directory.join("response-tmp");
+                        fs::write(&temp, data).unwrap();
+                        fs::rename(temp, directory.join(format!("response-{sequence}"))).unwrap();
+                        complete = true;
+                    }
+                    Message::Request(_) => record_message(directory, "calls", &message),
+                    _ => {}
+                }
+            }
+        }
+    }
+}
 fn main() {
     let args: Vec<_> = std::env::args().collect();
     let directory = PathBuf::from(&args[1]);
@@ -133,6 +178,7 @@ fn main() {
             let (used, event) = client.receive(&buffer[offset..count]).unwrap();
             assert_eq!(observed, used);
             offset += used;
+            let initialized = matches!(&event, Some(Event::Initialized(_)));
             match event {
                 Some(Event::Initialized(offer)) => {
                     let Some(Message::Request(request)) = message else {
@@ -224,6 +270,10 @@ fn main() {
                 client.consume_output(count).unwrap();
             }
             output.flush().unwrap();
+            if mode == "buffers" && initialized {
+                buffer_script(&directory, &mut input, &mut output);
+                return;
+            }
         }
     }
 }

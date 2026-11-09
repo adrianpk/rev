@@ -1,4 +1,4 @@
-use super::{Budget, Call, Connection, State, inert, process::Process, reserve};
+use super::{Budget, Call, Connection, Permit, State, editor, inert, process::Process, reserve};
 use crate::plugins::{declarations, protocol::Handshake};
 use rev_plugin_sdk::{
     identity::*,
@@ -41,6 +41,8 @@ struct Worker {
     bytes: usize,
     stderr_open: bool,
     incoming: Option<Receiver<Call>>,
+    replies: Receiver<editor::Response>,
+    requests: BTreeMap<OpaqueId, Instant>,
 }
 
 pub(super) fn run(
@@ -50,6 +52,7 @@ pub(super) fn run(
     connection: Arc<Connection>,
     budget: Arc<Budget>,
     incoming: Receiver<Call>,
+    replies: Receiver<editor::Response>,
 ) {
     let start = Instant::now();
     if connection.stop.load(Ordering::Acquire) {
@@ -133,6 +136,8 @@ pub(super) fn run(
         bytes: 0,
         stderr_open: true,
         incoming: Some(incoming),
+        replies,
+        requests: BTreeMap::new(),
     };
     let result = worker.drive();
     // Authority is retired before cancellation output, signals or any wait.
@@ -145,6 +150,7 @@ pub(super) fn run(
             .lock()
             .expect("plugin supervisor owner");
         shared.state = State::Stopping;
+        shared.requests.clear();
     }
     worker.connection.notify();
     worker.cancel();
@@ -211,8 +217,10 @@ impl Worker {
                 return Ok(());
             }
             self.controls();
+            self.editor_replies()?;
             let now = Instant::now();
-            if (!self.handshake.accepted() && now >= self.startup)
+            if self.requests.values().any(|deadline| now >= *deadline)
+                || (!self.handshake.accepted() && now >= self.startup)
                 || self
                     .pending
                     .values()
@@ -392,6 +400,7 @@ impl Worker {
             .values()
             .chain(self.waiting.iter())
             .map(|c| c.deadline)
+            .chain(self.requests.values().copied())
             .chain((!self.handshake.accepted()).then_some(self.startup))
             .min();
         let timeout = deadline.map(|d| {
@@ -495,15 +504,40 @@ impl Worker {
     }
     fn receive(&mut self, message: Message) -> Result<(), String> {
         if let Message::Request(request) = message {
-            let error = self
+            let admitted = self
                 .handshake
                 .admit(&request)
-                .expect_err("editor capabilities remain unavailable");
-            return self.queue(Message::Failure(Failure {
-                jsonrpc: Version::V2,
-                id: Some(request.id),
-                error,
-            }));
+                .and_then(|()| editor::decode(&request));
+            let operation = match admitted {
+                Ok(operation) => operation,
+                Err(error) => return self.failure(request.id, error),
+            };
+            if self.requests.contains_key(&request.id) {
+                return Err("duplicate live editor request ID".into());
+            }
+            if !reserve(&self.budget.pending, 1, 64) {
+                return self.failure(request.id, RpcError::application(ErrorKind::LimitExceeded));
+            }
+            if !reserve(&self.connection.pending, 1, 16) {
+                self.budget.pending.fetch_sub(1, Ordering::AcqRel);
+                return self.failure(request.id, RpcError::application(ErrorKind::LimitExceeded));
+            }
+            let deadline = Instant::now() + Duration::from_secs(60);
+            self.requests.insert(request.id.clone(), deadline);
+            let request = editor::Request {
+                id: request.id,
+                operation: Some(operation),
+                deadline,
+                package: self.package.manifest.plugin.id.clone(),
+                connection: self.connection.clone(),
+                _ingress: None,
+                _permit: Permit {
+                    budget: self.budget.clone(),
+                    package: self.connection.pending.clone(),
+                },
+            };
+            self.submit(request);
+            return Ok(());
         }
         if matches!(message, Message::Notification(_)) {
             return Ok(());
@@ -554,6 +588,58 @@ impl Worker {
         );
         drop(call);
         self.connection.notice(notice);
+        Ok(())
+    }
+    fn failure(&mut self, id: OpaqueId, error: RpcError) -> Result<(), String> {
+        let error = error.for_request(&id);
+        self.queue(Message::Failure(Failure {
+            jsonrpc: Version::V2,
+            id: Some(id),
+            error,
+        }))
+    }
+    fn submit(&self, request: editor::Request) {
+        self.connection
+            .shared
+            .lock()
+            .expect("plugin supervisor owner")
+            .requests
+            .push_back(request);
+        self.connection.notify();
+    }
+    fn editor_replies(&mut self) -> Result<(), String> {
+        for _ in 0..16 {
+            let Ok(mut response) = self.replies.try_recv() else {
+                break;
+            };
+            if !response.request.live() {
+                continue;
+            }
+            if let Ok(editor::Reply::Load(location)) = response.result {
+                match editor::load(&location, &self.budget) {
+                    Ok((loaded, ingress)) => {
+                        response.request._ingress = ingress;
+                        response.request.operation =
+                            Some(editor::Operation::Install(location, loaded));
+                        self.submit(response.request);
+                        continue;
+                    }
+                    Err(error) => response.result = Err(error),
+                }
+            }
+            self.requests.remove(&response.request.id);
+            let result = match response.result {
+                Ok(reply) => self.queue(Message::Success(Success {
+                    jsonrpc: Version::V2,
+                    id: response.request.id.clone(),
+                    result: reply.value(),
+                })),
+                Err(error) => self.failure(response.request.id.clone(), error),
+            };
+            // The response retires its request permit before notifying UI state.
+            drop(response.request);
+            result?;
+        }
         Ok(())
     }
     fn cancel(&mut self) {
