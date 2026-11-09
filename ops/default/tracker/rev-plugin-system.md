@@ -8,7 +8,7 @@ Planning baseline: a398dcb77dd0ce036d989f038068ac942fc68ebd
 Specification: [Plugin System](../spec/editor-plugin-system.md)
 Model: [Plugin Identity, Protocol and State](../spec/editor-plugin-system-model.md)
 Concern: [Pending Editor Work](../README.md)
-Active slice: Slice 6 - Native invocation and file lifecycle
+Active slice: Slice 7 - Contextual keybindings
 Execution authorized: one thirteen-slice Looper run with automatic integration into dev
 Plan: [Plugin System Delivery](../plan/rev-plugin-system.md)
 Progress owner: selected Looper run; no second runtime tracker
@@ -110,13 +110,14 @@ Validation: all eight frozen commands passed through the controller validator on
 
 ## Slice 6: Native invocation and file lifecycle
 
-State: reviewing
+State: delivered
 Dependency: Slice 5 integrated
 Branch: feat/rev-plugin-system-06-invocation
 PR: #6 - https://forge.adrianpk.com/rev/rev/pulls/6
 Report: ops/default/report/slices/rev-plugin-system/slice-6-invocation.md
 Implementation: 912a6dbe11bf273b50c88add88e93e0b024542be
-Validation: all eight frozen commands passed locally; fresh seven-test invocation selection, 46 combined plugin tests, one six-variant staging test, 28 native save/consent regressions and fixture formatting passed. Exact clean-HEAD controller evidence precedes handoff.
+Integrated: 82e8605eb1535b490862387b7baf9e528153ca31 through canonical PR #6
+Validation: all eight frozen commands passed through the controller validator on the exact clean integrated HEAD; canonical PR contract and merge verified. Focused checks also passed 46 combined plugin tests, seven invocation tests, a six-variant staged-save test and 28 native save/consent regressions.
 
 - [x] T6.1: Publish a typed noninteractive native-command admission policy and qualified plugin dispatch; validate captured targets/arguments and reject prompting/reentrant unsupported classes explicitly.
 - [x] T6.2: Implement revision-and-disk-qualified save and checked close through existing native conflict/read-only/path/consent policies; no force or implicit discard.
@@ -124,7 +125,7 @@ Validation: all eight frozen commands passed locally; fresh seven-test invocatio
 
 ## Slice 7: Contextual keybindings
 
-State: planned
+State: implementing
 Dependency: Slice 6 integrated
 Branch: feat/rev-plugin-system-07-keymaps
 PR: pending
