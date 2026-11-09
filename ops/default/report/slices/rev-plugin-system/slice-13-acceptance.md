@@ -5,7 +5,7 @@ Delivery set: rev-plugin-system
 Plan: [Plugin System Delivery](../../../plan/rev-plugin-system.md)
 Tracker: [Plugin System Tracker](../../../tracker/rev-plugin-system.md)
 Branch: `test/rev-plugin-system-13-acceptance`
-PR: pending
+PR: #13 - https://forge.adrianpk.com/rev/rev/pulls/13
 Implementation: 99316fbb9054540a8fed7ee05f6e9fcb0f395cd8
 Fixture correction: a15fb9c7e8eb2a2b85795dbc1d1094cb5485c4af
 Independent client: 3365b84649919492ade7e80c63139b459b5ad923

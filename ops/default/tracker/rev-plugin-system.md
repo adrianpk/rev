@@ -218,7 +218,7 @@ Validation: all eight frozen commands passed locally; two guidance regressions c
 State: reviewing
 Dependency: Slice 12 integrated
 Branch: test/rev-plugin-system-13-acceptance
-PR: pending
+PR: #13 - https://forge.adrianpk.com/rev/rev/pulls/13
 Implementation: 99316fbb9054540a8fed7ee05f6e9fcb0f395cd8
 Fixture correction: a15fb9c7e8eb2a2b85795dbc1d1094cb5485c4af
 Report: ops/default/report/slices/rev-plugin-system/slice-13-acceptance.md
