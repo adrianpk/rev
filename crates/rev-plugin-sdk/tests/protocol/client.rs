@@ -12,7 +12,7 @@ fn list_params() -> BuffersListParams {
     }
 }
 fn response(request: OpaqueId, result: Value) -> Vec<u8> {
-    frame(Message::Success(Success {
+    frame(&Message::Success(Success {
         jsonrpc: Version::V2,
         id: request,
         result,
@@ -50,7 +50,7 @@ fn negotiation() {
         }
         let mut client = Client::new(package(), List::default()).unwrap();
         assert!(
-            client.receive(&frame(initialize(&offer))).is_err(),
+            client.receive(&frame(&initialize(&offer))).is_err(),
             "{name}"
         );
         assert!(!client.initialized(), "{name}");
@@ -78,11 +78,11 @@ fn negotiation() {
         }
         let mut client = Client::new(package(), List::default()).unwrap();
         assert!(
-            client.receive(&frame(initialize(&offer))).is_err(),
+            client.receive(&frame(&initialize(&offer))).is_err(),
             "{name}"
         );
         assert!(!client.initialized());
-        assert!(client.receive(&frame(initialize(&offer))).is_err());
+        assert!(client.receive(&frame(&initialize(&offer))).is_err());
     }
 }
 
@@ -132,7 +132,7 @@ fn correlation() {
     let failed = client
         .request::<BuffersList>(list_params(), Duration::ZERO)
         .unwrap();
-    let failure = frame(Message::Failure(Failure {
+    let failure = frame(&Message::Failure(Failure {
         jsonrpc: Version::V2,
         id: Some(failed),
         error: RpcError::application(ErrorKind::Busy),
@@ -251,21 +251,21 @@ fn callbacks() {
         let mut invalid = call.clone();
         invalid.params["context"][field] = value;
         assert!(
-            client.receive(&frame(Message::Request(invalid))).is_err(),
+            client.receive(&frame(&Message::Request(invalid))).is_err(),
             "{name}"
         );
         drain(&mut client);
         assert_eq!(client.pending_len(), 0);
     }
     let Some(Event::Request(first_callback)) = client
-        .receive(&frame(Message::Request(call.clone())))
+        .receive(&frame(&Message::Request(call.clone())))
         .unwrap()
         .1
     else {
         panic!("expected admitted callback");
     };
     assert_eq!(client.pending_len(), 1);
-    let cancel = frame(Message::Notification(Notification {
+    let cancel = frame(&Message::Notification(Notification {
         jsonrpc: Version::V2,
         method: "command.cancel".into(),
         params: json!({"invocation":"invoke-1","generation":"7"}),
@@ -288,7 +288,7 @@ fn callbacks() {
         matches!(Decoder::new(FRAME_BYTES).unwrap().receive(&canceled).unwrap().1, Some(Message::Failure(failure)) if failure.error.kind() == Some(ErrorKind::Cancelled))
     );
     let Some(Event::Request(next_callback)) = client
-        .receive(&frame(Message::Request(call.clone())))
+        .receive(&frame(&Message::Request(call.clone())))
         .unwrap()
         .1
     else {
@@ -315,10 +315,10 @@ fn callbacks() {
     assert_eq!(client.pending_len(), 0);
     drain(&mut client);
     client.remove_handler(&handler.command);
-    assert!(client.receive(&frame(Message::Request(call))).is_err());
+    assert!(client.receive(&frame(&Message::Request(call))).is_err());
     drain(&mut client);
     let event = |generation| {
-        frame(Message::Notification(Notification {
+        frame(&Message::Notification(Notification {
             jsonrpc: Version::V2,
             method: BUFFER_EVENT.into(),
             params: json!({"subscription":"sub","sequence":"2","generation":generation,"kind":"resnapshot","stamp":null,"origin":{"package":null,"operation":"op","depth":0}}),
@@ -339,11 +339,11 @@ fn callbacks() {
         params: json!({"invocation":"other","generation":"7"}),
     };
     duplicate
-        .receive(&frame(Message::Request(request.clone())))
+        .receive(&frame(&Message::Request(request.clone())))
         .unwrap();
     assert!(
         duplicate
-            .receive(&frame(Message::Request(request)))
+            .receive(&frame(&Message::Request(request)))
             .is_err()
     );
     assert!(!duplicate.initialized());

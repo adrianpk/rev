@@ -1,3 +1,5 @@
+#![forbid(unsafe_code)]
+
 #[path = "protocol/client.rs"]
 mod client;
 #[path = "protocol/schemas.rs"]
@@ -17,7 +19,7 @@ fn fragmented_frames() {
         method: "messages.show".into(),
         params: json!({"text":"first\n🦀e\u{301}", "severity":"info"}),
     });
-    let bytes = frame(message.clone());
+    let bytes = frame(&message);
     for width in [1, 2, 3, 7, bytes.len()] {
         let mut decoder = Decoder::new(FRAME_BYTES).unwrap();
         let mut received = Vec::new();
@@ -72,7 +74,7 @@ fn frame_bounds() {
         id: id("a"),
         result: json!("\n🦀"),
     });
-    let bytes = frame(message.clone());
+    let bytes = frame(&message);
     let limit = bytes.len() - 1;
     assert_eq!(encode(&message, limit).unwrap(), bytes);
     assert_eq!(encode(&message, limit - 1), Err(WireError::LimitExceeded));

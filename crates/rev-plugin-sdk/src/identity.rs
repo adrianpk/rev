@@ -21,6 +21,11 @@ macro_rules! identity {
         pub struct $name(String);
 
         impl $name {
+            /// Parse an owned value using this identity's lexical contract.
+            ///
+            /// # Errors
+            /// Returns `InvalidIdentity` for invalid length, alphabet,
+            /// namespace or decimal representation.
             pub fn new(value: impl Into<String>) -> Result<Self, InvalidIdentity> {
                 let value = value.into();
                 if ($check)(&value) {
@@ -165,6 +170,10 @@ struct RangeFields {
     end: u64,
 }
 impl ScalarRange {
+    /// Construct a half-open scalar range without reversing its bounds.
+    ///
+    /// # Errors
+    /// Returns `InvalidIdentity` when `start` exceeds `end`.
     pub fn new(start: u64, end: u64) -> Result<Self, InvalidIdentity> {
         if start > end {
             return Err(InvalidIdentity("reversed scalar range"));

@@ -23,6 +23,10 @@ use std::{collections::BTreeSet, fmt, marker::PhantomData, ops::Deref};
 #[serde(transparent)]
 pub struct List<T, const N: usize>(Vec<T>);
 impl<T, const N: usize> List<T, N> {
+    /// Retain an owned collection within its declared item ceiling.
+    ///
+    /// # Errors
+    /// Returns `LimitExceeded` when `values` contains more than `N` items.
     pub fn new(values: Vec<T>) -> Result<Self, RpcError> {
         if values.len() > N {
             Err(error(ErrorKind::LimitExceeded))
@@ -80,6 +84,10 @@ impl<'de, T: Deserialize<'de>, const N: usize> Deserialize<'de> for List<T, N> {
 #[serde(try_from = "String", into = "String")]
 pub struct Text<const N: usize>(String);
 impl<const N: usize> Text<N> {
+    /// Retain an owned UTF-8 string within its declared byte ceiling.
+    ///
+    /// # Errors
+    /// Returns `LimitExceeded` when the string contains more than `N` bytes.
     pub fn new(value: impl Into<String>) -> Result<Self, RpcError> {
         let value = value.into();
         if value.len() > N {
@@ -115,6 +123,11 @@ fn require(condition: bool, kind: ErrorKind) -> Result<(), RpcError> {
 
 /// Additional semantic admission beyond Serde's shape/identity/collection checks.
 pub trait Validate {
+    /// Check the value's semantic invariants and negotiated limits.
+    ///
+    /// # Errors
+    /// Returns the applicable argument, namespace, revision or limit error when
+    /// the value violates its concrete schema's admission rules.
     fn validate(&self, _limits: &Limits) -> Result<(), RpcError> {
         Ok(())
     }
@@ -236,6 +249,10 @@ impl Validate for InitializeParams {
 }
 impl InitializeParams {
     /// Package-side acknowledgement; rejects a foreign identity or revision.
+    ///
+    /// # Errors
+    /// Returns an API, namespace, argument or limit error when the offer or
+    /// proposed handlers cannot form the exact negotiated agreement.
     pub fn acknowledge(
         &self,
         package: &Package,
@@ -257,6 +274,10 @@ impl InitializeParams {
         Ok(result)
     }
     /// Host-side agreement check. Handler declarations are checked separately by the host.
+    ///
+    /// # Errors
+    /// Returns an API, argument, namespace or limit error when either side is
+    /// invalid or the response differs from the offered connection/profile.
     pub fn accepts(&self, result: &InitializeResult) -> Result<(), RpcError> {
         self.validate(&self.limits)?;
         result.validate(&self.limits)?;
@@ -385,25 +406,33 @@ impl Validate for EditsApplyParams {
                 buffers.insert((&target.stamp.buffer.session, &target.stamp.buffer.id)),
                 ErrorKind::EditConflict,
             )?;
-            require(!target.replacements.is_empty(), ErrorKind::InvalidArguments)?;
-            let mut previous: Option<ScalarRange> = None;
-            for replacement in target.replacements.iter() {
-                if let Some(range) = previous {
-                    require(
-                        replacement.range.start() >= range.end()
-                            && replacement.range.start() != range.start(),
-                        ErrorKind::EditConflict,
-                    )?;
-                }
-                previous = Some(replacement.range);
-                count += 1;
-                bytes += replacement.text.as_str().len();
-            }
+            bytes += target.replacement_bytes()?;
+            count += target.replacements.len();
         }
         require(
             count <= limits.replacements as usize && bytes <= limits.text_bytes as usize,
             ErrorKind::LimitExceeded,
         )
+    }
+}
+
+impl BufferEdits {
+    fn replacement_bytes(&self) -> Result<usize, RpcError> {
+        require(!self.replacements.is_empty(), ErrorKind::InvalidArguments)?;
+        let mut previous: Option<ScalarRange> = None;
+        let mut bytes = 0;
+        for replacement in self.replacements.iter() {
+            if let Some(range) = previous {
+                require(
+                    replacement.range.start() >= range.end()
+                        && replacement.range.start() != range.start(),
+                    ErrorKind::EditConflict,
+                )?;
+            }
+            previous = Some(replacement.range);
+            bytes += replacement.text.as_str().len();
+        }
+        Ok(bytes)
     }
 }
 
@@ -611,6 +640,11 @@ impl Validate for InvocationContext {
     }
 }
 impl CommandDeclaration {
+    /// Validate declared argument names/types and the explicit prefix policy.
+    ///
+    /// # Errors
+    /// Returns `UnsupportedInvocation` for a disallowed prefix, `LimitExceeded`
+    /// for excessive JSON, or an argument error for missing/unknown/wrong types.
     pub fn validate_arguments(
         &self,
         arguments: &Value,
@@ -635,24 +669,33 @@ impl CommandDeclaration {
             ErrorKind::InvalidArguments,
         )?;
         for param in self.parameters.iter() {
-            let value = args.get(param.name.as_str());
-            require(
-                !param.required || value.is_some(),
-                ErrorKind::InvalidArguments,
-            )?;
-            if let Some(value) = value {
-                let valid = match param.kind {
-                    ArgumentType::Null => value.is_null(),
-                    ArgumentType::Boolean => value.is_boolean(),
-                    ArgumentType::Integer => value.is_i64(),
-                    ArgumentType::String => value.is_string(),
-                    ArgumentType::Array => value.is_array(),
-                    ArgumentType::Object => value.is_object(),
-                };
-                require(valid, ErrorKind::InvalidArguments)?;
-            }
+            param.validate_argument(args.get(param.name.as_str()))?;
         }
         Ok(())
+    }
+}
+
+impl Parameter {
+    fn validate_argument(&self, value: Option<&Value>) -> Result<(), RpcError> {
+        require(
+            !self.required || value.is_some(),
+            ErrorKind::InvalidArguments,
+        )?;
+        if let Some(value) = value {
+            require(argument_type(self.kind, value), ErrorKind::InvalidArguments)?;
+        }
+        Ok(())
+    }
+}
+
+fn argument_type(kind: ArgumentType, value: &Value) -> bool {
+    match kind {
+        ArgumentType::Null => value.is_null(),
+        ArgumentType::Boolean => value.is_boolean(),
+        ArgumentType::Integer => value.is_i64(),
+        ArgumentType::String => value.is_string(),
+        ArgumentType::Array => value.is_array(),
+        ArgumentType::Object => value.is_object(),
     }
 }
 impl Validate for CommandDeclaration {
@@ -735,6 +778,10 @@ impl Validate for CommandsInvokeResult {
 impl BufferEvent {
     /// Callback identity accepted by commands.invoke for this delivered event.
     /// Copy generation, origin and any required captured stamp into its context.
+    ///
+    /// # Panics
+    /// Panics if a valid decimal sequence cannot form a bounded opaque identity,
+    /// indicating an internal violation of the identity length contract.
     pub fn invocation(&self) -> OpaqueId {
         OpaqueId::new(format!("event:{}", self.sequence)).expect("bounded event sequence")
     }
@@ -807,6 +854,10 @@ macro_rules! methods {
         })+
         /// Validate a known method before native dispatch. Execution still checks
         /// session, generation, advertised capability and native resource policy.
+        ///
+        /// # Errors
+        /// Returns `UnsupportedMethod` for an unknown name, `InvalidArguments`
+        /// for an invalid shape, or the concrete parameter validation error.
         pub fn validate_params(method: &str, params: Value, limits: &Limits) -> Result<(), RpcError> {
             match method {
                 $($wire => {
@@ -817,6 +868,10 @@ macro_rules! methods {
             }
         }
         /// Apply result shape and finite payload admission before correlation completes.
+        ///
+        /// # Errors
+        /// Returns `UnsupportedMethod` for an unknown name, `InvalidArguments`
+        /// for an invalid shape, or the concrete result validation error.
         pub fn validate_result(method: &str, value: Value, limits: &Limits) -> Result<(), RpcError> {
             match method {
                 $($wire => {

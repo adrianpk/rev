@@ -103,6 +103,10 @@ pub struct Client {
     output_bytes: usize,
 }
 impl Client {
+    /// Create a client with the finite default framing profile.
+    ///
+    /// # Errors
+    /// Returns a framing error if the built-in ceiling cannot initialize a decoder.
     pub fn new(package: Package, handlers: List<Handler, 64>) -> Result<Self, ClientError> {
         let limits = Limits::default();
         Ok(Self {
@@ -138,6 +142,10 @@ impl Client {
 
     /// Admit a package-local dynamic callback before `commands.register`.
     /// Native registration remains a separate checked RPC operation.
+    ///
+    /// # Errors
+    /// Returns `Disconnected` before initialization/after retirement,
+    /// `NamespaceConflict` for a foreign or duplicate handler, or `LimitExceeded`.
     pub fn add_handler(&mut self, handler: Handler) -> Result<(), RpcError> {
         if !self.initialized() {
             return Err(error(ErrorKind::Disconnected));
@@ -164,8 +172,8 @@ impl Client {
         self.handlers.retain(|handler| &handler.command != command);
     }
 
-    fn queue(&mut self, message: Message) -> Result<(), ClientError> {
-        let bytes = transport::encode(&message, self.limits.frame_bytes as usize)?;
+    fn queue(&mut self, message: &Message) -> Result<(), ClientError> {
+        let bytes = transport::encode(message, self.limits.frame_bytes as usize)?;
         if bytes.len()
             > (self.limits.outbound_per_package as usize).saturating_sub(self.output_bytes)
         {
@@ -182,6 +190,10 @@ impl Client {
             .front()
             .map_or(&[], |frame| &frame.bytes[frame.offset..])
     }
+    /// Acknowledge bytes written from the current output slice.
+    ///
+    /// # Errors
+    /// Returns `InvalidArguments` when `written` exceeds that slice's length.
     pub fn consume_output(&mut self, written: usize) -> Result<(), RpcError> {
         if written > self.output().len() {
             return Err(error(ErrorKind::InvalidArguments));
@@ -198,6 +210,11 @@ impl Client {
 
     /// Start one typed package-to-host operation. `now` is a caller's monotonic
     /// clock, never wall time. No request is admitted before initialization.
+    ///
+    /// # Errors
+    /// Returns a protocol error for disconnected/unsupported operations, invalid
+    /// parameters or exhausted identity/deadline/queue limits; framing errors
+    /// reject invalid or oversized serialized requests before admission.
     pub fn request<M: Method>(
         &mut self,
         params: M::Params,
@@ -216,12 +233,7 @@ impl Client {
             return Err(error(ErrorKind::LimitExceeded).into());
         }
         params.validate(&self.limits)?;
-        let serial = self
-            .serial
-            .checked_add(1)
-            .ok_or_else(|| error(ErrorKind::LimitExceeded))?;
-        let id = OpaqueId::new(format!("{}:{serial}", offer.generation))
-            .map_err(|_| error(ErrorKind::LimitExceeded))?;
+        let (serial, id) = self.next_id(&offer.generation)?;
         let deadline = now
             .checked_add(Duration::from_millis(u64::from(self.limits.command_ms)))
             .ok_or_else(|| error(ErrorKind::LimitExceeded))?;
@@ -231,7 +243,7 @@ impl Client {
             method: M::NAME.into(),
             params: serde_json::to_value(params).map_err(|_| error(ErrorKind::InvalidArguments))?,
         };
-        self.queue(Message::Request(request))?;
+        self.queue(&Message::Request(request))?;
         self.serial = serial;
         self.pending.insert(
             id.clone(),
@@ -244,8 +256,22 @@ impl Client {
         Ok(id)
     }
 
+    fn next_id(&self, generation: &Generation) -> Result<(u64, OpaqueId), RpcError> {
+        let serial = self
+            .serial
+            .checked_add(1)
+            .ok_or_else(|| error(ErrorKind::LimitExceeded))?;
+        let id = OpaqueId::new(format!("{}:{serial}", generation))
+            .map_err(|_| error(ErrorKind::LimitExceeded))?;
+        Ok((serial, id))
+    }
+
     /// Complete an admitted host callback. Method and ID must match its pending
     /// registration, and enqueueing must succeed before retiring the callback.
+    ///
+    /// # Errors
+    /// Returns `Disconnected` for a retired, canceled, reused or foreign callback,
+    /// the concrete result validation error, or a framing/output-limit error.
     pub fn respond<M: Method>(
         &mut self,
         callback: &Callback,
@@ -278,13 +304,18 @@ impl Client {
                 error: error.for_request(id),
             }),
         };
-        self.queue(message)?;
+        self.queue(&message)?;
         self.incoming.remove(id);
         Ok(())
     }
 
     /// Decode at most one frame. Returned consumption permits several frames in
     /// one pipe read without an unbounded internal inbound queue.
+    ///
+    /// # Errors
+    /// Returns framing errors for invalid input and protocol errors for invalid
+    /// initialization, capabilities, callbacks or results. A failed initial
+    /// agreement retires the client; an error reply may itself exceed the queue.
     pub fn receive(&mut self, input: &[u8]) -> Result<(usize, Option<Event>), ClientError> {
         if self.retired {
             return Err(error(ErrorKind::Disconnected).into());
@@ -312,7 +343,7 @@ impl Client {
         if let Err(ClientError::Protocol(error)) = &event
             && let Some(id) = request_id.filter(|_| reply_allowed)
         {
-            self.queue(Message::Failure(Failure {
+            self.queue(&Message::Failure(Failure {
                 jsonrpc: Version::V2,
                 id: Some(id.clone()),
                 error: error.clone().for_request(&id),
@@ -323,25 +354,7 @@ impl Client {
 
     fn accept(&mut self, message: Message) -> Result<Event, ClientError> {
         if self.offer.is_none() {
-            let Message::Request(request) = message else {
-                return Err(error(ErrorKind::UnsupportedInvocation).into());
-            };
-            if request.method != Initialize::NAME {
-                return Err(error(ErrorKind::UnsupportedInvocation).into());
-            }
-            let offer: InitializeParams = serde_json::from_value(request.params)
-                .map_err(|_| error(ErrorKind::InvalidArguments))?;
-            let result = offer.acknowledge(&self.package, self.handlers.clone())?;
-            self.limits = offer.limits.clone();
-            self.decoder = Decoder::new(self.limits.frame_bytes as usize)?;
-            self.queue(Message::Success(Success {
-                jsonrpc: Version::V2,
-                id: request.id,
-                result: serde_json::to_value(result)
-                    .map_err(|_| error(ErrorKind::InvalidArguments))?,
-            }))?;
-            self.offer = Some(offer.clone());
-            return Ok(Event::Initialized(offer));
+            return self.initialize(message);
         }
         match message {
             Message::Success(success) => Ok(self.response(success.id, Ok(success.result))),
@@ -351,57 +364,82 @@ impl Client {
                     .ok_or_else(|| error(ErrorKind::InvalidArguments))?;
                 Ok(self.response(id, Err(failure.error)))
             }
-            Message::Request(request) => {
-                self.host_method(&request.method, &request.params, false)?;
-                if self.incoming.contains_key(&request.id) {
-                    self.retire();
-                    return Err(error(ErrorKind::Disconnected).into());
-                }
-                if request.method == CommandCancel::NAME {
-                    self.cancel_callbacks(&request.params)?;
-                }
-                if self.pending_len() >= self.limits.pending_per_package as usize {
-                    return Err(error(ErrorKind::LimitExceeded).into());
-                }
-                let invocation = if request.method == CommandInvoke::NAME {
-                    let call: CommandInvokeParams = serde_json::from_value(request.params.clone())
-                        .map_err(|_| error(ErrorKind::InvalidArguments))?;
-                    Some(call.context.invocation)
-                } else {
-                    None
-                };
-                let serial = self
-                    .callback_serial
-                    .checked_add(1)
-                    .ok_or_else(|| error(ErrorKind::LimitExceeded))?;
-                self.callback_serial = serial;
-                self.incoming.insert(
-                    request.id.clone(),
-                    Incoming {
-                        method: request.method.clone(),
-                        invocation,
-                        serial,
-                    },
-                );
-                let offer = self
-                    .offer
-                    .as_ref()
-                    .ok_or_else(|| error(ErrorKind::Disconnected))?;
-                Ok(Event::Request(Callback {
-                    request,
-                    session: offer.session.clone(),
-                    generation: offer.generation.clone(),
-                    serial,
-                }))
-            }
-            Message::Notification(notification) => {
-                self.host_method(&notification.method, &notification.params, true)?;
-                if notification.method == CommandCancel::NAME {
-                    self.cancel_callbacks(&notification.params)?;
-                }
-                Ok(Event::Notification(notification))
-            }
+            Message::Request(request) => self.callback(request),
+            Message::Notification(notification) => self.notification(notification),
         }
+    }
+
+    fn initialize(&mut self, message: Message) -> Result<Event, ClientError> {
+        let Message::Request(request) = message else {
+            return Err(error(ErrorKind::UnsupportedInvocation).into());
+        };
+        if request.method != Initialize::NAME {
+            return Err(error(ErrorKind::UnsupportedInvocation).into());
+        }
+        let offer: InitializeParams = serde_json::from_value(request.params)
+            .map_err(|_| error(ErrorKind::InvalidArguments))?;
+        let result = offer.acknowledge(&self.package, self.handlers.clone())?;
+        self.limits = offer.limits.clone();
+        self.decoder = Decoder::new(self.limits.frame_bytes as usize)?;
+        self.queue(&Message::Success(Success {
+            jsonrpc: Version::V2,
+            id: request.id,
+            result: serde_json::to_value(result).map_err(|_| error(ErrorKind::InvalidArguments))?,
+        }))?;
+        self.offer = Some(offer.clone());
+        Ok(Event::Initialized(offer))
+    }
+
+    fn callback(&mut self, request: Request) -> Result<Event, ClientError> {
+        self.host_method(&request.method, &request.params, false)?;
+        if self.incoming.contains_key(&request.id) {
+            self.retire();
+            return Err(error(ErrorKind::Disconnected).into());
+        }
+        if request.method == CommandCancel::NAME {
+            self.cancel_callbacks(&request.params)?;
+        }
+        if self.pending_len() >= self.limits.pending_per_package as usize {
+            return Err(error(ErrorKind::LimitExceeded).into());
+        }
+        let invocation = if request.method == CommandInvoke::NAME {
+            let call: CommandInvokeParams = serde_json::from_value(request.params.clone())
+                .map_err(|_| error(ErrorKind::InvalidArguments))?;
+            Some(call.context.invocation)
+        } else {
+            None
+        };
+        let serial = self
+            .callback_serial
+            .checked_add(1)
+            .ok_or_else(|| error(ErrorKind::LimitExceeded))?;
+        self.callback_serial = serial;
+        self.incoming.insert(
+            request.id.clone(),
+            Incoming {
+                method: request.method.clone(),
+                invocation,
+                serial,
+            },
+        );
+        let offer = self
+            .offer
+            .as_ref()
+            .ok_or_else(|| error(ErrorKind::Disconnected))?;
+        Ok(Event::Request(Callback {
+            request,
+            session: offer.session.clone(),
+            generation: offer.generation.clone(),
+            serial,
+        }))
+    }
+
+    fn notification(&mut self, notification: Notification) -> Result<Event, ClientError> {
+        self.host_method(&notification.method, &notification.params, true)?;
+        if notification.method == CommandCancel::NAME {
+            self.cancel_callbacks(&notification.params)?;
+        }
+        Ok(Event::Notification(notification))
     }
 
     fn cancel_callbacks(&mut self, params: &Value) -> Result<(), ClientError> {
@@ -418,7 +456,7 @@ impl Client {
             self.incoming.remove(id);
         }
         for id in canceled {
-            self.queue(Message::Failure(Failure {
+            self.queue(&Message::Failure(Failure {
                 jsonrpc: Version::V2,
                 id: Some(id.clone()),
                 error: error(ErrorKind::Cancelled).for_request(&id),
@@ -439,51 +477,65 @@ impl Client {
             .ok_or_else(|| error(ErrorKind::Disconnected))?;
         match method {
             BUFFER_EVENT if notification && offer.capabilities.contains(&Capability::Events) => {
-                let event: BufferEvent = serde_json::from_value(params.clone())
-                    .map_err(|_| error(ErrorKind::InvalidArguments))?;
-                event.validate(&self.limits)?;
-                if event.generation != offer.generation
-                    || event
-                        .stamp
-                        .as_ref()
-                        .is_some_and(|s| s.buffer.session != offer.session)
-                {
-                    return Err(error(ErrorKind::Disconnected));
-                }
+                self.buffer_event(params, offer)
             }
             CommandInvoke::NAME
                 if !notification && offer.capabilities.contains(&Capability::Commands) =>
             {
-                let call: CommandInvokeParams = serde_json::from_value(params.clone())
-                    .map_err(|_| error(ErrorKind::InvalidArguments))?;
-                call.validate(&self.limits)?;
-                if call.context.generation != offer.generation
-                    || call
-                        .context
-                        .stamp
-                        .as_ref()
-                        .is_some_and(|s| s.buffer.session != offer.session)
-                    || call
-                        .context
-                        .pane
-                        .as_ref()
-                        .is_some_and(|p| p.session != offer.session)
-                    || !self
-                        .handlers
-                        .iter()
-                        .any(|h| h.command == call.command && h.handler == call.handler)
-                {
-                    return Err(error(ErrorKind::Disconnected));
-                }
+                self.invocation(params, offer)
             }
             CommandCancel::NAME if offer.capabilities.contains(&Capability::Commands) => {
-                let call: CommandCancelParams = serde_json::from_value(params.clone())
-                    .map_err(|_| error(ErrorKind::InvalidArguments))?;
-                if call.generation != offer.generation {
-                    return Err(error(ErrorKind::Disconnected));
-                }
+                self.cancellation(params, offer)
             }
-            _ => return Err(error(ErrorKind::UnsupportedMethod)),
+            _ => Err(error(ErrorKind::UnsupportedMethod)),
+        }
+    }
+
+    fn buffer_event(&self, params: &Value, offer: &InitializeParams) -> Result<(), RpcError> {
+        let event: BufferEvent = serde_json::from_value(params.clone())
+            .map_err(|_| error(ErrorKind::InvalidArguments))?;
+        event.validate(&self.limits)?;
+        if event.generation != offer.generation
+            || event
+                .stamp
+                .as_ref()
+                .is_some_and(|s| s.buffer.session != offer.session)
+        {
+            return Err(error(ErrorKind::Disconnected));
+        }
+        Ok(())
+    }
+
+    fn invocation(&self, params: &Value, offer: &InitializeParams) -> Result<(), RpcError> {
+        let call: CommandInvokeParams = serde_json::from_value(params.clone())
+            .map_err(|_| error(ErrorKind::InvalidArguments))?;
+        call.validate(&self.limits)?;
+        if call.context.generation != offer.generation
+            || call
+                .context
+                .stamp
+                .as_ref()
+                .is_some_and(|s| s.buffer.session != offer.session)
+            || call
+                .context
+                .pane
+                .as_ref()
+                .is_some_and(|p| p.session != offer.session)
+            || !self
+                .handlers
+                .iter()
+                .any(|h| h.command == call.command && h.handler == call.handler)
+        {
+            return Err(error(ErrorKind::Disconnected));
+        }
+        Ok(())
+    }
+
+    fn cancellation(&self, params: &Value, offer: &InitializeParams) -> Result<(), RpcError> {
+        let call: CommandCancelParams = serde_json::from_value(params.clone())
+            .map_err(|_| error(ErrorKind::InvalidArguments))?;
+        if call.generation != offer.generation {
+            return Err(error(ErrorKind::Disconnected));
         }
         Ok(())
     }
@@ -526,6 +578,10 @@ impl Client {
         self.output.clear();
         self.output_bytes = 0;
     }
+    /// Retire local authority and queues after observing input EOF.
+    ///
+    /// # Errors
+    /// Returns a wire error for an already retired decoder or incomplete frame.
     pub fn finish(&mut self) -> Result<(), ClientError> {
         let result = self.decoder.finish();
         self.retire();

@@ -24,6 +24,13 @@ Keymap observations take ownership of the already collected package states.
 They no longer clone that vector and its package strings before checking for an
 unchanged cache. Generation, enabled-state, buffer and serial observations remain.
 
+SDK initialization, callback/notification admission and method-specific host
+validation now have separate cohesive operations. Replacement ordering/byte
+measurement and argument-type admission retain their original validation order
+and results. Public error and deliberate invariant-panic contracts are documented
+and checked with SDK-local Clippy documentation lints. Public constants keep
+their types and values while the wire profile uses its native u32 constants.
+
 ## Implementation Notes
 
 The internal host entry point accepts one domain invocation containing its
@@ -32,6 +39,11 @@ correlation rather than cloning a caller-owned local value. Encoding still uses
 the existing typed public schema; pending context is intentionally retained for
 causal callbacks, cancellation and captured-target validation. This is an
 ownership correction, without a measured latency/allocation claim.
+
+The SDK's private queue and test framing helper borrow messages. Existing
+fragmentation, Unicode, bounds, correlation and callback cases keep all their
+assertions; unnecessary fixture clones are removed. The actual integration-test
+crate root now declares the existing unsafe prohibition explicitly.
 
 ## Contracts Added or Changed
 
@@ -45,6 +57,9 @@ resource ceilings are unchanged. No new dependency is introduced.
 - `src/plugins/lifecycle/worker.rs`: transferred encoding and pending correlation.
 - `src/session/plugins/invocation.rs` and `recording.rs`: explicit invocation input.
 - `src/session/plugins/keymaps.rs`: observation transfer without vector duplication.
+- `crates/rev-plugin-sdk/src/`: bounded client/schema decomposition and documented
+  public admission contracts, with unchanged wire/API/state versions.
+- `crates/rev-plugin-sdk/tests/`: original cases with borrowed framing support.
 
 ## Validation
 
@@ -60,8 +75,20 @@ The initial full Slice 2 quality selection failed on the existing selected
 profile and source diagnostics. T2.2 cleanup remains in progress; this is not a
 passing slice-quality claim or final clean-HEAD validation receipt.
 
+The SDK-only owner is clean: all workspace targets compile without baseline
+warnings, and the selected/source policy covers all 11 SDK source files and both
+of its actual crate roots with zero blocking diagnostics. These commands passed:
+
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 bash scripts/check-quality.sh --scope crates/rev-plugin-sdk`
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev-plugin-sdk`
+
+The SDK passed all 12 existing tests and its doctest. A fresh source-only scan
+of the complete frozen Slice 2 selection still reports 41 diagnostics in native
+plugin/session owners, with none in the SDK. The complete Slice 2 selected
+Clippy profile and ordered final checks remain pending.
+
 ## Risks and Follow-ups
 
-Complete SDK error/panic documentation, selected ownership/conversion cleanup and
-native decomposition remain required under T2.2. T2.3 and the final exact ordered
-five-command Looper validation remain pending. No canonical PR is ready yet.
+Native plugin/session ownership/conversion cleanup and decomposition remain
+required under T2.2. T2.3 and the final exact ordered five-command Looper validation
+remain pending. No canonical PR is ready yet.

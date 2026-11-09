@@ -28,8 +28,8 @@ pub fn offer(capabilities: Vec<Capability>) -> InitializeParams {
         limits: Limits::default(),
     }
 }
-pub fn frame(message: Message) -> Vec<u8> {
-    transport::encode(&message, Limits::default().frame_bytes as usize).unwrap()
+pub fn frame(message: &Message) -> Vec<u8> {
+    transport::encode(message, Limits::default().frame_bytes as usize).unwrap()
 }
 pub fn initialize(offer: &InitializeParams) -> Message {
     Message::Request(Request {
@@ -42,7 +42,7 @@ pub fn initialize(offer: &InitializeParams) -> Message {
 pub fn client(offer: &InitializeParams) -> Client {
     let mut client = Client::new(package(), List::default()).unwrap();
     assert!(matches!(
-        client.receive(&frame(initialize(offer))).unwrap().1,
+        client.receive(&frame(&initialize(offer))).unwrap().1,
         Some(Event::Initialized(_))
     ));
     drain(&mut client);

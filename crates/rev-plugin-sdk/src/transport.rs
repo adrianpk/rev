@@ -33,6 +33,10 @@ pub struct Decoder {
     closed: bool,
 }
 impl Decoder {
+    /// Allocate an empty decoder with the caller's negotiated frame ceiling.
+    ///
+    /// # Errors
+    /// Returns `LimitExceeded` for a zero ceiling or one above `FRAME_BYTES`.
     pub fn new(limit: usize) -> Result<Self, WireError> {
         if limit == 0 || limit > FRAME_BYTES {
             return Err(WireError::LimitExceeded);
@@ -43,6 +47,11 @@ impl Decoder {
             closed: false,
         })
     }
+    /// Consume input through at most one complete newline-delimited frame.
+    ///
+    /// # Errors
+    /// Returns `Closed` after retirement, `LimitExceeded` on excess bytes, or
+    /// `Malformed` for invalid JSON-RPC. Framing errors retire the decoder.
     pub fn receive(&mut self, input: &[u8]) -> Result<(usize, Option<Message>), WireError> {
         if self.closed {
             return Err(WireError::Closed);
@@ -71,6 +80,9 @@ impl Decoder {
         }
     }
     /// EOF after a complete newline is clean; an unfinished frame is an error.
+    ///
+    /// # Errors
+    /// Returns `Closed` after retirement or `Truncated` for an incomplete frame.
     pub fn finish(&mut self) -> Result<(), WireError> {
         if self.closed {
             return Err(WireError::Closed);
@@ -107,6 +119,10 @@ impl Write for BoundedOutput {
 
 /// Serialize within a fixed allocation ceiling, including escaped UTF-8 text.
 /// The limit excludes the single framing newline; queue accounting includes it.
+///
+/// # Errors
+/// Returns `LimitExceeded` for an invalid ceiling or oversized serialization,
+/// and `Malformed` when the message violates the JSON-RPC envelope contract.
 pub fn encode(message: &Message, limit: usize) -> Result<Vec<u8>, WireError> {
     if limit == 0 || limit > FRAME_BYTES {
         return Err(WireError::LimitExceeded);
