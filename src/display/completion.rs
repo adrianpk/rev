@@ -118,9 +118,11 @@ impl Frame {
                 command_row(
                     panel,
                     row,
-                    label,
-                    hint,
-                    palette.description(*command),
+                    Annotation {
+                        label,
+                        hint,
+                        description: palette.description(*command),
+                    },
                     columns,
                     palette.selected() == Some(index),
                 )?
@@ -157,45 +159,39 @@ fn command_columns<'a>(
     })
 }
 
+#[derive(Clone, Copy)]
+struct Annotation<'a> {
+    label: &'a str,
+    hint: Option<&'a str>,
+    description: Option<&'a str>,
+}
+
 fn command_row(
     panel: Panel,
     row: u16,
-    label: &str,
-    hint: Option<&str>,
-    description: Option<&str>,
+    annotation: Annotation<'_>,
     columns: CommandColumns,
     selected: bool,
 ) -> Result<Row, Error> {
+    let Annotation {
+        label,
+        hint,
+        description,
+    } = annotation;
     let mut source = candidate_row(panel, row, label, selected)?;
     let width = usize::from(panel.content().width());
     let name_cells = cells(label)?;
     source.faces.push(super::style::Face {
-        columns: panel.content().column()..panel.content().column() + name_cells.min(width) as u16,
+        columns: panel.content().column()
+            ..panel.content().column()
+                + u16::try_from(name_cells.min(width))
+                    .expect("name cells are clipped to panel width"),
         tone: Tone::CommandName,
     });
     let mut text = label.to_owned();
     let mut end = name_cells;
     if let Some(hint) = hint {
-        let hint_cells = cells(hint)? + 2;
-        // Keep a complete adjacent hint in narrow geometry even if another
-        // visible candidate makes the shared name column too wide.
-        let column = if columns.shortcut + hint_cells <= width {
-            columns.shortcut
-        } else {
-            name_cells + 2
-        };
-        if column + hint_cells <= width {
-            text.extend(std::iter::repeat_n(' ', column - end));
-            text.push('[');
-            text.push_str(hint);
-            text.push(']');
-            end = column + hint_cells;
-            source.faces.push(super::style::Face {
-                columns: panel.content().column() + column as u16
-                    ..panel.content().column() + end as u16,
-                tone: Tone::Secondary,
-            });
-        }
+        end = columns.shortcut(&mut source, panel, &mut text, hint)?;
     }
     if let Some(description) = description.filter(|value| !value.trim().is_empty())
         && columns.description < width
@@ -204,13 +200,51 @@ fn command_row(
         text.extend(std::iter::repeat_n(' ', columns.description - end));
         text.push_str(description);
         source.faces.push(super::style::Face {
-            columns: panel.content().column() + columns.description as u16
+            columns: panel.content().column()
+                + u16::try_from(columns.description).expect("description starts inside panel width")
                 ..panel.content().column() + panel.content().width(),
             tone: Tone::Secondary,
         });
     }
     source.text = clip::line(Glyphs::for_text(&text)?, 0, panel.content().width())?;
     Ok(source)
+}
+
+impl CommandColumns {
+    fn shortcut(
+        self,
+        source: &mut Row,
+        panel: Panel,
+        text: &mut String,
+        hint: &str,
+    ) -> Result<usize, Error> {
+        let width = usize::from(panel.content().width());
+        let name_cells = cells(text)?;
+        let mut end = name_cells;
+        let hint_cells = cells(hint)? + 2;
+        // Keep a complete adjacent hint in narrow geometry even if another
+        // visible candidate makes the shared name column too wide.
+        let column = if self.shortcut + hint_cells <= width {
+            self.shortcut
+        } else {
+            name_cells + 2
+        };
+        if column + hint_cells <= width {
+            text.extend(std::iter::repeat_n(' ', column - name_cells));
+            text.push('[');
+            text.push_str(hint);
+            text.push(']');
+            end = column + hint_cells;
+            source.faces.push(super::style::Face {
+                columns: panel.content().column()
+                    + u16::try_from(column).expect("shortcut starts inside panel width")
+                    ..panel.content().column()
+                        + u16::try_from(end).expect("shortcut ends inside panel width"),
+                tone: Tone::Secondary,
+            });
+        }
+        Ok(end)
+    }
 }
 
 fn cells(text: &str) -> Result<usize, Error> {
@@ -264,9 +298,11 @@ mod tests {
             let row = command_row(
                 panel,
                 0,
-                "save-buffer",
-                Some("C-x C-s"),
-                description,
+                Annotation {
+                    label: "save-buffer",
+                    hint: Some("C-x C-s"),
+                    description,
+                },
                 columns,
                 false,
             )
@@ -289,18 +325,21 @@ mod tests {
             ..Default::default()
         };
         for selected in [false, true] {
-            let row = command_row(panel, 0, "x", None, Some("界界"), columns, selected).unwrap();
+            let row = command_row(
+                panel,
+                0,
+                Annotation {
+                    label: "x",
+                    hint: None,
+                    description: Some("界界"),
+                },
+                columns,
+                selected,
+            )
+            .unwrap();
             assert_eq!(row.text.trim_end(), "x    界");
             for column in 7..15 {
-                let foreground = if selected {
-                    palette.selection_text
-                } else if column == 7 {
-                    palette.syntax.function
-                } else if column >= 12 {
-                    palette.status_text
-                } else {
-                    palette.foreground
-                };
+                let foreground = description_foreground(&palette, selected, column);
                 assert_eq!(
                     row.colors(column, &palette),
                     super::super::style::Colors::new(
@@ -313,6 +352,21 @@ mod tests {
                     )
                 );
             }
+        }
+    }
+    fn description_foreground(
+        palette: &crate::config::Palette,
+        selected: bool,
+        column: usize,
+    ) -> crate::config::Rgb {
+        if selected {
+            palette.selection_text
+        } else if column == 7 {
+            palette.syntax.function
+        } else if column >= 12 {
+            palette.status_text
+        } else {
+            palette.foreground
         }
     }
 }

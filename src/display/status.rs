@@ -127,7 +127,11 @@ fn cells(text: &str) -> Result<usize, Error> {
 
 fn prefix(text: &str, width: u16) -> Result<String, Error> {
     let used = cells(text)?.min(usize::from(width));
-    clip::line(Glyphs::for_text(text)?, 0, used as u16)
+    clip::line(
+        Glyphs::for_text(text)?,
+        0,
+        u16::try_from(used).expect("status prefix is clipped to native width"),
+    )
 }
 
 fn padded(text: &str, width: u16) -> Result<String, Error> {

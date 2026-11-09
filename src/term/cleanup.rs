@@ -28,7 +28,7 @@ impl Cleanup {
     ) -> io::Result<Self> {
         let requested = Instant::now();
         let owned = Arc::new(Mutex::new(None::<Process>));
-        let worker = owned.clone();
+        let worker = std::sync::Arc::clone(&owned);
         let (send, result) = mpsc::sync_channel(1);
         let (start, receive) = mpsc::sync_channel(1);
         // Transfer only after spawn succeeds. A rejected worker cannot drop a

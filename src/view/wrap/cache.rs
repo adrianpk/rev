@@ -71,7 +71,8 @@ impl Cache {
         if owner {
             entries.work = Some(work);
         }
-        Scope(self.0.clone(), owner)
+        drop(entries);
+        Scope(std::sync::Arc::clone(&self.0), owner)
     }
 
     pub(in crate::view) fn work(&self) -> Option<Work> {
@@ -255,6 +256,7 @@ impl Cache {
                 .expect("retained fragment exists");
             entries.bytes -= fragment.text.len();
         }
+        drop(entries);
         Ok(())
     }
 }
@@ -275,7 +277,9 @@ mod tests {
         let b = buffers.get(id).unwrap();
         let view = View::new(b);
         let retained = view.clone();
-        let fragments = view.wrapped_rows(b, 1, (LIMIT + 40) as u16).unwrap();
+        let fragments = view
+            .wrapped_rows(b, 1, u16::try_from(LIMIT + 40).unwrap())
+            .unwrap();
         assert_eq!(fragments.last().unwrap().source.end, Scalar(b.len_chars()));
         assert_eq!(view.wrap_cache.0.lock().unwrap().fragments.len(), LIMIT);
         assert!(view.wrap_cache.0.lock().unwrap().bytes <= TEXT_BYTES);

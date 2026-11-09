@@ -110,7 +110,7 @@ impl Tree {
             return Err(super::entry::failure(
                 "toggle directory",
                 &entry.path,
-                io::Error::other("entry is a leaf"),
+                &io::Error::other("entry is a leaf"),
             ));
         }
         if entry.expanded {

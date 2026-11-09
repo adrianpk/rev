@@ -21,9 +21,16 @@ impl Entry {
         };
         let available = width.saturating_sub(if entry.icon { 2 } else { 0 });
         let detail = candidate.detail();
-        let detail_width = unicode_width::UnicodeWidthStr::width(detail) as u16;
-        let name_width = unicode_width::UnicodeWidthStr::width(candidate.label()).min(8) as u16;
-        let show = entry.icon && !detail.is_empty() && available >= detail_width + 2 + name_width;
+        let detail_width = unicode_width::UnicodeWidthStr::width(detail);
+        let name_width = unicode_width::UnicodeWidthStr::width(candidate.label()).min(8);
+        let show = entry.icon
+            && !detail.is_empty()
+            && usize::from(available) >= detail_width + 2 + name_width;
+        let detail_width = if show {
+            u16::try_from(detail_width).expect("shown detail fits native popup width")
+        } else {
+            0
+        };
         let label_width = available.saturating_sub(if show { detail_width + 2 } else { 0 });
         let label = clip::line(Glyphs::for_text(candidate.label())?, 0, label_width)?;
         if entry.icon {
@@ -86,7 +93,12 @@ impl Frame {
                 .get(index)
                 .expect("popup rows fit the admitted candidate list");
             let entry = Entry::new(candidate, area.width() - 2)?;
-            self.popup_row(area, row as u16 + 1, entry, index == selected)?;
+            self.popup_row(
+                area,
+                u16::try_from(row).expect("popup row fits native area height") + 1,
+                &entry,
+                index == selected,
+            )?;
         }
         self.popup_border(area, area.height() - 1, '└', '┘')
     }
@@ -111,7 +123,7 @@ impl Frame {
         &mut self,
         area: Area,
         row: u16,
-        entry: Entry,
+        entry: &Entry,
         selected: bool,
     ) -> Result<(), Error> {
         let mut faces = entry.faces(area.column() + 1);
@@ -148,7 +160,9 @@ fn placement(completion: &Completion, anchor: Position, pane: Area) -> Option<Ar
     }
     let above = anchor.row - pane.row();
     let below = pane.row() + pane.height() - anchor.row - 1;
-    let desired = completion.candidates().len().min(completion.popup_rows) as u16 + 2;
+    let desired = u16::try_from(completion.candidates().len().min(completion.popup_rows))
+        .expect("admitted popup row limit fits native geometry")
+        + 2;
     let down = below >= desired || below >= above;
     let height = desired.min(if down { below } else { above });
     if height < 3 {
@@ -166,10 +180,13 @@ fn placement(completion: &Completion, anchor: Position, pane: Area) -> Option<Ar
         .map(|candidate| unicode_width::UnicodeWidthStr::width(candidate.detail()))
         .max()
         .unwrap_or(0);
-    let width = label_width
-        .saturating_add(detail_width)
-        .saturating_add(6)
-        .min(usize::from(pane.width())) as u16;
+    let width = u16::try_from(
+        label_width
+            .saturating_add(detail_width)
+            .saturating_add(6)
+            .min(usize::from(pane.width())),
+    )
+    .expect("popup width is clipped to its native pane");
     let column = anchor.column.min(pane.column() + pane.width() - width);
     let row = if down {
         anchor.row + 1

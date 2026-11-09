@@ -63,18 +63,28 @@ impl Geometry {
             geometry.numbers = Some(numbers);
             geometry.text = text;
         }
-        if markers && content.height() > 0 && partition(geometry.text, 1, settings.side).is_some() {
-            let (marker, inner) = partition(content, 1, settings.side).ok_or(Error::Overflow)?;
-            geometry.marker = Some(marker);
-            geometry.text = inner;
-            if geometry.numbers.is_some() {
-                let (numbers, text) =
-                    partition(inner, width, settings.side).ok_or(Error::Overflow)?;
-                geometry.numbers = Some(numbers);
-                geometry.text = text;
+        geometry.place_marker(content, width, settings.side, markers)?;
+        Ok(geometry)
+    }
+
+    fn place_marker(
+        &mut self,
+        content: Area,
+        width: u16,
+        side: Side,
+        markers: bool,
+    ) -> Result<(), Error> {
+        if markers && content.height() > 0 && partition(self.text, 1, side).is_some() {
+            let (marker, inner) = partition(content, 1, side).ok_or(Error::Overflow)?;
+            self.marker = Some(marker);
+            self.text = inner;
+            if self.numbers.is_some() {
+                let (numbers, text) = partition(inner, width, side).ok_or(Error::Overflow)?;
+                self.numbers = Some(numbers);
+                self.text = text;
             }
         }
-        Ok(geometry)
+        Ok(())
     }
 
     pub fn digits(self) -> u8 {

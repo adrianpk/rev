@@ -39,11 +39,11 @@ impl Readiness {
         let worker = Worker {
             file,
             child,
-            control: control.clone(),
-            stop: stop.clone(),
-            writable: writable.clone(),
-            child_live: child_live.clone(),
-            readable: readable.clone(),
+            control: std::sync::Arc::clone(&control),
+            stop: std::sync::Arc::clone(&stop),
+            writable: std::sync::Arc::clone(&writable),
+            child_live: std::sync::Arc::clone(&child_live),
+            readable: std::sync::Arc::clone(&readable),
             ready,
             wake,
         };

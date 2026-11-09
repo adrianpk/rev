@@ -17,6 +17,10 @@ struct Relocation {
 impl Buffers {
     /// All path/owner checks precede disk mutation. Only a successful rename
     /// publishes associations; text, revisions, views and saved states survive.
+    #[expect(
+        clippy::needless_pass_by_value,
+        reason = "Rename consumes its captured native path decision at publication."
+    )]
     pub fn rename(&mut self, rename: Rename, name: &str) -> io::Result<Renamed> {
         let target = rename.destination(name)?;
         self.rename_target(&rename, &target)?;

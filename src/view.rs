@@ -207,7 +207,7 @@ impl View {
         let gutter = self.gutter;
         let markers = self.bookmark_markers;
         let enabled = self.preview.enabled;
-        let headings = self.headings.clone();
+        let headings = std::sync::Arc::clone(&self.headings);
         let heading_pretty = self.heading_pretty;
         let jumps = std::mem::take(&mut self.jumps);
         *self = Self::new(buffer);
@@ -269,24 +269,36 @@ impl View {
                 self.left = 0;
                 return self.reveal_wrapped(buffer, width, size.text_rows());
             }
-            let mut top = self.projected_top(buffer);
-            let row = self
-                .project_row(buffer, point.row)
-                .ok_or(coordinates::Error::Overflow)?;
-            reveal(&mut top, row, usize::from(size.text_rows()));
-            self.top = self
-                .source_at(buffer, top)
-                .ok_or(coordinates::Error::Overflow)?;
-            let margins =
-                indentation::Margins::new(buffer, point.row, width, self.compact_headings());
-            let margin = margins.at(0);
-            let column = point
-                .column
-                .saturating_sub(margins.concealed)
-                .checked_add(margin)
-                .ok_or(coordinates::Error::Overflow)?;
-            reveal(&mut self.left, column, usize::from(width));
+            self.reveal_unwrapped(
+                buffer,
+                point,
+                Size {
+                    width,
+                    height: size.text_rows(),
+                },
+            )?;
         }
+        Ok(())
+    }
+
+    fn reveal_unwrapped(&mut self, buffer: &Buffer, point: Cell, text: Size) -> Result<(), Error> {
+        let mut top = self.projected_top(buffer);
+        let row = self
+            .project_row(buffer, point.row)
+            .ok_or(coordinates::Error::Overflow)?;
+        reveal(&mut top, row, usize::from(text.height));
+        self.top = self
+            .source_at(buffer, top)
+            .ok_or(coordinates::Error::Overflow)?;
+        let margins =
+            indentation::Margins::new(buffer, point.row, text.width, self.compact_headings());
+        let margin = margins.at(0);
+        let column = point
+            .column
+            .saturating_sub(margins.concealed)
+            .checked_add(margin)
+            .ok_or(coordinates::Error::Overflow)?;
+        reveal(&mut self.left, column, usize::from(text.width));
         Ok(())
     }
 

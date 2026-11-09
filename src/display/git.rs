@@ -147,7 +147,7 @@ impl Role {
         palette: &crate::config::Palette,
         selected: bool,
     ) -> crate::config::Rgb {
-        use crate::git::{DiffLineKind as Kind, Group};
+        use crate::git::DiffLineKind as Kind;
         match self {
             Self::Text | Self::Diff(Kind::Context) => {
                 if selected {
@@ -159,14 +159,37 @@ impl Role {
             Self::Heading | Self::Diff(Kind::Header) => palette.git.heading,
             Self::Metadata | Self::Diff(Kind::Metadata) => palette.git.metadata,
             Self::Warning => palette.warning,
-            Self::Group(Group::Untracked) => palette.git.untracked,
-            Self::Group(Group::Unstaged) => palette.git.unstaged,
-            Self::Group(Group::Staged) => palette.git.staged,
-            Self::Group(Group::Unmerged) => palette.git.conflict,
-            Self::Diff(Kind::Added) => palette.git.added,
-            Self::Diff(Kind::Removed) => palette.git.removed,
-            Self::Diff(Kind::Hunk) => palette.git.hunk,
+            Self::Group(group) => group_color(group, &palette.git),
+            Self::Diff(kind) => diff_color(kind, &palette.git),
         }
+    }
+}
+
+fn group_color(
+    group: crate::git::Group,
+    palette: &crate::config::GitPalette,
+) -> crate::config::Rgb {
+    use crate::git::Group;
+    match group {
+        Group::Untracked => palette.untracked,
+        Group::Unstaged => palette.unstaged,
+        Group::Staged => palette.staged,
+        Group::Unmerged => palette.conflict,
+    }
+}
+
+fn diff_color(
+    kind: crate::git::DiffLineKind,
+    palette: &crate::config::GitPalette,
+) -> crate::config::Rgb {
+    use crate::git::DiffLineKind as Kind;
+    match kind {
+        Kind::Added => palette.added,
+        Kind::Removed => palette.removed,
+        Kind::Hunk => palette.hunk,
+        Kind::Header => palette.heading,
+        Kind::Metadata => palette.metadata,
+        Kind::Context => unreachable!("context uses the selected document foreground"),
     }
 }
 
@@ -182,21 +205,19 @@ impl Frame {
     }
 
     pub(crate) fn git<L: Into<Line>>(
-        buffer: &Buffer,
-        size: Size,
-        palette: &crate::config::Palette,
+        mut self,
         echo: &str,
         footer: &str,
         admission: crate::git::budget::Lease,
         mut line: impl FnMut(usize) -> L,
     ) -> Result<Self, Error> {
-        let mut frame = Self::pending(buffer, size, palette)?;
-        frame._git_admission = Some(admission);
+        let size = self.size;
+        self._git_admission = Some(admission);
         if size.width == 0 || size.height == 0 {
-            return Ok(frame);
+            return Ok(self);
         }
-        frame.rows.pop();
-        frame.echo(echo)?;
+        self.rows.pop();
+        self.echo(echo)?;
         for row in 0..size.height.saturating_sub(2) {
             let Line {
                 text,
@@ -204,19 +225,24 @@ impl Frame {
                 role,
             } = line(usize::from(row)).into();
             let area = Area::new(0, row, size.width, 1).ok_or(CoordinateError::Overflow)?;
-            frame.projection_text(&text, area)?;
-            frame.rows[usize::from(row)].tone = Tone::Git(role, selected);
+            self.projection_text(&text, area)?;
+            self.rows[usize::from(row)].tone = Tone::Git(role, selected);
             // The Git role owns this full-width row; projection faces otherwise
             // override its foreground with the ordinary document color.
-            frame.rows[usize::from(row)].faces.clear();
+            self.rows[usize::from(row)].faces.clear();
         }
-        if size.height >= 2 {
-            let row = size.height - 2;
-            frame.blit(
-                Area::new(0, row, size.width, 1).ok_or(CoordinateError::Overflow)?,
+        self.git_footer(footer)?;
+        self.cursor = None;
+        Ok(self)
+    }
+    fn git_footer(&mut self, footer: &str) -> Result<(), Error> {
+        if self.size.height >= 2 {
+            let row = self.size.height - 2;
+            self.blit(
+                Area::new(0, row, self.size.width, 1).ok_or(CoordinateError::Overflow)?,
                 Row {
                     row: 0,
-                    text: clip::line(Glyphs::for_text(footer)?, 0, size.width)?,
+                    text: clip::line(Glyphs::for_text(footer)?, 0, self.size.width)?,
                     band: Band::Status,
                     tone: Tone::Status(true),
                     faces: Vec::new(),
@@ -226,7 +252,6 @@ impl Frame {
                 },
             )?;
         }
-        frame.cursor = None;
-        Ok(frame)
+        Ok(())
     }
 }

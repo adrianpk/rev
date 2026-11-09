@@ -74,7 +74,10 @@ fn paint(
             .rev()
             .find(|capture| capture.bytes.start < bytes.end && capture.bytes.end > bytes.start)
         {
-            let columns = (glyph.columns.start - left) as u16..(glyph.columns.end - left) as u16;
+            let columns = u16::try_from(glyph.columns.start - left)
+                .expect("visible syntax starts within native width")
+                ..u16::try_from(glyph.columns.end - left)
+                    .expect("visible syntax ends within native width");
             append(
                 &mut result,
                 Paint {

@@ -39,7 +39,7 @@ impl Pattern {
         if request.direction == Direction::Forward {
             return self.scan(
                 buffer,
-                buffer.span(request.anchor.0..buffer.len_chars())?,
+                &buffer.span(request.anchor.0..buffer.len_chars())?,
                 request,
             );
         }
@@ -49,7 +49,7 @@ impl Pattern {
             text,
             sensitive: self.sensitive,
         };
-        reversed.scan(buffer, buffer.span(0..request.anchor.0)?, request)
+        reversed.scan(buffer, &buffer.span(0..request.anchor.0)?, request)
     }
 }
 

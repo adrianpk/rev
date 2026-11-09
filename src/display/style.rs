@@ -84,7 +84,8 @@ fn color(Rgb(r, g, b): Rgb) -> Color {
 fn artwork_color(Rgb(r, g, b): Rgb, Rgb(red, green, blue): Rgb) -> Rgb {
     let transparent = u16::from(255 - r.max(g).max(b));
     let channel = |source: u8, background: u8| {
-        (u16::from(source) + (u16::from(background) * transparent + 127) / 255) as u8
+        u8::try_from(u16::from(source) + (u16::from(background) * transparent + 127) / 255)
+            .expect("matte coverage plus source channel is at most 255")
     };
     Rgb(channel(r, red), channel(g, green), channel(b, blue))
 }
@@ -92,11 +93,6 @@ fn artwork_color(Rgb(r, g, b): Rgb, Rgb(red, green, blue): Rgb) -> Rgb {
 impl Tone {
     fn colors(self, palette: &Palette) -> Colors {
         match self {
-            Self::Startup => Colors::new(palette.foreground, palette.background),
-            Self::Artwork(foreground, background) => Colors::new(
-                artwork_color(foreground, palette.background),
-                artwork_color(background, palette.background),
-            ),
             Self::Status(true) => Colors::new(palette.status_text, palette.status),
             Self::Status(false) => Colors::new(palette.status_text, palette.status_inactive),
             Self::Border(true) => Colors::new(palette.border_active, palette.background),
@@ -113,7 +109,16 @@ impl Tone {
                 palette.gutter.background,
             ),
             Self::Message(message) => Colors::new(message.color(palette), palette.background),
-            Self::Document => Colors::new(palette.foreground, palette.background),
+            _ => self.document_colors(palette),
+        }
+    }
+    fn document_colors(self, palette: &Palette) -> Colors {
+        match self {
+            Self::Startup | Self::Document => Colors::new(palette.foreground, palette.background),
+            Self::Artwork(foreground, background) => Colors::new(
+                artwork_color(foreground, palette.background),
+                artwork_color(background, palette.background),
+            ),
             Self::CommandName => Colors::new(palette.syntax.function, palette.background),
             Self::Secondary => Colors::new(palette.status_text, palette.background),
             Self::Git(role, selected) => Colors::new(
@@ -128,6 +133,7 @@ impl Tone {
             Self::Habit(state, future) => {
                 Colors::new(palette.foreground, habit_color(state, future, &palette.org))
             }
+            _ => unreachable!("panel tones resolve their own colors"),
         }
     }
 }

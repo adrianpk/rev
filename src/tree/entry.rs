@@ -79,7 +79,7 @@ impl Entry {
 
     pub(super) fn observe(path: PathBuf, depth: usize) -> io::Result<Self> {
         let kind = fs::symlink_metadata(&path)
-            .map_err(|e| failure("inspect entry", &path, e))?
+            .map_err(|e| failure("inspect entry", &path, &e))?
             .file_type();
         Ok(Self {
             source: None,
@@ -112,7 +112,7 @@ impl Entry {
             return Err(failure(
                 "activate entry",
                 &self.path,
-                io::Error::other("entry type has changed; refresh the tree"),
+                &io::Error::other("entry type has changed; refresh the tree"),
             ));
         }
         Ok(())
@@ -126,11 +126,11 @@ impl Entry {
             return Err(failure(
                 "read directory",
                 &self.path,
-                io::Error::other("entry is not a directory"),
+                &io::Error::other("entry is not a directory"),
             ));
         }
         let directory =
-            fs::read_dir(&self.path).map_err(|e| failure("read directory", &self.path, e))?;
+            fs::read_dir(&self.path).map_err(|e| failure("read directory", &self.path, &e))?;
         self.read_children(policy, directory)
     }
 
@@ -144,7 +144,7 @@ impl Entry {
         let mut name_bytes = 0;
         let mut incomplete = false;
         for (index, child) in directory.take(ENTRY_LIMIT).enumerate() {
-            let child = child.map_err(|e| failure("read directory", &self.path, e))?;
+            let child = child.map_err(|e| failure("read directory", &self.path, &e))?;
             let bytes = child.file_name().as_encoded_bytes().len();
             if bytes > NAME_BYTE_LIMIT - name_bytes {
                 incomplete = true;
@@ -195,28 +195,7 @@ impl Entry {
         decorated: bool,
         nerd_fonts: bool,
     ) -> Result<String, crate::coordinates::Error> {
-        let marker = match (self.directory, self.expanded, self.symlink) {
-            (true, true, _) => "v",
-            (true, false, _) => ">",
-            (_, _, true) => "@",
-            _ => " ",
-        };
-        let prefix = if decorated {
-            let disclosure = if self.directory {
-                if self.expanded { "▾" } else { "▸" }
-            } else {
-                " "
-            };
-            let icon = if self.parent {
-                if nerd_fonts { "\u{f148}" } else { "↑" }
-            } else {
-                self.kind().symbol(nerd_fonts, self.expanded)
-            };
-            super::presentation::Prefix::new(self.depth, width)?.render(disclosure, icon)?
-        } else {
-            let indent = self.depth.min(usize::from(width.saturating_sub(4)) / 2);
-            format!("{}{marker} ", "  ".repeat(indent))
-        };
+        let prefix = self.label_prefix(width, decorated, nerd_fonts)?;
         let name = self
             .root_label
             .as_deref()
@@ -241,9 +220,41 @@ impl Entry {
         };
         Ok(format!("{prefix}{name}{slash}{diagnostic}"))
     }
+    fn label_prefix(
+        &self,
+        width: u16,
+        decorated: bool,
+        nerd_fonts: bool,
+    ) -> Result<String, crate::coordinates::Error> {
+        Ok(if decorated {
+            let disclosure = if self.directory {
+                if self.expanded { "▾" } else { "▸" }
+            } else {
+                " "
+            };
+            let icon = if self.parent {
+                if nerd_fonts { "\u{f148}" } else { "↑" }
+            } else {
+                self.kind().symbol(nerd_fonts, self.expanded)
+            };
+            super::presentation::Prefix::new(self.depth, width)?.render(disclosure, icon)?
+        } else {
+            self.plain_prefix(width)
+        })
+    }
+    fn plain_prefix(&self, width: u16) -> String {
+        let marker = match (self.directory, self.expanded, self.symlink) {
+            (true, true, _) => "v",
+            (true, false, _) => ">",
+            (_, _, true) => "@",
+            _ => " ",
+        };
+        let indent = self.depth.min(usize::from(width.saturating_sub(4)) / 2);
+        format!("{}{marker} ", "  ".repeat(indent))
+    }
 }
 
-pub(super) fn failure(operation: &str, path: &Path, error: io::Error) -> io::Error {
+pub(super) fn failure(operation: &str, path: &Path, error: &io::Error) -> io::Error {
     io::Error::new(
         error.kind(),
         format!("{operation} {}: {error}", path.display()),

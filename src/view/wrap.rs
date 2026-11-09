@@ -66,13 +66,16 @@ impl Fragment {
     }
 
     pub(crate) fn painted_width(&self, width: u16) -> u16 {
-        usize::from(self.margin)
-            .saturating_add(
-                self.columns
-                    .end
-                    .saturating_sub(self.columns.start.max(self.margins.concealed)),
-            )
-            .min(usize::from(width)) as u16
+        u16::try_from(
+            usize::from(self.margin)
+                .saturating_add(
+                    self.columns
+                        .end
+                        .saturating_sub(self.columns.start.max(self.margins.concealed)),
+                )
+                .min(usize::from(width)),
+        )
+        .expect("painted fragment is clipped to native width")
     }
 
     pub(crate) fn screen_column(&self, column: usize) -> Option<usize> {
@@ -165,12 +168,12 @@ impl<'a> Line<'a> {
 
     pub(super) fn resume(
         buffer: &'a Buffer,
-        line: usize,
+        at: Cell,
         width: u16,
         start: Scalar,
-        column: usize,
         compact: bool,
     ) -> Result<Self, Error> {
+        let Cell { row: line, column } = at;
         let coordinates = Coordinates::new(buffer)?;
         Ok(Self {
             stamp: buffer.stamp(),
@@ -289,10 +292,11 @@ impl<'a> Line<'a> {
             line: self.line,
             source: source..self.end,
             columns: start..self.column,
-            margin: margin as u16,
+            margin: u16::try_from(margin).expect("fragment margin fits native width"),
             text,
             end_of_line: !more && self.pending.is_empty(),
-            width: self.width as u16,
+            width: u16::try_from(self.width)
+                .expect("line width originated as native terminal cells"),
             margins: self.margins,
             observed_end,
         }))
@@ -486,10 +490,12 @@ impl View {
             } else if let Some(fragment) = checkpoint {
                 Line::resume(
                     buffer,
-                    row,
+                    Cell {
+                        row,
+                        column: fragment.columns.start,
+                    },
                     width,
                     fragment.source.start,
-                    fragment.columns.start,
                     self.compact_headings(),
                 )?
             } else {
@@ -635,10 +641,12 @@ impl View {
         Ok(if let Some(fragment) = checkpoint {
             Line::resume(
                 buffer,
-                row,
+                Cell {
+                    row,
+                    column: fragment.columns.start,
+                },
                 width,
                 fragment.source.start,
-                fragment.columns.start,
                 compact,
             )?
         } else {
@@ -661,10 +669,12 @@ impl View {
         }
         let mut line = Line::resume(
             buffer,
-            current.line,
+            Cell {
+                row: current.line,
+                column: current.columns.end,
+            },
             width,
             current.source.end,
-            current.columns.end,
             self.compact_headings(),
         )?;
         let next = line.next()?.ok_or(crate::coordinates::Error::Overflow)?;
@@ -737,10 +747,12 @@ mod tests {
                 for expected in reference(b, width) {
                     let actual = Line::resume(
                         b,
-                        0,
+                        Cell {
+                            row: 0,
+                            column: expected.columns.start,
+                        },
                         width,
                         expected.source.start,
-                        expected.columns.start,
                         false,
                     )
                     .unwrap()

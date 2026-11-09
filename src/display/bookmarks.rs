@@ -2,6 +2,7 @@ use super::*;
 use crate::bookmark::{RecordId, Resolution, list::Row as BookmarkRow};
 use std::collections::BTreeSet;
 
+#[derive(Clone, Copy)]
 pub(crate) struct Display<'a> {
     pub rows: &'a [BookmarkRow],
     pub cursor: usize,

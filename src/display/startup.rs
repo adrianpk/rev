@@ -27,7 +27,7 @@ impl Layout {
         } else {
             size.height
         };
-        let actions = LABELS.len() as u16;
+        let actions = u16::try_from(LABELS.len()).expect("four startup actions fit terminal rows");
         let full = color && size.width >= artwork::WIDTH && height > artwork::HEIGHT + actions;
         let (title, gap, rows) = if full {
             (
@@ -94,6 +94,40 @@ impl Frame {
         {
             row.tone = Tone::Startup;
         }
+        self.startup_title(&layout)?;
+        self.startup_actions(&layout, selected)
+    }
+
+    fn startup_actions(&mut self, layout: &Layout, selected: usize) -> Result<(), Error> {
+        for offset in 0..layout.rows {
+            let index = layout.first + usize::from(offset);
+            let Some(label) = LABELS.get(index) else {
+                break;
+            };
+            let row = &mut self.rows[usize::from(layout.list_row + offset)];
+            // At one row the visible action replaces the echo entirely.
+            row.band = super::Band::Document;
+            row.tone = Tone::Startup;
+            let marker = if selected == index { "> " } else { "  " };
+            let text = clip::line(
+                Glyphs::for_text(&format!("{marker}{label}"))?,
+                0,
+                layout.width,
+            )?;
+            row.text = format!(
+                "{}{}{}",
+                " ".repeat(usize::from(layout.list_column)),
+                text,
+                " ".repeat(usize::from(
+                    self.size.width - layout.list_column - layout.width
+                ))
+            );
+            row.selection = (index == selected)
+                .then_some(layout.list_column..layout.list_column + layout.width);
+        }
+        Ok(())
+    }
+    fn startup_title(&mut self, layout: &Layout) -> Result<(), Error> {
         if let Some(top) = layout.title_row {
             if layout.full {
                 for (offset, source) in artwork::get().iter().enumerate() {
@@ -125,32 +159,6 @@ impl Frame {
                     self.size.width,
                 )?;
             }
-        }
-        for offset in 0..layout.rows {
-            let index = layout.first + usize::from(offset);
-            let Some(label) = LABELS.get(index) else {
-                break;
-            };
-            let row = &mut self.rows[usize::from(layout.list_row + offset)];
-            // At one row the visible action replaces the echo entirely.
-            row.band = super::Band::Document;
-            row.tone = Tone::Startup;
-            let marker = if selected == index { "> " } else { "  " };
-            let text = clip::line(
-                Glyphs::for_text(&format!("{marker}{label}"))?,
-                0,
-                layout.width,
-            )?;
-            row.text = format!(
-                "{}{}{}",
-                " ".repeat(usize::from(layout.list_column)),
-                text,
-                " ".repeat(usize::from(
-                    self.size.width - layout.list_column - layout.width
-                ))
-            );
-            row.selection = (index == selected)
-                .then_some(layout.list_column..layout.list_column + layout.width);
         }
         Ok(())
     }

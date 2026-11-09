@@ -80,7 +80,7 @@ impl Conversion<'_> {
                 return self.flush(&mut run, Some(&glyph));
             }
             if self.selected(&glyph) {
-                self.glyph(&mut run, glyph)?;
+                self.glyph(&mut run, &glyph)?;
             }
         }
         self.flush(&mut run, None)
@@ -91,7 +91,7 @@ impl Conversion<'_> {
             && glyph.source.end.0 <= self.source.range.end
     }
 
-    fn glyph(&mut self, run: &mut Option<Run>, glyph: Glyph<'_>) -> Result<(), Error> {
+    fn glyph(&mut self, run: &mut Option<Run>, glyph: &Glyph<'_>) -> Result<(), Error> {
         let source = self.buffer.span(glyph.source.start.0..glyph.source.end.0)?;
         let original = self.buffer.slice(&source)?;
         if matches!(original.as_str(), Some(" " | "\t")) {
@@ -104,7 +104,7 @@ impl Conversion<'_> {
             run.columns.end = glyph.columns.end;
             run.ends_tab = original.as_str() == Some("\t");
         } else {
-            self.flush(run, Some(&glyph))?;
+            self.flush(run, Some(glyph))?;
         }
         Ok(())
     }

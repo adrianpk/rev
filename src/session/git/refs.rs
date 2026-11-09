@@ -1197,10 +1197,7 @@ impl Session {
             .git
             .engine
             .presentation(self.size.width, self.size.height)?;
-        let mut frame = Frame::git(
-            self.buffer()?,
-            self.size,
-            self.buffers.palette(),
+        let mut frame = Frame::pending(self.buffer()?, self.size, self.buffers.palette())?.git(
             &self.echo,
             if matches!(consent.action, RefAction::Resolution(_)) {
                 " Git Conflict Review  y / C-Enter / C-c C-c accept  n / C-g cancel"

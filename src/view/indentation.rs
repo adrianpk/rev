@@ -21,7 +21,8 @@ impl Projection {
     ) -> Self {
         let margins = Margins::new(buffer, row, width, compact);
         let margin = margins.at(0);
-        let padding = margin.saturating_sub(left).min(usize::from(width)) as u16;
+        let padding = u16::try_from(margin.saturating_sub(left).min(usize::from(width)))
+            .expect("virtual margin is clipped to native width");
         Self {
             source: Cell {
                 row,
@@ -254,30 +255,15 @@ mod tests {
                 for column in 0..f.margin {
                     assert_eq!(f.hit(b, width, column).unwrap(), Some(f.source.start));
                 }
-                for glyph in coordinates.glyphs(f.line).unwrap() {
-                    let glyph = glyph.unwrap();
-                    if glyph.source.start < f.source.start || glyph.source.end > f.source.end {
-                        continue;
-                    }
-                    let start = f.screen_column(glyph.columns.start).unwrap();
-                    let end = f.screen_column(glyph.columns.end).unwrap();
-                    if end > usize::from(width) {
-                        continue;
-                    }
-                    for column in start..end {
-                        assert_eq!(
-                            f.hit(b, width, column as u16).unwrap(),
-                            Some(glyph.source.start),
-                            "width={width}, {f:?}"
-                        );
-                    }
-                }
+                assert_fragment_hits(b, &coordinates, &f, width);
                 let actual = Line::resume(
                     b,
-                    f.line,
+                    Cell {
+                        row: f.line,
+                        column: f.columns.start,
+                    },
                     width,
                     f.source.start,
-                    f.columns.start,
                     f.margins.compact,
                 )
                 .unwrap()
@@ -431,5 +417,35 @@ mod tests {
             assert_eq!(last, Scalar(b.len_chars()));
         }
         assert_eq!(Coverage::Complete, b.org_highlights().unwrap().coverage());
+    }
+    fn assert_fragment_hits(
+        b: &Buffer,
+        coordinates: &Coordinates<'_>,
+        f: &super::super::wrap::Fragment,
+        width: u16,
+    ) {
+        for glyph in coordinates.glyphs(f.line).unwrap() {
+            let glyph = glyph.unwrap();
+            if glyph.source.start < f.source.start || glyph.source.end > f.source.end {
+                continue;
+            }
+            let start = f.screen_column(glyph.columns.start).unwrap();
+            let end = f.screen_column(glyph.columns.end).unwrap();
+            if end > usize::from(width) {
+                continue;
+            }
+            for column in start..end {
+                assert_eq!(
+                    f.hit(
+                        b,
+                        width,
+                        u16::try_from(column).expect("tested glyph fits the native viewport width")
+                    )
+                    .unwrap(),
+                    Some(glyph.source.start),
+                    "width={width}, {f:?}"
+                );
+            }
+        }
     }
 }

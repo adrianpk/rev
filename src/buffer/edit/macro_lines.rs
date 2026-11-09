@@ -78,12 +78,7 @@ fn mapped(
         .permutation
         .as_ref()
         .and_then(|permutation| permutation.bookmark(point));
-    if retained.is_none()
-        && record
-            .changes
-            .iter()
-            .any(|change| change.before.contains(&point.0) && change.removed.len_lines() > 1)
-    {
+    if retained.is_none() && removed_line(record, point) {
         return Ok(None);
     }
     let inserted_lines = record.changes.iter().any(|change| {
@@ -100,6 +95,14 @@ fn mapped(
         Some(position) => position,
         None => mapping::mapped(&record.changes, point, affinity, None)?,
     };
+    mapped_line_start(coordinates, position, inserted_lines)
+}
+
+fn mapped_line_start(
+    coordinates: &Coordinates<'_>,
+    position: Scalar,
+    inserted_lines: bool,
+) -> Result<Option<Scalar>, Error> {
     if !coordinates.is_boundary(position)? {
         return Ok(None);
     }
@@ -111,6 +114,13 @@ fn mapped(
     } else {
         (start == position).then_some(position)
     })
+}
+
+fn removed_line(record: &Transaction, point: Scalar) -> bool {
+    record
+        .changes
+        .iter()
+        .any(|change| change.before.contains(&point.0) && change.removed.len_lines() > 1)
 }
 
 pub(super) fn admit(buffer: &Buffer, mapped: &[Mapped]) -> Result<(), Error> {

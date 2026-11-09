@@ -77,7 +77,10 @@ impl Highlight {
         let start = start.saturating_sub(left).min(usize::from(width));
         let end = end.saturating_sub(left).min(usize::from(width));
         // Both offsets are bounded by the admitted native width.
-        (start < end).then_some(start as u16..end as u16)
+        (start < end).then_some(
+            u16::try_from(start).expect("selection starts within native width")
+                ..u16::try_from(end).expect("selection ends within native width"),
+        )
     }
 }
 
@@ -115,7 +118,7 @@ impl Row {
         for glyph in Glyphs::for_text(&self.text).map_err(io::Error::other)? {
             self.write_glyph(
                 writer,
-                glyph.map_err(io::Error::other)?,
+                &glyph.map_err(io::Error::other)?,
                 &mut attributes,
                 palette,
             )?;
@@ -129,7 +132,7 @@ impl Row {
     fn write_glyph(
         &self,
         writer: &mut impl Write,
-        glyph: crate::coordinates::Glyph<'_>,
+        glyph: &crate::coordinates::Glyph<'_>,
         attributes: &mut Attributes,
         palette: &crate::config::Palette,
     ) -> io::Result<()> {
@@ -184,7 +187,10 @@ fn underline(writer: &mut impl Write, marked: bool, underlined: &mut bool) -> io
 fn clipped(columns: Range<usize>, left: usize, width: u16) -> Option<Range<u16>> {
     let start = columns.start.saturating_sub(left).min(usize::from(width));
     let end = columns.end.saturating_sub(left).min(usize::from(width));
-    (start < end).then_some(start as u16..end as u16)
+    (start < end).then_some(
+        u16::try_from(start).expect("selection starts within native width")
+            ..u16::try_from(end).expect("selection ends within native width"),
+    )
 }
 
 fn reverse(writer: &mut impl Write, selected: bool, reversed: &mut bool) -> io::Result<()> {

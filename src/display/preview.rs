@@ -47,7 +47,7 @@ impl Frame {
             bytes += image.png.bytes.len();
             pixels += count;
             self.previews.push(Placement {
-                image: image.clone(),
+                image: std::sync::Arc::clone(image),
                 area: place,
             });
         }

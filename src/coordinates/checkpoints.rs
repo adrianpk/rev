@@ -154,7 +154,7 @@ mod tests {
             let mut yields = 0;
             loop {
                 let work = Arc::new(Mutex::new(Budget { remaining: 7 }));
-                let scope = Scope::new(b, work.clone());
+                let scope = Scope::new(b, std::sync::Arc::clone(&work));
                 let result = if from_cell {
                     coordinates
                         .from_cell(Cell {

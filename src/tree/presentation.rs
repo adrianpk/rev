@@ -60,16 +60,7 @@ impl Kind {
 
     pub(super) fn symbol(self, nerd_fonts: bool, expanded: bool) -> &'static str {
         if nerd_fonts {
-            return match self {
-                Self::Root => "\u{f1b2}",
-                Self::Directory if expanded => "\u{f07c}",
-                Self::Directory => "\u{f07b}",
-                Self::Source => "\u{f121}",
-                Self::Document => "\u{f0219}",
-                Self::Configuration => "\u{e615}",
-                Self::File => "\u{f15b}",
-                Self::Symlink => "\u{f481}",
-            };
+            return self.nerd_symbol(expanded);
         }
         match self {
             Self::Root => "◆",
@@ -79,6 +70,19 @@ impl Kind {
             Self::Configuration => "=",
             Self::File => "·",
             Self::Symlink => "@",
+        }
+    }
+
+    fn nerd_symbol(self, expanded: bool) -> &'static str {
+        match self {
+            Self::Root => "\u{f1b2}",
+            Self::Directory if expanded => "\u{f07c}",
+            Self::Directory => "\u{f07b}",
+            Self::Source => "\u{f121}",
+            Self::Document => "\u{f0219}",
+            Self::Configuration => "\u{e615}",
+            Self::File => "\u{f15b}",
+            Self::Symlink => "\u{f481}",
         }
     }
 

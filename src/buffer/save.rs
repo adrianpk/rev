@@ -39,7 +39,7 @@ impl Save {
     /// a source save or changing its canonical association/history.
     pub(crate) fn projection(buffer: &Buffer, text: String, target: Location) -> Self {
         let mut save = Self::capture(buffer, target);
-        save.text = Rope::from_str(&text);
+        save.text = Rope::from(text);
         save.bom = false;
         save
     }
@@ -80,6 +80,10 @@ impl Buffers {
 
     /// Bulk output was staged by the supervisor. Recheck the exact source and
     /// association at the serialized publication boundary before replacement.
+    #[expect(
+        clippy::needless_pass_by_value,
+        reason = "Staged publication consumes the prepared save authority even when admission fails."
+    )]
     pub(crate) fn publish_staged_save(&mut self, save: Save, staged: file::Staged) -> Outcome {
         if let Err(error) = self
             .get(save.stamp.buffer)
@@ -115,6 +119,10 @@ impl Buffers {
 
     /// The default output is the real filesystem; boundary overrides support
     /// failure evidence without adding runtime fault switches or fake commands.
+    #[expect(
+        clippy::needless_pass_by_value,
+        reason = "Publication consumes the prepared save authority; callers must capture a new save to retry."
+    )]
     pub fn publish_with(&mut self, save: Save, output: &mut impl Output) -> Outcome {
         let label = match self.admit_save(&save) {
             Ok(label) => label,

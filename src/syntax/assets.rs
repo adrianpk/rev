@@ -35,7 +35,7 @@ pub(crate) struct Handle {
 }
 
 impl Registry {
-    pub fn new(languages: &BTreeMap<String, Language>, root: Option<std::path::PathBuf>) -> Self {
+    pub fn new(languages: &BTreeMap<String, Language>, root: Option<&std::path::Path>) -> Self {
         let mut registry = Self::default();
         for (id, language) in languages {
             if let Some(registration) = &language.external {
@@ -43,7 +43,7 @@ impl Registry {
                     id.clone(),
                     Arc::new(Entry {
                         registration: registration.clone(),
-                        root: root.clone(),
+                        root: root.map(std::path::Path::to_path_buf),
                         started: AtomicBool::new(false),
                         outcome: OnceLock::new(),
                     }),
@@ -55,8 +55,8 @@ impl Registry {
 
     pub fn get(&self, language: &str) -> Option<Handle> {
         Some(Handle {
-            entry: self.entries.get(language)?.clone(),
-            queue: self.queue.clone(),
+            entry: std::sync::Arc::clone(self.entries.get(language)?),
+            queue: std::sync::Arc::clone(&self.queue),
         })
     }
 }
@@ -93,7 +93,7 @@ impl Handle {
             .started
             .swap(true, std::sync::atomic::Ordering::AcqRel)
         {
-            self.queue.schedule(self.entry.clone());
+            self.queue.schedule(std::sync::Arc::clone(&self.entry));
         }
     }
     pub fn pending(&self) -> bool {

@@ -15,8 +15,15 @@ impl Frame {
             {
                 let width = face.columns.end - face.columns.start;
                 if usize::from(width) >= cells + 12 {
-                    let column = face.columns.end - cells as u16;
-                    target = Area::new(column, row.row, cells as u16, 1);
+                    let column = face.columns.end
+                        - u16::try_from(cells)
+                            .expect("activity label fits the native status width");
+                    target = Area::new(
+                        column,
+                        row.row,
+                        u16::try_from(cells).expect("activity label fits the native status width"),
+                        1,
+                    );
                 }
                 break;
             }

@@ -23,7 +23,7 @@ impl View {
 
     /// Restoring source anchors from a retained view must keep the live choice.
     pub(crate) fn retain_heading_presentation(&mut self, current: &Self) {
-        self.headings = current.headings.clone();
+        self.headings = std::sync::Arc::clone(&current.headings);
         self.heading_pretty = current.heading_pretty;
         self.reset_heading_layout();
     }

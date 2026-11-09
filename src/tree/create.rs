@@ -31,13 +31,13 @@ impl Creation {
 
     pub fn publish(self, name: &str) -> io::Result<PathBuf> {
         crate::file::name::validate(name)
-            .map_err(|e| failure("create entry", &self.directory, e))?;
+            .map_err(|e| failure("create entry", &self.directory, &e))?;
         let current = directory(&self.directory)?;
         if current.dev() != self.device || current.ino() != self.inode {
             return Err(failure(
                 "create entry",
                 &self.directory,
-                io::Error::other("selected directory changed after creation capture"),
+                &io::Error::other("selected directory changed after creation capture"),
             ));
         }
         let path = self.directory.join(name);
@@ -50,7 +50,7 @@ impl Creation {
                 .map(drop),
             CreateKind::Directory => fs::create_dir(&path),
         };
-        result.map_err(|e| failure("create entry", &path, e))?;
+        result.map_err(|e| failure("create entry", &path, &e))?;
         Ok(path)
     }
 }
@@ -87,7 +87,7 @@ impl Tree {
                 failure(
                     "refresh created entry",
                     path,
-                    io::Error::other("parent is no longer visible"),
+                    &io::Error::other("parent is no longer visible"),
                 )
             })?;
         self.expand()?;
@@ -99,7 +99,7 @@ impl Tree {
                 failure(
                     "refresh created entry",
                     path,
-                    io::Error::other("entry is no longer visible"),
+                    &io::Error::other("entry is no longer visible"),
                 )
             })?;
         refreshed
@@ -120,12 +120,13 @@ impl Tree {
 }
 
 fn directory(path: &Path) -> io::Result<fs::Metadata> {
-    let metadata = fs::symlink_metadata(path).map_err(|e| failure("inspect directory", path, e))?;
+    let metadata =
+        fs::symlink_metadata(path).map_err(|e| failure("inspect directory", path, &e))?;
     if !metadata.is_dir() {
         return Err(failure(
             "create entry",
             path,
-            io::Error::new(io::ErrorKind::InvalidInput, "select a directory"),
+            &io::Error::new(io::ErrorKind::InvalidInput, "select a directory"),
         ));
     }
     Ok(metadata)
@@ -136,9 +137,9 @@ fn available(path: &Path) -> io::Result<()> {
         Ok(_) => Err(failure(
             "create entry",
             path,
-            io::Error::new(io::ErrorKind::AlreadyExists, "entry already exists"),
+            &io::Error::new(io::ErrorKind::AlreadyExists, "entry already exists"),
         )),
         Err(error) if error.kind() == io::ErrorKind::NotFound => Ok(()),
-        Err(error) => Err(failure("inspect destination", path, error)),
+        Err(error) => Err(failure("inspect destination", path, &error)),
     }
 }

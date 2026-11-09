@@ -272,21 +272,7 @@ impl Buffer {
         permutation: Option<Permutation>,
     ) -> Result<Prepared, Error> {
         self.admit(self.stamp())?;
-        if let Some(limit) = self.text_byte_limit {
-            if edits.len() > 64 || points.len() > 16 {
-                return Err(Error::Capacity);
-            }
-            let mut bytes = self.text.len_bytes();
-            for edit in edits {
-                bytes = bytes
-                    .checked_sub(self.slice(&edit.source)?.len_bytes())
-                    .and_then(|n| n.checked_add(edit.text.len()))
-                    .ok_or(Error::Capacity)?;
-            }
-            if bytes > limit {
-                return Err(Error::Capacity);
-            }
-        }
+        self.check_edit_capacity(edits, points)?;
         let next_state = self.next_state.checked_add(1).ok_or(Error::Capacity)?;
         let changes = self.changes(edits)?;
         let state = State {
@@ -302,6 +288,25 @@ impl Buffer {
         mapping::set_cursor(&mut prepared.record, cursor, &coordinates)?;
         prepared.next_state = next_state;
         Ok(prepared)
+    }
+
+    fn check_edit_capacity(&self, edits: &[Replacement], points: &[Point]) -> Result<(), Error> {
+        if let Some(limit) = self.text_byte_limit {
+            if edits.len() > 64 || points.len() > 16 {
+                return Err(Error::Capacity);
+            }
+            let mut bytes = self.text.len_bytes();
+            for edit in edits {
+                bytes = bytes
+                    .checked_sub(self.slice(&edit.source)?.len_bytes())
+                    .and_then(|n| n.checked_add(edit.text.len()))
+                    .ok_or(Error::Capacity)?;
+            }
+            if bytes > limit {
+                return Err(Error::Capacity);
+            }
+        }
+        Ok(())
     }
 
     fn prepare_changes(
@@ -342,10 +347,7 @@ impl Buffer {
             permutation,
             automatic: self.automatic.clone(),
         };
-        record.after_mark = mapping::map_mark(&record, &coordinates)?;
-        record.after_bookmarks = bookmarks::map(&record, &coordinates)?;
-        self.prepare_location_anchors(&mut record, &coordinates)?;
-        record.bytes = record.payload();
+        self.prepare_anchors(&mut record, &coordinates)?;
         let syntax = syntax::edits(&self.text, &record.changes)?;
         let macro_lines = macro_lines::prepare(self, &record, &coordinates)?;
         Ok(Prepared {
@@ -360,6 +362,18 @@ impl Buffer {
             active: self.mark_mode,
             tab_width: self.policy.tab_width,
         })
+    }
+
+    fn prepare_anchors(
+        &self,
+        record: &mut Transaction,
+        coordinates: &Coordinates<'_>,
+    ) -> Result<(), Error> {
+        record.after_mark = mapping::map_mark(record, coordinates)?;
+        record.after_bookmarks = bookmarks::map(record, coordinates)?;
+        self.prepare_location_anchors(record, coordinates)?;
+        record.bytes = record.payload();
+        Ok(())
     }
 
     fn prepare_location_anchors(

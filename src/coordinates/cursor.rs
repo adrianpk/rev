@@ -73,14 +73,14 @@ impl<'a> Cursor<'a> {
         loop {
             match query(&mut self.cursor, &self.chunk, self.start) {
                 Ok(value) => return Ok(value),
-                Err(need) => self.supply(need)?,
+                Err(need) => self.supply(&need)?,
             }
         }
     }
 
-    fn supply(&mut self, need: GraphemeIncomplete) -> Result<(), Error> {
+    fn supply(&mut self, need: &GraphemeIncomplete) -> Result<(), Error> {
         match need {
-            GraphemeIncomplete::PreContext(end) => self.context(end),
+            GraphemeIncomplete::PreContext(end) => self.context(*end),
             GraphemeIncomplete::PrevChunk => {
                 self.select(self.start.checked_sub(1).ok_or(Error::Segmentation)?)
             }

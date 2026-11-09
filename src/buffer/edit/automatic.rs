@@ -32,10 +32,16 @@ impl AutomaticGroup {
 
 impl crate::buffer::Buffers {
     pub(crate) fn automatic_group(&mut self, group: Option<Arc<AutomaticGroup>>) {
-        for buffer in self.entries.values_mut() {
+        let mut buffers = self.entries.values_mut();
+        let Some(last) = buffers.next_back() else {
+            return;
+        };
+        for buffer in buffers {
             buffer.break_typing();
             buffer.automatic = group.clone();
         }
+        last.break_typing();
+        last.automatic = group;
     }
 }
 

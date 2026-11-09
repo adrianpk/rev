@@ -318,10 +318,7 @@ impl Session {
             .git
             .engine
             .presentation(self.size.width, self.size.height)?;
-        let mut frame = Frame::git(
-            self.buffer()?,
-            self.size,
-            self.buffers.palette(),
+        let mut frame = Frame::pending(self.buffer()?, self.size, self.buffers.palette())?.git(
             &self.echo,
             " Git Tag Review  C-Enter / C-c C-c accept  q / C-g retain  Up/Down scroll",
             admission,

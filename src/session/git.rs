@@ -1209,10 +1209,11 @@ impl Session {
             Page::Process(_) => self.git.detail_top,
             _ => self.git.process_top,
         });
-        let mut frame = Frame::git(
+        let mut frame = Frame::pending(
             self.buffer()?,
             self.size,
             self.buffers.palette(),
+        )?.git(
             &self.echo,
             match self.git.page {
                 Page::Worktree => {

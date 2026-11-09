@@ -60,10 +60,7 @@ impl Session {
             .git
             .engine
             .presentation(self.size.width, self.size.height)?;
-        let mut frame = Frame::git(
-            buffer,
-            self.size,
-            self.buffers.palette(),
+        let mut frame = Frame::pending(buffer, self.size, self.buffers.palette())?.git(
             &self.echo,
             " Git Commit Review  C-Enter / C-c C-c accept  q / C-g retain draft",
             admission,

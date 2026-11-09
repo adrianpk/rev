@@ -1,5 +1,6 @@
 use super::*;
 use crate::org::agenda::{Calendar, CalendarLine};
+#[derive(Clone, Copy)]
 pub struct AgendaDisplay<'a> {
     pub calendar: &'a Calendar,
     pub top: usize,

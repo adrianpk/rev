@@ -400,10 +400,7 @@ impl Session {
             .engine
             .presentation(self.size.width, self.size.height)?;
         let buffer = self.buffer().map_err(|_| crate::view::Error::GitCapacity)?;
-        let mut frame = Frame::git(
-            buffer,
-            self.size,
-            self.buffers.palette(),
+        let mut frame = Frame::pending(buffer, self.size, self.buffers.palette())?.git(
             &self.echo,
             " Git Argument Review C-Enter / C-c C-c execute q / C-g cancel",
             admission,

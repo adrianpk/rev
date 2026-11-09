@@ -228,6 +228,11 @@ impl Area {
 
 /// Prefer the admitted ratio, but reserve each child's complete recursive minimum.
 /// An undersized report suspends the whole projection without a partial layout.
+#[expect(
+    clippy::cast_possible_truncation,
+    clippy::cast_sign_loss,
+    reason = "Ratio allocation intentionally floors with saturating float-to-cell conversion before clamping to recursive minima."
+)]
 fn allocation(available: u16, first: u16, second: u16, ratio: Allocation) -> Option<u16> {
     let maximum = available.checked_sub(second)?;
     if first > maximum {

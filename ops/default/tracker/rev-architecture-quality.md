@@ -69,6 +69,7 @@ Dependency: Slice 2 integrated
 Branch: refactor/rev-architecture-quality-03-core
 PR: pending
 Report: ops/default/report/slices/rev-architecture-quality/slice-3-core.md
+Progress: all 158 selected native sources pass source bounds; scoped Clippy and regression validation in progress
 Validation: pending; frozen ordered commands in plan and controller configuration
 
 - [ ] T3.1: Correct selected ownership/representation diagnostics and existing source bounds in buffers, source coordinates, views, windows, display, syntax, gutter/tree and terminal-emulation owners.

@@ -29,7 +29,7 @@ impl Selection {
             padding: first.padding,
         };
         for part in parts {
-            removal.include(part?)?;
+            removal.include(&part?)?;
         }
         Ok(Some(Replacement {
             source: removal.source,
@@ -65,7 +65,7 @@ struct Removal {
 }
 
 impl Removal {
-    fn include(&mut self, part: Part) -> Result<(), Error> {
+    fn include(&mut self, part: &Part) -> Result<(), Error> {
         self.source.range.end = part.source.range.end;
         self.padding = self
             .padding

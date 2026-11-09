@@ -19,7 +19,7 @@ impl Queue {
         }
         state.running = true;
         drop(state);
-        let queue = self.clone();
+        let queue = std::sync::Arc::clone(self);
         if let Err(error) = std::thread::Builder::new()
             .name("language-assets".into())
             .spawn(move || queue.run())

@@ -94,7 +94,7 @@ impl Snapshot {
     pub fn with_data_root(mut self, data: &Path) -> Self {
         self.assets = crate::syntax::assets::Registry::new(
             &self.settings.language,
-            Some(data.join("grammars")),
+            Some(&data.join("grammars")),
         );
         self
     }
@@ -208,7 +208,7 @@ pub fn resolve(sources: &Sources) -> Result<Snapshot, Diagnostic> {
     let root = super::Roots::from_env()
         .ok()
         .map(|roots| roots.data.join("grammars"));
-    let assets = crate::syntax::assets::Registry::new(&settings.language, root);
+    let assets = crate::syntax::assets::Registry::new(&settings.language, root.as_deref());
     Ok(Snapshot {
         settings,
         plugins: std::sync::Arc::new(plugins),

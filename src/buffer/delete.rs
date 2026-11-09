@@ -8,6 +8,10 @@ use super::{Buffer, Buffers};
 impl Buffers {
     /// Retain canonical text, history and path reservations. Only observed
     /// absent associations change; a failed recursive operation can be partial.
+    #[expect(
+        clippy::needless_pass_by_value,
+        reason = "Deletion consumes the captured native deletion decision before reconciliation."
+    )]
     pub fn delete(&mut self, deletion: Deletion) -> Deleted {
         let error = deletion.publish().err();
         let mut warning = None;

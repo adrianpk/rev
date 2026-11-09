@@ -38,17 +38,7 @@ impl Windows {
         mut home: crate::view::View,
         origin_view: ViewId,
     ) -> Result<crate::view::View, Error> {
-        home.check_point(buffer).map_err(|e| match e {
-            crate::view::Error::Buffer(e) => Error::Source(e),
-            crate::view::Error::Coordinates(e) => Error::Coordinates(e),
-            crate::view::Error::Edit(e) => e,
-            _ => Error::ChangedPositions,
-        })?;
-        let coordinates = Coordinates::new(buffer)?;
-        let top = Point {
-            stamp: buffer.stamp(),
-            position: viewport_position(&home, &coordinates, buffer.soft_wrap())?,
-        };
+        let top = observed_top(&home, buffer)?;
         let mut points = self.capture_points(buffer)?;
         let origin = points.values.len();
         points.values.push(home.point);
@@ -226,6 +216,20 @@ impl Points {
             })
             .unwrap_or(self.initiator)
     }
+}
+
+fn observed_top(home: &crate::view::View, buffer: &Buffer) -> Result<Point, Error> {
+    home.check_point(buffer).map_err(|e| match e {
+        crate::view::Error::Buffer(e) => Error::Source(e),
+        crate::view::Error::Coordinates(e) => Error::Coordinates(e),
+        crate::view::Error::Edit(e) => e,
+        _ => Error::ChangedPositions,
+    })?;
+    let coordinates = Coordinates::new(buffer)?;
+    Ok(Point {
+        stamp: buffer.stamp(),
+        position: viewport_position(home, &coordinates, buffer.soft_wrap())?,
+    })
 }
 
 fn viewport_position(

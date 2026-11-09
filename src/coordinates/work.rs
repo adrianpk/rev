@@ -37,21 +37,23 @@ pub(crate) struct Scope {
 
 impl Scope {
     pub(crate) fn new(buffer: &Buffer, work: Work) -> Self {
-        let cache = buffer.coordinates.clone();
+        let cache = std::sync::Arc::clone(&buffer.coordinates);
         let (work, owner) = {
             let mut entries = cache.lock().expect("coordinate cache poisoned");
-            if let Some(current) = &entries.work {
-                (current.clone(), false)
+            let selected = if let Some(current) = &entries.work {
+                (std::sync::Arc::clone(current), false)
             } else {
-                entries.work = Some(work.clone());
+                entries.work = Some(std::sync::Arc::clone(&work));
                 (work, true)
-            }
+            };
+            drop(entries);
+            selected
         };
         Self { cache, work, owner }
     }
 
     pub(crate) fn work(&self) -> Work {
-        self.work.clone()
+        std::sync::Arc::clone(&self.work)
     }
 }
 

@@ -69,7 +69,8 @@ impl Frame {
         let area = panel.content();
         let grid = session.screen().grid();
         let size = session.geometry();
-        let offset = viewport.offset.min(grid.history_size()) as i32;
+        let offset = i32::try_from(viewport.offset.min(grid.history_size()))
+            .expect("terminal history offset is bounded by admitted limits");
         for row in 0..area.height() {
             let cells: Vec<_> = (0..area.width().min(size.columns))
                 .filter(|_| row < size.rows)
@@ -127,8 +128,10 @@ impl Frame {
                 && cursor.line.0 >= 0
             {
                 self.cursor = panel.position(Position {
-                    column: cursor.column.0 as u16,
-                    row: cursor.line.0 as u16,
+                    column: u16::try_from(cursor.column.0)
+                        .expect("emulator cursor column fits admitted geometry"),
+                    row: u16::try_from(cursor.line.0)
+                        .expect("visible emulator cursor row fits admitted geometry"),
                 });
             }
         }
@@ -194,7 +197,9 @@ pub(super) fn write(writer: &mut impl Write, run: &Run, palette: &Palette) -> io
         if cell.flags.contains(Flags::WIDE_CHAR_SPACER) {
             continue;
         }
-        writer.queue(MoveToColumn(run.column + column as u16))?;
+        writer.queue(MoveToColumn(
+            run.column + u16::try_from(column).expect("terminal cells fit the native run width"),
+        ))?;
         attributes(writer, cell.flags)?;
         let fg = color(cell.fg, palette);
         let bg = color(cell.bg, palette);
@@ -212,7 +217,9 @@ fn padding(writer: &mut impl Write, run: &Run, palette: &Palette) -> io::Result<
         return Ok(());
     }
     super::style::Colors::new(palette.foreground, palette.background).write(writer, &mut None)?;
-    writer.queue(MoveToColumn(run.column + cells as u16))?;
+    writer.queue(MoveToColumn(
+        run.column + u16::try_from(cells).expect("terminal padding starts before native run width"),
+    ))?;
     for _ in cells..usize::from(run.width) {
         writer.write_all(b" ")?;
     }
@@ -285,9 +292,12 @@ fn color(color: Color, palette: &Palette) -> Rgb {
         Color::Indexed(index) => indexed(index),
         Color::Named(NamedColor::Background) => palette.background,
         Color::Named(NamedColor::DimForeground) => dim(palette.foreground),
-        Color::Named(name) if (name as usize) < 16 => indexed(name as u8),
+        Color::Named(name) if (name as usize) < 16 => {
+            indexed(u8::try_from(name as usize).expect("ANSI named color index is below sixteen"))
+        }
         Color::Named(name) if (259..267).contains(&(name as usize)) => dim(indexed(
-            (name as usize - NamedColor::DimBlack as usize) as u8,
+            u8::try_from(name as usize - NamedColor::DimBlack as usize)
+                .expect("dim named colors map to eight ANSI indices"),
         )),
         Color::Named(_) => palette.foreground,
     }

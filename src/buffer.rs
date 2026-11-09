@@ -499,8 +499,8 @@ impl Buffers {
         }
         let initial = buffer.id();
         Ok(Self {
-            bookmarks: buffer.bookmarks.clone(),
-            locations: buffer.locations.clone(),
+            bookmarks: std::sync::Arc::clone(&buffer.bookmarks),
+            locations: std::sync::Arc::clone(&buffer.locations),
             entries: BTreeMap::from([(initial, buffer)]),
             events: None,
             initial,
@@ -608,8 +608,8 @@ impl Buffers {
     }
 
     pub(crate) fn insert(&mut self, mut buffer: Buffer) -> BufferId {
-        buffer.bookmarks = self.bookmarks.clone();
-        buffer.locations = self.locations.clone();
+        buffer.bookmarks = std::sync::Arc::clone(&self.bookmarks);
+        buffer.locations = std::sync::Arc::clone(&self.locations);
         buffer.apply_settings(&self.settings);
         buffer.name = self.label(&buffer.name);
         let id = buffer.id();

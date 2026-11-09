@@ -25,7 +25,7 @@ impl Buffer {
 impl Buffers {
     pub(crate) fn observe_events(&mut self, observer: Arc<dyn Observer>) {
         for buffer in self.entries.values_mut() {
-            buffer.events = Some(observer.clone());
+            buffer.events = Some(std::sync::Arc::clone(&observer));
         }
         self.events = Some(observer);
     }

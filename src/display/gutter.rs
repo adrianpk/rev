@@ -5,6 +5,7 @@ use crate::window::Area;
 
 use super::{Band, Error, Face, Frame, Row, Tone};
 
+#[derive(Clone, Copy)]
 pub(super) struct NumberRows<'a> {
     pub current: usize,
     pub fragments: &'a [crate::view::Fragment],

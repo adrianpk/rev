@@ -79,11 +79,11 @@ impl Sessions {
             .checked_add(1)
             .ok_or_else(|| io::Error::other("Terminal identity exhausted"))?;
         let session = Session::open(
-            launch,
+            &launch,
             size,
             self.limits.clone(),
-            self.ready.clone(),
-            self.wake.clone(),
+            std::sync::Arc::clone(&self.ready),
+            std::sync::Arc::clone(&self.wake),
         )?;
         self.sessions.insert(id, session);
         self.next = next;

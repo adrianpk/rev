@@ -28,7 +28,7 @@ impl Tree {
         self.entries = self.root_entries(root.clone());
         self.selected = 0;
         self.top = 0;
-        let observed = Entry::observe(root.clone(), 0);
+        let observed = Entry::observe(root, 0);
         self.entries[0] = observed?;
         let result = self.refresh_expanded(&expanded);
         self.selected = selected

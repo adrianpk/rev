@@ -12,13 +12,18 @@ impl Frame {
             .saturating_sub(count / 2)
             .min(graph.cells.len() - count);
         let column = graph.column.min(width - count);
-        let mut text = clip::line(Glyphs::for_text(title)?, 0, column as u16)?;
+        let mut text = clip::line(
+            Glyphs::for_text(title)?,
+            0,
+            u16::try_from(column).expect("habit title is clipped to its row width"),
+        )?;
         let mut faces = Vec::new();
         for (i, cell) in graph.cells[first..first + count].iter().enumerate() {
             text.push(cell.glyph());
             style::append(
                 &mut faces,
-                area.column() + (column + i) as u16,
+                area.column()
+                    + u16::try_from(column + i).expect("habit cells fit the admitted row width"),
                 Tone::Habit(cell.state, cell.subdued()),
             );
         }
@@ -56,6 +61,7 @@ impl Frame {
     }
 }
 
+#[derive(Clone, Copy)]
 pub struct HabitDisplay<'a> {
     pub agenda: &'a crate::org::agenda::HabitAgenda,
     pub policy: &'a crate::config::Habit,
@@ -87,8 +93,15 @@ impl Frame {
             .take(usize::from(area.height().saturating_sub(1)))
             .enumerate()
         {
-            let line = Area::new(area.column(), area.row() + 1 + i as u16, area.width(), 1)
-                .ok_or(crate::coordinates::Error::Overflow)?;
+            let line = Area::new(
+                area.column(),
+                area.row()
+                    + 1
+                    + u16::try_from(i).expect("visible habits fit the admitted area height"),
+                area.width(),
+                1,
+            )
+            .ok_or(crate::coordinates::Error::Overflow)?;
             let title = if row.graph.unresolved == 0 {
                 row.title.clone()
             } else {

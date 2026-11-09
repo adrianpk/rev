@@ -81,7 +81,7 @@ impl Pattern {
     /// The result qualifies its exact source range with the searched revision.
     pub fn find(&self, buffer: &Buffer, start: Scalar) -> Result<Option<Span>, Error> {
         let source = buffer.span(start.0..buffer.len_chars())?;
-        self.scan(buffer, source, Request::new(start, Direction::Forward))
+        self.scan(buffer, &source, Request::new(start, Direction::Forward))
     }
 
     /// Finds the last match ending at or before the scalar, without wrapping.
@@ -94,16 +94,16 @@ impl Pattern {
             text,
             sensitive: self.sensitive,
         };
-        reversed.scan(buffer, source, Request::new(end, Direction::Backward))
+        reversed.scan(buffer, &source, Request::new(end, Direction::Backward))
     }
 
     fn scan(
         &self,
         buffer: &Buffer,
-        source: Span,
+        source: &Span,
         mut request: Request,
     ) -> Result<Option<Span>, Error> {
-        let slice = buffer.slice(&source)?;
+        let slice = buffer.slice(source)?;
         if self.text.is_empty() {
             return Ok(None);
         }

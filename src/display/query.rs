@@ -1,5 +1,6 @@
 use super::*;
 use crate::org::agenda::QueryResult;
+#[derive(Clone, Copy)]
 pub struct QueryDisplay<'a> {
     pub result: &'a QueryResult,
     pub top: usize,

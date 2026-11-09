@@ -69,7 +69,7 @@ pub struct Session {
 }
 impl Session {
     pub(super) fn open(
-        launch: Launch,
+        launch: &Launch,
         size: Geometry,
         limits: Limits,
         ready: Arc<AtomicBool>,
@@ -78,13 +78,13 @@ impl Session {
         let cells = size.cells(limits.scrollback_lines)?;
         let engine = Engine::new(size, limits.scrollback_lines);
         let mut session = Self {
-            process: Some(Process::launch(&launch, size)?),
+            process: Some(Process::launch(launch, size)?),
             pid: None,
             file: None,
             cleanup: None,
             completed: None,
-            ready: ready.clone(),
-            wake: wake.clone(),
+            ready: std::sync::Arc::clone(&ready),
+            wake: std::sync::Arc::clone(&wake),
             readiness: None,
             engine,
             size,
@@ -100,11 +100,14 @@ impl Session {
             extra_bytes: 0,
         };
         let process = session.process.as_ref().expect("prepared terminal process");
-        session.pid = Some(process.pid.as_raw_nonzero().get() as u32);
+        session.pid = Some(
+            u32::try_from(process.pid.as_raw_nonzero().get())
+                .expect("spawned process IDs are positive"),
+        );
         session.file = Some(process.pty.file().try_clone()?);
         session.readiness = Some(Readiness::new(
             process.pty.file().try_clone()?,
-            process.exit.clone(),
+            std::sync::Arc::clone(&process.exit),
             ready,
             wake,
         )?);
@@ -347,8 +350,8 @@ impl Session {
                 &mut self.process,
                 readiness,
                 exited,
-                self.ready.clone(),
-                self.wake.clone(),
+                std::sync::Arc::clone(&self.ready),
+                std::sync::Arc::clone(&self.wake),
             )?);
         }
         Ok(())

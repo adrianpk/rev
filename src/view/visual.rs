@@ -169,12 +169,7 @@ impl View {
         let column = current
             .screen_column(point.column)
             .ok_or(crate::coordinates::Error::Overflow)?;
-        for _ in 0..distance {
-            let Some(next) = self.adjacent_fragment(buffer, width, &top, backward)? else {
-                break;
-            };
-            top = next;
-        }
+        top = self.shift_fragment(buffer, top, backward, distance)?;
         self.top = top.line;
         self.wrap_start = top.source.start;
         let visible = self.wrapped_rows(buffer, width, rows)?;
@@ -190,6 +185,23 @@ impl View {
             self.point.position = Self::fragment_point(buffer, edge, column)?;
         }
         Ok(())
+    }
+
+    fn shift_fragment(
+        &self,
+        buffer: &Buffer,
+        mut top: Fragment,
+        backward: bool,
+        distance: usize,
+    ) -> Result<Fragment, Error> {
+        let width = top.layout_width();
+        for _ in 0..distance {
+            let Some(next) = self.adjacent_fragment(buffer, width, &top, backward)? else {
+                break;
+            };
+            top = next;
+        }
+        Ok(top)
     }
 
     pub(crate) fn viewport_blocked(

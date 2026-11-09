@@ -32,15 +32,7 @@ impl Buffer {
         // Both seams must be grapheme boundaries in both document images.
         let before = Coordinates::new(self)?;
         let after = Coordinates::for_text(text.slice(..), self.stamp(), self.policy.tab_width);
-        let mut start = self
-            .text
-            .chars()
-            .zip(text.chars())
-            .take_while(|(a, b)| a == b)
-            .count();
-        while !before.is_boundary(Scalar(start))? || !after.is_boundary(Scalar(start))? {
-            start -= 1;
-        }
+        let start = self.reload_prefix(text, &before, &after)?;
         let suffix = self
             .text
             .chars_at(self.len_chars())
@@ -61,5 +53,22 @@ impl Buffer {
             removed: self.text.slice(start..old_end).into(),
             inserted: text.slice(start..new_end).into(),
         }])
+    }
+    fn reload_prefix(
+        &self,
+        text: &Rope,
+        before: &Coordinates<'_>,
+        after: &Coordinates<'_>,
+    ) -> Result<usize, Error> {
+        let mut start = self
+            .text
+            .chars()
+            .zip(text.chars())
+            .take_while(|(a, b)| a == b)
+            .count();
+        while !before.is_boundary(Scalar(start))? || !after.is_boundary(Scalar(start))? {
+            start -= 1;
+        }
+        Ok(start)
     }
 }

@@ -30,6 +30,7 @@ pub(crate) enum Shape {
     Block,
 }
 
+#[derive(Clone, Copy)]
 pub(crate) struct Transfer {
     pub view: ViewId,
     pub backward: bool,
@@ -86,7 +87,9 @@ impl KillRing {
         if len == 0 {
             return None;
         }
-        let next = (i64::try_from(index).ok()? + i64::from(distance)).rem_euclid(len) as usize;
+        let next =
+            usize::try_from((i64::try_from(index).ok()? + i64::from(distance)).rem_euclid(len))
+                .ok()?;
         Some((next, &self.entries.get(next)?.text))
     }
 

@@ -73,10 +73,14 @@ impl Prompts {
     }
     pub fn scroll(&mut self, lines: usize) {
         for entry in &mut self.entries {
-            entry.point.line.0 -= lines as i32;
+            entry.point.line.0 -=
+                i32::try_from(lines).expect("scroll distance is bounded by native screen rows");
         }
-        self.entries
-            .retain(|entry| entry.point.line.0 >= -(self.history as i32));
+        self.entries.retain(|entry| {
+            entry.point.line.0
+                >= -(i32::try_from(self.history)
+                    .expect("terminal history is bounded by admitted limits"))
+        });
     }
     pub fn linefeed(&mut self, term: &Term<impl EventListener>) {
         for entry in &mut self.entries {
@@ -84,7 +88,11 @@ impl Prompts {
                 entry.printed = true;
             }
         }
-        if self.full && term.grid().cursor.point.line.0 + 1 == term.grid().screen_lines() as i32 {
+        if self.full
+            && term.grid().cursor.point.line.0 + 1
+                == i32::try_from(term.grid().screen_lines())
+                    .expect("screen rows originate as native u16 geometry")
+        {
             self.scroll(1);
         }
     }
@@ -98,7 +106,11 @@ impl Prompts {
         let mut point = term.grid().cursor.point;
         if wraps(term, width) {
             self.linefeed(term);
-            point.line.0 = (point.line.0 + 1).min(term.grid().screen_lines() as i32 - 1);
+            point.line.0 = (point.line.0 + 1).min(
+                i32::try_from(term.grid().screen_lines())
+                    .expect("screen rows originate as native u16 geometry")
+                    - 1,
+            );
             point.column = Column(0);
         }
         if term.mode().contains(TermMode::INSERT) {

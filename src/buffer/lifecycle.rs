@@ -47,7 +47,7 @@ impl Buffers {
     pub(crate) fn inherit_bookmarks(&mut self, owner: crate::bookmark::Shared) {
         self.bookmarks = owner;
         for buffer in self.entries.values_mut() {
-            buffer.bookmarks = self.bookmarks.clone();
+            buffer.bookmarks = std::sync::Arc::clone(&self.bookmarks);
         }
     }
     pub(crate) fn terminal(&mut self, id: crate::term::SessionId) -> Result<BufferId, Error> {
@@ -129,6 +129,10 @@ impl Buffers {
     /// Consume explicit discard authority or a completed save's close request.
     /// Allocate a final-buffer replacement before removing anything. The caller
     /// replaces every view reference with the returned deterministic live owner.
+    #[expect(
+        clippy::needless_pass_by_value,
+        reason = "Killing a buffer consumes the captured discard or completed-save authority."
+    )]
     pub fn kill(&mut self, kill: Kill) -> Result<BufferId, Error> {
         let fresh = if self
             .entries
@@ -185,8 +189,8 @@ impl Buffers {
 
     fn replace_killed(&mut self, id: BufferId, replacement: BufferId, fresh: Option<Buffer>) {
         if let Some(mut buffer) = fresh {
-            buffer.bookmarks = self.bookmarks.clone();
-            buffer.locations = self.locations.clone();
+            buffer.bookmarks = std::sync::Arc::clone(&self.bookmarks);
+            buffer.locations = std::sync::Arc::clone(&self.locations);
             buffer.name = "*scratch*".into();
             buffer.apply_settings(&self.settings);
             self.insert(buffer);

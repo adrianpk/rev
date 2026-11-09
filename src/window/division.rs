@@ -105,6 +105,11 @@ struct Weights {
 }
 
 impl Weights {
+    #[expect(
+        clippy::cast_possible_truncation,
+        clippy::cast_sign_loss,
+        reason = "Finite positive pane weights allocate whole terminal cells by flooring; separator counts are bounded by the live layout."
+    )]
     fn first_cells(self, extent: u16) -> u16 {
         let available = f64::from(extent.saturating_sub(1));
         // Reserve all internal separators before sharing actual leaf cells.
