@@ -1,6 +1,6 @@
 # Plugin System Delivery
 
-Status: Ready
+Status: In progress
 Date: 2026-11-09
 Delivery set: rev-plugin-system
 Approved: owner approved host/API implementation and delegated remaining experimental engineering choices
@@ -8,7 +8,7 @@ Planning baseline: a398dcb77dd0ce036d989f038068ac942fc68ebd
 Specification: [Plugin System](../spec/editor-plugin-system.md)
 Model: [Plugin Identity, Protocol and State](../spec/editor-plugin-system-model.md)
 Concern: [Pending Editor Work](../README.md)
-Active slice: Slice 1 - Protocol and Rust SDK
+Active slice: Slice 2 - Passive declarations and configuration
 Tracker: [Plugin System Tracker](../tracker/rev-plugin-system.md)
 Slice strategy: behavior-first
 

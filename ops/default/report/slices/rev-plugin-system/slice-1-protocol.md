@@ -1,11 +1,12 @@
 # Slice 1: Protocol and Rust SDK
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-plugin-system
 Plan: [Plugin System Delivery](../../../plan/rev-plugin-system.md)
 Tracker: [Plugin System Tracker](../../../tracker/rev-plugin-system.md)
 Branch: `feat/rev-plugin-system-01-protocol`
 PR: `#1`
+Integrated: `924db7e317729b8fde1f8fd72e3038b1bfae10c6`
 
 ## Purpose
 
@@ -95,6 +96,10 @@ checks. The command regression selection passed 52 tests. Documentation checks
 passed 680 commands in each combined inventory, 295 configuration entries,
 99 reachable pages and 681 local links/anchors. The controller validator owns
 the exact clean-HEAD evidence for the PR-reference commit before handoff.
+All seven frozen commands passed through that validator on clean pushed HEAD
+`924db7e317729b8fde1f8fd72e3038b1bfae10c6`; the canonical PR contract was
+verified before controller integration. Forgejo and Acta confirm PR #1 merged
+through Rebase + Fast-forward into dev at that same commit.
 
 ## Risks and Follow-ups
 

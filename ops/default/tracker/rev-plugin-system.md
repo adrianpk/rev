@@ -8,7 +8,7 @@ Planning baseline: a398dcb77dd0ce036d989f038068ac942fc68ebd
 Specification: [Plugin System](../spec/editor-plugin-system.md)
 Model: [Plugin Identity, Protocol and State](../spec/editor-plugin-system-model.md)
 Concern: [Pending Editor Work](../README.md)
-Active slice: Slice 1 - Protocol and Rust SDK
+Active slice: Slice 2 - Passive declarations and configuration
 Execution authorized: one thirteen-slice Looper run with automatic integration into dev
 Plan: [Plugin System Delivery](../plan/rev-plugin-system.md)
 Progress owner: selected Looper run; no second runtime tracker
@@ -35,13 +35,14 @@ Progress owner: selected Looper run; no second runtime tracker
 
 ## Slice 1: Protocol and Rust SDK
 
-State: reviewing
+State: delivered
 Dependency: approved preparation and controller preflight
 Branch: feat/rev-plugin-system-01-protocol
 PR: #1 - https://forge.adrianpk.com/rev/rev/pulls/1
 Report: ops/default/report/slices/rev-plugin-system/slice-1-protocol.md
 Implementation: bdaef1028c743fab1b2180f9d2a0bed9216df80d
-Validation: all seven ordered focused commands passed locally; see the Slice 1 report and controller candidate evidence.
+Integrated: 924db7e317729b8fde1f8fd72e3038b1bfae10c6
+Validation: all seven frozen commands passed through the controller validator on the clean integrated commit; canonical PR contract and merge verified.
 
 - [x] T1.1: Publish complete JSON-RPC/NDJSON envelopes, handshake directions, method/error schemas, qualified IDs, scalar units and finite admission types in an independent public SDK crate.
 - [x] T1.2: Add the Cargo workspace and SDK version/license without changing editor release identity; implement bounded client transport/correlation using existing dependencies and normal Rust ownership.
@@ -49,7 +50,7 @@ Validation: all seven ordered focused commands passed locally; see the Slice 1 r
 
 ## Slice 2: Passive declarations and configuration
 
-State: planned
+State: ready
 Dependency: Slice 1 integrated
 Branch: feat/rev-plugin-system-02-declarations
 PR: pending
