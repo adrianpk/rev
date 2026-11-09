@@ -130,7 +130,7 @@ impl PartialLsp {
             (&mut result.max_pending_requests, self.max_pending_requests),
         ] {
             if let Some(value) = source {
-                *target = value as usize;
+                *target = usize::try_from(value).expect("validated configuration count");
             }
         }
         for (name, partial) in &self.servers {

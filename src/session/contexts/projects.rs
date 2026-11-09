@@ -173,21 +173,10 @@ impl Session {
         self.read_projects(Request::List)
     }
     pub(super) fn read_projects(&mut self, request: Request) -> Action {
-        if self.context_storage.busy()
-            || self.context_membership.is_some()
-            || self.context_management.is_some()
-            || self.context_prepared.is_some()
-            || self.git_shutdown_active()
-            || self.terminal_shutdown_active()
-        {
+        if self.context_departure_busy() || self.context_management.is_some() {
             return self.error("Project preparation or context departure is already pending");
         }
-        if self.capture.is_some()
-            || self.source_edit.is_some()
-            || self.tangling.is_some()
-            || self.execution.is_some()
-            || self.feeds.is_some()
-        {
+        if self.context_draft_busy() {
             return self
                 .error("A source draft or output owns this context; finish or cancel it first");
         }
@@ -271,6 +260,14 @@ impl Session {
         let result = result
             .map_err(|e| e.to_string())
             .and_then(|(_, value)| value);
+        self.context_operation_result(operation, result)
+    }
+
+    fn context_operation_result(
+        &mut self,
+        operation: Option<Operation>,
+        result: Result<Output, String>,
+    ) -> Action {
         match (operation, result) {
             (
                 Some(Operation::Read {
@@ -295,23 +292,12 @@ impl Session {
                     stamps,
                 }),
                 Ok(Output::Read(catalog)),
-            ) => {
-                if generation != self.context_generation
-                    || !self.buffers.iter().map(|b| b.stamp()).eq(stamps)
-                    || self.context_storage.catalog.as_ref() != Some(&catalog)
-                {
-                    self.context_prepared = None;
-                    return self.error(
-                        "Selected context changed before activation; live sources retained",
-                    );
-                }
-                self.finish_context_departure(goal)
-            }
+            ) => self.confirm_context_read(goal, generation, stamps, &catalog),
             (Some(Operation::ManagementPublish), Ok(Output::Published(publication))) => {
                 self.management_published(publication)
             }
             (Some(Operation::Publish(after)), Ok(Output::Candidate(candidate))) => {
-                self.management_captured(after, candidate)
+                self.management_captured(after, &candidate)
             }
             (Some(Operation::Publish(after)), Ok(Output::Published(publication))) => {
                 self.context_published(after, publication)
@@ -324,6 +310,23 @@ impl Session {
             _ => self.error("Project worker result did not match its owner; live sources retained"),
         }
     }
+    fn confirm_context_read(
+        &mut self,
+        goal: super::super::quit::Goal,
+        generation: Generation,
+        stamps: Vec<crate::buffer::Stamp>,
+        catalog: &Catalog,
+    ) -> Action {
+        if generation != self.context_generation
+            || !self.buffers.iter().map(|b| b.stamp()).eq(stamps)
+            || self.context_storage.catalog.as_ref() != Some(catalog)
+        {
+            self.context_prepared = None;
+            return self.error("Selected context changed before activation; live sources retained");
+        }
+        self.finish_context_departure(goal)
+    }
+
     fn projects_read(&mut self, request: Request, catalog: Catalog) -> Action {
         match request {
             Request::List => self.offer_projects(catalog.projects),
@@ -409,6 +412,24 @@ impl Session {
         self.pending = Some(Pending::ProjectName(Box::new(creation)));
         self.message(message)
     }
+    fn register_project(&mut self, creation: Creation, project: Project) -> Action {
+        self.context_storage.catalog = Some(creation.catalog);
+        if creation.promote {
+            return self.capture_project_promotion(project, creation.identity);
+        }
+        let mut replacement = match self.prepare_context(Some(creation.path.as_path())) {
+            Ok(r) => r,
+            Err(e) => return self.error(&e.to_string()),
+        };
+        if replacement.root_identity != Some(creation.identity) {
+            return self.error("Project directory changed; live sources retained");
+        }
+        replacement.session.context = Context::Project(project.id.clone());
+        replacement.session.context_record = Some(Record::Project(project.clone()));
+        replacement.registration = Some(Record::Project(project));
+        self.begin_context(replacement)
+    }
+
     pub(in crate::session) fn project_name(&mut self, creation: Creation, text: &str) -> Action {
         if creation.generation != self.context_generation {
             return self.error("Project creation source changed; live sources retained");
@@ -433,21 +454,7 @@ impl Session {
             Ok(p) => p,
             Err(e) => return self.error(&e.to_string()),
         };
-        self.context_storage.catalog = Some(creation.catalog);
-        if creation.promote {
-            return self.capture_project_promotion(project, creation.identity);
-        }
-        let mut replacement = match self.prepare_context(Some(creation.path.as_path())) {
-            Ok(r) => r,
-            Err(e) => return self.error(&e.to_string()),
-        };
-        if replacement.root_identity != Some(creation.identity) {
-            return self.error("Project directory changed; live sources retained");
-        }
-        replacement.session.context = Context::Project(project.id.clone());
-        replacement.session.context_record = Some(Record::Project(project.clone()));
-        replacement.registration = Some(Record::Project(project));
-        self.begin_context(replacement)
+        self.register_project(creation, project)
     }
     fn prepare_project(&mut self, project: Project, catalog: &Catalog) -> Action {
         self.prepare_record(Record::Project(project), catalog)

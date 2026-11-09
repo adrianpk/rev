@@ -813,6 +813,12 @@ impl Keymaps {
             Context::BookmarkList => &self.bookmark_list,
             Context::MacroDefinition => &self.macro_definition,
             Context::MacroMenu => &self.macro_menu,
+            _ => self.git_map(context),
+        }
+    }
+    fn git_map(&self, context: crate::input::keymap::Context) -> &BTreeMap<String, String> {
+        use crate::input::keymap::Context;
+        match context {
             Context::Git => &self.git,
             Context::GitCommit => &self.git_commit,
             Context::GitHistory => &self.git_history,
@@ -861,6 +867,15 @@ impl Keymaps {
             Context::BookmarkList => &mut self.bookmark_list,
             Context::MacroDefinition => &mut self.macro_definition,
             Context::MacroMenu => &mut self.macro_menu,
+            _ => self.git_map_mut(context),
+        }
+    }
+    fn git_map_mut(
+        &mut self,
+        context: crate::input::keymap::Context,
+    ) -> &mut BTreeMap<String, String> {
+        use crate::input::keymap::Context;
+        match context {
             Context::Git => &mut self.git,
             Context::GitCommit => &mut self.git_commit,
             Context::GitHistory => &mut self.git_history,

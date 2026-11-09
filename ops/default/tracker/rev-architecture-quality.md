@@ -80,16 +80,17 @@ Validation: all four frozen commands passed through Looper on clean published HE
 
 ## Slice 4: Configuration and persistent concerns
 
-State: in progress
+State: reviewing
 Dependency: Slice 3 integrated
 Branch: refactor/rev-architecture-quality-04-storage
 PR: pending
 Report: ops/default/report/slices/rev-architecture-quality/slice-4-storage.md
-Validation: pending; frozen ordered commands in plan and controller configuration
+Progress: scoped Clippy and source bounds pass for 81 files; all 378 native integration cases and documentation checks pass
+Validation: four frozen commands passed during implementation; final clean published PR-reference HEAD requires ordered Looper evidence
 
-- [ ] T4.1: Correct selected borrowing/conversion/source-policy diagnostics in configuration, file IO/watch, contexts, locations, bookmarks and their native persistence adapters.
-- [ ] T4.2: Keep configuration/data/state/cache separation, private namespace paths, locks, CAS and uncertain-write evidence; preserve coordinated publication and avoid a generic store framework.
-- [ ] T4.3: Exercise invalid/stale/readonly sources, partial writes, concurrent records, project/workspace boundaries and existing file-watch retirement through native fixture paths.
+- [x] T4.1: Correct selected borrowing/conversion/source-policy diagnostics in configuration, file IO/watch, contexts, locations, bookmarks and their native persistence adapters.
+- [x] T4.2: Keep configuration/data/state/cache separation, private namespace paths, locks, CAS and uncertain-write evidence; preserve coordinated publication and avoid a generic store framework.
+- [x] T4.3: Exercise invalid/stale/readonly sources, partial writes, concurrent records, project/workspace boundaries and existing file-watch retirement through native fixture paths.
 
 ## Slice 5: Git operation boundaries
 

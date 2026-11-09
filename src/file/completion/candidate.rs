@@ -14,7 +14,7 @@ pub struct Candidate {
 }
 
 impl Candidate {
-    pub(super) fn observe(entry: DirEntry, name: OsString) -> io::Result<Self> {
+    pub(super) fn observe(entry: &DirEntry, name: OsString) -> io::Result<Self> {
         let kind = entry.file_type()?;
         let mut label = label(&name);
         if kind.is_dir() {

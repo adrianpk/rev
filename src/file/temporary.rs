@@ -182,31 +182,31 @@ impl Directory {
                 "Workspace output exceeds complete ordinary-file admission",
             ));
         }
-        let mut bytes = Vec::with_capacity(before.len() as usize);
+        let mut bytes = Vec::with_capacity(
+            usize::try_from(before.len()).expect("workspace output admitted within usize limit"),
+        );
         file.by_ref()
             .take(limit as u64 + 1)
             .read_to_end(&mut bytes)?;
-        use std::os::unix::fs::MetadataExt;
-        let after = file.metadata()?;
-        if bytes.len() > limit
-            || before.len() != after.len()
-            || before.mode() != after.mode()
-            || before.mtime() != after.mtime()
-            || before.ctime() != after.ctime()
-            || before.mtime_nsec() != after.mtime_nsec()
-            || before.ctime_nsec() != after.ctime_nsec()
-        {
-            return Err(io::Error::other(
-                "Workspace output changed during bounded read",
-            ));
-        }
+        check_output(&file, &before, bytes.len(), limit)?;
         Ok(bytes)
     }
     pub fn clean(&self) -> io::Result<()> {
-        use std::os::unix::fs::MetadataExt;
         if !self.owned.load(Ordering::Acquire) {
             return Ok(());
         }
+        self.check_identity()?;
+        let names = self.output_names()?;
+        for name in names {
+            fs::remove_file(self.anchor().join(name))?;
+        }
+        fs::remove_dir(&self.root)?;
+        self.owned.store(false, Ordering::Release);
+        Ok(())
+    }
+
+    fn check_identity(&self) -> io::Result<()> {
+        use std::os::unix::fs::MetadataExt;
         let expected = self.directory.metadata()?;
         let actual = fs::symlink_metadata(&self.root)?;
         if actual.dev() != expected.dev()
@@ -218,6 +218,10 @@ impl Directory {
                 "Private workspace identity changed; replacement preserved",
             ));
         }
+        Ok(())
+    }
+
+    fn output_names(&self) -> io::Result<Vec<std::ffi::OsString>> {
         let mut names = Vec::new();
         for entry in fs::read_dir(self.anchor())? {
             let entry = entry?;
@@ -229,13 +233,26 @@ impl Directory {
             }
             names.push(entry.file_name());
         }
-        for name in names {
-            fs::remove_file(self.anchor().join(name))?;
-        }
-        fs::remove_dir(&self.root)?;
-        self.owned.store(false, Ordering::Release);
-        Ok(())
+        Ok(names)
     }
+}
+
+fn check_output(file: &File, before: &fs::Metadata, length: usize, limit: usize) -> io::Result<()> {
+    use std::os::unix::fs::MetadataExt;
+    let after = file.metadata()?;
+    if length > limit
+        || before.len() != after.len()
+        || before.mode() != after.mode()
+        || before.mtime() != after.mtime()
+        || before.ctime() != after.ctime()
+        || before.mtime_nsec() != after.mtime_nsec()
+        || before.ctime_nsec() != after.ctime_nsec()
+    {
+        return Err(io::Error::other(
+            "Workspace output changed during bounded read",
+        ));
+    }
+    Ok(())
 }
 impl Drop for Directory {
     fn drop(&mut self) {

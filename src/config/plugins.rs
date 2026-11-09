@@ -77,14 +77,18 @@ pub(super) fn validate(settings: &PartialPlugins) -> Result<(), super::validate:
             "expected at most 8 distinct startup package IDs",
         ));
     }
+    keybindings(settings)
+}
+
+fn keybindings(settings: &PartialPlugins) -> Result<(), super::validate::Failure> {
+    use super::validate::{Failure, Target};
+    let fail = |message: &str| Failure::at(&["plugins", "keybindings"], message, Target::Value);
     if let Some(bindings) = &settings.keybindings {
         if bindings.len() > 512 {
-            return Err(fail("keybindings", "plugin keybindings exceed 512 entries"));
+            return Err(fail("plugin keybindings exceed 512 entries"));
         }
         for binding in bindings {
-            binding
-                .validate()
-                .map_err(|message| fail("keybindings", &message))?;
+            binding.validate().map_err(|message| fail(&message))?;
         }
     }
     Ok(())

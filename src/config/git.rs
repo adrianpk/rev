@@ -72,7 +72,7 @@ impl PartialGit {
         macro_rules! project {
             ($($field:ident),+ $(,)?) => {$(
                 if let Some(value) = self.$field {
-                    git.$field = value as usize;
+                    git.$field = usize::try_from(value).expect("validated configuration count");
                 }
             )+};
         }
@@ -136,6 +136,13 @@ pub(super) fn validate(git: &PartialGit, complete: bool) -> Result<(), super::va
             "expected a nonempty literal executable, at most 4096 bytes without NUL",
         ));
     }
+    limits(git)?;
+    combined_limits(git, complete)
+}
+
+fn limits(git: &PartialGit) -> Result<(), super::validate::Failure> {
+    use super::validate::{Failure, Target};
+    let fail = |key: &str, message: &str| Failure::at(&["git", key], message, Target::Value);
     for (key, value, minimum, maximum) in [
         (
             "observation_timeout_seconds",
@@ -184,7 +191,32 @@ pub(super) fn validate(git: &PartialGit, complete: bool) -> Result<(), super::va
             ));
         }
     }
+    Ok(())
+}
+
+fn combined_limits(git: &PartialGit, complete: bool) -> Result<(), super::validate::Failure> {
+    use super::validate::{Failure, Target};
+    let fail = |key: &str, message: &str| Failure::at(&["git", key], message, Target::Value);
     let effective = git.project();
+    output_limits(git, &effective, complete)?;
+    if (complete || (git.max_process_record_bytes.is_some() && git.max_output_bytes.is_some()))
+        && effective.max_process_record_bytes < effective.max_output_bytes
+    {
+        return Err(fail(
+            "max_process_record_bytes",
+            "must be at least git.max_output_bytes",
+        ));
+    }
+    Ok(())
+}
+
+fn output_limits(
+    git: &PartialGit,
+    effective: &Git,
+    complete: bool,
+) -> Result<(), super::validate::Failure> {
+    use super::validate::{Failure, Target};
+    let fail = |key: &str, message: &str| Failure::at(&["git", key], message, Target::Value);
     if (complete || (git.max_detail_bytes.is_some() && git.max_output_bytes.is_some()))
         && effective.max_detail_bytes > effective.max_output_bytes
     {
@@ -199,14 +231,6 @@ pub(super) fn validate(git: &PartialGit, complete: bool) -> Result<(), super::va
         return Err(fail(
             "max_diagnostic_bytes",
             "must not exceed git.max_output_bytes",
-        ));
-    }
-    if (complete || (git.max_process_record_bytes.is_some() && git.max_output_bytes.is_some()))
-        && effective.max_process_record_bytes < effective.max_output_bytes
-    {
-        return Err(fail(
-            "max_process_record_bytes",
-            "must be at least git.max_output_bytes",
         ));
     }
     Ok(())

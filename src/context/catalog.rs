@@ -126,6 +126,18 @@ impl Catalog {
         {
             return Err(Error::Capacity("catalog records"));
         }
+        self.validate_projects(observe)?;
+        self.validate_workspaces(observe)?;
+        let mut owners = BTreeSet::new();
+        for session in &self.sessions {
+            if !owners.insert(session.reference.owner.clone()) {
+                return Err(Error::Invalid("duplicate session owner"));
+            }
+        }
+        Ok(())
+    }
+
+    fn validate_projects(&self, observe: bool) -> Result<(), Error> {
         let mut ids = BTreeSet::new();
         let mut names = BTreeSet::new();
         let mut paths = BTreeSet::new();
@@ -142,14 +154,20 @@ impl Catalog {
             if !paths.insert(path) {
                 return Err(Error::Conflict("Project root"));
             }
-            self.validate_owner(
-                &Owner::Project(project.id.clone()),
+            if project.session_ref.owner != Owner::Project(project.id.clone()) {
+                return Err(Error::Invalid("session owner"));
+            }
+            self.validate_session(
                 project.roots_revision,
                 &project.session_ref,
                 std::slice::from_ref(&project.root),
                 observe,
             )?;
         }
+        Ok(())
+    }
+
+    fn validate_workspaces(&self, observe: bool) -> Result<(), Error> {
         let mut ids = BTreeSet::new();
         let mut names = BTreeSet::new();
         for workspace in &self.workspaces {
@@ -157,34 +175,26 @@ impl Catalog {
                 return Err(Error::Conflict("Workspace identity or name"));
             }
             validate_roots(&workspace.roots, observe)?;
-            self.validate_owner(
-                &Owner::Workspace(workspace.id.clone()),
+            if workspace.session_ref.owner != Owner::Workspace(workspace.id.clone()) {
+                return Err(Error::Invalid("session owner"));
+            }
+            self.validate_session(
                 workspace.roots_revision,
                 &workspace.session_ref,
                 &workspace.roots,
                 observe,
             )?;
         }
-        let mut owners = BTreeSet::new();
-        for session in &self.sessions {
-            if !owners.insert(session.reference.owner.clone()) {
-                return Err(Error::Invalid("duplicate session owner"));
-            }
-        }
         Ok(())
     }
 
-    fn validate_owner(
+    fn validate_session(
         &self,
-        owner: &Owner,
         revision: Revision,
         reference: &SessionRef,
         roots: &[Root],
         observe: bool,
     ) -> Result<(), Error> {
-        if reference.owner != *owner {
-            return Err(Error::Invalid("session owner"));
-        }
         let session = self
             .session(reference)
             .ok_or(Error::Invalid("session reference"))?;
@@ -199,6 +209,12 @@ impl Catalog {
     }
 
     fn check_changes(&self, next: &Self) -> Result<(), Error> {
+        self.check_project_changes(next)?;
+        self.check_workspace_changes(next)?;
+        self.check_session_changes(next)
+    }
+
+    fn check_project_changes(&self, next: &Self) -> Result<(), Error> {
         for project in &next.projects {
             let old = self.projects.iter().find(|old| old.id == project.id);
             let (previous, changed_roots) = match old {
@@ -219,6 +235,10 @@ impl Catalog {
             };
             check_roots_revision(previous, project.roots_revision, changed_roots)?;
         }
+        Ok(())
+    }
+
+    fn check_workspace_changes(&self, next: &Self) -> Result<(), Error> {
         for workspace in &next.workspaces {
             let old = self.workspaces.iter().find(|old| old.id == workspace.id);
             let (previous, changed_roots) = match old {
@@ -236,6 +256,10 @@ impl Catalog {
             };
             check_roots_revision(previous, workspace.roots_revision, changed_roots)?;
         }
+        Ok(())
+    }
+
+    fn check_session_changes(&self, next: &Self) -> Result<(), Error> {
         for session in &next.sessions {
             match self
                 .sessions
@@ -319,24 +343,7 @@ pub(crate) fn validate_snapshot(
     let mut references = BTreeSet::new();
     let mut physical = BTreeSet::new();
     for entry in &snapshot.files {
-        entry.cursor.validate()?;
-        if let Some(viewport) = entry.viewport {
-            viewport.anchor.validate()?;
-            if i64::try_from(viewport.horizontal_cells).is_err() {
-                return Err(Error::Invalid("horizontal scroll"));
-            }
-        }
-        match &entry.file {
-            FileReference::LooseAbsolute(path) => {
-                NativePath::absolute(path.as_path())?;
-            }
-            FileReference::RootRelative { root, path } => {
-                NativePath::relative(path.as_path())?;
-                if !roots.iter().any(|entry| entry.id == *root) {
-                    return Err(Error::Invalid("session root reference"));
-                }
-            }
-        }
+        validate_entry(entry, roots)?;
         if !references.insert(&entry.file) {
             return Err(Error::Invalid("duplicate session file"));
         }
@@ -350,6 +357,28 @@ pub(crate) fn validate_snapshot(
         .is_some_and(|file| !references.contains(file))
     {
         return Err(Error::Invalid("active session file"));
+    }
+    Ok(())
+}
+
+fn validate_entry(entry: &FileEntry, roots: &[Root]) -> Result<(), Error> {
+    entry.cursor.validate()?;
+    if let Some(viewport) = entry.viewport {
+        viewport.anchor.validate()?;
+        if i64::try_from(viewport.horizontal_cells).is_err() {
+            return Err(Error::Invalid("horizontal scroll"));
+        }
+    }
+    match &entry.file {
+        FileReference::LooseAbsolute(path) => {
+            NativePath::absolute(path.as_path())?;
+        }
+        FileReference::RootRelative { root, path } => {
+            NativePath::relative(path.as_path())?;
+            if !roots.iter().any(|entry| entry.id == *root) {
+                return Err(Error::Invalid("session root reference"));
+            }
+        }
     }
     Ok(())
 }

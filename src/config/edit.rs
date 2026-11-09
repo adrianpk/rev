@@ -153,13 +153,7 @@ impl SettingsEdit {
                 assign(&mut table[key], value(text));
             }
         }
-        if let Some(model) = &definition.model {
-            if table.get("model").and_then(Item::as_str) != Some(model.as_str()) {
-                assign(&mut table["model"], value(model));
-            }
-        } else if let Some(table) = table.as_table_like_mut() {
-            table.remove("model");
-        }
+        ai_model(table, definition.model.as_deref());
         Ok(())
     }
 
@@ -193,20 +187,7 @@ impl SettingsEdit {
             .first()
             .map_or(self.root.as_path(), |s| s.canonical_path.as_path());
         let parent = target.parent().ok_or("configuration has no parent")?;
-        fs::create_dir_all(parent).map_err(|e| format!("create configuration directory: {e}"))?;
-        let mut temporary = Temporary::new(parent).map_err(|e| e.to_string())?;
-        if let Ok(metadata) = fs::metadata(target) {
-            temporary
-                .file
-                .set_permissions(metadata.permissions())
-                .map_err(|e| e.to_string())?;
-        }
-        temporary
-            .file
-            .write_all(&bytes)
-            .and_then(|()| temporary.file.flush())
-            .and_then(|()| temporary.file.sync_all())
-            .map_err(|e| format!("prepare configuration: {e}"))?;
+        let mut temporary = prepare_file(target, &bytes)?;
         self.unchanged()?;
         if self.sources.sources.is_empty() {
             fs::hard_link(&temporary.path, target)
@@ -236,6 +217,35 @@ impl SettingsEdit {
             return Err("configuration source conflict; reload settings and retry".into());
         }
         Ok(())
+    }
+}
+
+fn prepare_file(target: &Path, bytes: &[u8]) -> Result<Temporary, String> {
+    let parent = target.parent().ok_or("configuration has no parent")?;
+    fs::create_dir_all(parent).map_err(|e| format!("create configuration directory: {e}"))?;
+    let mut temporary = Temporary::new(parent).map_err(|e| e.to_string())?;
+    if let Ok(metadata) = fs::metadata(target) {
+        temporary
+            .file
+            .set_permissions(metadata.permissions())
+            .map_err(|e| e.to_string())?;
+    }
+    temporary
+        .file
+        .write_all(bytes)
+        .and_then(|()| temporary.file.flush())
+        .and_then(|()| temporary.file.sync_all())
+        .map_err(|e| format!("prepare configuration: {e}"))?;
+    Ok(temporary)
+}
+
+fn ai_model(table: &mut Item, model: Option<&str>) {
+    if let Some(model) = model {
+        if table.get("model").and_then(Item::as_str) != Some(model) {
+            assign(&mut table["model"], value(model));
+        }
+    } else if let Some(table) = table.as_table_like_mut() {
+        table.remove("model");
     }
 }
 

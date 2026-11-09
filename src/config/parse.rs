@@ -21,11 +21,11 @@ struct Locations(BTreeMap<Vec<String>, Location>);
 /// keymap references resolve only after the complete include graph is composed.
 pub fn parse(source: &Path, bytes: &[u8]) -> Result<Document, Diagnostic> {
     let text = std::str::from_utf8(bytes).map_err(|error| invalid_utf8(source, bytes, error))?;
-    let root = DeTable::parse(text).map_err(|error| toml_error(source, text, error))?;
+    let root = DeTable::parse(text).map_err(|error| toml_error(source, text, &error))?;
     let mut locations = Locations::default();
     locations.collect(root.get_ref(), &[]);
     let document = Document::deserialize(Deserializer::from(root)).map_err(|error| {
-        let mut diagnostic = toml_error(source, text, error);
+        let mut diagnostic = toml_error(source, text, &error);
         diagnostic.key = locations.containing(diagnostic.span.as_ref());
         if diagnostic.key.len() >= 4
             && diagnostic.key[0] == "lsp"
@@ -58,7 +58,7 @@ fn invalid_utf8(source: &Path, bytes: &[u8], error: std::str::Utf8Error) -> Diag
     Diagnostic::new(source, "configuration must be UTF-8".into()).locate(prefix, Some(start..end))
 }
 
-fn toml_error(source: &Path, text: &str, error: toml::de::Error) -> Diagnostic {
+fn toml_error(source: &Path, text: &str, error: &toml::de::Error) -> Diagnostic {
     Diagnostic::new(source, error.message().to_owned()).locate(text, error.span())
 }
 

@@ -59,7 +59,7 @@ impl PartialTerminal {
             ),
         ] {
             if let Some(value) = value {
-                *target = value as usize;
+                *target = usize::try_from(value).expect("validated configuration count");
             }
         }
         terminal

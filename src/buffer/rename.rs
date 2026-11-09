@@ -61,7 +61,7 @@ impl Buffers {
         if occupied {
             return Err(file::rename::failure(
                 target,
-                io::Error::new(
+                &io::Error::new(
                     io::ErrorKind::AlreadyExists,
                     "destination is visited by another live buffer",
                 ),
@@ -108,7 +108,7 @@ impl Buffers {
             target.join(suffix)
         };
         let before =
-            file::observe(prior.path()).map_err(|e| file::rename::failure(prior.path(), e))?;
+            file::observe(prior.path()).map_err(|e| file::rename::failure(prior.path(), &e))?;
         let base = target
             .file_name()
             .unwrap_or(target.as_os_str())

@@ -158,7 +158,7 @@ impl Plan {
     fn checked_input(&self) -> Result<File, String> {
         let input = directory::input(&self.source)?;
         let observed =
-            file::Observation::from_metadata(input.metadata().map_err(|e| e.to_string())?)
+            file::Observation::from_metadata(&input.metadata().map_err(|e| e.to_string())?)
                 .map_err(|e| e.to_string())?;
         if observed != self.observed {
             return Err("Opened attachment input changed".into());

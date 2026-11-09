@@ -93,6 +93,20 @@ impl Record {
         if !self.matches(catalog) {
             return Err("Active context revision changed".into());
         }
+        let next = self.checkpoint_metadata(catalog, membership)?;
+        let session = catalog
+            .sessions
+            .iter_mut()
+            .find(|s| s.reference == *self.session_ref())
+            .ok_or("Active context session disappeared")?;
+        *session = SavedSession::new(next.session_ref().clone(), next.roots_revision(), snapshot);
+        Ok(())
+    }
+    fn checkpoint_metadata(
+        &self,
+        catalog: &mut Catalog,
+        membership: Option<&Workspace>,
+    ) -> Result<Self, String> {
         let mut next = self.clone();
         match &mut next {
             Self::Project(p) => {
@@ -120,12 +134,6 @@ impl Record {
                     .ok_or("Workspace disappeared")? = w.clone();
             }
         }
-        let session = catalog
-            .sessions
-            .iter_mut()
-            .find(|s| s.reference == *self.session_ref())
-            .ok_or("Active context session disappeared")?;
-        *session = SavedSession::new(next.session_ref().clone(), next.roots_revision(), snapshot);
-        Ok(())
+        Ok(next)
     }
 }

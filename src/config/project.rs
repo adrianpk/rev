@@ -19,7 +19,7 @@ pub(super) fn settings(document: &Document) -> Settings {
     history(&mut settings.history, &document.history);
     kill_ring(&mut settings.kill_ring, &document.kill_ring);
     if let Some(value) = document.macros.ring_limit {
-        settings.macros.ring_limit = value as usize;
+        settings.macros.ring_limit = usize::try_from(value).expect("validated configuration count");
     }
     if let Some(value) = document.macros.execute_before_append {
         settings.macros.execute_before_append = value;
@@ -35,65 +35,57 @@ pub(super) fn settings(document: &Document) -> Settings {
     settings.git = document.git.project();
     settings.terminal = document.terminal.project();
     settings.plugins = document.plugins.project();
-    scalar(&mut settings.org.enabled, document.org.enabled);
-    scalar(&mut settings.org.indent, document.org.indent);
-    scalar(
-        &mut settings.org.startup_folded,
-        document.org.startup_folded,
-    );
-    headings(&mut settings.org.headings, &document.org.headings);
-    scalar(&mut settings.org.tags.inherit, document.org.tags.inherit);
-    if let Some(names) = &document.org.properties.inherit {
-        settings.org.properties.inherit.clone_from(names);
-    }
-    todo(&mut settings.org.todo, &document.org.todo);
-    priority(&mut settings.org.priority, &document.org.priority);
-    duration(
-        &mut settings.org.duration.units,
-        &document.org.duration.units,
-    );
-    time(&mut settings.org.time, &document.org.time);
-    habit(&mut settings.org.habit, &document.org.habit);
-    agenda(&mut settings.org, &document.org);
-    tables(&mut settings.org, &document.org);
-    export(&mut settings.org, &document.org);
-    source(&mut settings.org.source, &document.org.source);
-    feeds(&mut settings.org, &document.org);
-    scalar(
-        &mut settings.org.preview.enabled,
-        document.org.preview.enabled,
-    );
-    count(
-        &mut settings.org.preview.max_bytes,
-        document.org.preview.max_bytes,
-    );
-    if let Some(value) = &document.org.publish.projects {
-        settings.org.publish.projects.clone_from(value);
-    }
-    if let Some(value) = &document.org.capture.templates {
-        settings.org.capture.templates.clone_from(value);
-    }
-    if let Some(value) = &document.org.capture.default_file {
-        settings.org.capture.default_file.clone_from(value);
-    }
-    if let Some(value) = &document.org.refile.targets {
-        settings.org.refile.targets.clone_from(value);
-    }
-    if let Some(value) = &document.org.archive.location {
-        settings.org.archive.location.clone_from(value);
-    }
-    if let Some(value) = &document.org.attachments.directory {
-        settings.org.attachments.directory.clone_from(value);
-    }
-    tools(&mut settings.org.tools, &document.org.tools);
-    clock(&mut settings.org.clock, &document.org.clock);
-    if let Some(value) = &document.org.timer.default {
-        settings.org.timer.default.clone_from(value);
-    }
+    org(&mut settings.org, &document.org);
     palette(&mut settings.palette, &document.palette);
     settings.language.clone_from(&document.language);
     settings.keys.clone_from(&document.keys);
     settings
+}
+
+fn org(settings: &mut super::Org, partial: &super::PartialOrg) {
+    scalar(&mut settings.enabled, partial.enabled);
+    scalar(&mut settings.indent, partial.indent);
+    scalar(&mut settings.startup_folded, partial.startup_folded);
+    headings(&mut settings.headings, &partial.headings);
+    scalar(&mut settings.tags.inherit, partial.tags.inherit);
+    if let Some(names) = &partial.properties.inherit {
+        settings.properties.inherit.clone_from(names);
+    }
+    todo(&mut settings.todo, &partial.todo);
+    priority(&mut settings.priority, &partial.priority);
+    duration(&mut settings.duration.units, &partial.duration.units);
+    time(&mut settings.time, &partial.time);
+    habit(&mut settings.habit, &partial.habit);
+    agenda(settings, partial);
+    tables(settings, partial);
+    export(settings, partial);
+    source(&mut settings.source, &partial.source);
+    feeds(settings, partial);
+    scalar(&mut settings.preview.enabled, partial.preview.enabled);
+    count(&mut settings.preview.max_bytes, partial.preview.max_bytes);
+    if let Some(value) = &partial.publish.projects {
+        settings.publish.projects.clone_from(value);
+    }
+    if let Some(value) = &partial.capture.templates {
+        settings.capture.templates.clone_from(value);
+    }
+    if let Some(value) = &partial.capture.default_file {
+        settings.capture.default_file.clone_from(value);
+    }
+    if let Some(value) = &partial.refile.targets {
+        settings.refile.targets.clone_from(value);
+    }
+    if let Some(value) = &partial.archive.location {
+        settings.archive.location.clone_from(value);
+    }
+    if let Some(value) = &partial.attachments.directory {
+        settings.attachments.directory.clone_from(value);
+    }
+    tools(&mut settings.tools, &partial.tools);
+    clock(&mut settings.clock, &partial.clock);
+    if let Some(value) = &partial.timer.default {
+        settings.timer.default.clone_from(value);
+    }
 }
 
 pub(super) fn language(global: &Editor, language: Option<&Language>) -> Editor {
@@ -114,7 +106,7 @@ fn scalar<T: Copy>(base: &mut T, value: Option<T>) {
 
 fn count(base: &mut usize, value: Option<i64>) {
     if let Some(value) = value {
-        *base = value as usize;
+        *base = usize::try_from(value).expect("validated configuration count");
     }
 }
 
@@ -250,13 +242,15 @@ fn gutter(base: &mut crate::gutter::Settings, partial: &PartialGutter) {
     base.format = crate::gutter::Format::new(
         partial
             .minimum_digits
-            .map_or(defaults.minimum_digits(), |n| n as u8),
-        partial
-            .left_padding
-            .map_or(defaults.left_padding(), |n| n as u8),
-        partial
-            .right_padding
-            .map_or(defaults.right_padding(), |n| n as u8),
+            .map_or(defaults.minimum_digits(), |n| {
+                u8::try_from(n).expect("validated gutter count")
+            }),
+        partial.left_padding.map_or(defaults.left_padding(), |n| {
+            u8::try_from(n).expect("validated gutter count")
+        }),
+        partial.right_padding.map_or(defaults.right_padding(), |n| {
+            u8::try_from(n).expect("validated gutter count")
+        }),
     )
     .expect("validated gutter format");
 }

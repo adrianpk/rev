@@ -219,7 +219,9 @@ fn read_file(path: &Path, remaining: usize) -> io::Result<Input> {
     let (mut file, metadata, canonical) = open(path)?;
     let limit = SOURCE_BYTES.min(remaining);
     size(metadata.len(), limit, remaining)?;
-    let mut bytes = Vec::with_capacity(metadata.len() as usize);
+    let mut bytes = Vec::with_capacity(
+        usize::try_from(metadata.len()).expect("configuration size admitted within usize limit"),
+    );
     // Take enforces the byte budget during IO, even if the file grows after
     // inspection. A second size check rejects growth beyond that budget without
     // reading an extra sentinel byte past either admitted limit.

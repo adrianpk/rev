@@ -24,18 +24,18 @@ impl Deletion {
     pub fn capture(path: &Path) -> io::Result<Self> {
         let parent = path
             .parent()
-            .ok_or_else(|| failure(path, io::Error::other("cannot delete filesystem root")))?;
+            .ok_or_else(|| failure(path, &io::Error::other("cannot delete filesystem root")))?;
         let name = path
             .file_name()
-            .ok_or_else(|| failure(path, io::Error::other("entry has no name")))?;
+            .ok_or_else(|| failure(path, &io::Error::other("entry has no name")))?;
         let source = fs::canonicalize(parent)
-            .map_err(|e| failure(path, e))?
+            .map_err(|e| failure(path, &e))?
             .join(name);
-        let metadata = fs::symlink_metadata(&source).map_err(|e| failure(&source, e))?;
+        let metadata = fs::symlink_metadata(&source).map_err(|e| failure(&source, &e))?;
         if !metadata.is_file() && !metadata.is_dir() && !metadata.is_symlink() {
             return Err(failure(
                 &source,
-                io::Error::other("expected a file, directory or symlink"),
+                &io::Error::other("expected a file, directory or symlink"),
             ));
         }
         Ok(Self {
@@ -75,12 +75,12 @@ impl Deletion {
     }
 
     fn has_children(&self) -> io::Result<bool> {
-        let mut entries = fs::read_dir(&self.source).map_err(|e| failure(&self.source, e))?;
+        let mut entries = fs::read_dir(&self.source).map_err(|e| failure(&self.source, &e))?;
         entries
             .next()
             .transpose()
             .map(|entry| entry.is_some())
-            .map_err(|e| failure(&self.source, e))
+            .map_err(|e| failure(&self.source, &e))
     }
 
     pub(crate) fn includes(&self, path: &Path) -> bool {
@@ -96,22 +96,22 @@ impl Deletion {
         } else {
             fs::remove_file(&self.source)
         };
-        result.map_err(|e| failure(&self.source, e))
+        result.map_err(|e| failure(&self.source, &e))
     }
 
     fn validate(&self) -> io::Result<()> {
-        let metadata = fs::symlink_metadata(&self.source).map_err(|e| failure(&self.source, e))?;
+        let metadata = fs::symlink_metadata(&self.source).map_err(|e| failure(&self.source, &e))?;
         if metadata.dev() != self.device || metadata.ino() != self.inode {
             return Err(failure(
                 &self.source,
-                io::Error::other("selected entry changed after delete capture"),
+                &io::Error::other("selected entry changed after delete capture"),
             ));
         }
         Ok(())
     }
 }
 
-fn failure(path: &Path, error: io::Error) -> io::Error {
+fn failure(path: &Path, error: &io::Error) -> io::Error {
     io::Error::new(error.kind(), format!("delete {}: {error}", path.display()))
 }
 

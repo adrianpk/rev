@@ -12,7 +12,7 @@ pub(in crate::org) fn read(
     super::super::preview::check(cancel)?;
     let (mut input, opened) = open(location, limit)?;
     let bytes = bounded(&mut input, limit, cancel)?;
-    let after = Observation::from_metadata(input.metadata().map_err(|e| e.to_string())?)
+    let after = Observation::from_metadata(&input.metadata().map_err(|e| e.to_string())?)
         .map_err(|e| e.to_string())?;
     if opened != after
         || file::resolve(location.path())
@@ -43,7 +43,7 @@ fn bounded(input: &mut File, limit: usize, cancel: &Cancellation) -> Result<Vec<
 fn open(location: &Location, limit: usize) -> Result<(File, Observation), String> {
     let expected = location.observation().ok_or("Preview file is missing")?;
     let input = File::open(location.path()).map_err(|e| e.to_string())?;
-    let opened = Observation::from_metadata(input.metadata().map_err(|e| e.to_string())?)
+    let opened = Observation::from_metadata(&input.metadata().map_err(|e| e.to_string())?)
         .map_err(|e| e.to_string())?;
     if &opened != expected || opened.length > limit as u64 {
         return Err("Preview file changed or exceeds byte limit".into());

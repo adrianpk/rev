@@ -33,7 +33,10 @@ impl Buffer {
             && index.generation == records.generation()
             && index.path == file.path()
         {
-            return Ok(index.rows.clone());
+            let rows = Arc::clone(&index.rows);
+            drop(cache);
+            drop(records);
+            return Ok(rows);
         }
         let coordinates = Coordinates::new(self)?;
         let rows = records
@@ -54,8 +57,10 @@ impl Buffer {
             stamp: self.stamp(),
             generation: records.generation(),
             path: file.path().to_path_buf(),
-            rows: rows.clone(),
+            rows: Arc::clone(&rows),
         });
+        drop(cache);
+        drop(records);
         Ok(rows)
     }
 }

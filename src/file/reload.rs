@@ -34,6 +34,33 @@ fn read_once(path: &Path, max_bytes: usize, started: Instant) -> io::Result<Imag
             "reload source exceeds configured byte limit",
         ));
     }
+    let file = open_observed(path, &observed)?;
+    let mut reader = Limited {
+        source: file.take(max_bytes as u64 + 1),
+        started,
+    };
+    let loaded = Loaded::read(&mut reader)?;
+    check_read(&reader, &observed, max_bytes)?;
+    check(path, &observed)?;
+    deadline(started)?;
+    Ok(Image { loaded, observed })
+}
+
+fn check_read(reader: &Limited, observed: &Observation, max_bytes: usize) -> io::Result<()> {
+    if reader.source.limit() == 0 {
+        return Err(io::Error::other(
+            "reload source exceeds configured byte limit",
+        ));
+    }
+    if max_bytes as u64 + 1 - reader.source.limit() != observed.length
+        || Observation::from_metadata(&reader.source.get_ref().metadata()?)? != *observed
+    {
+        return Err(unstable());
+    }
+    Ok(())
+}
+
+fn open_observed(path: &Path, observed: &Observation) -> io::Result<File> {
     // NONBLOCK prevents a regular-file-to-FIFO substitution from pinning a read.
     // NOFOLLOW rejects a newly substituted final symlink before opening it.
     let descriptor = open(
@@ -42,27 +69,10 @@ fn read_once(path: &Path, max_bytes: usize, started: Instant) -> io::Result<Imag
         Mode::empty(),
     )?;
     let file = File::from(descriptor);
-    if Observation::from_metadata(file.metadata()?)? != observed {
+    if Observation::from_metadata(&file.metadata()?)? != *observed {
         return Err(unstable());
     }
-    let mut reader = Limited {
-        source: file.take(max_bytes as u64 + 1),
-        started,
-    };
-    let loaded = Loaded::read(&mut reader)?;
-    if reader.source.limit() == 0 {
-        return Err(io::Error::other(
-            "reload source exceeds configured byte limit",
-        ));
-    }
-    if max_bytes as u64 + 1 - reader.source.limit() != observed.length
-        || Observation::from_metadata(reader.source.get_ref().metadata()?)? != observed
-    {
-        return Err(unstable());
-    }
-    check(path, &observed)?;
-    deadline(started)?;
-    Ok(Image { loaded, observed })
+    Ok(file)
 }
 
 pub(crate) fn check(path: &Path, expected: &Observation) -> io::Result<()> {

@@ -58,76 +58,132 @@ impl Change {
         }
         match &self.mutation {
             Mutation::Forget => remove(catalog, &self.record),
-            Mutation::Rename(name) => {
-                let mut next = self.record.clone();
-                match &mut next {
-                    Record::Project(p) => {
-                        p.name = name.clone();
-                        p.revision = p.revision.next().map_err(|e| e.to_string())?;
-                    }
-                    Record::Workspace(w) => {
-                        w.name = name.clone();
-                        w.revision = w.revision.next().map_err(|e| e.to_string())?;
-                    }
-                }
-                replace(catalog, next);
-            }
-            Mutation::Relocate { root, path } => {
-                let mut next = self.record.clone();
-                let (revision, roots_revision, reference, roots) = match &mut next {
-                    Record::Project(p) => (
-                        &mut p.revision,
-                        &mut p.roots_revision,
-                        &mut p.session_ref,
-                        std::slice::from_mut(&mut p.root),
-                    ),
-                    Record::Workspace(w) => (
-                        &mut w.revision,
-                        &mut w.roots_revision,
-                        &mut w.session_ref,
-                        w.roots.as_mut_slice(),
-                    ),
-                };
-                let selected = roots
-                    .iter_mut()
-                    .find(|r| r.id == *root)
-                    .ok_or("Selected root disappeared")?;
-                selected.path = path.clone();
-                *revision = revision.next().map_err(|e| e.to_string())?;
-                *roots_revision = roots_revision.next().map_err(|e| e.to_string())?;
-                reference.revision = reference.revision.next().map_err(|e| e.to_string())?;
-                let snapshot = captured
-                    .map(Ok)
-                    .unwrap_or_else(|| snapshot(catalog, &self.record))?;
-                let session = catalog
-                    .sessions
-                    .iter_mut()
-                    .find(|s| s.reference == *self.record.session_ref())
-                    .ok_or("Context session disappeared")?;
-                *session = SavedSession::new(reference.clone(), *roots_revision, snapshot);
-                replace(catalog, next);
-            }
+            Mutation::Rename(name) => self.rename(catalog, name)?,
+            Mutation::Relocate { root, path } => self.relocate(catalog, root, path, captured)?,
             Mutation::Workspace {
                 destination,
                 consume,
-            } => {
-                let mut snapshot = captured
-                    .map(Ok)
-                    .unwrap_or_else(|| snapshot(catalog, &self.record))?;
-                let old = &self.record.roots()[0].id;
-                let new = &destination.roots[0].id;
-                for entry in &mut snapshot.files {
-                    remap(&mut entry.file, old, new);
-                }
-                if let Some(active) = &mut snapshot.active_file {
-                    remap(active, old, new);
-                }
-                if *consume {
-                    remove(catalog, &self.record);
-                }
-                Record::Workspace(destination.clone()).insert(catalog, snapshot)?;
+            } => self.convert_workspace(catalog, destination, *consume, captured)?,
+        }
+        Ok(())
+    }
+    fn convert_workspace(
+        &self,
+        catalog: &mut Catalog,
+        destination: &Workspace,
+        consume: bool,
+        captured: Option<Snapshot>,
+    ) -> Result<(), String> {
+        let mut snapshot = captured
+            .map(Ok)
+            .unwrap_or_else(|| snapshot(catalog, &self.record))?;
+        let old = &self.record.roots()[0].id;
+        let new = &destination.roots[0].id;
+        for entry in &mut snapshot.files {
+            remap(&mut entry.file, old, new);
+        }
+        if let Some(active) = &mut snapshot.active_file {
+            remap(active, old, new);
+        }
+        if consume {
+            remove(catalog, &self.record);
+        }
+        Record::Workspace(destination.clone()).insert(catalog, snapshot)?;
+        Ok(())
+    }
+
+    pub(super) fn relocation_conflicts(&self, catalog: &Catalog) -> bool {
+        let Mutation::Relocate { root, path } = &self.mutation else {
+            return false;
+        };
+        match &self.record {
+            Record::Project(p) => catalog.projects.iter().any(|other| {
+                other.id != p.id
+                    && super::super::projects::same_directory(
+                        other.root.path.as_path(),
+                        path.as_path(),
+                    )
+            }),
+            Record::Workspace(w) => w.roots.iter().any(|other| {
+                other.id != *root
+                    && super::super::projects::same_directory(other.path.as_path(), path.as_path())
+            }),
+        }
+    }
+
+    pub(super) fn observations(&self) -> Option<Vec<(std::path::PathBuf, (u64, u64))>> {
+        let changed_roots: Vec<_> = match &self.mutation {
+            Mutation::Relocate { path, .. } => vec![path],
+            Mutation::Workspace { destination, .. } => {
+                destination.roots.iter().map(|r| &r.path).collect()
+            }
+            _ => Vec::new(),
+        };
+        changed_roots
+            .into_iter()
+            .map(|path| {
+                super::super::workspaces::observe(path.as_path())
+                    .map(|i| (path.as_path().to_owned(), i))
+            })
+            .collect()
+    }
+
+    fn relocate(
+        &self,
+        catalog: &mut Catalog,
+        root: &RootId,
+        path: &NativePath,
+        captured: Option<Snapshot>,
+    ) -> Result<(), String> {
+        let mut next = self.record.clone();
+        let (revision, roots_revision, reference, roots) = match &mut next {
+            Record::Project(p) => (
+                &mut p.revision,
+                &mut p.roots_revision,
+                &mut p.session_ref,
+                std::slice::from_mut(&mut p.root),
+            ),
+            Record::Workspace(w) => (
+                &mut w.revision,
+                &mut w.roots_revision,
+                &mut w.session_ref,
+                w.roots.as_mut_slice(),
+            ),
+        };
+        let selected = roots
+            .iter_mut()
+            .find(|r| r.id == *root)
+            .ok_or("Selected root disappeared")?;
+        selected.path = path.clone();
+        *revision = revision.next().map_err(|e| e.to_string())?;
+        *roots_revision = roots_revision.next().map_err(|e| e.to_string())?;
+        reference.revision = reference.revision.next().map_err(|e| e.to_string())?;
+        let snapshot = captured
+            .map(Ok)
+            .unwrap_or_else(|| snapshot(catalog, &self.record))?;
+        let session = catalog
+            .sessions
+            .iter_mut()
+            .find(|s| s.reference == *self.record.session_ref())
+            .ok_or("Context session disappeared")?;
+        *session = SavedSession::new(reference.clone(), *roots_revision, snapshot);
+        replace(catalog, next);
+        Ok(())
+    }
+
+    fn rename(&self, catalog: &mut Catalog, name: &Name) -> Result<(), String> {
+        let mut next = self.record.clone();
+        match &mut next {
+            Record::Project(p) => {
+                p.name = name.clone();
+                p.revision = p.revision.next().map_err(|e| e.to_string())?;
+            }
+            Record::Workspace(w) => {
+                w.name = name.clone();
+                w.revision = w.revision.next().map_err(|e| e.to_string())?;
             }
         }
+        replace(catalog, next);
         Ok(())
     }
 }

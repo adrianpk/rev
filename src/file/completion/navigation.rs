@@ -133,9 +133,12 @@ impl Navigation {
 
     pub fn requested_rows(&self, limit: usize) -> u16 {
         let count = self.candidates().len();
-        (count + usize::from(self.diagnostic().is_some()))
-            .max(1)
-            .min(limit) as u16
+        u16::try_from(
+            (count + usize::from(self.diagnostic().is_some()))
+                .max(1)
+                .min(limit),
+        )
+        .expect("completion entry limit and diagnostic fit u16")
     }
 
     pub fn selected(&self) -> Option<usize> {

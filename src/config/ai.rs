@@ -70,7 +70,7 @@ impl PartialAi {
             (&mut pi.max_result_bytes, self.pi.max_result_bytes),
         ] {
             if let Some(value) = source {
-                *target = value as usize;
+                *target = usize::try_from(value).expect("validated configuration count");
             }
         }
         Ai {

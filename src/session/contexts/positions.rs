@@ -120,22 +120,32 @@ impl Session {
             coordinates.previous(point).map_err(|e| e.to_string())?
         };
         if let Some(saved) = entry.viewport {
-            let anchor = saved.anchor.restore(buffer).map_err(|e| e.to_string())?;
-            let anchor = if coordinates.is_boundary(anchor).map_err(|e| e.to_string())? {
-                anchor
-            } else {
-                coordinates.previous(anchor).map_err(|e| e.to_string())?
-            };
-            view.top = Coordinates::new(buffer)
-                .map_err(|e| e.to_string())?
-                .to_line(anchor)
-                .map_err(|e| e.to_string())?
-                .row;
-            view.wrap_start = anchor;
-            view.left = saved.horizontal_cells;
+            restore_viewport(&mut view, buffer, &coordinates, saved)?;
         }
         self.context_positions
             .insert(id, Position::from_view(&view, BTreeMap::new()));
         Ok(view)
     }
+}
+
+fn restore_viewport(
+    view: &mut View,
+    buffer: &Buffer,
+    coordinates: &Coordinates<'_>,
+    saved: Viewport,
+) -> Result<(), String> {
+    let anchor = saved.anchor.restore(buffer).map_err(|e| e.to_string())?;
+    let anchor = if coordinates.is_boundary(anchor).map_err(|e| e.to_string())? {
+        anchor
+    } else {
+        coordinates.previous(anchor).map_err(|e| e.to_string())?
+    };
+    view.top = Coordinates::new(buffer)
+        .map_err(|e| e.to_string())?
+        .to_line(anchor)
+        .map_err(|e| e.to_string())?
+        .row;
+    view.wrap_start = anchor;
+    view.left = saved.horizontal_cells;
+    Ok(())
 }

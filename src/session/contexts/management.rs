@@ -1,6 +1,6 @@
 mod change;
 
-use super::super::{Action, AfterSave, Pending, Session, quit::Goal};
+use super::super::{Action, Pending, Session, quit::Goal};
 use super::{
     Replacement,
     projects::{Operation, Output, Request},
@@ -28,12 +28,7 @@ pub(in crate::session) enum Prompt {
         command: Command,
         choices: Vec<(String, Record)>,
     },
-    Name {
-        command: Command,
-        record: Record,
-        catalog: Catalog,
-        generation: Generation,
-    },
+    Name(Naming),
     Confirm {
         record: Record,
         catalog: Catalog,
@@ -51,6 +46,14 @@ pub(in crate::session) enum Prompt {
         generation: Generation,
         root: RootId,
     },
+}
+
+/// One name prompt retains the catalog and generation that admitted its target.
+pub(in crate::session) struct Naming {
+    command: Command,
+    record: Record,
+    catalog: Catalog,
+    generation: Generation,
 }
 
 impl Session {
@@ -120,90 +123,7 @@ impl Session {
                 };
                 self.read_projects(Request::ManageSelected(command, record))
             }
-            Prompt::Name {
-                command,
-                record,
-                catalog,
-                generation,
-            } => {
-                let name = match Name::new(text) {
-                    Ok(n) => n,
-                    Err(e) => {
-                        return self.management_name(
-                            command,
-                            record,
-                            catalog,
-                            generation,
-                            text,
-                            &e.to_string(),
-                        );
-                    }
-                };
-                let workspace = matches!(
-                    command,
-                    Command::ProjectPromoteToWorkspace | Command::ProjectDuplicateAsWorkspace
-                );
-                let conflict = if workspace {
-                    catalog.workspaces.iter().any(|w| w.name == name)
-                } else {
-                    match &record {
-                        Record::Project(p) => catalog
-                            .projects
-                            .iter()
-                            .any(|n| n.id != p.id && n.name == name),
-                        Record::Workspace(w) => catalog
-                            .workspaces
-                            .iter()
-                            .any(|n| n.id != w.id && n.name == name),
-                    }
-                };
-                if conflict {
-                    return self.management_name(
-                        command,
-                        record,
-                        catalog,
-                        generation,
-                        text,
-                        "Name is already registered",
-                    );
-                }
-                if !workspace && name.as_str() == record.name() {
-                    return self.message("Context name is unchanged");
-                }
-                let mutation = if workspace {
-                    let Record::Project(p) = &record else {
-                        return self.error("Conversion requires a Project");
-                    };
-                    let id = match context::WorkspaceId::new() {
-                        Ok(id) => id,
-                        Err(e) => return self.error(&e.to_string()),
-                    };
-                    let root_id = match RootId::new() {
-                        Ok(id) => id,
-                        Err(e) => return self.error(&e.to_string()),
-                    };
-                    let mut root = p.root.clone();
-                    root.id = root_id;
-                    root.origin_project_id = Some(p.id.clone());
-                    Mutation::Workspace {
-                        destination: Workspace {
-                            session_ref: context::SessionRef {
-                                owner: context::Owner::Workspace(id.clone()),
-                                revision: context::Revision::INITIAL,
-                            },
-                            id,
-                            revision: context::Revision::INITIAL,
-                            roots_revision: context::Revision::INITIAL,
-                            name,
-                            roots: vec![root],
-                        },
-                        consume: command == Command::ProjectPromoteToWorkspace,
-                    }
-                } else {
-                    Mutation::Rename(name)
-                };
-                self.admit_management(Change { record, mutation }, catalog, generation)
-            }
+            Prompt::Name(naming) => self.management_named(naming, text),
             Prompt::Confirm {
                 record,
                 catalog,
@@ -261,6 +181,68 @@ impl Session {
             }
         }
     }
+    fn management_named(&mut self, naming: Naming, text: &str) -> Action {
+        let Naming {
+            command,
+            record,
+            catalog,
+            generation,
+        } = naming;
+        let name = match Name::new(text) {
+            Ok(n) => n,
+            Err(e) => {
+                return self.management_name(
+                    Naming {
+                        command,
+                        record,
+                        catalog,
+                        generation,
+                    },
+                    text,
+                    &e.to_string(),
+                );
+            }
+        };
+        let workspace = matches!(
+            command,
+            Command::ProjectPromoteToWorkspace | Command::ProjectDuplicateAsWorkspace
+        );
+        let conflict = if workspace {
+            catalog.workspaces.iter().any(|w| w.name == name)
+        } else {
+            match &record {
+                Record::Project(p) => catalog
+                    .projects
+                    .iter()
+                    .any(|n| n.id != p.id && n.name == name),
+                Record::Workspace(w) => catalog
+                    .workspaces
+                    .iter()
+                    .any(|n| n.id != w.id && n.name == name),
+            }
+        };
+        if conflict {
+            return self.management_name(
+                Naming {
+                    command,
+                    record,
+                    catalog,
+                    generation,
+                },
+                text,
+                "Name is already registered",
+            );
+        }
+        if !workspace && name.as_str() == record.name() {
+            return self.message("Context name is unchanged");
+        }
+        let mutation = match named_mutation(command, &record, name, workspace) {
+            Ok(mutation) => mutation,
+            Err(error) => return self.error(&error),
+        };
+        self.admit_management(Change { record, mutation }, catalog, generation)
+    }
+
     pub(super) fn management_selected(
         &mut self,
         command: Command,
@@ -294,65 +276,68 @@ impl Session {
                 let root = record.roots()[0].id.clone();
                 self.management_path(record, catalog, generation, root)
             }
-            Command::WorkspaceSetRootPath => {
-                let choices: Vec<_> = record
-                    .roots()
-                    .iter()
-                    .enumerate()
-                    .map(|(i, r)| {
-                        (
-                            format!(
-                                "{}: {} — {}",
-                                i + 1,
-                                r.label.as_str(),
-                                r.path.as_path().display().to_string().escape_default()
-                            ),
-                            r.id.clone(),
-                        )
-                    })
-                    .collect();
-                if choices.is_empty() {
-                    return self.message("Workspace has no roots to relocate");
-                }
-                if let Err(e) = self.input.names_argument(
-                    "Relocate root: ",
-                    "",
-                    choices.iter().map(|(l, _)| l.clone()).collect(),
-                ) {
-                    return self.error(&e.to_string());
-                }
-                self.pending = Some(Pending::ContextManagement(Box::new(Prompt::Root {
-                    record,
-                    catalog,
-                    generation,
-                    choices,
-                })));
-                self.message("Choose a root identity; directories will not be moved")
-            }
+            Command::WorkspaceSetRootPath => self.management_root(record, catalog, generation),
             _ => {
                 let initial = record.name().to_owned();
-                self.management_name(command, record, catalog, generation, &initial, "")
+                self.management_name(
+                    Naming {
+                        command,
+                        record,
+                        catalog,
+                        generation,
+                    },
+                    &initial,
+                    "",
+                )
             }
         }
     }
-    fn management_name(
+    fn management_root(
         &mut self,
-        command: Command,
         record: Record,
         catalog: Catalog,
         generation: Generation,
-        text: &str,
-        message: &str,
     ) -> Action {
-        if let Err(e) = self.input.argument("New context name: ", text) {
+        let choices: Vec<_> = record
+            .roots()
+            .iter()
+            .enumerate()
+            .map(|(i, r)| {
+                (
+                    format!(
+                        "{}: {} — {}",
+                        i + 1,
+                        r.label.as_str(),
+                        r.path.as_path().display().to_string().escape_default()
+                    ),
+                    r.id.clone(),
+                )
+            })
+            .collect();
+        if choices.is_empty() {
+            return self.message("Workspace has no roots to relocate");
+        }
+        if let Err(e) = self.input.names_argument(
+            "Relocate root: ",
+            "",
+            choices.iter().map(|(l, _)| l.clone()).collect(),
+        ) {
             return self.error(&e.to_string());
         }
-        self.pending = Some(Pending::ContextManagement(Box::new(Prompt::Name {
-            command,
+        self.pending = Some(Pending::ContextManagement(Box::new(Prompt::Root {
             record,
             catalog,
             generation,
+            choices,
         })));
+        self.message("Choose a root identity; directories will not be moved")
+    }
+
+    fn management_name(&mut self, naming: Naming, text: &str, message: &str) -> Action {
+        if let Err(e) = self.input.argument("New context name: ", text) {
+            return self.error(&e.to_string());
+        }
+        self.pending = Some(Pending::ContextManagement(Box::new(Prompt::Name(naming))));
         self.message(message)
     }
     fn management_path(
@@ -388,41 +373,14 @@ impl Session {
         if let Err(e) = generation.next() {
             return self.error(&e.to_string());
         }
-        if let Mutation::Relocate { root, path } = &change.mutation {
-            let duplicate = match &change.record {
-                Record::Project(p) => catalog.projects.iter().any(|other| {
-                    other.id != p.id
-                        && super::projects::same_directory(
-                            other.root.path.as_path(),
-                            path.as_path(),
-                        )
-                }),
-                Record::Workspace(w) => w.roots.iter().any(|other| {
-                    other.id != *root
-                        && super::projects::same_directory(other.path.as_path(), path.as_path())
-                }),
-            };
-            if duplicate {
-                return self.error("Root conflict: directory is already registered in this scope");
-            }
+        if change.relocation_conflicts(&catalog) {
+            return self.error("Root conflict: directory is already registered in this scope");
         }
         let mut candidate = catalog.clone();
         if let Err(e) = change.apply(&mut candidate, None) {
             return self.error(&e);
         }
-        let changed_roots: Vec<_> = match &change.mutation {
-            Mutation::Relocate { path, .. } => vec![path],
-            Mutation::Workspace { destination, .. } => {
-                destination.roots.iter().map(|r| &r.path).collect()
-            }
-            _ => Vec::new(),
-        };
-        let observations: Option<Vec<_>> = changed_roots
-            .into_iter()
-            .map(|path| {
-                super::workspaces::observe(path.as_path()).map(|i| (path.as_path().to_owned(), i))
-            })
-            .collect();
+        let observations = change.observations();
         let Some(observations) = observations else {
             return self.error("Selected root is unavailable; registration retained");
         };
@@ -464,23 +422,20 @@ impl Session {
             .as_ref()
             .is_some_and(|p| p.change.captures(&self.context))
     }
-    pub(super) fn management_candidate(&mut self, candidate: Catalog) -> Action {
+    pub(super) fn management_candidate(&mut self, candidate: &Catalog) -> Action {
         let Some(mut plan) = self.context_management.take() else {
             return self.error("Context operation was canceled");
         };
         plan.candidate = Some(candidate.clone());
         plan.stamps = self.buffers.iter().map(|b| b.stamp()).collect();
-        let destination = plan
-            .change
-            .destination()
-            .and_then(|r| r.current(&candidate));
+        let destination = plan.change.destination().and_then(|r| r.current(candidate));
         let leaves = plan.leaves;
         self.context_management = Some(plan);
         if !leaves {
             return self.publish_management();
         }
         if let Some(record) = destination {
-            self.prepare_record(record, &candidate)
+            self.prepare_record(record, candidate)
         } else {
             match self.prepare_context(None) {
                 Ok(mut r) => {
@@ -573,12 +528,32 @@ impl Session {
         let current = plan.generation == self.context_generation
             && self.buffers.iter().map(|b| b.stamp()).eq(plan.stamps);
         self.context_storage.catalog = Some(publication.catalog.clone());
+        self.apply_management_record(&plan.change, &publication.catalog);
+        let action = if !current {
+            self.error("Context state published; live sources changed and activation was canceled")
+        } else if let Some(replacement) = plan.replacement {
+            self.context_prepared = Some(Box::new(replacement));
+            self.activate_context(plan.generation)
+        } else {
+            self.context_generation = self
+                .context_generation
+                .next()
+                .expect("generation admitted before publication");
+            self.sync_input_context();
+            self.message("Context metadata published; source files and live work retained")
+        };
+        if let Some(warning) = warning {
+            self.notice(&format!("{}; {warning}", self.echo));
+        }
+        action
+    }
+    fn apply_management_record(&mut self, change: &Change, catalog: &Catalog) {
         // Durable truth owns the identity after the commit point, including a
         // later activation error. Never retry conversion with another fresh ID.
-        if self.context == plan.change.record.context() {
-            match &plan.change.mutation {
+        if self.context == change.record.context() {
+            match &change.mutation {
                 Mutation::Forget => {
-                    if let Record::Project(p) = &plan.change.record {
+                    if let Record::Project(p) = &change.record {
                         self.context = Context::Directory(p.root.path.clone());
                         self.context_record = None;
                         self.context_unavailable.clear();
@@ -609,31 +584,15 @@ impl Session {
                         self.tree.hide_context();
                     }
                     self.remap_context_unavailable(
-                        &plan.change.record.roots()[0].id,
+                        &change.record.roots()[0].id,
                         &destination.roots[0].id,
                     );
                 }
-                _ => self.context_record = plan.change.record.current(&publication.catalog),
+                _ => self.context_record = change.record.current(catalog),
             }
         }
-        let action = if !current {
-            self.error("Context state published; live sources changed and activation was canceled")
-        } else if let Some(replacement) = plan.replacement {
-            self.context_prepared = Some(Box::new(replacement));
-            self.activate_context(plan.generation)
-        } else {
-            self.context_generation = self
-                .context_generation
-                .next()
-                .expect("generation admitted before publication");
-            self.sync_input_context();
-            self.message("Context metadata published; source files and live work retained")
-        };
-        if let Some(warning) = warning {
-            self.notice(&format!("{}; {warning}", self.echo));
-        }
-        action
     }
+
     fn remap_context_unavailable(&mut self, old: &RootId, new: &RootId) {
         for entry in &mut self.context_unavailable {
             if let context::FileReference::RootRelative { root, .. } = &mut entry.file
@@ -651,30 +610,46 @@ impl Session {
             return;
         }
         let goal = Goal::Context(plan.generation);
-        let pending = match &self.pending {
-            Some(Pending::Quit(q)) => q.goal() == goal,
-            Some(
-                Pending::Save {
-                    after: AfterSave::Quit(q),
-                    ..
-                }
-                | Pending::Write {
-                    after: AfterSave::Quit(q),
-                    ..
-                },
-            ) => q.goal() == goal,
-            Some(
-                Pending::BookmarkQuit(s)
-                | Pending::TerminalQuit { sources: s, .. }
-                | Pending::GitQuit { sources: s, .. },
-            ) => s.goal == goal,
-            Some(Pending::Clock(p)) => p.context_departure() == Some(plan.generation),
-            _ => false,
-        };
+        let pending = self.context_departure_pending(plan.generation);
         let terminal = self.terminal_context_goal() == Some(goal);
         let git = self.git.shutdown.as_ref().is_some_and(|s| s.goal == goal);
         if !pending && !terminal && !git {
             self.context_management = None;
         }
     }
+}
+
+fn named_mutation(
+    command: Command,
+    record: &Record,
+    name: Name,
+    workspace: bool,
+) -> Result<Mutation, String> {
+    let mutation = if workspace {
+        let Record::Project(p) = record else {
+            return Err("Conversion requires a Project".into());
+        };
+        let id = context::WorkspaceId::new().map_err(|e| e.to_string())?;
+        let root_id = RootId::new().map_err(|e| e.to_string())?;
+        let mut root = p.root.clone();
+        root.id = root_id;
+        root.origin_project_id = Some(p.id.clone());
+        Mutation::Workspace {
+            destination: Workspace {
+                session_ref: context::SessionRef {
+                    owner: context::Owner::Workspace(id.clone()),
+                    revision: context::Revision::INITIAL,
+                },
+                id,
+                revision: context::Revision::INITIAL,
+                roots_revision: context::Revision::INITIAL,
+                name,
+                roots: vec![root],
+            },
+            consume: command == Command::ProjectPromoteToWorkspace,
+        }
+    } else {
+        Mutation::Rename(name)
+    };
+    Ok(mutation)
 }

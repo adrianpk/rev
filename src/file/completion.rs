@@ -55,7 +55,7 @@ impl Provider {
             incomplete: false,
         };
         for entry in fs::read_dir(directory)?.take(ENTRY_LIMIT) {
-            if !provider.include(entry?)? {
+            if !provider.include(&entry?)? {
                 break;
             }
         }
@@ -65,7 +65,7 @@ impl Provider {
         Ok(provider)
     }
 
-    fn include(&mut self, entry: fs::DirEntry) -> io::Result<bool> {
+    fn include(&mut self, entry: &fs::DirEntry) -> io::Result<bool> {
         let name = entry.file_name();
         let bytes = name.as_encoded_bytes().len();
         if bytes > NAME_BYTE_LIMIT - self.name_bytes {

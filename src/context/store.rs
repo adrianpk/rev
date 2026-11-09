@@ -54,7 +54,24 @@ impl Store {
             .ok_or(Error::Unavailable("cannot create state directory"))?;
         let base = anchor(&parent);
         let lock = lock(&base.join("contexts.toml.lock"))?;
+        let before = self.check_expected(&parent, prepared)?;
+        let path = base.join("contexts.toml");
+        let mut temporary = stage_catalog(&base, &prepared.bytes, output)?;
         self.check_parent(&parent)?;
+        lock.check(&base.join("contexts.toml.lock"))?;
+        check_staged(prepared, &path, before.as_deref())?;
+        output
+            .replace(&temporary.path, &path)
+            .map_err(|_| Error::Unavailable("cannot replace catalog"))?;
+        temporary.disarm();
+        let durable = self.published_durably(&parent, &path, prepared, output);
+        Ok(Publication { catalog: prepared.candidate.clone(), durability_warning: (!durable)
+            .then_some("Catalog was published; directory durability or final observation could not be confirmed") })
+    }
+
+    fn check_expected(&self, parent: &File, prepared: &Prepared) -> Result<Option<Vec<u8>>, Error> {
+        let base = anchor(parent);
+        self.check_parent(parent)?;
         let path = base.join("contexts.toml");
         let before = read(&path)?;
         let current = decode(before.clone())?;
@@ -64,32 +81,22 @@ impl Store {
         // Canonical identities are observed again while publication is owned.
         prepared.check_roots()?;
         prepared.candidate.validate(true)?;
-        let mut temporary =
-            Temporary::new(&base).map_err(|_| Error::Unavailable("cannot stage catalog"))?;
-        temporary
-            .file
-            .write_all(&prepared.bytes)
-            .and_then(|()| output.flush(&mut temporary.file))
-            .and_then(|()| output.sync_file(&temporary.file))
-            .map_err(|_| Error::Unavailable("cannot synchronize staged catalog"))?;
-        self.check_parent(&parent)?;
-        lock.check(&base.join("contexts.toml.lock"))?;
-        prepared.check_roots()?;
-        if read(&path)? != before {
-            return Err(Error::Conflict("catalog changed before replacement"));
-        }
+        Ok(before)
+    }
+
+    fn published_durably(
+        &self,
+        parent: &File,
+        path: &Path,
+        prepared: &Prepared,
+        output: &mut impl Output,
+    ) -> bool {
         output
-            .replace(&temporary.path, &path)
-            .map_err(|_| Error::Unavailable("cannot replace catalog"))?;
-        temporary.disarm();
-        let durable = output
-            .sync_directory(&parent)
-            .and_then(|()| output.observe(&path).map(|_| ()))
+            .sync_directory(parent)
+            .and_then(|()| output.observe(path).map(|_| ()))
             .is_ok()
-            && read(&path).is_ok_and(|bytes| bytes.as_deref() == Some(prepared.bytes.as_slice()))
-            && self.check_parent(&parent).is_ok();
-        Ok(Publication { catalog: prepared.candidate.clone(), durability_warning: (!durable)
-            .then_some("Catalog was published; directory durability or final observation could not be confirmed") })
+            && read(path).is_ok_and(|bytes| bytes.as_deref() == Some(prepared.bytes.as_slice()))
+            && self.check_parent(parent).is_ok()
     }
 
     // Walk directory descriptors with NOFOLLOW, including intermediate state
@@ -108,10 +115,7 @@ impl Store {
                 Ok(child) => child,
                 Err(rustix::io::Errno::NOENT) if !create => return Ok(None),
                 Err(rustix::io::Errno::NOENT) => {
-                    match rustix::fs::mkdirat(&directory, name, Mode::from_raw_mode(0o700)) {
-                        Ok(()) | Err(rustix::io::Errno::EXIST) => {}
-                        Err(_) => return Err(Error::Unavailable("cannot create state directory")),
-                    }
+                    create_directory(&directory, name)?;
                     rustix::fs::openat(&directory, name, flags, Mode::empty())
                         .map_err(|_| Error::Unavailable("state directory changed"))?
                 }
@@ -137,6 +141,34 @@ impl Store {
         Ok(())
     }
 }
+fn check_staged(prepared: &Prepared, path: &Path, before: Option<&[u8]>) -> Result<(), Error> {
+    prepared.check_roots()?;
+    if read(path)?.as_deref() != before {
+        return Err(Error::Conflict("catalog changed before replacement"));
+    }
+    Ok(())
+}
+
+fn create_directory(directory: &File, name: &std::ffi::OsStr) -> Result<(), Error> {
+    match rustix::fs::mkdirat(directory, name, Mode::from_raw_mode(0o700)) {
+        Ok(()) | Err(rustix::io::Errno::EXIST) => {}
+        Err(_) => return Err(Error::Unavailable("cannot create state directory")),
+    }
+    Ok(())
+}
+
+fn stage_catalog(base: &Path, bytes: &[u8], output: &mut impl Output) -> Result<Temporary, Error> {
+    let mut temporary =
+        Temporary::new(base).map_err(|_| Error::Unavailable("cannot stage catalog"))?;
+    temporary
+        .file
+        .write_all(bytes)
+        .and_then(|()| output.flush(&mut temporary.file))
+        .and_then(|()| output.sync_file(&temporary.file))
+        .map_err(|_| Error::Unavailable("cannot synchronize staged catalog"))?;
+    Ok(temporary)
+}
+
 fn decode(bytes: Option<Vec<u8>>) -> Result<Catalog, Error> {
     match bytes {
         Some(bytes) => Catalog::decode(&bytes),
@@ -147,7 +179,8 @@ fn anchor(directory: &File) -> PathBuf {
     PathBuf::from(format!("/proc/self/fd/{}", directory.as_raw_fd()))
 }
 fn flags() -> i32 {
-    (OFlags::NOFOLLOW | OFlags::NONBLOCK | OFlags::CLOEXEC).bits() as i32
+    i32::try_from((OFlags::NOFOLLOW | OFlags::NONBLOCK | OFlags::CLOEXEC).bits())
+        .expect("native file flags fit i32")
 }
 struct Lock(File);
 impl Lock {
@@ -216,7 +249,9 @@ fn read(path: &Path) -> Result<Option<Vec<u8>>, Error> {
     if before.len() > MAX_CATALOG_BYTES as u64 {
         return Err(Error::Capacity("encoded catalog"));
     }
-    let mut bytes = Vec::with_capacity(before.len() as usize);
+    let mut bytes = Vec::with_capacity(
+        usize::try_from(before.len()).expect("catalog size admitted within usize limit"),
+    );
     Read::by_ref(&mut file)
         .take(MAX_CATALOG_BYTES as u64 + 1)
         .read_to_end(&mut bytes)
@@ -224,6 +259,11 @@ fn read(path: &Path) -> Result<Option<Vec<u8>>, Error> {
     if bytes.len() > MAX_CATALOG_BYTES {
         return Err(Error::Capacity("encoded catalog"));
     }
+    check_read(path, &file, &before)?;
+    Ok(Some(bytes))
+}
+
+fn check_read(path: &Path, file: &File, before: &fs::Metadata) -> Result<(), Error> {
     let after = file
         .metadata()
         .map_err(|_| Error::Unavailable("cannot finish inspecting catalog"))?;
@@ -238,5 +278,5 @@ fn read(path: &Path) -> Result<Option<Vec<u8>>, Error> {
     {
         return Err(Error::Conflict("catalog changed during read"));
     }
-    Ok(Some(bytes))
+    Ok(())
 }

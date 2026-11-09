@@ -67,7 +67,7 @@ pub(in crate::org) fn source(
     let text = file::Loaded::read(&mut reader);
     let result = text.map_err(|e| e.to_string()).and_then(|loaded| {
         budget.check()?;
-        let after = Observation::from_metadata(reader.file.metadata().map_err(|e| e.to_string())?)
+        let after = Observation::from_metadata(&reader.file.metadata().map_err(|e| e.to_string())?)
             .map_err(|e| e.to_string())?;
         if before != after
             || file::observe(path).map_err(|e| e.to_string())? != Some(before.clone())
@@ -81,7 +81,7 @@ pub(in crate::org) fn source(
 fn open(path: &Path) -> io::Result<(File, Observation)> {
     let before = file::observe(path)?.ok_or_else(|| io::Error::other("Agenda file is missing"))?;
     let file = File::open(path)?;
-    let opened = Observation::from_metadata(file.metadata()?)?;
+    let opened = Observation::from_metadata(&file.metadata()?)?;
     if opened != before {
         return Err(io::Error::other("Agenda file changed before reading"));
     }

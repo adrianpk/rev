@@ -24,6 +24,41 @@ pub(super) struct Replacement {
     workspace_observations: Vec<(crate::context::NativePath, Option<(u64, u64)>)>,
 }
 
+impl Replacement {
+    fn root(&self) -> Option<&NativePath> {
+        match &self.session.context {
+            Context::Directory(path) => Some(path),
+            Context::Project(_) => self
+                .session
+                .context_record
+                .as_ref()
+                .and_then(|r| r.roots().first())
+                .map(|r| &r.path),
+            _ => None,
+        }
+    }
+
+    fn check(&self, expected: Generation, current: Generation) -> Result<(), &'static str> {
+        if self.expected != expected || current != expected {
+            return Err("Context preparation is stale; live sources retained");
+        }
+        if let Some(path) = self.root() {
+            let current = std::fs::metadata(path.as_path());
+            if !current.is_ok_and(|metadata| {
+                metadata.is_dir() && Some((metadata.dev(), metadata.ino())) == self.root_identity
+            }) {
+                return Err("Prepared directory changed; live sources retained");
+            }
+        }
+        if !self.workspace_observations.iter().all(|(path, expected)| {
+            expected.is_none_or(|expected| projects::identity_matches(path.as_path(), expected))
+        }) {
+            return Err("Prepared Workspace root changed; live sources retained");
+        }
+        Ok(())
+    }
+}
+
 impl Session {
     /// Observes context intent independently from tree visibility or file paths.
     pub fn context(&self) -> &Context {
@@ -101,22 +136,12 @@ impl Session {
         &self,
         directory: Option<&Path>,
     ) -> io::Result<Replacement> {
-        if self.context_membership.is_some()
-            || self.context_storage.busy()
-            || self.context_prepared.is_some()
-            || self.git_shutdown_active()
-            || self.terminal_shutdown_active()
-        {
+        if self.context_departure_busy() {
             return Err(io::Error::other(
                 "Context departure is already pending; cancel it first",
             ));
         }
-        if self.capture.is_some()
-            || self.source_edit.is_some()
-            || self.tangling.is_some()
-            || self.execution.is_some()
-            || self.feeds.is_some()
-        {
+        if self.context_draft_busy() {
             return Err(io::Error::other(
                 "A source draft or output owns this context; finish or cancel it first",
             ));
@@ -134,7 +159,39 @@ impl Session {
             self.observation.wake.replacement(),
         )
         .map_err(io::Error::other)?;
-        let root_identity = match directory {
+        let root_identity = self.prepare_context_root(&mut session, directory)?;
+        session.context_root_identity = root_identity;
+        Ok(Replacement {
+            session,
+            startup: false,
+            expected: self.context_generation,
+            root_identity,
+            registration: None,
+            workspace_observations: Vec::new(),
+        })
+    }
+    fn context_departure_busy(&self) -> bool {
+        self.context_membership.is_some()
+            || self.context_storage.busy()
+            || self.context_prepared.is_some()
+            || self.git_shutdown_active()
+            || self.terminal_shutdown_active()
+    }
+
+    fn context_draft_busy(&self) -> bool {
+        self.capture.is_some()
+            || self.source_edit.is_some()
+            || self.tangling.is_some()
+            || self.execution.is_some()
+            || self.feeds.is_some()
+    }
+
+    fn prepare_context_root(
+        &self,
+        session: &mut Session,
+        directory: Option<&Path>,
+    ) -> io::Result<Option<(u64, u64)>> {
+        let identity = match directory {
             Some(path) => {
                 let tree = self.tree.opening_directory(path, self.size)?;
                 let root = tree
@@ -151,16 +208,9 @@ impl Session {
                 None
             }
         };
-        session.context_root_identity = root_identity;
-        Ok(Replacement {
-            session,
-            startup: false,
-            expected: self.context_generation,
-            root_identity,
-            registration: None,
-            workspace_observations: Vec::new(),
-        })
+        Ok(identity)
     }
+
     pub(in crate::session) fn begin_context(&mut self, replacement: Replacement) -> Action {
         let expected = replacement.expected;
         if let Err(error) = expected.next() {
@@ -177,36 +227,8 @@ impl Session {
         let Some(mut replacement) = self.context_prepared.take() else {
             return self.error("Context preparation was canceled; live sources retained");
         };
-        if replacement.expected != expected || self.context_generation != expected {
-            return self.error("Context preparation is stale; live sources retained");
-        }
-        let root = match &replacement.session.context {
-            Context::Directory(path) => Some(path),
-            Context::Project(_) => replacement
-                .session
-                .context_record
-                .as_ref()
-                .and_then(|r| r.roots().first())
-                .map(|r| &r.path),
-            _ => None,
-        };
-        if let Some(path) = root {
-            let current = std::fs::metadata(path.as_path());
-            if !current.is_ok_and(|metadata| {
-                metadata.is_dir()
-                    && Some((metadata.dev(), metadata.ino())) == replacement.root_identity
-            }) {
-                return self.error("Prepared directory changed; live sources retained");
-            }
-        }
-        if !replacement
-            .workspace_observations
-            .iter()
-            .all(|(path, expected)| {
-                expected.is_none_or(|expected| projects::identity_matches(path.as_path(), expected))
-            })
-        {
-            return self.error("Prepared Workspace root changed; live sources retained");
+        if let Err(error) = replacement.check(expected, self.context_generation) {
+            return self.error(error);
         }
         let bookmarks = match self.buffers.context_bookmarks() {
             Ok(bookmarks) => bookmarks,
@@ -236,7 +258,7 @@ impl Session {
             .expect("bookmark owner poisoned") = bookmarks;
         destination
             .buffers
-            .inherit_bookmarks(self.buffers.bookmarks.clone());
+            .inherit_bookmarks(std::sync::Arc::clone(&self.buffers.bookmarks));
         destination.input.inherit_histories(&mut self.input);
         std::mem::swap(&mut destination.macros, &mut self.macros);
         // Packages belong to the independent editor, not its current Project
@@ -269,8 +291,6 @@ impl Session {
         destination.context_generation = generation;
         destination.sync_input_context();
         destination.prepare_bookmark_markers();
-        let project = matches!(destination.context, Context::Project(_));
-        let workspace = matches!(destination.context, Context::Workspace(_));
         let unavailable_roots = destination
             .tree
             .entries()
@@ -278,21 +298,29 @@ impl Session {
             .filter(|e| e.depth() == 0 && e.unavailable())
             .count();
         let missing = destination.context_unavailable.len();
-        let directory = matches!(destination.context, Context::Directory(_));
         let startup = replacement.startup;
         std::mem::swap(self, destination);
+        self.context_activation_message(startup, missing, unavailable_roots)
+    }
+
+    fn context_activation_message(
+        &mut self,
+        startup: bool,
+        missing: usize,
+        unavailable_roots: usize,
+    ) -> Action {
         if startup {
             return self.dashboard_open();
         }
-        if workspace {
+        if matches!(self.context, Context::Workspace(_)) {
             return self.message(&format!("Workspace opened; {unavailable_roots} unavailable root(s), {missing} unavailable saved file(s) retained; workspace-add-directory adds a root"));
         }
-        if project {
+        if matches!(self.context, Context::Project(_)) {
             return self.message(&format!(
                 "Project opened; {missing} unavailable saved file(s) retained"
             ));
         }
-        let message = if directory {
+        let message = if matches!(self.context, Context::Directory(_)) {
             self.tree
                 .diagnostic()
                 .unwrap_or("Temporary directory context opened")
@@ -311,7 +339,20 @@ impl Session {
             return;
         };
         let goal = Goal::Context(replacement.expected);
-        let pending = match &self.pending {
+        let pending = self.context_departure_pending(replacement.expected);
+        let terminal = self.terminal_context_goal() == Some(goal);
+        let git = self
+            .git
+            .shutdown
+            .as_ref()
+            .is_some_and(|sources| sources.goal == goal);
+        if !pending && !terminal && !git && !self.context_storage.departing() {
+            self.context_prepared = None;
+        }
+    }
+    fn context_departure_pending(&self, generation: Generation) -> bool {
+        let goal = Goal::Context(generation);
+        match &self.pending {
             Some(Pending::Quit(quit)) => quit.goal() == goal,
             Some(
                 Pending::Save {
@@ -328,19 +369,8 @@ impl Session {
                 | Pending::TerminalQuit { sources, .. }
                 | Pending::GitQuit { sources, .. },
             ) => sources.goal == goal,
-            Some(Pending::Clock(prompt)) => {
-                prompt.context_departure() == Some(replacement.expected)
-            }
+            Some(Pending::Clock(prompt)) => prompt.context_departure() == Some(generation),
             _ => false,
-        };
-        let terminal = self.terminal_context_goal() == Some(goal);
-        let git = self
-            .git
-            .shutdown
-            .as_ref()
-            .is_some_and(|sources| sources.goal == goal);
-        if !pending && !terminal && !git && !self.context_storage.departing() {
-            self.context_prepared = None;
         }
     }
 }

@@ -9,7 +9,7 @@ impl Navigation {
     pub(crate) fn accept(&self) -> io::Result<PathBuf> {
         let path = self.accepted_path()?;
         if self.chosen {
-            std::fs::metadata(&path).map_err(|error| path_error(&path, error))?;
+            std::fs::metadata(&path).map_err(|error| path_error(&path, &error))?;
         }
         Ok(path)
     }
@@ -23,6 +23,6 @@ impl Navigation {
     }
 }
 
-fn path_error(path: &std::path::Path, error: io::Error) -> io::Error {
+fn path_error(path: &std::path::Path, error: &io::Error) -> io::Error {
     io::Error::new(error.kind(), format!("accept {path:?}: {error}"))
 }

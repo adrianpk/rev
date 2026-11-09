@@ -45,35 +45,49 @@ fn checked_document(
 ) -> Result<keymap::Effective, Failure> {
     integer("version", document.version, 1..=1)?;
     editing(document)?;
+    services(document)?;
+    completion_and_lsp(document)?;
+    bookmarks(&document.bookmarks)?;
+    integer("macros.ring_limit", document.macros.ring_limit, 1..=32)?;
+    presentation(document)?;
+    languages(document)?;
+    files(&document.files)?;
+    bindings(document, commands)
+}
+
+fn presentation(document: &Document) -> Result<(), Failure> {
+    gutter(document)?;
+    layout(document)?;
+    palette(&document.palette)
+}
+
+fn services(document: &Document) -> Result<(), Failure> {
     super::ai::validate(&document.ai)?;
     super::shell::validate(&document.shell)?;
     super::git::validate(&document.git, false)?;
     super::terminal::validate(&document.terminal)?;
     super::plugins::validate(&document.plugins)?;
-    completion_and_lsp(document)?;
-    bookmarks(&document.bookmarks)?;
-    integer("macros.ring_limit", document.macros.ring_limit, 1..=32)?;
-    gutter(document)?;
-    layout(document)?;
-    palette(&document.palette)?;
-    languages(document)?;
-    associations(&document.files.associations)?;
+    Ok(())
+}
+
+fn files(files: &super::PartialFiles) -> Result<(), Failure> {
+    associations(&files.associations)?;
     integer(
         "files.external_change_debounce_ms",
-        document.files.external_change_debounce_ms,
+        files.external_change_debounce_ms,
         0..=2000,
     )?;
     integer(
         "files.external_change_max_bytes",
-        document.files.external_change_max_bytes,
+        files.external_change_max_bytes,
         1..=134217728,
     )?;
     integer(
         "files.external_change_max_buffers",
-        document.files.external_change_max_buffers,
+        files.external_change_max_buffers,
         1..=4096,
     )?;
-    bindings(document, commands)
+    Ok(())
 }
 
 fn completion_and_lsp(document: &Document) -> Result<(), Failure> {
@@ -106,6 +120,10 @@ fn editing(document: &Document) -> Result<(), Failure> {
     for (key, value, range) in fields {
         integer(key, value, range)?;
     }
+    org_editing(document)
+}
+
+fn org_editing(document: &Document) -> Result<(), Failure> {
     super::headings::validate(&document.org.headings)?;
     properties(&document.org.properties)?;
     todo(document)?;

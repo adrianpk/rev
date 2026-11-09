@@ -12,6 +12,10 @@ pub(super) fn validate(value: &PartialLsp, complete: bool) -> Result<(), Failure
     for (name, server) in &projected.servers {
         validate_server(name, server, value.servers.get(name), complete)?;
     }
+    preferences(&projected, complete)
+}
+
+fn preferences(projected: &super::Lsp, complete: bool) -> Result<(), Failure> {
     for (language, preference) in &projected.preferred {
         let key = ["lsp", "preferred", language];
         if !super::validate::language_id(language) {

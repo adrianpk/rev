@@ -281,7 +281,7 @@ fn input_observation(
         return Err(RpcError::application(ErrorKind::LimitExceeded));
     }
     let observed =
-        file::Observation::from_metadata(metadata).map_err(|error| io_error(error.kind()))?;
+        file::Observation::from_metadata(&metadata).map_err(|error| io_error(error.kind()))?;
     if Some(&observed) != location.observation() {
         return Err(RpcError::application(ErrorKind::StaleRevision));
     }
@@ -298,9 +298,10 @@ fn check_loaded(
     }
     // Refuse a source that changed while it was read; no native registry exists
     // on this thread, so canonical reuse is rechecked at publication as well.
-    let after =
-        file::Observation::from_metadata(input.metadata().map_err(|error| io_error(error.kind()))?)
-            .map_err(|error| io_error(error.kind()))?;
+    let after = file::Observation::from_metadata(
+        &input.metadata().map_err(|error| io_error(error.kind()))?,
+    )
+    .map_err(|error| io_error(error.kind()))?;
     if after != *observed
         || file::observe(location.path())
             .map_err(|error| io_error(error.kind()))?

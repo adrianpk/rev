@@ -17,7 +17,7 @@ pub struct Observation {
 }
 
 impl Observation {
-    pub(crate) fn from_metadata(metadata: fs::Metadata) -> io::Result<Self> {
+    pub(crate) fn from_metadata(metadata: &fs::Metadata) -> io::Result<Self> {
         observation(metadata)
     }
 
@@ -35,13 +35,13 @@ impl Observation {
 /// Observe a regular destination without following a newly substituted symlink.
 pub fn observe(path: &Path) -> io::Result<Option<Observation>> {
     match fs::symlink_metadata(path) {
-        Ok(metadata) => observation(metadata).map(Some),
+        Ok(metadata) => observation(&metadata).map(Some),
         Err(error) if error.kind() == io::ErrorKind::NotFound => Ok(None),
         Err(error) => Err(error),
     }
 }
 
-fn observation(metadata: fs::Metadata) -> io::Result<Observation> {
+fn observation(metadata: &fs::Metadata) -> io::Result<Observation> {
     if !metadata.is_file() {
         return Err(io::Error::new(
             io::ErrorKind::InvalidInput,

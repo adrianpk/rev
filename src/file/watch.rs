@@ -105,14 +105,18 @@ impl Watch {
             update: Some(sources),
             ..Shared::default()
         }));
-        let state = shared.clone();
-        let signal = control.clone();
-        let notify = wake.clone();
+        let state = Arc::clone(&shared);
+        let signal = Arc::clone(&control);
+        let notify = Arc::clone(&wake);
         let thread = std::thread::Builder::new()
             .name("file-observation".into())
             .spawn(move || {
-                if let Err(error) = worker::run(state.clone(), signal, notify.clone(), debounce_ms)
-                {
+                if let Err(error) = worker::run(
+                    Arc::clone(&state),
+                    signal.as_ref(),
+                    Arc::clone(&notify),
+                    debounce_ms,
+                ) {
                     state.lock().expect("file observation poisoned").diagnostic = Some(format!(
                         "file observation unavailable: {error}; use revert-buffer"
                     ));

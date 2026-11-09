@@ -47,7 +47,7 @@ impl PartialShell {
             (&mut shell.max_output_bytes, self.max_output_bytes),
         ] {
             if let Some(value) = source {
-                *target = value as usize;
+                *target = usize::try_from(value).expect("validated configuration count");
             }
         }
         shell

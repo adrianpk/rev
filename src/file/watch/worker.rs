@@ -31,9 +31,49 @@ struct Worker {
     debounce: Duration,
 }
 
+#[derive(Default)]
+struct ObservedEvents {
+    changes: BTreeSet<BufferId>,
+    retired: BTreeSet<BufferId>,
+    retired_watches: BTreeSet<i32>,
+    lost: bool,
+}
+
+impl ObservedEvents {
+    fn sources(
+        &mut self,
+        event: &inotify::Event<'_>,
+        entries: &BTreeMap<BufferId, Entry>,
+        parents: &BTreeMap<PathBuf, i32>,
+    ) {
+        for (id, entry) in entries {
+            if parents.get(entry.source.path.parent().expect("file parent")) != Some(&event.wd()) {
+                continue;
+            }
+            if event.file_name().is_none_or(|name| {
+                Some(name.to_bytes()) == entry.source.path.file_name().map(|n| n.as_bytes())
+            }) {
+                if self.changes.len() < QUEUE {
+                    self.changes.insert(*id);
+                } else {
+                    self.lost = true;
+                }
+                if event.events().intersects(
+                    ReadFlags::IGNORED
+                        | ReadFlags::DELETE_SELF
+                        | ReadFlags::MOVE_SELF
+                        | ReadFlags::UNMOUNT,
+                ) {
+                    self.retired.insert(*id);
+                }
+            }
+        }
+    }
+}
+
 pub(super) fn run(
     shared: Arc<Mutex<Shared>>,
-    control: Arc<OwnedFd>,
+    control: &OwnedFd,
     wake: Arc<Wake>,
     debounce_ms: usize,
 ) -> io::Result<()> {
@@ -61,27 +101,7 @@ pub(super) fn run(
         }
         worker.scan_batch();
         worker.check_batch();
-        let timeout = worker.wait().map(|wait| Timespec {
-            tv_sec: wait.as_secs() as _,
-            tv_nsec: wait.subsec_nanos() as _,
-        });
-        let mut fds = [
-            PollFd::new(&worker.descriptor, PollFlags::IN),
-            PollFd::new(control.as_ref(), PollFlags::IN),
-        ];
-        match poll(&mut fds, timeout.as_ref()) {
-            Err(rustix::io::Errno::INTR) => continue,
-            Err(error) => return Err(error.into()),
-            Ok(_) => {}
-        }
-        let notified = fds[0].revents().contains(PollFlags::IN);
-        if fds[1].revents().contains(PollFlags::IN) {
-            let mut bytes = [0u8; 8];
-            match rustix::io::read(control.as_ref(), &mut bytes) {
-                Ok(_) | Err(rustix::io::Errno::AGAIN) => {}
-                Err(error) => return Err(error.into()),
-            }
-        }
+        let notified = worker.poll(control)?;
         if notified {
             worker.events()?;
         }
@@ -89,6 +109,31 @@ pub(super) fn run(
 }
 
 impl Worker {
+    fn poll(&self, control: &OwnedFd) -> io::Result<bool> {
+        let timeout = self.wait().map(|wait| Timespec {
+            tv_sec: i64::try_from(wait.as_secs()).expect("bounded watch deadline"),
+            tv_nsec: i64::from(wait.subsec_nanos()),
+        });
+        let mut fds = [
+            PollFd::new(&self.descriptor, PollFlags::IN),
+            PollFd::new(control, PollFlags::IN),
+        ];
+        match poll(&mut fds, timeout.as_ref()) {
+            Err(rustix::io::Errno::INTR) => return Ok(false),
+            Err(error) => return Err(error.into()),
+            Ok(_) => {}
+        }
+        let notified = fds[0].revents().contains(PollFlags::IN);
+        if fds[1].revents().contains(PollFlags::IN) {
+            let mut bytes = [0u8; 8];
+            match rustix::io::read(control, &mut bytes) {
+                Ok(_) | Err(rustix::io::Errno::AGAIN) => {}
+                Err(error) => return Err(error.into()),
+            }
+        }
+        Ok(notified)
+    }
+
     fn update(&mut self, sources: Vec<Source>) {
         let wanted: BTreeSet<_> = sources.iter().map(|s| s.id).collect();
         self.entries.retain(|id, _| wanted.contains(id));
@@ -195,10 +240,7 @@ impl Worker {
     fn events(&mut self) -> io::Result<()> {
         let mut buffer = [MaybeUninit::uninit(); 65_536];
         let mut reader = inotify::Reader::new(&self.descriptor, &mut buffer);
-        let mut changes = BTreeSet::new();
-        let mut retired = BTreeSet::new();
-        let mut retired_watches = BTreeSet::new();
-        let mut lost = false;
+        let mut observed = ObservedEvents::default();
         for index in 0..QUEUE {
             let event = match reader.next() {
                 Ok(event) => event,
@@ -212,67 +254,46 @@ impl Worker {
                     | ReadFlags::MOVE_SELF
                     | ReadFlags::UNMOUNT,
             ) {
-                lost = true;
+                observed.lost = true;
             }
-            for (id, entry) in &self.entries {
-                if self
-                    .parents
-                    .get(entry.source.path.parent().expect("file parent"))
-                    != Some(&event.wd())
-                {
-                    continue;
-                }
-                if event.file_name().is_none_or(|name| {
-                    Some(name.to_bytes()) == entry.source.path.file_name().map(|n| n.as_bytes())
-                }) {
-                    if changes.len() < QUEUE {
-                        changes.insert(*id);
-                    } else {
-                        lost = true;
-                    }
-                    if event.events().intersects(
-                        ReadFlags::IGNORED
-                            | ReadFlags::DELETE_SELF
-                            | ReadFlags::MOVE_SELF
-                            | ReadFlags::UNMOUNT,
-                    ) {
-                        retired.insert(*id);
-                    }
-                }
-            }
+            observed.sources(&event, &self.entries, &self.parents);
             if event.events().intersects(
                 ReadFlags::IGNORED
                     | ReadFlags::DELETE_SELF
                     | ReadFlags::MOVE_SELF
                     | ReadFlags::UNMOUNT,
             ) {
-                retired_watches.insert(event.wd());
+                observed.retired_watches.insert(event.wd());
             }
             if index + 1 == QUEUE {
-                lost = true;
+                observed.lost = true;
             }
         }
+        self.apply_events(observed)
+    }
+
+    fn apply_events(&mut self, observed: ObservedEvents) -> io::Result<()> {
         // Discarding the remainder of a bounded kernel batch is an overflow,
         // never evidence that untouched sources remained unchanged.
-        for wd in retired_watches {
+        for wd in observed.retired_watches {
             match inotify::remove_watch(&self.descriptor, wd) {
                 Ok(()) | Err(rustix::io::Errno::INVAL) => {}
                 Err(error) => return Err(error.into()),
             }
             self.parents.retain(|_, prior| *prior != wd);
         }
-        for id in retired {
+        for id in observed.retired {
             self.entries.get_mut(&id).expect("retired source").watched = false;
             self.emit(
                 id,
                 Disk::Unavailable("parent observation was retired; use revert-buffer".into()),
             );
         }
-        if lost {
+        if observed.lost {
             self.request_rescan();
         }
         let due = Instant::now() + self.debounce;
-        for id in changes {
+        for id in observed.changes {
             self.schedule(id, due);
         }
         Ok(())

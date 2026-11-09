@@ -222,7 +222,7 @@ fn asset(
 ) -> Result<Vec<u8>, String> {
     let (before, limit) = observed;
     let mut file = crate::org::attachment::directory::input(path)?;
-    if file::Observation::from_metadata(file.metadata().map_err(|e| e.to_string())?)
+    if file::Observation::from_metadata(&file.metadata().map_err(|e| e.to_string())?)
         .map_err(|e| e.to_string())?
         != *before
     {

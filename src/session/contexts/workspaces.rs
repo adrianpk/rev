@@ -71,44 +71,7 @@ impl Session {
                 "",
                 "",
             ),
-            Request::WorkspaceList => {
-                let choices: Vec<_> = catalog
-                    .workspaces
-                    .into_iter()
-                    .map(|workspace| WorkspaceChoice {
-                        label: format!(
-                            "{} — {} roots {}",
-                            workspace.name.as_str(),
-                            workspace.roots.len(),
-                            workspace
-                                .roots
-                                .iter()
-                                .map(|r| r
-                                    .path
-                                    .as_path()
-                                    .display()
-                                    .to_string()
-                                    .escape_default()
-                                    .to_string())
-                                .collect::<Vec<_>>()
-                                .join(" | ")
-                        ),
-                        workspace,
-                    })
-                    .collect();
-                if choices.is_empty() {
-                    return self.message("No registered Workspaces; use workspace-create");
-                }
-                if let Err(e) = self.input.names_argument(
-                    "Workspace: ",
-                    "",
-                    choices.iter().map(|c| c.label.clone()).collect(),
-                ) {
-                    return self.error(&e.to_string());
-                }
-                self.pending = Some(Pending::Workspaces(choices));
-                self.message("Select a Workspace by name/path; C-g retains current work")
-            }
+            Request::WorkspaceList => self.offer_workspaces(catalog.workspaces),
             Request::WorkspaceOpen(workspace) => {
                 if !catalog.workspaces.contains(&workspace) {
                     return self.error("Selected Workspace changed; reopen the picker");
@@ -126,6 +89,44 @@ impl Session {
             _ => self.error("Workspace operation no longer owns its request"),
         }
     }
+    fn offer_workspaces(&mut self, workspaces: Vec<Workspace>) -> Action {
+        let choices: Vec<_> = workspaces
+            .into_iter()
+            .map(|workspace| WorkspaceChoice {
+                label: format!(
+                    "{} — {} roots {}",
+                    workspace.name.as_str(),
+                    workspace.roots.len(),
+                    workspace
+                        .roots
+                        .iter()
+                        .map(|r| r
+                            .path
+                            .as_path()
+                            .display()
+                            .to_string()
+                            .escape_default()
+                            .to_string())
+                        .collect::<Vec<_>>()
+                        .join(" | ")
+                ),
+                workspace,
+            })
+            .collect();
+        if choices.is_empty() {
+            return self.message("No registered Workspaces; use workspace-create");
+        }
+        if let Err(e) = self.input.names_argument(
+            "Workspace: ",
+            "",
+            choices.iter().map(|c| c.label.clone()).collect(),
+        ) {
+            return self.error(&e.to_string());
+        }
+        self.pending = Some(Pending::Workspaces(choices));
+        self.message("Select a Workspace by name/path; C-g retains current work")
+    }
+
     fn ask_workspace_name(&mut self, creation: Creation, text: &str, message: &str) -> Action {
         if let Err(e) = self.input.argument("Workspace name: ", text) {
             return self.error(&e.to_string());
@@ -259,7 +260,7 @@ impl Session {
             label,
             origin_project_id: origin,
         });
-        self.prepare_membership(workspace, next, None)
+        self.prepare_membership(workspace, next, false)
     }
     pub(in crate::session) fn workspace_remove_root(&mut self) -> Action {
         let workspace = match self.active_workspace() {
@@ -314,28 +315,18 @@ impl Session {
         };
         let mut next = picker.workspace.clone();
         next.roots.retain(|r| r.id != id);
-        self.prepare_membership(picker.workspace, next, Some(id))
+        self.prepare_membership(picker.workspace, next, true)
     }
     fn prepare_membership(
         &mut self,
         expected: Workspace,
         next: Workspace,
-        removed: Option<RootId>,
+        removed: bool,
     ) -> Action {
-        if self.context_storage.busy()
-            || self.context_prepared.is_some()
-            || self.context_membership.is_some()
-            || self.git_shutdown_active()
-            || self.terminal_shutdown_active()
-        {
+        if self.context_departure_busy() {
             return self.error("Context state work is already pending");
         }
-        if self.capture.is_some()
-            || self.source_edit.is_some()
-            || self.tangling.is_some()
-            || self.execution.is_some()
-            || self.feeds.is_some()
-        {
+        if self.context_draft_busy() {
             return self
                 .error("A source draft or output owns this context; finish or cancel it first");
         }
@@ -351,31 +342,9 @@ impl Session {
         if let Err(e) = self.context_generation.next() {
             return self.error(&e.to_string());
         }
-        let closed = if removed.is_some() {
-            let result: Result<Vec<_>, String> = self
-                .buffers
-                .iter()
-                .filter(|b| b.file().is_some() && !b.is_transient())
-                .filter_map(|b| {
-                    let path = b.file()?.path();
-                    let old = super::checkpoint::capture_reference(path, &expected.roots);
-                    let new = super::checkpoint::capture_reference(path, &next.roots);
-                    match (old, new) {
-                        (
-                            Ok(context::FileReference::RootRelative { .. }),
-                            Ok(context::FileReference::LooseAbsolute(_)),
-                        ) => Some(Ok(b.id())),
-                        (Err(e), _) | (_, Err(e)) => Some(Err(e)),
-                        _ => None,
-                    }
-                })
-                .collect();
-            match result {
-                Ok(ids) => ids,
-                Err(e) => return self.error(&e),
-            }
-        } else {
-            Vec::new()
+        let closed = match self.membership_closed(&expected, &next, removed) {
+            Ok(closed) => closed,
+            Err(error) => return self.error(&error),
         };
         let observations = next
             .roots
@@ -403,6 +372,37 @@ impl Session {
         }
         self.begin_workspace_sources(self.context_generation)
     }
+    fn membership_closed(
+        &self,
+        expected: &Workspace,
+        next: &Workspace,
+        removed: bool,
+    ) -> Result<Vec<crate::buffer::BufferId>, String> {
+        if removed {
+            let result: Result<Vec<_>, String> = self
+                .buffers
+                .iter()
+                .filter(|b| b.file().is_some() && !b.is_transient())
+                .filter_map(|b| {
+                    let path = b.file()?.path();
+                    let old = super::checkpoint::capture_reference(path, &expected.roots);
+                    let new = super::checkpoint::capture_reference(path, &next.roots);
+                    match (old, new) {
+                        (
+                            Ok(context::FileReference::RootRelative { .. }),
+                            Ok(context::FileReference::LooseAbsolute(_)),
+                        ) => Some(Ok(b.id())),
+                        (Err(e), _) | (_, Err(e)) => Some(Err(e)),
+                        _ => None,
+                    }
+                })
+                .collect();
+            result
+        } else {
+            Ok(Vec::new())
+        }
+    }
+
     pub(in crate::session) fn begin_workspace_sources(&mut self, generation: Generation) -> Action {
         let Some(m) = &self.context_membership else {
             return self.error("Root removal was canceled");
@@ -413,6 +413,10 @@ impl Session {
         let targets = m.closed.clone();
         self.begin_scoped_departure(Goal::Roots(generation), targets)
     }
+    #[expect(
+        clippy::needless_pass_by_value,
+        reason = "Departure consumes checked source authority even when membership is rejected"
+    )]
     pub(in crate::session) fn finish_workspace_sources(
         &mut self,
         generation: Generation,

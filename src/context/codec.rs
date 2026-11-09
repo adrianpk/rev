@@ -109,56 +109,32 @@ pub(super) fn decode(bytes: &[u8]) -> Result<Catalog, Error> {
     }
     let text = std::str::from_utf8(bytes).map_err(|_| Error::Invalid("TOML encoding"))?;
     let wire: Document = toml::from_str(text).map_err(|_| Error::Invalid("catalog TOML"))?;
-    if wire.schema_version != 1 {
-        return Err(Error::Unsupported("catalog schema"));
-    }
-    if wire.projects.len() > MAX_PROJECTS
-        || wire.workspaces.len() > MAX_WORKSPACES
-        || wire.sessions.len() > MAX_PROJECTS + MAX_WORKSPACES
-    {
-        return Err(Error::Capacity("catalog records"));
-    }
+    wire.validate()?;
     let raw: DocumentMut = text.parse().map_err(|_| Error::Invalid("catalog TOML"))?;
+    decode_records(wire, &raw)
+}
+
+fn decode_records(wire: Document, raw: &DocumentMut) -> Result<Catalog, Error> {
     let mut catalog = Catalog {
         revision: wire.revision,
         ..Catalog::default()
     };
     for project in wire.projects {
-        let owner = Owner::Project(project.id.clone());
-        catalog.projects.push(Project {
-            id: project.id,
-            revision: project.revision,
-            name: project.name,
-            roots_revision: project.roots_revision,
-            root: project.root.decode()?,
-            session_ref: SessionRef {
-                owner,
-                revision: project.session_revision,
-            },
-        });
+        catalog.projects.push(project.decode()?);
     }
     for workspace in wire.workspaces {
-        if workspace.roots.len() > MAX_ROOTS {
-            return Err(Error::Capacity("Workspace roots"));
-        }
-        let owner = Owner::Workspace(workspace.id.clone());
-        catalog.workspaces.push(Workspace {
-            id: workspace.id,
-            revision: workspace.revision,
-            name: workspace.name,
-            roots_revision: workspace.roots_revision,
-            roots: workspace
-                .roots
-                .into_iter()
-                .map(RootRecord::decode)
-                .collect::<Result<_, _>>()?,
-            session_ref: SessionRef {
-                owner,
-                revision: workspace.session_revision,
-            },
-        });
+        catalog.workspaces.push(workspace.decode()?);
     }
-    for (index, table) in wire.sessions.into_iter().enumerate() {
+    decode_sessions(&mut catalog, wire.sessions, raw)?;
+    catalog.validate(false)?;
+    Ok(catalog)
+}
+fn decode_sessions(
+    catalog: &mut Catalog,
+    sessions: Vec<toml::Table>,
+    raw: &DocumentMut,
+) -> Result<(), Error> {
+    for (index, table) in sessions.into_iter().enumerate() {
         let header: SessionHeader = table
             .clone()
             .try_into()
@@ -169,38 +145,104 @@ pub(super) fn decode(bytes: &[u8]) -> Result<Catalog, Error> {
             .and_then(|tables| tables.get(index))
             .ok_or(Error::Invalid("session table shape"))?
             .clone();
-        let roots = match &header.owner {
-            Owner::Project(id) => catalog
-                .projects
-                .iter()
-                .find(|p| p.id == *id)
-                .map(|p| std::slice::from_ref(&p.root)),
-            Owner::Workspace(id) => catalog
-                .workspaces
-                .iter()
-                .find(|w| w.id == *id)
-                .map(|w| w.roots.as_slice()),
-        }
-        .ok_or(Error::Invalid("orphan session"))?;
-        let snapshot = if raw.to_string().len() > MAX_SESSION_BYTES {
-            return Err(Error::Capacity("encoded session"));
-        } else {
-            decode_session(table, roots)
-        };
-        let preserved = snapshot.is_err().then_some(raw);
-        catalog.sessions.push(SavedSession {
-            reference: SessionRef {
-                owner: header.owner,
-                revision: header.revision,
-            },
-            roots_revision: header.roots_revision,
-            snapshot,
-            preserved,
-        });
+        let session = decode_saved(catalog, header, table, raw)?;
+        catalog.sessions.push(session);
     }
-    catalog.validate(false)?;
-    Ok(catalog)
+    Ok(())
 }
+
+fn decode_saved(
+    catalog: &Catalog,
+    header: SessionHeader,
+    table: toml::Table,
+    raw: Table,
+) -> Result<SavedSession, Error> {
+    let roots = match &header.owner {
+        Owner::Project(id) => catalog
+            .projects
+            .iter()
+            .find(|p| p.id == *id)
+            .map(|p| std::slice::from_ref(&p.root)),
+        Owner::Workspace(id) => catalog
+            .workspaces
+            .iter()
+            .find(|w| w.id == *id)
+            .map(|w| w.roots.as_slice()),
+    }
+    .ok_or(Error::Invalid("orphan session"))?;
+    let snapshot = if raw.to_string().len() > MAX_SESSION_BYTES {
+        return Err(Error::Capacity("encoded session"));
+    } else {
+        decode_session(table, roots)
+    };
+    let preserved = snapshot.is_err().then_some(raw);
+    Ok(SavedSession {
+        reference: SessionRef {
+            owner: header.owner,
+            revision: header.revision,
+        },
+        roots_revision: header.roots_revision,
+        snapshot,
+        preserved,
+    })
+}
+
+impl ProjectRecord {
+    fn decode(self) -> Result<Project, Error> {
+        let owner = Owner::Project(self.id.clone());
+        Ok(Project {
+            id: self.id,
+            revision: self.revision,
+            name: self.name,
+            roots_revision: self.roots_revision,
+            root: self.root.decode()?,
+            session_ref: SessionRef {
+                owner,
+                revision: self.session_revision,
+            },
+        })
+    }
+}
+
+impl WorkspaceRecord {
+    fn decode(self) -> Result<Workspace, Error> {
+        if self.roots.len() > MAX_ROOTS {
+            return Err(Error::Capacity("Workspace roots"));
+        }
+        let owner = Owner::Workspace(self.id.clone());
+        Ok(Workspace {
+            id: self.id,
+            revision: self.revision,
+            name: self.name,
+            roots_revision: self.roots_revision,
+            roots: self
+                .roots
+                .into_iter()
+                .map(RootRecord::decode)
+                .collect::<Result<_, _>>()?,
+            session_ref: SessionRef {
+                owner,
+                revision: self.session_revision,
+            },
+        })
+    }
+}
+
+impl Document {
+    fn validate(&self) -> Result<(), Error> {
+        if self.schema_version != 1 {
+            return Err(Error::Unsupported("catalog schema"));
+        }
+        if self.projects.len() > MAX_PROJECTS
+            || self.workspaces.len() > MAX_WORKSPACES
+            || self.sessions.len() > MAX_PROJECTS + MAX_WORKSPACES
+        {
+            return Err(Error::Capacity("catalog records"));
+        }
+        Ok(())
+    }
+}
+
 fn decode_session(table: toml::Table, roots: &[Root]) -> Result<Snapshot, Error> {
     let wire: SessionRecord = table
         .try_into()
@@ -247,7 +289,8 @@ pub(super) fn encode(catalog: &Catalog) -> Result<Vec<u8>, Error> {
     catalog.validate(false)?;
     let mut document = DocumentMut::new();
     document["schema_version"] = value(1);
-    document["revision"] = value(catalog.revision.get() as i64);
+    document["revision"] =
+        value(i64::try_from(catalog.revision.get()).expect("validated TOML integer"));
     let mut charged = 64;
     let projects = catalog.projects.iter().map(|project| {
         let mut table = record(
@@ -277,6 +320,18 @@ pub(super) fn encode(catalog: &Catalog) -> Result<Vec<u8>, Error> {
         table
     });
     tables(&mut document, "workspaces", workspaces, &mut charged)?;
+    encode_sessions(&mut document, catalog, &mut charged)?;
+    let bytes = document.to_string().into_bytes();
+    if bytes.len() > MAX_CATALOG_BYTES {
+        return Err(Error::Capacity("encoded catalog"));
+    }
+    Ok(bytes)
+}
+fn encode_sessions(
+    document: &mut DocumentMut,
+    catalog: &Catalog,
+    charged: &mut usize,
+) -> Result<(), Error> {
     let mut sessions = Vec::with_capacity(catalog.sessions.len());
     for session in &catalog.sessions {
         let table = match &session.snapshot {
@@ -291,7 +346,7 @@ pub(super) fn encode(catalog: &Catalog) -> Result<Vec<u8>, Error> {
         }
         // Charge before retaining another table, rather than materializing all
         // individually admitted snapshots before applying the aggregate cap.
-        charge(&table, &mut charged)?;
+        charge(&table, charged)?;
         sessions.push(table);
     }
     let mut array = ArrayOfTables::new();
@@ -303,12 +358,9 @@ pub(super) fn encode(catalog: &Catalog) -> Result<Vec<u8>, Error> {
     } else {
         document["sessions"] = Item::ArrayOfTables(array);
     }
-    let bytes = document.to_string().into_bytes();
-    if bytes.len() > MAX_CATALOG_BYTES {
-        return Err(Error::Capacity("encoded catalog"));
-    }
-    Ok(bytes)
+    Ok(())
 }
+
 fn charge(table: &Table, charged: &mut usize) -> Result<(), Error> {
     *charged += table.to_string().len() + 32;
     if *charged > MAX_CATALOG_BYTES {
@@ -337,10 +389,11 @@ fn tables(
 fn record(id: &str, revision: Revision, name: &Name, roots: Revision, session: Revision) -> Table {
     let mut table = Table::new();
     table["id"] = value(id);
-    table["revision"] = value(revision.get() as i64);
+    table["revision"] = value(i64::try_from(revision.get()).expect("validated TOML integer"));
     table["name"] = value(name.as_str());
-    table["roots_revision"] = value(roots.get() as i64);
-    table["session_revision"] = value(session.get() as i64);
+    table["roots_revision"] = value(i64::try_from(roots.get()).expect("validated TOML integer"));
+    table["session_revision"] =
+        value(i64::try_from(session.get()).expect("validated TOML integer"));
     table
 }
 fn path_value(path: &NativePath) -> Value {
@@ -381,16 +434,24 @@ fn owner_value(owner: &Owner) -> Value {
 }
 fn position_value(position: SourcePosition) -> Value {
     let mut table = InlineTable::new();
-    table.insert("line", (position.line as i64).into());
-    table.insert("column", (position.column as i64).into());
+    table.insert(
+        "line",
+        (i64::try_from(position.line).expect("validated TOML integer")).into(),
+    );
+    table.insert(
+        "column",
+        (i64::try_from(position.column).expect("validated TOML integer")).into(),
+    );
     Value::InlineTable(table)
 }
 fn session_table(session: &SavedSession, snapshot: &Snapshot) -> Result<Table, Error> {
     let mut table = Table::new();
     table["schema_version"] = value(1);
     table["owner"] = Item::Value(owner_value(&session.reference.owner));
-    table["revision"] = value(session.reference.revision.get() as i64);
-    table["roots_revision"] = value(session.roots_revision.get() as i64);
+    table["revision"] =
+        value(i64::try_from(session.reference.revision.get()).expect("validated TOML integer"));
+    table["roots_revision"] =
+        value(i64::try_from(session.roots_revision.get()).expect("validated TOML integer"));
     let mut files = Array::new();
     for entry in &snapshot.files {
         let mut file = InlineTable::new();
@@ -408,7 +469,7 @@ fn session_table(session: &SavedSession, snapshot: &Snapshot) -> Result<Table, E
             view.insert("anchor", position_value(viewport.anchor));
             view.insert(
                 "horizontal_cells",
-                (viewport.horizontal_cells as i64).into(),
+                (i64::try_from(viewport.horizontal_cells).expect("validated TOML integer")).into(),
             );
             file.insert("viewport", Value::InlineTable(view));
         }
@@ -421,7 +482,7 @@ fn session_table(session: &SavedSession, snapshot: &Snapshot) -> Result<Table, E
             .iter()
             .position(|entry| entry.file == *active)
             .ok_or(Error::Invalid("active session file"))?;
-        table["active_file"] = value(index as i64);
+        table["active_file"] = value(i64::try_from(index).expect("validated TOML integer"));
     }
     Ok(table)
 }
