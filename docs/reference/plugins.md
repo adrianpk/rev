@@ -111,7 +111,10 @@ plugin-list opens a read-only inventory with package IDs, versions, installed /
 inactive state, declared commands and ineffective binding declarations. Display
 output is bounded to 64 KiB with an explicit truncation notice. It performs no
 program or PATH probe. Selecting an unavailable contributed command reports its
-qualified identity and state without editing or saving source text.
+qualified identity and state without editing or saving source text. Qualified
+plugin selections participate in session usage ranking. They are not written to
+the native schema-1 command history, whose name grammar and limits remain
+unchanged; subsequent native command usage continues to persist.
 
 The management commands select an explicitly admitted package ID. Activation and
 restart report that activation is unavailable. Deactivation reports that the

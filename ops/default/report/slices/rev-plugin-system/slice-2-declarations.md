@@ -43,6 +43,10 @@ paths. Ordinary snapshot cloning does not reload metadata. Each manifest is
 read through an owned nonblocking descriptor, checked as a regular UTF-8 file
 and bounded to 256 KiB, including growth during the read.
 
+Qualified plugin selections rank in the session without entering the native
+schema-1 usage store. The existing disk name grammar and limits remain unchanged;
+a maximum-length qualified selection cannot suspend later native publications.
+
 Native Command remains Copy. PluginName retains up to 130 identity bytes
 without changing MacroName or persisted macro formats. The native palette's existing candidate/description path admits these
 identities; no parallel selector or dispatch engine is added.
@@ -79,6 +83,8 @@ inventories, the reference index and Unreleased behavior are updated together.
   and shared immutable catalog.
 - `src/command/plugins.rs`, `src/input/palette.rs`, `src/session/plugins.rs`:
   native identities, described discovery and unavailable-handler feedback.
+- `src/command/usage/history.rs`: retain local plugin ranking without publishing
+  unsupported identities to the existing native history format.
 - `src/input/grammar.rs`, `src/input/grammar/operator.rs`,
   `src/input/dispatch.rs`: compact deferred modal results.
 - `tests/plugins/declarations.rs`, `tests/commands/palette.rs`: real
@@ -99,10 +105,13 @@ All seven ordered implementation checks passed locally:
 - `git diff --check`
 
 The SDK selection passed 12 tests and command regressions passed 52 tests.
-The declaration selection passed seven tests, including both native profiles,
+The declaration selection passed eight tests, including both native profiles,
 a real executable that would create a marker, namespace/unknown-field rejection,
 source-relative paths, selector admission, Unicode source preservation and
-exact/over-limit file and aggregate command bounds. No fixture program is started.
+exact/over-limit file and aggregate command bounds. A real native usage store
+verifies session ranking for a 130-byte qualified selection while subsequent
+native usage still persists under the unchanged schema-1 grammar. No fixture
+program is started.
 
 Additional focused modal regression passed 11 tests with:
 
@@ -111,7 +120,7 @@ Additional focused modal regression passed 11 tests with:
 Documentation validation passed 684 commands in each combined inventory,
 299 configuration entries, 100 reachable pages and 684 local links/anchors.
 These are focused slice checks. The controller validator owns the exact
-clean-HEAD evidence for the final PR-reference commit before handoff.
+clean-HEAD evidence for the final PR head before handoff.
 
 ## Risks and Follow-ups
 

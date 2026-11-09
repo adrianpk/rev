@@ -93,7 +93,9 @@ impl History {
     pub(crate) fn record(&mut self, command: Command) {
         let mut memory = self.memory.lock().expect("command usage owner");
         memory.usage.record(command);
-        if !memory.enabled {
+        // Qualified experimental calls participate in session ranking. Native
+        // schema 1 retains its existing name grammar and publication bounds.
+        if !memory.enabled || matches!(command, Command::PluginDefined(_)) {
             return;
         }
         let Some(next) = memory.next.checked_add(1) else {

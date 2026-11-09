@@ -453,3 +453,61 @@ fn admission_bounds() {
     );
     assert!(config::prepare(Path::new(&path)).diagnostic.is_some());
 }
+
+// Qualified discovery must not suspend existing native command persistence.
+// Keep the schema-1 disk grammar unchanged even for the longest public ID.
+#[test]
+fn usage_persistence() {
+    use rev::command::usage::{History, Store};
+    let f = Fixture::new();
+    let package = format!("{}.{}", "a".repeat(32), "b".repeat(32));
+    let command = "c".repeat(64);
+    let qualified = format!("{package}.{command}");
+    assert_eq!(qualified.len(), 130);
+    f.write(
+        "package.toml",
+        &manifest(&package).replace("name = \"collect\"", &format!("name = \"{command}\"")),
+    );
+    let prepared = prepare(&f, &["package.toml"], "");
+    assert!(prepared.diagnostic.is_none());
+    let path = f.write("usage.toml", "version=1\ncommands=['backward-char']\n");
+    let mut buffers = Buffers::with_settings(prepared.snapshot).unwrap();
+    let id = buffers.create("source").unwrap();
+    let view = View::new(buffers.get(id).unwrap());
+    let mut session = Session::new(
+        buffers,
+        view,
+        Size {
+            width: 200,
+            height: 18,
+        },
+    )
+    .unwrap()
+    .with_command_usage(History::open(&path));
+    for name in [&qualified, "forward-char"] {
+        session.handle(Event::Key(KeyEvent::new(
+            KeyCode::Char('x'),
+            KeyModifiers::ALT,
+        )));
+        session.handle(Event::Paste(name.to_owned()));
+        session.handle(key(KeyCode::Enter));
+        session.handle(Event::Key(KeyEvent::new(
+            KeyCode::Char('x'),
+            KeyModifiers::ALT,
+        )));
+        let frame = session.frame().unwrap();
+        let first = frame
+            .rows()
+            .iter()
+            .find(|r| r.band() == rev::display::Band::Completion)
+            .unwrap();
+        assert_eq!(first.text().split_whitespace().next(), Some(name));
+        session.execute(Command::KeyboardQuit);
+        session.flush_command_usage().unwrap();
+    }
+    assert_eq!(
+        Store::open(&path).unwrap().1,
+        ["backward-char", "forward-char"]
+    );
+    assert_eq!(text(&session), "source");
+}
