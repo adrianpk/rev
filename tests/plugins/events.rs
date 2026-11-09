@@ -53,7 +53,10 @@ fn edit(event: &Value, stamp: &Value) -> Value {
 }
 fn wire(e: &mut Editor, id: &str, sequence: usize, method: &str, params: Value) -> Value {
     let directory = e.fixture.0.join(id);
-    fs::write(directory.join(format!("request-{sequence}")), format!("{}\n",json!({"jsonrpc":"2.0","id":format!("buffer-request-{sequence}"),"method":method,"params":params}))).unwrap();
+    // The child polls final paths: expose only complete request records.
+    let temporary = directory.join("request-tmp");
+    fs::write(&temporary, format!("{}\n",json!({"jsonrpc":"2.0","id":format!("buffer-request-{sequence}"),"method":method,"params":params}))).unwrap();
+    fs::rename(temporary, directory.join(format!("request-{sequence}"))).unwrap();
     e.wait(|_| directory.join(format!("response-{sequence}")).exists());
     let value: Value =
         serde_json::from_slice(&fs::read(directory.join(format!("response-{sequence}"))).unwrap())

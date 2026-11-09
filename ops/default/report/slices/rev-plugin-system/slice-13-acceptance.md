@@ -66,6 +66,20 @@ append before its final LF. It now observes only complete framed records and
 still strictly parses every complete line. Five consecutive focused runs passed
 with the original event, queue, invalidation, input and deadline assertions.
 
+The first formal check of a4f1916576b3f7d7241aceb6458cb80dd9cf75e6
+passed 85 plugin tests but causal_chain timed out with an active child and zero
+pending requests. Repeated isolated and combined checks did not reproduce the
+timeout naturally. Inspection found that the event fixture exposed request-N
+before writing its JSON, while the child read a request as soon as it existed.
+A controlled 20 ms gap between creation and writing reproduced the same timeout
+and captured the child request thread failing to parse the empty file. Requests
+now use a temporary file and atomic rename, matching the existing response
+publication. The same delayed-publication probe then passed, followed by all
+nine event tests with the original eight-second deadline and causal assertions.
+The initial timeout did not retain child stderr, so its specific occurrence
+cannot be attributed conclusively. Temporary delays, repeated-loop probes and
+diagnostic instrumentation are absent from the final fixture.
+
 All twelve prior canonical PRs were verified merged into dev, and their
 integrations are ancestors of this slice. Missing integration headers for
 Slices 7-9 are reconciled with those verified commits. Earlier reports keep
