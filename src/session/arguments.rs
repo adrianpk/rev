@@ -51,6 +51,11 @@ impl Session {
             }
             return self.message("Command argument origin changed");
         }
+        if matches!(invocation.command, Command::PluginDefined(_)) && invocation.argument.supplied()
+        {
+            return self
+                .error("Plugin prefix invocation is unavailable in this experimental increment");
+        }
         if let Some(action) = self.macro_menu_command(invocation.command) {
             return action;
         }

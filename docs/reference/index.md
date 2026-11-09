@@ -15,7 +15,7 @@ Use this section to look up exact behavior. For a guided start, read the
 - [Focused prompts](prompts.md): arguments, path completion, decisions and cancellation.
 - [Search and replacement](search.md): literal smart-case queries and per-match replacement.
 - [Native completion](completion.md): automatic/manual names, structural language contexts and checked acceptance.
-- [Experimental plugin declarations](plugins.md): local manifests, passive discovery and configuration.
+- [Experimental plugins](plugins.md): local declarations, command discovery and owned process lifecycle.
 - [Language servers](language-servers.md): guided setup, managed recipes, source selection, shared lifetimes and semantic edits.
 - [Language-server configuration example](language-server-example.toml): complete installed/custom launch fields and per-language preferences.
 - [File reload](commands.md#reload-a-visiting-file): checked revert, automatic observation and unsaved-text protection.

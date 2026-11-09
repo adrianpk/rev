@@ -212,6 +212,7 @@ impl Session {
         self.end_timer_session();
         self.installation.cancel();
         self.shell.stop();
+        self.plugins.host.retire();
         Action::Exit
     }
 

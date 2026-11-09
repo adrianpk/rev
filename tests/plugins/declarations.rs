@@ -61,21 +61,11 @@ fn text(session: &Session) -> String {
         .unwrap()
         .to_string()
 }
-fn surface(session: &mut Session) -> String {
-    session
-        .frame()
-        .unwrap()
-        .rows()
-        .iter()
-        .map(|r| r.text())
-        .collect::<Vec<_>>()
-        .join("\n")
-}
 
-// A real executable would create the marker. Configuration, both native
-// selectors, unavailable handlers and explicit startup metadata never run it.
+// A real executable would create the marker. Passive configuration, both
+// native selectors, binding declarations and inventory must never run it.
 #[test]
-fn dormant_startup() {
+fn dormant_catalog() {
     for profile in ["non-modal", "modal"] {
         let f = Fixture::new();
         let marker = f.0.join("started");
@@ -86,7 +76,7 @@ fn dormant_startup() {
             &format!("args = [{}]", serde_json::to_string(&marker).unwrap()),
         ) + "\n[[bindings]]\ncommand='field.notes.collect'\nkeys='C-c n'\ncontext='editor'\nscope='global'\n";
         f.write("package.toml", &declaration);
-        let path = f.write("profile.toml", &format!("[editor]\ninteraction_profile='{profile}'\n[plugins]\nenabled=true\nmanifests=['package.toml']\nstartup=['field.notes']"));
+        let path = f.write("profile.toml", &format!("[editor]\ninteraction_profile='{profile}'\n[plugins]\nenabled=true\nmanifests=['package.toml']\nstartup=[]"));
         let prepared = config::prepare(&path);
         assert!(prepared.diagnostic.is_none(), "{:?}", prepared.diagnostic);
         let mut input = Input::with_settings(&prepared.snapshot);
@@ -127,17 +117,6 @@ fn dormant_startup() {
         };
         session.handle(open);
         session.handle(Event::Paste("field.notes.collect".into()));
-        session.handle(key(KeyCode::Enter));
-        assert!(
-            surface(&mut session).contains("Plugin command unavailable"),
-            "{profile}"
-        );
-        assert_eq!(text(&session), "source 🦀\n");
-        session.execute(Command::Plugin(PluginCommand::Activate));
-        session.handle(Event::Paste("field.notes".into()));
-        session.handle(key(KeyCode::Enter));
-        assert!(surface(&mut session).contains("activation is unavailable"));
-        session.execute(Command::Plugin(PluginCommand::Restart));
         session.execute(Command::KeyboardQuit);
         assert_eq!(text(&session), "source 🦀\n");
         session.execute(Command::Plugin(PluginCommand::List));
@@ -510,4 +489,5 @@ fn usage_persistence() {
         ["backward-char", "forward-char"]
     );
     assert_eq!(text(&session), "source");
+    session.shutdown_plugins().unwrap();
 }

@@ -239,6 +239,9 @@ impl Session {
             .inherit_bookmarks(self.buffers.bookmarks.clone());
         destination.input.inherit_histories(&mut self.input);
         std::mem::swap(&mut destination.macros, &mut self.macros);
+        // Packages belong to the independent editor, not its current Project
+        // or Workspace. Preserve generations and the host-owned wake lifetime.
+        std::mem::swap(&mut destination.plugins, &mut self.plugins);
         destination.sync_macro_catalog();
         std::mem::swap(&mut destination.kills, &mut self.kills);
         std::mem::swap(&mut destination.rectangle, &mut self.rectangle);

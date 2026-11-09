@@ -7,6 +7,8 @@ pub struct Handshake {
     request: Request,
     offer: InitializeParams,
     accepted: bool,
+    commands: Vec<CommandId>,
+    handlers: List<Handler, 64>,
 }
 impl Handshake {
     pub fn new(
@@ -36,7 +38,23 @@ impl Handshake {
             request,
             offer,
             accepted: false,
+            commands: Vec::new(),
+            handlers: List::default(),
         })
+    }
+    /// The lifecycle increment implements host-to-package command callbacks.
+    /// Package-to-host editor operations remain separately rejected by `admit`.
+    pub(crate) fn commands(mut self, commands: Vec<CommandId>) -> Result<Self, RpcError> {
+        self.offer.capabilities = List::new(vec![Capability::Commands])?;
+        self.request.id = OpaqueId::new(format!("initialize:{}", self.offer.generation))
+            .map_err(|_| RpcError::application(ErrorKind::InvalidArguments))?;
+        self.request.params = serde_json::to_value(&self.offer)
+            .map_err(|_| RpcError::standard(-32603, "cannot encode initialization"))?;
+        self.commands = commands;
+        Ok(self)
+    }
+    pub(crate) fn handlers(&self) -> &List<Handler, 64> {
+        &self.handlers
     }
     pub fn request(&self) -> &Request {
         &self.request
@@ -63,9 +81,14 @@ impl Handshake {
         let result: InitializeResult = serde_json::from_value(result.clone())
             .map_err(|_| RpcError::application(ErrorKind::InvalidArguments))?;
         self.offer.accepts(&result)?;
-        if !result.handlers.is_empty() {
+        if result
+            .handlers
+            .iter()
+            .any(|h| !self.commands.contains(&h.command))
+        {
             return Err(RpcError::application(ErrorKind::UnsupportedMethod));
         }
+        self.handlers = result.handlers;
         self.accepted = true;
         Ok(())
     }

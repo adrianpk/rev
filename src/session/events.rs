@@ -44,6 +44,7 @@ impl Session {
             let ai = self.expire_ai();
             let reload = self.expire_reload();
             let observed = self.expire_observation();
+            let plugins = self.expire_plugins();
             let shutdown = self.advance_terminal_shutdown();
             let git_shutdown = self.advance_git_shutdown();
             if shutdown == Action::Exit || git_shutdown == Action::Exit {
@@ -57,6 +58,7 @@ impl Session {
                 || ai != Action::Wait
                 || reload != Action::Wait
                 || observed != Action::Wait
+                || plugins != Action::Wait
             {
                 return Ok(Action::Redraw);
             }
@@ -88,6 +90,7 @@ impl Session {
             self.git.engine.remaining(),
             self.terminal_remaining(),
             self.observation_remaining(),
+            self.plugins_remaining(),
             self.pointer_remaining(now),
             self.org.remaining(now),
             self.timer_remaining(now),
@@ -289,6 +292,7 @@ impl Session {
             self.expire_git(),
             self.expire_terminals(),
             self.expire_observation(),
+            self.expire_plugins(),
             self.expire_completion(now),
             self.expire_pointer(now),
             self.expire_timer(now),

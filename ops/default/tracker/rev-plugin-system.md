@@ -65,16 +65,16 @@ Validation: all seven frozen commands passed through the controller validator on
 
 ## Slice 3: Owned process lifecycle
 
-State: ready
+State: reviewing
 Dependency: Slice 2 integrated
 Branch: feat/rev-plugin-system-03-lifecycle
 PR: pending
 Report: ops/default/report/slices/rev-plugin-system/slice-3-lifecycle.md
-Validation: pending; exact ordered commands in the plan and controller configuration
+Validation: all seven frozen ordered commands passed locally, plus 22 focused protocol/declaration/lifecycle tests and standalone fixture formatting; see the report and final controller candidate evidence.
 
-- [ ] T3.1: Implement one lazy owned process group per package/editor, coalesced triggers, explicit startup and bidirectional nonblocking RPC with generation-qualified requests.
-- [ ] T3.2: Deliver cancel/deactivate/restart/shutdown, bounded stderr, failed-spawn descriptor cleanup and owned group escalation/reaping; preserve created buffers and report uncertain descendants.
-- [ ] T3.3: Verify activation triggers, concurrent first use, crash/EOF/malformed peers, cancellation and both-profile native input responsiveness through real Rust child fixtures.
+- [x] T3.1: Implement one lazy owned process group per package/editor, coalesced triggers, explicit startup and bidirectional nonblocking RPC with generation-qualified requests.
+- [x] T3.2: Deliver cancel/deactivate/restart/shutdown, bounded stderr, failed-spawn descriptor cleanup and owned group escalation/reaping; preserve created buffers and report uncertain descendants.
+- [x] T3.3: Verify activation triggers, concurrent first use, crash/EOF/malformed peers, cancellation and both-profile native input responsiveness through real Rust child fixtures.
 
 ## Slice 4: Independent text buffers
 

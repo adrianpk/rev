@@ -1,5 +1,6 @@
-//! Experimental plugin boundary. Runtime activation and editor operations are
-//! not implemented by publishing the protocol schemas.
+//! Experimental local packages. Native owners retain editor publication;
+//! owned supervisors perform process and transport work off the input thread.
 
 pub mod declarations;
+pub mod lifecycle;
 pub mod protocol;

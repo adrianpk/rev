@@ -1,0 +1,229 @@
+//! Executable Rust peer, compiled by the lifecycle integration fixture against
+//! the same public SDK artifacts. It has no private editor dependency.
+use rev_plugin_sdk::{
+    client::{Client, Event},
+    identity::*,
+    methods::*,
+    rpc::*,
+    transport::{Decoder, encode},
+};
+use std::{
+    fs::{self, OpenOptions},
+    io::{Read, Write},
+    path::PathBuf,
+    time::{Duration, Instant},
+};
+
+fn record(directory: &std::path::Path, name: &str, text: &str) {
+    let mut file = OpenOptions::new()
+        .create(true)
+        .append(true)
+        .open(directory.join(name))
+        .unwrap();
+    writeln!(file, "{text}").unwrap();
+}
+fn record_message(directory: &std::path::Path, name: &str, message: &Message) {
+    let bytes = encode(message, 4 * 1024 * 1024).unwrap();
+    record(
+        directory,
+        name,
+        std::str::from_utf8(&bytes).unwrap().trim_end(),
+    );
+}
+fn main() {
+    let args: Vec<_> = std::env::args().collect();
+    let directory = PathBuf::from(&args[1]);
+    let package = Package {
+        id: PackageId::new(&args[2]).unwrap(),
+        version: Label::new("0.1.0").unwrap(),
+    };
+    let mode = fs::read_to_string(directory.join("mode")).unwrap_or_else(|_| "echo".into());
+    if mode == "descendant-child" {
+        std::thread::sleep(Duration::from_secs(60));
+        return;
+    }
+    record(&directory, "starts", &std::process::id().to_string());
+    if mode == "crash" {
+        std::process::exit(17);
+    }
+    if mode == "noise" {
+        println!("this is not JSON-RPC");
+        std::thread::sleep(Duration::from_secs(60));
+        return;
+    }
+    if mode == "truncated" {
+        print!("{{");
+        std::io::stdout().flush().unwrap();
+        return;
+    }
+    if mode == "oversize" {
+        std::io::stdout()
+            .write_all(&vec![b'x'; 4 * 1024 * 1024 + 1])
+            .unwrap();
+        std::thread::sleep(Duration::from_secs(60));
+        return;
+    }
+    if mode == "descendant" {
+        let child = std::process::Command::new("/bin/sh")
+            .args(["-c", "trap '' TERM; echo $$ > descendant; exec sleep 60"])
+            .current_dir(&directory)
+            .spawn()
+            .unwrap();
+        record(&directory, "owned-child", &child.id().to_string());
+    }
+    if mode == "stderr" {
+        let mut bytes = vec![b'd'; 256 * 1024];
+        bytes.extend_from_slice(b"\x1b[31mEND\n");
+        std::io::stderr().write_all(&bytes).unwrap();
+    }
+    let handler = Handler {
+        command: package.id.command(&CommandName::new("collect").unwrap()),
+        handler: OpaqueId::new("collect-handler").unwrap(),
+    };
+    let mut client = Client::new(package.clone(), List::new(vec![handler]).unwrap()).unwrap();
+    let start = Instant::now();
+    let mut held = Vec::new();
+    let mut input = std::io::stdin();
+    let mut output = std::io::stdout();
+    let mut buffer = [0; 8192];
+    let mut decoder = Decoder::new(4 * 1024 * 1024).unwrap();
+    loop {
+        let count = match input.read(&mut buffer) {
+            Ok(0) | Err(_) => return,
+            Ok(n) => n,
+        };
+        let mut offset = 0;
+        while offset < count {
+            if matches!(
+                mode.as_str(),
+                "foreign-api" | "foreign-generation" | "undeclared"
+            ) {
+                let (used, message) = decoder.receive(&buffer[offset..count]).unwrap();
+                offset += used;
+                let Some(Message::Request(request)) = message else {
+                    continue;
+                };
+                let mut result = request.params;
+                match mode.as_str() {
+                    "foreign-api" => result["api"] = "rev.plugins/0.2".into(),
+                    "foreign-generation" => result["generation"] = "99999".into(),
+                    _ => {}
+                }
+                let handlers = if mode == "undeclared" {
+                    format!(
+                        r#"[{{"command":"{}.ghost","handler":"ghost"}}]"#,
+                        package.id
+                    )
+                } else {
+                    "[]".into()
+                };
+                let body = result.to_string();
+                let body = body.strip_suffix('}').unwrap();
+                writeln!(
+                    output,
+                    r#"{{"jsonrpc":"2.0","id":"{}","result":{},"handlers":{}}}}}"#,
+                    request.id, body, handlers
+                )
+                .unwrap();
+                output.flush().unwrap();
+                std::thread::sleep(Duration::from_secs(60));
+                return;
+            }
+            let (observed, message) = decoder.receive(&buffer[offset..count]).unwrap();
+            let (used, event) = client.receive(&buffer[offset..count]).unwrap();
+            assert_eq!(observed, used);
+            offset += used;
+            match event {
+                Some(Event::Initialized(offer)) => {
+                    let Some(Message::Request(request)) = message else {
+                        panic!("initialization request");
+                    };
+                    record(&directory, "offers", &request.params.to_string());
+                    assert_eq!(offer.package, package);
+                    if mode == "slow" || mode == "timeout" {
+                        let deadline = Instant::now() + Duration::from_secs(10);
+                        while !directory.join("release").exists() && Instant::now() < deadline {
+                            std::thread::sleep(Duration::from_millis(1));
+                        }
+                    }
+                    if mode == "rpc" {
+                        client
+                            .request::<CommandsList>(
+                                CommandsListParams {
+                                    page: Page {
+                                        cursor: None,
+                                        limit: 1,
+                                    },
+                                    query: Label::new("").unwrap(),
+                                },
+                                start.elapsed(),
+                            )
+                            .unwrap();
+                    }
+                }
+                Some(Event::Request(callback)) => {
+                    record_message(
+                        &directory,
+                        "calls",
+                        &Message::Request(callback.request().clone()),
+                    );
+                    if mode == "slow-call" {
+                        let deadline = Instant::now() + Duration::from_secs(10);
+                        while !directory.join("complete").exists() && Instant::now() < deadline {
+                            std::thread::sleep(Duration::from_millis(1));
+                        }
+                    }
+                    if mode == "hold" {
+                        held.push(callback);
+                    } else {
+                        client
+                            .respond::<CommandInvoke>(
+                                &callback,
+                                Ok(CommandsInvokeResult {
+                                    value: Default::default(),
+                                }),
+                            )
+                            .unwrap();
+                    }
+                }
+                Some(Event::Notification(notification))
+                    if notification.method == CommandCancel::NAME =>
+                {
+                    record_message(&directory, "cancels", &Message::Notification(notification));
+                    for callback in held.drain(..) {
+                        assert!(
+                            client
+                                .respond::<CommandInvoke>(
+                                    &callback,
+                                    Ok(CommandsInvokeResult {
+                                        value: Default::default()
+                                    })
+                                )
+                                .is_err()
+                        );
+                        record(&directory, "retired", "late callback rejected");
+                    }
+                }
+                Some(Event::Response {
+                    result: Err(error), ..
+                }) => {
+                    record_message(
+                        &directory,
+                        "errors",
+                        &Message::Failure(Failure {
+                            jsonrpc: Version::V2,
+                            id: error.data.as_ref().and_then(|d| d.request.clone()),
+                            error,
+                        }),
+                    );
+                }
+                _ => {}
+            }
+            while !client.output().is_empty() {
+                let count = output.write(client.output()).unwrap();
+                client.consume_output(count).unwrap();
+            }
+            output.flush().unwrap();
+        }
+    }
+}

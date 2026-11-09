@@ -38,6 +38,9 @@ impl Session {
         if let Some(action) = self.terminal_quit_input() {
             return action;
         }
+        let plugins_cancelled = self.input.focus() == Focus::Editing
+            && self.pending.is_none()
+            && self.plugins.host.cancel();
         self.tree.edit();
         for (_, view) in self.windows.iter() {
             view.cancel_layout();
@@ -51,6 +54,10 @@ impl Session {
         };
         buffer.deactivate_region();
         self.input.cancel();
-        self.message("Quit")
+        self.message(if plugins_cancelled {
+            "Plugin work canceled; owned process cleanup pending"
+        } else {
+            "Quit"
+        })
     }
 }

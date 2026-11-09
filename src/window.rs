@@ -24,6 +24,12 @@ static NEXT: AtomicU64 = AtomicU64::new(1);
 #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub struct ViewId(u64);
 
+impl fmt::Display for ViewId {
+    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
+        self.0.fmt(formatter)
+    }
+}
+
 impl ViewId {
     fn next() -> Result<Self, Error> {
         NEXT.fetch_update(Ordering::Relaxed, Ordering::Relaxed, |value| {

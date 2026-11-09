@@ -7,3 +7,5 @@ mod protocol;
 mod declarations;
 #[path = "configuration/fixture.rs"]
 mod fixture;
+#[path = "plugins/lifecycle.rs"]
+mod lifecycle;

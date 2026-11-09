@@ -131,6 +131,7 @@ pub struct Session {
     shell: shell::Work,
     git: git::Work,
     terminals: terminals::Work,
+    plugins: plugins::Work,
     lsp: crate::lsp::Client,
     installation: crate::lsp::install::Manager,
     installation_notice: String,
@@ -356,9 +357,11 @@ impl Session {
         // Initialize Crossterm's native signal queue before enabling owned wakes.
         let result = crossterm::event::poll(std::time::Duration::ZERO).and_then(|_| {
             self.observation.wake.arm(true);
+            self.plugins.host.arm(true);
             self.drive_terminal(terminal)
         });
         self.observation.wake.arm(false);
+        self.plugins.host.arm(false);
         self.ai.stop();
         self.shell.stop();
         self.end_timer_session();
@@ -370,7 +373,8 @@ impl Session {
             eprintln!("{message}");
         }
         let cleanup = self.shutdown_terminals();
-        result.and(restored).and(cleanup)
+        let plugins = self.shutdown_plugins();
+        result.and(restored).and(cleanup).and(plugins)
     }
     fn drive_terminal(&mut self, terminal: &mut Terminal<impl Write>) -> io::Result<()> {
         self.start_terminal(terminal)?;
@@ -407,6 +411,7 @@ impl Session {
         session.prepare_bookmark_markers();
         session.follow_tree();
         session.activate_lsp();
+        session.startup_plugins();
         session.observe_files();
         Ok(session)
     }
@@ -467,6 +472,7 @@ impl Session {
             git,
             observation,
             terminals,
+            plugins: Default::default(),
             reload: reload::Work::default(),
             shell: shell::Work::new(
                 std::env::current_dir().map_err(|e| view::Error::WorkingDirectory(e.kind()))?,

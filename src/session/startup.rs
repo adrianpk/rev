@@ -44,6 +44,8 @@ impl Session {
         session.follow_tree();
         session.startup_clock_state();
         session.prepare_bookmark_markers();
+        session.startup_plugins();
+        session.observe_files();
         let usage_diagnostic = session.startup_command_usage();
         let library_diagnostic = session.startup_macro_library();
         let diagnostic = match (startup.diagnostic, usage_diagnostic) {

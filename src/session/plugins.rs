@@ -1,6 +1,16 @@
 use crate::command::{PluginCommand, PluginName};
 
 use super::{Action, Pending, Session};
+use crate::plugins::lifecycle::{Host, Inspection, Service};
+use rev_plugin_sdk::identity::{Revision, ScalarRange, Stamp};
+mod activation;
+
+#[derive(Default)]
+pub(super) struct Work {
+    pub(super) host: Host,
+    activation: activation::Activation,
+    notice: Option<String>,
+}
 
 impl Session {
     pub(super) fn plugin_command(&mut self, command: PluginCommand) -> Action {
@@ -28,33 +38,113 @@ impl Session {
     }
 
     pub(super) fn plugin_argument(&mut self, command: PluginCommand, id: &str) -> Action {
-        if self.buffers.snapshot().plugins().package(id).is_none() {
+        let Some(package) = self.buffers.snapshot().plugins().package(id) else {
             return self.error("Plugin package is not declared");
+        };
+        let result = match command {
+            PluginCommand::Activate => self.plugins.host.activate(package),
+            PluginCommand::Restart => self.plugins.host.restart(package),
+            PluginCommand::Deactivate => self
+                .plugins
+                .host
+                .deactivate(&package.manifest.plugin.id, false),
+            PluginCommand::List => return self.plugin_list(),
+        };
+        match result {
+            Ok(()) => self.message(&format!("Plugin {id}: {} requested", command.name())),
+            Err(error) => self.error(&error),
         }
-        if command == PluginCommand::Deactivate {
-            return self.message(&format!("Plugin {id} is inactive; no process is running"));
-        }
-        self.error(&format!(
-            "Plugin {id} is installed; activation is unavailable"
-        ))
     }
 
     pub(super) fn plugin_defined(&mut self, name: PluginName) -> Action {
-        let state = if self
-            .buffers
-            .snapshot()
-            .plugins()
-            .command(name.name())
-            .is_some()
-        {
-            "installed; activation unavailable"
-        } else {
-            "not declared"
+        let Some((package, command)) = self.buffers.snapshot().plugins().command(name.name())
+        else {
+            return self.error(&format!(
+                "Plugin command unavailable (not declared): {}",
+                name.name()
+            ));
         };
-        self.error(&format!(
-            "Plugin command unavailable ({state}): {}",
-            name.name()
-        ))
+        if let Err(error) = command.declaration().validate_arguments(
+            &serde_json::json!({}),
+            None,
+            &rev_plugin_sdk::limits::Limits::default(),
+        ) {
+            return self.error(&error.to_string());
+        }
+        let mut context = self.plugins.host.context();
+        if let Ok(buffer) = self.buffer()
+            && !buffer.is_transient()
+            && buffer.terminal().is_none()
+        {
+            context.stamp = Some(Stamp {
+                buffer: self.plugins.host.handle(format!("buffer-{}", buffer.id())),
+                revision: Revision::new(buffer.stamp().revision.to_string())
+                    .expect("native revision"),
+            });
+            context.pane = Some(
+                self.plugins
+                    .host
+                    .handle(format!("pane-{}", self.windows.selected_id())),
+            );
+            context.point = Some(self.view().point.position.0 as u64);
+            let selection = match buffer.region(self.view().point) {
+                Ok(selection) => selection,
+                Err(error) => return self.error(&error.to_string()),
+            };
+            context.selection = selection.map(|s| {
+                ScalarRange::new(s.range.start as u64, s.range.end as u64).expect("native region")
+            });
+        }
+        let id = package.manifest.plugin.id.command(&command.name);
+        match self.plugins.host.invoke(package, id, context) {
+            Ok(()) => self.message(&format!(
+                "Plugin command pending: {}; C-g cancels",
+                name.name()
+            )),
+            Err(error) => self.error(&error),
+        }
+    }
+
+    /// Ephemeral package status. This performs no process or filesystem probe.
+    pub fn plugin_status(&self, id: &str) -> Option<Inspection> {
+        let package = self.buffers.snapshot().plugins().package(id)?;
+        Some(self.plugins.host.inspect(&package.manifest.plugin.id))
+    }
+
+    /// Retire every generation and collect bounded receipts outside input/render.
+    /// `run_terminal` calls this after restoring the host terminal. Library hosts
+    /// call it before discarding their fixture resources or ending their session.
+    pub fn shutdown_plugins(&mut self) -> std::io::Result<()> {
+        self.plugins.host.shutdown()
+    }
+
+    pub(super) fn plugins_remaining(&self) -> Option<std::time::Duration> {
+        self.plugins
+            .host
+            .remaining()
+            .or_else(|| self.plugins.activation.remaining())
+            .or_else(|| {
+                (self.plugins.notice.is_some()
+                    && self.input.focus() == crate::input::Focus::Editing
+                    && self.pending.is_none())
+                .then_some(std::time::Duration::ZERO)
+            })
+    }
+
+    pub(super) fn expire_plugins(&mut self) -> Action {
+        let mut service = Service::new();
+        let mut notices = self.plugins.host.service(&mut service);
+        self.advance_plugin_activation(&mut service, &mut notices);
+        if let Some(notice) = notices.pop() {
+            self.plugins.notice = Some(notice);
+        }
+        if self.input.focus() == crate::input::Focus::Editing
+            && self.pending.is_none()
+            && let Some(notice) = self.plugins.notice.take()
+        {
+            return self.message(&notice);
+        }
+        Action::Wait
     }
 
     fn plugin_list(&mut self) -> Action {
@@ -71,11 +161,33 @@ impl Session {
         );
         for package in snapshot.plugins().packages() {
             let manifest = &package.manifest;
+            let status = self.plugins.host.inspect(&manifest.plugin.id);
+            let state = if status.state == crate::plugins::lifecycle::State::Installed {
+                "inactive (not started)"
+            } else {
+                status.state.name()
+            };
             text.push_str(&format!(
-                "{} {}: installed, inactive (activation unavailable)\n",
+                "{} {}: installed, {}\n",
                 manifest.plugin.id,
-                manifest.plugin.version.as_str()
+                manifest.plugin.version.as_str(),
+                state,
             ));
+            if let Some(generation) = status.generation {
+                text.push_str(&format!(
+                    "  Generation {generation}; {} pending request(s)\n",
+                    status.pending
+                ));
+            }
+            for (label, value) in [
+                ("Diagnostic", status.diagnostic),
+                ("Cleanup", status.cleanup),
+                ("Stderr", status.stderr),
+            ] {
+                if !value.is_empty() {
+                    text.push_str(&format!("  {label}: {value}\n"));
+                }
+            }
             for command in manifest.commands.iter() {
                 text.push_str(&format!(
                     "  {}: {}\n",

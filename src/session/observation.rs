@@ -29,6 +29,7 @@ impl Session {
     /// Reconcile only in-memory file associations. Registration, metadata and
     /// notification consumption belong to the IO worker.
     pub(super) fn observe_files(&mut self) {
+        self.observe_plugins();
         let limit = self
             .buffers
             .snapshot()
