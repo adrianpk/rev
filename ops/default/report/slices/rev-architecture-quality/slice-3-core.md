@@ -95,12 +95,31 @@ Baseline commands:
 - `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --test display -- --test-threads=1` — the same 44 passed and three failed.
 - `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --test gutter -- surfaces::wrapped_overlays --exact --test-threads=1` — the same overlay assertion failed; 36 other gutter tests were filtered out.
 
+## Approved Prerequisite Corrections
+
+The maintainer approved bounded correction of the four reproduced baseline
+failures while preserving meaningful coverage, geometry cases, resource limits
+and every frozen command. All corrections are in the existing three test files;
+no editor runtime change is required for these prerequisites.
+
+- Calendar fixtures finish initial Org view preparation before a transient
+  captures authority. Exact view preservation, invalid-cell rejection, mouse
+  selection, source text, history and undo assertions remain.
+- The palette test identifies `config.toml` by its source path. The parent
+  navigation row no longer masquerades as the configuration entry.
+- The wrapped overlay test checks active-file highlighting against the actual
+  tree content area, the matching entry and active source. It retains every
+  source overlay bound, exact searched/selected text and geometry case, including
+  narrow frames where the tree is suppressed.
+
+Focused calendar and wrapped-overlay reruns pass. The display target passes all
+47 tests after the fixture updates. Full ordered clean-HEAD acceptance is still
+pending; the earlier baseline failures remain above as historical diagnostics.
+
 ## Risks and Follow-ups
 
-The four reproduced baseline failures block the frozen native acceptance command.
 Canonical PR preparation and final clean-HEAD validation remain pending. The
-source/ownership remediation preserves the regression assertions and records
-these failures for controller triage.
+approved fixture corrections preserve the original regression contracts.
 
 Other selected-profile owners, staged enforcement and the full integrated gate
 remain later delivery work. Scoped quality evidence does not establish full

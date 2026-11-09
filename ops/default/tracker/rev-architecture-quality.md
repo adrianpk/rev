@@ -70,8 +70,8 @@ Branch: refactor/rev-architecture-quality-03-core
 PR: pending
 Report: ops/default/report/slices/rev-architecture-quality/slice-3-core.md
 Implementation: bab0731eebfa4b92059590c56f112213b45b0163
-Progress: source bounds and scoped Clippy pass; four native regression failures reproduce at the pre-slice baseline
-Validation: scoped quality, library, wrapping, terminal, Git presentation and remaining native checks recorded in report; frozen native command fails three display cases and a focused gutter check fails one, all reproduced before Slice 3; final Looper evidence and PR pending
+Progress: source bounds and scoped Clippy pass; maintainer-approved fixture corrections resolve the four reproduced baseline display/gutter failures without runtime changes
+Validation: focused calendar, palette/display and wrapped-overlay checks pass after fixture correction; complete frozen clean-HEAD validation and PR preparation remain pending
 
 - [x] T3.1: Correct selected ownership/representation diagnostics and existing source bounds in buffers, source coordinates, views, windows, display, syntax, gutter/tree and terminal-emulation owners.
 - [x] T3.2: Extract coherent decision/preparation/projection functions while preserving source units, revision checks, local history, shared views, caches and existing work/resource ceilings.

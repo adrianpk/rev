@@ -145,6 +145,14 @@ Findings: F3.
 - T3.2: Extract coherent decision/preparation/projection functions while preserving source units, revision checks, local history, shared views, caches and existing work/resource ceilings.
 - T3.3: Validate checked editing, Unicode/grapheme/visual projection, selection, syntax and view restoration with the actual native owners; record any legitimate invariant exceptions narrowly.
 
+Maintainer-approved prerequisite correction: repair the four display/gutter
+failures reproduced before Slice 3. Prepare the initial Org view before capturing
+calendar authority, locate configuration entries independently of parent rows,
+and distinguish active-file tree highlighting from editing-pane overlays.
+Retain all test names, meaningful assertions, varied geometry inputs, time/resource
+bounds and frozen commands. This approval adds no slice and permits no general
+test cleanup or weakened acceptance. Fixture corrections need no runtime change.
+
 Frozen ordered focused checks:
 
 1. `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 bash scripts/check-quality.sh --scope src/lib.rs --scope src/main.rs --scope src/search.rs --scope src/search --scope src/rectangle.rs --scope src/rectangle --scope src/pointer.rs --scope src/pointer --scope src/panel.rs --scope src/panel --scope src/kill.rs --scope src/jump.rs --scope src/buffer.rs --scope src/buffer --scope src/coordinates.rs --scope src/coordinates --scope src/view.rs --scope src/view --scope src/window.rs --scope src/window --scope src/display.rs --scope src/display --scope src/syntax.rs --scope src/syntax --scope src/gutter.rs --scope src/gutter --scope src/tree.rs --scope src/tree --scope src/term.rs --scope src/term`

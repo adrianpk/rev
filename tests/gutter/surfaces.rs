@@ -234,6 +234,15 @@ fn wrapped_overlays() {
         session.handle(Event::Paste("target".into()));
         let frame = session.frame().unwrap();
         let content = text_panel(&session, width).content();
+        let tree = Composition::workspace(
+            session.windows(),
+            session.tree(),
+            Size { width, height: 13 },
+            0,
+        )
+        .unwrap()
+        .tree()
+        .map(|panel| panel.content());
         let cells = surface::draw(&frame);
         let mut searched = String::new();
         let mut selected = String::new();
@@ -243,9 +252,27 @@ fn wrapped_overlays() {
                 (painted.selection(), &mut selected),
             ] {
                 if let Some(span) = span {
+                    // Active-file highlighting owns its tree row independently
+                    // of the source region in the selected editing pane.
+                    if tree
+                        .is_some_and(|area| span == (area.column()..area.column() + area.width()))
+                    {
+                        assert_eq!(
+                            session.tree().entries()[row].path(),
+                            fixture.0.join("main.rs")
+                        );
+                        assert_eq!(
+                            session.buffer().unwrap().file().unwrap().path(),
+                            fixture.0.join("main.rs")
+                        );
+                        assert!(painted.search().is_none());
+                        continue;
+                    }
                     assert!(
                         row >= usize::from(content.row())
-                            && row < usize::from(content.row() + content.height())
+                            && row < usize::from(content.row() + content.height()),
+                        "{width}/{right}/{visible}: row {row}, span {span:?}, content {content:?}; {}",
+                        painted.text()
                     );
                     assert!(
                         span.start >= content.column()

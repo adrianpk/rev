@@ -24,7 +24,7 @@ fn native() -> Session {
     let buffer = buffers.get_mut(id).unwrap();
     buffer.select_mode(Mode::Org).unwrap();
     let view = View::new(buffer);
-    Session::new(
+    let mut session = Session::new(
         buffers,
         view,
         Size {
@@ -33,7 +33,10 @@ fn native() -> Session {
         },
     )
     .unwrap()
-    .with_org_clock(clock)
+    .with_org_clock(clock);
+    // Capture transient edit authority only after the initial Org view is ready.
+    settle(&mut session);
+    session
 }
 fn settle(session: &mut Session) {
     let until = Instant::now() + Duration::from_secs(5);
@@ -138,7 +141,16 @@ fn timestamp_calendar_pointer() {
             .unwrap()
             .rows()
             .iter()
-            .any(|r| r.text().contains("[30]"))
+            .any(|r| r.text().contains("[30]")),
+        "{}",
+        session
+            .frame()
+            .unwrap()
+            .rows()
+            .iter()
+            .map(|r| r.text())
+            .collect::<Vec<_>>()
+            .join("\n")
     );
     assert_eq!(content(&session), source);
     assert!(session.buffer().unwrap().history().is_empty());

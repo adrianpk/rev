@@ -76,7 +76,7 @@ fn key(session: &mut Session, code: KeyCode) {
 // Focusing the tree recolors only its own selection/status and adjacent border.
 #[test]
 fn panel_colors() {
-    let (_fixture, mut session, palette) = session();
+    let (fixture, mut session, palette) = session();
     session.execute(Command::Split(Split::Right));
     session.execute(Command::Split(Split::Below));
     let frame = session.frame().unwrap();
@@ -121,8 +121,15 @@ fn panel_colors() {
         palette.tree_selected_text,
         palette.tree_selected,
     );
+    // Parent navigation is a real row; identify the file by its source path.
+    let configuration_row = session
+        .tree()
+        .entries()
+        .iter()
+        .position(|entry| entry.path() == fixture.0.join("config.toml"))
+        .unwrap();
     colors(
-        &cells[&(usize::from(cursor.row) + 1, 0)],
+        &cells[&(configuration_row, 0)],
         palette.tree_entries.configuration,
         palette.tree,
     );
