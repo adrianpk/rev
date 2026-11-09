@@ -5,7 +5,8 @@ Delivery set: rev-plugin-system
 Plan: [Plugin System Delivery](../../../plan/rev-plugin-system.md)
 Tracker: [Plugin System Tracker](../../../tracker/rev-plugin-system.md)
 Branch: `docs/rev-plugin-system-12-guidance`
-PR: pending
+PR: #12 - https://forge.adrianpk.com/rev/rev/pulls/12
+Implementation: 8a56835b74d63e8e8c5d0a50446a7cf2e08095bb
 
 ## Purpose
 

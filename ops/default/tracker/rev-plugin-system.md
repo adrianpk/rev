@@ -203,7 +203,8 @@ Validation: all eleven frozen ordered commands passed locally; 84 combined plugi
 State: reviewing
 Dependency: Slice 11 integrated
 Branch: docs/rev-plugin-system-12-guidance
-PR: pending
+PR: #12 - https://forge.adrianpk.com/rev/rev/pulls/12
+Implementation: 8a56835b74d63e8e8c5d0a50446a7cf2e08095bb
 Report: ops/default/report/slices/rev-plugin-system/slice-12-guidance.md
 Validation: all eight frozen commands passed locally; two guidance regressions cover the exact public Rust/TOML downloads in both profiles, twelve SDK tests and one doctest passed, and 52 command regressions passed. Documentation covers 106 pages/743 local links, 684 commands and 299 settings; strict Spore build and byte-identical downloads passed. Final exact clean-HEAD controller evidence is recorded before handoff.
 
