@@ -1,4 +1,6 @@
-use super::{Budget, Call, Connection, Permit, State, editor, inert, process::Process, reserve};
+use super::{
+    Budget, Call, Connection, Pending, Permit, State, editor, inert, process::Process, reserve,
+};
 use crate::plugins::{declarations, protocol::Handshake};
 use rev_plugin_sdk::{
     identity::*,
@@ -37,7 +39,7 @@ struct Worker {
     decoder: Decoder,
     startup: Instant,
     waiting: VecDeque<Call>,
-    pending: BTreeMap<OpaqueId, Call>,
+    pending: BTreeMap<OpaqueId, Pending>,
     output: VecDeque<Frame>,
     bytes: usize,
     stderr_open: bool,
@@ -242,8 +244,9 @@ impl Worker {
                 || self
                     .pending
                     .values()
-                    .chain(self.waiting.iter())
-                    .any(|c| now >= c.deadline)
+                    .map(|call| call.deadline)
+                    .chain(self.waiting.iter().map(|call| call.pending.deadline))
+                    .any(|deadline| now >= deadline)
             {
                 return Err("request deadline exceeded; generation retired".into());
             }
@@ -280,41 +283,45 @@ impl Worker {
         if !self.handshake.accepted() {
             return Ok(());
         }
-        while let Some(mut call) = self.waiting.pop_front() {
-            if !call.live() {
+        while let Some(Call {
+            arguments,
+            mut pending,
+        }) = self.waiting.pop_front()
+        {
+            if !pending.live() {
                 continue;
             }
             let handler = self
                 .handshake
                 .handlers()
                 .iter()
-                .find(|h| h.command == call.command);
+                .find(|h| h.command == pending.command);
             let Some(handler) = handler else {
                 let notice = format!(
                     "Plugin command unavailable: {} (no admitted handler)",
-                    call.command
+                    pending.command
                 );
-                call.complete(Err(RpcError::application(ErrorKind::CommandUnavailable)));
-                drop(call);
+                pending.complete(Err(RpcError::application(ErrorKind::CommandUnavailable)));
+                drop(pending);
                 self.connection.notice(notice);
                 continue;
             };
             let params = CommandInvokeParams {
-                command: call.command.clone(),
+                command: pending.command.clone(),
                 handler: handler.handler.clone(),
-                arguments: call.arguments.clone(),
-                context: call.context.clone(),
+                arguments,
+                context: pending.context.clone(),
             };
             params
                 .validate(&Limits::default())
                 .map_err(|e| e.to_string())?;
             self.queue(Message::Request(Request {
                 jsonrpc: Version::V2,
-                id: call.id.clone(),
+                id: pending.id.clone(),
                 method: CommandInvoke::NAME.into(),
                 params: serde_json::to_value(params).map_err(|e| e.to_string())?,
             }))?;
-            self.pending.insert(call.id.clone(), call);
+            self.pending.insert(pending.id.clone(), pending);
         }
         Ok(())
     }
@@ -478,8 +485,8 @@ impl Worker {
         let deadline = self
             .pending
             .values()
-            .chain(self.waiting.iter())
             .map(|c| c.deadline)
+            .chain(self.waiting.iter().map(|call| call.pending.deadline))
             .chain(self.requests.values().copied())
             .chain(
                 self.output

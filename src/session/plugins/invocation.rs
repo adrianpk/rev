@@ -259,9 +259,11 @@ impl Session {
                 // result; a dropped callee reports disconnection to the caller.
                 let _ = self.plugins.host.invoke_with(
                     &package,
-                    command,
-                    params.context,
-                    params.arguments,
+                    crate::plugins::lifecycle::Invocation {
+                        command,
+                        context: params.context,
+                        arguments: params.arguments,
+                    },
                     Some(request),
                 );
             }

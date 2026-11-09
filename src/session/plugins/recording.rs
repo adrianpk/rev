@@ -115,9 +115,11 @@ impl Session {
         }
         match self.plugins.host.invoke_with(
             &package,
-            call.command.clone(),
-            context,
-            call.arguments.clone(),
+            crate::plugins::lifecycle::Invocation {
+                command: call.command.clone(),
+                context,
+                arguments: call.arguments.clone(),
+            },
             None,
         ) {
             Ok(receipt) => {

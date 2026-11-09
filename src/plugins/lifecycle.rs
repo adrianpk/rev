@@ -137,18 +137,28 @@ impl Drop for Permit {
         self.package.fetch_sub(1, Ordering::AcqRel);
     }
 }
+/// The queued request owns its payload until it is encoded. Pending correlation
+/// retains the captured context and completion authority, never its arguments.
+pub(crate) struct Invocation {
+    pub command: CommandId,
+    pub context: InvocationContext,
+    pub arguments: serde_json::Value,
+}
 struct Call {
+    pending: Pending,
+    arguments: serde_json::Value,
+}
+struct Pending {
     id: OpaqueId,
     command: CommandId,
     context: InvocationContext,
-    arguments: serde_json::Value,
     reply: Option<editor::Request>,
     completion: Option<SyncSender<Result<(), rev_plugin_sdk::rpc::RpcError>>>,
     cancelled: Arc<AtomicBool>,
     deadline: Instant,
     _permit: Permit,
 }
-impl Call {
+impl Pending {
     fn live(&self) -> bool {
         !self.cancelled.load(Ordering::Acquire)
             && self.reply.as_ref().is_none_or(|reply| reply.live())
@@ -190,7 +200,7 @@ impl Receipt {
         self.cancelled.store(true, Ordering::Release);
     }
 }
-impl Drop for Call {
+impl Drop for Pending {
     fn drop(&mut self) {
         self.complete(Err(rev_plugin_sdk::rpc::RpcError::application(
             rev_plugin_sdk::rpc::ErrorKind::Disconnected,
@@ -413,12 +423,10 @@ impl Host {
     pub(crate) fn invoke_with(
         &mut self,
         package: &Package,
-        command: CommandId,
-        mut context: InvocationContext,
-        arguments: serde_json::Value,
+        invocation: Invocation,
         mut reply: Option<editor::Request>,
     ) -> Result<Receipt, String> {
-        let result = self.queue_call(package, command, &mut context, arguments, &mut reply);
+        let result = self.queue_call(package, invocation, &mut reply);
         if result.is_err()
             && let Some(reply) = reply.take()
         {
@@ -431,11 +439,14 @@ impl Host {
     fn queue_call(
         &mut self,
         package: &Package,
-        command: CommandId,
-        context: &mut InvocationContext,
-        arguments: serde_json::Value,
+        invocation: Invocation,
         reply: &mut Option<editor::Request>,
     ) -> Result<Receipt, String> {
+        let Invocation {
+            command,
+            mut context,
+            arguments,
+        } = invocation;
         if self.budget.pending.load(Ordering::Acquire) >= 64 {
             return Err("Plugin pending request limit exceeded (64)".into());
         }
@@ -487,19 +498,21 @@ impl Host {
             connection: slot.connection.clone(),
         };
         let call = Call {
-            id,
-            command,
-            context: context.clone(),
-            deadline: reply
-                .as_ref()
-                .map_or_else(|| Instant::now() + Duration::from_secs(60), |r| r.deadline),
-            reply: reply.take(),
             arguments,
-            completion: Some(completion),
-            cancelled,
-            _permit: Permit {
-                budget: self.budget.clone(),
-                package: slot.connection.pending.clone(),
+            pending: Pending {
+                id,
+                command,
+                context,
+                deadline: reply
+                    .as_ref()
+                    .map_or_else(|| Instant::now() + Duration::from_secs(60), |r| r.deadline),
+                reply: reply.take(),
+                completion: Some(completion),
+                cancelled,
+                _permit: Permit {
+                    budget: self.budget.clone(),
+                    package: slot.connection.pending.clone(),
+                },
             },
         };
         if slot.connection.stop.load(Ordering::Acquire) {

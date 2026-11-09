@@ -80,7 +80,7 @@ impl Session {
         let key = Observation {
             buffer: id,
             language: language.to_owned(),
-            states: states.clone(),
+            states,
             serial: self.plugins.keys.serial,
         };
         if self.plugins.keys.cache.as_ref() == Some(&key) {
@@ -89,7 +89,8 @@ impl Session {
         let mut values = Vec::new();
         if language != "unsupported" {
             for package in snapshot.plugins().packages() {
-                if !states
+                if !key
+                    .states
                     .iter()
                     .any(|(id, _, enabled)| *id == package.manifest.plugin.id && *enabled)
                 {
