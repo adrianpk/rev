@@ -132,6 +132,7 @@ impl Session {
             return Err(error(ErrorKind::Busy));
         }
         match operation {
+            Operation::State(_) => unreachable!("state IO stays on the supervisor"),
             Operation::Subscribe(params) => {
                 for handle in params.buffers.iter() {
                     self.plugin_buffer(handle)?;

@@ -254,6 +254,21 @@ fn main() {
         version: Label::new("0.1.0").unwrap(),
     };
     let mode = fs::read_to_string(directory.join("mode")).unwrap_or_else(|_| "echo".into());
+    if mode == "state-lock" {
+        let path = fs::read_to_string(directory.join("lock-path")).unwrap();
+        let file = fs::OpenOptions::new()
+            .read(true)
+            .write(true)
+            .open(path)
+            .unwrap();
+        file.try_lock().unwrap();
+        fs::write(directory.join("locked"), "locked").unwrap();
+        let deadline = Instant::now() + Duration::from_secs(15);
+        while !directory.join("release").exists() && Instant::now() < deadline {
+            std::thread::sleep(Duration::from_millis(1));
+        }
+        return;
+    }
     if mode == "descendant-child" {
         std::thread::sleep(Duration::from_secs(60));
         return;

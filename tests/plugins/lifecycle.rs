@@ -16,7 +16,7 @@ use std::{
     time::{Duration, Instant},
 };
 
-fn peer() -> &'static Path {
+pub(super) fn peer() -> &'static Path {
     static BINARY: OnceLock<(Fixture, PathBuf)> = OnceLock::new();
     &BINARY
         .get_or_init(|| {
@@ -188,6 +188,38 @@ impl Editor {
             })
             .collect();
         Self::packages(profile, &specs, &ids[..count])
+    }
+    pub(super) fn state(root: &Path, packages: usize) -> Self {
+        let ids = ["field.notes", "other.notes"];
+        let specs: Vec<_> = ids
+            .iter()
+            .take(packages)
+            .map(|id| Spec {
+                id,
+                mode: "events",
+                activation: "",
+                ignore_term: false,
+                declaration: None,
+            })
+            .collect();
+        let mut editor = Self::packages("non-modal", &specs, &[]);
+        editor
+            .session
+            .attach_plugin_state(&config::Roots {
+                config: root.join("config"),
+                data: root.join("data"),
+                state: root.join("state"),
+                cache: root.join("cache"),
+            })
+            .unwrap();
+        for id in &ids[..packages] {
+            editor
+                .session
+                .execute(Command::Plugin(PluginCommand::Activate));
+            editor.session.handle(Event::Paste((*id).into()));
+            editor.session.handle(key(KeyCode::Enter));
+        }
+        editor
     }
     fn packages(profile: &str, specs: &[Spec<'_>], startup: &[&str]) -> Self {
         Self::setup(profile, specs, startup, &[], "", false)

@@ -44,6 +44,10 @@ impl Session {
         session.follow_tree();
         session.startup_clock_state();
         session.prepare_bookmark_markers();
+        let plugin_state_diagnostic = crate::config::Roots::from_env()
+            .map_err(|e| e.to_string())
+            .and_then(|roots| session.plugins.host.state_root(&roots))
+            .err();
         session.startup_plugins();
         session.observe_files();
         let usage_diagnostic = session.startup_command_usage();
@@ -53,7 +57,7 @@ impl Session {
             (Some(config), None) => Some(format!("Configuration: {config}")),
             (None, usage) => usage,
         };
-        let diagnostic = [diagnostic, library_diagnostic]
+        let diagnostic = [diagnostic, library_diagnostic, plugin_state_diagnostic]
             .into_iter()
             .flatten()
             .collect::<Vec<_>>()

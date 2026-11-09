@@ -28,7 +28,9 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
   containing plugin calls use macro-library schema 2 and preserve older records.
   Packages can subscribe to committed buffer changes and lifecycle events.
   Slow consumers receive an explicit resnapshot request, and event-driven edit
-  chains have a finite depth across packages. Native prompts and recovery keys
+  chains have a finite depth across packages. Packages can keep versioned JSON
+  state across restarts and editor instances; conflicting updates refuse instead
+  of overwriting another instance's changes. Native prompts and recovery keys
   retain control.
 
 - Record native editing with F3 and finish with F4, then replay the last keyboard

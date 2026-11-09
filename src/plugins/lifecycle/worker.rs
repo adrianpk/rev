@@ -44,6 +44,7 @@ struct Worker {
     incoming: Option<Receiver<Call>>,
     replies: Receiver<editor::Response>,
     requests: BTreeMap<OpaqueId, Instant>,
+    state: Option<crate::plugins::state::Store>,
 }
 
 pub(super) fn run(
@@ -104,6 +105,7 @@ pub(super) fn run(
                 .iter()
                 .map(|c| package.manifest.plugin.id.command(&c.name))
                 .collect(),
+            connection.state_root.is_some(),
         )
     });
     let handshake = match handshake {
@@ -123,7 +125,12 @@ pub(super) fn run(
             return;
         }
     };
+    let state = connection
+        .state_root
+        .as_ref()
+        .map(|root| crate::plugins::state::Store::new(root, &package.manifest.plugin.id));
     let mut worker = Worker {
+        state,
         package,
         connection,
         budget,
@@ -691,7 +698,7 @@ impl Worker {
             }
             let deadline = Instant::now() + Duration::from_secs(60);
             self.requests.insert(request.id.clone(), deadline);
-            let request = editor::Request {
+            let mut request = editor::Request {
                 id: request.id,
                 operation: Some(operation),
                 deadline,
@@ -706,7 +713,27 @@ impl Worker {
                     package: self.connection.pending.clone(),
                 },
             };
-            self.submit(request);
+            if matches!(&request.operation, Some(editor::Operation::State(_))) {
+                let Some(editor::Operation::State(operation)) = request.operation.take() else {
+                    unreachable!("typed state operation")
+                };
+                let result = self
+                    .state
+                    .as_mut()
+                    .expect("state capability has a configured root")
+                    .execute(operation, || request.live());
+                self.requests.remove(&request.id);
+                match result {
+                    Ok(result) => self.queue(Message::Success(Success {
+                        jsonrpc: Version::V2,
+                        id: request.id.clone(),
+                        result,
+                    }))?,
+                    Err(error) => self.failure(request.id.clone(), error)?,
+                }
+            } else {
+                self.submit(request);
+            }
             return Ok(());
         }
         if matches!(message, Message::Notification(_)) {

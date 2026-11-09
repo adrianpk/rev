@@ -203,6 +203,7 @@ struct Connection {
     calls: SyncSender<Call>,
     responses: SyncSender<editor::Response>,
     events: Mutex<events::Mailbox>,
+    state_root: Option<std::path::PathBuf>,
     wake: Arc<Wake>,
 }
 impl Connection {
@@ -255,6 +256,7 @@ pub(crate) struct Host {
     closing: bool,
     cursor: usize,
     events: Arc<events::Events>,
+    state_root: Option<std::path::PathBuf>,
 }
 impl Default for Host {
     fn default() -> Self {
@@ -272,6 +274,7 @@ impl Default for Host {
         let wake = Arc::default();
         Self {
             events: Arc::new(events::Events::new(session.clone(), Arc::clone(&wake))),
+            state_root: None,
             session,
             next: 0,
             serial: 0,
@@ -285,6 +288,13 @@ impl Default for Host {
     }
 }
 impl Host {
+    pub fn state_root(&mut self, roots: &crate::config::Roots) -> Result<(), String> {
+        if self.next != 0 {
+            return Err("Attach plugin state roots before any package activation".into());
+        }
+        self.state_root = Some(crate::plugins::state::root(roots)?);
+        Ok(())
+    }
     pub fn arm(&self, armed: bool) {
         self.wake.arm(armed);
     }
@@ -349,6 +359,7 @@ impl Host {
             calls,
             responses,
             events: Mutex::default(),
+            state_root: self.state_root.clone(),
             wake: self.wake.clone(),
         });
         let state = connection.clone();

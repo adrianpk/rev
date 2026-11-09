@@ -170,16 +170,16 @@ Validation: all eight frozen ordered commands passed exact clean-HEAD controller
 
 ## Slice 10: Package-owned persistent state
 
-State: implementing
+State: reviewing
 Dependency: Slice 9 integrated
 Branch: feat/rev-plugin-system-10-state
 PR: pending
 Report: ops/default/report/slices/rev-plugin-system/slice-10-state.md
-Validation: pending; exact ordered commands in the plan and controller configuration
+Validation: all seven frozen ordered commands passed locally; focused checks passed 81 combined plugin regressions, three native publication-fault tests and standalone peer formatting. Final clean-HEAD controller evidence is required before handoff; see the report.
 
-- [ ] T10.1: Implement state.list/get/put/delete with own-package concern/record identities, bounded JSON values in schema-1 TOML and opaque CAS versions under the native XDG state root.
-- [ ] T10.2: Use existing nonblocking lock and checked atomic-publication patterns outside native input; preserve unrelated records, uncertain-write evidence and neighboring native stores.
-- [ ] T10.3: Verify restart, simultaneous instances, stale same-record edits, independent records, lock contention, invalid/symlink/oversized stores and no configuration-directory writes.
+- [x] T10.1: Implement state.list/get/put/delete with own-package concern/record identities, bounded JSON values in schema-1 TOML and opaque CAS versions under the native XDG state root.
+- [x] T10.2: Use existing nonblocking lock and checked atomic-publication patterns outside native input; preserve unrelated records, uncertain-write evidence and neighboring native stores.
+- [x] T10.3: Verify restart, simultaneous instances, stale same-record edits, independent records, lock contention, invalid/symlink/oversized stores and no configuration-directory writes.
 
 ## Slice 11: Fault and resource acceptance
 

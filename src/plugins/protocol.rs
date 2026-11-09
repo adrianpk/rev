@@ -43,7 +43,11 @@ impl Handshake {
         })
     }
     /// Advertise the native operations implemented by the connected host.
-    pub(crate) fn commands(mut self, commands: Vec<CommandId>) -> Result<Self, RpcError> {
+    pub(crate) fn commands(
+        mut self,
+        commands: Vec<CommandId>,
+        state: bool,
+    ) -> Result<Self, RpcError> {
         self.offer.capabilities = List::new(vec![
             Capability::Commands,
             Capability::Buffers,
@@ -54,6 +58,11 @@ impl Handshake {
             Capability::Keymaps,
             Capability::Events,
         ])?;
+        if state {
+            let mut capabilities = self.offer.capabilities.into_vec();
+            capabilities.push(Capability::State);
+            self.offer.capabilities = List::new(capabilities)?;
+        }
         self.request.id = OpaqueId::new(format!("initialize:{}", self.offer.generation))
             .map_err(|_| RpcError::application(ErrorKind::InvalidArguments))?;
         self.request.params = serde_json::to_value(&self.offer)
@@ -121,6 +130,9 @@ impl Handshake {
             CommandsInvoke::NAME => Capability::Invocation,
             KeymapsBind::NAME | KeymapsUnbind::NAME => Capability::Keymaps,
             EventsSubscribe::NAME | EventsUnsubscribe::NAME => Capability::Events,
+            StateList::NAME | StateGet::NAME | StatePut::NAME | StateDelete::NAME => {
+                Capability::State
+            }
             _ => {
                 return Err(
                     RpcError::application(ErrorKind::UnsupportedMethod).for_request(&request.id)

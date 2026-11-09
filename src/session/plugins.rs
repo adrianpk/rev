@@ -21,6 +21,12 @@ pub(super) struct Work {
 }
 
 impl Session {
+    /// Attach package-state roots before activating any package. This resolves
+    /// paths only; library new/empty hosts never discover or read personal state.
+    pub fn attach_plugin_state(&mut self, roots: &crate::config::Roots) -> Result<(), String> {
+        self.plugins.host.state_root(roots)
+    }
+
     pub(super) fn plugin_command(&mut self, command: PluginCommand) -> Action {
         if command == PluginCommand::List {
             return self.plugin_list();

@@ -27,3 +27,6 @@ mod recording;
 
 #[path = "plugins/events.rs"]
 mod events;
+
+#[path = "plugins/state.rs"]
+mod state;

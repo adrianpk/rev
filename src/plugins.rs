@@ -4,3 +4,5 @@
 pub mod declarations;
 pub mod lifecycle;
 pub mod protocol;
+
+pub(crate) mod state;

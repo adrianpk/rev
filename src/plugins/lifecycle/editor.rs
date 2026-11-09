@@ -18,6 +18,7 @@ impl Drop for Ingress {
     }
 }
 pub(crate) enum Operation {
+    State(crate::plugins::state::Operation),
     List(BuffersListParams),
     Open(file::Location),
     Install(file::Location, Option<file::Loaded>),
@@ -141,6 +142,18 @@ pub(super) fn decode(request: &rev_plugin_sdk::rpc::Request) -> Result<Operation
         Ok(params)
     }
     Ok(match request.method.as_str() {
+        StateList::NAME => Operation::State(crate::plugins::state::Operation::List(params(
+            &request.params,
+        )?)),
+        StateGet::NAME => Operation::State(crate::plugins::state::Operation::Get(params(
+            &request.params,
+        )?)),
+        StatePut::NAME => Operation::State(crate::plugins::state::Operation::Put(params(
+            &request.params,
+        )?)),
+        StateDelete::NAME => Operation::State(crate::plugins::state::Operation::Delete(params(
+            &request.params,
+        )?)),
         BuffersList::NAME => Operation::List(params(&request.params)?),
         BuffersOpen::NAME => {
             let params: BuffersOpenParams = params(&request.params)?;

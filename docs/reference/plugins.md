@@ -234,8 +234,9 @@ buffer operations below. The edits capability enables checked edits.apply batche
 Invocation enables commands.invoke, and file_lifecycle enables buffers.save and
 buffers.close. The keymaps capability enables keymaps.bind and keymaps.unbind.
 The events capability enables events.subscribe and events.unsubscribe with
-host-to-package buffers.event notifications. Messages and state operations still
-return correlated unsupported_method errors. Requests before
+host-to-package buffers.event notifications. With attached native state roots,
+the state capability enables state.list/get/put/delete. Messages still return
+correlated unsupported_method errors. Requests before
 initialization return unsupported_invocation. An incompatible acknowledgement,
 malformed or oversized stdout, EOF, process exit or deadline retires the generation.
 Stdout is protocol-only. Stderr is a byte-bounded diagnostic ring; display replaces
@@ -514,3 +515,75 @@ edit starts a fresh host-owned root at depth zero; the edit result still echoes
 its supplied operation ID. Native service alternates event and request phases,
 round-robins packages and shares one 32-item/two-millisecond cooperative budget
 with activation and lifecycle service. Child pipe work remains on supervisors.
+
+
+## Package state
+
+The native application resolves the existing XDG state root and advertises state
+when that root is attached. Library Session::new/empty hosts do not discover
+personal persistence. Call Session::attach_plugin_state with an explicit
+config::Roots snapshot before activating any package. Roots are frozen for that
+editor's package generations and survive Project/Workspace replacement. Attaching
+a different root after any activation refuses. Root attachment performs no IO.
+
+All state methods select the calling package implicitly. Concern and record IDs
+contain 1..=64 lowercase ASCII letters, digits or hyphens. Path separators,
+traversal and extra package/path fields refuse. No method can select another
+package's directory or a native store. The only destination is the native state
+root's plugins/packages/<publisher.package>/state.toml, normally
+XDG_STATE_HOME/rev/plugins/packages/<publisher.package>/state.toml. The existing
+absolute HOME fallback applies when XDG_STATE_HOME is absent or relative.
+Configuration, installed data and cache roots are separate.
+
+| Method | Parameters | Result |
+| --- | --- | --- |
+| state.list | concern, page with cursor and limit 1..=256 | Bounded record IDs/versions and optional next cursor; no values. |
+| state.get | concern, record | status=absent, or status=present with version and exact JSON value. Present null differs from absence. |
+| state.put | concern, record, expected_version, value | New opaque decimal-string version after publication. Explicit null creates only an absent record; omission refuses. |
+| state.delete | concern, record, expected_version | Empty result after deleting only the observed existing version. |
+
+Every object rejects unknown fields. Values are inert JSON, including null,
+booleans, numbers, strings, arrays and objects. A value is at most 256 KiB in its
+JSON encoding. One package store admits at most 256 records and 4 MiB of encoded
+TOML; overflow refuses the whole mutation without eviction or partial changes.
+
+The schema-1 TOML envelope contains schema_version=1, revision and records.
+Each record has concern, record, version and value_json (one JSON-encoded TOML
+string). Records are ordered by concern/record identity. Identities and nonzero
+versions are unique, and a record version cannot exceed the store revision.
+Every successful mutation advances the store revision; a put assigns that new
+revision to its target, while unrelated record versions stay unchanged. Deleting
+the last record retains the envelope's revision. Recreating that ID cannot make
+an earlier observed version current again. Versions are opaque to callers;
+the current TOML profile stops before signed 64-bit exhaustion.
+
+List cursors bind the concern, store revision and position. Any intervening
+mutation returns state_conflict for an old continuation; restart listing from a
+null cursor. Listing a missing store and getting an absent record create no
+directories, lock files or configuration. Existing read locks are shared and
+nonblocking. Writes use the private package-state lock, re-read all current
+records, compare only the target's expected version and preserve unrelated
+updates. A held lock returns busy. A stale/absent mismatch returns state_conflict.
+
+Storage admission, reads, parsing, CAS and publication run on the supervisor,
+using the existing request permits and generation/deadline checks. Native input
+performs no package-state IO. Cancellation checked before replacement prevents
+publication; a later cancellation cannot undo an already committed replacement.
+Idle state access adds no periodic work. Processes and independent editor hosts
+coordinate through the same OS-owned lock.
+
+Directory walks reject symlinks, including intermediate components. New package
+directories use 0700 and files use 0600. Existing directories must be ordinary
+and private; stores and locks must be ordinary files without group/other access. Reads are bounded before allocation and reject invalid schemas,
+unknown fields, duplicate/out-of-order records, invalid JSON and oversized stores.
+Checked parent, lock, destination and staging identities prevent substituted
+paths from redirecting publication. Cleanup preserves unknown substituted entries.
+
+Atomic replacement is the commit point. Pre-replacement failures preserve the
+old store. If replacement succeeds but directory synchronization or final
+observation fails, state_conflict explicitly names the committed candidate's
+version and uncertain durability. The candidate is retained on disk; do not
+assume rollback or repeat a mutation blindly. That connection suspends further
+mutations until a valid read re-observes the aggregate and synchronizes its
+directory. Read current state, then use its version for another explicit CAS.
+Process restart does not remove shared package state or neighboring native stores.
