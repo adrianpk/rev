@@ -83,8 +83,9 @@ Validation: all seven frozen ordered commands passed locally, plus 22 focused pr
 State: reviewing
 Dependency: Slice 3 integrated
 Branch: feat/rev-plugin-system-04-buffers
-PR: pending
+PR: #4 - https://forge.adrianpk.com/rev/rev/pulls/4
 Report: ops/default/report/slices/rev-plugin-system/slice-4-buffers.md
+Implementation: abac32019cec6e09e6c3abe5ebc12ad377e36157
 Validation: all eight frozen commands passed locally; fresh focused validation passed 31 plugin tests and standalone fixture formatting. Final clean-HEAD controller evidence precedes handoff.
 
 - [x] T4.1: Implement list/open/create/describe/read/show using native opaque handles and source stamps, including hidden and unsaved text independently of focus.

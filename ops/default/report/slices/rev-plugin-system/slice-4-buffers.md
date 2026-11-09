@@ -5,7 +5,7 @@ Delivery set: rev-plugin-system
 Plan: [Plugin System Delivery](../../../plan/rev-plugin-system.md)
 Tracker: [Plugin System Tracker](../../../tracker/rev-plugin-system.md)
 Branch: `feat/rev-plugin-system-04-buffers`
-PR: pending
+PR: `#4`
 
 ## Purpose
 
@@ -37,8 +37,8 @@ creation/display through the existing owned package RPC connection.
 
 ## Implementation Notes
 
-The feature commit introducing this report implements T4.1-T4.3. Its canonical
-PR and implementation commit are recorded in the PR-reference commit.
+Implementation: `abac32019cec6e09e6c3abe5ebc12ad377e36157` implements T4.1-T4.3 and introduces
+this report. Canonical [PR #4](https://forge.adrianpk.com/rev/rev/pulls/4) targets dev.
 
 The supervisor decodes typed operations and signals the existing native wake.
 Session consumes requests under the shared 32-item/2-ms cooperative service
