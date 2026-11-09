@@ -1,12 +1,13 @@
 # Slice 1: Quality foundation
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-architecture-quality
 Plan: [Architecture Quality Delivery](../../../plan/rev-architecture-quality.md)
 Tracker: [Architecture Quality Tracker](../../../tracker/rev-architecture-quality.md)
 Branch: `chore/rev-architecture-quality-01-foundation`
 PR: #15 - https://forge.adrianpk.com/rev/rev/pulls/15
 Implementation: 3c76d32116e739f26c51abe1e171bd39bb69c877
+Integrated: 79d1c50083e83f365036d89013238f9cb431da9a through canonical PR #15
 
 ## Purpose
 
@@ -100,9 +101,10 @@ targets. These are emitted diagnostics, not a count of functional defects.
 
 ## Validation
 
-The five frozen commands passed locally in canonical order. Looper's validation
-record is authoritative for the final clean PR head; these focused results do
-not establish the integrated full gate.
+The five frozen commands passed in canonical order through Looper validation on
+clean published HEAD 79d1c50083e83f365036d89013238f9cb431da9a, now integrated
+through canonical PR #15. These focused results do not establish the integrated
+full gate.
 
 1. `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 bash scripts/check-quality.sh --scope examples/source-check.rs --scope examples/source_check --scope tests/macros/acceptance.rs --scope tests/macros/pty.rs`
 2. `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --example source-check`

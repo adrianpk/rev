@@ -9,7 +9,7 @@ Planning baseline: abbf0c21eeae1680c02c7a477fa0894d7996a393
 Specification: [Architecture Quality and Commit Checks](../spec/editor-architecture-quality.md)
 Review: [Architecture and Ownership Nit Review](../report/rev-architecture-nit-review.md)
 Concern: [Pending Editor Work](../README.md)
-Active slice: Slice 1 - Quality foundation
+Active slice: Slice 2 - Plugin and SDK ownership
 Plan: [Architecture Quality Delivery](../plan/rev-architecture-quality.md)
 Execution authorized: one ten-slice Looper run, automatic canonical integration into dev and local hook setup
 Progress owner: selected Looper run; no second runtime tracker
@@ -33,13 +33,14 @@ Progress owner: selected Looper run; no second runtime tracker
 
 ## Slice 1: Quality foundation
 
-State: reviewing
+State: delivered
 Dependency: approved preparation and controller preflight
 Branch: chore/rev-architecture-quality-01-foundation
 PR: #15 - https://forge.adrianpk.com/rev/rev/pulls/15
 Implementation: 3c76d32116e739f26c51abe1e171bd39bb69c877
 Report: ops/default/report/slices/rev-architecture-quality/slice-1-foundation.md
-Validation: all five frozen focused commands passed locally; final clean-HEAD evidence required through Looper before handoff
+Integrated: 79d1c50083e83f365036d89013238f9cb431da9a through canonical PR #15
+Validation: all five frozen commands passed through Looper on clean published HEAD 79d1c50083e83f365036d89013238f9cb431da9a
 
 - [x] T1.1: Correct Cargo workspace/member/target discovery in the existing Rust source checker; place cohesive discovery/diagnostic helpers under examples/source_check, retain metrics/legacy arguments, and add nonempty scoped checks plus bounded Clippy admission.
 - [x] T1.2: Introduce scripts/check-quality.sh with the selected ownership/representation profile, truthful scoped coverage and no Python requirement; repair duplicate macros test support and keep complete baseline all-target Clippy green.
@@ -47,7 +48,7 @@ Validation: all five frozen focused commands passed locally; final clean-HEAD ev
 
 ## Slice 2: Plugin and SDK ownership
 
-State: planned
+State: ready
 Dependency: Slice 1 integrated
 Branch: refactor/rev-architecture-quality-02-plugins
 PR: pending
