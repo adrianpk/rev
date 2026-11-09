@@ -356,10 +356,9 @@ fn slow_consumers() {
         });
         for _ in 0..1024 {
             e.session.handle(crossterm::event::Event::Paste("x".into()));
-            // Drain native work, while the actual child pipe stays paused.
-            for _ in 0..12 {
-                e.session.expire_input(Instant::now());
-            }
+            // Drain ready native work without spending the peer's delivery
+            // deadline on idle turns. Its actual child pipe stays paused.
+            e.wait(|e| e.session.remaining_input(Instant::now()) != Some(Duration::ZERO));
         }
         assert_eq!(
             e.session.buffer().unwrap().len_chars(),

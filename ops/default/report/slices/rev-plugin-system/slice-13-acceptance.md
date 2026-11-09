@@ -80,6 +80,18 @@ The initial timeout did not retain child stderr, so its specific occurrence
 cannot be attributed conclusively. Temporary delays, repeated-loop probes and
 diagnostic instrumentation are absent from the final fixture.
 
+Formal candidate c1004ffbf0cad6ab2cbf105b004fcd19b8825392 passed causal_chain
+but slow_consumers exceeded the real invalidation-delivery deadline. Its pressure
+fixture performed twelve full expiry turns after every paste, including idle
+turns while the child stayed paused. A focused measurement spent 3.25/3.65 seconds
+on that loop for one/eight consumers. It now waits until native ready work is
+drained after each paste; measured pressure time was 0.88/0.93 seconds. All 1,024
+pastes, both consumer counts, source-size assertions, per-package RPC/active
+checks, eight-second fixture waits and five-second invalidation deadline remain.
+All nine event tests and two additional slow-consumer runs passed. The separate
+invalidation_timeout case still proves retirement on the real deadline. Timing
+probes are removed and native runtime/limits remain unchanged.
+
 All twelve prior canonical PRs were verified merged into dev, and their
 integrations are ancestors of this slice. Missing integration headers for
 Slices 7-9 are reconciled with those verified commits. Earlier reports keep
