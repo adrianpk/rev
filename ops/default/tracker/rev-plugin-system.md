@@ -8,7 +8,7 @@ Planning baseline: a398dcb77dd0ce036d989f038068ac942fc68ebd
 Specification: [Plugin System](../spec/editor-plugin-system.md)
 Model: [Plugin Identity, Protocol and State](../spec/editor-plugin-system-model.md)
 Concern: [Pending Editor Work](../README.md)
-Active slice: Slice 7 - Contextual keybindings
+Active slice: Slice 8 - Prefix arguments and macro calls
 Execution authorized: one thirteen-slice Looper run with automatic integration into dev
 Plan: [Plugin System Delivery](../plan/rev-plugin-system.md)
 Progress owner: selected Looper run; no second runtime tracker
@@ -125,13 +125,14 @@ Validation: all eight frozen commands passed through the controller validator on
 
 ## Slice 7: Contextual keybindings
 
-State: reviewing
+State: delivered
 Dependency: Slice 6 integrated
 Branch: feat/rev-plugin-system-07-keymaps
 PR: #7 - https://forge.adrianpk.com/rev/rev/pulls/7
 Report: ops/default/report/slices/rev-plugin-system/slice-7-keymaps.md
 Implementation: ef082253d8093bf1af5041349b943be1c99ae378
-Validation: all eight frozen commands passed locally; fresh nine-test keymap selection and 55 combined plugin tests passed, including native dispatch/hints, both profiles, hidden targets, precedence/conflicts, selectors, retirement and finite ownership. Exact clean-HEAD controller evidence precedes handoff.
+Integrated: 92646729268ccbc15ea7bf432c45b60d5870eb4a through canonical PR #7
+Validation: all eight frozen commands passed locally; fresh nine-test keymap selection and 55 combined plugin tests passed, including native dispatch/hints, both profiles, hidden targets, precedence/conflicts, selectors, retirement and finite ownership. All eight commands passed exact clean-HEAD controller validation before handoff; canonical merge verified.
 
 - [x] T7.1: Integrate passive and dynamic global/buffer contributions into existing native contexts, normalization, prefix admission and recovery ownership in both startup profiles.
 - [x] T7.2: Implement explicit user selectors and deterministic effective/shadowed/conflicted inspection; recompute current underlying mappings when a generation retires.
@@ -139,7 +140,7 @@ Validation: all eight frozen commands passed locally; fresh nine-test keymap sel
 
 ## Slice 8: Prefix arguments and macro calls
 
-State: planned
+State: implementing
 Dependency: Slice 7 integrated
 Branch: feat/rev-plugin-system-08-recording
 PR: pending

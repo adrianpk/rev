@@ -1,6 +1,6 @@
 # Slice 7: Contextual keybindings
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-plugin-system
 Plan: [Plugin System Delivery](../../../plan/rev-plugin-system.md)
 Tracker: [Plugin System Tracker](../../../tracker/rev-plugin-system.md)
@@ -140,8 +140,9 @@ passed. Exact focused commands:
 - `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --test plugins -- keymaps invocation transactions buffers lifecycle declarations protocol --test-threads=1`
 - `rustfmt --edition 2024 --check tests/plugins/peer.rs`
 
-The final PR-reference commit receives exact clean-HEAD controller evidence for
-all eight frozen commands before handoff. The integrated full gate belongs to
+All eight frozen commands passed exact clean-HEAD controller validation on the
+final PR-reference commit 92646729268ccbc15ea7bf432c45b60d5870eb4a before handoff.
+Canonical PR #7 is merged into dev at that same commit. The integrated full gate belongs to
 the controller.
 
 ## Risks and Follow-ups
