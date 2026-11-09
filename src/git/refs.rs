@@ -202,24 +202,7 @@ impl Repositories {
         if action.bytes() > 8192 {
             return Err("Branch parameters exceed metadata admission".into());
         }
-        match &action {
-            BranchAction::Create { name, target } => {
-                parameter(name)?;
-                if refs.entries.len() >= self.policy.max_refs {
-                    return Err("New branch exceeds complete-ref admission".into());
-                }
-                if target.format() != refs.observation.identity.format {
-                    return Err("Branch target object format differs".into());
-                }
-            }
-            BranchAction::Rename { name, new_name } => {
-                local(&refs, name)?;
-                parameter(new_name)?;
-            }
-            BranchAction::Switch { name } | BranchAction::Delete { name } => {
-                local(&refs, name)?;
-            }
-        }
+        action.validate(&refs, self.policy.max_refs)?;
         let identity = &refs.observation.identity;
         let directory = if matches!(action, BranchAction::Switch { .. }) {
             self.mutation_identity_root(identity)?
@@ -254,6 +237,30 @@ fn local(refs: &Refs, name: &[u8]) -> Result<(), String> {
     {
         Err("Branch action requires one exact nonsymbolic local branch".into())
     } else {
+        Ok(())
+    }
+}
+
+impl BranchAction {
+    fn validate(&self, refs: &Refs, max_refs: usize) -> Result<(), String> {
+        match self {
+            BranchAction::Create { name, target } => {
+                parameter(name)?;
+                if refs.entries.len() >= max_refs {
+                    return Err("New branch exceeds complete-ref admission".into());
+                }
+                if target.format() != refs.observation.identity.format {
+                    return Err("Branch target object format differs".into());
+                }
+            }
+            BranchAction::Rename { name, new_name } => {
+                local(refs, name)?;
+                parameter(new_name)?;
+            }
+            BranchAction::Switch { name } | BranchAction::Delete { name } => {
+                local(refs, name)?;
+            }
+        }
         Ok(())
     }
 }

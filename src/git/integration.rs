@@ -95,25 +95,34 @@ impl Sequence {
             (None, Some(_)) | (Some(_), None) => return false,
             _ => {}
         }
+        self.same_lineage(other)
+            && self.same_position(other)
+            && self.same_application(other)
+            && self.refs.same(&other.refs)
+            && self.refs.observation.status == other.refs.observation.status
+    }
+    fn same_lineage(&self, other: &Self) -> bool {
         self.family == other.family
-            && self.current == other.current
-            && self.targets == other.targets
             && self.original == other.original
             && self.onto == other.onto
             && self.branch == other.branch
+    }
+    fn same_position(&self, other: &Self) -> bool {
+        self.current == other.current
+            && self.targets == other.targets
             && self.step == other.step
             && self.total == other.total
             && self.conflicts == other.conflicts
             && self.files == other.files
             && self.index == other.index
             && self.worktree == other.worktree
-            && match (&self.application, &other.application) {
-                (Some(a), Some(b)) => Arc::ptr_eq(a, b),
-                (None, None) => true,
-                _ => false,
-            }
-            && self.refs.same(&other.refs)
-            && self.refs.observation.status == other.refs.observation.status
+    }
+    fn same_application(&self, other: &Self) -> bool {
+        match (&self.application, &other.application) {
+            (Some(a), Some(b)) => Arc::ptr_eq(a, b),
+            (None, None) => true,
+            _ => false,
+        }
     }
     /// Eligibility comes from exact Git-owned evidence, never a view label.
     pub fn control_admission(
@@ -121,6 +130,21 @@ impl Sequence {
         action: SequenceControl,
         family: Option<SequenceFamily>,
     ) -> Result<(), String> {
+        let actual = self.control_family(family)?;
+        self.control_source_admission()?;
+        self.control_bounds_admission(actual)?;
+        let original = self
+            .original
+            .ok_or("Git sequence lacks the exact original object; lineage is unavailable")?;
+        self.control_lineage(actual, action, original)?;
+        if action == SequenceControl::Continue && !self.conflicts.is_empty() {
+            return Err(
+                "Continue requires saved and staged resolutions with no unmerged entries".into(),
+            );
+        }
+        Ok(())
+    }
+    fn control_family(&self, family: Option<SequenceFamily>) -> Result<SequenceFamily, String> {
         let actual = self.family.ok_or("No Git-owned sequence is active")?;
         if family.is_some_and(|f| f != actual) {
             return Err("Requested control belongs to a different Git sequence family".into());
@@ -136,6 +160,9 @@ impl Sequence {
                 "This observed Git sequence family has no compatible native control here".into(),
             );
         }
+        Ok(actual)
+    }
+    fn control_source_admission(&self) -> Result<(), String> {
         if self.refs.completeness != Completeness::Complete
             || self
                 .refs
@@ -153,6 +180,9 @@ impl Sequence {
         {
             return Err("Sequence includes autostash; native control cannot authorize its implicit application".into());
         }
+        Ok(())
+    }
+    fn control_bounds_admission(&self, actual: SequenceFamily) -> Result<(), String> {
         if actual == SequenceFamily::Rebase
             && (self.total.is_some_and(|n| n > 256)
                 || self
@@ -165,54 +195,74 @@ impl Sequence {
                     .into(),
             );
         }
-        let original = self
-            .original
-            .ok_or("Git sequence lacks the exact original object; lineage is unavailable")?;
-        if actual == SequenceFamily::Merge {
-            if action == SequenceControl::Skip {
-                return Err("Skip is unavailable for a merge sequence".into());
+        Ok(())
+    }
+    fn control_lineage(
+        &self,
+        actual: SequenceFamily,
+        action: SequenceControl,
+        original: ObjectId,
+    ) -> Result<(), String> {
+        match actual {
+            SequenceFamily::Merge => self.merge_control_admission(action, original),
+            SequenceFamily::CherryPick | SequenceFamily::Revert => {
+                self.application_control_admission(actual, action, original)
             }
-            if self.targets.is_empty() || self.refs.head != Some(original) {
-                return Err("Merge original HEAD/targets are missing or incompatible".into());
-            }
-        } else if matches!(actual, SequenceFamily::CherryPick | SequenceFamily::Revert) {
-            let progress = self.application.as_ref().ok_or(
+            _ => self.rebase_control_admission(original),
+        }
+    }
+    fn merge_control_admission(
+        &self,
+        action: SequenceControl,
+        original: ObjectId,
+    ) -> Result<(), String> {
+        if action == SequenceControl::Skip {
+            return Err("Skip is unavailable for a merge sequence".into());
+        }
+        if self.targets.is_empty() || self.refs.head != Some(original) {
+            return Err("Merge original HEAD/targets are missing or incompatible".into());
+        }
+        Ok(())
+    }
+    fn application_control_admission(
+        &self,
+        actual: SequenceFamily,
+        action: SequenceControl,
+        original: ObjectId,
+    ) -> Result<(), String> {
+        let progress = self.application.as_ref().ok_or(
                 "Ordered control requires retained exact target/order/original lineage; observe external work without guessing it",
             )?;
-            if progress.plan.kind.family() != actual
-                || progress.plan.refs.head != Some(original)
-                || progress.plan.refs.head_ref != self.refs.head_ref
-                || self.refs.head != Some(progress.before)
-                || progress.plan.steps.get(progress.next).map(|s| s.object) != self.current
-                || self.files.iter().any(|f| f.name.starts_with(b"sequencer/"))
-            {
-                return Err("Actual Git sequence differs from the retained ordered request".into());
-            }
-            if action == SequenceControl::Continue && !self.worktree.is_empty() {
-                return Err("Continue requires all tracked resolutions saved and staged; unstaged disk changes remain".into());
-            }
-        } else {
-            if self.onto.is_none() || self.branch.is_empty() {
-                return Err("Rebase original branch/onto lineage is unavailable".into());
-            }
-            if self.branch != b"detached HEAD"
-                && (!self.branch.starts_with(b"refs/heads/")
-                    || self
-                        .refs
-                        .reference(&self.branch)
-                        .is_none_or(|r| r.object != original))
-            {
-                return Err(
-                    "Rebase original branch no longer matches its Git-owned original object".into(),
-                );
-            }
-            self.checked_todo()?;
+        if progress.plan.kind.family() != actual
+            || progress.plan.refs.head != Some(original)
+            || progress.plan.refs.head_ref != self.refs.head_ref
+            || self.refs.head != Some(progress.before)
+            || progress.plan.steps.get(progress.next).map(|s| s.object) != self.current
+            || self.files.iter().any(|f| f.name.starts_with(b"sequencer/"))
+        {
+            return Err("Actual Git sequence differs from the retained ordered request".into());
         }
-        if action == SequenceControl::Continue && !self.conflicts.is_empty() {
+        if action == SequenceControl::Continue && !self.worktree.is_empty() {
+            return Err("Continue requires all tracked resolutions saved and staged; unstaged disk changes remain".into());
+        }
+        Ok(())
+    }
+    fn rebase_control_admission(&self, original: ObjectId) -> Result<(), String> {
+        if self.onto.is_none() || self.branch.is_empty() {
+            return Err("Rebase original branch/onto lineage is unavailable".into());
+        }
+        if self.branch != b"detached HEAD"
+            && (!self.branch.starts_with(b"refs/heads/")
+                || self
+                    .refs
+                    .reference(&self.branch)
+                    .is_none_or(|r| r.object != original))
+        {
             return Err(
-                "Continue requires saved and staged resolutions with no unmerged entries".into(),
+                "Rebase original branch no longer matches its Git-owned original object".into(),
             );
         }
+        self.checked_todo()?;
         Ok(())
     }
     fn checked_todo(&self) -> Result<(), String> {
@@ -223,49 +273,7 @@ impl Sequence {
             .filter(|f| f.name.ends_with(b"git-rebase-todo") || f.name.ends_with(b"done"))
         {
             for line in file.bytes.split(|b| *b == b'\n') {
-                if line.len() > 4096 {
-                    return Err("Sequence todo line exceeds 4096-byte admission".into());
-                }
-                let mut fields = line
-                    .split(|b| b.is_ascii_whitespace())
-                    .filter(|f| !f.is_empty());
-                let Some(action) = fields.next() else {
-                    continue;
-                };
-                if action.starts_with(b"#") {
-                    continue;
-                }
-                if action == b"noop" {
-                    continue;
-                }
-                count += 1;
-                if count > 256 {
-                    return Err("Sequence todo exceeds 256 admitted actions".into());
-                }
-                if ![
-                    b"pick".as_slice(),
-                    b"p",
-                    b"fixup",
-                    b"f",
-                    b"squash",
-                    b"s",
-                    b"drop",
-                    b"d",
-                ]
-                .contains(&action)
-                {
-                    return Err("Sequence todo contains an unsupported or executable action; native control is unavailable".into());
-                }
-                let mut object = fields.next().ok_or("Sequence todo object is missing")?;
-                if matches!(action, b"fixup" | b"f") && object == b"-C" {
-                    object = fields.next().ok_or("Fixup todo object is missing")?;
-                }
-                if object.len() < 4
-                    || object.len() > 64
-                    || !object.iter().all(u8::is_ascii_hexdigit)
-                {
-                    return Err("Sequence todo object is not an admitted Git object prefix".into());
-                }
+                check_todo_line(line, &mut count)?;
             }
         }
         Ok(())
@@ -381,23 +389,7 @@ impl Repositories {
         mode: IntegrationMode,
     ) -> Result<OperationId, String> {
         self.check_refs(&refs)?;
-        if refs.completeness != Completeness::Complete
-            || refs.head.is_none()
-            || refs.head_ref.is_empty()
-        {
-            return Err("Integration requires complete Refs and a checked current branch".into());
-        }
-        if refs.reference(target).and_then(Reference::commit).is_none() {
-            return Err("Integration requires one exact selected ref with a commit target".into());
-        }
-        let status = refs
-            .observation
-            .status
-            .as_ref()
-            .ok_or("Integration requires a working tree")?;
-        if status.completeness != Completeness::Complete || !status.paths.is_empty() {
-            return Err("Integration requires a complete clean index and working tree".into());
-        }
+        refs.integration_admission(target)?;
         let directory = self.mutation_identity_root(&refs.observation.identity)?;
         let admission = self.budget.reserve(target.len() + 4096)?;
         self.start(
@@ -410,5 +402,78 @@ impl Repositories {
                 _admission: admission,
             }),
         )
+    }
+}
+
+fn check_todo_line(line: &[u8], count: &mut usize) -> Result<(), String> {
+    if line.len() > 4096 {
+        return Err("Sequence todo line exceeds 4096-byte admission".into());
+    }
+    let mut fields = line
+        .split(|b| b.is_ascii_whitespace())
+        .filter(|f| !f.is_empty());
+    let Some(action) = fields.next() else {
+        return Ok(());
+    };
+    if action.starts_with(b"#") {
+        return Ok(());
+    }
+    if action == b"noop" {
+        return Ok(());
+    }
+    *count += 1;
+    if *count > 256 {
+        return Err("Sequence todo exceeds 256 admitted actions".into());
+    }
+    if ![
+        b"pick".as_slice(),
+        b"p",
+        b"fixup",
+        b"f",
+        b"squash",
+        b"s",
+        b"drop",
+        b"d",
+    ]
+    .contains(&action)
+    {
+        return Err("Sequence todo contains an unsupported or executable action; native control is unavailable".into());
+    }
+    check_todo_object(action, fields)
+}
+fn check_todo_object<'a>(
+    action: &[u8],
+    mut fields: impl Iterator<Item = &'a [u8]>,
+) -> Result<(), String> {
+    let mut object = fields.next().ok_or("Sequence todo object is missing")?;
+    if matches!(action, b"fixup" | b"f") && object == b"-C" {
+        object = fields.next().ok_or("Fixup todo object is missing")?;
+    }
+    if object.len() < 4 || object.len() > 64 || !object.iter().all(u8::is_ascii_hexdigit) {
+        return Err("Sequence todo object is not an admitted Git object prefix".into());
+    }
+    Ok(())
+}
+
+impl Refs {
+    fn integration_admission(&self, target: &[u8]) -> Result<(), String> {
+        if self.completeness != Completeness::Complete
+            || self.head.is_none()
+            || self.head_ref.is_empty()
+        {
+            return Err("Integration requires complete Refs and a checked current branch".into());
+        }
+        if self.reference(target).and_then(Reference::commit).is_none() {
+            return Err("Integration requires one exact selected ref with a commit target".into());
+        }
+        let status = self
+            .observation
+            .status
+            .as_ref()
+            .ok_or("Integration requires a working tree")?;
+        if status.completeness != Completeness::Complete || !status.paths.is_empty() {
+            return Err("Integration requires a complete clean index and working tree".into());
+        }
+        Ok(())
     }
 }

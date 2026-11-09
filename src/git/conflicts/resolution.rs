@@ -36,20 +36,7 @@ pub struct Resolution {
 }
 impl Conflict {
     pub fn resolution_admission(&self, action: ResolutionAction) -> Result<u32, String> {
-        if self.completeness != Completeness::Complete
-            || self.change.old_path.is_some()
-            || self.change.submodule != *b"N..."
-            || !matches!(
-                (self.change.index, self.change.worktree),
-                (b'U', b'U') | (b'A', b'A') | (b'U', b'D') | (b'D', b'U') | (b'D', b'D')
-            )
-            || matches!(
-                self.sequence.family,
-                Some(SequenceFamily::Unsupported | SequenceFamily::Bisect)
-            )
-        {
-            return Err("Conflict action requires complete compatible path, stages and sequence evidence; structural or partial cases remain inspection only".into());
-        }
+        self.resolution_path_admission()?;
         let mode = self
             .sides
             .iter()
@@ -75,6 +62,23 @@ impl Conflict {
             );
         }
         Ok(mode)
+    }
+    fn resolution_path_admission(&self) -> Result<(), String> {
+        if self.completeness != Completeness::Complete
+            || self.change.old_path.is_some()
+            || self.change.submodule != *b"N..."
+            || !matches!(
+                (self.change.index, self.change.worktree),
+                (b'U', b'U') | (b'A', b'A') | (b'U', b'D') | (b'D', b'U') | (b'D', b'D')
+            )
+            || matches!(
+                self.sequence.family,
+                Some(SequenceFamily::Unsupported | SequenceFamily::Bisect)
+            )
+        {
+            return Err("Conflict action requires complete compatible path, stages and sequence evidence; structural or partial cases remain inspection only".into());
+        }
+        Ok(())
     }
 }
 pub(in crate::git) enum ResolutionRequest {

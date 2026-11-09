@@ -318,41 +318,51 @@ pub(super) struct PageResult {
     pub more: bool,
 }
 
-pub(super) fn log_result(
-    id: OperationId,
-    observation: Arc<Observation>,
-    root: Option<ObjectId>,
-    prior: Option<&History>,
-    page: PageResult,
-    max_pages: usize,
-    mut admission: Lease,
-) -> History {
-    let PageResult { revisions, more } = page;
-    let mut pages = prior.map_or_else(Vec::new, |h| h.pages.clone());
-    if !revisions.is_empty() {
-        let bytes = std::mem::size_of::<HistoryPage>()
-            + revisions.capacity() * std::mem::size_of::<Revision>()
-            + revisions
-                .iter()
-                .map(|r| r.bytes() - std::mem::size_of::<Revision>())
-                .sum::<usize>();
-        let page = HistoryPage {
-            revisions,
-            _admission: admission.split(bytes),
-        };
-        pages.push(Arc::new(page));
+impl History {
+    /// An unpublished ancestry result owns its exact root and admission.
+    pub(in crate::git) fn new(
+        id: OperationId,
+        observation: Arc<Observation>,
+        root: Option<ObjectId>,
+        admission: Lease,
+    ) -> Self {
+        Self {
+            id,
+            observation,
+            root,
+            pages: Vec::new(),
+            more: false,
+            page_limit: false,
+            _admission: admission,
+        }
     }
-    let page_limit = more && pages.len() >= max_pages;
-    admission.retain(
-        std::mem::size_of::<History>() + pages.capacity() * std::mem::size_of::<Arc<HistoryPage>>(),
-    );
-    History {
-        id,
-        observation,
-        root,
-        pages,
-        more,
-        page_limit,
-        _admission: admission,
+    pub(in crate::git) fn with_page(
+        mut self,
+        prior: Option<&Self>,
+        page: PageResult,
+        max_pages: usize,
+    ) -> Self {
+        let PageResult { revisions, more } = page;
+        self.pages = prior.map_or_else(Vec::new, |h| h.pages.clone());
+        if !revisions.is_empty() {
+            let bytes = std::mem::size_of::<HistoryPage>()
+                + revisions.capacity() * std::mem::size_of::<Revision>()
+                + revisions
+                    .iter()
+                    .map(|r| r.bytes() - std::mem::size_of::<Revision>())
+                    .sum::<usize>();
+            let page = HistoryPage {
+                revisions,
+                _admission: self._admission.split(bytes),
+            };
+            self.pages.push(Arc::new(page));
+        }
+        self.more = more;
+        self.page_limit = more && self.pages.len() >= max_pages;
+        self._admission.retain(
+            std::mem::size_of::<History>()
+                + self.pages.capacity() * std::mem::size_of::<Arc<HistoryPage>>(),
+        );
+        self
     }
 }

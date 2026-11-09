@@ -197,29 +197,8 @@ impl Repositories {
         if worktrees.completeness != Completeness::Complete {
             return Err("Changing worktree actions require a complete list".into());
         }
-        if action
-            .path()
-            .is_some_and(|p| p.as_os_str().len() > 4096 || !p.is_absolute())
-        {
-            return Err("Worktree action requires an absolute path within 4096 bytes".into());
-        }
-        match &action {
-            WorktreeAction::Create { branch, .. }
-                if branch.is_empty() || branch.len() > 4096 || branch.contains('\0') =>
-            {
-                return Err("New worktree branch requires 1..=4096 non-NUL bytes".into());
-            }
-            WorktreeAction::Lock { reason, .. }
-                if reason.is_empty()
-                    || reason.len() > 4096
-                    || reason.contains(['\0', '\r', '\n']) =>
-            {
-                return Err(
-                    "Worktree lock reason requires 1..=4096 non-NUL bytes on one line".into(),
-                );
-            }
-            _ => {}
-        }
+        action.validate_path()?;
+        action.validate_metadata()?;
         let admission = self.budget.reserve(action.bytes() + 4096)?;
         self.start(
             root,
@@ -245,5 +224,37 @@ impl Repositories {
             Some(plan.worktrees.observation.context),
             work::Request::Repository(super::Request::Worktrees(Request::Change(plan))),
         )
+    }
+}
+
+impl WorktreeAction {
+    fn validate_path(&self) -> Result<(), String> {
+        if self
+            .path()
+            .is_some_and(|p| p.as_os_str().len() > 4096 || !p.is_absolute())
+        {
+            return Err("Worktree action requires an absolute path within 4096 bytes".into());
+        }
+        Ok(())
+    }
+    fn validate_metadata(&self) -> Result<(), String> {
+        match self {
+            WorktreeAction::Create { branch, .. }
+                if branch.is_empty() || branch.len() > 4096 || branch.contains('\0') =>
+            {
+                return Err("New worktree branch requires 1..=4096 non-NUL bytes".into());
+            }
+            WorktreeAction::Lock { reason, .. }
+                if reason.is_empty()
+                    || reason.len() > 4096
+                    || reason.contains(['\0', '\r', '\n']) =>
+            {
+                return Err(
+                    "Worktree lock reason requires 1..=4096 non-NUL bytes on one line".into(),
+                );
+            }
+            _ => {}
+        }
+        Ok(())
     }
 }

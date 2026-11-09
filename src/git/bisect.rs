@@ -79,6 +79,18 @@ impl Sequence {
             .as_ref()
             .ok_or("Bisect uses unsupported terms, paths or checkout mode")?;
         let plan = state.plan.as_ref().ok_or("Bisect original context lineage is unavailable; it cannot be inferred from a branch label")?;
+        self.check_bisect_origin(plan)?;
+        if action != BisectAction::Reset && state.result != BisectResult::Searching {
+            return Err("Bisect has no unclassified current candidate; explicitly reset the retained result".into());
+        }
+        if matches!(action, BisectAction::Good | BisectAction::Skip)
+            && state.good.len() + state.skipped.len() + 1 >= 256
+        {
+            return Err("Bisect classification exceeds 256-ref admission".into());
+        }
+        Ok(())
+    }
+    fn check_bisect_origin(&self, plan: &BisectPlan) -> Result<(), String> {
         if self.original != plan.refs.head
             || self.branch != plan.refs.head_ref
             || self.refs.head.is_none()
@@ -93,14 +105,6 @@ impl Sequence {
                 "Manual bisect requires its exact original context and complete clean index/disk"
                     .into(),
             );
-        }
-        if action != BisectAction::Reset && state.result != BisectResult::Searching {
-            return Err("Bisect has no unclassified current candidate; explicitly reset the retained result".into());
-        }
-        if matches!(action, BisectAction::Good | BisectAction::Skip)
-            && state.good.len() + state.skipped.len() + 1 >= 256
-        {
-            return Err("Bisect classification exceeds 256-ref admission".into());
         }
         Ok(())
     }

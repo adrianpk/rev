@@ -146,36 +146,8 @@ impl Repositories {
         if stashes.completeness != Completeness::Complete {
             return Err("Changing stash actions require a complete list".into());
         }
-        if let Some(object) = action.object() {
-            stashes
-                .entry(object)
-                .ok_or("Exact stash object disappeared")?;
-            if matches!(
-                action,
-                StashAction::Pop(_) | StashAction::Branch { .. } | StashAction::Drop(_)
-            ) && stashes
-                .entries
-                .iter()
-                .filter(|e| e.object == object)
-                .count()
-                != 1
-            {
-                return Err("Duplicate stash objects make entry removal ambiguous; no changing request was started".into());
-            }
-        }
-        match &action {
-            StashAction::Create { message }
-                if message.len() > 4096 || message.contains(['\0', '\n', '\r']) =>
-            {
-                return Err("Stash message requires at most 4096 bytes on one non-NUL line".into());
-            }
-            StashAction::Branch { name, .. }
-                if name.is_empty() || name.len() > 4096 || name.contains('\0') =>
-            {
-                return Err("Stash branch requires 1..=4096 non-NUL bytes".into());
-            }
-            _ => {}
-        }
+        stashes.check_action_object(&action)?;
+        action.validate_input()?;
         let admission = self.budget.reserve(action.bytes() + 4096)?;
         self.start(
             root,
@@ -201,5 +173,39 @@ impl Repositories {
             Some(plan.stashes.observation.context),
             work::Request::Repository(Request::Stash(plan)),
         )
+    }
+}
+
+impl Stashes {
+    fn check_action_object(&self, action: &StashAction) -> Result<(), String> {
+        if let Some(object) = action.object() {
+            self.entry(object).ok_or("Exact stash object disappeared")?;
+            if matches!(
+                action,
+                StashAction::Pop(_) | StashAction::Branch { .. } | StashAction::Drop(_)
+            ) && self.entries.iter().filter(|e| e.object == object).count() != 1
+            {
+                return Err("Duplicate stash objects make entry removal ambiguous; no changing request was started".into());
+            }
+        }
+        Ok(())
+    }
+}
+impl StashAction {
+    fn validate_input(&self) -> Result<(), String> {
+        match self {
+            StashAction::Create { message }
+                if message.len() > 4096 || message.contains(['\0', '\n', '\r']) =>
+            {
+                return Err("Stash message requires at most 4096 bytes on one non-NUL line".into());
+            }
+            StashAction::Branch { name, .. }
+                if name.is_empty() || name.len() > 4096 || name.contains('\0') =>
+            {
+                return Err("Stash branch requires 1..=4096 non-NUL bytes".into());
+            }
+            _ => {}
+        }
+        Ok(())
     }
 }

@@ -143,15 +143,7 @@ impl Repositories {
         if !Arc::ptr_eq(current, &intent) {
             return Err("Tag preparation changed; review again".into());
         }
-        match intent.kind {
-            TagKind::Lightweight if !text.is_empty() => {
-                return Err("Lightweight tags have no annotation".into());
-            }
-            TagKind::Annotated if text.trim().is_empty() => {
-                return Err("Annotated tag requires a message".into());
-            }
-            _ => {}
-        }
+        intent.kind.check_text(text)?;
         let text = intent.annotation(text)?;
         self.retain_tag_draft(&intent, &text)?;
         let directory = self.local_ref_directory(&intent.refs)?;
@@ -186,5 +178,20 @@ impl Repositories {
                 _admission: admission,
             }),
         )
+    }
+}
+
+impl TagKind {
+    fn check_text(self, text: &str) -> Result<(), String> {
+        match self {
+            TagKind::Lightweight if !text.is_empty() => {
+                return Err("Lightweight tags have no annotation".into());
+            }
+            TagKind::Annotated if text.trim().is_empty() => {
+                return Err("Annotated tag requires a message".into());
+            }
+            _ => {}
+        }
+        Ok(())
     }
 }

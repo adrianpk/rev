@@ -14,11 +14,7 @@ impl ConflictExplanation {
     /// historical source. Every changing request still needs exact Git proof.
     pub fn current(&self) -> Result<(), String> {
         let identity = &self.conflict.sequence.refs.observation.identity;
-        let index = std::fs::symlink_metadata(identity.git_directory.join("index"))
-            .map_err(|_| "Conflict index source is unavailable")?;
-        if !index.is_file() || fingerprint(&index) != self.index {
-            return Err("Conflict index changed; explanation is a historical snapshot".into());
-        }
+        self.check_index(identity)?;
         let root = identity
             .worktree
             .as_ref()
@@ -34,6 +30,14 @@ impl ConflictExplanation {
             }
             _ => Err("Conflict saved result changed; explanation is a historical snapshot".into()),
         }
+    }
+    fn check_index(&self, identity: &Identity) -> Result<(), String> {
+        let index = std::fs::symlink_metadata(identity.git_directory.join("index"))
+            .map_err(|_| "Conflict index source is unavailable")?;
+        if !index.is_file() || fingerprint(&index) != self.index {
+            return Err("Conflict index changed; explanation is a historical snapshot".into());
+        }
+        Ok(())
     }
 }
 impl Repositories {

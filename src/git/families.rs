@@ -1,6 +1,11 @@
 //! Prepared native Git arguments retain exact input and checked destinations.
 use super::*;
 
+mod commands;
+mod preparation;
+
+use preparation::Preparation;
+
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum Family {
     Clone,
@@ -35,160 +40,6 @@ pub enum Family {
     RunShellCommand,
 }
 impl Family {
-    pub fn label(self) -> &'static str {
-        match self {
-            Self::Clone => "regular clone",
-            Self::CloneShallow => "shallow clone",
-            Self::CloneBare => "bare clone",
-            Self::CloneMirror => "mirror clone",
-            Self::Init => "repository init",
-            Self::SubmoduleAdd => "submodule add",
-            Self::SubmoduleList => "submodule list",
-            Self::SubmoduleUpdate => "submodule update",
-            Self::SubmoduleSync => "submodule sync",
-            Self::SubmoduleDeinit => "submodule deinit",
-            Self::SubtreeAdd => "subtree add",
-            Self::SubtreeMerge => "subtree merge",
-            Self::SubtreePull => "subtree pull",
-            Self::SubtreePush => "subtree push",
-            Self::SubtreeSplit => "subtree split",
-            Self::NotesAdd => "notes add",
-            Self::NotesRemove => "notes remove",
-            Self::NotesPrune => "notes prune",
-            Self::SparseEnable => "sparse checkout enable",
-            Self::SparseDisable => "sparse checkout disable",
-            Self::SparseReapply => "sparse checkout reapply",
-            Self::SparseSet => "sparse checkout set",
-            Self::SparseAdd => "sparse checkout add",
-            Self::FormatPatch => "format patch output",
-            Self::SaveDiff => "saved diff output",
-            Self::RequestPull => "request pull output",
-            Self::ApplyPatch => "plain patch application",
-            Self::ApplyMailbox => "mailbox application",
-            Self::RunCommand => "direct Git command",
-            Self::RunShellCommand => "explicit shell command",
-        }
-    }
-    pub fn seed(self) -> Vec<String> {
-        let args: &[&str] = match self {
-            Self::Clone => &["clone", "--", "", ""],
-            Self::CloneShallow => &["clone", "--depth=1", "--", "", ""],
-            Self::CloneBare => &["clone", "--bare", "--", "", ""],
-            Self::CloneMirror => &["clone", "--mirror", "--", "", ""],
-            Self::Init => &["init", "--", ""],
-            Self::SubmoduleAdd => &["submodule", "add", "--name", "", "--", "", ""],
-            Self::SubmoduleList => &["submodule", "status", "--recursive"],
-            Self::SubmoduleUpdate => &["submodule", "update", "--init", "--checkout", "--", ""],
-            Self::SubmoduleSync => &["submodule", "sync", "--", ""],
-            Self::SubmoduleDeinit => &["submodule", "deinit", "--", ""],
-            Self::SubtreeAdd => &["subtree", "add", "--prefix", "", "--", "", ""],
-            Self::SubtreeMerge => &["subtree", "merge", "--prefix", "", "--", ""],
-            Self::SubtreePull => &["subtree", "pull", "--prefix", "", "--", "", ""],
-            Self::SubtreePush => &["subtree", "push", "--prefix", "", "--", "", ""],
-            Self::SubtreeSplit => &["subtree", "split", "--prefix", "", "--", ""],
-            Self::NotesAdd => &["notes", "--ref", "", "add", "--message", "", "--", ""],
-            Self::NotesRemove => &["notes", "--ref", "", "remove", "--", ""],
-            Self::NotesPrune => &["notes", "--ref", "", "prune"],
-            Self::SparseEnable => &["sparse-checkout", "init", "--cone", "--no-sparse-index"],
-            Self::SparseDisable => &["sparse-checkout", "disable"],
-            Self::SparseReapply => &["sparse-checkout", "reapply"],
-            Self::SparseSet => &[
-                "sparse-checkout",
-                "set",
-                "--cone",
-                "--no-sparse-index",
-                "--skip-checks",
-                "--",
-                "",
-            ],
-            Self::SparseAdd => &["sparse-checkout", "add", "--skip-checks", "--", ""],
-            Self::FormatPatch => &[
-                "format-patch",
-                "--stdout",
-                "--binary",
-                "--full-index",
-                "--no-signature",
-                "--no-cover-letter",
-                "--no-notes",
-                "--no-ext-diff",
-                "--no-textconv",
-                "",
-                "--",
-            ],
-            Self::SaveDiff => &[
-                "diff",
-                "--binary",
-                "--full-index",
-                "--no-ext-diff",
-                "--no-textconv",
-                "--no-color",
-                "",
-                "",
-                "--",
-            ],
-            Self::RunCommand | Self::RunShellCommand => &[""],
-            Self::RequestPull => &["request-pull", "", "", ""],
-            Self::ApplyPatch => &[
-                "apply",
-                "--index",
-                "--binary",
-                "--whitespace=nowarn",
-                "--",
-                "",
-            ],
-            Self::ApplyMailbox => &[
-                "am",
-                "--patch-format=mboxrd",
-                "--no-3way",
-                "--no-signoff",
-                "--no-message-id",
-                "--no-scissors",
-                "--no-keep-cr",
-                "--no-keep",
-                "--no-keep-non-patch",
-                "--utf8",
-                "--no-rerere-autoupdate",
-                "--whitespace=nowarn",
-                "--",
-                "",
-            ],
-        };
-        args.iter().map(|a| (*a).into()).collect()
-    }
-    pub(super) fn validate(self, args: &[OsString]) -> Result<(), String> {
-        if self.direct() {
-            if args.is_empty()
-                || args[0].is_empty()
-                || args.iter().any(|a| a.as_encoded_bytes().contains(&0))
-                || (self == Self::RunShellCommand && args.len() != 1)
-            {
-                return Err("Direct Git requires literal arguments; shell mode requires exactly one nonempty command string without NUL".into());
-            }
-            return Ok(());
-        }
-        let expected = self.seed();
-        let variadic = matches!(self, Self::SparseSet | Self::SparseAdd);
-        if (if variadic {
-            args.len() < expected.len()
-        } else {
-            args.len() != expected.len()
-        }) || args
-            .iter()
-            .zip(&expected)
-            .any(|(a, b)| !b.is_empty() && a != b.as_str())
-        {
-            return Err(
-                "Keep the prepared family and its explicit option/parameter structure".into(),
-            );
-        }
-        if args
-            .iter()
-            .any(|a| a.is_empty() || a.as_encoded_bytes().contains(&0))
-        {
-            return Err("Fill every prepared argument with nonempty, non-NUL input".into());
-        }
-        Ok(())
-    }
     pub fn repository_action(self) -> bool {
         self.submodule()
             || self.subtree()
@@ -599,7 +450,15 @@ impl Repositories {
         family: Family,
         args: Vec<OsString>,
     ) -> Result<OperationId, String> {
-        self.prepare_family_file(directory, context, family, args, None)
+        self.prepare_family_file(
+            directory,
+            context,
+            Preparation {
+                family,
+                args,
+                output: None,
+            },
+        )
     }
     pub fn prepare_family_output(
         &mut self,
@@ -609,97 +468,14 @@ impl Repositories {
         args: Vec<OsString>,
         output: &Path,
     ) -> Result<OperationId, String> {
-        self.prepare_family_file(directory, context, family, args, Some(output.into()))
-    }
-    fn prepare_family_file(
-        &mut self,
-        directory: &Path,
-        context: Option<ContextId>,
-        family: Family,
-        args: Vec<OsString>,
-        output: Option<PathBuf>,
-    ) -> Result<OperationId, String> {
-        self.family_idle()?;
-        if family.output() != output.is_some()
-            || output.as_ref().is_some_and(|p| {
-                p.as_os_str().is_empty()
-                    || p.as_os_str().len() > 4096
-                    || p.as_os_str().as_encoded_bytes().contains(&0)
-            })
-        {
-            return Err("Output families require one explicit output path within 4096 bytes; other families take literal argv only".into());
-        }
-        if !directory.is_absolute() || directory.as_os_str().len() > 4096 {
-            return Err("Prepared directory requires an absolute path within 4096 bytes".into());
-        }
-        if args.len() > 64
-            || args.iter().any(|a| a.len() > 4096)
-            || args.iter().map(|a| a.len()).sum::<usize>() > 65536
-        {
-            return Err(
-                "Prepared input exceeds 64 arguments, 4096 bytes per argument or 64 KiB total"
-                    .into(),
-            );
-        }
-        family.validate(&args)?;
-        let (args, shell) = if family == Family::RunShellCommand {
-            let command = args[0]
-                .to_str()
-                .ok_or("Shell command requires UTF-8 input")?;
-            let mut argv =
-                crate::shell::arguments(&self.shell_policy, &self.shell_startup, command)?;
-            let program = argv.remove(0);
-            (
-                argv.into_iter().map(OsString::from).collect(),
-                Some(Shell {
-                    program,
-                    seconds: self
-                        .shell_policy
-                        .timeout_seconds
-                        .min(self.policy.operation_timeout_seconds),
-                    output_bytes: self
-                        .shell_policy
-                        .max_output_bytes
-                        .min(self.policy.max_output_bytes),
-                }),
-            )
-        } else {
-            (args, None)
-        };
-        let observation = context
-            .map(|id| {
-                self.context(id)
-                    .map(|c| std::sync::Arc::clone(&c.observation))
-                    .ok_or("Prepared source context expired")
-            })
-            .transpose()?;
-        if family.repository_action()
-            && observation.as_ref().is_none_or(|o| {
-                !(family.notes() || family.output()) && o.identity.worktree.is_none()
-            })
-        {
-            return Err(
-                "Repository family preparation requires a checked working-tree context".into(),
-            );
-        }
-        let size = args.iter().map(OsString::capacity).sum::<usize>()
-            + output.as_ref().map_or(0, PathBuf::capacity)
-            + shell.as_ref().map_or(0, |s| s.program.capacity())
-            + 8192;
-        let admission = self.budget.reserve(size)?;
-        self.family_plan = None;
-        self.family_result = None;
-        self.start(
-            directory.into(),
+        self.prepare_family_file(
+            directory,
             context,
-            work::Request::Family(Request::Prepare {
+            Preparation {
                 family,
                 args,
-                observation,
-                output,
-                shell,
-                _admission: admission,
-            }),
+                output: Some(output.into()),
+            },
         )
     }
     pub fn execute_family(&mut self, plan: Arc<FamilyPlan>) -> Result<OperationId, String> {

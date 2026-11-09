@@ -97,19 +97,7 @@ impl Repositories {
             if choices[..i].iter().any(|c| c.object == choice.object) {
                 return Err("Ordered revisions contain a duplicate target".into());
             }
-            let revision = history
-                .revision(choice.object)
-                .ok_or("Ordered target is not in the captured History")?;
-            if revision.parents.len() > 1 {
-                if choice
-                    .mainline
-                    .is_none_or(|n| n == 0 || n > revision.parents.len())
-                {
-                    return Err("Merge revision requires one explicit valid mainline parent".into());
-                }
-            } else if choice.mainline.is_some() {
-                return Err("A non-merge revision has no selectable mainline".into());
-            }
+            choice.admit(&history)?;
         }
         let root = self.mutation_identity_root(&history.observation.identity)?;
         let admission = self.budget.reserve(std::mem::size_of_val(choices) + 4096)?;
@@ -141,5 +129,24 @@ impl Repositories {
             Some(plan.refs.observation.context),
             work::Request::Application(Request::Start(plan)),
         )
+    }
+}
+
+impl RevisionChoice {
+    fn admit(&self, history: &History) -> Result<(), String> {
+        let revision = history
+            .revision(self.object)
+            .ok_or("Ordered target is not in the captured History")?;
+        if revision.parents.len() > 1 {
+            if self
+                .mainline
+                .is_none_or(|n| n == 0 || n > revision.parents.len())
+            {
+                return Err("Merge revision requires one explicit valid mainline parent".into());
+            }
+        } else if self.mainline.is_some() {
+            return Err("A non-merge revision has no selectable mainline".into());
+        }
+        Ok(())
     }
 }

@@ -171,18 +171,16 @@ impl Runner {
                 + 4096;
             admission.grow(bytes)?;
             let more = prior.more;
-            return Ok(ResultData::Log(history::log_result(
-                id,
-                observation,
-                root,
-                Some(prior.as_ref()),
-                history::PageResult {
-                    revisions: Vec::new(),
-                    more,
-                },
-                self.policy.max_history_pages,
-                admission.split(bytes),
-            )));
+            return Ok(ResultData::Log(
+                History::new(id, observation, root, admission.split(bytes)).with_page(
+                    Some(prior.as_ref()),
+                    history::PageResult {
+                        revisions: Vec::new(),
+                        more,
+                    },
+                    self.policy.max_history_pages,
+                ),
+            ));
         }
         let retained = prior;
         let skip = retained.as_ref().map_or(0, |h| h.revisions().count());
@@ -268,15 +266,13 @@ impl Runner {
             + revisions.iter().map(|r| r.bytes()).sum::<usize>()
             + 4096;
         admission.grow(bytes)?;
-        Ok(ResultData::Log(history::log_result(
-            id,
-            observation,
-            root,
-            retained.as_deref(),
-            history::PageResult { revisions, more },
-            self.policy.max_history_pages,
-            admission.split(bytes),
-        )))
+        Ok(ResultData::Log(
+            History::new(id, observation, root, admission.split(bytes)).with_page(
+                retained.as_deref(),
+                history::PageResult { revisions, more },
+                self.policy.max_history_pages,
+            ),
+        ))
     }
 
     fn revision(

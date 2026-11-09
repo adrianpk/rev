@@ -1,6 +1,8 @@
 use super::{Completeness, Group, Head, Observation, OperationId, PathChange, budget::Lease};
 use std::{ops::Range, sync::Arc};
 
+mod patch;
+
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum Baseline {
     Empty,
@@ -129,55 +131,20 @@ pub(super) fn prepare(
         verified,
         mut completeness,
     } = prepared;
-    let baseline = match target.group {
-        Group::Untracked => Baseline::Empty,
-        Group::Staged => match target.observation.status.as_ref().map(|s| &s.head) {
-            Some(Head::Branch { object, .. } | Head::Detached { object }) => {
-                Baseline::Head(*object)
-            }
-            _ => Baseline::Empty,
-        },
-        _ => Baseline::Index,
-    };
+    let baseline = target.baseline();
     let binary = bytes
         .split(|b| *b == b'\n')
         .any(|line| line.starts_with(b"Binary files ") || line == b"GIT binary patch");
     let mut kind = classify(&target, binary);
-    let chunks = bytes
-        .split_inclusive(|b| *b == b'\n')
-        .map(|line| line.len().div_ceil(2048))
-        .sum::<usize>();
-    let count = bytes
-        .split(|b| *b == b'\n')
-        .filter(|line| line.starts_with(b"@@ "))
-        .count();
-    let reserved = chunks
-        .checked_mul(2 * std::mem::size_of::<DiffLine>())
-        .and_then(|lines| {
-            count
-                .checked_mul(2 * std::mem::size_of::<Hunk>())
-                .and_then(|hunks| lines.checked_add(hunks))
-        })
-        .and_then(|bytes| bytes.checked_add(32768));
     let mut lines = Vec::new();
     let mut hunks = Vec::new();
-    if reserved.is_some_and(|bytes| admission.grow(bytes).is_ok()) {
-        lines = Vec::with_capacity(chunks);
-        hunks = Vec::with_capacity(count);
+    if let Some((admitted_lines, admitted_hunks)) = admit_lines(&bytes, &mut admission) {
+        lines = admitted_lines;
+        hunks = admitted_hunks;
         let parsed = if completeness == Completeness::Complete && kind != DiffKind::Unmerged {
-            parse(id, &bytes, &mut lines, &mut hunks, cancel)
+            patch::parse(id, &bytes, &mut lines, &mut hunks, cancel)
         } else {
-            let mut offset = 0;
-            for line in bytes.split_inclusive(|b| *b == b'\n') {
-                for start in (0..line.len()).step_by(2048) {
-                    lines.push(DiffLine {
-                        bytes: offset + start..offset + (start + 2048).min(line.len()),
-                        hunk: None,
-                        kind: DiffLineKind::Context,
-                    });
-                }
-                offset += line.len();
-            }
+            raw_lines(&bytes, &mut lines);
             Ok(())
         };
         if let Err(error) = parsed {
@@ -185,10 +152,6 @@ pub(super) fn prepare(
                 return Err(error);
             }
             kind = DiffKind::Malformed(error);
-            hunks.clear();
-            for line in &mut lines {
-                line.hunk = None;
-            }
         }
     } else {
         completeness = Completeness::Truncated {
@@ -246,126 +209,6 @@ fn classify(target: &Target, binary: bool) -> DiffKind {
     }
 }
 
-fn parse(
-    operation: OperationId,
-    bytes: &[u8],
-    lines: &mut Vec<DiffLine>,
-    hunks: &mut Vec<Hunk>,
-    cancel: &crate::process::Cancellation,
-) -> Result<(), String> {
-    let mut offset = 0;
-    let mut remaining = (0usize, 0usize);
-    let mut active = None;
-    let mut failure = None;
-    for line in bytes.split_inclusive(|b| *b == b'\n') {
-        if cancel.is_cancelled() {
-            return Err("Git diff parsing cancelled or timed out".into());
-        }
-        let content = line.strip_suffix(b"\n").unwrap_or(line);
-        let mut kind = DiffLineKind::Metadata;
-        if content.starts_with(b"@@ ") {
-            kind = DiffLineKind::Hunk;
-            if remaining != (0, 0) {
-                failure = Some("Git hunk body does not match its declared ranges");
-            }
-            match ranges(content) {
-                Ok((old, new)) => {
-                    let id = HunkId(operation, hunks.len());
-                    remaining = (old.count, new.count);
-                    hunks.push(Hunk {
-                        id,
-                        old,
-                        new,
-                        patch: offset..offset + line.len(),
-                    });
-                    active = Some(id);
-                }
-                Err(_) => {
-                    failure = Some("Malformed Git unified hunk ranges");
-                    active = None;
-                }
-            }
-        } else if active.is_some()
-            && (remaining != (0, 0) || content == b"\\ No newline at end of file")
-        {
-            kind = match content.first() {
-                Some(b'+') => DiffLineKind::Added,
-                Some(b'-') => DiffLineKind::Removed,
-                Some(b' ') => DiffLineKind::Context,
-                _ => DiffLineKind::Metadata,
-            };
-            let used = match content.first() {
-                Some(b' ') => (1, 1),
-                Some(b'-') => (1, 0),
-                Some(b'+') => (0, 1),
-                Some(b'\\') if content == b"\\ No newline at end of file" => (0, 0),
-                _ => {
-                    failure = Some("Malformed Git hunk body");
-                    (0, 0)
-                }
-            };
-            if used.0 > remaining.0 || used.1 > remaining.1 {
-                failure = Some("Git hunk exceeds its declared ranges");
-            }
-            remaining = (
-                remaining.0.saturating_sub(used.0),
-                remaining.1.saturating_sub(used.1),
-            );
-            if let Some(hunk) = hunks.last_mut() {
-                hunk.patch.end = offset + line.len();
-            }
-        } else {
-            active = None;
-            if [b"diff ".as_slice(), b"--- ", b"+++ "]
-                .iter()
-                .any(|prefix| content.starts_with(prefix))
-            {
-                kind = DiffLineKind::Header;
-            }
-            // Every unified comparison comes from one native Git request;
-            // unexpected extra payload must not acquire semantic text targets.
-            if !content.is_empty()
-                && ![
-                    b"diff ".as_slice(),
-                    b"index ",
-                    b"--- ",
-                    b"+++ ",
-                    b"old mode ",
-                    b"new mode ",
-                    b"new file mode ",
-                    b"deleted file mode ",
-                    b"similarity index ",
-                    b"dissimilarity index ",
-                    b"rename from ",
-                    b"rename to ",
-                    b"copy from ",
-                    b"copy to ",
-                    b"Binary files ",
-                    b"Submodule ",
-                    b"GIT binary patch",
-                    b"@@@ ",
-                ]
-                .iter()
-                .any(|prefix| content.starts_with(prefix))
-            {
-                failure = Some("Unsupported Git diff payload");
-            }
-        }
-        for start in (0..line.len()).step_by(2048) {
-            lines.push(DiffLine {
-                bytes: offset + start..offset + (start + 2048).min(line.len()),
-                hunk: active,
-                kind,
-            });
-        }
-        offset += line.len();
-    }
-    if remaining != (0, 0) {
-        failure = Some("Incomplete Git unified hunk body");
-    }
-    failure.map_or(Ok(()), |message| Err(message.into()))
-}
-
 fn ranges(header: &[u8]) -> Result<(LineRange, LineRange), String> {
     let mut parts = header.split(|byte| *byte == b' ');
     if parts.next() != Some(b"@@".as_slice()) {
@@ -383,19 +226,72 @@ fn line_range(bytes: Option<&[u8]>, prefix: u8) -> Result<LineRange, String> {
         .and_then(|value| value.strip_prefix(&[prefix]))
         .ok_or("Missing unified range")?;
     let mut parts = bytes.split(|b| *b == b',');
-    let number = |bytes: &[u8]| -> Result<usize, String> {
-        if bytes.is_empty() || !bytes.iter().all(u8::is_ascii_digit) {
-            return Err("Invalid unified range number".into());
-        }
-        std::str::from_utf8(bytes)
-            .map_err(|e| e.to_string())?
-            .parse::<usize>()
-            .map_err(|e| e.to_string())
-    };
-    let start = number(parts.next().ok_or("Missing range start")?)?;
-    let count = parts.next().map_or(Ok(1), number)?;
+    let start = range_number(parts.next().ok_or("Missing range start")?)?;
+    let count = parts.next().map_or(Ok(1), range_number)?;
     if parts.next().is_some() || start.checked_add(count).is_none() || (start == 0 && count != 0) {
         return Err("Unsupported unified range".into());
     }
     Ok(LineRange { start, count })
+}
+
+fn range_number(bytes: &[u8]) -> Result<usize, String> {
+    if bytes.is_empty() || !bytes.iter().all(u8::is_ascii_digit) {
+        return Err("Invalid unified range number".into());
+    }
+    std::str::from_utf8(bytes)
+        .map_err(|e| e.to_string())?
+        .parse::<usize>()
+        .map_err(|e| e.to_string())
+}
+
+impl Target {
+    fn baseline(&self) -> Baseline {
+        match self.group {
+            Group::Untracked => Baseline::Empty,
+            Group::Staged => match self.observation.status.as_ref().map(|s| &s.head) {
+                Some(Head::Branch { object, .. } | Head::Detached { object }) => {
+                    Baseline::Head(*object)
+                }
+                _ => Baseline::Empty,
+            },
+            _ => Baseline::Index,
+        }
+    }
+}
+
+/// Reserve all indexed chunks and hunks before allocating their vectors.
+fn admit_lines(bytes: &[u8], admission: &mut Lease) -> Option<(Vec<DiffLine>, Vec<Hunk>)> {
+    let chunks = bytes
+        .split_inclusive(|b| *b == b'\n')
+        .map(|line| line.len().div_ceil(2048))
+        .sum::<usize>();
+    let count = bytes
+        .split(|b| *b == b'\n')
+        .filter(|line| line.starts_with(b"@@ "))
+        .count();
+    let reserved = chunks
+        .checked_mul(2 * std::mem::size_of::<DiffLine>())
+        .and_then(|lines| {
+            count
+                .checked_mul(2 * std::mem::size_of::<Hunk>())
+                .and_then(|hunks| lines.checked_add(hunks))
+        })
+        .and_then(|bytes| bytes.checked_add(32768));
+    let reserved = reserved?;
+    admission.grow(reserved).ok()?;
+    Some((Vec::with_capacity(chunks), Vec::with_capacity(count)))
+}
+
+fn raw_lines(bytes: &[u8], lines: &mut Vec<DiffLine>) {
+    let mut offset = 0;
+    for line in bytes.split_inclusive(|b| *b == b'\n') {
+        for start in (0..line.len()).step_by(2048) {
+            lines.push(DiffLine {
+                bytes: offset + start..offset + (start + 2048).min(line.len()),
+                hunk: None,
+                kind: DiffLineKind::Context,
+            });
+        }
+        offset += line.len();
+    }
 }
