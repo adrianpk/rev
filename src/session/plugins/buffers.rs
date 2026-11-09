@@ -253,6 +253,8 @@ impl Session {
             Operation::Publish(save, staged) => self.plugin_publish_save(request, save, staged),
             Operation::Close(params) => self.plugin_close(request, params),
             Operation::Commands(params) => self.plugin_commands(params),
+            Operation::Bind(params) => self.plugin_bind(request, params),
+            Operation::Unbind(params) => self.plugin_unbind(request, params),
             Operation::Invoke(_) => {
                 unreachable!("owned invocation handled before borrowed operations")
             }

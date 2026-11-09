@@ -125,16 +125,16 @@ Validation: all eight frozen commands passed through the controller validator on
 
 ## Slice 7: Contextual keybindings
 
-State: implementing
+State: reviewing
 Dependency: Slice 6 integrated
 Branch: feat/rev-plugin-system-07-keymaps
 PR: pending
 Report: ops/default/report/slices/rev-plugin-system/slice-7-keymaps.md
-Validation: pending; exact ordered commands in the plan and controller configuration
+Validation: all eight frozen commands passed locally; fresh nine-test keymap selection and 55 combined plugin tests passed, including native dispatch/hints, both profiles, hidden targets, precedence/conflicts, selectors, retirement and finite ownership. Exact clean-HEAD controller evidence precedes handoff.
 
-- [ ] T7.1: Integrate passive and dynamic global/buffer contributions into existing native contexts, normalization, prefix admission and recovery ownership in both startup profiles.
-- [ ] T7.2: Implement explicit user selectors and deterministic effective/shadowed/conflicted inspection; recompute current underlying mappings when a generation retires.
-- [ ] T7.3: Verify local-before-global, user-before-default, competing defaults in both orders, unreachable prefixes, transient ownership and effective key hints using real native dispatch.
+- [x] T7.1: Integrate passive and dynamic global/buffer contributions into existing native contexts, normalization, prefix admission and recovery ownership in both startup profiles.
+- [x] T7.2: Implement explicit user selectors and deterministic effective/shadowed/conflicted inspection; recompute current underlying mappings when a generation retires.
+- [x] T7.3: Verify local-before-global, user-before-default, competing defaults in both orders, unreachable prefixes, transient ownership and effective key hints using real native dispatch.
 
 ## Slice 8: Prefix arguments and macro calls
 

@@ -122,7 +122,7 @@ fn dormant_catalog() {
         session.execute(Command::Plugin(PluginCommand::List));
         assert!(session.buffer().unwrap().is_readonly());
         assert!(text(&session).contains("field.notes 0.1.0: installed, inactive"));
-        assert!(text(&session).contains("declared, ineffective"));
+        assert!(text(&session).contains("Effective"));
         session.execute(Command::Buffer(BufferCommand::Switch));
         session.handle(Event::Paste(source_name));
         session.handle(key(KeyCode::Enter));

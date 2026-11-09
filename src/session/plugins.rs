@@ -7,12 +7,14 @@ mod activation;
 mod buffers;
 mod files;
 mod invocation;
+mod keymaps;
 mod transactions;
 
 #[derive(Default)]
 pub(super) struct Work {
     pub(super) host: Host,
     activation: activation::Activation,
+    keys: keymaps::Keymaps,
     notice: Option<String>,
 }
 
@@ -140,6 +142,7 @@ impl Session {
         let mut notices = self.plugins.host.service(&mut service);
         self.serve_plugin_buffers(&mut service);
         self.advance_plugin_activation(&mut service, &mut notices);
+        self.refresh_plugin_keymaps();
         if let Some(notice) = notices.pop() {
             self.plugins.notice = Some(notice);
         }
@@ -200,23 +203,17 @@ impl Session {
                     command.description.as_str()
                 ));
             }
-            for binding in manifest.bindings.iter() {
-                text.push_str(&format!(
-                    "  Default binding {} -> {} ({:?}, {:?}; declared, ineffective)\n",
-                    binding.keys.as_str(),
-                    binding.command,
-                    binding.context,
-                    binding.scope
-                ));
-            }
         }
-        for binding in &settings.keybindings {
+        text.push_str("\nBindings for the current text buffer (normalized native contexts):\n");
+        for value in &self.plugins.keys.values {
             text.push_str(&format!(
-                "User binding {} -> {} ({:?}, {:?}; declared, ineffective)\n",
-                binding.keys.as_str(),
-                binding.command,
-                binding.context,
-                binding.scope
+                "  {} -> {} ({}; {}; {}; {:?})\n",
+                value.sequence,
+                value.command.name(),
+                value.context.name(),
+                if value.local { "buffer" } else { "global" },
+                if value.user { "user" } else { "plugin" },
+                self.input.plugin_binding_status(value)
             ));
         }
         if settings.enabled && snapshot.plugins().packages().next().is_none() {

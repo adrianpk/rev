@@ -15,6 +15,9 @@ impl Rpc {
     pub(super) fn new(profile: &str) -> Self {
         let mut editor = Editor::new(profile, "buffers", "", true);
         editor.wait(|e| e.status().state == State::Active);
+        Self::from_editor(editor)
+    }
+    pub(super) fn from_editor(editor: Editor) -> Self {
         Self {
             editor,
             sequence: 0,

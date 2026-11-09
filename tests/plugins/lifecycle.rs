@@ -92,7 +92,38 @@ impl Editor {
             if startup { &["field.notes"] } else { &[] },
         )
     }
+    pub(super) fn keymaps(
+        profile: &str,
+        bindings: &[(&str, &str)],
+        config: &str,
+        rpc: bool,
+    ) -> Self {
+        let specs: Vec<_> = bindings
+            .iter()
+            .map(|(id, _)| Spec {
+                id,
+                mode: if rpc { "buffers" } else { "echo" },
+                activation: "",
+                ignore_term: false,
+            })
+            .collect();
+        let startup: Vec<_> = if rpc {
+            bindings.iter().map(|(id, _)| *id).collect()
+        } else {
+            Vec::new()
+        };
+        Self::setup(profile, &specs, &startup, bindings, config)
+    }
     fn packages(profile: &str, specs: &[Spec<'_>], startup: &[&str]) -> Self {
+        Self::setup(profile, specs, startup, &[], "")
+    }
+    fn setup(
+        profile: &str,
+        specs: &[Spec<'_>],
+        startup: &[&str],
+        bindings: &[(&str, &str)],
+        config: &str,
+    ) -> Self {
         let fixture = Fixture::new();
         let mut manifests = Vec::new();
         for spec in specs {
@@ -148,7 +179,11 @@ recording = "reject"
                 spec.activation
             );
             let name = format!("{}.toml", spec.id);
-            fixture.write(&name, &manifest);
+            let extra = bindings
+                .iter()
+                .find(|(id, _)| *id == spec.id)
+                .map_or("", |(_, b)| *b);
+            fixture.write(&name, &format!("{manifest}{extra}"));
             manifests.push(name);
         }
         let terminal = if specs.iter().any(|s| s.mode == "buffers") {
@@ -157,7 +192,7 @@ recording = "reject"
             ""
         };
         let path = fixture.write("config.toml", &format!("[editor]\ninteraction_profile='{profile}'\n[plugins]\nenabled=true\nmanifests={}\nstartup={}{}",
-            serde_json::to_string(&manifests).unwrap(), serde_json::to_string(startup).unwrap(), terminal));
+            serde_json::to_string(&manifests).unwrap(), serde_json::to_string(startup).unwrap(), format!("{terminal}\n{config}")));
         let prepared = config::prepare(&path);
         assert!(prepared.diagnostic.is_none(), "{:?}", prepared.diagnostic);
         let mut buffers = Buffers::with_settings(prepared.snapshot).unwrap();
@@ -313,7 +348,8 @@ fn lazy_profiles() {
                 "display",
                 "edits",
                 "invocation",
-                "file_lifecycle"
+                "file_lifecycle",
+                "keymaps"
             ])
         );
     }

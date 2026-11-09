@@ -42,6 +42,9 @@ impl Input {
             })
             .collect();
         self.macro_bindings = bindings;
+        if !self.plugin_keys.values.is_empty() {
+            self.plugin_keymaps(self.plugin_keys.values.clone());
+        }
         self.retire_command_hints();
         self.clear_prefix();
     }
@@ -81,6 +84,9 @@ impl Input {
         let mut keys = self.chords.clone();
         keys.push(key);
         let sequence = Sequence::from_chords(&keys)?;
+        if self.plugin_local_key(&sequence) {
+            return None;
+        }
         if let Some(command) = self.macro_bindings.get(&sequence).copied() {
             let continued = !self.chords.is_empty();
             self.suppress_repeat = true;

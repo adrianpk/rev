@@ -586,6 +586,17 @@ impl Host {
         }
         None
     }
+    pub(crate) fn binding_state(&self, id: &PackageId) -> (Option<Generation>, bool) {
+        match self.slots.get(id) {
+            Some(slot) => (
+                Some(slot.generation.clone()),
+                !slot.retired
+                    && !slot.connection.stop.load(Ordering::Acquire)
+                    && matches!(slot.state, State::Activating | State::Active),
+            ),
+            None => (None, !self.history.contains_key(id)),
+        }
+    }
     pub(crate) fn command_available(&self, package: &PackageId, command: &CommandId) -> bool {
         let Some(slot) = self.slots.get(package) else {
             return self

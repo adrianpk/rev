@@ -12,6 +12,7 @@ pub(crate) mod macro_bindings;
 mod macros;
 mod meta;
 mod modal;
+mod plugin_keymaps;
 pub use macros::MacroQuery;
 mod step_edit;
 pub use modal::EditingState;
@@ -155,6 +156,7 @@ pub struct Input {
     navigation_source: Option<(crate::window::ViewId, crate::buffer::edit::Point)>,
     chords: Vec<Key>,
     keymaps: keymap::Effective,
+    plugin_keys: plugin_keymaps::Keymaps,
     workspace_tree: bool,
     workspace_startup: bool,
     workspace_bookmarks: bool,
@@ -222,6 +224,7 @@ impl Input {
             profile: settings.settings().editor.interaction_profile,
             policy: settings.settings().minibuffer.clone(),
             keymaps: settings.keymaps().clone(),
+            plugin_keys: Default::default(),
             ..Self::default()
         }
     }

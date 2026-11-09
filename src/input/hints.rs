@@ -122,6 +122,7 @@ impl Input {
             navigation_source: None,
             chords: Vec::new(),
             keymaps: self.keymaps.clone(),
+            plugin_keys: self.plugin_keys.clone(),
             workspace_tree: self.workspace_tree,
             workspace_startup: self.workspace_startup,
             workspace_bookmarks: self.workspace_bookmarks,

@@ -75,6 +75,7 @@ impl Session {
             self.query_agenda = None;
         }
         self.input.set_org_context(self.input_org_role());
+        self.refresh_plugin_keymaps();
     }
 
     fn input_org_role(&self) -> Option<crate::input::OrgContext> {

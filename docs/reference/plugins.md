@@ -4,8 +4,8 @@ The experimental catalog admits explicitly configured local packages for
 rev.plugins/0.1. It reads passive metadata and adds qualified command names and
 descriptions to M-x and the modal colon selector without starting programs.
 Command use, explicit startup and declared native triggers can activate one
-owned process per package and independent editor. Contributed bindings and
-package-to-host editor operations remain unavailable.
+owned process per package and independent editor. Packages can use checked
+text-buffer, edit, invocation, file-lifecycle and contextual keymap operations.
 
 ## Configuration
 
@@ -99,10 +99,58 @@ has these fields:
 | filetypes | Optional distinct native filetype IDs, default empty. |
 | buffer_owner | Optional package ID matching native provenance of package-created buffers. |
 
-When both selectors are present they intersect. Declarations remain inspectable
-and ineffective; they do not replace a native keymap or transient/recovery owner.
-Native prefix reachability, recovery and conflict resolution apply before any
-future binding becomes executable. No activation order selects a winner.
+When both selectors are present they intersect. Native prefix reachability,
+recovery and contextual conflict resolution apply before a binding becomes
+executable. Native transient owners retain priority. No activation order selects
+a winner.
+
+## Contextual binding resolution
+
+Passive defaults become available without starting a program. A matching key
+activates its declared qualified command lazily. editor bindings apply in the
+non-modal editing profile; vim_normal, vim_insert, vim_replace and the three
+vim_visual_* contexts apply in their corresponding modal states. Ordinary Org
+text uses the same admitted source maps. Native prompts, completion popups,
+terminal/tree focus, inventories, capture/source-edit and other transient owners
+retain their priority. An inactive context does not advertise an effective hint.
+
+Resolve buffer scope before global scope. Within either scope, explicit user
+choices precede plugin defaults, which precede factory defaults. Existing native
+user mappings and user-bound macros remain authoritative within global scope.
+A plugin buffer-local default can override a customized global mapping. The user
+can change that local policy through a matching buffer-scoped override. Filetypes
+and buffer_owner selectors intersect; neither selector can silently become global.
+Overlapping explicit user plugin choices in one scope reject startup atomically.
+
+Competing defaults in the same scope become conflicting when their normalized
+sequences overlap and their targets differ. None wins by installation, activation
+or request order. The next applicable scope or native factory policy remains
+available. Equal suggestions for the same command can coexist with distinct
+registration ownership. Normalized Meta aliases have the same identity.
+
+Admission uses native sequence parsing and refuses command/prefix overlaps with
+native leaves or subtrees. Plugin bindings cannot shadow cancellation, macro
+abort, Escape/Meta recovery, command discovery, prefix arguments, modal state
+transitions or modal count digits. User [keys.*] maps keep their existing rules.
+Native dispatch and command-hint probing use the same effective maps. A conflicted
+or shadowed suggestion is not presented as the command's effective shortcut.
+
+keymaps.bind takes a declared command in the caller's package, keys, context and
+scope: global, or buffer with a live session-qualified ordinary text handle.
+The result includes a unique registration, resolution status, effective source,
+underlying sources, competing sources and a bounded diagnostic. Global inspection
+uses the current text buffer; local inspection uses its explicit target even if
+another buffer is selected. Inspection arrays contain at most 512 sources and
+report truncation explicitly. No binding transfers native focus.
+
+keymaps.unbind takes up to 128 registrations and removes only the caller's current
+generation. Unknown, duplicate or foreign registrations refuse the whole request.
+Closing a target retires its local registrations. Cancellation, deactivation,
+failure and restart revoke generation-owned bindings. Configured defaults are
+suppressed while that package is retired and return on a new activation; explicit
+user choices persist. Removal always resolves against current native maps and
+current user macros, rather than restoring a saved mapping. Counts include
+passive declarations and dynamic registrations: 128 per package and 512 per editor.
 
 ## Native command metadata
 
@@ -115,7 +163,8 @@ future binding becomes executable. No activation order selects a winner.
 
 plugin-list opens a read-only inventory with package IDs, versions, process state,
 generation, pending requests, bounded diagnostics and cleanup observations. It
-also lists declared commands and ineffective bindings. Display output is bounded
+also lists declared commands and the current text buffer's normalized binding
+contributions, scopes, provenance and effective/shadowed/conflicting status. Display output is bounded
 to 64 KiB with an explicit truncation notice. It performs no program or PATH
 probe. Qualified
 plugin selections participate in session usage ranking. They are not written to
@@ -149,7 +198,8 @@ The commands capability enables commands.list and host-to-package command.invoke
 and command.cancel. The buffers and display capabilities enable the six native
 buffer operations below. The edits capability enables checked edits.apply batches.
 Invocation enables commands.invoke, and file_lifecycle enables buffers.save and
-buffers.close. Bindings, events, messages and state operations still return
+buffers.close. The keymaps capability enables keymaps.bind and keymaps.unbind.
+Events, messages and state operations still return
 correlated unsupported_method errors. Requests before
 initialization return unsupported_invocation. An incompatible acknowledgement,
 malformed or oversized stdout, EOF, process exit or deadline retires the generation.

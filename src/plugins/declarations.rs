@@ -44,7 +44,14 @@ pub struct Binding {
 }
 impl Binding {
     pub fn validate(&self) -> Result<(), String> {
-        crate::input::keymap::Sequence::parse(self.keys.as_str()).map_err(|e| e.to_string())?;
+        let sequence =
+            crate::input::keymap::Sequence::parse(self.keys.as_str()).map_err(|e| e.to_string())?;
+        static FACTORY: std::sync::LazyLock<crate::input::keymap::Effective> =
+            std::sync::LazyLock::new(crate::input::keymap::Effective::default);
+        FACTORY.admit_plugin(
+            crate::input::keymap::contributions::context(self.context),
+            &sequence,
+        )?;
         let selectors = !self.filetypes.is_empty() || self.buffer_owner.is_some();
         if (self.scope == Scope::Buffer) != selectors {
             return Err("buffer scope requires selectors; global scope rejects selectors".into());
@@ -63,8 +70,6 @@ impl Binding {
         {
             return Err("expected distinct native filetype identities".into());
         }
-        // Binding installation and prefix/conflict resolution are deliberately
-        // deferred until the native contribution owner exists (Slice 7).
         Ok(())
     }
 }
@@ -306,6 +311,31 @@ impl Registry {
                     &origin,
                     "user plugin binding command is not declared",
                 ));
+            }
+        }
+        for (i, a) in settings.keybindings.iter().enumerate() {
+            for b in settings.keybindings.iter().skip(i + 1) {
+                let selectors = (a.buffer_owner.is_none()
+                    || b.buffer_owner.is_none()
+                    || a.buffer_owner == b.buffer_owner)
+                    && (a.filetypes.is_empty()
+                        || b.filetypes.is_empty()
+                        || a.filetypes.iter().any(|f| b.filetypes.contains(f)));
+                if a.context == b.context
+                    && a.scope == b.scope
+                    && selectors
+                    && crate::input::keymap::contributions::overlaps(
+                        &crate::input::keymap::Sequence::parse(a.keys.as_str())
+                            .expect("validated sequence"),
+                        &crate::input::keymap::Sequence::parse(b.keys.as_str())
+                            .expect("validated sequence"),
+                    )
+                {
+                    return Err(Error::new(
+                        &origin,
+                        "overlapping explicit user plugin bindings in one scope",
+                    ));
+                }
             }
         }
         Ok(registry)

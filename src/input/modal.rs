@@ -109,6 +109,9 @@ impl Input {
     }
 
     pub(super) fn active_map(&self) -> &super::keymap::Map {
+        if let Some(map) = self.plugin_active_map() {
+            return map;
+        }
         if self.modal_editing() {
             let local = self.workspace_org.map(super::OrgContext::keymap);
             self.keymaps.vim_map(self.modal_context(), local)

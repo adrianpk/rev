@@ -51,6 +51,7 @@ impl Handshake {
             Capability::Edits,
             Capability::Invocation,
             Capability::FileLifecycle,
+            Capability::Keymaps,
         ])?;
         self.request.id = OpaqueId::new(format!("initialize:{}", self.offer.generation))
             .map_err(|_| RpcError::application(ErrorKind::InvalidArguments))?;
@@ -117,6 +118,7 @@ impl Handshake {
             BuffersSave::NAME | BuffersClose::NAME => Capability::FileLifecycle,
             CommandsList::NAME => Capability::Commands,
             CommandsInvoke::NAME => Capability::Invocation,
+            KeymapsBind::NAME | KeymapsUnbind::NAME => Capability::Keymaps,
             _ => {
                 return Err(
                     RpcError::application(ErrorKind::UnsupportedMethod).for_request(&request.id)

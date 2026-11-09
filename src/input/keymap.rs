@@ -2,6 +2,7 @@
 //! input owners; parsing uses the same terminal aliases as runtime keys.
 mod availability;
 mod cancellation;
+pub(crate) mod contributions;
 mod defaults;
 mod map;
 mod sequence;

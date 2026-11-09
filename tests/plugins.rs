@@ -18,3 +18,6 @@ mod transactions;
 
 #[path = "plugins/invocation.rs"]
 mod invocation;
+
+#[path = "plugins/keymaps.rs"]
+mod keymaps;

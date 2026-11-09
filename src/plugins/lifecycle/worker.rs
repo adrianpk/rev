@@ -562,6 +562,7 @@ impl Worker {
                 operation: Some(operation),
                 deadline,
                 package: self.package.manifest.plugin.id.clone(),
+                generation: self.handshake.offer().generation.clone(),
                 connection: self.connection.clone(),
                 _ingress: None,
                 _permit: Permit {

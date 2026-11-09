@@ -36,17 +36,17 @@ impl Error {
 }
 
 #[derive(Clone, Debug, PartialEq, Eq)]
-struct Entry {
-    spelling: String,
-    target: Binding,
-    custom: bool,
+pub(super) struct Entry {
+    pub(super) spelling: String,
+    pub(super) target: Binding,
+    pub(super) custom: bool,
 }
 
 /// One fully validated inherited map. Raw spellings survive only for useful
 /// diagnostics; normalized sequences own lookup, replacement and prefix identity.
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct Map {
-    entries: BTreeMap<Sequence, Entry>,
+    pub(super) entries: BTreeMap<Sequence, Entry>,
 }
 
 impl Map {

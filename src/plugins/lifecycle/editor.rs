@@ -31,6 +31,8 @@ pub(crate) enum Operation {
     Close(BuffersCloseParams),
     Commands(CommandsListParams),
     Invoke(CommandsInvokeParams),
+    Bind(KeymapsBindParams),
+    Unbind(KeymapsUnbindParams),
 }
 pub(crate) enum Reply {
     List(BuffersListResult),
@@ -44,6 +46,8 @@ pub(crate) enum Reply {
     Closed(BuffersCloseResult),
     Commands(CommandsListResult),
     Invoked(CommandsInvokeResult),
+    Bound(KeymapsBindResult),
+    Unbound(Empty),
 }
 impl Reply {
     pub(super) fn value(self) -> serde_json::Value {
@@ -57,6 +61,8 @@ impl Reply {
             Self::Closed(v) => serde_json::to_value(v),
             Self::Commands(v) => serde_json::to_value(v),
             Self::Invoked(v) => serde_json::to_value(v),
+            Self::Bound(v) => serde_json::to_value(v),
+            Self::Unbound(v) => serde_json::to_value(v),
             Self::Stage(_, _) | Self::Load(_) => {
                 unreachable!("file preparation precedes wire encoding")
             }
@@ -66,6 +72,7 @@ impl Reply {
 }
 pub(crate) struct Request {
     pub package: PackageId,
+    pub generation: Generation,
     pub operation: Option<Operation>,
     pub(super) id: OpaqueId,
     pub(super) deadline: Instant,
@@ -156,6 +163,8 @@ pub(super) fn decode(request: &rev_plugin_sdk::rpc::Request) -> Result<Operation
         BuffersClose::NAME => Operation::Close(params(&request.params)?),
         CommandsList::NAME => Operation::Commands(params(&request.params)?),
         CommandsInvoke::NAME => Operation::Invoke(params(&request.params)?),
+        KeymapsBind::NAME => Operation::Bind(params(&request.params)?),
+        KeymapsUnbind::NAME => Operation::Unbind(params(&request.params)?),
         _ => return Err(RpcError::application(ErrorKind::UnsupportedMethod)),
     })
 }

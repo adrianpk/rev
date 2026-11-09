@@ -45,6 +45,9 @@ impl Input {
             self.clear_prefix();
             self.suppress_repeat = true;
             self.workspace_org = context;
+            if !self.plugin_keys.values.is_empty() {
+                self.plugin_keymaps(self.plugin_keys.values.clone());
+            }
         }
     }
 

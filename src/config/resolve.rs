@@ -191,6 +191,20 @@ pub fn resolve(sources: &Sources) -> Result<Snapshot, Diagnostic> {
             diagnostic
         },
     )?;
+    for binding in plugins
+        .packages()
+        .flat_map(|p| p.manifest.bindings.iter())
+        .chain(settings.plugins.keybindings.iter())
+    {
+        let sequence = crate::input::keymap::Sequence::parse(binding.keys.as_str())
+            .expect("validated declaration sequence");
+        keymaps
+            .admit_plugin(
+                crate::input::keymap::contributions::context(binding.context),
+                &sequence,
+            )
+            .map_err(|message| Diagnostic::new(origin, message))?;
+    }
     let root = super::Roots::from_env()
         .ok()
         .map(|roots| roots.data.join("grammars"));
