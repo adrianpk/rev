@@ -113,8 +113,9 @@ Validation: all eight frozen commands passed through the controller validator on
 State: reviewing
 Dependency: Slice 5 integrated
 Branch: feat/rev-plugin-system-06-invocation
-PR: pending
+PR: #6 - https://forge.adrianpk.com/rev/rev/pulls/6
 Report: ops/default/report/slices/rev-plugin-system/slice-6-invocation.md
+Implementation: 912a6dbe11bf273b50c88add88e93e0b024542be
 Validation: all eight frozen commands passed locally; fresh seven-test invocation selection, 46 combined plugin tests, one six-variant staging test, 28 native save/consent regressions and fixture formatting passed. Exact clean-HEAD controller evidence precedes handoff.
 
 - [x] T6.1: Publish a typed noninteractive native-command admission policy and qualified plugin dispatch; validate captured targets/arguments and reject prompting/reentrant unsupported classes explicitly.

@@ -5,7 +5,7 @@ Delivery set: rev-plugin-system
 Plan: [Plugin System Delivery](../../../plan/rev-plugin-system.md)
 Tracker: [Plugin System Tracker](../../../tracker/rev-plugin-system.md)
 Branch: `feat/rev-plugin-system-06-invocation`
-PR: pending
+PR: `#6`
 
 ## Purpose
 
@@ -39,9 +39,8 @@ calls and explicit revision/disk-qualified saving and checked native closing.
 
 ## Implementation Notes
 
-The implementation commit introduces this report and delivers T6.1-T6.3.
-Canonical PR and immutable implementation references follow in the PR-reference
-commit.
+Implementation: `912a6dbe11bf273b50c88add88e93e0b024542be` implements T6.1-T6.3 and introduces
+this report. Canonical [PR #6](https://forge.adrianpk.com/rev/rev/pulls/6) targets dev.
 
 The command owner defines a typed Motion/Consent/Unsupported admission policy.
 The package adapter validates captured native owners and typed argument objects;
