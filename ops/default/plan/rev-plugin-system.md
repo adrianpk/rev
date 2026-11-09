@@ -8,7 +8,7 @@ Planning baseline: a398dcb77dd0ce036d989f038068ac942fc68ebd
 Specification: [Plugin System](../spec/editor-plugin-system.md)
 Model: [Plugin Identity, Protocol and State](../spec/editor-plugin-system-model.md)
 Concern: [Pending Editor Work](../README.md)
-Active slice: Slice 9 - Revision events and backpressure
+Active slice: Slice 10 - Package-owned persistent state
 Tracker: [Plugin System Tracker](../tracker/rev-plugin-system.md)
 Slice strategy: behavior-first
 

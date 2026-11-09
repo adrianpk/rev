@@ -1,6 +1,6 @@
 # Slice 9: Revision events and backpressure
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-plugin-system
 Plan: [Plugin System Delivery](../../../plan/rev-plugin-system.md)
 Tracker: [Plugin System Tracker](../../../tracker/rev-plugin-system.md)
@@ -129,9 +129,9 @@ used. Final focused commands:
 
 Formatting, Clippy and documentation checks also passed after final runtime
 changes. Documentation checks passed 684 commands per combined inventory, 299
-configuration entries, 100 reachable pages and 685 local links. Final clean-HEAD
-evidence is recorded separately through the controller's validate command before
-handoff. The integrated full gate belongs to the controller.
+configuration entries, 100 reachable pages and 685 local links. All eight commands passed final clean-HEAD controller validation at
+95ef40a9fbda4e5e32bd582b9b14eeeeaad01670 before handoff. Canonical PR #9
+is merged into dev at the same commit. The integrated full gate belongs to the controller.
 
 ## Risks and Follow-ups
 

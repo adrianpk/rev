@@ -8,7 +8,7 @@ Planning baseline: a398dcb77dd0ce036d989f038068ac942fc68ebd
 Specification: [Plugin System](../spec/editor-plugin-system.md)
 Model: [Plugin Identity, Protocol and State](../spec/editor-plugin-system-model.md)
 Concern: [Pending Editor Work](../README.md)
-Active slice: Slice 9 - Revision events and backpressure
+Active slice: Slice 10 - Package-owned persistent state
 Execution authorized: one thirteen-slice Looper run with automatic integration into dev
 Plan: [Plugin System Delivery](../plan/rev-plugin-system.md)
 Progress owner: selected Looper run; no second runtime tracker
@@ -155,13 +155,14 @@ Validation: all nine frozen ordered commands passed locally; final focused valid
 
 ## Slice 9: Revision events and backpressure
 
-State: reviewing
+State: delivered
 Dependency: Slice 8 integrated
 Branch: feat/rev-plugin-system-09-events
 PR: https://forge.adrianpk.com/rev/rev/pulls/9
 Implementation: f738e46cb79aa7b3c854f74e24e242dc4cc00da7
 Report: ops/default/report/slices/rev-plugin-system/slice-9-events.md
-Validation: all eight frozen ordered commands passed locally; 74 combined plugin regressions passed; final clean-HEAD controller validation before handoff
+Integrated: 95ef40a9fbda4e5e32bd582b9b14eeeeaad01670
+Validation: all eight frozen ordered commands passed exact clean-HEAD controller validation before handoff; 74 combined plugin regressions passed; canonical merge verified
 
 - [x] T9.1: Implement subscriptions, post-publication source/lifecycle events, sequence/revision/origin propagation and retired-generation rejection.
 - [x] T9.2: Enforce per-package/aggregate queues, explicit resnapshot invalidation on overflow, causal depth and 32-item/2-ms cooperative service passes without idle polling.
@@ -169,7 +170,7 @@ Validation: all eight frozen ordered commands passed locally; 74 combined plugin
 
 ## Slice 10: Package-owned persistent state
 
-State: planned
+State: implementing
 Dependency: Slice 9 integrated
 Branch: feat/rev-plugin-system-10-state
 PR: pending
