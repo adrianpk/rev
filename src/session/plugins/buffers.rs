@@ -37,6 +37,10 @@ impl Session {
                 continue;
             }
             let operation = request.operation.take().expect("admitted editor operation");
+            if let Operation::Invoke(params) = operation {
+                self.plugin_invoke(request, params);
+                continue;
+            }
             let result = self.plugin_buffer_operation(&request, operation);
             request.complete(result);
         }
@@ -53,7 +57,7 @@ impl Session {
         text(buffer)?;
         Ok(buffer.id())
     }
-    fn plugin_descriptor(&self, buffer: &Buffer) -> Result<BufferDescriptor, RpcError> {
+    pub(super) fn plugin_descriptor(&self, buffer: &Buffer) -> Result<BufferDescriptor, RpcError> {
         text(buffer)?;
         let expected_disk = match buffer.file().and_then(|f| f.observation()) {
             None => DiskObservation::Absent,
@@ -107,6 +111,9 @@ impl Session {
                 | Operation::Install(_, _)
                 | Operation::Create(_)
                 | Operation::Apply(_)
+                | Operation::Save(_, _)
+                | Operation::Publish(_, _)
+                | Operation::Close(_)
         ) && (self.context_storage.locked()
             || self.context_prepared.is_some()
             || self.quit_pending())
@@ -242,6 +249,13 @@ impl Session {
             }
             Operation::Show(params) => self.plugin_show(request, params),
             Operation::Apply(params) => self.plugin_edits(request, params),
+            Operation::Save(params, target) => self.plugin_save(request, params, target),
+            Operation::Publish(save, staged) => self.plugin_publish_save(request, save, staged),
+            Operation::Close(params) => self.plugin_close(request, params),
+            Operation::Commands(params) => self.plugin_commands(params),
+            Operation::Invoke(_) => {
+                unreachable!("owned invocation handled before borrowed operations")
+            }
         }
     }
     fn plugin_show(

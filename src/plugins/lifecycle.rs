@@ -126,10 +126,22 @@ struct Call {
     id: OpaqueId,
     command: CommandId,
     context: InvocationContext,
+    arguments: serde_json::Value,
+    reply: Option<editor::Request>,
     deadline: Instant,
     _permit: Permit,
 }
+impl Drop for Call {
+    fn drop(&mut self) {
+        if let Some(reply) = self.reply.take() {
+            reply.complete(Err(rev_plugin_sdk::rpc::RpcError::application(
+                rev_plugin_sdk::rpc::ErrorKind::Disconnected,
+            )));
+        }
+    }
+}
 struct Shared {
+    handlers: Vec<CommandId>,
     state: State,
     pid: Option<u32>,
     notices: VecDeque<String>,
@@ -271,6 +283,7 @@ impl Host {
         let (responses, replies) = mpsc::sync_channel(16);
         let connection = Arc::new(Connection {
             shared: Mutex::new(Shared {
+                handlers: Vec::new(),
                 state: State::Activating,
                 pid: None,
                 notices: VecDeque::new(),
@@ -327,7 +340,35 @@ impl Host {
         &mut self,
         package: &Package,
         command: CommandId,
+        context: InvocationContext,
+    ) -> Result<(), String> {
+        self.invoke_with(package, command, context, serde_json::json!({}), None)
+    }
+    pub(crate) fn invoke_with(
+        &mut self,
+        package: &Package,
+        command: CommandId,
         mut context: InvocationContext,
+        arguments: serde_json::Value,
+        mut reply: Option<editor::Request>,
+    ) -> Result<(), String> {
+        let result = self.queue_call(package, command, &mut context, arguments, &mut reply);
+        if result.is_err()
+            && let Some(reply) = reply.take()
+        {
+            reply.complete(Err(rev_plugin_sdk::rpc::RpcError::application(
+                rev_plugin_sdk::rpc::ErrorKind::Busy,
+            )));
+        }
+        result
+    }
+    fn queue_call(
+        &mut self,
+        package: &Package,
+        command: CommandId,
+        context: &mut InvocationContext,
+        arguments: serde_json::Value,
+        reply: &mut Option<editor::Request>,
     ) -> Result<(), String> {
         if self.budget.pending.load(Ordering::Acquire) >= 64 {
             return Err("Plugin pending request limit exceeded (64)".into());
@@ -355,7 +396,9 @@ impl Host {
         .map_err(|e| e.to_string())?;
         context.generation = slot.generation.clone();
         context.invocation = id.clone();
-        context.origin.operation = id.clone();
+        if reply.is_none() {
+            context.origin.operation = id.clone();
+        }
         context
             .validate(&Limits::default())
             .map_err(|e| e.to_string())?;
@@ -369,8 +412,12 @@ impl Host {
         let call = Call {
             id,
             command,
-            context,
-            deadline: Instant::now() + Duration::from_secs(60),
+            context: context.clone(),
+            deadline: reply
+                .as_ref()
+                .map_or_else(|| Instant::now() + Duration::from_secs(60), |r| r.deadline),
+            reply: reply.take(),
+            arguments,
             _permit: Permit {
                 budget: self.budget.clone(),
                 package: slot.connection.pending.clone(),
@@ -538,6 +585,25 @@ impl Host {
             }
         }
         None
+    }
+    pub(crate) fn command_available(&self, package: &PackageId, command: &CommandId) -> bool {
+        let Some(slot) = self.slots.get(package) else {
+            return self
+                .history
+                .get(package)
+                .is_none_or(|s| s.state != State::Failed);
+        };
+        if slot.retired || slot.connection.stop.load(Ordering::Acquire) {
+            return false;
+        }
+        slot.connection
+            .shared
+            .try_lock()
+            .is_ok_and(|shared| match shared.state {
+                State::Active => shared.handlers.contains(command),
+                State::Activating | State::Installed | State::Inactive => true,
+                State::Failed | State::Stopping => false,
+            })
     }
     pub fn inspect(&self, id: &PackageId) -> Inspection {
         let Some(slot) = self.slots.get(id) else {

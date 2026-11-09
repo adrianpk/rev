@@ -145,11 +145,12 @@ initial handler before publishing active state. Handlers must belong to commands
 in that package's admitted manifest, with distinct command and handler IDs.
 A declared command with no accepted handler reports command_unavailable.
 
-The commands capability enables host-to-package command.invoke and command.cancel.
-The buffers and display capabilities enable the six native buffer operations
-below. The edits capability enables checked edits.apply batches. Package-to-host
-command invocation, save/close, bindings, events, messages and state operations
-still return correlated unsupported_method errors. Requests before
+The commands capability enables commands.list and host-to-package command.invoke
+and command.cancel. The buffers and display capabilities enable the six native
+buffer operations below. The edits capability enables checked edits.apply batches.
+Invocation enables commands.invoke, and file_lifecycle enables buffers.save and
+buffers.close. Bindings, events, messages and state operations still return
+correlated unsupported_method errors. Requests before
 initialization return unsupported_invocation. An incompatible acknowledgement,
 malformed or oversized stdout, EOF, process exit or deadline retires the generation.
 Stdout is protocol-only. Stderr is a byte-bounded diagnostic ring; display replaces
@@ -278,6 +279,68 @@ semantic package-call integration is available. Queued retired/expired requests
 cannot publish; cancellation after an already committed batch does not reverse
 that batch. Creating, editing and undoing text never imply saving a file.
 
+## Noninteractive command invocation
+
+commands.list accepts page (cursor and limit 1..256) and a substring query. It
+returns canonical native names and qualified package IDs with descriptions,
+typed parameter declarations, availability, prefix/recording policy and an
+explicit noninteractive flag. Continuations belong to the current editor session.
+
+commands.invoke takes command, an inert arguments object and context. Context
+must identify a live command.invoke callback in this generation and preserve its
+origin. The host derives the next causal depth from that callback; callers cannot
+reset or forge it. Depth above 8 is refused, and the existing combined pending
+request ceiling can refuse a recursive chain earlier. The callback's source stamp,
+scalar point/selection and pane are checked against their live native owners.
+A stale revision is not refreshed. Native focus never substitutes a target.
+
+The admitted native class consists of the eight text motions: forward-char,
+backward-char, move-beginning-of-line, move-end-of-line, beginning-of-buffer,
+end-of-buffer, forward-word and backward-word. They take an empty arguments object,
+no prefix and an explicit captured text stamp, pane and point. They reuse native
+Unicode/grapheme and wrapped-line motion on that pane while preserving selection
+of another pane. Save, write, kill and quit commands return confirmation_required;
+other native classes return unsupported_invocation. This API does not open a prompt.
+
+Qualified calls validate the target manifest's typed arguments, activate lazily,
+and dispatch through its admitted generation-qualified handler. The result or
+typed failure is correlated back to the caller. A missing handler returns
+command_unavailable; a retired callee returns disconnected. Prefix calls and
+macro-active contexts remain unavailable until semantic recording integration.
+Native prompts, capture/source interactions and context departure retain ownership.
+
+## Explicit save and close
+
+buffers.save requires buffer, expected_revision, expected_disk and an optional
+path. Both preconditions come from buffers.describe. Saving the associated path
+uses that exact native observation; a stale disk token returns state_conflict.
+External changes are refused by the native file guard, without refreshing consent.
+An unsaved ordinary text buffer can explicitly save to a resolved absent path
+only with expected_disk kind absent. An occupied target returns
+confirmation_required. Retargeting an already associated buffer requires the
+native write-file workflow, including its bookmark loading/consent boundary.
+No path means confirmation_required when the buffer has no associated file.
+
+Read-only and unsupported resources are refused. Saves admit at most 16 MiB of
+source bytes, sharing the 16 MiB aggregate retained-ingress budget with file
+opens. Exhaustion returns busy before snapshot capture. The supervisor writes, flushes and synchronizes private temporary
+output. Native publication then rechecks the source revision, association,
+permissions and disk observation before replacement, and uses the existing
+completion/reconciliation policy. The native final metadata checks, replacement
+and directory synchronization remain synchronous; the service budget is not a
+filesystem latency guarantee. A failed replacement preserves file bytes and
+unsaved state. Uncertain completion returns state_conflict and retains the native
+published-file warning; it never claims that a successful replacement was undone.
+The result contains stamp and the new expected_disk observation. Source/history
+are unchanged, and focus is preserved. Native departure/context decisions return
+busy for save and close; retired or expired queued work cannot publish.
+
+buffers.close requires buffer and expected_revision. Modified text and an active
+clock require native confirmation; there is no force/discard option. A clean close
+uses native removal, shared-view replacement, bookmark/location checkpoint and
+completion/LSP cleanup. It does not delete the file or cancel another native
+prompt. Closing the last ordinary text buffer retains the native scratch policy.
+
 ## Admission limits
 
 | Resource | Ceiling |
@@ -293,6 +356,7 @@ that batch. Creating, editing and undoing text never imply saving a file.
 | UTF-8 frame / outbound bytes | 4 MiB per frame and package queue; 16 MiB queued per editor |
 | Text read or create / list page | 512 KiB UTF-8 / 256 descriptors |
 | One edit batch | 16 buffers; 256 total replacements; 512 KiB total replacement UTF-8 bytes |
+| Explicit save snapshot | 16 MiB per source |
 | New-file ingress | 16 MiB per file and aggregate retained ingress |
 | Startup / RPC deadline | 5 seconds / 60 seconds |
 | TERM grace / force-reap observation | 2 seconds / 2 seconds |

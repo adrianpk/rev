@@ -17,8 +17,10 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
   files, create ordinary result buffers and display them in native panes.
   Result text survives package deactivation. Packages can change several buffers
   in one checked batch; an invalid or stale target refuses the whole change.
-  Undo and redo remain local to each buffer. Contributed keybindings and
-  package-requested saves remain unavailable.
+  Undo and redo remain local to each buffer. Packages can invoke declared
+  commands and captured native text motions, explicitly save checked source
+  revisions and close clean buffers. Changed files and modified closes retain
+  native conflict and consent rules. Contributed keybindings remain unavailable.
 
 - Record native editing with F3 and finish with F4, then replay the last keyboard
   macro with F4 or C-x e. Positive prefix arguments repeat the recording;

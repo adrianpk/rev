@@ -110,16 +110,16 @@ Validation: all eight frozen commands passed through the controller validator on
 
 ## Slice 6: Native invocation and file lifecycle
 
-State: implementing
+State: reviewing
 Dependency: Slice 5 integrated
 Branch: feat/rev-plugin-system-06-invocation
 PR: pending
 Report: ops/default/report/slices/rev-plugin-system/slice-6-invocation.md
-Validation: pending; exact ordered commands in the plan and controller configuration
+Validation: all eight frozen commands passed locally; fresh seven-test invocation selection, 46 combined plugin tests, one six-variant staging test, 28 native save/consent regressions and fixture formatting passed. Exact clean-HEAD controller evidence precedes handoff.
 
-- [ ] T6.1: Publish a typed noninteractive native-command admission policy and qualified plugin dispatch; validate captured targets/arguments and reject prompting/reentrant unsupported classes explicitly.
-- [ ] T6.2: Implement revision-and-disk-qualified save and checked close through existing native conflict/read-only/path/consent policies; no force or implicit discard.
-- [ ] T6.3: Exercise stale disk/source observations, new-file absence, changed focus, modified close, nested calls, native cancellation and unchanged files after refused operations.
+- [x] T6.1: Publish a typed noninteractive native-command admission policy and qualified plugin dispatch; validate captured targets/arguments and reject prompting/reentrant unsupported classes explicitly.
+- [x] T6.2: Implement revision-and-disk-qualified save and checked close through existing native conflict/read-only/path/consent policies; no force or implicit discard.
+- [x] T6.3: Exercise stale disk/source observations, new-file absence, changed focus, modified close, nested calls, native cancellation and unchanged files after refused operations.
 
 ## Slice 7: Contextual keybindings
 

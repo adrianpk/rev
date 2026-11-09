@@ -47,17 +47,22 @@ impl Outcome {
     }
 }
 
-struct Staged {
+pub(crate) struct Staged {
     temporary: Temporary,
     directory: File,
 }
 
 pub(crate) fn publish(save: &Save, output: &mut impl Output) -> Outcome {
     let target = save.target.path();
-    let mut staged = match stage(save, output) {
+    let staged = match stage(save, output) {
         Ok(staged) => staged,
         Err(error) => return Outcome::failed(target, error),
     };
+    publish_staged(save, staged, output)
+}
+
+pub(crate) fn publish_staged(save: &Save, mut staged: Staged, output: &mut impl Output) -> Outcome {
+    let target = save.target.path();
     let replacement = operation("recheck destination", guard(save)).and_then(|()| {
         operation(
             "replace destination",
@@ -88,7 +93,7 @@ pub(crate) fn publish(save: &Save, output: &mut impl Output) -> Outcome {
     outcome
 }
 
-fn stage(save: &Save, output: &mut impl Output) -> io::Result<Staged> {
+pub(crate) fn stage(save: &Save, output: &mut impl Output) -> io::Result<Staged> {
     guard(save)?;
     let parent = save
         .target

@@ -136,6 +136,7 @@ args = {}
 [[commands]]
 name = "collect"
 description = "Collect task lines."
+parameters = [{{name="label", kind="string", required=false}}]
 prefix = "none"
 recording = "reject"
 [activation]
@@ -306,7 +307,14 @@ fn lazy_profiles() {
         let offers = lines(&editor.path("offers"));
         assert_eq!(
             offers[0]["capabilities"],
-            serde_json::json!(["commands", "buffers", "display", "edits"])
+            serde_json::json!([
+                "commands",
+                "buffers",
+                "display",
+                "edits",
+                "invocation",
+                "file_lifecycle"
+            ])
         );
     }
 }

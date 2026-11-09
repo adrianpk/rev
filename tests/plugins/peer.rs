@@ -35,6 +35,7 @@ fn record_message(directory: &std::path::Path, name: &str, message: &Message) {
 fn buffer_script(directory: &std::path::Path, input: &mut impl Read, output: &mut impl Write) {
     let mut decoder = Decoder::new(4 * 1024 * 1024).unwrap();
     let mut bytes = [0; 8192];
+    let mut nested = std::collections::BTreeMap::new();
     for sequence in 0..1000 {
         let path = directory.join(format!("request-{sequence}"));
         let deadline = Instant::now() + Duration::from_secs(20);
@@ -61,6 +62,23 @@ fn buffer_script(directory: &std::path::Path, input: &mut impl Read, output: &mu
                     continue;
                 };
                 match &message {
+                    Message::Failure(failure)
+                        if failure
+                            .id
+                            .as_ref()
+                            .is_some_and(|id| nested.contains_key(id)) =>
+                    {
+                        let parent = nested.remove(failure.id.as_ref().unwrap()).unwrap();
+                        let reply = Message::Failure(Failure {
+                            jsonrpc: Version::V2,
+                            id: Some(parent),
+                            error: failure.error.clone(),
+                        });
+                        output
+                            .write_all(&encode(&reply, 4 * 1024 * 1024).unwrap())
+                            .unwrap();
+                        output.flush().unwrap();
+                    }
                     Message::Success(_) | Message::Failure(_) => {
                         let data = encode(&message, 4 * 1024 * 1024).unwrap();
                         let temp = directory.join("response-tmp");
@@ -68,7 +86,23 @@ fn buffer_script(directory: &std::path::Path, input: &mut impl Read, output: &mu
                         fs::rename(temp, directory.join(format!("response-{sequence}"))).unwrap();
                         complete = true;
                     }
-                    Message::Request(_) => record_message(directory, "calls", &message),
+                    Message::Request(request) => {
+                        record_message(directory, "calls", &message);
+                        if directory.join("recursive").exists() {
+                            let id = OpaqueId::new(format!("nested-{}", nested.len())).unwrap();
+                            writeln!(output, r#"{{"jsonrpc":"2.0","id":"{}","method":"commands.invoke","params":{{"command":{},"arguments":{{}},"context":{}}}}}"#, id, request.params["command"], request.params["context"]).unwrap();
+                            nested.insert(id, request.id.clone());
+                            output.flush().unwrap();
+                        } else if directory.join("reply-calls").exists() {
+                            writeln!(
+                                output,
+                                r#"{{"jsonrpc":"2.0","id":"{}","result":{{"value":{}}}}}"#,
+                                request.id, request.params
+                            )
+                            .unwrap();
+                            output.flush().unwrap();
+                        }
+                    }
                     _ => {}
                 }
             }
@@ -194,13 +228,12 @@ fn main() {
                     }
                     if mode == "rpc" {
                         client
-                            .request::<CommandsList>(
-                                CommandsListParams {
-                                    page: Page {
-                                        cursor: None,
-                                        limit: 1,
-                                    },
-                                    query: Label::new("").unwrap(),
+                            .request::<CommandsUnregister>(
+                                CommandsUnregisterParams {
+                                    registrations: List::new(vec![
+                                        OpaqueId::new("unused-registration").unwrap(),
+                                    ])
+                                    .unwrap(),
                                 },
                                 start.elapsed(),
                             )

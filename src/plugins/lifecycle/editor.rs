@@ -8,7 +8,7 @@ use std::{
     time::Instant,
 };
 
-pub(super) struct Ingress {
+pub(crate) struct Ingress {
     budget: Arc<Budget>,
     bytes: usize,
 }
@@ -26,6 +26,11 @@ pub(crate) enum Operation {
     Read(BuffersReadParams),
     Show(BuffersShowParams),
     Apply(EditsApplyParams),
+    Save(BuffersSaveParams, Option<file::Location>),
+    Publish(crate::buffer::Save, file::Staged),
+    Close(BuffersCloseParams),
+    Commands(CommandsListParams),
+    Invoke(CommandsInvokeParams),
 }
 pub(crate) enum Reply {
     List(BuffersListResult),
@@ -34,6 +39,11 @@ pub(crate) enum Reply {
     Show(BuffersShowResult),
     Applied(EditsApplyResult),
     Load(file::Location),
+    Stage(crate::buffer::Save, Ingress),
+    Saved(BuffersSaveResult),
+    Closed(BuffersCloseResult),
+    Commands(CommandsListResult),
+    Invoked(CommandsInvokeResult),
 }
 impl Reply {
     pub(super) fn value(self) -> serde_json::Value {
@@ -43,7 +53,13 @@ impl Reply {
             Self::Read(v) => serde_json::to_value(v),
             Self::Show(v) => serde_json::to_value(v),
             Self::Applied(v) => serde_json::to_value(v),
-            Self::Load(_) => unreachable!("file preparation precedes wire encoding"),
+            Self::Saved(v) => serde_json::to_value(v),
+            Self::Closed(v) => serde_json::to_value(v),
+            Self::Commands(v) => serde_json::to_value(v),
+            Self::Invoked(v) => serde_json::to_value(v),
+            Self::Stage(_, _) | Self::Load(_) => {
+                unreachable!("file preparation precedes wire encoding")
+            }
         }
         .expect("finite typed editor result")
     }
@@ -62,6 +78,15 @@ pub(super) struct Response {
     pub result: Result<Reply, RpcError>,
 }
 impl Request {
+    pub fn retain(&self, bytes: usize) -> Result<Ingress, RpcError> {
+        if !reserve(&self._permit.budget.ingress, bytes, 16 * 1024 * 1024) {
+            return Err(RpcError::application(ErrorKind::Busy));
+        }
+        Ok(Ingress {
+            budget: self._permit.budget.clone(),
+            bytes,
+        })
+    }
     pub fn live(&self) -> bool {
         !self.connection.stop.load(Ordering::Acquire) && Instant::now() < self.deadline
     }
@@ -111,6 +136,26 @@ pub(super) fn decode(request: &rev_plugin_sdk::rpc::Request) -> Result<Operation
         BuffersRead::NAME => Operation::Read(params(&request.params)?),
         BuffersShow::NAME => Operation::Show(params(&request.params)?),
         EditsApply::NAME => Operation::Apply(params(&request.params)?),
+        BuffersSave::NAME => {
+            let params: BuffersSaveParams = params(&request.params)?;
+            let target = params
+                .path
+                .as_ref()
+                .map(|path| {
+                    if path.as_str().is_empty()
+                        || path.as_str().contains('\0')
+                        || path.as_str().contains("://")
+                    {
+                        return Err(RpcError::application(ErrorKind::InvalidArguments));
+                    }
+                    file::resolve(std::path::Path::new(path.as_str())).map_err(io_error)
+                })
+                .transpose()?;
+            Operation::Save(params, target)
+        }
+        BuffersClose::NAME => Operation::Close(params(&request.params)?),
+        CommandsList::NAME => Operation::Commands(params(&request.params)?),
+        CommandsInvoke::NAME => Operation::Invoke(params(&request.params)?),
         _ => return Err(RpcError::application(ErrorKind::UnsupportedMethod)),
     })
 }

@@ -49,6 +49,8 @@ impl Handshake {
             Capability::Buffers,
             Capability::Display,
             Capability::Edits,
+            Capability::Invocation,
+            Capability::FileLifecycle,
         ])?;
         self.request.id = OpaqueId::new(format!("initialize:{}", self.offer.generation))
             .map_err(|_| RpcError::application(ErrorKind::InvalidArguments))?;
@@ -112,6 +114,9 @@ impl Handshake {
             | BuffersRead::NAME => Capability::Buffers,
             BuffersShow::NAME => Capability::Display,
             EditsApply::NAME => Capability::Edits,
+            BuffersSave::NAME | BuffersClose::NAME => Capability::FileLifecycle,
+            CommandsList::NAME => Capability::Commands,
+            CommandsInvoke::NAME => Capability::Invocation,
             _ => {
                 return Err(
                     RpcError::application(ErrorKind::UnsupportedMethod).for_request(&request.id)

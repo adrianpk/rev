@@ -111,7 +111,7 @@ pub(crate) use location::directory;
 pub use location::{Location, resolve};
 pub use observation::{Observation, observe};
 pub use output::{Files, Output};
-pub(crate) use save::publish;
 pub use save::{Outcome, Publication};
+pub(crate) use save::{Staged, publish, publish_staged, stage};
 
 pub use rename::{Rename, Renamed};

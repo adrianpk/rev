@@ -5,6 +5,8 @@ use crate::plugins::lifecycle::{Host, Inspection, Service};
 use rev_plugin_sdk::identity::{Revision, ScalarRange, Stamp};
 mod activation;
 mod buffers;
+mod files;
+mod invocation;
 mod transactions;
 
 #[derive(Default)]

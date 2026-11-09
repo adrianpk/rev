@@ -2,6 +2,7 @@ use crate::search::Direction;
 use navigation::{Find, Screen, Search, Target, Word};
 mod ai_name;
 mod plugins;
+pub(crate) use plugins::Invocation;
 pub use plugins::{PluginCommand, PluginName};
 mod argument;
 pub use argument::{ArgumentForm, PrefixArgument};

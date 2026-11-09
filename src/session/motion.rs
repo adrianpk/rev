@@ -68,7 +68,7 @@ impl Session {
         Self::observed_motion(self.view(), buffer, &coordinates, width, motion)
     }
 
-    fn observed_motion(
+    pub(super) fn observed_motion(
         view: &crate::view::View,
         buffer: &crate::buffer::Buffer,
         coordinates: &Coordinates<'_>,

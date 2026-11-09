@@ -262,7 +262,10 @@ impl Worker {
         if !self.handshake.accepted() {
             return Ok(());
         }
-        while let Some(call) = self.waiting.pop_front() {
+        while let Some(mut call) = self.waiting.pop_front() {
+            if call.reply.as_ref().is_some_and(|r| !r.live()) {
+                continue;
+            }
             let handler = self
                 .handshake
                 .handlers()
@@ -273,6 +276,9 @@ impl Worker {
                     "Plugin command unavailable: {} (no admitted handler)",
                     call.command
                 );
+                if let Some(reply) = call.reply.take() {
+                    reply.complete(Err(RpcError::application(ErrorKind::CommandUnavailable)));
+                }
                 drop(call);
                 self.connection.notice(notice);
                 continue;
@@ -280,7 +286,7 @@ impl Worker {
             let params = CommandInvokeParams {
                 command: call.command.clone(),
                 handler: handler.handler.clone(),
-                arguments: serde_json::json!({}),
+                arguments: call.arguments.clone(),
                 context: call.context.clone(),
             };
             params
@@ -508,10 +514,37 @@ impl Worker {
                 .handshake
                 .admit(&request)
                 .and_then(|()| editor::decode(&request));
-            let operation = match admitted {
+            let mut operation = match admitted {
                 Ok(operation) => operation,
                 Err(error) => return self.failure(request.id, error),
             };
+            if let editor::Operation::Invoke(params) = &mut operation {
+                // The causal parent is a live host callback, never a depth or
+                // operation identity invented by an untrusted package.
+                let Some(parent) = self.pending.get(&params.context.invocation) else {
+                    return self.failure(
+                        request.id,
+                        RpcError::application(ErrorKind::UnsupportedInvocation),
+                    );
+                };
+                if parent.reply.as_ref().is_some_and(|r| !r.live()) {
+                    return self.failure(request.id, RpcError::application(ErrorKind::Cancelled));
+                }
+                if params.context.generation != parent.context.generation
+                    || params.context.origin != parent.context.origin
+                {
+                    return self.failure(
+                        request.id,
+                        RpcError::application(ErrorKind::UnsupportedInvocation),
+                    );
+                }
+                if parent.context.origin.depth >= 8 {
+                    return self
+                        .failure(request.id, RpcError::application(ErrorKind::LimitExceeded));
+                }
+                params.context.origin.depth = parent.context.origin.depth + 1;
+                params.context.origin.package = Some(self.package.manifest.plugin.id.clone());
+            }
             if self.requests.contains_key(&request.id) {
                 return Err("duplicate live editor request ID".into());
             }
@@ -549,6 +582,12 @@ impl Worker {
                 .shared
                 .lock()
                 .expect("plugin supervisor owner");
+            shared.handlers = self
+                .handshake
+                .handlers()
+                .iter()
+                .map(|h| h.command.clone())
+                .collect();
             shared.state = State::Active;
             drop(shared);
             self.connection.notice(format!(
@@ -564,12 +603,12 @@ impl Worker {
                 result
                     .validate(&Limits::default())
                     .map_err(|e| e.to_string())?;
-                (Some(success.id), Ok(()))
+                (Some(success.id), Ok(result))
             }
-            Message::Failure(failure) => (failure.id, Err(failure.error.to_string())),
+            Message::Failure(failure) => (failure.id, Err(failure.error)),
             _ => return Ok(()),
         };
-        let Some(call) = id.and_then(|id| self.pending.remove(&id)) else {
+        let Some(mut call) = id.and_then(|id| self.pending.remove(&id)) else {
             return Ok(());
         };
         if self.connection.stop.load(Ordering::Acquire) {
@@ -582,10 +621,14 @@ impl Worker {
             "Plugin command {} [{}]: {}",
             call.command,
             call.id,
-            result
-                .map(|()| "completed".to_owned())
-                .unwrap_or_else(|e| inert(&e.as_bytes()[..e.len().min(4096)]))
+            match &result {
+                Ok(_) => "completed".to_owned(),
+                Err(e) => inert(e.to_string().as_bytes()),
+            }
         );
+        if let Some(reply) = call.reply.take() {
+            reply.complete(result.map(editor::Reply::Invoked));
+        }
         drop(call);
         self.connection.notice(notice);
         Ok(())
@@ -626,6 +669,17 @@ impl Worker {
                     }
                     Err(error) => response.result = Err(error),
                 }
+            }
+            if let Ok(editor::Reply::Stage(save, ingress)) = response.result {
+                response.request._ingress = Some(ingress);
+                response.result = match crate::file::stage(&save, &mut crate::file::Files) {
+                    Ok(staged) => {
+                        response.request.operation = Some(editor::Operation::Publish(save, staged));
+                        self.submit(response.request);
+                        continue;
+                    }
+                    Err(_) => Err(RpcError::application(ErrorKind::StateConflict)),
+                };
             }
             self.requests.remove(&response.request.id);
             let result = match response.result {

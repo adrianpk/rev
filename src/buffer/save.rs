@@ -70,6 +70,40 @@ impl Buffers {
         Ok(Save::capture(buffer, target))
     }
 
+    /// Capture an already resolved target without refreshing native disk consent.
+    pub(crate) fn prepare_resolved_save(&self, id: BufferId, target: Location) -> io::Result<Save> {
+        let buffer = self.get(id).map_err(io::Error::other)?;
+        writable(buffer)?;
+        self.target_available(id, target.path())?;
+        Ok(Save::capture(buffer, target))
+    }
+
+    /// Bulk output was staged by the supervisor. Recheck the exact source and
+    /// association at the serialized publication boundary before replacement.
+    pub(crate) fn publish_staged_save(&mut self, save: Save, staged: file::Staged) -> Outcome {
+        if let Err(error) = self
+            .get(save.stamp.buffer)
+            .map_err(io::Error::other)
+            .and_then(|b| b.current(save.stamp).map_err(io::Error::other))
+        {
+            return Outcome::failed(save.target(), error);
+        }
+        let label = match self.admit_save(&save) {
+            Ok(label) => label,
+            Err(error) => return Outcome::failed(save.target(), error),
+        };
+        let outcome = file::publish_staged(&save, staged, &mut file::Files);
+        if outcome.publication() != Publication::NotPublished {
+            let buffer = self
+                .entries
+                .get_mut(&save.stamp.buffer)
+                .expect("admitted live source");
+            reconcile(buffer, &mut self.files, &save, &outcome, label);
+            buffer.apply_settings(&self.settings);
+        }
+        outcome
+    }
+
     pub fn save(&mut self, id: BufferId) -> io::Result<Outcome> {
         let save = self.prepare_save(id, None)?;
         Ok(self.publish_save(save))
@@ -251,3 +285,6 @@ impl Buffer {
         Ok(outcome)
     }
 }
+
+#[cfg(test)]
+mod tests;

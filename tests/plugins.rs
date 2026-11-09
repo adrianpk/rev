@@ -15,3 +15,6 @@ mod buffers;
 
 #[path = "plugins/transactions.rs"]
 mod transactions;
+
+#[path = "plugins/invocation.rs"]
+mod invocation;

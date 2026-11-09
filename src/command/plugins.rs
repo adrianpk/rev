@@ -47,3 +47,25 @@ impl PluginName {
             .expect("validated ASCII plugin identity")
     }
 }
+
+/// Explicit package-to-native policy. Adding a command requires its own typed,
+/// noninteractive admission; ordinary user dispatch never consults this policy.
+#[derive(Clone, Copy)]
+pub(crate) enum Invocation {
+    Motion(super::Motion),
+    Consent,
+    Unsupported,
+}
+impl super::Command {
+    pub(crate) fn invocation(self) -> Invocation {
+        match self {
+            Self::Motion(motion) => Invocation::Motion(motion),
+            Self::SaveBuffer
+            | Self::WriteFile
+            | Self::Buffer(super::BufferCommand::Kill)
+            | Self::Quit
+            | Self::QuitAlias => Invocation::Consent,
+            _ => Invocation::Unsupported,
+        }
+    }
+}
