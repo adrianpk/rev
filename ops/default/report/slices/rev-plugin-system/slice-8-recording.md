@@ -1,6 +1,6 @@
 # Slice 8: Prefix arguments and macro calls
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-plugin-system
 Plan: [Plugin System Delivery](../../../plan/rev-plugin-system.md)
 Tracker: [Plugin System Tracker](../../../tracker/rev-plugin-system.md)
@@ -123,8 +123,9 @@ Exact focused commands:
 - `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --lib -- macros::library:: --test-threads=1`
 - `rustfmt --edition 2024 --check tests/plugins/peer.rs`
 
-Exact clean-HEAD controller validation of all nine frozen commands is required
-on the final PR-reference commit before handoff. The integrated full gate belongs
+All nine frozen commands passed exact clean-HEAD controller validation on
+7e8d5c7475ba614e6d0940ff2a79ce5f33de2418 before handoff. Canonical PR #8
+is merged into dev at the same commit. The integrated full gate belongs
 to the controller.
 
 ## Risks and Follow-ups

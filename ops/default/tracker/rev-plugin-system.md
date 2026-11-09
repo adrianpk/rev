@@ -8,7 +8,7 @@ Planning baseline: a398dcb77dd0ce036d989f038068ac942fc68ebd
 Specification: [Plugin System](../spec/editor-plugin-system.md)
 Model: [Plugin Identity, Protocol and State](../spec/editor-plugin-system-model.md)
 Concern: [Pending Editor Work](../README.md)
-Active slice: Slice 8 - Prefix arguments and macro calls
+Active slice: Slice 9 - Revision events and backpressure
 Execution authorized: one thirteen-slice Looper run with automatic integration into dev
 Plan: [Plugin System Delivery](../plan/rev-plugin-system.md)
 Progress owner: selected Looper run; no second runtime tracker
@@ -140,13 +140,14 @@ Validation: all eight frozen commands passed locally; fresh nine-test keymap sel
 
 ## Slice 8: Prefix arguments and macro calls
 
-State: reviewing
+State: delivered
 Dependency: Slice 7 integrated
 Branch: feat/rev-plugin-system-08-recording
 PR: #8 - https://forge.adrianpk.com/rev/rev/pulls/8
 Report: ops/default/report/slices/rev-plugin-system/slice-8-recording.md
 Implementation: 557f2358bcf530636242b8be25bcc1a3a3d10ffb
-Validation: all nine frozen ordered commands passed locally; final focused validation passed 65 combined plugin tests including ten recording journeys, five native library tests and fixture formatting. Exact clean-HEAD controller evidence precedes handoff.
+Integrated: 7e8d5c7475ba614e6d0940ff2a79ce5f33de2418 through canonical PR #8
+Validation: all nine frozen ordered commands passed locally; final focused validation passed 65 combined plugin tests including ten recording journeys, five native library tests and fixture formatting. All nine commands passed exact clean-HEAD controller validation before handoff; canonical merge verified.
 
 - [x] T8.1: Forward one captured integer prefix under declared policy and admit semantic plugin-call recording with qualified identity/validated inert arguments exactly once.
 - [x] T8.2: Add cooperative cancellable macro replay and explicit compatible schema-2 saves for plugin steps; keep native MacroName, schema-1 reads, old record identities and no implicit migration.
@@ -154,7 +155,7 @@ Validation: all nine frozen ordered commands passed locally; final focused valid
 
 ## Slice 9: Revision events and backpressure
 
-State: planned
+State: implementing
 Dependency: Slice 8 integrated
 Branch: feat/rev-plugin-system-09-events
 PR: pending
