@@ -350,8 +350,10 @@ description = "Collect task lines."
             }
             assert!(
                 Instant::now() < deadline,
-                "plugin deadline: {:?}, {}; {}",
+                "plugin deadline: {:?}, pending={}, cleanup={}; {}; {}",
                 self.status().state,
+                self.status().pending,
+                self.status().cleanup,
                 self.status().diagnostic,
                 self.session.echo()
             );

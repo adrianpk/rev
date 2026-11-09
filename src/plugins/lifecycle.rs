@@ -99,6 +99,20 @@ impl Default for Inspection {
     }
 }
 
+// A supervisor may publish its final state before dropping queued replies.
+// Retain the real permit counter, not a prematurely frozen pending count.
+struct Retired {
+    inspection: Inspection,
+    pending: Arc<AtomicUsize>,
+}
+impl Retired {
+    fn inspect(&self) -> Inspection {
+        let mut inspection = self.inspection.clone();
+        inspection.pending = self.pending.load(Ordering::Acquire);
+        inspection
+    }
+}
+
 #[derive(Default)]
 struct Budget {
     pending: AtomicUsize,
@@ -250,7 +264,7 @@ pub(crate) struct Host {
     next: u64,
     serial: u64,
     slots: BTreeMap<PackageId, Slot>,
-    history: BTreeMap<PackageId, Inspection>,
+    history: BTreeMap<PackageId, Retired>,
     budget: Arc<Budget>,
     wake: Arc<Wake>,
     closing: bool,
@@ -616,7 +630,14 @@ impl Host {
         }
         for id in finished {
             let inspection = self.inspect(&id);
-            self.history.insert(id.clone(), inspection);
+            let pending = self.slots[&id].connection.pending.clone();
+            self.history.insert(
+                id.clone(),
+                Retired {
+                    inspection,
+                    pending,
+                },
+            );
             self.slots.remove(&id);
         }
         for package in restart {
@@ -670,7 +691,7 @@ impl Host {
             return self
                 .history
                 .get(package)
-                .is_none_or(|s| s.state != State::Failed);
+                .is_none_or(|s| s.inspection.state != State::Failed);
         };
         if slot.retired || slot.connection.stop.load(Ordering::Acquire) {
             return false;
@@ -686,7 +707,11 @@ impl Host {
     }
     pub fn inspect(&self, id: &PackageId) -> Inspection {
         let Some(slot) = self.slots.get(id) else {
-            return self.history.get(id).cloned().unwrap_or_default();
+            return self
+                .history
+                .get(id)
+                .map(Retired::inspect)
+                .unwrap_or_default();
         };
         let mut result = Inspection {
             state: slot.state,

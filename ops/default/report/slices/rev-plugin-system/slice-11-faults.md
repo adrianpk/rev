@@ -30,8 +30,11 @@ owner. Lower-level variants retain their existing tests.
 
 ## Implementation Notes
 
-All changes are acceptance fixtures and delivery records. Runtime source,
-dependencies, API/SDK identities and the finite profile remain unchanged. Five
+The fault run exposed a retirement observation race: history could freeze a
+nonzero pending count just before queued replies released their real permits.
+Retired inspections now retain the generation's atomic counter and read its
+current value. They retain no connection, descriptors or execution authority.
+Dependencies, API/SDK identities and the finite profile remain unchanged. Five
 existing lifecycle tests move into faults instead of being duplicated. Shared
 fixture helpers retain their existing ownership and finite waits.
 
@@ -54,8 +57,9 @@ a finite file-script sender; its polling overhead is included in their metrics.
 
 ## Contracts Added or Changed
 
-- No product or wire contract changes. Existing limits and failure policies are
-  exercised through real child pipes and the native executable.
+- Failed-generation inspections observe actual request-permit release instead
+  of preserving a stale historical pending count. Public wire contracts, limits
+  and failure policies remain unchanged.
 - The 16-request ceiling and 4 MiB queued-output refusal remain enforced while
   ordinary input and independent editor instances continue.
 - Settled failure waits include request-permit release and owned group cleanup;
@@ -70,12 +74,14 @@ a finite file-script sender; its polling overhead is included in their metrics.
 - tests/plugins/faults/resources.rs: five native resource profiles using the
   existing bounded PTY and Linux observations.
 - tests/plugins/faults/pty.rs: two representative terminal journeys.
+- src/plugins/lifecycle.rs: accurate retired-generation permit observations.
 - tests/plugins/peer.rs and lifecycle.rs: shared real Rust executable, inert
   descriptor observations and controlled failure/journey modes.
 
 ## Validation
 
-All eleven frozen ordered commands passed locally:
+All eleven frozen ordered commands passed locally before the retirement-counter
+correction. The final clean-head controller run uses the same ordered commands:
 
 1. `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo fmt --all -- --check` — passed.
 2. `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo clippy --locked --workspace --lib --bins -- -D warnings` — passed.
@@ -98,7 +104,7 @@ The fault target took 22.36 seconds, including existing real deadlines.
 
 Focused checks also passed:
 
-- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --test plugins -- protocol declarations lifecycle buffers transactions invocation keymaps recording events state faults --test-threads=1 --nocapture` — 84 tests passed in 95.84 seconds.
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --test plugins -- protocol declarations lifecycle buffers transactions invocation keymaps recording events state faults --test-threads=1 --nocapture` — 84 tests passed in 91.96 seconds after the counter correction.
 - `rustfmt --edition 2024 --check tests/plugins/peer.rs` — passed.
 
 During fixture development, `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --test plugins -- faults --test-threads=1 --nocapture` initially failed.
@@ -108,33 +114,37 @@ fixtures now use a valid process for successful cycles, four bounded reads, and
 explicit permit/group settlement waits. The valid-request flood still requires
 the unchanged outbound-limit refusal. No runtime limit or assertion was relaxed.
 
-Final clean-HEAD controller validation is a handoff prerequisite recorded outside
-this report. No integrated full gate, merge or publication was performed.
+The initial clean-HEAD controller run at fccda5e89f6844d7883a2403c9143acb01fca561
+failed its fourth command (the fault target): retirement history retained ten
+pending requests after group settlement. Narrow reproduction confirmed the stale
+observation. After retaining the actual counter, five consecutive backpressure
+runs passed with the same settlement assertions and deadlines. The corrected
+candidate receives fresh clean-HEAD controller evidence outside this report. No integrated full gate, merge or publication was performed.
 
 Local resource sample from the successful 84-test focused run: Linux x86_64,
 Rust 1.98.0, unoptimized Cargo profiles with debug information and incremental compilation disabled, one build job. The host
-source is the unchanged integrated commit
-2be4e880daf567c6aa52a127ccab4b851dd48953; API rev.plugins/0.1 and SDK/package
+source is based on integrated commit 2be4e880daf567c6aa52a127ccab4b851dd48953
+with the retirement-counter correction in this PR; API rev.plugins/0.1 and SDK/package
 versions 0.1.0. The Rust peer is compiled against the same Cargo-built public SDK.
 The final exact PR candidate receives separate clean-HEAD controller evidence.
 
 | Profile | Launch to first frame, ms | Editor RSS / peak, KiB | Editor FDs | Peer RSS, KiB / FDs | Input to first marked frame, ms |
 | --- | --- | --- | --- | --- | --- |
-| Baseline | 378.309 | 35236 / 35236 | 8 | 0 / 0 | — |
-| Installed-unused | 361.256 | 36136 / 36136 | 8 | 0 / 0 | — |
-| Active-idle | 357.100 | 36684 / 36684 | 13 | 3996 / 3 | — |
-| Four concurrent 512 KiB reads | 382.205 | 39016 / 40372 | 13 | 6092 / 3 | 13.702 |
-| 128 changed events | 358.881 | 36948 / 36948 | 13 | 4036 / 3 | 14.640 |
+| Baseline | 345.822 | 35564 / 35564 | 8 | 0 / 0 | — |
+| Installed-unused | 312.791 | 36000 / 36000 | 8 | 0 / 0 | — |
+| Active-idle | 335.829 | 36584 / 36584 | 13 | 3996 / 3 | — |
+| Four concurrent 512 KiB reads | 379.167 | 38612 / 40336 | 13 | 6200 / 3 | 15.199 |
+| 128 changed events | 366.693 | 36804 / 36804 | 13 | 4128 / 3 | 13.220 |
 
 Each fresh 350 ms quiet interval emitted no terminal output and consumed zero
 editor CPU ticks (CLK_TCK=100). Across the preceding quiet barrier plus that
-interval, editor samples were 0/0/1/0/0 ticks in table order; peer samples were
-0/0/0/1/0 ticks. Installed-unused spawned no peer and used the same eight editor
+interval, editor samples were 0/0/1/0/1 ticks in table order; peer samples were
+0/0/0/2/0 ticks. Installed-unused spawned no peer and used the same eight editor
 FDs. Active idle used five additional editor FDs and a separate three-FD peer.
 The event profile separately waited for all 128 event receipts. Input latency
 ends at the first completed frame containing the typed marker, rather than at
 completion of the entire workload. The two user journeys displayed native input
-while a command was pending in 23.787 ms (non-modal) and 22.511 ms (modal). These are individual observations;
+while a command was pending in 18.923 ms (non-modal) and 19.669 ms (modal). These are individual observations;
 startup ordering, caches, fixture IO and unoptimized builds affect the values.
 
 ## Risks and Follow-ups

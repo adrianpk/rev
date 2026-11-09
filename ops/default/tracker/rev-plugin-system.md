@@ -191,7 +191,7 @@ Branch: test/rev-plugin-system-11-faults
 PR: #11 - https://forge.adrianpk.com/rev/rev/pulls/11
 Implementation: 56d4e0b62ce5d32b539c799c7507f6e591655794
 Report: ops/default/report/slices/rev-plugin-system/slice-11-faults.md
-Validation: all eleven frozen ordered commands passed locally; 84 combined plugin regressions and peer formatting passed. Five native resource profiles and two PTY journeys are measured in the report. Final clean-HEAD controller evidence is required before handoff.
+Validation: all eleven frozen ordered commands passed locally; 84 combined plugin regressions and peer formatting passed. Five native resource profiles and two PTY journeys are measured in the report. Initial controller validation exposed a retired pending-count race; the correction passed five repeated backpressure runs and all 84 plugin regressions. Fresh clean-HEAD controller evidence is required before handoff.
 
 - [x] T11.1: Consolidate real child-process lifecycle tests for descriptor ownership, handshake limits, EOF/crash, flooding, stalled peers and owned descendants without interrupting unrelated processes.
 - [x] T11.2: Measure ordinary startup, installed-unused, active-idle, large-read and bounded event-load profiles; report actual latency/RSS/descriptor observations and native service responsiveness.
