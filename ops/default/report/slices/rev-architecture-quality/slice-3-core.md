@@ -6,6 +6,7 @@ Plan: [Architecture Quality Delivery](../../../plan/rev-architecture-quality.md)
 Tracker: [Architecture Quality Tracker](../../../tracker/rev-architecture-quality.md)
 Branch: `refactor/rev-architecture-quality-03-core`
 PR: pending
+Implementation: bab0731eebfa4b92059590c56f112213b45b0163
 
 ## Purpose
 
@@ -33,7 +34,8 @@ buffer rather than being cloned again.
 
 The complete frozen source selection covers 158 native files. All initial 23
 source-bound diagnostics now pass without changing the five/three/ten limits.
-Selected Clippy validation is in progress.
+The complete scoped Clippy driver also passes with zero blocking diagnostics;
+1,285 selected-profile diagnostics in later owners remain explicitly deferred.
 
 Native integer narrowing uses checked conversions after source, pane, popup,
 selection, emulator or policy bounds. Float-to-cell rounding remains deliberate:
@@ -61,13 +63,46 @@ No dependency, wire, state or configuration-format change is introduced.
 
 ## Validation
 
-The complete source-only selection passes, and `cargo check --locked -p rev --lib`
-passes with the required bounded build environment. The initial scoped Clippy
-scan failed on existing ownership/representation diagnostics. The updated
-all-target profile is running; the frozen native regression commands and final
-clean-HEAD Looper validation remain pending.
+Ad hoc checks used clean implementation HEAD bab0731eebfa4b92059590c56f112213b45b0163.
+The frozen ordered acceptance sequence has not passed; no final Looper receipt
+or canonical PR is recorded.
+
+The required commands have these outcomes:
+
+1. `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 bash scripts/check-quality.sh --scope src/lib.rs --scope src/main.rs --scope src/search.rs --scope src/search --scope src/rectangle.rs --scope src/rectangle --scope src/pointer.rs --scope src/pointer --scope src/panel.rs --scope src/panel --scope src/kill.rs --scope src/jump.rs --scope src/buffer.rs --scope src/buffer --scope src/coordinates.rs --scope src/coordinates --scope src/view.rs --scope src/view --scope src/window.rs --scope src/window --scope src/display.rs --scope src/display --scope src/syntax.rs --scope src/syntax --scope src/gutter.rs --scope src/gutter --scope src/tree.rs --scope src/tree --scope src/term.rs --scope src/term` — passed. Formatting, global first-party compiler/all-group admission, all 158 selected sources and the five/three/ten source bounds pass; coverage is 1,799 Rust files, two packages and 73 Cargo roots, with two roots selected.
+2. `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --test editing --test coordinates --test display --test windows --test syntax --test pointer --test gutter --test tree --test core -- --test-threads=1` — failed. Coordinates passed 24 tests and core passed six; display passed 44 and failed three before Cargo stopped the remaining targets.
+3. `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo run --locked --quiet -p rev --example documentation-check` — passed. Documentation covers 106 reachable pages, 743 local links/anchors, 684 commands and 299 configuration entries.
+4. `git diff --check` — passed.
+
+Additional native checks retain the existing inputs, assertions and limits:
+
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --lib -- --test-threads=1` — 185 passed.
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --test wrapping --test integrated_terminal -- --test-threads=1` — 49 integrated-terminal and 26 wrapping tests passed.
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --test git_integration -- presentation --test-threads=1` — 66 presentation tests passed; 176 other Git cases were filtered out.
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --test editing --test windows --test syntax --test pointer --test gutter --test tree -- --test-threads=1` — editing passed 114 tests; gutter passed 36 and failed one, then Cargo stopped that focused command.
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --no-fail-fast --test pointer --test syntax --test tree --test windows -- --test-threads=1` — pointer passed 68 tests, syntax 30, tree 84 and windows 41. This focused diagnostic run continued between targets; it does not replace the frozen command.
+
+An isolated clean worktree at pre-slice HEAD 8bae0f8596db70668725f375affcccd2fac1012d
+reproduced all four failures without Slice 3 changes:
+
+- `display::org_timestamps::timestamp_calendar_geometry`: the selected View gains derived visibility/fold state and fails the unchanged equality assertion.
+- `display::org_timestamps::timestamp_calendar_pointer`: the expected `[30]` date selection is absent.
+- `display::palette::panel_colors`: the observed first entry uses a directory foreground where the assertion expects a configuration foreground.
+- `gutter::surfaces::wrapped_overlays`: a highlighted row falls outside the asserted content area.
+
+Baseline commands:
+
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --test display -- --test-threads=1` — the same 44 passed and three failed.
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --test gutter -- surfaces::wrapped_overlays --exact --test-threads=1` — the same overlay assertion failed; 36 other gutter tests were filtered out.
 
 ## Risks and Follow-ups
 
-Other approved owners and the final integrated gate remain controller-owned
-delivery work. Scoped quality evidence does not establish full-workspace adoption.
+The four reproduced baseline failures block the frozen native acceptance command.
+Canonical PR preparation and final clean-HEAD validation remain pending. The
+source/ownership remediation preserves the regression assertions and records
+these failures for controller triage.
+
+Other selected-profile owners, staged enforcement and the full integrated gate
+remain later delivery work. Scoped quality evidence does not establish full
+workspace adoption. The existing vendored dependency warning remains outside
+first-party ownership.

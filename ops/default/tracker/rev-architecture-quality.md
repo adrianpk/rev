@@ -69,11 +69,12 @@ Dependency: Slice 2 integrated
 Branch: refactor/rev-architecture-quality-03-core
 PR: pending
 Report: ops/default/report/slices/rev-architecture-quality/slice-3-core.md
-Progress: all 158 selected native sources pass source bounds; scoped Clippy and regression validation in progress
-Validation: pending; frozen ordered commands in plan and controller configuration
+Implementation: bab0731eebfa4b92059590c56f112213b45b0163
+Progress: source bounds and scoped Clippy pass; four native regression failures reproduce at the pre-slice baseline
+Validation: scoped quality, library, wrapping, terminal, Git presentation and remaining native checks recorded in report; frozen native command fails three display cases and a focused gutter check fails one, all reproduced before Slice 3; final Looper evidence and PR pending
 
-- [ ] T3.1: Correct selected ownership/representation diagnostics and existing source bounds in buffers, source coordinates, views, windows, display, syntax, gutter/tree and terminal-emulation owners.
-- [ ] T3.2: Extract coherent decision/preparation/projection functions while preserving source units, revision checks, local history, shared views, caches and existing work/resource ceilings.
+- [x] T3.1: Correct selected ownership/representation diagnostics and existing source bounds in buffers, source coordinates, views, windows, display, syntax, gutter/tree and terminal-emulation owners.
+- [x] T3.2: Extract coherent decision/preparation/projection functions while preserving source units, revision checks, local history, shared views, caches and existing work/resource ceilings.
 - [ ] T3.3: Validate checked editing, Unicode/grapheme/visual projection, selection, syntax and view restoration with the actual native owners; record any legitimate invariant exceptions narrowly.
 
 ## Slice 4: Configuration and persistent concerns
