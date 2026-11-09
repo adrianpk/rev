@@ -1,6 +1,6 @@
 # Plugin Identity, Protocol and State
 
-Status: Approved
+Status: Completed
 Date: 2026-11-08
 Version: 0.1
 Specification: [Plugin System](editor-plugin-system.md)
@@ -14,10 +14,15 @@ command dispatch. An external process receives copied values and opaque handles.
 It requests operations through the admitted API; it never owns a Rust pointer,
 borrow, rope, view reference or native callback address.
 
-The contracts below describe the approved implementation target, not a claim of
-existing runtime behavior. Rust module/type layout remains an engineering choice.
+The contracts below describe the delivered experimental host/API. Implementation
+and integrated acceptance evidence are recorded in the linked closure report.
+Rust module/type layout remains an engineering choice.
 Plan: [Plugin System Delivery](../plan/rev-plugin-system.md)
 Tracker: [Plugin System Tracker](../tracker/rev-plugin-system.md)
+Completed: 2026-11-09; experimental host/API delivery only
+Tested candidate: 883ad9d6c9bafd50df7e93549731fb03c64b08fd
+Gate receipt: RWRJFWYYQPE2QZBP3APA2LD46F
+Closure: [Slice 13 delivery-set closure](../report/slices/rev-plugin-system/slice-13-acceptance.md#delivery-set-closure)
 
 The first delivery covers host/API behavior and package-owned state access,
 evaluated with explicit local programs and declarations. Catalog records,

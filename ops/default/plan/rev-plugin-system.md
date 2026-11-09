@@ -1,6 +1,6 @@
 # Plugin System Delivery
 
-Status: In progress
+Status: Completed
 Date: 2026-11-09
 Delivery set: rev-plugin-system
 Approved: owner approved host/API implementation and delegated remaining experimental engineering choices
@@ -8,8 +8,12 @@ Planning baseline: a398dcb77dd0ce036d989f038068ac942fc68ebd
 Specification: [Plugin System](../spec/editor-plugin-system.md)
 Model: [Plugin Identity, Protocol and State](../spec/editor-plugin-system-model.md)
 Concern: [Pending Editor Work](../README.md)
-Active slice: None; all thirteen slices delivered; controller gate pending
+Active slice: None; all thirteen slices delivered; delivery completed
 Tracker: [Plugin System Tracker](../tracker/rev-plugin-system.md)
+Completed: 2026-11-09
+Tested candidate: 883ad9d6c9bafd50df7e93549731fb03c64b08fd
+Gate receipt: RWRJFWYYQPE2QZBP3APA2LD46F
+Closure: [Slice 13 delivery-set closure](../report/slices/rev-plugin-system/slice-13-acceptance.md#delivery-set-closure)
 Slice strategy: behavior-first
 
 ## Outcome, prerequisites and authority

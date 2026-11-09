@@ -31,9 +31,9 @@ base character/combining mark/astral character, local-only dispatch, one active
 generation and retained result text/undo. The external runner builds/tests Go
 outside the editor tree and prints both clean source commits with the exact API.
 
-All thirteen canonical slice PRs are integrated in dev. This matrix records
-implementation evidence. The exact integrated controller gate and approved
-Markdown closure remain pending.
+All thirteen canonical slice PRs and repair PR #14 are integrated in dev. This
+matrix records implementation evidence; the successful integrated controller
+gate and approved Markdown closure are recorded below.
 
 | Requirement | Native/public evidence | Detailed delivery record |
 | --- | --- | --- |
@@ -128,8 +128,8 @@ with clean pushed client 3365b84649919492ade7e80c63139b459b5ad923. All thirteen
 commands also passed through the controller validator on final clean PR HEAD
 fd682a89b95ee0d6ad7846ce29e6ff6c8ef371f9, receipt
 7YT4SLZOBA44SGUR3XZCZ34YU4. Canonical PR #13 is merged into dev at that same
-commit. This is slice-validation evidence; the controller's integrated gate
-remains pending after documentation preparation. Exact ordered commands:
+commit. This is historical slice-validation evidence; the later integrated
+controller gate is recorded under delivery-set closure. Exact ordered commands:
 
 1. `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo fmt --all -- --check`
 2. `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo clippy --locked --workspace --lib --bins -- -D warnings`
@@ -202,8 +202,8 @@ compilation. No gate command or limit was changed.
 All six required repair commands passed locally and through the controller
 validator on final clean repair HEAD a79ae21f3728e9389330b281ab1becfaa9b76965,
 receipt TCROVFQNH5AGF4JJ6JVMHQ4LZB. Canonical PR #14 is merged into dev at
-that same commit. This is repair-validation evidence; the unchanged integrated
-controller gate remains pending. Required repair commands:
+that same commit. This is repair-validation evidence; the later successful
+integrated controller gate is recorded below. Required repair commands:
 
 1. `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo fmt --all -- --check`
 2. `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo clippy --locked --workspace --lib --bins -- -D warnings`
@@ -217,13 +217,39 @@ Additional focused command passed twice, including the mixed-artifact case:
 An optional `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo clippy --locked -p rev --test plugins -- -D warnings`
 reported the pre-existing nested-format warning in the unchanged configuration
 fixture. The required workspace library/binary Clippy selection passed.
-The unchanged full gate and delivery closure remain pending with the controller.
+The unchanged full gate and delivery closure are recorded below.
+
+## Delivery-set closure
+
+Completed: 2026-11-09
+Tested candidate: 883ad9d6c9bafd50df7e93549731fb03c64b08fd
+Evidence receipt: 883ad9d6c9bafd50df7e93549731fb03c64b08fd.json
+Gate receipt: RWRJFWYYQPE2QZBP3APA2LD46F
+Independent client: 3365b84649919492ade7e80c63139b459b5ad923
+
+The controller passed the unchanged [thirteen ordered integrated checks](https://forge.adrianpk.com/rev/rev/src/commit/883ad9d6c9bafd50df7e93549731fb03c64b08fd/ops/default/plan/rev-plugin-system.md#frozen-ordered-integrated-gate)
+as one combined command on the exact clean candidate above. This result follows
+the retained failed gate and merged artifact-selection repair; it does not
+relabel earlier slice or repair evidence as integrated acceptance.
+
+The gate passed twelve SDK tests and one doctest, 86 plugin tests, 52 command
+regressions, 114 editing tests, 110 macro tests, 45 modal tests and four completion
+tests. Catalog checks passed 684 commands and 299 configuration entries;
+documentation checks passed 106 reachable pages and 743 local links/anchors.
+The strict local User Guide build and independent Go runner passed, including
+both native profiles on rev.plugins/0.1 with the pinned client above.
+
+All thirteen reports remain delivered. The specification, model, plan and
+tracker are Completed, and the concern index records this delivery. Closure
+changes only the configured Markdown paths; the tested runtime, assertions and
+ordered commands remain unchanged. No owned test fixtures remain running in the
+primary checkout. The worker did not rerun the full gate or start a successor.
 
 ## Risks and Follow-ups
 
 The Go client is a focused Linux example, not a general SDK or cross-platform
 runtime. Experimental consumers must pin matching sources. Process supervision
 does not establish a sandbox or prove escaped-descendant settlement. The
-controller owns the unchanged integrated gate and permitted Markdown closure.
+successful controller gate and Markdown closure are recorded above.
 Stable API adoption, distribution/catalog, releases, public guide deployment and
 the development-workflow package retain separate authority.

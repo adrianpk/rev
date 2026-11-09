@@ -1,6 +1,6 @@
 # Plugin System Tracker
 
-Status: In progress
+Status: Completed
 Date: 2026-11-09
 Delivery set: rev-plugin-system
 Approved: owner approved host/API implementation and delegated remaining experimental engineering choices
@@ -8,7 +8,7 @@ Planning baseline: a398dcb77dd0ce036d989f038068ac942fc68ebd
 Specification: [Plugin System](../spec/editor-plugin-system.md)
 Model: [Plugin Identity, Protocol and State](../spec/editor-plugin-system-model.md)
 Concern: [Pending Editor Work](../README.md)
-Active slice: None; all thirteen slices delivered; controller gate pending
+Active slice: None; all thirteen slices delivered; delivery completed
 Execution authorized: one thirteen-slice Looper run with automatic integration into dev
 Plan: [Plugin System Delivery](../plan/rev-plugin-system.md)
 Progress owner: selected Looper run; no second runtime tracker
@@ -224,7 +224,7 @@ Fixture correction: a15fb9c7e8eb2a2b85795dbc1d1094cb5485c4af
 Report: ops/default/report/slices/rev-plugin-system/slice-13-acceptance.md
 Integrated: fd682a89b95ee0d6ad7846ce29e6ff6c8ef371f9 through canonical PR #13
 Independent client: 3365b84649919492ade7e80c63139b459b5ad923 - https://forge.adrianpk.com/rev/plugin-examples/src/commit/3365b84649919492ade7e80c63139b459b5ad923/README.md
-Validation: all thirteen frozen commands passed locally on a15fb9c7e8eb2a2b85795dbc1d1094cb5485c4af with clean pushed Go client 3365b84649919492ade7e80c63139b459b5ad923. Twelve SDK tests/one doctest, 86 plugins, 52 commands, 114 editing, 110 macros, 45 modal and four completion tests passed. Strict documentation/Spore and both independent-client profiles passed. The initial 85/86 plugin run exposed an incomplete fixture-frame read; five corrected slow-consumer runs and all 86 plugins passed with unchanged assertions. A later formal run timed out in causal_chain; a controlled request-file exposure reproduced the active-child timeout and empty-JSON thread failure. Atomic request publication passed that probe and all nine event tests without changing deadlines or runtime behavior. The next formal run passed causal_chain but the fixed-spin pressure fixture exceeded the real invalidation deadline; draining ready native work retained all 1,024 pastes, both consumer counts and existing assertions/deadlines, then passed all nine events plus two more slow-consumer runs. All thirteen commands passed fresh exact clean-HEAD controller validation on fd682a89b95ee0d6ad7846ce29e6ff6c8ef371f9 before handoff, receipt 7YT4SLZOBA44SGUR3XZCZ34YU4; canonical merge verified. The integrated controller gate remains pending.
+Validation: all thirteen frozen commands passed locally on a15fb9c7e8eb2a2b85795dbc1d1094cb5485c4af with clean pushed Go client 3365b84649919492ade7e80c63139b459b5ad923. Twelve SDK tests/one doctest, 86 plugins, 52 commands, 114 editing, 110 macros, 45 modal and four completion tests passed. Strict documentation/Spore and both independent-client profiles passed. The initial 85/86 plugin run exposed an incomplete fixture-frame read; five corrected slow-consumer runs and all 86 plugins passed with unchanged assertions. A later formal run timed out in causal_chain; a controlled request-file exposure reproduced the active-child timeout and empty-JSON thread failure. Atomic request publication passed that probe and all nine event tests without changing deadlines or runtime behavior. The next formal run passed causal_chain but the fixed-spin pressure fixture exceeded the real invalidation deadline; draining ready native work retained all 1,024 pastes, both consumer counts and existing assertions/deadlines, then passed all nine events plus two more slow-consumer runs. All thirteen commands passed fresh exact clean-HEAD controller validation on fd682a89b95ee0d6ad7846ce29e6ff6c8ef371f9 before handoff, receipt 7YT4SLZOBA44SGUR3XZCZ34YU4; canonical merge verified. The later integrated controller gate passed; see final gate and closure below.
 
 - [x] T13.1: Implement the small Go multi-buffer client and its build/test/check-rev.sh only in the separate rev/plugin-examples checkout; push its conventional dev commit and pin both commits/API in evidence.
 - [x] T13.2: Add examples/plugin-interop.rs as the native Rust integration bridge and prove hidden unsaved reads, created visible result, native navigation and public-only protocol compatibility with the independent client.
@@ -250,23 +250,38 @@ and all 86 plugin tests. The report records the optional pre-existing test-targe
 Clippy warning. All six required commands passed through the controller validator
 on final clean repair HEAD a79ae21f3728e9389330b281ab1becfaa9b76965, receipt
 TCROVFQNH5AGF4JJ6JVMHQ4LZB; canonical merge verified at that same commit.
-The unchanged integrated controller gate remains pending.
+The unchanged integrated controller gate passed; see final gate and closure below.
 
 ## Delivery-set acceptance and closure
 
 - [x] All thirteen canonical slice PRs integrated in dev with exact-HEAD evidence.
 - [x] PLG01-PLG12 native/SDK/representative PTY/resource acceptance recorded.
 - [x] Independent Go client committed/pushed outside editor; both commits/API pinned.
-- [ ] Ordered integrated controller gate passed on the exact clean dev candidate.
-- [ ] All reports delivered and permitted Markdown closure committed/pushed.
+- [x] Ordered integrated controller gate passed on the exact clean dev candidate.
+- [x] All reports delivered and permitted Markdown closure committed/pushed.
 
 Gate prerequisites verified: all thirteen canonical integrations, slice receipts
 and delivered reports; canonical repair PR #14 integration and its exact-HEAD
 receipt; the PLG01-PLG12 evidence matrix; clean pushed independent
 client 3365b84649919492ade7e80c63139b459b5ad923 and its executable acceptance
 runner; available Rust, Go, Bash and Spore tools. The frozen gate remains
-unchanged. Its new integrated candidate and final Markdown closure belong to
-the controller.
+unchanged; its successful integrated result is recorded below.
+
+## Final gate and closure
+
+Completed: 2026-11-09
+Tested candidate: 883ad9d6c9bafd50df7e93549731fb03c64b08fd
+Evidence receipt: 883ad9d6c9bafd50df7e93549731fb03c64b08fd.json
+Gate receipt: RWRJFWYYQPE2QZBP3APA2LD46F
+Closure: [Slice 13 delivery-set closure](../report/slices/rev-plugin-system/slice-13-acceptance.md#delivery-set-closure)
+
+The controller passed the unchanged thirteen ordered checks as one combined
+command on the exact clean candidate above, with independent client
+3365b84649919492ade7e80c63139b459b5ad923. All thirteen canonical slices and
+repair PR #14 are integrated; all reports are delivered. The specification,
+model, plan and tracker are Completed. Only the configured Markdown closure
+paths differ from the tested candidate; runtime, assertions and commands remain
+unchanged. No owned test fixtures remain running in the primary checkout.
 
 Catalog/distribution, stable API adoption, development-workflow package, main,
 release/tag, mirrors, deployed guide and global installation are separate scopes.

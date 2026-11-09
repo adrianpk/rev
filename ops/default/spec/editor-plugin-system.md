@@ -1,6 +1,6 @@
 # Plugin System
 
-Status: Approved
+Status: Completed
 Date: 2026-11-08
 Version: 0.1
 Format: OpenSpec capability proposal
@@ -12,6 +12,10 @@ Approved: owner delegated remaining host/API engineering decisions and requested
 Plan: [Plugin System Delivery](../plan/rev-plugin-system.md)
 Tracker: [Plugin System Tracker](../tracker/rev-plugin-system.md)
 Model: [Plugin Identity, Protocol and State](editor-plugin-system-model.md)
+Completed: 2026-11-09; experimental host/API delivery only
+Tested candidate: 883ad9d6c9bafd50df7e93549731fb03c64b08fd
+Gate receipt: RWRJFWYYQPE2QZBP3APA2LD46F
+Closure: [Slice 13 delivery-set closure](../report/slices/rev-plugin-system/slice-13-acceptance.md#delivery-set-closure)
 Exploratory case: [Development Workflow Plugin](editor-development-workflow.md) tests the public contract; additional API needs require review
 Related exploration: [External Extensions](editor-external-extensions.md)
 Baseline: [rev Editor](rev-editor.md)

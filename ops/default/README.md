@@ -24,6 +24,7 @@ retain their own specification/model state.
 
 | Topic | Artifacts | State and remaining decisions |
 | --- | --- | --- |
+| Experimental plugin host/API | [Spec](spec/editor-plugin-system.md), [model](spec/editor-plugin-system-model.md), [plan](plan/rev-plugin-system.md), [tracker](tracker/rev-plugin-system.md) | Delivered / Completed. Thirteen canonical slices through PRs #1-#13 and artifact-selection repair #14 deliver PLG01-PLG12, the Rust SDK and independent Go interoperability. The unchanged controller gate passed at `883ad9d6c9bafd50df7e93549731fb03c64b08fd`, receipt `RWRJFWYYQPE2QZBP3APA2LD46F`; [Slice 13 closure](report/slices/rev-plugin-system/slice-13-acceptance.md#delivery-set-closure) records exact acceptance and evidence limits. Catalog/distribution, stable API adoption and the development-workflow plugin remain separate. |
 | Keyboard macros | [Spec](spec/editor-keyboard-macros.md), [model](spec/editor-keyboard-macros-model.md), [plan](plan/rev-keyboard-macros.md), [tracker](tracker/rev-keyboard-macros.md) | Delivered / Completed. Eight slices through PRs #319-#326 deliver KMA01-KMA09: native recording/replay, named/prompt capture, ring/append/counters, queries and regions, independent names/bindings, explicit TOML persistence and definition/step/menu editing with User Guide/reference guidance. The unchanged controller gate passed at `0b67a3659b4ec63e5188b062e255c2f9b19900c1`, receipt `CAGQYNBGGZFQHTATRQRSHDE4K2`; [Slice 8 closure](report/slices/rev-keyboard-macros/slice-8-acceptance.md#delivery-set-closure) records the exact command, 325 selected tests, native/PTY acceptance and local Markdown/Spore results. |
 | Command prefix arguments | [Spec](spec/editor-prefix-arguments.md), [plan](plan/rev-prefix-arguments.md), [tracker](tracker/rev-prefix-arguments.md) | Delivered / Completed. Four slices through PRs #314-#317 deliver ARG01-ARG06: checked prefix entry, command-specific movement/edit/history meaning, contextual ownership and native acceptance with User Guide/reference guidance. The unchanged controller gate passed at `7cfef9be78fad975040ccd78dcb9cfebe32b28cd`, receipt `ZGGKKSNDW2ZMWGRELYH5WWFTZV`; [Slice 4 closure](report/slices/rev-prefix-arguments/slice-4-acceptance.md#delivery-set-closure) records the exact command, 207 selected tests and local Markdown/Spore results. |
 | File tree parent navigation | [Spec](spec/editor-tree-parent-navigation.md), [plan](plan/rev-tree-parent-navigation.md), [tracker](tracker/rev-tree-parent-navigation.md) | Delivered / Completed. One slice through PR #312 delivers TUP01-TUP04: tree-up-directory and tree-local ^ browse automatic ancestors while retaining the selected return directory and editing state. Explicit directory, Project, Workspace and configured cwd roots stay fixed. The unchanged controller gate passed at `d75db7c33994b51eeb6a3a01c0b05647105ab7c8`, log `FU4RKA7ANFGNAMEYBVMUXMDHTI`; [Slice 1 closure](report/slices/rev-tree-parent-navigation/slice-1-parent.md#delivery-set-closure) records the exact command, 107 selected tests and local Markdown/Spore results. |
@@ -71,17 +72,6 @@ repositories use rev/{repo-name}; concrete package names remain open.
   [model](spec/editor-delimiter-pairs-model.md) remain Draft. Depth coloring and
   the restrained match alternative are settled; editing defaults, context rules,
   bindings and measured bounds still need review before planning.
-- [Plugin System](spec/editor-plugin-system.md) and its
-  [model](spec/editor-plugin-system-model.md) are Approved for an experimental
-  host/API delivery. The [plan](plan/rev-plugin-system.md) and
-  [tracker](tracker/rev-plugin-system.md) define thirteen slices in one Looper run.
-  One external process per package/editor, NDJSON JSON-RPC, lazy activation,
-  revision-checked multi-buffer edits, contextual command/keybinding resolution,
-  events and cross-instance package state form the selected contract.
-  The Rust SDK lives in the editor workspace. Independent Go acceptance belongs
-  to the public [rev/plugin-examples repository](https://forge.adrianpk.com/rev/plugin-examples).
-  Catalog/distribution receives a separate specification/delivery. Stable API
-  adoption and the development-workflow plugin retain their own review boundaries.
 - [Development Workflow Plugin](spec/editor-development-workflow.md) and its
   [model](spec/editor-development-workflow-model.md) remain Draft. Editable context
   and questionnaires generate a revisable specification/slices/plan and one tracker;
@@ -90,6 +80,17 @@ repositories use rev/{repo-name}; concrete package names remain open.
   and execution/storage contracts before planning.
 
 ## Selected execution order
+
+Plugin System is Completed on 2026-11-09 after thirteen canonical slices and
+repair #14 integrated into dev. The unchanged controller gate passed at
+`883ad9d6c9bafd50df7e93549731fb03c64b08fd`, receipt
+`RWRJFWYYQPE2QZBP3APA2LD46F`, with PLG01-PLG12 native acceptance, the Rust
+SDK, strict local Markdown/Spore guidance and both independent Go profiles.
+The specification/model, plan and tracker are Completed; all reports are
+delivered. [Slice 13 closure](report/slices/rev-plugin-system/slice-13-acceptance.md#delivery-set-closure)
+retains the gate evidence and the public [Go client](https://forge.adrianpk.com/rev/plugin-examples)
+identity. Catalog/distribution, stable API adoption and the Development Workflow
+Plugin retain their separate approval boundaries. No successor starts here.
 
 Keyboard Macros is Completed on 2026-11-08 after all eight canonical PRs
 (#319-#326) integrated into dev. The unchanged controller gate passed at
