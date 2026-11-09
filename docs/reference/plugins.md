@@ -16,6 +16,11 @@ transactions and experimental compatibility. The downloadable
 [manifest](plugin-example.toml), [configuration](plugin-config-example.toml) and
 [hello source](plugin-hello.rs) form one tested example.
 
+An independent [Go collector](https://forge.adrianpk.com/rev/plugin-examples/src/commit/3365b84649919492ade7e80c63139b459b5ad923/README.md)
+reads hidden unsaved sources, creates an ordinary result and binds a local action
+using only this public protocol. Its source, Go build and interoperability runner
+live in that separate repository. Ordinary editor/SDK Cargo builds require no Go.
+
 ## Configuration
 
 These startup-only values participate in the ordinary configuration include and

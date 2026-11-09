@@ -220,10 +220,11 @@ Dependency: Slice 12 integrated
 Branch: test/rev-plugin-system-13-acceptance
 PR: pending
 Report: ops/default/report/slices/rev-plugin-system/slice-13-acceptance.md
-Validation: pending; exact ordered commands in the plan and controller configuration
+Independent client: 3365b84649919492ade7e80c63139b459b5ad923 - https://forge.adrianpk.com/rev/plugin-examples/src/commit/3365b84649919492ade7e80c63139b459b5ad923/README.md
+Validation: three Go tests and both native interoperability profiles passed locally; exact public-client dev commit is clean and pushed. Frozen ordered slice commands remain pending.
 
-- [ ] T13.1: Implement the small Go multi-buffer client and its build/test/check-rev.sh only in the separate rev/plugin-examples checkout; push its conventional dev commit and pin both commits/API in evidence.
-- [ ] T13.2: Add examples/plugin-interop.rs as the native Rust integration bridge and prove hidden unsaved reads, created visible result, native navigation and public-only protocol compatibility with the independent client.
+- [x] T13.1: Implement the small Go multi-buffer client and its build/test/check-rev.sh only in the separate rev/plugin-examples checkout; push its conventional dev commit and pin both commits/API in evidence.
+- [x] T13.2: Add examples/plugin-interop.rs as the native Rust integration bridge and prove hidden unsaved reads, created visible result, native navigation and public-only protocol compatibility with the independent client.
 - [ ] T13.3: Complete PLG01-PLG12 joint acceptance, reconcile SDK/reference/catalog/Spore evidence and all reports, then prepare the unchanged selected controller gate and documentation-only closure.
 
 ## Delivery-set acceptance and closure

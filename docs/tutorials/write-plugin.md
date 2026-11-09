@@ -99,6 +99,12 @@ never silently replace an expected revision. Saving and closing are separate
 requests with native file observations and consent checks. Event callbacks and
 package-state CAS have their own lifetimes and failure rules.
 
+For a separate language implementation, inspect the
+[Go collector](https://forge.adrianpk.com/rev/plugin-examples/src/commit/3365b84649919492ade7e80c63139b459b5ad923/README.md).
+It reads several current sources, produces a normal result buffer and registers
+a local action. Its acceptance runner exercises the native editor through the
+public wire contract; its build stays outside this Rust workspace.
+
 Use the [protocol reference](../reference/plugin-protocol.md) for every method,
 wire shape, error and capability, the [behavior reference](../reference/plugins.md)
 for configuration and limits, and [plugin ownership](../explanation/plugin-ownership.md)
