@@ -17,7 +17,7 @@ impl Store {
     // components. A substituted symlink cannot redirect staging or publication.
     pub(super) fn parent(&self, create: bool) -> Result<Option<File>, RpcError> {
         let parent = self.path.parent().ok_or(invalid("state parent"))?;
-        let flags = OFlags::RDONLY | OFlags::DIRECTORY | OFlags::NOFOLLOW | OFlags::CLOEXEC;
+        let flags = directory_flags();
         let mut directory: File = rustix::fs::open("/", flags, Mode::empty())
             .map_err(|_| unavailable("cannot open filesystem root"))?
             .into();
@@ -25,20 +25,10 @@ impl Store {
             let std::path::Component::Normal(name) = component else {
                 continue;
             };
-            let child = match rustix::fs::openat(&directory, name, flags, Mode::empty()) {
-                Ok(child) => child,
-                Err(rustix::io::Errno::NOENT) if !create => return Ok(None),
-                Err(rustix::io::Errno::NOENT) => {
-                    match rustix::fs::mkdirat(&directory, name, Mode::from_raw_mode(0o700)) {
-                        Ok(()) | Err(rustix::io::Errno::EXIST) => {}
-                        Err(_) => return Err(unavailable("cannot create state directory")),
-                    }
-                    rustix::fs::openat(&directory, name, flags, Mode::empty())
-                        .map_err(|_| unavailable("state directory changed"))?
-                }
-                Err(_) => return Err(unavailable("cannot open ordinary state directory")),
+            let Some(child) = open_directory(&directory, name, create)? else {
+                return Ok(None);
             };
-            directory = child.into();
+            directory = child;
         }
         Ok(Some(directory))
     }
@@ -58,11 +48,36 @@ impl Store {
         Ok(())
     }
 }
+fn directory_flags() -> OFlags {
+    OFlags::RDONLY | OFlags::DIRECTORY | OFlags::NOFOLLOW | OFlags::CLOEXEC
+}
+fn open_directory(
+    directory: &File,
+    name: &std::ffi::OsStr,
+    create: bool,
+) -> Result<Option<File>, RpcError> {
+    let flags = directory_flags();
+    let child = match rustix::fs::openat(directory, name, flags, Mode::empty()) {
+        Ok(child) => child,
+        Err(rustix::io::Errno::NOENT) if !create => return Ok(None),
+        Err(rustix::io::Errno::NOENT) => {
+            match rustix::fs::mkdirat(directory, name, Mode::from_raw_mode(0o700)) {
+                Ok(()) | Err(rustix::io::Errno::EXIST) => {}
+                Err(_) => return Err(unavailable("cannot create state directory")),
+            }
+            rustix::fs::openat(directory, name, flags, Mode::empty())
+                .map_err(|_| unavailable("state directory changed"))?
+        }
+        Err(_) => return Err(unavailable("cannot open ordinary state directory")),
+    };
+    Ok(Some(child.into()))
+}
 pub(super) fn anchor(directory: &File) -> PathBuf {
     PathBuf::from(format!("/proc/self/fd/{}", directory.as_raw_fd()))
 }
 fn flags() -> i32 {
-    (OFlags::NOFOLLOW | OFlags::NONBLOCK | OFlags::CLOEXEC).bits() as i32
+    i32::try_from((OFlags::NOFOLLOW | OFlags::NONBLOCK | OFlags::CLOEXEC).bits())
+        .expect("native nofollow, nonblocking and cloexec flags fit i32")
 }
 pub(super) struct Lock(File);
 impl Lock {
@@ -85,6 +100,24 @@ impl Drop for Lock {
     }
 }
 pub(super) fn lock(path: &Path, create: bool) -> Result<Option<Lock>, RpcError> {
+    let Some(file) = open_lock(path, create)? else {
+        return Ok(None);
+    };
+    check_lock(&file, path)?;
+    let acquired = if create {
+        file.try_lock()
+    } else {
+        file.try_lock_shared()
+    };
+    match acquired {
+        Ok(()) => Ok(Some(Lock(file))),
+        Err(std::fs::TryLockError::WouldBlock) => {
+            Err(error(ErrorKind::Busy, "Package-state lock is busy"))
+        }
+        Err(_) => Err(unavailable("cannot acquire package-state lock")),
+    }
+}
+fn open_lock(path: &Path, create: bool) -> Result<Option<File>, RpcError> {
     let file = match OpenOptions::new()
         .read(true)
         .write(create)
@@ -108,6 +141,9 @@ pub(super) fn lock(path: &Path, create: bool) -> Result<Option<Lock>, RpcError> 
             ));
         }
     };
+    Ok(Some(file))
+}
+fn check_lock(file: &File, path: &Path) -> Result<(), RpcError> {
     let opened = file
         .metadata()
         .map_err(|_| unavailable("cannot inspect package-state lock"))?;
@@ -121,18 +157,7 @@ pub(super) fn lock(path: &Path, create: bool) -> Result<Option<Lock>, RpcError> 
     {
         return Err(unavailable("package-state lock identity changed"));
     }
-    let acquired = if create {
-        file.try_lock()
-    } else {
-        file.try_lock_shared()
-    };
-    match acquired {
-        Ok(()) => Ok(Some(Lock(file))),
-        Err(std::fs::TryLockError::WouldBlock) => {
-            Err(error(ErrorKind::Busy, "Package-state lock is busy"))
-        }
-        Err(_) => Err(unavailable("cannot acquire package-state lock")),
-    }
+    Ok(())
 }
 pub(super) fn read(path: &Path) -> Result<Option<Vec<u8>>, RpcError> {
     let mut file = match OpenOptions::new()
@@ -144,6 +169,21 @@ pub(super) fn read(path: &Path) -> Result<Option<Vec<u8>>, RpcError> {
         Err(error) if error.kind() == std::io::ErrorKind::NotFound => return Ok(None),
         Err(_) => return Err(unavailable("cannot read ordinary package store")),
     };
+    let before = store_metadata(&file)?;
+    let mut bytes =
+        Vec::with_capacity(usize::try_from(before.len()).expect("store length is at most 4 MiB"));
+    Read::by_ref(&mut file)
+        .take(codec::BYTES as u64 + 1)
+        .read_to_end(&mut bytes)
+        .map_err(|_| unavailable("cannot finish reading package store"))?;
+    if bytes.len() > codec::BYTES {
+        return Err(limit("encoded package store"));
+    }
+    check_read(&file, path, &before)?;
+    Ok(Some(bytes))
+}
+
+fn store_metadata(file: &File) -> Result<fs::Metadata, RpcError> {
     let before = file
         .metadata()
         .map_err(|_| unavailable("cannot inspect package store"))?;
@@ -153,14 +193,9 @@ pub(super) fn read(path: &Path) -> Result<Option<Vec<u8>>, RpcError> {
     if before.len() > codec::BYTES as u64 {
         return Err(limit("encoded package store"));
     }
-    let mut bytes = Vec::with_capacity(before.len() as usize);
-    Read::by_ref(&mut file)
-        .take(codec::BYTES as u64 + 1)
-        .read_to_end(&mut bytes)
-        .map_err(|_| unavailable("cannot finish reading package store"))?;
-    if bytes.len() > codec::BYTES {
-        return Err(limit("encoded package store"));
-    }
+    Ok(before)
+}
+fn check_read(file: &File, path: &Path, before: &fs::Metadata) -> Result<(), RpcError> {
     let after = file
         .metadata()
         .map_err(|_| unavailable("cannot finish inspecting package store"))?;
@@ -175,7 +210,7 @@ pub(super) fn read(path: &Path) -> Result<Option<Vec<u8>>, RpcError> {
     {
         return Err(conflict("package store changed during read"));
     }
-    Ok(Some(bytes))
+    Ok(())
 }
 
 pub(super) fn private(directory: &File) -> Result<(), RpcError> {

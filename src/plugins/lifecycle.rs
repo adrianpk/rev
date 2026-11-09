@@ -131,6 +131,21 @@ struct Permit {
     budget: Arc<Budget>,
     package: Arc<AtomicUsize>,
 }
+impl Permit {
+    fn acquire(budget: &Arc<Budget>, package: &Arc<AtomicUsize>) -> Result<Self, String> {
+        if !reserve(&budget.pending, 1, 64) {
+            return Err("Plugin pending request limit exceeded (64)".into());
+        }
+        if !reserve(package, 1, 16) {
+            budget.pending.fetch_sub(1, Ordering::AcqRel);
+            return Err("Plugin pending request limit exceeded (16 per package)".into());
+        }
+        Ok(Self {
+            budget: Arc::clone(budget),
+            package: Arc::clone(package),
+        })
+    }
+}
 impl Drop for Permit {
     fn drop(&mut self) {
         self.budget.pending.fetch_sub(1, Ordering::AcqRel);
@@ -144,6 +159,25 @@ pub(crate) struct Invocation {
     pub context: InvocationContext,
     pub arguments: serde_json::Value,
 }
+impl Invocation {
+    fn correlate(
+        mut self,
+        id: OpaqueId,
+        generation: Generation,
+        nested: bool,
+    ) -> Result<Self, String> {
+        self.context.generation = generation;
+        self.context.invocation = id;
+        if !nested {
+            self.context.origin.operation = self.context.invocation.clone();
+        }
+        self.context
+            .validate(&Limits::default())
+            .map_err(|e| e.to_string())?;
+        Ok(self)
+    }
+}
+
 struct Call {
     pending: Pending,
     arguments: serde_json::Value,
@@ -269,6 +303,84 @@ struct Slot {
     restart: bool,
 }
 
+struct SlotUpdate {
+    notice: Option<String>,
+    restart: Option<Package>,
+    finished: bool,
+}
+impl Slot {
+    fn active_or_restartable(&self) -> Result<bool, String> {
+        if !self.retired
+            && !self.connection.stop.load(Ordering::Acquire)
+            && matches!(self.state, State::Activating | State::Active)
+        {
+            return Ok(true);
+        }
+        let shared = self
+            .connection
+            .shared
+            .try_lock()
+            .map_err(|_| "Plugin lifecycle update pending; retry activation")?;
+        if shared.state == State::Failed && !shared.finished {
+            return Err(
+                "Plugin owned group cleanup uncertain; another generation cannot start".into(),
+            );
+        }
+        if !shared.finished {
+            return Err("Plugin generation is stopping; wait for its cleanup receipt".into());
+        }
+        drop(shared);
+        Ok(false)
+    }
+    fn service(&mut self, closing: bool) -> Option<SlotUpdate> {
+        let Ok(mut shared) = self.connection.shared.try_lock() else {
+            return None;
+        };
+        self.state = self.observed_state(&shared);
+        self.pid = shared.pid;
+        // One notice per package leaves room for callbacks and events.
+        let notice = shared
+            .notices
+            .pop_front()
+            .filter(|_| !self.retired || shared.finished);
+        self.connection.ready.store(
+            !shared.notices.is_empty() || !shared.requests.is_empty(),
+            Ordering::Release,
+        );
+        let restart = if shared.finished && self.restart && !closing {
+            self.restart = false;
+            Some(self.package.clone())
+        } else {
+            None
+        };
+        Some(SlotUpdate {
+            notice,
+            restart,
+            finished: shared.finished && shared.notices.is_empty(),
+        })
+    }
+    fn observed_state(&self, shared: &Shared) -> State {
+        if self.retired && !shared.finished && shared.state != State::Failed {
+            State::Stopping
+        } else {
+            shared.state
+        }
+    }
+    fn join_finished(&mut self) -> bool {
+        let joined = if self.thread.as_ref().is_some_and(JoinHandle::is_finished) {
+            self.thread
+                .take()
+                .expect("finished supervisor")
+                .join()
+                .is_ok()
+        } else {
+            self.thread.is_none()
+        };
+        let finished = self.connection.shared.try_lock().is_ok_and(|s| s.finished);
+        joined && finished
+    }
+}
+
 pub(crate) struct Host {
     session: OpaqueId,
     next: u64,
@@ -326,26 +438,10 @@ impl Host {
         if self.closing {
             return Err("Plugin host is shutting down".into());
         }
-        if let Some(slot) = self.slots.get(&package.manifest.plugin.id) {
-            if !slot.retired
-                && !slot.connection.stop.load(Ordering::Acquire)
-                && matches!(slot.state, State::Activating | State::Active)
-            {
-                return Ok(());
-            }
-            let shared = slot
-                .connection
-                .shared
-                .try_lock()
-                .map_err(|_| "Plugin lifecycle update pending; retry activation")?;
-            if shared.state == State::Failed && !shared.finished {
-                return Err(
-                    "Plugin owned group cleanup uncertain; another generation cannot start".into(),
-                );
-            }
-            if !shared.finished {
-                return Err("Plugin generation is stopping; wait for its cleanup receipt".into());
-            }
+        if let Some(slot) = self.slots.get(&package.manifest.plugin.id)
+            && slot.active_or_restartable()?
+        {
+            return Ok(());
         }
         if self
             .slots
@@ -384,26 +480,20 @@ impl Host {
             responses,
             events: Mutex::default(),
             state_root: self.state_root.clone(),
-            wake: self.wake.clone(),
+            wake: Arc::clone(&self.wake),
         });
-        let state = connection.clone();
-        let session = self.session.clone();
-        let epoch = generation.clone();
-        let declaration = package.clone();
-        let budget = self.budget.clone();
+        let supervisor = worker::Supervisor {
+            package: package.clone(),
+            session: self.session.clone(),
+            generation: generation.clone(),
+            connection: Arc::clone(&connection),
+            budget: Arc::clone(&self.budget),
+            incoming,
+            replies,
+        };
         let thread = std::thread::Builder::new()
             .name("plugin-supervisor".into())
-            .spawn(move || {
-                worker::run(
-                    declaration,
-                    session,
-                    epoch,
-                    state,
-                    budget,
-                    incoming,
-                    replies,
-                )
-            })
+            .spawn(move || supervisor.run())
             .map_err(|e| format!("Plugin supervisor unavailable: {e}"))?;
         self.slots.insert(
             package.manifest.plugin.id.clone(),
@@ -442,11 +532,6 @@ impl Host {
         invocation: Invocation,
         reply: &mut Option<editor::Request>,
     ) -> Result<Receipt, String> {
-        let Invocation {
-            command,
-            mut context,
-            arguments,
-        } = invocation;
         if self.budget.pending.load(Ordering::Acquire) >= 64 {
             return Err("Plugin pending request limit exceeded (64)".into());
         }
@@ -471,21 +556,12 @@ impl Host {
             self.session, slot.generation, self.serial
         ))
         .map_err(|e| e.to_string())?;
-        context.generation = slot.generation.clone();
-        context.invocation = id.clone();
-        if reply.is_none() {
-            context.origin.operation = id.clone();
-        }
-        context
-            .validate(&Limits::default())
-            .map_err(|e| e.to_string())?;
-        if !reserve(&self.budget.pending, 1, 64) {
-            return Err("Plugin pending request limit exceeded (64)".into());
-        }
-        if !reserve(&slot.connection.pending, 1, 16) {
-            self.budget.pending.fetch_sub(1, Ordering::AcqRel);
-            return Err("Plugin pending request limit exceeded (16 per package)".into());
-        }
+        let Invocation {
+            command,
+            context,
+            arguments,
+        } = invocation.correlate(id.clone(), slot.generation.clone(), reply.is_some())?;
+        let permit = Permit::acquire(&self.budget, &slot.connection.pending)?;
         let cancelled = reply
             .as_ref()
             .and_then(|r| r.cancelled.clone())
@@ -494,8 +570,8 @@ impl Host {
         let receipt = Receipt {
             operation: context.origin.operation.clone(),
             result,
-            cancelled: cancelled.clone(),
-            connection: slot.connection.clone(),
+            cancelled: Arc::clone(&cancelled),
+            connection: Arc::clone(&slot.connection),
         };
         let call = Call {
             arguments,
@@ -509,10 +585,7 @@ impl Host {
                 reply: reply.take(),
                 completion: Some(completion),
                 cancelled,
-                _permit: Permit {
-                    budget: self.budget.clone(),
-                    package: slot.connection.pending.clone(),
-                },
+                _permit: permit,
             },
         };
         if slot.connection.stop.load(Ordering::Acquire) {
@@ -614,36 +687,18 @@ impl Host {
                 break;
             }
             self.cursor = (index + 1) % keys.len();
-            let Ok(mut shared) = slot.connection.shared.try_lock() else {
+            let Some(update) = slot.service(self.closing) else {
                 continue;
             };
-            slot.state = if slot.retired && !shared.finished && shared.state != State::Failed {
-                State::Stopping
-            } else {
-                shared.state
-            };
-            slot.pid = shared.pid;
-            // One notice per package leaves room for callbacks and events.
-            if let Some(notice) = shared.notices.pop_front()
-                && (!slot.retired || shared.finished)
-            {
-                notices.push(notice);
-            }
-            slot.connection.ready.store(
-                !shared.notices.is_empty() || !shared.requests.is_empty(),
-                Ordering::Release,
-            );
-            if shared.finished && slot.restart && !self.closing {
-                slot.restart = false;
-                restart.push(slot.package.clone());
-            }
-            if shared.finished && shared.notices.is_empty() {
+            notices.extend(update.notice);
+            restart.extend(update.restart);
+            if update.finished {
                 finished.push(keys[index].clone());
             }
         }
         for id in finished {
             let inspection = self.inspect(&id);
-            let pending = self.slots[&id].connection.pending.clone();
+            let pending = Arc::clone(&self.slots[&id].connection.pending);
             self.history.insert(
                 id.clone(),
                 Retired {
@@ -771,23 +826,7 @@ impl Host {
         }
         let mut uncertain = false;
         for slot in self.slots.values_mut() {
-            if slot.thread.as_ref().is_some_and(JoinHandle::is_finished) {
-                if slot
-                    .thread
-                    .take()
-                    .expect("finished supervisor")
-                    .join()
-                    .is_err()
-                {
-                    uncertain = true;
-                }
-            } else if slot.thread.is_some() {
-                uncertain = true;
-            }
-            let shared = slot.connection.shared.try_lock();
-            if !shared.is_ok_and(|s| s.finished) {
-                uncertain = true;
-            }
+            uncertain |= !slot.join_finished();
         }
         for _ in 0..16 {
             if self.remaining().is_none() {

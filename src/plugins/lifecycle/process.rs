@@ -106,7 +106,7 @@ impl Process {
         Ok(process)
     }
     pub fn id(&self) -> u32 {
-        self.pid.as_raw_nonzero().get() as u32
+        u32::try_from(self.pid.as_raw_nonzero().get()).expect("spawned child has a positive PID")
     }
     fn exited(&self) -> io::Result<bool> {
         waitid(

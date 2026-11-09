@@ -99,7 +99,7 @@ impl Mailbox {
                 retired = true;
                 continue;
             }
-            return Ok(Some((event.origin.clone(), cancelled.clone())));
+            return Ok(Some((event.origin.clone(), Arc::clone(cancelled))));
         }
         if retired {
             Err(RpcError::application(ErrorKind::Cancelled))
@@ -149,26 +149,14 @@ impl State {
             depth: 0,
         }
     }
-    fn event(
-        &mut self,
-        id: OpaqueId,
-        generation: Generation,
-        kind: EventKind,
-        stamp: Option<buffer::Stamp>,
-        origin: Origin,
-    ) -> BufferEvent {
+    fn resnapshot(&mut self, id: OpaqueId, generation: Generation) -> BufferEvent {
+        let origin = self.native_origin();
         BufferEvent {
             subscription: id,
             sequence: Revision::new(self.next().to_string()).expect("finite sequence"),
             generation,
-            kind,
-            stamp: stamp.map(|s| Stamp {
-                buffer: Handle {
-                    session: self.session.clone(),
-                    id: OpaqueId::new(format!("buffer-{}", s.buffer)).expect("native buffer"),
-                },
-                revision: Revision::new(s.revision.to_string()).expect("native revision"),
-            }),
+            kind: EventKind::Resnapshot,
+            stamp: None,
             origin,
         }
     }
@@ -181,12 +169,7 @@ impl State {
         if delivery._permit.is_some() {
             return true;
         }
-        let package = connection
-            .events
-            .lock()
-            .expect("event mailbox")
-            .count
-            .clone();
+        let package = Arc::clone(&connection.events.lock().expect("event mailbox").count);
         // Permits include fan-out staging, queued metadata and encoded frames.
         // Reserve one invalidation slot for every admitted subscription.
         let package_limit = if invalidation {
@@ -207,7 +190,7 @@ impl State {
             return false;
         }
         delivery._permit = Some(Permit {
-            total: self.total.clone(),
+            total: Arc::clone(&self.total),
             package,
         });
         true
@@ -252,9 +235,8 @@ impl State {
         for id in ids {
             let sub = &self.subscriptions[&id];
             let generation = sub.generation.clone();
-            let cancelled = sub.cancelled.clone();
-            let origin = self.native_origin();
-            let event = self.event(id, generation, EventKind::Resnapshot, None, origin);
+            let cancelled = Arc::clone(&sub.cancelled);
+            let event = self.resnapshot(id, generation);
             let mut delivery = Delivery {
                 event,
                 cancelled,
@@ -272,6 +254,104 @@ impl State {
         }
     }
 }
+impl Source {
+    fn event(
+        &self,
+        id: OpaqueId,
+        generation: Generation,
+        sequence: u64,
+        session: &OpaqueId,
+    ) -> BufferEvent {
+        BufferEvent {
+            subscription: id,
+            sequence: Revision::new(sequence.to_string()).expect("finite sequence"),
+            generation,
+            kind: self.kind,
+            stamp: Some(Stamp {
+                buffer: Handle {
+                    session: session.clone(),
+                    id: OpaqueId::new(format!("buffer-{}", self.stamp.buffer))
+                        .expect("native buffer"),
+                },
+                revision: Revision::new(self.stamp.revision.to_string()).expect("native revision"),
+            }),
+            origin: self.origin.clone(),
+        }
+    }
+}
+impl Subscription {
+    fn observes(&self, source: &Source) -> bool {
+        !self.paused
+            && source.sequence > self.after
+            && self.params.kinds.contains(&source.kind)
+            && (self.params.buffers.is_empty()
+                || self
+                    .params
+                    .buffers
+                    .iter()
+                    .any(|h| h.id.as_str() == format!("buffer-{}", source.stamp.buffer)))
+    }
+}
+impl State {
+    fn deliver(&mut self, connection: &Weak<Connection>, delivery: Delivery) {
+        if delivery.cancelled.load(Ordering::Acquire) {
+            return;
+        }
+        let Some(connection) = connection.upgrade() else {
+            return;
+        };
+        if connection.stop.load(Ordering::Acquire) {
+            return;
+        }
+        let invalidation = delivery.event.kind == EventKind::Resnapshot;
+        if !self.enqueue(&connection, delivery, invalidation) {
+            if invalidation {
+                connection
+                    .notice("Plugin event invalidation unavailable; generation retired".into());
+                connection.stop();
+            } else {
+                self.invalidate(&connection);
+            }
+        }
+    }
+    fn fan_out(&mut self, source: &Source) {
+        let ids: Vec<_> = self
+            .subscriptions
+            .iter()
+            .filter(|(_, sub)| sub.observes(source))
+            .map(|(id, _)| id.clone())
+            .collect();
+        for id in ids {
+            let sub = &self.subscriptions[&id];
+            if sub.paused {
+                continue;
+            }
+            let Some(connection) = sub.connection.upgrade() else {
+                continue;
+            };
+            if connection.stop.load(Ordering::Acquire) {
+                continue;
+            }
+            let cancelled = Arc::clone(&sub.cancelled);
+            let generation = sub.generation.clone();
+            let sequence = self.next();
+            let event = source.event(id, generation, sequence, &self.session);
+            let mut delivery = Delivery {
+                event,
+                cancelled,
+                deadline: Instant::now() + Duration::from_secs(60),
+                _permit: None,
+            };
+            if !self.admit(&connection, &mut delivery, false) {
+                self.invalidate(&connection);
+                continue;
+            }
+            self.deliveries
+                .push_back((Arc::downgrade(&connection), delivery));
+        }
+    }
+}
+
 impl buffer::events::Observer for Events {
     fn published(&self, kind: buffer::events::Kind, stamp: buffer::Stamp) {
         let mut state = self.state.lock().expect("event owner");
@@ -315,7 +395,7 @@ impl buffer::events::Observer for Events {
 }
 impl Host {
     pub fn event_observer(&self) -> Arc<dyn buffer::events::Observer> {
-        self.events.clone()
+        Arc::<Events>::clone(&self.events)
     }
     pub fn event_root(&self) -> Origin {
         self.events
@@ -333,7 +413,7 @@ impl Host {
             .origin
             .replace(origin);
         OriginGuard {
-            events: self.events.clone(),
+            events: Arc::clone(&self.events),
             previous,
         }
     }
@@ -381,6 +461,7 @@ impl Host {
                 after: sequence.as_str().parse().expect("native sequence"),
             },
         );
+        drop(state);
         Ok(EventsSubscribeResult {
             subscription: id,
             sequence,
@@ -396,6 +477,7 @@ impl Host {
             return Err(RpcError::application(ErrorKind::InvalidArguments));
         }
         state.subscriptions.remove(id);
+        drop(state);
         request.connection.signal();
         Ok(())
     }
@@ -408,7 +490,7 @@ impl Host {
                     .slots
                     .values()
                     .filter(|s| !s.retired)
-                    .map(|s| s.connection.clone())
+                    .map(|s| Arc::clone(&s.connection))
                     .collect();
                 for connection in connections {
                     state.invalidate(&connection);
@@ -416,77 +498,14 @@ impl Host {
                 continue;
             }
             if let Some((connection, delivery)) = state.deliveries.pop_front() {
-                if delivery.cancelled.load(Ordering::Acquire) {
-                    continue;
-                }
-                if let Some(connection) = connection.upgrade()
-                    && !connection.stop.load(Ordering::Acquire)
-                {
-                    let invalidation = delivery.event.kind == EventKind::Resnapshot;
-                    if !state.enqueue(&connection, delivery, invalidation) {
-                        if invalidation {
-                            connection.notice(
-                                "Plugin event invalidation unavailable; generation retired".into(),
-                            );
-                            connection.stop();
-                        } else {
-                            state.invalidate(&connection);
-                        }
-                    }
-                }
+                state.deliver(&connection, delivery);
                 continue;
             }
             let Some(source) = state.sources.pop_front() else {
                 break;
             };
-            let ids: Vec<_> = state
-                .subscriptions
-                .iter()
-                .filter(|(_, sub)| {
-                    !sub.paused
-                        && source.sequence > sub.after
-                        && sub.params.kinds.contains(&source.kind)
-                        && (sub.params.buffers.is_empty()
-                            || sub.params.buffers.iter().any(|h| {
-                                h.id.as_str() == format!("buffer-{}", source.stamp.buffer)
-                            }))
-                })
-                .map(|(id, _)| id.clone())
-                .collect();
-            for id in ids {
-                let sub = &state.subscriptions[&id];
-                if sub.paused {
-                    continue;
-                }
-                let Some(connection) = sub.connection.upgrade() else {
-                    continue;
-                };
-                if connection.stop.load(Ordering::Acquire) {
-                    continue;
-                }
-                let cancelled = sub.cancelled.clone();
-                let generation = sub.generation.clone();
-                let event = state.event(
-                    id,
-                    generation,
-                    source.kind,
-                    Some(source.stamp),
-                    source.origin.clone(),
-                );
-                let mut delivery = Delivery {
-                    event,
-                    cancelled,
-                    deadline: Instant::now() + Duration::from_secs(60),
-                    _permit: None,
-                };
-                if !state.admit(&connection, &mut delivery, false) {
-                    state.invalidate(&connection);
-                    continue;
-                }
-                state
-                    .deliveries
-                    .push_back((Arc::downgrade(&connection), delivery));
-            }
+            state.fan_out(&source);
         }
+        drop(state);
     }
 }

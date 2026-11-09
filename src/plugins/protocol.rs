@@ -117,32 +117,41 @@ impl Handshake {
                 RpcError::application(ErrorKind::UnsupportedInvocation).for_request(&request.id)
             );
         }
-        let capability = match request.method.as_str() {
-            BuffersList::NAME
-            | BuffersOpen::NAME
-            | BuffersCreate::NAME
-            | BuffersDescribe::NAME
-            | BuffersRead::NAME => Capability::Buffers,
-            BuffersShow::NAME => Capability::Display,
-            EditsApply::NAME => Capability::Edits,
-            BuffersSave::NAME | BuffersClose::NAME => Capability::FileLifecycle,
-            CommandsList::NAME => Capability::Commands,
-            CommandsInvoke::NAME => Capability::Invocation,
-            KeymapsBind::NAME | KeymapsUnbind::NAME => Capability::Keymaps,
-            EventsSubscribe::NAME | EventsUnsubscribe::NAME => Capability::Events,
-            StateList::NAME | StateGet::NAME | StatePut::NAME | StateDelete::NAME => {
-                Capability::State
-            }
-            _ => {
-                return Err(
-                    RpcError::application(ErrorKind::UnsupportedMethod).for_request(&request.id)
-                );
-            }
-        };
-        if self.offer.capabilities.contains(&capability) {
+        let capability = HOST_METHODS
+            .iter()
+            .find(|(method, _)| *method == request.method)
+            .map(|(_, capability)| capability)
+            .ok_or_else(|| {
+                RpcError::application(ErrorKind::UnsupportedMethod).for_request(&request.id)
+            })?;
+        if self.offer.capabilities.contains(capability) {
             Ok(())
         } else {
             Err(RpcError::application(ErrorKind::UnsupportedMethod).for_request(&request.id))
         }
     }
 }
+
+// This explicit native implementation map is independent of the SDK schema
+// catalog: adding a schema never admits a host operation automatically.
+const HOST_METHODS: &[(&str, Capability)] = &[
+    (BuffersList::NAME, Capability::Buffers),
+    (BuffersOpen::NAME, Capability::Buffers),
+    (BuffersCreate::NAME, Capability::Buffers),
+    (BuffersDescribe::NAME, Capability::Buffers),
+    (BuffersRead::NAME, Capability::Buffers),
+    (BuffersShow::NAME, Capability::Display),
+    (EditsApply::NAME, Capability::Edits),
+    (BuffersSave::NAME, Capability::FileLifecycle),
+    (BuffersClose::NAME, Capability::FileLifecycle),
+    (CommandsList::NAME, Capability::Commands),
+    (CommandsInvoke::NAME, Capability::Invocation),
+    (KeymapsBind::NAME, Capability::Keymaps),
+    (KeymapsUnbind::NAME, Capability::Keymaps),
+    (EventsSubscribe::NAME, Capability::Events),
+    (EventsUnsubscribe::NAME, Capability::Events),
+    (StateList::NAME, Capability::State),
+    (StateGet::NAME, Capability::State),
+    (StatePut::NAME, Capability::State),
+    (StateDelete::NAME, Capability::State),
+];

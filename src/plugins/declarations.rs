@@ -72,6 +72,23 @@ impl Binding {
         }
         Ok(())
     }
+    fn overlaps(&self, other: &Self) -> bool {
+        let selectors = (self.buffer_owner.is_none()
+            || other.buffer_owner.is_none()
+            || self.buffer_owner == other.buffer_owner)
+            && (self.filetypes.is_empty()
+                || other.filetypes.is_empty()
+                || self.filetypes.iter().any(|f| other.filetypes.contains(f)));
+        self.context == other.context
+            && self.scope == other.scope
+            && selectors
+            && crate::input::keymap::contributions::overlaps(
+                &crate::input::keymap::Sequence::parse(self.keys.as_str())
+                    .expect("validated sequence"),
+                &crate::input::keymap::Sequence::parse(other.keys.as_str())
+                    .expect("validated sequence"),
+            )
+    }
 }
 
 #[derive(Clone, Debug, PartialEq, Deserialize)]
@@ -129,6 +146,13 @@ pub struct Manifest {
 }
 impl Manifest {
     pub fn validate(&self) -> Result<(), String> {
+        self.validate_identity()?;
+        self.validate_process()?;
+        self.validate_commands()?;
+        self.validate_bindings()?;
+        self.validate_activation()
+    }
+    fn validate_identity(&self) -> Result<(), String> {
         if self.plugin.api.as_str() != API {
             return Err(format!("unsupported_api: expected {API}"));
         }
@@ -139,6 +163,9 @@ impl Manifest {
         {
             return Err("package version requires 1..=128 visible ASCII bytes".into());
         }
+        Ok(())
+    }
+    fn validate_process(&self) -> Result<(), String> {
         if !local_path(self.process.program.as_str())
             || self.process.args.iter().any(|a| a.as_str().contains('\0'))
             || self
@@ -154,6 +181,9 @@ impl Manifest {
                     .into(),
             );
         }
+        Ok(())
+    }
+    fn validate_commands(&self) -> Result<(), String> {
         let mut names = BTreeSet::new();
         for command in self.commands.iter() {
             command
@@ -166,6 +196,9 @@ impl Manifest {
                 return Err("commands require distinct names and single-line descriptions".into());
             }
         }
+        Ok(())
+    }
+    fn validate_bindings(&self) -> Result<(), String> {
         for binding in self.bindings.iter() {
             binding.validate()?;
             if !binding.command.belongs_to(&self.plugin.id)
@@ -177,6 +210,9 @@ impl Manifest {
                 return Err("binding command is not declared in this package namespace".into());
             }
         }
+        Ok(())
+    }
+    fn validate_activation(&self) -> Result<(), String> {
         let activation = &self.activation;
         if activation
             .filetypes
@@ -235,20 +271,7 @@ impl Registry {
         if !settings.enabled {
             return Ok(Self::default());
         }
-        if settings.manifests.len() > 64
-            || settings.startup.len() > 8
-            || settings.keybindings.len() > 512
-        {
-            return Err(Error::new(
-                origin,
-                "plugin configuration exceeds finite declaration limits",
-            ));
-        }
-        for binding in &settings.keybindings {
-            binding
-                .validate()
-                .map_err(|message| Error::new(origin, &message))?;
-        }
+        validate_settings(settings, origin)?;
         let origin = if origin.is_absolute() {
             origin.to_owned()
         } else {
@@ -257,13 +280,19 @@ impl Registry {
                 .join(origin)
         };
         let directory = origin.parent().unwrap_or(Path::new("."));
+        let registry = Self::load_packages(&settings.manifests, directory, &origin)?;
+        registry.validate_references(settings, &origin)?;
+        validate_binding_conflicts(&settings.keybindings, &origin)?;
+        Ok(registry)
+    }
+    fn load_packages(paths: &[String], directory: &Path, origin: &Path) -> Result<Self, Error> {
         let mut registry = Self::default();
         let mut commands = 0;
         let mut bindings = 0;
-        for path in &settings.manifests {
+        for path in paths {
             if !local_path(path) {
                 return Err(Error::new(
-                    &origin,
+                    origin,
                     "expected an explicit local manifest path",
                 ));
             }
@@ -300,46 +329,58 @@ impl Registry {
                 ));
             }
         }
+        Ok(registry)
+    }
+    fn validate_references(
+        &self,
+        settings: &crate::config::Plugins,
+        origin: &Path,
+    ) -> Result<(), Error> {
         for id in &settings.startup {
-            if !registry.packages.contains_key(id) {
-                return Err(Error::new(&origin, "startup package is not declared"));
+            if !self.packages.contains_key(id) {
+                return Err(Error::new(origin, "startup package is not declared"));
             }
         }
         for binding in &settings.keybindings {
-            if registry.command(binding.command.as_str()).is_none() {
+            if self.command(binding.command.as_str()).is_none() {
                 return Err(Error::new(
-                    &origin,
+                    origin,
                     "user plugin binding command is not declared",
                 ));
             }
         }
-        for (i, a) in settings.keybindings.iter().enumerate() {
-            for b in settings.keybindings.iter().skip(i + 1) {
-                let selectors = (a.buffer_owner.is_none()
-                    || b.buffer_owner.is_none()
-                    || a.buffer_owner == b.buffer_owner)
-                    && (a.filetypes.is_empty()
-                        || b.filetypes.is_empty()
-                        || a.filetypes.iter().any(|f| b.filetypes.contains(f)));
-                if a.context == b.context
-                    && a.scope == b.scope
-                    && selectors
-                    && crate::input::keymap::contributions::overlaps(
-                        &crate::input::keymap::Sequence::parse(a.keys.as_str())
-                            .expect("validated sequence"),
-                        &crate::input::keymap::Sequence::parse(b.keys.as_str())
-                            .expect("validated sequence"),
-                    )
-                {
-                    return Err(Error::new(
-                        &origin,
-                        "overlapping explicit user plugin bindings in one scope",
-                    ));
-                }
+        Ok(())
+    }
+}
+fn validate_settings(settings: &crate::config::Plugins, origin: &Path) -> Result<(), Error> {
+    if settings.manifests.len() > 64
+        || settings.startup.len() > 8
+        || settings.keybindings.len() > 512
+    {
+        return Err(Error::new(
+            origin,
+            "plugin configuration exceeds finite declaration limits",
+        ));
+    }
+    for binding in &settings.keybindings {
+        binding
+            .validate()
+            .map_err(|message| Error::new(origin, &message))?;
+    }
+    Ok(())
+}
+fn validate_binding_conflicts(bindings: &[Binding], origin: &Path) -> Result<(), Error> {
+    for (i, a) in bindings.iter().enumerate() {
+        for b in bindings.iter().skip(i + 1) {
+            if a.overlaps(b) {
+                return Err(Error::new(
+                    origin,
+                    "overlapping explicit user plugin bindings in one scope",
+                ));
             }
         }
-        Ok(registry)
     }
+    Ok(())
 }
 
 #[derive(Clone, Debug, PartialEq, Eq)]

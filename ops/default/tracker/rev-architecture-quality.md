@@ -53,6 +53,7 @@ Dependency: Slice 1 integrated
 Branch: refactor/rev-architecture-quality-02-plugins
 PR: pending
 Report: ops/default/report/slices/rev-architecture-quality/slice-2-plugins.md
+Progress: SDK and native plugin owners pass their combined quality selection; session-plugin cleanup remains
 Validation: pending; frozen ordered commands in plan and controller configuration
 
 - [x] T2.1: Resolve F4 by separating encoded request payload ownership from pending correlation while preserving permits, deadlines, captured context, causal propagation and exactly-once completion.

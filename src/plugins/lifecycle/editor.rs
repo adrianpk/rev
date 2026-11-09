@@ -56,6 +56,17 @@ pub(crate) enum Reply {
 impl Reply {
     pub(super) fn value(self) -> serde_json::Value {
         match self {
+            Self::Commands(v) => serde_json::to_value(v),
+            Self::Invoked(v) => serde_json::to_value(v),
+            Self::Bound(v) => serde_json::to_value(v),
+            Self::Unbound(v) => serde_json::to_value(v),
+            Self::Subscribed(v) => serde_json::to_value(v),
+            buffer => buffer.buffer_value(),
+        }
+        .expect("finite typed editor result")
+    }
+    fn buffer_value(self) -> Result<serde_json::Value, serde_json::Error> {
+        match self {
             Self::List(v) => serde_json::to_value(v),
             Self::Descriptor(v) => serde_json::to_value(v),
             Self::Read(v) => serde_json::to_value(v),
@@ -63,16 +74,8 @@ impl Reply {
             Self::Applied(v) => serde_json::to_value(v),
             Self::Saved(v) => serde_json::to_value(v),
             Self::Closed(v) => serde_json::to_value(v),
-            Self::Commands(v) => serde_json::to_value(v),
-            Self::Invoked(v) => serde_json::to_value(v),
-            Self::Bound(v) => serde_json::to_value(v),
-            Self::Unbound(v) => serde_json::to_value(v),
-            Self::Subscribed(v) => serde_json::to_value(v),
-            Self::Stage(_, _) | Self::Load(_) => {
-                unreachable!("file preparation precedes wire encoding")
-            }
+            _ => unreachable!("prepared buffer reply precedes buffer wire encoding"),
         }
-        .expect("finite typed editor result")
     }
 }
 pub(crate) struct Request {
@@ -97,7 +100,7 @@ impl Request {
             return Err(RpcError::application(ErrorKind::Busy));
         }
         Ok(Ingress {
-            budget: self._permit.budget.clone(),
+            budget: Arc::clone(&self._permit.budget),
             bytes,
         })
     }
@@ -110,7 +113,7 @@ impl Request {
             && Instant::now() < self.deadline
     }
     pub fn complete(self, result: Result<Reply, RpcError>) {
-        let connection = self.connection.clone();
+        let connection = Arc::clone(&self.connection);
         // Combined permits cap requests and responses at sixteen. This response
         // owns one of them, so its bounded queue cannot be full.
         if !connection.stop.load(Ordering::Acquire) && Instant::now() < self.deadline {
@@ -133,77 +136,96 @@ impl Request {
     }
 }
 pub(super) fn decode(request: &rev_plugin_sdk::rpc::Request) -> Result<Operation, RpcError> {
-    fn params<T: serde::de::DeserializeOwned + Validate>(
-        value: &serde_json::Value,
-    ) -> Result<T, RpcError> {
-        let params: T = serde_json::from_value(value.clone())
-            .map_err(|_| RpcError::application(ErrorKind::InvalidArguments))?;
-        params.validate(&Limits::default())?;
-        Ok(params)
+    match request.method.split('.').next() {
+        Some("state") => decode_state(request),
+        Some("buffers") => decode_buffers(request),
+        Some("edits") if request.method == EditsApply::NAME => {
+            params(&request.params).map(Operation::Apply)
+        }
+        Some("commands") => decode_commands(request),
+        Some("keymaps") => decode_keymaps(request),
+        Some("events") => decode_events(request),
+        _ => Err(RpcError::application(ErrorKind::UnsupportedMethod)),
     }
-    Ok(match request.method.as_str() {
-        StateList::NAME => Operation::State(crate::plugins::state::Operation::List(params(
-            &request.params,
-        )?)),
-        StateGet::NAME => Operation::State(crate::plugins::state::Operation::Get(params(
-            &request.params,
-        )?)),
-        StatePut::NAME => Operation::State(crate::plugins::state::Operation::Put(params(
-            &request.params,
-        )?)),
-        StateDelete::NAME => Operation::State(crate::plugins::state::Operation::Delete(params(
-            &request.params,
-        )?)),
-        BuffersList::NAME => Operation::List(params(&request.params)?),
+}
+fn params<T: serde::de::DeserializeOwned + Validate>(
+    value: &serde_json::Value,
+) -> Result<T, RpcError> {
+    let params: T = serde_json::from_value(value.clone())
+        .map_err(|_| RpcError::application(ErrorKind::InvalidArguments))?;
+    params.validate(&Limits::default())?;
+    Ok(params)
+}
+fn decode_state(request: &rev_plugin_sdk::rpc::Request) -> Result<Operation, RpcError> {
+    use crate::plugins::state::Operation as State;
+    let operation = match request.method.as_str() {
+        StateList::NAME => params(&request.params).map(State::List),
+        StateGet::NAME => params(&request.params).map(State::Get),
+        StatePut::NAME => params(&request.params).map(State::Put),
+        StateDelete::NAME => params(&request.params).map(State::Delete),
+        _ => Err(RpcError::application(ErrorKind::UnsupportedMethod)),
+    };
+    operation.map(Operation::State)
+}
+fn decode_buffers(request: &rev_plugin_sdk::rpc::Request) -> Result<Operation, RpcError> {
+    match request.method.as_str() {
+        BuffersList::NAME => params(&request.params).map(Operation::List),
+        BuffersDescribe::NAME => params(&request.params).map(Operation::Describe),
+        BuffersRead::NAME => params(&request.params).map(Operation::Read),
+        BuffersShow::NAME => params(&request.params).map(Operation::Show),
+        _ => decode_files(request),
+    }
+}
+fn decode_files(request: &rev_plugin_sdk::rpc::Request) -> Result<Operation, RpcError> {
+    match request.method.as_str() {
         BuffersOpen::NAME => {
             let params: BuffersOpenParams = params(&request.params)?;
-            if params.path.as_str().is_empty()
-                || params.path.as_str().contains('\0')
-                || params.path.as_str().contains("://")
-            {
-                return Err(RpcError::application(ErrorKind::InvalidArguments));
-            }
-            Operation::Open(
-                file::resolve(std::path::Path::new(params.path.as_str())).map_err(io_error)?,
-            )
+            location(params.path.as_str()).map(Operation::Open)
         }
-        BuffersCreate::NAME => Operation::Create(params(&request.params)?),
-        BuffersDescribe::NAME => Operation::Describe(params(&request.params)?),
-        BuffersRead::NAME => Operation::Read(params(&request.params)?),
-        BuffersShow::NAME => Operation::Show(params(&request.params)?),
-        EditsApply::NAME => Operation::Apply(params(&request.params)?),
+        BuffersCreate::NAME => params(&request.params).map(Operation::Create),
         BuffersSave::NAME => {
             let params: BuffersSaveParams = params(&request.params)?;
             let target = params
                 .path
                 .as_ref()
-                .map(|path| {
-                    if path.as_str().is_empty()
-                        || path.as_str().contains('\0')
-                        || path.as_str().contains("://")
-                    {
-                        return Err(RpcError::application(ErrorKind::InvalidArguments));
-                    }
-                    file::resolve(std::path::Path::new(path.as_str())).map_err(io_error)
-                })
+                .map(|path| location(path.as_str()))
                 .transpose()?;
-            Operation::Save(params, target)
+            Ok(Operation::Save(params, target))
         }
-        BuffersClose::NAME => Operation::Close(params(&request.params)?),
-        CommandsList::NAME => Operation::Commands(params(&request.params)?),
-        CommandsInvoke::NAME => Operation::Invoke(params(&request.params)?),
-        KeymapsBind::NAME => Operation::Bind(params(&request.params)?),
-        KeymapsUnbind::NAME => Operation::Unbind(params(&request.params)?),
-        EventsSubscribe::NAME => Operation::Subscribe(params(&request.params)?),
-        EventsUnsubscribe::NAME => Operation::Unsubscribe(params(&request.params)?),
-        _ => return Err(RpcError::application(ErrorKind::UnsupportedMethod)),
-    })
+        BuffersClose::NAME => params(&request.params).map(Operation::Close),
+        _ => Err(RpcError::application(ErrorKind::UnsupportedMethod)),
+    }
 }
-pub(super) fn io_error(error: std::io::Error) -> RpcError {
+fn location(path: &str) -> Result<file::Location, RpcError> {
+    if path.is_empty() || path.contains('\0') || path.contains("://") {
+        return Err(RpcError::application(ErrorKind::InvalidArguments));
+    }
+    file::resolve(std::path::Path::new(path)).map_err(|error| io_error(error.kind()))
+}
+fn decode_commands(request: &rev_plugin_sdk::rpc::Request) -> Result<Operation, RpcError> {
+    match request.method.as_str() {
+        CommandsList::NAME => params(&request.params).map(Operation::Commands),
+        CommandsInvoke::NAME => params(&request.params).map(Operation::Invoke),
+        _ => Err(RpcError::application(ErrorKind::UnsupportedMethod)),
+    }
+}
+fn decode_keymaps(request: &rev_plugin_sdk::rpc::Request) -> Result<Operation, RpcError> {
+    match request.method.as_str() {
+        KeymapsBind::NAME => params(&request.params).map(Operation::Bind),
+        KeymapsUnbind::NAME => params(&request.params).map(Operation::Unbind),
+        _ => Err(RpcError::application(ErrorKind::UnsupportedMethod)),
+    }
+}
+fn decode_events(request: &rev_plugin_sdk::rpc::Request) -> Result<Operation, RpcError> {
+    match request.method.as_str() {
+        EventsSubscribe::NAME => params(&request.params).map(Operation::Subscribe),
+        EventsUnsubscribe::NAME => params(&request.params).map(Operation::Unsubscribe),
+        _ => Err(RpcError::application(ErrorKind::UnsupportedMethod)),
+    }
+}
+fn io_error(kind: std::io::ErrorKind) -> RpcError {
     RpcError::application(
-        if error.kind() == std::io::ErrorKind::InvalidInput
-            || error.kind() == std::io::ErrorKind::InvalidData
-        {
+        if kind == std::io::ErrorKind::InvalidInput || kind == std::io::ErrorKind::InvalidData {
             ErrorKind::UnsupportedResource
         } else {
             ErrorKind::InvalidArguments
@@ -217,48 +239,75 @@ pub(super) fn load(
     budget: &Arc<Budget>,
 ) -> Result<(Option<file::Loaded>, Option<Ingress>), RpcError> {
     use std::{io::Read, os::unix::fs::OpenOptionsExt};
-    const MAX: u64 = 16 * 1024 * 1024;
     if !location.is_present() {
         return Ok((None, None));
     }
     let input = std::fs::OpenOptions::new()
         .read(true)
-        .custom_flags(rustix::fs::OFlags::NONBLOCK.bits() as i32)
+        .custom_flags(
+            i32::try_from(rustix::fs::OFlags::NONBLOCK.bits())
+                .expect("native nonblocking flag fits i32"),
+        )
         .open(location.path())
-        .map_err(io_error)?;
-    let metadata = input.metadata().map_err(io_error)?;
+        .map_err(|error| io_error(error.kind()))?;
+    let observed = input_observation(&input, location)?;
+    let bytes = usize::try_from(observed.length).expect("source length is at most 16 MiB");
+    if !reserve(&budget.ingress, bytes, MAX_BYTES) {
+        return Err(RpcError::application(ErrorKind::Busy));
+    }
+    let ingress = Ingress {
+        budget: Arc::clone(budget),
+        bytes,
+    };
+    // Include the optional BOM in the reader ceiling; growth after metadata
+    // cannot turn the bounded read into silently truncated source text.
+    let loaded =
+        file::Loaded::read((&input).take(MAX + 4)).map_err(|error| io_error(error.kind()))?;
+    check_loaded(&input, location, &observed, &loaded)?;
+    Ok((Some(loaded), Some(ingress)))
+}
+
+const MAX_BYTES: usize = 16 * 1024 * 1024;
+const MAX: u64 = 16 * 1024 * 1024;
+fn input_observation(
+    input: &std::fs::File,
+    location: &file::Location,
+) -> Result<file::Observation, RpcError> {
+    let metadata = input.metadata().map_err(|error| io_error(error.kind()))?;
     if !metadata.is_file() {
         return Err(RpcError::application(ErrorKind::UnsupportedResource));
     }
     if metadata.len() > MAX {
         return Err(RpcError::application(ErrorKind::LimitExceeded));
     }
-    let bytes = metadata.len() as usize;
-    let observed = file::Observation::from_metadata(metadata).map_err(io_error)?;
+    let observed =
+        file::Observation::from_metadata(metadata).map_err(|error| io_error(error.kind()))?;
     if Some(&observed) != location.observation() {
         return Err(RpcError::application(ErrorKind::StaleRevision));
     }
-    if !reserve(&budget.ingress, bytes, MAX as usize) {
-        return Err(RpcError::application(ErrorKind::Busy));
-    }
-    let ingress = Ingress {
-        budget: budget.clone(),
-        bytes,
-    };
-    // Include the optional BOM in the reader ceiling; growth after metadata
-    // cannot turn the bounded read into silently truncated source text.
-    let loaded = file::Loaded::read((&input).take(MAX + 4)).map_err(io_error)?;
-    if loaded.observed_text().len_bytes() as u64 > MAX {
+    Ok(observed)
+}
+fn check_loaded(
+    input: &std::fs::File,
+    location: &file::Location,
+    observed: &file::Observation,
+    loaded: &file::Loaded,
+) -> Result<(), RpcError> {
+    if loaded.observed_text().len_bytes() > MAX_BYTES {
         return Err(RpcError::application(ErrorKind::LimitExceeded));
     }
     // Refuse a source that changed while it was read; no native registry exists
     // on this thread, so canonical reuse is rechecked at publication as well.
     let after =
-        file::Observation::from_metadata(input.metadata().map_err(io_error)?).map_err(io_error)?;
-    if after != observed
-        || file::observe(location.path()).map_err(io_error)?.as_ref() != location.observation()
+        file::Observation::from_metadata(input.metadata().map_err(|error| io_error(error.kind()))?)
+            .map_err(|error| io_error(error.kind()))?;
+    if after != *observed
+        || file::observe(location.path())
+            .map_err(|error| io_error(error.kind()))?
+            .as_ref()
+            != location.observation()
     {
         return Err(RpcError::application(ErrorKind::StaleRevision));
     }
-    Ok((Some(loaded), Some(ingress)))
+    Ok(())
 }

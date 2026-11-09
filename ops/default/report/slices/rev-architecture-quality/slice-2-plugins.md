@@ -31,6 +31,17 @@ and results. Public error and deliberate invariant-panic contracts are documente
 and checked with SDK-local Clippy documentation lints. Public constants keep
 their types and values while the wire profile uses its native u32 constants.
 
+Native declaration validation and editor decoding separate identity, process,
+command, binding, file and state admission. The handshake keeps an explicit map
+of implemented native methods, independent of the SDK schema catalog. Transport
+service separates queue/deadline work, readiness, completed delivery grants,
+causal admission and command completion without changing their ordering.
+
+State snapshots own the anchored directory descriptor, OS lock and prior bytes
+through read reconciliation or prepared CAS publication. Staging, replacement
+checks and post-commit durability evidence have separate owners while retaining
+the existing schema, monotonic versions and uncertain-publication behavior.
+
 ## Implementation Notes
 
 The internal host entry point accepts one domain invocation containing its
@@ -44,6 +55,18 @@ The SDK's private queue and test framing helper borrow messages. Existing
 fragmentation, Unicode, bounds, correlation and callback cases keep all their
 assertions; unnecessary fixture clones are removed. The actual integration-test
 crate root now declares the existing unsafe prohibition explicitly.
+
+The supervisor task owns its admitted generation and bounded endpoints before
+process startup. Invocation correlation and permit admission retain native and
+nested origin rules and roll back the first reservation if the second fails.
+Supervisor retirement still precedes cancellation output or process cleanup. Event source
+conversion, subscription eligibility, delivery and invalidation remain bounded;
+event locks are released before returning results or signaling unsubscribe.
+
+Native representation changes use checked conversions at validated source/store
+lengths, TOML integer bounds, OS flags and positive spawned process identities.
+Reference-counted sharing is explicit. Existing publication-fault fixtures keep
+all stages and assertions; their substitution helpers follow the IO boundaries.
 
 ## Contracts Added or Changed
 
@@ -60,6 +83,12 @@ resource ceilings are unchanged. No new dependency is introduced.
 - `crates/rev-plugin-sdk/src/`: bounded client/schema decomposition and documented
   public admission contracts, with unchanged wire/API/state versions.
 - `crates/rev-plugin-sdk/tests/`: original cases with borrowed framing support.
+- `src/plugins/declarations.rs` and `protocol.rs`: passive declaration admission
+  and the explicit native capability map.
+- `src/plugins/lifecycle/`: editor decoding, transport, causal event delivery and
+  process generation ownership.
+- `src/plugins/state.rs` and `state/`: query, catalog, descriptor IO and prepared
+  publication ownership with unchanged fault/substitution cases.
 
 ## Validation
 
@@ -69,26 +98,42 @@ The existing native plugin suite passed all 86 tests with:
 
 This includes protocol, callbacks, captured contexts, cancellation/restart,
 retirement, keymap precedence, atomic publication, state and owned process/PTY
-resource assertions. Runtime was 97.31 seconds. `git diff --check` passed.
+resource assertions. The rerun after native decomposition completed in 91.01
+seconds. `git diff --check` passed.
 
-The initial full Slice 2 quality selection failed on the existing selected
-profile and source diagnostics. T2.2 cleanup remains in progress; this is not a
-passing slice-quality claim or final clean-HEAD validation receipt.
+The complete Slice 2 quality selection remains in progress under T2.2. The
+passing checks below do not replace its final ordered clean-HEAD validation.
 
-The SDK-only owner is clean: all workspace targets compile without baseline
+The SDK-only owner is clean: all first-party workspace targets compile without baseline
 warnings, and the selected/source policy covers all 11 SDK source files and both
 of its actual crate roots with zero blocking diagnostics. These commands passed:
 
 - `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 bash scripts/check-quality.sh --scope crates/rev-plugin-sdk`
 - `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev-plugin-sdk`
 
-The SDK passed all 12 existing tests and its doctest. A fresh source-only scan
-of the complete frozen Slice 2 selection still reports 41 diagnostics in native
-plugin/session owners, with none in the SDK. The complete Slice 2 selected
-Clippy profile and ordered final checks remain pending.
+The SDK passed all 12 existing tests and its doctest.
+
+The combined SDK and native-plugin selection now passes with zero blocking
+diagnostics across all 24 selected files and both SDK crate roots:
+
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 bash scripts/check-quality.sh --scope crates/rev-plugin-sdk --scope src/plugins.rs --scope src/plugins`
+
+All first-party workspace targets compile with the complete baseline clean. The
+driver defers 1,544 emitted selected-profile diagnostics outside this selection;
+this does not establish complete Slice 2 or workspace adoption.
+
+A fresh source-only scan of the complete frozen Slice 2 selection reports 14
+remaining diagnostics, all in session-plugin owners. The complete Slice 2
+selected Clippy profile and ordered final checks remain pending.
+
+The state publication fault, substitution and version-exhaustion unit cases also
+passed (three tests), and the documentation catalog/link check passed:
+
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --lib plugins::state::tests -- --test-threads=1`
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo run --locked --quiet -p rev --example documentation-check`
 
 ## Risks and Follow-ups
 
-Native plugin/session ownership/conversion cleanup and decomposition remain
-required under T2.2. T2.3 and the final exact ordered five-command Looper validation
-remain pending. No canonical PR is ready yet.
+Session-plugin ownership/conversion cleanup and decomposition remain required
+under T2.2. T2.3 and the final exact ordered five-command Looper validation remain
+pending. No canonical PR is ready yet.

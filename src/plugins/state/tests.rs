@@ -85,7 +85,7 @@ fn publication_faults() {
             || live.load(Ordering::Acquire),
             &mut Fault {
                 stage,
-                live: live.clone(),
+                live: Arc::clone(&live),
             },
         );
         assert!(result.is_err(), "{stage}");
@@ -147,33 +147,41 @@ impl Output for Substitute {
     fn sync_file(&mut self, file: &File) -> std::io::Result<()> {
         Files.sync_file(file)?;
         match self.stage {
-            "parent" => {
-                fs::rename(&self.package, self.package.with_file_name("retained"))?;
-                fs::create_dir(&self.package)?;
-                fs::write(self.package.join("unrelated"), b"preserved")?;
-            }
-            "lock" => {
-                fs::rename(
-                    self.package.join("state.toml.lock"),
-                    self.package.join("retained-lock"),
-                )?;
-                std::os::unix::fs::symlink(&self.protected, self.package.join("state.toml.lock"))?;
-            }
-            "temporary" => {
-                let path = fs::read_dir(&self.package)?
-                    .map(|e| e.unwrap().path())
-                    .find(|p| {
-                        p.file_name()
-                            .unwrap()
-                            .to_string_lossy()
-                            .starts_with(".rev-save-")
-                    })
-                    .unwrap();
-                fs::remove_file(&path)?;
-                std::os::unix::fs::symlink(&self.protected, path)?;
-            }
+            "parent" => self.substitute_parent()?,
+            "lock" => self.substitute_lock()?,
+            "temporary" => self.substitute_temporary()?,
             _ => unreachable!(),
         }
+        Ok(())
+    }
+}
+impl Substitute {
+    fn substitute_parent(&self) -> std::io::Result<()> {
+        fs::rename(&self.package, self.package.with_file_name("retained"))?;
+        fs::create_dir(&self.package)?;
+        fs::write(self.package.join("unrelated"), b"preserved")?;
+        Ok(())
+    }
+    fn substitute_lock(&self) -> std::io::Result<()> {
+        fs::rename(
+            self.package.join("state.toml.lock"),
+            self.package.join("retained-lock"),
+        )?;
+        std::os::unix::fs::symlink(&self.protected, self.package.join("state.toml.lock"))?;
+        Ok(())
+    }
+    fn substitute_temporary(&self) -> std::io::Result<()> {
+        let path = fs::read_dir(&self.package)?
+            .map(|e| e.unwrap().path())
+            .find(|p| {
+                p.file_name()
+                    .unwrap()
+                    .to_string_lossy()
+                    .starts_with(".rev-save-")
+            })
+            .unwrap();
+        fs::remove_file(&path)?;
+        std::os::unix::fs::symlink(&self.protected, path)?;
         Ok(())
     }
 }
