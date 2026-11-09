@@ -11,15 +11,6 @@ use std::os::unix::process::CommandExt;
 use std::path::Path;
 use std::process::{Child, Command as Process, Stdio};
 
-// Share the established source-frame projection and Linux CPU/RSS observations;
-// PTY allocation, ownership and waiting use the already linked native primitives.
-#[allow(dead_code)]
-#[path = "../../examples/completion_acceptance/support.rs"]
-mod support;
-#[allow(dead_code)]
-#[path = "../../examples/completion_acceptance/terminal.rs"]
-mod terminal;
-
 type Result<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 const LIMIT: usize = 1024 * 1024;
 struct Pty {
@@ -35,46 +26,10 @@ struct Pty {
 }
 impl Pty {
     fn start(root: &Path) -> Result<Self> {
-        let flags = OpenptFlags::RDWR | OpenptFlags::NOCTTY | OpenptFlags::CLOEXEC;
-        let master = openpt(flags)?;
-        let mode = rustix::fs::fcntl_getfl(&master)?;
-        rustix::fs::fcntl_setfl(&master, mode | rustix::fs::OFlags::NONBLOCK)?;
-        grantpt(&master)?;
-        unlockpt(&master)?;
-        let slave = ioctl_tiocgptpeer(&master, flags)?;
-        tcsetwinsize(
-            &slave,
-            Winsize {
-                ws_row: 24,
-                ws_col: 100,
-                ws_xpixel: 0,
-                ws_ypixel: 0,
-            },
-        )?;
+        let (master, slave) = allocate()?;
         let attributes = tcgetattr(&slave)?;
-        let mut child = Process::new(std::env::current_exe()?)
-            .args(["--exact", "pty::terminal_journeys", "--nocapture"])
-            .env("REV_MACRO_PTY_CHILD", "1")
-            .env("HOME", root.join("pty/home"))
-            .env("XDG_CONFIG_HOME", root.join("pty/config"))
-            .env("XDG_DATA_HOME", root.join("pty/data"))
-            .env("XDG_STATE_HOME", root.join("pty/state"))
-            .env("XDG_CACHE_HOME", root.join("pty/cache"))
-            .env("TERM", "xterm-256color")
-            .env("NO_COLOR", "1")
-            .current_dir(root.join("workspace"))
-            .stdin(Stdio::from(slave.try_clone()?))
-            .stdout(Stdio::from(slave.try_clone()?))
-            .stderr(Stdio::from(slave.try_clone()?))
-            .spawn()?;
-        let exit = match pidfd_open(Pid::from_child(&child), PidfdFlags::NONBLOCK) {
-            Ok(exit) => exit,
-            Err(error) => {
-                let _ = child.kill();
-                let _ = child.wait();
-                return Err(error.into());
-            }
-        };
+        let mut child = spawn(root, &slave)?;
+        let exit = observe(&mut child)?;
         let mut pty = Self {
             child,
             exit,
@@ -109,6 +64,10 @@ impl Pty {
             Err(e) => return Err(e.into()),
             Ok(_) => {}
         }
+        self.receive()?;
+        Ok(true)
+    }
+    fn receive(&mut self) -> Result<()> {
         let mut chunk = [0; 8192];
         match rustix::io::read(&self.master, &mut chunk) {
             Ok(0) => return Err("owned PTY closed before completion".into()),
@@ -122,7 +81,7 @@ impl Pty {
             Err(rustix::io::Errno::AGAIN | rustix::io::Errno::INTR) => {}
             Err(e) => return Err(e.into()),
         }
-        Ok(true)
+        Ok(())
     }
     fn frame(&mut self, predicate: impl Fn(&str) -> bool) -> Result<()> {
         loop {
@@ -191,6 +150,11 @@ impl Pty {
     }
     fn finish(mut self) -> Result<()> {
         self.send(b"\x18\x03")?;
+        self.wait_for_exit()?;
+        self.drain_exit()?;
+        self.verify_restoration()
+    }
+    fn wait_for_exit(&mut self) -> Result<()> {
         let mut fds = [PollFd::new(&self.exit, PollFlags::IN)];
         let wait = self.deadline.saturating_duration_since(Instant::now());
         assert!(
@@ -199,6 +163,9 @@ impl Pty {
         );
         assert!(self.child.wait()?.success());
         self.finished = true;
+        Ok(())
+    }
+    fn drain_exit(&mut self) -> Result<()> {
         // Drain the finite exit stream to verify native terminal restoration.
         let mut chunk = [0; 8192];
         loop {
@@ -212,6 +179,9 @@ impl Pty {
                 Err(e) => return Err(e.into()),
             }
         }
+        Ok(())
+    }
+    fn verify_restoration(&self) -> Result<()> {
         let output = String::from_utf8_lossy(&self.output);
         assert!(
             output.contains("\x1b[?1049l")
@@ -258,6 +228,55 @@ impl Pty {
         Ok(())
     }
 }
+fn allocate() -> Result<(OwnedFd, OwnedFd)> {
+    let flags = OpenptFlags::RDWR | OpenptFlags::NOCTTY | OpenptFlags::CLOEXEC;
+    let master = openpt(flags)?;
+    let mode = rustix::fs::fcntl_getfl(&master)?;
+    rustix::fs::fcntl_setfl(&master, mode | rustix::fs::OFlags::NONBLOCK)?;
+    grantpt(&master)?;
+    unlockpt(&master)?;
+    let slave = ioctl_tiocgptpeer(&master, flags)?;
+    tcsetwinsize(
+        &slave,
+        Winsize {
+            ws_row: 24,
+            ws_col: 100,
+            ws_xpixel: 0,
+            ws_ypixel: 0,
+        },
+    )?;
+    Ok((master, slave))
+}
+
+fn spawn(root: &Path, slave: &OwnedFd) -> Result<Child> {
+    Ok(Process::new(std::env::current_exe()?)
+        .args(["--exact", "pty::terminal_journeys", "--nocapture"])
+        .env("REV_MACRO_PTY_CHILD", "1")
+        .env("HOME", root.join("pty/home"))
+        .env("XDG_CONFIG_HOME", root.join("pty/config"))
+        .env("XDG_DATA_HOME", root.join("pty/data"))
+        .env("XDG_STATE_HOME", root.join("pty/state"))
+        .env("XDG_CACHE_HOME", root.join("pty/cache"))
+        .env("TERM", "xterm-256color")
+        .env("NO_COLOR", "1")
+        .current_dir(root.join("workspace"))
+        .stdin(Stdio::from(slave.try_clone()?))
+        .stdout(Stdio::from(slave.try_clone()?))
+        .stderr(Stdio::from(slave.try_clone()?))
+        .spawn()?)
+}
+
+fn observe(child: &mut Child) -> Result<OwnedFd> {
+    match pidfd_open(Pid::from_child(child), PidfdFlags::NONBLOCK) {
+        Ok(exit) => Ok(exit),
+        Err(error) => {
+            let _ = child.kill();
+            let _ = child.wait();
+            Err(error.into())
+        }
+    }
+}
+
 impl Drop for Pty {
     fn drop(&mut self) {
         if !self.finished {
@@ -299,53 +318,99 @@ fn terminal_journeys() -> Result<()> {
     if std::env::var_os("REV_MACRO_PTY_CHILD").is_some() {
         child();
     }
+    non_modal()?;
+    modal()
+}
+
+fn non_modal() -> Result<()> {
     let f = fixture("non-modal");
     let mut t = Pty::start(&f.0)?;
+    record_repetition(&mut t, &f.0)?;
+    undo_repetition(&mut t, &f.0)?;
+    let library = f.0.join("pty/state/rev/macros/library.toml");
+    assert!(!library.exists());
+    let disk = save_snapshot(&mut t, &library)?;
+    t.step(b"\x18\x0bnunsaved-part\r", "unsaved-part")?;
+    t.idle()?;
+    t.finish()?;
+    verify_snapshot(&library, &disk)?;
+    restart_snapshot(&f.0, &library, &disk)
+}
+
+fn modal() -> Result<()> {
+    let f = fixture("modal");
+    let mut t = Pty::start(&f.0)?;
+    modal_repetition(&mut t, &f.0)?;
+    query_cancel(&mut t, &f.0)?;
+    t.step(b"\x18e", "Macro query:")?;
+    t.step(b"y", "MMQQ")?;
+    t.save(&f.0, "MMQQ")?;
+    t.finish()?;
+    Ok(())
+}
+
+fn record_repetition(t: &mut Pty, root: &Path) -> Result<()> {
     t.step(b"\x1bOR", "Def")?;
     t.step(b"q", "q")?;
     t.step(b"\x1bOS", "recorded")?;
     t.step(b"\x1b3\x1bOS", "qqqq")?;
-    t.save(&f.0, "qqqq")?;
+    t.save(root, "qqqq")?;
+    Ok(())
+}
+
+fn undo_repetition(t: &mut Pty, root: &Path) -> Result<()> {
     t.step(b"\x1f", "qqq")?;
-    t.save(&f.0, "qqq")?;
+    t.save(root, "qqq")?;
     t.step(b"\x18e", "qqqq")?;
     t.step(b"e", "qqqqq")?;
-    t.save(&f.0, "qqqqq")?;
-    let library = f.0.join("pty/state/rev/macros/library.toml");
-    assert!(!library.exists());
+    t.save(root, "qqqqq")?;
+    Ok(())
+}
+
+fn save_snapshot(t: &mut Pty, library: &Path) -> Result<Vec<u8>> {
     t.step(b"\x18\x0bnsaved-part\r", "saved-part")?;
     t.step(b"\x1bxkmacro-save\r", "Named macro:")?;
     t.step(b"saved-part\r", "Save named macro")?;
     t.send(b"y")?;
     t.frame(|_| library.is_file())?;
-    let disk = std::fs::read(&library)?;
-    t.step(b"\x18\x0bnunsaved-part\r", "unsaved-part")?;
-    t.idle()?;
-    t.finish()?;
-    assert_eq!(std::fs::read(&library)?, disk);
-    let value: toml::Value = toml::from_str(std::str::from_utf8(&disk)?)?;
+    let disk = std::fs::read(library)?;
+    Ok(disk)
+}
+
+fn verify_snapshot(library: &Path, disk: &[u8]) -> Result<()> {
+    assert_eq!(std::fs::read(library)?, disk);
+    let value: toml::Value = toml::from_str(std::str::from_utf8(disk)?)?;
     assert_eq!(value["macros"].as_array().unwrap().len(), 1);
     assert_eq!(value["macros"][0]["name"].as_str(), Some("saved-part"));
-    let mut restarted = Pty::start(&f.0)?;
+    Ok(())
+}
+
+fn restart_snapshot(root: &Path, library: &Path, disk: &[u8]) -> Result<()> {
+    let mut restarted = Pty::start(root)?;
     assert_eq!(
-        std::fs::read_to_string(f.0.join("workspace/notes.txt"))?,
+        std::fs::read_to_string(root.join("workspace/notes.txt"))?,
         "qqqqq"
     );
     restarted.step(b"\x1bxsaved-part\r", "qqqqqq")?;
-    restarted.save(&f.0, "qqqqqq")?;
+    restarted.save(root, "qqqqqq")?;
     restarted.idle()?;
     restarted.finish()?;
-    assert_eq!(std::fs::read(&library)?, disk);
+    assert_eq!(std::fs::read(library)?, disk);
+    Ok(())
+}
 
-    let f = fixture("modal");
-    let mut t = Pty::start(&f.0)?;
+fn modal_repetition(t: &mut Pty, root: &Path) -> Result<()> {
     t.step(b"\x18(", "Def")?;
     t.step(b"iM\x1b", "NORMAL")?;
     t.step(b"\x18)", "recorded")?;
     t.step(b"\x1b2\x18e", "MMM")?;
-    t.save(&f.0, "MMM")?;
+    t.save(root, "MMM")?;
     t.step(b"u", "MM")?;
-    t.save(&f.0, "MM")?;
+    t.save(root, "MM")?;
+    Ok(())
+}
+
+fn query_cancel(t: &mut Pty, root: &Path) -> Result<()> {
     t.step(b"\x18(", "Def")?;
     t.step(b"i\x18qQ\x1b", "NORMAL")?;
     t.step(b"\x18)", "recorded")?;
@@ -353,11 +418,7 @@ fn terminal_journeys() -> Result<()> {
     t.idle()?;
     t.send(b"\x07")?;
     t.step(b"\x1b", "NORMAL")?;
-    t.save(&f.0, "MMQ")?;
+    t.save(root, "MMQ")?;
     t.idle()?;
-    t.step(b"\x18e", "Macro query:")?;
-    t.step(b"y", "MMQQ")?;
-    t.save(&f.0, "MMQQ")?;
-    t.finish()?;
     Ok(())
 }

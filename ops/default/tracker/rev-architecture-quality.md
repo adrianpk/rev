@@ -1,6 +1,6 @@
 # Architecture Quality Tracker
 
-Status: Ready
+Status: In progress
 Date: 2026-11-09
 Delivery set: rev-architecture-quality
 Slice strategy: behavior-first
@@ -33,16 +33,16 @@ Progress owner: selected Looper run; no second runtime tracker
 
 ## Slice 1: Quality foundation
 
-State: ready
+State: reviewing
 Dependency: approved preparation and controller preflight
 Branch: chore/rev-architecture-quality-01-foundation
 PR: pending
 Report: ops/default/report/slices/rev-architecture-quality/slice-1-foundation.md
-Validation: pending; frozen ordered commands in plan and controller configuration
+Validation: all five frozen focused commands passed locally; final clean-HEAD evidence required through Looper before handoff
 
-- [ ] T1.1: Correct Cargo workspace/member/target discovery in the existing Rust source checker; place cohesive discovery/diagnostic helpers under examples/source_check, retain metrics/legacy arguments, and add nonempty scoped checks plus bounded Clippy admission.
-- [ ] T1.2: Introduce scripts/check-quality.sh with the selected ownership/representation profile, truthful scoped coverage and no Python requirement; repair duplicate macros test support and keep complete baseline all-target Clippy green.
-- [ ] T1.3: Add real parser/discovery/exception/scope fixtures and an evidence-backed criteria map; cover new tooling itself without presenting unreviewed domains as passing full-profile lint.
+- [x] T1.1: Correct Cargo workspace/member/target discovery in the existing Rust source checker; place cohesive discovery/diagnostic helpers under examples/source_check, retain metrics/legacy arguments, and add nonempty scoped checks plus bounded Clippy admission.
+- [x] T1.2: Introduce scripts/check-quality.sh with the selected ownership/representation profile, truthful scoped coverage and no Python requirement; repair duplicate macros test support and keep complete baseline all-target Clippy green.
+- [x] T1.3: Add real parser/discovery/exception/scope fixtures and an evidence-backed criteria map; cover new tooling itself without presenting unreviewed domains as passing full-profile lint.
 
 ## Slice 2: Plugin and SDK ownership
 

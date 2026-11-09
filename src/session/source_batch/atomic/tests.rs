@@ -28,20 +28,17 @@ fn prepare(buffers: &mut Buffers, windows: &Windows, ids: [BufferId; 2]) -> Atom
     });
     Atomic::prepare(buffers, windows, &targets).unwrap()
 }
-fn snapshot(
-    buffers: &Buffers,
-    windows: &Windows,
-) -> (
-    Vec<(
-        Stamp,
-        crate::buffer::State,
-        String,
-        usize,
-        usize,
-        Option<Scalar>,
-    )>,
-    Vec<Point>,
-) {
+type BufferSnapshot = (
+    Stamp,
+    crate::buffer::State,
+    String,
+    usize,
+    usize,
+    Option<Scalar>,
+);
+type Snapshot = (Vec<BufferSnapshot>, Vec<Point>);
+
+fn snapshot(buffers: &Buffers, windows: &Windows) -> Snapshot {
     (
         buffers
             .iter()

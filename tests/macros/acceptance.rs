@@ -1,7 +1,4 @@
 use super::*;
-#[allow(dead_code)]
-#[path = "../../examples/completion_acceptance/support.rs"]
-mod support;
 use rev::command::MacroName;
 
 // A multi-megabyte document keeps the same bounded host turns, cancellation,

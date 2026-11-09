@@ -3,6 +3,15 @@
 #[path = "configuration/fixture.rs"]
 mod fixture;
 
+// One owner shares completion settling and Linux process observations across
+// macro acceptance and PTY journeys without compiling the source twice.
+#[allow(dead_code)]
+#[path = "../examples/completion_acceptance/support.rs"]
+mod support;
+#[allow(dead_code)]
+#[path = "../examples/completion_acceptance/terminal.rs"]
+mod terminal;
+
 use crossterm::event::{Event, KeyCode, KeyEvent, KeyEventKind, KeyModifiers};
 use rev::buffer::Buffers;
 use rev::command::{Command, History, MacroCommand};

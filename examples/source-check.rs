@@ -1,30 +1,38 @@
 #![forbid(unsafe_code)]
 
 use std::error::Error;
-use std::fs;
 
 use tree_sitter::{Node, Parser};
 
-fn main() -> Result<(), Box<dyn Error>> {
-    let mut arguments = std::env::args().skip(1);
-    let mut failed = false;
-    while let Some(kind) = arguments.next() {
-        let path = arguments.next().ok_or("missing source path")?;
-        let source = fs::read_to_string(&path)?;
-        let issues = inspect(&source, kind == "--root")?;
-        failed |= !issues.is_empty();
-        for issue in issues {
-            eprintln!("{path}:{issue}");
-        }
+#[path = "source_check/arguments.rs"]
+mod arguments;
+#[path = "source_check/attributes.rs"]
+mod attributes;
+#[path = "source_check/check.rs"]
+mod check;
+#[path = "source_check/clippy.rs"]
+mod clippy;
+#[path = "source_check/discovery.rs"]
+mod discovery;
+#[path = "source_check/profile.rs"]
+mod profile;
+
+type Result<T> = std::result::Result<T, Box<dyn Error>>;
+
+#[cfg(test)]
+#[path = "source_check/fixture.rs"]
+mod fixture;
+
+fn main() -> Result<()> {
+    let options = arguments::Options::parse(std::env::args().skip(1))?;
+    if options.print_clippy_flags {
+        profile::print_flags();
+        return Ok(());
     }
-    if failed {
-        return Err("source-quality check failed".into());
-    }
-    println!("Source quality passed: safe Rust, parameters <= 5, nesting <= 3, cyclomatic <= 10.");
-    Ok(())
+    check::run(&options)
 }
 
-fn inspect(source: &str, root: bool) -> Result<Vec<String>, Box<dyn Error>> {
+fn inspect(source: &str, root: bool, print_metrics: bool) -> Result<Vec<String>> {
     let mut parser = Parser::new();
     parser.set_language(&tree_sitter_rust::LANGUAGE.into())?;
     let tree = parser.parse(source, None).ok_or("source parse canceled")?;
@@ -36,7 +44,7 @@ fn inspect(source: &str, root: bool) -> Result<Vec<String>, Box<dyn Error>> {
     if root && !forbids(node, source) {
         issues.push("1: crate root must declare #![forbid(unsafe_code)]".into());
     }
-    visit(node, source, &mut issues);
+    visit(node, source, print_metrics, &mut issues);
     Ok(issues)
 }
 
@@ -61,7 +69,7 @@ fn inert(node: Node<'_>) -> bool {
     .contains(&node.kind())
 }
 
-fn visit(node: Node<'_>, source: &str, issues: &mut Vec<String>) {
+fn visit(node: Node<'_>, source: &str, print_metrics: bool, issues: &mut Vec<String>) {
     if inert(node) {
         return;
     }
@@ -75,10 +83,11 @@ fn visit(node: Node<'_>, source: &str, issues: &mut Vec<String>) {
         parameters_check(parameters, line, issues);
     }
     if node.kind() == "function_item" {
-        function_check(node, source, issues);
+        function_check(node, source, print_metrics, issues);
     }
+    attributes::check(node, source, issues);
     for child in node.children(&mut node.walk()) {
-        visit(child, source, issues);
+        visit(child, source, print_metrics, issues);
     }
 }
 
@@ -94,7 +103,7 @@ fn parameters_check(node: Node<'_>, line: usize, issues: &mut Vec<String>) {
     }
 }
 
-fn function_check(node: Node<'_>, source: &str, issues: &mut Vec<String>) {
+fn function_check(node: Node<'_>, source: &str, print_metrics: bool, issues: &mut Vec<String>) {
     let Some(body) = node.child_by_field_name("body") else {
         return;
     };
@@ -112,7 +121,9 @@ fn function_check(node: Node<'_>, source: &str, issues: &mut Vec<String>) {
             "{line}: {name} logical nesting {nesting} exceeds 3"
         ));
     }
-    println!("{name}: cyclomatic={score}, nesting={nesting}");
+    if print_metrics {
+        println!("{name}: cyclomatic={score}, nesting={nesting}");
+    }
 }
 
 fn logical(node: Node<'_>) -> bool {
@@ -235,7 +246,7 @@ mod tests {
             ("bad syntax", "fn f( {", false, "syntax"),
         ];
         for (name, source, root, expected) in cases {
-            let issues = inspect(source, root).unwrap();
+            let issues = inspect(source, root, false).unwrap();
             if expected.is_empty() {
                 assert!(issues.is_empty(), "{name}: {issues:?}");
             } else {

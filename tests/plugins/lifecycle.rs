@@ -267,8 +267,8 @@ description = "Collect task lines."
         } else {
             ""
         };
-        let path = fixture.write("config.toml", &format!("[editor]\ninteraction_profile='{profile}'\n[plugins]\nenabled=true\nmanifests={}\nstartup={}{}",
-            serde_json::to_string(&manifests).unwrap(), serde_json::to_string(startup).unwrap(), format!("{terminal}\n{config}")));
+        let path = fixture.write("config.toml", &format!("[editor]\ninteraction_profile='{profile}'\n[plugins]\nenabled=true\nmanifests={}\nstartup={}{terminal}\n{config}",
+            serde_json::to_string(&manifests).unwrap(), serde_json::to_string(startup).unwrap()));
         let prepared = config::prepare(&path);
         assert!(prepared.diagnostic.is_none(), "{:?}", prepared.diagnostic);
         let mut buffers = Buffers::with_settings(prepared.snapshot).unwrap();
