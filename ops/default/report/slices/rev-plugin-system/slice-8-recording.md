@@ -5,7 +5,8 @@ Delivery set: rev-plugin-system
 Plan: [Plugin System Delivery](../../../plan/rev-plugin-system.md)
 Tracker: [Plugin System Tracker](../../../tracker/rev-plugin-system.md)
 Branch: `feat/rev-plugin-system-08-recording`
-PR: pending
+PR: `#8`
+Implementation: 557f2358bcf530636242b8be25bcc1a3a3d10ffb
 
 ## Purpose
 

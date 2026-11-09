@@ -143,8 +143,9 @@ Validation: all eight frozen commands passed locally; fresh nine-test keymap sel
 State: reviewing
 Dependency: Slice 7 integrated
 Branch: feat/rev-plugin-system-08-recording
-PR: pending
+PR: #8 - https://forge.adrianpk.com/rev/rev/pulls/8
 Report: ops/default/report/slices/rev-plugin-system/slice-8-recording.md
+Implementation: 557f2358bcf530636242b8be25bcc1a3a3d10ffb
 Validation: all nine frozen ordered commands passed locally; final focused validation passed 65 combined plugin tests including ten recording journeys, five native library tests and fixture formatting. Exact clean-HEAD controller evidence precedes handoff.
 
 - [x] T8.1: Forward one captured integer prefix under declared policy and admit semantic plugin-call recording with qualified identity/validated inert arguments exactly once.
