@@ -8,7 +8,7 @@ Planning baseline: a398dcb77dd0ce036d989f038068ac942fc68ebd
 Specification: [Plugin System](../spec/editor-plugin-system.md)
 Model: [Plugin Identity, Protocol and State](../spec/editor-plugin-system-model.md)
 Concern: [Pending Editor Work](../README.md)
-Active slice: Slice 5 - Atomic edits and history
+Active slice: Slice 6 - Native invocation and file lifecycle
 Execution authorized: one thirteen-slice Looper run with automatic integration into dev
 Plan: [Plugin System Delivery](../plan/rev-plugin-system.md)
 Progress owner: selected Looper run; no second runtime tracker
@@ -95,13 +95,14 @@ Validation: all eight frozen commands passed locally; fresh focused validation p
 
 ## Slice 5: Atomic edits and history
 
-State: reviewing
+State: delivered
 Dependency: Slice 4 integrated
 Branch: feat/rev-plugin-system-05-transactions
 PR: #5 - https://forge.adrianpk.com/rev/rev/pulls/5
 Report: ops/default/report/slices/rev-plugin-system/slice-5-transactions.md
 Implementation: 0d8ec0cf5e3d2447c8e245cc3901599a3a12caa7
-Validation: all eight frozen commands passed locally; 39 combined plugin tests, eight focused native edit/coordinator tests and standalone fixture formatting passed. Final clean-HEAD controller evidence precedes handoff.
+Integrated: 9df6c5beb7dd2df7eece84a4f90b1c87671cc724 through canonical PR #5
+Validation: all eight frozen commands passed through the controller validator on the exact clean integrated HEAD; canonical PR contract and merge verified. Local focused checks also passed 39 plugin tests, eight native edit/coordinator tests and fixture formatting.
 
 - [x] T5.1: Implement prepare-all/publish-all native coordination, including every history/view reservation, complete stamp rechecks and infallible final publication.
 - [x] T5.2: Apply bounded scalar replacements across explicitly captured targets with one native undo unit per buffer and no implicit saving or cross-buffer undo.
@@ -109,7 +110,7 @@ Validation: all eight frozen commands passed locally; 39 combined plugin tests, 
 
 ## Slice 6: Native invocation and file lifecycle
 
-State: planned
+State: implementing
 Dependency: Slice 5 integrated
 Branch: feat/rev-plugin-system-06-invocation
 PR: pending

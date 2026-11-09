@@ -1,11 +1,13 @@
 # Slice 5: Atomic edits and history
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-plugin-system
 Plan: [Plugin System Delivery](../../../plan/rev-plugin-system.md)
 Tracker: [Plugin System Tracker](../../../tracker/rev-plugin-system.md)
 Branch: `feat/rev-plugin-system-05-transactions`
 PR: `#5`
+Integrated: `9df6c5beb7dd2df7eece84a4f90b1c87671cc724`
+Controller evidence: all eight ordered commands passed on the exact clean integrated HEAD; canonical PR contract and merge verified.
 
 ## Purpose
 
