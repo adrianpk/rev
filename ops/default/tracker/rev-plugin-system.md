@@ -8,7 +8,7 @@ Planning baseline: a398dcb77dd0ce036d989f038068ac942fc68ebd
 Specification: [Plugin System](../spec/editor-plugin-system.md)
 Model: [Plugin Identity, Protocol and State](../spec/editor-plugin-system-model.md)
 Concern: [Pending Editor Work](../README.md)
-Active slice: Slice 10 - Package-owned persistent state
+Active slice: Slice 11 - Fault and resource acceptance
 Execution authorized: one thirteen-slice Looper run with automatic integration into dev
 Plan: [Plugin System Delivery](../plan/rev-plugin-system.md)
 Progress owner: selected Looper run; no second runtime tracker
@@ -170,13 +170,14 @@ Validation: all eight frozen ordered commands passed exact clean-HEAD controller
 
 ## Slice 10: Package-owned persistent state
 
-State: reviewing
+State: delivered
 Dependency: Slice 9 integrated
 Branch: feat/rev-plugin-system-10-state
 PR: #10 - https://forge.adrianpk.com/rev/rev/pulls/10
 Implementation: 0efa209d4e93e69cb6386f117f10f8cb708acaaa
 Report: ops/default/report/slices/rev-plugin-system/slice-10-state.md
-Validation: all seven frozen ordered commands passed locally; focused checks passed 81 combined plugin regressions, three native publication-fault tests and standalone peer formatting. Final clean-HEAD controller evidence is required before handoff; see the report.
+Integrated: 2be4e880daf567c6aa52a127ccab4b851dd48953
+Validation: all seven frozen ordered commands passed locally; focused checks passed 81 combined plugin regressions, three native publication-fault tests and standalone peer formatting. All seven commands passed exact clean-HEAD controller validation before handoff; canonical merge verified.
 
 - [x] T10.1: Implement state.list/get/put/delete with own-package concern/record identities, bounded JSON values in schema-1 TOML and opaque CAS versions under the native XDG state root.
 - [x] T10.2: Use existing nonblocking lock and checked atomic-publication patterns outside native input; preserve unrelated records, uncertain-write evidence and neighboring native stores.
@@ -184,7 +185,7 @@ Validation: all seven frozen ordered commands passed locally; focused checks pas
 
 ## Slice 11: Fault and resource acceptance
 
-State: planned
+State: implementing
 Dependency: Slice 10 integrated
 Branch: test/rev-plugin-system-11-faults
 PR: pending

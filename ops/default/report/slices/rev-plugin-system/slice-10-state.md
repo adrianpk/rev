@@ -1,12 +1,13 @@
 # Slice 10: Package-owned persistent state
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-plugin-system
 Plan: [Plugin System Delivery](../../../plan/rev-plugin-system.md)
 Tracker: [Plugin System Tracker](../../../tracker/rev-plugin-system.md)
 Branch: `feat/rev-plugin-system-10-state`
 PR: #10 - https://forge.adrianpk.com/rev/rev/pulls/10
 Implementation: 0efa209d4e93e69cb6386f117f10f8cb708acaaa
+Integrated: 2be4e880daf567c6aa52a127ccab4b851dd48953 through canonical PR #10
 
 ## Purpose
 
@@ -121,8 +122,8 @@ Focused local checks after the final storage changes also passed:
 - `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --lib -- plugins::state::tests --test-threads=1` — passed; three native publication-fault, substitution and version-exhaustion tests.
 - `rustfmt --edition 2024 --check tests/plugins/peer.rs` — passed; standalone Rust peer formatting.
 
-Final clean-HEAD controller validation remains a handoff prerequisite and is
-recorded outside this report. No integrated full gate, main promotion or
+All seven commands passed exact clean-HEAD controller validation before handoff;
+canonical integration into dev was verified. No integrated full gate, main promotion or
 publication was performed by this worker.
 
 ## Risks and Follow-ups
