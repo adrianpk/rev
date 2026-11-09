@@ -1,11 +1,12 @@
 # Slice 2: Passive declarations and configuration
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-plugin-system
 Plan: [Plugin System Delivery](../../../plan/rev-plugin-system.md)
 Tracker: [Plugin System Tracker](../../../tracker/rev-plugin-system.md)
 Branch: `feat/rev-plugin-system-02-declarations`
 PR: `#2`
+Integrated: `e5404541b619b4233260fd25267fea56d79d6d4e`
 
 ## Purpose
 
@@ -120,7 +121,11 @@ Additional focused modal regression passed 11 tests with:
 Documentation validation passed 684 commands in each combined inventory,
 299 configuration entries, 100 reachable pages and 684 local links/anchors.
 These are focused slice checks. The controller validator owns the exact
-clean-HEAD evidence for the final PR head before handoff.
+clean-HEAD evidence for the final PR head before handoff. All seven frozen commands passed
+through that validator on clean pushed HEAD
+`e5404541b619b4233260fd25267fea56d79d6d4e`. The canonical PR contract was
+verified before handoff. Forgejo and Acta confirm PR #2 merged through
+Rebase + Fast-forward into dev at that same commit.
 
 ## Risks and Follow-ups
 

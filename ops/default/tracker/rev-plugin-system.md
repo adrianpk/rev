@@ -8,7 +8,7 @@ Planning baseline: a398dcb77dd0ce036d989f038068ac942fc68ebd
 Specification: [Plugin System](../spec/editor-plugin-system.md)
 Model: [Plugin Identity, Protocol and State](../spec/editor-plugin-system-model.md)
 Concern: [Pending Editor Work](../README.md)
-Active slice: Slice 2 - Passive declarations and configuration
+Active slice: Slice 3 - Owned process lifecycle
 Execution authorized: one thirteen-slice Looper run with automatic integration into dev
 Plan: [Plugin System Delivery](../plan/rev-plugin-system.md)
 Progress owner: selected Looper run; no second runtime tracker
@@ -50,13 +50,14 @@ Validation: all seven frozen commands passed through the controller validator on
 
 ## Slice 2: Passive declarations and configuration
 
-State: reviewing
+State: delivered
 Dependency: Slice 1 integrated
 Branch: feat/rev-plugin-system-02-declarations
 PR: #2 - https://forge.adrianpk.com/rev/rev/pulls/2
 Report: ops/default/report/slices/rev-plugin-system/slice-2-declarations.md
 Implementation: 3914b057d19dee39bcaf7dfaed7702d89d0ee90c
-Validation: all seven ordered focused commands passed locally, plus 11 targeted modal regressions; see the Slice 2 report and controller candidate evidence.
+Integrated: e5404541b619b4233260fd25267fea56d79d6d4e
+Validation: all seven frozen commands passed through the controller validator on the clean integrated commit; canonical PR contract and merge verified. Eleven focused modal regressions also passed locally.
 
 - [x] T2.1: Add explicit opt-in plugins configuration, local manifest resolution, full passive declaration validation and complete reference/sample defaults without spawning unused programs.
 - [x] T2.2: Expose plugin-list/activate/deactivate/restart metadata, qualified contributed commands and descriptions in native discovery; unavailable handlers report their state until activation exists.
@@ -64,7 +65,7 @@ Validation: all seven ordered focused commands passed locally, plus 11 targeted 
 
 ## Slice 3: Owned process lifecycle
 
-State: planned
+State: ready
 Dependency: Slice 2 integrated
 Branch: feat/rev-plugin-system-03-lifecycle
 PR: pending
