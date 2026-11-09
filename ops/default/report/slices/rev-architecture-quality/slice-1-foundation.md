@@ -5,7 +5,8 @@ Delivery set: rev-architecture-quality
 Plan: [Architecture Quality Delivery](../../../plan/rev-architecture-quality.md)
 Tracker: [Architecture Quality Tracker](../../../tracker/rev-architecture-quality.md)
 Branch: `chore/rev-architecture-quality-01-foundation`
-PR: pending
+PR: #15 - https://forge.adrianpk.com/rev/rev/pulls/15
+Implementation: 3c76d32116e739f26c51abe1e171bd39bb69c877
 
 ## Purpose
 

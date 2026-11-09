@@ -36,7 +36,8 @@ Progress owner: selected Looper run; no second runtime tracker
 State: reviewing
 Dependency: approved preparation and controller preflight
 Branch: chore/rev-architecture-quality-01-foundation
-PR: pending
+PR: #15 - https://forge.adrianpk.com/rev/rev/pulls/15
+Implementation: 3c76d32116e739f26c51abe1e171bd39bb69c877
 Report: ops/default/report/slices/rev-architecture-quality/slice-1-foundation.md
 Validation: all five frozen focused commands passed locally; final clean-HEAD evidence required through Looper before handoff
 
