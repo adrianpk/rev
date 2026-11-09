@@ -48,6 +48,7 @@ impl Document {
         merge.shell(&mut self.shell, &later.shell);
         merge.git(&mut self.git, &later.git);
         merge.terminal(&mut self.terminal, &later.terminal);
+        merge.plugins(&mut self.plugins, &later.plugins);
         merge.headings(&mut self.org.headings, &later.org.headings);
         merge.leaf(
             &["org", "startup_folded"],

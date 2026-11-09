@@ -16,6 +16,21 @@ use super::{Input, Key, Outcome, Prefix};
 
 const STROKES: u8 = 16;
 
+/// Incomplete modal syntax can only wait for its sequence or report a message.
+/// Keep it independent of complete commands, whose qualified names are larger.
+pub(super) enum Deferred {
+    Sequence,
+    Message(&'static str),
+}
+impl From<Deferred> for Outcome {
+    fn from(value: Deferred) -> Self {
+        match value {
+            Deferred::Sequence => Self::Prefix(Prefix::Sequence),
+            Deferred::Message(message) => Self::Message(message),
+        }
+    }
+}
+
 /// Pending syntax is bounded and qualified by the exact native source point.
 #[derive(Debug, Default)]
 pub(super) struct Grammar {
@@ -145,7 +160,7 @@ impl Input {
         }
     }
 
-    pub(super) fn navigation_binding(&mut self, binding: Binding) -> Result<Binding, Outcome> {
+    pub(super) fn navigation_binding(&mut self, binding: Binding) -> Result<Binding, Deferred> {
         let count = self.grammar.count;
         match binding {
             Binding::Command(Command::Edit(mut request)) => {
@@ -160,7 +175,7 @@ impl Input {
                 let pending = self.grammar.operator.is_some() || count.is_some();
                 self.clear_sequence();
                 if pending {
-                    Err(Outcome::Message("Unsupported operator/count target"))
+                    Err(Deferred::Message("Unsupported operator/count target"))
                 } else {
                     Ok(binding)
                 }

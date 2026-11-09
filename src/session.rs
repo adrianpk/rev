@@ -14,6 +14,7 @@ mod completion;
 mod contexts;
 mod git;
 mod lsp;
+mod plugins;
 mod shell;
 mod status;
 mod terminals;
@@ -223,6 +224,7 @@ enum AfterSave {
 }
 
 enum Pending {
+    Plugin(crate::command::PluginCommand),
     MacroStepKey,
     MacroMenuPrompt(Box<macros::menu::Prompt>),
     MacroMenuConsent(Box<macros::menu::Consent>),
@@ -1137,6 +1139,8 @@ impl Session {
     fn dispatch(&mut self, command: Command) -> Action {
         self.navigation(command);
         match command {
+            Command::Plugin(command) => self.plugin_command(command),
+            Command::PluginDefined(name) => self.plugin_defined(name),
             Command::Quit => self.quit(),
             Command::FindFile => self.find_file(),
             Command::GenerateNewBuffer => self.generate_new_buffer(),

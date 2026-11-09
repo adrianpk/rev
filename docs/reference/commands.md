@@ -5,6 +5,8 @@ vertical selector with the full shared catalog, matching, history and argument
 workflow. Type canonical names; colon adds no Ex aliases, ranges or argument parser. Reported Alt/Meta and compatible Escape input
 follow the [terminal input policy](terminal-input.md). Command entry uses the
 same admitted command catalog and handlers as keyboard bindings.
+Experimental [plugin declarations](plugins.md) contribute qualified names and
+descriptions without starting programs; unavailable commands report their state.
 
 Cancelling a selector entered from Visual preserves the native selection only
 while its view, point, mark, source revision and shape remain valid. A changed
@@ -286,6 +288,7 @@ compiled M-x name once.
 
 | Group | Names |
 | --- | --- |
+| Experimental plugins | `plugin-list`, `plugin-activate`, `plugin-deactivate`, `plugin-restart` |
 | Optional server transport | `lsp-mode`, `lsp-status`, `lsp-connect`, `lsp-disconnect`, `lsp-restart`, `lsp-setup`, `lsp-reload-settings`, `lsp-servers`, `lsp-select-server`, `lsp-install-server`, `lsp-update-server`, `lsp-remove-server`, `lsp-cancel-installation` |
 | Native completion | `completion-at-point`, `completion-next`, `completion-previous`, `completion-accept`, `completion-cancel`, `completion-mode`, `completion-auto-mode` |
 | Command Prefix Arguments | `prefix-argument`, `universal-argument`, `digit-argument`, `negative-argument` |

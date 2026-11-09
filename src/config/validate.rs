@@ -49,6 +49,7 @@ fn checked_document(
     super::shell::validate(&document.shell)?;
     super::git::validate(&document.git, false)?;
     super::terminal::validate(&document.terminal)?;
+    super::plugins::validate(&document.plugins)?;
     completion_and_lsp(document)?;
     bookmarks(&document.bookmarks)?;
     integer("macros.ring_limit", document.macros.ring_limit, 1..=32)?;

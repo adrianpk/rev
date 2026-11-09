@@ -53,7 +53,9 @@ mod load;
 mod merge;
 mod palette;
 mod parse;
+mod plugins;
 mod project;
+pub use plugins::{PartialPlugins, Plugins};
 mod publication;
 mod resolve;
 mod startup;
@@ -103,6 +105,7 @@ pub struct Settings {
     pub shell: Shell,
     pub git: Git,
     pub terminal: Terminal,
+    pub plugins: Plugins,
     pub language: BTreeMap<String, Language>,
     pub keys: Keymaps,
     pub palette: Palette,
@@ -137,6 +140,7 @@ pub struct Document {
     pub shell: PartialShell,
     pub git: PartialGit,
     pub terminal: PartialTerminal,
+    pub plugins: PartialPlugins,
     pub language: BTreeMap<String, Language>,
     pub keys: Keymaps,
     pub palette: PartialPalette,

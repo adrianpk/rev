@@ -1,4 +1,4 @@
-use super::Character;
+use super::{Character, Deferred};
 use crate::command::editing::{Action, Object, Operand};
 use crate::command::navigation::Target;
 use crate::command::{Binding, Command, Editing, Navigation};
@@ -27,10 +27,11 @@ impl Input {
         self.wait(Prefix::Sequence)
     }
 
-    pub(super) fn editing_binding(&mut self, request: Editing) -> Result<Binding, Outcome> {
+    pub(super) fn editing_binding(&mut self, request: Editing) -> Result<Binding, Deferred> {
         if self.editing_state.visual().is_some() {
             if request.action.selects() {
-                return Err(self.expect_visual_object(request));
+                self.expect_visual_object(request);
+                return Err(Deferred::Sequence);
             }
             if request.pending() {
                 self.clear_prefix();
@@ -54,31 +55,35 @@ impl Input {
             self.clear_prefix();
             self.grammar.strokes = strokes;
             self.grammar.operator = Some(request);
-            return Err(self.wait(Prefix::Sequence));
+            self.wait(Prefix::Sequence);
+            return Err(Deferred::Sequence);
         }
         if request.action == Action::Replace && request.character.is_none() {
             self.grammar.character = Some(Character::Editing(request));
-            return Err(self.wait(Prefix::Sequence));
+            self.wait(Prefix::Sequence);
+            return Err(Deferred::Sequence);
         }
         self.clear_prefix();
         Ok(Binding::Command(Command::Edit(request)))
     }
 
-    pub(super) fn motion_binding(&mut self, mut request: Navigation) -> Result<Binding, Outcome> {
+    pub(super) fn motion_binding(&mut self, mut request: Navigation) -> Result<Binding, Deferred> {
         if let Some(mut operator) = self.grammar.operator {
             request.count = multiplied(operator.count, request.count)
                 .ok_or_else(|| self.grammar_failure("Modal count multiplication exceeds u32"))?;
             operator.count = request.count;
             if matches!(request.target, Target::Find(_)) {
                 self.grammar.operator = Some(operator);
-                return Err(self.expect_navigation(request));
+                self.expect_navigation(request);
+                return Err(Deferred::Sequence);
             }
             operator.operand = Some(Operand::Motion(request));
             self.clear_prefix();
             return Ok(Binding::Command(Command::Edit(operator)));
         }
         if matches!(request.target, Target::Find(_)) {
-            return Err(self.expect_navigation(request));
+            self.expect_navigation(request);
+            return Err(Deferred::Sequence);
         }
         self.clear_prefix();
         Ok(Binding::Command(Command::Navigate(request)))
@@ -89,18 +94,24 @@ impl Input {
         if let Some(around) = self.grammar.object {
             self.grammar.strokes += 1;
             if self.grammar.strokes > super::STROKES {
-                return Some(self.grammar_failure("Modal input exceeds 16 strokes"));
+                return Some(
+                    self.grammar_failure("Modal input exceeds 16 strokes")
+                        .into(),
+                );
             }
             let object = object(key, around);
             return Some(match object {
                 Some(object) => self.complete_object(operator, object),
-                None => self.grammar_failure("Unsupported text object"),
+                None => self.grammar_failure("Unsupported text object").into(),
             });
         }
         if matches!(key.plain(), Some(KeyCode::Char('i' | 'a'))) {
             self.grammar.strokes += 1;
             if self.grammar.strokes > super::STROKES {
-                return Some(self.grammar_failure("Modal input exceeds 16 strokes"));
+                return Some(
+                    self.grammar_failure("Modal input exceeds 16 strokes")
+                        .into(),
+                );
             }
             self.grammar.object = Some(key.plain() == Some(KeyCode::Char('a')));
             return Some(self.wait(Prefix::Sequence));
@@ -119,10 +130,10 @@ impl Input {
         Outcome::Command(Command::Edit(request))
     }
 
-    fn grammar_failure(&mut self, message: &'static str) -> Outcome {
+    fn grammar_failure(&mut self, message: &'static str) -> Deferred {
         self.clear_prefix();
         self.suppress_repeat = true;
-        Outcome::Message(message)
+        Deferred::Message(message)
     }
 }
 

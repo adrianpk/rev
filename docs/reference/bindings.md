@@ -12,6 +12,10 @@ Every command below is also available as `M-x` followed by its exact name.
 
 | Keys | Command | Result |
 | --- | --- | --- |
+| M-x plugin-list, :plugin-list | `plugin-list` | Inspect the passive experimental package inventory. |
+| M-x plugin-activate, :plugin-activate | `plugin-activate` | Select a package for activation; currently unavailable. |
+| M-x plugin-deactivate, :plugin-deactivate | `plugin-deactivate` | Inspect an inactive package without starting it. |
+| M-x plugin-restart, :plugin-restart | `plugin-restart` | Select a package for restart; currently unavailable. |
 | `M-x` | `execute-extended-command` | Find and invoke a command. |
 | `C-u` in non-modal or modal Insert/Replace | `prefix-argument` | Set an argument for the next command; repeated plain prefixes multiply by four. |
 | `C-u`, `M-x universal-argument` | `universal-argument` | Alias of prefix-argument with the same handler, description and effective shortcut. |

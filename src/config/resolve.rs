@@ -8,6 +8,7 @@ use super::{Diagnostic, Document, Editor, Grammar, Settings, Sources, project, v
 #[derive(Clone, Debug, Default, PartialEq)]
 pub struct Snapshot {
     settings: Settings,
+    plugins: std::sync::Arc<crate::plugins::declarations::Registry>,
     assets: crate::syntax::assets::Registry,
     keymaps: crate::input::keymap::Effective,
     sources: Vec<PathBuf>,
@@ -107,6 +108,11 @@ impl Snapshot {
         &self.keymaps
     }
 
+    /// Atomically admitted passive plugin metadata; access performs no I/O.
+    pub fn plugins(&self) -> &crate::plugins::declarations::Registry {
+        &self.plugins
+    }
+
     pub fn settings(&self) -> &Settings {
         &self.settings
     }
@@ -174,12 +180,24 @@ pub fn resolve(sources: &Sources) -> Result<Snapshot, Diagnostic> {
         failure_at(path, failure)
     })?;
     let settings = project::settings(&document);
+    let origin = origins
+        .get(&vec!["plugins".into(), "manifests".into()])
+        .map(|id| sources.sources[*id].path.as_path())
+        .unwrap_or(Path::new("config.toml"));
+    let plugins = crate::plugins::declarations::Registry::load(&settings.plugins, origin).map_err(
+        |error| {
+            let mut diagnostic = Diagnostic::new(&error.source, error.message);
+            diagnostic.key = vec!["plugins".into(), "manifests".into()];
+            diagnostic
+        },
+    )?;
     let root = super::Roots::from_env()
         .ok()
         .map(|roots| roots.data.join("grammars"));
     let assets = crate::syntax::assets::Registry::new(&settings.language, root);
     Ok(Snapshot {
         settings,
+        plugins: std::sync::Arc::new(plugins),
         assets,
         keymaps,
         sources: sources

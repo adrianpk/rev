@@ -1,6 +1,8 @@
 use crate::search::Direction;
 use navigation::{Find, Screen, Search, Target, Word};
 mod ai_name;
+mod plugins;
+pub use plugins::{PluginCommand, PluginName};
 mod argument;
 pub use argument::{ArgumentForm, PrefixArgument};
 mod binding;
@@ -58,6 +60,8 @@ pub use window::WindowCommand;
 /// Only commands with a working handler belong in the public registry.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum Command {
+    Plugin(PluginCommand),
+    PluginDefined(PluginName),
     Macro(MacroCommand),
     MacroNamed(MacroName),
     /// An anonymous session binding; absent from the named command inventory.
@@ -150,7 +154,11 @@ pub enum Command {
 }
 
 impl Command {
-    pub const ALL: [Self; 680] = [
+    pub const ALL: [Self; 684] = [
+        Self::Plugin(PluginCommand::List),
+        Self::Plugin(PluginCommand::Activate),
+        Self::Plugin(PluginCommand::Deactivate),
+        Self::Plugin(PluginCommand::Restart),
         Self::Macro(MacroCommand::StartOrCounter),
         Self::Macro(MacroCommand::Start),
         Self::Macro(MacroCommand::End),
@@ -850,7 +858,10 @@ impl Command {
     pub fn description(&self) -> Option<&'static str> {
         if matches!(
             self,
-            Self::AiDefined(_) | Self::MacroNamed(_) | Self::MacroBinding(_)
+            Self::AiDefined(_)
+                | Self::MacroNamed(_)
+                | Self::MacroBinding(_)
+                | Self::PluginDefined(_)
         ) {
             None
         } else {
@@ -864,6 +875,8 @@ impl Command {
             Self::MacroNamed(name) => name.name(),
             Self::MacroBinding(_) => "kmacro-bound-input",
             Self::AiDefined(name) => name.name(),
+            Self::PluginDefined(name) => name.name(),
+            Self::Plugin(command) => command.name(),
             Self::Navigate(request) => request.name(),
             Self::Edit(request) => request.name(),
             Self::Modal(command) => command.name(),
@@ -877,8 +890,12 @@ impl Command {
 
     fn builtin_description(&self) -> &'static str {
         match self {
+            Self::Plugin(command) => command.description(),
             Self::Macro(command) => command.description(),
-            Self::AiDefined(_) | Self::MacroNamed(_) | Self::MacroBinding(_) => {
+            Self::AiDefined(_)
+            | Self::MacroNamed(_)
+            | Self::MacroBinding(_)
+            | Self::PluginDefined(_) => {
                 unreachable!("user commands retain optional metadata")
             }
             Self::Navigate(request) => request.description(),

@@ -9,6 +9,10 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 
 ### Added
 
+- Inspect explicitly configured experimental plugins and find their qualified
+  commands in M-x and the modal selector without starting their programs.
+  Plugin activation and contributed keybindings remain unavailable.
+
 - Record native editing with F3 and finish with F4, then replay the last keyboard
   macro with F4 or C-x e. Positive prefix arguments repeat the recording;
   each replay iteration has its own undo unit. C-g stops playback while keeping

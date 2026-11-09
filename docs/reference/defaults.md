@@ -342,6 +342,18 @@ covers ignored legacy `bookmarks.marker` strings and explicit old palette colors
 | `ai.pi.max_input_bytes` | Integer 1..=4194304 | `1048576` | Complete encoded editor snapshot/instruction envelope. |
 | `ai.pi.max_result_bytes` | Integer 1..=1048576 | `262144` | Logical generated UTF-8 result limit, separate from protocol frame limits. |
 
+### Experimental plugin declarations
+
+| Setting | Type / bounds | Default | Meaning |
+| --- | --- | --- | --- |
+| `plugins.enabled` | Boolean | `false` | Admit the explicit local experimental package catalog; disabled startup reads no manifests. |
+| `plugins.manifests` | Array of 0..=64 local paths | `[]` | Replace the manifest list; resolve paths against the source assigning the array. |
+| `plugins.startup` | Array of 0..=8 distinct package IDs | `[]` | Explicit startup activation requests for declared packages; activation is currently unavailable. |
+| `plugins.keybindings` | Array of 0..=512 binding objects | `[]` | Explicit command, keys, context and scope with optional buffer selectors; currently passive. |
+
+See [experimental plugin declarations](plugins.md) for complete manifest,
+selector, limit and unavailable-handler contracts.
+
 ### Optional server transport
 
 | Key | Type and bounds | Default | Scope and effect |

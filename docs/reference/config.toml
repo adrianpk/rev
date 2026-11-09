@@ -42,6 +42,18 @@ max_process_record_bytes = 2097152 # Integer 65536..=16777216, at least max_outp
 # All Git capacities also share the fixed 32 MiB session admission budget.
 
 # Interactive terminals; loading preferences never launches a process.
+[plugins]
+# Boolean; enable the experimental passive local-package catalog.
+enabled = false
+# Explicit local manifests, relative to the configuration source assigning this array.
+# At most 64 paths; an empty array replaces inherited paths.
+manifests = []
+# At most 8 qualified package IDs; activation is unavailable in the passive catalog.
+startup = []
+# At most 512 explicit overrides; see the experimental plugin reference for fields.
+# Bindings are passive declarations until native contribution admission is available.
+keybindings = []
+
 [terminal]
 program = ""
 args = []

@@ -165,6 +165,7 @@ impl Session {
             Some(Pending::GitFixup(observation)) => self.git_fixup_argument(observation, &path),
             Some(Pending::TerminalRename(id)) => self.terminal_renamed(id, &path),
             Some(Pending::Shell(request)) => self.shell_argument(*request, &path),
+            Some(Pending::Plugin(command)) => self.plugin_argument(command, &path),
             Some(Pending::Ai(request)) => self.ai_argument(*request, &path),
             Some(Pending::AiSave(prompt)) => self.ai_save_argument(*prompt, &path),
             Some(Pending::AiDirectory) => self.ai_directory_argument(&path),

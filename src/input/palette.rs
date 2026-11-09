@@ -255,14 +255,17 @@ impl Input {
             .ai_commands
             .iter()
             .chain(&self.macro_commands)
+            .chain(&self.plugin_commands)
             .copied()
             .collect();
+        let mut descriptions = self.macro_descriptions.clone();
+        descriptions.extend(self.plugin_descriptions.clone());
         self.context = Context::Command(Palette::new(
             &self.policy,
             &commands,
             &self.command_usage.snapshot(),
             self.command_hints(),
-            self.macro_descriptions.clone(),
+            descriptions,
         )?);
         self.clear_sequence();
         Ok(())

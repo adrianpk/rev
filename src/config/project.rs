@@ -34,6 +34,7 @@ pub(super) fn settings(document: &Document) -> Settings {
     settings.shell = document.shell.project();
     settings.git = document.git.project();
     settings.terminal = document.terminal.project();
+    settings.plugins = document.plugins.project();
     scalar(&mut settings.org.enabled, document.org.enabled);
     scalar(&mut settings.org.indent, document.org.indent);
     scalar(

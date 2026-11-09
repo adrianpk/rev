@@ -650,8 +650,18 @@ fn catalog_reference() {
     }
     let specification = include_str!("../../ops/default/spec/editor-command-descriptions.md");
     let mut descriptions = std::collections::BTreeMap::new();
+    // The approved native baseline and plugin reference must cover every live
+    // command exactly once, with its complete description.
+    let plugin_reference = include_str!("../../docs/reference/plugins.md")
+        .split("## Native command metadata")
+        .nth(1)
+        .unwrap()
+        .split("## Admission limits")
+        .next()
+        .unwrap();
     for line in specification
         .lines()
+        .chain(plugin_reference.lines())
         .filter_map(|line| line.strip_prefix("| `"))
     {
         let (name, description) = line.split_once("` | ").unwrap();

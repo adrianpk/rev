@@ -177,6 +177,8 @@ pub struct Input {
     command_usage: crate::command::usage::History,
     shell_history: shell::History,
     ai_commands: Vec<Command>,
+    plugin_commands: Vec<Command>,
+    plugin_descriptions: std::collections::BTreeMap<String, String>,
     macro_commands: Vec<Command>,
     macro_descriptions: std::collections::BTreeMap<String, String>,
     macro_bindings: std::collections::BTreeMap<keymap::Sequence, Command>,
@@ -193,7 +195,21 @@ impl Input {
     /// Uses admitted context maps and session-local prompt/history bounds.
     /// The default constructor retains the compiled preferences.
     pub fn with_settings(settings: &crate::config::Snapshot) -> Self {
+        let mut plugin_commands = Vec::new();
+        let mut plugin_descriptions = std::collections::BTreeMap::new();
+        for package in settings.plugins().packages() {
+            for declaration in package.manifest.commands.iter() {
+                let id = package.manifest.plugin.id.command(&declaration.name);
+                let name =
+                    crate::command::PluginName::new(id.as_str()).expect("admitted plugin identity");
+                plugin_commands.push(Command::PluginDefined(name));
+                plugin_descriptions
+                    .insert(id.to_string(), declaration.description.as_str().to_owned());
+            }
+        }
         Self {
+            plugin_commands,
+            plugin_descriptions,
             ai_commands: settings
                 .settings()
                 .ai

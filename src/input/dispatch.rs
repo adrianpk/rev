@@ -51,7 +51,7 @@ impl Input {
         }
         let binding = match self.navigation_binding(binding) {
             Ok(binding) => binding,
-            Err(outcome) => return outcome,
+            Err(outcome) => return outcome.into(),
         };
         self.suppress_repeat |= continued || !self.binding_repeats(binding);
         self.context_binding(binding, key, custom)

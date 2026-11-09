@@ -50,16 +50,16 @@ Validation: all seven frozen commands passed through the controller validator on
 
 ## Slice 2: Passive declarations and configuration
 
-State: ready
+State: reviewing
 Dependency: Slice 1 integrated
 Branch: feat/rev-plugin-system-02-declarations
 PR: pending
 Report: ops/default/report/slices/rev-plugin-system/slice-2-declarations.md
-Validation: pending; exact ordered commands in the plan and controller configuration
+Validation: all seven ordered focused commands passed locally, plus 11 targeted modal regressions; see the Slice 2 report and controller candidate evidence.
 
-- [ ] T2.1: Add explicit opt-in plugins configuration, local manifest resolution, full passive declaration validation and complete reference/sample defaults without spawning unused programs.
-- [ ] T2.2: Expose plugin-list/activate/deactivate/restart metadata, qualified contributed commands and descriptions in native discovery; unavailable handlers report their state until activation exists.
-- [ ] T2.3: Exercise namespaces, atomic declaration admission, unknown fields, source-relative paths, profile isolation and dormant startup through real config/catalog boundaries.
+- [x] T2.1: Add explicit opt-in plugins configuration, local manifest resolution, full passive declaration validation and complete reference/sample defaults without spawning unused programs.
+- [x] T2.2: Expose plugin-list/activate/deactivate/restart metadata, qualified contributed commands and descriptions in native discovery; unavailable handlers report their state until activation exists.
+- [x] T2.3: Exercise namespaces, atomic declaration admission, unknown fields, source-relative paths, profile isolation and dormant startup through real config/catalog boundaries.
 
 ## Slice 3: Owned process lifecycle
 

@@ -108,6 +108,8 @@ impl Input {
         // The probe owns no persistence worker, live prompt, pending operator,
         // usage events or shell history. Only admitted maps and origin matter.
         Self {
+            plugin_commands: Vec::new(),
+            plugin_descriptions: Default::default(),
             macro_editing: self.macro_editing,
             logical_key: None,
             profile: self.profile,
