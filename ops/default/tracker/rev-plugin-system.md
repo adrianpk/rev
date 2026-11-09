@@ -233,12 +233,13 @@ Validation: all thirteen frozen commands passed locally on a15fb9c7e8eb2a2b85795
 
 ## Gate repair 1: Coherent peer artifacts
 
-Repair state: reviewing
+Repair state: delivered
 Failed integrated candidate: dee4c94dac5e5afa87cdfa1575e995290332acaf
 Branch: fix/rev-plugin-system-gate-1
 Expected PR title: fix(plugins): select coherent artifacts for plugin test peers
 PR: #14 - https://forge.adrianpk.com/rev/rev/pulls/14
 Implementation: 654bbd1eaf6a1cb17d3ab5ca777f3bc2bbaa907a
+Integrated: a79ae21f3728e9389330b281ab1becfaa9b76965 through canonical PR #14
 Report: ops/default/report/slices/rev-plugin-system/slice-13-acceptance.md
 
 The retained gate failure reproduces incompatible SDK/serde_json crate identities
@@ -246,8 +247,10 @@ from independent newest-rlib selection. Both fixture compilers now use one locke
 Cargo SDK artifact graph in a private reusable cache. Fresh and mixed-artifact
 focused native workflows passed, followed by all six required repair commands
 and all 86 plugin tests. The report records the optional pre-existing test-target
-Clippy warning. Exact final clean-HEAD evidence and canonical PR verification
-precede handoff; controller integration and the unchanged full gate remain pending.
+Clippy warning. All six required commands passed through the controller validator
+on final clean repair HEAD a79ae21f3728e9389330b281ab1becfaa9b76965, receipt
+TCROVFQNH5AGF4JJ6JVMHQ4LZB; canonical merge verified at that same commit.
+The unchanged integrated controller gate remains pending.
 
 ## Delivery-set acceptance and closure
 
@@ -258,7 +261,8 @@ precede handoff; controller integration and the unchanged full gate remain pendi
 - [ ] All reports delivered and permitted Markdown closure committed/pushed.
 
 Gate prerequisites verified: all thirteen canonical integrations, slice receipts
-and delivered reports; the PLG01-PLG12 evidence matrix; clean pushed independent
+and delivered reports; canonical repair PR #14 integration and its exact-HEAD
+receipt; the PLG01-PLG12 evidence matrix; clean pushed independent
 client 3365b84649919492ade7e80c63139b459b5ad923 and its executable acceptance
 runner; available Rust, Go, Bash and Spore tools. The frozen gate remains
 unchanged. Its new integrated candidate and final Markdown closure belong to

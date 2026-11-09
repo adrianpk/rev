@@ -169,10 +169,11 @@ the guide build does not publish a site.
 
 ### Gate repair 1: Coherent peer artifacts
 
-Repair status: reviewing
+Repair status: delivered
 Repair branch: `fix/rev-plugin-system-gate-1`
 Repair PR: #14 - https://forge.adrianpk.com/rev/rev/pulls/14
 Repair implementation: 654bbd1eaf6a1cb17d3ab5ca777f3bc2bbaa907a
+Repair integrated: a79ae21f3728e9389330b281ab1becfaa9b76965 through canonical PR #14
 Failed integrated candidate: dee4c94dac5e5afa87cdfa1575e995290332acaf
 Retained diagnostic: G5JH7N2T4RYIIO3MN6WJLM6PWX
 
@@ -198,9 +199,11 @@ took 86.28 seconds. The SDK-only cache has its own initial compilation cost,
 then Cargo reuses its artifacts. Child activation deadlines start after fixture
 compilation. No gate command or limit was changed.
 
-All six required repair commands passed locally. Fresh exact clean-HEAD evidence
-is recorded through the controller validator after the repair PR references are
-committed. Required repair commands:
+All six required repair commands passed locally and through the controller
+validator on final clean repair HEAD a79ae21f3728e9389330b281ab1becfaa9b76965,
+receipt TCROVFQNH5AGF4JJ6JVMHQ4LZB. Canonical PR #14 is merged into dev at
+that same commit. This is repair-validation evidence; the unchanged integrated
+controller gate remains pending. Required repair commands:
 
 1. `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo fmt --all -- --check`
 2. `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo clippy --locked --workspace --lib --bins -- -D warnings`
@@ -214,8 +217,7 @@ Additional focused command passed twice, including the mixed-artifact case:
 An optional `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo clippy --locked -p rev --test plugins -- -D warnings`
 reported the pre-existing nested-format warning in the unchanged configuration
 fixture. The required workspace library/binary Clippy selection passed.
-Controller repair integration, the unchanged full gate and delivery closure
-remain pending.
+The unchanged full gate and delivery closure remain pending with the controller.
 
 ## Risks and Follow-ups
 
