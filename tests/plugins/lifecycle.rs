@@ -306,7 +306,7 @@ fn lazy_profiles() {
         let offers = lines(&editor.path("offers"));
         assert_eq!(
             offers[0]["capabilities"],
-            serde_json::json!(["commands", "buffers", "display"])
+            serde_json::json!(["commands", "buffers", "display", "edits"])
         );
     }
 }

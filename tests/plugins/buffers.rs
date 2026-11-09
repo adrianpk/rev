@@ -7,12 +7,12 @@ use rev::{
 use serde_json::{Value, json};
 use std::fs;
 
-struct Rpc {
-    editor: Editor,
+pub(super) struct Rpc {
+    pub(super) editor: Editor,
     sequence: usize,
 }
 impl Rpc {
-    fn new(profile: &str) -> Self {
+    pub(super) fn new(profile: &str) -> Self {
         let mut editor = Editor::new(profile, "buffers", "", true);
         editor.wait(|e| e.status().state == State::Active);
         Self {
@@ -20,13 +20,17 @@ impl Rpc {
             sequence: 0,
         }
     }
-    fn request(&mut self, method: &str, params: Value) -> Value {
+    pub(super) fn enqueue(&mut self, method: &str, params: Value) -> usize {
         let seq = self.sequence;
         self.sequence += 1;
         let path = self.editor.path(&format!("request-{seq}"));
         let temp = self.editor.path("request-tmp");
         fs::write(&temp, format!("{}\n", json!({"jsonrpc":"2.0","id":format!("buffer-request-{seq}"),"method":method,"params":params}))).unwrap();
         fs::rename(temp, path).unwrap();
+        seq
+    }
+    pub(super) fn request(&mut self, method: &str, params: Value) -> Value {
+        let seq = self.enqueue(method, params);
         self.editor
             .wait(|e| e.path(&format!("response-{seq}")).exists());
         let value: Value = serde_json::from_slice(
@@ -36,17 +40,17 @@ impl Rpc {
         assert_eq!(value["id"], format!("buffer-request-{seq}"));
         value
     }
-    fn ok(&mut self, method: &str, params: Value) -> Value {
+    pub(super) fn ok(&mut self, method: &str, params: Value) -> Value {
         let response = self.request(method, params);
         assert!(response.get("error").is_none(), "{response}");
         response["result"].clone()
     }
-    fn error(&mut self, method: &str, params: Value, kind: &str) {
+    pub(super) fn error(&mut self, method: &str, params: Value, kind: &str) {
         let response = self.request(method, params);
         assert_eq!(response["error"]["data"]["kind"], kind, "{response}");
         assert_eq!(response["error"]["data"]["request"], response["id"]);
     }
-    fn list(&mut self) -> Vec<Value> {
+    pub(super) fn list(&mut self) -> Vec<Value> {
         let mut cursor = Value::Null;
         let mut buffers = Vec::new();
         loop {
@@ -62,7 +66,7 @@ impl Rpc {
             assert!(buffers.len() < 20, "continuation must progress");
         }
     }
-    fn switch(&mut self, name: &str) {
+    pub(super) fn switch(&mut self, name: &str) {
         self.editor
             .session
             .execute(Command::Buffer(BufferCommand::Switch));
@@ -73,11 +77,11 @@ impl Rpc {
         )));
     }
 }
-fn source(rpc: &mut Rpc) -> Value {
+pub(super) fn source(rpc: &mut Rpc) -> Value {
     let name = rpc.editor.session.buffer().unwrap().name().to_owned();
     rpc.list().into_iter().find(|b| b["name"] == name).unwrap()
 }
-fn create(rpc: &mut Rpc, name: &str, text: &str, read_only: bool) -> Value {
+pub(super) fn create(rpc: &mut Rpc, name: &str, text: &str, read_only: bool) -> Value {
     rpc.ok(
         "buffers.create",
         json!({"name":name,"text":text,"read_only":read_only}),
@@ -343,7 +347,7 @@ fn unsupported_resources() {
             .any(|b| b["stamp"]["buffer"]["id"] == format!("buffer-{terminal}"))
     );
     rpc.error("buffers.save", json!({}), "unsupported_method");
-    rpc.error("edits.apply", json!({}), "unsupported_method");
+    rpc.error("events.subscribe", json!({}), "unsupported_method");
 }
 
 // The byte ceiling is checked on a native scalar slice before copying it. Large

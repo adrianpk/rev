@@ -12,3 +12,6 @@ mod lifecycle;
 
 #[path = "plugins/buffers.rs"]
 mod buffers;
+
+#[path = "plugins/transactions.rs"]
+mod transactions;

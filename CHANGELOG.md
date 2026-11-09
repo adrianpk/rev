@@ -15,8 +15,10 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
   triggers, then inspect, cancel, deactivate or restart their owned processes
   while continuing to edit. Packages can read hidden and unsaved text, open
   files, create ordinary result buffers and display them in native panes.
-  Result text survives package deactivation. Contributed keybindings, source
-  edits and package-requested saves remain unavailable.
+  Result text survives package deactivation. Packages can change several buffers
+  in one checked batch; an invalid or stale target refuses the whole change.
+  Undo and redo remain local to each buffer. Contributed keybindings and
+  package-requested saves remain unavailable.
 
 - Record native editing with F3 and finish with F4, then replay the last keyboard
   macro with F4 or C-x e. Positive prefix arguments repeat the recording;

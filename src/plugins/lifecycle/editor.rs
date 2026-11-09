@@ -25,12 +25,14 @@ pub(crate) enum Operation {
     Describe(BufferParams),
     Read(BuffersReadParams),
     Show(BuffersShowParams),
+    Apply(EditsApplyParams),
 }
 pub(crate) enum Reply {
     List(BuffersListResult),
     Descriptor(BufferDescriptor),
     Read(BuffersReadResult),
     Show(BuffersShowResult),
+    Applied(EditsApplyResult),
     Load(file::Location),
 }
 impl Reply {
@@ -40,6 +42,7 @@ impl Reply {
             Self::Descriptor(v) => serde_json::to_value(v),
             Self::Read(v) => serde_json::to_value(v),
             Self::Show(v) => serde_json::to_value(v),
+            Self::Applied(v) => serde_json::to_value(v),
             Self::Load(_) => unreachable!("file preparation precedes wire encoding"),
         }
         .expect("finite typed editor result")
@@ -107,6 +110,7 @@ pub(super) fn decode(request: &rev_plugin_sdk::rpc::Request) -> Result<Operation
         BuffersDescribe::NAME => Operation::Describe(params(&request.params)?),
         BuffersRead::NAME => Operation::Read(params(&request.params)?),
         BuffersShow::NAME => Operation::Show(params(&request.params)?),
+        EditsApply::NAME => Operation::Apply(params(&request.params)?),
         _ => return Err(RpcError::application(ErrorKind::UnsupportedMethod)),
     })
 }

@@ -155,6 +155,16 @@ impl Windows {
         })
     }
 
+    /// Recheck complete membership, points and source viewport captures before
+    /// a batch commits its first buffer. No target follows the selected pane.
+    pub(crate) fn check_points(&self, buffer: &Buffer, points: &Points) -> Result<(), Error> {
+        let current = self.capture_points(buffer)?;
+        if current.members != points.members || current.values != points.values {
+            return Err(Error::ChangedPositions);
+        }
+        Ok(())
+    }
+
     /// Finish every fallible position map before the buffer publishes text.
     pub(crate) fn publish(
         &mut self,

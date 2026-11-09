@@ -95,16 +95,16 @@ Validation: all eight frozen commands passed locally; fresh focused validation p
 
 ## Slice 5: Atomic edits and history
 
-State: ready
+State: reviewing
 Dependency: Slice 4 integrated
 Branch: feat/rev-plugin-system-05-transactions
 PR: pending
 Report: ops/default/report/slices/rev-plugin-system/slice-5-transactions.md
-Validation: pending; exact ordered commands in the plan and controller configuration
+Validation: all eight frozen commands passed locally; 39 combined plugin tests, eight focused native edit/coordinator tests and standalone fixture formatting passed. Final clean-HEAD controller evidence precedes handoff.
 
-- [ ] T5.1: Implement prepare-all/publish-all native coordination, including every history/view reservation, complete stamp rechecks and infallible final publication.
-- [ ] T5.2: Apply bounded scalar replacements across explicitly captured targets with one native undo unit per buffer and no implicit saving or cross-buffer undo.
-- [ ] T5.3: Prove no partial source/revision/history/view changes for invalid, stale, closed, read-only, overlapping and late-canceled batches; exercise real undo/redo and completion invalidation.
+- [x] T5.1: Implement prepare-all/publish-all native coordination, including every history/view reservation, complete stamp rechecks and infallible final publication.
+- [x] T5.2: Apply bounded scalar replacements across explicitly captured targets with one native undo unit per buffer and no implicit saving or cross-buffer undo.
+- [x] T5.3: Prove no partial source/revision/history/view changes for invalid, stale, closed, read-only, overlapping and late-canceled batches; exercise real undo/redo and completion invalidation.
 
 ## Slice 6: Native invocation and file lifecycle
 

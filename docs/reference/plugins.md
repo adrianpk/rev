@@ -146,9 +146,10 @@ in that package's admitted manifest, with distinct command and handler IDs.
 A declared command with no accepted handler reports command_unavailable.
 
 The commands capability enables host-to-package command.invoke and command.cancel.
-The buffers and display capabilities enable the six native operations below.
-Package-to-host command invocation, edits, save/close, bindings, events, messages
-and state operations still return correlated unsupported_method errors. Requests before
+The buffers and display capabilities enable the six native buffer operations
+below. The edits capability enables checked edits.apply batches. Package-to-host
+command invocation, save/close, bindings, events, messages and state operations
+still return correlated unsupported_method errors. Requests before
 initialization return unsupported_invocation. An incompatible acknowledgement,
 malformed or oversized stdout, EOF, process exit or deadline retires the generation.
 Stdout is protocol-only. Stderr is a byte-bounded diagnostic ring; display replaces
@@ -236,8 +237,46 @@ terminal/tree focus, retained source interactions and macro replay refuse show
 with unsupported_invocation instead of transferring their input ownership.
 Pass the invocation's captured pane to target that original pane after focus
 changes. Reads and creation do not change the selected source or open a prompt.
-Open/create return busy while native departure or context publication has frozen
+Open/create/edit return busy while native departure or context publication has frozen
 its source set; reads and listing remain available during those decisions.
+
+## Atomic source edits
+
+edits.apply takes an operation ID, targets and causal origin. Each target contains
+its captured stamp (session-qualified buffer and expected source revision) and
+ordered, disjoint half-open scalar replacements. Equal starts, overlapping ranges,
+duplicate targets, empty replacements/targets and invalid coordinates are refused.
+The request admits at most 16 buffers, 256 replacements across all targets and
+512 KiB of replacement UTF-8 bytes in total. The origin package is null or the
+connected package; a foreign package returns namespace_conflict. Causal depth is
+bounded by the negotiated profile.
+
+The native coordinator prepares every source candidate, history reservation,
+point, mark, live source anchor and shared-view viewport before publication. It
+then rechecks all sources and view membership and checks request authority at one
+serialized publication boundary. Missing/closed or foreign handles, unsupported
+resources, read-only targets, stale revisions, invalid ranges, capacity failure
+or cancellation publish none of the batch. History and redo contents, modified
+state, marks and views remain unchanged by a refused request.
+
+The commit phase consumes reserved native state and has no recoverable partial
+failure path. Each target receives one ordinary buffer-local undo unit, including
+all its replacements. Undo or redo in one buffer does not replay another buffer.
+The result echoes the operation ID and returns new stamps in target order;
+this ID correlates the batch and does not imply a cross-buffer undo command.
+
+Targets stay independent of active focus. Hidden/unsaved ordinary text is editable;
+terminal and generated/transient resources return unsupported_resource. Existing
+native views and anchors map through the replacements without selecting another
+pane. Native observers receive publication only after every target and its views
+are committed. Revision-bound completion and resolve work is invalidated after
+success; rejected batches preserve a still-current completion.
+
+Native departure/context publication returns busy for a new edit batch once its
+source set has been frozen. Active macro recording/replay also returns busy until
+semantic package-call integration is available. Queued retired/expired requests
+cannot publish; cancellation after an already committed batch does not reverse
+that batch. Creating, editing and undoing text never imply saving a file.
 
 ## Admission limits
 
@@ -253,6 +292,7 @@ its source set; reads and listing remain available during those decisions.
 | Pending RPC requests | 16 per package; 64 per editor across both directions, including initialization waits, native queues and prepared replies |
 | UTF-8 frame / outbound bytes | 4 MiB per frame and package queue; 16 MiB queued per editor |
 | Text read or create / list page | 512 KiB UTF-8 / 256 descriptors |
+| One edit batch | 16 buffers; 256 total replacements; 512 KiB total replacement UTF-8 bytes |
 | New-file ingress | 16 MiB per file and aggregate retained ingress |
 | Startup / RPC deadline | 5 seconds / 60 seconds |
 | TERM grace / force-reap observation | 2 seconds / 2 seconds |

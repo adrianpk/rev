@@ -5,6 +5,7 @@ use crate::plugins::lifecycle::{Host, Inspection, Service};
 use rev_plugin_sdk::identity::{Revision, ScalarRange, Stamp};
 mod activation;
 mod buffers;
+mod transactions;
 
 #[derive(Default)]
 pub(super) struct Work {

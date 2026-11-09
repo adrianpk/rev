@@ -1,5 +1,6 @@
-//! Synchronous at-most-two-source publication. All recoverable history and
-//! position admission finishes before any participating canonical text changes.
+//! Native source publication. Retained special edits and clocks use the
+//! two-source path below; the atomic coordinator reserves complete edit batches.
+mod atomic;
 use super::Session;
 use crate::{
     buffer::{
@@ -8,6 +9,7 @@ use crate::{
     },
     window::{Points, Windows},
 };
+pub(super) use atomic::{Atomic, Failure as AtomicFailure};
 pub(super) struct PreparedSource {
     pub(super) id: BufferId,
     prepared: Prepared,

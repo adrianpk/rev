@@ -41,7 +41,7 @@ impl Session {
             request.complete(result);
         }
     }
-    fn plugin_buffer(&self, handle: &Handle) -> Result<BufferId, RpcError> {
+    pub(super) fn plugin_buffer(&self, handle: &Handle) -> Result<BufferId, RpcError> {
         if !self.plugins.host.owns(handle) {
             return Err(error(ErrorKind::MissingBuffer));
         }
@@ -103,7 +103,10 @@ impl Session {
     ) -> Result<Reply, RpcError> {
         if matches!(
             &operation,
-            Operation::Open(_) | Operation::Install(_, _) | Operation::Create(_)
+            Operation::Open(_)
+                | Operation::Install(_, _)
+                | Operation::Create(_)
+                | Operation::Apply(_)
         ) && (self.context_storage.locked()
             || self.context_prepared.is_some()
             || self.quit_pending())
@@ -238,6 +241,7 @@ impl Session {
                 }))
             }
             Operation::Show(params) => self.plugin_show(request, params),
+            Operation::Apply(params) => self.plugin_edits(request, params),
         }
     }
     fn plugin_show(

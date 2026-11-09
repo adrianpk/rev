@@ -10,6 +10,8 @@ mod mapping;
 pub(crate) use macro_lines::{
     LINE_LIMIT as MACRO_LINE_LIMIT, MacroLines, WeakLines as WeakMacroLines,
 };
+mod publication;
+pub(crate) use publication::ReservedEdit;
 mod observe;
 pub(crate) use observe::{Observer, Published};
 mod reload;
@@ -388,62 +390,11 @@ impl Buffer {
                     .sum(),
             )?;
         }
-        let observation = self
-            .observer
-            .as_ref()
-            .filter(|observer| observer.active())
-            .map(|_| Published::capture(&self.text, &prepared.text, &prepared.record));
-        // Queue admission completes before any text or live position changes.
-        let before = prepared.record.before;
-        let after = prepared.record.after;
-        let state = prepared.record.after_state;
-        let bom = prepared.record.after_bom;
-        let mark = prepared.record.after_mark;
-        let after_points = prepared.record.after_points.clone();
-        let after_bookmarks = prepared.record.after_bookmarks.clone();
-        let after_locations = prepared.record.after_locations.clone();
-        let changed = prepared
-            .record
-            .changes
-            .first()
-            .map_or(0, |change| change.before.start);
-        self.record(prepared.record, prepared.operation, prepared.group)?;
-        // Canonical state updates below are infallible. Optional observations run
-        // only after every canonical text, point and anchor has been published.
-        self.syntax.edit(before, after, &prepared.syntax);
-        self.edit_org(before, after, &prepared.syntax);
-        self.coordinates
-            .lock()
-            .expect("coordinate cache poisoned")
-            .retain_prefix(before, after, crate::coordinates::Scalar(changed));
-        self.text = prepared.text;
-        self.crlf = prepared.crlf;
-        self.revision = after.revision;
-        self.state = state;
-        self.bom = bom;
-        self.next_state = prepared.next_state;
-        self.mark = mark;
-        self.mark_mode = super::region::Mode::Inactive;
-        points.copy_from_slice(&after_points);
-        self.bookmarks
-            .lock()
-            .expect("bookmark owner poisoned")
-            .publish_anchors(after, &after_bookmarks);
-        self.locations
-            .lock()
-            .expect("location owner poisoned")
-            .publish(after, &after_locations);
-        macro_lines::publish(prepared.macro_lines, after);
-        self.typing = match prepared.operation {
-            Operation::Typing => Some(after),
-            _ => None,
-        };
-        // Optional observation follows the complete, irreversible publication.
-        if let Some(observation) = observation
-            && let Some(observer) = &self.observer
-        {
-            observer.published(observation);
-        }
+        let (publication, record, operation, group) =
+            publication::Publication::prepare(self, prepared);
+        self.record(record, operation, group)?;
+        let observation = self.install(publication, points);
+        self.notify_publication(observation);
         Ok(())
     }
 
@@ -459,26 +410,41 @@ impl Buffer {
         } else {
             self.admit(prepared.record.before)?;
         }
-        if points != prepared.record.before_points
-            || self.mark != prepared.record.before_mark
-            || self.mark_mode != prepared.active
-        {
-            return Err(Error::ChangedPositions);
-        }
-        self.admit_anchors(prepared)?;
-        macro_lines::admit(self, &prepared.macro_lines)?;
+        self.check_positions(
+            &prepared.record,
+            prepared.active,
+            &prepared.macro_lines,
+            points,
+        )?;
         self.admit_group(prepared)?;
         self.reserve(prepared.operation)?;
         Ok(())
     }
 
-    fn admit_anchors(&self, prepared: &Prepared) -> Result<(), Error> {
+    fn check_positions(
+        &self,
+        record: &Transaction,
+        active: super::region::Mode,
+        mapped: &[macro_lines::Mapped],
+        points: &[Point],
+    ) -> Result<(), Error> {
+        if points != record.before_points
+            || self.mark != record.before_mark
+            || self.mark_mode != active
+        {
+            return Err(Error::ChangedPositions);
+        }
+        self.admit_anchors(record)?;
+        macro_lines::admit(self, mapped)
+    }
+
+    fn admit_anchors(&self, record: &Transaction) -> Result<(), Error> {
         if self
             .bookmarks
             .lock()
             .expect("bookmark owner poisoned")
             .anchors(self.stamp())?
-            != prepared.record.before_bookmarks
+            != record.before_bookmarks
         {
             return Err(Error::ChangedPositions);
         }
@@ -487,7 +453,7 @@ impl Buffer {
             .lock()
             .expect("location owner poisoned")
             .anchors(self.stamp())?
-            != prepared.record.before_locations
+            != record.before_locations
         {
             return Err(Error::ChangedPositions);
         }
