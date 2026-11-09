@@ -9,7 +9,7 @@ Planning baseline: abbf0c21eeae1680c02c7a477fa0894d7996a393
 Specification: [Architecture Quality and Commit Checks](../spec/editor-architecture-quality.md)
 Review: [Architecture and Ownership Nit Review](../report/rev-architecture-nit-review.md)
 Concern: [Pending Editor Work](../README.md)
-Active slice: Slice 2 - Plugin and SDK ownership
+Active slice: Slice 3 - Core editing and projection
 Plan: [Architecture Quality Delivery](../plan/rev-architecture-quality.md)
 Execution authorized: one ten-slice Looper run, automatic canonical integration into dev and local hook setup
 Progress owner: selected Looper run; no second runtime tracker
@@ -48,14 +48,15 @@ Validation: all five frozen commands passed through Looper on clean published HE
 
 ## Slice 2: Plugin and SDK ownership
 
-State: reviewing
+State: delivered
 Dependency: Slice 1 integrated
 Branch: refactor/rev-architecture-quality-02-plugins
 PR: #16 - https://forge.adrianpk.com/rev/rev/pulls/16
 Implementation: 6b5abf5e3c61e9d7fc4e6ad99cf4d4b409b6683f
 Report: ops/default/report/slices/rev-architecture-quality/slice-2-plugins.md
 Progress: all SDK/native/session-plugin owners pass the frozen quality selection
-Validation: all five frozen commands passed on the working candidate; final published-HEAD Looper evidence required before handoff
+Integrated: 2ff6786409c13793f0e1665ccf153fe72d8a2f42 through canonical PR #16
+Validation: all five frozen commands passed through Looper on clean published HEAD 2ff6786409c13793f0e1665ccf153fe72d8a2f42
 
 - [x] T2.1: Resolve F4 by separating encoded request payload ownership from pending correlation while preserving permits, deadlines, captured context, causal propagation and exactly-once completion.
 - [x] T2.2: Resolve F5 without duplicating keymap observations on unchanged cache hits; complete SDK error/panic contracts, selected ownership/conversion diagnostics and existing source bounds in SDK/plugin owners.
@@ -63,7 +64,7 @@ Validation: all five frozen commands passed on the working candidate; final publ
 
 ## Slice 3: Core editing and projection
 
-State: planned
+State: in progress
 Dependency: Slice 2 integrated
 Branch: refactor/rev-architecture-quality-03-core
 PR: pending

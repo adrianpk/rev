@@ -1,12 +1,13 @@
 # Slice 2: Plugin and SDK ownership
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-architecture-quality
 Plan: [Architecture Quality Delivery](../../../plan/rev-architecture-quality.md)
 Tracker: [Architecture Quality Tracker](../../../tracker/rev-architecture-quality.md)
 Branch: `refactor/rev-architecture-quality-02-plugins`
 PR: #16 - https://forge.adrianpk.com/rev/rev/pulls/16
 Implementation: 6b5abf5e3c61e9d7fc4e6ad99cf4d4b409b6683f
+Integrated: 2ff6786409c13793f0e1665ccf153fe72d8a2f42 through canonical PR #16
 
 ## Purpose
 
@@ -131,8 +132,9 @@ pages, 743 local links/anchors, 684 commands and 299 configuration entries.
 The three state publication-fault, substitution and version-exhaustion unit cases
 also passed during the native owner refactor.
 
-Exact final clean-HEAD validation through the controller's validate command is
-required after the PR-reference commit and push, before the worker handoff.
+All five frozen commands also passed once through the controller's validate
+command on clean published HEAD 2ff6786409c13793f0e1665ccf153fe72d8a2f42.
+Canonical PR #16 merged that exact head into dev.
 
 ## Risks and Follow-ups
 
