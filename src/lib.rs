@@ -20,6 +20,7 @@ pub mod lsp;
 pub mod macros;
 pub mod org;
 pub mod panel;
+pub mod plugins;
 pub mod pointer;
 mod process;
 pub mod rectangle;

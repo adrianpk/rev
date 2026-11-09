@@ -1,6 +1,6 @@
 # Plugin System Tracker
 
-Status: Ready
+Status: In progress
 Date: 2026-11-09
 Delivery set: rev-plugin-system
 Approved: owner approved host/API implementation and delegated remaining experimental engineering choices
@@ -35,16 +35,16 @@ Progress owner: selected Looper run; no second runtime tracker
 
 ## Slice 1: Protocol and Rust SDK
 
-State: ready
+State: reviewing
 Dependency: approved preparation and controller preflight
 Branch: feat/rev-plugin-system-01-protocol
 PR: pending
 Report: ops/default/report/slices/rev-plugin-system/slice-1-protocol.md
-Validation: pending; exact ordered commands in the plan and controller configuration
+Validation: all seven ordered focused commands passed locally; see the Slice 1 report and controller candidate evidence.
 
-- [ ] T1.1: Publish complete JSON-RPC/NDJSON envelopes, handshake directions, method/error schemas, qualified IDs, scalar units and finite admission types in an independent public SDK crate.
-- [ ] T1.2: Add the Cargo workspace and SDK version/license without changing editor release identity; implement bounded client transport/correlation using existing dependencies and normal Rust ownership.
-- [ ] T1.3: Create native protocol fixtures and SDK roundtrips for malformed, fragmented, oversize, Unicode and unsupported-version traffic; advertise no unimplemented host capability.
+- [x] T1.1: Publish complete JSON-RPC/NDJSON envelopes, handshake directions, method/error schemas, qualified IDs, scalar units and finite admission types in an independent public SDK crate.
+- [x] T1.2: Add the Cargo workspace and SDK version/license without changing editor release identity; implement bounded client transport/correlation using existing dependencies and normal Rust ownership.
+- [x] T1.3: Create native protocol fixtures and SDK roundtrips for malformed, fragmented, oversize, Unicode and unsupported-version traffic; advertise no unimplemented host capability.
 
 ## Slice 2: Passive declarations and configuration
 

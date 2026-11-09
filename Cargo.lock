@@ -455,6 +455,7 @@ version = "0.6.0"
 dependencies = [
  "alacritty_terminal",
  "crossterm",
+ "rev-plugin-sdk",
  "ropey",
  "rustix",
  "serde",
@@ -475,6 +476,14 @@ dependencies = [
  "tree-sitter-typescript",
  "unicode-segmentation",
  "unicode-width",
+]
+
+[[package]]
+name = "rev-plugin-sdk"
+version = "0.1.0"
+dependencies = [
+ "serde",
+ "serde_json",
 ]
 
 [[package]]
