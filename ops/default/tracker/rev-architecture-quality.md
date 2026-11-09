@@ -83,7 +83,8 @@ Validation: all four frozen commands passed through Looper on clean published HE
 State: reviewing
 Dependency: Slice 3 integrated
 Branch: refactor/rev-architecture-quality-04-storage
-PR: pending
+PR: #18 - https://forge.adrianpk.com/rev/rev/pulls/18
+Implementation: 9417c9276874476408cc9d698b9287d903995ec7
 Report: ops/default/report/slices/rev-architecture-quality/slice-4-storage.md
 Progress: scoped Clippy and source bounds pass for 81 files; all 378 native integration cases and documentation checks pass
 Validation: four frozen commands passed during implementation; final clean published PR-reference HEAD requires ordered Looper evidence

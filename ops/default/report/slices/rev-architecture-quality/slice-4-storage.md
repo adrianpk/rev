@@ -5,7 +5,8 @@ Delivery set: rev-architecture-quality
 Plan: [Architecture Quality Delivery](../../../plan/rev-architecture-quality.md)
 Tracker: [Architecture Quality Tracker](../../../tracker/rev-architecture-quality.md)
 Branch: `refactor/rev-architecture-quality-04-storage`
-PR: pending
+PR: #18 - https://forge.adrianpk.com/rev/rev/pulls/18
+Implementation: 9417c9276874476408cc9d698b9287d903995ec7
 
 ## Purpose
 
@@ -86,6 +87,13 @@ readonly sources, partial/uncertain writes, concurrent/stale publishers, private
 path substitution, damaged sessions, Project/Workspace boundaries and watch
 retirement. Test inputs, assertions, deadlines and resource limits are retained.
 Documentation passes for 106 reachable pages and 743 local links/anchors.
+
+An additional implementation check passed all 185 library tests, including the
+private workspace-identity, bookmark-index and bounded-rescan regressions:
+
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --lib -- --test-threads=1`
+
+These implementation checks precede the final PR-reference validation.
 
 ## Risks and Follow-ups
 
