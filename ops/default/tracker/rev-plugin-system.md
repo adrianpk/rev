@@ -38,8 +38,9 @@ Progress owner: selected Looper run; no second runtime tracker
 State: reviewing
 Dependency: approved preparation and controller preflight
 Branch: feat/rev-plugin-system-01-protocol
-PR: pending
+PR: #1 - https://forge.adrianpk.com/rev/rev/pulls/1
 Report: ops/default/report/slices/rev-plugin-system/slice-1-protocol.md
+Implementation: bdaef1028c743fab1b2180f9d2a0bed9216df80d
 Validation: all seven ordered focused commands passed locally; see the Slice 1 report and controller candidate evidence.
 
 - [x] T1.1: Publish complete JSON-RPC/NDJSON envelopes, handshake directions, method/error schemas, qualified IDs, scalar units and finite admission types in an independent public SDK crate.

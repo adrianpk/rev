@@ -5,7 +5,7 @@ Delivery set: rev-plugin-system
 Plan: [Plugin System Delivery](../../../plan/rev-plugin-system.md)
 Tracker: [Plugin System Tracker](../../../tracker/rev-plugin-system.md)
 Branch: `feat/rev-plugin-system-01-protocol`
-PR: pending
+PR: `#1`
 
 ## Purpose
 
@@ -30,6 +30,10 @@ an independent Rust client SDK before executable host capabilities are admitted.
   contains no host capabilities.
 
 ## Implementation Notes
+
+Implementation: `bdaef1028c743fab1b2180f9d2a0bed9216df80d` implements T1.1-T1.3
+and introduces this report. Canonical
+[PR #1](https://forge.adrianpk.com/rev/rev/pulls/1) targets dev.
 
 The SDK depends only on the existing pinned serde and serde_json versions. Its
 package version and GPL-3.0-only license are independent of the unchanged editor
