@@ -94,4 +94,3 @@ the tutorial names the required readiness and monotonic-deadline extension.
 Experimental consumers must pin compatible editor/SDK sources. Independent Go
 interoperability and joint delivery acceptance remain Slice 13; the controller
 owns integration, the full gate and successor startup.
-
