@@ -8,7 +8,7 @@ Planning baseline: a398dcb77dd0ce036d989f038068ac942fc68ebd
 Specification: [Plugin System](../spec/editor-plugin-system.md)
 Model: [Plugin Identity, Protocol and State](../spec/editor-plugin-system-model.md)
 Concern: [Pending Editor Work](../README.md)
-Active slice: Slice 3 - Owned process lifecycle
+Active slice: Slice 4 - Independent text buffers
 Execution authorized: one thirteen-slice Looper run with automatic integration into dev
 Plan: [Plugin System Delivery](../plan/rev-plugin-system.md)
 Progress owner: selected Looper run; no second runtime tracker
@@ -65,13 +65,14 @@ Validation: all seven frozen commands passed through the controller validator on
 
 ## Slice 3: Owned process lifecycle
 
-State: reviewing
+State: delivered
 Dependency: Slice 2 integrated
 Branch: feat/rev-plugin-system-03-lifecycle
 PR: #3 - https://forge.adrianpk.com/rev/rev/pulls/3
 Report: ops/default/report/slices/rev-plugin-system/slice-3-lifecycle.md
 Implementation: 71857f4a05786909e1d7beb58d8845b2f0cccc05
-Validation: all seven frozen ordered commands passed locally, plus 22 focused protocol/declaration/lifecycle tests and standalone fixture formatting; see the report and final controller candidate evidence.
+Integrated: a3e86c211a33bfe3bfe7298848120abe7dddcc33 through canonical PR #3
+Validation: all seven frozen ordered commands passed locally, plus 22 focused protocol/declaration/lifecycle tests and standalone fixture formatting; controller validation passed the exact clean integrated HEAD; see the report.
 
 - [x] T3.1: Implement one lazy owned process group per package/editor, coalesced triggers, explicit startup and bidirectional nonblocking RPC with generation-qualified requests.
 - [x] T3.2: Deliver cancel/deactivate/restart/shutdown, bounded stderr, failed-spawn descriptor cleanup and owned group escalation/reaping; preserve created buffers and report uncertain descendants.
@@ -79,7 +80,7 @@ Validation: all seven frozen ordered commands passed locally, plus 22 focused pr
 
 ## Slice 4: Independent text buffers
 
-State: planned
+State: ready
 Dependency: Slice 3 integrated
 Branch: feat/rev-plugin-system-04-buffers
 PR: pending

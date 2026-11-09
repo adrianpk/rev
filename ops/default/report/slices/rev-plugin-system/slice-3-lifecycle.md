@@ -1,11 +1,12 @@
 # Slice 3: Owned process lifecycle
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-plugin-system
 Plan: [Plugin System Delivery](../../../plan/rev-plugin-system.md)
 Tracker: [Plugin System Tracker](../../../tracker/rev-plugin-system.md)
 Branch: `feat/rev-plugin-system-03-lifecycle`
 PR: `#3`
+Integrated: `a3e86c211a33bfe3bfe7298848120abe7dddcc33`
 
 ## Purpose
 
@@ -135,8 +136,9 @@ The real lifecycle selection takes about 15 seconds, including the actual
 five-second startup deadline and owned-group grace/escalation. The required
 native command selection took 242.20 seconds. These are observed test costs,
 not idle/throughput measurements. All owned fixtures complete their cleanup
-before their resources are discarded. The controller validator owns the exact
-clean-HEAD evidence for the final PR-reference commit before handoff.
+before their resources are discarded. The controller validator passed all seven commands on the exact clean
+PR-reference HEAD `a3e86c211a33bfe3bfe7298848120abe7dddcc33`, which canonical
+PR #3 integrated into dev by Rebase + Fast-forward.
 
 ## Risks and Follow-ups
 
