@@ -188,7 +188,8 @@ Validation: all seven frozen ordered commands passed locally; focused checks pas
 State: reviewing
 Dependency: Slice 10 integrated
 Branch: test/rev-plugin-system-11-faults
-PR: pending
+PR: #11 - https://forge.adrianpk.com/rev/rev/pulls/11
+Implementation: 56d4e0b62ce5d32b539c799c7507f6e591655794
 Report: ops/default/report/slices/rev-plugin-system/slice-11-faults.md
 Validation: all eleven frozen ordered commands passed locally; 84 combined plugin regressions and peer formatting passed. Five native resource profiles and two PTY journeys are measured in the report. Final clean-HEAD controller evidence is required before handoff.
 
