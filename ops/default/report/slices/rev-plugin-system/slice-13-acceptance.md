@@ -1,6 +1,6 @@
 # Slice 13: Independent client and complete acceptance
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-plugin-system
 Plan: [Plugin System Delivery](../../../plan/rev-plugin-system.md)
 Tracker: [Plugin System Tracker](../../../tracker/rev-plugin-system.md)
@@ -8,6 +8,7 @@ Branch: `test/rev-plugin-system-13-acceptance`
 PR: #13 - https://forge.adrianpk.com/rev/rev/pulls/13
 Implementation: 99316fbb9054540a8fed7ee05f6e9fcb0f395cd8
 Fixture correction: a15fb9c7e8eb2a2b85795dbc1d1094cb5485c4af
+Integrated: fd682a89b95ee0d6ad7846ce29e6ff6c8ef371f9 through canonical PR #13
 Independent client: 3365b84649919492ade7e80c63139b459b5ad923
 
 ## Purpose
@@ -30,8 +31,9 @@ base character/combining mark/astral character, local-only dispatch, one active
 generation and retained result text/undo. The external runner builds/tests Go
 outside the editor tree and prints both clean source commits with the exact API.
 
-This matrix records implementation evidence. Controller integration, the exact
-integrated dev gate and approved Markdown closure remain pending.
+All thirteen canonical slice PRs are integrated in dev. This matrix records
+implementation evidence. The exact integrated controller gate and approved
+Markdown closure remain pending.
 
 | Requirement | Native/public evidence | Detailed delivery record |
 | --- | --- | --- |
@@ -122,8 +124,12 @@ partial failure in commit; observers run after all targets and views publish.
 ## Validation
 
 Local ordered checks passed on editor a15fb9c7e8eb2a2b85795dbc1d1094cb5485c4af
-with clean pushed client 3365b84649919492ade7e80c63139b459b5ad923. The final clean PR
-HEAD receives fresh controller evidence for the same exact ordered commands:
+with clean pushed client 3365b84649919492ade7e80c63139b459b5ad923. All thirteen
+commands also passed through the controller validator on final clean PR HEAD
+fd682a89b95ee0d6ad7846ce29e6ff6c8ef371f9, receipt
+7YT4SLZOBA44SGUR3XZCZ34YU4. Canonical PR #13 is merged into dev at that same
+commit. This is slice-validation evidence; the controller's integrated gate
+remains pending after documentation preparation. Exact ordered commands:
 
 1. `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo fmt --all -- --check`
 2. `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo clippy --locked --workspace --lib --bins -- -D warnings`
@@ -165,6 +171,6 @@ the guide build does not publish a site.
 The Go client is a focused Linux example, not a general SDK or cross-platform
 runtime. Experimental consumers must pin matching sources. Process supervision
 does not establish a sandbox or prove escaped-descendant settlement. The
-controller owns final integration, the unchanged integrated gate and permitted
-Markdown closure. Stable API adoption, distribution/catalog, releases, public
-guide deployment and the development-workflow package retain separate authority.
+controller owns the unchanged integrated gate and permitted Markdown closure.
+Stable API adoption, distribution/catalog, releases, public guide deployment and
+the development-workflow package retain separate authority.

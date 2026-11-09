@@ -8,7 +8,7 @@ Planning baseline: a398dcb77dd0ce036d989f038068ac942fc68ebd
 Specification: [Plugin System](../spec/editor-plugin-system.md)
 Model: [Plugin Identity, Protocol and State](../spec/editor-plugin-system-model.md)
 Concern: [Pending Editor Work](../README.md)
-Active slice: Slice 13 - Independent client and complete acceptance
+Active slice: None; all thirteen slices delivered; controller gate pending
 Execution authorized: one thirteen-slice Looper run with automatic integration into dev
 Plan: [Plugin System Delivery](../plan/rev-plugin-system.md)
 Progress owner: selected Looper run; no second runtime tracker
@@ -215,15 +215,16 @@ Validation: all eight frozen commands passed locally; two guidance regressions c
 
 ## Slice 13: Independent client and complete acceptance
 
-State: reviewing
+State: delivered
 Dependency: Slice 12 integrated
 Branch: test/rev-plugin-system-13-acceptance
 PR: #13 - https://forge.adrianpk.com/rev/rev/pulls/13
 Implementation: 99316fbb9054540a8fed7ee05f6e9fcb0f395cd8
 Fixture correction: a15fb9c7e8eb2a2b85795dbc1d1094cb5485c4af
 Report: ops/default/report/slices/rev-plugin-system/slice-13-acceptance.md
+Integrated: fd682a89b95ee0d6ad7846ce29e6ff6c8ef371f9 through canonical PR #13
 Independent client: 3365b84649919492ade7e80c63139b459b5ad923 - https://forge.adrianpk.com/rev/plugin-examples/src/commit/3365b84649919492ade7e80c63139b459b5ad923/README.md
-Validation: all thirteen frozen commands passed locally on a15fb9c7e8eb2a2b85795dbc1d1094cb5485c4af with clean pushed Go client 3365b84649919492ade7e80c63139b459b5ad923. Twelve SDK tests/one doctest, 86 plugins, 52 commands, 114 editing, 110 macros, 45 modal and four completion tests passed. Strict documentation/Spore and both independent-client profiles passed. The initial 85/86 plugin run exposed an incomplete fixture-frame read; five corrected slow-consumer runs and all 86 plugins passed with unchanged assertions. A later formal run timed out in causal_chain; a controlled request-file exposure reproduced the active-child timeout and empty-JSON thread failure. Atomic request publication passed that probe and all nine event tests without changing deadlines or runtime behavior. The next formal run passed causal_chain but the fixed-spin pressure fixture exceeded the real invalidation deadline; draining ready native work retained all 1,024 pastes, both consumer counts and existing assertions/deadlines, then passed all nine events plus two more slow-consumer runs. Final exact clean-HEAD controller evidence is recorded before handoff.
+Validation: all thirteen frozen commands passed locally on a15fb9c7e8eb2a2b85795dbc1d1094cb5485c4af with clean pushed Go client 3365b84649919492ade7e80c63139b459b5ad923. Twelve SDK tests/one doctest, 86 plugins, 52 commands, 114 editing, 110 macros, 45 modal and four completion tests passed. Strict documentation/Spore and both independent-client profiles passed. The initial 85/86 plugin run exposed an incomplete fixture-frame read; five corrected slow-consumer runs and all 86 plugins passed with unchanged assertions. A later formal run timed out in causal_chain; a controlled request-file exposure reproduced the active-child timeout and empty-JSON thread failure. Atomic request publication passed that probe and all nine event tests without changing deadlines or runtime behavior. The next formal run passed causal_chain but the fixed-spin pressure fixture exceeded the real invalidation deadline; draining ready native work retained all 1,024 pastes, both consumer counts and existing assertions/deadlines, then passed all nine events plus two more slow-consumer runs. All thirteen commands passed fresh exact clean-HEAD controller validation on fd682a89b95ee0d6ad7846ce29e6ff6c8ef371f9 before handoff, receipt 7YT4SLZOBA44SGUR3XZCZ34YU4; canonical merge verified. The integrated controller gate remains pending.
 
 - [x] T13.1: Implement the small Go multi-buffer client and its build/test/check-rev.sh only in the separate rev/plugin-examples checkout; push its conventional dev commit and pin both commits/API in evidence.
 - [x] T13.2: Add examples/plugin-interop.rs as the native Rust integration bridge and prove hidden unsaved reads, created visible result, native navigation and public-only protocol compatibility with the independent client.
@@ -231,11 +232,18 @@ Validation: all thirteen frozen commands passed locally on a15fb9c7e8eb2a2b85795
 
 ## Delivery-set acceptance and closure
 
-- [ ] All thirteen canonical slice PRs integrated in dev with exact-HEAD evidence.
-- [ ] PLG01-PLG12 native/SDK/representative PTY/resource acceptance recorded.
+- [x] All thirteen canonical slice PRs integrated in dev with exact-HEAD evidence.
+- [x] PLG01-PLG12 native/SDK/representative PTY/resource acceptance recorded.
 - [x] Independent Go client committed/pushed outside editor; both commits/API pinned.
 - [ ] Ordered integrated controller gate passed on the exact clean dev candidate.
 - [ ] All reports delivered and permitted Markdown closure committed/pushed.
+
+Gate prerequisites verified: all thirteen canonical integrations, slice receipts
+and delivered reports; the PLG01-PLG12 evidence matrix; clean pushed independent
+client 3365b84649919492ade7e80c63139b459b5ad923 and its executable acceptance
+runner; available Rust, Go, Bash and Spore tools. The frozen gate remains
+unchanged. Its new integrated candidate and final Markdown closure belong to
+the controller.
 
 Catalog/distribution, stable API adoption, development-workflow package, main,
 release/tag, mirrors, deployed guide and global installation are separate scopes.
