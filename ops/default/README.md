@@ -72,10 +72,16 @@ repositories use rev/{repo-name}; concrete package names remain open.
   the restrained match alternative are settled; editing defaults, context rules,
   bindings and measured bounds still need review before planning.
 - [Plugin System](spec/editor-plugin-system.md) and its
-  [model](spec/editor-plugin-system-model.md) remain experimental Draft proposals.
-  Multi-buffer text access, checked edits, namespaced commands, local bindings
-  and events are candidate API surfaces. No runtime, package manager or stable
-  interface has been adopted; the earlier one-shot extension draft stays distinct.
+  [model](spec/editor-plugin-system-model.md) are Approved for an experimental
+  host/API delivery. The [plan](plan/rev-plugin-system.md) and
+  [tracker](tracker/rev-plugin-system.md) define thirteen slices in one Looper run.
+  One external process per package/editor, NDJSON JSON-RPC, lazy activation,
+  revision-checked multi-buffer edits, contextual command/keybinding resolution,
+  events and cross-instance package state form the selected contract.
+  The Rust SDK lives in the editor workspace. Independent Go acceptance belongs
+  to the public [rev/plugin-examples repository](https://forge.adrianpk.com/rev/plugin-examples).
+  Catalog/distribution receives a separate specification/delivery. Stable API
+  adoption and the development-workflow plugin retain their own review boundaries.
 - [Development Workflow Plugin](spec/editor-development-workflow.md) and its
   [model](spec/editor-development-workflow-model.md) remain Draft. Editable context
   and questionnaires generate a revisable specification/slices/plan and one tracker;
