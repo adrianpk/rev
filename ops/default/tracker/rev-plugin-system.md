@@ -215,23 +215,25 @@ Validation: all eight frozen commands passed locally; two guidance regressions c
 
 ## Slice 13: Independent client and complete acceptance
 
-State: implementing
+State: reviewing
 Dependency: Slice 12 integrated
 Branch: test/rev-plugin-system-13-acceptance
 PR: pending
+Implementation: 99316fbb9054540a8fed7ee05f6e9fcb0f395cd8
+Fixture correction: a15fb9c7e8eb2a2b85795dbc1d1094cb5485c4af
 Report: ops/default/report/slices/rev-plugin-system/slice-13-acceptance.md
 Independent client: 3365b84649919492ade7e80c63139b459b5ad923 - https://forge.adrianpk.com/rev/plugin-examples/src/commit/3365b84649919492ade7e80c63139b459b5ad923/README.md
-Validation: three Go tests and both native interoperability profiles passed locally; exact public-client dev commit is clean and pushed. Frozen ordered slice commands remain pending.
+Validation: all thirteen frozen commands passed locally on a15fb9c7e8eb2a2b85795dbc1d1094cb5485c4af with clean pushed Go client 3365b84649919492ade7e80c63139b459b5ad923. Twelve SDK tests/one doctest, 86 plugins, 52 commands, 114 editing, 110 macros, 45 modal and four completion tests passed. Strict documentation/Spore and both independent-client profiles passed. The initial 85/86 plugin run exposed an incomplete fixture-frame read; five corrected slow-consumer runs and all 86 plugins passed with unchanged assertions. Final exact clean-HEAD controller evidence is recorded before handoff.
 
 - [x] T13.1: Implement the small Go multi-buffer client and its build/test/check-rev.sh only in the separate rev/plugin-examples checkout; push its conventional dev commit and pin both commits/API in evidence.
 - [x] T13.2: Add examples/plugin-interop.rs as the native Rust integration bridge and prove hidden unsaved reads, created visible result, native navigation and public-only protocol compatibility with the independent client.
-- [ ] T13.3: Complete PLG01-PLG12 joint acceptance, reconcile SDK/reference/catalog/Spore evidence and all reports, then prepare the unchanged selected controller gate and documentation-only closure.
+- [x] T13.3: Complete PLG01-PLG12 joint acceptance, reconcile SDK/reference/catalog/Spore evidence and all reports, then prepare the unchanged selected controller gate and documentation-only closure.
 
 ## Delivery-set acceptance and closure
 
 - [ ] All thirteen canonical slice PRs integrated in dev with exact-HEAD evidence.
 - [ ] PLG01-PLG12 native/SDK/representative PTY/resource acceptance recorded.
-- [ ] Independent Go client committed/pushed outside editor; both commits/API pinned.
+- [x] Independent Go client committed/pushed outside editor; both commits/API pinned.
 - [ ] Ordered integrated controller gate passed on the exact clean dev candidate.
 - [ ] All reports delivered and permitted Markdown closure committed/pushed.
 

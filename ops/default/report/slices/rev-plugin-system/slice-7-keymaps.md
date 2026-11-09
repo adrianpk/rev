@@ -6,6 +6,7 @@ Plan: [Plugin System Delivery](../../../plan/rev-plugin-system.md)
 Tracker: [Plugin System Tracker](../../../tracker/rev-plugin-system.md)
 Branch: `feat/rev-plugin-system-07-keymaps`
 PR: `#7`
+Integrated: 92646729268ccbc15ea7bf432c45b60d5870eb4a through canonical PR #7
 
 ## Purpose
 

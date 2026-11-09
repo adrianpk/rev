@@ -7,6 +7,7 @@ Tracker: [Plugin System Tracker](../../../tracker/rev-plugin-system.md)
 Branch: `feat/rev-plugin-system-08-recording`
 PR: `#8`
 Implementation: 557f2358bcf530636242b8be25bcc1a3a3d10ffb
+Integrated: 7e8d5c7475ba614e6d0940ff2a79ce5f33de2418 through canonical PR #8
 
 ## Purpose
 

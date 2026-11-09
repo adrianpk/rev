@@ -7,6 +7,7 @@ Tracker: [Plugin System Tracker](../../../tracker/rev-plugin-system.md)
 Branch: `feat/rev-plugin-system-09-events`
 PR: `#9`
 Implementation: f738e46cb79aa7b3c854f74e24e242dc4cc00da7
+Integrated: 95ef40a9fbda4e5e32bd582b9b14eeeeaad01670 through canonical PR #9
 
 ## Purpose
 
