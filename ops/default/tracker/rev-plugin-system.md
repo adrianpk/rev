@@ -173,7 +173,8 @@ Validation: all eight frozen ordered commands passed exact clean-HEAD controller
 State: reviewing
 Dependency: Slice 9 integrated
 Branch: feat/rev-plugin-system-10-state
-PR: pending
+PR: #10 - https://forge.adrianpk.com/rev/rev/pulls/10
+Implementation: 0efa209d4e93e69cb6386f117f10f8cb708acaaa
 Report: ops/default/report/slices/rev-plugin-system/slice-10-state.md
 Validation: all seven frozen ordered commands passed locally; focused checks passed 81 combined plugin regressions, three native publication-fault tests and standalone peer formatting. Final clean-HEAD controller evidence is required before handoff; see the report.
 
