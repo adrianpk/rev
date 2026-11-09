@@ -165,6 +165,30 @@ impl Editor {
             true,
         )
     }
+    pub(super) fn events(profile: &str, count: usize) -> Self {
+        let ids = [
+            "field.notes",
+            "other.notes",
+            "third.notes",
+            "fourth.notes",
+            "fifth.notes",
+            "sixth.notes",
+            "seventh.notes",
+            "eighth.notes",
+        ];
+        let specs: Vec<_> = ids
+            .iter()
+            .take(count)
+            .map(|id| Spec {
+                id,
+                mode: "events",
+                activation: "",
+                ignore_term: false,
+                declaration: None,
+            })
+            .collect();
+        Self::packages(profile, &specs, &ids[..count])
+    }
     fn packages(profile: &str, specs: &[Spec<'_>], startup: &[&str]) -> Self {
         Self::setup(profile, specs, startup, &[], "", false)
     }
@@ -410,7 +434,8 @@ fn lazy_profiles() {
                 "edits",
                 "invocation",
                 "file_lifecycle",
-                "keymaps"
+                "keymaps",
+                "events"
             ])
         );
     }

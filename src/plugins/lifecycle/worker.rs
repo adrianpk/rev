@@ -19,6 +19,7 @@ struct Frame {
     bytes: Vec<u8>,
     offset: usize,
     budget: Arc<Budget>,
+    event: Option<super::events::Delivery>,
 }
 impl Drop for Frame {
     fn drop(&mut self) {
@@ -218,7 +219,17 @@ impl Worker {
             }
             self.controls();
             self.editor_replies()?;
+            self.event_notifications()?;
             let now = Instant::now();
+            if self
+                .output
+                .iter()
+                .any(|f| f.event.as_ref().is_some_and(|d| now >= d.deadline))
+            {
+                return Err(
+                    "event invalidation/delivery deadline exceeded; generation retired".into(),
+                );
+            }
             if self.requests.values().any(|deadline| now >= *deadline)
                 || (!self.handshake.accepted() && now >= self.startup)
                 || self
@@ -318,12 +329,56 @@ impl Worker {
             bytes,
             offset: 0,
             budget: self.budget.clone(),
+            event: None,
         });
+        Ok(())
+    }
+    fn event_notifications(&mut self) -> Result<(), String> {
+        for _ in 0..16 {
+            let delivery = self
+                .connection
+                .events
+                .lock()
+                .expect("event mailbox")
+                .queue
+                .pop_front();
+            let Some(delivery) = delivery else {
+                break;
+            };
+            if delivery.cancelled.load(Ordering::Acquire) {
+                continue;
+            }
+            self.queue(Message::Notification(Notification {
+                jsonrpc: Version::V2,
+                method: BUFFER_EVENT.into(),
+                params: serde_json::to_value(&delivery.event).expect("typed event"),
+            }))?;
+            self.output.back_mut().expect("queued event").event = Some(delivery);
+        }
+        if !self
+            .connection
+            .events
+            .lock()
+            .expect("event mailbox")
+            .queue
+            .is_empty()
+        {
+            self.connection.signal();
+        }
         Ok(())
     }
     fn flush(&mut self) -> Result<(), String> {
         let mut budget = 65536;
         while budget > 0 {
+            if let Some(frame) = self.output.pop_front_if(|f| {
+                f.offset == 0
+                    && f.event
+                        .as_ref()
+                        .is_some_and(|d| d.cancelled.load(Ordering::Acquire))
+            }) {
+                self.bytes -= frame.bytes.len();
+                continue;
+            }
             let Some(frame) = self.output.front_mut() else {
                 break;
             };
@@ -349,7 +404,21 @@ impl Worker {
             budget -= count;
             self.budget.bytes.fetch_sub(count, Ordering::AcqRel);
             if frame.offset == frame.bytes.len() {
-                self.output.pop_front();
+                let frame = self.output.pop_front().expect("complete frame");
+                if let Some(delivery) = frame.event.as_ref()
+                    && !delivery.cancelled.load(Ordering::Acquire)
+                    && delivery.event.kind != EventKind::Resnapshot
+                {
+                    let mut mailbox = self.connection.events.lock().expect("event mailbox");
+                    if mailbox.grants.len() == 256 {
+                        // An event callback expires when it leaves this finite
+                        // delivered-event window, or its subscription retires.
+                        mailbox.grants.pop_front();
+                    }
+                    mailbox
+                        .grants
+                        .push_back((delivery.event.clone(), delivery.cancelled.clone()));
+                }
             }
         }
         Ok(())
@@ -405,6 +474,11 @@ impl Worker {
             .chain(self.waiting.iter())
             .map(|c| c.deadline)
             .chain(self.requests.values().copied())
+            .chain(
+                self.output
+                    .iter()
+                    .filter_map(|f| f.event.as_ref().map(|d| d.deadline)),
+            )
             .chain((!self.handshake.accepted()).then_some(self.startup))
             .min();
         let timeout = deadline.map(|d| {
@@ -516,46 +590,95 @@ impl Worker {
                 Ok(operation) => operation,
                 Err(error) => return self.failure(request.id, error),
             };
+            let mut cause = None;
+            let mut cancelled = None;
             if let editor::Operation::Invoke(params) = &mut operation {
-                // The causal parent is a live host callback, never a depth or
-                // operation identity invented by an untrusted package.
-                let Some(parent) = self.pending.get(&params.context.invocation) else {
+                let parent = self.pending.get(&params.context.invocation);
+                let event = self
+                    .connection
+                    .events
+                    .lock()
+                    .expect("event mailbox")
+                    .cause(&params.context.origin, Some(&params.context.invocation));
+                let event = match event {
+                    Ok(value) => value,
+                    Err(error) => return self.failure(request.id, error),
+                };
+                let (origin, flag) = if let Some(parent) = parent {
+                    if !parent.live() {
+                        return self
+                            .failure(request.id, RpcError::application(ErrorKind::Cancelled));
+                    }
+                    if params.context.generation != parent.context.generation
+                        || params.context.origin != parent.context.origin
+                    {
+                        return self.failure(
+                            request.id,
+                            RpcError::application(ErrorKind::UnsupportedInvocation),
+                        );
+                    }
+                    (parent.context.origin.clone(), parent.cancelled.clone())
+                } else if let Some((origin, flag)) = event {
+                    if params.context.generation != self.handshake.offer().generation
+                        || params.context.origin != origin
+                    {
+                        return self.failure(
+                            request.id,
+                            RpcError::application(ErrorKind::UnsupportedInvocation),
+                        );
+                    }
+                    (origin, flag)
+                } else {
                     return self.failure(
                         request.id,
                         RpcError::application(ErrorKind::UnsupportedInvocation),
                     );
                 };
-                if !parent.live() {
-                    return self.failure(request.id, RpcError::application(ErrorKind::Cancelled));
-                }
-                if params.context.generation != parent.context.generation
-                    || params.context.origin != parent.context.origin
-                {
-                    return self.failure(
-                        request.id,
-                        RpcError::application(ErrorKind::UnsupportedInvocation),
-                    );
-                }
-                if parent.context.origin.depth >= 8 {
+                if origin.depth >= 8 {
                     return self
                         .failure(request.id, RpcError::application(ErrorKind::LimitExceeded));
                 }
-                params.context.origin.depth = parent.context.origin.depth + 1;
+                params.context.origin.depth = origin.depth + 1;
                 params.context.origin.package = Some(self.package.manifest.plugin.id.clone());
-            }
-            // Only a live host callback can authorize edits during semantic
-            // recording/replay. Unsolicited RPC retains no automatic authority.
-            let parent = match &operation {
-                editor::Operation::Invoke(params) => self.pending.get(&params.context.invocation),
-                editor::Operation::Apply(params) => self.pending.values().find(|call| {
-                    call.live()
-                        && call.context.origin.operation == params.origin.operation
+                cause = Some(origin);
+                cancelled = Some(flag);
+            } else if let editor::Operation::Apply(params) = &operation {
+                if let Some(parent) = self.pending.values().find(|call| {
+                    call.context.origin.operation == params.origin.operation
                         && call.context.origin.depth == params.origin.depth
-                }),
-                _ => None,
-            };
-            let cause = parent.map(|call| call.context.origin.clone());
-            let cancelled = parent.map(|call| call.cancelled.clone());
+                }) {
+                    if !parent.live() {
+                        return self
+                            .failure(request.id, RpcError::application(ErrorKind::Cancelled));
+                    }
+                    cause = Some(parent.context.origin.clone());
+                    cancelled = Some(parent.cancelled.clone());
+                } else {
+                    let event = self
+                        .connection
+                        .events
+                        .lock()
+                        .expect("event mailbox")
+                        .cause(&params.origin, None);
+                    match event {
+                        Ok(Some((origin, flag))) => {
+                            cause = Some(origin);
+                            cancelled = Some(flag);
+                        }
+                        Ok(None)
+                            if params.origin.depth == 0
+                                && !params.origin.operation.as_str().starts_with("source-")
+                                && !params.origin.operation.as_str().starts_with("host-") => {}
+                        Ok(None) => {
+                            return self.failure(
+                                request.id,
+                                RpcError::application(ErrorKind::UnsupportedInvocation),
+                            );
+                        }
+                        Err(error) => return self.failure(request.id, error),
+                    }
+                }
+            }
             if self.requests.contains_key(&request.id) {
                 return Err("duplicate live editor request ID".into());
             }
@@ -668,6 +791,11 @@ impl Worker {
                 break;
             };
             if !response.request.live() {
+                self.requests.remove(&response.request.id);
+                self.failure(
+                    response.request.id.clone(),
+                    RpcError::application(ErrorKind::Cancelled),
+                )?;
                 continue;
             }
             if let Ok(editor::Reply::Load(location)) = response.result {

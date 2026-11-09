@@ -154,6 +154,7 @@ impl Buffers {
             .entries
             .remove(&kill.id())
             .ok_or(Error::Missing(kill.id()))?;
+        removed.notify_event(super::events::Kind::Closed);
         if let Some(file) = removed.file {
             self.files.remove(file.path());
         }
@@ -188,7 +189,7 @@ impl Buffers {
             buffer.locations = self.locations.clone();
             buffer.name = "*scratch*".into();
             buffer.apply_settings(&self.settings);
-            self.entries.insert(buffer.id(), buffer);
+            self.insert(buffer);
         }
         if self.initial == id {
             self.initial = replacement;
@@ -262,6 +263,7 @@ impl Buffers {
                 .entries
                 .remove(&stamp.buffer)
                 .expect("admitted close retains source");
+            buffer.notify_event(super::events::Kind::Closed);
             if let Some(file) = buffer.file {
                 self.files.remove(file.path());
             }

@@ -38,6 +38,8 @@ impl Activation {
 }
 impl Session {
     pub(in crate::session) fn startup_plugins(&mut self) {
+        self.buffers
+            .observe_events(self.plugins.host.event_observer());
         let snapshot = self.buffers.snapshot();
         if !snapshot.settings().plugins.enabled {
             return;

@@ -1,6 +1,7 @@
 mod delete;
 pub mod edit;
 mod endings;
+pub(crate) mod events;
 mod lifecycle;
 mod mode;
 mod org;
@@ -147,6 +148,7 @@ pub struct Buffer {
     resource: Resource,
     plugin_owner: Option<rev_plugin_sdk::identity::PackageId>,
     observer: Option<std::sync::Arc<dyn edit::Observer>>,
+    events: Option<std::sync::Arc<dyn events::Observer>>,
     macro_lines: Vec<edit::WeakMacroLines>,
     pub(crate) bookmarks: crate::bookmark::Shared,
     pub(crate) locations: crate::location::Shared,
@@ -219,6 +221,7 @@ impl Buffer {
             resource: Resource::Text,
             plugin_owner: None,
             observer: None,
+            events: None,
             macro_lines: Vec::new(),
             bookmarks: crate::bookmark::Shared::default(),
             locations: crate::location::Shared::default(),
@@ -462,6 +465,7 @@ pub struct Buffers {
     pub(crate) bookmarks: crate::bookmark::Shared,
     pub(crate) locations: crate::location::Shared,
     entries: BTreeMap<BufferId, Buffer>,
+    events: Option<std::sync::Arc<dyn events::Observer>>,
     initial: BufferId,
     files: BTreeMap<PathBuf, BufferId>,
     settings: crate::config::Snapshot,
@@ -498,6 +502,7 @@ impl Buffers {
             bookmarks: buffer.bookmarks.clone(),
             locations: buffer.locations.clone(),
             entries: BTreeMap::from([(initial, buffer)]),
+            events: None,
             initial,
             files: BTreeMap::new(),
             settings,
@@ -608,7 +613,9 @@ impl Buffers {
         buffer.apply_settings(&self.settings);
         buffer.name = self.label(&buffer.name);
         let id = buffer.id();
+        buffer.events = self.events.clone();
         self.entries.insert(id, buffer);
+        self.entries[&id].notify_event(events::Kind::Opened);
         id
     }
 

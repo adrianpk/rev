@@ -33,6 +33,8 @@ pub(crate) enum Operation {
     Invoke(CommandsInvokeParams),
     Bind(KeymapsBindParams),
     Unbind(KeymapsUnbindParams),
+    Subscribe(EventsSubscribeParams),
+    Unsubscribe(EventsUnsubscribeParams),
 }
 pub(crate) enum Reply {
     List(BuffersListResult),
@@ -48,6 +50,7 @@ pub(crate) enum Reply {
     Invoked(CommandsInvokeResult),
     Bound(KeymapsBindResult),
     Unbound(Empty),
+    Subscribed(EventsSubscribeResult),
 }
 impl Reply {
     pub(super) fn value(self) -> serde_json::Value {
@@ -63,6 +66,7 @@ impl Reply {
             Self::Invoked(v) => serde_json::to_value(v),
             Self::Bound(v) => serde_json::to_value(v),
             Self::Unbound(v) => serde_json::to_value(v),
+            Self::Subscribed(v) => serde_json::to_value(v),
             Self::Stage(_, _) | Self::Load(_) => {
                 unreachable!("file preparation precedes wire encoding")
             }
@@ -108,7 +112,12 @@ impl Request {
         let connection = self.connection.clone();
         // Combined permits cap requests and responses at sixteen. This response
         // owns one of them, so its bounded queue cannot be full.
-        if self.live() {
+        if !connection.stop.load(Ordering::Acquire) && Instant::now() < self.deadline {
+            let result = if self.live() {
+                result
+            } else {
+                Err(RpcError::application(ErrorKind::Cancelled))
+            };
             match connection.responses.try_send(Response {
                 request: self,
                 result,
@@ -172,6 +181,8 @@ pub(super) fn decode(request: &rev_plugin_sdk::rpc::Request) -> Result<Operation
         CommandsInvoke::NAME => Operation::Invoke(params(&request.params)?),
         KeymapsBind::NAME => Operation::Bind(params(&request.params)?),
         KeymapsUnbind::NAME => Operation::Unbind(params(&request.params)?),
+        EventsSubscribe::NAME => Operation::Subscribe(params(&request.params)?),
+        EventsUnsubscribe::NAME => Operation::Unsubscribe(params(&request.params)?),
         _ => return Err(RpcError::application(ErrorKind::UnsupportedMethod)),
     })
 }

@@ -155,16 +155,16 @@ Validation: all nine frozen ordered commands passed locally; final focused valid
 
 ## Slice 9: Revision events and backpressure
 
-State: implementing
+State: reviewing
 Dependency: Slice 8 integrated
 Branch: feat/rev-plugin-system-09-events
 PR: pending
 Report: ops/default/report/slices/rev-plugin-system/slice-9-events.md
-Validation: pending; exact ordered commands in the plan and controller configuration
+Validation: all eight frozen ordered commands passed locally; 74 combined plugin regressions passed; final clean-HEAD controller validation before handoff
 
-- [ ] T9.1: Implement subscriptions, post-publication source/lifecycle events, sequence/revision/origin propagation and retired-generation rejection.
-- [ ] T9.2: Enforce per-package/aggregate queues, explicit resnapshot invalidation on overflow, causal depth and 32-item/2-ms cooperative service passes without idle polling.
-- [ ] T9.3: Exercise event-induced edits across competing packages, slow consumers, reconnect/resnapshot, late callbacks and ordinary input under load with controlled native fixtures.
+- [x] T9.1: Implement subscriptions, post-publication source/lifecycle events, sequence/revision/origin propagation and retired-generation rejection.
+- [x] T9.2: Enforce per-package/aggregate queues, explicit resnapshot invalidation on overflow, causal depth and 32-item/2-ms cooperative service passes without idle polling.
+- [x] T9.3: Exercise event-induced edits across competing packages, slow consumers, reconnect/resnapshot, late callbacks and ordinary input under load with controlled native fixtures.
 
 ## Slice 10: Package-owned persistent state
 

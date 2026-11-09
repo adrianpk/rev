@@ -350,7 +350,7 @@ fn unsupported_resources() {
             .any(|b| b["stamp"]["buffer"]["id"] == format!("buffer-{terminal}"))
     );
     rpc.error("buffers.save", json!({}), "invalid_arguments");
-    rpc.error("events.subscribe", json!({}), "unsupported_method");
+    rpc.error("events.subscribe", json!({}), "invalid_arguments");
 }
 
 // The byte ceiling is checked on a native scalar slice before copying it. Large

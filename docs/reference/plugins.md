@@ -5,7 +5,8 @@ rev.plugins/0.1. It reads passive metadata and adds qualified command names and
 descriptions to M-x and the modal colon selector without starting programs.
 Command use, explicit startup and declared native triggers can activate one
 owned process per package and independent editor. Packages can use checked
-text-buffer, edit, invocation, file-lifecycle and contextual keymap operations.
+text-buffer, edit, invocation, file-lifecycle, contextual keymap and revision-event
+operations.
 
 ## Configuration
 
@@ -232,8 +233,9 @@ and command.cancel. The buffers and display capabilities enable the six native
 buffer operations below. The edits capability enables checked edits.apply batches.
 Invocation enables commands.invoke, and file_lifecycle enables buffers.save and
 buffers.close. The keymaps capability enables keymaps.bind and keymaps.unbind.
-Events, messages and state operations still return
-correlated unsupported_method errors. Requests before
+The events capability enables events.subscribe and events.unsubscribe with
+host-to-package buffers.event notifications. Messages and state operations still
+return correlated unsupported_method errors. Requests before
 initialization return unsupported_invocation. An incompatible acknowledgement,
 malformed or oversized stdout, EOF, process exit or deadline retires the generation.
 Stdout is protocol-only. Stderr is a byte-bounded diagnostic ring; display replaces
@@ -454,3 +456,61 @@ prompt. Closing the last ordinary text buffer retains the native scratch policy.
 Admission validates all declarations atomically before native discovery. It
 does not promise that a program exists, is executable or can complete a future
 handshake. Package distribution, downloads and installation are separate work.
+
+
+## Revision events
+
+events.subscribe takes distinct kinds (opened, changed, closed or resnapshot)
+and up to 256 distinct session-qualified ordinary text buffers. An empty buffer
+list selects all ordinary text sources. Empty or duplicate kinds, duplicate
+handles and foreign/missing/unsupported buffers refuse before registration.
+There are at most 16 subscriptions per package and 128 per editor. The result
+contains a generation-owned subscription and its sequence baseline. There is no
+initial delta replay; use buffers.list/describe/read for an initial snapshot.
+
+events.unsubscribe removes one subscription owned by the calling generation.
+Unknown, foreign and retired subscriptions return invalid_arguments. Restart,
+deactivation, cancellation and connection failure revoke subscriptions and
+callbacks. Active subscriptions survive native Project/Workspace replacement;
+closed sources and replacement sources retain distinct native handles.
+
+buffers.event contains subscription, increasing host sequence, generation, kind,
+optional stamp and origin. Opened/changed/closed carry the exact native stamp.
+Package-created, opened and closed sources identify the calling package.
+Notifications are queued after native publication, including undo/redo and each
+participant of a complete atomic batch. They retain no text copy and cannot
+reenter publication. Transient and terminal resources are excluded.
+
+The native metadata queue holds 256 publications. Notification permits cover
+fan-out staging, queued metadata and encoded frames until written: 256 per
+package and 1024 per editor, with 16 per package and 128 aggregate slots reserved for invalidation.
+Normal deltas therefore use at most 240 per package and 896 aggregate slots.
+The existing 4-MiB/package and 16-MiB aggregate byte ceilings also apply.
+
+Overflow revokes incomplete callbacks, discards undelivered deltas and sends an
+explicit resnapshot (null stamp), even for subscribers that requested only
+changed. An affected subscription pauses. Unsubscribe it and subscribe again
+first to establish a new baseline, then rebuild the snapshot with
+revision-qualified list/describe/read requests while reconciling notifications
+after that baseline. Deltas already written to the pipe can precede the invalidation; never treat them as a complete
+stream after resnapshot. An invalidation that cannot be queued or delivered
+within five seconds retires that connection. Ordinary event deliveries retain
+the existing 60-second deadline. No periodic polling is added while idle.
+
+For an event-induced edits.apply, copy its origin operation and depth, setting
+origin.package to the calling package. For commands.invoke, use the SDK's
+BufferEvent::invocation() callback identity (event:<sequence>) and copy its
+generation and origin into the captured invocation context. Add native stamp,
+pane and point when the command needs them; event delivery supplies no focus
+or consent authority. Only the latest 256 delivered event callbacks per
+connection are retained. Unsubscribe, resnapshot and retirement revoke their
+queued descendants as well. Copying an expired host operation into a new request
+cannot recreate callback authority.
+
+The host derives each causal edit or nested command from its live parent,
+preserves the root operation across packages and advances depth. An event at
+depth eight cannot cause another edit or command. An independent unsolicited
+edit starts a fresh host-owned root at depth zero; the edit result still echoes
+its supplied operation ID. Native service alternates event and request phases,
+round-robins packages and shares one 32-item/two-millisecond cooperative budget
+with activation and lifecycle service. Child pipe work remains on supervisors.

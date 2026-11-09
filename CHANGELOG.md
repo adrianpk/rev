@@ -26,7 +26,10 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
   qualified plugin calls in keyboard macros. Replay waits for each callback and
   supports cancellation; generated edits are not recorded twice. Explicit saves
   containing plugin calls use macro-library schema 2 and preserve older records.
-  Native prompts and recovery keys retain control.
+  Packages can subscribe to committed buffer changes and lifecycle events.
+  Slow consumers receive an explicit resnapshot request, and event-driven edit
+  chains have a finite depth across packages. Native prompts and recovery keys
+  retain control.
 
 - Record native editing with F3 and finish with F4, then replay the last keyboard
   macro with F4 or C-x e. Positive prefix arguments repeat the recording;

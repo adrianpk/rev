@@ -113,6 +113,7 @@ impl Buffer {
         publication.observation
     }
     pub(crate) fn notify_publication(&self, observation: Option<Published>) {
+        self.notify_event(crate::buffer::events::Kind::Changed);
         if let Some(observation) = observation
             && let Some(observer) = &self.observer
         {

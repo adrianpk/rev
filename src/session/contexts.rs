@@ -242,6 +242,17 @@ impl Session {
         // Packages belong to the independent editor, not its current Project
         // or Workspace. Preserve generations and the host-owned wake lifetime.
         std::mem::swap(&mut destination.plugins, &mut self.plugins);
+        // The editor host survives context replacement; subscriptions observe
+        // retired sources and the replacement registry through that same sink.
+        for buffer in self.buffers.iter() {
+            buffer.notify_event(crate::buffer::events::Kind::Closed);
+        }
+        destination
+            .buffers
+            .observe_events(destination.plugins.host.event_observer());
+        for buffer in destination.buffers.iter() {
+            buffer.notify_event(crate::buffer::events::Kind::Opened);
+        }
         destination.sync_macro_catalog();
         std::mem::swap(&mut destination.kills, &mut self.kills);
         std::mem::swap(&mut destination.rectangle, &mut self.rectangle);

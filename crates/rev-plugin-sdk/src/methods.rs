@@ -732,6 +732,13 @@ impl Validate for CommandsInvokeResult {
         json_bytes(&self.value, limits.text_bytes as usize)
     }
 }
+impl BufferEvent {
+    /// Callback identity accepted by commands.invoke for this delivered event.
+    /// Copy generation, origin and any required captured stamp into its context.
+    pub fn invocation(&self) -> OpaqueId {
+        OpaqueId::new(format!("event:{}", self.sequence)).expect("bounded event sequence")
+    }
+}
 impl Validate for BufferEvent {
     fn validate(&self, limits: &Limits) -> Result<(), RpcError> {
         self.origin.validate(limits)?;

@@ -1,6 +1,7 @@
 //! One owned process generation per package in an editor. Input exchanges only
 //! bounded work with supervisors; spawning, pipe I/O and reaping stay outside it.
 pub(crate) mod editor;
+mod events;
 mod process;
 mod worker;
 
@@ -201,6 +202,7 @@ struct Connection {
     pending: Arc<AtomicUsize>,
     calls: SyncSender<Call>,
     responses: SyncSender<editor::Response>,
+    events: Mutex<events::Mailbox>,
     wake: Arc<Wake>,
 }
 impl Connection {
@@ -252,6 +254,7 @@ pub(crate) struct Host {
     wake: Arc<Wake>,
     closing: bool,
     cursor: usize,
+    events: Arc<events::Events>,
 }
 impl Default for Host {
     fn default() -> Self {
@@ -264,15 +267,18 @@ impl Default for Host {
             .duration_since(UNIX_EPOCH)
             .unwrap_or_else(|e| e.duration())
             .as_nanos();
+        let session = OpaqueId::new(format!("host-{}-{epoch}-{serial}", std::process::id()))
+            .expect("finite host session identity");
+        let wake = Arc::default();
         Self {
-            session: OpaqueId::new(format!("host-{}-{epoch}-{serial}", std::process::id()))
-                .expect("finite host session identity"),
+            events: Arc::new(events::Events::new(session.clone(), Arc::clone(&wake))),
+            session,
             next: 0,
             serial: 0,
             slots: BTreeMap::new(),
             history: BTreeMap::new(),
             budget: Arc::default(),
-            wake: Arc::default(),
+            wake,
             closing: false,
             cursor: 0,
         }
@@ -342,6 +348,7 @@ impl Host {
             pending: Arc::default(),
             calls,
             responses,
+            events: Mutex::default(),
             wake: self.wake.clone(),
         });
         let state = connection.clone();
@@ -546,10 +553,12 @@ impl Host {
         cancelled
     }
     pub fn remaining(&self) -> Option<Duration> {
-        self.slots
-            .values()
-            .any(|s| s.connection.ready.load(Ordering::Acquire))
-            .then_some(Duration::ZERO)
+        (self.events.remaining()
+            || self
+                .slots
+                .values()
+                .any(|s| s.connection.ready.load(Ordering::Acquire)))
+        .then_some(Duration::ZERO)
     }
     pub fn service(&mut self, service: &mut Service) -> Vec<String> {
         let mut notices = Vec::new();
@@ -576,13 +585,11 @@ impl Host {
                 shared.state
             };
             slot.pid = shared.pid;
-            while !shared.notices.is_empty() && service.take() {
-                let Some(notice) = shared.notices.pop_front() else {
-                    break;
-                };
-                if !slot.retired || shared.finished {
-                    notices.push(notice);
-                }
+            // One notice per package leaves room for callbacks and events.
+            if let Some(notice) = shared.notices.pop_front()
+                && (!slot.retired || shared.finished)
+            {
+                notices.push(notice);
             }
             slot.connection.ready.store(
                 !shared.notices.is_empty() || !shared.requests.is_empty(),
@@ -630,6 +637,9 @@ impl Host {
             if !slot.retired && request.live() {
                 return Some(request);
             }
+            request.complete(Err(rev_plugin_sdk::rpc::RpcError::application(
+                rev_plugin_sdk::rpc::ErrorKind::Cancelled,
+            )));
         }
         None
     }

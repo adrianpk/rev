@@ -24,3 +24,6 @@ mod keymaps;
 
 #[path = "plugins/recording.rs"]
 mod recording;
+
+#[path = "plugins/events.rs"]
+mod events;

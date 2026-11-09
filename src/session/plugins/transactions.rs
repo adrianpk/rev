@@ -100,6 +100,19 @@ impl Session {
             operation: params.operation,
             stamps: List::new(stamps)?,
         };
+        let mut origin = request
+            .cause
+            .clone()
+            .unwrap_or_else(|| self.plugins.host.event_root());
+        if request.cause.is_some() {
+            if origin.depth >= 8 {
+                return Err(error(ErrorKind::LimitExceeded));
+            }
+            origin.depth += 1;
+        } else if params.origin.depth != 0 {
+            return Err(error(ErrorKind::UnsupportedInvocation));
+        }
+        origin.package = Some(request.package.clone());
         if let Some(run) = &self.macros.runner {
             batch.check(&self.buffers, &self.windows).map_err(native)?;
             if !request.live() {
@@ -120,12 +133,14 @@ impl Session {
                 return Err(error(ErrorKind::LimitExceeded));
             }
         }
+        let origin_guard = self.plugins.host.event_origin(origin);
         batch
             .publish(&mut self.buffers, &mut self.windows, || request.live())
             .map_err(|failure| match failure {
                 AtomicFailure::Edit(error) => native(error),
                 AtomicFailure::Cancelled => error(ErrorKind::Cancelled),
             })?;
+        drop(origin_guard);
         self.plugin_macro_published();
         // Native observers already see a complete batch. Retire revision-bound
         // completion/resolve work without manufacturing recorded user commands.

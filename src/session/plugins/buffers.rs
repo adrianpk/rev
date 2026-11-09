@@ -41,7 +41,18 @@ impl Session {
                 self.plugin_invoke(request, params);
                 continue;
             }
+            let origin = if matches!(
+                &operation,
+                Operation::Install(_, _) | Operation::Create(_) | Operation::Close(_)
+            ) {
+                let mut origin = self.plugins.host.event_root();
+                origin.package = Some(request.package.clone());
+                Some(self.plugins.host.event_origin(origin))
+            } else {
+                None
+            };
             let result = self.plugin_buffer_operation(&request, operation);
+            drop(origin);
             request.complete(result);
         }
     }
@@ -121,6 +132,21 @@ impl Session {
             return Err(error(ErrorKind::Busy));
         }
         match operation {
+            Operation::Subscribe(params) => {
+                for handle in params.buffers.iter() {
+                    self.plugin_buffer(handle)?;
+                }
+                self.plugins
+                    .host
+                    .subscribe(request, params)
+                    .map(Reply::Subscribed)
+            }
+            Operation::Unsubscribe(params) => {
+                self.plugins
+                    .host
+                    .unsubscribe(request, &params.subscription)?;
+                Ok(Reply::Unbound(Empty {}))
+            }
             Operation::List(params) => {
                 if params.kind.is_some_and(|k| k != ResourceKind::Text) {
                     return Err(error(ErrorKind::UnsupportedResource));

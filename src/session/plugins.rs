@@ -17,6 +17,7 @@ pub(super) struct Work {
     keys: keymaps::Keymaps,
     notice: Option<String>,
     automatic: Option<recording::Automatic>,
+    events_first: bool,
 }
 
 impl Session {
@@ -92,7 +93,16 @@ impl Session {
     pub(super) fn expire_plugins(&mut self) -> Action {
         let mut service = Service::new();
         let mut notices = self.plugins.host.service(&mut service);
-        self.serve_plugin_buffers(&mut service);
+        // Alternate phases so continuous callbacks cannot starve notifications
+        // and a full event queue cannot starve native input requests.
+        self.plugins.events_first = !self.plugins.events_first;
+        if self.plugins.events_first {
+            self.plugins.host.service_events(&mut service);
+            self.serve_plugin_buffers(&mut service);
+        } else {
+            self.serve_plugin_buffers(&mut service);
+            self.plugins.host.service_events(&mut service);
+        }
         self.advance_plugin_activation(&mut service, &mut notices);
         self.refresh_plugin_keymaps();
         if let Some(action) = self.advance_plugin_macro() {
