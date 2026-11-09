@@ -5,7 +5,7 @@ Delivery set: rev-plugin-system
 Plan: [Plugin System Delivery](../../../plan/rev-plugin-system.md)
 Tracker: [Plugin System Tracker](../../../tracker/rev-plugin-system.md)
 Branch: `feat/rev-plugin-system-05-transactions`
-PR: pending
+PR: `#5`
 
 ## Purpose
 
@@ -35,8 +35,8 @@ buffer targets as one all-or-nothing batch, with ordinary local undo/redo.
 
 ## Implementation Notes
 
-The feature commit introducing this report implements T5.1-T5.3. Its immutable
-implementation and canonical PR references are recorded before handoff.
+Implementation: `0d8ec0cf5e3d2447c8e245cc3901599a3a12caa7` implements T5.1-T5.3 and introduces
+this report. Canonical [PR #5](https://forge.adrianpk.com/rev/rev/pulls/5) targets dev.
 
 The new native Atomic coordinator lives beside existing source-batch ownership.
 It prepares candidates through Buffer::prepare, maps every native shared view,

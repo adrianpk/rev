@@ -98,8 +98,9 @@ Validation: all eight frozen commands passed locally; fresh focused validation p
 State: reviewing
 Dependency: Slice 4 integrated
 Branch: feat/rev-plugin-system-05-transactions
-PR: pending
+PR: #5 - https://forge.adrianpk.com/rev/rev/pulls/5
 Report: ops/default/report/slices/rev-plugin-system/slice-5-transactions.md
+Implementation: 0d8ec0cf5e3d2447c8e245cc3901599a3a12caa7
 Validation: all eight frozen commands passed locally; 39 combined plugin tests, eight focused native edit/coordinator tests and standalone fixture formatting passed. Final clean-HEAD controller evidence precedes handoff.
 
 - [x] T5.1: Implement prepare-all/publish-all native coordination, including every history/view reservation, complete stamp rechecks and infallible final publication.
