@@ -5,7 +5,8 @@ Delivery set: rev-plugin-system
 Plan: [Plugin System Delivery](../../../plan/rev-plugin-system.md)
 Tracker: [Plugin System Tracker](../../../tracker/rev-plugin-system.md)
 Branch: `feat/rev-plugin-system-09-events`
-PR: pending
+PR: `#9`
+Implementation: f738e46cb79aa7b3c854f74e24e242dc4cc00da7
 
 ## Purpose
 

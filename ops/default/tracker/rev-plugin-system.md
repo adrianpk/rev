@@ -158,7 +158,8 @@ Validation: all nine frozen ordered commands passed locally; final focused valid
 State: reviewing
 Dependency: Slice 8 integrated
 Branch: feat/rev-plugin-system-09-events
-PR: pending
+PR: https://forge.adrianpk.com/rev/rev/pulls/9
+Implementation: f738e46cb79aa7b3c854f74e24e242dc4cc00da7
 Report: ops/default/report/slices/rev-plugin-system/slice-9-events.md
 Validation: all eight frozen ordered commands passed locally; 74 combined plugin regressions passed; final clean-HEAD controller validation before handoff
 
