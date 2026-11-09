@@ -51,7 +51,8 @@ Validation: all five frozen commands passed through Looper on clean published HE
 State: reviewing
 Dependency: Slice 1 integrated
 Branch: refactor/rev-architecture-quality-02-plugins
-PR: pending
+PR: #16 - https://forge.adrianpk.com/rev/rev/pulls/16
+Implementation: 6b5abf5e3c61e9d7fc4e6ad99cf4d4b409b6683f
 Report: ops/default/report/slices/rev-architecture-quality/slice-2-plugins.md
 Progress: all SDK/native/session-plugin owners pass the frozen quality selection
 Validation: all five frozen commands passed on the working candidate; final published-HEAD Looper evidence required before handoff
