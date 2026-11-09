@@ -1,12 +1,13 @@
 # Slice 11: Fault and resource acceptance
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-plugin-system
 Plan: [Plugin System Delivery](../../../plan/rev-plugin-system.md)
 Tracker: [Plugin System Tracker](../../../tracker/rev-plugin-system.md)
 Branch: `test/rev-plugin-system-11-faults`
 PR: #11 - https://forge.adrianpk.com/rev/rev/pulls/11
 Implementation: 56d4e0b62ce5d32b539c799c7507f6e591655794
+Integrated: dbbdd0b4a88b1537e829c985a2160f58c5e39836
 
 ## Purpose
 
@@ -126,7 +127,9 @@ Rust 1.98.0, unoptimized Cargo profiles with debug information and incremental c
 source is based on integrated commit 2be4e880daf567c6aa52a127ccab4b851dd48953
 with the retirement-counter correction in this PR; API rev.plugins/0.1 and SDK/package
 versions 0.1.0. The Rust peer is compiled against the same Cargo-built public SDK.
-The final exact PR candidate receives separate clean-HEAD controller evidence.
+All eleven frozen commands passed exact clean-HEAD controller validation on
+dbbdd0b4a88b1537e829c985a2160f58c5e39836 before handoff. Canonical PR #11
+merged that commit into dev; its live merge state and integration were verified.
 
 | Profile | Launch to first frame, ms | Editor RSS / peak, KiB | Editor FDs | Peer RSS, KiB / FDs | Input to first marked frame, ms |
 | --- | --- | --- | --- | --- | --- |

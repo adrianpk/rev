@@ -8,7 +8,7 @@ Planning baseline: a398dcb77dd0ce036d989f038068ac942fc68ebd
 Specification: [Plugin System](../spec/editor-plugin-system.md)
 Model: [Plugin Identity, Protocol and State](../spec/editor-plugin-system-model.md)
 Concern: [Pending Editor Work](../README.md)
-Active slice: Slice 11 - Fault and resource acceptance
+Active slice: Slice 12 - Authoring and user guidance
 Execution authorized: one thirteen-slice Looper run with automatic integration into dev
 Plan: [Plugin System Delivery](../plan/rev-plugin-system.md)
 Progress owner: selected Looper run; no second runtime tracker
@@ -185,13 +185,14 @@ Validation: all seven frozen ordered commands passed locally; focused checks pas
 
 ## Slice 11: Fault and resource acceptance
 
-State: reviewing
+State: delivered
 Dependency: Slice 10 integrated
 Branch: test/rev-plugin-system-11-faults
 PR: #11 - https://forge.adrianpk.com/rev/rev/pulls/11
 Implementation: 56d4e0b62ce5d32b539c799c7507f6e591655794
 Report: ops/default/report/slices/rev-plugin-system/slice-11-faults.md
-Validation: all eleven frozen ordered commands passed locally; 84 combined plugin regressions and peer formatting passed. Five native resource profiles and two PTY journeys are measured in the report. Initial controller validation exposed a retired pending-count race; the correction passed five repeated backpressure runs and all 84 plugin regressions. Fresh clean-HEAD controller evidence is required before handoff.
+Integrated: dbbdd0b4a88b1537e829c985a2160f58c5e39836
+Validation: all eleven frozen ordered commands passed locally; 84 combined plugin regressions and peer formatting passed. Five native resource profiles and two PTY journeys are measured in the report. Initial controller validation exposed a retired pending-count race; the correction passed five repeated backpressure runs and all 84 plugin regressions. All eleven commands passed fresh exact clean-HEAD controller validation on dbbdd0b4a88b1537e829c985a2160f58c5e39836 before handoff; canonical merge verified.
 
 - [x] T11.1: Consolidate real child-process lifecycle tests for descriptor ownership, handshake limits, EOF/crash, flooding, stalled peers and owned descendants without interrupting unrelated processes.
 - [x] T11.2: Measure ordinary startup, installed-unused, active-idle, large-read and bounded event-load profiles; report actual latency/RSS/descriptor observations and native service responsiveness.
@@ -199,7 +200,7 @@ Validation: all eleven frozen ordered commands passed locally; 84 combined plugi
 
 ## Slice 12: Authoring and user guidance
 
-State: planned
+State: implementing
 Dependency: Slice 11 integrated
 Branch: docs/rev-plugin-system-12-guidance
 PR: pending

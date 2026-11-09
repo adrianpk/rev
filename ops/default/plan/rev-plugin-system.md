@@ -8,7 +8,7 @@ Planning baseline: a398dcb77dd0ce036d989f038068ac942fc68ebd
 Specification: [Plugin System](../spec/editor-plugin-system.md)
 Model: [Plugin Identity, Protocol and State](../spec/editor-plugin-system-model.md)
 Concern: [Pending Editor Work](../README.md)
-Active slice: Slice 11 - Fault and resource acceptance
+Active slice: Slice 12 - Authoring and user guidance
 Tracker: [Plugin System Tracker](../tracker/rev-plugin-system.md)
 Slice strategy: behavior-first
 
