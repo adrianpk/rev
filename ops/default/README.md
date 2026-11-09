@@ -62,6 +62,16 @@ retained as history. The legacy README notice is merged, the new repository and
 organization are public, and anonymous source access is verified. Associated
 repositories use rev/{repo-name}; concrete package names remain open.
 
+## Active quality delivery
+
+[Architecture Quality and Commit Checks](spec/editor-architecture-quality.md) is
+Approved. The [review](report/rev-architecture-nit-review.md) records F1-F7 and
+complete mechanical evidence. The [plan](plan/rev-architecture-quality.md) and
+[tracker](tracker/rev-architecture-quality.md) define ten slices in one Looper run,
+covering ownership corrections, complete workspace lint, native source policy and
+nonmutating staged-index checks before commits. Hook setup is repository-local;
+existing editor/plugin behavior and separate product decisions are preserved.
+
 ## Pending proposals
 
 - [File-tree width and horizontal navigation](ticket/open/20261108175339-improve-file-tree-panel-width-and-horizontal-navigation.md)
