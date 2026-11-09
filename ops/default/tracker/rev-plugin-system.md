@@ -8,7 +8,7 @@ Planning baseline: a398dcb77dd0ce036d989f038068ac942fc68ebd
 Specification: [Plugin System](../spec/editor-plugin-system.md)
 Model: [Plugin Identity, Protocol and State](../spec/editor-plugin-system-model.md)
 Concern: [Pending Editor Work](../README.md)
-Active slice: Slice 12 - Authoring and user guidance
+Active slice: Slice 13 - Independent client and complete acceptance
 Execution authorized: one thirteen-slice Looper run with automatic integration into dev
 Plan: [Plugin System Delivery](../plan/rev-plugin-system.md)
 Progress owner: selected Looper run; no second runtime tracker
@@ -200,13 +200,14 @@ Validation: all eleven frozen ordered commands passed locally; 84 combined plugi
 
 ## Slice 12: Authoring and user guidance
 
-State: reviewing
+State: delivered
 Dependency: Slice 11 integrated
 Branch: docs/rev-plugin-system-12-guidance
 PR: #12 - https://forge.adrianpk.com/rev/rev/pulls/12
 Implementation: 8a56835b74d63e8e8c5d0a50446a7cf2e08095bb
 Report: ops/default/report/slices/rev-plugin-system/slice-12-guidance.md
-Validation: all eight frozen commands passed locally; two guidance regressions cover the exact public Rust/TOML downloads in both profiles, twelve SDK tests and one doctest passed, and 52 command regressions passed. Documentation covers 106 pages/743 local links, 684 commands and 299 settings; strict Spore build and byte-identical downloads passed. Final exact clean-HEAD controller evidence is recorded before handoff.
+Integrated: 9d308ce040d5559011218022652c5b7c74ecc078
+Validation: all eight frozen commands passed locally; two guidance regressions cover the exact public Rust/TOML downloads in both profiles, twelve SDK tests and one doctest passed, and 52 command regressions passed. Documentation covers 106 pages/743 local links, 684 commands and 299 settings; strict Spore build and byte-identical downloads passed. All eight commands passed exact clean-HEAD controller validation on 9d308ce040d5559011218022652c5b7c74ecc078 before handoff; canonical merge verified.
 
 - [x] T12.1: Add concise opt-in authoring and end-user tutorials/how-tos, complete protocol/configuration/command/error references and an explanation of ownership, transactions and experimental compatibility.
 - [x] T12.2: Keep core User Guide approachable with a separate optional plugin entry, short accurate examples and useful text feedback; derive Spore from Markdown and preserve navigation.
@@ -214,7 +215,7 @@ Validation: all eight frozen commands passed locally; two guidance regressions c
 
 ## Slice 13: Independent client and complete acceptance
 
-State: planned
+State: implementing
 Dependency: Slice 12 integrated
 Branch: test/rev-plugin-system-13-acceptance
 PR: pending

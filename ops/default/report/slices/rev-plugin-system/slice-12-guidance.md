@@ -1,12 +1,13 @@
 # Slice 12: Authoring and user guidance
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-plugin-system
 Plan: [Plugin System Delivery](../../../plan/rev-plugin-system.md)
 Tracker: [Plugin System Tracker](../../../tracker/rev-plugin-system.md)
 Branch: `docs/rev-plugin-system-12-guidance`
 PR: #12 - https://forge.adrianpk.com/rev/rev/pulls/12
 Implementation: 8a56835b74d63e8e8c5d0a50446a7cf2e08095bb
+Integrated: 9d308ce040d5559011218022652c5b7c74ecc078
 
 ## Purpose
 
@@ -65,8 +66,10 @@ remains an experimental API; no release, installer or stability adoption is clai
 
 ## Validation
 
-All eight frozen commands passed locally. The final clean PR HEAD receives
-separate controller evidence for these exact ordered commands before handoff:
+All eight frozen commands passed locally and through exact clean-HEAD controller
+validation on 9d308ce040d5559011218022652c5b7c74ecc078 before handoff. Canonical
+PR #12 merged that commit into dev; live merge and integration were verified.
+The successful ordered commands were:
 
 1. `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo fmt --all -- --check`
 2. `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo clippy --locked --workspace --lib --bins -- -D warnings`
