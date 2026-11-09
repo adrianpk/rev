@@ -5,7 +5,7 @@ Delivery set: rev-plugin-system
 Plan: [Plugin System Delivery](../../../plan/rev-plugin-system.md)
 Tracker: [Plugin System Tracker](../../../tracker/rev-plugin-system.md)
 Branch: `feat/rev-plugin-system-07-keymaps`
-PR: pending
+PR: `#7`
 
 ## Purpose
 
@@ -46,9 +46,8 @@ inspection in both startup profiles.
 
 ## Implementation Notes
 
-The implementation commit introduces this report and delivers T7.1-T7.3.
-Canonical PR and immutable implementation references follow in the PR-reference
-commit.
+Implementation: `ef082253d8093bf1af5041349b943be1c99ae378` implements T7.1-T7.3 and introduces
+this report. Canonical [PR #7](https://forge.adrianpk.com/rev/rev/pulls/7) targets dev.
 
 The existing native Map owns normalized sequence identity, prefix admission and
 resolved command entries. Its contribution resolver processes local/user priority

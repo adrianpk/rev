@@ -128,8 +128,9 @@ Validation: all eight frozen commands passed through the controller validator on
 State: reviewing
 Dependency: Slice 6 integrated
 Branch: feat/rev-plugin-system-07-keymaps
-PR: pending
+PR: #7 - https://forge.adrianpk.com/rev/rev/pulls/7
 Report: ops/default/report/slices/rev-plugin-system/slice-7-keymaps.md
+Implementation: ef082253d8093bf1af5041349b943be1c99ae378
 Validation: all eight frozen commands passed locally; fresh nine-test keymap selection and 55 combined plugin tests passed, including native dispatch/hints, both profiles, hidden targets, precedence/conflicts, selectors, retirement and finite ownership. Exact clean-HEAD controller evidence precedes handoff.
 
 - [x] T7.1: Integrate passive and dynamic global/buffer contributions into existing native contexts, normalization, prefix admission and recovery ownership in both startup profiles.
