@@ -349,7 +349,7 @@ impl Session {
             sequence.conflicts.len()
         );
         self.confirm_git_ref(
-            sequence.refs.clone(),
+            std::sync::Arc::clone(&sequence.refs),
             RefAction::Control {
                 sequence,
                 action,
@@ -456,7 +456,7 @@ impl Session {
         }
         review.push_str("Git keeps hooks/signing authority. No implicit autostash or executable todo actions. y / C-Enter / C-c C-c accept; n / C-g cancel.");
         self.confirm_git_ref(
-            plan.refs.clone(),
+            std::sync::Arc::clone(&plan.refs),
             RefAction::Autosquash(plan),
             Some(sources),
             "Confirm this exact ordered autosquash plan? y=accept, n=cancel".into(),

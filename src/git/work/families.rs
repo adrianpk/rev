@@ -170,7 +170,7 @@ impl Runner {
                         "Prepared directory differs from the captured repository root".into(),
                     );
                 }
-                self.read_sequence(refs, admission).map(Arc::new)
+                self.read_sequence(&refs, admission).map(Arc::new)
             })
             .transpose()?;
         let evidence = if let Some(source) = source
@@ -326,22 +326,22 @@ impl Runner {
             if !expected.same(&actual) {
                 return Err("Submodule configuration, gitlink or saved child state changed while review was open".into());
             }
-            return self.execute_submodule(plan, admission);
+            return self.execute_submodule(&plan, admission);
         }
         if plan.subtree().is_some() {
-            return self.execute_subtree(plan, admission);
+            return self.execute_subtree(&plan, admission);
         }
         if matches!(plan.proof, crate::git::families::FamilyProof::Patch(_)) {
-            return self.execute_patch(plan, admission);
+            return self.execute_patch(&plan, admission);
         }
         if matches!(plan.proof, crate::git::families::FamilyProof::Output(_)) {
-            return self.execute_output(plan, admission);
+            return self.execute_output(&plan, admission);
         }
         if matches!(plan.proof, crate::git::families::FamilyProof::Notes(_)) {
-            return self.execute_notes(plan, admission);
+            return self.execute_notes(&plan, admission);
         }
         if matches!(plan.proof, crate::git::families::FamilyProof::Sparse(_)) {
-            return self.execute_sparse(plan, admission);
+            return self.execute_sparse(&plan, admission);
         }
         let (executed, facts) = self.execute_change(&plan.args, None);
         if self.retained.is_some() {

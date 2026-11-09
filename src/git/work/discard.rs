@@ -8,10 +8,10 @@ use std::{
 impl Runner {
     pub(super) fn discard(
         &mut self,
-        diff: Arc<Diff>,
+        diff: &Arc<Diff>,
         admission: &mut Lease,
     ) -> Result<Candidate, String> {
-        let targets = [IndexTarget::Path(diff.clone())];
+        let targets = [IndexTarget::Path(std::sync::Arc::clone(diff))];
         self.check_index_comparisons(&targets, admission)?;
         let before = self.discard_index()?;
         admission.grow(2 * before.len() + 16384)?;

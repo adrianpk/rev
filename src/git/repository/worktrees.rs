@@ -129,11 +129,12 @@ impl Repositories {
             .clone())
     }
     pub fn worktrees(&mut self, context: ContextId) -> Result<OperationId, String> {
-        let observation = self
-            .context(context)
-            .ok_or("Worktree context expired")?
-            .observation
-            .clone();
+        let observation = std::sync::Arc::clone(
+            &self
+                .context(context)
+                .ok_or("Worktree context expired")?
+                .observation,
+        );
         let root = self.worktree_directory(&observation.identity)?;
         self.start(
             root,

@@ -149,7 +149,7 @@ impl Session {
         if intent.kind == TagKind::Annotated {
             let text = self.git.engine.tag_draft(&intent).unwrap_or("").to_owned();
             match self.install_git_message(
-                intent.refs.observation.clone(),
+                std::sync::Arc::clone(&intent.refs.observation),
                 None,
                 Some(intent),
                 &text,
@@ -174,7 +174,7 @@ impl Session {
                 label(intent.name.as_bytes())
             );
             self.confirm_git_ref(
-                intent.refs.clone(),
+                std::sync::Arc::clone(&intent.refs),
                 RefAction::CreateTag(intent),
                 None,
                 message,

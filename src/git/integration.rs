@@ -348,11 +348,12 @@ impl Repositories {
 
     /// Refresh compatible Status, Refs and actual Git-owned sequence metadata.
     pub fn sequence(&mut self, context: ContextId) -> Result<OperationId, String> {
-        let observation = self
-            .context(context)
-            .ok_or("Git context expired")?
-            .observation
-            .clone();
+        let observation = std::sync::Arc::clone(
+            &self
+                .context(context)
+                .ok_or("Git context expired")?
+                .observation,
+        );
         let root = self.mutation_identity_root(&observation.identity)?;
         self.start(
             root,

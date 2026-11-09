@@ -124,103 +124,167 @@ pub(super) fn parse(
         return Err("Git status lacks its final NUL record boundary".into());
     }
     let mut records = bytes[..bytes.len() - 1].split(|b| *b == 0);
-    let mut object = None;
-    let mut branch = None;
-    let mut upstream = None;
-    let mut counts = None;
-    let mut paths = Vec::new();
-    let mut path_bytes = 0usize;
-    let mut completeness = Completeness::Complete;
+    let mut parser = Parser {
+        identity,
+        policy,
+        cancel,
+        object: None,
+        branch: None,
+        upstream: None,
+        counts: None,
+        paths: Vec::new(),
+        path_bytes: 0,
+        completeness: Completeness::Complete,
+    };
     for_record(&mut records, |record, records| {
-        if cancel.is_cancelled() {
+        parser.record(record, records)
+    })?;
+    parser.finish()
+}
+
+/// Owns a single bounded porcelain-v2 candidate until all headers and paths
+/// are checked. Truncation continues validating records without admitting paths.
+struct Parser<'a> {
+    identity: &'a Identity,
+    policy: &'a Git,
+    cancel: &'a crate::process::Cancellation,
+    object: Option<Option<ObjectId>>,
+    branch: Option<Vec<u8>>,
+    upstream: Option<Vec<u8>>,
+    counts: Option<(usize, usize)>,
+    paths: Vec<PathChange>,
+    path_bytes: usize,
+    completeness: Completeness,
+}
+impl Parser<'_> {
+    fn record<'a>(
+        &mut self,
+        record: &'a [u8],
+        records: &mut dyn Iterator<Item = &'a [u8]>,
+    ) -> Result<(), String> {
+        if self.cancel.is_cancelled() {
             return Err("Git status parsing cancelled or timed out".into());
         }
         if let Some(value) = record.strip_prefix(b"# branch.oid ") {
-            if object
-                .replace(if value == b"(initial)" {
-                    None
-                } else {
-                    Some(ObjectId::parse(value, identity.format)?)
-                })
-                .is_some()
-            {
-                return Err("Duplicate Git HEAD object".into());
-            }
-        } else if let Some(value) = record.strip_prefix(b"# branch.head ") {
-            if branch.replace(metadata(value)?.to_vec()).is_some() {
-                return Err("Duplicate Git HEAD name".into());
-            }
-        } else if let Some(value) = record.strip_prefix(b"# branch.upstream ") {
-            if upstream.replace(metadata(value)?.to_vec()).is_some() {
-                return Err("Duplicate Git upstream".into());
-            }
-        } else if let Some(value) = record.strip_prefix(b"# branch.ab ") {
-            let split = value
-                .iter()
-                .position(|b| *b == b' ')
-                .ok_or("Malformed Git tracking counts")?;
-            let (ahead, behind) = (&value[..split], &value[split + 1..]);
-            let number = |value: Option<&[u8]>| -> Result<usize, String> {
-                std::str::from_utf8(value.ok_or("Malformed Git tracking count")?)
-                    .map_err(|e| e.to_string())?
-                    .parse()
-                    .map_err(|_| "Malformed Git tracking count".into())
-            };
-            if counts
-                .replace((
-                    number(ahead.strip_prefix(b"+"))?,
-                    number(behind.strip_prefix(b"-"))?,
-                ))
-                .is_some()
-            {
-                return Err("Duplicate Git tracking counts".into());
-            }
-        } else if record.starts_with(b"# ") {
+            return self.object(value);
+        }
+        if let Some(value) = record.strip_prefix(b"# branch.head ") {
+            return self.branch(value);
+        }
+        if let Some(value) = record.strip_prefix(b"# branch.upstream ") {
+            return self.upstream(value);
+        }
+        if let Some(value) = record.strip_prefix(b"# branch.ab ") {
+            return self.tracking(value);
+        }
+        if record.starts_with(b"# ") {
             return Err("Unsupported Git status header".into());
-        } else {
-            let path = change(record, records, identity.format)?;
-            let size = path.path.as_os_str().as_encoded_bytes().len()
-                + path
-                    .old_path
-                    .as_ref()
-                    .map_or(0, |p| p.as_os_str().as_encoded_bytes().len());
-            if paths.len() >= policy.max_status_paths {
-                completeness = Completeness::Truncated {
-                    reason: "max_status_paths",
-                };
-            } else if path_bytes + size > policy.max_path_bytes {
-                completeness = Completeness::Truncated {
-                    reason: "max_path_bytes",
-                };
-            } else if completeness == Completeness::Complete {
-                path_bytes += size;
-                paths.push(path);
-            }
+        }
+        self.admit_path(change(record, records, self.identity.format)?);
+        Ok(())
+    }
+    fn object(&mut self, value: &[u8]) -> Result<(), String> {
+        if self
+            .object
+            .replace(if value == b"(initial)" {
+                None
+            } else {
+                Some(ObjectId::parse(value, self.identity.format)?)
+            })
+            .is_some()
+        {
+            return Err("Duplicate Git HEAD object".into());
         }
         Ok(())
-    })?;
-    let object = object.ok_or("Git status lacks HEAD object")?;
-    let branch = branch.ok_or("Git status lacks HEAD name")?;
-    let head = match (object, branch.as_slice()) {
-        (None, b"(detached)") => return Err("Detached Git HEAD lacks an object".into()),
-        (None, _) => Head::Unborn { branch },
-        (Some(object), b"(detached)") => Head::Detached { object },
-        (Some(object), _) => Head::Branch {
-            name: branch,
-            object,
-        },
-    };
-    if counts.is_some() && upstream.is_none() {
-        return Err("Git tracking counts lack an upstream".into());
     }
-    Ok(Status {
-        head,
-        upstream,
-        ahead: counts.map(|n| n.0),
-        behind: counts.map(|n| n.1),
-        paths,
-        completeness,
-    })
+    fn branch(&mut self, value: &[u8]) -> Result<(), String> {
+        if self.branch.replace(metadata(value)?.to_vec()).is_some() {
+            return Err("Duplicate Git HEAD name".into());
+        }
+        Ok(())
+    }
+    fn upstream(&mut self, value: &[u8]) -> Result<(), String> {
+        if self.upstream.replace(metadata(value)?.to_vec()).is_some() {
+            return Err("Duplicate Git upstream".into());
+        }
+        Ok(())
+    }
+    fn tracking(&mut self, value: &[u8]) -> Result<(), String> {
+        let split = value
+            .iter()
+            .position(|b| *b == b' ')
+            .ok_or("Malformed Git tracking counts")?;
+        let (ahead, behind) = (&value[..split], &value[split + 1..]);
+        let number = |value: Option<&[u8]>| -> Result<usize, String> {
+            std::str::from_utf8(value.ok_or("Malformed Git tracking count")?)
+                .map_err(|e| e.to_string())?
+                .parse()
+                .map_err(|_| "Malformed Git tracking count".into())
+        };
+        if self
+            .counts
+            .replace((
+                number(ahead.strip_prefix(b"+"))?,
+                number(behind.strip_prefix(b"-"))?,
+            ))
+            .is_some()
+        {
+            return Err("Duplicate Git tracking counts".into());
+        }
+        Ok(())
+    }
+    fn admit_path(&mut self, path: PathChange) {
+        let size = path.path.as_os_str().as_encoded_bytes().len()
+            + path
+                .old_path
+                .as_ref()
+                .map_or(0, |p| p.as_os_str().as_encoded_bytes().len());
+        if self.paths.len() >= self.policy.max_status_paths {
+            self.completeness = Completeness::Truncated {
+                reason: "max_status_paths",
+            };
+        } else if self.path_bytes + size > self.policy.max_path_bytes {
+            self.completeness = Completeness::Truncated {
+                reason: "max_path_bytes",
+            };
+        } else if self.completeness == Completeness::Complete {
+            self.path_bytes += size;
+            self.paths.push(path);
+        }
+    }
+    fn finish(self) -> Result<Status, String> {
+        let Self {
+            object,
+            branch,
+            upstream,
+            counts,
+            paths,
+            completeness,
+            ..
+        } = self;
+        let object = object.ok_or("Git status lacks HEAD object")?;
+        let branch = branch.ok_or("Git status lacks HEAD name")?;
+        let head = match (object, branch.as_slice()) {
+            (None, b"(detached)") => return Err("Detached Git HEAD lacks an object".into()),
+            (None, _) => Head::Unborn { branch },
+            (Some(object), b"(detached)") => Head::Detached { object },
+            (Some(object), _) => Head::Branch {
+                name: branch,
+                object,
+            },
+        };
+        if counts.is_some() && upstream.is_none() {
+            return Err("Git tracking counts lack an upstream".into());
+        }
+        Ok(Status {
+            head,
+            upstream,
+            ahead: counts.map(|n| n.0),
+            behind: counts.map(|n| n.1),
+            paths,
+            completeness,
+        })
+    }
 }
 
 // The iterator also supplies the second NUL record of a rename/copy, whose
@@ -240,13 +304,7 @@ fn change(
     records: &mut dyn Iterator<Item = &[u8]>,
     format: ObjectFormat,
 ) -> Result<PathChange, String> {
-    let (kind, fields) = match record.first() {
-        Some(b'?') => (b'?', 2),
-        Some(b'1') => (b'1', 9),
-        Some(b'2') => (b'2', 10),
-        Some(b'u') => (b'u', 11),
-        _ => return Err("Unsupported Git path record".into()),
-    };
+    let (kind, fields) = record_kind(record)?;
     let parts: Vec<_> = record.splitn(fields, |b| *b == b' ').collect();
     if parts.len() != fields {
         return Err("Incomplete Git path record".into());
@@ -265,50 +323,9 @@ fn change(
     if kind == b'?' {
         return Ok(change);
     }
-    let xy = parts[1];
-    if xy.len() != 2 || !xy.iter().all(|b| b".MTADRCU".contains(b)) {
-        return Err("Malformed Git path status".into());
-    }
-    change.index = xy[0];
-    change.worktree = xy[1];
-    change.unmerged = kind == b'u';
-    let sub = parts[2];
-    if sub != b"N..."
-        && !(sub.len() == 4
-            && sub[0] == b'S'
-            && b".C".contains(&sub[1])
-            && b".M".contains(&sub[2])
-            && b".U".contains(&sub[3]))
-    {
-        return Err("Malformed Git submodule status".into());
-    }
-    change.submodule.copy_from_slice(sub);
-    let mode_end = if kind == b'u' { 7 } else { 6 };
-    for mode in &parts[3..mode_end] {
-        if mode.len() != 6 || !mode.iter().all(|b| (b'0'..=b'7').contains(b)) {
-            return Err("Malformed Git mode".into());
-        }
-        change.modes.push(
-            u32::from_str_radix(std::str::from_utf8(mode).expect("ASCII mode"), 8)
-                .map_err(|e| e.to_string())?,
-        );
-    }
-    let object_end = if kind == b'u' { 10 } else { 8 };
-    for object in &parts[mode_end..object_end] {
-        change.objects.push(ObjectId::parse(object, format)?);
-    }
+    tracked_change(&mut change, &parts, kind, format)?;
     if kind == b'2' {
-        let score = parts[8];
-        if score.len() < 2
-            || !b"RC".contains(&score[0])
-            || !score[1..].iter().all(u8::is_ascii_digit)
-            || std::str::from_utf8(&score[1..])
-                .expect("ASCII score")
-                .parse::<u32>()
-                .map_or(true, |n| n > 100)
-        {
-            return Err("Malformed Git rename/copy score".into());
-        }
+        rename_score(parts[8])?;
         change.old_path = Some(path(
             records.next().ok_or("Git rename lacks its original path")?,
         )?);
@@ -334,4 +351,72 @@ fn path(bytes: &[u8]) -> Result<PathBuf, String> {
         return Err("Git path is not an exact repository-relative path".into());
     }
     Ok(path)
+}
+
+fn record_kind(record: &[u8]) -> Result<(u8, usize), String> {
+    match record.first() {
+        Some(b'?') => Ok((b'?', 2)),
+        Some(b'1') => Ok((b'1', 9)),
+        Some(b'2') => Ok((b'2', 10)),
+        Some(b'u') => Ok((b'u', 11)),
+        _ => Err("Unsupported Git path record".into()),
+    }
+}
+fn tracked_change(
+    change: &mut PathChange,
+    parts: &[&[u8]],
+    kind: u8,
+    format: ObjectFormat,
+) -> Result<(), String> {
+    let xy = parts[1];
+    if xy.len() != 2 || !xy.iter().all(|b| b".MTADRCU".contains(b)) {
+        return Err("Malformed Git path status".into());
+    }
+    change.index = xy[0];
+    change.worktree = xy[1];
+    change.unmerged = kind == b'u';
+    let sub = parts[2];
+    submodule_status(sub)?;
+    change.submodule.copy_from_slice(sub);
+    let mode_end = if kind == b'u' { 7 } else { 6 };
+    for mode in &parts[3..mode_end] {
+        change.modes.push(path_mode(mode)?);
+    }
+    let object_end = if kind == b'u' { 10 } else { 8 };
+    for object in &parts[mode_end..object_end] {
+        change.objects.push(ObjectId::parse(object, format)?);
+    }
+    Ok(())
+}
+fn submodule_status(sub: &[u8]) -> Result<(), String> {
+    if sub != b"N..."
+        && !(sub.len() == 4
+            && sub[0] == b'S'
+            && b".C".contains(&sub[1])
+            && b".M".contains(&sub[2])
+            && b".U".contains(&sub[3]))
+    {
+        return Err("Malformed Git submodule status".into());
+    }
+    Ok(())
+}
+fn path_mode(mode: &[u8]) -> Result<u32, String> {
+    if mode.len() != 6 || !mode.iter().all(|b| (b'0'..=b'7').contains(b)) {
+        return Err("Malformed Git mode".into());
+    }
+    u32::from_str_radix(std::str::from_utf8(mode).expect("ASCII mode"), 8)
+        .map_err(|e| e.to_string())
+}
+fn rename_score(score: &[u8]) -> Result<(), String> {
+    if score.len() < 2
+        || !b"RC".contains(&score[0])
+        || !score[1..].iter().all(u8::is_ascii_digit)
+        || std::str::from_utf8(&score[1..])
+            .expect("ASCII score")
+            .parse::<u32>()
+            .map_or(true, |n| n > 100)
+    {
+        return Err("Malformed Git rename/copy score".into());
+    }
+    Ok(())
 }

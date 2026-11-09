@@ -409,7 +409,7 @@ impl Session {
             object
         );
         self.confirm_git_ref(
-            plan.source.refs.clone(),
+            std::sync::Arc::clone(&plan.source.refs),
             refs::RefAction::Stash(plan),
             Some(sources),
             message,

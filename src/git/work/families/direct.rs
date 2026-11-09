@@ -86,7 +86,7 @@ impl Runner {
         }
         self.private_output = true;
         let result = if plan.observation.is_some() {
-            self.family_observed_result(plan.clone(), None, admission)
+            self.family_observed_result(std::sync::Arc::clone(&plan), None, admission)
         } else {
             Err("No previously checked repository observation was selected".into())
         };

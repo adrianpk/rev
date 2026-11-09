@@ -8,7 +8,7 @@ impl Runner {
         admission: &mut Lease,
     ) -> Result<AutosquashPlan, String> {
         let current = self.check_integration_source(&refs, admission)?;
-        if self.read_sequence(current, admission)?.family.is_some() {
+        if self.read_sequence(&current, admission)?.family.is_some() {
             return Err("Autosquash preparation requires no active Git-owned sequence".into());
         }
         self.integration_policy(&refs, IntegrationMode::Rebase)?;
@@ -149,7 +149,11 @@ impl Runner {
         plan: &AutosquashPlan,
         admission: &mut Lease,
     ) -> Result<Vec<OsString>, String> {
-        let actual = self.prepare_autosquash(plan.refs.clone(), &plan.target_name, admission)?;
+        let actual = self.prepare_autosquash(
+            std::sync::Arc::clone(&plan.refs),
+            &plan.target_name,
+            admission,
+        )?;
         if !plan.same(&actual) {
             return Err("Autosquash source objects or ordered plan changed during review".into());
         }

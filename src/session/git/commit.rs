@@ -290,7 +290,7 @@ impl Session {
             let operation = if let Some(composition) = &composer.composition {
                 self.git
                     .engine
-                    .commit_prepared(composition.clone(), &text)?
+                    .commit_prepared(std::sync::Arc::clone(composition), &text)?
             } else {
                 self.git.engine.commit(
                     composer.observation.clone().expect("commit observation"),

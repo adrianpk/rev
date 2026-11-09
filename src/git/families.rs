@@ -669,7 +669,7 @@ impl Repositories {
         let observation = context
             .map(|id| {
                 self.context(id)
-                    .map(|c| c.observation.clone())
+                    .map(|c| std::sync::Arc::clone(&c.observation))
                     .ok_or("Prepared source context expired")
             })
             .transpose()?;

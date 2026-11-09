@@ -144,12 +144,11 @@ impl Runner {
             },
             "--stdin".into(),
         ];
-        let result = self.command_input(
-            &args,
+        let result = self.command_argv(
+            self.git_invocation(&args, file),
             Phase::Verifying,
             false,
             Some(self.policy.max_detail_bytes),
-            file,
         );
         if self.retained.is_none() {
             self.driver_admission = None;

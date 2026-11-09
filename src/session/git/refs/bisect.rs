@@ -148,7 +148,7 @@ impl Session {
                 review.push_str(&format!("\nExact skipped candidate:\n{}", id.hex()));
             }
             (
-                sequence.refs.clone(),
+                std::sync::Arc::clone(&sequence.refs),
                 RefAction::BisectControl(sequence, action),
                 format!(
                     "Confirm manual bisect {}? y=accept, n=cancel",
@@ -169,7 +169,7 @@ impl Session {
                 plan.refs.head.map_or("unavailable".into(), |id| id.hex())
             );
             (
-                plan.refs.clone(),
+                std::sync::Arc::clone(&plan.refs),
                 RefAction::BisectStart(plan),
                 "Confirm manual bisect with these exact boundaries? y=accept, n=cancel".into(),
                 review,

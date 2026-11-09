@@ -13,13 +13,13 @@ impl Runner {
         match request {
             Request::List(observation) => {
                 let refs = self.integration_refs(&observation, admission)?;
-                self.read_worktrees(refs.observation.clone(), admission)
+                self.read_worktrees(std::sync::Arc::clone(&refs.observation), admission)
                     .map(Candidate::Worktrees)
             }
             Request::Prepare {
                 worktrees, action, ..
             } => self.prepare_worktree(worktrees, action, admission),
-            Request::Change(plan) => self.change_worktree(plan, admission),
+            Request::Change(plan) => self.change_worktree(&plan, admission),
             Request::Visit {
                 worktrees, path, ..
             } => {
@@ -256,7 +256,7 @@ impl Runner {
         admission: &mut Lease,
     ) -> Result<(), String> {
         let refs = self.integration_refs(&expected.observation, admission)?;
-        let actual = self.read_worktrees(refs.observation.clone(), admission)?;
+        let actual = self.read_worktrees(std::sync::Arc::clone(&refs.observation), admission)?;
         if !expected.same(&actual) {
             return Err("Worktree paths, identities, refs, lock or prune state changed while review was open".into());
         }
@@ -358,7 +358,7 @@ impl Runner {
             if refs.head != entry.head || refs.head_ref != entry.branch {
                 return Err("Worktree HEAD or branch changed".into());
             }
-            let sequence = self.read_sequence(Arc::new(refs), admission)?;
+            let sequence = self.read_sequence(&Arc::new(refs), admission)?;
             if clean && (sequence.family.is_some() || !sequence.conflicts.is_empty()) {
                 return Err("Worktree owns an active Git sequence or conflicts".into());
             }
@@ -378,7 +378,7 @@ impl Runner {
         if refs.completeness != Completeness::Complete {
             return Err("Worktree actions require complete source refs".into());
         }
-        let source = self.read_sequence(refs, admission)?;
+        let source = self.read_sequence(&refs, admission)?;
         let mut target_state = None;
         let mut parent_stamp = None;
         let paths = match &mut action {
@@ -513,7 +513,7 @@ impl Runner {
     }
     fn change_worktree(
         &mut self,
-        plan: Arc<WorktreePlan>,
+        plan: &Arc<WorktreePlan>,
         admission: &mut Lease,
     ) -> Result<Candidate, String> {
         self.checked_sequence(&plan.source, admission)?;
@@ -592,8 +592,9 @@ impl Runner {
         }
         let result = (|| {
             let refs = self.integration_refs(&plan.source.refs.observation, admission)?;
-            let sequence = self.read_sequence(refs, admission)?;
-            let after = self.read_worktrees(sequence.refs.observation.clone(), admission)?;
+            let sequence = self.read_sequence(&refs, admission)?;
+            let after =
+                self.read_worktrees(std::sync::Arc::clone(&sequence.refs.observation), admission)?;
             let source_refs = &plan.source.refs;
             let refs_ok = match &plan.action {
                 WorktreeAction::Create { branch, target, .. } => {

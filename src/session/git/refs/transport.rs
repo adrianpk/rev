@@ -128,7 +128,7 @@ impl Session {
             label(intent.destination())
         );
         self.confirm_git_ref(
-            intent.refs().clone(),
+            std::sync::Arc::clone(intent.refs()),
             RefAction::Push(intent),
             None,
             message,

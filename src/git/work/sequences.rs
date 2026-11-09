@@ -56,11 +56,7 @@ impl Runner {
     ) -> Result<Candidate, String> {
         self.verify_ancestry(&plan.history)?;
         let refs = self.check_integration_source(&plan.refs, admission)?;
-        if self
-            .read_sequence(refs.clone(), admission)?
-            .family
-            .is_some()
-        {
+        if self.read_sequence(&refs, admission)?.family.is_some() {
             return Err(
                 "An actual Git sequence is already active; inspect it before applying revisions"
                     .into(),
@@ -93,11 +89,7 @@ impl Runner {
         while progress.next < progress.plan.steps.len() {
             let checked = (|| {
                 let refs = self.check_integration_source(&expected, admission)?;
-                if self
-                    .read_sequence(refs.clone(), admission)?
-                    .family
-                    .is_some()
-                {
+                if self.read_sequence(&refs, admission)?.family.is_some() {
                     return Err(
                         "Another Git-owned sequence appeared before the next ordered step".into(),
                     );
@@ -138,7 +130,7 @@ impl Runner {
             }
             let result = (|| {
                 let after = self.integration_refs(&progress.plan.refs.observation, admission)?;
-                let mut sequence = self.read_sequence(after.clone(), admission)?;
+                let mut sequence = self.read_sequence(&after, admission)?;
                 if sequence.family.is_some() {
                     let size = progress.bytes();
                     admission.grow(size)?;

@@ -7,9 +7,9 @@ impl Runner {
         admission: &mut Lease,
     ) -> Result<Sequence, String> {
         let refs = self.integration_refs(&expected.refs.observation, admission)?;
-        let mut actual = self.read_sequence(refs, admission)?;
+        let mut actual = self.read_sequence(&refs, admission)?;
         if let Some(progress) = &expected.application {
-            self.bind_application(&mut actual, progress.clone())?;
+            self.bind_application(&mut actual, std::sync::Arc::clone(progress))?;
         }
         if let Some(plan) = expected.bisect.as_ref().and_then(|b| b.plan.clone()) {
             self.bind_bisect(&mut actual, plan)?;
@@ -24,7 +24,7 @@ impl Runner {
     }
     pub(super) fn control_sequence(
         &mut self,
-        expected: Arc<Sequence>,
+        expected: &Arc<Sequence>,
         action: SequenceControl,
         family: Option<SequenceFamily>,
         admission: &mut Lease,
@@ -36,7 +36,7 @@ impl Runner {
             }
             return result;
         }
-        let current = self.checked_sequence(&expected, admission)?;
+        let current = self.checked_sequence(expected, admission)?;
         current.control_admission(action, family)?;
         let actual = current.family.ok_or("Git sequence disappeared")?;
         let original = current
@@ -54,7 +54,7 @@ impl Runner {
             }
             _ => return Err("No compatible Git sequence control is admitted".into()),
         };
-        self.checked_sequence(&expected, admission)?;
+        self.checked_sequence(expected, admission)?;
         self.accept_message = action == SequenceControl::Continue;
         let (executed, facts) = self.execute_change(&args, None);
         self.accept_message = false;
@@ -66,7 +66,7 @@ impl Runner {
         }
         let result = (|| {
             let refs = self.integration_refs(&expected.refs.observation, admission)?;
-            let after = self.read_sequence(refs, admission)?;
+            let after = self.read_sequence(&refs, admission)?;
             if after.family.is_some() {
                 self.in_progress = after.family == Some(actual)
                     && after.original == Some(original)

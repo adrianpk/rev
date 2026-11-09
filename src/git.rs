@@ -36,6 +36,7 @@ mod refs;
 pub use refs::{BranchAction, PushIntent, RefKind, Reference, Refs, TagIntent, TagKind};
 mod status;
 pub use diff::{Baseline, Diff, DiffKind, DiffLine, DiffLineKind, Hunk, HunkId, LineRange};
+mod publication;
 mod work;
 pub use status::{Completeness, Group, Head, PathChange, Status};
 
@@ -472,7 +473,7 @@ impl Repositories {
             .ok_or("Selected Git path/layer is no longer admitted")?
             .clone();
         let target = diff::Target {
-            observation: known.observation.clone(),
+            observation: std::sync::Arc::clone(&known.observation),
             group,
             change,
         };
@@ -503,6 +504,52 @@ impl Repositories {
                     .into(),
             );
         }
+        self.admit_record_capacity()?;
+        // Reserve raw output, scratch and diagnostic capacities before launch.
+        // The worker admits the actual bounded path candidate before parsing;
+        // a large configured ceiling does not allocate an empty worst-case list.
+        let bytes = self.policy.max_output_bytes
+            + budget::SCRATCH_BYTES
+            + 2 * self.policy.max_diagnostic_bytes
+            + 131072;
+        let admission = self.budget.reserve(bytes)?;
+        self.next = self
+            .next
+            .checked_add(1)
+            .ok_or("Git operation identity exhausted")?;
+        let id = OperationId(self.next);
+        let progress = Arc::new(Mutex::new(Progress {
+            operation: id,
+            kind: request.kind(),
+            context,
+            phase: Phase::Checking,
+            child: None,
+            started: Instant::now(),
+            stopping: false,
+        }));
+        let cancel = Cancellation::default();
+        let thread = work::Worker {
+            policy: self.policy.clone(),
+            directory,
+            request,
+            progress: Arc::clone(&progress),
+            cancel: cancel.clone(),
+            admission,
+            wake: Arc::clone(&self.wake),
+        }
+        .start()?;
+        self.active.push(Active {
+            exclusive,
+            progress,
+            cancel,
+            thread: Some(thread),
+            retained: None,
+            record: None,
+        });
+        Ok(id)
+    }
+
+    fn admit_record_capacity(&mut self) -> Result<(), String> {
         if self.active.len() >= MAX_CONTEXTS {
             return Err("Git active context limit reached".into());
         }
@@ -529,47 +576,7 @@ impl Repositories {
         {
             self.records.remove(0);
         }
-        // Reserve raw output, scratch and diagnostic capacities before launch.
-        // The worker admits the actual bounded path candidate before parsing;
-        // a large configured ceiling does not allocate an empty worst-case list.
-        let bytes = self.policy.max_output_bytes
-            + budget::SCRATCH_BYTES
-            + 2 * self.policy.max_diagnostic_bytes
-            + 131072;
-        let admission = self.budget.reserve(bytes)?;
-        self.next = self
-            .next
-            .checked_add(1)
-            .ok_or("Git operation identity exhausted")?;
-        let id = OperationId(self.next);
-        let progress = Arc::new(Mutex::new(Progress {
-            operation: id,
-            kind: request.kind(),
-            context,
-            phase: Phase::Checking,
-            child: None,
-            started: Instant::now(),
-            stopping: false,
-        }));
-        let cancel = Cancellation::default();
-        let thread = work::start(
-            self.policy.clone(),
-            directory,
-            request,
-            progress.clone(),
-            cancel.clone(),
-            admission,
-            self.wake.clone(),
-        )?;
-        self.active.push(Active {
-            exclusive,
-            progress,
-            cancel,
-            thread: Some(thread),
-            retained: None,
-            record: None,
-        });
-        Ok(id)
+        Ok(())
     }
 
     /// Cancellation targets an exact live operation. Inspection and UI hiding
@@ -583,10 +590,10 @@ impl Repositories {
         active.cancel.cancel();
         active.progress.lock().expect("Git progress owner").stopping = true;
         if active.retained.is_some() {
-            let progress = active.progress.clone();
-            let wake = self.wake.clone();
+            let progress = std::sync::Arc::clone(&active.progress);
+            let wake = std::sync::Arc::clone(&self.wake);
             let owned = Arc::new(Mutex::new(None::<(work::Retained, Record)>));
-            let transfer = owned.clone();
+            let transfer = std::sync::Arc::clone(&owned);
             // The worker must exist before ownership leaves the registry.
             let (send, receive) = std::sync::mpsc::sync_channel::<()>(1);
             let thread = std::thread::Builder::new()
@@ -650,31 +657,7 @@ impl Repositories {
                 active.record = Some(finished.record);
                 active.progress.lock().expect("Git progress owner").phase = Phase::Cleanup;
                 let progress = *active.progress.lock().expect("Git progress owner");
-                if matches!(
-                    progress.kind,
-                    OperationKind::Family
-                        | OperationKind::Worktree
-                        | OperationKind::Stash
-                        | OperationKind::Stage
-                        | OperationKind::Unstage
-                        | OperationKind::Discard
-                        | OperationKind::Commit
-                        | OperationKind::TagCreate
-                        | OperationKind::TagDelete
-                        | OperationKind::SequenceControl
-                        | OperationKind::Application
-                        | OperationKind::ApplicationControl
-                        | OperationKind::Bisect
-                        | OperationKind::Integration
-                        | OperationKind::Push
-                        | OperationKind::Fetch
-                        | OperationKind::Branch
-                ) && let Some(context) = progress
-                    .context
-                    .and_then(|id| self.contexts.iter_mut().find(|c| c.id == id))
-                {
-                    context.failure = Some(progress.operation);
-                }
+                self.fail_cleanup(&progress);
                 updates.push(Update {
                     operation: progress.operation,
                     kind: progress.kind,
@@ -686,485 +669,7 @@ impl Repositories {
             }
             let progress = *active.progress.lock().expect("Git progress owner");
             let mut record = finished.record;
-            let mut published = false;
-            let context = match finished.publication {
-                Ok(work::Publication::FamilyPlan(plan)) => {
-                    self.family_plan = Some(Arc::new(plan));
-                    published = true;
-                    progress.context
-                }
-                Ok(work::Publication::FamilyResult(mut result)) => {
-                    let source_refreshed = result.source.is_some();
-                    if let Some(observation) = result.source.take()
-                        && let Some(context) = self
-                            .contexts
-                            .iter_mut()
-                            .find(|c| c.id == observation.context)
-                    {
-                        context.observation = Arc::new(observation);
-                        context.failure = None;
-                    }
-                    if result.plan.family.direct()
-                        && !source_refreshed
-                        && let Some(expected) = &result.plan.observation
-                        && let Some(context) =
-                            self.contexts.iter_mut().find(|c| c.id == expected.context)
-                        && context.observation.generation == expected.generation
-                    {
-                        context.failure = Some(progress.operation);
-                    }
-                    self.family_result = Some(Arc::new(result));
-                    self.family_plan = None;
-                    published = true;
-                    progress.context
-                }
-                Ok(work::Publication::Status(mut observation)) => {
-                    let prior = self
-                        .contexts
-                        .iter()
-                        .position(|c| c.observation.identity == observation.identity);
-                    if let Some(prior) = prior {
-                        observation.context = self.contexts[prior].id;
-                        let id = observation.context;
-                        self.contexts[prior].observation = Arc::new(observation);
-                        self.contexts[prior].failure = None;
-                        self.contexts[prior].composition = None;
-                        if progress.kind == OperationKind::Commit
-                            && record.outcome == Outcome::Verified
-                        {
-                            self.contexts[prior].draft = None;
-                        }
-                        published = true;
-                        record.context = Some(id);
-                        Some(id)
-                    } else if self.contexts.len() < MAX_CONTEXTS {
-                        let id = observation.context;
-                        self.contexts.push(Context {
-                            id,
-                            observation: Arc::new(observation),
-                            failure: None,
-                            detail: None,
-                            detail_failure: None,
-                            worktrees: None,
-                            worktree_plan: None,
-                            stashes: None,
-                            stash_detail: None,
-                            stash_plan: None,
-                            refs: None,
-                            sequence: None,
-                            conflict: None,
-                            resolution: None,
-                            conflict_explanation: None,
-                            autosquash: None,
-                            application_plan: None,
-                            bisect_plan: None,
-                            history: None,
-                            reflog: None,
-                            blame: None,
-                            revision_file: None,
-                            revision: None,
-                            tag_intent: None,
-                            push_intent: None,
-                            tag_draft: None,
-                            draft: None,
-                            composition: None,
-                        });
-                        published = true;
-                        record.context = Some(id);
-                        Some(id)
-                    } else {
-                        record.outcome = Outcome::Failed;
-                        record.diagnostic = Some(
-                            "Git retained context limit reached; existing contexts were preserved"
-                                .into(),
-                        );
-                        None
-                    }
-                }
-                Ok(work::Publication::Worktrees(worktrees)) => {
-                    if let Some(context) = self
-                        .contexts
-                        .iter_mut()
-                        .find(|c| c.id == worktrees.observation.context)
-                    {
-                        context.observation = worktrees.observation.clone();
-                        context.worktrees = Some(Arc::new(worktrees));
-                        context.worktree_plan = None;
-                        context.failure = None;
-                        published = true;
-                    }
-                    progress.context
-                }
-                Ok(work::Publication::WorktreePlan(plan)) => {
-                    if let Some(context) = self.contexts.iter_mut().find(|c| {
-                        c.id == plan.worktrees.observation.context
-                            && c.worktrees
-                                .as_ref()
-                                .is_some_and(|w| Arc::ptr_eq(w, &plan.worktrees))
-                    }) {
-                        context.worktree_plan = Some(Arc::new(plan));
-                        published = true;
-                    }
-                    progress.context
-                }
-                Ok(work::Publication::Stashes(stashes)) => {
-                    if let Some(context) = self
-                        .contexts
-                        .iter_mut()
-                        .find(|c| c.id == stashes.observation.context)
-                    {
-                        context.observation = stashes.observation.clone();
-                        context.stashes = Some(Arc::new(stashes));
-                        context.stash_plan = None;
-                        context.failure = None;
-                        published = true;
-                    }
-                    progress.context
-                }
-                Ok(work::Publication::StashDetail(detail)) => {
-                    if let Some(context) = self.contexts.iter_mut().find(|c| {
-                        c.id == detail.stashes.observation.context
-                            && c.stashes
-                                .as_ref()
-                                .is_some_and(|s| Arc::ptr_eq(s, &detail.stashes))
-                    }) {
-                        context.stash_detail = Some(Arc::new(detail));
-                        published = true;
-                    }
-                    progress.context
-                }
-                Ok(work::Publication::StashPlan(plan)) => {
-                    if let Some(context) = self.contexts.iter_mut().find(|c| {
-                        c.id == plan.stashes.observation.context
-                            && c.stashes
-                                .as_ref()
-                                .is_some_and(|s| Arc::ptr_eq(s, &plan.stashes))
-                    }) {
-                        context.stash_plan = Some(Arc::new(plan));
-                        published = true;
-                    }
-                    progress.context
-                }
-                Ok(work::Publication::StashResult { stashes, sequence }) => {
-                    if let Some(context) = self
-                        .contexts
-                        .iter_mut()
-                        .find(|c| c.id == stashes.observation.context)
-                    {
-                        context.observation = stashes.observation.clone();
-                        context.refs = Some(sequence.refs.clone());
-                        context.sequence = Some(Arc::new(sequence));
-                        context.stashes = Some(Arc::new(stashes));
-                        context.stash_plan = None;
-                        context.stash_detail = None;
-                        context.failure = None;
-                        context.composition = None;
-                        published = true;
-                    }
-                    progress.context
-                }
-                Ok(work::Publication::BisectPlan(plan)) => {
-                    if let Some(context) = self.contexts.iter_mut().find(|c| {
-                        c.id == plan.refs.observation.context
-                            && c.refs.as_ref().is_some_and(|r| Arc::ptr_eq(r, &plan.refs))
-                    }) {
-                        context.bisect_plan = Some(Arc::new(plan));
-                        published = true;
-                    } else {
-                        record.outcome = Outcome::Failed;
-                        record.diagnostic = Some("Bisect source expired before publication".into());
-                    }
-                    progress.context
-                }
-                Ok(work::Publication::ApplicationPlan(plan)) => {
-                    if let Some(context) = self.contexts.iter_mut().find(|c| {
-                        c.id == plan.refs.observation.context
-                            && Arc::ptr_eq(&c.observation, &plan.refs.observation)
-                    }) {
-                        context.refs = Some(plan.refs.clone());
-                        context.application_plan = Some(Arc::new(plan));
-                        published = true;
-                    } else {
-                        record.outcome = Outcome::Failed;
-                        record.diagnostic =
-                            Some("Ordered revision source expired before publication".into());
-                    }
-                    progress.context
-                }
-                Ok(work::Publication::Autosquash(plan)) => {
-                    if let Some(context) = self.contexts.iter_mut().find(|c| {
-                        c.id == plan.refs.observation.context
-                            && c.refs.as_ref().is_some_and(|r| Arc::ptr_eq(r, &plan.refs))
-                    }) {
-                        context.autosquash = Some(Arc::new(plan));
-                        published = true;
-                    } else {
-                        record.outcome = Outcome::Failed;
-                        record.diagnostic =
-                            Some("Autosquash source expired before publication".into());
-                    }
-                    progress.context
-                }
-                Ok(work::Publication::ConflictExplanation(snapshot)) => {
-                    if let Some(context) = self
-                        .contexts
-                        .iter_mut()
-                        .find(|c| c.id == snapshot.conflict.sequence.refs.observation.context)
-                        && context
-                            .conflict
-                            .as_ref()
-                            .is_some_and(|c| Arc::ptr_eq(c, &snapshot.conflict))
-                    {
-                        context.conflict_explanation = Some(Arc::new(snapshot));
-                        published = true;
-                    } else {
-                        record.outcome = Outcome::Failed;
-                        record.diagnostic =
-                            Some("Conflict explanation context expired before publication".into());
-                    }
-                    progress.context
-                }
-                Ok(work::Publication::Resolution(plan)) => {
-                    if let Some(context) = self
-                        .contexts
-                        .iter_mut()
-                        .find(|c| c.id == plan.conflict.sequence.refs.observation.context)
-                        && context
-                            .conflict
-                            .as_ref()
-                            .is_some_and(|c| Arc::ptr_eq(c, &plan.conflict))
-                    {
-                        context.resolution = Some(Arc::new(plan));
-                        published = true;
-                    } else {
-                        record.outcome = Outcome::Failed;
-                        record.diagnostic =
-                            Some("Conflict resolution context expired before review".into());
-                    }
-                    progress.context
-                }
-                Ok(work::Publication::Conflict(conflict)) => {
-                    if let Some(context) = self
-                        .contexts
-                        .iter_mut()
-                        .find(|c| c.id == conflict.sequence.refs.observation.context)
-                        && context
-                            .sequence
-                            .as_ref()
-                            .is_some_and(|s| Arc::ptr_eq(s, &conflict.sequence))
-                    {
-                        context.conflict = Some(Arc::new(conflict));
-                        published = true;
-                    } else {
-                        record.outcome = Outcome::Failed;
-                        record.diagnostic =
-                            Some("Conflict context expired before publication".into());
-                    }
-                    progress.context
-                }
-                Ok(work::Publication::Sequence(sequence)) => {
-                    if let Some(context) = self
-                        .contexts
-                        .iter_mut()
-                        .find(|c| c.id == sequence.refs.observation.context)
-                    {
-                        context.observation = sequence.refs.observation.clone();
-                        context.refs = Some(sequence.refs.clone());
-                        context.sequence = Some(Arc::new(sequence));
-                        context.resolution = None;
-                        context.failure = None;
-                        context.composition = None;
-                        published = true;
-                    } else {
-                        record.outcome = Outcome::Failed;
-                        record.diagnostic =
-                            Some("Sequence context expired before publication".into());
-                    }
-                    progress.context
-                }
-                Ok(work::Publication::Refs { mut refs, changed }) => {
-                    if let Some(context) = self
-                        .contexts
-                        .iter_mut()
-                        .find(|c| c.id == refs.observation.context)
-                        && (changed
-                            || (Arc::ptr_eq(&context.observation, &refs.observation)
-                                && context.failure.is_none()))
-                    {
-                        if changed {
-                            context.observation = refs.observation.clone();
-                            context.failure = None;
-                            context.composition = None;
-                        }
-                        if progress.kind == OperationKind::TagCreate
-                            && record.outcome == Outcome::Verified
-                        {
-                            context.tag_draft = None;
-                        }
-                        refs.id = record.id;
-                        context.refs = Some(Arc::new(refs));
-                        published = true;
-                    } else {
-                        record.outcome = Outcome::Failed;
-                        record.diagnostic =
-                            Some("Refs generation changed before publication".into());
-                    }
-                    progress.context
-                }
-                Ok(work::Publication::Diff(detail)) => {
-                    let context = self
-                        .contexts
-                        .iter_mut()
-                        .find(|context| context.id == detail.observation.context);
-                    if let Some(context) = context
-                        && context.observation.generation == detail.observation.generation
-                        && context.failure.is_none()
-                    {
-                        context.detail = Some(Arc::new(detail));
-                        context.detail_failure = None;
-                        published = true;
-                    } else {
-                        record.outcome = Outcome::Failed;
-                        record.diagnostic =
-                            Some("Git comparison generation changed before publication".into());
-                    }
-                    progress.context
-                }
-                Ok(work::Publication::History(result)) => {
-                    let observation = result.observation();
-                    if let Some(context) = self
-                        .contexts
-                        .iter_mut()
-                        .find(|c| c.id == observation.context)
-                        && Arc::ptr_eq(&context.observation, observation)
-                        && context.failure.is_none()
-                    {
-                        match result {
-                            history::ResultData::Reflog(r) => context.reflog = Some(Arc::new(r)),
-                            history::ResultData::Blame(b) => context.blame = Some(Arc::new(b)),
-                            history::ResultData::File(f) => {
-                                context.revision_file = Some(Arc::new(f))
-                            }
-                            history::ResultData::Log(h) => {
-                                context.history = Some(Arc::new(h));
-                            }
-                            history::ResultData::Show(d) => {
-                                context.revision = Some(Arc::new(d));
-                            }
-                        }
-                        published = true;
-                    } else {
-                        record.outcome = Outcome::Failed;
-                        record.diagnostic =
-                            Some("History generation changed before publication".into());
-                    }
-                    progress.context
-                }
-                Ok(work::Publication::PushIntent(intent)) => {
-                    if let Some(context) = self
-                        .contexts
-                        .iter_mut()
-                        .find(|c| c.id == intent.refs().observation.context)
-                        && Arc::ptr_eq(&context.observation, &intent.refs().observation)
-                        && context.failure.is_none()
-                    {
-                        context.push_intent = Some(Arc::new(intent));
-                        published = true;
-                    } else {
-                        record.outcome = Outcome::Failed;
-                        record.diagnostic = Some("Push preparation generation changed".into());
-                    }
-                    progress.context
-                }
-                Ok(work::Publication::TagIntent(intent)) => {
-                    if let Some(context) = self
-                        .contexts
-                        .iter_mut()
-                        .find(|c| c.id == intent.refs.observation.context)
-                        && Arc::ptr_eq(&context.observation, &intent.refs.observation)
-                        && context.failure.is_none()
-                    {
-                        context.tag_intent = Some(Arc::new(intent));
-                        published = true;
-                    } else {
-                        record.outcome = Outcome::Failed;
-                        record.diagnostic = Some("Tag preparation generation changed".into());
-                    }
-                    progress.context
-                }
-                Ok(work::Publication::Composition(composition)) => {
-                    if let Some(context) = self
-                        .contexts
-                        .iter_mut()
-                        .find(|c| c.id == composition.observation.context)
-                        && context.observation.generation == composition.observation.generation
-                        && context.failure.is_none()
-                    {
-                        context.composition = Some(Arc::new(composition));
-                        published = true;
-                    } else {
-                        record.outcome = Outcome::Failed;
-                        record.diagnostic =
-                            Some("Commit preparation generation changed before publication".into());
-                    }
-                    progress.context
-                }
-                Err(_error) => {
-                    if let Some(context) = progress
-                        .context
-                        .and_then(|id| self.contexts.iter_mut().find(|c| c.id == id))
-                    {
-                        match progress.kind {
-                            OperationKind::Worktrees
-                            | OperationKind::Stashes
-                            | OperationKind::Status
-                            | OperationKind::Refs => context.failure = Some(record.id),
-                            OperationKind::Diff => context.detail_failure = Some(record.id),
-                            OperationKind::FamilyPrepare
-                            | OperationKind::WorktreeVisit
-                            | OperationKind::WorktreePrepare
-                            | OperationKind::StashShow
-                            | OperationKind::StashPrepare
-                            | OperationKind::CommitPrepare
-                            | OperationKind::Conflict
-                            | OperationKind::ConflictExplain
-                            | OperationKind::ConflictPrepare
-                            | OperationKind::History
-                            | OperationKind::Sequence
-                            | OperationKind::ApplicationPrepare
-                            | OperationKind::BisectPrepare
-                            | OperationKind::AutosquashPrepare
-                            | OperationKind::PushPrepare
-                            | OperationKind::TagPrepare => {}
-                            OperationKind::Family
-                            | OperationKind::Worktree
-                            | OperationKind::Stash
-                            | OperationKind::Stage
-                            | OperationKind::ConflictResolve
-                            | OperationKind::Unstage
-                            | OperationKind::Discard
-                            | OperationKind::Commit
-                            | OperationKind::TagCreate
-                            | OperationKind::TagDelete
-                            | OperationKind::SequenceControl
-                            | OperationKind::Application
-                            | OperationKind::ApplicationControl
-                            | OperationKind::Bisect
-                            | OperationKind::Integration
-                            | OperationKind::Push
-                            | OperationKind::Fetch
-                            | OperationKind::Branch => context.failure = Some(record.id),
-                        }
-                    }
-                    progress.context
-                }
-            };
-            updates.push(Update {
-                operation: record.id,
-                kind: progress.kind,
-                context,
-                published,
-            });
+            updates.push(self.publish_finished(finished.publication, progress, &mut record));
             self.active.remove(index);
             self.retain_record(record);
         }

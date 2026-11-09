@@ -56,11 +56,12 @@ pub struct RevisionFile {
 
 impl Repositories {
     pub fn reflog(&mut self, context: ContextId) -> Result<OperationId, String> {
-        let observation = self
-            .context(context)
-            .ok_or("Git context no longer exists")?
-            .observation
-            .clone();
+        let observation = std::sync::Arc::clone(
+            &self
+                .context(context)
+                .ok_or("Git context no longer exists")?
+                .observation,
+        );
         let directory = self.history_directory(&observation)?;
         self.start(
             directory,
@@ -69,11 +70,12 @@ impl Repositories {
         )
     }
     pub fn blame(&mut self, context: ContextId, path: &Path) -> Result<OperationId, String> {
-        let observation = self
-            .context(context)
-            .ok_or("Git context no longer exists")?
-            .observation
-            .clone();
+        let observation = std::sync::Arc::clone(
+            &self
+                .context(context)
+                .ok_or("Git context no longer exists")?
+                .observation,
+        );
         let directory = self.history_directory(&observation)?;
         validate_path(path.as_os_str().as_encoded_bytes())?;
         if observation.identity.worktree.is_none() {
@@ -88,6 +90,10 @@ impl Repositories {
             }),
         )
     }
+    #[expect(
+        clippy::needless_pass_by_value,
+        reason = "Preserve the public owned request API for captured inspection authority."
+    )]
     pub fn show_reflog(
         &mut self,
         reflog: Arc<Reflog>,
@@ -109,11 +115,15 @@ impl Repositories {
             directory,
             Some(context.id),
             work::Request::History(Request::ShowObject {
-                observation: reflog.observation.clone(),
+                observation: std::sync::Arc::clone(&reflog.observation),
                 object,
             }),
         )
     }
+    #[expect(
+        clippy::needless_pass_by_value,
+        reason = "Preserve the public owned request API for captured inspection authority."
+    )]
     pub fn inspect_blame(
         &mut self,
         blame: Arc<Blame>,
@@ -138,7 +148,7 @@ impl Repositories {
         let directory = self.history_directory(&blame.observation)?;
         let request = if file {
             Request::File {
-                observation: blame.observation.clone(),
+                observation: std::sync::Arc::clone(&blame.observation),
                 object: line.object,
                 path: line.path.clone(),
                 line: line.original_line,
@@ -146,12 +156,16 @@ impl Repositories {
             }
         } else {
             Request::ShowObject {
-                observation: blame.observation.clone(),
+                observation: std::sync::Arc::clone(&blame.observation),
                 object: line.object,
             }
         };
         self.start(directory, Some(context.id), work::Request::History(request))
     }
+    #[expect(
+        clippy::needless_pass_by_value,
+        reason = "Preserve the public owned request API for captured inspection authority."
+    )]
     pub fn compare_parent(
         &mut self,
         detail: Arc<RevisionDetail>,
@@ -176,12 +190,16 @@ impl Repositories {
             directory,
             Some(context.id),
             work::Request::History(Request::Show {
-                history: detail.history.clone(),
+                history: std::sync::Arc::clone(&detail.history),
                 object: detail.object,
                 parent: Some(parent),
             }),
         )
     }
+    #[expect(
+        clippy::needless_pass_by_value,
+        reason = "Preserve the public owned request API for captured inspection authority."
+    )]
     pub fn refresh_revision(&mut self, detail: Arc<RevisionDetail>) -> Result<OperationId, String> {
         let context = self
             .context(detail.history.observation.context)
@@ -196,19 +214,23 @@ impl Repositories {
         let directory = self.history_directory(&detail.history.observation)?;
         let request = if detail.range {
             Request::Range {
-                history: detail.history.clone(),
+                history: std::sync::Arc::clone(&detail.history),
                 base: detail.parent.ok_or("Range lacks its exact base")?,
                 end: detail.object,
             }
         } else {
             Request::Show {
-                history: detail.history.clone(),
+                history: std::sync::Arc::clone(&detail.history),
                 object: detail.object,
                 parent: detail.parent,
             }
         };
         self.start(directory, Some(context.id), work::Request::History(request))
     }
+    #[expect(
+        clippy::needless_pass_by_value,
+        reason = "Preserve the public owned request API for captured inspection authority."
+    )]
     pub fn refresh_revision_file(
         &mut self,
         file: Arc<RevisionFile>,
@@ -228,7 +250,7 @@ impl Repositories {
             directory,
             Some(context.id),
             work::Request::History(Request::File {
-                observation: file.observation.clone(),
+                observation: std::sync::Arc::clone(&file.observation),
                 object: file.object,
                 path: file.path.clone(),
                 line: file.original_line,
@@ -238,6 +260,10 @@ impl Repositories {
     }
     /// Historical paths come from an immutable admitted comparison, including
     /// the old-side path/object when that comparison records a deletion.
+    #[expect(
+        clippy::needless_pass_by_value,
+        reason = "Preserve the public owned request API for captured inspection authority."
+    )]
     pub fn revision_file(
         &mut self,
         detail: Arc<RevisionDetail>,
@@ -268,7 +294,7 @@ impl Repositories {
             directory,
             Some(context.id),
             work::Request::History(Request::File {
-                observation: detail.history.observation.clone(),
+                observation: std::sync::Arc::clone(&detail.history.observation),
                 object,
                 path: selected.path.clone(),
                 line: 1,

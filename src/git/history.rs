@@ -160,11 +160,12 @@ impl Repositories {
         if root.is_some_and(|s| s.is_empty() || s.len() > 4086 || s.contains('\0')) {
             return Err("History root exceeds its nonempty revision argument bound".into());
         }
-        let observation = self
-            .context(context)
-            .ok_or("Git context no longer exists")?
-            .observation
-            .clone();
+        let observation = std::sync::Arc::clone(
+            &self
+                .context(context)
+                .ok_or("Git context no longer exists")?
+                .observation,
+        );
         let directory = self.history_directory(&observation)?;
         self.start(
             directory,
@@ -196,7 +197,7 @@ impl Repositories {
             directory,
             Some(history.observation.context),
             work::Request::History(Request::Log {
-                observation: history.observation.clone(),
+                observation: std::sync::Arc::clone(&history.observation),
                 root: None,
                 prior: Some(history),
                 next,
@@ -321,13 +322,13 @@ pub(super) fn log_result(
     id: OperationId,
     observation: Arc<Observation>,
     root: Option<ObjectId>,
-    prior: Option<Arc<History>>,
+    prior: Option<&History>,
     page: PageResult,
     max_pages: usize,
     mut admission: Lease,
 ) -> History {
     let PageResult { revisions, more } = page;
-    let mut pages = prior.as_ref().map_or_else(Vec::new, |h| h.pages.clone());
+    let mut pages = prior.map_or_else(Vec::new, |h| h.pages.clone());
     if !revisions.is_empty() {
         let bytes = std::mem::size_of::<HistoryPage>()
             + revisions.capacity() * std::mem::size_of::<Revision>()

@@ -6,7 +6,7 @@ use crate::git::{BranchAction, RefKind, Reference, Refs, refs::Request};
 impl Runner {
     fn check_ref_snapshot(&mut self, refs: &Refs, admission: &mut Lease) -> Result<(), String> {
         self.check_ref_origin(&refs.observation, admission)?;
-        let current = self.read_refs(refs.observation.clone(), admission)?;
+        let current = self.read_refs(std::sync::Arc::clone(&refs.observation), admission)?;
         if !refs.same(&current) {
             return Err("Refs changed while request parameters or confirmation were open".into());
         }
@@ -41,8 +41,8 @@ impl Runner {
                 remote,
                 ..
             } => self.prepare_push(refs, &source, remote.as_deref(), admission),
-            Request::Push(intent) => self.push(intent, admission),
-            Request::Fetch { refs, remote, .. } => self.fetch(refs, &remote, admission),
+            Request::Push(intent) => self.push(&intent, admission),
+            Request::Fetch { refs, remote, .. } => self.fetch(&refs, &remote, admission),
             Request::PrepareTag {
                 refs,
                 name,
@@ -50,8 +50,8 @@ impl Runner {
                 target,
                 ..
             } => self.prepare_tag(refs, name, kind, target, admission),
-            Request::CreateTag { intent, text, .. } => self.create_tag(intent, &text, admission),
-            Request::DeleteTag { refs, name, .. } => self.delete_tag(refs, &name, admission),
+            Request::CreateTag { intent, text, .. } => self.create_tag(&intent, &text, admission),
+            Request::DeleteTag { refs, name, .. } => self.delete_tag(&refs, &name, admission),
             Request::Observe(observation) => {
                 let (identity, status) = self.observe(admission)?;
                 if identity != observation.identity {
@@ -72,7 +72,7 @@ impl Runner {
                     changed: true,
                 })
             }
-            Request::Branch { refs, action, .. } => self.branch(refs, action, admission),
+            Request::Branch { refs, action, .. } => self.branch(&refs, &action, admission),
         }
     }
     fn check_ref_origin(
@@ -253,12 +253,12 @@ impl Runner {
     }
     fn branch(
         &mut self,
-        refs: Arc<Refs>,
-        action: BranchAction,
+        refs: &Arc<Refs>,
+        action: &BranchAction,
         admission: &mut Lease,
     ) -> Result<Candidate, String> {
         let status = self.check_ref_origin(&refs.observation, admission)?;
-        let before = self.read_refs(refs.observation.clone(), admission)?;
+        let before = self.read_refs(std::sync::Arc::clone(&refs.observation), admission)?;
         if !refs.same(&before) {
             return Err("Refs changed while confirmation was open; refresh required".into());
         }
@@ -311,7 +311,7 @@ impl Runner {
                     "switch".into(),
                     "--no-guess".into(),
                     "--".into(),
-                    short.clone().ok_or("Missing branch")?,
+                    short.ok_or("Missing branch")?,
                 ]);
             }
             BranchAction::Rename { new_name, .. } => {
@@ -326,7 +326,7 @@ impl Runner {
                     "branch".into(),
                     "--move".into(),
                     "--".into(),
-                    short.clone().ok_or("Missing branch")?,
+                    short.ok_or("Missing branch")?,
                     new_name.into(),
                 ]);
             }
@@ -348,7 +348,7 @@ impl Runner {
                     "branch".into(),
                     "--delete".into(),
                     "--".into(),
-                    short.clone().ok_or("Missing branch")?,
+                    short.ok_or("Missing branch")?,
                 ]);
             }
         }
@@ -360,7 +360,7 @@ impl Runner {
         {
             return Err("Branch switch disk state changed before launch".into());
         }
-        let checked = self.read_refs(refs.observation.clone(), admission)?;
+        let checked = self.read_refs(std::sync::Arc::clone(&refs.observation), admission)?;
         if !refs.same(&checked) {
             return Err("Refs changed before branch execution".into());
         }

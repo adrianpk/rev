@@ -18,7 +18,8 @@ impl Runner {
         {
             return Err("Ordered revisions require unchanged complete clean History/Status and working tree".into());
         }
-        let refs = Arc::new(self.read_refs(history.observation.clone(), admission)?);
+        let refs =
+            Arc::new(self.read_refs(std::sync::Arc::clone(&history.observation), admission)?);
         if refs.head.is_none()
             || refs.head_ref.is_empty()
             || refs.completeness != Completeness::Complete
@@ -27,11 +28,7 @@ impl Runner {
                 "Ordered revisions require complete Refs and one checked current branch".into(),
             );
         }
-        if self
-            .read_sequence(refs.clone(), admission)?
-            .family
-            .is_some()
-        {
+        if self.read_sequence(&refs, admission)?.family.is_some() {
             return Err("A Git-owned sequence is already active".into());
         }
         let size = choices.len()
@@ -47,16 +44,18 @@ impl Runner {
         }
         let file = crate::process::input::stage(Some(&input))?;
         self.driver_admission = Some(admission.split(size));
-        let output = self.command_input(
-            &[
-                "--no-replace-objects".into(),
-                "cat-file".into(),
-                "--batch".into(),
-            ],
+        let output = self.command_argv(
+            self.git_invocation(
+                &[
+                    "--no-replace-objects".into(),
+                    "cat-file".into(),
+                    "--batch".into(),
+                ],
+                file,
+            ),
             Phase::Checking,
             false,
             None,
-            file,
         );
         if self.retained.is_none() {
             self.driver_admission = None;

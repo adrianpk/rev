@@ -1,6 +1,7 @@
 use super::{Action, Page, Session, Target, comparisons::Mode};
 use crate::git::{Effects, IndexDirection, IndexTarget, Outcome, Update};
 
+#[derive(Clone, Copy)]
 pub(super) enum Intent {
     Change(IndexDirection),
     Mark,

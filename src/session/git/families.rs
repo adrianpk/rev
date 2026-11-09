@@ -71,7 +71,7 @@ impl Session {
             .context
             .filter(|_| self.git.visible)
             .and_then(|id| self.git.engine.context(id))
-            .map(|c| c.observation.clone());
+            .map(|c| std::sync::Arc::clone(&c.observation));
         let mut directory = observation
             .as_ref()
             .map(|o| {
@@ -129,7 +129,7 @@ impl Session {
                         .components()
                         .count()
                 })
-                .map(|c| c.observation.clone());
+                .map(|c| std::sync::Arc::clone(&c.observation));
             if let Some(o) = &observation {
                 directory = o
                     .identity
@@ -179,7 +179,10 @@ impl Session {
                 .ok_or("No prepared argument composer")?;
             if let Some(plan) = &draft.plan {
                 self.git_family_sources(draft.family, &draft.directory, Some(&plan.destination))?;
-                let id = self.git.engine.execute_family(plan.clone())?;
+                let id = self
+                    .git
+                    .engine
+                    .execute_family(std::sync::Arc::clone(plan))?;
                 self.git.family_request = Some(id);
                 self.leave_git_commit()?;
                 return Ok(true);

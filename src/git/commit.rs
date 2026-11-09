@@ -113,7 +113,11 @@ impl Repositories {
         {
             return Err("Fixup subject must retain the exact prepared target subject".into());
         }
-        self.submit_commit(composition.observation.clone(), Some(composition), message)
+        self.submit_commit(
+            std::sync::Arc::clone(&composition.observation),
+            Some(composition),
+            message,
+        )
     }
     pub fn commit_draft(&self, context: ContextId) -> Option<&str> {
         self.context(context)?
@@ -153,7 +157,7 @@ impl Repositories {
         }
         check_status(observation.status.as_ref())?;
         self.mutation_identity_root(&observation.identity)?;
-        Ok(observation.clone())
+        Ok(std::sync::Arc::clone(observation))
     }
 
     pub fn commit(

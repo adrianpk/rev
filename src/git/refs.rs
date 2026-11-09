@@ -140,11 +140,12 @@ impl Repositories {
     /// Observe exact local/tracking refs and both tag identities. No URL is
     /// retained in this public observation or used as a remote identity.
     pub fn refs(&mut self, context: ContextId) -> Result<OperationId, String> {
-        let observation = self
-            .context(context)
-            .ok_or("Git context expired")?
-            .observation
-            .clone();
+        let observation = std::sync::Arc::clone(
+            &self
+                .context(context)
+                .ok_or("Git context expired")?
+                .observation,
+        );
         if self
             .progress()
             .any(|p| p.context.is_none() || p.context == Some(context))

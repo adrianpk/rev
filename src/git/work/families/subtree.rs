@@ -244,7 +244,7 @@ impl Runner {
     }
     pub(super) fn execute_subtree(
         &mut self,
-        plan: Arc<FamilyPlan>,
+        plan: &Arc<FamilyPlan>,
         admission: &mut Lease,
     ) -> Result<Candidate, String> {
         let state = plan.subtree().expect("subtree plan");
@@ -271,7 +271,7 @@ impl Runner {
         }
         let result = (|| {
             let refs = self.integration_refs(&source.refs.observation, admission)?;
-            let actual = self.read_sequence(refs, admission)?;
+            let actual = self.read_sequence(&refs, admission)?;
             if actual.family.is_some() {
                 self.in_progress = actual.family == Some(SequenceFamily::Merge)
                     && actual.original == Some(before)
@@ -384,7 +384,7 @@ impl Runner {
             observation.admission = admission.split(observation.bytes());
             self.effects = Effects::Verified;
             Ok(Candidate::FamilyResult(FamilyResult {
-                plan: plan.clone(),
+                plan: std::sync::Arc::clone(plan),
                 created: None,
                 object,
                 source: Some(observation),

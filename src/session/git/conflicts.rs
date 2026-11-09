@@ -299,8 +299,8 @@ impl Session {
         }
         review.push_str("Saved file identity, bytes, stages, operation metadata, HEAD and visiting source owners must remain unchanged. Marker text grants no authority. Continuing remains a separate explicit action. y / C-Enter / C-c C-c accept; n / C-g cancel.");
         self.confirm_git_ref(
-            c.sequence.refs.clone(),
-            refs::RefAction::Resolution(plan.clone()),
+            std::sync::Arc::clone(&c.sequence.refs),
+            refs::RefAction::Resolution(std::sync::Arc::clone(&plan)),
             Some(sources),
             format!(
                 "Confirm {} for this exact conflict? y=accept, n=cancel",

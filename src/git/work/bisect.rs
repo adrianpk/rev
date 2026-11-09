@@ -14,14 +14,14 @@ impl Runner {
             } => self
                 .prepare_bisect(refs, &bad, &good, admission)
                 .map(Candidate::BisectPlan),
-            Request::Start(plan) => self.change_bisect(plan, None, admission),
+            Request::Start(plan) => self.change_bisect(&plan, &None, admission),
             Request::Control { sequence, action } => {
                 let plan = sequence
                     .bisect
                     .as_ref()
                     .and_then(|b| b.plan.clone())
                     .ok_or("Bisect original lineage is unavailable")?;
-                self.change_bisect(plan, Some((sequence, action)), admission)
+                self.change_bisect(&plan, &Some((sequence, action)), admission)
             }
         };
         if result.is_err() && self.effects == Effects::Possible {
@@ -43,7 +43,7 @@ impl Runner {
         if current.completeness != Completeness::Complete
             || current.head.is_none()
             || !current.head_ref.starts_with(b"refs/heads/")
-            || self.read_sequence(current, admission)?.family.is_some()
+            || self.read_sequence(&current, admission)?.family.is_some()
         {
             return Err(
                 "Manual bisect starts from a checked existing branch without another sequence"
@@ -118,8 +118,8 @@ impl Runner {
     }
     fn change_bisect(
         &mut self,
-        plan: Arc<BisectPlan>,
-        control: Option<(Arc<Sequence>, BisectAction)>,
+        plan: &Arc<BisectPlan>,
+        control: &Option<(Arc<Sequence>, BisectAction)>,
         admission: &mut Lease,
     ) -> Result<Candidate, String> {
         let args: Vec<OsString> = if let Some((sequence, action)) = &control {
@@ -153,7 +153,7 @@ impl Runner {
             args
         } else {
             let current = self.check_integration_source(&plan.refs, admission)?;
-            if self.read_sequence(current, admission)?.family.is_some() {
+            if self.read_sequence(&current, admission)?.family.is_some() {
                 return Err("Another Git sequence appeared before bisect start".into());
             }
             self.check_integration_source(&plan.refs, admission)?;
@@ -175,7 +175,7 @@ impl Runner {
         }
         let result = (|| {
             let refs = self.integration_refs(&plan.refs.observation, admission)?;
-            let mut after = self.read_sequence(refs, admission)?;
+            let mut after = self.read_sequence(&refs, admission)?;
             let reset = control
                 .as_ref()
                 .is_some_and(|(_, a)| *a == BisectAction::Reset);
@@ -195,7 +195,7 @@ impl Runner {
                     return Ok(Candidate::Sequence(after));
                 }
             } else {
-                self.bind_bisect(&mut after, plan.clone())?;
+                self.bind_bisect(&mut after, std::sync::Arc::clone(plan))?;
                 let state = after
                     .bisect
                     .as_ref()

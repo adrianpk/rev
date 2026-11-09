@@ -182,7 +182,12 @@ impl Runner {
         let message = if family == Family::NotesAdd {
             let input = crate::process::input::stage(Some(args[5].as_encoded_bytes()))?;
             let bytes = self
-                .command_input(&["stripspace".into()], Phase::Checking, false, None, input)?
+                .command_argv(
+                    self.git_invocation(&["stripspace".into()], input),
+                    Phase::Checking,
+                    false,
+                    None,
+                )?
                 .0;
             if bytes.is_empty() {
                 return Err("Notes message is empty after Git whitespace cleanup".into());
@@ -208,7 +213,7 @@ impl Runner {
     }
     pub(super) fn execute_notes(
         &mut self,
-        plan: Arc<FamilyPlan>,
+        plan: &Arc<FamilyPlan>,
         admission: &mut Lease,
     ) -> Result<Candidate, String> {
         let FamilyProof::Notes(state) = &plan.proof else {
@@ -238,7 +243,7 @@ impl Runner {
         }
         let verified: Result<Option<ObjectId>, String> = (|| {
             executed?;
-            self.family_current(&plan, Some(&state.name), admission)?;
+            self.family_current(plan, Some(&state.name), admission)?;
             let actual = self.note_entries(&state.name, format, admission)?;
             let references = self.note_refs(&state.name, format, admission)?;
             if !references
@@ -296,7 +301,7 @@ impl Runner {
                 None
             }
         };
-        let result = self.family_observed_result(plan.clone(), object, admission);
+        let result = self.family_observed_result(std::sync::Arc::clone(plan), object, admission);
         self.restore_execution(facts, failed);
         result
     }

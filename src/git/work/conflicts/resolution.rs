@@ -14,7 +14,7 @@ impl Runner {
             ResolutionRequest::Prepare { conflict, action } => self
                 .prepare_resolution(conflict, action, admission)
                 .map(Candidate::Resolution),
-            ResolutionRequest::Apply(plan) => self.resolve_conflict(plan, admission),
+            ResolutionRequest::Apply(plan) => self.resolve_conflict(&plan, admission),
         }
     }
     pub(super) fn saved_result(
@@ -51,7 +51,8 @@ impl Runner {
         if !metadata.is_file() || metadata.file_type().is_symlink() || metadata.len() > cap as u64 {
             return Err("Saved conflict result is not an admitted ordinary complete file".into());
         }
-        admission.grow(metadata.len() as usize + 4096)?;
+        let length = usize::try_from(metadata.len()).expect("file length admitted below usize cap");
+        admission.grow(length + 4096)?;
         let descriptor = rustix::fs::open(
             &path,
             rustix::fs::OFlags::RDONLY
@@ -65,7 +66,7 @@ impl Runner {
         if fingerprint(&metadata) != fingerprint(&opened) {
             return Err("Saved conflict file identity changed during open".into());
         }
-        let mut bytes = Vec::with_capacity(metadata.len() as usize);
+        let mut bytes = Vec::with_capacity(length);
         file.take(cap as u64 + 1)
             .read_to_end(&mut bytes)
             .map_err(|e| e.to_string())?;
@@ -97,17 +98,19 @@ impl Runner {
         admission.grow(bytes.len() + 4096)?;
         self.driver_admission = Some(admission.split(bytes.len() + 4096));
         let input = crate::process::input::stage(Some(bytes))?;
-        let result = self.command_input(
-            &[
-                "--no-replace-objects".into(),
-                "hash-object".into(),
-                path,
-                "--stdin".into(),
-            ],
+        let result = self.command_argv(
+            self.git_invocation(
+                &[
+                    "--no-replace-objects".into(),
+                    "hash-object".into(),
+                    path,
+                    "--stdin".into(),
+                ],
+                input,
+            ),
             Phase::Checking,
             false,
             Some(128),
-            input,
         );
         if self.retained.is_none() {
             self.driver_admission = None;
@@ -225,10 +228,14 @@ impl Runner {
     }
     fn resolve_conflict(
         &mut self,
-        plan: Arc<Resolution>,
+        plan: &Arc<Resolution>,
         admission: &mut Lease,
     ) -> Result<Candidate, String> {
-        let fresh = self.prepare_resolution(plan.conflict.clone(), plan.action, admission)?;
+        let fresh = self.prepare_resolution(
+            std::sync::Arc::clone(&plan.conflict),
+            plan.action,
+            admission,
+        )?;
         if fresh.saved != plan.saved
             || fresh.expected_object != plan.expected_object
             || fresh.expected_bytes != plan.expected_bytes
@@ -287,9 +294,9 @@ impl Runner {
         }
         let result = (|| {
             let refs = self.integration_refs(&sequence.refs.observation, admission)?;
-            let mut after = self.read_sequence(refs, admission)?;
+            let mut after = self.read_sequence(&refs, admission)?;
             if let Some(progress) = &sequence.application {
-                self.bind_application(&mut after, progress.clone())?;
+                self.bind_application(&mut after, std::sync::Arc::clone(progress))?;
             }
             let saved = self.saved_result(&plan.conflict, admission)?;
             let disk_ok = match plan.action {

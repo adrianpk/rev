@@ -86,7 +86,7 @@ impl Runner {
     }
     pub(super) fn create_tag(
         &mut self,
-        intent: Arc<TagIntent>,
+        intent: &Arc<TagIntent>,
         text: &str,
         admission: &mut Lease,
     ) -> Result<Candidate, String> {
@@ -132,7 +132,7 @@ impl Runner {
             let valid = match after.reference(full.as_bytes()) {
                 Some(r) if intent.kind == TagKind::Lightweight => r.object == intent.target,
                 Some(r) if r.object_type == b"tag" => {
-                    self.verify_annotation(r, &intent, text, admission)?
+                    self.verify_annotation(r, intent, text, admission)?
                 }
                 _ => false,
             } && after.head == intent.refs.head
@@ -223,11 +223,11 @@ impl Runner {
     }
     pub(super) fn delete_tag(
         &mut self,
-        refs: Arc<Refs>,
+        refs: &Arc<Refs>,
         name: &[u8],
         admission: &mut Lease,
     ) -> Result<Candidate, String> {
-        self.check_ref_snapshot(&refs, admission)?;
+        self.check_ref_snapshot(refs, admission)?;
         let object = refs.reference(name).ok_or("Tag identity expired")?.object;
         let args = [
             OsString::from("update-ref"),
@@ -242,7 +242,7 @@ impl Runner {
             return Err("Tag deletion cleanup remains owned; inspect actual refs".into());
         }
         let result = (|| {
-            let after = self.refresh_ref_result(&refs, admission)?;
+            let after = self.refresh_ref_result(refs, admission)?;
             if executed.is_ok()
                 && after.reference(name).is_none()
                 && after.head == refs.head
@@ -250,7 +250,7 @@ impl Runner {
             {
                 self.effects = Effects::Verified;
             } else {
-                self.failure_verified = executed.is_err() && after.same(&refs);
+                self.failure_verified = executed.is_err() && after.same(refs);
                 self.operation_failure = Some(
                     "Exact tag deletion failed or postcondition differs; inspect diagnostics"
                         .into(),

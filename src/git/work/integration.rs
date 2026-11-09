@@ -16,7 +16,7 @@ impl Runner {
                 .prepare_autosquash(refs, &target, admission)
                 .map(Candidate::Autosquash),
             Request::Autosquash(plan) => self.start_integration(
-                plan.refs.clone(),
+                &plan.refs,
                 &plan.target_name,
                 IntegrationMode::Rebase,
                 Some(&plan),
@@ -26,14 +26,14 @@ impl Runner {
                 sequence,
                 action,
                 family,
-            } => self.control_sequence(sequence, action, family, admission),
+            } => self.control_sequence(&sequence, action, family, admission),
             Request::Observe {
                 observation,
                 application,
                 bisect,
             } => {
                 let refs = self.integration_refs(&observation, admission)?;
-                let mut sequence = self.read_sequence(refs, admission)?;
+                let mut sequence = self.read_sequence(&refs, admission)?;
                 if let Some(progress) = application {
                     self.bind_application(&mut sequence, progress)?;
                 }
@@ -44,7 +44,7 @@ impl Runner {
             }
             Request::Start {
                 refs, target, mode, ..
-            } => self.start_integration(refs, &target, mode, None, admission),
+            } => self.start_integration(&refs, &target, mode, None, admission),
         }
     }
     pub(super) fn integration_refs(
@@ -128,26 +128,26 @@ impl Runner {
     }
     fn start_integration(
         &mut self,
-        refs: Arc<Refs>,
+        refs: &Arc<Refs>,
         target_name: &[u8],
         mode: IntegrationMode,
         plan: Option<&AutosquashPlan>,
         admission: &mut Lease,
     ) -> Result<Candidate, String> {
-        let current = self.check_integration_source(&refs, admission)?;
-        let state = self.read_sequence(current, admission)?;
+        let current = self.check_integration_source(refs, admission)?;
+        let state = self.read_sequence(&current, admission)?;
         if state.family.is_some() {
             return Err(
                 "A Git-owned sequence is already active; inspect it before integration".into(),
             );
         }
-        self.integration_policy(&refs, mode)?;
+        self.integration_policy(refs, mode)?;
         let target = refs
             .reference(target_name)
             .and_then(Reference::commit)
             .ok_or("Exact integration target expired")?;
         let before = refs.head.ok_or("Integration HEAD is unborn")?;
-        self.check_integration_source(&refs, admission)?;
+        self.check_integration_source(refs, admission)?;
         let mut args: Vec<OsString> = if mode == IntegrationMode::Rebase {
             [
                 "rebase",
@@ -188,7 +188,7 @@ impl Runner {
         }
         let result = (|| {
             let after = self.integration_refs(&refs.observation, admission)?;
-            let sequence = self.read_sequence(after, admission)?;
+            let sequence = self.read_sequence(&after, admission)?;
             if sequence.family.is_some() {
                 let expected = if mode == IntegrationMode::Rebase {
                     SequenceFamily::Rebase
@@ -223,7 +223,7 @@ impl Runner {
                 let policy = if mode == IntegrationMode::Rebase {
                     // Git's original-object provenance binds a changing rebase
                     // to the reviewed source; ancestry alone cannot do so.
-                    (head == before && after.same(&refs))
+                    (head == before && after.same(refs))
                         || sequence
                             .files
                             .iter()
@@ -282,7 +282,7 @@ impl Runner {
                 {
                     self.effects = Effects::Verified;
                 } else {
-                    self.failure_verified = executed.is_err() && after.same(&refs);
+                    self.failure_verified = executed.is_err() && after.same(refs);
                     self.operation_failure=Some("Integration failed or its exact branch/ancestry/policy postcondition differs; inspect actual facts".into());
                 }
             }

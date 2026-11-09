@@ -654,20 +654,26 @@ impl Session {
                 else {
                     return self.message("Select one exact changed path");
                 };
-                (detail.history.observation.clone(), path.clone())
+                (
+                    std::sync::Arc::clone(&detail.history.observation),
+                    path.clone(),
+                )
             }
             Page::Blame => {
                 let Some(blame) = self.git.blame() else {
                     return Action::Wait;
                 };
-                (blame.observation.clone(), blame.path.clone())
+                (
+                    std::sync::Arc::clone(&blame.observation),
+                    blame.path.clone(),
+                )
             }
             Page::RevisionFile => {
                 let Some(file) = self.git.revision_file() else {
                     return Action::Wait;
                 };
                 (
-                    file.observation.clone(),
+                    std::sync::Arc::clone(&file.observation),
                     file.current_path.as_ref().unwrap_or(&file.path).clone(),
                 )
             }

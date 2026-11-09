@@ -115,7 +115,7 @@ impl Runner {
 
     pub(super) fn commit(
         &mut self,
-        request: super::super::commit::Request,
+        request: &super::super::commit::Request,
         admission: &mut Lease,
     ) -> Result<Candidate, String> {
         let expected = check_status(request.observation.status.as_ref())?;
@@ -170,7 +170,7 @@ impl Runner {
             self.restore_execution(facts, true);
             return Err("Commit child cleanup remains owned; inspect HEAD before retrying".into());
         }
-        let result = self.verify_commit(&request, &before, admission);
+        let result = self.verify_commit(request, &before, admission);
         self.restore_execution(facts, executed.is_err());
         match result {
             Ok((identity, status, checked)) => {

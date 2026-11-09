@@ -138,7 +138,7 @@ impl Runner {
     }
     pub(super) fn execute_sparse(
         &mut self,
-        plan: Arc<FamilyPlan>,
+        plan: &Arc<FamilyPlan>,
         admission: &mut Lease,
     ) -> Result<Candidate, String> {
         let FamilyProof::Sparse(expected) = &plan.proof else {
@@ -158,7 +158,7 @@ impl Runner {
         }
         let verified: Result<(), String> = (|| {
             executed?;
-            let current = self.family_current(&plan, None, admission)?;
+            let current = self.family_current(plan, None, admission)?;
             let actual = self.sparse_state(&current, admission)?;
             if sparse_policy(&actual.configuration) != sparse_policy(&expected.configuration) {
                 return Err("Sparse command changed unrelated effective configuration".into());
@@ -199,7 +199,7 @@ impl Runner {
                 "Sparse result is unverified: {e}; inspect refreshed facts; no retry, force or rollback"
             ));
         }
-        let result = self.family_observed_result(plan.clone(), None, admission);
+        let result = self.family_observed_result(std::sync::Arc::clone(plan), None, admission);
         self.restore_execution(facts, failed);
         result
     }

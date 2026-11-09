@@ -661,17 +661,18 @@ impl Session {
             return self.error(&e.to_string());
         }
         self.git.painted = None;
+        let displayed = self.message(&message);
         self.pending = Some(Pending::GitRef(Box::new(Consent {
             refs,
             action,
             sources,
-            message: message.clone(),
+            message,
             review,
             top: 0,
             submit_prefix: false,
             _admission: admission,
         })));
-        self.message(&message)
+        displayed
     }
     fn git_branch_sources(&self, refs: &Refs) -> Result<Sources, String> {
         let root = refs
@@ -1006,7 +1007,7 @@ impl Session {
             && let Some(observation) = update
                 .context
                 .and_then(|id| self.git.engine.context(id))
-                .map(|c| c.observation.clone())
+                .map(|c| std::sync::Arc::clone(&c.observation))
         {
             let preserve_root = self.git.engine.record(update.operation).is_some_and(|r| {
                 matches!(

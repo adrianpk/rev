@@ -229,7 +229,7 @@ impl Runner {
     }
     pub(in crate::git::work::refs) fn push(
         &mut self,
-        intent: Arc<PushIntent>,
+        intent: &Arc<PushIntent>,
         admission: &mut Lease,
     ) -> Result<Candidate, String> {
         self.check_ref_snapshot(&intent.refs, admission)?;
@@ -277,7 +277,7 @@ impl Runner {
         }
         let result = (|| {
             let after = self.refresh_ref_result(&intent.refs, admission)?;
-            let remote = self.remote_object(&intent);
+            let remote = self.remote_object(intent);
             let stable = self.transport_config(admission)? == intent.config;
             match remote {
                 Ok(Some(object)) if object == intent.object && stable && executed.is_ok() => self.effects = Effects::Verified,

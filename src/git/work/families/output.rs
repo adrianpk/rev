@@ -137,16 +137,18 @@ impl Runner {
         }
         let input = crate::process::input::stage(Some(&bytes))?;
         let hash = self
-            .command_input(
-                &[
-                    "hash-object".into(),
-                    "--no-filters".into(),
-                    "--stdin".into(),
-                ],
+            .command_argv(
+                self.git_invocation(
+                    &[
+                        "hash-object".into(),
+                        "--no-filters".into(),
+                        "--stdin".into(),
+                    ],
+                    input,
+                ),
                 Phase::Checking,
                 false,
                 None,
-                input,
             )?
             .0;
         let hash = ObjectId::parse(
@@ -228,7 +230,7 @@ impl Runner {
     }
     pub(super) fn execute_output(
         &mut self,
-        plan: Arc<FamilyPlan>,
+        plan: &Arc<FamilyPlan>,
         admission: &mut Lease,
     ) -> Result<Candidate, String> {
         let FamilyProof::Output(output) = &plan.proof else {
@@ -255,14 +257,14 @@ impl Runner {
                         .into(),
                 );
             }
-            self.family_current(&plan, None, admission)?;
+            self.family_current(plan, None, admission)?;
             if self.transport_config(admission)? != output.configuration {
                 return Err("Output configuration changed during generation".into());
             }
             if let Some((endpoint, reference, object)) = &output.remote {
                 self.output_remote(endpoint, reference, *object)?;
             }
-            self.publish_output_file(&plan, &bytes)?;
+            self.publish_output_file(plan, &bytes)?;
             self.effects = Effects::Verified;
             Ok(())
         })();
@@ -271,7 +273,7 @@ impl Runner {
                 "Output result is unverified: {e}; inspect the explicit path; no retry or rollback"
             ));
         }
-        let result = self.family_observed_result(plan.clone(), None, admission);
+        let result = self.family_observed_result(std::sync::Arc::clone(plan), None, admission);
         self.restore_execution(facts, failed);
         result
     }

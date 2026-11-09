@@ -14,7 +14,7 @@ impl Runner {
             Request::Worktrees(request) => self.worktrees(request, admission),
             Request::Stashes(observation) => {
                 let refs = self.integration_refs(&observation, admission)?;
-                self.read_stashes(refs.observation.clone(), admission)
+                self.read_stashes(std::sync::Arc::clone(&refs.observation), admission)
                     .map(Candidate::Stashes)
             }
             Request::Show { stashes, object } => {
@@ -55,7 +55,7 @@ impl Runner {
             Request::Prepare {
                 stashes, action, ..
             } => self.prepare_stash(stashes, action, admission),
-            Request::Stash(plan) => self.change_stash(plan, admission),
+            Request::Stash(plan) => self.change_stash(&plan, admission),
         }
     }
     fn read_stashes(
@@ -132,7 +132,7 @@ impl Runner {
         admission: &mut Lease,
     ) -> Result<(), String> {
         let refs = self.integration_refs(&expected.observation, admission)?;
-        let actual = self.read_stashes(refs.observation.clone(), admission)?;
+        let actual = self.read_stashes(std::sync::Arc::clone(&refs.observation), admission)?;
         if !expected.same(&actual) {
             return Err(
                 "Stash list changed; refresh the exact object selection before acting".into(),
@@ -148,7 +148,7 @@ impl Runner {
     ) -> Result<Candidate, String> {
         self.check_stash_list(&stashes, admission)?;
         let refs = self.integration_refs(&stashes.observation, admission)?;
-        let source = self.read_sequence(refs, admission)?;
+        let source = self.read_sequence(&refs, admission)?;
         let status = source
             .refs
             .observation
@@ -333,7 +333,7 @@ impl Runner {
     }
     fn change_stash(
         &mut self,
-        plan: Arc<StashPlan>,
+        plan: &Arc<StashPlan>,
         admission: &mut Lease,
     ) -> Result<Candidate, String> {
         self.checked_sequence(&plan.source, admission)?;
@@ -396,8 +396,8 @@ impl Runner {
                 )
             {
                 let refs = self.integration_refs(&plan.source.refs.observation, admission)?;
-                let restored = self.read_sequence(refs, admission)?;
-                if !Self::stash_refs_match(&plan, &restored)
+                let restored = self.read_sequence(&refs, admission)?;
+                if !Self::stash_refs_match(plan, &restored)
                     || restored.family.is_some()
                     || !restored.conflicts.is_empty()
                     || restored
@@ -425,8 +425,9 @@ impl Runner {
                 }
             }
             let refs = self.integration_refs(&plan.source.refs.observation, admission)?;
-            let sequence = self.read_sequence(refs, admission)?;
-            let after = self.read_stashes(sequence.refs.observation.clone(), admission)?;
+            let sequence = self.read_sequence(&refs, admission)?;
+            let after =
+                self.read_stashes(std::sync::Arc::clone(&sequence.refs.observation), admission)?;
             let objects = |s: &Stashes| s.entries.iter().map(|e| e.object).collect::<Vec<_>>();
             let before_objects = objects(&plan.stashes);
             let actual_objects = objects(&after);
@@ -456,7 +457,7 @@ impl Runner {
                     .as_bytes()
             } else if executed.is_ok() && dropped {
                 let target = plan.action.object().ok_or("Stash removal target missing")?;
-                let mut expected = before_objects.clone();
+                let mut expected = before_objects;
                 expected.remove(
                     expected
                         .iter()
@@ -467,7 +468,7 @@ impl Runner {
             } else {
                 after.same(&plan.stashes)
             };
-            let refs_ok = Self::stash_refs_match(&plan, &sequence);
+            let refs_ok = Self::stash_refs_match(plan, &sequence);
             let complete = after.completeness == Completeness::Complete
                 && sequence
                     .refs

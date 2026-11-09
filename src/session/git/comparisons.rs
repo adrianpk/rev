@@ -148,9 +148,9 @@ impl Session {
             self.reveal_git_diff(mode);
             return Action::Redraw;
         }
-        self.request_git_diff(Resume { group, path, mode })
+        self.request_git_diff(&Resume { group, path, mode })
     }
-    pub(super) fn request_git_diff(&mut self, target: Resume) -> Action {
+    pub(super) fn request_git_diff(&mut self, target: &Resume) -> Action {
         let Some(observation) = self.git.observation() else {
             return self.message("Git Status is still checking context");
         };

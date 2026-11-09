@@ -3,12 +3,12 @@ use super::*;
 impl Runner {
     pub(in crate::git::work) fn control_application(
         &mut self,
-        expected: Arc<Sequence>,
+        expected: &Arc<Sequence>,
         action: SequenceControl,
         family: Option<SequenceFamily>,
         admission: &mut Lease,
     ) -> Result<Candidate, String> {
-        let current = self.checked_sequence(&expected, admission)?;
+        let current = self.checked_sequence(expected, admission)?;
         current.control_admission(action, family)?;
         let retained = current
             .application
@@ -19,7 +19,7 @@ impl Runner {
                 + retained.plan.steps.len() * std::mem::size_of::<ObjectId>(),
         )?;
         let mut progress = ApplyProgress {
-            plan: retained.plan.clone(),
+            plan: std::sync::Arc::clone(&retained.plan),
             next: retained.next,
             before: retained.before,
             completed: Vec::with_capacity(retained.plan.steps.len()),
@@ -35,7 +35,7 @@ impl Runner {
             progress.plan.kind.label().into(),
             format!("--{}", action.label()).into(),
         ];
-        self.checked_sequence(&expected, admission)?;
+        self.checked_sequence(expected, admission)?;
         self.accept_message = action == SequenceControl::Continue;
         let (executed, facts) = self.execute_change(&args, None);
         self.accept_message = false;
@@ -47,9 +47,12 @@ impl Runner {
         }
         let result = (|| {
             let refs = self.integration_refs(&expected.refs.observation, admission)?;
-            let mut after = self.read_sequence(refs.clone(), admission)?;
+            let mut after = self.read_sequence(&refs, admission)?;
             if after.family.is_some() {
-                if self.bind_application(&mut after, retained.clone()).is_ok() {
+                if self
+                    .bind_application(&mut after, std::sync::Arc::clone(retained))
+                    .is_ok()
+                {
                     self.in_progress = true;
                 }
                 self.operation_failure = Some("Ordered step remains in progress; inspect exact Git state before another explicit control".into());
@@ -105,7 +108,7 @@ impl Runner {
                 let preflight = self
                     .check_integration_source(&after.refs, admission)
                     .and_then(|refs| {
-                        if self.read_sequence(refs, admission)?.family.is_some() {
+                        if self.read_sequence(&refs, admission)?.family.is_some() {
                             Err(
                                 "Another sequence appeared before restoring the ordered original"
                                     .into(),
@@ -131,7 +134,7 @@ impl Runner {
                         return Err("Ordered original restoration cleanup remains owned".into());
                     }
                     let refs = self.check_integration_source(&progress.plan.refs, admission)?;
-                    let after = self.read_sequence(refs, admission)?;
+                    let after = self.read_sequence(&refs, admission)?;
                     if reset.is_err() || after.family.is_some() {
                         return Err(
                             "Ordered original restoration failed or a sequence remains".into()

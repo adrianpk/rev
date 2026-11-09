@@ -21,6 +21,7 @@ impl Inspection {
         }
     }
 }
+#[derive(Clone, Copy)]
 pub(in crate::session) enum Intent {
     Create,
     Lock,
@@ -556,7 +557,7 @@ impl Session {
             plan.action.label()
         );
         self.confirm_git_ref(
-            plan.source.refs.clone(),
+            std::sync::Arc::clone(&plan.source.refs),
             refs::RefAction::Worktree(plan),
             Some(sources),
             message,

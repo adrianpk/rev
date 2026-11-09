@@ -37,7 +37,7 @@ impl Execution {
 impl Runner {
     pub(super) fn change_index(
         &mut self,
-        request: super::super::index::Request,
+        request: &super::super::index::Request,
         admission: &mut Lease,
     ) -> Result<Candidate, String> {
         let diff = request.targets[0].diff();
@@ -119,7 +119,7 @@ impl Runner {
         input: Option<fs::File>,
     ) -> (Result<Vec<u8>, String>, Execution) {
         let executed = self
-            .command_argv(argv, Phase::Executing, false, None, input)
+            .command_argv(Invocation { argv, input }, Phase::Executing, false, None)
             .map(|(bytes, _)| bytes);
         self.effects = if self.exit.is_some() || self.retained.is_some() {
             Effects::Possible
@@ -159,7 +159,7 @@ impl Runner {
                 continue;
             }
             let target = diff::Target {
-                observation: diff.observation.clone(),
+                observation: std::sync::Arc::clone(&diff.observation),
                 group: diff.group,
                 change: diff.change.clone(),
             };
@@ -475,12 +475,11 @@ impl Runner {
     fn hash_input(&mut self, bytes: &[u8], admission: &mut Lease) -> Result<Vec<u8>, String> {
         admission.grow(bytes.len())?;
         let input = crate::process::input::stage(Some(bytes))?;
-        self.command_input(
-            &["hash-object".into(), "--stdin".into()],
+        self.command_argv(
+            self.git_invocation(&["hash-object".into(), "--stdin".into()], input),
             Phase::Checking,
             false,
             None,
-            input,
         )
         .map(|(bytes, _)| bytes)
     }
@@ -585,7 +584,12 @@ impl Runner {
         let mut check = args.clone();
         check.push("--check".into());
         let input = crate::process::input::stage(Some(&patch))?;
-        self.command_input(&check, Phase::Checking, false, None, input)?;
+        self.command_argv(
+            self.git_invocation(&check, input),
+            Phase::Checking,
+            false,
+            None,
+        )?;
         let input = crate::process::input::stage(Some(&patch))?;
         Ok(Prepared {
             args,

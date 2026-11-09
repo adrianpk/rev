@@ -119,10 +119,10 @@ impl Runner {
     }
     pub(in crate::git::work) fn read_sequence(
         &mut self,
-        refs: Arc<Refs>,
+        refs: &Arc<Refs>,
         admission: &mut Lease,
     ) -> Result<Sequence, String> {
-        let files = self.sequence_files(&refs, admission)?;
+        let files = self.sequence_files(refs, admission)?;
         let value = |name: &[u8]| {
             files
                 .iter()
@@ -243,7 +243,7 @@ impl Runner {
         };
         let mut sequence = Sequence {
             id: self.progress.lock().expect("Git progress owner").operation,
-            refs: refs.clone(),
+            refs: std::sync::Arc::clone(refs),
             family,
             current,
             targets,
@@ -290,7 +290,7 @@ impl Runner {
             )?;
             admission.grow(sequence.index.len() + sequence.worktree.len())?;
         }
-        if files != self.sequence_files(&refs, admission)?
+        if files != self.sequence_files(refs, admission)?
             || self.ref_head(format)? != (refs.head_ref.clone(), refs.head)
         {
             return Err("Git sequence or HEAD changed during observation".into());
@@ -298,7 +298,7 @@ impl Runner {
         sequence.files = files;
         if family == Some(SequenceFamily::Bisect) {
             sequence.bisect = self.read_bisect(&sequence, admission)?.map(Box::new);
-            if sequence.files != self.sequence_files(&refs, admission)? {
+            if sequence.files != self.sequence_files(refs, admission)? {
                 return Err("Bisect changed during candidate verification".into());
             }
         }

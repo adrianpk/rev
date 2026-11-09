@@ -76,12 +76,11 @@ impl Runner {
         } else {
             let mut check = args.clone();
             check.insert(2, "--check".into());
-            self.command_input(
-                &check,
+            self.command_argv(
+                self.git_invocation(&check, crate::process::input::stage(Some(&bytes))?),
                 Phase::Checking,
                 false,
                 None,
-                crate::process::input::stage(Some(&bytes))?,
             )?;
         }
         self.checked_sequence(source, admission)?;
@@ -102,12 +101,11 @@ impl Runner {
     }
     fn patch_command(&mut self, args: &[&str], input: Option<&[u8]>) -> Result<Vec<u8>, String> {
         let args: Vec<OsString> = args.iter().map(OsString::from).collect();
-        self.command_input(
-            &args,
+        self.command_argv(
+            self.git_invocation(&args, crate::process::input::stage(input)?),
             Phase::Checking,
             false,
             None,
-            crate::process::input::stage(input)?,
         )
         .map(|(b, _)| b)
     }
@@ -183,11 +181,8 @@ impl Runner {
         format: ObjectFormat,
         admission: &mut Lease,
     ) -> Result<(Vec<MailStep>, usize), String> {
-        let workspace = self
-            .workspace
-            .as_ref()
-            .ok_or("Mailbox workspace missing")?
-            .clone();
+        let workspace =
+            std::sync::Arc::clone(self.workspace.as_ref().ok_or("Mailbox workspace missing")?);
         let mut output = OsString::from("-o");
         output.push(workspace.anchor());
         let args = vec![
@@ -200,12 +195,11 @@ impl Runner {
             "-".into(),
         ];
         let bytes = self
-            .command_input(
-                &args,
+            .command_argv(
+                self.git_invocation(&args, crate::process::input::stage(Some(&input.bytes))?),
                 Phase::Checking,
                 false,
                 None,
-                crate::process::input::stage(Some(&input.bytes))?,
             )?
             .0;
         let count: usize = std::str::from_utf8(&bytes)
@@ -236,12 +230,11 @@ impl Runner {
                     .into_os_string(),
             ];
             let info = self
-                .command_input(
-                    &args,
+                .command_argv(
+                    self.git_invocation(&args, crate::process::input::stage(Some(&mail))?),
                     Phase::Checking,
                     false,
                     None,
-                    crate::process::input::stage(Some(&mail))?,
                 )?
                 .0;
             let field = |prefix: &[u8]| -> Result<Vec<u8>, String> {
@@ -398,7 +391,7 @@ impl Runner {
     }
     pub(super) fn execute_patch(
         &mut self,
-        plan: Arc<FamilyPlan>,
+        plan: &Arc<FamilyPlan>,
         admission: &mut Lease,
     ) -> Result<Candidate, String> {
         let FamilyProof::Patch(input) = &plan.proof else {
@@ -421,8 +414,8 @@ impl Runner {
             crate::file::temporary::Directory::new(&std::env::temp_dir(), names)
                 .map_err(|e| format!("Create owned patch workspace: {e}"))?,
         );
-        self.workspace = Some(workspace.clone());
-        let result = self.apply_patch(&plan, admission);
+        self.workspace = Some(std::sync::Arc::clone(&workspace));
+        let result = self.apply_patch(plan, admission);
         self.private_index = None;
         self.workspace = None;
         if self.retained.is_none()
@@ -486,7 +479,7 @@ impl Runner {
         }
         let verified = (|| {
             let refs = self.integration_refs(&source.refs.observation, admission)?;
-            let actual = self.read_sequence(refs, admission)?;
+            let actual = self.read_sequence(&refs, admission)?;
             if actual.family.is_some() {
                 self.in_progress = actual.family == Some(SequenceFamily::Mailbox)
                     && actual.original == Some(before)
@@ -533,7 +526,7 @@ impl Runner {
             }
             self.effects = Effects::Verified;
             self.family_observed_result(
-                plan.clone(),
+                std::sync::Arc::clone(plan),
                 (plan.family == Family::ApplyMailbox)
                     .then_some(actual.refs.head)
                     .flatten(),
@@ -547,7 +540,7 @@ impl Runner {
         }
         let result = match verified {
             Ok(candidate) => Ok(candidate),
-            Err(_) => self.family_observed_result(plan.clone(), None, admission),
+            Err(_) => self.family_observed_result(std::sync::Arc::clone(plan), None, admission),
         };
         self.restore_execution(facts, failed);
         result

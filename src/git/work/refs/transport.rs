@@ -39,14 +39,14 @@ impl Runner {
     }
     pub(super) fn fetch(
         &mut self,
-        refs: Arc<Refs>,
+        refs: &Arc<Refs>,
         remote: &[u8],
         admission: &mut Lease,
     ) -> Result<Candidate, String> {
-        self.check_ref_snapshot(&refs, admission)?;
+        self.check_ref_snapshot(refs, admission)?;
         let config = self.transport_config(admission)?;
         Self::configured_transport(&config, remote)?;
-        self.check_ref_snapshot(&refs, admission)?;
+        self.check_ref_snapshot(refs, admission)?;
         if self.transport_config(admission)? != config {
             return Err(
                 "Transport/refspec configuration changed before fetch; select and retry".into(),
@@ -65,13 +65,13 @@ impl Runner {
             return Err("Fetch cleanup remains owned; tracking effects require inspection".into());
         }
         let result = (|| {
-            let after = self.refresh_ref_result(&refs, admission)?;
+            let after = self.refresh_ref_result(refs, admission)?;
             let unchanged_head = after.head == refs.head && after.head_ref == refs.head_ref;
             let unchanged_config = self.transport_config(admission)? == config;
             if executed.is_ok() && unchanged_head && unchanged_config {
                 self.effects = Effects::Verified;
             } else {
-                self.failure_verified = executed.is_err() && after.same(&refs) && unchanged_config;
+                self.failure_verified = executed.is_err() && after.same(refs) && unchanged_config;
                 self.operation_failure = Some("Fetch failed or HEAD/configuration changed; checked local facts refreshed; no automatic retry".into());
             }
             Ok(Candidate::Refs {

@@ -135,14 +135,15 @@ impl Repositories {
 
 pub(in crate::git) fn fingerprint(m: &std::fs::Metadata) -> [u64; 8] {
     use std::os::unix::fs::MetadataExt;
+    // Timestamps retain all signed bits, including pre-epoch values.
     [
         m.dev(),
         m.ino(),
         m.len(),
         u64::from(m.mode()),
-        m.mtime() as u64,
-        m.mtime_nsec() as u64,
-        m.ctime() as u64,
-        m.ctime_nsec() as u64,
+        u64::from_ne_bytes(m.mtime().to_ne_bytes()),
+        u64::from_ne_bytes(m.mtime_nsec().to_ne_bytes()),
+        u64::from_ne_bytes(m.ctime().to_ne_bytes()),
+        u64::from_ne_bytes(m.ctime_nsec().to_ne_bytes()),
     ]
 }

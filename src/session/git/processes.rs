@@ -39,52 +39,7 @@ impl Work {
             .find(|p| p.operation == id)
             .map(|p| p.kind)
             .or_else(|| self.engine.record(id).map(|r| r.kind));
-        match kind {
-            Some(crate::git::OperationKind::FamilyPrepare) => "Prepared arguments: checking",
-            Some(crate::git::OperationKind::Family) => "Prepared Git command",
-            Some(crate::git::OperationKind::Worktrees) => "worktree observation",
-            Some(crate::git::OperationKind::WorktreePrepare) => "worktree preparation",
-            Some(crate::git::OperationKind::WorktreeVisit) => "worktree Status visit",
-            Some(crate::git::OperationKind::Worktree) => "checked worktree action",
-            Some(crate::git::OperationKind::Stashes) => "stash observation",
-            Some(crate::git::OperationKind::StashShow) => "stash inspection",
-            Some(crate::git::OperationKind::StashPrepare) => "stash preparation",
-            Some(crate::git::OperationKind::Stash) => "checked stash action",
-            Some(crate::git::OperationKind::BisectPrepare) => "manual bisect preparation",
-            Some(crate::git::OperationKind::Bisect) => "manual bisect",
-            Some(crate::git::OperationKind::ApplicationPrepare) => "ordered revision preparation",
-            Some(crate::git::OperationKind::ApplicationControl) => "ordered revision control",
-            Some(crate::git::OperationKind::Application) => "ordered revision application",
-            Some(crate::git::OperationKind::Integration) => "checked integration",
-            Some(crate::git::OperationKind::AutosquashPrepare) => "autosquash preparation",
-            Some(crate::git::OperationKind::SequenceControl) => "checked sequence control",
-            Some(crate::git::OperationKind::ConflictExplain) => {
-                "read-only conflict explanation capture"
-            }
-            Some(crate::git::OperationKind::ConflictPrepare) => {
-                "checked conflict resolution preparation"
-            }
-            Some(crate::git::OperationKind::ConflictResolve) => "checked conflict resolution",
-            Some(crate::git::OperationKind::Conflict) => "exact conflict inspection",
-            Some(crate::git::OperationKind::Sequence) => "Git sequence observation",
-            Some(crate::git::OperationKind::Push) => "push",
-            Some(crate::git::OperationKind::PushPrepare) => "push preparation",
-            Some(crate::git::OperationKind::Fetch) => "fetch",
-            Some(crate::git::OperationKind::TagPrepare) => "Prepare exact local tag",
-            Some(crate::git::OperationKind::TagCreate) => "Create checked local tag",
-            Some(crate::git::OperationKind::TagDelete) => "Delete exact local tag",
-            Some(crate::git::OperationKind::Refs) => "Refs observation",
-            Some(crate::git::OperationKind::Branch) => "Checked local branch",
-            Some(crate::git::OperationKind::History) => "history inspection",
-            Some(crate::git::OperationKind::Status) => "Status observation",
-            Some(crate::git::OperationKind::Diff) => "Diff comparison",
-            Some(crate::git::OperationKind::Stage) => "Stage index",
-            Some(crate::git::OperationKind::Unstage) => "Unstage index",
-            Some(crate::git::OperationKind::Discard) => "Discard working path",
-            Some(crate::git::OperationKind::Commit) => "Commit checked index",
-            Some(crate::git::OperationKind::CommitPrepare) => "Prepare exact commit composition",
-            None => "expired operation",
-        }
+        kind.map_or("expired operation", worktree_kind)
     }
     fn process_summary(&self, id: OperationId) -> Option<String> {
         if let Some(progress) = self.engine.progress().find(|p| p.operation == id) {
@@ -120,18 +75,6 @@ impl Work {
     }
     pub(super) fn process_rows(&self) -> Box<dyn Iterator<Item = (String, bool)> + '_> {
         match self.page {
-            Page::Worktree
-            | Page::Stash
-            | Page::Status
-            | Page::Diff
-            | Page::History
-            | Page::Refs
-            | Page::Sequence
-            | Page::Conflict
-            | Page::Revision
-            | Page::Reflog
-            | Page::Blame
-            | Page::RevisionFile => Box::new(std::iter::empty()),
             Page::Processes => Box::new(self.process_ids().map(|id| {
                 let selected = self.process_selected == Some(id);
                 let summary = self.process_summary(id).unwrap_or_default();
@@ -152,6 +95,7 @@ impl Work {
                     false,
                 ))),
             },
+            _ => Box::new(std::iter::empty()),
         }
     }
 }
@@ -278,5 +222,75 @@ impl Session {
                 .min(count.saturating_sub(self.git_extent()))
         };
         Action::Redraw
+    }
+}
+
+fn worktree_kind(kind: crate::git::OperationKind) -> &'static str {
+    match kind {
+        crate::git::OperationKind::FamilyPrepare => "Prepared arguments: checking",
+        crate::git::OperationKind::Family => "Prepared Git command",
+        crate::git::OperationKind::Worktrees => "worktree observation",
+        crate::git::OperationKind::WorktreePrepare => "worktree preparation",
+        crate::git::OperationKind::WorktreeVisit => "worktree Status visit",
+        crate::git::OperationKind::Worktree => "checked worktree action",
+        kind => stash_kind(kind),
+    }
+}
+fn stash_kind(kind: crate::git::OperationKind) -> &'static str {
+    match kind {
+        crate::git::OperationKind::Stashes => "stash observation",
+        crate::git::OperationKind::StashShow => "stash inspection",
+        crate::git::OperationKind::StashPrepare => "stash preparation",
+        crate::git::OperationKind::Stash => "checked stash action",
+        crate::git::OperationKind::BisectPrepare => "manual bisect preparation",
+        crate::git::OperationKind::Bisect => "manual bisect",
+        kind => sequence_kind(kind),
+    }
+}
+fn sequence_kind(kind: crate::git::OperationKind) -> &'static str {
+    match kind {
+        crate::git::OperationKind::ApplicationPrepare => "ordered revision preparation",
+        crate::git::OperationKind::ApplicationControl => "ordered revision control",
+        crate::git::OperationKind::Application => "ordered revision application",
+        crate::git::OperationKind::Integration => "checked integration",
+        crate::git::OperationKind::AutosquashPrepare => "autosquash preparation",
+        crate::git::OperationKind::SequenceControl => "checked sequence control",
+        kind => conflict_kind(kind),
+    }
+}
+fn conflict_kind(kind: crate::git::OperationKind) -> &'static str {
+    match kind {
+        crate::git::OperationKind::ConflictExplain => "read-only conflict explanation capture",
+        crate::git::OperationKind::ConflictPrepare => "checked conflict resolution preparation",
+        crate::git::OperationKind::ConflictResolve => "checked conflict resolution",
+        crate::git::OperationKind::Conflict => "exact conflict inspection",
+        crate::git::OperationKind::Sequence => "Git sequence observation",
+        kind => ref_kind(kind),
+    }
+}
+fn ref_kind(kind: crate::git::OperationKind) -> &'static str {
+    match kind {
+        crate::git::OperationKind::Push => "push",
+        crate::git::OperationKind::PushPrepare => "push preparation",
+        crate::git::OperationKind::Fetch => "fetch",
+        crate::git::OperationKind::TagPrepare => "Prepare exact local tag",
+        crate::git::OperationKind::TagCreate => "Create checked local tag",
+        crate::git::OperationKind::TagDelete => "Delete exact local tag",
+        crate::git::OperationKind::Refs => "Refs observation",
+        crate::git::OperationKind::Branch => "Checked local branch",
+        kind => observation_kind(kind),
+    }
+}
+fn observation_kind(kind: crate::git::OperationKind) -> &'static str {
+    match kind {
+        crate::git::OperationKind::History => "history inspection",
+        crate::git::OperationKind::Status => "Status observation",
+        crate::git::OperationKind::Diff => "Diff comparison",
+        crate::git::OperationKind::Stage => "Stage index",
+        crate::git::OperationKind::Unstage => "Unstage index",
+        crate::git::OperationKind::Discard => "Discard working path",
+        crate::git::OperationKind::Commit => "Commit checked index",
+        crate::git::OperationKind::CommitPrepare => "Prepare exact commit composition",
+        _ => unreachable!("process kind dispatched by its operation family"),
     }
 }

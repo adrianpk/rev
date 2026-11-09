@@ -22,7 +22,7 @@ impl Work {
         {
             return Err("History observation changed; reopen History".into());
         }
-        Ok((history.clone(), target))
+        Ok((std::sync::Arc::clone(history), target))
     }
     pub(in crate::session::git) fn revision_mark_label(&self, id: ObjectId) -> String {
         let scope = self.history().map(|h| (h.observation.context, h.root));

@@ -42,7 +42,9 @@ impl Runner {
         if fingerprint(&file.metadata().map_err(|e| e.to_string())?) != fingerprint(&metadata) {
             return Err("Prepared file changed before read".into());
         }
-        let mut bytes = Vec::with_capacity(metadata.len() as usize);
+        let mut bytes = Vec::with_capacity(
+            usize::try_from(metadata.len()).expect("file length admitted below usize limit"),
+        );
         file.by_ref()
             .take(limit as u64 + 1)
             .read_to_end(&mut bytes)
@@ -101,7 +103,7 @@ impl Runner {
                 "Prepared command changed unrelated saved index, working or untracked bytes".into(),
             );
         }
-        let sequence = self.read_sequence(refs, admission)?;
+        let sequence = self.read_sequence(&refs, admission)?;
         if sequence.family.is_some() {
             return Err("Prepared command left an active Git sequence".into());
         }

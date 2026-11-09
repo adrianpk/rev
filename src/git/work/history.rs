@@ -20,7 +20,9 @@ impl Runner {
         }
         let prior = match &request {
             Request::Log { prior, .. } => prior.clone(),
-            Request::Show { history, .. } | Request::Range { history, .. } => Some(history.clone()),
+            Request::Show { history, .. } | Request::Range { history, .. } => {
+                Some(std::sync::Arc::clone(history))
+            }
             _ => None,
         };
         if let Some(history) = &prior {
@@ -173,7 +175,7 @@ impl Runner {
                 id,
                 observation,
                 root,
-                Some(prior),
+                Some(prior.as_ref()),
                 history::PageResult {
                     revisions: Vec::new(),
                     more,
@@ -270,7 +272,7 @@ impl Runner {
             id,
             observation,
             root,
-            retained,
+            retained.as_deref(),
             history::PageResult { revisions, more },
             self.policy.max_history_pages,
             admission.split(bytes),

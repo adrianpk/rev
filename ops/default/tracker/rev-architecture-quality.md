@@ -101,6 +101,7 @@ Dependency: Slice 4 integrated
 Branch: refactor/rev-architecture-quality-05-git
 PR: pending
 Report: ops/default/report/slices/rev-architecture-quality/slice-5-git.md
+Progress: scoped Clippy passes for 94 Git files; native worker/publication and session dispatch/input/projection boundaries extracted; 170 operation-specific source-bound diagnostics remain; full Git integration has 239 passes and three failures reproduced in isolation
 Validation: pending; frozen ordered commands in plan and controller configuration
 
 - [ ] T5.1: Split the verified oversized native Git poll/dispatch/operation handlers into cohesive operation-family and observation owners under the existing modules.

@@ -148,7 +148,7 @@ impl Runner {
                 admission.grow(observation.bytes())?;
                 observation.admission = admission.split(observation.bytes());
                 let refs = self.read_refs(Arc::new(observation), admission)?;
-                let sequence = Arc::new(self.read_sequence(Arc::new(refs), admission)?);
+                let sequence = Arc::new(self.read_sequence(&Arc::new(refs), admission)?);
                 if sequence.family.is_some()
                     || sequence
                         .refs
@@ -190,7 +190,7 @@ impl Runner {
 
     pub(super) fn execute_submodule(
         &mut self,
-        plan: Arc<FamilyPlan>,
+        plan: &Arc<FamilyPlan>,
         admission: &mut Lease,
     ) -> Result<Candidate, String> {
         let list = plan.family == Family::SubmoduleList;
@@ -212,7 +212,7 @@ impl Runner {
             executed?;
             let expected = plan.source.as_ref().expect("submodule source");
             let refs = self.integration_refs(&expected.refs.observation, admission)?;
-            let current = Arc::new(self.read_sequence(refs, admission)?);
+            let current = Arc::new(self.read_sequence(&refs, admission)?);
             if current.refs.head != expected.refs.head || current.family.is_some() {
                 return Err("Submodule command unexpectedly changed HEAD or sequence state".into());
             }
@@ -326,7 +326,7 @@ impl Runner {
                 self.effects = Effects::Verified;
             }
             Ok(Candidate::FamilyResult(FamilyResult {
-                plan: plan.clone(),
+                plan: std::sync::Arc::clone(plan),
                 created: None,
                 object: None,
                 source: Some(source),
