@@ -3,6 +3,8 @@
 #[path = "plugins/protocol.rs"]
 mod protocol;
 
+#[path = "plugins/artifacts.rs"]
+mod artifacts;
 #[path = "plugins/declarations.rs"]
 mod declarations;
 #[path = "configuration/fixture.rs"]

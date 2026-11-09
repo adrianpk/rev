@@ -166,6 +166,56 @@ unchanged since its integrated dbbdd0b4 candidate; the SDK change since then is
 the compiled documentation example. Local build output remains ignored and
 the guide build does not publish a site.
 
+
+### Gate repair 1: Coherent peer artifacts
+
+Repair status: reviewing
+Repair branch: `fix/rev-plugin-system-gate-1`
+Repair PR: pending
+Failed integrated candidate: dee4c94dac5e5afa87cdfa1575e995290332acaf
+Retained diagnostic: G5JH7N2T4RYIIO3MN6WJLM6PWX
+
+The controller's combined gate stopped in the plugin target after formatting,
+required Clippy and SDK checks had passed. The lifecycle peer helper independently
+selected the newest SDK and serde_json rlibs from a mixed build directory. Those
+artifacts used incompatible crate identities despite matching source versions.
+The original selection reproduced the compiler's Value/Serialize/Deserialize
+mismatches against the retained build artifacts without running the full gate.
+
+Both native-peer and downloadable-example helpers now obtain their library paths
+from Cargo artifact messages for one locked SDK build. A worktree-local
+`target/plugin-peer-sdk` cache separates fixture compilation from the parent
+Cargo target lock and reuses the SDK build across test processes and runs.
+Missing or duplicate required artifacts fail explicitly. The peer source,
+public download, runtime, dependencies, test assertions and deadlines are unchanged.
+
+The hidden-source and exact downloadable-example workflows passed on the new
+cache, then passed again with newer incompatible rlib lookalikes in both build
+directories. All 86 plugin tests also passed with those owned lookalikes present.
+The initial worktree build took 132 seconds; subsequent complete plugin testing
+took 86.28 seconds. The SDK-only cache has its own initial compilation cost,
+then Cargo reuses its artifacts. Child activation deadlines start after fixture
+compilation. No gate command or limit was changed.
+
+All six required repair commands passed locally. Fresh exact clean-HEAD evidence
+is recorded through the controller validator after the repair PR references are
+committed. Required repair commands:
+
+1. `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo fmt --all -- --check`
+2. `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo clippy --locked --workspace --lib --bins -- -D warnings`
+3. `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev-plugin-sdk`
+4. `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --test plugins -- --test-threads=1`
+5. `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo run --locked --quiet -p rev --example documentation-check`
+6. `git diff --check`
+
+Additional focused command passed twice, including the mixed-artifact case:
+`env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --test plugins -- buffers::hidden_sources guidance::hello_workflow --test-threads=1`.
+An optional `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo clippy --locked -p rev --test plugins -- -D warnings`
+reported the pre-existing nested-format warning in the unchanged configuration
+fixture. The required workspace library/binary Clippy selection passed.
+Controller repair integration, the unchanged full gate and delivery closure
+remain pending.
+
 ## Risks and Follow-ups
 
 The Go client is a focused Linux example, not a general SDK or cross-platform

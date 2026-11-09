@@ -62,24 +62,8 @@ fn hello_workflow() {
     fixture.write("plugin-example.toml", MANIFEST);
     let binary = fixture.0.join("hello-plugin/target/debug/hello-plugin");
     fs::create_dir_all(binary.parent().unwrap()).unwrap();
-    let deps = std::env::current_exe()
-        .unwrap()
-        .parent()
-        .unwrap()
-        .to_path_buf();
-    let library = fs::read_dir(&deps)
-        .unwrap()
-        .map(|entry| entry.unwrap().path())
-        .filter(|path| {
-            path.file_name()
-                .unwrap()
-                .to_str()
-                .unwrap()
-                .starts_with("librev_plugin_sdk-")
-                && path.extension().is_some_and(|ext| ext == "rlib")
-        })
-        .max_by_key(|path| path.metadata().unwrap().modified().unwrap())
-        .unwrap();
+    let artifacts = super::artifacts::get();
+    let deps = artifacts.json.parent().expect("SDK dependencies");
     let output =
         std::process::Command::new(std::env::var_os("RUSTC").unwrap_or_else(|| "rustc".into()))
             .args([
@@ -92,7 +76,7 @@ fn hello_workflow() {
             .arg("-L")
             .arg(format!("dependency={}", deps.display()))
             .arg("--extern")
-            .arg(format!("rev_plugin_sdk={}", library.display()))
+            .arg(format!("rev_plugin_sdk={}", artifacts.sdk.display()))
             .arg("-o")
             .arg(&binary)
             .output()

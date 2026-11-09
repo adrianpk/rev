@@ -230,6 +230,24 @@ Validation: all thirteen frozen commands passed locally on a15fb9c7e8eb2a2b85795
 - [x] T13.2: Add examples/plugin-interop.rs as the native Rust integration bridge and prove hidden unsaved reads, created visible result, native navigation and public-only protocol compatibility with the independent client.
 - [x] T13.3: Complete PLG01-PLG12 joint acceptance, reconcile SDK/reference/catalog/Spore evidence and all reports, then prepare the unchanged selected controller gate and documentation-only closure.
 
+
+## Gate repair 1: Coherent peer artifacts
+
+Repair state: reviewing
+Failed integrated candidate: dee4c94dac5e5afa87cdfa1575e995290332acaf
+Branch: fix/rev-plugin-system-gate-1
+Expected PR title: fix(plugins): select coherent artifacts for plugin test peers
+PR: pending
+Report: ops/default/report/slices/rev-plugin-system/slice-13-acceptance.md
+
+The retained gate failure reproduces incompatible SDK/serde_json crate identities
+from independent newest-rlib selection. Both fixture compilers now use one locked
+Cargo SDK artifact graph in a private reusable cache. Fresh and mixed-artifact
+focused native workflows passed, followed by all six required repair commands
+and all 86 plugin tests. The report records the optional pre-existing test-target
+Clippy warning. Exact final clean-HEAD evidence and canonical PR verification
+precede handoff; controller integration and the unchanged full gate remain pending.
+
 ## Delivery-set acceptance and closure
 
 - [x] All thirteen canonical slice PRs integrated in dev with exact-HEAD evidence.

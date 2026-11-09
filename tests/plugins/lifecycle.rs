@@ -22,11 +22,8 @@ pub(super) fn peer() -> &'static Path {
         .get_or_init(|| {
             let fixture = Fixture::new();
             let path = fixture.0.join("plugin-peer");
-            let deps = std::env::current_exe()
-                .unwrap()
-                .parent()
-                .unwrap()
-                .to_path_buf();
+            let artifacts = super::artifacts::get();
+            let deps = artifacts.json.parent().expect("SDK dependencies");
             let mut compiler = std::process::Command::new(
                 std::env::var_os("RUSTC").unwrap_or_else(|| "rustc".into()),
             );
@@ -42,39 +39,11 @@ pub(super) fn peer() -> &'static Path {
                 .arg(format!("dependency={}", deps.display()))
                 .arg("-o")
                 .arg(&path);
-            let library = fs::read_dir(&deps)
-                .unwrap()
-                .map(|e| e.unwrap().path())
-                .filter(|p| {
-                    p.file_name()
-                        .unwrap()
-                        .to_str()
-                        .unwrap()
-                        .starts_with("librev_plugin_sdk-")
-                        && p.extension().is_some_and(|e| e == "rlib")
-                })
-                .max_by_key(|p| p.metadata().unwrap().modified().unwrap())
-                .expect("Cargo-built public SDK");
             compiler
                 .arg("--extern")
-                .arg(format!("rev_plugin_sdk={}", library.display()));
-
-            let json = fs::read_dir(&deps)
-                .unwrap()
-                .map(|e| e.unwrap().path())
-                .filter(|p| {
-                    p.file_name()
-                        .unwrap()
-                        .to_str()
-                        .unwrap()
-                        .starts_with("libserde_json-")
-                        && p.extension().is_some_and(|e| e == "rlib")
-                })
-                .max_by_key(|p| p.metadata().unwrap().modified().unwrap())
-                .unwrap();
-            compiler
+                .arg(format!("rev_plugin_sdk={}", artifacts.sdk.display()))
                 .arg("--extern")
-                .arg(format!("serde_json={}", json.display()));
+                .arg(format!("serde_json={}", artifacts.json.display()));
 
             let output = compiler.output().unwrap();
             assert!(
