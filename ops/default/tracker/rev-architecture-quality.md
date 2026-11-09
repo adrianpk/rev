@@ -48,17 +48,17 @@ Validation: all five frozen commands passed through Looper on clean published HE
 
 ## Slice 2: Plugin and SDK ownership
 
-State: in progress
+State: reviewing
 Dependency: Slice 1 integrated
 Branch: refactor/rev-architecture-quality-02-plugins
 PR: pending
 Report: ops/default/report/slices/rev-architecture-quality/slice-2-plugins.md
-Progress: SDK and native plugin owners pass their combined quality selection; session-plugin cleanup remains
-Validation: pending; frozen ordered commands in plan and controller configuration
+Progress: all SDK/native/session-plugin owners pass the frozen quality selection
+Validation: all five frozen commands passed on the working candidate; final published-HEAD Looper evidence required before handoff
 
 - [x] T2.1: Resolve F4 by separating encoded request payload ownership from pending correlation while preserving permits, deadlines, captured context, causal propagation and exactly-once completion.
-- [ ] T2.2: Resolve F5 without duplicating keymap observations on unchanged cache hits; complete SDK error/panic contracts, selected ownership/conversion diagnostics and existing source bounds in SDK/plugin owners.
-- [ ] T2.3: Verify public protocol, typed client, callbacks, cancellation/retirement, keymap precedence and atomic publication using the existing SDK and native plugin fixtures; retain wire/API/state versions.
+- [x] T2.2: Resolve F5 without duplicating keymap observations on unchanged cache hits; complete SDK error/panic contracts, selected ownership/conversion diagnostics and existing source bounds in SDK/plugin owners.
+- [x] T2.3: Verify public protocol, typed client, callbacks, cancellation/retirement, keymap precedence and atomic publication using the existing SDK and native plugin fixtures; retain wire/API/state versions.
 
 ## Slice 3: Core editing and projection
 

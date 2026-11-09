@@ -139,41 +139,8 @@ impl Session {
             rev_plugin_sdk::API
         );
         for package in snapshot.plugins().packages() {
-            let manifest = &package.manifest;
-            let status = self.plugins.host.inspect(&manifest.plugin.id);
-            let state = if status.state == crate::plugins::lifecycle::State::Installed {
-                "inactive (not started)"
-            } else {
-                status.state.name()
-            };
-            text.push_str(&format!(
-                "{} {}: installed, {}\n",
-                manifest.plugin.id,
-                manifest.plugin.version.as_str(),
-                state,
-            ));
-            if let Some(generation) = status.generation {
-                text.push_str(&format!(
-                    "  Generation {generation}; {} pending request(s)\n",
-                    status.pending
-                ));
-            }
-            for (label, value) in [
-                ("Diagnostic", status.diagnostic),
-                ("Cleanup", status.cleanup),
-                ("Stderr", status.stderr),
-            ] {
-                if !value.is_empty() {
-                    text.push_str(&format!("  {label}: {value}\n"));
-                }
-            }
-            for command in manifest.commands.iter() {
-                text.push_str(&format!(
-                    "  {}: {}\n",
-                    manifest.plugin.id.command(&command.name),
-                    command.description.as_str()
-                ));
-            }
+            let status = self.plugins.host.inspect(&package.manifest.plugin.id);
+            append_package(&mut text, package, status);
         }
         text.push_str("\nBindings for the current text buffer (normalized native contexts):\n");
         for value in &self.plugins.keys.values {
@@ -207,5 +174,46 @@ impl Session {
             }
             Err(error) => self.error(&error.to_string()),
         }
+    }
+}
+
+fn append_package(
+    text: &mut String,
+    package: &crate::plugins::declarations::Package,
+    status: Inspection,
+) {
+    let manifest = &package.manifest;
+    let state = if status.state == crate::plugins::lifecycle::State::Installed {
+        "inactive (not started)"
+    } else {
+        status.state.name()
+    };
+    text.push_str(&format!(
+        "{} {}: installed, {}\n",
+        manifest.plugin.id,
+        manifest.plugin.version.as_str(),
+        state,
+    ));
+    if let Some(generation) = status.generation {
+        text.push_str(&format!(
+            "  Generation {generation}; {} pending request(s)\n",
+            status.pending
+        ));
+    }
+    for (label, value) in [
+        ("Diagnostic", status.diagnostic),
+        ("Cleanup", status.cleanup),
+        ("Stderr", status.stderr),
+    ] {
+        if !value.is_empty() {
+            text.push_str(&format!("  {label}: {value}\n"));
+        }
+    }
+    for command in manifest.commands.iter() {
+        text.push_str(&format!(
+            "  {}: {}\n",
+            manifest.plugin.id.command(&command.name),
+            command.description.as_str()
+        ));
     }
 }

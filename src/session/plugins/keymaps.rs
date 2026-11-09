@@ -58,16 +58,7 @@ impl Session {
                 (id.clone(), generation, enabled)
             })
             .collect();
-        let owned = &mut self.plugins.keys.owned;
-        let before = owned.len();
-        owned.retain(|b| {
-            states.iter().any(|(id, g, enabled)| {
-                *enabled && *id == b.value.package && g.as_ref() == Some(&b.generation)
-            }) && b.buffer.is_none_or(|id| self.buffers.get(id).is_ok())
-        });
-        if owned.len() != before {
-            self.plugins.keys.cache = None;
-        }
+        self.plugins.keys.retire(&states, &self.buffers);
         let id = self.windows.selected().point.stamp.buffer;
         let Ok(buffer) = self.buffers.get(id) else {
             return;
@@ -86,36 +77,7 @@ impl Session {
         if self.plugins.keys.cache.as_ref() == Some(&key) {
             return;
         }
-        let mut values = Vec::new();
-        if language != "unsupported" {
-            for package in snapshot.plugins().packages() {
-                if !key
-                    .states
-                    .iter()
-                    .any(|(id, _, enabled)| *id == package.manifest.plugin.id && *enabled)
-                {
-                    continue;
-                }
-                for binding in package.manifest.bindings.iter() {
-                    if matches(binding, buffer, language) {
-                        values.push(contribution(binding, false));
-                    }
-                }
-            }
-            for binding in &snapshot.settings().plugins.keybindings {
-                if matches(binding, buffer, language) {
-                    values.push(contribution(binding, true));
-                }
-            }
-            values.extend(
-                self.plugins
-                    .keys
-                    .owned
-                    .iter()
-                    .filter(|b| b.buffer.is_none_or(|target| target == id))
-                    .map(|b| b.value.clone()),
-            );
-        }
+        let values = self.plugin_keymap_values(buffer, &key);
         self.input.plugin_keymaps(values.clone());
         self.plugins.keys.values = values;
         self.plugins.keys.cache = Some(key);
@@ -147,28 +109,7 @@ impl Session {
             Scope::Global => None,
             Scope::Buffer { buffer } => Some(self.plugin_buffer(&buffer)?),
         };
-        let registry = self.buffers.snapshot().plugins();
-        let package = registry
-            .package(request.package.as_str())
-            .expect("connected declared package");
-        if package.manifest.bindings.len()
-            + self
-                .plugins
-                .keys
-                .owned
-                .iter()
-                .filter(|b| b.value.package == request.package)
-                .count()
-            >= 128
-            || registry
-                .packages()
-                .map(|p| p.manifest.bindings.len())
-                .sum::<usize>()
-                + self.plugins.keys.owned.len()
-                >= 512
-        {
-            return Err(error(ErrorKind::LimitExceeded));
-        }
+        self.plugin_binding_capacity(&request.package)?;
         let serial = self
             .plugins
             .keys
@@ -208,7 +149,7 @@ impl Session {
     pub(super) fn plugin_unbind(
         &mut self,
         request: &Request,
-        params: KeymapsUnbindParams,
+        params: &KeymapsUnbindParams,
     ) -> Result<Reply, RpcError> {
         let mut seen = std::collections::BTreeSet::new();
         for id in params.registrations.iter() {
@@ -251,88 +192,9 @@ impl Session {
         let base = self
             .input
             .plugin_binding_native(value.context, source.is_org());
-        let (values, map, statuses) = if buffer.is_none_or(|id| id == selected) {
-            let values: Vec<_> = self
-                .plugins
-                .keys
-                .values
-                .iter()
-                .filter(|v| v.context == value.context)
-                .cloned()
-                .collect();
-            let statuses = values
-                .iter()
-                .map(|v| self.input.plugin_binding_status(v))
-                .collect();
-            (
-                values,
-                self.input.plugin_binding_map(value.context).clone(),
-                statuses,
-            )
-        } else {
-            // Resolve against the same native owner without selecting its pane.
-            let id = buffer.expect("explicit hidden target");
-            let source = self.buffers.get(id).expect("admitted buffer");
-            let snapshot = self.buffers.snapshot();
-            let language = source.language(snapshot);
-            let mut values = Vec::new();
-            for package in snapshot.plugins().packages() {
-                if !self
-                    .plugins
-                    .host
-                    .binding_state(&package.manifest.plugin.id)
-                    .1
-                {
-                    continue;
-                }
-                values.extend(
-                    package
-                        .manifest
-                        .bindings
-                        .iter()
-                        .filter(|b| matches(b, source, language))
-                        .map(|b| contribution(b, false)),
-                );
-            }
-            values.extend(
-                snapshot
-                    .settings()
-                    .plugins
-                    .keybindings
-                    .iter()
-                    .filter(|b| matches(b, source, language))
-                    .map(|b| contribution(b, true)),
-            );
-            values.extend(
-                self.plugins
-                    .keys
-                    .owned
-                    .iter()
-                    .filter(|b| b.buffer.is_none_or(|target| target == id))
-                    .map(|b| b.value.clone()),
-            );
-            values.retain(|v| v.context == value.context);
-            let (map, statuses) = base.contributions(&values);
-            (values, map, statuses)
-        };
-        let status = values
-            .iter()
-            .position(|v| v == value)
-            .map_or(ResolutionStatus::Shadowed, |i| statuses[i]);
-        let mut underlying = Vec::new();
-        let mut conflicts = Vec::new();
-        for (other, state) in values.iter().zip(&statuses) {
-            if !overlaps(&other.sequence, &value.sequence) || other == value {
-                continue;
-            }
-            let source = binding_source(other);
-            if *state == ResolutionStatus::Conflicting {
-                conflicts.push(source);
-            } else {
-                underlying.push(source);
-            }
-        }
-
+        let resolution = self.plugin_binding_resolution(value, buffer, &base);
+        let status = resolution.status(value);
+        let (mut underlying, mut conflicts) = resolution.overlaps(value);
         for (sequence, binding) in base
             .bindings()
             .filter(|(s, _)| overlaps(s, &value.sequence))
@@ -352,36 +214,246 @@ impl Session {
         KeymapsBindResult {
             registration,
             status,
-            effective: map.lookup(&value.sequence).and_then(|b| {
-                if let NativeBinding::Command(Command::PluginDefined(name)) = b {
-                    values
-                        .iter()
-                        .zip(&statuses)
-                        .find(|(v, status)| {
-                            v.command == name
-                                && v.sequence == value.sequence
-                                && **status == ResolutionStatus::Effective
-                        })
-                        .map(|(v, _)| binding_source(v))
-                } else {
-                    native_source(b, base.is_custom(&value.sequence))
-                }
-            }),
+            effective: resolution.effective(value, &base),
             underlying: List::new(underlying).expect("bounded inspection"),
             conflicts: List::new(conflicts).expect("bounded inspection"),
-            diagnostic: (truncated || status != ResolutionStatus::Effective).then(|| {
-                Label::new(if truncated {
-                    "Inspection limited to 512 sources; resolve explicit user scope."
-                } else if status == ResolutionStatus::Conflicting {
-                    "Competing defaults conflict; no plugin winner in this scope."
-                } else {
-                    "A higher-priority binding shadows this contribution."
-                })
-                .expect("literal diagnostic")
-            }),
+            diagnostic: inspection_diagnostic(truncated, status),
+        }
+    }
+    fn plugin_keymap_values(
+        &self,
+        buffer: &crate::buffer::Buffer,
+        key: &Observation,
+    ) -> Vec<Contribution> {
+        let mut values = Vec::new();
+        if key.language == "unsupported" {
+            return Vec::new();
+        }
+
+        for package in self.buffers.snapshot().plugins().packages() {
+            if !key.enabled(&package.manifest.plugin.id) {
+                continue;
+            }
+            for binding in package.manifest.bindings.iter() {
+                if matches(binding, buffer, &key.language) {
+                    values.push(contribution(binding, false));
+                }
+            }
+        }
+        for binding in &self.buffers.snapshot().settings().plugins.keybindings {
+            if matches(binding, buffer, &key.language) {
+                values.push(contribution(binding, true));
+            }
+        }
+        values.extend(
+            self.plugins
+                .keys
+                .owned
+                .iter()
+                .filter(|b| b.buffer.is_none_or(|target| target == key.buffer))
+                .map(|b| b.value.clone()),
+        );
+        values
+    }
+    fn plugin_binding_capacity(&self, package: &PackageId) -> Result<(), RpcError> {
+        let registry = self.buffers.snapshot().plugins();
+        let declaration = registry
+            .package(package.as_str())
+            .expect("connected declared package");
+        if declaration.manifest.bindings.len()
+            + self
+                .plugins
+                .keys
+                .owned
+                .iter()
+                .filter(|b| b.value.package == *package)
+                .count()
+            >= 128
+            || registry
+                .packages()
+                .map(|p| p.manifest.bindings.len())
+                .sum::<usize>()
+                + self.plugins.keys.owned.len()
+                >= 512
+        {
+            return Err(error(ErrorKind::LimitExceeded));
+        }
+        Ok(())
+    }
+    fn plugin_hidden_bindings(
+        &self,
+        id: BufferId,
+        context: crate::input::keymap::Context,
+    ) -> Vec<Contribution> {
+        // Resolve against the same native owner without selecting its pane.
+        let source = self.buffers.get(id).expect("admitted buffer");
+        let snapshot = self.buffers.snapshot();
+        let language = source.language(snapshot);
+        let mut values = Vec::new();
+        for package in snapshot.plugins().packages() {
+            if !self
+                .plugins
+                .host
+                .binding_state(&package.manifest.plugin.id)
+                .1
+            {
+                continue;
+            }
+            values.extend(
+                package
+                    .manifest
+                    .bindings
+                    .iter()
+                    .filter(|b| matches(b, source, language))
+                    .map(|b| contribution(b, false)),
+            );
+        }
+        values.extend(
+            snapshot
+                .settings()
+                .plugins
+                .keybindings
+                .iter()
+                .filter(|b| matches(b, source, language))
+                .map(|b| contribution(b, true)),
+        );
+        values.extend(
+            self.plugins
+                .keys
+                .owned
+                .iter()
+                .filter(|b| b.buffer.is_none_or(|target| target == id))
+                .map(|b| b.value.clone()),
+        );
+        values.retain(|v| v.context == context);
+        values
+    }
+    fn plugin_binding_resolution(
+        &self,
+        value: &Contribution,
+        buffer: Option<BufferId>,
+        base: &crate::input::keymap::Map,
+    ) -> Resolution {
+        let selected = self.windows.selected().point.stamp.buffer;
+        if buffer.is_none_or(|id| id == selected) {
+            let values: Vec<_> = self
+                .plugins
+                .keys
+                .values
+                .iter()
+                .filter(|v| v.context == value.context)
+                .cloned()
+                .collect();
+            let statuses = values
+                .iter()
+                .map(|v| self.input.plugin_binding_status(v))
+                .collect();
+            Resolution {
+                values,
+                map: self.input.plugin_binding_map(value.context).clone(),
+                statuses,
+            }
+        } else {
+            let values =
+                self.plugin_hidden_bindings(buffer.expect("explicit hidden target"), value.context);
+            let (map, statuses) = base.contributions(&values);
+            Resolution {
+                values,
+                map,
+                statuses,
+            }
         }
     }
 }
+impl Keymaps {
+    fn retire(
+        &mut self,
+        states: &[(PackageId, Option<Generation>, bool)],
+        buffers: &crate::buffer::Buffers,
+    ) {
+        let owned = &mut self.owned;
+        let before = owned.len();
+        owned.retain(|b| {
+            states.iter().any(|(id, g, enabled)| {
+                *enabled && *id == b.value.package && g.as_ref() == Some(&b.generation)
+            }) && b.buffer.is_none_or(|id| buffers.get(id).is_ok())
+        });
+        if owned.len() != before {
+            self.cache = None;
+        }
+    }
+}
+impl Observation {
+    fn enabled(&self, package: &PackageId) -> bool {
+        self.states
+            .iter()
+            .any(|(id, _, enabled)| id == package && *enabled)
+    }
+}
+struct Resolution {
+    values: Vec<Contribution>,
+    map: crate::input::keymap::Map,
+    statuses: Vec<ResolutionStatus>,
+}
+impl Resolution {
+    fn status(&self, value: &Contribution) -> ResolutionStatus {
+        self.values
+            .iter()
+            .position(|v| v == value)
+            .map_or(ResolutionStatus::Shadowed, |i| self.statuses[i])
+    }
+    fn overlaps(&self, value: &Contribution) -> (Vec<BindingSource>, Vec<BindingSource>) {
+        let mut underlying = Vec::new();
+        let mut conflicts = Vec::new();
+        for (other, state) in self.values.iter().zip(&self.statuses) {
+            if !overlaps(&other.sequence, &value.sequence) || other == value {
+                continue;
+            }
+            let source = binding_source(other);
+            if *state == ResolutionStatus::Conflicting {
+                conflicts.push(source);
+            } else {
+                underlying.push(source);
+            }
+        }
+
+        (underlying, conflicts)
+    }
+    fn effective(
+        &self,
+        value: &Contribution,
+        base: &crate::input::keymap::Map,
+    ) -> Option<BindingSource> {
+        self.map.lookup(&value.sequence).and_then(|b| {
+            if let NativeBinding::Command(Command::PluginDefined(name)) = b {
+                self.values
+                    .iter()
+                    .zip(&self.statuses)
+                    .find(|(v, status)| {
+                        v.command == name
+                            && v.sequence == value.sequence
+                            && **status == ResolutionStatus::Effective
+                    })
+                    .map(|(v, _)| binding_source(v))
+            } else {
+                native_source(b, base.is_custom(&value.sequence))
+            }
+        })
+    }
+}
+fn inspection_diagnostic(truncated: bool, status: ResolutionStatus) -> Option<Label> {
+    (truncated || status != ResolutionStatus::Effective).then(|| {
+        Label::new(if truncated {
+            "Inspection limited to 512 sources; resolve explicit user scope."
+        } else if status == ResolutionStatus::Conflicting {
+            "Competing defaults conflict; no plugin winner in this scope."
+        } else {
+            "A higher-priority binding shadows this contribution."
+        })
+        .expect("literal diagnostic")
+    })
+}
+
 fn matches(
     binding: &declarations::Binding,
     buffer: &crate::buffer::Buffer,

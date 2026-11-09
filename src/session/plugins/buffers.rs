@@ -78,10 +78,10 @@ impl Session {
                     o.device,
                     o.inode,
                     o.length,
-                    o.modified.0 as u64,
-                    o.modified.1 as u32,
-                    o.changed.0 as u64,
-                    o.changed.1 as u32,
+                    o.modified.0,
+                    u32::try_from(o.modified.1).expect("native stat nanoseconds fit u32"),
+                    o.changed.0,
+                    u32::try_from(o.changed.1).expect("native stat nanoseconds fit u32"),
                     o.mode,
                 ))
                 .expect("finite lossless native disk observation"),
@@ -111,224 +111,224 @@ impl Session {
             scalar_len: buffer.len_chars() as u64,
         })
     }
+    pub(super) fn plugin_mutation_busy(&self) -> bool {
+        self.context_storage.locked() || self.context_prepared.is_some() || self.quit_pending()
+    }
+    pub(super) fn plugin_input_owned(&self) -> bool {
+        self.pending.is_some()
+            || self.input.focus() != crate::input::Focus::Editing
+            || self.capture_blocks_input()
+            || self.capture_selected()
+            || self.source_edit_selected()
+            || self.windows.retained_view_active()
+    }
+    pub(super) fn plugin_source_work_active(&self) -> bool {
+        self.tangling.is_some() || self.execution.is_some() || self.feeds.is_some()
+    }
     fn plugin_buffer_operation(
         &mut self,
         request: &Request,
         operation: Operation,
     ) -> Result<Reply, RpcError> {
-        if matches!(
-            &operation,
-            Operation::Open(_)
-                | Operation::Install(_, _)
-                | Operation::Create(_)
-                | Operation::Apply(_)
-                | Operation::Save(_, _)
-                | Operation::Publish(_, _)
-                | Operation::Close(_)
-        ) && (self.context_storage.locked()
-            || self.context_prepared.is_some()
-            || self.quit_pending())
-        {
+        if buffer_mutation(&operation) && self.plugin_mutation_busy() {
             return Err(error(ErrorKind::Busy));
         }
         match operation {
-            Operation::State(_) => unreachable!("state IO stays on the supervisor"),
-            Operation::Subscribe(params) => {
-                for handle in params.buffers.iter() {
-                    self.plugin_buffer(handle)?;
-                }
-                self.plugins
-                    .host
-                    .subscribe(request, params)
-                    .map(Reply::Subscribed)
-            }
-            Operation::Unsubscribe(params) => {
-                self.plugins
-                    .host
-                    .unsubscribe(request, &params.subscription)?;
-                Ok(Reply::Unbound(Empty {}))
-            }
-            Operation::List(params) => {
-                if params.kind.is_some_and(|k| k != ResourceKind::Text) {
-                    return Err(error(ErrorKind::UnsupportedResource));
-                }
-                // Continuations carry the host session and last native ID.
-                let prefix = format!(
-                    "page-{}-",
-                    self.plugins.host.handle("cursor".into()).session
-                );
-                let after = params
-                    .page
-                    .cursor
-                    .as_ref()
-                    .map(|c| {
-                        c.as_str()
-                            .strip_prefix(&prefix)
-                            .and_then(|s| s.parse::<u64>().ok())
-                            .ok_or_else(|| error(ErrorKind::InvalidArguments))
-                    })
-                    .transpose()?;
-                let mut buffers = Vec::new();
-                let mut last = None;
-                let mut next = None;
-                for buffer in self.buffers.iter() {
-                    if buffer.is_transient() || buffer.terminal().is_some() {
-                        continue;
-                    }
-                    let number: u64 = buffer.id().to_string().parse().expect("native identity");
-                    if after.is_some_and(|a| number <= a) {
-                        continue;
-                    }
-                    if buffers.len() == usize::from(params.page.limit) {
-                        next = Some(
-                            OpaqueId::new(format!("{prefix}{}", last.expect("nonempty page")))
-                                .expect("finite cursor"),
-                        );
-                        break;
-                    }
-                    buffers.push(self.plugin_descriptor(buffer)?);
-                    last = Some(number);
-                }
-                Ok(Reply::List(BuffersListResult {
-                    buffers: List::new(buffers)?,
-                    next,
-                }))
-            }
-            Operation::Open(location) => {
-                if let Some(id) = self.buffers.resolved_buffer(&location) {
-                    return Ok(Reply::Descriptor(
-                        self.plugin_descriptor(self.buffers.get(id).map_err(native)?)?,
-                    ));
-                }
-                Ok(Reply::Load(location))
-            }
-            Operation::Install(location, loaded) => {
-                let visit = self
-                    .buffers
-                    .prepare_resolved_visit(location, loaded)
-                    .map_err(native)?;
-                let descriptor =
-                    self.plugin_descriptor(visit.buffer(&self.buffers).map_err(native)?)?;
-                if !request.live() {
-                    return Err(error(ErrorKind::Cancelled));
-                }
-                self.buffers.publish_visit(visit);
-                Ok(Reply::Descriptor(descriptor))
-            }
-            Operation::Create(params) => {
-                if params.name.as_str().is_empty()
-                    || params.name.as_str().len() > 4000
-                    || params.name.as_str().chars().any(char::is_control)
-                {
-                    return Err(error(ErrorKind::InvalidArguments));
-                }
-                if params.text.as_str().contains('\0') {
-                    return Err(error(ErrorKind::UnsupportedResource));
-                }
-                let buffer = self
-                    .buffers
-                    .prepare_plugin_create(
-                        request.package.clone(),
-                        params.name.as_str(),
-                        params.text.as_str(),
-                        params.read_only,
-                    )
-                    .map_err(native)?;
-                let descriptor = self.plugin_descriptor(&buffer)?;
-                if !request.live() {
-                    return Err(error(ErrorKind::Cancelled));
-                }
-                self.buffers.insert(buffer);
-                Ok(Reply::Descriptor(descriptor))
-            }
-            Operation::Describe(params) => {
-                let id = self.plugin_buffer(&params.buffer)?;
-                Ok(Reply::Descriptor(self.plugin_descriptor(
-                    self.buffers.get(id).map_err(native)?,
-                )?))
-            }
-            Operation::Read(params) => {
-                let id = self.plugin_buffer(&params.buffer)?;
-                let buffer = self.buffers.get(id).map_err(native)?;
-                let descriptor = self.plugin_descriptor(buffer)?;
-                if params
-                    .expected_revision
-                    .is_some_and(|r| r != descriptor.stamp.revision)
-                {
-                    return Err(error(ErrorKind::StaleRevision));
-                }
-                let start = usize::try_from(params.range.start())
-                    .map_err(|_| error(ErrorKind::InvalidRange))?;
-                let end = usize::try_from(params.range.end())
-                    .map_err(|_| error(ErrorKind::InvalidRange))?;
-                let span = buffer
-                    .span(start..end)
-                    .map_err(|_| error(ErrorKind::InvalidRange))?;
-                let slice = buffer.slice(&span).map_err(native)?;
-                if slice.len_bytes() > Limits::default().text_bytes as usize {
-                    return Err(error(ErrorKind::LimitExceeded));
-                }
-                Ok(Reply::Read(BuffersReadResult {
-                    stamp: descriptor.stamp,
-                    range: params.range,
-                    text: SourceText::new(slice.to_string())?,
-                }))
-            }
-            Operation::Show(params) => self.plugin_show(request, params),
+            Operation::List(params) => self.plugin_buffers_list(&params),
+            Operation::Describe(params) => self.plugin_describe(&params),
+            Operation::Read(params) => self.plugin_read(params),
+            Operation::Show(params) => self.plugin_show(request, &params),
             Operation::Apply(params) => self.plugin_edits(request, params),
-            Operation::Save(params, target) => self.plugin_save(request, params, target),
-            Operation::Publish(save, staged) => self.plugin_publish_save(request, save, staged),
-            Operation::Close(params) => self.plugin_close(request, params),
-            Operation::Commands(params) => self.plugin_commands(params),
-            Operation::Bind(params) => self.plugin_bind(request, params),
-            Operation::Unbind(params) => self.plugin_unbind(request, params),
-            Operation::Invoke(_) => {
-                unreachable!("owned invocation handled before borrowed operations")
-            }
+            Operation::Commands(params) => self.plugin_commands(&params),
+            operation => self.plugin_resource_operation(request, operation),
         }
+    }
+    fn plugin_resource_operation(
+        &mut self,
+        request: &Request,
+        operation: Operation,
+    ) -> Result<Reply, RpcError> {
+        match operation {
+            Operation::Open(location) => self.plugin_open(location),
+            Operation::Install(location, loaded) => self.plugin_install(request, location, loaded),
+            Operation::Create(params) => self.plugin_create(request, &params),
+            Operation::Save(params, target) => self.plugin_save(request, &params, target),
+            Operation::Publish(save, staged) => self.plugin_publish_save(request, save, staged),
+            Operation::Close(params) => self.plugin_close(request, &params),
+            operation => self.plugin_registration_operation(request, operation),
+        }
+    }
+    fn plugin_registration_operation(
+        &mut self,
+        request: &Request,
+        operation: Operation,
+    ) -> Result<Reply, RpcError> {
+        match operation {
+            Operation::Subscribe(params) => self.plugin_subscribe(request, params),
+            Operation::Unsubscribe(params) => self.plugin_unsubscribe(request, &params),
+            Operation::Bind(params) => self.plugin_bind(request, params),
+            Operation::Unbind(params) => self.plugin_unbind(request, &params),
+            _ => unreachable!(
+                "supervisor, invocation and buffer operations precede registration dispatch"
+            ),
+        }
+    }
+    fn plugin_buffers_list(&self, params: &BuffersListParams) -> Result<Reply, RpcError> {
+        if params.kind.is_some_and(|k| k != ResourceKind::Text) {
+            return Err(error(ErrorKind::UnsupportedResource));
+        }
+        // Continuations carry the host session and last native ID.
+        let prefix = format!(
+            "page-{}-",
+            self.plugins.host.handle("cursor".into()).session
+        );
+        let after = params
+            .page
+            .cursor
+            .as_ref()
+            .map(|c| {
+                c.as_str()
+                    .strip_prefix(&prefix)
+                    .and_then(|s| s.parse::<u64>().ok())
+                    .ok_or_else(|| error(ErrorKind::InvalidArguments))
+            })
+            .transpose()?;
+        let mut buffers = Vec::new();
+        let mut last = None;
+        let mut next = None;
+        for buffer in self.buffers.iter() {
+            if buffer.is_transient() || buffer.terminal().is_some() {
+                continue;
+            }
+            let number: u64 = buffer.id().to_string().parse().expect("native identity");
+            if after.is_some_and(|a| number <= a) {
+                continue;
+            }
+            if buffers.len() == usize::from(params.page.limit) {
+                next = Some(
+                    OpaqueId::new(format!("{prefix}{}", last.expect("nonempty page")))
+                        .expect("finite cursor"),
+                );
+                break;
+            }
+            buffers.push(self.plugin_descriptor(buffer)?);
+            last = Some(number);
+        }
+        Ok(Reply::List(BuffersListResult {
+            buffers: List::new(buffers)?,
+            next,
+        }))
+    }
+    fn plugin_open(&self, location: crate::file::Location) -> Result<Reply, RpcError> {
+        if let Some(id) = self.buffers.resolved_buffer(&location) {
+            return Ok(Reply::Descriptor(
+                self.plugin_descriptor(self.buffers.get(id).map_err(native)?)?,
+            ));
+        }
+        Ok(Reply::Load(location))
+    }
+    fn plugin_install(
+        &mut self,
+        request: &Request,
+        location: crate::file::Location,
+        loaded: Option<crate::file::Loaded>,
+    ) -> Result<Reply, RpcError> {
+        let visit = self
+            .buffers
+            .prepare_resolved_visit(location, loaded)
+            .map_err(native)?;
+        let descriptor = self.plugin_descriptor(visit.buffer(&self.buffers).map_err(native)?)?;
+        if !request.live() {
+            return Err(error(ErrorKind::Cancelled));
+        }
+        self.buffers.publish_visit(visit);
+        Ok(Reply::Descriptor(descriptor))
+    }
+    fn plugin_create(
+        &mut self,
+        request: &Request,
+        params: &BuffersCreateParams,
+    ) -> Result<Reply, RpcError> {
+        if params.name.as_str().is_empty()
+            || params.name.as_str().len() > 4000
+            || params.name.as_str().chars().any(char::is_control)
+        {
+            return Err(error(ErrorKind::InvalidArguments));
+        }
+        if params.text.as_str().contains('\0') {
+            return Err(error(ErrorKind::UnsupportedResource));
+        }
+        let buffer = self
+            .buffers
+            .prepare_plugin_create(
+                request.package.clone(),
+                params.name.as_str(),
+                params.text.as_str(),
+                params.read_only,
+            )
+            .map_err(native)?;
+        let descriptor = self.plugin_descriptor(&buffer)?;
+        if !request.live() {
+            return Err(error(ErrorKind::Cancelled));
+        }
+        self.buffers.insert(buffer);
+        Ok(Reply::Descriptor(descriptor))
+    }
+    fn plugin_describe(&self, params: &BufferParams) -> Result<Reply, RpcError> {
+        let id = self.plugin_buffer(&params.buffer)?;
+        Ok(Reply::Descriptor(self.plugin_descriptor(
+            self.buffers.get(id).map_err(native)?,
+        )?))
+    }
+    fn plugin_read(&self, params: BuffersReadParams) -> Result<Reply, RpcError> {
+        let id = self.plugin_buffer(&params.buffer)?;
+        let buffer = self.buffers.get(id).map_err(native)?;
+        let descriptor = self.plugin_descriptor(buffer)?;
+        if params
+            .expected_revision
+            .is_some_and(|r| r != descriptor.stamp.revision)
+        {
+            return Err(error(ErrorKind::StaleRevision));
+        }
+        Ok(Reply::Read(BuffersReadResult {
+            stamp: descriptor.stamp,
+            range: params.range,
+            text: read_text(buffer, params.range)?,
+        }))
+    }
+    fn plugin_subscribe(
+        &self,
+        request: &Request,
+        params: EventsSubscribeParams,
+    ) -> Result<Reply, RpcError> {
+        for handle in params.buffers.iter() {
+            self.plugin_buffer(handle)?;
+        }
+        self.plugins
+            .host
+            .subscribe(request, params)
+            .map(Reply::Subscribed)
+    }
+    fn plugin_unsubscribe(
+        &self,
+        request: &Request,
+        params: &EventsUnsubscribeParams,
+    ) -> Result<Reply, RpcError> {
+        self.plugins
+            .host
+            .unsubscribe(request, &params.subscription)?;
+        Ok(Reply::Unbound(Empty {}))
     }
     fn plugin_show(
         &mut self,
         request: &Request,
-        params: BuffersShowParams,
+        params: &BuffersShowParams,
     ) -> Result<Reply, RpcError> {
         let id = self.plugin_buffer(&params.buffer)?;
-        let pane = if let Some(handle) = params.pane {
-            if !self.plugins.host.owns(&handle) {
-                return Err(error(ErrorKind::UnsupportedInvocation));
-            }
-            self.windows
-                .iter()
-                .find(|(id, _)| handle.id.as_str() == format!("pane-{id}"))
-                .map(|(id, _)| id)
-                .ok_or_else(|| error(ErrorKind::UnsupportedInvocation))?
-        } else {
-            self.windows.selected_id()
-        };
-        if self.input.focus() != crate::input::Focus::Editing
-            || self.pending.is_some()
-            || self.tree.focused()
-            || self.terminals.focused
-            || self.capture_blocks_input()
-            || self.capture_selected()
-            || self.source_edit_selected()
-            || self.windows.retained_view_active()
-            || self.tangling.is_some()
-            || self.execution.is_some()
-            || self.feeds.is_some()
-            || self.macros.active()
-        {
-            return Err(error(ErrorKind::UnsupportedInvocation));
-        }
-        let mut view = self.windows.get(pane).map_err(native)?.clone();
-        if view.point.stamp.buffer != id {
-            view.rebind(self.buffers.get(id).map_err(native)?);
-        }
-        let split = match params.placement {
-            Placement::Current => None,
-            Placement::SplitHorizontal => Some(crate::window::Split::Below),
-            Placement::SplitVertical => Some(crate::window::Split::Right),
-        };
+        let pane = self.plugin_display_pane(params.pane.as_ref())?;
+        self.admit_plugin_display()?;
+        let view = self.plugin_display_view(id, pane)?;
+        let split = placement(params.placement);
         self.stop_typing().map_err(native)?;
         if !request.live() {
             return Err(error(ErrorKind::Cancelled));
@@ -342,5 +342,77 @@ impl Session {
         Ok(Reply::Show(BuffersShowResult {
             pane: self.plugins.host.handle(format!("pane-{pane}")),
         }))
+    }
+    fn plugin_display_pane(
+        &self,
+        handle: Option<&Handle>,
+    ) -> Result<crate::window::ViewId, RpcError> {
+        let pane = if let Some(handle) = handle {
+            if !self.plugins.host.owns(handle) {
+                return Err(error(ErrorKind::UnsupportedInvocation));
+            }
+            self.windows
+                .iter()
+                .find(|(id, _)| handle.id.as_str() == format!("pane-{id}"))
+                .map(|(id, _)| id)
+                .ok_or_else(|| error(ErrorKind::UnsupportedInvocation))?
+        } else {
+            self.windows.selected_id()
+        };
+        Ok(pane)
+    }
+    fn admit_plugin_display(&self) -> Result<(), RpcError> {
+        if self.plugin_input_owned()
+            || self.tree.focused()
+            || self.terminals.focused
+            || self.plugin_source_work_active()
+            || self.macros.active()
+        {
+            return Err(error(ErrorKind::UnsupportedInvocation));
+        }
+        Ok(())
+    }
+    fn plugin_display_view(
+        &self,
+        id: BufferId,
+        pane: crate::window::ViewId,
+    ) -> Result<crate::view::View, RpcError> {
+        let mut view = self.windows.get(pane).map_err(native)?.clone();
+        if view.point.stamp.buffer != id {
+            view.rebind(self.buffers.get(id).map_err(native)?);
+        }
+        Ok(view)
+    }
+}
+
+fn buffer_mutation(operation: &Operation) -> bool {
+    matches!(
+        operation,
+        Operation::Open(_)
+            | Operation::Install(_, _)
+            | Operation::Create(_)
+            | Operation::Apply(_)
+            | Operation::Save(_, _)
+            | Operation::Publish(_, _)
+            | Operation::Close(_)
+    )
+}
+fn read_text(buffer: &Buffer, range: ScalarRange) -> Result<SourceText, RpcError> {
+    let start = usize::try_from(range.start()).map_err(|_| error(ErrorKind::InvalidRange))?;
+    let end = usize::try_from(range.end()).map_err(|_| error(ErrorKind::InvalidRange))?;
+    let span = buffer
+        .span(start..end)
+        .map_err(|_| error(ErrorKind::InvalidRange))?;
+    let slice = buffer.slice(&span).map_err(native)?;
+    if slice.len_bytes() > Limits::default().text_bytes as usize {
+        return Err(error(ErrorKind::LimitExceeded));
+    }
+    SourceText::new(slice.to_string())
+}
+fn placement(placement: Placement) -> Option<crate::window::Split> {
+    match placement {
+        Placement::Current => None,
+        Placement::SplitHorizontal => Some(crate::window::Split::Below),
+        Placement::SplitVertical => Some(crate::window::Split::Right),
     }
 }

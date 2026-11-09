@@ -27,50 +27,74 @@ impl Session {
         })
     }
     pub(in crate::session) fn plugin_call(&mut self, call: PluginCall) -> Action {
-        let admission = (|| {
-            if !self.buffers.snapshot().settings().plugins.enabled {
-                return Err("Experimental plugins are disabled".to_owned());
-            }
-            call.validate().map_err(str::to_owned)?;
-            let (package, command) = self
-                .buffers
-                .snapshot()
-                .plugins()
-                .command(call.command.as_str())
-                .ok_or_else(|| {
-                    format!(
-                        "Plugin command unavailable (not declared): {}",
-                        call.command
-                    )
-                })?;
-            let declaration = command.declaration();
-            declaration
-                .validate_arguments(
-                    &call.arguments,
-                    call.prefix,
-                    &rev_plugin_sdk::limits::Limits::default(),
-                )
-                .map_err(|error| error.to_string())?;
-            if self.macros.active()
-                && (declaration.recording != RecordingPolicy::Semantic || self.macro_manual())
-            {
-                return Err(format!(
-                    "Plugin command does not admit semantic recording: {}",
-                    call.command
-                ));
-            }
-            if self.plugin_macro_waiting() {
-                return Err("A semantic plugin call is already pending".to_owned());
-            }
-            Ok((
-                package.clone(),
-                declaration.recording == RecordingPolicy::Semantic,
-            ))
-        })();
-        let (package, semantic) = match admission {
+        let (package, semantic) = match self.admit_plugin_call(&call) {
             Ok(value) => value,
             Err(error) => return self.error(&error),
         };
+        if let Some(action) = self.capture_plugin_call(&call) {
+            return action;
+        }
+        let context = match self.plugin_call_context(call.prefix) {
+            Ok(context) => context,
+            Err(error) => return self.error(&error),
+        };
+        match self.plugins.host.invoke_with(
+            &package,
+            crate::plugins::lifecycle::Invocation {
+                command: call.command.clone(),
+                context,
+                arguments: call.arguments.clone(),
+            },
+            None,
+        ) {
+            Ok(receipt) => self.plugin_call_started(receipt, call, semantic),
+            Err(error) => self.error(&error),
+        }
+    }
+    fn admit_plugin_call(
+        &self,
+        call: &PluginCall,
+    ) -> Result<(crate::plugins::declarations::Package, bool), String> {
+        if !self.buffers.snapshot().settings().plugins.enabled {
+            return Err("Experimental plugins are disabled".to_owned());
+        }
+        call.validate().map_err(str::to_owned)?;
+        let (package, command) = self
+            .buffers
+            .snapshot()
+            .plugins()
+            .command(call.command.as_str())
+            .ok_or_else(|| {
+                format!(
+                    "Plugin command unavailable (not declared): {}",
+                    call.command
+                )
+            })?;
+        let declaration = command.declaration();
+        declaration
+            .validate_arguments(
+                &call.arguments,
+                call.prefix,
+                &rev_plugin_sdk::limits::Limits::default(),
+            )
+            .map_err(|error| error.to_string())?;
+        if self.macros.active()
+            && (declaration.recording != RecordingPolicy::Semantic || self.macro_manual())
+        {
+            return Err(format!(
+                "Plugin command does not admit semantic recording: {}",
+                call.command
+            ));
+        }
+        if self.plugin_macro_waiting() {
+            return Err("A semantic plugin call is already pending".to_owned());
+        }
+        Ok((
+            package.clone(),
+            declaration.recording == RecordingPolicy::Semantic,
+        ))
+    }
+    fn capture_plugin_call(&mut self, call: &PluginCall) -> Option<Action> {
         // Prefix keys and palette presentation are replaced by exactly one
         // semantic call. Generated RPC edits never pass through input capture.
         if !self.macros.expanded
@@ -82,14 +106,17 @@ impl Session {
                 .stage(Step::Plugin(call.clone()))
                 .and_then(|()| recorder.accept())
             {
-                return self.stop_macro(reason, "Plugin call exceeds macro capture limits");
+                return Some(self.stop_macro(reason, "Plugin call exceeds macro capture limits"));
             }
             if let Err(reason) = self.macros.admit_memory(None) {
-                return self.stop_macro(reason, "Macro retained memory exceeds 48 MiB");
+                return Some(self.stop_macro(reason, "Macro retained memory exceeds 48 MiB"));
             }
         }
+        None
+    }
+    fn plugin_call_context(&self, prefix: Option<i64>) -> Result<InvocationContext, String> {
         let mut context = self.plugins.host.context();
-        context.prefix = call.prefix;
+        context.prefix = prefix;
         if let Ok(buffer) = self.buffer()
             && !buffer.is_transient()
             && buffer.terminal().is_none()
@@ -110,34 +137,28 @@ impl Session {
                     ScalarRange::new(s.range.start as u64, s.range.end as u64)
                         .expect("native region")
                 }),
-                Err(error) => return self.error(&error.to_string()),
+                Err(error) => return Err(error.to_string()),
             };
         }
-        match self.plugins.host.invoke_with(
-            &package,
-            crate::plugins::lifecycle::Invocation {
-                command: call.command.clone(),
-                context,
-                arguments: call.arguments.clone(),
-            },
-            None,
-        ) {
-            Ok(receipt) => {
-                if self.macros.active() {
-                    self.plugins.automatic = Some(Automatic { receipt });
-                }
-                if !self.macros.expanded && semantic {
-                    self.macros.recent.draft = None;
-                    let entry = self.macro_entry();
-                    self.macros.recent.push(entry, Step::Plugin(call.clone()));
-                }
-                self.message(&format!(
-                    "Plugin command pending: {}; C-g cancels",
-                    call.command
-                ))
-            }
-            Err(error) => self.error(&error),
+        Ok(context)
+    }
+    fn plugin_call_started(
+        &mut self,
+        receipt: Receipt,
+        call: PluginCall,
+        semantic: bool,
+    ) -> Action {
+        let notice = format!("Plugin command pending: {}; C-g cancels", call.command);
+
+        if self.macros.active() {
+            self.plugins.automatic = Some(Automatic { receipt });
         }
+        if !self.macros.expanded && semantic {
+            self.macros.recent.draft = None;
+            let entry = self.macro_entry();
+            self.macros.recent.push(entry, Step::Plugin(call));
+        }
+        self.message(&notice)
     }
     pub(in crate::session) fn plugin_macro_waiting(&self) -> bool {
         self.plugins.automatic.is_some()

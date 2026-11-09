@@ -1,6 +1,6 @@
 # Slice 2: Plugin and SDK ownership
 
-Status: drafting
+Status: reviewing
 Delivery set: rev-architecture-quality
 Plan: [Architecture Quality Delivery](../../../plan/rev-architecture-quality.md)
 Tracker: [Architecture Quality Tracker](../../../tracker/rev-architecture-quality.md)
@@ -42,6 +42,15 @@ through read reconciliation or prepared CAS publication. Staging, replacement
 checks and post-commit durability evidence have separate owners while retaining
 the existing schema, monotonic versions and uncertain-publication behavior.
 
+Session dispatch separates buffer queries, file lifecycle and registration.
+Input, context mutation and active source work remain explicit admission gates
+with each operation's original rejection. Captured native motions prepare their
+view before the final live check; atomic edits still prepare all targets and the
+complete result before publication. Keymap resolution keeps its contributions,
+map and statuses together for selected and hidden buffers. Semantic capture,
+context capture and completion are separate steps; recent history consumes the
+completed call instead of cloning it again.
+
 ## Implementation Notes
 
 The internal host entry point accepts one domain invocation containing its
@@ -59,14 +68,20 @@ crate root now declares the existing unsafe prohibition explicitly.
 The supervisor task owns its admitted generation and bounded endpoints before
 process startup. Invocation correlation and permit admission retain native and
 nested origin rules and roll back the first reservation if the second fails.
-Supervisor retirement still precedes cancellation output or process cleanup. Event source
-conversion, subscription eligibility, delivery and invalidation remain bounded;
-event locks are released before returning results or signaling unsubscribe.
+Supervisor retirement still precedes cancellation output or process cleanup.
+Event source conversion, subscription eligibility, delivery and invalidation
+remain bounded; event locks are released before returning results or signaling unsubscribe.
 
 Native representation changes use checked conversions at validated source/store
 lengths, TOML integer bounds, OS flags and positive spawned process identities.
 Reference-counted sharing is explicit. Existing publication-fault fixtures keep
 all stages and assertions; their substitution helpers follow the IO boundaries.
+
+Private file/query/unbind inputs borrow their existing wire values. Disk tokens
+retain the hexadecimal spelling of signed native timestamp seconds, including
+pre-epoch values, and check the native nanosecond bound before narrowing. A local
+compatibility probe passed 15 combinations of extreme/signed seconds and valid
+nanoseconds against the prior token spelling.
 
 ## Contracts Added or Changed
 
@@ -92,48 +107,37 @@ resource ceilings are unchanged. No new dependency is introduced.
 
 ## Validation
 
-The existing native plugin suite passed all 86 tests with:
+The five frozen commands passed on the working candidate in the approved order:
 
-`env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --test plugins -- --test-threads=1`
+1. `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 bash scripts/check-quality.sh --scope crates/rev-plugin-sdk --scope src/plugins.rs --scope src/plugins --scope src/session/plugins.rs --scope src/session/plugins`
+2. `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev-plugin-sdk`
+3. `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --test plugins -- --test-threads=1`
+4. `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo run --locked --quiet -p rev --example documentation-check`
+5. `git diff --check`
 
-This includes protocol, callbacks, captured contexts, cancellation/restart,
-retirement, keymap precedence, atomic publication, state and owned process/PTY
-resource assertions. The rerun after native decomposition completed in 91.01
-seconds. `git diff --check` passed.
+The complete frozen selection covers all 32 SDK/native/session-plugin sources
+and both SDK crate roots from an inventory of 1,799 first-party Rust files and
+73 roots. Formatting, globally blocking first-party compiler/all-group checks,
+selected Clippy admission and the source bounds pass with zero blocking
+diagnostics. The driver defers 1,522 emitted selected-profile diagnostics outside
+these owners; this is scoped adoption, not a full workspace quality claim.
 
-The complete Slice 2 quality selection remains in progress under T2.2. The
-passing checks below do not replace its final ordered clean-HEAD validation.
+The SDK passed all 12 tests and its doctest. The plugin suite passed all 86 tests
+in 82.80 seconds, retaining protocol, captured contexts, cancellation/restart,
+causal events, keymap precedence, semantic recording, atomic publication, state
+and owned process/PTY resource assertions. Documentation passed 106 reachable
+pages, 743 local links/anchors, 684 commands and 299 configuration entries.
+The three state publication-fault, substitution and version-exhaustion unit cases
+also passed during the native owner refactor.
 
-The SDK-only owner is clean: all first-party workspace targets compile without baseline
-warnings, and the selected/source policy covers all 11 SDK source files and both
-of its actual crate roots with zero blocking diagnostics. These commands passed:
-
-- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 bash scripts/check-quality.sh --scope crates/rev-plugin-sdk`
-- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev-plugin-sdk`
-
-The SDK passed all 12 existing tests and its doctest.
-
-The combined SDK and native-plugin selection now passes with zero blocking
-diagnostics across all 24 selected files and both SDK crate roots:
-
-- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 bash scripts/check-quality.sh --scope crates/rev-plugin-sdk --scope src/plugins.rs --scope src/plugins`
-
-All first-party workspace targets compile with the complete baseline clean. The
-driver defers 1,544 emitted selected-profile diagnostics outside this selection;
-this does not establish complete Slice 2 or workspace adoption.
-
-A fresh source-only scan of the complete frozen Slice 2 selection reports 14
-remaining diagnostics, all in session-plugin owners. The complete Slice 2
-selected Clippy profile and ordered final checks remain pending.
-
-The state publication fault, substitution and version-exhaustion unit cases also
-passed (three tests), and the documentation catalog/link check passed:
-
-- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --lib plugins::state::tests -- --test-threads=1`
-- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo run --locked --quiet -p rev --example documentation-check`
+Exact final clean-HEAD validation through the controller's validate command is
+required after the PR-reference commit and push, before the worker handoff.
 
 ## Risks and Follow-ups
 
-Session-plugin ownership/conversion cleanup and decomposition remain required
-under T2.2. T2.3 and the final exact ordered five-command Looper validation remain
-pending. No canonical PR is ready yet.
+Other owners' selected-profile and source cleanup remain in their approved
+slices. Inherited workspace lints, staged-index enforcement, hook activation and
+the full integrated gate remain later delivery work. A passing linter does not
+prove domain ownership or absence of bugs. The existing vendored dependency
+warning remains outside first-party ownership. Public protocol/state versions,
+resource limits and regression assertions are retained; no dependency is added.
