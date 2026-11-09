@@ -25,7 +25,10 @@ const IDS: [&str; 8] = [
 fn lines(e: &Editor, id: &str, file: &str) -> Vec<Value> {
     fs::read_to_string(e.fixture.0.join(id).join(file))
         .unwrap_or_default()
-        .lines()
+        // The peer appends framed records concurrently. A final fragment has
+        // no receipt until its LF is visible; completed lines remain strict JSON.
+        .split_inclusive('\n')
+        .filter(|line| line.ends_with('\n'))
         .map(|line| serde_json::from_str(line).unwrap())
         .collect()
 }
