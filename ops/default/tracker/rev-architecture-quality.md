@@ -67,7 +67,7 @@ Validation: all five frozen commands passed through Looper on clean published HE
 State: reviewing
 Dependency: Slice 2 integrated
 Branch: refactor/rev-architecture-quality-03-core
-PR: pending
+PR: #17 - https://forge.adrianpk.com/rev/rev/pulls/17
 Report: ops/default/report/slices/rev-architecture-quality/slice-3-core.md
 Implementation: c32cd4fa544f4201811e97c9ea582554f4044c4c
 Progress: source bounds and scoped Clippy pass; maintainer-approved fixture corrections resolve the four reproduced baseline display/gutter failures without runtime changes
