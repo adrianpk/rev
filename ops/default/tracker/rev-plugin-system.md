@@ -237,7 +237,8 @@ Repair state: reviewing
 Failed integrated candidate: dee4c94dac5e5afa87cdfa1575e995290332acaf
 Branch: fix/rev-plugin-system-gate-1
 Expected PR title: fix(plugins): select coherent artifacts for plugin test peers
-PR: pending
+PR: #14 - https://forge.adrianpk.com/rev/rev/pulls/14
+Implementation: 654bbd1eaf6a1cb17d3ab5ca777f3bc2bbaa907a
 Report: ops/default/report/slices/rev-plugin-system/slice-13-acceptance.md
 
 The retained gate failure reproduces incompatible SDK/serde_json crate identities

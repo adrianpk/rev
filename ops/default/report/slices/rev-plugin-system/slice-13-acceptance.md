@@ -171,7 +171,8 @@ the guide build does not publish a site.
 
 Repair status: reviewing
 Repair branch: `fix/rev-plugin-system-gate-1`
-Repair PR: pending
+Repair PR: #14 - https://forge.adrianpk.com/rev/rev/pulls/14
+Repair implementation: 654bbd1eaf6a1cb17d3ab5ca777f3bc2bbaa907a
 Failed integrated candidate: dee4c94dac5e5afa87cdfa1575e995290332acaf
 Retained diagnostic: G5JH7N2T4RYIIO3MN6WJLM6PWX
 
