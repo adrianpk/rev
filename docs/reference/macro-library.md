@@ -111,6 +111,33 @@ admit one d/o/x/X integer conversion, at most 256 UTF-8 bytes, width/precision a
 most 128, and rendered output at most 512 bytes. The replay-start format remains
 independent of later recorded format changes.
 
+## Schema 2 plugin calls
+
+Readers accept schema_version=1 and schema_version=2. Schema 2 retains every
+schema-1 record field and native step and adds this distinct inert variant:
+
+```toml
+steps = [{ kind = "plugin-call", command = "field.notes.collect", arguments_json = '{}', prefix = -3 }]
+```
+
+command is a qualified publisher.package.command identity. arguments_json is a
+JSON object encoded as a TOML string, preserving null, boolean, integer, string,
+array and object literals without evaluating them. prefix is an optional signed
+64-bit integer; omission means no prefix was supplied. Native prefix input retains
+its own magnitude limit before capture. No source handle, process generation,
+handler address or executable path is stored in the step.
+
+A plugin-call in schema 1 is invalid. Unknown steps and malformed argument JSON
+reject the complete aggregate. Current package availability, argument contracts,
+prefix policy and semantic recording policy are checked again at replay.
+
+An explicit save that adds a plugin step to a schema-1 library writes schema 2
+while preserving other records' identities, revisions and content. Reload never
+rewrites the library. A standalone export uses schema 2 only if its selected
+record contains plugin steps. An already schema-2 library retains that version
+on later explicit writes. Older editors do not support schema 2; keep a copy of
+an older library before saving plugin calls if backward compatibility is needed.
+
 ## Reload, concurrency and limits
 
 After complete structural validation, conflicting compiled, prompt or AI names

@@ -16,7 +16,7 @@ impl AutomaticGroup {
         Arc::new(Self { budget })
     }
 
-    pub(super) fn charge(&self, bytes: usize) -> Result<(), Error> {
+    pub(crate) fn charge(&self, bytes: usize) -> Result<(), Error> {
         self.budget
             .fetch_update(Ordering::Relaxed, Ordering::Relaxed, |used| {
                 used.checked_add(bytes)

@@ -59,6 +59,23 @@ fn peer() -> &'static Path {
                 .arg("--extern")
                 .arg(format!("rev_plugin_sdk={}", library.display()));
 
+            let json = fs::read_dir(&deps)
+                .unwrap()
+                .map(|e| e.unwrap().path())
+                .filter(|p| {
+                    p.file_name()
+                        .unwrap()
+                        .to_str()
+                        .unwrap()
+                        .starts_with("libserde_json-")
+                        && p.extension().is_some_and(|e| e == "rlib")
+                })
+                .max_by_key(|p| p.metadata().unwrap().modified().unwrap())
+                .unwrap();
+            compiler
+                .arg("--extern")
+                .arg(format!("serde_json={}", json.display()));
+
             let output = compiler.output().unwrap();
             assert!(
                 output.status.success(),
@@ -74,6 +91,7 @@ struct Spec<'a> {
     mode: &'a str,
     activation: &'a str,
     ignore_term: bool,
+    declaration: Option<&'a str>,
 }
 pub(super) struct Editor {
     pub(super) fixture: Fixture,
@@ -88,6 +106,7 @@ impl Editor {
                 mode,
                 activation,
                 ignore_term: mode == "hold",
+                declaration: None,
             }],
             if startup { &["field.notes"] } else { &[] },
         )
@@ -105,6 +124,7 @@ impl Editor {
                 mode: if rpc { "buffers" } else { "echo" },
                 activation: "",
                 ignore_term: false,
+                declaration: None,
             })
             .collect();
         let startup: Vec<_> = if rpc {
@@ -112,10 +132,41 @@ impl Editor {
         } else {
             Vec::new()
         };
-        Self::setup(profile, &specs, &startup, bindings, config)
+        Self::setup(profile, &specs, &startup, bindings, config, false)
+    }
+    pub(super) fn recording(profile: &str, mode: &str, declaration: Option<&str>) -> Self {
+        let context = if profile == "modal" {
+            "vim_normal"
+        } else {
+            "editor"
+        };
+        let binding = format!(
+            "\n[[bindings]]\ncommand='field.notes.collect'\nkeys='F8'\ncontext='{context}'\nscope='global'\n"
+        );
+        let specs: Vec<_> = declaration
+            .into_iter()
+            .flat_map(|declaration| {
+                ["field.notes", "other.notes"].map(|id| Spec {
+                    id,
+                    mode,
+                    activation: "",
+                    ignore_term: false,
+                    declaration: Some(declaration),
+                })
+            })
+            .collect();
+        let bindings = declaration.map(|_| ("field.notes", binding.as_str()));
+        Self::setup(
+            profile,
+            specs.as_slice(),
+            &[],
+            bindings.as_slice(),
+            "",
+            true,
+        )
     }
     fn packages(profile: &str, specs: &[Spec<'_>], startup: &[&str]) -> Self {
-        Self::setup(profile, specs, startup, &[], "")
+        Self::setup(profile, specs, startup, &[], "", false)
     }
     fn setup(
         profile: &str,
@@ -123,6 +174,7 @@ impl Editor {
         startup: &[&str],
         bindings: &[(&str, &str)],
         config: &str,
+        library: bool,
     ) -> Self {
         let fixture = Fixture::new();
         let mut manifests = Vec::new();
@@ -167,15 +219,14 @@ args = {}
 [[commands]]
 name = "collect"
 description = "Collect task lines."
-parameters = [{{name="label", kind="string", required=false}}]
-prefix = "none"
-recording = "reject"
+{}
 [activation]
 {}
 "#,
                 spec.id,
                 serde_json::to_string(&program).unwrap(),
                 serde_json::to_string(&args).unwrap(),
+                spec.declaration.unwrap_or("parameters = [{name='label', kind='string', required=false}]\nprefix='none'\nrecording='reject'"),
                 spec.activation
             );
             let name = format!("{}.toml", spec.id);
@@ -207,6 +258,16 @@ recording = "reject"
             },
         )
         .unwrap();
+        let session = if library {
+            session.with_macro_library(&config::Roots {
+                config: fixture.0.join("config"),
+                data: fixture.0.join("data"),
+                state: fixture.0.join("state"),
+                cache: fixture.0.join("cache"),
+            })
+        } else {
+            session
+        };
         Self { fixture, session }
     }
     pub(super) fn path(&self, name: &str) -> PathBuf {
@@ -595,6 +656,7 @@ fn admission_limits() {
             mode: "hold",
             activation: "",
             ignore_term: true,
+            declaration: None,
         })
         .collect();
     let mut editor = Editor::packages("non-modal", &specs, &[]);

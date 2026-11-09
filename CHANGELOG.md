@@ -22,7 +22,11 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
   revisions and close clean buffers. Changed files and modified closes retain
   native conflict and consent rules. Packages can contribute global or
   buffer-local shortcuts in either profile, with explicit user precedence and
-  inspectable conflicts. Native prompts and recovery keys retain control.
+  inspectable conflicts. Forward a declared integer prefix once and record
+  qualified plugin calls in keyboard macros. Replay waits for each callback and
+  supports cancellation; generated edits are not recorded twice. Explicit saves
+  containing plugin calls use macro-library schema 2 and preserve older records.
+  Native prompts and recovery keys retain control.
 
 - Record native editing with F3 and finish with F4, then replay the last keyboard
   macro with F4 or C-x e. Positive prefix arguments repeat the recording;

@@ -37,7 +37,7 @@ impl Session {
         request: &Request,
         params: EditsApplyParams,
     ) -> Result<Reply, RpcError> {
-        if self.macros.active() {
+        if self.macros.active() && !self.plugin_macro_request(request) {
             return Err(error(ErrorKind::Busy));
         }
         if params
@@ -100,12 +100,33 @@ impl Session {
             operation: params.operation,
             stamps: List::new(stamps)?,
         };
+        if let Some(run) = &self.macros.runner {
+            batch.check(&self.buffers, &self.windows).map_err(native)?;
+            if !request.live() {
+                return Err(error(ErrorKind::Cancelled));
+            }
+            let bytes = targets
+                .iter()
+                .flat_map(|(_, edits)| edits)
+                .map(|edit| edit.text.len())
+                .sum();
+            // Generated edits keep independent history units, while sharing the
+            // automatic run's existing finite text budget across nested calls.
+            if run.group.charge(bytes).is_err() {
+                self.stop_macro(
+                    crate::macros::StopReason::TextBudget,
+                    "Keyboard macro generated text limit reached",
+                );
+                return Err(error(ErrorKind::LimitExceeded));
+            }
+        }
         batch
             .publish(&mut self.buffers, &mut self.windows, || request.live())
             .map_err(|failure| match failure {
                 AtomicFailure::Edit(error) => native(error),
                 AtomicFailure::Cancelled => error(ErrorKind::Cancelled),
             })?;
+        self.plugin_macro_published();
         // Native observers already see a complete batch. Retire revision-bound
         // completion/resolve work without manufacturing recorded user commands.
         self.invalidate_completion();

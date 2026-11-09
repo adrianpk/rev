@@ -1382,6 +1382,7 @@ impl Session {
                 run.budget.load(std::sync::atomic::Ordering::Relaxed) == usize::MAX
             });
         if active_macro {
+            self.cancel_plugin_macro();
             self.restore_search();
             self.pending = None;
             self.input.cancel();

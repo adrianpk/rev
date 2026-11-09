@@ -1,4 +1,4 @@
-//! Explicit, inert schema-1 snapshots. This owner never executes saved input.
+//! Explicit, inert schema-1/2 snapshots. This owner never executes saved input.
 mod codec;
 mod store;
 pub(crate) use codec::{Catalog, Record};

@@ -1,13 +1,13 @@
-use crate::command::{PluginCommand, PluginName};
+use crate::command::PluginCommand;
 
 use super::{Action, Pending, Session};
 use crate::plugins::lifecycle::{Host, Inspection, Service};
-use rev_plugin_sdk::identity::{Revision, ScalarRange, Stamp};
 mod activation;
 mod buffers;
 mod files;
 mod invocation;
 mod keymaps;
+mod recording;
 mod transactions;
 
 #[derive(Default)]
@@ -16,6 +16,7 @@ pub(super) struct Work {
     activation: activation::Activation,
     keys: keymaps::Keymaps,
     notice: Option<String>,
+    automatic: Option<recording::Automatic>,
 }
 
 impl Session {
@@ -62,55 +63,6 @@ impl Session {
         }
     }
 
-    pub(super) fn plugin_defined(&mut self, name: PluginName) -> Action {
-        let Some((package, command)) = self.buffers.snapshot().plugins().command(name.name())
-        else {
-            return self.error(&format!(
-                "Plugin command unavailable (not declared): {}",
-                name.name()
-            ));
-        };
-        if let Err(error) = command.declaration().validate_arguments(
-            &serde_json::json!({}),
-            None,
-            &rev_plugin_sdk::limits::Limits::default(),
-        ) {
-            return self.error(&error.to_string());
-        }
-        let mut context = self.plugins.host.context();
-        if let Ok(buffer) = self.buffer()
-            && !buffer.is_transient()
-            && buffer.terminal().is_none()
-        {
-            context.stamp = Some(Stamp {
-                buffer: self.plugins.host.handle(format!("buffer-{}", buffer.id())),
-                revision: Revision::new(buffer.stamp().revision.to_string())
-                    .expect("native revision"),
-            });
-            context.pane = Some(
-                self.plugins
-                    .host
-                    .handle(format!("pane-{}", self.windows.selected_id())),
-            );
-            context.point = Some(self.view().point.position.0 as u64);
-            let selection = match buffer.region(self.view().point) {
-                Ok(selection) => selection,
-                Err(error) => return self.error(&error.to_string()),
-            };
-            context.selection = selection.map(|s| {
-                ScalarRange::new(s.range.start as u64, s.range.end as u64).expect("native region")
-            });
-        }
-        let id = package.manifest.plugin.id.command(&command.name);
-        match self.plugins.host.invoke(package, id, context) {
-            Ok(()) => self.message(&format!(
-                "Plugin command pending: {}; C-g cancels",
-                name.name()
-            )),
-            Err(error) => self.error(&error),
-        }
-    }
-
     /// Ephemeral package status. This performs no process or filesystem probe.
     pub fn plugin_status(&self, id: &str) -> Option<Inspection> {
         let package = self.buffers.snapshot().plugins().package(id)?;
@@ -143,6 +95,9 @@ impl Session {
         self.serve_plugin_buffers(&mut service);
         self.advance_plugin_activation(&mut service, &mut notices);
         self.refresh_plugin_keymaps();
+        if let Some(action) = self.advance_plugin_macro() {
+            return action;
+        }
         if let Some(notice) = notices.pop() {
             self.plugins.notice = Some(notice);
         }

@@ -93,6 +93,7 @@ impl Step {
                 .map_or_else(|| "key".into(), |s| s.to_string()),
             Self::Text(text) => format!("text {:?}", text.chars().take(48).collect::<String>()),
             Self::Command(c) => format!("{} [{} arguments]", c.name, c.arguments.len()),
+            Self::Plugin(c) => format!("{} [plugin call]", c.command),
             Self::Completion(c) => format!("completion [{} edits]", c.edits.len()),
             Self::Counter(_) => "counter".into(),
             Self::Query(_) => "query".into(),

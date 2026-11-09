@@ -162,6 +162,7 @@ fn main() {
     let mut client = Client::new(package.clone(), List::new(vec![handler]).unwrap()).unwrap();
     let start = Instant::now();
     let mut held = Vec::new();
+    let mut automatic = std::collections::BTreeMap::new();
     let mut input = std::io::stdin();
     let mut output = std::io::stdout();
     let mut buffer = [0; 8192];
@@ -252,7 +253,53 @@ fn main() {
                             std::thread::sleep(Duration::from_millis(1));
                         }
                     }
-                    if mode == "hold" {
+                    if mode == "recording"
+                        && (directory.join("edit").exists() || directory.join("nested").exists())
+                    {
+                        let params: CommandInvokeParams =
+                            serde_json::from_value(callback.request().params.clone()).unwrap();
+                        let request = if directory.join("nested").exists() {
+                            client
+                                .request::<CommandsInvoke>(
+                                    CommandsInvokeParams {
+                                        command: CommandTarget::Plugin(
+                                            fs::read_to_string(directory.join("nested"))
+                                                .ok()
+                                                .filter(|id| !id.trim().is_empty())
+                                                .map_or(params.command, |id| {
+                                                    CommandId::new(id.trim()).unwrap()
+                                                }),
+                                        ),
+                                        arguments: params.arguments,
+                                        context: params.context,
+                                    },
+                                    start.elapsed(),
+                                )
+                                .unwrap()
+                        } else {
+                            let mut origin = params.context.origin;
+                            origin.package = Some(package.id.clone());
+                            client
+                                .request::<EditsApply>(
+                                    EditsApplyParams {
+                                        operation: params.context.invocation.clone(),
+                                        origin,
+                                        targets: List::new(vec![BufferEdits {
+                                            stamp: params.context.stamp.unwrap(),
+                                            replacements: List::new(vec![Replacement {
+                                                range: ScalarRange::new(0, 0).unwrap(),
+                                                text: SourceText::new("λ").unwrap(),
+                                            }])
+                                            .unwrap(),
+                                        }])
+                                        .unwrap(),
+                                    },
+                                    start.elapsed(),
+                                )
+                                .unwrap()
+                        };
+                        automatic.insert(request, callback);
+                    } else if mode == "hold" {
                         held.push(callback);
                     } else {
                         client
@@ -282,6 +329,17 @@ fn main() {
                         );
                         record(&directory, "retired", "late callback rejected");
                     }
+                }
+                Some(Event::Response { id, result, .. }) if automatic.contains_key(&id) => {
+                    let callback = automatic.remove(&id).unwrap();
+                    client
+                        .respond::<CommandInvoke>(
+                            &callback,
+                            result.map(|_| CommandsInvokeResult {
+                                value: Default::default(),
+                            }),
+                        )
+                        .unwrap();
                 }
                 Some(Event::Response {
                     result: Err(error), ..

@@ -76,14 +76,47 @@ distinct lexical lowercase ASCII letters/digits/hyphens of 1..=64 bytes. Kinds
 are null, boolean, integer, string, array or object. Arguments are inert JSON
 values. prefix is none or integer; recording is reject or semantic. These
 declarations validate an empty argument object before command activation. Required
-arguments cannot be supplied by the current native selector. Counted calls and
-keyboard-macro recording remain explicitly unsupported in this increment.
+arguments cannot be supplied by the current native selector. An integer prefix
+forwards one captured value once, including zero or a negative value; the host
+never invokes the handler N times. A supplied prefix refuses a
+command with prefix=none before activation. Native selector calls pass an empty
+argument object. Programmatic and replay calls validate their literal arguments
+against the current declaration.
 
 Activation filetypes use existing native language IDs. Events are opened,
 changed or closed. Both arrays reject duplicates. A newly observed native text
 buffer or a change of its native filetype can match filetypes. Opened, changed
 and closed observations match their respective event declarations. Read-only
 generated inventories and terminal resources do not trigger text activation.
+
+## Semantic macro calls
+
+A command with recording=semantic can be recorded through its qualified native
+binding or accepted M-x/colon selection. One plugin-call step stores the canonical
+ID, validated JSON argument object and accepted integer prefix. Trigger chords,
+palette input and generated RPC edits are not additional steps. Native MacroName
+syntax remains unchanged; a dotted plugin ID never becomes a native macro name.
+A recording=reject command stops recording before activation.
+
+Replay resolves the current package and command declaration, validates arguments,
+prefix and semantic recording policy, and then captures the current native source
+context. Missing packages or changed incompatible declarations stop before another
+step runs. Each call waits cooperatively for its own completion receipt, rather
+than a display notice. Recording and replay retain resize and C-g servicing;
+other editing waits for completion. C-g stops the macro and revokes the owned
+call and descendant native-request authority.
+There is no idle wake loop while a callback is pending.
+
+Only requests causally attached to the live semantic call can publish edits or
+invoke commands while recording/replay owns input. Nested plugin calls must also
+admit semantic recording and retain the existing depth-eight causal bound. They
+are not recorded again. Generated edits retain checked, independent native undo
+units per target buffer; they are not merged into an automatic macro iteration.
+
+The [saved macro library](macro-library.md#schema-2-plugin-calls) retains schema-1
+reads and adds schema 2 for qualified calls. Only an explicit save containing a
+plugin step upgrades an old library. Reading does not migrate it. Older editors
+cannot be expected to read schema 2.
 
 ## Binding declarations
 
@@ -324,9 +357,11 @@ are committed. Revision-bound completion and resolve work is invalidated after
 success; rejected batches preserve a still-current completion.
 
 Native departure/context publication returns busy for a new edit batch once its
-source set has been frozen. Active macro recording/replay also returns busy until
-semantic package-call integration is available. Queued retired/expired requests
-cannot publish; cancellation after an already committed batch does not reverse
+source set has been frozen. During macro recording/replay, only edits causally
+attached to its current semantic package call are admitted; unrelated edits
+return busy. Generated text shares the existing automatic 64-MiB text budget
+during replay without joining the automatic iteration's undo group. Queued
+retired/expired requests cannot publish; cancellation after an already committed batch does not reverse
 that batch. Creating, editing and undoing text never imply saving a file.
 
 ## Noninteractive command invocation
@@ -355,8 +390,10 @@ other native classes return unsupported_invocation. This API does not open a pro
 Qualified calls validate the target manifest's typed arguments, activate lazily,
 and dispatch through its admitted generation-qualified handler. The result or
 typed failure is correlated back to the caller. A missing handler returns
-command_unavailable; a retired callee returns disconnected. Prefix calls and
-macro-active contexts remain unavailable until semantic recording integration.
+command_unavailable; a retired callee returns disconnected. Integer prefixes
+require the target's declared policy. During macro recording/replay, only
+causally attached calls are admitted; nested plugin targets must declare
+semantic recording.
 Native prompts, capture/source interactions and context departure retain ownership.
 
 ## Explicit save and close

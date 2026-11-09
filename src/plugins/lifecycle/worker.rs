@@ -263,7 +263,7 @@ impl Worker {
             return Ok(());
         }
         while let Some(mut call) = self.waiting.pop_front() {
-            if call.reply.as_ref().is_some_and(|r| !r.live()) {
+            if !call.live() {
                 continue;
             }
             let handler = self
@@ -276,9 +276,7 @@ impl Worker {
                     "Plugin command unavailable: {} (no admitted handler)",
                     call.command
                 );
-                if let Some(reply) = call.reply.take() {
-                    reply.complete(Err(RpcError::application(ErrorKind::CommandUnavailable)));
-                }
+                call.complete(Err(RpcError::application(ErrorKind::CommandUnavailable)));
                 drop(call);
                 self.connection.notice(notice);
                 continue;
@@ -527,7 +525,7 @@ impl Worker {
                         RpcError::application(ErrorKind::UnsupportedInvocation),
                     );
                 };
-                if parent.reply.as_ref().is_some_and(|r| !r.live()) {
+                if !parent.live() {
                     return self.failure(request.id, RpcError::application(ErrorKind::Cancelled));
                 }
                 if params.context.generation != parent.context.generation
@@ -545,6 +543,19 @@ impl Worker {
                 params.context.origin.depth = parent.context.origin.depth + 1;
                 params.context.origin.package = Some(self.package.manifest.plugin.id.clone());
             }
+            // Only a live host callback can authorize edits during semantic
+            // recording/replay. Unsolicited RPC retains no automatic authority.
+            let parent = match &operation {
+                editor::Operation::Invoke(params) => self.pending.get(&params.context.invocation),
+                editor::Operation::Apply(params) => self.pending.values().find(|call| {
+                    call.live()
+                        && call.context.origin.operation == params.origin.operation
+                        && call.context.origin.depth == params.origin.depth
+                }),
+                _ => None,
+            };
+            let cause = parent.map(|call| call.context.origin.clone());
+            let cancelled = parent.map(|call| call.cancelled.clone());
             if self.requests.contains_key(&request.id) {
                 return Err("duplicate live editor request ID".into());
             }
@@ -563,6 +574,8 @@ impl Worker {
                 deadline,
                 package: self.package.manifest.plugin.id.clone(),
                 generation: self.handshake.offer().generation.clone(),
+                cause,
+                cancelled,
                 connection: self.connection.clone(),
                 _ingress: None,
                 _permit: Permit {
@@ -612,7 +625,7 @@ impl Worker {
         let Some(mut call) = id.and_then(|id| self.pending.remove(&id)) else {
             return Ok(());
         };
-        if self.connection.stop.load(Ordering::Acquire) {
+        if self.connection.stop.load(Ordering::Acquire) || !call.live() {
             return Ok(());
         }
         if Instant::now() >= call.deadline {
@@ -627,9 +640,7 @@ impl Worker {
                 Err(e) => inert(e.to_string().as_bytes()),
             }
         );
-        if let Some(reply) = call.reply.take() {
-            reply.complete(result.map(editor::Reply::Invoked));
-        }
+        call.complete(result);
         drop(call);
         self.connection.notice(notice);
         Ok(())

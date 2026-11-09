@@ -91,13 +91,17 @@ impl Session {
             next,
         }))
     }
-    fn plugin_invocation_context(&self, context: &InvocationContext) -> Result<(), RpcError> {
+    fn plugin_invocation_context(
+        &self,
+        request: &Request,
+        context: &InvocationContext,
+    ) -> Result<(), RpcError> {
         if self.pending.is_some()
             || self.input.focus() != crate::input::Focus::Editing
             || self.context_storage.locked()
             || self.context_prepared.is_some()
             || self.quit_pending()
-            || self.macros.active()
+            || (self.macros.active() && !self.plugin_macro_request(request))
             || self.capture_blocks_input()
             || self.capture_selected()
             || self.source_edit_selected()
@@ -151,99 +155,97 @@ impl Session {
             .ok_or_else(|| error(ErrorKind::UnsupportedInvocation))
     }
     pub(super) fn plugin_invoke(&mut self, request: Request, params: CommandsInvokeParams) {
-        let admission =
-            self.plugin_invocation_context(&params.context)
-                .and_then(|()| {
+        let admission = self
+            .plugin_invocation_context(&request, &params.context)
+            .and_then(|()| match &params.command {
+                CommandTarget::Plugin(id) => {
+                    let (package, command) = self
+                        .buffers
+                        .snapshot()
+                        .plugins()
+                        .command(id.as_str())
+                        .ok_or_else(|| error(ErrorKind::CommandUnavailable))?;
+                    let declaration = command.declaration();
+                    if self.macros.active() && declaration.recording != RecordingPolicy::Semantic {
+                        return Err(error(ErrorKind::UnsupportedInvocation));
+                    }
+                    declaration.validate_arguments(
+                        &params.arguments,
+                        params.context.prefix,
+                        &rev_plugin_sdk::limits::Limits::default(),
+                    )?;
+                    Ok(Some(package.clone()))
+                }
+                CommandTarget::Native(name) => {
                     if params.context.prefix.is_some() {
                         return Err(error(ErrorKind::UnsupportedInvocation));
                     }
-                    match &params.command {
-                        CommandTarget::Plugin(id) => {
-                            let (package, command) = self
-                                .buffers
-                                .snapshot()
-                                .plugins()
-                                .command(id.as_str())
-                                .ok_or_else(|| error(ErrorKind::CommandUnavailable))?;
-                            command.declaration().validate_arguments(
-                                &params.arguments,
-                                None,
-                                &rev_plugin_sdk::limits::Limits::default(),
-                            )?;
-                            Ok(Some(package.clone()))
-                        }
-                        CommandTarget::Native(name) => {
-                            if params.arguments != json!({}) {
-                                return Err(error(ErrorKind::InvalidArguments));
-                            }
-                            let command = Command::named(name.as_str())
-                                .ok_or_else(|| error(ErrorKind::CommandUnavailable))?;
-                            match command.invocation() {
-                                Invocation::Motion(motion) => {
-                                    let pane =
-                                        self.plugin_invocation_pane(
-                                            &params.context,
-                                            params.context.pane.as_ref().ok_or_else(|| {
-                                                error(ErrorKind::InvalidArguments)
-                                            })?,
-                                        )?;
-                                    let mut view =
-                                        self.windows.get(pane).expect("admitted pane").clone();
-                                    view.point.position =
-                                        crate::coordinates::Scalar(
-                                            usize::try_from(params.context.point.ok_or_else(
-                                                || error(ErrorKind::InvalidArguments),
-                                            )?)
-                                            .map_err(|_| error(ErrorKind::InvalidRange))?,
-                                        );
-                                    let buffer = self
-                                        .buffers
-                                        .get(view.point.stamp.buffer)
-                                        .expect("admitted source");
-                                    let size = self
-                                        .windows
-                                        .area(pane, self.editing_size())
-                                        .ok_or_else(|| error(ErrorKind::UnsupportedInvocation))?
-                                        .view_size();
-                                    let coordinates = crate::coordinates::Coordinates::new(buffer)
-                                        .map_err(|_| error(ErrorKind::InvalidRange))?;
-                                    let width = view
-                                        .text_width(buffer, size)
-                                        .map_err(|_| error(ErrorKind::UnsupportedInvocation))?;
-                                    view.point.position = Self::observed_motion(
-                                        &view,
-                                        buffer,
-                                        &coordinates,
-                                        width,
-                                        motion,
-                                    )
-                                    .map_err(|_| error(ErrorKind::InvalidRange))?;
-                                    view.reset_navigation();
-                                    if !request.live() {
-                                        return Err(error(ErrorKind::Cancelled));
-                                    }
-                                    let target = view.point.stamp.buffer;
-                                    self.buffers
-                                        .get_mut(target)
-                                        .expect("admitted source")
-                                        .break_typing();
-                                    *self.windows.get_mut(pane).expect("admitted pane") = view;
-                                    if pane == self.windows.selected_id() {
-                                        self.invalidate_completion();
-                                        self.cancel_pointer_capture();
-                                        self.yank = None;
-                                        self.kills.break_chain();
-                                    }
-                                    Ok(None)
-                                }
-                                Invocation::Consent => Err(error(ErrorKind::ConfirmationRequired)),
-                                Invocation::Unsupported => {
-                                    Err(error(ErrorKind::UnsupportedInvocation))
-                                }
-                            }
-                        }
+                    if params.arguments != json!({}) {
+                        return Err(error(ErrorKind::InvalidArguments));
                     }
-                });
+                    let command = Command::named(name.as_str())
+                        .ok_or_else(|| error(ErrorKind::CommandUnavailable))?;
+                    match command.invocation() {
+                        Invocation::Motion(motion) => {
+                            let pane = self.plugin_invocation_pane(
+                                &params.context,
+                                params
+                                    .context
+                                    .pane
+                                    .as_ref()
+                                    .ok_or_else(|| error(ErrorKind::InvalidArguments))?,
+                            )?;
+                            let mut view = self.windows.get(pane).expect("admitted pane").clone();
+                            view.point.position = crate::coordinates::Scalar(
+                                usize::try_from(
+                                    params
+                                        .context
+                                        .point
+                                        .ok_or_else(|| error(ErrorKind::InvalidArguments))?,
+                                )
+                                .map_err(|_| error(ErrorKind::InvalidRange))?,
+                            );
+                            let buffer = self
+                                .buffers
+                                .get(view.point.stamp.buffer)
+                                .expect("admitted source");
+                            let size = self
+                                .windows
+                                .area(pane, self.editing_size())
+                                .ok_or_else(|| error(ErrorKind::UnsupportedInvocation))?
+                                .view_size();
+                            let coordinates = crate::coordinates::Coordinates::new(buffer)
+                                .map_err(|_| error(ErrorKind::InvalidRange))?;
+                            let width = view
+                                .text_width(buffer, size)
+                                .map_err(|_| error(ErrorKind::UnsupportedInvocation))?;
+                            view.point.position =
+                                Self::observed_motion(&view, buffer, &coordinates, width, motion)
+                                    .map_err(|_| error(ErrorKind::InvalidRange))?;
+                            view.reset_navigation();
+                            if !request.live() {
+                                return Err(error(ErrorKind::Cancelled));
+                            }
+                            let target = view.point.stamp.buffer;
+                            self.buffers
+                                .get_mut(target)
+                                .expect("admitted source")
+                                .break_typing();
+                            *self.windows.get_mut(pane).expect("admitted pane") = view;
+                            self.plugin_macro_published();
+                            if pane == self.windows.selected_id() {
+                                self.invalidate_completion();
+                                self.cancel_pointer_capture();
+                                self.yank = None;
+                                self.kills.break_chain();
+                            }
+                            Ok(None)
+                        }
+                        Invocation::Consent => Err(error(ErrorKind::ConfirmationRequired)),
+                        Invocation::Unsupported => Err(error(ErrorKind::UnsupportedInvocation)),
+                    }
+                }
+            });
         match admission {
             Err(error) => request.complete(Err(error)),
             Ok(None) => request.complete(Ok(Reply::Invoked(CommandsInvokeResult {

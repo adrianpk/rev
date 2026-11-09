@@ -21,3 +21,6 @@ mod invocation;
 
 #[path = "plugins/keymaps.rs"]
 mod keymaps;
+
+#[path = "plugins/recording.rs"]
+mod recording;

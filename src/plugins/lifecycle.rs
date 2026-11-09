@@ -128,16 +128,58 @@ struct Call {
     context: InvocationContext,
     arguments: serde_json::Value,
     reply: Option<editor::Request>,
+    completion: Option<SyncSender<Result<(), rev_plugin_sdk::rpc::RpcError>>>,
+    cancelled: Arc<AtomicBool>,
     deadline: Instant,
     _permit: Permit,
 }
+impl Call {
+    fn live(&self) -> bool {
+        !self.cancelled.load(Ordering::Acquire)
+            && self.reply.as_ref().is_none_or(|reply| reply.live())
+    }
+    fn complete(&mut self, result: Result<CommandsInvokeResult, rev_plugin_sdk::rpc::RpcError>) {
+        if let Some(completion) = self.completion.take() {
+            let _ = completion.try_send(result.as_ref().map(|_| ()).map_err(Clone::clone));
+        }
+        if let Some(reply) = self.reply.take() {
+            reply.complete(result.map(editor::Reply::Invoked));
+        }
+    }
+}
+
+/// A bounded observation of one admitted call, independent of UI notices.
+pub(crate) struct Receipt {
+    pub operation: OpaqueId,
+    result: mpsc::Receiver<Result<(), rev_plugin_sdk::rpc::RpcError>>,
+    cancelled: Arc<AtomicBool>,
+    connection: Arc<Connection>,
+}
+impl Receipt {
+    pub fn poll(&self) -> Option<Result<(), rev_plugin_sdk::rpc::RpcError>> {
+        match self.result.try_recv() {
+            Ok(result) => Some(result),
+            Err(mpsc::TryRecvError::Empty) => None,
+            Err(mpsc::TryRecvError::Disconnected) => {
+                Some(Err(rev_plugin_sdk::rpc::RpcError::application(
+                    rev_plugin_sdk::rpc::ErrorKind::Disconnected,
+                )))
+            }
+        }
+    }
+    pub fn cancel(&self) {
+        self.retire();
+        self.connection.stop();
+    }
+    pub fn retire(&self) {
+        self.cancelled.store(true, Ordering::Release);
+    }
+}
 impl Drop for Call {
     fn drop(&mut self) {
-        if let Some(reply) = self.reply.take() {
-            reply.complete(Err(rev_plugin_sdk::rpc::RpcError::application(
-                rev_plugin_sdk::rpc::ErrorKind::Disconnected,
-            )));
-        }
+        self.complete(Err(rev_plugin_sdk::rpc::RpcError::application(
+            rev_plugin_sdk::rpc::ErrorKind::Disconnected,
+        )));
     }
 }
 struct Shared {
@@ -336,14 +378,6 @@ impl Host {
         );
         Ok(())
     }
-    pub fn invoke(
-        &mut self,
-        package: &Package,
-        command: CommandId,
-        context: InvocationContext,
-    ) -> Result<(), String> {
-        self.invoke_with(package, command, context, serde_json::json!({}), None)
-    }
     pub(crate) fn invoke_with(
         &mut self,
         package: &Package,
@@ -351,7 +385,7 @@ impl Host {
         mut context: InvocationContext,
         arguments: serde_json::Value,
         mut reply: Option<editor::Request>,
-    ) -> Result<(), String> {
+    ) -> Result<Receipt, String> {
         let result = self.queue_call(package, command, &mut context, arguments, &mut reply);
         if result.is_err()
             && let Some(reply) = reply.take()
@@ -369,7 +403,7 @@ impl Host {
         context: &mut InvocationContext,
         arguments: serde_json::Value,
         reply: &mut Option<editor::Request>,
-    ) -> Result<(), String> {
+    ) -> Result<Receipt, String> {
         if self.budget.pending.load(Ordering::Acquire) >= 64 {
             return Err("Plugin pending request limit exceeded (64)".into());
         }
@@ -409,6 +443,17 @@ impl Host {
             self.budget.pending.fetch_sub(1, Ordering::AcqRel);
             return Err("Plugin pending request limit exceeded (16 per package)".into());
         }
+        let cancelled = reply
+            .as_ref()
+            .and_then(|r| r.cancelled.clone())
+            .unwrap_or_default();
+        let (completion, result) = mpsc::sync_channel(1);
+        let receipt = Receipt {
+            operation: context.origin.operation.clone(),
+            result,
+            cancelled: cancelled.clone(),
+            connection: slot.connection.clone(),
+        };
         let call = Call {
             id,
             command,
@@ -418,6 +463,8 @@ impl Host {
                 .map_or_else(|| Instant::now() + Duration::from_secs(60), |r| r.deadline),
             reply: reply.take(),
             arguments,
+            completion: Some(completion),
+            cancelled,
             _permit: Permit {
                 budget: self.budget.clone(),
                 package: slot.connection.pending.clone(),
@@ -431,7 +478,7 @@ impl Host {
             .try_send(call)
             .map_err(|_| "Plugin command queue unavailable")?;
         slot.connection.signal();
-        Ok(())
+        Ok(receipt)
     }
     pub fn context(&self) -> InvocationContext {
         let id = OpaqueId::new("pending").expect("literal identity");

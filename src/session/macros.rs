@@ -32,9 +32,12 @@ impl Session {
         self.macros.stop
     }
 
-    /// Observe native layout, consent, query or manual editing ownership.
+    /// Observe plugin, native layout, consent, query or manual editing ownership.
     /// User waits have no automatic macro wake; the host waits for native input.
     pub fn macro_wait(&self) -> Option<crate::macros::Wait> {
+        if self.plugin_macro_waiting() {
+            return Some(crate::macros::Wait::Plugin);
+        }
         if self
             .macros
             .step_editor
@@ -60,7 +63,7 @@ impl Session {
         })
     }
 
-    fn macro_entry(&self) -> Entry {
+    pub(in crate::session) fn macro_entry(&self) -> Entry {
         Entry {
             profile: self.input.interaction_profile(),
             mode: self.input.editing_state(),
@@ -85,6 +88,7 @@ impl Session {
             self.macros.recorder = None;
             return Action::Wait;
         }
+        self.cancel_plugin_macro();
         if self.macros.active() {
             self.restore_search();
             self.pending = None;
@@ -107,6 +111,17 @@ impl Session {
     /// cancellation retain their native owners; the run itself never blocks IO.
     pub(super) fn macro_input_guard(&mut self, event: &Event) -> Option<Action> {
         self.input.macro_editing = self.macro_manual();
+        if !self.macros.expanded && self.plugin_macro_waiting() {
+            if Input::interrupt(event) {
+                self.stop_macro(StopReason::Canceled, "Semantic plugin call canceled");
+                return None;
+            }
+            if matches!(event, Event::Paste(_) | Event::Mouse(_))
+                || matches!(event, Event::Key(key) if key.kind != crossterm::event::KeyEventKind::Release)
+            {
+                return Some(self.message("Semantic plugin call is pending; C-g cancels"));
+            }
+        }
         if !self.macros.expanded && self.macro_manual() {
             if Input::interrupt(event) {
                 self.stop_macro(StopReason::Canceled, "Keyboard macro canceled");
@@ -163,6 +178,10 @@ impl Session {
         }
         if !self.macros.active() {
             return None;
+        }
+        if command != Command::KeyboardQuit && self.plugin_macro_waiting() && !self.macros.expanded
+        {
+            return Some(self.message("Semantic plugin call is pending; C-g cancels"));
         }
         if command == Command::KeyboardQuit {
             self.stop_macro(StopReason::Canceled, "Keyboard macro canceled");
@@ -463,6 +482,7 @@ fn supported(command: Command) -> bool {
     matches!(
         command,
         Command::MacroNamed(_)
+            | Command::PluginDefined(_)
             | Command::MacroBinding(_)
             | Command::Motion(_)
             | Command::Navigate(_)

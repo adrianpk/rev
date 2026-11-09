@@ -77,7 +77,13 @@ impl Session {
                 .runner
                 .as_ref()
                 .filter(|run| run.consent.is_none() && !run.query)
-                .map(|_| Duration::ZERO),
+                .map(|run| {
+                    if self.plugin_macro_waiting() {
+                        Duration::from_secs(60).saturating_sub(run.limits.elapsed())
+                    } else {
+                        Duration::ZERO
+                    }
+                }),
             self.context_remaining(),
             self.input.remaining(now),
             self.input.command_usage_remaining(),

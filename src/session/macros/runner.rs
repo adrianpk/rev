@@ -11,6 +11,20 @@ impl Session {
     /// Consent gives input back to its native owner without an automatic wake.
     pub(in crate::session) fn expire_macro(&mut self) -> Action {
         self.macro_finish_capture();
+        if self.plugin_macro_waiting() {
+            if self
+                .macros
+                .runner
+                .as_ref()
+                .is_some_and(|run| run.limits.elapsed() >= Duration::from_secs(60))
+            {
+                return self.stop_macro(
+                    StopReason::TimeBudget,
+                    "Keyboard macro active time limit reached",
+                );
+            }
+            return Action::Wait;
+        }
         if self.macros.runner.is_none()
             || self.layout_active()
             || self
@@ -143,6 +157,9 @@ impl Session {
             } else {
                 return Action::Redraw;
             };
+            if self.plugin_macro_waiting() {
+                break;
+            }
             if waiting || refresh || started.elapsed() >= crate::session::events::INPUT_BATCH_TIME {
                 break;
             }
@@ -152,6 +169,9 @@ impl Session {
 
     fn macro_replay_step(&mut self, step: Step) {
         match step {
+            Step::Plugin(call) => {
+                self.plugin_call(call);
+            }
             Step::Key(key) => {
                 self.handle(Event::Key(KeyEvent::new(key.code, key.modifiers)));
             }

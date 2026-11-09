@@ -53,6 +53,13 @@ impl Session {
         if recorder.command.is_some() {
             return None;
         }
+        if matches!(command, Some(Command::PluginDefined(_))) {
+            // Live plugin admission owns semantic capture after validating its
+            // policy and literal arguments; never retain the physical trigger.
+            recorder.selecting = false;
+            recorder.discard_pending();
+            return None;
+        }
         if let Some(command @ Command::MacroNamed(_)) = command {
             let argument = match outcome {
                 Outcome::Invocation(invocation) => invocation.argument,

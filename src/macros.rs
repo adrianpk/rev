@@ -17,6 +17,8 @@ use crate::input::{EditingState, Key};
 use crate::window::ViewId;
 
 mod capture;
+mod plugin;
+pub(crate) use plugin::PluginCall;
 pub(crate) mod counter;
 pub(crate) use capture::{Argument, CommandStep, CompletionEdit, LiteralCompletion, Role};
 use counter::Counter;
@@ -36,6 +38,7 @@ pub enum Status {
 /// Native ownership that suspends automatic input without reusing consent.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum Wait {
+    Plugin,
     Consent,
     Layout,
     Query,
@@ -91,6 +94,7 @@ pub(crate) enum Step {
     Key(Key),
     Text(String),
     Command(CommandStep),
+    Plugin(PluginCall),
     Completion(LiteralCompletion),
     Counter(counter::Operation),
     Redisplay,
@@ -105,6 +109,7 @@ impl Step {
             Self::Key(_) => 48,
             Self::Text(text) => capture::text_bytes(text),
             Self::Command(command) => command.bytes(),
+            Self::Plugin(call) => call.bytes(),
             Self::Completion(edit) => edit.bytes(),
             Self::Counter(operation) => operation.bytes(),
             Self::Redisplay | Self::Query(_) => 48,

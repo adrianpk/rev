@@ -174,7 +174,7 @@ fn structural_bounds() {
             macros: vec![valid.clone()],
         };
         match variant {
-            "schema" => catalog.schema_version = 2,
+            "schema" => catalog.schema_version = 3,
             "zero" => catalog.revision = 0,
             "id" => catalog.macros[0].id = "A".repeat(32),
             "duplicate-id" => {
@@ -258,4 +258,59 @@ fn structural_bounds() {
     );
     let bytes = vec![b' '; LIBRARY_BYTES + 1];
     assert!(Catalog::decode(Some(&bytes)).is_err());
+}
+
+// Schema 2 adds an inert qualified variant without relaxing native names or
+// schema-1 admission. JSON literals preserve null, booleans and nested values.
+#[test]
+fn plugin_schema() {
+    let mut native = record("legacy");
+    let old = native.export().unwrap();
+    let mut source = native.definition(1).unwrap();
+    source.steps = vec![Step::Plugin(PluginCall {
+        command: rev_plugin_sdk::identity::CommandId::new("field.notes.collect").unwrap(),
+        arguments: serde_json::json!({"data":[null, true, {"text":"λ"}]}),
+        prefix: Some(-7),
+    })]
+    .into();
+    let named = Named {
+        definition: Arc::new(source),
+        source: (1, 1),
+        description: None,
+        saved: None,
+    };
+    let plugin = Record::capture(MacroName::new("plugin-call").unwrap(), &named, None).unwrap();
+    let bytes = plugin.export().unwrap();
+    let loaded = Catalog::decode(Some(bytes.as_bytes())).unwrap();
+    assert_eq!(loaded.schema_version, 2);
+    let Step::Plugin(call) = &loaded.macros[0].definition(1).unwrap().steps[0] else {
+        panic!("plugin step")
+    };
+    assert_eq!(
+        call.arguments,
+        serde_json::json!({"data":[null, true, {"text":"λ"}]})
+    );
+    assert_eq!(call.prefix, Some(-7));
+    assert!(
+        Catalog::decode(Some(
+            bytes
+                .replace("schema_version = 2", "schema_version = 1")
+                .as_bytes()
+        ))
+        .is_err()
+    );
+    assert_eq!(
+        Catalog::decode(Some(old.as_bytes()))
+            .unwrap()
+            .schema_version,
+        1
+    );
+    for arguments in ["[]", "null", "{broken"] {
+        native.steps = vec![Input::PluginCall {
+            command: "field.notes.collect".into(),
+            arguments_json: arguments.into(),
+            prefix: None,
+        }];
+        assert!(native.definition(1).is_err());
+    }
 }

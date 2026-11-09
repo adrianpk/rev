@@ -127,6 +127,11 @@ impl Store {
             .checked_add(1)
             .filter(|n| *n <= i64::MAX as u64)
             .ok_or(Error::Capacity("aggregate revision exhausted"))?;
+        // Upgrade only at this explicit write, preserving every other record's
+        // identity, revision and content. Reading never changes the aggregate.
+        fresh.schema_version = fresh
+            .schema_version
+            .max(fresh.macros.iter().map(Record::schema).max().unwrap_or(1));
         let bytes = fresh.encode()?;
         let mut temporary =
             Temporary::new(&base).map_err(|_| Error::Unavailable("cannot stage library"))?;

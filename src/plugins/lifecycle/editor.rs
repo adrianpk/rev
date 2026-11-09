@@ -73,6 +73,8 @@ impl Reply {
 pub(crate) struct Request {
     pub package: PackageId,
     pub generation: Generation,
+    pub cause: Option<Origin>,
+    pub(super) cancelled: Option<Arc<std::sync::atomic::AtomicBool>>,
     pub operation: Option<Operation>,
     pub(super) id: OpaqueId,
     pub(super) deadline: Instant,
@@ -95,7 +97,12 @@ impl Request {
         })
     }
     pub fn live(&self) -> bool {
-        !self.connection.stop.load(Ordering::Acquire) && Instant::now() < self.deadline
+        !self.connection.stop.load(Ordering::Acquire)
+            && self
+                .cancelled
+                .as_ref()
+                .is_none_or(|flag| !flag.load(Ordering::Acquire))
+            && Instant::now() < self.deadline
     }
     pub fn complete(self, result: Result<Reply, RpcError>) {
         let connection = self.connection.clone();

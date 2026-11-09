@@ -315,7 +315,7 @@ fn rejected_state() {
             "unsupported" => {
                 let t = fs::read_to_string(&path)
                     .unwrap()
-                    .replace("schema_version = 1", "schema_version = 2");
+                    .replace("schema_version = 1", "schema_version = 3");
                 fs::write(&path, t).unwrap();
             }
             "oversized" => fs::OpenOptions::new()

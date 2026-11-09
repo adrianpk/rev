@@ -164,6 +164,12 @@ enum Query {
 #[derive(Clone, Serialize, Deserialize, PartialEq, Eq)]
 #[serde(tag = "kind", rename_all = "kebab-case", deny_unknown_fields)]
 enum Input {
+    PluginCall {
+        command: String,
+        arguments_json: String,
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        prefix: Option<i64>,
+    },
     Key {
         key: String,
     },
@@ -367,12 +373,15 @@ impl Catalog {
         }
         let text = std::str::from_utf8(bytes).map_err(|_| Error::Invalid("UTF-8"))?;
         let catalog: Self =
-            toml::from_str(text).map_err(|_| Error::Invalid("schema-1 TOML fields or bounds"))?;
+            toml::from_str(text).map_err(|_| Error::Invalid("macro TOML fields or bounds"))?;
         catalog.validate()?;
         Ok(catalog)
     }
     fn validate(&self) -> Result<(), Error> {
-        if self.schema_version != 1 || self.revision == 0 || self.revision > i64::MAX as u64 {
+        if !matches!(self.schema_version, 1 | 2)
+            || self.revision == 0
+            || self.revision > i64::MAX as u64
+        {
             return Err(Error::Invalid("schema version or aggregate revision"));
         }
         if self.macros.len() > NAME_LIMIT {
@@ -382,6 +391,9 @@ impl Catalog {
         let mut names = BTreeSet::new();
         let mut retained = 0usize;
         for record in &self.macros {
+            if self.schema_version == 1 && record.schema() > 1 {
+                return Err(Error::Invalid("plugin-call requires schema 2"));
+            }
             if !ids.insert(&record.id) || !names.insert(&record.name) {
                 return Err(Error::Invalid("duplicate identity or name"));
             }
@@ -396,7 +408,7 @@ impl Catalog {
     pub fn encode(&self) -> Result<Vec<u8>, Error> {
         self.validate()?;
         let mut doc = DocumentMut::new();
-        doc["schema_version"] = toml_edit::value(1);
+        doc["schema_version"] = toml_edit::value(i64::from(self.schema_version));
         doc["revision"] = toml_edit::value(self.revision as i64);
         let mut records = ArrayOfTables::new();
         for record in &self.macros {
@@ -415,6 +427,17 @@ impl Catalog {
     }
 }
 impl Record {
+    pub(super) fn schema(&self) -> u32 {
+        if self
+            .steps
+            .iter()
+            .any(|step| matches!(step, Input::PluginCall { .. }))
+        {
+            2
+        } else {
+            1
+        }
+    }
     pub fn capture(
         name: MacroName,
         named: &Named,
@@ -460,7 +483,7 @@ impl Record {
     }
     pub fn export(&self) -> Result<String, Error> {
         let doc = Catalog {
-            schema_version: 1,
+            schema_version: self.schema(),
             revision: 1,
             macros: vec![self.clone()],
         }
@@ -663,6 +686,12 @@ impl PromptRole {
 impl Input {
     fn from_native(step: &Step) -> Result<Self, Error> {
         Ok(match step {
+            Step::Plugin(call) => Self::PluginCall {
+                command: call.command.to_string(),
+                arguments_json: serde_json::to_string(&call.arguments)
+                    .map_err(|_| Error::Invalid("plugin arguments"))?,
+                prefix: call.prefix,
+            },
             Step::Key(key) => Self::Key {
                 key: key_text(*key)?,
             },
@@ -730,6 +759,21 @@ impl Input {
     }
     fn native(&self) -> Result<Step, Error> {
         Ok(match self {
+            Self::PluginCall {
+                command,
+                arguments_json,
+                prefix,
+            } => {
+                let call = PluginCall {
+                    command: rev_plugin_sdk::identity::CommandId::new(command)
+                        .map_err(|_| Error::Invalid("qualified plugin identity"))?,
+                    arguments: serde_json::from_str(arguments_json)
+                        .map_err(|_| Error::Invalid("plugin argument JSON"))?,
+                    prefix: *prefix,
+                };
+                call.validate().map_err(Error::Invalid)?;
+                Step::Plugin(call)
+            }
             Self::Key { key } => Step::Key(parse_key(key)?),
             Self::Text { text } => {
                 if text.contains('\0') {
@@ -874,7 +918,7 @@ impl Record {
             table["steps"] = Item::ArrayOfTables(tables);
         }
         let mut doc = DocumentMut::new();
-        doc["schema_version"] = toml_edit::value(1);
+        doc["schema_version"] = toml_edit::value(i64::from(self.schema()));
         doc["revision"] = toml_edit::value(1);
         let mut records = ArrayOfTables::new();
         records.push(table);
@@ -893,7 +937,13 @@ impl Record {
     pub fn region_body(&self, fragment: &str) -> Result<Self, Error> {
         let mut base = self.clone();
         base.steps.clear();
-        let mut text = base.draft_text()?.replace("steps = []\n", "");
+        // Definition edits can insert a new plugin step without writing or
+        // migrating the attached library. Draft admission is inert schema 2.
+        let mut text = base.draft_text()?.replace("steps = []\n", "").replacen(
+            "schema_version = 1",
+            "schema_version = 2",
+            1,
+        );
         text.push_str(fragment);
         let mut catalog = Catalog::decode(Some(text.as_bytes()))?;
         if catalog.macros.len() != 1 {
