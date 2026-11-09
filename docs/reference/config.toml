@@ -41,19 +41,20 @@ max_process_records = 8 # Integer 1..=32 active/recent records.
 max_process_record_bytes = 2097152 # Integer 65536..=16777216, at least max_output_bytes.
 # All Git capacities also share the fixed 32 MiB session admission budget.
 
-# Interactive terminals; loading preferences never launches a process.
+# Experimental plugins; admission reads only explicitly configured declarations.
 [plugins]
-# Boolean; enable the experimental passive local-package catalog.
+# Boolean; enable local declarations and lazy owned package execution.
 enabled = false
 # Explicit local manifests, relative to the configuration source assigning this array.
 # At most 64 paths; an empty array replaces inherited paths.
 manifests = []
-# At most 8 qualified package IDs; activation is unavailable in the passive catalog.
+# At most 8 distinct admitted package IDs; explicitly activate after startup admission.
 startup = []
 # At most 512 explicit overrides; see the experimental plugin reference for fields.
-# Bindings are passive declarations until native contribution admission is available.
+# User choices resolve before package defaults within the same native scope.
 keybindings = []
 
+# Interactive terminals; loading preferences never launches a terminal process.
 [terminal]
 program = ""
 args = []

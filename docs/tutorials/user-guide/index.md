@@ -39,6 +39,12 @@ The [Org mode guide](org/index.md) has its own path for outlines, tasks,
 agendas and tables. Start there when you want those features; the everyday
 editor path above does not depend on them.
 
+## Experimental plugins
+
+The [optional plugin path](plugins/index.md) shows how to admit a reviewed local
+package, run a qualified command and inspect or stop its process. It is separate
+from everyday editing and needs no change to that learning sequence.
+
 See [all documentation](../../index.md) for task guides, exact controls and
 explanations. The [key binding reference](../../reference/bindings.md) lists
 the core keyboard interface; [Org bindings](../../reference/org/bindings.md)

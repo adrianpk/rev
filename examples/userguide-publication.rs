@@ -524,7 +524,7 @@ fn extend_tree(destination: &Path, files: &[PathBuf]) -> Result<()> {
         ));
         for source in files {
             let selected = if directory.is_empty() {
-                source == Path::new("tutorials/index.md")
+                source.starts_with("tutorials") && !source.starts_with(GUIDE)
             } else {
                 source.starts_with(directory)
             };

@@ -33,3 +33,6 @@ mod state;
 
 #[path = "plugins/faults.rs"]
 mod faults;
+
+#[path = "plugins/guidance.rs"]
+mod guidance;

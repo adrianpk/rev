@@ -37,6 +37,10 @@ session, start with the [User Guide](../tutorials/user-guide/index.md).
 The [Org task guides](org/index.md) group capture, code extraction and export.
 For a guided introduction, use the [Org mode guide](../tutorials/user-guide/org/index.md).
 
+## Experimental plugins
+
+- [Configure and troubleshoot plugins](use-plugins.md): explicitly activate trusted local packages, choose contextual keys and inspect failures.
+
 ## Repository validation
 
 - [Run terminal journeys](terminal-journeys.md): exercise real-editor PTY workflows and inspect their evidence.

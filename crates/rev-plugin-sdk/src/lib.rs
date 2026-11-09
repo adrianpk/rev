@@ -19,6 +19,33 @@
 //! Schema availability does not advertise host implementation. Call only methods
 //! whose capability was supplied in `initialize`. Native source/path/history,
 //! keymap, resource and permission checks remain authoritative at execution.
+//!
+//! Build a revision-qualified read using only public values. The returned text
+//! must still be checked against this observation; a stale source is an error.
+//!
+//! ```
+//! use rev_plugin_sdk::{
+//!     identity::{Handle, OpaqueId, Revision, ScalarRange},
+//!     limits::Limits,
+//!     methods::{BuffersReadParams, Validate},
+//! };
+//! let observed_text = "e\u{301}🦀";
+//! assert_eq!(observed_text.chars().count(), 3);
+//! assert_eq!(observed_text.len(), 7);
+//! let request = BuffersReadParams {
+//!     buffer: Handle {
+//!         session: OpaqueId::new("editor-1")?,
+//!         id: OpaqueId::new("buffer-1")?,
+//!     },
+//!     range: ScalarRange::new(0, 3)?,
+//!     expected_revision: Some(Revision::new("7")?),
+//! };
+//! request.validate(&Limits::default())?;
+//! let wire = serde_json::to_value(&request)?;
+//! assert_eq!(wire["expected_revision"], "7");
+//! assert_eq!(wire["range"]["end"], 3);
+//! # Ok::<(), Box<dyn std::error::Error>>(())
+//! ```
 #![forbid(unsafe_code)]
 
 pub mod client;

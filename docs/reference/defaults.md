@@ -348,11 +348,11 @@ covers ignored legacy `bookmarks.marker` strings and explicit old palette colors
 | --- | --- | --- | --- |
 | `plugins.enabled` | Boolean | `false` | Admit the explicit local experimental package catalog; disabled startup reads no manifests. |
 | `plugins.manifests` | Array of 0..=64 local paths | `[]` | Replace the manifest list; resolve paths against the source assigning the array. |
-| `plugins.startup` | Array of 0..=8 distinct package IDs | `[]` | Explicit startup activation requests for declared packages; activation is currently unavailable. |
-| `plugins.keybindings` | Array of 0..=512 binding objects | `[]` | Explicit command, keys, context and scope with optional buffer selectors; currently passive. |
+| `plugins.startup` | Array of 0..=8 distinct package IDs | `[]` | Explicit startup activation requests for admitted packages; empty keeps lazy command/trigger activation. |
+| `plugins.keybindings` | Array of 0..=512 binding objects | `[]` | Explicit command, keys, context and scope with optional buffer selectors; user choices precede package defaults within that scope. |
 
 See [experimental plugin declarations](plugins.md) for complete manifest,
-selector, limit and unavailable-handler contracts.
+selector, lifecycle and limit contracts, or the [optional plugin lesson](../tutorials/user-guide/plugins/index.md).
 
 ### Optional server transport
 
@@ -660,10 +660,10 @@ another language or replace bundled syntax. Failed admission retains bundled
 syntax when available; unsupported identities and syntax failures retain editable
 plain presentation. TOML startup
 preferences configure existing actions. [Keyboard macros](macro-editing.md) use
-native session input and explicit TOML persistence. This version has no plugins,
-package runtime, LSP, automatic indentation, OS clipboard bridge, regex/project
-search or session
-persistence. The command catalog describes the implemented editing subset.
+native session input and explicit TOML persistence. Trusted local
+[experimental plugins](plugins.md) add qualified commands and checked native
+operations through owned processes. The command catalog describes the
+implemented editing subset and each optional facility's boundaries.
 
 Use [Bindings](bindings.md), [Focused prompts](prompts.md),
 [Failure recovery](recovery.md) and [File tree](file-tree.md) for exact behavior.

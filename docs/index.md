@@ -23,3 +23,9 @@ for source, repository and process boundaries.
 The [Org mode guide](tutorials/user-guide/org/index.md) has an independent
 path for outlines, planning and tables, with links to Org procedures and
 references. Use it when you want those features.
+
+## Experimental plugins
+
+The [optional plugin path](tutorials/user-guide/plugins/index.md) introduces
+trusted local commands without extending the everyday learning sequence.
+Package authors can start with [Write Your First Experimental Plugin](tutorials/write-plugin.md).

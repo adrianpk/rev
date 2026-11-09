@@ -1,0 +1,19 @@
+# Save beside plugin-example.toml, or replace manifests with its absolute path.
+# Merge this table into your existing startup configuration; do not duplicate it.
+[plugins]
+enabled = true
+manifests = ["plugin-example.toml"]
+startup = []
+
+# Optional explicit user choices for the two startup editing profiles.
+[[plugins.keybindings]]
+command = "field.hello.ping"
+keys = "F8"
+context = "editor"
+scope = "global"
+
+[[plugins.keybindings]]
+command = "field.hello.ping"
+keys = "F8"
+context = "vim_normal"
+scope = "global"

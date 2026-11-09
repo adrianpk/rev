@@ -17,3 +17,8 @@ then reviews saved changes, selected commits and history.
 The [Org mode guide](user-guide/org/index.md) starts directly with an Org file
 and continues through outlines, tasks, agendas and tables. It is separate from
 the everyday editor learning path.
+
+## Experimental plugins
+
+- [Try an Experimental Plugin](user-guide/plugins/index.md): a separate optional editor lesson for a reviewed local package.
+- [Write Your First Experimental Plugin](write-plugin.md): build a Rust SDK command and verify its native completion feedback.

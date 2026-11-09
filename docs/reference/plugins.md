@@ -8,6 +8,14 @@ owned process per package and independent editor. Packages can use checked
 text-buffer, edit, invocation, file-lifecycle, contextual keymap and revision-event
 operations.
 
+Start with the [optional editor lesson](../tutorials/user-guide/plugins/index.md)
+or [Rust authoring tutorial](../tutorials/write-plugin.md). The
+[protocol reference](plugin-protocol.md) lists every wire method, shape, error
+and capability; [plugin ownership](../explanation/plugin-ownership.md) explains
+transactions and experimental compatibility. The downloadable
+[manifest](plugin-example.toml), [configuration](plugin-config-example.toml) and
+[hello source](plugin-hello.rs) form one tested example.
+
 ## Configuration
 
 These startup-only values participate in the ordinary configuration include and
@@ -59,6 +67,17 @@ recording = "reject"
 filetypes = []
 events = []
 ```
+
+| Field | Required / default |
+| --- | --- |
+| plugin.id, plugin.version, plugin.api | Required strings; identity/version rules below and exact API. |
+| process.program | Required explicit local program path. |
+| process.args | Optional literal string array, default empty. |
+| commands | Optional array of command tables, default empty. |
+| commands.name, commands.description, commands.prefix, commands.recording | Required for each command. |
+| commands.parameters | Optional array of name/kind/required objects, default empty. All three parameter fields are required. |
+| bindings | Optional array of binding tables, default empty; required fields and selectors below. |
+| activation | Optional table; filetypes and events each default to an empty array. |
 
 Every object rejects unknown fields. The plugin and process tables are required.
 The commands, bindings and activation collections default to empty. Package
@@ -194,6 +213,13 @@ passive declarations and dynamic registrations: 128 per package and 512 per edit
 | `plugin-activate` | Activate a configured experimental plugin package. |
 | `plugin-deactivate` | Deactivate a configured experimental plugin package. |
 | `plugin-restart` | Restart a configured experimental plugin package. |
+
+These commands take a native package-selection prompt, except `plugin-list`,
+which opens its inventory immediately. They need no arguments in M-x or modal
+colon. Qualified command declarations have their own descriptions and policies;
+the native selectors pass an empty argument object. There are no default global
+plugin management shortcuts. Explicit user bindings and package suggestions use
+the ordinary contextual binding admission above.
 
 plugin-list opens a read-only inventory with package IDs, versions, process state,
 generation, pending requests, bounded diagnostics and cleanup observations. It
@@ -500,7 +526,7 @@ the existing 60-second deadline. No periodic polling is added while idle.
 
 For an event-induced edits.apply, copy its origin operation and depth, setting
 origin.package to the calling package. For commands.invoke, use the SDK's
-BufferEvent::invocation() callback identity (event:<sequence>) and copy its
+BufferEvent::invocation() callback identity (`event:<sequence>`) and copy its
 generation and origin into the captured invocation context. Add native stamp,
 pane and point when the command needs them; event delivery supplies no focus
 or consent authority. Only the latest 256 delivered event callbacks per
@@ -530,8 +556,8 @@ All state methods select the calling package implicitly. Concern and record IDs
 contain 1..=64 lowercase ASCII letters, digits or hyphens. Path separators,
 traversal and extra package/path fields refuse. No method can select another
 package's directory or a native store. The only destination is the native state
-root's plugins/packages/<publisher.package>/state.toml, normally
-XDG_STATE_HOME/rev/plugins/packages/<publisher.package>/state.toml. The existing
+root's `plugins/packages/<publisher.package>/state.toml`, normally
+`XDG_STATE_HOME/rev/plugins/packages/<publisher.package>/state.toml`. The existing
 absolute HOME fallback applies when XDG_STATE_HOME is absent or relative.
 Configuration, installed data and cache roots are separate.
 

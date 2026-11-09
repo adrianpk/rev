@@ -200,16 +200,16 @@ Validation: all eleven frozen ordered commands passed locally; 84 combined plugi
 
 ## Slice 12: Authoring and user guidance
 
-State: implementing
+State: reviewing
 Dependency: Slice 11 integrated
 Branch: docs/rev-plugin-system-12-guidance
 PR: pending
 Report: ops/default/report/slices/rev-plugin-system/slice-12-guidance.md
-Validation: pending; exact ordered commands in the plan and controller configuration
+Validation: all eight frozen commands passed locally; two guidance regressions cover the exact public Rust/TOML downloads in both profiles, twelve SDK tests and one doctest passed, and 52 command regressions passed. Documentation covers 106 pages/743 local links, 684 commands and 299 settings; strict Spore build and byte-identical downloads passed. Final exact clean-HEAD controller evidence is recorded before handoff.
 
-- [ ] T12.1: Add concise opt-in authoring and end-user tutorials/how-tos, complete protocol/configuration/command/error references and an explanation of ownership, transactions and experimental compatibility.
-- [ ] T12.2: Keep core User Guide approachable with a separate optional plugin entry, short accurate examples and useful text feedback; derive Spore from Markdown and preserve navigation.
-- [ ] T12.3: Verify SDK documentation examples, complete command descriptions/sample defaults, public links, Unreleased product outcomes and strict rendered-guide consistency without publishing the site.
+- [x] T12.1: Add concise opt-in authoring and end-user tutorials/how-tos, complete protocol/configuration/command/error references and an explanation of ownership, transactions and experimental compatibility.
+- [x] T12.2: Keep core User Guide approachable with a separate optional plugin entry, short accurate examples and useful text feedback; derive Spore from Markdown and preserve navigation.
+- [x] T12.3: Verify SDK documentation examples, complete command descriptions/sample defaults, public links, Unreleased product outcomes and strict rendered-guide consistency without publishing the site.
 
 ## Slice 13: Independent client and complete acceptance
 

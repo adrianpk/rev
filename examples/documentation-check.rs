@@ -37,6 +37,7 @@ const ORG: &[&str] = &[
     "07-org-tasks-and-agenda.md",
     "08-org-tables.md",
 ];
+const PLUGINS: &[&str] = &["22-experimental-plugins.md"];
 
 fn main() -> Result<()> {
     let root = Path::new(env!("CARGO_MANIFEST_DIR"));
@@ -55,7 +56,7 @@ fn main() -> Result<()> {
     check_navigation(root)?;
     catalogs::check(root)?;
     println!(
-        "Documentation passed: {count} reachable pages, {links} local links and anchors, independent editor, Git and Org learning paths."
+        "Documentation passed: {count} reachable pages, {links} local links and anchors, independent editor, Git, Org and optional plugin learning paths."
     );
     Ok(())
 }
@@ -65,6 +66,7 @@ fn check_navigation(root: &Path) -> Result<()> {
     check_path(&guide, "index.md", EDITOR)?;
     check_path(&guide, "git/index.md", GIT)?;
     check_path(&guide, "org/index.md", ORG)?;
+    check_path(&guide, "plugins/index.md", PLUGINS)?;
     check_publication(root)?;
     check_legacy_anchors(root)
 }
@@ -80,6 +82,7 @@ fn check_publication(root: &Path) -> Result<()> {
         .iter()
         .chain(GIT)
         .chain(ORG)
+        .chain(PLUGINS)
         .map(|chapter| format!("guide-{}", chapter.trim_end_matches(".md")))
         .collect();
     require(

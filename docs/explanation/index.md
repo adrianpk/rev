@@ -9,6 +9,10 @@
 
 - [Keyboard macro ownership](keyboard-macro-ownership.md): native input, independent snapshots, history, explicit saving and finite work.
 
+## Experimental plugins
+
+- [Plugin ownership and compatibility](plugin-ownership.md): native buffers and atomic edits, process generations, events, state and experimental API agreement.
+
 ## Git
 
 - [Git ownership](git-ownership.md): live source, saved files, observations and owned process lifetimes.

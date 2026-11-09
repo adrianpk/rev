@@ -28,4 +28,8 @@
     @page[id = "guide-07-org-tasks-and-agenda"]
     @page[id = "guide-08-org-tables"]
   }
+
+  @part[id = "Experimental plugins", opening = "guide-plugins-index"]{
+    @page[id = "guide-22-experimental-plugins"]
+  }
 }

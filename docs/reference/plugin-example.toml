@@ -1,0 +1,20 @@
+# Put this manifest beside the hello-plugin project from the authoring tutorial.
+[plugin]
+id = "field.hello"
+version = "0.1.0"
+api = "rev.plugins/0.1"
+
+[process]
+program = "./hello-plugin/target/debug/hello-plugin"
+args = []
+
+[[commands]]
+name = "ping"
+description = "Run the example command without changing text."
+parameters = []
+prefix = "none"
+recording = "reject"
+
+[activation]
+filetypes = []
+events = []

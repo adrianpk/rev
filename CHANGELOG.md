@@ -31,7 +31,9 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
   chains have a finite depth across packages. Packages can keep versioned JSON
   state across restarts and editor instances; conflicting updates refuse instead
   of overwriting another instance's changes. Native prompts and recovery keys
-  retain control.
+  retain control. Start with the separate optional
+  [plugin lesson](docs/tutorials/user-guide/plugins/index.md); authors can build
+  the working Rust example and look up the complete wire and error contracts.
 
 - Record native editing with F3 and finish with F4, then replay the last keyboard
   macro with F4 or C-x e. Positive prefix arguments repeat the recording;
