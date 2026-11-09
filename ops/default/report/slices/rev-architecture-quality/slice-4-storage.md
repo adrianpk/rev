@@ -1,12 +1,13 @@
 # Slice 4: Configuration and persistent concerns
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-architecture-quality
 Plan: [Architecture Quality Delivery](../../../plan/rev-architecture-quality.md)
 Tracker: [Architecture Quality Tracker](../../../tracker/rev-architecture-quality.md)
 Branch: `refactor/rev-architecture-quality-04-storage`
 PR: #18 - https://forge.adrianpk.com/rev/rev/pulls/18
 Implementation: 9417c9276874476408cc9d698b9287d903995ec7
+Integrated: e47e295d4bac66e2a096405f88da7a61c25b486f through canonical PR #18
 
 ## Purpose
 
@@ -66,9 +67,9 @@ behavior remain unchanged.
 
 ## Validation
 
-The four frozen commands passed during implementation checks. Final ordered
-evidence must be recorded through Looper on the clean published PR-reference
-commit before worker handoff.
+All four frozen commands passed in canonical order through Looper on clean
+published PR-reference HEAD e47e295d4bac66e2a096405f88da7a61c25b486f, now integrated
+through canonical PR #18.
 
 1. `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 bash scripts/check-quality.sh --scope src/config.rs --scope src/config --scope src/file.rs --scope src/file --scope src/context.rs --scope src/context --scope src/location.rs --scope src/location --scope src/bookmark.rs --scope src/bookmark --scope src/session/contexts.rs --scope src/session/contexts`
 2. `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --test configuration --test files --test external_changes --test contexts --test bookmarks -- --test-threads=1`
@@ -93,7 +94,7 @@ private workspace-identity, bookmark-index and bounded-rescan regressions:
 
 - `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --lib -- --test-threads=1`
 
-These implementation checks precede the final PR-reference validation.
+The additional library check preceded the final PR-reference validation.
 
 ## Risks and Follow-ups
 

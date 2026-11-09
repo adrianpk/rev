@@ -9,7 +9,7 @@ Planning baseline: abbf0c21eeae1680c02c7a477fa0894d7996a393
 Specification: [Architecture Quality and Commit Checks](../spec/editor-architecture-quality.md)
 Review: [Architecture and Ownership Nit Review](../report/rev-architecture-nit-review.md)
 Concern: [Pending Editor Work](../README.md)
-Active slice: Slice 4 - Configuration and persistent concerns
+Active slice: Slice 5 - Git operation boundaries
 Plan: [Architecture Quality Delivery](../plan/rev-architecture-quality.md)
 Execution authorized: one ten-slice Looper run, automatic canonical integration into dev and local hook setup
 Progress owner: selected Looper run; no second runtime tracker
@@ -80,14 +80,15 @@ Validation: all four frozen commands passed through Looper on clean published HE
 
 ## Slice 4: Configuration and persistent concerns
 
-State: reviewing
+State: delivered
 Dependency: Slice 3 integrated
 Branch: refactor/rev-architecture-quality-04-storage
 PR: #18 - https://forge.adrianpk.com/rev/rev/pulls/18
 Implementation: 9417c9276874476408cc9d698b9287d903995ec7
 Report: ops/default/report/slices/rev-architecture-quality/slice-4-storage.md
 Progress: scoped Clippy and source bounds pass for 81 files; all 378 native integration cases and documentation checks pass
-Validation: four frozen commands passed during implementation; final clean published PR-reference HEAD requires ordered Looper evidence
+Integrated: e47e295d4bac66e2a096405f88da7a61c25b486f through canonical PR #18
+Validation: all four frozen commands passed through Looper on clean published HEAD e47e295d4bac66e2a096405f88da7a61c25b486f
 
 - [x] T4.1: Correct selected borrowing/conversion/source-policy diagnostics in configuration, file IO/watch, contexts, locations, bookmarks and their native persistence adapters.
 - [x] T4.2: Keep configuration/data/state/cache separation, private namespace paths, locks, CAS and uncertain-write evidence; preserve coordinated publication and avoid a generic store framework.
@@ -95,7 +96,7 @@ Validation: four frozen commands passed during implementation; final clean publi
 
 ## Slice 5: Git operation boundaries
 
-State: planned
+State: in progress
 Dependency: Slice 4 integrated
 Branch: refactor/rev-architecture-quality-05-git
 PR: pending
