@@ -53,8 +53,9 @@ Validation: all seven frozen commands passed through the controller validator on
 State: reviewing
 Dependency: Slice 1 integrated
 Branch: feat/rev-plugin-system-02-declarations
-PR: pending
+PR: #2 - https://forge.adrianpk.com/rev/rev/pulls/2
 Report: ops/default/report/slices/rev-plugin-system/slice-2-declarations.md
+Implementation: 3914b057d19dee39bcaf7dfaed7702d89d0ee90c
 Validation: all seven ordered focused commands passed locally, plus 11 targeted modal regressions; see the Slice 2 report and controller candidate evidence.
 
 - [x] T2.1: Add explicit opt-in plugins configuration, local manifest resolution, full passive declaration validation and complete reference/sample defaults without spawning unused programs.

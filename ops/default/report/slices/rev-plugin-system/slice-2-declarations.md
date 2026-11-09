@@ -5,7 +5,7 @@ Delivery set: rev-plugin-system
 Plan: [Plugin System Delivery](../../../plan/rev-plugin-system.md)
 Tracker: [Plugin System Tracker](../../../tracker/rev-plugin-system.md)
 Branch: `feat/rev-plugin-system-02-declarations`
-PR: pending
+PR: `#2`
 
 ## Purpose
 
@@ -32,6 +32,10 @@ qualified command metadata through native discovery without executing programs.
   They remain ineffective, preserving native maps, transient owners and recovery.
 
 ## Implementation Notes
+
+Implementation: `3914b057d19dee39bcaf7dfaed7702d89d0ee90c` implements T2.1-T2.3
+and introduces this report. Canonical
+[PR #2](https://forge.adrianpk.com/rev/rev/pulls/2) targets dev.
 
 Configuration owns the four startup leaves. A shared immutable registry on the
 configuration snapshot retains admitted packages, declarations and resolved
