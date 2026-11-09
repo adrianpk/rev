@@ -1,11 +1,12 @@
 # Slice 4: Independent text buffers
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-plugin-system
 Plan: [Plugin System Delivery](../../../plan/rev-plugin-system.md)
 Tracker: [Plugin System Tracker](../../../tracker/rev-plugin-system.md)
 Branch: `feat/rev-plugin-system-04-buffers`
 PR: `#4`
+Integrated: `c3315cd934500cfbbb134f23371c767de9638f21`
 
 ## Purpose
 
@@ -127,8 +128,9 @@ consent. Edited result text and provenance survive deactivation.
 - `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --test plugins -- buffers lifecycle declarations protocol --test-threads=1`
 - `rustfmt --edition 2024 --check tests/plugins/peer.rs`
 
-The final PR-reference commit receives one exact clean-HEAD controller validation
-of the eight frozen commands before handoff. The controller owns the full
+Controller validation passed all eight frozen commands on the exact clean
+PR-reference HEAD `c3315cd934500cfbbb134f23371c767de9638f21`. Canonical PR #4
+integrated that commit into dev through Rebase + Fast-forward. The controller owns the full
 delivery-set gate and merge.
 
 ## Risks and Follow-ups

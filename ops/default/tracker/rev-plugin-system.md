@@ -8,7 +8,7 @@ Planning baseline: a398dcb77dd0ce036d989f038068ac942fc68ebd
 Specification: [Plugin System](../spec/editor-plugin-system.md)
 Model: [Plugin Identity, Protocol and State](../spec/editor-plugin-system-model.md)
 Concern: [Pending Editor Work](../README.md)
-Active slice: Slice 4 - Independent text buffers
+Active slice: Slice 5 - Atomic edits and history
 Execution authorized: one thirteen-slice Looper run with automatic integration into dev
 Plan: [Plugin System Delivery](../plan/rev-plugin-system.md)
 Progress owner: selected Looper run; no second runtime tracker
@@ -80,13 +80,14 @@ Validation: all seven frozen ordered commands passed locally, plus 22 focused pr
 
 ## Slice 4: Independent text buffers
 
-State: reviewing
+State: delivered
 Dependency: Slice 3 integrated
 Branch: feat/rev-plugin-system-04-buffers
 PR: #4 - https://forge.adrianpk.com/rev/rev/pulls/4
 Report: ops/default/report/slices/rev-plugin-system/slice-4-buffers.md
 Implementation: abac32019cec6e09e6c3abe5ebc12ad377e36157
-Validation: all eight frozen commands passed locally; fresh focused validation passed 31 plugin tests and standalone fixture formatting. Final clean-HEAD controller evidence precedes handoff.
+Integrated: c3315cd934500cfbbb134f23371c767de9638f21 through canonical PR #4
+Validation: all eight frozen commands passed locally; fresh focused validation passed 31 plugin tests and standalone fixture formatting. Controller validation passed all eight commands on the exact clean integrated HEAD.
 
 - [x] T4.1: Implement list/open/create/describe/read/show using native opaque handles and source stamps, including hidden and unsaved text independently of focus.
 - [x] T4.2: Capture invocation point/selection/pane/revision and reuse native path identity; create ordinary unsaved buffers with package provenance and reject unsupported native resource kinds.
@@ -94,7 +95,7 @@ Validation: all eight frozen commands passed locally; fresh focused validation p
 
 ## Slice 5: Atomic edits and history
 
-State: planned
+State: ready
 Dependency: Slice 4 integrated
 Branch: feat/rev-plugin-system-05-transactions
 PR: pending
