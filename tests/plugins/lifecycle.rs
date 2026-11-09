@@ -372,21 +372,21 @@ impl Drop for Editor {
 fn key(code: KeyCode) -> Event {
     Event::Key(KeyEvent::new(code, KeyModifiers::NONE))
 }
-fn text(session: &Session) -> String {
+pub(super) fn text(session: &Session) -> String {
     let buffer = session.buffer().unwrap();
     buffer
         .slice(&buffer.span(0..buffer.len_chars()).unwrap())
         .unwrap()
         .to_string()
 }
-fn lines(path: &Path) -> Vec<Value> {
+pub(super) fn lines(path: &Path) -> Vec<Value> {
     fs::read_to_string(path)
         .unwrap_or_default()
         .lines()
         .map(|line| serde_json::from_str(line).unwrap())
         .collect()
 }
-fn stopped(pid: u32) -> bool {
+pub(super) fn stopped(pid: u32) -> bool {
     let path = format!("/proc/{pid}/stat");
     fs::read_to_string(path).map_or(true, |s| s.rsplit_once(") ").unwrap().1.starts_with('Z'))
 }
@@ -515,39 +515,6 @@ fn activation_triggers() {
     }
 }
 
-// Malformed/oversized traffic, EOF/crash and foreign handshake agreement fail
-// before handlers publish. A failure leaves all ordinary source text intact.
-#[test]
-fn peer_failures() {
-    for mode in [
-        "crash",
-        "noise",
-        "truncated",
-        "oversize",
-        "foreign-api",
-        "foreign-generation",
-        "undeclared",
-    ] {
-        let mut editor = Editor::new("non-modal", mode, "", false);
-        let source = text(&editor.session);
-        editor.call("field.notes.collect");
-        editor.wait(|e| e.status().state == State::Failed && e.status().pending == 0);
-        assert!(!editor.status().diagnostic.is_empty(), "{mode}");
-        assert!(
-            editor.status().cleanup.contains("group reaped"),
-            "{mode}: {:?}",
-            editor.status()
-        );
-        assert_eq!(text(&editor.session), source, "{mode}");
-        if let Some(pid) = editor.status().pid {
-            assert!(
-                !Path::new(&format!("/proc/{pid}")).exists(),
-                "{mode}: leader not reaped"
-            );
-        }
-    }
-}
-
 // Native cancellation retires callback authority first, sends the SDK cancel
 // notification, and escalates a peer that ignores TERM. Restart uses a new epoch.
 #[test]
@@ -585,32 +552,6 @@ fn cancellation_restart() {
         );
         assert_eq!(text(&editor.session), "!source 🦀\n");
     }
-}
-
-// Owned descendant settlement includes TERM-resistant members with open pipes.
-// An independent editor's package must remain alive through the first shutdown.
-#[test]
-fn group_shutdown() {
-    let mut first = Editor::new("non-modal", "descendant", "", true);
-    let mut second = Editor::new("non-modal", "echo", "", true);
-    first.wait(|e| e.status().state == State::Active && e.path("descendant").exists());
-    second.wait(|e| e.status().state == State::Active);
-    let leader = first.status().pid.unwrap();
-    let descendant: u32 = fs::read_to_string(first.path("descendant"))
-        .unwrap()
-        .trim()
-        .parse()
-        .unwrap();
-    let other = second.status().pid.unwrap();
-    assert_ne!(leader, other);
-    first.manage(PluginCommand::Deactivate);
-    first.wait(|e| e.status().state == State::Inactive);
-    assert!(!Path::new(&format!("/proc/{leader}")).exists());
-    assert!(stopped(descendant));
-    assert!(!stopped(other));
-    assert_eq!(text(&first.session), "source 🦀\n");
-    first.session.shutdown_plugins().unwrap();
-    assert!(!stopped(other));
 }
 
 // A native context replacement swaps source registries, not editor-owned
@@ -666,37 +607,6 @@ fn prompt_ownership() {
     assert_eq!(editor.status().state, State::Active);
     assert_eq!(text(&editor.session), source);
     editor.wait(|e| e.session.echo().contains("completed"));
-}
-
-// The real SDK sends a package-to-host request and receives a correlated typed
-// rejection. A noisy diagnostic stream stays bounded and cannot inject escapes.
-#[test]
-fn rpc_and_stderr() {
-    for mode in ["rpc", "stderr"] {
-        let mut editor = Editor::new("non-modal", mode, "", true);
-        editor.wait(|e| e.status().state == State::Active);
-        if mode == "rpc" {
-            editor.wait(|e| e.path("errors").exists());
-            let errors = lines(&editor.path("errors"));
-            assert_eq!(errors[0]["error"]["data"]["kind"], "unsupported_method");
-            assert_eq!(errors[0]["error"]["code"], -32601);
-            assert!(
-                errors[0]["error"]["data"]["request"]
-                    .as_str()
-                    .unwrap()
-                    .starts_with(&format!("{}:", editor.status().generation.unwrap()))
-            );
-        } else {
-            editor.wait(|e| e.status().stderr.contains("END"));
-            let status = editor.status();
-            assert_eq!(status.stderr_bytes, 128 * 1024);
-            assert!(!status.stderr.contains('\x1b'));
-            assert!(status.stderr.contains("END"));
-        }
-        editor.wait(|e| e.session.remaining_input(Instant::now()).is_none());
-        editor.manage(PluginCommand::Deactivate);
-        editor.wait(|e| e.status().state == State::Inactive);
-    }
 }
 
 // Per-package and aggregate pending admission precedes further spawning. The
@@ -759,48 +669,4 @@ fn admission_limits() {
     editor.call(&format!("{}.collect", ids[8]));
     assert!(editor.session.echo().contains("process limit exceeded (8)"));
     assert!(!editor.fixture.0.join(&ids[8]).join("starts").exists());
-}
-
-// Exercise the actual startup deadline without shortening the production
-// contract. A silent peer cannot keep activation or request permits forever.
-#[test]
-fn startup_deadline() {
-    let mut editor = Editor::new("non-modal", "timeout", "", true);
-    editor.wait(|e| e.path("offers").exists());
-    editor.wait(|e| e.status().state == State::Failed);
-    assert!(editor.status().diagnostic.contains("deadline exceeded"));
-    assert_eq!(editor.status().pending, 0);
-    assert_eq!(text(&editor.session), "source 🦀\n");
-}
-
-// Isolate exact descriptor evidence from unrelated test workers. Repeated
-// failed execs release their pipes, control eventfd and pending registrations.
-#[test]
-fn spawn_descriptors() {
-    if std::env::var_os("REV_PLUGIN_FD_FIXTURE").is_none() {
-        let status = std::process::Command::new(std::env::current_exe().unwrap())
-            .args([
-                "--exact",
-                "lifecycle::spawn_descriptors",
-                "--test-threads=1",
-            ])
-            .env("REV_PLUGIN_FD_FIXTURE", "1")
-            .status()
-            .unwrap();
-        assert!(status.success());
-        return;
-    }
-    let mut editor = Editor::new("non-modal", "missing", "", false);
-    let baseline = fs::read_dir("/proc/self/fd").unwrap().count();
-    for _ in 0..8 {
-        editor.call("field.notes.collect");
-        editor.wait(|e| e.status().state == State::Failed && e.status().pending == 0);
-    }
-    editor.session.shutdown_plugins().unwrap();
-    let deadline = Instant::now() + Duration::from_secs(2);
-    while fs::read_dir("/proc/self/fd").unwrap().count() != baseline && Instant::now() < deadline {
-        std::thread::sleep(Duration::from_millis(1));
-    }
-    assert_eq!(fs::read_dir("/proc/self/fd").unwrap().count(), baseline);
-    assert_eq!(text(&editor.session), "source 🦀\n");
 }

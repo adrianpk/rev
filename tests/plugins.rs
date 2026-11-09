@@ -30,3 +30,6 @@ mod events;
 
 #[path = "plugins/state.rs"]
 mod state;
+
+#[path = "plugins/faults.rs"]
+mod faults;

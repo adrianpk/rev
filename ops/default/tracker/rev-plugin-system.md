@@ -185,16 +185,16 @@ Validation: all seven frozen ordered commands passed locally; focused checks pas
 
 ## Slice 11: Fault and resource acceptance
 
-State: implementing
+State: reviewing
 Dependency: Slice 10 integrated
 Branch: test/rev-plugin-system-11-faults
 PR: pending
 Report: ops/default/report/slices/rev-plugin-system/slice-11-faults.md
-Validation: pending; exact ordered commands in the plan and controller configuration
+Validation: all eleven frozen ordered commands passed locally; 84 combined plugin regressions and peer formatting passed. Five native resource profiles and two PTY journeys are measured in the report. Final clean-HEAD controller evidence is required before handoff.
 
-- [ ] T11.1: Consolidate real child-process lifecycle tests for descriptor ownership, handshake limits, EOF/crash, flooding, stalled peers and owned descendants without interrupting unrelated processes.
-- [ ] T11.2: Measure ordinary startup, installed-unused, active-idle, large-read and bounded event-load profiles; report actual latency/RSS/descriptor observations and native service responsiveness.
-- [ ] T11.3: Add representative real PTY journeys for non-modal/modal command use, result buffers, local bindings, cancellation and plugin failure; reuse lower-level variants instead of multiplying journeys.
+- [x] T11.1: Consolidate real child-process lifecycle tests for descriptor ownership, handshake limits, EOF/crash, flooding, stalled peers and owned descendants without interrupting unrelated processes.
+- [x] T11.2: Measure ordinary startup, installed-unused, active-idle, large-read and bounded event-load profiles; report actual latency/RSS/descriptor observations and native service responsiveness.
+- [x] T11.3: Add representative real PTY journeys for non-modal/modal command use, result buffers, local bindings, cancellation and plugin failure; reuse lower-level variants instead of multiplying journeys.
 
 ## Slice 12: Authoring and user guidance
 

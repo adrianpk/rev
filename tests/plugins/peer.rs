@@ -135,6 +135,7 @@ fn event_script(directory: &std::path::Path, package: &Package, input: &mut impl
     let mut decoder = Decoder::new(4 * 1024 * 1024).unwrap();
     let mut bytes = [0; 8192];
     let mut received = 0;
+    let mut journey: Option<(OpaqueId, serde_json::Value)> = None;
     loop {
         while directory.join("pause").exists() {
             if !directory.join("paused").exists() {
@@ -181,6 +182,36 @@ fn event_script(directory: &std::path::Path, package: &Package, input: &mut impl
                         );
                     }
                 }
+                Message::Success(success) if success.id.as_str().starts_with("journey-") => {
+                    match success.id.as_str() {
+                        "journey-create" => {
+                            let buffer = success.result["stamp"]["buffer"].clone();
+                            journey.as_mut().unwrap().1 = buffer.clone();
+                            let context = if fs::read_to_string(directory.join("profile")).unwrap()
+                                == "modal"
+                            {
+                                "vim_normal"
+                            } else {
+                                "editor"
+                            };
+                            send(
+                                json!({"jsonrpc":"2.0","id":"journey-bind","method":"keymaps.bind","params":{"command":"field.notes.collect","keys":"F8","context":context,"scope":{"kind":"buffer","buffer":buffer}}}),
+                            );
+                        }
+                        "journey-bind" => {
+                            assert_eq!(success.result["status"], "effective");
+                            send(
+                                json!({"jsonrpc":"2.0","id":"journey-show","method":"buffers.show","params":{"buffer":journey.as_ref().unwrap().1,"pane":null,"placement":"current"}}),
+                            );
+                        }
+                        "journey-show" => {
+                            let (callback, _) = journey.take().unwrap();
+                            send(json!({"jsonrpc":"2.0","id":callback,"result":{"value":null}}));
+                            fs::write(directory.join("generated"), "ready").unwrap();
+                        }
+                        _ => unreachable!(),
+                    }
+                }
                 Message::Success(success) => {
                     let text = success.id.as_str();
                     if let Some(sequence) = text.strip_prefix("buffer-request-") {
@@ -205,6 +236,20 @@ fn event_script(directory: &std::path::Path, package: &Package, input: &mut impl
                 }
                 Message::Request(request) => {
                     record_message(directory, "calls", &message);
+                    if let Ok(action) = fs::read_to_string(directory.join("action")) {
+                        match action.as_str() {
+                            "crash" => std::process::exit(17),
+                            "hold" => continue,
+                            "result" => {
+                                journey = Some((request.id.clone(), Value::Null));
+                                send(
+                                    json!({"jsonrpc":"2.0","id":"journey-create","method":"buffers.create","params":{"name":"Plugin result","text":"result text\n","read_only":false}}),
+                                );
+                                continue;
+                            }
+                            _ => panic!("unknown fixture action"),
+                        }
+                    }
                     if directory.join("hold-command").exists() {
                         let directory = directory.to_owned();
                         let request = request.clone();
@@ -274,6 +319,24 @@ fn main() {
         return;
     }
     record(&directory, "starts", &std::process::id().to_string());
+    // Inspect after closing the enumeration descriptor. Only the three wire
+    // streams may survive exec; host eventfds and unrelated files stay CLOEXEC.
+    let entries: Vec<_> = fs::read_dir("/proc/self/fd")
+        .unwrap()
+        .map(|e| e.unwrap().path())
+        .collect();
+    let mut inherited: Vec<u32> = entries
+        .into_iter()
+        .filter(|p| fs::read_link(p).is_ok())
+        .map(|p| p.file_name().unwrap().to_str().unwrap().parse().unwrap())
+        .collect();
+    inherited.sort_unstable();
+    fs::write(
+        directory.join("inherited-fds"),
+        serde_json::to_vec(&inherited).unwrap(),
+    )
+    .unwrap();
+
     if mode == "crash" {
         std::process::exit(17);
     }
@@ -513,7 +576,26 @@ fn main() {
                 client.consume_output(count).unwrap();
             }
             output.flush().unwrap();
-            if mode == "events" && initialized {
+            if initialized && mode == "eof-after-init" {
+                return;
+            }
+            if initialized && mode == "stall-input" {
+                fs::write(directory.join("stalled"), "ready").unwrap();
+                std::thread::sleep(Duration::from_secs(60));
+                return;
+            }
+            if initialized && mode == "flood" {
+                fs::write(directory.join("flooding"), "ready").unwrap();
+                // Finite real protocol pressure exceeds the 4 MiB host output
+                // ceiling while this peer deliberately never drains stdin.
+                for i in 0..40_000 {
+                    if writeln!(output, "{}", serde_json::json!({"jsonrpc":"2.0", "id":format!("flood-{i}"), "method":"buffers.list", "params":{"page":{"cursor":null,"limit":1},"kind":"text"}})).is_err() { return; }
+                }
+                let _ = output.flush();
+                std::thread::sleep(Duration::from_secs(60));
+                return;
+            }
+            if matches!(mode.as_str(), "events" | "journey") && initialized {
                 event_script(&directory, &package, &mut input);
                 return;
             }
