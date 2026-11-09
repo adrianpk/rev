@@ -68,8 +68,9 @@ Validation: all seven frozen commands passed through the controller validator on
 State: reviewing
 Dependency: Slice 2 integrated
 Branch: feat/rev-plugin-system-03-lifecycle
-PR: pending
+PR: #3 - https://forge.adrianpk.com/rev/rev/pulls/3
 Report: ops/default/report/slices/rev-plugin-system/slice-3-lifecycle.md
+Implementation: 71857f4a05786909e1d7beb58d8845b2f0cccc05
 Validation: all seven frozen ordered commands passed locally, plus 22 focused protocol/declaration/lifecycle tests and standalone fixture formatting; see the report and final controller candidate evidence.
 
 - [x] T3.1: Implement one lazy owned process group per package/editor, coalesced triggers, explicit startup and bidirectional nonblocking RPC with generation-qualified requests.

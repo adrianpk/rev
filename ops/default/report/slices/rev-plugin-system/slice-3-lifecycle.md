@@ -5,7 +5,7 @@ Delivery set: rev-plugin-system
 Plan: [Plugin System Delivery](../../../plan/rev-plugin-system.md)
 Tracker: [Plugin System Tracker](../../../tracker/rev-plugin-system.md)
 Branch: `feat/rev-plugin-system-03-lifecycle`
-PR: pending
+PR: `#3`
 
 ## Purpose
 
@@ -32,6 +32,9 @@ editor, with bounded bidirectional RPC and owned cancellation and cleanup.
   new generation. Ordinary buffers and unsaved text retain native ownership.
 
 ## Implementation Notes
+
+Implementation: `71857f4a05786909e1d7beb58d8845b2f0cccc05` implements T3.1-T3.3 and introduces
+this report. Canonical [PR #3](https://forge.adrianpk.com/rev/rev/pulls/3) targets dev.
 
 A small native Host owns admitted generations and finite request/output budgets.
 Each active package has one supervisor thread. It alone spawns the literal local
