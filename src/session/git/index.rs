@@ -15,13 +15,14 @@ pub(super) struct Marks {
 }
 impl Marks {
     pub fn contains(&self, target: &Target) -> bool {
+        self.targets.iter().any(|t| mark_matches(t, target))
+    }
+    fn duplicate(&self, target: &IndexTarget) -> bool {
         self.targets.iter().any(|t| match (t, target) {
-            (IndexTarget::Path(diff), Target::Path(group, path)) => {
-                diff.group == *group && diff.change.path == *path
+            (IndexTarget::Path(a), IndexTarget::Path(b)) => {
+                a.group == b.group && a.change.path == b.change.path
             }
-            (IndexTarget::Hunk { diff, hunk }, Target::Hunk(group, path, id)) => {
-                diff.group == *group && diff.change.path == *path && hunk == id
-            }
+            (IndexTarget::Hunk { hunk: a, .. }, IndexTarget::Hunk { hunk: b, .. }) => a == b,
             _ => false,
         })
     }
@@ -66,15 +67,7 @@ impl Session {
         if all {
             self.git.marks = Marks::default();
         } else if let Some(target) = self.git_index_selection() {
-            self.git.marks.targets.retain(|t| !match (t, &target) {
-                (IndexTarget::Path(diff), Target::Path(group, path)) => {
-                    diff.group == *group && diff.change.path == *path
-                }
-                (IndexTarget::Hunk { diff, hunk }, Target::Hunk(group, path, id)) => {
-                    diff.group == *group && diff.change.path == *path && hunk == id
-                }
-                _ => false,
-            });
+            self.git.marks.targets.retain(|t| !mark_matches(t, &target));
         }
         let message = format!("{} Git targets marked", self.git.marks.targets.len());
         self.message(&message)
@@ -91,15 +84,18 @@ impl Session {
             self.git.state.selected.clone()
         }
     }
+    fn git_index_busy(&self) -> bool {
+        self.git.index_request.is_some()
+            || self.git.discard_request.is_some()
+            || self.git.index_preparing.is_some()
+            || self.git.inspection.request.is_some()
+    }
+
     pub(super) fn prepare_git_index(&mut self, intent: Intent) -> Action {
         if !self.git.visible || !matches!(self.git.page, Page::Status | Page::Diff) {
             return self.message("Select an exact path or supported hunk in Git Status first");
         }
-        if self.git.index_request.is_some()
-            || self.git.discard_request.is_some()
-            || self.git.index_preparing.is_some()
-            || self.git.inspection.request.is_some()
-        {
+        if self.git_index_busy() {
             return self.message("A checked index request is already active");
         }
         let target = self.git_index_selection();
@@ -142,44 +138,49 @@ impl Session {
             Target::Hunk(_, _, hunk) => IndexTarget::Hunk { diff, hunk: *hunk },
             Target::Section(_) => return self.message("Index action requires a path or hunk"),
         };
-        if matches!(intent, Intent::Discard) {
-            return match target {
-                IndexTarget::Path(diff) => self.confirm_git_discard(diff),
-                _ => self.message("Discard requires one whole tracked path; hunks are unsupported"),
-            };
+        match intent {
+            Intent::Discard => self.discard_git_index_target(target),
+            Intent::Mark => self.mark_git_index_target(target),
+            Intent::Change(direction) => self.submit_git_index_target(direction, target),
         }
-        if matches!(intent, Intent::Mark) {
-            if !self.git.engine.detail_current(target.diff()) {
-                return self.message("Cannot mark a stale or incomplete comparison");
-            }
-            // Validate duplicate membership against the captured target rather
-            // than the current cursor, which can move during async comparison.
-            let duplicate = self.git.marks.targets.iter().any(|t| match (t, &target) {
-                (IndexTarget::Path(a), IndexTarget::Path(b)) => {
-                    a.group == b.group && a.change.path == b.change.path
-                }
-                (IndexTarget::Hunk { hunk: a, .. }, IndexTarget::Hunk { hunk: b, .. }) => a == b,
-                _ => false,
-            });
-            if duplicate || self.git.marks.targets.len() == 256 {
-                return self.message("Git mark is duplicate or exceeds the 256-target bound");
-            }
-            if self.git.marks.admission.is_none() {
-                match self.git.engine.index_marks_admission() {
-                    Ok(admission) => {
-                        self.git.marks.admission = Some(admission);
-                        self.git.marks.targets = Vec::with_capacity(256);
-                    }
-                    Err(error) => return self.error(&error),
-                }
-            }
-            self.git.marks.targets.push(target);
-            let message = format!("{} Git targets marked", self.git.marks.targets.len());
-            return self.message(&message);
+    }
+
+    fn discard_git_index_target(&mut self, target: IndexTarget) -> Action {
+        match target {
+            IndexTarget::Path(diff) => self.confirm_git_discard(diff),
+            _ => self.message("Discard requires one whole tracked path; hunks are unsupported"),
         }
-        let Intent::Change(direction) = intent else {
-            unreachable!()
-        };
+    }
+
+    fn mark_git_index_target(&mut self, target: IndexTarget) -> Action {
+        if !self.git.engine.detail_current(target.diff()) {
+            return self.message("Cannot mark a stale or incomplete comparison");
+        }
+        // Validate duplicate membership against the captured target rather
+        // than the current cursor, which can move during async comparison.
+        let duplicate = self.git.marks.duplicate(&target);
+        if duplicate || self.git.marks.targets.len() == 256 {
+            return self.message("Git mark is duplicate or exceeds the 256-target bound");
+        }
+        if self.git.marks.admission.is_none() {
+            match self.git.engine.index_marks_admission() {
+                Ok(admission) => {
+                    self.git.marks.admission = Some(admission);
+                    self.git.marks.targets = Vec::with_capacity(256);
+                }
+                Err(error) => return self.error(&error),
+            }
+        }
+        self.git.marks.targets.push(target);
+        let message = format!("{} Git targets marked", self.git.marks.targets.len());
+        self.message(&message)
+    }
+
+    fn submit_git_index_target(
+        &mut self,
+        direction: IndexDirection,
+        target: IndexTarget,
+    ) -> Action {
         match self.git.engine.change_index(direction, target) {
             Ok(operation) => {
                 self.git.index_request = Some(operation);
@@ -234,5 +235,17 @@ fn matches_target(diff: &crate::git::Diff, target: &Target) -> bool {
             diff.group == *group && diff.change.path == *path && diff.hunk(*id).is_some()
         }
         Target::Section(_) => false,
+    }
+}
+
+fn mark_matches(t: &IndexTarget, target: &Target) -> bool {
+    match (t, target) {
+        (IndexTarget::Path(diff), Target::Path(group, path)) => {
+            diff.group == *group && diff.change.path == *path
+        }
+        (IndexTarget::Hunk { diff, hunk }, Target::Hunk(group, path, id)) => {
+            diff.group == *group && diff.change.path == *path && hunk == id
+        }
+        _ => false,
     }
 }

@@ -26,6 +26,56 @@ struct Sources {
 }
 
 impl Sources {
+    fn capture(session: &Session, diff: &Diff) -> Result<Self, String> {
+        session.git.engine.check_discard(diff)?;
+        let path = diff
+            .observation
+            .identity
+            .worktree
+            .as_ref()
+            .ok_or("No working tree")?
+            .join(&diff.change.path);
+        let canonical = canonical(&path)?;
+        let destination = metadata(&path)?;
+        let referent = match fs::metadata(&path) {
+            Ok(m) => Some(m),
+            Err(e) if e.kind() == std::io::ErrorKind::NotFound => None,
+            Err(e) => return Err(e.to_string()),
+        };
+        let mut sources = Sources {
+            path,
+            canonical,
+            destination,
+            referent,
+            stamps: Vec::new(),
+            _admission: session.git.engine.source_admission(0)?,
+        };
+        sources.capture_stamps(session, diff)?;
+        Ok(sources)
+    }
+
+    fn capture_stamps(&mut self, session: &Session, diff: &Diff) -> Result<(), String> {
+        let count = session.buffers.iter().filter(|b| self.related(b)).count();
+        let bytes = count
+            .checked_mul(std::mem::size_of::<Stamp>())
+            .and_then(|n| n.checked_add(self.path.capacity()))
+            .and_then(|n| n.checked_add(self.canonical.capacity()))
+            .and_then(|n| n.checked_add(24 * diff.change.path.as_os_str().len() + 4096))
+            .ok_or("Discard source/confirmation admission overflow")?;
+        self._admission.grow(bytes)?;
+        self.stamps = Vec::with_capacity(count);
+        for buffer in session.buffers.iter() {
+            if !self.related(buffer) {
+                continue;
+            }
+            if buffer.is_modified() {
+                return Err("Discard rejected: modified visiting buffer has unsaved text".into());
+            }
+            self.stamps.push(buffer.stamp());
+        }
+        Ok(())
+    }
+
     fn related(&self, buffer: &Buffer) -> bool {
         buffer.file().is_some_and(|f| {
             f.path() == self.path
@@ -85,52 +135,7 @@ impl Session {
             return self
                 .message("Discard comparison retained; request confirmation again from Git");
         }
-        let result = (|| {
-            self.git.engine.check_discard(&diff)?;
-            let path = diff
-                .observation
-                .identity
-                .worktree
-                .as_ref()
-                .ok_or("No working tree")?
-                .join(&diff.change.path);
-            let canonical = canonical(&path)?;
-            let destination = metadata(&path)?;
-            let referent = match fs::metadata(&path) {
-                Ok(m) => Some(m),
-                Err(e) if e.kind() == std::io::ErrorKind::NotFound => None,
-                Err(e) => return Err(e.to_string()),
-            };
-            let mut sources = Sources {
-                path,
-                canonical,
-                destination,
-                referent,
-                stamps: Vec::new(),
-                _admission: self.git.engine.source_admission(0)?,
-            };
-            let count = self.buffers.iter().filter(|b| sources.related(b)).count();
-            let bytes = count
-                .checked_mul(std::mem::size_of::<Stamp>())
-                .and_then(|n| n.checked_add(sources.path.capacity()))
-                .and_then(|n| n.checked_add(sources.canonical.capacity()))
-                .and_then(|n| n.checked_add(24 * diff.change.path.as_os_str().len() + 4096))
-                .ok_or("Discard source/confirmation admission overflow")?;
-            sources._admission.grow(bytes)?;
-            sources.stamps = Vec::with_capacity(count);
-            for buffer in self.buffers.iter() {
-                if !sources.related(buffer) {
-                    continue;
-                }
-                if buffer.is_modified() {
-                    return Err(
-                        "Discard rejected: modified visiting buffer has unsaved text".into(),
-                    );
-                }
-                sources.stamps.push(buffer.stamp());
-            }
-            Ok(sources)
-        })();
+        let result = Sources::capture(self, &diff);
         let sources = match result {
             Ok(s) => s,
             Err(e) => return self.error(&e),

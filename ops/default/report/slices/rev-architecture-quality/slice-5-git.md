@@ -30,6 +30,13 @@ under one cumulative detail allowance. History separates request ownership,
 ancestry pages, immutable comparisons, reflog records, blame attribution and
 quoted-path decoding.
 
+Commit composition now separates draft construction, captured-index admission,
+HEAD/parent/message/tree proofs and result publication. Index changes separate
+path and clean-filter preparation, hunk content/patch preparation, entry grammar
+and batched postconditions. Conflict resolution and discard separate complete
+file capture, confirmed-source rechecks, child execution and postconditions.
+Session mark admission and discard source capture remain explicit owners.
+
 This is a partial checkpoint. Other operation-family mutation handlers and session
 review handlers still require source-bound corrections.
 
@@ -52,6 +59,20 @@ review handlers still require source-bound corrections.
 - History preserves root/continuation authority, read-only path/object selection,
   parser cancellation, metadata/path ceilings, page reservations and truncation.
   C-quoted filenames retain non-UTF-8 bytes and checked octal escapes.
+- Commit preparation preserves amend/fixup messages and parents, full-index
+  admission, the no-active-sequence guard and rechecks before the sole mutator.
+  HEAD reference/advance, exact composition and complete tree proofs retain
+  their original error order and admission calculations.
+- Index parsing retains exact NUL framing, stage/type checks and count limits.
+  Hunk parsing keeps both byte sides and prior-prefix state for no-newline
+  markers; descending application, mode handling and patch preflight are intact.
+  Literal path manifests, clean filters, gitlinks and read batches are unchanged.
+- Saved conflict capture checks ordinary canonical parents, complete text and
+  file identity through open/read. Resolution still revalidates conversion,
+  unrelated paths, index entries and exact sequence metadata after the child.
+- Discard retains NOFOLLOW verification, executable/symlink checks and complete
+  bytes. Session consent captures the same visiting owners, checked stamps,
+  admission and confirmation authority; modified sources still reject.
 - Private helpers borrow retained authority and parsed views. Explicit shared
   clones, guarded size conversions and signed timestamp fingerprints remain.
 
@@ -76,6 +97,9 @@ suppression or source-policy exception was added.
   classification and conflict-stage evidence.
 - `src/git/history/` and `src/git/work/history/`: owned historical requests,
   ancestry/comparison reads and bounded inspection grammars.
+- `src/git/work/{commit,discard}.rs`, `src/git/work/conflicts/resolution/` and
+  `src/git/work/index/`: mutation preparation, file capture and postconditions.
+- `src/session/git/{index,discard}.rs`: captured mark and discard-source authority.
 - `src/session/git/{commands,updates,input,presentation,processes}.rs`: native
   dispatch, source authority and lazy row projection.
 
@@ -84,7 +108,7 @@ suppression or source-policy exception was added.
 Intermediate checks, with focused results tied to the stated implementation
 cohorts. Final ordered clean-HEAD Looper validation remains pending.
 
-- Failed: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 bash scripts/check-quality.sh --scope src/git.rs --scope src/git --scope src/session/git.rs --scope src/session/git`. Formatting, all-target compilation and scoped Clippy pass with zero blocking diagnostics across 103 selected files; 889 selected-profile diagnostics outside this scope are deferred. Native source policy still rejects 126 findings, reduced from 145.
+- Failed: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 bash scripts/check-quality.sh --scope src/git.rs --scope src/git --scope src/session/git.rs --scope src/session/git`. Formatting, all-target compilation and scoped Clippy pass with zero blocking diagnostics across 108 selected files; 889 selected-profile diagnostics outside this scope are deferred. Native source policy still rejects 105 findings, reduced from 126.
 - Earlier partial implementation: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --test git_integration -- --test-threads=1`. 239 passed and three failed before the current request/parser cohort. This is not current full-suite acceptance; the full suite has not been rerun on this checkpoint.
 - Passed: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo run --locked --quiet -p rev --example documentation-check`. 106 reachable pages, 743 local links/anchors, 684 commands and 299 configuration entries.
 - Passed: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --test git_integration -- families::output:: --test-threads=1`. Six output-family cases after the approved API adaptation.
@@ -93,11 +117,15 @@ cohorts. Final ordered clean-HEAD Looper validation remains pending.
 - Passed: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --test git_integration -- history:: --test-threads=1`. 15 cases after ancestry/comparison and historical-file request extraction.
 - Passed: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --test git_integration -- history::inspection::reflog_objects history::inspection::blame_renamed_source history::limits::bounded_inspection history::limits::metadata_admission history::inspection::presentation::native_inspections --test-threads=1`. Five cases after reflog/blame parser extraction and borrowing corrections.
 - Failed: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --test git_integration -- repository::acceptance::native_process_owner sequences::controls::ordered_controls --test-threads=1`. Ordered sequence controls passed; the process-owner fixture still waits at a terminal-departure prompt before Git status appears.
+- Passed: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --test git_integration -- commits:: index::discard:: conflicts::resolution:: --test-threads=1`. 31 mutation and presentation cases after commit, discard and conflict-resolution decomposition, before the index/session extraction.
+- Passed: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --test git_integration -- index:: --test-threads=1`. All 24 index cases after path/hunk/entry extraction and session mark/discard-source separation.
+- Passed: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --test git_integration -- commits::normal_objects commits::modes::amend_objects commits::modes::fixup_objects commits::effects::merge_noop_amend index::path_roundtrip index::hunk_boundaries index::groups::paths conflicts::resolution::saved_and_deleted conflicts::resolution::effects_remain_visible --test-threads=1`. Nine focused cases after the final borrowing corrections, including commit consumers of the extracted entry grammar.
 - Passed: `git diff --check`.
 
-The current scoped inventory covers 103 of 1823 first-party Rust files. Git family
-input, bisect workers, conflict inspection and the complete worker history tree
-satisfy the five/three/ten bounds. The 126 remaining source findings block the
+The current scoped inventory covers 108 of 1828 first-party Rust files. Git family
+input, bisect workers, conflict inspection/resolution, commit/discard workers,
+the complete worker history/index trees and session index/discard owners satisfy
+the five/three/ten bounds. The 105 remaining source findings block the
 required quality command.
 
 ## Risks and Follow-ups

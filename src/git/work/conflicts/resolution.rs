@@ -2,7 +2,8 @@ use super::*;
 use crate::git::conflicts::ResolutionRequest;
 use crate::git::conflicts::resolution::fingerprint;
 use crate::git::{Resolution, ResolutionAction, SavedResult};
-use std::{fs, io::Read, os::unix::fs::MetadataExt, path::Component};
+
+mod saved;
 
 impl Runner {
     pub(in crate::git::work) fn resolution(
@@ -22,70 +23,11 @@ impl Runner {
         conflict: &Conflict,
         admission: &mut Lease,
     ) -> Result<Option<SavedResult>, String> {
-        let root = conflict
-            .sequence
-            .refs
-            .observation
-            .identity
-            .worktree
-            .as_ref()
-            .ok_or("Conflict result requires a working tree")?;
-        let mut parent = root.clone();
-        for component in conflict.change.path.components() {
-            if !matches!(component, Component::Normal(_)) {
-                return Err("Conflict path is not an exact relative worktree path".into());
-            }
-            let m = fs::symlink_metadata(&parent).map_err(|e| format!("Conflict parent: {e}"))?;
-            if !m.is_dir() || m.file_type().is_symlink() {
-                return Err("Conflict parent is not an ordinary canonical directory".into());
-            }
-            parent.push(component);
-        }
-        let path = parent;
-        let metadata = match fs::symlink_metadata(&path) {
-            Err(e) if e.kind() == std::io::ErrorKind::NotFound => return Ok(None),
-            Err(e) => return Err(format!("Conflict saved result: {e}")),
-            Ok(m) => m,
-        };
-        let cap = self.policy.max_detail_bytes.min(budget::SCRATCH_BYTES);
-        if !metadata.is_file() || metadata.file_type().is_symlink() || metadata.len() > cap as u64 {
-            return Err("Saved conflict result is not an admitted ordinary complete file".into());
-        }
-        let length = usize::try_from(metadata.len()).expect("file length admitted below usize cap");
-        admission.grow(length + 4096)?;
-        let descriptor = rustix::fs::open(
-            &path,
-            rustix::fs::OFlags::RDONLY
-                | rustix::fs::OFlags::NOFOLLOW
-                | rustix::fs::OFlags::NONBLOCK,
-            rustix::fs::Mode::empty(),
+        saved::capture(
+            conflict,
+            self.policy.max_detail_bytes.min(budget::SCRATCH_BYTES),
+            admission,
         )
-        .map_err(|e| e.to_string())?;
-        let file = fs::File::from(descriptor);
-        let opened = file.metadata().map_err(|e| e.to_string())?;
-        if fingerprint(&metadata) != fingerprint(&opened) {
-            return Err("Saved conflict file identity changed during open".into());
-        }
-        let mut bytes = Vec::with_capacity(length);
-        file.take(cap as u64 + 1)
-            .read_to_end(&mut bytes)
-            .map_err(|e| e.to_string())?;
-        if bytes.len() > cap || bytes.contains(&0) || std::str::from_utf8(&bytes).is_err() {
-            return Err("Saved resolution is partial, binary or non-text".into());
-        }
-        let after = fs::symlink_metadata(&path).map_err(|e| e.to_string())?;
-        if bytes.len() as u64 != metadata.len() || fingerprint(&metadata) != fingerprint(&after) {
-            return Err("Saved conflict result changed during capture".into());
-        }
-        Ok(Some(SavedResult {
-            bytes,
-            mode: if metadata.mode() & 0o111 == 0 {
-                0o100644
-            } else {
-                0o100755
-            },
-            fingerprint: fingerprint(&metadata),
-        }))
     }
     fn resolution_object(
         &mut self,
@@ -194,22 +136,11 @@ impl Runner {
         if saved.as_ref().is_some_and(|s| s.mode != mode) {
             return Err("Saved result mode differs from the compatible checked stages".into());
         }
-        let mut expected_object = None;
-        let expected_bytes = match action {
-            ResolutionAction::Use(role) => self.resolution_checkout(&conflict, role, admission)?,
-            ResolutionAction::Stage => {
-                if let Some(saved) = &saved {
-                    expected_object =
-                        Some(self.resolution_object(&conflict, &saved.bytes, admission)?);
-                }
-                Vec::new()
-            }
-            ResolutionAction::Delete => Vec::new(),
-        };
-        self.checked_sequence(&conflict.sequence, admission)?;
-        if self.saved_result(&conflict, admission)? != saved {
-            return Err("Saved resolution changed during preparation".into());
-        }
+        let Content {
+            object: expected_object,
+            bytes: expected_bytes,
+        } = self.resolution_content(&conflict, action, saved.as_ref(), admission)?;
+        self.check_prepared_saved(&conflict, saved.as_ref(), admission)?;
         let size = std::mem::size_of::<Resolution>()
             + saved.as_ref().map_or(0, |s| s.bytes.capacity())
             + expected_bytes.capacity()
@@ -226,11 +157,49 @@ impl Runner {
             _admission: admission.split(size),
         })
     }
-    fn resolve_conflict(
+    fn check_prepared_saved(
         &mut self,
-        plan: &Arc<Resolution>,
+        conflict: &Conflict,
+        saved: Option<&SavedResult>,
         admission: &mut Lease,
-    ) -> Result<Candidate, String> {
+    ) -> Result<(), String> {
+        self.checked_sequence(&conflict.sequence, admission)?;
+        if self.saved_result(conflict, admission)?.as_ref() != saved {
+            return Err("Saved resolution changed during preparation".into());
+        }
+        Ok(())
+    }
+
+    fn resolution_content(
+        &mut self,
+        conflict: &Conflict,
+        action: ResolutionAction,
+        saved: Option<&SavedResult>,
+        admission: &mut Lease,
+    ) -> Result<Content, String> {
+        let mut expected_object = None;
+        let expected_bytes = match action {
+            ResolutionAction::Use(role) => self.resolution_checkout(conflict, role, admission)?,
+            ResolutionAction::Stage => {
+                if let Some(saved) = saved {
+                    expected_object =
+                        Some(self.resolution_object(conflict, &saved.bytes, admission)?);
+                }
+                Vec::new()
+            }
+            ResolutionAction::Delete => Vec::new(),
+        };
+        Ok(Content {
+            object: expected_object,
+            bytes: expected_bytes,
+        })
+    }
+
+    fn check_resolution_plan(
+        &mut self,
+        plan: &Resolution,
+        admission: &mut Lease,
+    ) -> Result<(), String> {
         let fresh = self.prepare_resolution(
             std::sync::Arc::clone(&plan.conflict),
             plan.action,
@@ -247,6 +216,15 @@ impl Runner {
                     .into(),
             );
         }
+        Ok(())
+    }
+
+    fn resolve_conflict(
+        &mut self,
+        plan: &Arc<Resolution>,
+        admission: &mut Lease,
+    ) -> Result<Candidate, String> {
+        self.check_resolution_plan(plan, admission)?;
         let sequence = &plan.conflict.sequence;
         let path = &plan.conflict.change.path;
         admission.grow(sequence.index.len() + 4096)?;
@@ -257,29 +235,7 @@ impl Runner {
             plan.mode,
             plan.expected_object,
         )?;
-        let args: Vec<OsString> = match plan.action {
-            ResolutionAction::Use(role) => vec![
-                "--literal-pathspecs".into(),
-                "checkout-index".into(),
-                "--force".into(),
-                format!("--stage={}", role.stage()).into(),
-                "--".into(),
-                path.as_os_str().to_owned(),
-            ],
-            ResolutionAction::Delete => vec![
-                "--literal-pathspecs".into(),
-                "rm".into(),
-                "--force".into(),
-                "--".into(),
-                path.as_os_str().to_owned(),
-            ],
-            ResolutionAction::Stage => vec![
-                "--literal-pathspecs".into(),
-                "add".into(),
-                "--".into(),
-                path.as_os_str().to_owned(),
-            ],
-        };
+        let args = resolution_arguments(plan);
         self.checked_sequence(sequence, admission)?;
         if self.saved_result(&plan.conflict, admission)? != plan.saved {
             return Err("Saved result changed before the checked Git child".into());
@@ -292,52 +248,67 @@ impl Runner {
                     .into(),
             );
         }
-        let result = (|| {
-            let refs = self.integration_refs(&sequence.refs.observation, admission)?;
-            let mut after = self.read_sequence(&refs, admission)?;
-            if let Some(progress) = &sequence.application {
-                self.bind_application(&mut after, std::sync::Arc::clone(progress))?;
-            }
-            let saved = self.saved_result(&plan.conflict, admission)?;
-            let disk_ok = match plan.action {
-                ResolutionAction::Use(_) => saved
-                    .as_ref()
-                    .is_some_and(|s| s.bytes == plan.expected_bytes && s.mode == plan.mode),
-                ResolutionAction::Delete => saved.is_none(),
-                ResolutionAction::Stage => saved == plan.saved,
-            };
-            let observed_index = if after.family.is_none() {
-                let bytes =
-                    self.command(&["ls-files", "--stage", "-z"], Phase::Verifying, false)?;
-                admission.grow(bytes.capacity())?;
-                Some(bytes)
-            } else {
-                None
-            };
-            let actual_index = observed_index.as_deref().unwrap_or(&after.index);
-            let other_disk = self.other_conflict_worktree(&plan.conflict, admission)?;
-            let other_status_same = match (
-                &after.refs.observation.status,
-                &sequence.refs.observation.status,
-            ) {
-                (Some(a), Some(b)) => a
-                    .paths
-                    .iter()
-                    .filter(|p| p.path != *path)
-                    .eq(b.paths.iter().filter(|p| p.path != *path)),
-                (None, None) => true,
-                _ => false,
-            };
-            let verified = actual_index == expected_index
-                && other_disk == plan.other_worktree
-                && other_status_same
-                && disk_ok
-                && after.family == sequence.family
-                && after.files == sequence.files
-                && after.refs.same(&sequence.refs);
-            Ok((Candidate::Sequence(after), verified))
-        })();
+        let result = self.verify_resolution(plan, &expected_index, admission);
         self.restore_execution(facts, executed.is_err());
+        self.publish_resolution_result(&executed, result)
+    }
+
+    fn resolution_sequence(
+        &mut self,
+        sequence: &Sequence,
+        admission: &mut Lease,
+    ) -> Result<Sequence, String> {
+        let refs = self.integration_refs(&sequence.refs.observation, admission)?;
+        let mut after = self.read_sequence(&refs, admission)?;
+        if let Some(progress) = &sequence.application {
+            self.bind_application(&mut after, std::sync::Arc::clone(progress))?;
+        }
+        Ok(after)
+    }
+
+    fn resolution_observed_index(
+        &mut self,
+        after: &Sequence,
+        admission: &mut Lease,
+    ) -> Result<Option<Vec<u8>>, String> {
+        let observed_index = if after.family.is_none() {
+            let bytes = self.command(&["ls-files", "--stage", "-z"], Phase::Verifying, false)?;
+            admission.grow(bytes.capacity())?;
+            Some(bytes)
+        } else {
+            None
+        };
+        Ok(observed_index)
+    }
+
+    fn verify_resolution(
+        &mut self,
+        plan: &Resolution,
+        expected_index: &[u8],
+        admission: &mut Lease,
+    ) -> Result<(Candidate, bool), String> {
+        let sequence = &plan.conflict.sequence;
+        let path = &plan.conflict.change.path;
+        let after = self.resolution_sequence(sequence, admission)?;
+        let saved = self.saved_result(&plan.conflict, admission)?;
+        let disk_ok = saved_matches(plan, saved.as_ref());
+        let observed_index = self.resolution_observed_index(&after, admission)?;
+        let actual_index = observed_index.as_deref().unwrap_or(&after.index);
+        let other_disk = self.other_conflict_worktree(&plan.conflict, admission)?;
+        let other_status_same = other_status_same(&after, sequence, path);
+        let verified = actual_index == expected_index
+            && other_disk == plan.other_worktree
+            && other_status_same
+            && disk_ok
+            && same_sequence_metadata(&after, sequence);
+        Ok((Candidate::Sequence(after), verified))
+    }
+
+    fn publish_resolution_result(
+        &mut self,
+        executed: &Result<(), String>,
+        result: Result<(Candidate, bool), String>,
+    ) -> Result<Candidate, String> {
         match result {
             Ok((candidate, true)) if executed.is_ok() => {
                 self.effects = Effects::Verified;
@@ -386,4 +357,66 @@ fn resolution_index(
         return Err("Captured index lacks the exact unmerged path".into());
     }
     Ok(expected)
+}
+
+fn resolution_arguments(plan: &Resolution) -> Vec<OsString> {
+    let path = &plan.conflict.change.path;
+    match plan.action {
+        ResolutionAction::Use(role) => vec![
+            "--literal-pathspecs".into(),
+            "checkout-index".into(),
+            "--force".into(),
+            format!("--stage={}", role.stage()).into(),
+            "--".into(),
+            path.as_os_str().to_owned(),
+        ],
+        ResolutionAction::Delete => vec![
+            "--literal-pathspecs".into(),
+            "rm".into(),
+            "--force".into(),
+            "--".into(),
+            path.as_os_str().to_owned(),
+        ],
+        ResolutionAction::Stage => vec![
+            "--literal-pathspecs".into(),
+            "add".into(),
+            "--".into(),
+            path.as_os_str().to_owned(),
+        ],
+    }
+}
+
+/// Converted worktree bytes and their optional index object share one action.
+struct Content {
+    object: Option<ObjectId>,
+    bytes: Vec<u8>,
+}
+
+fn saved_matches(plan: &Resolution, saved: Option<&SavedResult>) -> bool {
+    match plan.action {
+        ResolutionAction::Use(_) => {
+            saved.is_some_and(|s| s.bytes == plan.expected_bytes && s.mode == plan.mode)
+        }
+        ResolutionAction::Delete => saved.is_none(),
+        ResolutionAction::Stage => saved == plan.saved.as_ref(),
+    }
+}
+
+fn other_status_same(after: &Sequence, sequence: &Sequence, path: &Path) -> bool {
+    match (
+        &after.refs.observation.status,
+        &sequence.refs.observation.status,
+    ) {
+        (Some(a), Some(b)) => a
+            .paths
+            .iter()
+            .filter(|p| p.path != path)
+            .eq(b.paths.iter().filter(|p| p.path != path)),
+        (None, None) => true,
+        _ => false,
+    }
+}
+
+fn same_sequence_metadata(after: &Sequence, before: &Sequence) -> bool {
+    after.family == before.family && after.files == before.files && after.refs.same(&before.refs)
 }
