@@ -19,23 +19,7 @@ impl Resource {
     }
 
     fn extract() -> std::io::Result<Self> {
-        let cache = crate::config::Roots::from_env()?.cache;
-        // Missing parents may be created, but never accept symlink namespaces,
-        // another owner's directory or a group/world-writable cache ancestor.
-        fs::create_dir_all(&cache)?;
-        for parent in cache.ancestors().take_while(|p| p.parent().is_some()) {
-            let meta = fs::symlink_metadata(parent)?;
-            if !meta.is_dir() || (meta.mode() & 0o022 != 0 && meta.mode() & 0o1000 == 0) {
-                return Err(std::io::Error::other("unsafe cache ancestor"));
-            }
-        }
-        let parent = cache.join("ai");
-        match fs::DirBuilder::new().mode(0o700).create(&parent) {
-            Ok(()) => (),
-            Err(e) if e.kind() == std::io::ErrorKind::AlreadyExists => (),
-            Err(e) => return Err(e),
-        }
-        private(&parent)?;
+        let parent = parent()?;
         let nonce = SystemTime::now()
             .duration_since(UNIX_EPOCH)
             .map_err(std::io::Error::other)?
@@ -65,9 +49,13 @@ impl Resource {
         if named.dev() != held.dev() || named.ino() != held.ino() {
             return Err(std::io::Error::other("resource directory changed"));
         }
+        self.check_file(held.uid())
+    }
+
+    fn check_file(&self, owner: u32) -> std::io::Result<()> {
         let file = fs::symlink_metadata(&self.path)?;
         if !file.is_file()
-            || file.uid() != held.uid()
+            || file.uid() != owner
             || file.mode() & 0o077 != 0
             || file.nlink() != 1
             || file.len() != SOURCE.len() as u64
@@ -77,6 +65,32 @@ impl Resource {
         }
         Ok(())
     }
+}
+
+fn parent() -> std::io::Result<PathBuf> {
+    let cache = crate::config::Roots::from_env()?.cache;
+    // Missing parents may be created, but never accept symlink namespaces,
+    // another owner's directory or a group/world-writable cache ancestor.
+    fs::create_dir_all(&cache)?;
+    check_ancestors(&cache)?;
+    let parent = cache.join("ai");
+    match fs::DirBuilder::new().mode(0o700).create(&parent) {
+        Ok(()) => (),
+        Err(e) if e.kind() == std::io::ErrorKind::AlreadyExists => (),
+        Err(e) => return Err(e),
+    }
+    private(&parent)?;
+    Ok(parent)
+}
+
+fn check_ancestors(cache: &Path) -> std::io::Result<()> {
+    for parent in cache.ancestors().take_while(|p| p.parent().is_some()) {
+        let meta = fs::symlink_metadata(parent)?;
+        if !meta.is_dir() || (meta.mode() & 0o022 != 0 && meta.mode() & 0o1000 == 0) {
+            return Err(std::io::Error::other("unsafe cache ancestor"));
+        }
+    }
+    Ok(())
 }
 
 fn private(path: &Path) -> std::io::Result<()> {

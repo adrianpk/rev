@@ -42,16 +42,11 @@ impl Target {
         let selection = if kind == Kind::Implement {
             None
         } else {
-            if buffer.visual() == Some(crate::buffer::Visual::Block) || buffer.rectangle_active() {
-                return Err(format!(
-                    "{} requires a linear selection or point",
-                    kind.name()
-                ));
-            }
-            buffer
-                .region(point)
-                .map_err(|e| e.to_string())?
-                .filter(|s| !s.range.is_empty())
+            selection(
+                buffer,
+                point,
+                &format!("{} requires a linear selection or point", kind.name()),
+            )?
         };
         let (source, output) = match (kind, selection) {
             (Kind::Explain, Some(source)) => (source, Output::Explanation),
@@ -96,15 +91,7 @@ impl Target {
                 .span(0..buffer.len_chars())
                 .map_err(|e| e.to_string())?,
             AiInput::Selection => {
-                if buffer.visual() == Some(crate::buffer::Visual::Block)
-                    || buffer.rectangle_active()
-                {
-                    return Err("AI selection requires a linear region".into());
-                }
-                buffer
-                    .region(point)
-                    .map_err(|e| e.to_string())?
-                    .filter(|s| !s.range.is_empty())
+                selection(buffer, point, "AI selection requires a linear region")?
                     .ok_or("AI command requires an active selection")?
             }
         };
@@ -134,4 +121,14 @@ impl Target {
         }
         Ok(())
     }
+}
+
+fn selection(buffer: &Buffer, point: Point, error: &str) -> Result<Option<Span>, String> {
+    if buffer.visual() == Some(crate::buffer::Visual::Block) || buffer.rectangle_active() {
+        return Err(error.into());
+    }
+    Ok(buffer
+        .region(point)
+        .map_err(|e| e.to_string())?
+        .filter(|s| !s.range.is_empty()))
 }

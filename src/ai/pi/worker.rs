@@ -130,7 +130,7 @@ pub(super) fn run(
                         if !history_ready {
                             if let Some(store)=store.take() {
                                 let fingerprint=fingerprint(&policy,&metadata,&private_roots)?;
-                                let chosen=store.bind(&root,&fingerprint,&model,candidate.as_deref().ok_or("Pi candidate missing")?,profile.reset)?;
+                                let chosen=store.bind(&history::Selection {root:&root,fingerprint:&fingerprint,model:&model,candidate:candidate.as_deref().ok_or("Pi candidate missing")?,reset:profile.reset})?;
                                 reused=Some(&chosen.path)!=candidate.as_ref();
                                 if profile.reset {control.reset_applied.store(true,Ordering::Release);}
                                 if reused {

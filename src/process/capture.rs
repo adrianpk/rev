@@ -82,9 +82,9 @@ impl Program {
                 };
             }
         };
-        phase(owned.pid.as_raw_nonzero().get() as u32, false);
+        phase(owned.child_id(), false);
         let (mut end, mut diagnostic) = owned.collect(&self, cancel);
-        phase(owned.pid.as_raw_nonzero().get() as u32, true);
+        phase(owned.child_id(), true);
         let cleanup = owned.stop(end == End::Exited);
         if cleanup.is_ok()
             && end != End::OutputLimit
@@ -127,6 +127,46 @@ impl Program {
         input: Option<std::fs::File>,
         cancel: &Cancellation,
     ) -> Result<Owned, String> {
+        self.validate(cancel)?;
+        self.editors.check()?;
+        let (streams, stdout, stderr) = Streams::new()?;
+        let mut command = Command::new(&self.argv[0]);
+        command
+            .args(&self.argv[1..])
+            .current_dir(&self.directory)
+            .stdin(input.map_or_else(Stdio::null, Stdio::from))
+            .stdout(stdout)
+            .stderr(stderr)
+            .process_group(0)
+            .env("LC_ALL", "C")
+            .env("GIT_TERMINAL_PROMPT", "0")
+            .env("GIT_EDITOR", "false")
+            .env("GIT_SEQUENCE_EDITOR", "false")
+            .env("GIT_PAGER", "cat");
+        self.editors.configure(&mut command);
+        self.repository_environment(&mut command)?;
+        let child = command.spawn().map_err(|e| format!("Start Git: {e}"))?;
+        let pid = Pid::from_child(&child);
+        let observed = rustix::process::pidfd_open(pid, rustix::process::PidfdFlags::NONBLOCK);
+        let observe_error = observed
+            .as_ref()
+            .err()
+            .map(|error| format!("Observe Git child: {error}"));
+        Ok(Owned {
+            child: Some(child),
+            streams,
+            exit: observed.ok(),
+            observe_error,
+            pid,
+            _workspace: self.workspace.take(),
+            _todo: match std::mem::replace(&mut self.editors, Editors::Disabled) {
+                Editors::Todo(file) => Some(file),
+                _ => None,
+            },
+        })
+    }
+
+    fn validate(&self, cancel: &Cancellation) -> Result<(), String> {
         if self.argv.is_empty()
             || self.argv.len() > 64
             || self
@@ -145,52 +185,10 @@ impl Program {
         if cancel.is_cancelled() {
             return Err("Git cancelled before launch".into());
         }
-        // Check fixed noninteractive drivers before Git can change anything.
-        use std::os::unix::fs::PermissionsExt;
-        let drivers: &[&str] = match self.editors {
-            Editors::Disabled => &[],
-            Editors::AcceptMessage => &["/bin/true"],
-            Editors::Todo(_) => &["/bin/true", "/bin/cp"],
-        };
-        for path in drivers {
-            if !std::fs::metadata(path)
-                .is_ok_and(|m| m.is_file() && m.permissions().mode() & 0o111 != 0)
-            {
-                return Err("Fixed noninteractive Git editor driver is unavailable".into());
-            }
-        }
-        let (streams, stdout, stderr) = Streams::new()?;
-        let mut command = Command::new(&self.argv[0]);
-        command
-            .args(&self.argv[1..])
-            .current_dir(&self.directory)
-            .stdin(input.map_or_else(Stdio::null, Stdio::from))
-            .stdout(stdout)
-            .stderr(stderr)
-            .process_group(0)
-            .env("LC_ALL", "C")
-            .env("GIT_TERMINAL_PROMPT", "0")
-            .env("GIT_EDITOR", "false")
-            .env("GIT_SEQUENCE_EDITOR", "false")
-            .env("GIT_PAGER", "cat");
-        match &self.editors {
-            Editors::Disabled => {}
-            Editors::AcceptMessage => {
-                command.env("GIT_EDITOR", "/bin/true");
-            }
-            Editors::Todo(file) => {
-                use std::os::fd::AsRawFd;
-                command.env("GIT_EDITOR", "/bin/true");
-                command.env(
-                    "GIT_SEQUENCE_EDITOR",
-                    format!(
-                        "/bin/cp -- /proc/{}/fd/{}",
-                        std::process::id(),
-                        file.as_raw_fd()
-                    ),
-                );
-            }
-        }
+        Ok(())
+    }
+
+    fn repository_environment(&self, command: &mut Command) -> Result<(), String> {
         // Ambient repository overrides must not redirect an explicitly
         // captured directory to an unrelated worktree or index.
         for key in [
@@ -214,29 +212,56 @@ impl Program {
             }
             command.env("GIT_INDEX_FILE", index);
         }
-        let child = command.spawn().map_err(|e| format!("Start Git: {e}"))?;
-        let pid = Pid::from_child(&child);
-        let observed = rustix::process::pidfd_open(pid, rustix::process::PidfdFlags::NONBLOCK);
-        let observe_error = observed
-            .as_ref()
-            .err()
-            .map(|error| format!("Observe Git child: {error}"));
-        Ok(Owned {
-            child: Some(child),
-            streams,
-            exit: observed.ok(),
-            observe_error,
-            pid,
-            _workspace: self.workspace.take(),
-            _todo: match std::mem::replace(&mut self.editors, Editors::Disabled) {
-                Editors::Todo(file) => Some(file),
-                _ => None,
-            },
-        })
+        Ok(())
+    }
+}
+
+impl Editors {
+    fn check(&self) -> Result<(), String> {
+        // Check fixed noninteractive drivers before Git can change anything.
+        use std::os::unix::fs::PermissionsExt;
+        let drivers: &[&str] = match self {
+            Self::Disabled => &[],
+            Self::AcceptMessage => &["/bin/true"],
+            Self::Todo(_) => &["/bin/true", "/bin/cp"],
+        };
+        for path in drivers {
+            if !std::fs::metadata(path)
+                .is_ok_and(|m| m.is_file() && m.permissions().mode() & 0o111 != 0)
+            {
+                return Err("Fixed noninteractive Git editor driver is unavailable".into());
+            }
+        }
+        Ok(())
+    }
+
+    fn configure(&self, command: &mut Command) {
+        match self {
+            Self::Disabled => {}
+            Self::AcceptMessage => {
+                command.env("GIT_EDITOR", "/bin/true");
+            }
+            Self::Todo(file) => {
+                use std::os::fd::AsRawFd;
+                command.env("GIT_EDITOR", "/bin/true");
+                command.env(
+                    "GIT_SEQUENCE_EDITOR",
+                    format!(
+                        "/bin/cp -- /proc/{}/fd/{}",
+                        std::process::id(),
+                        file.as_raw_fd()
+                    ),
+                );
+            }
+        }
     }
 }
 
 impl Owned {
+    fn child_id(&self) -> u32 {
+        u32::try_from(self.pid.as_raw_nonzero().get()).expect("owned child has a positive PID")
+    }
+
     pub fn pending(&self) -> bool {
         self.child.is_some()
     }
@@ -302,20 +327,28 @@ impl Owned {
         if exited && !self.running(deadline)? {
             return self.reap();
         }
+        self.terminate(start, deadline)?;
+        self.reap()
+    }
+
+    fn terminate(&self, start: Instant, deadline: Instant) -> Result<(), String> {
         let grace = start + Duration::from_millis(500);
-        while Instant::now() < grace && self.running(deadline)? {
-            std::thread::sleep(Duration::from_millis(2));
-        }
+        self.wait_group(grace, deadline)?;
         if self.running(deadline)? {
             self.signal(Signal::KILL)?;
         }
-        while Instant::now() < deadline && self.running(deadline)? {
-            std::thread::sleep(Duration::from_millis(2));
-        }
+        self.wait_group(deadline, deadline)?;
         if self.running(deadline)? {
             return Err("Git process-group cleanup timed out".into());
         }
-        self.reap()
+        Ok(())
+    }
+
+    fn wait_group(&self, until: Instant, deadline: Instant) -> Result<(), String> {
+        while Instant::now() < until && self.running(deadline)? {
+            std::thread::sleep(Duration::from_millis(2));
+        }
+        Ok(())
     }
 
     fn reap(&mut self) -> Result<ExitStatus, String> {
@@ -338,7 +371,7 @@ impl Owned {
     }
 
     fn running(&self, deadline: Instant) -> Result<bool, String> {
-        super::group::running(self.pid.as_raw_nonzero().get() as u32, deadline)
+        super::group::running(self.child_id(), deadline)
     }
 
     pub fn drain(&mut self, limit: usize) -> Result<(), String> {

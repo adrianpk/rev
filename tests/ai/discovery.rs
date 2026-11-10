@@ -51,6 +51,8 @@ fn native_source_map() {
     assert_eq!(observed["complete"], true);
     s.execute(Command::AiDiscardResult);
     switch(&mut s, "module.zig");
+    // Buffer switching retains the prior point; this observation prepends text.
+    s.execute(Command::Motion(Motion::BufferStart));
     s.insert('x');
     let current = s.buffer().unwrap().stamp();
     switch(&mut s, "source.txt");

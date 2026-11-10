@@ -45,6 +45,14 @@ pub(super) struct Lease {
     observation: Option<(u64, u64)>,
 }
 
+pub(super) struct Selection<'a> {
+    pub root: &'a Path,
+    pub fingerprint: &'a str,
+    pub model: &'a str,
+    pub candidate: &'a Path,
+    pub reset: bool,
+}
+
 impl Store {
     pub fn open(state: &Path) -> Result<Self, String> {
         let root = state.join("ai/pi");
@@ -126,46 +134,13 @@ impl Store {
         if bytes.len() as u64 > INDEX_BYTES {
             return Err("Pi binding index exceeds 64 KiB".into());
         }
-        let text = std::str::from_utf8(&bytes)
-            .map_err(|_| "Pi binding index is not UTF-8; preserve it and use ephemeral context")?;
-        let index: Index = toml::from_str(text)
-            .map_err(|_| "Pi binding index is invalid; preserve it and disable persistence")?;
-        validate(&index)?;
+        let index = Index::decode(&bytes)?;
         Ok((index, Some(bytes)))
     }
     fn publish(&self, index: &Index, previous: Option<&[u8]>, lock: &File) -> Result<(), String> {
         validate(index)?;
         same_file(&self.at("index.lock"), lock)?;
-        let mut document = toml_edit::DocumentMut::new();
-        document["version"] = toml_edit::value(1);
-        let mut tables = toml_edit::ArrayOfTables::new();
-        for b in &index.bindings {
-            let mut table = toml_edit::Table::new();
-            for (name, value) in [
-                ("id", b.id.as_str()),
-                ("root", b.root.to_str().ok_or("Pi root is not UTF-8")?),
-                ("fingerprint", b.fingerprint.as_str()),
-                ("model", b.model.as_str()),
-                ("session", b.session.as_str()),
-            ] {
-                table[name] = toml_edit::value(value);
-            }
-            table["created"] = toml_edit::value(
-                i64::try_from(b.created).map_err(|_| "Pi creation timestamp exceeds range")?,
-            );
-            table["last_used"] = toml_edit::value(
-                i64::try_from(b.last_used).map_err(|_| "Pi last-used timestamp exceeds range")?,
-            );
-            tables.push(table);
-        }
-        document["bindings"] = toml_edit::Item::ArrayOfTables(tables);
-        let text = document.to_string();
-        if text.len() as u64 > INDEX_BYTES {
-            return Err(
-                "Pi binding index exceeds 64 KiB; reset/remove history or disable persistence"
-                    .into(),
-            );
-        }
+        let text = index.encode()?;
         self.same()?;
         let (_, observed) = self.read()?;
         if observed.as_deref() != previous {
@@ -178,6 +153,15 @@ impl Store {
             .write_all(text.as_bytes())
             .and_then(|_| temporary.file.sync_all())
             .map_err(|_| "Pi index write/sync failed")?;
+        self.finish_index(&mut temporary, previous, lock)
+    }
+
+    fn finish_index(
+        &self,
+        temporary: &mut crate::file::temporary::Temporary,
+        previous: Option<&[u8]>,
+        lock: &File,
+    ) -> Result<(), String> {
         self.same()?;
         let (_, observed) = self.read()?;
         if observed.as_deref() != previous {
@@ -191,51 +175,68 @@ impl Store {
             .sync_all()
             .map_err(|_| "Pi index directory sync failed".to_string())
     }
-    pub fn bind(
-        self,
-        root: &Path,
-        fingerprint: &str,
-        model: &str,
-        candidate: &Path,
-        reset: bool,
-    ) -> Result<Lease, String> {
+    pub fn bind(self, selection: &Selection<'_>) -> Result<Lease, String> {
         let index_lock = self.lock()?;
         let (mut index, previous) = self.read()?;
-        let candidate_name = candidate
+        let candidate_name = selection
+            .candidate
             .file_name()
             .and_then(|s| s.to_str())
             .ok_or("Invalid Pi candidate name")?
             .to_string();
-        let found = index
-            .bindings
-            .iter()
-            .position(|b| b.root == root && b.fingerprint == fingerprint && b.model == model);
+        let found = index.bindings.iter().position(|b| b.matches(selection));
         let id = found
             .map(|i| index.bindings[i].id.clone())
             .unwrap_or_else(|| candidate_name.trim_end_matches(".jsonl").to_string());
+        let mut lease = self.lease(id, selection.candidate)?;
+        let retired = lease.select(&mut index, found, selection, candidate_name)?;
+        lease
+            .store
+            .publish(&index, previous.as_deref(), &index_lock)?;
+        if let Some((name, identity)) = retired {
+            lease.retire(&name, identity)?;
+        }
+        drop(index_lock);
+        Ok(lease)
+    }
+
+    fn lease(self, id: String, candidate: &Path) -> Result<Lease, String> {
         let lock = private_file(&self.at(&format!("{id}.lock")), true)?;
         lock.try_lock().map_err(|_| {
             "Pi history is active in another editor; disconnect there or disable persistence"
                 .to_string()
         })?;
-        let mut lease = Lease {
+        Ok(Lease {
             store: self,
             id,
             path: candidate.to_owned(),
             _lock: lock,
             observation: None,
-        };
+        })
+    }
+}
+
+type Retired = Option<(String, (u64, u64))>;
+
+impl Lease {
+    fn select(
+        &mut self,
+        index: &mut Index,
+        found: Option<usize>,
+        selection: &Selection<'_>,
+        candidate_name: String,
+    ) -> Result<Retired, String> {
         let mut retired = None;
         if let Some(i) = found {
             let old = &index.bindings[i];
-            lease.path = lease.store.root.join("sessions").join(&old.session);
-            lease.check(!reset)?;
-            if reset {
+            self.path = self.store.root.join("sessions").join(&old.session);
+            self.check(!selection.reset)?;
+            if selection.reset {
                 // Publish the replacement binding before retiring the old owned
                 // file. A failed index write must preserve the previous history.
-                retired = lease.observation.map(|id| (old.session.clone(), id));
-                lease.path = candidate.to_owned();
-                lease.observation = None;
+                retired = self.observation.map(|id| (old.session.clone(), id));
+                self.path = selection.candidate.to_owned();
+                self.observation = None;
                 index.bindings[i].session = candidate_name;
                 index.bindings[i].created = now()?;
                 index.bindings[i].last_used = index.bindings[i].created;
@@ -248,38 +249,34 @@ impl Store {
                 );
             }
             index.bindings.push(Binding {
-                id: lease.id.clone(),
-                root: root.to_owned(),
-                fingerprint: fingerprint.into(),
-                model: model.into(),
+                id: self.id.clone(),
+                root: selection.root.to_owned(),
+                fingerprint: selection.fingerprint.into(),
+                model: selection.model.into(),
                 session: candidate_name,
                 created: now()?,
                 last_used: now()?,
             });
         }
-        lease
-            .store
-            .publish(&index, previous.as_deref(), &index_lock)?;
-        if let Some((name, identity)) = retired {
-            let path = descriptor(&lease.store.sessions).join(name);
-            let file = private_file(&path, false)?;
-            let meta = file
-                .metadata()
-                .map_err(|_| "Pi reset history metadata failed")?;
-            if (meta.dev(), meta.ino()) != identity {
-                return Err("Pi reset history changed; preserve the retired file".into());
-            }
-            fs::remove_file(path).map_err(
-                |_| "Pi replacement binding published, but retired history cleanup failed",
-            )?;
-            lease
-                .store
-                .sessions
-                .sync_all()
-                .map_err(|_| "Pi history reset directory sync failed")?;
+        Ok(retired)
+    }
+
+    fn retire(&self, name: &str, identity: (u64, u64)) -> Result<(), String> {
+        let path = descriptor(&self.store.sessions).join(name);
+        let file = private_file(&path, false)?;
+        let meta = file
+            .metadata()
+            .map_err(|_| "Pi reset history metadata failed")?;
+        if (meta.dev(), meta.ino()) != identity {
+            return Err("Pi reset history changed; preserve the retired file".into());
         }
-        drop(index_lock);
-        Ok(lease)
+        fs::remove_file(path)
+            .map_err(|_| "Pi replacement binding published, but retired history cleanup failed")?;
+        self.store
+            .sessions
+            .sync_all()
+            .map_err(|_| "Pi history reset directory sync failed")?;
+        Ok(())
     }
 }
 
@@ -290,20 +287,31 @@ impl Lease {
         same_file(&self.store.at(&format!("{}.lock", self.id)), &self._lock)?;
         let name = self.path.file_name().ok_or("Pi history name unavailable")?;
         let path = descriptor(&self.store.sessions).join(name);
-        let file = match private_file(&path, false) {
+        let Some(file) = self.open_session(&path, required)? else {
+            return Ok(());
+        };
+        self.observe(&file, required)
+    }
+
+    fn open_session(&self, path: &Path, required: bool) -> Result<Option<File>, String> {
+        let file = match private_file(path, false) {
             Ok(file) => file,
             Err(error) if !required && self.observation.is_none() => {
                 match fs::symlink_metadata(&self.path) {
-                    Err(e) if e.kind() == std::io::ErrorKind::NotFound => return Ok(()),
+                    Err(e) if e.kind() == std::io::ErrorKind::NotFound => return Ok(None),
                     // Pi can create its first history between open and stat.
                     // Reopen through the same strict admission; an observed
                     // history never receives this initial-creation exception.
-                    Ok(_) => private_file(&path, false)?,
+                    Ok(_) => private_file(path, false)?,
                     Err(_) => return Err(error),
                 }
             }
             Err(error) => return Err(error),
         };
+        Ok(Some(file))
+    }
+
+    fn observe(&mut self, file: &File, required: bool) -> Result<(), String> {
         let meta = file.metadata().map_err(|_| "Pi session metadata failed")?;
         if meta.len() >= SESSION_BYTES {
             return Err(
@@ -359,22 +367,9 @@ fn validate(index: &Index) -> Result<(), String> {
         );
     }
     for b in &index.bindings {
-        if b.id.is_empty()
-            || b.id.len() > 96
-            || !b.id.bytes().all(|c| c.is_ascii_alphanumeric() || c == b'-')
-            || !b.root.is_absolute()
-            || b.root.as_os_str().len() > 4096
-            || b.fingerprint.is_empty()
-            || b.fingerprint.len() > 16384
-            || b.model.is_empty()
-            || b.model.len() > 256
-            || !b.session.ends_with(".jsonl")
-            || Path::new(&b.session).components().count() != 1
-            || !matches!(
-                Path::new(&b.session).components().next(),
-                Some(Component::Normal(_))
-            )
-            || b.last_used < b.created
+        if !b.valid_id()
+            || !b.valid_key()
+            || !b.valid_session()
             || !ids.insert(&b.id)
             || !paths.insert(&b.session)
             || !keys.insert((&b.root, &b.fingerprint, &b.model))
@@ -385,6 +380,91 @@ fn validate(index: &Index) -> Result<(), String> {
         }
     }
     Ok(())
+}
+
+impl Index {
+    fn decode(bytes: &[u8]) -> Result<Self, String> {
+        let text = std::str::from_utf8(bytes)
+            .map_err(|_| "Pi binding index is not UTF-8; preserve it and use ephemeral context")?;
+        let index: Self = toml::from_str(text)
+            .map_err(|_| "Pi binding index is invalid; preserve it and disable persistence")?;
+        validate(&index)?;
+        Ok(index)
+    }
+
+    fn encode(&self) -> Result<String, String> {
+        let mut document = toml_edit::DocumentMut::new();
+        document["version"] = toml_edit::value(1);
+        let mut tables = toml_edit::ArrayOfTables::new();
+        for binding in &self.bindings {
+            tables.push(binding.table()?);
+        }
+        document["bindings"] = toml_edit::Item::ArrayOfTables(tables);
+        let text = document.to_string();
+        if text.len() as u64 > INDEX_BYTES {
+            return Err(
+                "Pi binding index exceeds 64 KiB; reset/remove history or disable persistence"
+                    .into(),
+            );
+        }
+        Ok(text)
+    }
+}
+
+impl Binding {
+    fn matches(&self, selection: &Selection<'_>) -> bool {
+        self.root == selection.root
+            && self.fingerprint == selection.fingerprint
+            && self.model == selection.model
+    }
+
+    fn table(&self) -> Result<toml_edit::Table, String> {
+        let mut table = toml_edit::Table::new();
+        for (name, value) in [
+            ("id", self.id.as_str()),
+            ("root", self.root.to_str().ok_or("Pi root is not UTF-8")?),
+            ("fingerprint", self.fingerprint.as_str()),
+            ("model", self.model.as_str()),
+            ("session", self.session.as_str()),
+        ] {
+            table[name] = toml_edit::value(value);
+        }
+        table["created"] = toml_edit::value(
+            i64::try_from(self.created).map_err(|_| "Pi creation timestamp exceeds range")?,
+        );
+        table["last_used"] = toml_edit::value(
+            i64::try_from(self.last_used).map_err(|_| "Pi last-used timestamp exceeds range")?,
+        );
+        Ok(table)
+    }
+
+    fn valid_id(&self) -> bool {
+        !self.id.is_empty()
+            && self.id.len() <= 96
+            && self
+                .id
+                .bytes()
+                .all(|c| c.is_ascii_alphanumeric() || c == b'-')
+    }
+
+    fn valid_key(&self) -> bool {
+        self.root.is_absolute()
+            && self.root.as_os_str().len() <= 4096
+            && !self.fingerprint.is_empty()
+            && self.fingerprint.len() <= 16384
+            && !self.model.is_empty()
+            && self.model.len() <= 256
+    }
+
+    fn valid_session(&self) -> bool {
+        self.session.ends_with(".jsonl")
+            && Path::new(&self.session).components().count() == 1
+            && matches!(
+                Path::new(&self.session).components().next(),
+                Some(Component::Normal(_))
+            )
+            && self.last_used >= self.created
+    }
 }
 fn descriptor(file: &File) -> PathBuf {
     use std::os::fd::AsRawFd;
@@ -410,7 +490,7 @@ fn private_file(path: &Path, create: bool) -> Result<File, String> {
         .create(create)
         .truncate(false)
         .mode(0o600)
-        .custom_flags((OFlags::NOFOLLOW | OFlags::NONBLOCK).bits() as i32)
+        .custom_flags((OFlags::NOFOLLOW | OFlags::NONBLOCK).bits().cast_signed())
         .open(path)
         .map_err(
             |_| "Pi private file is unavailable or linked; preserve it and disable persistence",
@@ -445,28 +525,33 @@ fn private_directory(path: &Path) -> Result<File, String> {
         let Component::Normal(name) = component else {
             return Err("Pi state root contains noncanonical components".into());
         };
-        match rustix::fs::mkdirat(&directory, name, Mode::from_raw_mode(0o700)) {
-            Ok(()) => (),
-            Err(rustix::io::Errno::EXIST) => (),
-            Err(_) => return Err("Pi private directory creation failed".into()),
-        }
-        directory = File::from(
-            rustix::fs::openat(
-                &directory,
-                name,
-                OFlags::RDONLY | OFlags::DIRECTORY | OFlags::NOFOLLOW | OFlags::CLOEXEC,
-                Mode::empty(),
-            )
-            .map_err(|_| "Pi private directory contains an unavailable/link component")?,
-        );
-        let meta = directory
-            .metadata()
-            .map_err(|_| "Pi directory metadata unavailable")?;
-        if meta.mode() & 0o022 != 0 && meta.mode() & 0o1000 == 0 {
-            return Err("Pi state ancestor is writable by other users".into());
-        }
+        directory = open_component(&directory, name)?;
     }
     same(path, &directory)?;
+    Ok(directory)
+}
+
+fn open_component(directory: &File, name: &std::ffi::OsStr) -> Result<File, String> {
+    match rustix::fs::mkdirat(directory, name, Mode::from_raw_mode(0o700)) {
+        Ok(()) => (),
+        Err(rustix::io::Errno::EXIST) => (),
+        Err(_) => return Err("Pi private directory creation failed".into()),
+    }
+    let directory = File::from(
+        rustix::fs::openat(
+            directory,
+            name,
+            OFlags::RDONLY | OFlags::DIRECTORY | OFlags::NOFOLLOW | OFlags::CLOEXEC,
+            Mode::empty(),
+        )
+        .map_err(|_| "Pi private directory contains an unavailable/link component")?,
+    );
+    let meta = directory
+        .metadata()
+        .map_err(|_| "Pi directory metadata unavailable")?;
+    if meta.mode() & 0o022 != 0 && meta.mode() & 0o1000 == 0 {
+        return Err("Pi state ancestor is writable by other users".into());
+    }
     Ok(directory)
 }
 

@@ -20,7 +20,7 @@ impl Cancellation {
 
     pub(crate) fn bounded(&self, deadline: std::time::Instant) -> Self {
         Self {
-            flag: self.flag.clone(),
+            flag: Arc::clone(&self.flag),
             deadline: Some(self.deadline.map_or(deadline, |old| old.min(deadline))),
         }
     }
