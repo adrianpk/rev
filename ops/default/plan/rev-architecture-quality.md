@@ -213,6 +213,16 @@ Findings: F3.
 - T6.2: Keep worker IO away from input/rendering, shared mailboxes intentional, owned process cleanup/cancellation finite and generation-bound; preserve existing environment/credential redaction and terminal restoration.
 - T6.3: Exercise real owned child fixtures and native request/reload/fallback/terminal relocation boundaries without changing protocol capabilities, external configuration or unrelated host processes.
 
+Maintainer-approved compatibility exception: introduce a cohesive native
+`History { state: Option<PathBuf>, reset: bool }` value for the existing
+`Operation::retained` history options, reducing that signature from six parameters
+to five. Adapt its two existing callers in `src/session/ai/capture.rs` and
+`tests/pi/sessions.rs`; define the value in `src/ai/pi.rs`. Preserve Pi protocol,
+session/state formats, process ownership, resource bounds, user commands and all
+existing assertions. This approval applies only to that Rust signature and its
+two callers. It grants no general API changes, additional slices, relaxed source
+limits or deferred slice checks; the frozen commands and full gate remain intact.
+
 Frozen ordered focused checks:
 
 1. `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 bash scripts/check-quality.sh --scope src/ai.rs --scope src/ai --scope src/lsp.rs --scope src/lsp --scope src/process.rs --scope src/process --scope src/shell.rs --scope src/shell --scope src/terminal.rs --scope src/terminal --scope src/session/ai.rs --scope src/session/ai --scope src/session/lsp.rs --scope src/session/lsp --scope src/session/shell.rs --scope src/session/shell --scope src/session/terminals.rs --scope src/session/terminals`
