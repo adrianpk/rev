@@ -75,7 +75,9 @@ impl Session {
                 .settings()
                 .org
                 .time
-                .extend_today_until as u8,
+                .extend_today_until
+                .try_into()
+                .expect("configured Org day cutoff is 0..=23"),
         )?;
         for value in &mut repeat.values {
             value.value = value

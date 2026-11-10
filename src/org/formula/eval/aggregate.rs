@@ -1,7 +1,8 @@
 use super::*;
 use value::scalar;
 struct Aggregate {
-    count: usize,
+    // The admitted work budget permits at most 10,000,000 charged numeric inputs.
+    count: u32,
     sum: f64,
     mean: f64,
     minimum: f64,
@@ -60,7 +61,7 @@ impl Aggregate {
         match function {
             Function::Sum => self.sum = numeric::finite(self.sum + number)?,
             Function::Mean => {
-                let n = self.count as f64;
+                let n = f64::from(self.count);
                 self.mean = numeric::finite(self.mean * ((n - 1.0) / n) + number / n)?;
             }
             Function::Minimum => self.minimum = self.minimum.min(number),

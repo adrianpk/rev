@@ -92,7 +92,10 @@ impl Session {
         }
         let mut limits = self.buffers.snapshot().settings().org.limits.clone();
         if let SourceVersion::Disk(observed) = &target.source.version {
-            limits.agenda_file_bytes = limits.agenda_file_bytes.min(observed.length as usize);
+            // A length above native indices cannot reduce the configured native byte ceiling.
+            limits.agenda_file_bytes = limits
+                .agenda_file_bytes
+                .min(usize::try_from(observed.length).unwrap_or(usize::MAX));
         }
         let navigation = Navigation::prepare(
             &target.source,

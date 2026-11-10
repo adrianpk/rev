@@ -4,7 +4,7 @@ use std::fs::{self, File};
 use std::io::{Read, Write};
 use std::path::{Path, PathBuf};
 
-const LIMIT: u64 = 65536;
+const LIMIT: usize = 65536;
 #[derive(Clone, Debug, PartialEq, Eq, serde::Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct ClockState {
@@ -135,10 +135,10 @@ fn read(path: &Path, expected: Option<&Observation>) -> Result<Option<ClockState
     let mut bytes = Vec::new();
     File::open(path)
         .map_err(|e| e.to_string())?
-        .take(LIMIT + 1)
+        .take(u64::try_from(LIMIT + 1).expect("65537 byte read ceiling fits u64"))
         .read_to_end(&mut bytes)
         .map_err(|e| e.to_string())?;
-    if bytes.len() > LIMIT as usize {
+    if bytes.len() > LIMIT {
         return Err("Org clock state exceeds 65536 bytes".into());
     }
     let text = std::str::from_utf8(&bytes).map_err(|e| e.to_string())?;
@@ -172,7 +172,7 @@ fn prepare_state(clock: Option<&ClockState>) -> Result<String, String> {
         value.validate()?;
     }
     let bytes = format::encode(clock)?;
-    if bytes.len() > LIMIT as usize {
+    if bytes.len() > LIMIT {
         return Err("Org clock state exceeds 65536 bytes".into());
     }
     Ok(bytes)

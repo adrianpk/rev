@@ -56,7 +56,11 @@ impl HabitRecord {
         }
         let past = past::Past::new(self)?;
         let mut cells = Vec::with_capacity(policy.preceding_days + policy.following_days + 1);
-        for offset in -(policy.preceding_days as i64)..=policy.following_days as i64 {
+        let preceding =
+            i64::try_from(policy.preceding_days).expect("admitted past span is <=366 days");
+        let following =
+            i64::try_from(policy.following_days).expect("admitted future span is <=366 days");
+        for offset in -preceding..=following {
             let date = today.add_days(offset)?;
             cells.push(past.cell(date, today, policy.done_always_green)?);
         }

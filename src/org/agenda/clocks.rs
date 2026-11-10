@@ -68,6 +68,10 @@ pub struct ClockSummary {
     pub overlaps: usize,
 }
 impl ClockSummary {
+    #[expect(
+        clippy::cast_precision_loss,
+        reason = "Clock feedback retains Duration's existing floating-point minute display and range checks"
+    )]
     pub fn feedback(&self) -> Result<String, String> {
         let actual = Duration::from_minutes(self.minutes as f64)?.format_clock(false)?;
         let effort = self

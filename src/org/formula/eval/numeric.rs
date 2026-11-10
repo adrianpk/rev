@@ -24,7 +24,8 @@ pub(super) fn binary(operator: Operator, left: f64, right: f64) -> Result<f64, E
     })
 }
 pub(super) fn round(number: f64, places: f64, maximum: usize) -> Result<f64, Error> {
-    if places.fract() != 0.0 || places.abs() > maximum as f64 {
+    let maximum = u8::try_from(maximum).expect("admitted numeric precision is at most 15");
+    if places.fract() != 0.0 || places.abs() > f64::from(maximum) {
         return Err(Error::new(
             ErrorKind::Numeric,
             "round precision must be a bounded integer",
@@ -33,6 +34,10 @@ pub(super) fn round(number: f64, places: f64, maximum: usize) -> Result<f64, Err
     if number.abs() >= 4503599627370496.0 && places >= 0.0 {
         return Ok(number);
     }
+    #[expect(
+        clippy::cast_possible_truncation,
+        reason = "Finite precision is integral and within the admitted -15..=15 range"
+    )]
     let factor = 10f64.powi(places as i32);
     finite(finite(number * factor)?.round() / factor)
 }

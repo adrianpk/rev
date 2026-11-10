@@ -97,10 +97,12 @@ fn cursor(edits: &[Replacement], base: usize, offset: usize) -> Result<usize, St
         .checked_add(offset)
         .ok_or("Org insertion position is exhausted")?;
     for edit in edits.iter().filter(|edit| edit.source.range.start < base) {
+        let added = isize::try_from(edit.text.chars().count())
+            .expect("bounded Org insertion text fits signed offsets");
+        let removed = isize::try_from(edit.source.range.len())
+            .expect("bounded Org insertion source fits signed offsets");
         cursor = cursor
-            .checked_add_signed(
-                edit.text.chars().count() as isize - edit.source.range.len() as isize,
-            )
+            .checked_add_signed(added - removed)
             .ok_or("Org insertion position is exhausted")?;
     }
     Ok(cursor)

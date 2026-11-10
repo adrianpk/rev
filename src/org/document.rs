@@ -91,17 +91,27 @@ impl Document {
         mut edits: Vec<Edit>,
         cursor: Option<(usize, usize)>,
     ) -> Result<Output, String> {
-        let cursor = cursor.map(|(at, offset)| {
-            let delta: isize = edits
-                .iter()
-                .filter(|e| e.bytes.start < at)
-                .map(|e| {
-                    e.text.chars().count() as isize
-                        - self.text.byte_slice(e.bytes.clone()).len_chars() as isize
-                })
-                .sum();
-            (self.text.byte_to_char(at) as isize + delta) as usize + offset
-        });
+        let cursor = cursor
+            .map(|(at, offset)| {
+                let delta: isize = edits
+                    .iter()
+                    .filter(|e| e.bytes.start < at)
+                    .map(|e| {
+                        let added = isize::try_from(e.text.chars().count())
+                            .expect("bounded document replacement fits signed offsets");
+                        let removed =
+                            isize::try_from(self.text.byte_slice(e.bytes.clone()).len_chars())
+                                .expect("bounded document source fits signed offsets");
+                        added - removed
+                    })
+                    .sum();
+                self.text
+                    .byte_to_char(at)
+                    .checked_add_signed(delta)
+                    .and_then(|point| point.checked_add(offset))
+                    .ok_or("Document cursor position is exhausted")
+            })
+            .transpose()?;
         edits.sort_by_key(|e| e.bytes.start);
         for pair in edits.windows(2) {
             if pair[0].bytes.end > pair[1].bytes.start || pair[0].bytes.start == pair[1].bytes.start

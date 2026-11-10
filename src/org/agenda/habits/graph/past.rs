@@ -83,7 +83,11 @@ fn history(
     let mut result = Vec::with_capacity(dates.len());
     for (i, done) in dates.iter().enumerate() {
         let value = match mode {
-            RepeatMode::Once => scheduled.add_days(-((dates.len() - i - 1) as i64) * period)?,
+            RepeatMode::Once => {
+                let remaining = i64::try_from(dates.len() - i - 1)
+                    .expect("admitted habit history has at most 4096 completions");
+                scheduled.add_days(-remaining * period)?
+            }
             RepeatMode::Restart => done.add_days(period)?,
             RepeatMode::CatchUp => {
                 if i > 0 {

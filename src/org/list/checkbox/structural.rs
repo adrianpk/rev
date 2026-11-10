@@ -153,11 +153,13 @@ fn shift_cursor(
             .iter()
             .filter(|edit| edit.source.range.start < point.0)
         {
+            let added = isize::try_from(edit.text.chars().count())
+                .expect("bounded Org statistics text fits signed offsets");
+            let removed = isize::try_from(edit.source.range.len())
+                .expect("bounded Org statistics source fits signed offsets");
             cursor.0 = cursor
                 .0
-                .checked_add_signed(
-                    edit.text.chars().count() as isize - edit.source.range.len() as isize,
-                )
+                .checked_add_signed(added - removed)
                 .ok_or("Org insertion position is exhausted")?;
         }
     }

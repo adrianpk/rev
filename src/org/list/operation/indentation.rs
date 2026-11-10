@@ -36,11 +36,11 @@ impl Lists {
             return Err("Org item is already at its outermost level".into());
         }
         let end = self.item_end(index, whole, tree);
-        let edits = indentation(
-            buffer,
-            item.source.start..end,
-            target as isize - item.indent as isize,
-        )?;
+        let target =
+            isize::try_from(target).expect("bounded Org list indentation fits signed offsets");
+        let indent = isize::try_from(item.indent)
+            .expect("observed Org list indentation fits signed offsets");
+        let edits = indentation(buffer, item.source.start..end, target - indent)?;
         Ok(ListEdit {
             edits,
             order: Vec::new(),

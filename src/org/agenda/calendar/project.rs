@@ -219,8 +219,8 @@ fn push(
 }
 pub(super) fn lines(view: &Calendar) -> Vec<CalendarLine> {
     let mut lines = Vec::new();
-    for offset in 0..view.query.days() {
-        let Ok(date) = view.query.start.add_days(offset as i64) else {
+    for offset in 0..view.query.span_days() {
+        let Ok(date) = view.query.start.add_days(i64::from(offset)) else {
             break;
         };
         lines.push(CalendarLine::Date(date));

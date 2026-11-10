@@ -11,7 +11,8 @@ pub(in crate::org::formula::eval) fn format(
                 "fixed precision exceeds numeric policy",
             ));
         }
-        let rounded = round(value, places as f64, policy.decimal_places)?;
+        let precision = u8::try_from(places).expect("admitted fixed precision is at most 15");
+        let rounded = round(value, f64::from(precision), policy.decimal_places)?;
         let normalized = if rounded == 0.0 { 0.0 } else { rounded };
         format!("{normalized:.places$}")
     } else {
@@ -32,10 +33,11 @@ fn significant(value: f64, digits: usize) -> Result<String, Error> {
         .split_once('e')
         .expect("native scientific spelling");
     let mut exponent: i32 = exponent.parse().expect("native decimal exponent");
-    let places = digits - 1;
+    let digits = u8::try_from(digits).expect("admitted significant precision is 1..=15");
+    let places = usize::from(digits - 1);
     let mut mantissa = round(
         mantissa.parse().expect("native mantissa"),
-        places as f64,
+        f64::from(digits - 1),
         15,
     )?;
     if mantissa >= 10.0 {
@@ -44,7 +46,7 @@ fn significant(value: f64, digits: usize) -> Result<String, Error> {
     }
     let coefficient = format!("{mantissa:.places$}").replace('.', "");
     let coefficient = coefficient.trim_end_matches('0');
-    let body = if exponent >= -4 && exponent < digits as i32 {
+    let body = if exponent >= -4 && exponent < i32::from(digits) {
         fixed(coefficient, exponent)
     } else {
         scientific_text(coefficient, exponent)
@@ -58,9 +60,11 @@ fn significant(value: f64, digits: usize) -> Result<String, Error> {
 fn fixed(coefficient: &str, exponent: i32) -> String {
     let point = exponent + 1;
     if point <= 0 {
-        return format!("0.{}{coefficient}", "0".repeat((-point) as usize));
+        let padding =
+            usize::try_from(-point).expect("nonpositive decimal point has finite padding");
+        return format!("0.{}{coefficient}", "0".repeat(padding));
     }
-    let point = point as usize;
+    let point = usize::try_from(point).expect("positive native decimal point fits source indices");
     if point >= coefficient.len() {
         return format!("{coefficient}{}", "0".repeat(point - coefficient.len()));
     }

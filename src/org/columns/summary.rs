@@ -13,6 +13,10 @@ pub(super) fn level(row: &QueryRow) -> usize {
         .and_then(|v| v.parse().ok())
         .unwrap_or(1)
 }
+#[expect(
+    clippy::cast_precision_loss,
+    reason = "CLOCKSUM retains Duration's existing floating-point minute display and range checks"
+)]
 pub(super) fn clocks(
     result: &mut QueryResult,
     rows: &[ClockRow],

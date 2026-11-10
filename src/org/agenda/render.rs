@@ -76,6 +76,10 @@ impl ClockSummary {
         Ok(totals)
     }
 }
+#[expect(
+    clippy::cast_precision_loss,
+    reason = "Clocktable display retains Duration's existing floating-point minute rounding and range checks"
+)]
 fn clock(minutes: u64) -> Result<String, String> {
     Duration::from_minutes(minutes as f64)?.format_clock(false)
 }

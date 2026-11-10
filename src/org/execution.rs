@@ -73,8 +73,12 @@ impl Work {
             scan: input.scan.clone(),
             directory: source_directory(input.source_path.as_deref(), profile.cwd)?,
             input,
-            seconds: (profile.seconds as usize).min(policy.job_seconds),
-            output_bytes: (profile.output_bytes as usize).min(policy.job_output_bytes),
+            seconds: usize::try_from(profile.seconds)
+                .expect("validated source duration is 1..=600 seconds")
+                .min(policy.job_seconds),
+            output_bytes: usize::try_from(profile.output_bytes)
+                .expect("validated source output is at most 16 MiB")
+                .min(policy.job_output_bytes),
             expansion_bytes: policy.expansion_bytes,
             definition,
             profile,

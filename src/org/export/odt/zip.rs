@@ -62,7 +62,9 @@ impl Zip<'_> {
         for value in [e.crc, e.size, e.size] {
             self.integer(value)?;
         }
-        self.word(e.name.len() as u16)?;
+        self.word(
+            u16::try_from(e.name.len()).map_err(|_| "ODT ZIP member name exceeds 65535 bytes")?,
+        )?;
         self.word(0)
     }
     fn member(&mut self, name: &'static str, data: &[u8]) -> Result<Entry, String> {
@@ -116,6 +118,10 @@ const fn table() -> [u32; 256] {
     let mut table = [0; 256];
     let mut at = 0;
     while at < 256 {
+        #[expect(
+            clippy::cast_possible_truncation,
+            reason = "The fixed CRC table loop admits only indices 0..256"
+        )]
         let mut value = at as u32;
         let mut bit = 0;
         while bit < 8 {

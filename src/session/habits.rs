@@ -25,8 +25,9 @@ impl Session {
             policy.habit = state.policy.clone()
         }
         let operation = self.org_clock.unwrap_or(outline::timestamps::capture)(&policy.time)?;
-        let today = crate::org::time::OrgDay::new(policy.time.extend_today_until as u8)?
-            .date_at(operation.now())?;
+        let cutoff = u8::try_from(policy.time.extend_today_until)
+            .expect("configured Org day cutoff is 0..=23");
+        let today = crate::org::time::OrgDay::new(cutoff)?.date_at(operation.now())?;
         let scan = model.habit_scan(self.buffer().map_err(|e| e.to_string())?, today, &policy)?;
         self.org
             .start_report(request, outline::reports::Work::Habits(scan), operation)?;
