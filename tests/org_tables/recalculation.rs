@@ -5,7 +5,7 @@ fn readonly_editor(source: &str) -> (Fixture, Session) {
     let id = buffers.visit(&f.write("notes.org", source)).unwrap();
     buffers.get_mut(id).unwrap().set_readonly(true);
     let view = View::new(buffers.get(id).unwrap());
-    let s = Session::new(
+    let mut s = Session::new(
         buffers,
         view,
         Size {
@@ -14,6 +14,7 @@ fn readonly_editor(source: &str) -> (Fixture, Session) {
         },
     )
     .unwrap();
+    settle(&mut s);
     (f, s)
 }
 // Explicit whole-table recalculation changes result text only, uses a single

@@ -57,8 +57,11 @@ impl Buffer {
 }
 
 impl Buffer {
+    /// Derived styles are available only when syntax policy admits coloring.
     pub fn org_highlights(&self) -> Option<&crate::org::Highlights> {
-        self.org_highlights.as_ref()
+        self.org_highlights
+            .as_ref()
+            .filter(|_| self.org_colors_admitted())
     }
 
     pub fn org_captures(&self, bytes: std::ops::Range<usize>) -> Vec<crate::syntax::Capture> {

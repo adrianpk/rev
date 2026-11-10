@@ -181,7 +181,8 @@ fn incomplete_visibility() {
 #[test]
 fn retired_requests() {
     for name in ["edit", "prompt", "mode"] {
-        let (_fixture, mut session) = editor("syntax.enabled = false", "notes.org", OUTLINE);
+        let (_fixture, mut session) =
+            unobserved_editor("syntax.enabled = false", "notes.org", OUTLINE);
         session.execute(Command::Org(OrgCommand::Overview));
         match name {
             "edit" => {
@@ -226,7 +227,7 @@ fn startup_lifetime_visibility() {
             vec![0, 1, 3, 4, 5, 6],
         ),
     ] {
-        let (fixture, mut session) = editor(
+        let (fixture, mut session) = unobserved_editor(
             "syntax.enabled=false\norg.startup_folded='overview'",
             "notes.org",
             source,

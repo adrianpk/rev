@@ -121,6 +121,7 @@ fn readonly_tables() {
             },
         )
         .unwrap();
+        settle(&mut s);
         at(&mut s, 2);
         let before = s.view().clone();
         action(&mut s, C::TableNextField);

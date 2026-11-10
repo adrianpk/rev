@@ -26,6 +26,7 @@ fn timestamp_readonly() {
     )
     .unwrap()
     .with_org_clock(clock);
+    settle(&mut session);
     let origin = session.view().clone();
     for command in [
         C::Timestamp,

@@ -57,6 +57,7 @@ fn readonly_properties() {
         },
     )
     .unwrap();
+    settle(&mut session);
     for command in [
         OrgCommand::SetProperty,
         OrgCommand::DeleteProperty,

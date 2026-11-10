@@ -26,7 +26,7 @@ fn configured(program: &str, limits: &str) -> (Fixture, Session) {
     let source = f.write("source.org", SOURCE);
     let id = buffers.visit(&source).unwrap();
     let view = View::new(buffers.get(id).unwrap());
-    let session = Session::new(
+    let mut session = Session::new(
         buffers,
         view,
         Size {
@@ -64,6 +64,7 @@ elif mode != 'missing': pathlib.Path(target).write_bytes({PDF:?})
             "b'%PDF-1.7\\nfixture \\xff\\n%%EOF\\n'",
         ),
     );
+    settle(&mut session);
     (f, session)
 }
 fn cleaned(f: &Fixture) {

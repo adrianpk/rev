@@ -68,6 +68,7 @@ fn document_readonly() {
             },
         )
         .unwrap();
+        settle(&mut s);
         let before = s.view().clone();
         action(&mut s, command);
         for draft in drafts {

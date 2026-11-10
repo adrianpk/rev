@@ -21,7 +21,7 @@ pub(super) fn configured_readonly(
     let id = buffers.visit(&f.write("source.org", source)).unwrap();
     buffers.get_mut(id).unwrap().set_readonly(readonly);
     let view = View::new(buffers.get(id).unwrap());
-    let s = Session::new(
+    let mut s = Session::new(
         buffers,
         view,
         Size {
@@ -30,6 +30,7 @@ pub(super) fn configured_readonly(
         },
     )
     .unwrap();
+    settle(&mut s);
     (f, s)
 }
 const SOURCE: &str = "#+BEGIN_SRC sh\nprintf started > marker\nprintf '%s' \"$HOME\" > home\nprintf 'hello 界'; printf 'warning' >&2\n#+END_SRC\n#+RESULTS:\n: previous\n";

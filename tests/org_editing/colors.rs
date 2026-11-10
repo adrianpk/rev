@@ -2,6 +2,7 @@ use rev::command::{History, Motion};
 use rev::coordinates::Coordinates;
 use rev::org::{Cancellation, ColorScan, Coverage, Limits};
 
+use super::unobserved_editor as editor;
 use super::*;
 
 fn current(session: &mut Session) {

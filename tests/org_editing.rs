@@ -69,6 +69,13 @@ use rev::view::{Size, View};
 use fixture::Fixture;
 
 fn editor(config: &str, name: &str, source: &str) -> (Fixture, Session) {
+    let (fixture, mut session) = unobserved_editor(config, name, source);
+    settle(&mut session);
+    (fixture, session)
+}
+
+// Cancellation and coloring tests explicitly own the initial observation.
+fn unobserved_editor(config: &str, name: &str, source: &str) -> (Fixture, Session) {
     let fixture = Fixture::new();
     let startup = prepare(&fixture.write("config.toml", config));
     assert!(startup.diagnostic.is_none(), "{:?}", startup.diagnostic);

@@ -84,6 +84,7 @@ fn readonly_tags() {
         },
     )
     .unwrap();
+    settle(&mut session);
     for command in [OrgCommand::SetTags, OrgCommand::RemoveTag] {
         let before = session.view().clone();
         action(&mut session, command);

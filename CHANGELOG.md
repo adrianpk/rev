@@ -114,6 +114,10 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 
 ### Fixed
 
+- Agenda source edits and saved-clock recovery keep their captured views stable
+  while initial Org observation completes. Syntax coloring stays disabled when
+  configured, including when folding still needs structural observation.
+
 - Enter runs the highlighted command in M-x and modal colon even when the query
   is empty. Repeat the latest named command directly without completing its name
   with Tab first.

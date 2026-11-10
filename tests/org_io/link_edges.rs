@@ -124,6 +124,7 @@ fn links_canonical_readonly() {
         },
     )
     .unwrap();
+    settle(&mut s);
     unchanged(&mut s, C::InsertLink, "read-only");
     action(&mut s, C::StoreLink);
     assert!(s.echo().contains("stored"));

@@ -41,7 +41,7 @@ fn host(fixture: &Fixture, path: Option<&Path>, persist: bool) -> Session {
         .map(|p| buffers.visit(p).unwrap())
         .unwrap_or(buffers.initial());
     let view = View::new(buffers.get(id).unwrap());
-    Session::new(
+    let mut session = Session::new(
         buffers,
         view,
         Size {
@@ -50,7 +50,9 @@ fn host(fixture: &Fixture, path: Option<&Path>, persist: bool) -> Session {
         },
     )
     .unwrap()
-    .with_org_clock(clock)
+    .with_org_clock(clock);
+    settle(&mut session);
+    session
 }
 fn settle(session: &mut Session) {
     let deadline = Instant::now() + Duration::from_secs(5);
@@ -65,6 +67,7 @@ fn settle(session: &mut Session) {
     }
 }
 fn action(session: &mut Session, command: C) {
+    settle(session);
     session.execute(Command::Org(command));
     settle(session);
 }

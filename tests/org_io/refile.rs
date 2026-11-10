@@ -8,7 +8,7 @@ pub(super) fn editor(source: &str, destination: &str) -> (Fixture, Session) {
     let mut buffers = Buffers::with_settings(startup.snapshot).unwrap();
     let id = buffers.visit(&fixture.write("source.org", source)).unwrap();
     let view = View::new(buffers.get(id).unwrap());
-    let session = Session::new(
+    let mut session = Session::new(
         buffers,
         view,
         Size {
@@ -17,6 +17,7 @@ pub(super) fn editor(source: &str, destination: &str) -> (Fixture, Session) {
         },
     )
     .unwrap();
+    settle(&mut session);
     (fixture, session)
 }
 // Native refile publishes both actual owners together, creates no disk writes,

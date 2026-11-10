@@ -81,7 +81,7 @@ fn direct_choices() {
 // intent. A new explicit request after cancellation can reuse the one owned slot.
 #[test]
 fn pending_controls() {
-    let (_fixture, mut session) = editor("syntax.enabled = false", "notes.org", OUTLINE);
+    let (_fixture, mut session) = unobserved_editor("syntax.enabled = false", "notes.org", OUTLINE);
     session.execute(Command::Org(OrgCommand::Overview));
     assert!(session.remaining_input(Instant::now()).is_some());
     session.execute(Command::KeyboardQuit);

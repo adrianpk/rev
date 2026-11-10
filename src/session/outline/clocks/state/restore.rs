@@ -30,6 +30,9 @@ impl Session {
             position: crate::coordinates::Scalar(record.heading),
         };
         self.place_point(owner).map_err(|e| e.to_string())?;
+        // Explicit recovery owns this location before its asynchronous prompt;
+        // a later startup fold must not invalidate the captured source view.
+        self.windows.selected_mut().suppress_org_startup();
         self.clock_recovery_pin = Some(record);
         Ok(self.org_command(OrgCommand::ResolveClocks))
     }

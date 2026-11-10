@@ -42,7 +42,7 @@ fn editor(config: &str, source: &str) -> (Fixture, Session) {
     let mut buffers = Buffers::with_settings(startup.snapshot).unwrap();
     let id = buffers.visit(&f.write("notes.org", source)).unwrap();
     let view = View::new(buffers.get(id).unwrap());
-    let s = Session::new(
+    let mut s = Session::new(
         buffers,
         view,
         Size {
@@ -51,6 +51,7 @@ fn editor(config: &str, source: &str) -> (Fixture, Session) {
         },
     )
     .unwrap();
+    settle(&mut s);
     (f, s)
 }
 fn key(code: KeyCode) -> Event {
@@ -69,6 +70,7 @@ fn settle(s: &mut Session) {
     }
 }
 fn action(s: &mut Session, command: C) {
+    settle(s);
     s.execute(Command::Org(command));
     settle(s);
 }

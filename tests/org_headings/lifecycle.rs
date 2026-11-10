@@ -117,7 +117,7 @@ fn cancelled_observation() {
         "syntax.enabled=false\norg.headings.pretty=false",
         "** Heading\n",
     );
-    settle(&mut session);
+    // Keep the initial observation pending so cancellation still owns live work.
     toggle(&mut session);
     session.frame().unwrap();
     assert!(session.remaining_input(Instant::now()).is_some());

@@ -181,7 +181,8 @@ fn shared_history() {
 #[test]
 fn retired_insertions() {
     for event in ["cancel", "edit", "view"] {
-        let (_fixture, mut session) = editor("syntax.enabled = false", "notes.org", OUTLINE);
+        let (_fixture, mut session) =
+            unobserved_editor("syntax.enabled = false", "notes.org", OUTLINE);
         session.execute(Command::Split(Split::Right));
         session.execute(Command::Org(OrgCommand::MetaReturn));
         match event {

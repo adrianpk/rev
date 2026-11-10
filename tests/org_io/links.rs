@@ -8,7 +8,7 @@ pub(super) fn editor(config: &str, source: &str, destination: &str) -> (Fixture,
     let mut buffers = Buffers::with_settings(startup.snapshot).unwrap();
     let id = buffers.visit(&f.write("source.org", source)).unwrap();
     let view = View::new(buffers.get(id).unwrap());
-    let session = Session::new(
+    let mut session = Session::new(
         buffers,
         view,
         Size {
@@ -17,6 +17,7 @@ pub(super) fn editor(config: &str, source: &str, destination: &str) -> (Fixture,
         },
     )
     .unwrap();
+    settle(&mut session);
     (f, session)
 }
 pub(super) fn line(session: &mut Session, value: &str) {

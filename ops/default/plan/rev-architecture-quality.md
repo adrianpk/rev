@@ -245,9 +245,41 @@ existing entrypoints in `tests/org_agenda.rs`, `tests/org_editing.rs`,
 `tests/org_tables.rs` and `tests/org_io.rs` before stable-view snapshots or
 stable-context commands. Preserve test inputs, assertions, explicit in-flight
 and cancellation scenarios, runtime freshness guards, timeouts, resource budgets
-and every frozen check. This authority is limited to fixture preparation in
-these four entrypoints; it grants no weaker assertions, runtime guard changes,
-new slices or deferral of failing slice checks to the final gate.
+and every frozen check. Fixture authority is limited to initial-observation
+preparation and preserving explicit unobserved scenarios; it grants no weaker
+assertions, runtime guard changes, new slices or deferral of failing slice checks
+to the final gate.
+
+Preserve explicit initial-observation scenarios with an unobserved fixture
+constructor in the coloring, retired-insertion and pending-visibility cases.
+Read-only document/property/tag/timestamp cases finish initial observation before
+taking their unchanged-view snapshots. These lifecycle adjustments affect only
+`tests/org_editing/colors.rs`, `heading_edges.rs`, `document_edges.rs`,
+`property_edges.rs`, `tag_edges.rs`, `timestamp_edges.rs`, `visibility.rs` and
+`visibility_reveal.rs`; all original assertions and negative cases remain intact.
+Keep `tests/org_headings/lifecycle.rs`'s canceled-observation case unobserved
+until explicit re-enablement starts its worker; preserve every cancellation,
+presentation, source/history and idle assertion.
+
+Complete the same preparation in the shared `links`, `refile`, `execution` and
+`tex_jobs` constructors under `tests/org_io/`, and in the read-only `edges` and
+`recalculation` constructors under `tests/org_tables/`. Prepare the existing
+read-only canonical link fixture in `tests/org_io/link_edges.rs` before its
+unchanged-view snapshot. Their source, output,
+publication, cancellation and unchanged-view assertions remain intact.
+
+The existing T7.2 preparation boundary also covers the temporary source view
+used by agenda actions in `src/session/agenda_actions/execute.rs`. Keep that
+addressed internal view independent of document-startup folding before its
+command captures the source/view snapshot. Preserve the saved home view and
+the unchanged runtime freshness comparisons and cancellation behavior.
+
+Apply the same explicit-location preparation to saved-clock recovery in
+`src/session/outline/clocks/state/restore.rs`. Keep source/file/interval checks
+unchanged. In `src/buffer/org.rs`, keep native style observations unavailable
+when syntax policy rejects coloring, even if structural observation is needed
+for initial visibility. Preserve the getter signature and the structural cache;
+validate this core owner explicitly in addition to every frozen command.
 
 Frozen ordered focused checks:
 

@@ -160,7 +160,27 @@ compatible.
 
 ## Validation
 
-Working-tree cohort results follow; canonical PR preparation and exact clean-HEAD
+Maintainer-approved lifecycle recovery:
+
+- Stable Org fixtures now finish initial observation before capturing view
+  snapshots or issuing stable-context commands. Explicit coloring, cancellation,
+  retired-insertion and pending-visibility cases use an unobserved constructor
+  or retain their initial live work. No assertion, input, timeout or resource
+  ceiling is weakened.
+- Agenda actions and stored-clock recovery suppress document startup folding
+  for their explicitly addressed views before capturing request authority.
+  The original view, source/file checks and runtime freshness comparisons remain.
+- Native styles honor syntax admission while initial visibility can still use
+  cached structural observation.
+- Passed working-tree cohort: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --test org_agenda -- --test-threads=1`. All 97 cases pass, including the 28 failures in the retained controller batch.
+- Failed focused batch with partial passes: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --test org_editing --test org_io --test org_tables --no-fail-fast -- colors:: retired_insertions pending_controls retired_requests startup_lifetime_visibility document_readonly readonly_properties readonly_tags timestamp_readonly attachments_ execute_admission clock_recovery_mismatch link odt_failed_output refile_ clock_restart tex_job_ text_export_failed_output readonly_tables recalculation_preservation --test-threads=1`. Editing passes 12 cases and tables pass two; IO passes 38, with one read-only canonical-view setup failure corrected next.
+- Passed corrective rerun: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --test org_io -- --exact link_edges::links_canonical_readonly --test-threads=1`. The remaining IO case passes after preparing its unchanged-view baseline.
+- Passed working-tree cohort: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --test org_headings -- --test-threads=1`. All 16 cases pass, including the retained canceled-observation failure.
+- Passed additional owner check: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 bash scripts/check-quality.sh --scope src/buffer/org.rs --scope src/session/agenda_actions/execute.rs --scope src/session/outline/clocks/state/restore.rs`. Formatting, compilation, selected Clippy admission and native source limits pass; there are zero blocking diagnostics in these owners and 377 selected-profile diagnostics deferred outside the selection.
+
+These focused results do not replace the unchanged eight-target native command
+or the complete ordered clean-HEAD slice validation. Historical working-tree
+cohort results follow; canonical PR preparation and exact clean-HEAD
 Looper evidence remain pending. Agenda/editing failures below are retained
 from their recorded cohorts; focused checks do not certify the frozen
 eight-target native command. The session cohort reruns the frozen native command,
@@ -199,22 +219,13 @@ replace the frozen native command or certify the retained agenda/editing failure
 
 ## Risks and Follow-ups
 
-Selected lint and source-policy findings are corrected. The frozen native
-command retains 26 agenda failures, all named in the recorded unchanged-source
-baseline. Failure-set variation across runs remains unresolved. Recorded editing
-failures include source/view-freshness and publication rejections. The focused
-interchange rejection still compares an uninitialized expected view with completed
-initial observation; no assertion or runtime freshness guard has been changed.
-The earlier 16 table, 38 IO and one heading failures remain unclassified against
-the retained checkpoint. Their resolution remains pending; no fixture or runtime
-interaction correction is included in this cohort.
-
-A bounded scope decision is needed before correcting retained fixture lifecycle
-or interaction failures. The proposed fixture correction is to complete initial
-Org observation before stable-view snapshots or stable-context commands in the
-existing agenda/editing/table/IO fixture entrypoints, while keeping explicit
-in-flight/cancellation scenarios, assertions, inputs, deadlines and all frozen
-checks intact. This proposal has not been applied or validated.
+The initial-observation correction is approved and implemented, including the
+shared fixture constructors and explicit pending-work cases needed to preserve
+coverage. Agenda, heading and selected editing/IO/table recovery cohorts pass.
+Historical failures above remain recorded; these focused results do not certify
+every case in the complete frozen native command. The additional core style
+owner passes its scoped check; all original slice commands still require their
+final recorded checks on the published clean HEAD.
 
 Canonical PR preparation and exact clean-HEAD validation require all original
 frozen checks to pass. The controller owns merge, full delivery-set validation

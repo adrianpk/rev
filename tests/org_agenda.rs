@@ -22,7 +22,7 @@ fn editor(config: &str, name: &str, source: &str) -> (Fixture, Session) {
     let mut buffers = Buffers::with_settings(startup.snapshot).unwrap();
     let id = buffers.visit(&fixture.write(name, source)).unwrap();
     let view = View::new(buffers.get(id).unwrap());
-    let session = Session::new(
+    let mut session = Session::new(
         buffers,
         view,
         Size {
@@ -31,6 +31,7 @@ fn editor(config: &str, name: &str, source: &str) -> (Fixture, Session) {
         },
     )
     .unwrap();
+    settle(&mut session);
     (fixture, session)
 }
 
@@ -60,6 +61,7 @@ fn settle(session: &mut Session) {
 }
 
 fn action(session: &mut Session, command: OrgCommand) {
+    settle(session);
     session.execute(Command::Org(command));
     settle(session);
 }

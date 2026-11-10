@@ -42,6 +42,9 @@ impl Session {
             return Err("buffer is read-only".into());
         }
         self.windows.retain_view(buffer, point)?;
+        // Keep this temporary addressed view stable when the command captures
+        // its authority, including while initial observation is still pending.
+        self.windows.selected_mut().suppress_org_startup();
         Ok(point.stamp)
     }
     pub(super) fn finish_agenda_target(&mut self, run: &mut Run) {
