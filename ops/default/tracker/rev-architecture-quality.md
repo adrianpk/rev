@@ -131,7 +131,7 @@ Decision: implemented the maintainer-approved Slice 6 `History { state: Option<P
 State: in progress
 Dependency: Slice 6 integrated
 Branch: refactor/rev-architecture-quality-07-org
-PR: pending
+PR: #21 - https://forge.adrianpk.com/rev/rev/pulls/21
 Report: ops/default/report/slices/rev-architecture-quality/slice-7-org.md
 Decision: maintainer approved the initial-observation correction; the plan records shared stable/unobserved fixture preparation, addressed-view initialization and syntax-policy preservation. The correction is implemented with assertions, in-flight/cancellation cases, guards, deadlines and budgets intact; all frozen working-tree commands pass; final PR-head evidence remains required before handoff.
 Progress: all four source findings are corrected across 431 selected files; native preparation borrows inspected inputs, custom agenda publication retains the supplied view without a second clone, and native numeric widths preserve admitted ranges and resource ceilings; session preparation borrows inspected inputs while prompts/jobs retain their existing owners; table export moves its checked target into the save; selected Clippy diagnostics decrease from 316 to zero, with 377 deferred outside this slice
