@@ -41,9 +41,13 @@ impl Outline {
             "LEVEL" => Ok(Some(self.headings[index].level.to_string())),
             "PRIORITY" => self.match_priority(index, policy).map(Some),
             "TAGS" => Ok(tag_text(
-                header.local.iter().map(|t| t.name.clone()).collect(),
+                &header
+                    .local
+                    .iter()
+                    .map(|t| t.name.clone())
+                    .collect::<Vec<_>>(),
             )),
-            "ALLTAGS" => Ok(tag_text(self.tag_membership(index, policy.tags.inherit))),
+            "ALLTAGS" => Ok(tag_text(&self.tag_membership(index, policy.tags.inherit))),
             "ITEM" => self.match_title(buffer, index, policy).map(Some),
             _ => self.match_stored_property(buffer, index, key, policy),
         }
@@ -109,6 +113,6 @@ impl Outline {
     }
 }
 
-fn tag_text(names: Vec<String>) -> Option<String> {
+fn tag_text(names: &[String]) -> Option<String> {
     (!names.is_empty()).then(|| format!(":{}:", names.join(":")))
 }

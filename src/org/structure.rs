@@ -137,14 +137,14 @@ impl Structure {
             len: self.nodes.len(),
         })?;
         qualify(
-            Source::new(buffer),
+            &Source::new(buffer),
             raw,
             self.coverage == Coverage::Complete,
         )
     }
 }
 
-fn qualify(source: Source<'_>, raw: &Raw, complete: bool) -> Result<StructureNode, Error> {
+fn qualify(source: &Source<'_>, raw: &Raw, complete: bool) -> Result<StructureNode, Error> {
     let span = |range: &Range<usize>| source.range(Byte(range.start)..Byte(range.end));
     Ok(StructureNode {
         kind: raw.kind,

@@ -12,7 +12,7 @@ impl Snapshot {
         let target = table.destination(position, command, self.newline)?;
         table.finish()?;
         let layout = self.layout(&table, cancel)?;
-        let mut plan = self.plan(&table, layout, target)?;
+        let mut plan = self.plan(&table, &layout, target)?;
         if table.rows.len() != rows {
             self.rewrite(&table, dimensions, &mut plan, cancel)?;
         }
@@ -50,7 +50,7 @@ impl Snapshot {
         )?;
         self.plan(
             &table,
-            layout,
+            &layout,
             Position {
                 row: 0,
                 column: 0,

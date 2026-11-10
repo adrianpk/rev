@@ -149,13 +149,13 @@ impl Resolve {
     }
     pub(crate) fn run(self, cancel: &Cancellation) -> Result<Navigation, String> {
         match self {
-            Self::Selected(attachment, work) => selected_attachment(attachment, *work, cancel),
+            Self::Selected(attachment, work) => selected_attachment(&attachment, *work, cancel),
             Self::Sources {
                 scan,
                 search,
                 id,
                 policy,
-            } => sources(*scan, search, id, &policy, cancel),
+            } => sources(*scan, &search, id.as_deref(), &policy, cancel),
             Self::File {
                 read,
                 search,
@@ -179,8 +179,8 @@ impl Resolve {
 }
 fn sources(
     scan: SourceScan,
-    search: String,
-    id: Option<String>,
+    search: &str,
+    id: Option<&str>,
     policy: &crate::config::Org,
     cancel: &Cancellation,
 ) -> Result<Navigation, String> {
@@ -194,7 +194,7 @@ fn sources(
             return Err("Link resolution cancelled".into());
         }
         let doc = Document::observe(source.snapshot(), policy, cancel)?;
-        let scope = if let Some(id) = &id {
+        let scope = if let Some(id) = id {
             let Some(scope) = doc.id_scope(id)? else {
                 continue;
             };
@@ -202,7 +202,7 @@ fn sources(
         } else {
             0..source.text().len_bytes()
         };
-        let byte = doc.resolve(&search, scope)?;
+        let byte = doc.resolve(search, scope)?;
         matches.push(Navigation {
             destination: crate::org::refile::Destination::Agenda(source),
             byte,
@@ -224,7 +224,7 @@ pub(crate) fn contained(path: &Path, root: Option<&Path>) -> Result<(), String> 
 }
 
 fn selected_attachment(
-    attachment: crate::org::attachment::Selected,
+    attachment: &crate::org::attachment::Selected,
     work: Resolve,
     cancel: &Cancellation,
 ) -> Result<Navigation, String> {

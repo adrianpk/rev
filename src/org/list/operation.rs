@@ -42,7 +42,7 @@ impl Outline {
         let plan = self.lists.edit(buffer, index, command, point)?;
         self.lists.structural_progress(
             buffer,
-            super::Target {
+            &super::Target {
                 index,
                 command,
                 point,

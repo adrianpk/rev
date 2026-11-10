@@ -17,7 +17,7 @@ pub(crate) struct Plan {
 }
 impl Plan {
     pub(crate) fn prepare(
-        context: Context,
+        context: &Context,
         path: &str,
         method: Method,
         cancel: &Cancellation,
@@ -25,7 +25,7 @@ impl Plan {
         if cancel.is_cancelled() {
             return Err("Attachment selection cancelled".into());
         }
-        let selected = Selected::observe(&context, path)?;
+        let selected = Selected::observe(context, path)?;
         let source = selected.source;
         let source_parent = selected.parent;
         let observed = selected.observed;

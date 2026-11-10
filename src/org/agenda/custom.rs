@@ -35,7 +35,7 @@ impl CustomView {
             issues: sources.issues.clone(),
             truncated: sources.truncated,
             cancelled: sources.cancelled,
-            view: Some(view.clone()),
+            view: None,
             baseline: Some(view.clone()),
             bytes: 0,
         };
@@ -43,6 +43,7 @@ impl CustomView {
         output.cancelled |= bounded.is_cancelled() && !bounded.expired();
         output.truncated |= bounded.expired();
         output.lines = rows::lines(&view, &output.rows);
+        output.view = Some(view);
         Ok(output)
     }
 }

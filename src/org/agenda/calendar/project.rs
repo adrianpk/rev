@@ -94,7 +94,7 @@ fn range_rows(view: &mut Calendar, event: &Event, value: &TimestampRange) -> Res
                 })
                 .flatten(),
         };
-        push(view, event, date, event.kind, times)?;
+        push(view, event, date, event.kind, &times)?;
         if date == end {
             break;
         }
@@ -110,7 +110,7 @@ fn planning(view: &mut Calendar, event: &Event) -> Result<(), String> {
             event,
             stamp.date(),
             event.kind,
-            Times {
+            &Times {
                 start: stamp.time(),
                 end: stamp.end_time(),
             },
@@ -122,7 +122,7 @@ fn planning(view: &mut Calendar, event: &Event) -> Result<(), String> {
             event,
             view.query.today,
             kind,
-            Times {
+            &Times {
                 start: None,
                 end: None,
             },
@@ -197,7 +197,7 @@ fn push(
     event: &Event,
     date: Date,
     kind: CalendarKind,
-    times: Times,
+    times: &Times,
 ) -> Result<(), String> {
     if view.rows.len() >= view.facts.limit {
         view.truncated = true;

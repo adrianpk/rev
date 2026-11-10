@@ -54,14 +54,14 @@ pub(super) struct Expanded {
     pub diagnostics: Vec<String>,
 }
 pub(super) fn expand(
-    text: Rope,
+    text: &Rope,
     mut definitions: Definitions,
     metadata: &mut Metadata,
     limits: &crate::config::OrgLimits,
     cancel: &Cancellation,
 ) -> Result<Expanded, String> {
-    let nodes = document::nodes(&text, cancel)?;
-    definitions.collect(&text, &nodes, cancel)?;
+    let nodes = document::nodes(text, cancel)?;
+    definitions.collect(text, &nodes, cancel)?;
     let mut work = Expansion {
         definitions,
         active: Vec::new(),
@@ -71,7 +71,7 @@ pub(super) fn expand(
         diagnostics: Vec::new(),
         prepared_bytes: 0,
     };
-    let text = work.document(&text, &nodes)?;
+    let text = work.document(text, &nodes)?;
     work.metadata(metadata)?;
     Ok(Expanded {
         text: Rope::from_str(&text),

@@ -39,13 +39,13 @@ pub(super) fn resolve(
 }
 pub(super) fn plan(
     source: DestinationSource,
-    target: Target,
+    target: &Target,
     feed: &FeedSource,
-    items: Feed,
+    items: &Feed,
     cancel: &Cancellation,
 ) -> Result<Plan, String> {
     let newline = newline(&source);
-    let previous = drawer(&source, &target, &feed.drawer, cancel)?;
+    let previous = drawer(&source, target, &feed.drawer, cancel)?;
     let mut status = if let Some((_, value)) = &previous {
         super::status::Status::parse(value, cancel)?
     } else {
@@ -67,14 +67,14 @@ pub(super) fn plan(
         status: &status,
         old: previous,
     };
-    let mut edits = change.edits(&source, &target, newline)?;
-    append_entries(&source, &target, &mut edits, &children, newline);
+    let mut edits = change.edits(&source, target, newline)?;
+    append_entries(&source, target, &mut edits, &children, newline);
     let inserted: usize = edits.iter().map(|e| e.text.len()).sum();
     let removed: usize = edits.iter().map(|e| e.bytes.len()).sum();
     if source.text().len_bytes() - removed + inserted > Limits::default().bytes {
         return Err("Imported feed exceeds native Org source byte limit".into());
     }
-    let point = inbox_point(&source, &target, newline);
+    let point = inbox_point(&source, target, newline);
     Ok(Plan {
         insertion: Insertion { source, edits },
         added,
@@ -252,7 +252,7 @@ pub(super) fn admit(
 }
 pub(super) fn inbox(
     source: DestinationSource,
-    target: Target,
+    target: &Target,
     cancel: &Cancellation,
 ) -> Result<Plan, String> {
     xml::check(cancel)?;
@@ -267,7 +267,7 @@ pub(super) fn inbox(
         ));
     }
     separate(&source, at, &mut text, newline);
-    let point = inbox_point(&source, &target, newline);
+    let point = inbox_point(&source, target, newline);
     let edits = if text.is_empty() {
         Vec::new()
     } else {

@@ -34,7 +34,7 @@ impl Document<'_> {
                 if !search.is_empty() {
                     return Err("HTML file search suffix is unsupported".into());
                 }
-                relative(path)
+                relative(&path)
             }
             _ => Err("HTML link requires a local path, target or admitted external URL".into()),
         }
@@ -94,7 +94,7 @@ impl Document<'_> {
     }
 }
 
-fn relative(path: PathBuf) -> Result<String, String> {
+fn relative(path: &std::path::Path) -> Result<String, String> {
     use std::path::Component;
     if !path
         .components()

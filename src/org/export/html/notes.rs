@@ -32,21 +32,21 @@ impl Html<'_> {
         }
         Ok(())
     }
-    fn reference(&mut self, label: String) -> Result<(), String> {
-        self.admit_note(&label)?;
+    fn reference(&mut self, label: &str) -> Result<(), String> {
+        self.admit_note(label)?;
         self.notes.references += 1;
         if self.notes.references > 100000 {
             return Err("HTML footnote reference limit reached".into());
         }
-        let count = self.notes.used.entry(label.clone()).or_default();
+        let count = self.notes.used.entry(label.to_owned()).or_default();
         *count += 1;
-        let anchor = format!("org-note-ref-{}-{count}", encoded(&label));
+        let anchor = format!("org-note-ref-{}-{count}", encoded(label));
         self.identity(&anchor)?;
         self.emit(&format!(
             "<sup id=\"{anchor}\"><a href=\"#org-note-{}\">",
-            encoded(&label)
+            encoded(label)
         ))?;
-        self.text(&label)?;
+        self.text(label)?;
         self.emit("</a></sup>")
     }
     pub(super) fn footnotes(&mut self) -> Result<(), String> {
@@ -118,6 +118,6 @@ impl Document<'_> {
             let body = self.capture(html, body.clone(), depth)?;
             html.define(label.clone(), body)?;
         }
-        html.reference(label)
+        html.reference(&label)
     }
 }

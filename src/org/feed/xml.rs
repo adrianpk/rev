@@ -96,7 +96,7 @@ impl Node {
 impl Builder {
     fn token(&mut self, token: lex::Token) -> Result<(), String> {
         match token {
-            lex::Token::Open(tag) => self.open(tag),
+            lex::Token::Open(tag) => self.open(&tag),
             lex::Token::Close(name) => self.close(&name),
             lex::Token::Text(text) => self.text(text),
             lex::Token::Declaration => {
@@ -108,7 +108,7 @@ impl Builder {
             }
         }
     }
-    fn open(&mut self, tag: lex::Tag) -> Result<(), String> {
+    fn open(&mut self, tag: &lex::Tag) -> Result<(), String> {
         if self.nodes.len() >= 100000 || self.stack.len() >= 64 {
             return Err("Feed XML node/depth limit reached".into());
         }

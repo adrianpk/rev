@@ -30,13 +30,13 @@ impl Engine<'_> {
                 pending.push(dependency);
             }
         }
-        self.sorted(outgoing, degree, active)
+        self.sorted(&outgoing, degree, &active)
     }
     fn sorted(
         &mut self,
-        outgoing: Vec<Vec<usize>>,
+        outgoing: &[Vec<usize>],
         mut degree: Vec<usize>,
-        active: Vec<bool>,
+        active: &[bool],
     ) -> Result<Vec<usize>, Error> {
         let mut ready: VecDeque<_> = degree
             .iter()

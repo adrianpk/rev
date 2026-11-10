@@ -2,7 +2,7 @@ use super::*;
 mod syntax;
 use crate::org::io::{DestinationVersion, Sources};
 pub(super) fn expand(
-    source: Evidence,
+    source: &Evidence,
     range: Range<usize>,
     reader: &Sources,
     policy: &Org,
@@ -35,10 +35,10 @@ struct Expand<'a> {
     nodes: usize,
 }
 impl Expand<'_> {
-    fn document(&mut self, source: Evidence, range: Range<usize>) -> Result<String, String> {
-        let nodes = self.admit(&source, &range)?;
+    fn document(&mut self, source: &Evidence, range: Range<usize>) -> Result<String, String> {
+        let nodes = self.admit(source, &range)?;
         self.active.push(source.clone());
-        let output = self.body(&source, &nodes, range)?;
+        let output = self.body(source, &nodes, range)?;
         self.active.pop();
         Ok(output)
     }
@@ -121,7 +121,7 @@ impl Expand<'_> {
         };
         let range = include.range(&text)?;
         self.document(
-            Evidence {
+            &Evidence {
                 path: Some(source.path),
                 version,
                 bom: source.bom,

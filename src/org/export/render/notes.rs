@@ -9,15 +9,15 @@ pub(super) struct Notes {
 impl Notes {
     pub fn reference(
         &mut self,
-        label: String,
+        label: &str,
         definition: bool,
         markdown: bool,
     ) -> Result<String, String> {
-        self.admit(&label)?;
+        self.admit(label)?;
         if definition {
-            self.define(&label)?;
+            self.define(label)?;
         } else {
-            self.used.insert(label.clone());
+            self.used.insert(label.to_owned());
         }
         let marker = if markdown { "^" } else { "" };
         let tail = if definition && markdown { ":" } else { "" };

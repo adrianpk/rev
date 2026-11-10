@@ -198,9 +198,9 @@ impl Work {
             .clone()
             .unwrap_or(metadata.options.clone());
         let (text, sources) =
-            include::expand(self.source, range, &self.reader, &self.policy, &cancel)?;
+            include::expand(&self.source, range, &self.reader, &self.policy, &cancel)?;
         let expanded = macros::expand(
-            text,
+            &text,
             definitions,
             &mut metadata,
             &self.policy.limits,

@@ -99,13 +99,13 @@ impl<'a> Inline<'a> {
             let label = self.notes.label(&label);
             let body = self.range(body.clone(), depth)?;
             self.notes.add(label.clone(), body, self.limit)?;
-            return self.notes.reference(label, false, self.markdown);
+            return self.notes.reference(&label, false, self.markdown);
         }
         let definition = self
             .text
             .line_to_byte(self.text.byte_to_line(n.source.start))
             == n.source.start;
-        self.notes.reference(label, definition, self.markdown)
+        self.notes.reference(&label, definition, self.markdown)
     }
     fn code(&self, n: &native::Raw) -> Result<String, String> {
         let value = self.text.byte_slice(n.content.clone()).to_string();

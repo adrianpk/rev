@@ -81,7 +81,7 @@ impl QueryResult {
             if bounded.is_cancelled() {
                 break;
             }
-            if let Err(e) = result.document(id, source.snapshot(), policy, &bounded) {
+            if let Err(e) = result.document(id, &source.snapshot(), policy, &bounded) {
                 result.issue(id, e);
             }
             if result.truncated && result.rows.len() == policy.limits.agenda_rows {
@@ -141,7 +141,7 @@ impl QueryResult {
     fn document(
         &mut self,
         source: usize,
-        text: Rope,
+        text: &Rope,
         policy: &crate::config::Org,
         cancel: &Cancellation,
     ) -> Result<(), String> {
@@ -155,10 +155,10 @@ impl QueryResult {
         let properties = Properties::observe_nodes(
             doc.nodes.iter(),
             doc.coverage == Coverage::Complete,
-            &text,
+            text,
             cancel,
         );
-        let declarations = metadata::Declarations::observe(&doc.nodes, &text, policy)?;
+        let declarations = metadata::Declarations::observe(&doc.nodes, text, policy)?;
         let heads: Vec<_> = doc
             .nodes
             .iter()
@@ -167,7 +167,7 @@ impl QueryResult {
         let file = self.sources[source].path.clone();
         let context = metadata::Context {
             properties: &properties,
-            text: &text,
+            text,
             declarations: &declarations,
             policy,
             file: file.as_deref(),

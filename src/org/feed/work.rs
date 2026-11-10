@@ -127,22 +127,22 @@ impl Work {
         )?;
         target::admit(&target, &locator, &self.choice.definition.drawer, &cancel)?;
         if self.inbox {
-            return target::inbox(target, locator, &cancel);
+            return target::inbox(target, &locator, &cancel);
         }
-        update(self.choice, self.input, target, locator, &cancel)
+        update(&self.choice, self.input, target, &locator, &cancel)
     }
 }
 fn update(
-    choice: Choice,
+    choice: &Choice,
     read: Option<CaptureRead>,
     target: DestinationSource,
-    locator: crate::org::capture::Target,
+    locator: &crate::org::capture::Target,
     cancel: &Cancellation,
 ) -> Result<Plan, String> {
-    let (value, evidence) = input(read, &choice, cancel)?;
+    let (value, evidence) = input(read, choice, cancel)?;
     let base = choice.definition.remote().then_some(choice.input.as_str());
     let items = Feed::parse(&value, base, &choice.policy.limits, cancel)?;
-    let mut plan = target::plan(target, locator, &choice.definition, items, cancel)?;
+    let mut plan = target::plan(target, locator, &choice.definition, &items, cancel)?;
     plan.evidence = evidence.into_iter().collect();
     xml::check(cancel)?;
     Ok(plan)

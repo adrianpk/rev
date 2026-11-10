@@ -42,8 +42,13 @@ fn attachments_heading_failure() {
     for scenario in ["changed", "read-only", "cancelled"] {
         let (f, mut s) = editor();
         let context = s.attachment.as_ref().unwrap().context.clone();
-        let p =
-            Plan::prepare(context, "input.bin", Method::Copy, &Cancellation::default()).unwrap();
+        let p = Plan::prepare(
+            &context,
+            "input.bin",
+            Method::Copy,
+            &Cancellation::default(),
+        )
+        .unwrap();
         s.attachment.as_mut().unwrap().stage = Stage::Running;
         let file = p.run(&Cancellation::default());
         assert_eq!(file.effect, Effect::Published);

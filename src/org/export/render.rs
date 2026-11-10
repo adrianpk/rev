@@ -41,7 +41,7 @@ impl Snapshot {
         }
         let mut render = Render::new(
             self,
-            Document {
+            &Document {
                 text: &self.text,
                 nodes: &self.nodes,
             },
@@ -86,7 +86,7 @@ type Change = (Range<usize>, String);
 impl<'a> Render<'a> {
     fn new(
         snapshot: &'a Snapshot,
-        document: Document<'a>,
+        document: &Document<'a>,
         cancel: &'a Cancellation,
     ) -> Result<Self, String> {
         let (children, roots) = tree(document.nodes, cancel)?;
@@ -151,7 +151,7 @@ impl<'a> Render<'a> {
         let nodes = document::nodes(&text, self.cancel)?;
         let mut child = Render::new(
             self.snapshot,
-            Document {
+            &Document {
                 text: &text,
                 nodes: &nodes,
             },

@@ -222,7 +222,7 @@ impl Feed {
         cancel: &Cancellation,
     ) -> Result<Plan, String> {
         let target = target::resolve(&source, feed, policy, cancel)?;
-        target::plan(source, target, feed, self, cancel)
+        target::plan(source, &target, feed, &self, cancel)
     }
 }
 

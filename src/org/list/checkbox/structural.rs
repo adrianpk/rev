@@ -10,7 +10,7 @@ impl Lists {
     pub(in crate::org::list) fn structural_progress(
         &self,
         buffer: &Buffer,
-        target: Target,
+        target: &Target,
         mut plan: ListEdit,
         workflow: &crate::org::task::Workflow,
     ) -> Result<ListEdit, String> {
@@ -18,7 +18,7 @@ impl Lists {
             index,
             command,
             point,
-        } = target;
+        } = *target;
         if !plan.order.is_empty() {
             return Ok(plan);
         }
@@ -132,7 +132,7 @@ impl Lists {
         let plan = self.insert_with(buffer, index, point, true)?;
         self.structural_progress(
             buffer,
-            Target {
+            &Target {
                 index,
                 command: OrgCommand::InsertCheckboxItem,
                 point,

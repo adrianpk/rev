@@ -29,9 +29,9 @@ impl Selection {
         let roots = project
             .roots
             .iter()
-            .map(|r| normalized(base.join(r)))
+            .map(|r| normalized(&base.join(r)))
             .collect();
-        let output = normalized(base.join(&project.output));
+        let output = normalized(&base.join(&project.output));
         Ok(Self {
             project,
             roots,
@@ -39,7 +39,7 @@ impl Selection {
         })
     }
 }
-fn normalized(path: PathBuf) -> PathBuf {
+fn normalized(path: &Path) -> PathBuf {
     path.components()
         .filter(|c| *c != Component::CurDir)
         .collect()

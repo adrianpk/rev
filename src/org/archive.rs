@@ -142,14 +142,14 @@ impl Archive {
                 subtree,
                 target,
                 newline,
-            } => sibling(*scan, subtree, target, newline, cancel),
+            } => sibling(*scan, subtree, &target, newline, cancel),
         }
     }
 }
 fn sibling(
     scan: SourceScan,
     subtree: Subtree,
-    target: Sibling,
+    target: &Sibling,
     newline: &str,
     cancel: &Cancellation,
 ) -> Result<Plan, String> {

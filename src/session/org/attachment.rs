@@ -29,7 +29,7 @@ impl Work {
         self.job
             .start(stamp, move |cancel| {
                 let bounded = cancel.bounded(Instant::now() + Duration::from_secs(seconds as u64));
-                Observation::AttachmentPlan(Plan::prepare(context, &path, method, &bounded))
+                Observation::AttachmentPlan(Plan::prepare(&context, &path, method, &bounded))
             })
             .map_err(|e| e.to_string())?;
         self.attachment_running = true;

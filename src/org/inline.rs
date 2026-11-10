@@ -108,11 +108,11 @@ impl InlineObservation {
             end: index.saturating_add(1),
             len: self.nodes.len(),
         })?;
-        qualify(Source::new(buffer), raw)
+        qualify(&Source::new(buffer), raw)
     }
 }
 
-fn qualify(source: Source<'_>, raw: &Raw) -> Result<InlineNode, Error> {
+fn qualify(source: &Source<'_>, raw: &Raw) -> Result<InlineNode, Error> {
     let span = |range: &Range<usize>| source.range(Byte(range.start)..Byte(range.end));
     Ok(InlineNode {
         kind: raw.kind,

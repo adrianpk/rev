@@ -29,6 +29,10 @@ pub struct ClockScan {
     pub(crate) window: Option<CivilInterval>,
 }
 impl ClockScan {
+    #[expect(
+        clippy::needless_pass_by_value,
+        reason = "Keep the public owned clock-request API; preparation reads its Copy fields and borrows its policy"
+    )]
     pub fn new(
         buffer: &Buffer,
         structure: &Structure,

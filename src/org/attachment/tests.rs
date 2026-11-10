@@ -16,7 +16,7 @@ fn context(f: &Fixture) -> Context {
     }
 }
 fn plan(f: &Fixture, method: Method) -> Plan {
-    Plan::prepare(context(f), "input.bin", method, &Cancellation::default()).unwrap()
+    Plan::prepare(&context(f), "input.bin", method, &Cancellation::default()).unwrap()
 }
 struct Fault {
     step: &'static str,

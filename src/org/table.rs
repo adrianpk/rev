@@ -164,7 +164,7 @@ impl Snapshot {
         }
         Ok(raw.nodes)
     }
-    fn plan(&self, table: &Table, layout: Layout, cursor: Position) -> Result<Plan, String> {
+    fn plan(&self, table: &Table, layout: &Layout, cursor: Position) -> Result<Plan, String> {
         let cell = layout
             .positions
             .get(cursor.row)
