@@ -264,9 +264,11 @@ impl Session {
         let c = &plan.conflict;
         let review = resolution_review(&plan);
         self.confirm_git_ref(
-            std::sync::Arc::clone(&c.sequence.refs),
-            refs::RefAction::Resolution(std::sync::Arc::clone(&plan)),
-            Some(sources),
+            refs::Proposal {
+                refs: std::sync::Arc::clone(&c.sequence.refs),
+                action: refs::RefAction::Resolution(std::sync::Arc::clone(&plan)),
+                sources: Some(sources),
+            },
             format!(
                 "Confirm {} for this exact conflict? y=accept, n=cancel",
                 plan.action.label()

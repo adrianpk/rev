@@ -161,7 +161,15 @@ impl Session {
                 return;
             }
         };
-        self.confirm_git_ref(refs, action, Some(sources), message, review);
+        self.confirm_git_ref(
+            Proposal {
+                refs,
+                action,
+                sources: Some(sources),
+            },
+            message,
+            review,
+        );
     }
 }
 

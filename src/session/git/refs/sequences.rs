@@ -190,9 +190,11 @@ impl Session {
             plan.steps.len()
         );
         self.confirm_git_ref(
-            std::sync::Arc::clone(&plan.refs),
-            RefAction::Application(plan),
-            Some(sources),
+            Proposal {
+                refs: std::sync::Arc::clone(&plan.refs),
+                action: RefAction::Application(plan),
+                sources: Some(sources),
+            },
             message,
             review,
         )

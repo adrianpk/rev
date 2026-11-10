@@ -10,7 +10,7 @@ impl Work {
             .state
             .context
             .and_then(|id| self.engine.context(id))
-            .and_then(|c| c.sequence.as_ref());
+            .and_then(|c| c.sequence.as_deref());
         (0..sequence.map_or(10, |s| {
             10 + s.targets.len()
                 + s.conflicts.len()
@@ -18,129 +18,180 @@ impl Work {
                     .as_ref()
                     .map_or(0, |b| 3 + b.good.len() + b.skipped.len())
         }))
-            .map(move |row| {
-                let Some(s) = sequence else {
-                    return (if row == 0 {
-                        "Git Operation: checking sequence state".into()
+            .map(move |row| self.sequence_line(sequence, row))
+            .flat_map(move |(text, target)| {
+                Wrapped {
+                    text: if target.is_some() {
+                        format!(
+                            "{} {}",
+                            if target == self.conflict_path() {
+                                ">"
+                            } else {
+                                " "
+                            },
+                            text
+                        )
                     } else {
-                        String::new()
-                    }, None);
-                };
-                let target = row.checked_sub(10 + s.targets.len()).and_then(|i| s.conflicts.get(i)).map(PathBuf::as_path);
-                (match row {
-                    0 => format!(
-                        "Git Operation: {}",
-                        s.family.map_or("none".into(), |f| format!("{f:?}"))
-                    ),
-                    1 => {
-                        if s.family == Some(SequenceFamily::Bisect) {
-                            self.bisect_summary()
-                                .unwrap_or("Manual bisect state unavailable")
-                                .into()
-                        } else if s.family.is_some() {
-                            "In progress; Git owns state; process cancellation does not abort it"
-                                .into()
-                        } else {
-                            "No active Git-owned sequence".into()
-                        }
-                    }
-                    2 => format!("Current HEAD ref: {}", label(&s.refs.head_ref)),
-                    3 => format!(
-                        "Current HEAD object: {}",
-                        s.refs.head.map_or("unborn".into(), |id| id.hex())
-                    ),
-                    4 => format!(
-                        "Original object: {}",
-                        s.original.map_or("unavailable".into(), |id| id.hex())
-                    ),
-                    5 => format!(
-                        "Applied/current revision: {}",
-                        s.current.map_or("unavailable".into(), |id| id.hex())
-                    ),
-                    6 => format!(
-                        "Onto: {}",
-                        s.onto.map_or("unavailable".into(), |id| id.hex())
-                    ),
-                    7 => format!(
-                        "Step {} / {}",
-                        s.step.map_or("unavailable".into(), |n| n.to_string()),
-                        s.total.map_or("unavailable".into(), |n| n.to_string())
-                    ),
-                    8 => format!("Exact conflict paths: {}", s.conflicts.len()),
-                    9 if self.engine.progress().any(|p| {
-                        p.context.is_none()
-                            || p.context
-                                .and_then(|id| self.engine.context(id))
-                                .is_some_and(|c| {
-                                    c.observation.identity.common_directory
-                                        == s.refs.observation.identity.common_directory
-                                })
-                    }) =>
-                    {
-                        "Checking Git owner; sequence controls wait for owned work".into()
-                    }
-                    9 if s.family == Some(SequenceFamily::Bisect) => format!(
-                        "Admitted manual controls: {}",
-                        [
-                            crate::git::BisectAction::Good,
-                            crate::git::BisectAction::Bad,
-                            crate::git::BisectAction::Skip,
-                            crate::git::BisectAction::Reset
-                        ]
-                        .into_iter()
-                        .filter(|a| s.bisect_admission(*a).is_ok())
-                        .map(crate::git::BisectAction::label)
-                        .collect::<Vec<_>>()
-                        .join(", ")
-                    ),
-                    9 => format!(
-                        "Admitted controls: {}",
-                        [
-                            SequenceControl::Continue,
-                            SequenceControl::Skip,
-                            SequenceControl::Abort
-                        ]
-                        .into_iter()
-                        .filter(|action| s.control_admission(*action, None).is_ok())
-                        .map(SequenceControl::label)
-                        .collect::<Vec<_>>()
-                        .join(", ")
-                    ),
-                    _ if row - 10 < s.targets.len() => {
-                        format!("Merge target: {}", s.targets[row - 10].hex())
-                    }
-                    _ if row - 10 - s.targets.len() < s.conflicts.len() => label(
-                        s.conflicts[row - 10 - s.targets.len()]
-                            .as_os_str()
-                            .as_encoded_bytes(),
-                    ),
-                    _ => {
-                        let b = s.bisect.as_ref().expect("admitted bisect row");
-                        let index = row - 10 - s.targets.len() - s.conflicts.len();
-                        match index {
-                            0 => format!("Known bad: {}", b.bad.hex()),
-                            1 => format!(
-                                "Unresolved range: {} commits / {} skipped",
-                                b.remaining,
-                                b.skipped.len()
-                            ),
-                            2 => format!("Manual result: {}", b.result.label()),
-                            _ if index - 3 < b.good.len() => {
-                                format!("Known good: {}", b.good[index - 3].hex())
-                            }
-                            _ => format!(
-                                "Skipped candidate: {}",
-                                b.skipped[index - 3 - b.good.len()].hex()
-                            ),
-                        }
-                    }
-                }, target)
+                        text
+                    },
+                    offset: Some(0),
+                    width: width.max(1),
+                }
+                .map(move |text| (text, target))
             })
-            .flat_map(move |(text, target)| Wrapped {
-                text: if target.is_some() { format!("{} {}", if target == self.conflict_path() { ">" } else { " " }, text) } else { text },
-                offset: Some(0),
-                width: width.max(1),
-            }.map(move |text| (text, target)))
+    }
+    fn sequence_line<'a>(
+        &self,
+        sequence: Option<&'a crate::git::Sequence>,
+        row: usize,
+    ) -> (String, Option<&'a std::path::Path>) {
+        let Some(sequence) = sequence else {
+            return (
+                if row == 0 {
+                    "Git Operation: checking sequence state".into()
+                } else {
+                    String::new()
+                },
+                None,
+            );
+        };
+        let target = row
+            .checked_sub(10 + sequence.targets.len())
+            .and_then(|i| sequence.conflicts.get(i))
+            .map(PathBuf::as_path);
+        let text = match row {
+            0..=8 => self.sequence_metadata(sequence, row),
+            9 => self.sequence_controls(sequence),
+            _ => sequence_target_line(sequence, row - 10),
+        };
+        (text, target)
+    }
+    fn sequence_summary(&self, sequence: &crate::git::Sequence) -> String {
+        if sequence.family == Some(SequenceFamily::Bisect) {
+            return self
+                .bisect_summary()
+                .unwrap_or("Manual bisect state unavailable")
+                .into();
+        }
+        if sequence.family.is_some() {
+            return "In progress; Git owns state; process cancellation does not abort it".into();
+        }
+        "No active Git-owned sequence".into()
+    }
+    fn sequence_metadata(&self, s: &crate::git::Sequence, row: usize) -> String {
+        match row {
+            0 => format!(
+                "Git Operation: {}",
+                s.family.map_or("none".into(), |f| format!("{f:?}"))
+            ),
+            1 => self.sequence_summary(s),
+            2 => format!("Current HEAD ref: {}", label(&s.refs.head_ref)),
+            3 => format!(
+                "Current HEAD object: {}",
+                s.refs.head.map_or("unborn".into(), |id| id.hex())
+            ),
+            4 => format!(
+                "Original object: {}",
+                s.original.map_or("unavailable".into(), |id| id.hex())
+            ),
+            5 => format!(
+                "Applied/current revision: {}",
+                s.current.map_or("unavailable".into(), |id| id.hex())
+            ),
+            6 => format!(
+                "Onto: {}",
+                s.onto.map_or("unavailable".into(), |id| id.hex())
+            ),
+            7 => format!(
+                "Step {} / {}",
+                s.step.map_or("unavailable".into(), |n| n.to_string()),
+                s.total.map_or("unavailable".into(), |n| n.to_string())
+            ),
+            _ => format!("Exact conflict paths: {}", s.conflicts.len()),
+        }
+    }
+    fn sequence_controls(&self, s: &crate::git::Sequence) -> String {
+        if self.engine.progress().any(|p| {
+            p.context.is_none()
+                || p.context
+                    .and_then(|id| self.engine.context(id))
+                    .is_some_and(|c| {
+                        c.observation.identity.common_directory
+                            == s.refs.observation.identity.common_directory
+                    })
+        }) {
+            return "Checking Git owner; sequence controls wait for owned work".into();
+        }
+        if s.family == Some(SequenceFamily::Bisect) {
+            return format!(
+                "Admitted manual controls: {}",
+                [
+                    crate::git::BisectAction::Good,
+                    crate::git::BisectAction::Bad,
+                    crate::git::BisectAction::Skip,
+                    crate::git::BisectAction::Reset,
+                ]
+                .into_iter()
+                .filter(|a| s.bisect_admission(*a).is_ok())
+                .map(crate::git::BisectAction::label)
+                .collect::<Vec<_>>()
+                .join(", ")
+            );
+        }
+        format!(
+            "Admitted controls: {}",
+            [
+                SequenceControl::Continue,
+                SequenceControl::Skip,
+                SequenceControl::Abort
+            ]
+            .into_iter()
+            .filter(|action| s.control_admission(*action, None).is_ok())
+            .map(SequenceControl::label)
+            .collect::<Vec<_>>()
+            .join(", ")
+        )
+    }
+    fn reconcile_integration(&mut self, update: &Update) {
+        let record = self.engine.record(update.operation);
+        let completed =
+            record.is_some_and(|r| matches!(r.outcome, Outcome::Skipped | Outcome::Aborted));
+        if update.published && completed {
+            self.refs.failed = false;
+        }
+        let sequence = record.is_some_and(|r| {
+            r.outcome == Outcome::InProgress
+                || matches!(
+                    r.kind,
+                    crate::git::OperationKind::Sequence | crate::git::OperationKind::Bisect
+                )
+        });
+        if update.published && sequence {
+            self.page = Page::Sequence;
+            self.refs.sequence_top = 0;
+            self.refs.failed = false;
+        }
+    }
+    fn integration_message(&self, update: &Update) -> &'static str {
+        let record = self.engine.record(update.operation);
+        if record.is_some_and(|r| r.kind == crate::git::OperationKind::Bisect)
+            && update.published
+            && !self.refs.failed
+        {
+            return self
+                .bisect_summary()
+                .unwrap_or("Manual bisect state checked");
+        }
+        if let Some(message) = sequence_outcome_message(record.map(|r| r.outcome)) {
+            return message;
+        }
+        if self.refs.failed {
+            return "Integration failed or effects remain uncertain; inspect git-processes";
+        }
+        if record.is_some_and(|r| r.kind == crate::git::OperationKind::Sequence) {
+            return "Git-owned sequence state checked";
+        }
+        "Integration verified; source reload follows file policy"
     }
     pub(in crate::session::git) fn sequence_row(&self, row: usize, width: usize) -> (String, bool) {
         self.sequence_lines(width)
@@ -263,9 +314,11 @@ impl Session {
         );
         let name = reference.name.clone();
         self.confirm_git_ref(
-            refs,
-            RefAction::Integration { target: name, mode },
-            Some(sources),
+            Proposal {
+                refs,
+                action: RefAction::Integration { target: name, mode },
+                sources: Some(sources),
+            },
             message,
             review,
         )
@@ -349,13 +402,15 @@ impl Session {
             sequence.conflicts.len()
         );
         self.confirm_git_ref(
-            std::sync::Arc::clone(&sequence.refs),
-            RefAction::Control {
-                sequence,
-                action,
-                family,
+            Proposal {
+                refs: std::sync::Arc::clone(&sequence.refs),
+                action: RefAction::Control {
+                    sequence,
+                    action,
+                    family,
+                },
+                sources: Some(sources),
             },
-            Some(sources),
             message,
             review,
         )
@@ -456,9 +511,11 @@ impl Session {
         }
         review.push_str("Git keeps hooks/signing authority. No implicit autostash or executable todo actions. y / C-Enter / C-c C-c accept; n / C-g cancel.");
         self.confirm_git_ref(
-            std::sync::Arc::clone(&plan.refs),
-            RefAction::Autosquash(plan),
-            Some(sources),
+            Proposal {
+                refs: std::sync::Arc::clone(&plan.refs),
+                action: RefAction::Autosquash(plan),
+                sources: Some(sources),
+            },
             "Confirm this exact ordered autosquash plan? y=accept, n=cancel".into(),
             review,
         );
@@ -485,21 +542,7 @@ impl Session {
         } else {
             self.publish_git_refs(update);
         }
-        let record = self.git.engine.record(update.operation);
-        let in_progress = record.is_some_and(|r| r.outcome == Outcome::InProgress);
-        let completed =
-            record.is_some_and(|r| matches!(r.outcome, Outcome::Skipped | Outcome::Aborted));
-        let aborted = record.is_some_and(|r| r.outcome == Outcome::Aborted);
-        if update.published && completed {
-            self.git.refs.failed = false;
-        }
-        let bisect = record.is_some_and(|r| r.kind == crate::git::OperationKind::Bisect);
-        let observed = record.is_some_and(|r| r.kind == crate::git::OperationKind::Sequence);
-        if update.published && (in_progress || observed || bisect) {
-            self.git.page = Page::Sequence;
-            self.git.refs.sequence_top = 0;
-            self.git.refs.failed = false;
-        }
+        self.git.reconcile_integration(update);
         if self.git.visible && self.pending.is_none() && self.input.focus() == Focus::Editing {
             if let Some((action, family)) = pending_control
                 .filter(|_| update.published && self.git.state.context == update.context)
@@ -507,23 +550,47 @@ impl Session {
                 self.confirm_git_control(action, family);
                 return;
             }
-            self.message(if bisect && update.published && !self.git.refs.failed {
-                self.git
-                    .bisect_summary()
-                    .unwrap_or("Manual bisect state checked")
-            } else if aborted {
-                "Git sequence aborted; original branch and object verified"
-            } else if completed {
-                "Git sequence skipped; resulting branch and lineage verified"
-            } else if in_progress {
-                "Git integration stopped in progress; inspect the exact sequence and conflicts"
-            } else if self.git.refs.failed {
-                "Integration failed or effects remain uncertain; inspect git-processes"
-            } else if observed {
-                "Git-owned sequence state checked"
-            } else {
-                "Integration verified; source reload follows file policy"
-            });
+            self.message(self.git.integration_message(update));
         }
+    }
+}
+
+fn sequence_target_line(s: &crate::git::Sequence, index: usize) -> String {
+    if index < s.targets.len() {
+        return format!("Merge target: {}", s.targets[index].hex());
+    }
+    let index = index - s.targets.len();
+    if index < s.conflicts.len() {
+        return label(s.conflicts[index].as_os_str().as_encoded_bytes());
+    }
+    let b = s.bisect.as_ref().expect("admitted bisect row");
+    bisect_line(b, index - s.conflicts.len())
+}
+fn bisect_line(b: &crate::git::BisectState, index: usize) -> String {
+    match index {
+        0 => format!("Known bad: {}", b.bad.hex()),
+        1 => format!(
+            "Unresolved range: {} commits / {} skipped",
+            b.remaining,
+            b.skipped.len()
+        ),
+        2 => format!("Manual result: {}", b.result.label()),
+        _ if index - 3 < b.good.len() => format!("Known good: {}", b.good[index - 3].hex()),
+        _ => format!(
+            "Skipped candidate: {}",
+            b.skipped[index - 3 - b.good.len()].hex()
+        ),
+    }
+}
+fn sequence_outcome_message(outcome: Option<Outcome>) -> Option<&'static str> {
+    match outcome {
+        Some(Outcome::Aborted) => Some("Git sequence aborted; original branch and object verified"),
+        Some(Outcome::Skipped) => {
+            Some("Git sequence skipped; resulting branch and lineage verified")
+        }
+        Some(Outcome::InProgress) => {
+            Some("Git integration stopped in progress; inspect the exact sequence and conflicts")
+        }
+        _ => None,
     }
 }

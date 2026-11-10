@@ -79,9 +79,16 @@ have independent proofs. Worktrees separate bounded registry/backlink capture,
 porcelain grammar, filesystem identity, cwd-restored target capture, destination
 preparation and resulting ref/record/source proofs.
 
-This is a partial checkpoint. Remaining ref/repository session handlers still
-require source-bound corrections; the complete native Git worker tree now
-satisfies the source bounds.
+Ref consent now retains one exact proposal containing refs, action and source
+stamps through confirmation and submission. Action-specific prompts, source
+rechecks, worker dispatch and request routing have separate owners. Ref,
+sequence and worktree rows project identity, state, controls and policy lazily;
+publication separates selection reconciliation, history refresh, prepared review
+and completed-operation messages.
+
+All selected native and session Git sources now satisfy the source bounds.
+Complete Git acceptance, canonical PR preparation and final clean-HEAD validation
+remain pending.
 
 ## Implementation Notes
 
@@ -165,6 +172,12 @@ satisfies the source bounds.
   indices, selection identities and 2048-byte chunks; review messages are intact.
 - Session family routing preserves visiting-buffer/native-directory protection,
   bounded JSON, captured composer authority and all original review messages.
+- Ref confirmation preserves context/source invalidation order, exact prompts,
+  retained stamp admission and every action's original engine call. Review input
+  preserves press/repeat/release handling, C-c prefix state, scrolling and focus.
+- Session publication preserves pending operation IDs, failed/stale state,
+  selection identities, history roots, page routing and guarded prepared consent.
+  Complete rows and review text retain their original order and wrapping.
 - Private helpers borrow retained authority and parsed views. Explicit shared
   clones, guarded size conversions and signed timestamp fingerprints remain.
 
@@ -206,6 +219,9 @@ suppression or source-policy exception was added.
 - `src/git/work/{commit,discard}.rs`, `src/git/work/conflicts/resolution/` and
   `src/git/work/index/`: mutation preparation, file capture and postconditions.
 - `src/session/git/{index,discard}.rs`: captured mark and discard-source authority.
+- `src/session/git/refs.rs`, `src/session/git/refs/integration.rs` and
+  `src/session/git/repository{,/worktrees}.rs`: captured ref proposals, source
+  guards, lazy row projection and separate publication/review phases.
 - `src/session/git/{commands,updates,input,presentation,processes}.rs`: native
   dispatch, source authority and lazy row projection.
 
@@ -214,8 +230,8 @@ suppression or source-policy exception was added.
 Intermediate checks, with focused results tied to the stated implementation
 cohorts. Final ordered clean-HEAD Looper validation remains pending.
 
-- Failed: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 bash scripts/check-quality.sh --scope src/git.rs --scope src/git --scope src/session/git.rs --scope src/session/git`. Formatting, all-target compilation and scoped Clippy pass with zero blocking diagnostics across 112 selected files; 889 selected-profile diagnostics outside this scope are deferred. Native source policy still rejects 18 findings, reduced from 33.
-- Earlier partial implementation: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --test git_integration -- --test-threads=1`. 239 passed and three failed before the current request/parser cohort. This is not current full-suite acceptance; the full suite has not been rerun on this checkpoint.
+- Passed: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 bash scripts/check-quality.sh --scope src/git.rs --scope src/git --scope src/session/git.rs --scope src/session/git`. Formatting, all-target compilation, scoped Clippy and native source policy pass across all 112 selected files. There are zero blocking diagnostics; 889 selected-profile diagnostics outside this scope remain deferred. The final 18 session source findings are resolved.
+- Failed: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --test git_integration -- --test-threads=1`. 241 passed and one failed on the final session cohort. Only `repository::acceptance::native_process_owner` fails: its wait reports `Leave context: terminate 1 terminal sessions? y=terminate, n=cancel, C-g=cancel; Answer y or n` before the intended Git guard. All ref/sequence/worktree presentation and review cases, request-pull and ordered controls pass. The fixture, assertions, timeouts and process checks remain unchanged.
 - Passed: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo run --locked --quiet -p rev --example documentation-check`. 106 reachable pages, 743 local links/anchors, 684 commands and 299 configuration entries.
 - Passed: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --test git_integration -- families::output:: --test-threads=1`. Six output-family cases after the approved API adaptation.
 - Passed: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --test git_integration -- sequences::bisect:: sequences::presentation::native_bisect sequences::presentation::unsaved_bisect --test-threads=1`. Five native and presentation cases after bisect decomposition.
@@ -236,27 +252,26 @@ cohorts. Final ordered clean-HEAD Looper validation remains pending.
 - Passed: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --test git_integration -- repository::worktrees::checked_roundtrip repository::worktrees::checked_prune repository::pop_and_branch sequences::controls::ordered_controls --test-threads=1`. All four final native-state regressions after the borrowing corrections, covering worktree lifecycle/prune, separately checked stash removal and ordered continuation/skip/abort restoration.
 - Passed: `git diff --check`.
 
-The current scoped inventory covers 112 of 1832 first-party Rust files. Git family
-input, bisect workers, conflict inspection/resolution, commit/discard workers,
-the complete worker history/index/prepared-family trees, reference observation
-and branches/tags/transport, the complete native worker tree, and session
-index/discard/family/composer/comparison/conflict/history/tag/bisect owners satisfy
-the five/three/ten bounds. The 18 remaining source findings block the
-required quality command.
+The current scoped inventory covers 112 of 1832 first-party Rust files. Every
+selected native Git worker and session adapter satisfies the five/three/ten
+bounds and selected Clippy profile. No source-policy exception, new suppression,
+fixture adjustment or resource/acceptance limit change was added in this cohort.
 
 ## Risks and Follow-ups
 
-Complete the remaining ref/repository session handlers within this slice. Preserve immutable-source authority,
-hook/signing policy, process ownership and every frozen command and budget.
+Complete Git acceptance and final clean-HEAD evidence within this slice.
+Preserve immutable-source authority, hook/signing policy, process ownership and
+every frozen command and budget.
 
-Earlier full-suite execution observed three failures. Subsequent focused checks
-passed request-pull remote review and ordered sequence controls with unchanged
-limits. The last focused reproduction of
-`repository::acceptance::native_process_owner` reached terminal-departure consent
-before Git status appeared; no fixture correction was made.
-These focused results do not establish that the complete Git suite is green.
-Recheck the full suite before acceptance and retain exact observed failures
-without unverified baseline or environmental attribution.
+The current full Git run passes 241 cases and fails only
+`repository::acceptance::native_process_owner`. It loads the main repository
+directory while a linked-worktree terminal remains owned; the observed native
+context-departure consent prevents the fixture from reaching Git Status. A
+bounded correction to visit the main repository's `source.txt` instead of its
+directory needs explicit fixture authority. No such correction was applied.
+Preserve the retained terminal and all existing negative assertions, names,
+timeouts and process checks. The failed command remains blocking; no baseline
+or environmental exemption is claimed.
 
 Test names, fixture behavior, assertions, timeouts and resource ceilings are
 unchanged. The three approved output-request call expressions and their import

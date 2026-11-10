@@ -175,9 +175,11 @@ impl Session {
                 label(intent.name.as_bytes())
             );
             self.confirm_git_ref(
-                std::sync::Arc::clone(&intent.refs),
-                RefAction::CreateTag(intent),
-                None,
+                Proposal {
+                    refs: std::sync::Arc::clone(&intent.refs),
+                    action: RefAction::CreateTag(intent),
+                    sources: None,
+                },
                 message,
                 review,
             );
@@ -223,7 +225,15 @@ impl Session {
             }
         );
         let name = reference.name.clone();
-        self.confirm_git_ref(refs, RefAction::DeleteTag(name), None, message, review)
+        self.confirm_git_ref(
+            Proposal {
+                refs,
+                action: RefAction::DeleteTag(name),
+                sources: None,
+            },
+            message,
+            review,
+        )
     }
     pub(in crate::session::git) fn cancel_git_tag_annotation(&mut self) -> Action {
         let result = (|| {

@@ -66,49 +66,10 @@ impl Work {
                 let Some(e) = entry else {
                     return "Worktree detail unavailable; refresh the list".into();
                 };
-                match row {
-                    0 => "Git Worktree: exact captured identity".into(),
-                    1 => format!(
-                        "Working path: {}",
-                        label(e.path.as_os_str().as_encoded_bytes())
-                    ),
-                    2 => format!(
-                        "Per-worktree Git directory: {}",
-                        label(e.git_directory.as_os_str().as_encoded_bytes())
-                    ),
-                    3 => format!(
-                        "Common directory: {}",
-                        list.map_or(String::new(), |w| label(
-                            w.observation
-                                .identity
-                                .common_directory
-                                .as_os_str()
-                                .as_encoded_bytes()
-                        ))
-                    ),
-                    4 => format!(
-                        "Full HEAD: {}",
-                        e.head.map_or("unborn / unavailable".into(), |h| h.hex())
-                    ),
-                    5 => format!("Branch: {}", label(&e.branch)),
-                    6 => format!(
-                        "Bare: {} / Detached: {} / Available: {}",
-                        e.bare, e.detached, e.available
-                    ),
-                    7 => format!(
-                        "Lock: {}",
-                        e.locked.as_ref().map_or("unlocked".into(), |r| label(r))
-                    ),
-                    8 => format!(
-                        "Prune: {}",
-                        e.prunable
-                            .as_ref()
-                            .map_or("not eligible".into(), |r| label(r))
-                    ),
-                    9 => "Removal checks saved files, Git sequences and native resource owners."
-                        .into(),
-                    10 => "No forced removal, implicit source save or repository rollback.".into(),
-                    _ => "Return / q list; v visits checked Git Status; Up/Down scroll.".into(),
+                if row < 5 {
+                    worktree_identity_line(list, e, row)
+                } else {
+                    worktree_policy_line(e, row)
                 }
             })
             .flat_map(move |text| Wrapped {
@@ -445,43 +406,54 @@ impl Session {
             return;
         }
         if update.kind == crate::git::OperationKind::WorktreeVisit {
-            if self.git.visible
-                && self.git.page == Page::Worktree
-                && self.pending.is_none()
-                && self.input.focus() == Focus::Editing
-            {
-                self.git.state = State {
-                    context: update.context,
-                    ..State::default()
-                };
-                self.git.page = Page::Status;
-                self.git.inspection = comparisons::Inspection::default();
-                self.git.reconcile(self.git_extent());
-                self.git.painted = None;
-                self.message("Visited checked linked worktree Git Status; source buffers and windows retained");
-            }
+            self.publish_git_worktree_visit(update);
             return;
         }
         if !preparing {
-            self.git.worktrees.selected = self.git.worktrees().and_then(|w| {
-                self.git
-                    .worktrees
-                    .selected
-                    .as_ref()
-                    .filter(|p| w.entry(p).is_some())
-                    .cloned()
-                    .or_else(|| w.entries.first().map(|e| e.path.clone()))
-            });
-            self.git.worktrees.detail = None;
-            self.move_git_worktrees(0, false);
-            self.git.painted = None;
-            self.message(if self.git.worktrees.failed {
-                "Worktree effects require inspection; actual paths and diagnostics retained"
-            } else {
-                "Git Worktrees refreshed; exact request verified"
-            });
+            self.reconcile_git_worktree_publication();
             return;
         }
+        self.review_git_worktree_publication(update);
+    }
+    fn publish_git_worktree_visit(&mut self, update: &Update) {
+        if self.git.visible
+            && self.git.page == Page::Worktree
+            && self.pending.is_none()
+            && self.input.focus() == Focus::Editing
+        {
+            self.git.state = State {
+                context: update.context,
+                ..State::default()
+            };
+            self.git.page = Page::Status;
+            self.git.inspection = comparisons::Inspection::default();
+            self.git.reconcile(self.git_extent());
+            self.git.painted = None;
+            self.message(
+                "Visited checked linked worktree Git Status; source buffers and windows retained",
+            );
+        }
+    }
+    fn reconcile_git_worktree_publication(&mut self) {
+        self.git.worktrees.selected = self.git.worktrees().and_then(|w| {
+            self.git
+                .worktrees
+                .selected
+                .as_ref()
+                .filter(|p| w.entry(p).is_some())
+                .cloned()
+                .or_else(|| w.entries.first().map(|e| e.path.clone()))
+        });
+        self.git.worktrees.detail = None;
+        self.move_git_worktrees(0, false);
+        self.git.painted = None;
+        self.message(if self.git.worktrees.failed {
+            "Worktree effects require inspection; actual paths and diagnostics retained"
+        } else {
+            "Git Worktrees refreshed; exact request verified"
+        });
+    }
+    fn review_git_worktree_publication(&mut self, update: &Update) {
         if !self.git.visible
             || self.git.page != Page::Worktree
             || self.pending.is_some()
@@ -516,52 +488,114 @@ impl Session {
                 return;
             }
         };
-        let mut review = format!(
-            "Worktree review\nAction: {}\nCommon repository:\n{}\nChecked source HEAD: {}\nExact paths:\n",
-            plan.action.label(),
-            label(
-                plan.worktrees
-                    .observation
-                    .identity
-                    .common_directory
-                    .as_os_str()
-                    .as_encoded_bytes()
-            ),
-            plan.source.refs.head.map_or("unborn".into(), |h| h.hex())
-        );
-        for path in &plan.paths {
-            review.push_str(&label(path.as_os_str().as_encoded_bytes()));
-            review.push('\n');
-            if let Some(e) = plan.worktrees.entry(path) {
-                review.push_str(&format!(
-                    "Git directory: {}\nFull target HEAD: {}\n",
-                    label(e.git_directory.as_os_str().as_encoded_bytes()),
-                    e.head.map_or("unavailable".into(), |h| h.hex())
-                ));
-            }
-        }
-        match &plan.action {
-            WorktreeAction::Create { branch, target, .. } => review.push_str(&format!(
-                "New branch: {}\nFull checkout target:\n{}\n",
-                label(branch.as_bytes()),
-                target.hex()
-            )),
-            WorktreeAction::Lock { reason, .. } => {
-                review.push_str(&format!("Lock reason: {}\n", label(reason.as_bytes())))
-            }
-            _ => {}
-        }
-        review.push_str("No force, implicit source save, process termination or rollback. y accepts; n or C-g cancels.");
+        let review = worktree_review(&plan);
         let message = format!(
             "Confirm worktree {}? y=accept, n=cancel",
             plan.action.label()
         );
         self.confirm_git_ref(
-            std::sync::Arc::clone(&plan.source.refs),
-            refs::RefAction::Worktree(plan),
-            Some(sources),
+            refs::Proposal {
+                refs: std::sync::Arc::clone(&plan.source.refs),
+                action: refs::RefAction::Worktree(plan),
+                sources: Some(sources),
+            },
             message,
             review,
         );
+    }
+}
+
+fn worktree_review(plan: &crate::git::WorktreePlan) -> String {
+    let mut review = format!(
+        "Worktree review\nAction: {}\nCommon repository:\n{}\nChecked source HEAD: {}\nExact paths:\n",
+        plan.action.label(),
+        label(
+            plan.worktrees
+                .observation
+                .identity
+                .common_directory
+                .as_os_str()
+                .as_encoded_bytes()
+        ),
+        plan.source.refs.head.map_or("unborn".into(), |h| h.hex())
+    );
+    for path in &plan.paths {
+        review.push_str(&label(path.as_os_str().as_encoded_bytes()));
+        review.push('\n');
+        if let Some(e) = plan.worktrees.entry(path) {
+            review.push_str(&format!(
+                "Git directory: {}\nFull target HEAD: {}\n",
+                label(e.git_directory.as_os_str().as_encoded_bytes()),
+                e.head.map_or("unavailable".into(), |h| h.hex())
+            ));
+        }
+    }
+    match &plan.action {
+        WorktreeAction::Create { branch, target, .. } => review.push_str(&format!(
+            "New branch: {}\nFull checkout target:\n{}\n",
+            label(branch.as_bytes()),
+            target.hex()
+        )),
+        WorktreeAction::Lock { reason, .. } => {
+            review.push_str(&format!("Lock reason: {}\n", label(reason.as_bytes())))
+        }
+        _ => {}
+    }
+    review.push_str("No force, implicit source save, process termination or rollback. y accepts; n or C-g cancels.");
+    review
+}
+
+fn worktree_identity_line(
+    list: Option<&Arc<Worktrees>>,
+    e: &crate::git::WorktreeEntry,
+    row: usize,
+) -> String {
+    match row {
+        0 => "Git Worktree: exact captured identity".into(),
+        1 => format!(
+            "Working path: {}",
+            label(e.path.as_os_str().as_encoded_bytes())
+        ),
+        2 => format!(
+            "Per-worktree Git directory: {}",
+            label(e.git_directory.as_os_str().as_encoded_bytes())
+        ),
+        3 => format!(
+            "Common directory: {}",
+            list.map_or(String::new(), |w| label(
+                w.observation
+                    .identity
+                    .common_directory
+                    .as_os_str()
+                    .as_encoded_bytes()
+            ))
+        ),
+        4 => format!(
+            "Full HEAD: {}",
+            e.head.map_or("unborn / unavailable".into(), |h| h.hex())
+        ),
+        _ => unreachable!("worktree identity row"),
+    }
+}
+fn worktree_policy_line(e: &crate::git::WorktreeEntry, row: usize) -> String {
+    match row {
+        5 => format!("Branch: {}", label(&e.branch)),
+        6 => format!(
+            "Bare: {} / Detached: {} / Available: {}",
+            e.bare, e.detached, e.available
+        ),
+        7 => format!(
+            "Lock: {}",
+            e.locked.as_ref().map_or("unlocked".into(), |r| label(r))
+        ),
+        8 => format!(
+            "Prune: {}",
+            e.prunable
+                .as_ref()
+                .map_or("not eligible".into(), |r| label(r))
+        ),
+        9 => "Removal checks saved files, Git sequences and native resource owners.".into(),
+        10 => "No forced removal, implicit source save or repository rollback.".into(),
+        _ => "Return / q list; v visits checked Git Status; Up/Down scroll.".into(),
     }
 }

@@ -68,14 +68,26 @@ pub(in crate::session) struct Prompt {
     selected: Option<Vec<u8>>,
 }
 pub(in crate::session) struct Consent {
-    refs: Arc<Refs>,
-    action: RefAction,
-    sources: Option<Sources>,
+    proposal: Proposal,
     pub message: String,
     review: String,
     top: usize,
     submit_prefix: bool,
     _admission: crate::git::budget::Lease,
+}
+/// Exact request authority retained unchanged from review through confirmation.
+pub(super) struct Proposal {
+    pub refs: Arc<Refs>,
+    pub action: RefAction,
+    pub sources: Option<Sources>,
+}
+#[derive(Clone, Copy)]
+enum RefRoute {
+    Worktree,
+    Stash,
+    Resolution,
+    Integration,
+    Local,
 }
 pub(super) enum RefAction {
     Worktree(Arc<crate::git::WorktreePlan>),
@@ -133,101 +145,13 @@ impl Work {
                 false,
             );
         };
-        if row == 0 {
-            return (
-                format!(
-                    "HEAD: {} {}",
-                    if refs.head_ref.is_empty() {
-                        "detached".into()
-                    } else {
-                        label(&refs.head_ref)
-                    },
-                    refs.head.map_or("unborn".into(), |id| id.hex())
-                ),
-                false,
-            );
-        }
-        if row == 1 {
-            return (
-                format!(
-                    "{} refs / {} remotes / {}{}",
-                    refs.entries.len(),
-                    refs.remotes.len(),
-                    if refs.completeness == Completeness::Complete {
-                        "complete"
-                    } else {
-                        "TRUNCATED"
-                    },
-                    if self.refs.failed {
-                        " / STALE: refresh failed; $ diagnostics"
-                    } else {
-                        ""
-                    }
-                ),
-                false,
-            );
-        }
-        if row == 2 {
-            return (
-                if self.refs.request.is_some()
-                    || self.refs.tag_preparing.is_some()
-                    || self.refs.push_preparing.is_some()
-                    || self.ancestry.request.is_some()
-                {
-                    "Checking / executing / refreshing refs".into()
-                } else {
-                    "Exact full names and objects; local actions require review".into()
-                },
-                false,
-            );
+        if row < 3 {
+            return (self.refs_header(refs, row), false);
         }
         let index = self.refs.top + row - 3;
         if let Some(r) = refs.entries.get(index) {
             let selected = self.refs.selected.as_deref() == Some(r.name.as_slice());
-            return (
-                format!(
-                    "{}{} {} {}{}{}{}{}",
-                    if selected { ">" } else { " " },
-                    if self
-                        .refs
-                        .push_mark
-                        .as_ref()
-                        .is_some_and(|mark| mark.context == refs.observation.context
-                            && mark.name == r.name
-                            && mark.object == r.object)
-                    {
-                        "*"
-                    } else {
-                        " "
-                    },
-                    label(&r.name),
-                    r.object.hex(),
-                    if r.object_type == b"tag" {
-                        format!(
-                            " tag -> {}",
-                            r.peeled.map_or("unavailable".into(), |id| id.hex())
-                        )
-                    } else {
-                        String::new()
-                    },
-                    if r.symbolic.is_empty() {
-                        String::new()
-                    } else {
-                        format!(" symbolic -> {}", label(&r.symbolic))
-                    },
-                    if r.upstream.is_empty() {
-                        String::new()
-                    } else {
-                        format!(" upstream {}", label(&r.upstream))
-                    },
-                    if r.tracking.is_empty() {
-                        String::new()
-                    } else {
-                        format!(" {}", label(&r.tracking))
-                    }
-                ),
-                selected,
-            );
+            return (self.ref_entry_line(refs, r, selected), selected);
         }
         refs.remotes
             .get(index.saturating_sub(refs.entries.len()))
@@ -247,54 +171,11 @@ impl Work {
                 };
                 let reference = self.refs.selected.as_ref().and_then(|n| refs.reference(n));
                 match row {
-                    0 => "Git Ref Detail".into(),
-                    1 => reference.map_or("Configured remote name".into(), |r| {
-                        format!("Kind: {:?}", r.kind)
-                    }),
-                    2 => "Full exact name:".into(),
-                    3 => reference
-                        .map(|r| label(&r.name))
-                        .or_else(|| self.refs.remote_selected.as_ref().map(|n| label(n)))
-                        .unwrap_or_default(),
-                    4 => "Full ref object:".into(),
-                    5 => reference.map_or("unavailable for configured remote".into(), |r| {
-                        r.object.hex()
-                    }),
-                    6 => reference.map_or(String::new(), |r| {
-                        format!("Object type: {}", label(&r.object_type))
-                    }),
-                    7 => "Symbolic target:".into(),
-                    8 => reference.map_or(String::new(), |r| label(&r.symbolic)),
-                    9 => "Peeled target:".into(),
-                    10 => reference
-                        .and_then(|r| r.peeled)
-                        .map_or("direct object / unavailable".into(), |id| id.hex()),
-                    11 => reference.map_or(String::new(), |r| {
-                        format!("Peeled type: {}", label(&r.peeled_type))
-                    }),
-                    12 => "Full upstream ref:".into(),
-                    13 => reference.map_or(String::new(), |r| label(&r.upstream)),
-                    14 => reference.map_or(String::new(), |r| {
-                        format!(
-                            "Tracking: {}",
-                            if r.tracking.is_empty() {
-                                "unavailable or equal".into()
-                            } else {
-                                label(&r.tracking)
-                            }
-                        )
-                    }),
-                    15 => format!(
-                        "HEAD ref: {}",
-                        if refs.head_ref.is_empty() {
-                            "detached".into()
-                        } else {
-                            label(&refs.head_ref)
-                        }
-                    ),
-                    16 => refs.head.map_or("HEAD unborn".into(), |id| id.hex()),
-                    17 => format!("Observation: {:?}", refs.completeness),
-                    _ => "Up/Down scroll; Tab or q returns to Refs".into(),
+                    0..=8 => {
+                        ref_identity_line(reference, self.refs.remote_selected.as_deref(), row)
+                    }
+                    9..=14 => ref_tracking_line(reference, row),
+                    _ => ref_observation_line(refs, row),
                 }
             })
             .flat_map(move |text| Wrapped {
@@ -490,48 +371,9 @@ impl Session {
         }
     }
     pub(in crate::session) fn git_branch_name(&mut self, prompt: Prompt, value: &str) -> Action {
-        if matches!(prompt.intent, Intent::Create | Intent::Rename)
-            && (value.is_empty() || value.len() > 4096 || value.contains('\0'))
-        {
-            return self.message("Branch name requires 1..=4096 non-NUL bytes");
-        }
-        let selected = prompt
-            .selected
-            .as_ref()
-            .and_then(|n| prompt.refs.reference(n));
-        let action = match prompt.intent {
-            Intent::Create => {
-                let Some(target) = selected.map_or(prompt.refs.head, |r| r.commit()) else {
-                    return self.message("Branch creation requires an exact commit target");
-                };
-                if value.is_empty() || value.len() > 4096 || value.contains('\0') {
-                    return self.message("Branch name requires 1..=4096 non-NUL bytes");
-                }
-                BranchAction::Create {
-                    name: value.into(),
-                    target,
-                }
-            }
-            intent => {
-                let Some(selected) =
-                    selected.filter(|r| r.kind == RefKind::Branch && r.symbolic.is_empty())
-                else {
-                    return self.message("Select one exact local branch first");
-                };
-                match intent {
-                    Intent::Switch => BranchAction::Switch {
-                        name: selected.name.clone(),
-                    },
-                    Intent::Rename => BranchAction::Rename {
-                        name: selected.name.clone(),
-                        new_name: value.into(),
-                    },
-                    Intent::Delete => BranchAction::Delete {
-                        name: selected.name.clone(),
-                    },
-                    Intent::Create => unreachable!(),
-                }
-            }
+        let action = match prompt.action(value) {
+            Ok(action) => action,
+            Err(e) => return self.message(e),
         };
         if let Err(e) = self.git.engine.check_refs(&prompt.refs) {
             return self.error(&e);
@@ -544,66 +386,9 @@ impl Session {
         } else {
             None
         };
-        let message = match &action {
-            BranchAction::Create { name, target } => format!(
-                "Create local branch {} at {}? y=accept, n=cancel",
-                label(name.as_bytes()),
-                target.hex()
-            ),
-            BranchAction::Switch { name } => format!(
-                "Switch to {} at {}? y=accept, n=cancel",
-                label(name),
-                prompt
-                    .refs
-                    .reference(name)
-                    .expect("checked branch")
-                    .object
-                    .hex()
-            ),
-            BranchAction::Rename { name, new_name } => format!(
-                "Rename {} at {} to {}? y=accept, n=cancel",
-                label(name),
-                prompt
-                    .refs
-                    .reference(name)
-                    .expect("checked branch")
-                    .object
-                    .hex(),
-                label(new_name.as_bytes())
-            ),
-            BranchAction::Delete { name } => format!(
-                "Delete local branch {} at {} without force? y=accept, n=cancel",
-                label(name),
-                prompt
-                    .refs
-                    .reference(name)
-                    .expect("checked branch")
-                    .object
-                    .hex()
-            ),
-        };
-        let target = match &action {
-            BranchAction::Create { target, .. } => *target,
-            BranchAction::Switch { name }
-            | BranchAction::Rename { name, .. }
-            | BranchAction::Delete { name } => {
-                prompt.refs.reference(name).expect("checked branch").object
-            }
-        };
-        let names = match &action {
-            BranchAction::Create { name, .. } => {
-                format!("Create local branch:\n{}", label(name.as_bytes()))
-            }
-            BranchAction::Switch { name } => format!("Switch to local branch:\n{}", label(name)),
-            BranchAction::Rename { name, new_name } => format!(
-                "Rename local branch:\n{}\nNew name:\n{}",
-                label(name),
-                label(new_name.as_bytes())
-            ),
-            BranchAction::Delete { name } => {
-                format!("Delete local branch without force:\n{}", label(name))
-            }
-        };
+        let message = branch_message(&prompt.refs, &action);
+        let target = branch_target(&prompt.refs, &action);
+        let names = branch_names(&action);
         let review = format!(
             "Local branch review\nExact target:\n{}\n{}\nChecked HEAD:\n{}\nUp/Down or PageUp/PageDown scroll. y accepts; n or C-g cancels.",
             target.hex(),
@@ -611,18 +396,18 @@ impl Session {
             prompt.refs.head.map_or("unborn".into(), |id| id.hex())
         );
         self.confirm_git_ref(
-            prompt.refs,
-            RefAction::Branch(action),
-            sources,
+            Proposal {
+                refs: prompt.refs,
+                action: RefAction::Branch(action),
+                sources,
+            },
             message,
             review,
         )
     }
     pub(super) fn confirm_git_ref(
         &mut self,
-        refs: Arc<Refs>,
-        action: RefAction,
-        sources: Option<Sources>,
+        proposal: Proposal,
         message: String,
         review: String,
     ) -> Action {
@@ -634,38 +419,14 @@ impl Session {
             Ok(a) => a,
             Err(e) => return self.error(&e),
         };
-        let prompt = if matches!(action, RefAction::Worktree(_)) {
-            "Confirm checked worktree action? [y/n]"
-        } else if matches!(action, RefAction::Stash(_)) {
-            "Confirm checked stash action? [y/n]"
-        } else if matches!(action, RefAction::Resolution(_)) {
-            "Confirm exact conflict resolution? [y/n]"
-        } else if matches!(action, RefAction::Push(_)) {
-            "Confirm reviewed upstream push? [y/n]"
-        } else {
-            if matches!(
-                action,
-                RefAction::Integration { .. }
-                    | RefAction::Autosquash(_)
-                    | RefAction::Application(_)
-                    | RefAction::BisectStart(_)
-                    | RefAction::BisectControl(..)
-                    | RefAction::Control { .. }
-            ) {
-                "Confirm checked integration? [y/n]"
-            } else {
-                "Confirm local ref action? [y/n]"
-            }
-        };
+        let prompt = proposal.action.confirmation_prompt();
         if let Err(e) = self.input.decision(prompt) {
             return self.error(&e.to_string());
         }
         self.git.painted = None;
         let displayed = self.message(&message);
         self.pending = Some(Pending::GitRef(Box::new(Consent {
-            refs,
-            action,
-            sources,
+            proposal,
             message,
             review,
             top: 0,
@@ -719,38 +480,42 @@ impl Session {
             });
         }
         for root in &plan.paths {
-            for buffer in self.buffers.iter() {
-                let related = buffer.file().is_some_and(|f| {
-                    f.path().starts_with(root)
-                        || std::fs::canonicalize(f.path()).is_ok_and(|p| p.starts_with(root))
-                });
-                if related {
-                    return Err(if buffer.is_modified() {
-                        "Worktree is protected by an unsaved visiting buffer"
-                    } else {
-                        "Worktree is protected by a retained visiting buffer"
-                    }
-                    .into());
-                }
-            }
-            if self.tree.chosen_root().is_some_and(|p| p.starts_with(root)) {
-                return Err("Worktree is protected by the native file-tree root".into());
-            }
-            if self.terminals.retains_directory(root)
-                || self.shell.retains_directory(root)
-                || self.ai.retains_directory(root)
-                || self.lsp.retains_directory(root)
-            {
-                return Err(
-                    "Worktree is protected by a retained native process or language-server owner"
-                        .into(),
-                );
-            }
+            self.check_git_worktree_owners(root)?;
         }
         Ok(Sources {
             stamps: Vec::new(),
             _admission: admission,
         })
+    }
+    fn check_git_worktree_owners(&self, root: &std::path::Path) -> Result<(), String> {
+        for buffer in self.buffers.iter() {
+            let related = buffer.file().is_some_and(|f| {
+                f.path().starts_with(root)
+                    || std::fs::canonicalize(f.path()).is_ok_and(|p| p.starts_with(root))
+            });
+            if related {
+                return Err(if buffer.is_modified() {
+                    "Worktree is protected by an unsaved visiting buffer"
+                } else {
+                    "Worktree is protected by a retained visiting buffer"
+                }
+                .into());
+            }
+        }
+        if self.tree.chosen_root().is_some_and(|p| p.starts_with(root)) {
+            return Err("Worktree is protected by the native file-tree root".into());
+        }
+        if self.terminals.retains_directory(root)
+            || self.shell.retains_directory(root)
+            || self.ai.retains_directory(root)
+            || self.lsp.retains_directory(root)
+        {
+            return Err(
+                "Worktree is protected by a retained native process or language-server owner"
+                    .into(),
+            );
+        }
+        Ok(())
     }
     pub(super) fn git_stash_sources(
         &self,
@@ -842,114 +607,54 @@ impl Session {
     ) -> Action {
         self.input.cancel();
         if !accepted {
-            return self.message(if matches!(consent.action, RefAction::Worktree(_)) {
-                "Worktree action canceled"
-            } else if matches!(consent.action, RefAction::Stash(_)) {
-                "Stash action canceled"
-            } else if matches!(consent.action, RefAction::Resolution(_)) {
-                "Conflict resolution canceled"
-            } else {
-                "Local ref action canceled"
-            });
+            return self.message(consent.proposal.action.canceled_message());
         }
-        if self.git.state.context != Some(consent.refs.observation.context) {
+        if self.git.state.context != Some(consent.proposal.refs.observation.context) {
             return self.message("Branch context changed; confirmation invalidated");
         }
-        if matches!(
-            consent.action,
-            RefAction::Worktree(_)
-                | RefAction::Stash(_)
-                | RefAction::Branch(BranchAction::Switch { .. })
-                | RefAction::Resolution(_)
-                | RefAction::Integration { .. }
-                | RefAction::Autosquash(_)
-                | RefAction::Application(_)
-                | RefAction::BisectStart(_)
-                | RefAction::BisectControl(..)
-                | RefAction::Control { .. }
-        ) {
-            let sources = match &consent.action {
-                RefAction::Worktree(plan) => self.git_worktree_sources(plan),
-                RefAction::Stash(plan) => self.git_stash_sources(plan),
-                RefAction::Resolution(plan) => self.git_resolution_sources(&plan.conflict),
-                _ => self.git_branch_sources(&consent.refs),
-            };
-            match sources {
-                Ok(s)
-                    if consent
-                        .sources
-                        .as_ref()
-                        .is_some_and(|sources| sources.stamps == s.stamps) => {}
-                Ok(_) => {
-                    return self.message(
-                        "Repository-backed source owners changed; confirmation invalidated",
-                    );
-                }
-                Err(e) => return self.error(&e),
-            }
+        if let Some(action) = self.check_git_ref_sources(&consent.proposal) {
+            return action;
         }
-        let worktree = matches!(consent.action, RefAction::Worktree(_));
-        let stash = matches!(consent.action, RefAction::Stash(_));
-        let resolution = matches!(consent.action, RefAction::Resolution(_));
-        let integration = matches!(
-            consent.action,
-            RefAction::Integration { .. }
-                | RefAction::Autosquash(_)
-                | RefAction::Application(_)
-                | RefAction::BisectStart(_)
-                | RefAction::BisectControl(..)
-                | RefAction::Control { .. }
-        );
-        let result = match consent.action {
-            RefAction::Worktree(plan) => self.git.engine.change_worktree(plan),
-            RefAction::Stash(plan) => self.git.engine.change_stash(plan),
-            RefAction::Resolution(plan) => self.git.engine.resolve_conflict(plan),
-            RefAction::Branch(action) => self.git.engine.branch(consent.refs, action),
-            RefAction::CreateTag(intent) => self.git.engine.create_tag(intent, ""),
-            RefAction::DeleteTag(name) => self.git.engine.delete_tag(consent.refs, &name),
-            RefAction::Push(intent) => self.git.engine.push(intent),
-            RefAction::BisectStart(plan) => self.git.engine.start_bisect(plan),
-            RefAction::BisectControl(sequence, action) => {
-                self.git.engine.classify_bisect(sequence, action)
-            }
-            RefAction::Application(plan) => self.git.engine.apply_sequence(plan),
-            RefAction::Autosquash(plan) => self.git.engine.autosquash(plan),
-            RefAction::Control {
-                sequence,
-                action,
-                family,
-            } => self.git.engine.control_sequence(sequence, action, family),
-            RefAction::Integration { target, mode } => {
-                self.git.engine.integrate(consent.refs, &target, mode)
-            }
-        };
-        match result {
+        let Proposal {
+            refs,
+            action,
+            sources: _sources,
+        } = consent.proposal;
+        let route = action.route();
+        match action.submit(refs, &mut self.git.engine) {
             Ok(id) => {
-                if worktree {
-                    self.git.worktrees.request = Some(id);
-                } else if stash {
-                    self.git.repository.request = Some(id);
-                } else if resolution {
-                    self.git.conflicts.resolving = Some(id);
-                } else if integration {
-                    self.git.refs.integration_request = Some(id);
-                } else {
-                    self.git.refs.request = Some(id);
-                }
-                self.message(if worktree {
-                    "Checking confirmed worktree paths, identities and source owners"
-                } else if stash {
-                    "Checking confirmed stash object and saved sources"
-                } else if resolution {
-                    "Checking the confirmed conflict path, saved result and exact stage fingerprint"
-                } else if integration {
-                    "Checking confirmed integration policy and exact ref target"
-                } else {
-                    "Checking confirmed local ref request"
-                })
+                route.install(&mut self.git, id);
+                self.message(route.submitted_message())
             }
             Err(e) => self.error(&e),
         }
+    }
+    fn check_git_ref_sources(&mut self, proposal: &Proposal) -> Option<Action> {
+        if !proposal.action.protects_sources() {
+            return None;
+        }
+        let sources = match &proposal.action {
+            RefAction::Worktree(plan) => self.git_worktree_sources(plan),
+            RefAction::Stash(plan) => self.git_stash_sources(plan),
+            RefAction::Resolution(plan) => self.git_resolution_sources(&plan.conflict),
+            _ => self.git_branch_sources(&proposal.refs),
+        };
+        match sources {
+            Ok(s)
+                if proposal
+                    .sources
+                    .as_ref()
+                    .is_some_and(|sources| sources.stamps == s.stamps) => {}
+            Ok(_) => {
+                return Some(
+                    self.message(
+                        "Repository-backed source owners changed; confirmation invalidated",
+                    ),
+                );
+            }
+            Err(e) => return Some(self.error(&e)),
+        }
+        None
     }
     pub(super) fn publish_git_refs(&mut self, update: &Update) {
         if self
@@ -970,196 +675,83 @@ impl Session {
                 .is_none_or(|r| r.outcome != crate::git::Outcome::Verified);
         if update.published {
             self.git.state.context = update.context;
-            let selected = self.git.refs().and_then(|r| {
-                self.git
-                    .refs
-                    .selected
-                    .as_ref()
-                    .filter(|n| r.reference(n).is_some())
-                    .cloned()
-                    .or_else(|| r.entries.first().map(|r| r.name.clone()))
-            });
-            if self
-                .git
-                .refs
-                .remote_selected
-                .as_ref()
-                .is_none_or(|name| self.git.refs().is_none_or(|r| !r.remotes.contains(name)))
-            {
-                self.git.refs.remote_selected = None;
-            }
-            if self.git.refs.selected.is_some() && selected != self.git.refs.selected {
-                self.git.refs.detail = None;
-            }
-            self.git.refs.selected = if self.git.refs.remote_selected.is_some() {
-                None
-            } else {
-                selected
-            };
+            self.git.reconcile_ref_selection();
             if self.git.refs.detail.is_none() {
                 self.move_git_refs(0, false);
             }
         }
         self.observe_files();
         self.git.painted = None;
-        if update.published
-            && let Some(history) = self.git.history().cloned()
-            && let Some(observation) = update
-                .context
-                .and_then(|id| self.git.engine.context(id))
-                .map(|c| std::sync::Arc::clone(&c.observation))
-        {
-            let preserve_root = self.git.engine.record(update.operation).is_some_and(|r| {
-                matches!(
-                    r.kind,
-                    crate::git::OperationKind::Application
-                        | crate::git::OperationKind::ApplicationControl
-                        | crate::git::OperationKind::Bisect
-                )
-            });
-            match self
-                .git
-                .engine
-                .refresh_history_at(history, observation, preserve_root)
-            {
-                Ok(id) => {
-                    let page = if update
-                        .context
-                        .and_then(|id| self.git.engine.context(id))
-                        .and_then(|c| c.sequence.as_ref())
-                        .is_some_and(|s| s.family.is_some())
-                    {
-                        Page::Sequence
-                    } else {
-                        Page::History
-                    };
-                    self.git.ancestry.request = Some((id, page));
-                }
-                Err(_) => self.git.ancestry.failed = true,
-            }
+        if update.published {
+            self.refresh_git_ref_history(update);
         }
 
         if self.git.visible && self.pending.is_none() && self.input.focus() == Focus::Editing {
-            if self.git.refs.failed
-                && self.git.engine.record(update.operation).is_some_and(|r| {
-                    matches!(
-                        r.kind,
-                        crate::git::OperationKind::TagCreate | crate::git::OperationKind::TagDelete
-                    )
-                })
-            {
-                let record = self
-                    .git
-                    .engine
-                    .record(update.operation)
-                    .expect("tag record");
-                let diagnostic = crate::display::git::DiagnosticLines::new(&record.stderr)
-                    .next()
-                    .unwrap_or_else(|| {
-                        record
-                            .diagnostic
-                            .clone()
-                            .unwrap_or("inspect git-processes".into())
-                    });
-                self.message(&format!(
-                    "Tag operation failed; annotation retained: {diagnostic}"
-                ));
-                return;
-            }
-            if self
-                .git
-                .engine
-                .record(update.operation)
-                .is_some_and(|r| r.kind == crate::git::OperationKind::Fetch)
-            {
-                self.message(if self.git.refs.failed {
-                    "Fetch failed or tracking effects remain uncertain; inspect git-processes; raw transport output withheld"
+            self.message(&self.git.ref_result_message(update.operation));
+        }
+    }
+    fn refresh_git_ref_history(&mut self, update: &Update) {
+        let Some(history) = self.git.history().cloned() else {
+            return;
+        };
+        let Some(observation) = update
+            .context
+            .and_then(|id| self.git.engine.context(id))
+            .map(|c| Arc::clone(&c.observation))
+        else {
+            return;
+        };
+        let preserve_root = self.git.engine.record(update.operation).is_some_and(|r| {
+            matches!(
+                r.kind,
+                crate::git::OperationKind::Application
+                    | crate::git::OperationKind::ApplicationControl
+                    | crate::git::OperationKind::Bisect
+            )
+        });
+        match self
+            .git
+            .engine
+            .refresh_history_at(history, observation, preserve_root)
+        {
+            Ok(id) => {
+                let page = if update
+                    .context
+                    .and_then(|id| self.git.engine.context(id))
+                    .and_then(|c| c.sequence.as_ref())
+                    .is_some_and(|s| s.family.is_some())
+                {
+                    Page::Sequence
                 } else {
-                    "Fetch completed; Refs and Status checked; branch not integrated"
-                });
-                return;
+                    Page::History
+                };
+                self.git.ancestry.request = Some((id, page));
             }
-            if self
-                .git
-                .engine
-                .record(update.operation)
-                .is_some_and(|r| r.kind == crate::git::OperationKind::Push)
-            {
-                self.message(if self.git.refs.failed {
-                    "Push failed or publication remains unresolved; inspect git-processes; no automatic retry"
-                } else {
-                    "Push verified: exact reviewed object observed at its configured upstream destination"
-                });
-                return;
-            }
-            self.message(if self.git.refs.failed {
-                "Refs operation failed; confirmed facts retained; inspect git-processes"
-            } else {
-                "Refs and Status checked; source reload follows file policy"
-            });
+            Err(_) => self.git.ancestry.failed = true,
         }
     }
 }
 
 impl Session {
     pub(super) fn git_ref_review_input(&mut self, event: &Event) -> Option<Action> {
-        use crossterm::event::{KeyCode, KeyEventKind, KeyModifiers};
-        let accept = if let Some(Pending::GitRef(consent)) = &mut self.pending {
-            if let Event::Key(key) = event {
-                if key.kind == KeyEventKind::Press
-                    && key.modifiers == KeyModifiers::CONTROL
-                    && key.code == KeyCode::Enter
-                {
-                    true
-                } else if key.kind == KeyEventKind::Press
-                    && key.modifiers == KeyModifiers::CONTROL
-                    && key.code == KeyCode::Char('c')
-                {
-                    if !consent.submit_prefix {
-                        consent.submit_prefix = true;
-                        return Some(Action::Redraw);
-                    }
-                    true
-                } else {
-                    if key.kind == KeyEventKind::Press {
-                        consent.submit_prefix = false;
-                    }
-                    false
-                }
-            } else {
-                false
-            }
-        } else {
-            false
+        let Some(Pending::GitRef(consent)) = &mut self.pending else {
+            return None;
         };
-        if accept {
-            let Some(Pending::GitRef(consent)) = self.pending.take() else {
-                unreachable!("checked Git review");
-            };
-            return Some(self.git_ref_answer(*consent, true));
+        match consent.review_command(event) {
+            ReviewCommand::Prefix => return Some(Action::Redraw),
+            ReviewCommand::Submit => {
+                let Some(Pending::GitRef(consent)) = self.pending.take() else {
+                    unreachable!("checked Git review");
+                };
+                return Some(self.git_ref_answer(*consent, true));
+            }
+            ReviewCommand::Other => {}
         }
         let extent = usize::from(self.size.height.saturating_sub(2).max(1));
         let Some(Pending::GitRef(consent)) = &mut self.pending else {
             return None;
         };
-        let movement = match event {
-            Event::Key(k) if k.kind != KeyEventKind::Release => match (k.code, k.modifiers) {
-                (KeyCode::Up, KeyModifiers::NONE) | (KeyCode::Char('p'), KeyModifiers::CONTROL) => {
-                    Some((1, true))
-                }
-                (KeyCode::Down, KeyModifiers::NONE)
-                | (KeyCode::Char('n'), KeyModifiers::CONTROL) => Some((1, false)),
-                (KeyCode::PageUp, KeyModifiers::NONE) => Some((extent, true)),
-                (KeyCode::PageDown, KeyModifiers::NONE) => Some((extent, false)),
-                _ => None,
-            },
-            Event::Mouse(m) if self.mouse_enabled => match m.kind {
-                MouseEventKind::ScrollUp => Some((3, true)),
-                MouseEventKind::ScrollDown => Some((3, false)),
-                _ => None,
-            },
-            _ => None,
-        }?;
+        let movement = review_movement(event, extent, self.mouse_enabled)?;
         let width = usize::from(self.size.width.max(1));
         let count = consent
             .review
@@ -1200,27 +792,501 @@ impl Session {
             .presentation(self.size.width, self.size.height)?;
         let mut frame = Frame::pending(self.buffer()?, self.size, self.buffers.palette())?.git(
             &self.echo,
-            if matches!(consent.action, RefAction::Resolution(_)) {
-                " Git Conflict Review  y / C-Enter / C-c C-c accept  n / C-g cancel"
-            } else if matches!(
-                consent.action,
-                RefAction::Integration { .. }
-                    | RefAction::Autosquash(_)
-                    | RefAction::Application(_)
-                    | RefAction::BisectStart(_)
-                    | RefAction::BisectControl(..)
-                    | RefAction::Control { .. }
-            ) {
-                " Git Integration Review  y / C-Enter / C-c C-c accept  C-g cancel"
-            } else if matches!(consent.action, RefAction::Push(_)) {
-                " Git Push Review  y accept  n / C-g cancel  Up/Down scroll"
-            } else {
-                " Git Local Ref Review  y accept  n / C-g cancel  Up/Down scroll"
-            },
+            consent.proposal.action.review_title(),
             admission,
             |_| (rows.next().unwrap_or_default(), false),
         )?;
         self.prompt_frame(&mut frame, None)?;
         Ok(frame)
+    }
+}
+
+impl Prompt {
+    fn action(&self, value: &str) -> Result<BranchAction, &'static str> {
+        if matches!(self.intent, Intent::Create | Intent::Rename) && invalid_branch_name(value) {
+            return Err("Branch name requires 1..=4096 non-NUL bytes");
+        }
+        let selected = self.selected.as_ref().and_then(|n| self.refs.reference(n));
+        if matches!(self.intent, Intent::Create) {
+            let target = selected
+                .map_or(self.refs.head, |r| r.commit())
+                .ok_or("Branch creation requires an exact commit target")?;
+            return Ok(BranchAction::Create {
+                name: value.into(),
+                target,
+            });
+        }
+        let selected = selected
+            .filter(|r| r.kind == RefKind::Branch && r.symbolic.is_empty())
+            .ok_or("Select one exact local branch first")?;
+        Ok(self.local_action(selected, value))
+    }
+    fn local_action(&self, selected: &crate::git::Reference, value: &str) -> BranchAction {
+        match self.intent {
+            Intent::Switch => BranchAction::Switch {
+                name: selected.name.clone(),
+            },
+            Intent::Rename => BranchAction::Rename {
+                name: selected.name.clone(),
+                new_name: value.into(),
+            },
+            Intent::Delete => BranchAction::Delete {
+                name: selected.name.clone(),
+            },
+            Intent::Create => unreachable!(),
+        }
+    }
+}
+fn invalid_branch_name(value: &str) -> bool {
+    value.is_empty() || value.len() > 4096 || value.contains('\0')
+}
+fn branch_message(refs: &Refs, action: &BranchAction) -> String {
+    match action {
+        BranchAction::Create { name, target } => format!(
+            "Create local branch {} at {}? y=accept, n=cancel",
+            label(name.as_bytes()),
+            target.hex()
+        ),
+        BranchAction::Switch { name } => format!(
+            "Switch to {} at {}? y=accept, n=cancel",
+            label(name),
+            refs.reference(name).expect("checked branch").object.hex()
+        ),
+        BranchAction::Rename { name, new_name } => format!(
+            "Rename {} at {} to {}? y=accept, n=cancel",
+            label(name),
+            refs.reference(name).expect("checked branch").object.hex(),
+            label(new_name.as_bytes())
+        ),
+        BranchAction::Delete { name } => format!(
+            "Delete local branch {} at {} without force? y=accept, n=cancel",
+            label(name),
+            refs.reference(name).expect("checked branch").object.hex()
+        ),
+    }
+}
+fn branch_target(refs: &Refs, action: &BranchAction) -> crate::git::ObjectId {
+    match action {
+        BranchAction::Create { target, .. } => *target,
+        BranchAction::Switch { name }
+        | BranchAction::Rename { name, .. }
+        | BranchAction::Delete { name } => refs.reference(name).expect("checked branch").object,
+    }
+}
+fn branch_names(action: &BranchAction) -> String {
+    match action {
+        BranchAction::Create { name, .. } => {
+            format!("Create local branch:\n{}", label(name.as_bytes()))
+        }
+        BranchAction::Switch { name } => format!("Switch to local branch:\n{}", label(name)),
+        BranchAction::Rename { name, new_name } => format!(
+            "Rename local branch:\n{}\nNew name:\n{}",
+            label(name),
+            label(new_name.as_bytes())
+        ),
+        BranchAction::Delete { name } => {
+            format!("Delete local branch without force:\n{}", label(name))
+        }
+    }
+}
+impl RefAction {
+    fn is_integration(&self) -> bool {
+        matches!(
+            self,
+            Self::Integration { .. }
+                | Self::Autosquash(_)
+                | Self::Application(_)
+                | Self::BisectStart(_)
+                | Self::BisectControl(..)
+                | Self::Control { .. }
+        )
+    }
+    fn protects_sources(&self) -> bool {
+        matches!(
+            self,
+            Self::Worktree(_)
+                | Self::Stash(_)
+                | Self::Resolution(_)
+                | Self::Branch(BranchAction::Switch { .. })
+        ) || self.is_integration()
+    }
+    fn confirmation_prompt(&self) -> &'static str {
+        match self {
+            Self::Worktree(_) => "Confirm checked worktree action? [y/n]",
+            Self::Stash(_) => "Confirm checked stash action? [y/n]",
+            Self::Resolution(_) => "Confirm exact conflict resolution? [y/n]",
+            Self::Push(_) => "Confirm reviewed upstream push? [y/n]",
+            _ if self.is_integration() => "Confirm checked integration? [y/n]",
+            _ => "Confirm local ref action? [y/n]",
+        }
+    }
+    fn canceled_message(&self) -> &'static str {
+        match self {
+            Self::Worktree(_) => "Worktree action canceled",
+            Self::Stash(_) => "Stash action canceled",
+            Self::Resolution(_) => "Conflict resolution canceled",
+            _ => "Local ref action canceled",
+        }
+    }
+    fn route(&self) -> RefRoute {
+        match self {
+            Self::Worktree(_) => RefRoute::Worktree,
+            Self::Stash(_) => RefRoute::Stash,
+            Self::Resolution(_) => RefRoute::Resolution,
+            _ if self.is_integration() => RefRoute::Integration,
+            _ => RefRoute::Local,
+        }
+    }
+    fn submit_integration(
+        self,
+        refs: Arc<Refs>,
+        engine: &mut Repositories,
+    ) -> Result<OperationId, String> {
+        match self {
+            Self::BisectStart(plan) => engine.start_bisect(plan),
+            Self::BisectControl(sequence, action) => engine.classify_bisect(sequence, action),
+            Self::Application(plan) => engine.apply_sequence(plan),
+            Self::Autosquash(plan) => engine.autosquash(plan),
+            Self::Control {
+                sequence,
+                action,
+                family,
+            } => engine.control_sequence(sequence, action, family),
+            Self::Integration { target, mode } => engine.integrate(refs, &target, mode),
+            _ => unreachable!("integration ref request"),
+        }
+    }
+    fn review_title(&self) -> &'static str {
+        match self {
+            Self::Resolution(_) => {
+                " Git Conflict Review  y / C-Enter / C-c C-c accept  n / C-g cancel"
+            }
+            _ if self.is_integration() => {
+                " Git Integration Review  y / C-Enter / C-c C-c accept  C-g cancel"
+            }
+            Self::Push(_) => " Git Push Review  y accept  n / C-g cancel  Up/Down scroll",
+            _ => " Git Local Ref Review  y accept  n / C-g cancel  Up/Down scroll",
+        }
+    }
+}
+impl RefAction {
+    fn submit(self, refs: Arc<Refs>, engine: &mut Repositories) -> Result<OperationId, String> {
+        match self {
+            RefAction::Worktree(plan) => engine.change_worktree(plan),
+            RefAction::Stash(plan) => engine.change_stash(plan),
+            RefAction::Resolution(plan) => engine.resolve_conflict(plan),
+            RefAction::Branch(action) => engine.branch(refs, action),
+            RefAction::CreateTag(intent) => engine.create_tag(intent, ""),
+            RefAction::DeleteTag(name) => engine.delete_tag(refs, &name),
+            RefAction::Push(intent) => engine.push(intent),
+            action => action.submit_integration(refs, engine),
+        }
+    }
+}
+impl RefRoute {
+    fn install(self, work: &mut Work, id: OperationId) {
+        match self {
+            Self::Worktree => work.worktrees.request = Some(id),
+            Self::Stash => work.repository.request = Some(id),
+            Self::Resolution => work.conflicts.resolving = Some(id),
+            Self::Integration => work.refs.integration_request = Some(id),
+            Self::Local => work.refs.request = Some(id),
+        }
+    }
+    fn submitted_message(self) -> &'static str {
+        match self {
+            Self::Worktree => "Checking confirmed worktree paths, identities and source owners",
+            Self::Stash => "Checking confirmed stash object and saved sources",
+            Self::Resolution => {
+                "Checking the confirmed conflict path, saved result and exact stage fingerprint"
+            }
+            Self::Integration => "Checking confirmed integration policy and exact ref target",
+            Self::Local => "Checking confirmed local ref request",
+        }
+    }
+}
+
+impl Work {
+    fn refs_header(&self, refs: &Refs, row: usize) -> String {
+        match row {
+            0 => format!(
+                "HEAD: {} {}",
+                head_label(refs),
+                refs.head.map_or("unborn".into(), |id| id.hex())
+            ),
+            1 => format!(
+                "{} refs / {} remotes / {}{}",
+                refs.entries.len(),
+                refs.remotes.len(),
+                if refs.completeness == Completeness::Complete {
+                    "complete"
+                } else {
+                    "TRUNCATED"
+                },
+                if self.refs.failed {
+                    " / STALE: refresh failed; $ diagnostics"
+                } else {
+                    ""
+                }
+            ),
+            _ => self.refs_progress_line().into(),
+        }
+    }
+    fn refs_progress_line(&self) -> &'static str {
+        if self.refs.request.is_some()
+            || self.refs.tag_preparing.is_some()
+            || self.refs.push_preparing.is_some()
+            || self.ancestry.request.is_some()
+        {
+            "Checking / executing / refreshing refs"
+        } else {
+            "Exact full names and objects; local actions require review"
+        }
+    }
+    fn ref_entry_line(&self, refs: &Refs, r: &crate::git::Reference, selected: bool) -> String {
+        format!(
+            "{}{} {} {}{}{}{}{}",
+            if selected { ">" } else { " " },
+            if self
+                .refs
+                .push_mark
+                .as_ref()
+                .is_some_and(|mark| mark.context == refs.observation.context
+                    && mark.name == r.name
+                    && mark.object == r.object)
+            {
+                "*"
+            } else {
+                " "
+            },
+            label(&r.name),
+            r.object.hex(),
+            if r.object_type == b"tag" {
+                format!(
+                    " tag -> {}",
+                    r.peeled.map_or("unavailable".into(), |id| id.hex())
+                )
+            } else {
+                String::new()
+            },
+            if r.symbolic.is_empty() {
+                String::new()
+            } else {
+                format!(" symbolic -> {}", label(&r.symbolic))
+            },
+            if r.upstream.is_empty() {
+                String::new()
+            } else {
+                format!(" upstream {}", label(&r.upstream))
+            },
+            if r.tracking.is_empty() {
+                String::new()
+            } else {
+                format!(" {}", label(&r.tracking))
+            }
+        )
+    }
+}
+fn head_label(refs: &Refs) -> String {
+    if refs.head_ref.is_empty() {
+        "detached".into()
+    } else {
+        label(&refs.head_ref)
+    }
+}
+fn ref_identity_line(
+    reference: Option<&crate::git::Reference>,
+    remote: Option<&[u8]>,
+    row: usize,
+) -> String {
+    match row {
+        0 => "Git Ref Detail".into(),
+        1 => reference.map_or("Configured remote name".into(), |r| {
+            format!("Kind: {:?}", r.kind)
+        }),
+        2 => "Full exact name:".into(),
+        3 => reference
+            .map(|r| label(&r.name))
+            .or_else(|| remote.map(label))
+            .unwrap_or_default(),
+        4 => "Full ref object:".into(),
+        5 => reference.map_or("unavailable for configured remote".into(), |r| {
+            r.object.hex()
+        }),
+        6 => reference.map_or(String::new(), |r| {
+            format!("Object type: {}", label(&r.object_type))
+        }),
+        7 => "Symbolic target:".into(),
+        8 => reference.map_or(String::new(), |r| label(&r.symbolic)),
+        _ => unreachable!("ref identity row"),
+    }
+}
+fn ref_tracking_line(reference: Option<&crate::git::Reference>, row: usize) -> String {
+    match row {
+        9 => "Peeled target:".into(),
+        10 => reference
+            .and_then(|r| r.peeled)
+            .map_or("direct object / unavailable".into(), |id| id.hex()),
+        11 => reference.map_or(String::new(), |r| {
+            format!("Peeled type: {}", label(&r.peeled_type))
+        }),
+        12 => "Full upstream ref:".into(),
+        13 => reference.map_or(String::new(), |r| label(&r.upstream)),
+        14 => reference.map_or(String::new(), |r| {
+            format!(
+                "Tracking: {}",
+                if r.tracking.is_empty() {
+                    "unavailable or equal".into()
+                } else {
+                    label(&r.tracking)
+                }
+            )
+        }),
+        _ => unreachable!("ref tracking row"),
+    }
+}
+fn ref_observation_line(refs: &Refs, row: usize) -> String {
+    match row {
+        15 => format!(
+            "HEAD ref: {}",
+            if refs.head_ref.is_empty() {
+                "detached".into()
+            } else {
+                label(&refs.head_ref)
+            }
+        ),
+        16 => refs.head.map_or("HEAD unborn".into(), |id| id.hex()),
+        17 => format!("Observation: {:?}", refs.completeness),
+        _ => "Up/Down scroll; Tab or q returns to Refs".into(),
+    }
+}
+
+impl Work {
+    fn reconcile_ref_selection(&mut self) {
+        let selected = self.refs().and_then(|r| {
+            self.refs
+                .selected
+                .as_ref()
+                .filter(|n| r.reference(n).is_some())
+                .cloned()
+                .or_else(|| r.entries.first().map(|r| r.name.clone()))
+        });
+        if self
+            .refs
+            .remote_selected
+            .as_ref()
+            .is_none_or(|name| self.refs().is_none_or(|r| !r.remotes.contains(name)))
+        {
+            self.refs.remote_selected = None;
+        }
+        if self.refs.selected.is_some() && selected != self.refs.selected {
+            self.refs.detail = None;
+        }
+        self.refs.selected = if self.refs.remote_selected.is_some() {
+            None
+        } else {
+            selected
+        };
+    }
+    fn ref_result_message(&self, operation: OperationId) -> std::borrow::Cow<'static, str> {
+        let record = self.engine.record(operation);
+        if self.refs.failed
+            && let Some(record) = record
+            && matches!(
+                record.kind,
+                crate::git::OperationKind::TagCreate | crate::git::OperationKind::TagDelete
+            )
+        {
+            let diagnostic = crate::display::git::DiagnosticLines::new(&record.stderr)
+                .next()
+                .unwrap_or_else(|| {
+                    record
+                        .diagnostic
+                        .clone()
+                        .unwrap_or("inspect git-processes".into())
+                });
+            return format!("Tag operation failed; annotation retained: {diagnostic}").into();
+        }
+        if let Some(message) = transport_result_message(record.map(|r| r.kind), self.refs.failed) {
+            return message.into();
+        }
+        if self.refs.failed {
+            "Refs operation failed; confirmed facts retained; inspect git-processes".into()
+        } else {
+            "Refs and Status checked; source reload follows file policy".into()
+        }
+    }
+}
+fn transport_result_message(
+    kind: Option<crate::git::OperationKind>,
+    failed: bool,
+) -> Option<&'static str> {
+    match kind {
+        Some(crate::git::OperationKind::Fetch) => Some(if failed {
+            "Fetch failed or tracking effects remain uncertain; inspect git-processes; raw transport output withheld"
+        } else {
+            "Fetch completed; Refs and Status checked; branch not integrated"
+        }),
+        Some(crate::git::OperationKind::Push) => Some(if failed {
+            "Push failed or publication remains unresolved; inspect git-processes; no automatic retry"
+        } else {
+            "Push verified: exact reviewed object observed at its configured upstream destination"
+        }),
+        _ => None,
+    }
+}
+enum ReviewCommand {
+    Submit,
+    Prefix,
+    Other,
+}
+impl Consent {
+    fn review_command(&mut self, event: &Event) -> ReviewCommand {
+        use crossterm::event::{KeyCode, KeyEventKind, KeyModifiers};
+        let Event::Key(key) = event else {
+            return ReviewCommand::Other;
+        };
+        if key.kind != KeyEventKind::Press {
+            return ReviewCommand::Other;
+        }
+        if key.modifiers == KeyModifiers::CONTROL {
+            match key.code {
+                KeyCode::Enter => return ReviewCommand::Submit,
+                KeyCode::Char('c') if self.submit_prefix => return ReviewCommand::Submit,
+                KeyCode::Char('c') => {
+                    self.submit_prefix = true;
+                    return ReviewCommand::Prefix;
+                }
+                _ => {}
+            }
+        }
+        self.submit_prefix = false;
+        ReviewCommand::Other
+    }
+}
+fn review_movement(event: &Event, extent: usize, mouse_enabled: bool) -> Option<(usize, bool)> {
+    use crossterm::event::KeyEventKind;
+    match event {
+        Event::Key(key) if key.kind != KeyEventKind::Release => review_key_movement(key, extent),
+        Event::Mouse(m) if mouse_enabled => match m.kind {
+            MouseEventKind::ScrollUp => Some((3, true)),
+            MouseEventKind::ScrollDown => Some((3, false)),
+            _ => None,
+        },
+        _ => None,
+    }
+}
+fn review_key_movement(key: &crossterm::event::KeyEvent, extent: usize) -> Option<(usize, bool)> {
+    use crossterm::event::{KeyCode, KeyModifiers};
+    match (key.code, key.modifiers) {
+        (KeyCode::Up, KeyModifiers::NONE) | (KeyCode::Char('p'), KeyModifiers::CONTROL) => {
+            Some((1, true))
+        }
+        (KeyCode::Down, KeyModifiers::NONE) | (KeyCode::Char('n'), KeyModifiers::CONTROL) => {
+            Some((1, false))
+        }
+        (KeyCode::PageUp, KeyModifiers::NONE) => Some((extent, true)),
+        (KeyCode::PageDown, KeyModifiers::NONE) => Some((extent, false)),
+        _ => None,
     }
 }

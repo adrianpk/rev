@@ -319,29 +319,35 @@ impl Session {
             self.git.repository.detail = Some(0);
         }
         if !preparing {
-            let selected = self.git.stashes().and_then(|s| {
-                self.git
-                    .repository
-                    .selected
-                    .filter(|o| s.entry(*o).is_some())
-                    .or_else(|| s.entries.first().map(|e| e.object))
-            });
-            self.git.repository.cursor = self
-                .git
-                .stashes()
-                .and_then(|s| s.entries.iter().position(|e| Some(e.object) == selected))
-                .unwrap_or(0);
-            self.git.repository.selected = selected;
-            self.move_git_stashes(0, false);
-            self.observe_files();
-            self.git.painted = None;
-            self.message(if self.git.repository.failed {
-                "Stash effects require inspection; actual conflict/state and diagnostics retained"
-            } else {
-                "Git Stashes refreshed; exact request verified"
-            });
+            self.reconcile_git_stash_publication();
             return;
         }
+        self.review_git_stash_publication(update);
+    }
+    fn reconcile_git_stash_publication(&mut self) {
+        let selected = self.git.stashes().and_then(|s| {
+            self.git
+                .repository
+                .selected
+                .filter(|o| s.entry(*o).is_some())
+                .or_else(|| s.entries.first().map(|e| e.object))
+        });
+        self.git.repository.cursor = self
+            .git
+            .stashes()
+            .and_then(|s| s.entries.iter().position(|e| Some(e.object) == selected))
+            .unwrap_or(0);
+        self.git.repository.selected = selected;
+        self.move_git_stashes(0, false);
+        self.observe_files();
+        self.git.painted = None;
+        self.message(if self.git.repository.failed {
+            "Stash effects require inspection; actual conflict/state and diagnostics retained"
+        } else {
+            "Git Stashes refreshed; exact request verified"
+        });
+    }
+    fn review_git_stash_publication(&mut self, update: &Update) {
         if !self.git.visible
             || self.git.page != Page::Stash
             || self.pending.is_some()
@@ -377,43 +383,49 @@ impl Session {
             }
         };
         let object = plan.action.object().map_or("new stash".into(), |o| o.hex());
-        let mut review = format!(
-            "Stash review\nAction: {}\nFull exact object:\n{}\nChecked HEAD:\n{}\nSaved files only; no implicit save.\n",
-            plan.action.label(),
-            object,
-            plan.source.refs.head.map_or("unborn".into(), |h| h.hex())
-        );
-        match &plan.action {
-            StashAction::Create { message } => review.push_str(&format!(
-                "Message: {}\nIncludes tracked and untracked files; ignored files stay excluded.\n",
-                label(message.as_bytes())
-            )),
-            StashAction::Branch { name, .. } => review.push_str(&format!(
-                "New local branch: {}\nBase: {}\n",
-                label(name.as_bytes()),
-                plan.base.map_or("unavailable".into(), |b| b.hex())
-            )),
-            _ => {}
-        }
-        review.push_str("Affected saved paths:\n");
-        for path in &plan.paths {
-            review.push_str(&label(path.as_os_str().as_encoded_bytes()));
-            review.push('\n');
-        }
-        review.push_str(
-            "y accepts; n or C-g cancels. No automatic conflict resolution or continuation.",
-        );
+        let review = stash_review(&plan, &object);
         let message = format!(
             "Confirm stash {} / {}? y=accept, n=cancel",
             plan.action.label(),
             object
         );
         self.confirm_git_ref(
-            std::sync::Arc::clone(&plan.source.refs),
-            refs::RefAction::Stash(plan),
-            Some(sources),
+            refs::Proposal {
+                refs: std::sync::Arc::clone(&plan.source.refs),
+                action: refs::RefAction::Stash(plan),
+                sources: Some(sources),
+            },
             message,
             review,
         );
     }
+}
+
+fn stash_review(plan: &crate::git::StashPlan, object: &str) -> String {
+    let mut review = format!(
+        "Stash review\nAction: {}\nFull exact object:\n{}\nChecked HEAD:\n{}\nSaved files only; no implicit save.\n",
+        plan.action.label(),
+        object,
+        plan.source.refs.head.map_or("unborn".into(), |h| h.hex())
+    );
+    match &plan.action {
+        StashAction::Create { message } => review.push_str(&format!(
+            "Message: {}\nIncludes tracked and untracked files; ignored files stay excluded.\n",
+            label(message.as_bytes())
+        )),
+        StashAction::Branch { name, .. } => review.push_str(&format!(
+            "New local branch: {}\nBase: {}\n",
+            label(name.as_bytes()),
+            plan.base.map_or("unavailable".into(), |b| b.hex())
+        )),
+        _ => {}
+    }
+    review.push_str("Affected saved paths:\n");
+    for path in &plan.paths {
+        review.push_str(&label(path.as_os_str().as_encoded_bytes()));
+        review.push('\n');
+    }
+    review
+        .push_str("y accepts; n or C-g cancels. No automatic conflict resolution or continuation.");
+    review
 }
