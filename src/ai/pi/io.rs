@@ -44,7 +44,9 @@ impl Inbox {
             queue.bytes -= bytes.len() + 2;
             return Ok(Some(bytes));
         }
-        if queue.closed {
+        let closed = queue.closed;
+        drop(queue);
+        if closed {
             return Err("Pi stdout closed before the operation completed".into());
         }
         Ok(None)
@@ -54,6 +56,7 @@ impl Inbox {
         let mut queue = self.queue.lock().expect("Pi inbox");
         queue.closed = true;
         queue.failure = failure;
+        drop(queue);
         self.ready.notify_all();
     }
 
@@ -61,11 +64,13 @@ impl Inbox {
         let mut queue = self.queue.lock().expect("Pi inbox");
         if queue.records.len() >= 256 || queue.bytes + bytes.len() + 2 > frame::QUEUE {
             queue.failure = Some("Pi protocol queue exceeds 4 MiB or 256 records".into());
+            drop(queue);
             self.ready.notify_all();
             return false;
         }
         queue.bytes += bytes.len() + 2;
         queue.records.push_back(bytes);
+        drop(queue);
         self.ready.notify_one();
         true
     }
@@ -94,8 +99,7 @@ impl Owned {
         }
     }
     pub fn limit_history(&self) -> Result<(), String> {
-        let pid = rustix::process::Pid::from_raw(self.child.id() as i32)
-            .ok_or("Pi process identity invalid")?;
+        let pid = rustix::process::Pid::from_child(&self.child);
         rustix::process::prlimit(
             Some(pid),
             rustix::process::Resource::Fsize,
@@ -175,7 +179,7 @@ impl Pipes {
             // Release scoped readers before joining them even if setup/run
             // unwinds. Inherited descriptors cannot retain these local reads.
             let _readers = Readers(&self.output, &self.error);
-            let reader = inbox.clone();
+            let reader = Arc::clone(&inbox);
             scope.spawn(move || {
                 let mut output = BufReader::new(output);
                 loop {
@@ -198,7 +202,7 @@ impl Pipes {
                     }
                 }
             });
-            let diagnostic = inbox.clone();
+            let diagnostic = Arc::clone(&inbox);
             scope.spawn(move || {
                 let mut bytes = [0; 4096];
                 while let Ok(n) = error.read(&mut bytes) {

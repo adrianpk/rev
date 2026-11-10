@@ -117,8 +117,8 @@ Dependency: Slice 5 integrated
 Branch: refactor/rev-architecture-quality-06-processes
 PR: pending
 Report: ops/default/report/slices/rev-architecture-quality/slice-6-processes.md
-Progress: first process/AI-target/Pi-resource/history cohort passes focused quality; native source findings decreased from 34 to 21 and full-scope Clippy diagnostics from 196 to 186; broader process-owner corrections remain pending
-Validation: 11-file scoped quality and ten native process tests pass; the frozen six-suite native command passes all 213 ordinary cases with three existing upstream-acquisition cases ignored; frozen documentation/diff checks pass; full scoped quality still fails and final clean-HEAD Looper evidence is pending
+Progress: process/AI-target/Pi-resource/history and private Pi RPC/supervisor phases are implemented; source findings decreased from 34 to nine and full-scope Clippy diagnostics from 196 to 154; private Pi canonical quality passes for all eight files; AI session and remaining ownership/conversion corrections are pending
+Validation: private Pi all-target quality, all 26 AI and 15 Pi regressions, documentation and diff checks pass; the prior full native run passed 213 cases with three existing upstream-acquisition ignores; full scoped quality still fails with 154 Clippy diagnostics and nine source findings; final clean-HEAD Looper evidence is pending
 
 - [ ] T6.1: Correct selected ownership, narrowing, guard-lifetime and source-policy findings in AI/Pi, LSP, shell, integrated-terminal and native process owners plus their session adapters.
 - [ ] T6.2: Keep worker IO away from input/rendering, shared mailboxes intentional, owned process cleanup/cancellation finite and generation-bound; preserve existing environment/credential redaction and terminal restoration.

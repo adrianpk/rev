@@ -29,9 +29,22 @@ buffer before its second prefix insertion. The unchanged slice base reproduced
 its previous failure: switching buffers retains the previous point. All original
 Unicode text, revision, completeness, dirty-state and disk assertions remain.
 
+Pi RPC traffic now retains the exact invocation identity and deadline through
+request correlation, discovery admission, generation and independent cancellation.
+Assistant accumulation, tool correlation/budgets, settlement and the unchanged
+passive lifecycle catalog have separate handlers.
+
+The Pi supervisor retains launch policy, pinned root, request and profile through
+child cleanup. Root/version admission, command setup, history binding and
+switching, discovery grants, generation, result publication and idle retirement
+have explicit phases. Mailbox admission/retirement remains atomic; guards are
+released before notifications and protocol waits.
+
 The complete Slice 6 implementation remains in progress. The full quality check
-has 186 blocking Clippy diagnostics, down from 196, and 21 source findings, down
-from 34. The completed 11-file cohort passes its scoped quality check.
+has 154 blocking Clippy diagnostics, down from 196, and nine source findings,
+down from 34. All eight private Pi files pass the canonical scoped quality check.
+The existing public retained-session signature is the sole Pi source finding;
+the other eight are in AI session adapters.
 
 ## Implementation Notes
 
@@ -46,8 +59,20 @@ from 34. The completed 11-file cohort passes its scoped quality check.
   handling, 16 bindings, 64 KiB index and 32 MiB session limits.
 - A private borrowed `Selection` carries the exact binding key, candidate path and
   reset choice from the worker into the store. Package APIs remain unchanged.
-- Remaining work includes Pi protocol/worker and AI session source decomposition,
-  plus selected LSP, shell, terminal and mailbox ownership/conversion diagnostics.
+- RPC correlation preserves every command/event, prompt disposition, model/root
+  and session check, unsupported-UI/tool rejection, exact output JSON and byte
+  handling. Eight turns, 32 calls, 4 MiB tool output and 2 MiB records are unchanged.
+- Discovery grants retain their exact nonce/root identity, fingerprint, private
+  exclusions and capped remaining timeout. Cancellation still sends clear-queue
+  before abort under its independent five-second bound.
+- Reset publication still precedes restored-session switching; history sync
+  still precedes generated-result publication. Pending request selection and
+  idle retirement remain under one mailbox lock, released before the next read.
+- Version admission retains its five-second bound and one-second exit wait.
+  Stream setup/draining, owned child stop, private resource lifetime and cleanup
+  failure publication stay on the supervisor; no worker IO moved to input/render.
+- Remaining work includes AI session source decomposition and selected LSP,
+  shell, terminal and adapter ownership/conversion diagnostics.
 
 ## Contracts Added or Changed
 
@@ -61,22 +86,27 @@ are preserved.
   positive process identity and bounded cleanup ownership.
 - `src/ai/target.rs`: qualified linear-region capture.
 - `src/ai/pi/resource.rs`: private extraction and resource identity.
-- `src/ai/pi/history.rs` and `worker.rs`: binding requests, index publication and
-  session identity; broader worker decomposition remains pending.
+- `src/ai/pi/history.rs` and `worker.rs`: binding requests, index publication,
+  retained-session supervision and generation-bound idle ownership.
+- `src/ai/pi/protocol.rs` and `protocol/generation.rs`: invocation-scoped RPC,
+  bounded generation events, tool observations and settled output.
+- `src/ai/pi.rs` and `io.rs`: explicit shared ownership, mailbox guard release,
+  typed child identity and retained stream/cleanup boundaries.
 - `tests/ai/discovery.rs`: explicit prefix-insertion position in the native map.
 
 ## Validation
 
 Working-tree implementation evidence follows. Exact clean-HEAD Looper validation
-and canonical PR preparation remain pending.
+and canonical PR preparation remain pending. The previous full native run
+predates the current Pi decomposition; focused AI/Pi regressions cover the latest
+changes. No previous result is final clean-HEAD evidence.
 
-- Failed: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 bash scripts/check-quality.sh --scope src/ai.rs --scope src/ai --scope src/lsp.rs --scope src/lsp --scope src/process.rs --scope src/process --scope src/shell.rs --scope src/shell --scope src/terminal.rs --scope src/terminal --scope src/session/ai.rs --scope src/session/ai --scope src/session/lsp.rs --scope src/session/lsp --scope src/session/shell.rs --scope src/session/shell --scope src/session/terminals.rs --scope src/session/terminals`. All-target compilation succeeds; 186 selected Clippy diagnostics and 21 source findings remain across 115 selected files.
-- Passed: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --test ai --test lsp --test lsp_installation --test shell_commands --test integrated_terminal --test pi -- --test-threads=1`. All 213 ordinary native cases pass across the six suites; three existing explicit upstream-acquisition cases remain ignored by default.
+- Failed: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 bash scripts/check-quality.sh --scope src/ai.rs --scope src/ai --scope src/lsp.rs --scope src/lsp --scope src/process.rs --scope src/process --scope src/shell.rs --scope src/shell --scope src/terminal.rs --scope src/terminal --scope src/session/ai.rs --scope src/session/ai --scope src/session/lsp.rs --scope src/session/lsp --scope src/session/shell.rs --scope src/session/shell --scope src/session/terminals.rs --scope src/session/terminals`. All-target compilation succeeds; 154 selected Clippy diagnostics and nine source findings remain across 116 selected files.
+- Previously passed: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --test ai --test lsp --test lsp_installation --test shell_commands --test integrated_terminal --test pi -- --test-threads=1`. The first implementation cohort passed all 213 ordinary native cases across the six suites, with three existing explicit upstream-acquisition cases ignored by default. A fresh final-head run remains required.
 - Passed: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo run --locked --quiet -p rev --example documentation-check`. 106 reachable pages, 743 local links/anchors, 684 commands and 299 configuration entries.
-- Passed: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 bash scripts/check-quality.sh --scope src/process.rs --scope src/process --scope src/ai/target.rs --scope src/ai/pi/history.rs --scope src/ai/pi/resource.rs`. All-target compilation, scoped Clippy and source policy pass for 11 files, with zero blocking diagnostics and 879 diagnostics deferred outside this smaller cohort.
-- Passed: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --lib process:: -- --test-threads=1`. Ten native process cases pass.
-- Passed: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --test pi -- --test-threads=1`. All 15 Pi cases pass, including private history, capacity, concurrency, cancellation and directory admission.
-- Passed: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --test ai -- discovery::native_source_map --exact --test-threads=1`. The explicit native motion corrects the independently reproduced baseline fixture failure.
+- Passed: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 bash scripts/check-quality.sh --scope src/ai/pi`. All-target compilation, scoped Clippy and source policy pass for eight private Pi files, with zero blocking diagnostics and 847 diagnostics deferred outside this smaller selection.
+- Passed: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --test ai --test pi -- --test-threads=1`. All 26 AI and 15 Pi cases pass after the final guard-lifetime correction, including native source maps, captured result ownership, directory admission, deadlines, cancellation, binding capacity and retained-history reuse.
+- Previously passed: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --lib process:: -- --test-threads=1`. Ten native process cases passed for the unchanged first-cohort process implementation.
 - Passed: `git diff --check`.
 
 The unchanged slice base `ebfe3f4798c6` reproduces the source-map failure before

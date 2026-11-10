@@ -40,7 +40,8 @@ impl Control {
         self.cancel.load(Ordering::Acquire)
     }
     fn wake(&self) {
-        if let Some(inbox) = self.wake.lock().expect("Pi wake owner").upgrade() {
+        let inbox = self.wake.lock().expect("Pi wake owner").upgrade();
+        if let Some(inbox) = inbox {
             inbox.wake();
         }
     }
@@ -203,23 +204,23 @@ impl Operation {
             deadline: Instant::now() + Duration::from_millis(policy.request_timeout_ms as u64),
         };
         let control = Arc::new(Control::default());
-        let worker_control = control.clone();
+        let worker_control = Arc::clone(&control);
         let worker_policy = policy.clone();
         let worker_root = root.clone();
         let task = std::thread::Builder::new()
             .name("rev-pi".into())
             .spawn(move || {
-                let result = worker::run(
-                    worker_policy,
-                    worker_root,
+                let result = worker::Launch {
+                    policy: worker_policy,
+                    root: worker_root,
                     root_handle,
                     request,
                     profile,
-                    &worker_control,
-                );
+                }
+                .run(&worker_control);
                 let mut mailbox = worker_control.mailbox.lock().expect("Pi mailbox");
                 mailbox.closed = true;
-                match result {
+                let result = match result {
                     Ok(answer) => {
                         if let Some(answer) = answer {
                             mailbox.result = Some(answer);
@@ -227,7 +228,9 @@ impl Operation {
                         Ok(())
                     }
                     Err(error) => Err(error),
-                }
+                };
+                drop(mailbox);
+                result
             })
             .map_err(|_| "Pi supervisor could not start")?;
         Ok(Self {
