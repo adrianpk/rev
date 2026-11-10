@@ -9,7 +9,7 @@ Planning baseline: abbf0c21eeae1680c02c7a477fa0894d7996a393
 Specification: [Architecture Quality and Commit Checks](../spec/editor-architecture-quality.md)
 Review: [Architecture and Ownership Nit Review](../report/rev-architecture-nit-review.md)
 Concern: [Pending Editor Work](../README.md)
-Active slice: Slice 5 - Git operation boundaries
+Active slice: Slice 6 - External process workflows
 Plan: [Architecture Quality Delivery](../plan/rev-architecture-quality.md)
 Execution authorized: one ten-slice Looper run, automatic canonical integration into dev and local hook setup
 Progress owner: selected Looper run; no second runtime tracker
@@ -96,13 +96,15 @@ Validation: all four frozen commands passed through Looper on clean published HE
 
 ## Slice 5: Git operation boundaries
 
-State: in progress
+State: delivered
 Dependency: Slice 4 integrated
 Branch: refactor/rev-architecture-quality-05-git
 PR: #19 - https://forge.adrianpk.com/rev/rev/pulls/19
+Implementation: 068ddbe672f24c39e9ab59935933333f1dd94fd9
+Integrated: 068ddbe672f24c39e9ab59935933333f1dd94fd9 through canonical PR #19
 Report: ops/default/report/slices/rev-architecture-quality/slice-5-git.md
-Progress: all 112 selected native and session Git sources satisfy source bounds and the selected Clippy profile; all 242 Git integration cases, documentation and diff checks pass; the T5.3 process-owner fixture retains every original assertion; canonical PR #19 is open; exact clean-HEAD validation controls controller handoff
-Validation: successful frozen implementation checks; Looper validation of the exact published PR head is required before handoff
+Progress: all 112 selected native and session Git sources satisfy source bounds and the selected Clippy profile; all 242 Git integration cases, documentation and diff checks pass; the T5.3 process-owner fixture retains every original assertion; canonical PR #19 is merged into dev
+Validation: all four frozen commands passed through Looper on clean published HEAD 068ddbe672f24c39e9ab59935933333f1dd94fd9
 
 - [x] T5.1: Split the verified oversized native Git poll/dispatch/operation handlers into cohesive operation-family and observation owners under the existing modules.
 - [x] T5.2: Resolve selected ownership/conversion and five/three/ten diagnostics in native and session Git code; retain immutable observations, process ownership, authority checks, hook/signing policy and mutation preconditions.
@@ -110,7 +112,7 @@ Validation: successful frozen implementation checks; Looper validation of the ex
 
 ## Slice 6: External process workflows
 
-State: planned
+State: in progress
 Dependency: Slice 5 integrated
 Branch: refactor/rev-architecture-quality-06-processes
 PR: pending

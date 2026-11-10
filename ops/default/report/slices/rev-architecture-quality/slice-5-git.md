@@ -1,11 +1,13 @@
 # Slice 5: Git operation boundaries
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-architecture-quality
 Plan: [Architecture Quality Delivery](../../../plan/rev-architecture-quality.md)
 Tracker: [Architecture Quality Tracker](../../../tracker/rev-architecture-quality.md)
 Branch: `refactor/rev-architecture-quality-05-git`
 PR: #19 - https://forge.adrianpk.com/rev/rev/pulls/19
+Implementation: 068ddbe672f24c39e9ab59935933333f1dd94fd9
+Integrated: 068ddbe672f24c39e9ab59935933333f1dd94fd9 through canonical PR #19
 
 ## Purpose
 
@@ -239,9 +241,9 @@ suppression or source-policy exception was added.
 
 ## Validation
 
-The frozen ordered slice commands pass. Looper records exact clean-HEAD evidence
-after the canonical PR-reference commit; its evidence remains the controller's
-acceptance input.
+The frozen ordered slice commands passed through Looper on clean published HEAD
+`068ddbe672f24c39e9ab59935933333f1dd94fd9`. Canonical PR #19 is merged into `dev` at
+that exact commit.
 
 - Passed: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 bash scripts/check-quality.sh --scope src/git.rs --scope src/git --scope src/session/git.rs --scope src/session/git`. Formatting, all-target compilation, scoped Clippy and native source policy pass across 112 of 1832 first-party Rust files. Zero blocking diagnostics; 889 selected-profile diagnostics outside the slice remain deferred.
 - Passed: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --test git_integration -- --test-threads=1`. All 242 cases pass, including native process ownership, exact ref/transport review, ordered controls, worktree lifecycle and every preserved negative/resource assertion.
@@ -264,4 +266,4 @@ ceilings are unchanged.
 
 No remaining slice failure is recorded. Runtime context, file-tree,
 visiting-source and terminal protections are intact. The complete delivery-set
-gate, merge and successor startup remain controller-owned.
+gate and successor startup remain controller-owned.
