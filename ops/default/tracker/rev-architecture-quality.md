@@ -99,10 +99,10 @@ Validation: all four frozen commands passed through Looper on clean published HE
 State: in progress
 Dependency: Slice 4 integrated
 Branch: refactor/rev-architecture-quality-05-git
-PR: pending
+PR: #19 - https://forge.adrianpk.com/rev/rev/pulls/19
 Report: ops/default/report/slices/rev-architecture-quality/slice-5-git.md
-Progress: all 112 selected native and session Git sources satisfy source bounds and the selected Clippy profile; all 242 Git integration cases, documentation and diff checks pass; the T5.3 process-owner fixture retains every original assertion; canonical PR reference and exact clean-HEAD validation follow before handoff
-Validation: pending; frozen ordered commands in plan and controller configuration
+Progress: all 112 selected native and session Git sources satisfy source bounds and the selected Clippy profile; all 242 Git integration cases, documentation and diff checks pass; the T5.3 process-owner fixture retains every original assertion; canonical PR #19 is open; exact clean-HEAD validation controls controller handoff
+Validation: successful frozen implementation checks; Looper validation of the exact published PR head is required before handoff
 
 - [x] T5.1: Split the verified oversized native Git poll/dispatch/operation handlers into cohesive operation-family and observation owners under the existing modules.
 - [x] T5.2: Resolve selected ownership/conversion and five/three/ten diagnostics in native and session Git code; retain immutable observations, process ownership, authority checks, hook/signing policy and mutation preconditions.

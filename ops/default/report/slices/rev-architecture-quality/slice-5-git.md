@@ -5,7 +5,7 @@ Delivery set: rev-architecture-quality
 Plan: [Architecture Quality Delivery](../../../plan/rev-architecture-quality.md)
 Tracker: [Architecture Quality Tracker](../../../tracker/rev-architecture-quality.md)
 Branch: `refactor/rev-architecture-quality-05-git`
-PR: pending
+PR: #19 - https://forge.adrianpk.com/rev/rev/pulls/19
 
 ## Purpose
 
