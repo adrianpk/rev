@@ -37,8 +37,22 @@ and batched postconditions. Conflict resolution and discard separate complete
 file capture, confirmed-source rechecks, child execution and postconditions.
 Session mark admission and discard source capture remain explicit owners.
 
-This is a partial checkpoint. Other operation-family mutation handlers and session
-review handlers still require source-bound corrections.
+Prepared-family requests now retain their captured directory, source and argv
+through destination resolution, typed proofs and operation-specific verification.
+Output publication owns the parent descriptor and staging anchor together.
+Submodule child capture restores its cwd before returning every success or error;
+subtree checks separate remote anchors, lineage, prefix trees and local sources.
+Patch/mailbox decoding and private-index predictions remain independent of the
+accepted changing child. Session family source guards, parsing, submission,
+preparation publication and review projection have distinct owners.
+
+Reference observation separates HEAD compatibility, admitted ref catalogs, exact
+record fields and credential-free remote-name discovery. Branch actions retain
+one captured before snapshot through action-specific argument preparation,
+launch rechecks and postconditions.
+
+This is a partial checkpoint. Tag/transport, repository/worktree, sequence/
+integration and remaining session handlers still require source-bound corrections.
 
 ## Implementation Notes
 
@@ -73,6 +87,25 @@ review handlers still require source-bound corrections.
 - Discard retains NOFOLLOW verification, executable/symlink checks and complete
   bytes. Session consent captures the same visiting owners, checked stamps,
   admission and confirmation authority; modified sources still reject.
+- Prepared-family input preserves directory/destination canonicalization,
+  source/ref authority, shell policy and exact argv resolution. Creation checks
+  retain unborn, bare, shallow, mirror and source-publication postconditions.
+- Output publication retains descriptor-relative staging, atomic nonoverwriting
+  hard links, cancellation/deadline checks and complete-byte reinspection.
+  Notes and sparse operations retain their independent ref/configuration,
+  materialization and exact selection checks.
+- Submodule checks retain gitlink/name/URL admission, child saved evidence and
+  cwd restoration. Subtree checks preserve remote anchors, manual sequence
+  classification, exact tree/ancestry and unchanged outside-prefix sources.
+- Patch input still requires complete ordinary bytes and bounded mailbox
+  envelopes. Mailinfo field/date/message admission, ordered private-index
+  prediction, exact commit lineage and retained workspace cleanup are unchanged.
+- Reference parsing preserves exact NUL/newline framing, eight bounded fields,
+  byte identities, max-ref/remote truncation and before/after HEAD guards.
+  Branch checks preserve clean switching, checked deletion ancestry, exact
+  targets and separate verified-failure versus uncertain-effects publication.
+- Session family routing preserves visiting-buffer/native-directory protection,
+  bounded JSON, captured composer authority and all original review messages.
 - Private helpers borrow retained authority and parsed views. Explicit shared
   clones, guarded size conversions and signed timestamp fingerprints remain.
 
@@ -97,6 +130,10 @@ suppression or source-policy exception was added.
   classification and conflict-stage evidence.
 - `src/git/history/` and `src/git/work/history/`: owned historical requests,
   ancestry/comparison reads and bounded inspection grammars.
+- `src/git/work/families/` and `src/session/git/families.rs`: prepared requests,
+  bounded file/mail decoding, family-specific execution and native review.
+- `src/git/work/refs/{observation,branch}.rs`: complete catalog/remote observation
+  and exact local branch preparation/verification.
 - `src/git/work/{commit,discard}.rs`, `src/git/work/conflicts/resolution/` and
   `src/git/work/index/`: mutation preparation, file capture and postconditions.
 - `src/session/git/{index,discard}.rs`: captured mark and discard-source authority.
@@ -108,7 +145,7 @@ suppression or source-policy exception was added.
 Intermediate checks, with focused results tied to the stated implementation
 cohorts. Final ordered clean-HEAD Looper validation remains pending.
 
-- Failed: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 bash scripts/check-quality.sh --scope src/git.rs --scope src/git --scope src/session/git.rs --scope src/session/git`. Formatting, all-target compilation and scoped Clippy pass with zero blocking diagnostics across 108 selected files; 889 selected-profile diagnostics outside this scope are deferred. Native source policy still rejects 105 findings, reduced from 126.
+- Failed: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 bash scripts/check-quality.sh --scope src/git.rs --scope src/git --scope src/session/git.rs --scope src/session/git`. Formatting, all-target compilation and scoped Clippy pass with zero blocking diagnostics across 112 selected files; 889 selected-profile diagnostics outside this scope are deferred. Native source policy still rejects 64 findings, reduced from 105.
 - Earlier partial implementation: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --test git_integration -- --test-threads=1`. 239 passed and three failed before the current request/parser cohort. This is not current full-suite acceptance; the full suite has not been rerun on this checkpoint.
 - Passed: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo run --locked --quiet -p rev --example documentation-check`. 106 reachable pages, 743 local links/anchors, 684 commands and 299 configuration entries.
 - Passed: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --test git_integration -- families::output:: --test-threads=1`. Six output-family cases after the approved API adaptation.
@@ -120,24 +157,28 @@ cohorts. Final ordered clean-HEAD Looper validation remains pending.
 - Passed: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --test git_integration -- commits:: index::discard:: conflicts::resolution:: --test-threads=1`. 31 mutation and presentation cases after commit, discard and conflict-resolution decomposition, before the index/session extraction.
 - Passed: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --test git_integration -- index:: --test-threads=1`. All 24 index cases after path/hunk/entry extraction and session mark/discard-source separation.
 - Passed: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --test git_integration -- commits::normal_objects commits::modes::amend_objects commits::modes::fixup_objects commits::effects::merge_noop_amend index::path_roundtrip index::hunk_boundaries index::groups::paths conflicts::resolution::saved_and_deleted conflicts::resolution::effects_remain_visible --test-threads=1`. Nine focused cases after the final borrowing corrections, including commit consumers of the extracted entry grammar.
+- Passed: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --test git_integration -- families:: --test-threads=1`. All 48 prepared-family cases after worker/session decomposition, before the final borrowing corrections and reference-observation extraction. This includes native review, output, notes/sparse, nested repositories and independently decoded patch/mailbox semantics.
+- Passed: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --test git_integration -- refs:: families::patch::payload_semantics families::presentation::native_notes_sparse families::subtree::roundtrip families::output::request_pull --test-threads=1`. All 21 reference catalog/branch/tag and representative family regressions after reference extraction and the final borrowing corrections.
 - Passed: `git diff --check`.
 
-The current scoped inventory covers 108 of 1828 first-party Rust files. Git family
+The current scoped inventory covers 112 of 1832 first-party Rust files. Git family
 input, bisect workers, conflict inspection/resolution, commit/discard workers,
-the complete worker history/index trees and session index/discard owners satisfy
-the five/three/ten bounds. The 105 remaining source findings block the
+the complete worker history/index/prepared-family trees, reference observation
+and branches, and session index/discard/family owners satisfy the five/three/ten
+bounds. The 64 remaining source findings block the
 required quality command.
 
 ## Risks and Follow-ups
 
-Complete the remaining operation-family preparation, verification, mutation and
-session review handlers within this slice. Preserve immutable-source authority,
+Complete the remaining tag/transport, repository/worktree, sequence/integration
+and session handlers within this slice. Preserve immutable-source authority,
 hook/signing policy, process ownership and every frozen command and budget.
 
-Earlier full-suite execution observed three failures. The current focused checks
-now pass request-pull remote review and ordered sequence controls with unchanged
-limits. `repository::acceptance::native_process_owner` still reaches a terminal-
-departure confirmation before Git status appears; no fixture correction was made.
+Earlier full-suite execution observed three failures. Subsequent focused checks
+passed request-pull remote review and ordered sequence controls with unchanged
+limits. The last focused reproduction of
+`repository::acceptance::native_process_owner` reached terminal-departure consent
+before Git status appeared; no fixture correction was made.
 These focused results do not establish that the complete Git suite is green.
 Recheck the full suite before acceptance and retain exact observed failures
 without unverified baseline or environmental attribution.
