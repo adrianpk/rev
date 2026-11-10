@@ -112,18 +112,19 @@ Validation: all four frozen commands passed through Looper on clean published HE
 
 ## Slice 6: External process workflows
 
-State: in progress
+State: reviewing
 Dependency: Slice 5 integrated
 Branch: refactor/rev-architecture-quality-06-processes
 PR: pending
 Report: ops/default/report/slices/rev-architecture-quality/slice-6-processes.md
-Progress: all private process/AI/Pi/LSP/shell/terminal corrections are implemented; all-target compilation and selected Clippy pass across 117 files with zero blocking diagnostics (196 initially), with 693 deferred outside this slice; source findings decreased from 34 to one; the approved retained-session compatibility adjustment is the sole remaining quality correction
-Validation: the exact six-suite native command passes all 213 cases with the same three upstream-acquisition ignores; all five LSP ledger/retirement tests, documentation and diff checks pass; full scoped quality fails solely on the public six-parameter retained-session signature; canonical PR preparation and successful frozen clean-HEAD Looper evidence must follow the explicit compatibility decision and implementation
-Decision: maintainer approved the bounded `History { state: Option<PathBuf>, reset: bool }` compatibility exception in the Slice 6 plan; implement the five-parameter `Operation::retained` signature in `src/ai/pi.rs` and adapt only its two existing callers in `src/session/ai/capture.rs` and `tests/pi/sessions.rs`, preserving behavior, assertions, resource bounds, frozen checks and the full gate. Implementation and fresh exact-HEAD validation remain pending.
+Progress: all 117 selected process/AI/Pi/LSP/shell/terminal files pass the source guards and selected Clippy profile; blocking Clippy diagnostics decreased from 196 to zero and source findings from 34 to zero; 693 selected-profile diagnostics remain deferred outside this slice
+Validation: the four frozen working-tree commands pass, including all 213 native cases with the same three upstream-acquisition ignores and documentation coverage of 106 pages, 743 links/anchors, 684 commands and 299 configuration entries; the final PR head requires the same four commands through Looper; previously passed LSP ledger/retirement tests retain their five native cases
+Decision: implemented the maintainer-approved Slice 6 `History { state: Option<PathBuf>, reset: bool }` exception: `Operation::retained` now has five parameters, and only its two existing callers in `src/session/ai/capture.rs` and `tests/pi/sessions.rs` are adapted; behavior, assertions, protocols, resource bounds, frozen checks and the full gate are preserved
 
-- [ ] T6.1: Correct selected ownership, narrowing, guard-lifetime and source-policy findings in AI/Pi, LSP, shell, integrated-terminal and native process owners plus their session adapters.
+- [x] T6.1: Correct selected ownership, narrowing, guard-lifetime and source-policy findings in AI/Pi, LSP, shell, integrated-terminal and native process owners plus their session adapters.
 - [x] T6.2: Keep worker IO away from input/rendering, shared mailboxes intentional, owned process cleanup/cancellation finite and generation-bound; preserve existing environment/credential redaction and terminal restoration.
 - [x] T6.3: Exercise real owned child fixtures and native request/reload/fallback/terminal relocation boundaries without changing protocol capabilities, external configuration or unrelated host processes.
+
 
 ## Slice 7: Org workflow decomposition
 

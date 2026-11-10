@@ -2,7 +2,7 @@ use std::path::Path;
 
 use super::{Kind, Request, Target};
 use crate::{
-    ai::pi::Operation,
+    ai::pi::{History, Operation},
     buffer::{Buffer, edit::Point},
     config::{AiCommand, AiContext, AiInput, Pi},
     input::Focus,
@@ -210,7 +210,13 @@ impl Session {
             self.ai.admit_retained(&policy, root, directory, reset)?;
             self.ai.resume(message, epoch)
         } else if directory {
-            Operation::retained(policy, root.to_owned(), message, epoch, None, reset)
+            Operation::retained(
+                policy,
+                root.to_owned(),
+                message,
+                epoch,
+                History { state: None, reset },
+            )
         } else {
             Operation::start(policy, root.to_owned(), message, epoch)
         }

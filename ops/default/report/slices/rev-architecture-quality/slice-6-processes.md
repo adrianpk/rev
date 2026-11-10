@@ -1,6 +1,6 @@
 # Slice 6: External process workflows
 
-Status: drafting
+Status: reviewing
 Delivery set: rev-architecture-quality
 Plan: [Architecture Quality Delivery](../../../plan/rev-architecture-quality.md)
 Tracker: [Architecture Quality Tracker](../../../tracker/rev-architecture-quality.md)
@@ -15,8 +15,8 @@ in native AI/Pi, LSP, shell, terminal and process owners and their session adapt
 ## Delivered Behavior
 
 The process owner separates argument validation, fixed editor setup, repository
-environment admission, child capture and finite group cleanup. Positive child identities use checked conversion and shared cancellation
-ownership is explicit.
+environment admission, child capture and finite group cleanup. Positive child
+identities use checked conversion and shared cancellation ownership is explicit.
 
 AI source selection has one linear-region admission step. Pi resource extraction
 separates ancestor/namespace admission from resource creation and file inspection.
@@ -56,12 +56,13 @@ moving IO or waiting onto input/rendering. Terminal copy owns physical-row/histo
 conversion; legacy mouse and panel conversions use existing admitted bounds.
 Terminal error context borrows its source without changing restoration behavior.
 
-All-target compilation and selected Clippy now pass across all 117 slice files,
-with zero blocking diagnostics, down from 196; 693 diagnostics remain deferred
-outside this slice. Source findings decreased from 34 to one. The full quality
-command still fails on the existing public retained-session signature, whose
-compatibility decision remains pending. Canonical PR preparation and final
-clean-HEAD Looper validation remain pending.
+The approved retained-session compatibility exception introduces `History` to
+carry the existing optional state namespace and reset choice together. The
+five-parameter `Operation::retained` forwards those exact values to the existing
+launch profile; its session caller and native Pi fixture retain their behavior.
+All 117 slice files now satisfy the source guards, down from 34 findings.
+All-target compilation and selected Clippy pass with zero blocking diagnostics,
+down from 196; 693 diagnostics remain deferred outside this slice.
 
 ## Implementation Notes
 
@@ -75,7 +76,8 @@ clean-HEAD Looper validation remain pending.
   rechecks, sync order, replacement-before-retirement, first-creation race
   handling, 16 bindings, 64 KiB index and 32 MiB session limits.
 - A private borrowed `Selection` carries the exact binding key, candidate path and
-  reset choice from the worker into the store. Package APIs remain unchanged.
+  reset choice from the worker into the store. The public retained entrypoint
+  groups its two existing history options under the approved `History` request.
 - RPC correlation preserves every command/event, prompt disposition, model/root
   and session check, unsupported-UI/tool rejection, exact output JSON and byte
   handling. Eight turns, 32 calls, 4 MiB tool output and 2 MiB records are unchanged.
@@ -118,9 +120,16 @@ clean-HEAD Looper validation remain pending.
 
 ## Contracts Added or Changed
 
-No package, configuration, state or wire contract changed. SDK/plugin protocols,
-source bounds, existing assertions, test names, timeouts and resource ceilings
-are preserved.
+The maintainer-approved Slice 6 plan exception changes the public Rust signature
+from `Operation::retained(policy, root, message, epoch, state, reset)` to
+`Operation::retained(policy, root, message, epoch, History { state, reset })`.
+`History` exposes the existing `Option<PathBuf>` state namespace and boolean
+reset choice. Only the two existing callers in `src/session/ai/capture.rs` and
+`tests/pi/sessions.rs` are adapted; their supplied values are unchanged.
+
+Other package APIs, configuration, state and wire contracts are preserved, as
+are SDK/plugin protocols, source bounds, existing assertions, test names,
+timeouts and resource ceilings.
 
 ## Files of Interest
 
@@ -132,8 +141,9 @@ are preserved.
   retained-session supervision and generation-bound idle ownership.
 - `src/ai/pi/protocol.rs` and `protocol/generation.rs`: invocation-scoped RPC,
   bounded generation events, tool observations and settled output.
-- `src/ai/pi.rs` and `io.rs`: explicit shared ownership, mailbox guard release,
-  typed child identity and retained stream/cleanup boundaries.
+- `src/ai/pi.rs` and `io.rs`: the approved `History` request, explicit shared
+  ownership, mailbox guard release, typed child identity and retained
+  stream/cleanup boundaries.
 - `src/session/ai.rs`, `ai/capture.rs` and `ai/envelope.rs`: captured invocation
   admission, serialization, retained reuse and polling/publication boundaries.
 - `src/session/ai/context.rs` and `conflicts.rs`: admitted fresh native maps and
@@ -148,18 +158,19 @@ are preserved.
   observations and unchanged error/restoration context.
 - `src/session/terminals/`: admitted physical-grid/copy/mouse conversions.
 - `tests/ai/discovery.rs`: explicit prefix-insertion position in the native map.
+- `tests/pi/sessions.rs`: the existing retained-session caller supplies its
+  unchanged state path and reset choice through `History`.
 
 ## Validation
 
-Current working-tree evidence follows; historical focused checks are labeled.
-Canonical PR preparation and successful frozen clean-HEAD Looper validation remain
-pending. The full native run covers the current implementation; final validation
-must follow the public compatibility decision and its implementation.
+Working-tree results for the frozen commands follow; historical focused checks
+are labeled. Exact clean-HEAD evidence is recorded separately through
+`looper validate` on the final PR head.
 
-- Failed: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 bash scripts/check-quality.sh --scope src/ai.rs --scope src/ai --scope src/lsp.rs --scope src/lsp --scope src/process.rs --scope src/process --scope src/shell.rs --scope src/shell --scope src/terminal.rs --scope src/terminal --scope src/session/ai.rs --scope src/session/ai --scope src/session/lsp.rs --scope src/session/lsp --scope src/session/shell.rs --scope src/session/shell --scope src/session/terminals.rs --scope src/session/terminals`. All-target compilation and selected Clippy pass across 117 selected files, with zero blocking diagnostics and 693 selected-profile diagnostics deferred outside this slice. The command fails solely on the existing six-parameter public retained-session signature; the other source guards pass.
+- Passed: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 bash scripts/check-quality.sh --scope src/ai.rs --scope src/ai --scope src/lsp.rs --scope src/lsp --scope src/process.rs --scope src/process --scope src/shell.rs --scope src/shell --scope src/terminal.rs --scope src/terminal --scope src/session/ai.rs --scope src/session/ai --scope src/session/lsp.rs --scope src/session/lsp --scope src/session/shell.rs --scope src/session/shell --scope src/session/terminals.rs --scope src/session/terminals`. All-target compilation and selected Clippy pass across 117 selected files, with zero blocking diagnostics and 693 selected-profile diagnostics deferred outside this slice. All selected source guards pass, including the five-parameter retained-session signature.
 - Passed: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --test ai --test lsp --test lsp_installation --test shell_commands --test integrated_terminal --test pi -- --test-threads=1`. All 213 native cases pass across the six suites: 26 AI, 49 integrated-terminal, 46 LSP, 39 installation, 15 Pi and 38 shell. The same three explicit upstream-acquisition cases remain ignored by default.
 - Passed: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo run --locked --quiet -p rev --example documentation-check`. 106 reachable pages, 743 local links/anchors, 684 commands and 299 configuration entries.
-- Passed: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --lib lsp:: -- --test-threads=1`. Five native permit, control-slot and snapshot-retirement cases pass, including concurrent retirement and failed-worker lease release.
+- Previously passed: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --lib lsp:: -- --test-threads=1`. Five native permit, control-slot and snapshot-retirement cases pass, including concurrent retirement and failed-worker lease release.
 - Previously passed: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --lib process:: -- --test-threads=1`. Ten native process cases passed for the unchanged first-cohort process implementation.
 - Previously passed: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --lib session::ai:: -- --test-threads=1`. Six native result-publication cases preserve literal bytes, readonly/revision guards, presentation controls and captured apply/discard ownership.
 - Previously passed: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --test git_integration conflicts::explanation:: -- --test-threads=1`. All four entrypoints pass, including the existing child-only RPC fixture; the native cases cover copied text/binary/dirty source facts, optional-AI admission and historical results without edit/stage/continue rights.
@@ -172,17 +183,10 @@ changed. No assertion or runtime interaction behavior was changed to meet it.
 
 ## Risks and Follow-ups
 
-The existing public `Operation::retained(policy, root, message, epoch, state,
-reset)` has six parameters. The frozen five-parameter guard and approved package
-API compatibility requirement conflict at that signature. A bounded proposal is
-`Operation::retained(policy, root, message, epoch, History { state, reset })`,
-with a public history request and adaptations only in `src/ai/pi.rs`,
-`src/session/ai/capture.rs` and `tests/pi/sessions.rs`. These are its two existing
-callers. This proposal is not applied; an explicit compatibility decision is
-required before changing that public signature. The private corrections are
-implemented and selected Clippy is clear. This public signature is the sole
-remaining quality blocker; no source limit, protocol, assertion, timeout or
-resource budget was changed to bypass it. PR preparation and successful frozen
-clean-HEAD validation must follow the decision and implementation.
+The approved `History` exception is a source-level public Rust API adjustment;
+callers must group the existing state/reset arguments. No source limit,
+protocol, assertion, timeout or resource budget was changed to satisfy the
+checks. The three explicit live upstream-acquisition tests retain their existing
+default ignores; the native installation fixtures remain covered.
 
 The controller owns merge, full delivery-set validation and successor startup.

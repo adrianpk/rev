@@ -1,4 +1,5 @@
 use super::*;
+use rev::ai::pi::History;
 use std::path::{Path, PathBuf};
 
 fn policy(f: &Fixture, idle: usize) -> Pi {
@@ -20,8 +21,10 @@ fn generate(f: &Fixture, root: &Path, policy: Pi, reset: bool) -> Operation {
         root.to_owned(),
         r#"{"instruction":"fixture only","dirty_sources":[]}"#.into(),
         101,
-        Some(f.0.join("state")),
-        reset,
+        History {
+            state: Some(f.0.join("state")),
+            reset,
+        },
     )
     .unwrap()
 }

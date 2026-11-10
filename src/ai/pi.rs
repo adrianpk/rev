@@ -85,6 +85,14 @@ struct Profile {
     reset: bool,
 }
 
+/// History options for one explicit managed directory invocation.
+pub struct History {
+    /// Host XDG state namespace; None resolves the normal user namespace.
+    pub state: Option<PathBuf>,
+    /// Request fresh owned history instead of reusing a compatible binding.
+    pub reset: bool,
+}
+
 /// One invocation slot and, for managed directory operations, its idle child.
 /// No request can queue behind another active invocation or a stopping child.
 pub struct Operation {
@@ -130,15 +138,13 @@ impl Operation {
             },
         )
     }
-    /// Managed directory history. State is the host's XDG state namespace;
-    /// None resolves the normal user namespace only for this explicit operation.
+    /// Managed directory history using the host's explicit state/reset options.
     pub fn retained(
         policy: Pi,
         root: PathBuf,
         message: String,
         epoch: u64,
-        state: Option<PathBuf>,
-        reset: bool,
+        history: History,
     ) -> Result<Self, String> {
         Self::launch(
             policy,
@@ -148,8 +154,8 @@ impl Operation {
             Profile {
                 directory: true,
                 retained: true,
-                state,
-                reset,
+                state: history.state,
+                reset: history.reset,
             },
         )
     }
