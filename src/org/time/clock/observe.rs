@@ -26,7 +26,7 @@ impl RecordedClock {
         (start < end).then_some(Self { start, end })
     }
     pub fn minutes(self) -> u64 {
-        (self.end - self.start) as u64
+        u64::try_from(self.end - self.start).expect("recorded clock bounds are ordered")
     }
 }
 fn timestamp(source: &str) -> Result<(CivilDateTime, &str), String> {

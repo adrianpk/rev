@@ -28,7 +28,11 @@ impl Date {
         if !(0..119988).contains(&index) {
             return Err("Org month shift is outside 0001..9999".into());
         }
-        let first = Self::new((index / 12 + 1) as u16, (index % 12 + 1) as u8, 1)?;
+        let year =
+            u16::try_from(index / 12 + 1).expect("admitted month index retains year 0001..9999");
+        let month =
+            u8::try_from(index % 12 + 1).expect("admitted month index retains month 1..=12");
+        let first = Self::new(year, month, 1)?;
         first.add_days(i64::from(self.day() - 1))
     }
     pub fn add_years(self, count: i64) -> Result<Self, String> {

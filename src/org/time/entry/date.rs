@@ -154,7 +154,7 @@ fn month(text: &str) -> Option<u8> {
     names
         .iter()
         .position(|name| name.starts_with(text))
-        .map(|index| index as u8 + 1)
+        .map(|index| u8::try_from(index).expect("month name index is in 0..12") + 1)
 }
 pub(super) fn weekday(text: &str) -> Option<u8> {
     let names = [
@@ -172,5 +172,5 @@ pub(super) fn weekday(text: &str) -> Option<u8> {
     names
         .iter()
         .position(|name| name.starts_with(text))
-        .map(|index| index as u8 + 1)
+        .map(|index| u8::try_from(index).expect("weekday name index is in 0..7") + 1)
 }

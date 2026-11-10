@@ -113,8 +113,10 @@ impl Rule {
         // also handles transition spill beyond the first/last source year.
         let representative = 2000 + year.rem_euclid(400);
         let cycles = i64::from((year - representative) / 400);
-        let first = Date::new(representative as u16, 1, 1)?;
-        let days = first.days() + self.day.days(representative as u16)? + cycles * 146097;
+        let representative =
+            u16::try_from(representative).expect("representative Gregorian year is in 2000..2400");
+        let first = Date::new(representative, 1, 1)?;
+        let days = first.days() + self.day.days(representative)? + cycles * 146097;
         Ok(days * 86400 + i64::from(self.seconds) - i64::from(before))
     }
 }
@@ -130,11 +132,11 @@ fn day(p: &mut Parser<'_>) -> Result<Day, String> {
 }
 fn month_rule(p: &mut Parser<'_>) -> Result<Day, String> {
     p.expect('M')?;
-    let month = p.number(1, 12)? as u8;
+    let month = u8::try_from(p.number(1, 12)?).expect("admitted POSIX month is in 1..=12");
     p.expect('.')?;
-    let week = p.number(1, 5)? as u8;
+    let week = u8::try_from(p.number(1, 5)?).expect("admitted POSIX week is in 1..=5");
     p.expect('.')?;
-    let weekday = p.number(0, 6)? as u8;
+    let weekday = u8::try_from(p.number(0, 6)?).expect("admitted POSIX weekday is in 0..=6");
     Ok(Day::Month(month, week, weekday))
 }
 impl Day {

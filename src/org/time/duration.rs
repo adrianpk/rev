@@ -37,12 +37,7 @@ impl Duration {
     /// units. Fractions below the selected precision truncate, as in Org.
     /// Values requiring 2^64 or more displayed ticks reject before conversion.
     pub fn format_clock(self, seconds: bool) -> Result<String, String> {
-        let scale = if seconds { 60.0 } else { 1.0 };
-        let ticks = (self.minutes * scale).floor();
-        if ticks >= u64::MAX as f64 {
-            return Err("Org duration is too large to format".into());
-        }
-        let ticks = ticks as u64;
+        let ticks = self.clock_ticks(seconds)?;
         if seconds {
             Ok(format!(
                 "{}:{:02}:{:02}",
@@ -53,6 +48,22 @@ impl Duration {
         } else {
             Ok(format!("{}:{:02}", ticks / 60, ticks % 60))
         }
+    }
+
+    #[expect(
+        clippy::cast_possible_truncation,
+        clippy::cast_sign_loss,
+        reason = "Construction admits finite nonnegative minutes; floored display ticks reject at the exact exclusive 2^64 limit"
+    )]
+    fn clock_ticks(self, seconds: bool) -> Result<u64, String> {
+        // 2^64 is exactly representable, including the previous u64::MAX rounding.
+        const END: f64 = 18_446_744_073_709_551_616.0;
+        let scale = if seconds { 60.0 } else { 1.0 };
+        let ticks = (self.minutes * scale).floor();
+        if ticks >= END {
+            return Err("Org duration is too large to format".into());
+        }
+        Ok(ticks as u64)
     }
 }
 fn clock(text: &str) -> Result<f64, String> {

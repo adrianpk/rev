@@ -131,7 +131,8 @@ fn calendar_catch_up(
 }
 fn safe_months(date: Date, step: i64) -> bool {
     (1..=12).all(|n| {
-        let month = ((i64::from(date.month()) - 1 + n * step).rem_euclid(12) + 1) as u8;
+        let month = (i64::from(date.month()) - 1 + n * step).rem_euclid(12) + 1;
+        let month = u8::try_from(month).expect("calendar recurrence month is in 1..=12");
         date.day() <= super::super::date::month_days(2001, month)
     })
 }

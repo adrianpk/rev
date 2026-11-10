@@ -37,6 +37,10 @@ impl OperationTime {
     }
     /// Elapsed seconds between captured instants become work minutes. This does
     /// not subtract zone-less wall times or apply configured calendar units.
+    #[expect(
+        clippy::cast_precision_loss,
+        reason = "Checked elapsed seconds enter the existing floating-point work-duration representation"
+    )]
     pub fn elapsed_since(self, earlier: Self) -> Result<Duration, String> {
         let seconds = self
             .seconds

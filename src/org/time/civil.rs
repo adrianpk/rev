@@ -15,7 +15,7 @@ impl CivilTime {
         })
     }
     pub fn hour(self) -> u8 {
-        (self.seconds / 3600) as u8
+        u8::try_from(self.seconds / 3600).expect("admitted civil hour is in 0..24")
     }
     pub fn minute(self) -> u8 {
         (self.seconds / 60 % 60) as u8
@@ -37,7 +37,8 @@ impl CivilDateTime {
     pub(super) fn from_seconds(seconds: i64) -> Result<Self, String> {
         let date = Date::from_days(seconds.div_euclid(86400))?;
         let time = CivilTime {
-            seconds: seconds.rem_euclid(86400) as u32,
+            seconds: u32::try_from(seconds.rem_euclid(86400))
+                .expect("civil day remainder is in 0..86400"),
         };
         Ok(Self { date, time })
     }

@@ -48,12 +48,12 @@ pub(crate) fn date(text: &str) -> Result<Date, String> {
     if bytes.len() != 10 || !text.is_ascii() || bytes[4] != b'-' || bytes[7] != b'-' {
         return Err("Org date requires YYYY-MM-DD".into());
     }
-    let year = digits(&text[..4])? as u16;
-    let month = digits(&text[5..7])? as u8;
-    let day = digits(&text[8..])? as u8;
+    let year = digits(&text[..4])?;
+    let month = digits(&text[5..7])?;
+    let day = digits(&text[8..])?;
     Date::new(year, month, day)
 }
-fn digits(text: &str) -> Result<u32, String> {
+fn digits<T: std::str::FromStr>(text: &str) -> Result<T, String> {
     if !text.bytes().all(|b| b.is_ascii_digit()) {
         return Err("Org date/time requires ASCII digits".into());
     }
@@ -121,5 +121,5 @@ pub(crate) fn time(text: &str) -> Result<CivilTime, String> {
     if !(1..=2).contains(&h.len()) || m.len() != 2 {
         return Err("Org time requires H:MM or HH:MM".into());
     }
-    CivilTime::new(digits(h)? as u8, digits(m)? as u8, 0)
+    CivilTime::new(digits(h)?, digits(m)?, 0)
 }

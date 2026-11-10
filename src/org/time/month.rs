@@ -45,7 +45,8 @@ impl Month {
         if day > u16::from(self.days) {
             return None;
         }
-        Date::new(self.first.year(), self.first.month(), day as u8).ok()
+        let day = u8::try_from(day).expect("calendar cell is within admitted month length");
+        Date::new(self.first.year(), self.first.month(), day).ok()
     }
 }
 pub(crate) fn calendar_hit(selected: Date, cell: (u16, u16), width: u16) -> Option<Date> {

@@ -104,5 +104,6 @@ fn minutes_of_day(time: CivilTime) -> u16 {
     u16::from(time.hour()) * 60 + u16::from(time.minute())
 }
 fn from_minutes(minutes: u16) -> Result<CivilTime, String> {
-    CivilTime::new((minutes / 60) as u8, (minutes % 60) as u8, 0)
+    let hour = u8::try_from(minutes / 60).expect("clock range wraps within 1440 minutes");
+    CivilTime::new(hour, (minutes % 60) as u8, 0)
 }

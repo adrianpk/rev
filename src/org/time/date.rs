@@ -31,13 +31,15 @@ impl Date {
     }
     /// Monday is 1, Sunday is 7, independently of locale and host time zone.
     pub fn weekday(self) -> u8 {
-        (self.days + 3).rem_euclid(7) as u8 + 1
+        u8::try_from((self.days + 3).rem_euclid(7)).expect("weekday remainder is in 0..7") + 1
     }
     pub(super) fn from_days(days: i64) -> Result<Self, String> {
         if !(-719162..=2932896).contains(&days) {
             return Err("Org date is outside 0001..9999".into());
         }
-        Ok(Self { days: days as i32 })
+        Ok(Self {
+            days: i32::try_from(days).expect("admitted Gregorian day fits i32"),
+        })
     }
     pub(super) fn days(self) -> i64 {
         i64::from(self.days)
@@ -52,7 +54,11 @@ impl Date {
         let d = day_year - (153 * month + 2) / 5 + 1;
         let m = month + if month < 10 { 3 } else { -9 };
         let y = year + era * 400 + i64::from(m <= 2);
-        (y as u16, m as u8, d as u8)
+        (
+            u16::try_from(y).expect("admitted Gregorian year is in 0001..9999"),
+            u8::try_from(m).expect("admitted Gregorian month is in 1..=12"),
+            u8::try_from(d).expect("admitted Gregorian day is in 1..=31"),
+        )
     }
 }
 pub(super) fn month_days(year: u16, month: u8) -> u8 {

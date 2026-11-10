@@ -38,6 +38,10 @@ impl ClockInterval {
     pub fn open_source(&self) -> String {
         self.source.clone()
     }
+    #[expect(
+        clippy::cast_precision_loss,
+        reason = "Checked whole-minute differences retain the existing floating-point duration rounding"
+    )]
     pub fn close(&self, end: OperationTime) -> Result<ClockRecord, String> {
         let start = self.start.instant().unix_seconds();
         let stop = end.unix_seconds();
