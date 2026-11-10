@@ -1,7 +1,7 @@
 use super::*;
 use crate::status::presentation::{editor, entry, key, plain, render, selected, text, wait};
 use crossterm::event::{KeyCode, KeyModifiers};
-use rev::command::{Command, GitCommand, TerminalCommand, TreeCommand};
+use rev::command::{BufferCommand, Command, GitCommand, TerminalCommand};
 
 // Saved-only stash creation uses the ordinary file owner's reload/ask policy;
 // it never saves buffer text or replaces the original native buffer identity.
@@ -156,7 +156,7 @@ fn native_process_owner() {
     let mut owned = editor(&repository, "non-modal", &config, true);
     let path = super::worktrees::linked(&repository, "linked");
     let editor = &mut owned.0;
-    editor.load(&path).unwrap();
+    editor.load(&path.join("source.txt")).unwrap();
     editor.execute(Command::Terminal(TerminalCommand::Open));
     wait(editor, |e| e.terminal_focused());
     let terminal = editor.terminals().ids().next().unwrap();
@@ -169,8 +169,10 @@ fn native_process_owner() {
         e.terminals().get(terminal).unwrap().owns_process()
     });
     editor.execute(Command::Terminal(TerminalCommand::Toggle));
-    editor.load(&repository.root).unwrap();
-    editor.execute(Command::Tree(TreeCommand::Toggle));
+    // Retire the visiting file so the live PTY alone retains the linked target.
+    editor.execute(Command::Buffer(BufferCommand::Kill));
+    key(editor, KeyCode::Enter, KeyModifiers::NONE);
+    editor.load(&repository.root.join("source.txt")).unwrap();
     entry(editor);
     wait(editor, |e| e.echo().contains("Git Status refreshed"));
     editor.execute(Command::Git(GitCommand::WorktreeList));

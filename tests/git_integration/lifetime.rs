@@ -23,7 +23,12 @@ fn hold(repository: &Repository) -> PathBuf {
 fn start_held(editor: &mut Session, pid_file: &std::path::Path) -> PathBuf {
     let _ = fs::remove_file(pid_file);
     editor.execute(Command::Git(GitCommand::Refresh));
-    wait(editor, |_| pid_file.exists());
+    // The shell creates the file before writing its complete process identity.
+    wait(editor, |_| {
+        fs::read_to_string(pid_file).is_ok_and(|pid| {
+            pid.ends_with('\n') && pid.trim().parse::<u32>().is_ok_and(|pid| pid > 0)
+        })
+    });
     let pid = fs::read_to_string(pid_file).unwrap();
     let process = PathBuf::from(format!("/proc/{}", pid.trim()));
     assert!(process.exists());

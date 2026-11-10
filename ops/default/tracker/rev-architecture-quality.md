@@ -101,12 +101,12 @@ Dependency: Slice 4 integrated
 Branch: refactor/rev-architecture-quality-05-git
 PR: pending
 Report: ops/default/report/slices/rev-architecture-quality/slice-5-git.md
-Progress: approved FamilyOutput API and four callers implemented; all 112 selected native and session Git sources satisfy source bounds and the selected Clippy profile after the final ref/repository session decomposition; the frozen quality command passes with zero blocking diagnostics; the complete Git run passes 241 cases and fails only native_process_owner at terminal context-departure consent before its Git guard; fixture authority, full Git acceptance, PR and final clean-HEAD validation remain pending
+Progress: all 112 selected native and session Git sources satisfy source bounds and the selected Clippy profile; all 242 Git integration cases, documentation and diff checks pass; the T5.3 process-owner fixture retains every original assertion; canonical PR reference and exact clean-HEAD validation follow before handoff
 Validation: pending; frozen ordered commands in plan and controller configuration
 
-- [ ] T5.1: Split the verified oversized native Git poll/dispatch/operation handlers into cohesive operation-family and observation owners under the existing modules.
-- [ ] T5.2: Resolve selected ownership/conversion and five/three/ten diagnostics in native and session Git code; retain immutable observations, process ownership, authority checks, hook/signing policy and mutation preconditions.
-- [ ] T5.3: Validate status/index/commit/history/remote/sequence/conflict paths through existing disposable repositories, preserving all negative assertions and exact native command behavior.
+- [x] T5.1: Split the verified oversized native Git poll/dispatch/operation handlers into cohesive operation-family and observation owners under the existing modules.
+- [x] T5.2: Resolve selected ownership/conversion and five/three/ten diagnostics in native and session Git code; retain immutable observations, process ownership, authority checks, hook/signing policy and mutation preconditions.
+- [x] T5.3: Validate status/index/commit/history/remote/sequence/conflict paths through existing disposable repositories, preserving all negative assertions and exact native command behavior.
 
 ## Slice 6: External process workflows
 

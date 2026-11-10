@@ -1,6 +1,6 @@
 # Slice 5: Git operation boundaries
 
-Status: drafting
+Status: reviewing
 Delivery set: rev-architecture-quality
 Plan: [Architecture Quality Delivery](../../../plan/rev-architecture-quality.md)
 Tracker: [Architecture Quality Tracker](../../../tracker/rev-architecture-quality.md)
@@ -86,9 +86,18 @@ sequence and worktree rows project identity, state, controls and policy lazily;
 publication separates selection reconciliation, history refresh, prepared review
 and completed-operation messages.
 
-All selected native and session Git sources now satisfy the source bounds.
-Complete Git acceptance, canonical PR preparation and final clean-HEAD validation
-remain pending.
+The Git process-owner acceptance fixture now visits saved files and closes its
+temporary linked-file buffer before selecting the main repository. The real PTY
+retains its exact linked cwd and remains alive when worktree removal is refused.
+This T5.3 integration repair isolates the intended process guard from directory
+context departure and retained tree/file owners; all original assertions and
+limits remain intact. The shared lifetime fixture also waits for a complete,
+positive numeric child PID before constructing its process path, retaining the
+same deadline and process-reaping assertions.
+
+All selected native and session Git sources satisfy the source bounds and
+selected Clippy profile. Every frozen slice command passes, including all 242
+Git integration cases.
 
 ## Implementation Notes
 
@@ -222,59 +231,37 @@ suppression or source-policy exception was added.
 - `src/session/git/refs.rs`, `src/session/git/refs/integration.rs` and
   `src/session/git/repository{,/worktrees}.rs`: captured ref proposals, source
   guards, lazy row projection and separate publication/review phases.
+- `tests/git_integration/repository_acceptance.rs` and `lifetime.rs`: native PTY
+  ownership with file visits and temporary-file retirement, plus complete PID
+  readiness under the original lifetime deadline.
 - `src/session/git/{commands,updates,input,presentation,processes}.rs`: native
   dispatch, source authority and lazy row projection.
 
 ## Validation
 
-Intermediate checks, with focused results tied to the stated implementation
-cohorts. Final ordered clean-HEAD Looper validation remains pending.
+The frozen ordered slice commands pass. Looper records exact clean-HEAD evidence
+after the canonical PR-reference commit; its evidence remains the controller's
+acceptance input.
 
-- Passed: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 bash scripts/check-quality.sh --scope src/git.rs --scope src/git --scope src/session/git.rs --scope src/session/git`. Formatting, all-target compilation, scoped Clippy and native source policy pass across all 112 selected files. There are zero blocking diagnostics; 889 selected-profile diagnostics outside this scope remain deferred. The final 18 session source findings are resolved.
-- Failed: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --test git_integration -- --test-threads=1`. 241 passed and one failed on the final session cohort. Only `repository::acceptance::native_process_owner` fails: its wait reports `Leave context: terminate 1 terminal sessions? y=terminate, n=cancel, C-g=cancel; Answer y or n` before the intended Git guard. All ref/sequence/worktree presentation and review cases, request-pull and ordered controls pass. The fixture, assertions, timeouts and process checks remain unchanged.
+- Passed: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 bash scripts/check-quality.sh --scope src/git.rs --scope src/git --scope src/session/git.rs --scope src/session/git`. Formatting, all-target compilation, scoped Clippy and native source policy pass across 112 of 1832 first-party Rust files. Zero blocking diagnostics; 889 selected-profile diagnostics outside the slice remain deferred.
+- Passed: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --test git_integration -- --test-threads=1`. All 242 cases pass, including native process ownership, exact ref/transport review, ordered controls, worktree lifecycle and every preserved negative/resource assertion.
 - Passed: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo run --locked --quiet -p rev --example documentation-check`. 106 reachable pages, 743 local links/anchors, 684 commands and 299 configuration entries.
-- Passed: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --test git_integration -- families::output:: --test-threads=1`. Six output-family cases after the approved API adaptation.
-- Passed: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --test git_integration -- sequences::bisect:: sequences::presentation::native_bisect sequences::presentation::unsaved_bisect --test-threads=1`. Five native and presentation cases after bisect decomposition.
-- Passed: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --test git_integration -- conflicts::operation_sides conflicts::partial_and_missing conflicts::external_index conflicts::stale_inspection conflicts::explanation::historical_source conflicts::resolution::sides_then_stage history::inspection::blame_renamed_source --test-threads=1`. Seven cases after conflict-stage and quoted-path extraction.
-- Passed: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --test git_integration -- history:: --test-threads=1`. 15 cases after ancestry/comparison and historical-file request extraction.
-- Passed: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --test git_integration -- history::inspection::reflog_objects history::inspection::blame_renamed_source history::limits::bounded_inspection history::limits::metadata_admission history::inspection::presentation::native_inspections --test-threads=1`. Five cases after reflog/blame parser extraction and borrowing corrections.
-- Failed: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --test git_integration -- repository::acceptance::native_process_owner sequences::controls::ordered_controls --test-threads=1`. Ordered sequence controls passed; the process-owner fixture still waits at a terminal-departure prompt before Git status appears.
-- Passed: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --test git_integration -- commits:: index::discard:: conflicts::resolution:: --test-threads=1`. 31 mutation and presentation cases after commit, discard and conflict-resolution decomposition, before the index/session extraction.
-- Passed: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --test git_integration -- index:: --test-threads=1`. All 24 index cases after path/hunk/entry extraction and session mark/discard-source separation.
-- Passed: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --test git_integration -- commits::normal_objects commits::modes::amend_objects commits::modes::fixup_objects commits::effects::merge_noop_amend index::path_roundtrip index::hunk_boundaries index::groups::paths conflicts::resolution::saved_and_deleted conflicts::resolution::effects_remain_visible --test-threads=1`. Nine focused cases after the final borrowing corrections, including commit consumers of the extracted entry grammar.
-- Passed: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --test git_integration -- families:: --test-threads=1`. All 48 prepared-family cases after worker/session decomposition, before the final borrowing corrections and reference-observation extraction. This includes native review, output, notes/sparse, nested repositories and independently decoded patch/mailbox semantics.
-- Passed: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --test git_integration -- refs:: families::patch::payload_semantics families::presentation::native_notes_sparse families::subtree::roundtrip families::output::request_pull --test-threads=1`. All 21 reference catalog/branch/tag and representative family regressions after reference extraction and the final borrowing corrections.
-- Passed: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --test git_integration -- refs::tags transport:: --test-threads=1`. All 18 tag/transport cases after their native decomposition, before final borrowing corrections and the subsequent integration/session changes.
-- Passed: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --test git_integration -- integration:: sequences::bisect:: sequences::controls::ordered_controls --test-threads=1`. All 23 integration, autosquash, sequence-control and manual-bisect cases after native integration/metadata extraction, before the final borrowing corrections and session extraction.
-- Passed: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --test git_integration -- commits::presentation:: commits::acceptance:: diffs::presentation:: history:: conflicts::resolution::presentation:: conflicts::presentation:: refs::tags::presentation:: families::presentation:: sequences::presentation:: --test-threads=1`. All 48 session/native regression cases after the complete integration, borrowing and review cohort. Commit draft/cancel/recovery and terminal retention, conflict resolution, exact hunk refresh/source visits, prepared-family composition, historical inspection/marks, tag annotations and manual sequence/bisect controls pass.
-- Passed: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --test git_integration -- sequences:: repository::saved_roundtrip repository::pop_and_branch repository::changed_review repository::retained_conflict repository::stash_admission repository::stash_ordinal repository::presentation:: repository::acceptance::native_stash --test-threads=1`. All 26 ordered-application, stash and native-control cases after their decomposition, before worktree extraction and final borrowing corrections. This includes explicit mainlines, stale/retained order, conflict retention, ordinal changes, uncertainty and native saved-source guards.
-- Passed: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --test git_integration -- repository::worktrees:: repository::acceptance::native_reload --test-threads=1`. All eight worktree and native reload cases after registry/porcelain/target-state/preparation/result extraction, before the final borrowing corrections. Exact creation/lock/unlock/visit/removal/prune, dirty/owned resource protections, stale reviews and native visiting-source guards pass.
-- Passed: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --test git_integration -- repository::worktrees::checked_roundtrip repository::worktrees::checked_prune repository::pop_and_branch sequences::controls::ordered_controls --test-threads=1`. All four final native-state regressions after the borrowing corrections, covering worktree lifecycle/prune, separately checked stash removal and ordered continuation/skip/abort restoration.
 - Passed: `git diff --check`.
 
-The current scoped inventory covers 112 of 1832 first-party Rust files. Every
-selected native Git worker and session adapter satisfies the five/three/ten
-bounds and selected Clippy profile. No source-policy exception, new suppression,
-fixture adjustment or resource/acceptance limit change was added in this cohort.
+The earlier 241-pass/one-failure run stopped the process-owner fixture at
+context-departure consent. File-only setup exposed retained tree/file owners
+before the intended process guard. The final fixture uses native file visits and
+buffer-close interaction, retaining the real linked-cwd PTY. Its original cwd,
+removal-refusal, target-survival and process-ownership assertions now pass in the
+full suite. A later run passed process ownership but failed selected cancellation's
+reaping assertion. The shared lifetime fixture previously admitted a newly
+created empty PID file; it now requires a complete positive numeric PID before
+using a process path. All three lifetime cases and the complete suite pass with
+the original reaping assertions and deadlines. Test names, timeouts and resource
+ceilings are unchanged.
 
 ## Risks and Follow-ups
 
-Complete Git acceptance and final clean-HEAD evidence within this slice.
-Preserve immutable-source authority, hook/signing policy, process ownership and
-every frozen command and budget.
-
-The current full Git run passes 241 cases and fails only
-`repository::acceptance::native_process_owner`. It loads the main repository
-directory while a linked-worktree terminal remains owned; the observed native
-context-departure consent prevents the fixture from reaching Git Status. A
-bounded correction to visit the main repository's `source.txt` instead of its
-directory needs explicit fixture authority. No such correction was applied.
-Preserve the retained terminal and all existing negative assertions, names,
-timeouts and process checks. The failed command remains blocking; no baseline
-or environmental exemption is claimed.
-
-Test names, fixture behavior, assertions, timeouts and resource ceilings are
-unchanged. The three approved output-request call expressions and their import
-were adapted. Corrections outside the approved scope still require authority.
-PR preparation and final clean-HEAD validation remain pending. The controller
-owns merges and the complete delivery-set gate.
+No remaining slice failure is recorded. Runtime context, file-tree,
+visiting-source and terminal protections are intact. The complete delivery-set
+gate, merge and successor startup remain controller-owned.
