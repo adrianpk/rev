@@ -101,7 +101,7 @@ Dependency: Slice 4 integrated
 Branch: refactor/rev-architecture-quality-05-git
 PR: pending
 Report: ops/default/report/slices/rev-architecture-quality/slice-5-git.md
-Progress: approved FamilyOutput API and four callers implemented; native tags/transport/integration and session composer/comparison/conflict/history/tag/bisect owners now satisfy source bounds; 33 findings remain, reduced from 64; all 18 tag/transport and 23 integration/control/bisect cases pass for the stated cohorts; all 48 current session/native regressions pass and scoped Clippy has zero blocking diagnostics across 112 files; the process-owner fixture still waits at terminal-departure consent; full Git acceptance remains pending
+Progress: approved FamilyOutput API and four callers implemented; the complete native Git worker tree now satisfies source bounds after ordered-application, stash and worktree decomposition; 18 findings remain in ref/repository session handlers, reduced from 33; all 26 ordered/stash, eight worktree/reload and four final native-state regressions pass for the stated cohorts; scoped Clippy has zero blocking diagnostics across 112 files; the process-owner fixture correction, full Git acceptance, PR and final validation remain pending
 Validation: pending; frozen ordered commands in plan and controller configuration
 
 - [ ] T5.1: Split the verified oversized native Git poll/dispatch/operation handlers into cohesive operation-family and observation owners under the existing modules.

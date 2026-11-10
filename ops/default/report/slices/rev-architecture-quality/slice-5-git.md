@@ -65,9 +65,23 @@ publishing the new detail. History inspection renders each native page lazily;
 ordered marks, conflict review and manual bisect/tag review retain their original
 authority and user-visible behavior.
 
-This is a partial checkpoint. Native repository/worktree and ordered-application
-owners, plus remaining ref/repository session handlers, still require source-bound
-corrections.
+Ordered application now separates unchanged History/Status admission, complete
+source-commit batch framing, exact authored-commit decoding and full tree/index
+verification. The workflow retains its prior child facts and original expected
+source while each actual changing step owns the freshly checked source, result
+and diagnostics. Continuation, skip and explicit abort restoration have separate
+checked phases.
+
+Stash preparation retains exact source/list authority through affected-path and
+parent discovery. Actual child facts survive restoration and the separately
+checked ordinal removal; resulting list, refs, conflict state and saved evidence
+have independent proofs. Worktrees separate bounded registry/backlink capture,
+porcelain grammar, filesystem identity, cwd-restored target capture, destination
+preparation and resulting ref/record/source proofs.
+
+This is a partial checkpoint. Remaining ref/repository session handlers still
+require source-bound corrections; the complete native Git worker tree now
+satisfies the source bounds.
 
 ## Implementation Notes
 
@@ -129,6 +143,22 @@ corrections.
   64-file/detail/scratch ceilings, cancellation and complete before/after checks.
 - Autosquash retains its 256-commit linear range, bounded complete subjects,
   exact/hash-prefix/subject-prefix target precedence and ordered todo ownership.
+- Ordered source batches retain exact object/type/length framing, terminators,
+  parent/message/author limits, mainline choices and driver admission. Each step
+  keeps its original expected snapshot and freshly checked source through child
+  fact restoration; no failed step, skip or abort is inferred or replayed.
+- Stash preparation retains complete clean restoration admission, captured
+  tracked/untracked paths, canonical path checks, exact objects and source
+  rechecks. Pop/branch removal still follows successful restoration, source
+  evidence capture and a fresh list check; conflicts retain manual ownership.
+- Worktree observation preserves registry count/cancellation bounds, ordinary
+  metadata files, bounded backlinks, exact porcelain fields, canonical paths,
+  directory fingerprints and checked per-worktree Git identity. Target capture
+  restores the original cwd on every Result path.
+- Worktree preparation preserves parent stamps, branch/target authority and
+  protections for current/main/bare/locked/dirty/process-owned resources. Result
+  verification still inspects every prior record, exact count, created target
+  state and unchanged source bytes; no force, replay or rollback was added.
 - Session composer source modes preserve buffer admission, retained view/input
   restoration and submit/cancel behavior. Comparison mapping preserves exact
   bytes and path/layer identity before lazy reveal. History pages preserve row
@@ -166,6 +196,10 @@ suppression or source-policy exception was added.
 - `src/git/work/refs/{tag,transport}.rs`, `src/git/work/refs/transport/push.rs`
   and `src/git/work/integration/`: checked tag/transport requests, sequence
   capture/decoding, integration lineage and autosquash grouping.
+- `src/git/work/sequences.rs`, `src/git/work/sequences/`,
+  `src/git/work/repository.rs` and `src/git/work/repository/worktrees.rs`:
+  complete ordered-source batches, actual step/control ownership, stash
+  restoration/removal and worktree registry/destination/result proofs.
 - `src/session/git/{commit,comparisons,conflicts}.rs`, `src/session/git/commit/`,
   `src/session/git/history/` and `src/session/git/refs/{bisect,tag}.rs`: composer
   source modes, exact comparison mapping and lazy inspection/review projection.
@@ -180,7 +214,7 @@ suppression or source-policy exception was added.
 Intermediate checks, with focused results tied to the stated implementation
 cohorts. Final ordered clean-HEAD Looper validation remains pending.
 
-- Failed: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 bash scripts/check-quality.sh --scope src/git.rs --scope src/git --scope src/session/git.rs --scope src/session/git`. Formatting, all-target compilation and scoped Clippy pass with zero blocking diagnostics across 112 selected files; 889 selected-profile diagnostics outside this scope are deferred. Native source policy still rejects 33 findings, reduced from 64.
+- Failed: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 bash scripts/check-quality.sh --scope src/git.rs --scope src/git --scope src/session/git.rs --scope src/session/git`. Formatting, all-target compilation and scoped Clippy pass with zero blocking diagnostics across 112 selected files; 889 selected-profile diagnostics outside this scope are deferred. Native source policy still rejects 18 findings, reduced from 33.
 - Earlier partial implementation: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --test git_integration -- --test-threads=1`. 239 passed and three failed before the current request/parser cohort. This is not current full-suite acceptance; the full suite has not been rerun on this checkpoint.
 - Passed: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo run --locked --quiet -p rev --example documentation-check`. 106 reachable pages, 743 local links/anchors, 684 commands and 299 configuration entries.
 - Passed: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --test git_integration -- families::output:: --test-threads=1`. Six output-family cases after the approved API adaptation.
@@ -197,20 +231,22 @@ cohorts. Final ordered clean-HEAD Looper validation remains pending.
 - Passed: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --test git_integration -- refs::tags transport:: --test-threads=1`. All 18 tag/transport cases after their native decomposition, before final borrowing corrections and the subsequent integration/session changes.
 - Passed: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --test git_integration -- integration:: sequences::bisect:: sequences::controls::ordered_controls --test-threads=1`. All 23 integration, autosquash, sequence-control and manual-bisect cases after native integration/metadata extraction, before the final borrowing corrections and session extraction.
 - Passed: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --test git_integration -- commits::presentation:: commits::acceptance:: diffs::presentation:: history:: conflicts::resolution::presentation:: conflicts::presentation:: refs::tags::presentation:: families::presentation:: sequences::presentation:: --test-threads=1`. All 48 session/native regression cases after the complete integration, borrowing and review cohort. Commit draft/cancel/recovery and terminal retention, conflict resolution, exact hunk refresh/source visits, prepared-family composition, historical inspection/marks, tag annotations and manual sequence/bisect controls pass.
+- Passed: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --test git_integration -- sequences:: repository::saved_roundtrip repository::pop_and_branch repository::changed_review repository::retained_conflict repository::stash_admission repository::stash_ordinal repository::presentation:: repository::acceptance::native_stash --test-threads=1`. All 26 ordered-application, stash and native-control cases after their decomposition, before worktree extraction and final borrowing corrections. This includes explicit mainlines, stale/retained order, conflict retention, ordinal changes, uncertainty and native saved-source guards.
+- Passed: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --test git_integration -- repository::worktrees:: repository::acceptance::native_reload --test-threads=1`. All eight worktree and native reload cases after registry/porcelain/target-state/preparation/result extraction, before the final borrowing corrections. Exact creation/lock/unlock/visit/removal/prune, dirty/owned resource protections, stale reviews and native visiting-source guards pass.
+- Passed: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --test git_integration -- repository::worktrees::checked_roundtrip repository::worktrees::checked_prune repository::pop_and_branch sequences::controls::ordered_controls --test-threads=1`. All four final native-state regressions after the borrowing corrections, covering worktree lifecycle/prune, separately checked stash removal and ordered continuation/skip/abort restoration.
 - Passed: `git diff --check`.
 
 The current scoped inventory covers 112 of 1832 first-party Rust files. Git family
 input, bisect workers, conflict inspection/resolution, commit/discard workers,
 the complete worker history/index/prepared-family trees, reference observation
-and branches/tags/transport, the complete native integration tree, and session
+and branches/tags/transport, the complete native worker tree, and session
 index/discard/family/composer/comparison/conflict/history/tag/bisect owners satisfy
-the five/three/ten bounds. The 33 remaining source findings block the
+the five/three/ten bounds. The 18 remaining source findings block the
 required quality command.
 
 ## Risks and Follow-ups
 
-Complete the remaining native repository/worktree and ordered-application owners,
-plus ref/repository session handlers, within this slice. Preserve immutable-source authority,
+Complete the remaining ref/repository session handlers within this slice. Preserve immutable-source authority,
 hook/signing policy, process ownership and every frozen command and budget.
 
 Earlier full-suite execution observed three failures. Subsequent focused checks

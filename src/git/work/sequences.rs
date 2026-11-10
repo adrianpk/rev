@@ -81,115 +81,28 @@ impl Runner {
     }
     pub(super) fn apply_steps(
         &mut self,
-        mut progress: ApplyProgress,
-        mut expected: Arc<Refs>,
+        progress: ApplyProgress,
+        expected: Arc<Refs>,
         admission: &mut Lease,
-        mut last_facts: Option<index::Execution>,
+        last_facts: Option<index::Execution>,
     ) -> Result<Candidate, String> {
-        while progress.next < progress.plan.steps.len() {
-            let checked = (|| {
-                let refs = self.check_integration_source(&expected, admission)?;
-                if self.read_sequence(&refs, admission)?.family.is_some() {
-                    return Err(
-                        "Another Git-owned sequence appeared before the next ordered step".into(),
-                    );
-                }
-                self.check_integration_source(&expected, admission)
-            })();
-            let refs = match checked {
-                Ok(r) => r,
-                Err(e) => {
-                    if let Some(facts) = last_facts {
-                        self.restore_execution(facts, false);
-                    }
-                    self.operation_failure = Some(format!(
-                        "Ordered request stopped after {} verified steps: {e}",
-                        progress.completed.len()
-                    ));
-                    return Err(e);
-                }
-            };
-            let step = &progress.plan.steps[progress.next];
-            progress.before = refs.head.ok_or("Ordered application lost HEAD")?;
-            let mut args: Vec<OsString> = vec![
-                "--no-replace-objects".into(),
-                progress.plan.kind.label().into(),
-                "--no-edit".into(),
-            ];
-            if let Some(mainline) = step.mainline {
-                args.extend(["--mainline".into(), mainline.to_string().into()]);
-            }
-            args.extend(["--".into(), step.object.hex().into()]);
-            let (executed, facts) = self.execute_change(&args, None);
-            if self.retained.is_some() {
-                self.restore_execution(facts, true);
-                return Err(
-                    "Ordered revision cleanup remains owned; no abort or rollback is inferred"
-                        .into(),
-                );
-            }
-            let result = (|| {
-                let after = self.integration_refs(&progress.plan.refs.observation, admission)?;
-                let mut sequence = self.read_sequence(&after, admission)?;
-                if sequence.family.is_some() {
-                    let size = progress.bytes();
-                    admission.grow(size)?;
-                    progress._admission = admission.split(size);
-                    self.bind_application(&mut sequence, Arc::new(progress))?;
-                    self.in_progress = true;
-                    self.operation_failure=Some("Ordered revisions stopped in progress; explicit checked continuation, skip or abort is required".into());
-                    return Ok((Candidate::Sequence(sequence), None));
-                }
-                let other_refs = after.completeness == Completeness::Complete
-                    && after.entries.len() == refs.entries.len()
-                    && refs
-                        .entries
-                        .iter()
-                        .filter(|r| r.name != refs.head_ref)
-                        .all(|r| {
-                            after
-                                .reference(&r.name)
-                                .is_some_and(|a| a.object == r.object && a.symbolic == r.symbolic)
-                        });
-                if executed.is_err()
-                    || !other_refs
-                    || !self.verify_application_step(&progress, &after, admission)?
-                {
-                    self.failure_verified = executed.is_err()
-                        && after.same(&refs)
-                        && after.observation.status == refs.observation.status;
-                    self.operation_failure=Some("Ordered revision failed or actual branch, parents, authored message, index or disk postcondition differs; no automatic retry".into());
-                    return Ok((Candidate::Sequence(sequence), None));
-                }
-                let head = after.head.ok_or("Ordered result lost HEAD")?;
-                progress.completed.push(head);
-                progress.next += 1;
-                progress.before = head;
-                self.effects = Effects::Verified;
-                Ok((Candidate::Sequence(sequence), Some((progress, after))))
-            })();
-            match result {
-                Ok((candidate, None)) => {
-                    self.restore_execution(facts, executed.is_err());
-                    return Ok(candidate);
-                }
-                Ok((candidate, Some((next, after)))) => {
-                    progress = next;
-                    expected = after;
-                    last_facts = Some(facts.clone());
-                    self.restore_execution(facts, false);
-                    if progress.next == progress.plan.steps.len() {
-                        return Ok(candidate);
-                    }
-                }
-                Err(e) => {
-                    self.restore_execution(facts, executed.is_err());
-                    self.operation_failure=Some("Ordered revision effects remain unverified; refresh actual Git state; no automatic retry".into());
-                    return Err(e);
-                }
-            }
+        Application {
+            progress,
+            expected,
+            last_facts,
         }
-        Err("Ordered request has no remaining revision".into())
+        .run(self, admission)
+    }
+    fn application_step_source(
+        &mut self,
+        expected: &Refs,
+        admission: &mut Lease,
+    ) -> Result<Arc<Refs>, String> {
+        let refs = self.check_integration_source(expected, admission)?;
+        if self.read_sequence(&refs, admission)?.family.is_some() {
+            return Err("Another Git-owned sequence appeared before the next ordered step".into());
+        }
+        self.check_integration_source(expected, admission)
     }
     pub(super) fn verify_application_step(
         &mut self,
@@ -210,6 +123,18 @@ impl Runner {
         {
             return Ok(false);
         }
+        if !self.verify_applied_commit(progress, after, head, admission)? {
+            return Ok(false);
+        }
+        self.verify_applied_tree(after, head, admission)
+    }
+    fn verify_applied_commit(
+        &mut self,
+        progress: &ApplyProgress,
+        after: &Refs,
+        head: ObjectId,
+        admission: &mut Lease,
+    ) -> Result<bool, String> {
         let bytes = self.command(
             &["--no-replace-objects", "cat-file", "commit", &head.hex()],
             Phase::Verifying,
@@ -234,6 +159,14 @@ impl Runner {
         {
             return Ok(false);
         }
+        Ok(true)
+    }
+    fn verify_applied_tree(
+        &mut self,
+        after: &Refs,
+        head: ObjectId,
+        admission: &mut Lease,
+    ) -> Result<bool, String> {
         let tree = self.command(
             &["ls-tree", "--full-tree", "-r", "-z", &head.hex()],
             Phase::Verifying,
@@ -255,5 +188,161 @@ impl Runner {
             true,
             self.policy.max_status_paths,
         )?)
+    }
+}
+
+/// An ordered application owns the exact next position, source and last verified child.
+struct Application {
+    progress: ApplyProgress,
+    expected: Arc<Refs>,
+    last_facts: Option<index::Execution>,
+}
+impl Application {
+    fn run(mut self, runner: &mut Runner, admission: &mut Lease) -> Result<Candidate, String> {
+        while self.progress.next < self.progress.plan.steps.len() {
+            let refs = self.source(runner, admission)?;
+            let args = self.arguments(&refs)?;
+            let (executed, facts) = runner.execute_change(&args, None);
+            if runner.retained.is_some() {
+                runner.restore_execution(facts, true);
+                return Err(
+                    "Ordered revision cleanup remains owned; no abort or rollback is inferred"
+                        .into(),
+                );
+            }
+            let step = ApplicationStep {
+                refs,
+                executed,
+                facts,
+            };
+            let result = self.observe(runner, &step, admission);
+            match result {
+                Ok((candidate, None)) => {
+                    runner.restore_execution(step.facts, step.executed.is_err());
+                    return Ok(candidate);
+                }
+                Ok((candidate, Some(next))) => {
+                    self = next;
+                    self.last_facts = Some(step.facts.clone());
+                    runner.restore_execution(step.facts, false);
+                    if self.progress.next == self.progress.plan.steps.len() {
+                        return Ok(candidate);
+                    }
+                }
+                Err(e) => {
+                    runner.restore_execution(step.facts, step.executed.is_err());
+                    runner.operation_failure=Some("Ordered revision effects remain unverified; refresh actual Git state; no automatic retry".into());
+                    return Err(e);
+                }
+            }
+        }
+        Err("Ordered request has no remaining revision".into())
+    }
+    fn source(&mut self, runner: &mut Runner, admission: &mut Lease) -> Result<Arc<Refs>, String> {
+        match runner.application_step_source(&self.expected, admission) {
+            Ok(r) => Ok(r),
+            Err(e) => {
+                if let Some(facts) = self.last_facts.take() {
+                    runner.restore_execution(facts, false);
+                }
+                runner.operation_failure = Some(format!(
+                    "Ordered request stopped after {} verified steps: {e}",
+                    self.progress.completed.len()
+                ));
+                Err(e)
+            }
+        }
+    }
+    fn arguments(&mut self, refs: &Refs) -> Result<Vec<OsString>, String> {
+        let step = &self.progress.plan.steps[self.progress.next];
+        self.progress.before = refs.head.ok_or("Ordered application lost HEAD")?;
+        let mut args: Vec<OsString> = vec![
+            "--no-replace-objects".into(),
+            self.progress.plan.kind.label().into(),
+            "--no-edit".into(),
+        ];
+        if let Some(mainline) = step.mainline {
+            args.extend(["--mainline".into(), mainline.to_string().into()]);
+        }
+        args.extend(["--".into(), step.object.hex().into()]);
+        Ok(args)
+    }
+    fn observe(
+        mut self,
+        runner: &mut Runner,
+        step: &ApplicationStep,
+        admission: &mut Lease,
+    ) -> Result<(Candidate, Option<Self>), String> {
+        let after = runner.integration_refs(&self.progress.plan.refs.observation, admission)?;
+        let sequence = runner.read_sequence(&after, admission)?;
+        if sequence.family.is_some() {
+            return self.stopped(runner, sequence, admission);
+        }
+        if !self.verified(runner, &after, step, admission)? {
+            return Ok((Candidate::Sequence(sequence), None));
+        }
+        let head = after.head.ok_or("Ordered result lost HEAD")?;
+        self.progress.completed.push(head);
+        self.progress.next += 1;
+        self.progress.before = head;
+        runner.effects = Effects::Verified;
+        self.expected = after;
+        Ok((Candidate::Sequence(sequence), Some(self)))
+    }
+    fn stopped(
+        mut self,
+        runner: &mut Runner,
+        mut sequence: Sequence,
+        admission: &mut Lease,
+    ) -> Result<(Candidate, Option<Self>), String> {
+        let size = self.progress.bytes();
+        admission.grow(size)?;
+        self.progress._admission = admission.split(size);
+        runner.bind_application(&mut sequence, Arc::new(self.progress))?;
+        runner.in_progress = true;
+        runner.operation_failure=Some("Ordered revisions stopped in progress; explicit checked continuation, skip or abort is required".into());
+        Ok((Candidate::Sequence(sequence), None))
+    }
+    fn verified(
+        &self,
+        runner: &mut Runner,
+        after: &Refs,
+        step: &ApplicationStep,
+        admission: &mut Lease,
+    ) -> Result<bool, String> {
+        let other_refs = step.other_refs(after);
+        if step.executed.is_err()
+            || !other_refs
+            || !runner.verify_application_step(&self.progress, after, admission)?
+        {
+            runner.failure_verified = step.executed.is_err()
+                && after.same(&step.refs)
+                && after.observation.status == step.refs.observation.status;
+            runner.operation_failure=Some("Ordered revision failed or actual branch, parents, authored message, index or disk postcondition differs; no automatic retry".into());
+            return Ok(false);
+        }
+        Ok(true)
+    }
+}
+/// One actual changing child retains the freshly checked source through publication.
+struct ApplicationStep {
+    refs: Arc<Refs>,
+    executed: Result<(), String>,
+    facts: index::Execution,
+}
+impl ApplicationStep {
+    fn other_refs(&self, after: &Refs) -> bool {
+        after.completeness == Completeness::Complete
+            && after.entries.len() == self.refs.entries.len()
+            && self
+                .refs
+                .entries
+                .iter()
+                .filter(|r| r.name != self.refs.head_ref)
+                .all(|r| {
+                    after
+                        .reference(&r.name)
+                        .is_some_and(|a| a.object == r.object && a.symbolic == r.symbolic)
+                })
     }
 }
