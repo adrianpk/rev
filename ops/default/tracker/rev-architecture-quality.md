@@ -115,7 +115,7 @@ Validation: all four frozen commands passed through Looper on clean published HE
 State: reviewing
 Dependency: Slice 5 integrated
 Branch: refactor/rev-architecture-quality-06-processes
-PR: pending
+PR: #20 - https://forge.adrianpk.com/rev/rev/pulls/20
 Report: ops/default/report/slices/rev-architecture-quality/slice-6-processes.md
 Progress: all 117 selected process/AI/Pi/LSP/shell/terminal files pass the source guards and selected Clippy profile; blocking Clippy diagnostics decreased from 196 to zero and source findings from 34 to zero; 693 selected-profile diagnostics remain deferred outside this slice
 Validation: the four frozen working-tree commands pass, including all 213 native cases with the same three upstream-acquisition ignores and documentation coverage of 106 pages, 743 links/anchors, 684 commands and 299 configuration entries; the final PR head requires the same four commands through Looper; previously passed LSP ledger/retirement tests retain their five native cases
