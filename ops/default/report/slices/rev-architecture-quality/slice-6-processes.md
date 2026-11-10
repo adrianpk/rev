@@ -1,6 +1,6 @@
 # Slice 6: External process workflows
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-architecture-quality
 Plan: [Architecture Quality Delivery](../../../plan/rev-architecture-quality.md)
 Tracker: [Architecture Quality Tracker](../../../tracker/rev-architecture-quality.md)
@@ -163,9 +163,10 @@ timeouts and resource ceilings.
 
 ## Validation
 
-Working-tree results for the frozen commands follow; historical focused checks
-are labeled. Exact clean-HEAD evidence is recorded separately through
-`looper validate` on the final PR head.
+All four frozen commands passed through `looper validate` on clean published
+HEAD `2064a704049fe66c1e44e68a67b2b6e72024649a`, validation
+`UMFBE7KRBFCBKKOG2ZRU2BATLG`. Canonical PR #20 integrated that exact head into
+`dev`. Historical focused checks are labeled below.
 
 - Passed: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 bash scripts/check-quality.sh --scope src/ai.rs --scope src/ai --scope src/lsp.rs --scope src/lsp --scope src/process.rs --scope src/process --scope src/shell.rs --scope src/shell --scope src/terminal.rs --scope src/terminal --scope src/session/ai.rs --scope src/session/ai --scope src/session/lsp.rs --scope src/session/lsp --scope src/session/shell.rs --scope src/session/shell --scope src/session/terminals.rs --scope src/session/terminals`. All-target compilation and selected Clippy pass across 117 selected files, with zero blocking diagnostics and 693 selected-profile diagnostics deferred outside this slice. All selected source guards pass, including the five-parameter retained-session signature.
 - Passed: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --test ai --test lsp --test lsp_installation --test shell_commands --test integrated_terminal --test pi -- --test-threads=1`. All 213 native cases pass across the six suites: 26 AI, 49 integrated-terminal, 46 LSP, 39 installation, 15 Pi and 38 shell. The same three explicit upstream-acquisition cases remain ignored by default.
