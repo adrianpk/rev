@@ -9,19 +9,7 @@ impl Runner {
         admission: &mut Lease,
     ) -> Result<Candidate, String> {
         self.checked_sequence(&conflict.sequence, admission)?;
-        let index = std::fs::symlink_metadata(
-            conflict
-                .sequence
-                .refs
-                .observation
-                .identity
-                .git_directory
-                .join("index"),
-        )
-        .map_err(|e| format!("Conflict explanation index source: {e}"))?;
-        if !index.is_file() || index.file_type().is_symlink() {
-            return Err("Conflict explanation requires an ordinary index source".into());
-        }
+        let index = self.conflict_explanation_index(&conflict)?;
         let saved = self.saved_result(&conflict, admission);
         if self.cancel.is_cancelled() || Instant::now() >= self.deadline {
             return Err("Conflict explanation capture cancelled or timed out".into());
@@ -39,6 +27,29 @@ impl Runner {
             index: fingerprint(&index),
             _admission: admission.split(size),
         };
+        self.finish_conflict_explanation(snapshot, admission)
+    }
+    fn conflict_explanation_index(&self, conflict: &Conflict) -> Result<std::fs::Metadata, String> {
+        let index = std::fs::symlink_metadata(
+            conflict
+                .sequence
+                .refs
+                .observation
+                .identity
+                .git_directory
+                .join("index"),
+        )
+        .map_err(|e| format!("Conflict explanation index source: {e}"))?;
+        if !index.is_file() || index.file_type().is_symlink() {
+            return Err("Conflict explanation requires an ordinary index source".into());
+        }
+        Ok(index)
+    }
+    fn finish_conflict_explanation(
+        &mut self,
+        snapshot: ConflictExplanation,
+        admission: &mut Lease,
+    ) -> Result<Candidate, String> {
         self.checked_sequence(&snapshot.conflict.sequence, admission)?;
         if snapshot.saved.is_ok() {
             snapshot.current()?;

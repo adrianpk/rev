@@ -87,6 +87,21 @@ pub struct RevisionDetail {
     pub(super) _admission: Lease,
 }
 
+pub(super) struct FileRequest {
+    pub(super) observation: Arc<Observation>,
+    pub(super) object: ObjectId,
+    pub(super) path: PathBuf,
+    pub(super) line: usize,
+    pub(super) current_path: Option<PathBuf>,
+}
+
+pub(super) struct Ancestry {
+    pub(super) observation: Arc<Observation>,
+    pub(super) root: Option<String>,
+    pub(super) prior: Option<Arc<History>>,
+    pub(super) next: bool,
+}
+
 pub(super) enum Request {
     Reflog(Arc<Observation>),
     Blame {
@@ -97,24 +112,13 @@ pub(super) enum Request {
         observation: Arc<Observation>,
         object: ObjectId,
     },
-    File {
-        observation: Arc<Observation>,
-        object: ObjectId,
-        path: PathBuf,
-        line: usize,
-        current_path: Option<PathBuf>,
-    },
+    File(FileRequest),
     Range {
         history: Arc<History>,
         base: ObjectId,
         end: ObjectId,
     },
-    Log {
-        observation: Arc<Observation>,
-        root: Option<String>,
-        prior: Option<Arc<History>>,
-        next: bool,
-    },
+    Log(Ancestry),
     Show {
         history: Arc<History>,
         object: ObjectId,
@@ -132,12 +136,19 @@ pub(super) enum ResultData {
 impl Request {
     pub(super) fn observation(&self) -> &Arc<Observation> {
         match self {
-            Self::Log { observation, .. }
-            | Self::Reflog(observation)
+            Self::Log(request) => &request.observation,
+            Self::File(request) => &request.observation,
+            Self::Reflog(observation)
             | Self::Blame { observation, .. }
-            | Self::ShowObject { observation, .. }
-            | Self::File { observation, .. } => observation,
+            | Self::ShowObject { observation, .. } => observation,
             Self::Show { history, .. } | Self::Range { history, .. } => &history.observation,
+        }
+    }
+    pub(super) fn ancestry_owner(&self) -> Option<Arc<History>> {
+        match self {
+            Self::Log(request) => request.prior.as_ref().map(Arc::clone),
+            Self::Show { history, .. } | Self::Range { history, .. } => Some(Arc::clone(history)),
+            _ => None,
         }
     }
 }
@@ -170,12 +181,12 @@ impl Repositories {
         self.start(
             directory,
             Some(context),
-            work::Request::History(Request::Log {
+            work::Request::History(Request::Log(Ancestry {
                 observation,
                 root: root.map(str::to_owned),
                 prior: None,
                 next: false,
-            }),
+            })),
         )
     }
     pub fn continue_history(
@@ -196,12 +207,12 @@ impl Repositories {
         self.start(
             directory,
             Some(history.observation.context),
-            work::Request::History(Request::Log {
+            work::Request::History(Request::Log(Ancestry {
                 observation: std::sync::Arc::clone(&history.observation),
                 root: None,
                 prior: Some(history),
                 next,
-            }),
+            })),
         )
     }
     pub fn show_revision(
@@ -271,12 +282,12 @@ impl Repositories {
         self.start(
             directory,
             Some(observation.context),
-            work::Request::History(Request::Log {
+            work::Request::History(Request::Log(Ancestry {
                 observation,
                 root: None,
                 prior,
                 next: false,
-            }),
+            })),
         )
     }
     pub(super) fn check_history(&self, history: &Arc<History>) -> Result<(), String> {

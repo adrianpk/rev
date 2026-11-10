@@ -2,7 +2,7 @@
 //! durable repository state; this owner retains finite session observations.
 pub(crate) mod budget;
 mod families;
-pub use families::{Family, FamilyPlan, FamilyResult};
+pub use families::{Family, FamilyOutput, FamilyPlan, FamilyResult};
 mod commit;
 mod diff;
 pub use commit::MAX_COMMIT_BYTES;

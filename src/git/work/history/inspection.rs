@@ -1,5 +1,8 @@
+mod blame;
+mod quoted;
 use super::*;
 use crate::git::{Attribution, Blame, Reflog, ReflogEntry, RevisionFile};
+pub(in crate::git::work) use quoted::unquote_path;
 
 impl Runner {
     pub(super) fn read_reflog(
@@ -48,34 +51,8 @@ impl Runner {
                 * 2
             + 4096;
         admission.grow(bytes_charge)?;
-        if !truncated && !bytes.is_empty() && bytes.last() != Some(&0) {
-            return Err("Reflog lacks a terminated machine record".into());
-        }
-        let mut fields = nul_fields(&bytes);
-        let mut entries = Vec::new();
+        let entries = reflog_entries(&bytes, truncated, observation.identity.format)?;
         let complete = !truncated;
-        while let Some(object) = fields.next() {
-            let mut values = [None; 4];
-            for value in &mut values {
-                *value = fields.next();
-            }
-            let [Some(selector), Some(subject), Some(author), Some(email)] = values else {
-                if truncated {
-                    break;
-                }
-                return Err("Incomplete reflog metadata record".into());
-            };
-            for field in [selector, subject, author, email] {
-                metadata_field(field)?;
-            }
-            entries.push(ReflogEntry {
-                object: ObjectId::parse(object, observation.identity.format)?,
-                selector: selector.to_vec(),
-                subject: subject.to_vec(),
-                author: author.to_vec(),
-                email: email.to_vec(),
-            });
-        }
         let retained = std::mem::size_of::<Reflog>()
             + entries.capacity() * std::mem::size_of::<ReflogEntry>()
             + entries
@@ -139,92 +116,15 @@ impl Runner {
         admission.grow(
             bytes.len() * 4 + (record_count + 1) * std::mem::size_of::<Attribution>() * 2 + 8192,
         )?;
-        let mut records = bytes
-            .split_inclusive(|b| *b == b'\n')
-            .filter_map(|l| l.strip_suffix(b"\n"));
-        let mut lines = Vec::new();
-        let mut path_bytes = 0;
-        let mut complete = !truncated;
-        while let Some(header) = records.next() {
-            if self.cancel.bounded(self.deadline).is_cancelled() {
-                return Err("Blame parsing cancelled".into());
-            }
-            let mut parts = header.split(|b| *b == b' ');
-            let object = ObjectId::parse(
-                parts.next().ok_or("Blame lacks an object")?,
-                observation.identity.format,
-            )?;
-            let original_line = number(parts.next().ok_or("Blame lacks an original line")?)?;
-            let final_line = number(parts.next().ok_or("Blame lacks a final line")?)?;
-            if final_line != lines.len() + 1 {
-                return Err("Blame source lines are not a complete ordered prefix".into());
-            }
-            if let Some(count) = parts.next() {
-                number(count)?;
-            }
-            if parts.next().is_some() {
-                return Err("Malformed blame header".into());
-            }
-            let mut author = None;
-            let mut email = None;
-            let mut time = None;
-            let mut subject = None;
-            let mut filename = None;
-            let mut text = None;
-            for record in records.by_ref() {
-                if let Some(value) = record.strip_prefix(b"\t") {
-                    text = Some(value);
-                    break;
-                }
-                let Some((key, value)) = record
-                    .iter()
-                    .position(|b| *b == b' ')
-                    .map(|at| (&record[..at], &record[at + 1..]))
-                else {
-                    if record == b"boundary" {
-                        continue;
-                    }
-                    return Err("Malformed blame metadata".into());
-                };
-                if key == b"filename" {
-                    filename = Some(unquote_path(value)?);
-                } else {
-                    metadata_field(value)?;
-                    match key {
-                        b"author" => author = Some(value),
-                        b"author-mail" => email = Some(value),
-                        b"author-time" => time = Some(value),
-                        b"summary" => subject = Some(value),
-                        _ => {}
-                    }
-                }
-            }
-            let Some(text) = text else {
-                if truncated {
-                    break;
-                }
-                return Err("Incomplete blame source record".into());
-            };
-            let Some(filename) = filename else {
-                return Err("Blame lacks an exact original filename".into());
-            };
-            path_bytes += filename.capacity();
-            if path_bytes > self.policy.max_path_bytes {
-                complete = false;
-                break;
-            }
-            lines.push(Attribution {
-                object,
-                path: filename,
-                original_line,
-                final_line,
-                author: author.ok_or("Blame lacks author metadata")?.to_vec(),
-                email: email.ok_or("Blame lacks author mail")?.to_vec(),
-                time: time.ok_or("Blame lacks author time")?.to_vec(),
-                subject: subject.ok_or("Blame lacks summary")?.to_vec(),
-                text: text.to_vec(),
-            });
-        }
+        let parsed = blame::Attributions::read(
+            &bytes,
+            observation.identity.format,
+            &self.policy,
+            &self.cancel.bounded(self.deadline),
+            truncated,
+        )?;
+        let lines = parsed.lines;
+        let complete = parsed.complete;
         let retained = std::mem::size_of::<Blame>()
             + path.capacity()
             + lines.capacity() * std::mem::size_of::<Attribution>()
@@ -259,13 +159,16 @@ impl Runner {
 
     pub(super) fn read_revision_file(
         &mut self,
-        observation: Arc<Observation>,
-        object: ObjectId,
-        path: PathBuf,
-        line: usize,
-        current_path: Option<PathBuf>,
+        request: crate::git::history::FileRequest,
         admission: &mut Lease,
     ) -> Result<ResultData, String> {
+        let crate::git::history::FileRequest {
+            observation,
+            object,
+            path,
+            line,
+            current_path,
+        } = request;
         validate_path(path.as_os_str().as_encoded_bytes())?;
         let mut name = object.hex().into_bytes();
         name.push(b':');
@@ -353,60 +256,37 @@ fn number(value: &[u8]) -> Result<usize, String> {
     n.ok_or("Git blame line/count is invalid".into())
 }
 
-// Git's C-quoted filename grammar preserves whitespace, quotes, backslashes
-// and non-UTF-8 bytes. Escaped display strings never become path arguments.
-pub(in crate::git::work) fn unquote_path(value: &[u8]) -> Result<PathBuf, String> {
-    let bytes = if let Some(inner) = value.strip_prefix(b"\"") {
-        let inner = inner
-            .strip_suffix(b"\"")
-            .ok_or("Unterminated quoted blame path")?;
-        if inner.len() > 16384 {
-            return Err("Quoted blame path exceeds its bound".into());
+fn reflog_entries(
+    bytes: &[u8],
+    truncated: bool,
+    format: ObjectFormat,
+) -> Result<Vec<ReflogEntry>, String> {
+    if !truncated && !bytes.is_empty() && bytes.last() != Some(&0) {
+        return Err("Reflog lacks a terminated machine record".into());
+    }
+    let mut fields = nul_fields(bytes);
+    let mut entries = Vec::new();
+    while let Some(object) = fields.next() {
+        let mut values = [None; 4];
+        for value in &mut values {
+            *value = fields.next();
         }
-        let mut bytes = Vec::with_capacity(inner.len().min(4096));
-        let mut at = 0;
-        while at < inner.len() {
-            let mut b = inner[at];
-            at += 1;
-            if b == b'\\' {
-                b = *inner.get(at).ok_or("Incomplete blame path escape")?;
-                at += 1;
-                b = match b {
-                    b'\\' | b'"' => b,
-                    b'a' => 7,
-                    b'b' => 8,
-                    b't' => b'\t',
-                    b'n' => b'\n',
-                    b'v' => 11,
-                    b'f' => 12,
-                    b'r' => b'\r',
-                    b'0'..=b'7' => {
-                        let mut v = u16::from(b - b'0');
-                        for _ in 0..2 {
-                            if let Some(c @ b'0'..=b'7') = inner.get(at) {
-                                v = v * 8 + u16::from(c - b'0');
-                                at += 1;
-                            } else {
-                                break;
-                            }
-                        }
-                        u8::try_from(v).map_err(|_| "Invalid blame path octal escape")?
-                    }
-                    _ => return Err("Unsupported blame path escape".into()),
-                };
+        let [Some(selector), Some(subject), Some(author), Some(email)] = values else {
+            if truncated {
+                break;
             }
-            if bytes.len() >= 4096 {
-                return Err("Blame path exceeds 4096 bytes".into());
-            }
-            bytes.push(b);
+            return Err("Incomplete reflog metadata record".into());
+        };
+        for field in [selector, subject, author, email] {
+            metadata_field(field)?;
         }
-        bytes
-    } else {
-        if value.len() > 4096 {
-            return Err("Blame path exceeds 4096 bytes".into());
-        }
-        value.to_vec()
-    };
-    validate_path(&bytes)?;
-    Ok(PathBuf::from(OsString::from_vec(bytes)))
+        entries.push(ReflogEntry {
+            object: ObjectId::parse(object, format)?,
+            selector: selector.to_vec(),
+            subject: subject.to_vec(),
+            author: author.to_vec(),
+            email: email.to_vec(),
+        });
+    }
+    Ok(entries)
 }

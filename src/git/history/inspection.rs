@@ -147,13 +147,13 @@ impl Repositories {
             .ok_or("Blame line is not admitted")?;
         let directory = self.history_directory(&blame.observation)?;
         let request = if file {
-            Request::File {
+            Request::File(FileRequest {
                 observation: std::sync::Arc::clone(&blame.observation),
                 object: line.object,
                 path: line.path.clone(),
                 line: line.original_line,
                 current_path: Some(blame.path.clone()),
-            }
+            })
         } else {
             Request::ShowObject {
                 observation: std::sync::Arc::clone(&blame.observation),
@@ -249,13 +249,13 @@ impl Repositories {
         self.start(
             directory,
             Some(context.id),
-            work::Request::History(Request::File {
+            work::Request::History(Request::File(FileRequest {
                 observation: std::sync::Arc::clone(&file.observation),
                 object: file.object,
                 path: file.path.clone(),
                 line: file.original_line,
                 current_path: file.current_path.clone(),
-            }),
+            })),
         )
     }
     /// Historical paths come from an immutable admitted comparison, including
@@ -293,13 +293,13 @@ impl Repositories {
         self.start(
             directory,
             Some(context.id),
-            work::Request::History(Request::File {
+            work::Request::History(Request::File(FileRequest {
                 observation: std::sync::Arc::clone(&detail.history.observation),
                 object,
                 path: selected.path.clone(),
                 line: 1,
                 current_path: None,
-            }),
+            })),
         )
     }
 }

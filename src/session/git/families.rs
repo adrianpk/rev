@@ -1,5 +1,5 @@
 use super::*;
-use crate::git::{Family, FamilyPlan, OperationKind, Update};
+use crate::git::{Family, FamilyOutput, FamilyPlan, OperationKind, Update};
 use std::ffi::OsString;
 use std::path::Path;
 
@@ -223,9 +223,11 @@ impl Session {
                 self.git.engine.prepare_family_output(
                     &draft.directory,
                     draft.context,
-                    draft.family,
-                    arguments,
-                    &output,
+                    FamilyOutput {
+                        family: draft.family,
+                        args: arguments,
+                        output,
+                    },
                 )?
             } else {
                 self.git.engine.prepare_family(

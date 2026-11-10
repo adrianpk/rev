@@ -101,7 +101,7 @@ Dependency: Slice 4 integrated
 Branch: refactor/rev-architecture-quality-05-git
 PR: pending
 Report: ops/default/report/slices/rev-architecture-quality/slice-5-git.md
-Progress: scoped Clippy passes for 97 Git files; native worker/publication, patch parsing, request admission and session routing boundaries extracted; 145 worker/session source-bound diagnostics remain, reduced from 170; integration cleanup/deadline failures remain unresolved; the bounded FamilyOutput signature adaptation is approved and remains to be implemented
+Progress: approved FamilyOutput API and four callers implemented; scoped Clippy passes for 103 Git files; bisect, conflict inspection and worker history boundaries now pass source bounds; 126 worker/session source findings remain, reduced from 145; focused output, bisect, conflict, history and ordered-control checks pass; the process-owner fixture still waits at terminal-departure consent; full Git acceptance remains pending
 Validation: pending; frozen ordered commands in plan and controller configuration
 
 - [ ] T5.1: Split the verified oversized native Git poll/dispatch/operation handlers into cohesive operation-family and observation owners under the existing modules.

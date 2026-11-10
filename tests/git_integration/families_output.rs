@@ -1,4 +1,5 @@
 use super::*;
+use rev::git::FamilyOutput;
 use std::ffi::OsStr;
 
 fn arguments(family: Family, values: &[&OsStr]) -> Vec<OsString> {
@@ -28,9 +29,11 @@ fn plan(
         .prepare_family_output(
             &repository.root,
             Some(context),
-            family,
-            arguments(family, values),
-            destination,
+            FamilyOutput {
+                family,
+                args: arguments(family, values),
+                output: destination.into(),
+            },
         )
         .unwrap();
     let update = finish(owner);
@@ -301,9 +304,11 @@ fn output_admission() {
         .prepare_family_output(
             &repository.root,
             Some(context),
-            Family::SaveDiff,
-            arguments(Family::SaveDiff, &[OsStr::new(&base), OsStr::new("HEAD")]),
-            &path,
+            FamilyOutput {
+                family: Family::SaveDiff,
+                args: arguments(Family::SaveDiff, &[OsStr::new(&base), OsStr::new("HEAD")]),
+                output: path.clone(),
+            },
         )
         .unwrap();
     finish(&mut owner);
@@ -322,9 +327,11 @@ fn output_admission() {
             .prepare_family_output(
                 &repository.root,
                 Some(context),
-                Family::SaveDiff,
-                arguments(Family::SaveDiff, &[OsStr::new(&base), OsStr::new("HEAD")]),
-                &path,
+                FamilyOutput {
+                    family: Family::SaveDiff,
+                    args: arguments(Family::SaveDiff, &[OsStr::new(&base), OsStr::new("HEAD")]),
+                    output: path.clone(),
+                },
             )
             .unwrap();
         finish(&mut owner);

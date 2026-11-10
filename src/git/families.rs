@@ -419,6 +419,15 @@ pub struct FamilyResult {
     pub(super) source: Option<Observation>,
     pub(super) _admission: Lease,
 }
+/// Exact output-family argv and destination retained for preparation and review.
+/// Preparing this request does not write the destination.
+#[derive(Debug)]
+pub struct FamilyOutput {
+    pub family: Family,
+    pub args: Vec<OsString>,
+    pub output: PathBuf,
+}
+
 pub(super) enum Request {
     Prepare {
         family: Family,
@@ -464,17 +473,15 @@ impl Repositories {
         &mut self,
         directory: &Path,
         context: Option<ContextId>,
-        family: Family,
-        args: Vec<OsString>,
-        output: &Path,
+        request: FamilyOutput,
     ) -> Result<OperationId, String> {
         self.prepare_family_file(
             directory,
             context,
             Preparation {
-                family,
-                args,
-                output: Some(output.into()),
+                family: request.family,
+                args: request.args,
+                output: Some(request.output),
             },
         )
     }
