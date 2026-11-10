@@ -73,13 +73,13 @@ Six public history-inspection methods retain their owned captured-authority
 parameters under narrow, reasoned Clippy expectations to preserve their APIs.
 No lint baseline or source-policy exception was added.
 
-A scope decision is required before correcting the existing public
+The maintainer approved a bounded compatibility exception for the existing public
 `Repositories::prepare_family_output` signature: it has six parameters including
 `self`, while the frozen source guard allows five and the approved plan requires
-compatible package APIs. The proposed bounded change is a native
+compatible package APIs. The approved bounded change is a native
 `FamilyOutput { family, args, output }` request and
 `prepare_family_output(&mut self, directory, context, request)`, with its session
-call and three existing test calls adapted. This proposal is not implemented;
+call and three existing test calls adapted. This change is not yet implemented;
 all assertions, command arguments, limits and budgets must remain intact.
 
 ## Files of Interest
@@ -136,7 +136,7 @@ are not attributed to the baseline or to an environmental cause without evidence
 
 No fixture, assertion, deadline or budget has been changed. Resolve integration
 failures before acceptance; corrections outside the injected source selection
-require explicit scope authorization. The public output API proposal also needs
-an explicit exception to the approved package-compatibility constraint before
-implementation. PR preparation and final clean-HEAD validation remain pending.
+require explicit scope authorization. The output API exception is now explicitly
+approved in the plan; all other package-compatibility constraints remain.
+PR preparation and final clean-HEAD validation remain pending.
 The controller owns merges and the complete delivery-set gate.

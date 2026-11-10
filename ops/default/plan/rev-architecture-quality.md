@@ -187,6 +187,15 @@ Findings: F3.
 - T5.2: Resolve selected ownership/conversion and five/three/ten diagnostics in native and session Git code; retain immutable observations, process ownership, authority checks, hook/signing policy and mutation preconditions.
 - T5.3: Validate status/index/commit/history/remote/sequence/conflict paths through existing disposable repositories, preserving all negative assertions and exact native command behavior.
 
+Maintainer-approved compatibility exception: replace the existing six-parameter
+`Repositories::prepare_family_output` signature with a cohesive native
+`FamilyOutput { family, args, output }` request and adapt its session call and
+three existing test calls. Retain the five-parameter source limit, exact command
+arguments, resource bounds, assertions, user commands and plugin/SDK protocols.
+This exception is limited to this Rust signature; it does not authorize general
+API changes or moving failing slice checks to the final gate. Finish the remaining
+Git source corrections and integration repairs before this slice is integrated.
+
 Frozen ordered focused checks:
 
 1. `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 bash scripts/check-quality.sh --scope src/git.rs --scope src/git --scope src/session/git.rs --scope src/session/git`
