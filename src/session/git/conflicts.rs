@@ -128,16 +128,7 @@ impl Session {
                 .and_then(|id| self.git.engine.context(id))
                 .and_then(|c| c.conflict.clone())
         {
-            self.git.conflicts.detail = Some(detail);
-            self.git.conflicts.top = 0;
-            if self.git.visible
-                && self.git.page == Page::Sequence
-                && self.pending.is_none()
-                && self.input.focus() == Focus::Editing
-            {
-                self.git.page = Page::Conflict;
-                self.message("Checked conflict sides retained as read-only inspection; Return visits editable result");
-            }
+            self.reveal_git_conflict(detail);
         } else if self.git.visible && self.pending.is_none() && self.input.focus() == Focus::Editing
         {
             self.message(
@@ -145,6 +136,18 @@ impl Session {
             );
         }
         self.git.painted = None;
+    }
+    fn reveal_git_conflict(&mut self, detail: Arc<Conflict>) {
+        self.git.conflicts.detail = Some(detail);
+        self.git.conflicts.top = 0;
+        if self.git.visible
+            && self.git.page == Page::Sequence
+            && self.pending.is_none()
+            && self.input.focus() == Focus::Editing
+        {
+            self.git.page = Page::Conflict;
+            self.message("Checked conflict sides retained as read-only inspection; Return visits editable result");
+        }
     }
     pub(super) fn move_git_conflict(&mut self, distance: usize, backward: bool) -> Action {
         let count = self
@@ -259,45 +262,7 @@ impl Session {
             }
         };
         let c = &plan.conflict;
-        let effect = match plan.action {
-            crate::git::ResolutionAction::Use(_) => {
-                "Replace only this working file with the complete selected side under Git checkout conversion; preserve all index stages."
-            }
-            crate::git::ResolutionAction::Delete => {
-                "Remove only this exact result path from disk and index, staging its deletion; preserve every other index entry."
-            }
-            crate::git::ResolutionAction::Stage => {
-                "Stage only the captured saved bytes or saved absence; preserve disk and every other index entry."
-            }
-        };
-        let mut review = format!(
-            "Checked conflict resolution review\nAction: {}\nExact path: {}\nKind: {}\nActual family: {:?}\nChecked HEAD:\n{}\nCompatible mode: {:06o}\nSaved bytes: {}\nExpected staged object: {}\n{}\n",
-            plan.action.label(),
-            label(c.change.path.as_os_str().as_encoded_bytes()),
-            c.kind(),
-            c.sequence.family,
-            c.sequence.refs.head.map_or("unborn".into(), |id| id.hex()),
-            plan.mode,
-            plan.saved
-                .as_ref()
-                .map_or("absent".into(), |s| s.bytes.len().to_string()),
-            plan.expected_object
-                .map_or("none / index unchanged or deletion".into(), |id| id.hex()),
-            effect
-        );
-        for role in ConflictRole::ALL {
-            if let Some(side) = c.side(role) {
-                review.push_str(&format!(
-                    "{} / stage {} / {}\n{} mode {:06o}\n",
-                    role.label(),
-                    role.stage(),
-                    role.meaning(c.sequence.family),
-                    side.object.hex(),
-                    side.mode
-                ));
-            }
-        }
-        review.push_str("Saved file identity, bytes, stages, operation metadata, HEAD and visiting source owners must remain unchanged. Marker text grants no authority. Continuing remains a separate explicit action. y / C-Enter / C-c C-c accept; n / C-g cancel.");
+        let review = resolution_review(&plan);
         self.confirm_git_ref(
             std::sync::Arc::clone(&c.sequence.refs),
             refs::RefAction::Resolution(std::sync::Arc::clone(&plan)),
@@ -413,4 +378,48 @@ impl Session {
         self.input.set_git(false);
         self.sync_input_context();
     }
+}
+
+fn resolution_review(plan: &crate::git::Resolution) -> String {
+    let c = &plan.conflict;
+    let effect = match plan.action {
+        crate::git::ResolutionAction::Use(_) => {
+            "Replace only this working file with the complete selected side under Git checkout conversion; preserve all index stages."
+        }
+        crate::git::ResolutionAction::Delete => {
+            "Remove only this exact result path from disk and index, staging its deletion; preserve every other index entry."
+        }
+        crate::git::ResolutionAction::Stage => {
+            "Stage only the captured saved bytes or saved absence; preserve disk and every other index entry."
+        }
+    };
+    let mut review = format!(
+        "Checked conflict resolution review\nAction: {}\nExact path: {}\nKind: {}\nActual family: {:?}\nChecked HEAD:\n{}\nCompatible mode: {:06o}\nSaved bytes: {}\nExpected staged object: {}\n{}\n",
+        plan.action.label(),
+        label(c.change.path.as_os_str().as_encoded_bytes()),
+        c.kind(),
+        c.sequence.family,
+        c.sequence.refs.head.map_or("unborn".into(), |id| id.hex()),
+        plan.mode,
+        plan.saved
+            .as_ref()
+            .map_or("absent".into(), |s| s.bytes.len().to_string()),
+        plan.expected_object
+            .map_or("none / index unchanged or deletion".into(), |id| id.hex()),
+        effect
+    );
+    for role in ConflictRole::ALL {
+        if let Some(side) = c.side(role) {
+            review.push_str(&format!(
+                "{} / stage {} / {}\n{} mode {:06o}\n",
+                role.label(),
+                role.stage(),
+                role.meaning(c.sequence.family),
+                side.object.hex(),
+                side.mode
+            ));
+        }
+    }
+    review.push_str("Saved file identity, bytes, stages, operation metadata, HEAD and visiting source owners must remain unchanged. Marker text grants no authority. Continuing remains a separate explicit action. y / C-Enter / C-c C-c accept; n / C-g cancel.");
+    review
 }

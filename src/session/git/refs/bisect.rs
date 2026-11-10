@@ -125,28 +125,7 @@ impl Session {
                 self.error(&e);
                 return;
             }
-            let state = sequence.bisect.as_ref().expect("admitted bisect");
-            let plan = state.plan.as_ref().expect("admitted original lineage");
-            let mut review = format!(
-                "Manual bisect control review\nExplicit action: {}\nExact current candidate:\n{}\nKnown bad:\n{}\nKnown good boundaries: {}\nSkipped candidates: {}\nOriginal branch:\n{}\nOriginal object:\n{}\nResult: {}\nReset restores only this checked original context. Classifications express your result; no test/build is run. y / C-Enter / C-c C-c accepts; Return does not; n / C-g cancels.",
-                action.label(),
-                sequence
-                    .refs
-                    .head
-                    .map_or("unavailable".into(), |id| id.hex()),
-                state.bad.hex(),
-                state.good.len(),
-                state.skipped.len(),
-                label(&plan.refs.head_ref),
-                plan.refs.head.map_or("unavailable".into(), |id| id.hex()),
-                state.result.label()
-            );
-            for id in &state.good {
-                review.push_str(&format!("\nExact good boundary:\n{}", id.hex()));
-            }
-            for id in &state.skipped {
-                review.push_str(&format!("\nExact skipped candidate:\n{}", id.hex()));
-            }
+            let review = bisect_control_review(&sequence, action);
             (
                 std::sync::Arc::clone(&sequence.refs),
                 RefAction::BisectControl(sequence, action),
@@ -197,4 +176,33 @@ impl Work {
             }
         })
     }
+}
+
+fn bisect_control_review(
+    sequence: &crate::git::Sequence,
+    action: crate::git::BisectAction,
+) -> String {
+    let state = sequence.bisect.as_ref().expect("admitted bisect");
+    let plan = state.plan.as_ref().expect("admitted original lineage");
+    let mut review = format!(
+        "Manual bisect control review\nExplicit action: {}\nExact current candidate:\n{}\nKnown bad:\n{}\nKnown good boundaries: {}\nSkipped candidates: {}\nOriginal branch:\n{}\nOriginal object:\n{}\nResult: {}\nReset restores only this checked original context. Classifications express your result; no test/build is run. y / C-Enter / C-c C-c accepts; Return does not; n / C-g cancels.",
+        action.label(),
+        sequence
+            .refs
+            .head
+            .map_or("unavailable".into(), |id| id.hex()),
+        state.bad.hex(),
+        state.good.len(),
+        state.skipped.len(),
+        label(&plan.refs.head_ref),
+        plan.refs.head.map_or("unavailable".into(), |id| id.hex()),
+        state.result.label()
+    );
+    for id in &state.good {
+        review.push_str(&format!("\nExact good boundary:\n{}", id.hex()));
+    }
+    for id in &state.skipped {
+        review.push_str(&format!("\nExact skipped candidate:\n{}", id.hex()));
+    }
+    review
 }

@@ -11,32 +11,15 @@ impl Session {
         if state.tag.is_some() {
             return self.git_tag_review_frame();
         }
-        let composition = state.composition.as_ref().expect("prepared commit review");
-        let (title, target) = match composition.mode {
-            crate::git::CommitMode::Amend { head } => ("Amend exact HEAD", head.hex()),
-            crate::git::CommitMode::Fixup { target } => ("Fixup exact target", target.hex()),
-        };
+        self.git_commit_message_review_frame()
+    }
+    fn git_commit_message_review_frame(&mut self) -> Result<Frame, crate::view::Error> {
+        let state = self.git.composer.as_ref().expect("commit review");
         let buffer = self.buffers.get(state.buffer)?;
         let text = buffer
             .slice(&buffer.span(0..buffer.len_chars())?)?
             .to_string();
-        let checked_head = match &state
-            .observation
-            .as_ref()
-            .expect("commit observation")
-            .status
-            .as_ref()
-            .expect("checked status")
-            .head
-        {
-            Head::Unborn { .. } => "unborn".into(),
-            Head::Branch { object, .. } | Head::Detached { object } => object.hex(),
-        };
-        let metadata = format!(
-            "{title}\n{target}\nChecked HEAD: {checked_head}\nMessage: {} bytes; final newline: {}\nAccepted message (Up/Down scroll):",
-            text.len(),
-            text.ends_with('\n')
-        );
+        let metadata = commit_review_metadata(state, &text);
         let width = usize::from(self.size.width.max(1));
         let mut lines = metadata
             .lines()
@@ -73,4 +56,29 @@ impl Session {
         self.prompt_frame(&mut frame, popup.as_ref())?;
         Ok(frame)
     }
+}
+
+fn commit_review_metadata(state: &Composer, text: &str) -> String {
+    let composition = state.composition.as_ref().expect("prepared commit review");
+    let (title, target) = match composition.mode {
+        crate::git::CommitMode::Amend { head } => ("Amend exact HEAD", head.hex()),
+        crate::git::CommitMode::Fixup { target } => ("Fixup exact target", target.hex()),
+    };
+    let checked_head = match &state
+        .observation
+        .as_ref()
+        .expect("commit observation")
+        .status
+        .as_ref()
+        .expect("checked status")
+        .head
+    {
+        Head::Unborn { .. } => "unborn".into(),
+        Head::Branch { object, .. } | Head::Detached { object } => object.hex(),
+    };
+    format!(
+        "{title}\n{target}\nChecked HEAD: {checked_head}\nMessage: {} bytes; final newline: {}\nAccepted message (Up/Down scroll):",
+        text.len(),
+        text.ends_with('\n')
+    )
 }

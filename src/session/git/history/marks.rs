@@ -66,14 +66,8 @@ impl Session {
         }
         self.git.ancestry.mark_scope = Some(scope);
         if sequence {
-            if remove {
-                self.git.ancestry.ordered.retain(|id| *id != target);
-            } else if self.git.ancestry.ordered.contains(&target) {
-                return self.message("Revision is already in the ordered set");
-            } else if self.git.ancestry.ordered.len() >= 256 {
-                return self.message("Ordered revision mark limit reached (256)");
-            } else {
-                self.git.ancestry.ordered.push(target);
+            if let Some(action) = self.mark_git_ordered(target, remove) {
+                return action;
             }
         } else if remove {
             if self.git.ancestry.base == Some(target) {
@@ -87,6 +81,18 @@ impl Session {
         } else {
             "Range base updated; ordered revision marks retained"
         })
+    }
+    fn mark_git_ordered(&mut self, target: ObjectId, remove: bool) -> Option<Action> {
+        if remove {
+            self.git.ancestry.ordered.retain(|id| *id != target);
+        } else if self.git.ancestry.ordered.contains(&target) {
+            return Some(self.message("Revision is already in the ordered set"));
+        } else if self.git.ancestry.ordered.len() >= 256 {
+            return Some(self.message("Ordered revision mark limit reached (256)"));
+        } else {
+            self.git.ancestry.ordered.push(target);
+        }
+        None
     }
     pub(in crate::session::git) fn show_git_range(&mut self) -> Action {
         let (history, end) = match self.git.revision_target() {

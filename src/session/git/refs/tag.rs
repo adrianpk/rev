@@ -54,23 +54,7 @@ impl Session {
     }
     pub(in crate::session) fn git_tag_argument(&mut self, prompt: Prompt, value: &str) -> Action {
         match prompt {
-            Prompt::Name { refs, target } => {
-                if value.is_empty() || value.len() > 4086 || value.contains('\0') {
-                    return self.message("Tag name requires 1..=4086 non-NUL bytes");
-                }
-                if let Err(e) = self
-                    .input
-                    .argument("Tag kind (lightweight or annotated): ", "lightweight")
-                {
-                    return self.error(&e.to_string());
-                }
-                self.pending = Some(Pending::GitTagPrompt(Box::new(Prompt::Kind {
-                    refs,
-                    target,
-                    name: value.into(),
-                })));
-                Action::Redraw
-            }
+            Prompt::Name { refs, target } => self.git_tag_name(refs, target, value),
             Prompt::Kind { refs, target, name } => {
                 let kind = match value {
                     "" | "lightweight" => TagKind::Lightweight,
@@ -110,6 +94,23 @@ impl Session {
                 }
             }
         }
+    }
+    fn git_tag_name(&mut self, refs: Arc<Refs>, target: Option<ObjectId>, value: &str) -> Action {
+        if value.is_empty() || value.len() > 4086 || value.contains('\0') {
+            return self.message("Tag name requires 1..=4086 non-NUL bytes");
+        }
+        if let Err(e) = self
+            .input
+            .argument("Tag kind (lightweight or annotated): ", "lightweight")
+        {
+            return self.error(&e.to_string());
+        }
+        self.pending = Some(Pending::GitTagPrompt(Box::new(Prompt::Kind {
+            refs,
+            target,
+            name: value.into(),
+        })));
+        Action::Redraw
     }
     pub(in crate::session::git) fn publish_git_tag_preparation(&mut self, update: &Update) {
         if self
@@ -244,40 +245,41 @@ impl Session {
         }
     }
     pub(in crate::session::git) fn submit_git_tag_annotation(&mut self) -> Action {
-        let result: Result<bool, String> = (|| {
-            let text = self.commit_text()?;
-            if text.trim().is_empty() {
-                return Err("Annotated tag requires a message".into());
-            }
-            let state = self
-                .git
-                .composer
-                .as_ref()
-                .ok_or("No annotated tag composer")?;
-            let intent = state.tag.clone().ok_or("No annotated tag intent")?;
-            let text = intent.annotation(&text)?;
-            self.git.engine.retain_tag_draft(&intent, &text)?;
-            if !state.review {
-                let state = self.git.composer.as_mut().expect("tag composer");
-                state.review = true;
-                state.top = 0;
-                self.git.visible = true;
-                self.git.page = Page::Refs;
-                self.git.painted = None;
-                self.input.cancel();
-                self.sync_input_context();
-                return Ok(false);
-            }
-            let id = self.git.engine.create_tag(intent, &text)?;
-            self.git.refs.request = Some(id);
-            self.leave_git_commit()?;
-            Ok(true)
-        })();
+        let result = self.submit_git_annotation();
         match result {
             Ok(false)=>self.message("Review annotated tag kind, name, full target and annotation; C-Enter or C-c C-c accepts"),
             Ok(true)=>self.message("Creating checked local annotated tag; annotation retained until verification"),
             Err(e)=>self.error(&e),
         }
+    }
+    fn submit_git_annotation(&mut self) -> Result<bool, String> {
+        let text = self.commit_text()?;
+        if text.trim().is_empty() {
+            return Err("Annotated tag requires a message".into());
+        }
+        let state = self
+            .git
+            .composer
+            .as_ref()
+            .ok_or("No annotated tag composer")?;
+        let intent = state.tag.clone().ok_or("No annotated tag intent")?;
+        let text = intent.annotation(&text)?;
+        self.git.engine.retain_tag_draft(&intent, &text)?;
+        if !state.review {
+            let state = self.git.composer.as_mut().expect("tag composer");
+            state.review = true;
+            state.top = 0;
+            self.git.visible = true;
+            self.git.page = Page::Refs;
+            self.git.painted = None;
+            self.input.cancel();
+            self.sync_input_context();
+            return Ok(false);
+        }
+        let id = self.git.engine.create_tag(intent, &text)?;
+        self.git.refs.request = Some(id);
+        self.leave_git_commit()?;
+        Ok(true)
     }
     pub(in crate::session::git) fn git_tag_review_frame(
         &mut self,

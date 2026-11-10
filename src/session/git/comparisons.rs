@@ -34,6 +34,21 @@ pub(super) struct Inspection {
 }
 
 impl Inspection {
+    fn map_hunk(&self, diff: &Diff, id: Option<HunkId>) -> Option<HunkId> {
+        let old = self.detail.as_ref()?;
+        if old.group != diff.group || old.change.path != diff.change.path {
+            return None;
+        }
+        let hunk = old.hunk(id?)?;
+        diff.hunks
+            .iter()
+            .find(|h| {
+                h.old == hunk.old
+                    && h.new == hunk.new
+                    && diff.evidence[h.patch.clone()] == old.evidence[hunk.patch.clone()]
+            })
+            .map(|h| h.id)
+    }
     pub fn return_to_status(&mut self) {
         if let Some(request) = &mut self.request {
             request.mode = Mode::Inline;
@@ -207,58 +222,53 @@ impl Session {
             .filter(|d| d.id == update.operation && update.published)
             .cloned();
         if let Some(diff) = replacement {
-            // Selection survives only when the same path/layer and exact patch
-            // unit survive. A display row cannot transfer hunk authority.
-            let map = |id: Option<HunkId>| -> Option<HunkId> {
-                let old = self.git.inspection.detail.as_ref()?;
-                if old.group != diff.group || old.change.path != diff.change.path {
-                    return None;
-                }
-                let hunk = old.hunk(id?)?;
-                diff.hunks
-                    .iter()
-                    .find(|h| {
-                        h.old == hunk.old
-                            && h.new == hunk.new
-                            && diff.evidence[h.patch.clone()] == old.evidence[hunk.patch.clone()]
-                    })
-                    .map(|h| h.id)
-            };
-            let selected = map(self.git.inspection.selected);
-            let expanded_hunk = map(self.git.inspection.expanded_hunk);
-            if let Some(Target::Hunk(group, path, id)) = self.git.state.selected.as_ref() {
-                self.git.state.selected = Some(map(Some(*id)).map_or_else(
-                    || Target::Path(*group, path.clone()),
-                    |id| Target::Hunk(*group, path.clone(), id),
-                ));
-            }
-            self.git.inspection.selected = selected;
-            self.git.inspection.expanded_hunk = expanded_hunk;
-            self.git.inspection.detail = Some(diff);
-            // A completion after q updates retained data without reopening a view.
-            if self.git.visible
-                && matches!(self.git.page, Page::Status | Page::Diff)
-                && self.git.observation().is_some_and(|o| {
-                    self.git
-                        .inspection
-                        .detail
-                        .as_ref()
-                        .is_some_and(|d| o.context == d.observation.context)
-                })
-            {
-                self.reveal_git_diff(request.mode);
-            }
-            if self.git.visible
-                && self.input.focus() == crate::input::Focus::Editing
-                && self.pending.is_none()
-            {
-                self.message("Git comparison retained as read-only detail");
-            }
+            self.retain_git_diff(diff, request.mode);
         } else if self.git.visible
             && self.input.focus() == crate::input::Focus::Editing
             && self.pending.is_none()
         {
             self.message("Git comparison failed; last inspection retained, g refreshes Status");
+        }
+    }
+    fn retain_git_diff(&mut self, diff: Arc<Diff>, mode: Mode) {
+        // Selection survives only when the same path/layer and exact patch
+        // unit survive. A display row cannot transfer hunk authority.
+        let selected = self
+            .git
+            .inspection
+            .map_hunk(&diff, self.git.inspection.selected);
+        let expanded_hunk = self
+            .git
+            .inspection
+            .map_hunk(&diff, self.git.inspection.expanded_hunk);
+        if let Some(Target::Hunk(group, path, id)) = self.git.state.selected.as_ref() {
+            self.git.state.selected =
+                Some(self.git.inspection.map_hunk(&diff, Some(*id)).map_or_else(
+                    || Target::Path(*group, path.clone()),
+                    |id| Target::Hunk(*group, path.clone(), id),
+                ));
+        }
+        self.git.inspection.selected = selected;
+        self.git.inspection.expanded_hunk = expanded_hunk;
+        self.git.inspection.detail = Some(diff);
+        // A completion after q updates retained data without reopening a view.
+        if self.git.visible
+            && matches!(self.git.page, Page::Status | Page::Diff)
+            && self.git.observation().is_some_and(|o| {
+                self.git
+                    .inspection
+                    .detail
+                    .as_ref()
+                    .is_some_and(|d| o.context == d.observation.context)
+            })
+        {
+            self.reveal_git_diff(mode);
+        }
+        if self.git.visible
+            && self.input.focus() == crate::input::Focus::Editing
+            && self.pending.is_none()
+        {
+            self.message("Git comparison retained as read-only detail");
         }
     }
     pub(super) fn move_git_diff(&mut self, distance: usize, backward: bool) -> Action {
@@ -305,6 +315,9 @@ impl Session {
         if matches!(self.git.page, Page::Processes | Page::Process(_)) && self.git.visible {
             return self.show_git_process();
         }
+        self.visit_git_current_file()
+    }
+    fn visit_git_current_file(&mut self) -> Action {
         if !self.git.visible {
             return self.message("Select a current Git path first");
         }

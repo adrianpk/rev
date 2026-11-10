@@ -51,8 +51,23 @@ record fields and credential-free remote-name discovery. Branch actions retain
 one captured before snapshot through action-specific argument preparation,
 launch rechecks and postconditions.
 
-This is a partial checkpoint. Tag/transport, repository/worktree, sequence/
-integration and remaining session handlers still require source-bound corrections.
+Tag preparation retains the exact requested identity through name/target and
+signing checks. Fetch and push separate captured configuration/upstream admission,
+the accepted child and actual local/remote verification. Integration retains one
+reviewed request and lineage through launch, stopped-state classification and
+completed merge/rebase verification. Sequence file capture and metadata decoding
+have independent owners; autosquash source decoding and target grouping remain
+bound to the captured linear range.
+
+Session composition separates input source modes, command/review routing and text
+projection. Comparison replacement maps only surviving exact patch units before
+publishing the new detail. History inspection renders each native page lazily;
+ordered marks, conflict review and manual bisect/tag review retain their original
+authority and user-visible behavior.
+
+This is a partial checkpoint. Native repository/worktree and ordered-application
+owners, plus remaining ref/repository session handlers, still require source-bound
+corrections.
 
 ## Implementation Notes
 
@@ -104,6 +119,20 @@ integration and remaining session handlers still require source-bound correction
   byte identities, max-ref/remote truncation and before/after HEAD guards.
   Branch checks preserve clean switching, checked deletion ancestry, exact
   targets and separate verified-failure versus uncertain-effects publication.
+- Tags preserve name/target checks, signing policy, exact annotation headers,
+  signature/body bytes and unchanged HEAD checks. Transport preserves explicit
+  configured upstream selection, endpoint redaction, exact argv, configuration
+  rechecks, no implicit retry and unresolved remote effects.
+- Integration preserves policy/error order, the sole changing child, retained
+  cleanup, exact active lineage and completed branch/ancestry/parent/tree proofs.
+  Sequence discovery retains directory sentinels, ordinary-file checks, the
+  64-file/detail/scratch ceilings, cancellation and complete before/after checks.
+- Autosquash retains its 256-commit linear range, bounded complete subjects,
+  exact/hash-prefix/subject-prefix target precedence and ordered todo ownership.
+- Session composer source modes preserve buffer admission, retained view/input
+  restoration and submit/cancel behavior. Comparison mapping preserves exact
+  bytes and path/layer identity before lazy reveal. History pages preserve row
+  indices, selection identities and 2048-byte chunks; review messages are intact.
 - Session family routing preserves visiting-buffer/native-directory protection,
   bounded JSON, captured composer authority and all original review messages.
 - Private helpers borrow retained authority and parsed views. Explicit shared
@@ -134,6 +163,12 @@ suppression or source-policy exception was added.
   bounded file/mail decoding, family-specific execution and native review.
 - `src/git/work/refs/{observation,branch}.rs`: complete catalog/remote observation
   and exact local branch preparation/verification.
+- `src/git/work/refs/{tag,transport}.rs`, `src/git/work/refs/transport/push.rs`
+  and `src/git/work/integration/`: checked tag/transport requests, sequence
+  capture/decoding, integration lineage and autosquash grouping.
+- `src/session/git/{commit,comparisons,conflicts}.rs`, `src/session/git/commit/`,
+  `src/session/git/history/` and `src/session/git/refs/{bisect,tag}.rs`: composer
+  source modes, exact comparison mapping and lazy inspection/review projection.
 - `src/git/work/{commit,discard}.rs`, `src/git/work/conflicts/resolution/` and
   `src/git/work/index/`: mutation preparation, file capture and postconditions.
 - `src/session/git/{index,discard}.rs`: captured mark and discard-source authority.
@@ -145,7 +180,7 @@ suppression or source-policy exception was added.
 Intermediate checks, with focused results tied to the stated implementation
 cohorts. Final ordered clean-HEAD Looper validation remains pending.
 
-- Failed: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 bash scripts/check-quality.sh --scope src/git.rs --scope src/git --scope src/session/git.rs --scope src/session/git`. Formatting, all-target compilation and scoped Clippy pass with zero blocking diagnostics across 112 selected files; 889 selected-profile diagnostics outside this scope are deferred. Native source policy still rejects 64 findings, reduced from 105.
+- Failed: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 bash scripts/check-quality.sh --scope src/git.rs --scope src/git --scope src/session/git.rs --scope src/session/git`. Formatting, all-target compilation and scoped Clippy pass with zero blocking diagnostics across 112 selected files; 889 selected-profile diagnostics outside this scope are deferred. Native source policy still rejects 33 findings, reduced from 64.
 - Earlier partial implementation: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --test git_integration -- --test-threads=1`. 239 passed and three failed before the current request/parser cohort. This is not current full-suite acceptance; the full suite has not been rerun on this checkpoint.
 - Passed: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo run --locked --quiet -p rev --example documentation-check`. 106 reachable pages, 743 local links/anchors, 684 commands and 299 configuration entries.
 - Passed: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --test git_integration -- families::output:: --test-threads=1`. Six output-family cases after the approved API adaptation.
@@ -159,19 +194,23 @@ cohorts. Final ordered clean-HEAD Looper validation remains pending.
 - Passed: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --test git_integration -- commits::normal_objects commits::modes::amend_objects commits::modes::fixup_objects commits::effects::merge_noop_amend index::path_roundtrip index::hunk_boundaries index::groups::paths conflicts::resolution::saved_and_deleted conflicts::resolution::effects_remain_visible --test-threads=1`. Nine focused cases after the final borrowing corrections, including commit consumers of the extracted entry grammar.
 - Passed: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --test git_integration -- families:: --test-threads=1`. All 48 prepared-family cases after worker/session decomposition, before the final borrowing corrections and reference-observation extraction. This includes native review, output, notes/sparse, nested repositories and independently decoded patch/mailbox semantics.
 - Passed: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --test git_integration -- refs:: families::patch::payload_semantics families::presentation::native_notes_sparse families::subtree::roundtrip families::output::request_pull --test-threads=1`. All 21 reference catalog/branch/tag and representative family regressions after reference extraction and the final borrowing corrections.
+- Passed: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --test git_integration -- refs::tags transport:: --test-threads=1`. All 18 tag/transport cases after their native decomposition, before final borrowing corrections and the subsequent integration/session changes.
+- Passed: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --test git_integration -- integration:: sequences::bisect:: sequences::controls::ordered_controls --test-threads=1`. All 23 integration, autosquash, sequence-control and manual-bisect cases after native integration/metadata extraction, before the final borrowing corrections and session extraction.
+- Passed: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --test git_integration -- commits::presentation:: commits::acceptance:: diffs::presentation:: history:: conflicts::resolution::presentation:: conflicts::presentation:: refs::tags::presentation:: families::presentation:: sequences::presentation:: --test-threads=1`. All 48 session/native regression cases after the complete integration, borrowing and review cohort. Commit draft/cancel/recovery and terminal retention, conflict resolution, exact hunk refresh/source visits, prepared-family composition, historical inspection/marks, tag annotations and manual sequence/bisect controls pass.
 - Passed: `git diff --check`.
 
 The current scoped inventory covers 112 of 1832 first-party Rust files. Git family
 input, bisect workers, conflict inspection/resolution, commit/discard workers,
 the complete worker history/index/prepared-family trees, reference observation
-and branches, and session index/discard/family owners satisfy the five/three/ten
-bounds. The 64 remaining source findings block the
+and branches/tags/transport, the complete native integration tree, and session
+index/discard/family/composer/comparison/conflict/history/tag/bisect owners satisfy
+the five/three/ten bounds. The 33 remaining source findings block the
 required quality command.
 
 ## Risks and Follow-ups
 
-Complete the remaining tag/transport, repository/worktree, sequence/integration
-and session handlers within this slice. Preserve immutable-source authority,
+Complete the remaining native repository/worktree and ordered-application owners,
+plus ref/repository session handlers, within this slice. Preserve immutable-source authority,
 hook/signing policy, process ownership and every frozen command and budget.
 
 Earlier full-suite execution observed three failures. Subsequent focused checks

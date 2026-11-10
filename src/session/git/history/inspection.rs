@@ -106,205 +106,248 @@ impl Work {
     }
     pub(in crate::session::git) fn inspection_row(&self, row: usize, width: u16) -> (String, bool) {
         match self.page {
-            Page::Revision => {
-                let Some(detail) = self.revision() else {
-                    return (
-                        if row == 0 {
-                            "Git Revision: checking exact objects".into()
-                        } else {
-                            String::new()
-                        },
-                        false,
-                    );
-                };
-                if row < 3 {
-                    return (
-                        match row {
-                            0 => format!(
-                                "Git {}: {}",
-                                if detail.range { "Range" } else { "Revision" },
-                                detail.object.hex()
-                            ),
-                            1 => format!(
-                                "{}: {}",
-                                if detail.range {
-                                    "Range base"
-                                } else {
-                                    "Parent comparison"
-                                },
-                                detail.parent.map_or("empty tree".into(), |p| p.hex())
-                            ),
-                            _ => format!(
-                                "{} / {:?}; Return opens selected parent/file",
-                                self.inspection_state(),
-                                detail.completeness
-                            ),
-                        },
-                        false,
-                    );
-                }
-                let index = self.ancestry.detail_top + row - 3;
-                rows(detail).nth(index).map_or_else(
-                    || (String::new(), false),
-                    |item| {
-                        let selected = index == self.ancestry.detail_cursor;
-                        (
-                            format!("{} {}", if selected { ">" } else { " " }, item.text()),
-                            selected,
-                        )
-                    },
-                )
-            }
-            Page::Reflog => {
-                let Some(reflog) = self.reflog() else {
-                    return (
-                        if row == 0 {
-                            "Git Reflog: checking entries".into()
-                        } else {
-                            String::new()
-                        },
-                        false,
-                    );
-                };
-                if row < 3 {
-                    return (
-                        match row {
-                            0 => "Git Reflog: HEAD entries / full immutable objects".into(),
-                            1 => format!(
-                                "{} entries / {:?}",
-                                reflog.entries.len(),
-                                reflog.completeness
-                            ),
-                            _ => format!(
-                                "{}; selectors are display metadata",
-                                self.inspection_state()
-                            ),
-                        },
-                        false,
-                    );
-                }
-                reflog
-                    .entries
-                    .get(self.ancestry.reflog_top + row - 3)
-                    .map_or_else(
-                        || (String::new(), false),
-                        |e| {
-                            let selected = self.ancestry.reflog_selected.as_ref().is_some_and(
-                                |(id, subject)| *id == e.object && *subject == e.subject,
-                            );
-                            (
-                                format!(
-                                    "{} {} {} {} {}",
-                                    if selected { ">" } else { " " },
-                                    e.object.hex(),
-                                    label(&e.selector),
-                                    label(&e.author),
-                                    label(&e.subject)
-                                ),
-                                selected,
-                            )
-                        },
-                    )
-            }
-            Page::Blame => {
-                let Some(blame) = self.blame() else {
-                    return (
-                        if row == 0 {
-                            "Git Blame: checking attribution".into()
-                        } else {
-                            String::new()
-                        },
-                        false,
-                    );
-                };
-                if row < 3 {
-                    return (
-                        match row {
-                            0 => format!(
-                                "Git Blame: {}",
-                                label(blame.path.as_os_str().as_encoded_bytes())
-                            ),
-                            1 => format!("HEAD: {}", blame.root.hex()),
-                            _ => format!(
-                                "{} / {:?}; v revision, Return historical source",
-                                self.inspection_state(),
-                                blame.completeness
-                            ),
-                        },
-                        false,
-                    );
-                }
-                blame
-                    .lines
-                    .iter()
-                    .flat_map(|l| {
-                        std::iter::once((l, l.text.as_slice()))
-                            .filter(|(_, text)| text.is_empty())
-                            .chain(l.text.chunks(2048).map(move |t| (l, t)))
-                    })
-                    .nth(self.ancestry.blame_top + row - 3)
-                    .map_or_else(
-                        || (String::new(), false),
-                        |(l, text)| {
-                            let selected = self.ancestry.blame_selected == Some(l.final_line);
-                            (
-                                format!(
-                                    "{} {} {}:{} {} {}",
-                                    if selected { ">" } else { " " },
-                                    l.object.hex(),
-                                    label(l.path.as_os_str().as_encoded_bytes()),
-                                    l.original_line,
-                                    label(&l.author),
-                                    label(text)
-                                ),
-                                selected,
-                            )
-                        },
-                    )
-            }
-            Page::RevisionFile => {
-                let Some(file) = self.revision_file() else {
-                    return (
-                        if row == 0 {
-                            "Git Historical File: checking blob".into()
-                        } else {
-                            String::new()
-                        },
-                        false,
-                    );
-                };
-                if row < 3 {
-                    return (
-                        match row {
-                            0 => format!(
-                                "Git Historical File: {}",
-                                label(file.path.as_os_str().as_encoded_bytes())
-                            ),
-                            1 => format!("Object: {}", file.object.hex()),
-                            _ => format!(
-                                "{} / {:?}{} / {} bytes",
-                                self.inspection_state(),
-                                file.completeness,
-                                if file.binary {
-                                    " / binary bytes escaped"
-                                } else {
-                                    ""
-                                },
-                                file.bytes.len()
-                            ),
-                        },
-                        false,
-                    );
-                }
-                (
-                    file_rows(file, width)
-                        .nth(self.ancestry.file_top + row - 3)
-                        .unwrap_or_default(),
-                    false,
-                )
-            }
+            Page::Revision => self.revision_row(row),
+            Page::Reflog => self.reflog_row(row),
+            Page::Blame => self.blame_row(row),
+            Page::RevisionFile => self.revision_file_row(row, width),
             _ => (String::new(), false),
         }
+    }
+    fn inspection_position(&self, width: u16) -> Option<(usize, usize)> {
+        Some(match self.page {
+            Page::Revision => (
+                self.ancestry.detail_cursor,
+                self.revision().map_or(0, |d| rows(d).count()),
+            ),
+            Page::Reflog => (
+                self.reflog()
+                    .and_then(|r| {
+                        r.entries.iter().position(|e| {
+                            self.ancestry
+                                .reflog_selected
+                                .as_ref()
+                                .is_some_and(|(id, s)| *id == e.object && *s == e.subject)
+                        })
+                    })
+                    .unwrap_or(0),
+                self.reflog().map_or(0, |r| r.entries.len()),
+            ),
+            Page::Blame => (
+                self.blame()
+                    .and_then(|b| {
+                        b.lines
+                            .iter()
+                            .position(|l| Some(l.final_line) == self.ancestry.blame_selected)
+                    })
+                    .unwrap_or(0),
+                self.blame().map_or(0, |b| b.lines.len()),
+            ),
+            Page::RevisionFile => (
+                self.ancestry.file_top,
+                self.revision_file()
+                    .map_or(0, |f| file_rows(f, width).count()),
+            ),
+            _ => return None,
+        })
+    }
+    fn revision_row(&self, row: usize) -> (String, bool) {
+        let Some(detail) = self.revision() else {
+            return (
+                if row == 0 {
+                    "Git Revision: checking exact objects".into()
+                } else {
+                    String::new()
+                },
+                false,
+            );
+        };
+        if row < 3 {
+            return (
+                match row {
+                    0 => format!(
+                        "Git {}: {}",
+                        if detail.range { "Range" } else { "Revision" },
+                        detail.object.hex()
+                    ),
+                    1 => format!(
+                        "{}: {}",
+                        if detail.range {
+                            "Range base"
+                        } else {
+                            "Parent comparison"
+                        },
+                        detail.parent.map_or("empty tree".into(), |p| p.hex())
+                    ),
+                    _ => format!(
+                        "{} / {:?}; Return opens selected parent/file",
+                        self.inspection_state(),
+                        detail.completeness
+                    ),
+                },
+                false,
+            );
+        }
+        let index = self.ancestry.detail_top + row - 3;
+        rows(detail).nth(index).map_or_else(
+            || (String::new(), false),
+            |item| {
+                let selected = index == self.ancestry.detail_cursor;
+                (
+                    format!("{} {}", if selected { ">" } else { " " }, item.text()),
+                    selected,
+                )
+            },
+        )
+    }
+    fn reflog_row(&self, row: usize) -> (String, bool) {
+        let Some(reflog) = self.reflog() else {
+            return (
+                if row == 0 {
+                    "Git Reflog: checking entries".into()
+                } else {
+                    String::new()
+                },
+                false,
+            );
+        };
+        if row < 3 {
+            return (
+                match row {
+                    0 => "Git Reflog: HEAD entries / full immutable objects".into(),
+                    1 => format!(
+                        "{} entries / {:?}",
+                        reflog.entries.len(),
+                        reflog.completeness
+                    ),
+                    _ => format!(
+                        "{}; selectors are display metadata",
+                        self.inspection_state()
+                    ),
+                },
+                false,
+            );
+        }
+        reflog
+            .entries
+            .get(self.ancestry.reflog_top + row - 3)
+            .map_or_else(
+                || (String::new(), false),
+                |e| {
+                    let selected = self
+                        .ancestry
+                        .reflog_selected
+                        .as_ref()
+                        .is_some_and(|(id, subject)| *id == e.object && *subject == e.subject);
+                    (
+                        format!(
+                            "{} {} {} {} {}",
+                            if selected { ">" } else { " " },
+                            e.object.hex(),
+                            label(&e.selector),
+                            label(&e.author),
+                            label(&e.subject)
+                        ),
+                        selected,
+                    )
+                },
+            )
+    }
+    fn blame_row(&self, row: usize) -> (String, bool) {
+        let Some(blame) = self.blame() else {
+            return (
+                if row == 0 {
+                    "Git Blame: checking attribution".into()
+                } else {
+                    String::new()
+                },
+                false,
+            );
+        };
+        if row < 3 {
+            return (
+                match row {
+                    0 => format!(
+                        "Git Blame: {}",
+                        label(blame.path.as_os_str().as_encoded_bytes())
+                    ),
+                    1 => format!("HEAD: {}", blame.root.hex()),
+                    _ => format!(
+                        "{} / {:?}; v revision, Return historical source",
+                        self.inspection_state(),
+                        blame.completeness
+                    ),
+                },
+                false,
+            );
+        }
+        blame
+            .lines
+            .iter()
+            .flat_map(|l| {
+                std::iter::once((l, l.text.as_slice()))
+                    .filter(|(_, text)| text.is_empty())
+                    .chain(l.text.chunks(2048).map(move |t| (l, t)))
+            })
+            .nth(self.ancestry.blame_top + row - 3)
+            .map_or_else(
+                || (String::new(), false),
+                |(l, text)| {
+                    let selected = self.ancestry.blame_selected == Some(l.final_line);
+                    (
+                        format!(
+                            "{} {} {}:{} {} {}",
+                            if selected { ">" } else { " " },
+                            l.object.hex(),
+                            label(l.path.as_os_str().as_encoded_bytes()),
+                            l.original_line,
+                            label(&l.author),
+                            label(text)
+                        ),
+                        selected,
+                    )
+                },
+            )
+    }
+    fn revision_file_row(&self, row: usize, width: u16) -> (String, bool) {
+        let Some(file) = self.revision_file() else {
+            return (
+                if row == 0 {
+                    "Git Historical File: checking blob".into()
+                } else {
+                    String::new()
+                },
+                false,
+            );
+        };
+        if row < 3 {
+            return (
+                match row {
+                    0 => format!(
+                        "Git Historical File: {}",
+                        label(file.path.as_os_str().as_encoded_bytes())
+                    ),
+                    1 => format!("Object: {}", file.object.hex()),
+                    _ => format!(
+                        "{} / {:?}{} / {} bytes",
+                        self.inspection_state(),
+                        file.completeness,
+                        if file.binary {
+                            " / binary bytes escaped"
+                        } else {
+                            ""
+                        },
+                        file.bytes.len()
+                    ),
+                },
+                false,
+            );
+        }
+        (
+            file_rows(file, width)
+                .nth(self.ancestry.file_top + row - 3)
+                .unwrap_or_default(),
+            false,
+        )
     }
 }
 
@@ -532,44 +575,8 @@ impl Session {
         distance: usize,
         backward: bool,
     ) -> Action {
-        let (index, count) = match self.git.page {
-            Page::Revision => (
-                self.git.ancestry.detail_cursor,
-                self.git.revision().map_or(0, |d| rows(d).count()),
-            ),
-            Page::Reflog => (
-                self.git
-                    .reflog()
-                    .and_then(|r| {
-                        r.entries.iter().position(|e| {
-                            self.git
-                                .ancestry
-                                .reflog_selected
-                                .as_ref()
-                                .is_some_and(|(id, s)| *id == e.object && *s == e.subject)
-                        })
-                    })
-                    .unwrap_or(0),
-                self.git.reflog().map_or(0, |r| r.entries.len()),
-            ),
-            Page::Blame => (
-                self.git
-                    .blame()
-                    .and_then(|b| {
-                        b.lines
-                            .iter()
-                            .position(|l| Some(l.final_line) == self.git.ancestry.blame_selected)
-                    })
-                    .unwrap_or(0),
-                self.git.blame().map_or(0, |b| b.lines.len()),
-            ),
-            Page::RevisionFile => (
-                self.git.ancestry.file_top,
-                self.git
-                    .revision_file()
-                    .map_or(0, |f| file_rows(f, self.size.width).count()),
-            ),
-            _ => return Action::Wait,
+        let Some((index, count)) = self.git.inspection_position(self.size.width) else {
+            return Action::Wait;
         };
         let next = if backward {
             index.saturating_sub(distance)

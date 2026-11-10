@@ -64,21 +64,7 @@ impl Runner {
             self.restore_execution(facts, true);
             return Err("Fetch cleanup remains owned; tracking effects require inspection".into());
         }
-        let result = (|| {
-            let after = self.refresh_ref_result(refs, admission)?;
-            let unchanged_head = after.head == refs.head && after.head_ref == refs.head_ref;
-            let unchanged_config = self.transport_config(admission)? == config;
-            if executed.is_ok() && unchanged_head && unchanged_config {
-                self.effects = Effects::Verified;
-            } else {
-                self.failure_verified = executed.is_err() && after.same(refs) && unchanged_config;
-                self.operation_failure = Some("Fetch failed or HEAD/configuration changed; checked local facts refreshed; no automatic retry".into());
-            }
-            Ok(Candidate::Refs {
-                refs: after,
-                changed: true,
-            })
-        })();
+        let result = self.observe_fetch(refs, &config, executed.is_ok(), admission);
         self.restore_execution(facts, executed.is_err());
         if result.is_err() {
             self.operation_failure = Some(
@@ -87,5 +73,26 @@ impl Runner {
             );
         }
         result
+    }
+    fn observe_fetch(
+        &mut self,
+        refs: &Refs,
+        config: &[u8],
+        executed: bool,
+        admission: &mut Lease,
+    ) -> Result<Candidate, String> {
+        let after = self.refresh_ref_result(refs, admission)?;
+        let unchanged_head = after.head == refs.head && after.head_ref == refs.head_ref;
+        let unchanged_config = self.transport_config(admission)? == config;
+        if executed && unchanged_head && unchanged_config {
+            self.effects = Effects::Verified;
+        } else {
+            self.failure_verified = !executed && after.same(refs) && unchanged_config;
+            self.operation_failure = Some("Fetch failed or HEAD/configuration changed; checked local facts refreshed; no automatic retry".into());
+        }
+        Ok(Candidate::Refs {
+            refs: after,
+            changed: true,
+        })
     }
 }

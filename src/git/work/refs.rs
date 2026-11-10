@@ -51,7 +51,7 @@ impl Runner {
                 kind,
                 target,
                 ..
-            } => self.prepare_tag(refs, name, kind, target, admission),
+            } => tag::Draft { name, kind, target }.prepare(self, refs, admission),
             Request::CreateTag { intent, text, .. } => self.create_tag(&intent, &text, admission),
             Request::DeleteTag { refs, name, .. } => self.delete_tag(&refs, &name, admission),
             Request::Observe(observation) => self.observe_refs(&observation, admission),

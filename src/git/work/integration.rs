@@ -15,13 +15,13 @@ impl Runner {
             Request::PrepareAutosquash { refs, target, .. } => self
                 .prepare_autosquash(refs, &target, admission)
                 .map(Candidate::Autosquash),
-            Request::Autosquash(plan) => self.start_integration(
-                &plan.refs,
-                &plan.target_name,
-                IntegrationMode::Rebase,
-                Some(&plan),
-                admission,
-            ),
+            Request::Autosquash(plan) => Integration {
+                refs: &plan.refs,
+                target_name: &plan.target_name,
+                mode: IntegrationMode::Rebase,
+                plan: Some(&plan),
+            }
+            .run(self, admission),
             Request::Control {
                 sequence,
                 action,
@@ -31,20 +31,16 @@ impl Runner {
                 observation,
                 application,
                 bisect,
-            } => {
-                let refs = self.integration_refs(&observation, admission)?;
-                let mut sequence = self.read_sequence(&refs, admission)?;
-                if let Some(progress) = application {
-                    self.bind_application(&mut sequence, progress)?;
-                }
-                if let Some(plan) = bisect {
-                    self.bind_bisect(&mut sequence, plan)?;
-                }
-                Ok(Candidate::Sequence(sequence))
-            }
+            } => self.observe_integration(&observation, application, bisect, admission),
             Request::Start {
                 refs, target, mode, ..
-            } => self.start_integration(&refs, &target, mode, None, admission),
+            } => Integration {
+                refs: &refs,
+                target_name: &target,
+                mode,
+                plan: None,
+            }
+            .run(self, admission),
         }
     }
     pub(super) fn integration_refs(
@@ -126,28 +122,87 @@ impl Runner {
         }
         Ok(())
     }
-    fn start_integration(
+    fn observe_integration(
         &mut self,
-        refs: &Arc<Refs>,
-        target_name: &[u8],
-        mode: IntegrationMode,
-        plan: Option<&AutosquashPlan>,
+        observation: &Observation,
+        application: Option<Arc<ApplyProgress>>,
+        bisect: Option<Arc<BisectPlan>>,
         admission: &mut Lease,
     ) -> Result<Candidate, String> {
-        let current = self.check_integration_source(refs, admission)?;
-        let state = self.read_sequence(&current, admission)?;
-        if state.family.is_some() {
-            return Err(
-                "A Git-owned sequence is already active; inspect it before integration".into(),
-            );
+        let refs = self.integration_refs(observation, admission)?;
+        let mut sequence = self.read_sequence(&refs, admission)?;
+        if let Some(progress) = application {
+            self.bind_application(&mut sequence, progress)?;
         }
-        self.integration_policy(refs, mode)?;
+        if let Some(plan) = bisect {
+            self.bind_bisect(&mut sequence, plan)?;
+        }
+        Ok(Candidate::Sequence(sequence))
+    }
+}
+
+/// One checked integration target and optional reviewed autosquash source.
+struct Integration<'a> {
+    refs: &'a Arc<Refs>,
+    target_name: &'a [u8],
+    mode: IntegrationMode,
+    plan: Option<&'a AutosquashPlan>,
+}
+impl Integration<'_> {
+    fn run(&self, runner: &mut Runner, admission: &mut Lease) -> Result<Candidate, String> {
+        let refs = self.refs;
+        let target_name = self.target_name;
+        let mode = self.mode;
+        self.check_available(runner, admission)?;
+        runner.integration_policy(refs, mode)?;
         let target = refs
             .reference(target_name)
             .and_then(Reference::commit)
             .ok_or("Exact integration target expired")?;
         let before = refs.head.ok_or("Integration HEAD is unborn")?;
-        self.check_integration_source(refs, admission)?;
+        runner.check_integration_source(refs, admission)?;
+        let args = self.arguments(runner, target, admission)?;
+        let (executed, facts) = runner.execute_change(&args, None);
+        if runner.retained.is_some() {
+            runner.restore_execution(facts, true);
+            return Err(
+                "Integration cleanup remains owned; inspect actual Git sequence state".into(),
+            );
+        }
+        let result = Lineage {
+            integration: self,
+            before,
+            target,
+        }
+        .observe(runner, executed.is_ok(), admission);
+        runner.restore_execution(facts, executed.is_err());
+        if result.is_err() {
+            runner.operation_failure = Some(
+                "Integration effects remain unverified; refresh sequence state; no automatic retry"
+                    .into(),
+            );
+        }
+        result
+    }
+    fn check_available(&self, runner: &mut Runner, admission: &mut Lease) -> Result<(), String> {
+        let refs = self.refs;
+        let current = runner.check_integration_source(refs, admission)?;
+        let state = runner.read_sequence(&current, admission)?;
+        if state.family.is_some() {
+            return Err(
+                "A Git-owned sequence is already active; inspect it before integration".into(),
+            );
+        }
+        Ok(())
+    }
+    fn arguments(
+        &self,
+        runner: &mut Runner,
+        target: ObjectId,
+        admission: &mut Lease,
+    ) -> Result<Vec<OsString>, String> {
+        let mode = self.mode;
+        let plan = self.plan;
         let mut args: Vec<OsString> = if mode == IntegrationMode::Rebase {
             [
                 "rebase",
@@ -175,126 +230,165 @@ impl Runner {
             ]
         };
         if let Some(plan) = plan {
-            args = self.autosquash_args(plan, admission)?;
+            args = runner.autosquash_args(plan, admission)?;
         } else {
             args.push(target.hex().into());
         }
-        let (executed, facts) = self.execute_change(&args, None);
-        if self.retained.is_some() {
-            self.restore_execution(facts, true);
-            return Err(
-                "Integration cleanup remains owned; inspect actual Git sequence state".into(),
-            );
+        Ok(args)
+    }
+}
+
+/// Reviewed lineage survives launch and binds both active and completed results.
+struct Lineage<'a, 'b> {
+    integration: &'a Integration<'b>,
+    before: ObjectId,
+    target: ObjectId,
+}
+impl Lineage<'_, '_> {
+    fn observe(
+        &self,
+        runner: &mut Runner,
+        executed: bool,
+        admission: &mut Lease,
+    ) -> Result<Candidate, String> {
+        let refs = self.integration.refs;
+        let after = runner.integration_refs(&refs.observation, admission)?;
+        let sequence = runner.read_sequence(&after, admission)?;
+        if sequence.family.is_some() {
+            runner.in_progress = self.still_active(&sequence);
+            runner.operation_failure=Some("Git integration stopped in progress; explicit checked sequence control is required".into());
+        } else {
+            self.completed(runner, &sequence, executed)?;
         }
-        let result = (|| {
-            let after = self.integration_refs(&refs.observation, admission)?;
-            let sequence = self.read_sequence(&after, admission)?;
-            if sequence.family.is_some() {
-                let expected = if mode == IntegrationMode::Rebase {
-                    SequenceFamily::Rebase
-                } else {
-                    SequenceFamily::Merge
-                };
-                let lineage = sequence.original == Some(before)
-                    && if mode == IntegrationMode::Rebase {
-                        sequence.onto == Some(target) && sequence.branch == refs.head_ref
-                    } else {
-                        sequence.targets == [target]
-                            && sequence.refs.head == Some(before)
-                            && sequence.refs.head_ref == refs.head_ref
-                    };
-                self.in_progress = sequence.family == Some(expected) && lineage;
-                self.operation_failure=Some("Git integration stopped in progress; explicit checked sequence control is required".into());
+        Ok(Candidate::Sequence(sequence))
+    }
+    fn still_active(&self, sequence: &Sequence) -> bool {
+        let mode = self.integration.mode;
+        let refs = self.integration.refs;
+        let before = self.before;
+        let target = self.target;
+        let expected = if mode == IntegrationMode::Rebase {
+            SequenceFamily::Rebase
+        } else {
+            SequenceFamily::Merge
+        };
+        let lineage = sequence.original == Some(before)
+            && if mode == IntegrationMode::Rebase {
+                sequence.onto == Some(target) && sequence.branch == refs.head_ref
             } else {
-                let after = &sequence.refs;
-                let head = after.head.ok_or("Integration lost HEAD")?;
-                let target_present = self
-                    .command(
-                        &["merge-base", "--is-ancestor", &target.hex(), &head.hex()],
-                        Phase::Verifying,
-                        true,
-                    )
-                    .is_ok()
-                    && self.exit.is_some_and(|s| s.success());
-                let same_branch = after.head_ref == refs.head_ref;
-                let clean = after.observation.status.as_ref().is_some_and(|s| {
-                    s.completeness == Completeness::Complete && s.paths.is_empty()
-                });
-                let policy = if mode == IntegrationMode::Rebase {
-                    // Git's original-object provenance binds a changing rebase
-                    // to the reviewed source; ancestry alone cannot do so.
-                    (head == before && after.same(refs))
-                        || sequence
-                            .files
-                            .iter()
-                            .find(|f| f.name == b"ORIG_HEAD")
-                            .is_some_and(|f| {
-                                ObjectId::parse(
-                                    f.bytes.strip_suffix(b"\n").unwrap_or(&f.bytes),
-                                    refs.observation.identity.format,
-                                )
-                                .ok()
-                                    == Some(before)
-                            })
-                } else {
-                    let before_present = self
-                        .command(
-                            &["merge-base", "--is-ancestor", &before.hex(), &head.hex()],
-                            Phase::Verifying,
-                            true,
-                        )
-                        .is_ok()
-                        && self.exit.is_some_and(|s| s.success());
-                    let parent_ok = if head == before
-                        || (mode != IntegrationMode::NoFastForward && head == target)
-                    {
-                        true
-                    } else {
-                        self.command(
-                            &["show", "--no-patch", "--format=%P", &head.hex()],
-                            Phase::Verifying,
-                            false,
-                        )? == format!("{} {}\n", before.hex(), target.hex()).as_bytes()
-                    };
-                    before_present
-                        && parent_ok
-                        && (mode != IntegrationMode::FastForward
-                            || head == before
-                            || head == target)
-                };
-                let other_refs = after.completeness == Completeness::Complete
-                    && after.entries.len() == refs.entries.len()
-                    && refs
-                        .entries
-                        .iter()
-                        .filter(|r| r.name != refs.head_ref)
-                        .all(|r| {
-                            after.reference(&r.name).is_some_and(|actual| {
-                                actual.object == r.object && actual.symbolic == r.symbolic
-                            })
-                        });
-                if executed.is_ok()
-                    && target_present
-                    && same_branch
-                    && clean
-                    && policy
-                    && other_refs
-                {
-                    self.effects = Effects::Verified;
-                } else {
-                    self.failure_verified = executed.is_err() && after.same(refs);
-                    self.operation_failure=Some("Integration failed or its exact branch/ancestry/policy postcondition differs; inspect actual facts".into());
-                }
-            }
-            Ok(Candidate::Sequence(sequence))
-        })();
-        self.restore_execution(facts, executed.is_err());
-        if result.is_err() {
-            self.operation_failure = Some(
-                "Integration effects remain unverified; refresh sequence state; no automatic retry"
-                    .into(),
-            );
+                sequence.targets == [target]
+                    && sequence.refs.head == Some(before)
+                    && sequence.refs.head_ref == refs.head_ref
+            };
+        sequence.family == Some(expected) && lineage
+    }
+    fn completed(
+        &self,
+        runner: &mut Runner,
+        sequence: &Sequence,
+        executed: bool,
+    ) -> Result<(), String> {
+        let refs = self.integration.refs;
+        let target = self.target;
+        let after = &sequence.refs;
+        let head = after.head.ok_or("Integration lost HEAD")?;
+        let target_present = runner
+            .command(
+                &["merge-base", "--is-ancestor", &target.hex(), &head.hex()],
+                Phase::Verifying,
+                true,
+            )
+            .is_ok()
+            && runner.exit.is_some_and(|s| s.success());
+        let identity = self.result_identity(after);
+        let policy = self.policy(runner, sequence, head)?;
+        let other_refs = self.other_refs(after);
+        if executed && target_present && identity && policy && other_refs {
+            runner.effects = Effects::Verified;
+        } else {
+            runner.failure_verified = !executed && after.same(refs);
+            runner.operation_failure=Some("Integration failed or its exact branch/ancestry/policy postcondition differs; inspect actual facts".into());
         }
-        result
+        Ok(())
+    }
+    fn result_identity(&self, after: &Refs) -> bool {
+        let refs = self.integration.refs;
+        let same_branch = after.head_ref == refs.head_ref;
+        let clean = after
+            .observation
+            .status
+            .as_ref()
+            .is_some_and(|s| s.completeness == Completeness::Complete && s.paths.is_empty());
+        same_branch && clean
+    }
+    fn other_refs(&self, after: &Refs) -> bool {
+        let refs = self.integration.refs;
+        after.completeness == Completeness::Complete
+            && after.entries.len() == refs.entries.len()
+            && refs
+                .entries
+                .iter()
+                .filter(|r| r.name != refs.head_ref)
+                .all(|r| {
+                    after.reference(&r.name).is_some_and(|actual| {
+                        actual.object == r.object && actual.symbolic == r.symbolic
+                    })
+                })
+    }
+    fn policy(
+        &self,
+        runner: &mut Runner,
+        sequence: &Sequence,
+        head: ObjectId,
+    ) -> Result<bool, String> {
+        let mode = self.integration.mode;
+        let refs = self.integration.refs;
+        let before = self.before;
+        let after = &sequence.refs;
+        Ok(if mode == IntegrationMode::Rebase {
+            // Git's original-object provenance binds a changing rebase
+            // to the reviewed source; ancestry alone cannot do so.
+            (head == before && after.same(refs))
+                || sequence
+                    .files
+                    .iter()
+                    .find(|f| f.name == b"ORIG_HEAD")
+                    .is_some_and(|f| {
+                        ObjectId::parse(
+                            f.bytes.strip_suffix(b"\n").unwrap_or(&f.bytes),
+                            refs.observation.identity.format,
+                        )
+                        .ok()
+                            == Some(before)
+                    })
+        } else {
+            self.merge_policy(runner, head)?
+        })
+    }
+    fn merge_policy(&self, runner: &mut Runner, head: ObjectId) -> Result<bool, String> {
+        let mode = self.integration.mode;
+        let before = self.before;
+        let target = self.target;
+        let before_present = runner
+            .command(
+                &["merge-base", "--is-ancestor", &before.hex(), &head.hex()],
+                Phase::Verifying,
+                true,
+            )
+            .is_ok()
+            && runner.exit.is_some_and(|s| s.success());
+        let parent_ok =
+            if head == before || (mode != IntegrationMode::NoFastForward && head == target) {
+                true
+            } else {
+                runner.command(
+                    &["show", "--no-patch", "--format=%P", &head.hex()],
+                    Phase::Verifying,
+                    false,
+                )? == format!("{} {}\n", before.hex(), target.hex()).as_bytes()
+            };
+        Ok(before_present
+            && parent_ok
+            && (mode != IntegrationMode::FastForward || head == before || head == target))
     }
 }

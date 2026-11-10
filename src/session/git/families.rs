@@ -48,7 +48,7 @@ impl Session {
             context,
             plan: None,
         };
-        match self.install_git_text(observation, None, None, Some(draft), &text) {
+        match self.install_git_text(observation, commit::TextSource::Family(draft), &text) {
             Ok(()) => self.message(if family.output() { "Edit arguments and explicit output path; C-Enter or C-c C-c prepares exact review; C-g cancels" } else { "Edit the JSON argument array; fill empty parameters; C-Enter or C-c C-c prepares exact review; C-g cancels" }),
             Err(e) => self.error(&e),
         }

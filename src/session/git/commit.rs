@@ -20,6 +20,14 @@ pub(super) struct Composer {
     _admission: Lease,
 }
 
+pub(in crate::session::git) enum TextSource {
+    Message {
+        composition: Option<Arc<crate::git::Composition>>,
+        tag: Option<Arc<crate::git::TagIntent>>,
+    },
+    Family(super::families::Draft),
+}
+
 impl Session {
     pub(in crate::session) fn git_composing(&self) -> bool {
         self.git.composer.as_ref().is_some_and(|c| !c.review)
@@ -41,56 +49,61 @@ impl Session {
             Command::Git(GitCommand::CommitCancel) | Command::KeyboardQuit => {
                 self.cancel_git_commit()
             }
-            Command::Git(GitCommand::Quit) if self.git_commit_reviewing() => {
-                self.cancel_git_commit()
-            }
-            Command::ExecuteExtended if self.git_commit_reviewing() => self.extended(),
-            Command::Scroll(scroll) if self.git_commit_reviewing() => {
-                let distance = match scroll {
-                    Scroll::PageForward | Scroll::PageBackward => self.git_extent(),
-                    _ => 1,
-                };
-                let state = self.git.composer.as_mut().expect("composer");
-                state.top = if matches!(scroll, Scroll::PreviousLine | Scroll::PageBackward) {
-                    state.top.saturating_sub(distance)
-                } else {
-                    state
-                        .top
-                        .saturating_add(distance)
-                        .min(crate::git::MAX_COMMIT_BYTES)
-                };
-                Action::Redraw
-            }
-            _ if self.git_commit_reviewing() => self.message(
-                if self
-                    .git
-                    .composer
-                    .as_ref()
-                    .is_some_and(|c| c.family.is_some())
-                {
-                    "Prepared arguments: C-Enter or C-c C-c reviews/executes; C-g cancels"
-                } else if self.git.composer.as_ref().is_some_and(|c| c.tag.is_some()) {
-                    "Exact tag review: C-Enter or C-c C-c accepts; q or C-g retains annotation"
-                } else {
-                    "Exact commit review: C-Enter or C-c C-c accepts; q or C-g retains draft"
-                },
-            ),
-            _ if editing(command) => return None,
-            _ => self.message(
-                if self
-                    .git
-                    .composer
-                    .as_ref()
-                    .is_some_and(|c| c.family.is_some())
-                {
-                    "Prepared arguments: C-Enter or C-c C-c reviews/executes; C-g cancels"
-                } else if self.git.composer.as_ref().is_some_and(|c| c.tag.is_some()) {
-                    "Tag annotation composer owns this view; C-Enter reviews, C-g retains the draft"
-                } else {
-                    "Commit composer owns this view; C-Enter submits, C-g retains the draft"
-                },
-            ),
+            _ => return self.composer_command(command),
         })
+    }
+
+    fn composer_command(&mut self, command: Command) -> Option<Action> {
+        if !self.git_commit_reviewing() {
+            if editing(command) {
+                return None;
+            }
+            return Some(self.message(self.commit_hint(false)));
+        }
+        Some(match command {
+            Command::Git(GitCommand::Quit) => self.cancel_git_commit(),
+            Command::ExecuteExtended => self.extended(),
+            Command::Scroll(scroll) => self.scroll_git_commit_review(scroll),
+            _ => self.message(self.commit_hint(true)),
+        })
+    }
+    fn scroll_git_commit_review(&mut self, scroll: Scroll) -> Action {
+        let distance = match scroll {
+            Scroll::PageForward | Scroll::PageBackward => self.git_extent(),
+            _ => 1,
+        };
+        let state = self.git.composer.as_mut().expect("composer");
+        state.top = if matches!(scroll, Scroll::PreviousLine | Scroll::PageBackward) {
+            state.top.saturating_sub(distance)
+        } else {
+            state
+                .top
+                .saturating_add(distance)
+                .min(crate::git::MAX_COMMIT_BYTES)
+        };
+        Action::Redraw
+    }
+    fn commit_hint(&self, review: bool) -> &'static str {
+        if self
+            .git
+            .composer
+            .as_ref()
+            .is_some_and(|c| c.family.is_some())
+        {
+            return "Prepared arguments: C-Enter or C-c C-c reviews/executes; C-g cancels";
+        }
+        if self.git.composer.as_ref().is_some_and(|c| c.tag.is_some()) {
+            return if review {
+                "Exact tag review: C-Enter or C-c C-c accepts; q or C-g retains annotation"
+            } else {
+                "Tag annotation composer owns this view; C-Enter reviews, C-g retains the draft"
+            };
+        }
+        if review {
+            "Exact commit review: C-Enter or C-c C-c accepts; q or C-g retains draft"
+        } else {
+            "Commit composer owns this view; C-Enter submits, C-g retains the draft"
+        }
     }
 
     pub(super) fn compose_git_commit(&mut self) -> Action {
@@ -146,16 +159,22 @@ impl Session {
         tag: Option<Arc<crate::git::TagIntent>>,
         text: &str,
     ) -> Result<(), String> {
-        self.install_git_text(Some(observation), composition, tag, None, text)
+        self.install_git_text(
+            Some(observation),
+            TextSource::Message { composition, tag },
+            text,
+        )
     }
     pub(in crate::session::git) fn install_git_text(
         &mut self,
         observation: Option<Arc<Observation>>,
-        composition: Option<Arc<crate::git::Composition>>,
-        tag: Option<Arc<crate::git::TagIntent>>,
-        family: Option<super::families::Draft>,
+        source: TextSource,
         text: &str,
     ) -> Result<(), String> {
+        let (composition, tag, family) = match source {
+            TextSource::Message { composition, tag } => (composition, tag, None),
+            TextSource::Family(draft) => (None, None, Some(draft)),
+        };
         if self.windows.retained_view_active() || self.layout_active() {
             return Err(
                 "Another interaction retains the source view; finish it before message composition"
