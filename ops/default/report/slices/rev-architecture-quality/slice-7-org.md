@@ -1,11 +1,12 @@
 # Slice 7: Org workflow decomposition
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-architecture-quality
 Plan: [Architecture Quality Delivery](../../../plan/rev-architecture-quality.md)
 Tracker: [Architecture Quality Tracker](../../../tracker/rev-architecture-quality.md)
 Branch: `refactor/rev-architecture-quality-07-org`
 PR: #21 - https://forge.adrianpk.com/rev/rev/pulls/21
+Integrated: `954fed70cf96a00ce4711d6a13b0cad1b469630e`
 
 ## Purpose
 
@@ -166,10 +167,11 @@ compatible.
 
 ## Validation
 
-All four frozen commands pass on the corrected implementation at
-`e4888d6414e6767a59b22fc4443aa346b1dafcf5` before metadata-only PR preparation.
-The final PR head requires matching clean-HEAD `looper validate` evidence before
-handoff; that evidence is stored by the controller outside the repository.
+All four frozen commands passed through `looper validate` on clean published
+HEAD `954fed70cf96a00ce4711d6a13b0cad1b469630e` before canonical PR #21 merged
+into `dev`. Validation ID: `XCFEU34ADA4ANKN2JMAFMFHJCG`. The canonical PR
+contract check also passed. The earlier corrected implementation at
+`e4888d6414e6767a59b22fc4443aa346b1dafcf5` passed the same working-tree checks.
 
 - Passed: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 bash scripts/check-quality.sh --scope src/org.rs --scope src/org --scope src/session/agenda --scope src/session/agenda.rs --scope src/session/agenda_actions --scope src/session/agenda_actions.rs --scope src/session/agenda_custom --scope src/session/agenda_custom.rs --scope src/session/agenda_queries --scope src/session/agenda_queries.rs --scope src/session/agenda_sources.rs --scope src/session/capture --scope src/session/capture.rs --scope src/session/refile --scope src/session/refile.rs --scope src/session/attachment --scope src/session/attachment.rs --scope src/session/document.rs --scope src/session/outline --scope src/session/outline.rs --scope src/session/tables --scope src/session/tables.rs --scope src/session/tangling --scope src/session/tangling.rs --scope src/session/execution --scope src/session/execution.rs --scope src/session/feeds --scope src/session/feeds.rs --scope src/session/previews.rs --scope src/session/exports --scope src/session/exports.rs --scope src/session/publishing --scope src/session/publishing.rs --scope src/session/source_edit --scope src/session/source_edit.rs --scope src/session/links --scope src/session/links.rs --scope src/session/habits --scope src/session/habits.rs --scope src/session/org --scope src/session/org.rs`. All-target compilation and formatting pass; all 431 selected sources satisfy the source guards and selected Clippy reports zero blockers. The 377 diagnostics outside this slice remain deferred.
 - Passed: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --test org_agenda --test org_editing --test org_headings --test org_indentation --test org_io --test org_source --test org_tables --test org_time -- --test-threads=1`. All 791 cases pass across eight targets (97 agenda, 235 editing, 16 headings, 18 indentation, 192 io, 81 source, 73 tables, 79 time); zero failures, ignores or filtered cases.
@@ -236,5 +238,5 @@ run above now passes all eight targets.
 
 No known Slice 7 check failures remain after the approved lifecycle correction.
 The 377 selected-profile diagnostics outside this slice remain for subsequent
-slices. The controller owns merge, full delivery-set validation and successor
-startup; final handoff requires its exact clean-HEAD slice evidence.
+slices. Canonical PR #21 is integrated into `dev` with exact clean-HEAD evidence.
+The controller owns the remaining delivery-set progression and full gate.

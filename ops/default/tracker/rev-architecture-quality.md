@@ -9,7 +9,7 @@ Planning baseline: abbf0c21eeae1680c02c7a477fa0894d7996a393
 Specification: [Architecture Quality and Commit Checks](../spec/editor-architecture-quality.md)
 Review: [Architecture and Ownership Nit Review](../report/rev-architecture-nit-review.md)
 Concern: [Pending Editor Work](../README.md)
-Active slice: Slice 7 - Org workflow decomposition
+Active slice: Slice 8 - Session interaction and completion owner
 Plan: [Architecture Quality Delivery](../plan/rev-architecture-quality.md)
 Execution authorized: one ten-slice Looper run, automatic canonical integration into dev and local hook setup
 Progress owner: selected Looper run; no second runtime tracker
@@ -128,14 +128,15 @@ Decision: implemented the maintainer-approved Slice 6 `History { state: Option<P
 
 ## Slice 7: Org workflow decomposition
 
-State: in progress
+State: delivered
 Dependency: Slice 6 integrated
 Branch: refactor/rev-architecture-quality-07-org
 PR: #21 - https://forge.adrianpk.com/rev/rev/pulls/21
 Report: ops/default/report/slices/rev-architecture-quality/slice-7-org.md
-Decision: maintainer approved the initial-observation correction; the plan records shared stable/unobserved fixture preparation, addressed-view initialization and syntax-policy preservation. The correction is implemented with assertions, in-flight/cancellation cases, guards, deadlines and budgets intact; all frozen working-tree commands pass; final PR-head evidence remains required before handoff.
+Integrated: 954fed70cf96a00ce4711d6a13b0cad1b469630e through canonical PR #21
+Decision: maintainer approved the initial-observation correction; the plan records shared stable/unobserved fixture preparation, addressed-view initialization and syntax-policy preservation. The correction is implemented with assertions, in-flight/cancellation cases, guards, deadlines and budgets intact; all four frozen commands passed on the clean published PR head before integration.
 Progress: all four source findings are corrected across 431 selected files; native preparation borrows inspected inputs, custom agenda publication retains the supplied view without a second clone, and native numeric widths preserve admitted ranges and resource ceilings; session preparation borrows inspected inputs while prompts/jobs retain their existing owners; table export moves its checked target into the save; selected Clippy diagnostics decrease from 316 to zero, with 377 deferred outside this slice
-Validation: all four frozen commands pass on corrected implementation e4888d6414e6767a59b22fc4443aa346b1dafcf5: scoped quality has zero blockers across 431 files; all 791 native Org cases pass across eight targets with no ignores; documentation and diff checks pass. Final PR-head validation must be recorded through Looper before handoff.
+Validation: all four frozen commands passed through Looper on clean published HEAD 954fed70cf96a00ce4711d6a13b0cad1b469630e (XCFEU34ADA4ANKN2JMAFMFHJCG); scoped quality has zero blockers across 431 files; all 791 native Org cases pass across eight targets with no ignores; documentation, diff and canonical PR contract checks pass
 Correction: stable/unobserved fixtures preserve explicit pending and cancellation coverage; addressed agenda and saved-clock views remain stable; native styles honor syntax admission. The approved additional core owner check passes. The report retains earlier failed batches and their corrective checks.
 
 - [x] T7.1: Correct selected lint/source findings in native Org and its session document/agenda/capture/table/export/execution adapters, keeping parsing and publication responsibilities distinct.
@@ -144,7 +145,7 @@ Correction: stable/unobserved fixtures preserve explicit pending and cancellatio
 
 ## Slice 8: Session interaction and completion owner
 
-State: planned
+State: in progress
 Dependency: Slice 7 integrated
 Branch: refactor/rev-architecture-quality-08-interaction
 PR: pending
