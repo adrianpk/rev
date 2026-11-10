@@ -2,6 +2,7 @@ mod capture;
 mod conflicts;
 mod context;
 mod controls;
+mod envelope;
 mod presentation;
 mod results;
 pub(super) mod save;
@@ -53,6 +54,17 @@ pub(super) struct Work {
     cleanup_failed: bool,
 }
 
+enum Poll {
+    Waiting,
+    Accepted,
+    Finished,
+}
+
+struct Completion {
+    source: Option<Request>,
+    outcome: Option<Result<controls::Outcome, String>>,
+}
+
 impl Work {
     pub(in crate::session) fn retains_directory(&self, root: &std::path::Path) -> bool {
         (self.operation.is_some() || self.idle.is_some())
@@ -84,6 +96,58 @@ impl Work {
         self.operation = None;
         self.idle = None;
     }
+
+    fn poll(&mut self) -> Poll {
+        let Some(operation) = self.operation.as_ref() else {
+            return Poll::Waiting;
+        };
+        if unsettled(operation) {
+            if operation.accepted() && !operation.is_canceled() && !self.accepted && !self.query {
+                self.accepted = true;
+                return Poll::Accepted;
+            }
+            return Poll::Waiting;
+        }
+        Poll::Finished
+    }
+
+    fn complete(&mut self) -> Option<Completion> {
+        let operation = self.operation.as_mut().expect("settled Pi operation");
+        let epoch = operation.epoch();
+        self.cleanup_failed |= operation.cleanup_failed();
+        if operation.reset_applied()
+            && self
+                .reset
+                .as_ref()
+                .is_some_and(|(_, _, epoch)| *epoch <= operation.epoch())
+        {
+            self.reset = None;
+        }
+        let source = self.source.take();
+        let query = self.query;
+        self.query = false;
+        let outcome = if query {
+            operation
+                .take_models()
+                .map(|r| r.map(controls::Outcome::Models))
+        } else {
+            operation
+                .take()
+                .map(|r| r.map(controls::Outcome::Generated))
+        };
+        let operation = self.operation.take().expect("admitted Pi operation");
+        if !operation.worker_finished() {
+            self.idle = Some(operation);
+        }
+        if epoch != self.epoch {
+            return None;
+        }
+        Some(Completion { source, outcome })
+    }
+}
+
+fn unsettled(operation: &Operation) -> bool {
+    (operation.is_canceled() && !operation.worker_finished()) || !operation.finished()
 }
 
 impl Session {
@@ -95,56 +159,25 @@ impl Session {
     }
 
     pub(super) fn expire_ai(&mut self) -> Action {
-        let Some(operation) = self.ai.operation.as_mut() else {
-            return Action::Wait;
-        };
-        if (operation.is_canceled() && !operation.worker_finished()) || !operation.finished() {
-            if operation.accepted()
-                && !operation.is_canceled()
-                && !self.ai.accepted
-                && !self.ai.query
-            {
-                self.ai.accepted = true;
-                return self.message(
-                    "Pi accepted; awaiting settled result (guarded directory reads); C-g cancels",
-                );
+        match self.ai.poll() {
+            Poll::Accepted => self.message(
+                "Pi accepted; awaiting settled result (guarded directory reads); C-g cancels",
+            ),
+            Poll::Finished => {
+                let Some(completion) = self.ai.complete() else {
+                    return Action::Wait;
+                };
+                self.ai_completed(completion)
             }
-            return Action::Wait;
+            Poll::Waiting => Action::Wait,
         }
-        let epoch = operation.epoch();
-        self.ai.cleanup_failed |= operation.cleanup_failed();
-        if operation.reset_applied()
-            && self
-                .ai
-                .reset
-                .as_ref()
-                .is_some_and(|(_, _, epoch)| *epoch <= operation.epoch())
-        {
-            self.ai.reset = None;
-        }
-        let source = self.ai.source.take();
-        let query = self.ai.query;
-        self.ai.query = false;
-        let outcome = if query {
-            operation
-                .take_models()
-                .map(|r| r.map(controls::Outcome::Models))
-        } else {
-            operation
-                .take()
-                .map(|r| r.map(controls::Outcome::Generated))
-        };
-        let operation = self.ai.operation.take().expect("admitted Pi operation");
-        if !operation.worker_finished() {
-            self.ai.idle = Some(operation);
-        }
-        if epoch != self.ai.epoch {
-            return Action::Wait;
-        }
-        match outcome {
-            Some(Ok(controls::Outcome::Generated(output))) => {
-                source.map_or(Action::Wait, |request| self.ai_present(request, output))
-            }
+    }
+
+    fn ai_completed(&mut self, completion: Completion) -> Action {
+        match completion.outcome {
+            Some(Ok(controls::Outcome::Generated(output))) => completion
+                .source
+                .map_or(Action::Wait, |request| self.ai_present(request, output)),
             Some(Ok(controls::Outcome::Models(models))) => self.ai_model_choices(models),
             Some(Err(error)) => self.error(&error),
             None => Action::Wait,

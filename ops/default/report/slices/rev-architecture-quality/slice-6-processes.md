@@ -40,11 +40,17 @@ switching, discovery grants, generation, result publication and idle retirement
 have explicit phases. Mailbox admission/retirement remains atomic; guards are
 released before notifications and protocol waits.
 
+The AI session owner separates capture admission, fresh observation encoding,
+retained-worker compatibility, operation polling/completion and result publication.
+The native source map owns its aggregate admission. Copied conflict context
+separates native capture, role/saved-source projection and bounded encoding.
+Literal command persistence separates name admission from publication.
+
 The complete Slice 6 implementation remains in progress. The full quality check
-has 154 blocking Clippy diagnostics, down from 196, and nine source findings,
-down from 34. All eight private Pi files pass the canonical scoped quality check.
-The existing public retained-session signature is the sole Pi source finding;
-the other eight are in AI session adapters.
+has 151 blocking Clippy diagnostics, down from 196, and one source finding,
+down from 34. All nine AI session files pass canonical scoped quality with no
+blocking diagnostics. The remaining source finding is the existing public
+retained-session signature; selected LSP, shell and terminal diagnostics remain.
 
 ## Implementation Notes
 
@@ -71,8 +77,20 @@ the other eight are in AI session adapters.
 - Version admission retains its five-second bound and one-second exit wait.
   Stream setup/draining, owned child stop, private resource lifetime and cleanup
   failure publication stay on the supervisor; no worker IO moved to input/render.
-- Remaining work includes AI session source decomposition and selected LSP,
-  shell, terminal and adapter ownership/conversion diagnostics.
+- AI submission preserves the admission/error order, exact envelope fields,
+  model precedence, invocation identity and captured source authority. Retained
+  root/model/grant rejection keeps the canceled child owned until cleanup.
+- Native maps retain private/credential exclusions, 16 buffers, 1 MiB per source,
+  the configured aggregate byte cap, link admission and NUL rejection. Conflict
+  context retains the shared Git memory lease, complete encoding cap, exact
+  role/object/saved/dirty observations and absence of edit/stage/continue rights.
+- Polling retains acceptance, query, reset and epoch rules before presentation.
+  Result acceptance retains focus, readonly/revision and association checks,
+  checked window publication, single-undo behavior and authority consumption
+  before cleanup. Saved commands retain collision/capacity checks and publish
+  through the existing root owner.
+- Remaining work includes selected LSP, shell, terminal and adapter ownership/
+  conversion diagnostics and the public compatibility decision below.
 
 ## Contracts Added or Changed
 
@@ -92,21 +110,30 @@ are preserved.
   bounded generation events, tool observations and settled output.
 - `src/ai/pi.rs` and `io.rs`: explicit shared ownership, mailbox guard release,
   typed child identity and retained stream/cleanup boundaries.
+- `src/session/ai.rs`, `ai/capture.rs` and `ai/envelope.rs`: captured invocation
+  admission, serialization, retained reuse and polling/publication boundaries.
+- `src/session/ai/context.rs` and `conflicts.rs`: admitted fresh native maps and
+  complete conflict snapshots.
+- `src/session/ai/results.rs` and `save.rs`: captured result acceptance/cleanup
+  and literal command publication; borrowed fixture configuration is explicit.
 - `tests/ai/discovery.rs`: explicit prefix-insertion position in the native map.
 
 ## Validation
 
 Working-tree implementation evidence follows. Exact clean-HEAD Looper validation
 and canonical PR preparation remain pending. The previous full native run
-predates the current Pi decomposition; focused AI/Pi regressions cover the latest
-changes. No previous result is final clean-HEAD evidence.
+predates the Pi and AI session decompositions. Current focused checks cover the
+changed owners; no previous result is final clean-HEAD evidence.
 
-- Failed: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 bash scripts/check-quality.sh --scope src/ai.rs --scope src/ai --scope src/lsp.rs --scope src/lsp --scope src/process.rs --scope src/process --scope src/shell.rs --scope src/shell --scope src/terminal.rs --scope src/terminal --scope src/session/ai.rs --scope src/session/ai --scope src/session/lsp.rs --scope src/session/lsp --scope src/session/shell.rs --scope src/session/shell --scope src/session/terminals.rs --scope src/session/terminals`. All-target compilation succeeds; 154 selected Clippy diagnostics and nine source findings remain across 116 selected files.
+- Failed: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 bash scripts/check-quality.sh --scope src/ai.rs --scope src/ai --scope src/lsp.rs --scope src/lsp --scope src/process.rs --scope src/process --scope src/shell.rs --scope src/shell --scope src/terminal.rs --scope src/terminal --scope src/session/ai.rs --scope src/session/ai --scope src/session/lsp.rs --scope src/session/lsp --scope src/session/shell.rs --scope src/session/shell --scope src/session/terminals.rs --scope src/session/terminals`. All-target compilation succeeds; 151 selected Clippy diagnostics and one source finding remain across 117 selected files.
 - Previously passed: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --test ai --test lsp --test lsp_installation --test shell_commands --test integrated_terminal --test pi -- --test-threads=1`. The first implementation cohort passed all 213 ordinary native cases across the six suites, with three existing explicit upstream-acquisition cases ignored by default. A fresh final-head run remains required.
 - Passed: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo run --locked --quiet -p rev --example documentation-check`. 106 reachable pages, 743 local links/anchors, 684 commands and 299 configuration entries.
-- Passed: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 bash scripts/check-quality.sh --scope src/ai/pi`. All-target compilation, scoped Clippy and source policy pass for eight private Pi files, with zero blocking diagnostics and 847 diagnostics deferred outside this smaller selection.
-- Passed: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --test ai --test pi -- --test-threads=1`. All 26 AI and 15 Pi cases pass after the final guard-lifetime correction, including native source maps, captured result ownership, directory admission, deadlines, cancellation, binding capacity and retained-history reuse.
+- Previously passed: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 bash scripts/check-quality.sh --scope src/ai/pi`. All-target compilation, scoped Clippy and source policy pass for eight private Pi files, with zero blocking diagnostics and 847 diagnostics deferred outside this smaller selection.
+- Passed: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --test ai --test pi -- --test-threads=1`. All 26 AI and 15 Pi cases pass after the AI session decomposition, including native source maps, captured result ownership, directory admission, deadlines, cancellation, binding capacity and retained-history reuse.
 - Previously passed: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --lib process:: -- --test-threads=1`. Ten native process cases passed for the unchanged first-cohort process implementation.
+- Passed: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 bash scripts/check-quality.sh --scope src/session/ai.rs --scope src/session/ai`. All-target compilation, scoped Clippy and source policy pass for all nine AI session files, with zero blocking diagnostics and 844 selected-profile diagnostics deferred outside this selection.
+- Passed: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --lib session::ai:: -- --test-threads=1`. Six native result-publication cases preserve literal bytes, readonly/revision guards, presentation controls and captured apply/discard ownership.
+- Passed: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --test git_integration conflicts::explanation:: -- --test-threads=1`. All four entrypoints pass, including the existing child-only RPC fixture; the native cases cover copied text/binary/dirty source facts, optional-AI admission and historical results without edit/stage/continue rights.
 - Passed: `git diff --check`.
 
 The unchanged slice base `ebfe3f4798c6` reproduces the source-map failure before

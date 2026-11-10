@@ -7,6 +7,27 @@ pub(in crate::session) struct Prompt {
     edit: SettingsEdit,
     definition: AiCommand,
 }
+
+impl Prompt {
+    fn admit(&self, session: &Session, name: &str) -> Result<crate::command::AiName, String> {
+        let identity = crate::command::AiName::new(name)?;
+        if matches!(
+            session.input.command_named(identity.name()),
+            Some(crate::command::Command::MacroNamed(_))
+        ) {
+            return Err("AI name collides with a session macro command".into());
+        }
+        let active = &session.buffers.snapshot().settings().ai.commands;
+        let captured = self.edit.snapshot().map_err(|e| e.to_string())?;
+        if active.contains_key(name) || captured.settings().ai.commands.contains_key(name) {
+            return Err("AI definition already exists; choose another name".to_owned());
+        }
+        if active.len() >= 64 {
+            return Err("AI permits at most 64 active definitions".into());
+        }
+        Ok(identity)
+    }
+}
 impl Session {
     pub(in crate::session) fn ai_save_command(&mut self) -> Action {
         let result = (|| {
@@ -43,40 +64,27 @@ impl Session {
         })();
         match result {Ok(())=>self.message("Save the successful literal instruction only; generated text is not the prompt; C-g cancels"),Err(error)=>self.error(&error)}
     }
-    pub(in crate::session) fn ai_save_argument(
-        &mut self,
-        mut prompt: Prompt,
-        name: &str,
-    ) -> Action {
-        let result = (|| {
-            let identity = crate::command::AiName::new(name)?;
-            if matches!(
-                self.input.command_named(identity.name()),
-                Some(crate::command::Command::MacroNamed(_))
-            ) {
-                return Err("AI name collides with a session macro command".into());
-            }
-            let active = &self.buffers.snapshot().settings().ai.commands;
-            let captured = prompt.edit.snapshot().map_err(|e| e.to_string())?;
-            if active.contains_key(name) || captured.settings().ai.commands.contains_key(name) {
-                return Err("AI definition already exists; choose another name".to_owned());
-            }
-            if active.len() >= 64 {
-                return Err("AI permits at most 64 active definitions".into());
-            }
-            prompt.edit.ai_command(name, &prompt.definition)?;
-            let state = Roots::from_env().map_err(|e| e.to_string())?.state;
-            let published = prompt.edit.publish(&state).map_err(|e| e.to_string())?;
-            self.buffers.apply_ai_definition(name, &published.snapshot);
-            self.input.admit_ai_command(identity);
-            Ok(published.warning)
-        })();
-        match result {
+    pub(in crate::session) fn ai_save_argument(&mut self, prompt: Prompt, name: &str) -> Action {
+        match self.ai_save_definition(prompt, name) {
             Ok(Some(warning)) => self.message(&warning),
             Ok(None) => self.message(
                 "AI command saved and callable now; new configured keybindings require restart",
             ),
             Err(error) => self.error(&error),
         }
+    }
+
+    fn ai_save_definition(
+        &mut self,
+        mut prompt: Prompt,
+        name: &str,
+    ) -> Result<Option<String>, String> {
+        let identity = prompt.admit(self, name)?;
+        prompt.edit.ai_command(name, &prompt.definition)?;
+        let state = Roots::from_env().map_err(|e| e.to_string())?.state;
+        let published = prompt.edit.publish(&state).map_err(|e| e.to_string())?;
+        self.buffers.apply_ai_definition(name, &published.snapshot);
+        self.input.admit_ai_command(identity);
+        Ok(published.warning)
     }
 }

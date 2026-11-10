@@ -1,11 +1,59 @@
 use super::{Ready, Request};
 use crate::{
     ai::{pi, target::Output},
-    buffer::edit::Replacement,
+    buffer::{BufferId, Buffers, edit::Replacement},
     input::Focus,
     session::{Action, Session},
     view::View,
 };
+
+impl Request {
+    fn condition(&self, buffers: &Buffers) -> String {
+        buffers
+            .get(self.target.source.stamp.buffer)
+            .map_err(|e| e.to_string())
+            .and_then(|b| self.target.current(b))
+            .err()
+            .or_else(|| {
+                self.conflict
+                    .as_ref()
+                    .and_then(|c| c.current(buffers).err())
+            })
+            .unwrap_or_default()
+    }
+}
+
+impl Ready {
+    fn admit(&self, selected: BufferId) -> Result<(), String> {
+        if self.request.target.output == Output::Explanation {
+            return Err("Explanation results have no apply action".into());
+        }
+        if selected != self.payload.stamp.buffer {
+            return Err("Select the AI result before applying its captured target".into());
+        }
+        Ok(())
+    }
+
+    fn replacement(&self, buffers: &Buffers) -> Result<Replacement, String> {
+        let result = buffers
+            .get(self.payload.stamp.buffer)
+            .map_err(|e| e.to_string())?;
+        if !result.is_readonly() {
+            return Err("AI result is no longer read-only; source unchanged".into());
+        }
+        // The display revision is authoritative, but its escaped Org
+        // representation is never interpreted as generated source text.
+        result.slice(&self.payload).map_err(|e| e.to_string())?;
+        let text = self.generated.clone();
+        if text.len() > buffers.snapshot().settings().ai.pi.max_result_bytes {
+            return Err("AI result exceeds max_result_bytes".into());
+        }
+        Ok(Replacement {
+            source: self.request.target.source.clone(),
+            text,
+        })
+    }
+}
 
 impl Session {
     pub(super) fn ai_present(&mut self, request: Request, output: pi::Output) -> Action {
@@ -16,19 +64,7 @@ impl Session {
         } else {
             "*AI Explanation*"
         };
-        let condition = self
-            .buffers
-            .get(target.source.stamp.buffer)
-            .map_err(|e| e.to_string())
-            .and_then(|b| target.current(b))
-            .err()
-            .or_else(|| {
-                request
-                    .conflict
-                    .as_ref()
-                    .and_then(|c| c.current(&self.buffers).err())
-            })
-            .unwrap_or_default();
+        let condition = request.condition(&self.buffers);
         let document = super::presentation::document(&request, &output, &condition);
         let result = self
             .buffers
@@ -38,16 +74,7 @@ impl Session {
             Ok(payload) => payload,
             Err(error) => return self.error(&format!("Pi result: {error}")),
         };
-        let show = self.windows.selected_id() == request.view
-            && self.view().point.stamp == target.source.stamp
-            && self.input.focus() == Focus::Editing
-            && self.pending.is_none()
-            && !self.tree.focused()
-            && !self.windows.retained_view_active()
-            && request
-                .conflict
-                .as_ref()
-                .is_none_or(|c| self.git_explanation_origin(&c.capture));
+        let show = self.ai_can_present(&request);
         let id = payload.stamp.buffer;
         let conflict = request.conflict.is_some();
         self.ai.last = Some(request.definition.clone());
@@ -73,6 +100,19 @@ impl Session {
         }
     }
 
+    fn ai_can_present(&self, request: &Request) -> bool {
+        self.windows.selected_id() == request.view
+            && self.view().point.stamp == request.target.source.stamp
+            && self.input.focus() == Focus::Editing
+            && self.pending.is_none()
+            && !self.tree.focused()
+            && !self.windows.retained_view_active()
+            && request
+                .conflict
+                .as_ref()
+                .is_none_or(|c| self.git_explanation_origin(&c.capture))
+    }
+
     pub(in crate::session) fn ai_apply_result(&mut self) -> Action {
         match self.ai_publish() {
             Ok(mut home) => {
@@ -86,7 +126,7 @@ impl Session {
                 self.activate_lsp();
                 self.observe_files();
                 self.ai_close_result(
-                    ready,
+                    &ready,
                     "AI result applied; one undo step; source remains unsaved",
                 )
             }
@@ -95,34 +135,10 @@ impl Session {
     }
 
     fn ai_publish(&mut self) -> Result<View, String> {
-        if self.input.focus() != Focus::Editing
-            || self.pending.is_some()
-            || self.tree.focused()
-            || self.windows.retained_view_active()
-        {
-            return Err("Editing must own AI result acceptance".into());
-        }
+        self.ai_accept_input()?;
         let ready = self.ai.ready.as_ref().ok_or("No AI result is ready")?;
-        if ready.request.target.output == Output::Explanation {
-            return Err("Explanation results have no apply action".into());
-        }
-        if self.view().point.stamp.buffer != ready.payload.stamp.buffer {
-            return Err("Select the AI result before applying its captured target".into());
-        }
-        let result = self
-            .buffers
-            .get(ready.payload.stamp.buffer)
-            .map_err(|e| e.to_string())?;
-        if !result.is_readonly() {
-            return Err("AI result is no longer read-only; source unchanged".into());
-        }
-        // The display revision is still authoritative, but its escaped Org
-        // representation is never interpreted as generated source text.
-        result.slice(&ready.payload).map_err(|e| e.to_string())?;
-        let text = ready.generated.clone();
-        if text.len() > self.buffers.snapshot().settings().ai.pi.max_result_bytes {
-            return Err("AI result exceeds max_result_bytes".into());
-        }
+        ready.admit(self.view().point.stamp.buffer)?;
+        let replacement = ready.replacement(&self.buffers)?;
         let target = &ready.request.target;
         let buffer = self
             .buffers
@@ -133,16 +149,24 @@ impl Session {
             .windows
             .publish_observed(
                 buffer,
-                Replacement {
-                    source: target.source.clone(),
-                    text,
-                },
+                replacement,
                 ready.request.home.clone(),
                 self.windows.selected_id(),
             )
             .map_err(|e| e.to_string())?;
         buffer.deactivate_region();
         Ok(home)
+    }
+
+    fn ai_accept_input(&self) -> Result<(), String> {
+        if self.input.focus() != Focus::Editing
+            || self.pending.is_some()
+            || self.tree.focused()
+            || self.windows.retained_view_active()
+        {
+            return Err("Editing must own AI result acceptance".into());
+        }
+        Ok(())
     }
 
     pub(in crate::session) fn ai_result_buffer(&self, id: crate::buffer::BufferId) -> bool {
@@ -205,7 +229,7 @@ impl Session {
             home.retain_heading_presentation(self.view());
             *self.windows.selected_mut() = home;
         }
-        self.ai_close_result(ready, "AI result discarded; source unchanged")
+        self.ai_close_result(&ready, "AI result discarded; source unchanged")
     }
 
     fn ai_home(&self, request: &Request) -> Option<View> {
@@ -221,7 +245,7 @@ impl Session {
         Some(view)
     }
 
-    fn ai_close_result(&mut self, ready: Ready, message: &str) -> Action {
+    fn ai_close_result(&mut self, ready: &Ready, message: &str) -> Action {
         let id = ready.payload.stamp.buffer;
         if let Ok(source) = self.buffers.get(ready.request.target.source.stamp.buffer) {
             self.windows.replace_buffer(id, source);
@@ -275,7 +299,7 @@ mod tests {
                     &format!("editor.interaction_profile='{profile}'"),
                 ))
                 .snapshot;
-                let (mut session, source) = generated_with_settings(generated, settings);
+                let (mut session, source) = generated_with_settings(generated, &settings);
                 let result = session.view().point.stamp.buffer;
                 let buffer = session.buffers.get_mut(result).unwrap();
                 assert!(buffer.is_org() && buffer.is_readonly());
@@ -330,7 +354,7 @@ mod tests {
                 &fixture.write("config.toml", &format!("org.startup_folded='{policy}'")),
             )
             .snapshot;
-            let (mut session, _) = generated_with_settings("generated", settings);
+            let (mut session, _) = generated_with_settings("generated", &settings);
             let buffer = session
                 .buffers
                 .get_mut(session.view().point.stamp.buffer)
@@ -365,17 +389,17 @@ mod tests {
     }
 
     fn generated_proposal(generated: &str) -> (Session, BufferId) {
-        generated_with_settings(generated, crate::config::Snapshot::default())
+        generated_with_settings(generated, &crate::config::Snapshot::default())
     }
 
     fn generated_with_settings(
         generated: &str,
-        settings: crate::config::Snapshot,
+        settings: &crate::config::Snapshot,
     ) -> (Session, BufferId) {
         let mut buffers = Buffers::with_settings(settings.clone()).unwrap();
         let id = buffers.create("source").unwrap();
         let buffer = buffers.get(id).unwrap();
-        let mut view = View::with_settings(buffer, &settings);
+        let mut view = View::with_settings(buffer, settings);
         view.point.position = Scalar(3);
         let mut session = Session::new(
             buffers,
