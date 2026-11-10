@@ -133,14 +133,14 @@ Dependency: Slice 6 integrated
 Branch: refactor/rev-architecture-quality-07-org
 PR: pending
 Report: ops/default/report/slices/rev-architecture-quality/slice-7-org.md
-Decision: maintainer approved the initial-observation correction; the plan records shared stable/unobserved fixture preparation, addressed-view initialization and syntax-policy preservation. The correction is implemented with assertions, in-flight/cancellation cases, guards, deadlines and budgets intact; fresh exact-HEAD validation remains pending.
+Decision: maintainer approved the initial-observation correction; the plan records shared stable/unobserved fixture preparation, addressed-view initialization and syntax-policy preservation. The correction is implemented with assertions, in-flight/cancellation cases, guards, deadlines and budgets intact; all frozen working-tree commands pass; final PR-head evidence remains required before handoff.
 Progress: all four source findings are corrected across 431 selected files; native preparation borrows inspected inputs, custom agenda publication retains the supplied view without a second clone, and native numeric widths preserve admitted ranges and resource ceilings; session preparation borrows inspected inputs while prompts/jobs retain their existing owners; table export moves its checked target into the save; selected Clippy diagnostics decrease from 316 to zero, with 377 deferred outside this slice
-Validation: earlier scoped quality passed compilation, formatting, all 431 source guards and Clippy with zero blockers. Additional scoped checks of the corrected core style, agenda and clock-recovery owners also pass with zero blockers. The report retains failed batches and corrective results. Every original frozen command still requires fresh validation of the corrected published HEAD before integration.
-Recovery: all 97 agenda cases and all 16 heading cases pass; the focused editing (12), IO (38 plus the corrected read-only case) and table (2) cohorts pass. The report preserves earlier failures and exact commands. Complete ordered frozen validation and PR preparation remain pending.
+Validation: all four frozen commands pass on corrected implementation e4888d6414e6767a59b22fc4443aa346b1dafcf5: scoped quality has zero blockers across 431 files; all 791 native Org cases pass across eight targets with no ignores; documentation and diff checks pass. Final PR-head validation must be recorded through Looper before handoff.
+Correction: stable/unobserved fixtures preserve explicit pending and cancellation coverage; addressed agenda and saved-clock views remain stable; native styles honor syntax admission. The approved additional core owner check passes. The report retains earlier failed batches and their corrective checks.
 
 - [x] T7.1: Correct selected lint/source findings in native Org and its session document/agenda/capture/table/export/execution adapters, keeping parsing and publication responsibilities distinct.
 - [x] T7.2: Extract cohesive validation, preparation and outcome handlers while preserving Org source text, navigation, folding/indentation, native consent, state ownership and document limits.
-- [ ] T7.3: Run relevant existing native Org integration cases, preserving public command names, keybindings, timestamps, agenda/capture targets, formulas and code-block behavior.
+- [x] T7.3: Run relevant existing native Org integration cases, preserving public command names, keybindings, timestamps, agenda/capture targets, formulas and code-block behavior.
 
 ## Slice 8: Session interaction and completion owner
 

@@ -1,6 +1,6 @@
 # Slice 7: Org workflow decomposition
 
-Status: drafting
+Status: reviewing
 Delivery set: rev-architecture-quality
 Plan: [Architecture Quality Delivery](../../../plan/rev-architecture-quality.md)
 Tracker: [Architecture Quality Tracker](../../../tracker/rev-architecture-quality.md)
@@ -14,8 +14,8 @@ workflows and their existing session adapters.
 
 ## Delivered Behavior
 
-The first implementation cohort separates literal-block pairing from content
-classification, startup exclusion ranges from keyword selection, all-drawer
+Native Org separates literal-block pairing from content classification,
+startup exclusion ranges from keyword selection, all-drawer
 updates from visibility dispatch, and structural-request admission from Org
 command routing. All four baseline source-policy findings are corrected.
 
@@ -24,7 +24,7 @@ Private calendar projection borrows the retained snapshot and clones it only for
 the resulting observation. Redundant owned clones are removed from structural
 item ranges, agenda directory iteration and heading-motion errors.
 
-The time cohort replaces narrowing casts with checked conversions after existing
+Native time preparation replaces narrowing casts with checked conversions after existing
 civil/date, month-cell, recurrence and POSIX admission. Timestamp decimal parsing
 now produces each native field width directly. Clock observations retain ordered
 minute endpoints; duration formatting isolates its existing floored-tick admission.
@@ -36,14 +36,13 @@ graph inputs, export/include/macro inputs, footnote labels and feed inputs.
 Custom agenda publication retains the supplied view directly, removing one
 clone. Native Org has no remaining selected pass-by-value findings.
 
-The numeric cohort checks scalar/index conversions in document/list cursors,
+Numeric preparation checks scalar/index conversions in document/list cursors,
 calendar/habit projections, clock state, source-program caps and ZIP fields.
 Calendar spans retain a private u16 day count and a separate week-alignment
-owner; formula aggregates use an
-exactly representable bounded integer count. Native Org now has no selected
-Clippy findings; 64 session input-ownership diagnostics remained after that cohort.
+owner; formula aggregates use an exactly representable bounded integer count.
+Native Org has no selected Clippy findings.
 
-The session cohort borrows synchronous capture/refile plans, draft text,
+Session preparation borrows synchronous capture/refile plans, draft text,
 attachment listings, link navigation, table/list edits and publication outcomes.
 Outline preparation borrows observations unless the resulting prompt, report or
 visibility state retains them. Table export moves its checked destination into
@@ -51,8 +50,11 @@ the save owner instead of cloning it. Pending prompt retirement and asynchronous
 work retain their existing ownership boundaries. The complete scoped quality
 command now passes with no blocking Clippy or native source-policy findings.
 
-Implementation remains in progress; the frozen native checks and exact clean-HEAD
-validation still require successful evidence before canonical PR preparation.
+The approved lifecycle correction distinguishes stable fixtures from cases that
+own pending initial observation. Addressed agenda and saved-clock views remain
+stable before capturing command authority, and native styles follow syntax
+policy while structural observation remains available for folding. All 791
+native cases in the complete frozen Slice 7 command pass.
 
 ## Implementation Notes
 
@@ -158,9 +160,26 @@ compatible.
   `source_edit.rs`: observation lifetimes, Copy prompt selectors and owned
   one-shot prompt retirement boundaries.
 
+- `src/buffer/org.rs`, `src/session/agenda_actions/execute.rs` and
+  `src/session/outline/clocks/state/restore.rs`: admitted native styles and
+  stable explicitly addressed views.
+
 ## Validation
 
-Maintainer-approved lifecycle recovery:
+All four frozen commands pass on the corrected implementation at
+`e4888d6414e6767a59b22fc4443aa346b1dafcf5` before metadata-only PR preparation.
+The final PR head requires matching clean-HEAD `looper validate` evidence before
+handoff; that evidence is stored by the controller outside the repository.
+
+- Passed: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 bash scripts/check-quality.sh --scope src/org.rs --scope src/org --scope src/session/agenda --scope src/session/agenda.rs --scope src/session/agenda_actions --scope src/session/agenda_actions.rs --scope src/session/agenda_custom --scope src/session/agenda_custom.rs --scope src/session/agenda_queries --scope src/session/agenda_queries.rs --scope src/session/agenda_sources.rs --scope src/session/capture --scope src/session/capture.rs --scope src/session/refile --scope src/session/refile.rs --scope src/session/attachment --scope src/session/attachment.rs --scope src/session/document.rs --scope src/session/outline --scope src/session/outline.rs --scope src/session/tables --scope src/session/tables.rs --scope src/session/tangling --scope src/session/tangling.rs --scope src/session/execution --scope src/session/execution.rs --scope src/session/feeds --scope src/session/feeds.rs --scope src/session/previews.rs --scope src/session/exports --scope src/session/exports.rs --scope src/session/publishing --scope src/session/publishing.rs --scope src/session/source_edit --scope src/session/source_edit.rs --scope src/session/links --scope src/session/links.rs --scope src/session/habits --scope src/session/habits.rs --scope src/session/org --scope src/session/org.rs`. All-target compilation and formatting pass; all 431 selected sources satisfy the source guards and selected Clippy reports zero blockers. The 377 diagnostics outside this slice remain deferred.
+- Passed: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --test org_agenda --test org_editing --test org_headings --test org_indentation --test org_io --test org_source --test org_tables --test org_time -- --test-threads=1`. All 791 cases pass across eight targets (97 agenda, 235 editing, 16 headings, 18 indentation, 192 io, 81 source, 73 tables, 79 time); zero failures, ignores or filtered cases.
+- Passed: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo run --locked --quiet -p rev --example documentation-check`. 106 reachable pages, 743 local links/anchors, 684 commands and 299 configuration entries.
+- Passed: `git diff --check`.
+
+Historical batches and their focused corrective checks are retained below.
+Their failed outcomes precede the complete passing corrected-slice result above.
+
+Maintainer-approved lifecycle correction:
 
 - Stable Org fixtures now finish initial observation before capturing view
   snapshots or issuing stable-context commands. Explicit coloring, cancellation,
@@ -178,13 +197,9 @@ Maintainer-approved lifecycle recovery:
 - Passed working-tree cohort: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --test org_headings -- --test-threads=1`. All 16 cases pass, including the retained canceled-observation failure.
 - Passed additional owner check: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 bash scripts/check-quality.sh --scope src/buffer/org.rs --scope src/session/agenda_actions/execute.rs --scope src/session/outline/clocks/state/restore.rs`. Formatting, compilation, selected Clippy admission and native source limits pass; there are zero blocking diagnostics in these owners and 377 selected-profile diagnostics deferred outside the selection.
 
-These focused results do not replace the unchanged eight-target native command
-or the complete ordered clean-HEAD slice validation. Historical working-tree
-cohort results follow; canonical PR preparation and exact clean-HEAD
-Looper evidence remain pending. Agenda/editing failures below are retained
-from their recorded cohorts; focused checks do not certify the frozen
-eight-target native command. The session cohort reruns the frozen native command,
-which still stops at agenda as recorded below.
+These historical focused results did not replace the unchanged eight-target
+native command. The earlier working-tree batches below retain their original
+results; the complete corrected-slice run above now passes every case.
 
 - Passed: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 bash scripts/check-quality.sh --scope src/org.rs --scope src/org --scope src/session/agenda --scope src/session/agenda.rs --scope src/session/agenda_actions --scope src/session/agenda_actions.rs --scope src/session/agenda_custom --scope src/session/agenda_custom.rs --scope src/session/agenda_queries --scope src/session/agenda_queries.rs --scope src/session/agenda_sources.rs --scope src/session/capture --scope src/session/capture.rs --scope src/session/refile --scope src/session/refile.rs --scope src/session/attachment --scope src/session/attachment.rs --scope src/session/document.rs --scope src/session/outline --scope src/session/outline.rs --scope src/session/tables --scope src/session/tables.rs --scope src/session/tangling --scope src/session/tangling.rs --scope src/session/execution --scope src/session/execution.rs --scope src/session/feeds --scope src/session/feeds.rs --scope src/session/previews.rs --scope src/session/exports --scope src/session/exports.rs --scope src/session/publishing --scope src/session/publishing.rs --scope src/session/source_edit --scope src/session/source_edit.rs --scope src/session/links --scope src/session/links.rs --scope src/session/habits --scope src/session/habits.rs --scope src/session/org --scope src/session/org.rs`. All-target compilation and formatting pass; all 431 selected sources satisfy the source guards, down from four findings. Selected Clippy reports zero blocking diagnostics, down from 316; 377 diagnostics remain deferred outside this slice.
 - Failed during the session cohort: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --test org_agenda --test org_editing --test org_headings --test org_indentation --test org_io --test org_source --test org_tables --test org_time -- --test-threads=1`. The first target, `org_agenda`, reports 71 passed and 26 failed; Cargo does not reach the other seven targets. Every current failure name occurs in the retained unchanged-source baseline (`be5daac794cfc3c5fa2a991dd4890cd3f7b95e25`, 68 passed and 29 failed). Three baseline habit failures do not recur in this run; the additional `habit_views::habit_no_color` failure from the numeric cohort also passes here. This variation does not certify those cases or the full frozen command.
@@ -194,9 +209,9 @@ which still stops at agenda as recorded below.
 - Previously passed focused check: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --lib -- attachment --test-threads=1`. All five native/session attachment cases pass; only the existing private preparation call arguments changed.
 - Passed focused check: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --test org_agenda -- custom_views:: --test-threads=1`. All seven custom-view cases pass, including checked calendar span shifts, block limits, source aliases and clock columns.
 - Previously passed focused check: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --test org_source -- --test-threads=1`. All 81 cases pass, including source ranges, inline/structural observations, formulas, blocks, feeds and tangling.
-- Previously failed focused check: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --test org_tables -- --test-threads=1`. 57 passed and 16 failed; no ignored or filtered cases. These failures remain unresolved and have not been compared against the retained checkpoint.
-- Previously failed focused check: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --test org_io -- --test-threads=1`. 154 passed and 38 failed; no ignored or filtered cases. These failures remain unresolved and have not been compared against the retained checkpoint.
-- Previously failed focused check: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --test org_headings -- --test-threads=1`. 15 passed and one failed (`lifecycle::cancelled_observation`); no ignored or filtered cases. The failure remains unresolved and has not been compared against the retained checkpoint.
+- Previously failed focused check: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --test org_tables -- --test-threads=1`. 57 passed and 16 failed; no ignored or filtered cases. These historical failures were not compared against the retained checkpoint; the corrected full target now passes.
+- Previously failed focused check: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --test org_io -- --test-threads=1`. 154 passed and 38 failed; no ignored or filtered cases. These historical failures were not compared against the retained checkpoint; the corrected full target now passes.
+- Previously failed focused check: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --test org_headings -- --test-threads=1`. 15 passed and one failed (`lifecycle::cancelled_observation`); no ignored or filtered cases. This historical failure was not compared against the retained checkpoint; the corrected full target now passes.
 - Previously passed focused check: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --test org_indentation -- --test-threads=1`. All 18 cases pass with no ignored or filtered cases.
 - Passed focused check: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --lib -- org:: --test-threads=1`. All 20 native Org unit cases pass, including document bounds, attachment/preview/refile ownership, formula deadline and table work limits.
 - Passed focused check: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --test org_tables -- evaluation --test-threads=1`. All 14 numeric evaluation cases pass, including exact dependencies, mean overflow avoidance, fixed/scientific precision, long chains, invalid policy and non-finite inputs.
@@ -213,20 +228,13 @@ which still stops at agenda as recorded below.
 The first-cohort baseline comparison ran the same frozen native command in
 this owned worktree. All 13 implementation files were restored byte-for-byte afterward;
 the primary checkout, tests, assertions and runtime limits were unchanged. The
-focused editing comparison also restored those exact implementation bytes. No
-successful native-slice result is claimed. The new source/table/IO/heading/indentation runs do not
-replace the frozen native command or certify the retained agenda/editing failures.
+focused editing comparison also restored those exact implementation bytes. Those
+historical batches did not establish native-slice success; the complete corrected
+run above now passes all eight targets.
 
 ## Risks and Follow-ups
 
-The initial-observation correction is approved and implemented, including the
-shared fixture constructors and explicit pending-work cases needed to preserve
-coverage. Agenda, heading and selected editing/IO/table recovery cohorts pass.
-Historical failures above remain recorded; these focused results do not certify
-every case in the complete frozen native command. The additional core style
-owner passes its scoped check; all original slice commands still require their
-final recorded checks on the published clean HEAD.
-
-Canonical PR preparation and exact clean-HEAD validation require all original
-frozen checks to pass. The controller owns merge, full delivery-set validation
-and successor startup.
+No known Slice 7 check failures remain after the approved lifecycle correction.
+The 377 selected-profile diagnostics outside this slice remain for subsequent
+slices. The controller owns merge, full delivery-set validation and successor
+startup; final handoff requires its exact clean-HEAD slice evidence.
