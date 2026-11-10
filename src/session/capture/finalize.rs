@@ -140,11 +140,11 @@ impl Session {
         };
         let result = insertion.and_then(|insertion| {
             self.check_capture_draft(validation.stamp)?;
-            self.publish_capture(insertion, state.origin.view)
+            self.publish_capture(&insertion, state.origin.view)
         });
         match result {
             Ok(applied) => {
-                self.capture_publication(state.origin, *validation, applied);
+                self.capture_publication(state.origin, *validation, &applied);
             }
             Err(e) => {
                 self.capture = Some(State {
@@ -169,7 +169,7 @@ impl Session {
         &mut self,
         origin: Origin,
         validation: Validation,
-        applied: Applied,
+        applied: &Applied,
     ) -> Action {
         match applied.outcome.publication() {
             Publication::NotPublished => {
@@ -182,7 +182,7 @@ impl Session {
                     applied.outcome.error().expect("rejected write error")
                 ))
             }
-            Publication::Complete => self.return_capture(origin, validation.draft),
+            Publication::Complete => self.return_capture(origin.view, validation.draft),
             Publication::Uncertain => {
                 let stored = Stored {
                     draft: validation.draft,

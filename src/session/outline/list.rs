@@ -22,10 +22,10 @@ impl Session {
             self.view().point.position,
             &self.buffers.snapshot().settings().org.todo,
         )?;
-        self.publish_list(plan).map_err(|error| error.to_string())
+        self.publish_list(&plan).map_err(|error| error.to_string())
     }
 
-    fn publish_list(&mut self, plan: ListEdit) -> Result<(), Error> {
+    fn publish_list(&mut self, plan: &ListEdit) -> Result<(), Error> {
         if plan.edits.is_empty() && plan.order.is_empty() {
             return Ok(());
         }

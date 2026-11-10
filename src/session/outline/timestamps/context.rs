@@ -3,6 +3,7 @@ use crate::buffer::edit::Point;
 use crate::command::{Command, OrgCommand as C};
 use crate::org::time::TimestampField as Field;
 use crate::window::ViewId;
+use std::sync::Arc;
 
 pub(in crate::session) struct Repeat {
     view: ViewId,
@@ -23,14 +24,14 @@ impl Session {
         mut request: Request,
     ) -> Result<(), String> {
         if request.command.timestamp() {
-            return self.start_timestamp(model, request);
+            return self.start_timestamp(&model, request);
         }
         let buffer = self.buffer().map_err(|e| e.to_string())?;
         if !model.timestamp_context(buffer, request.origin.point.position)? {
             return Err("Org timestamp context is unavailable here".into());
         }
         if Target::at(buffer, request.origin.point.position)?.exists() {
-            return self.start_timestamp(model, request);
+            return self.start_timestamp(&model, request);
         }
         match request.command {
             C::ShiftUp => {

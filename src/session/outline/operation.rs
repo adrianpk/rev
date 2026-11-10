@@ -1,5 +1,3 @@
-use std::sync::Arc;
-
 use crate::buffer::edit::{Cursor, Error, Point};
 use crate::command::OrgCommand;
 use crate::coordinates::{Byte, Coordinates, LineByte, Scalar};
@@ -40,7 +38,7 @@ impl Session {
         Err("No visible Org heading in that direction".into())
     }
 
-    pub(in crate::session) fn insert_heading(&mut self, model: Arc<Outline>) -> Result<(), String> {
+    pub(in crate::session) fn insert_heading(&mut self, model: &Outline) -> Result<(), String> {
         let buffer = self.buffer().map_err(|e| e.to_string())?;
         self.view().cell(buffer).map_err(|e| e.to_string())?;
         let insertion = model.insertion(buffer, self.view().point.position)?;

@@ -12,7 +12,7 @@ struct PreparedRefile {
     copy: bool,
 }
 impl Session {
-    pub(in crate::session) fn publish_refile(&mut self, plan: Plan) -> Result<(), String> {
+    pub(in crate::session) fn publish_refile(&mut self, plan: &Plan) -> Result<(), String> {
         let PreparedRefile {
             mut visit,
             insertion,
@@ -20,7 +20,7 @@ impl Session {
             source,
             target,
             copy,
-        } = self.prepare_refile(&plan)?;
+        } = self.prepare_refile(plan)?;
         // All histories and live points are admitted. Exclusive session ownership
         // permits no callbacks or fallible work between canonical publications.
         let buffer = visit

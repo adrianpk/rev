@@ -1,5 +1,6 @@
 use super::*;
 use crate::command::OrgCommand as C;
+#[derive(Clone, Copy)]
 pub(in crate::session) struct Prompt {
     command: C,
     source: crate::buffer::Stamp,

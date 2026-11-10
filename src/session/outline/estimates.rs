@@ -77,6 +77,10 @@ impl Session {
         self.publish_org_edits(&edits).map_err(|e| e.to_string())?;
         Ok(self.message("Org priority changed"))
     }
+    #[expect(
+        clippy::needless_pass_by_value,
+        reason = "The one-shot Pending dispatcher transfers the estimate prompt and retires its snapshot and choices after the response"
+    )]
     pub(in crate::session) fn estimate_argument(&mut self, prompt: Prompt, draft: &str) -> Action {
         if !self.org_request_current(&prompt.request) {
             return self.message("Org estimate source or view changed; request cancelled");

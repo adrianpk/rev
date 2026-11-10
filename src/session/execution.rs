@@ -6,6 +6,7 @@ use crate::{
     config::SourceProgram,
     org::execution::{self, Outcome, State},
 };
+#[derive(Clone, Copy)]
 pub(super) enum Prompt {
     Profile,
     Confirm,

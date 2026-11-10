@@ -12,7 +12,6 @@ use crate::buffer::{
 use crate::command::OrgCommand;
 use crate::org::{ClockInsertion, Outline, time::ClockInterval};
 use crate::session::{Action, Session};
-use std::sync::Arc;
 
 #[derive(Clone)]
 pub(in crate::session) struct Active {
@@ -25,15 +24,15 @@ pub(in crate::session) struct Active {
 impl Session {
     pub(super) fn start_clock(
         &mut self,
-        model: Arc<Outline>,
-        request: super::Request,
+        model: &Outline,
+        request: &super::Request,
     ) -> Result<(), String> {
         let buffer = self.buffer().map_err(|e| e.to_string())?;
         if buffer.is_readonly() {
             return Err(Error::ReadOnly.to_string());
         }
         let index = model.tag_target(buffer, request.origin.point.position)?;
-        if self.clock_same_task(&model, index)? {
+        if self.clock_same_task(model, index)? {
             self.message("Org clock already runs on this task");
             return Ok(());
         }

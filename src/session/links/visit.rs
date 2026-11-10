@@ -15,12 +15,12 @@ impl Session {
             self.error("Link source or view changed; nothing followed");
             return;
         }
-        let result = result.and_then(|navigation| self.visit_link(navigation));
+        let result = result.and_then(|navigation| self.visit_link(&navigation));
         if let Err(error) = result {
             self.error(&error);
         }
     }
-    fn visit_link(&mut self, navigation: Navigation) -> Result<(), String> {
+    fn visit_link(&mut self, navigation: &Navigation) -> Result<(), String> {
         let (visit, point) = navigation.prepare(&self.buffers)?;
         let buffer = visit.buffer(&self.buffers).map_err(|e| e.to_string())?;
         let mut view = self.view().clone();

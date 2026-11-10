@@ -3,16 +3,16 @@ use crate::org::archive::Archive;
 impl Session {
     pub(in crate::session) fn start_archive(
         &mut self,
-        model: Arc<Outline>,
+        model: &Outline,
         request: Request,
     ) -> Result<(), String> {
         // Reuse source, capture, read-only and pending interaction admission.
-        let _ = self.refile_subtree(&model, &request)?;
+        let _ = self.refile_subtree(model, &request)?;
         if request.command == C::ToggleArchiveTag {
-            return self.toggle_archive(&model, &request);
+            return self.toggle_archive(model, &request);
         }
-        let work = self.archive_work(&model, &request)?;
-        let subtree = self.refile_subtree(&model, &request)?;
+        let work = self.archive_work(model, &request)?;
+        let subtree = self.refile_subtree(model, &request)?;
         let seconds = self.buffers.snapshot().settings().org.limits.job_seconds;
         self.org.start_archive(work, seconds)?;
         self.refile = Some(State {

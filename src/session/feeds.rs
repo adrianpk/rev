@@ -16,6 +16,7 @@ pub struct FeedOutcome {
     pub publication: Option<Publication>,
     pub detail: String,
 }
+#[derive(Clone, Copy)]
 pub(super) enum Prompt {
     Select(C),
     Confirm,
@@ -196,7 +197,7 @@ impl Session {
     pub(super) fn finish_feed(&mut self, result: Result<Plan, String>) {
         let current = self.feed_current();
         let result = if current {
-            result.and_then(|plan| self.apply_feed(plan))
+            result.and_then(|plan| self.apply_feed(&plan))
         } else {
             Err("Feed context changed or cancelled; target unchanged".into())
         };

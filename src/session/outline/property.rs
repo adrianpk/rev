@@ -63,7 +63,7 @@ impl Session {
         let stage = std::mem::replace(&mut prompt.stage, Stage::Name);
         let result = match stage {
             Stage::Name => self.property_named(prompt, draft),
-            Stage::Value(record) => self.property_changed(prompt, record, draft),
+            Stage::Value(record) => self.property_changed(&prompt, record, draft),
             Stage::Owner(records) => self.property_owner(prompt, &records, draft),
         };
         match result {
@@ -86,7 +86,7 @@ impl Session {
         }
         match prompt.request.command {
             OrgCommand::InspectProperty => self.inspect_property(&prompt),
-            OrgCommand::DeleteProperty => self.property_deleted(prompt),
+            OrgCommand::DeleteProperty => self.property_deleted(&prompt),
             OrgCommand::EditPropertyOwner => self.choose_property_owner(prompt),
             _ => {
                 prompt.stage = Stage::Value(None);
@@ -170,7 +170,7 @@ impl Session {
         prompt.stage = Stage::Value(Some(index));
         self.property_prompt(prompt, "Owner property value: ", &origin)
     }
-    fn property_deleted(&mut self, prompt: Prompt) -> Result<Action, String> {
+    fn property_deleted(&mut self, prompt: &Prompt) -> Result<Action, String> {
         let buffer = self.buffer().map_err(|e| e.to_string())?;
         let edits = prompt
             .model
@@ -180,7 +180,7 @@ impl Session {
     }
     fn property_changed(
         &mut self,
-        prompt: Prompt,
+        prompt: &Prompt,
         record: Option<usize>,
         value: &str,
     ) -> Result<Action, String> {

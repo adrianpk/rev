@@ -17,7 +17,7 @@ pub(super) struct State {
 impl Session {
     pub(super) fn start_habit_agenda(
         &mut self,
-        model: std::sync::Arc<crate::org::Outline>,
+        model: &crate::org::Outline,
         request: outline::Request,
     ) -> Result<(), String> {
         let mut policy = self.buffers.snapshot().settings().org.clone();

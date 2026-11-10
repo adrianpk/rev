@@ -2,14 +2,14 @@ use super::*;
 impl Session {
     pub(super) fn publish_capture(
         &mut self,
-        insertion: Insertion,
+        insertion: &Insertion,
         owner: ViewId,
     ) -> Result<Applied, String> {
         self.publish_capture_with(insertion, owner, &mut crate::file::Files)
     }
     pub(super) fn publish_capture_with(
         &mut self,
-        insertion: Insertion,
+        insertion: &Insertion,
         owner: ViewId,
         output: &mut impl crate::file::Output,
     ) -> Result<Applied, String> {
@@ -49,7 +49,7 @@ impl Session {
     pub(super) fn retry_capture_save(&mut self, origin: Origin, stored: Stored) -> Action {
         let result = self.retained_capture_save(&stored);
         match result {
-            Ok(outcome) if outcome.is_complete() => self.return_capture(origin, stored.draft),
+            Ok(outcome) if outcome.is_complete() => self.return_capture(origin.view, stored.draft),
             Ok(outcome) => {
                 self.capture = Some(State {
                     origin,

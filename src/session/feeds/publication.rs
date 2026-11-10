@@ -5,7 +5,7 @@ use crate::{
     session::source_batch::PreparedSource,
 };
 impl Session {
-    pub(super) fn apply_feed(&mut self, plan: Plan) -> Result<(), String> {
+    pub(super) fn apply_feed(&mut self, plan: &Plan) -> Result<(), String> {
         plan.current(&self.buffers)?;
         let state = self.feeds.as_ref().ok_or("Feed selection cancelled")?;
         let inbox = state.inbox;
@@ -18,7 +18,7 @@ impl Session {
     }
     fn open_feed_inbox(
         &mut self,
-        plan: Plan,
+        plan: &Plan,
         mut visit: crate::buffer::Visit,
     ) -> Result<(), String> {
         let buffer = visit
@@ -31,10 +31,10 @@ impl Session {
         }
         let id = self.buffers.publish_visit(visit);
         self.feed_inbox(id, plan.point)?;
-        self.record_feed(&plan, None, "Inbox opened; changes remain in buffer".into());
+        self.record_feed(plan, None, "Inbox opened; changes remain in buffer".into());
         Ok(())
     }
-    fn save_feed(&mut self, plan: Plan, mut visit: crate::buffer::Visit) -> Result<(), String> {
+    fn save_feed(&mut self, plan: &Plan, mut visit: crate::buffer::Visit) -> Result<(), String> {
         let buffer = visit
             .buffer_mut(&mut self.buffers)
             .map_err(|e| e.to_string())?;
@@ -42,7 +42,7 @@ impl Session {
         if edits.is_empty() {
             let id = self.buffers.publish_visit(visit);
             let outcome = self.buffers.save(id).map_err(|e| e.to_string())?;
-            self.feed_saved(&plan, &outcome);
+            self.feed_saved(plan, &outcome);
             return Ok(());
         }
         let mut points = self
@@ -61,7 +61,7 @@ impl Session {
             self.buffers.publish_visit(visit);
             self.windows.publish_points(points, tops);
         }
-        self.feed_saved(&plan, &outcome);
+        self.feed_saved(plan, &outcome);
         Ok(())
     }
     fn feed_saved(&mut self, plan: &Plan, outcome: &crate::file::Outcome) {

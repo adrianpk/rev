@@ -16,7 +16,6 @@ use crate::{
     },
 };
 pub use results::{ResultEntry, Status};
-use std::sync::Arc;
 pub(super) struct State {
     request: Request,
     subtree: Subtree,
@@ -35,10 +34,10 @@ impl State {
 impl Session {
     pub(in crate::session) fn start_refile(
         &mut self,
-        model: Arc<Outline>,
+        model: &Outline,
         request: Request,
     ) -> Result<(), String> {
-        let subtree = self.refile_subtree(&model, &request)?;
+        let subtree = self.refile_subtree(model, &request)?;
         let copy = request.command == C::RefileCopy;
         let selection = self.refile_selection()?;
         let limits = &self.buffers.snapshot().settings().org.limits;
@@ -108,7 +107,7 @@ impl Session {
             {
                 return Err("Refile source or view changed; nothing moved".into());
             }
-            self.publish_refile(plan)
+            self.publish_refile(&plan)
         });
         match result {
             Ok(()) => {

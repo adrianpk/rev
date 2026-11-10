@@ -128,6 +128,10 @@ impl Session {
         self.message("Source draft: C-c ' or C-c C-c returns; C-c C-k aborts");
         Ok(())
     }
+    #[expect(
+        clippy::needless_pass_by_value,
+        reason = "The one-shot Pending dispatcher transfers the header prompt and retires its checked source definition after the response"
+    )]
     pub(in crate::session) fn source_header_argument(
         &mut self,
         prompt: HeaderPrompt,

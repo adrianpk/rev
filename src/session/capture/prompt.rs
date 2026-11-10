@@ -13,6 +13,10 @@ impl Session {
         self.complete_capture();
         Ok(())
     }
+    #[expect(
+        clippy::needless_pass_by_value,
+        reason = "The one-shot Pending dispatcher transfers the capture prompt and retires its expansion text after the response"
+    )]
     pub(in crate::session) fn capture_argument(&mut self, prompt: Prompt, value: &str) -> Action {
         let Some(state) = self.capture.take() else {
             return self.error("Capture is no longer active");

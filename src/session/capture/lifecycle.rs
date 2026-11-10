@@ -12,7 +12,7 @@ impl Session {
             self.error("Capture origin changed during destination discovery");
             return;
         }
-        match result.and_then(|target| self.install_capture(text).map(|id| (id, target))) {
+        match result.and_then(|target| self.install_capture(&text).map(|id| (id, target))) {
             Ok((id, target)) => {
                 self.capture = Some(State {
                     origin: state.origin,
@@ -26,7 +26,7 @@ impl Session {
             }
         }
     }
-    fn install_capture(&mut self, text: DraftText) -> Result<BufferId, String> {
+    fn install_capture(&mut self, text: &DraftText) -> Result<BufferId, String> {
         let id = self
             .buffers
             .capture_draft(&text.text)
@@ -83,12 +83,12 @@ impl Session {
             self.message("Capture aborted; destination unchanged")
         }
     }
-    pub(super) fn return_capture(&mut self, origin: Origin, id: BufferId) -> Action {
+    pub(super) fn return_capture(&mut self, owner: ViewId, id: BufferId) -> Action {
         self.windows.restore_view();
         if let Err(e) = self.discard_capture_buffer(id) {
             return self.error(&e);
         }
-        if let Err(e) = self.windows.select(origin.view) {
+        if let Err(e) = self.windows.select(owner) {
             return self.error(&e.to_string());
         }
         self.sync_input_context();

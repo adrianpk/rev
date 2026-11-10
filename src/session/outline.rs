@@ -193,7 +193,7 @@ impl Session {
         request: Request,
     ) -> Result<(), String> {
         if request.command.habit() {
-            return self.dispatch_habit(model, request);
+            return self.dispatch_habit(&model, request);
         }
         if request.command.timer_insertion() {
             return self.insert_timer(&model, request.command);
@@ -226,7 +226,7 @@ impl Session {
     }
     fn dispatch_habit(
         &mut self,
-        model: Arc<crate::org::Outline>,
+        model: &crate::org::Outline,
         request: Request,
     ) -> Result<(), String> {
         if request.command != OrgCommand::HabitGraph {
@@ -240,7 +240,7 @@ impl Session {
         request: Request,
     ) -> Result<(), String> {
         if matches!(request.command, OrgCommand::Refile | OrgCommand::RefileCopy) {
-            return self.start_refile(model, request);
+            return self.start_refile(&model, request);
         }
         if request.command.attachment() {
             return self.start_attachment(model, request);
@@ -249,7 +249,7 @@ impl Session {
             return self.start_links(request);
         }
         if request.command.archive() {
-            return self.start_archive(model, request);
+            return self.start_archive(&model, request);
         }
         if request.command.estimate() {
             return self.start_estimate(model, request);
@@ -278,8 +278,8 @@ impl Session {
             OrgCommand::ClockReport | OrgCommand::UpdateDynamicBlock => {
                 self.publish_clock_table(&model, request)
             }
-            OrgCommand::ClockIn => self.start_clock(model, request),
-            OrgCommand::ResolveClocks => self.resolve_clocks(model, request),
+            OrgCommand::ClockIn => self.start_clock(&model, &request),
+            OrgCommand::ResolveClocks => self.resolve_clocks(&model, request),
             _ => unreachable!("qualified source clock request"),
         }
     }
@@ -313,7 +313,7 @@ impl Session {
     ) -> Result<(), String> {
         use OrgCommand::*;
         match command {
-            InsertHeading | MetaReturn => self.insert_heading(model),
+            InsertHeading | MetaReturn => self.insert_heading(&model),
             NextHeading | PreviousHeading | ForwardHeading | BackwardHeading | ParentHeading => {
                 self.heading_motion(&model, command)
             }

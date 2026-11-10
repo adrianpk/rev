@@ -30,7 +30,7 @@ impl Session {
             Stage::Dispatcher => self.attachment_dispatch(draft),
             Stage::Source(method) => self.prepare_attachment(draft, method),
             Stage::Directory => self.attachment_directory(draft),
-            Stage::Choose(listing, native) => self.open_attachment(listing, native, draft),
+            Stage::Choose(listing, native) => self.open_attachment(&listing, native, draft),
             Stage::Review(plan) => self.confirm_attachment(*plan, draft),
             _ => Err("Attachment worker still owns its operation".into()),
         };
@@ -116,7 +116,7 @@ impl Session {
     }
     fn open_attachment(
         &mut self,
-        listing: Listing,
+        listing: &Listing,
         native: bool,
         draft: &str,
     ) -> Result<(), String> {

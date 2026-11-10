@@ -69,7 +69,7 @@ impl Session {
             return;
         };
         if let Ok(Output::Published(published)) = result {
-            self.export_result(published);
+            self.export_result(&published);
             return;
         }
         if !self.org_source_current(&request)
@@ -133,7 +133,7 @@ impl Session {
         }
         Ok(())
     }
-    fn export_result(&mut self, published: Published) {
+    fn export_result(&mut self, published: &Published) {
         let path = published.outcome.target().display();
         let error = published
             .outcome

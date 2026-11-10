@@ -82,6 +82,10 @@ impl Session {
         self.message(&feedback);
         Ok(())
     }
+    #[expect(
+        clippy::needless_pass_by_value,
+        reason = "The one-shot Pending dispatcher transfers the tag prompt and retires its checked outline snapshot after the response"
+    )]
     pub(in crate::session) fn tag_argument(&mut self, prompt: Prompt, draft: &str) -> Action {
         if !self.org_request_current(&prompt.request) {
             return self.message("Org tag source or view changed; request cancelled");

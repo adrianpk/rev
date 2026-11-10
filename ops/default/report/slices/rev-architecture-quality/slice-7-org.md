@@ -41,10 +41,18 @@ calendar/habit projections, clock state, source-program caps and ZIP fields.
 Calendar spans retain a private u16 day count and a separate week-alignment
 owner; formula aggregates use an
 exactly representable bounded integer count. Native Org now has no selected
-Clippy findings; the remaining 64 diagnostics concern session input ownership.
+Clippy findings; 64 session input-ownership diagnostics remained after that cohort.
 
-Implementation remains in progress; selected Clippy ownership and conversion
-findings still require correction before canonical PR preparation.
+The session cohort borrows synchronous capture/refile plans, draft text,
+attachment listings, link navigation, table/list edits and publication outcomes.
+Outline preparation borrows observations unless the resulting prompt, report or
+visibility state retains them. Table export moves its checked destination into
+the save owner instead of cloning it. Pending prompt retirement and asynchronous
+work retain their existing ownership boundaries. The complete scoped quality
+command now passes with no blocking Clippy or native source-policy findings.
+
+Implementation remains in progress; the frozen native checks and exact clean-HEAD
+validation still require successful evidence before canonical PR preparation.
 
 ## Implementation Notes
 
@@ -90,6 +98,15 @@ findings still require correction before canonical PR preparation.
 - Clock-state reads still stop at 65537 bytes and reject above 65536. Source
   program caps remain 600 seconds and 16 MiB, each intersected with the existing
   configured ceiling. ZIP output retains its five-member stored ZIP32 profile.
+- Synchronous session preparation keeps each plan alive in its existing caller;
+  checked visits, edits, publication order, stale-source admission and uncertain
+  save retention are unchanged. Capture return needs only its owning view ID.
+- Habit, feed and execution prompt selectors contain only Copy identity/command
+  fields. Resource-bearing prompts remain owned. Four narrow, reasoned Clippy
+  expectations preserve the existing one-shot Pending dispatch signatures for
+  capture, estimate, tag and source-header responses and their snapshot retirement.
+- Existing in-module capture and refile fixtures pass borrowed plans/outcomes;
+  their inputs, assertions, timeouts and publication fault injection are unchanged.
 - Public requests, source text, navigation, consent, timestamps, formulas,
   source-block behavior and document/resource limits are preserved. Helpers
   remain under the selected Org and session concern roots.
@@ -134,16 +151,23 @@ compatible.
 - `src/session/agenda_actions/resolve.rs`, `habits.rs` and
   `outline/tasks/repeat.rs`: admitted file-length and Org day-boundary fields.
 
+- `src/session/capture/`, `refile/`, `attachment/prompt.rs`, `links/visit.rs`,
+  `tables/`, `tables.rs`, `feeds/` and `exports.rs`: borrowed synchronous inputs
+  and retained checked publication owners.
+- `src/session/outline/`, `outline.rs`, `habits/`, `execution.rs` and
+  `source_edit.rs`: observation lifetimes, Copy prompt selectors and owned
+  one-shot prompt retirement boundaries.
+
 ## Validation
 
 Working-tree cohort results follow; canonical PR preparation and exact clean-HEAD
 Looper evidence remain pending. Agenda/editing failures below are retained
 from their recorded cohorts; focused checks do not certify the frozen
-eight-target native command. The numeric cohort also reruns the frozen native
-command, which stops at agenda as recorded below.
+eight-target native command. The session cohort reruns the frozen native command,
+which still stops at agenda as recorded below.
 
-- Failed: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 bash scripts/check-quality.sh --scope src/org.rs --scope src/org --scope src/session/agenda --scope src/session/agenda.rs --scope src/session/agenda_actions --scope src/session/agenda_actions.rs --scope src/session/agenda_custom --scope src/session/agenda_custom.rs --scope src/session/agenda_queries --scope src/session/agenda_queries.rs --scope src/session/agenda_sources.rs --scope src/session/capture --scope src/session/capture.rs --scope src/session/refile --scope src/session/refile.rs --scope src/session/attachment --scope src/session/attachment.rs --scope src/session/document.rs --scope src/session/outline --scope src/session/outline.rs --scope src/session/tables --scope src/session/tables.rs --scope src/session/tangling --scope src/session/tangling.rs --scope src/session/execution --scope src/session/execution.rs --scope src/session/feeds --scope src/session/feeds.rs --scope src/session/previews.rs --scope src/session/exports --scope src/session/exports.rs --scope src/session/publishing --scope src/session/publishing.rs --scope src/session/source_edit --scope src/session/source_edit.rs --scope src/session/links --scope src/session/links.rs --scope src/session/habits --scope src/session/habits.rs --scope src/session/org --scope src/session/org.rs`. All-target compilation and formatting pass; all 431 selected sources satisfy the source guards, down from four findings. Selected Clippy reports 64 blocking diagnostics, down from 316; 377 diagnostics remain deferred outside this slice.
-- Failed during the numeric cohort: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --test org_agenda --test org_editing --test org_headings --test org_indentation --test org_io --test org_source --test org_tables --test org_time -- --test-threads=1`. The first target, `org_agenda`, reports 67 passed and 30 failed; Cargo does not reach the other seven targets. All 29 failures in the retained unchanged-source baseline (`be5daac794cfc3c5fa2a991dd4890cd3f7b95e25`, 68 passed and 29 failed) recur. The additional `habit_views::habit_no_color` failure is not present in that baseline result and passes in the isolated check below; its full-run failure remains unresolved.
+- Passed: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 bash scripts/check-quality.sh --scope src/org.rs --scope src/org --scope src/session/agenda --scope src/session/agenda.rs --scope src/session/agenda_actions --scope src/session/agenda_actions.rs --scope src/session/agenda_custom --scope src/session/agenda_custom.rs --scope src/session/agenda_queries --scope src/session/agenda_queries.rs --scope src/session/agenda_sources.rs --scope src/session/capture --scope src/session/capture.rs --scope src/session/refile --scope src/session/refile.rs --scope src/session/attachment --scope src/session/attachment.rs --scope src/session/document.rs --scope src/session/outline --scope src/session/outline.rs --scope src/session/tables --scope src/session/tables.rs --scope src/session/tangling --scope src/session/tangling.rs --scope src/session/execution --scope src/session/execution.rs --scope src/session/feeds --scope src/session/feeds.rs --scope src/session/previews.rs --scope src/session/exports --scope src/session/exports.rs --scope src/session/publishing --scope src/session/publishing.rs --scope src/session/source_edit --scope src/session/source_edit.rs --scope src/session/links --scope src/session/links.rs --scope src/session/habits --scope src/session/habits.rs --scope src/session/org --scope src/session/org.rs`. All-target compilation and formatting pass; all 431 selected sources satisfy the source guards, down from four findings. Selected Clippy reports zero blocking diagnostics, down from 316; 377 diagnostics remain deferred outside this slice.
+- Failed during the session cohort: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --test org_agenda --test org_editing --test org_headings --test org_indentation --test org_io --test org_source --test org_tables --test org_time -- --test-threads=1`. The first target, `org_agenda`, reports 71 passed and 26 failed; Cargo does not reach the other seven targets. Every current failure name occurs in the retained unchanged-source baseline (`be5daac794cfc3c5fa2a991dd4890cd3f7b95e25`, 68 passed and 29 failed). Three baseline habit failures do not recur in this run; the additional `habit_views::habit_no_color` failure from the numeric cohort also passes here. This variation does not certify those cases or the full frozen command.
 - Passed: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo run --locked --quiet -p rev --example documentation-check`. 106 reachable pages, 743 local links/anchors, 684 commands and 299 configuration entries.
 - Previously failed focused check: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --test org_editing --test org_headings --test org_indentation --test org_io --test org_source --test org_tables --test org_time -- --test-threads=1`. The first target, `org_editing`, reports 148 passed and 87 failed. The unchanged slice base reproduces the exact same 87 failure names and 148 passes; the other six targets are not reached.
 - Previously passed focused check: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --test org_time -- --test-threads=1`. All 79 native cases pass with no ignored tests.
@@ -161,6 +185,9 @@ command, which stops at agenda as recorded below.
 - Passed focused check: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --test org_io -- odt_exports::odt_package --test-threads=1`. Both package cases pass, including independent ZIP/CRC/XML verification and exact output-byte boundaries.
 - Passed focused check: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --test org_agenda -- --exact habit_views::habit_no_color --test-threads=1`. The newly observed full-run `habit_no_color` failure does not reproduce in this single isolated rerun. This does not certify its full-run behavior.
 - Passed focused check: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --test org_agenda -- calendar_rows:: --test-threads=1`. All seven native calendar-row cases pass, including recurrence, range endpoints, limits, zones and archived-source exclusion.
+- Passed focused check: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --lib -- session::capture:: --test-threads=1`. The existing uncertain-publication retry case passes across retry, edited-draft and changed-source scenarios.
+- Passed focused check: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --lib -- session::refile:: --test-threads=1`. All five existing refile/archive cases pass, including atomic rejection, partial saves and captured-save histories.
+- Failed focused check: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --test org_tables -- interchange --test-threads=1`. Five cases pass and `interchange::interchange_rejections` fails: the expected view has uninitialized visibility, while the actual view has completed initial Org observation. This name also occurs in the earlier 16 table failures, which remain unclassified against the unchanged slice base. Roundtrip/export, conversion, limits, read-only and values cases pass.
 - Passed: `git diff --check`.
 
 The first-cohort baseline comparison ran the same frozen native command in
@@ -172,13 +199,23 @@ replace the frozen native command or certify the retained agenda/editing failure
 
 ## Risks and Follow-ups
 
-The 64 selected session ownership diagnostics remain open. All 29 retained
-unchanged-base agenda failures recur; the frozen native command also observes one
-additional color-view failure that passes in isolation. Recorded editing failures
-include source/view-freshness and publication rejections. The earlier 16 table,
-38 IO and one heading failures remain unclassified against the retained checkpoint.
-Their resolution remains pending; no fixture or runtime interaction correction
-is included in this cohort.
+Selected lint and source-policy findings are corrected. The frozen native
+command retains 26 agenda failures, all named in the recorded unchanged-source
+baseline. Failure-set variation across runs remains unresolved. Recorded editing
+failures include source/view-freshness and publication rejections. The focused
+interchange rejection still compares an uninitialized expected view with completed
+initial observation; no assertion or runtime freshness guard has been changed.
+The earlier 16 table, 38 IO and one heading failures remain unclassified against
+the retained checkpoint. Their resolution remains pending; no fixture or runtime
+interaction correction is included in this cohort.
+
+A bounded scope decision is needed before correcting retained fixture lifecycle
+or interaction failures. The proposed fixture correction is to complete initial
+Org observation before stable-view snapshots or stable-context commands in the
+existing agenda/editing/table/IO fixture entrypoints, while keeping explicit
+in-flight/cancellation scenarios, assertions, inputs, deadlines and all frozen
+checks intact. This proposal has not been applied or validated.
+
 Canonical PR preparation and exact clean-HEAD validation require all original
 frozen checks to pass. The controller owns merge, full delivery-set validation
 and successor startup.

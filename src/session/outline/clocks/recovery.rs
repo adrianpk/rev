@@ -24,7 +24,7 @@ enum Stage {
 impl Session {
     pub(in crate::session::outline) fn resolve_clocks(
         &mut self,
-        model: Arc<Outline>,
+        model: &Outline,
         request: Request,
     ) -> Result<(), String> {
         if self.active_clock.is_some() && self.clock_current().is_ok() {
@@ -33,7 +33,7 @@ impl Session {
                     .into(),
             );
         }
-        let (records, stored) = self.clock_recovery_records(&model, &request)?;
+        let (records, stored) = self.clock_recovery_records(model, &request)?;
         let operation = self.org_clock.unwrap_or(super::super::timestamps::capture)(
             &self.buffers.snapshot().settings().org.time,
         )?;

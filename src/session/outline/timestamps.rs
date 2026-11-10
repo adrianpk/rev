@@ -9,7 +9,6 @@ use crate::org::Outline;
 use crate::org::time::{Date, TimestampRange, ZoneEnvironment, ZoneSelection, ZonedOperation};
 use crate::org::timestamp::Target;
 use crate::session::{Action, Pending, Session};
-use std::sync::Arc;
 use std::time::SystemTime;
 
 pub(in crate::session) type Clock = fn(&crate::config::Time) -> Result<ZonedOperation, String>;
@@ -39,10 +38,10 @@ impl Session {
     }
     pub(super) fn start_timestamp(
         &mut self,
-        model: Arc<Outline>,
+        model: &Outline,
         request: Request,
     ) -> Result<(), String> {
-        let target = self.timestamp_target(&model, &request)?;
+        let target = self.timestamp_target(model, &request)?;
         let policy = &self.buffers.snapshot().settings().org.time;
         let operation = self.org_clock.unwrap_or(capture)(policy)?;
         let mut original = target.template(
@@ -180,7 +179,7 @@ impl Session {
         mut validation: resolution::Validation,
     ) -> Result<Action, String> {
         match validation.advance(prompt.operation.zone()) {
-            Ok(true) => self.publish_timestamp(prompt),
+            Ok(true) => self.publish_timestamp(&prompt),
             Ok(false) => {
                 let feedback = validation.choices();
                 prompt.stage = Stage::Offset(validation);
@@ -192,7 +191,7 @@ impl Session {
             }
         }
     }
-    fn publish_timestamp(&mut self, prompt: Prompt) -> Result<Action, String> {
+    fn publish_timestamp(&mut self, prompt: &Prompt) -> Result<Action, String> {
         let buffer = self.buffer().map_err(|e| e.to_string())?;
         let Some(edit) = prompt.target.replacement(buffer, &prompt.value)? else {
             return Ok(self.message("Org timestamp unchanged"));
@@ -226,7 +225,7 @@ impl Session {
             .map_err(|e| e.to_string())?;
         self.windows.selected_mut().reset_navigation();
         self.calendar_date = Some(prompt.value.start.date());
-        self.remember_timestamp(&prompt);
+        self.remember_timestamp(prompt);
         Ok(self.message("Org timestamp changed"))
     }
     pub(in crate::session) fn refresh_timestamp(&mut self) -> Option<Action> {

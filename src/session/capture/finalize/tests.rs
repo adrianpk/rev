@@ -70,7 +70,7 @@ fn publish(session: &mut Session) {
         .unwrap();
     let insertion = work.run(&Cancellation::default()).unwrap();
     let applied = session
-        .publish_capture_with(insertion, origin.view, &mut Uncertain)
+        .publish_capture_with(&insertion, origin.view, &mut Uncertain)
         .unwrap();
     assert_eq!(applied.outcome.publication(), Publication::Uncertain);
     session.capture_publication(
@@ -81,7 +81,7 @@ fn publish(session: &mut Session) {
             target,
             work: None,
         },
-        applied,
+        &applied,
     );
 }
 // Real rename and ordinary canonical publication occur before the injected

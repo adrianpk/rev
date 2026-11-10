@@ -96,7 +96,7 @@ impl Session {
             return;
         };
         if let Ok(Output::Exported(outcome)) = result {
-            self.table_export_result(outcome);
+            self.table_export_result(&outcome);
             return;
         }
         if !self.org_source_current(&request)
@@ -123,11 +123,11 @@ impl Session {
                 self.message("Enter dimensions; C-g cancels");
                 Ok(())
             }
-            Output::Plan(plan) => self.publish_table(plan),
+            Output::Plan(plan) => self.publish_table(&plan),
             Output::Fallback => self.table_fallback(request),
             Output::Imported(plan, source) => {
                 self.table_import_current(&source)?;
-                self.publish_table(plan)
+                self.publish_table(&plan)
             }
             Output::File(text, target) => self.table_export_review(text, target, request),
             Output::Exported(_) => unreachable!("file effects retain their actual outcome"),
@@ -147,7 +147,7 @@ impl Session {
         self.resume_document_context(model, request);
         Ok(())
     }
-    fn publish_table(&mut self, plan: Plan) -> Result<(), String> {
+    fn publish_table(&mut self, plan: &Plan) -> Result<(), String> {
         if plan.edits.is_empty() {
             if let Some(position) = plan.cursor {
                 let buffer = self.buffer().map_err(|e| e.to_string())?;

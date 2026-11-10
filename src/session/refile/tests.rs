@@ -100,7 +100,7 @@ fn refile_atomic_rejection() {
             change(&mut session, selected);
         }
         let before = [snapshot(&session, a), snapshot(&session, b)];
-        assert!(session.publish_refile(plan).is_err(), "{name}");
+        assert!(session.publish_refile(&plan).is_err(), "{name}");
         assert_eq!(
             [snapshot(&session, a), snapshot(&session, b)],
             before,
@@ -138,7 +138,7 @@ fn refile_partial_saves() {
     for (name, uncertain) in [("write rejection", false), ("completion unresolved", true)] {
         let (fixture, mut session, a, b) = editor();
         let plan = plan(&session);
-        session.publish_refile(plan).unwrap();
+        session.publish_refile(&plan).unwrap();
         let outcome = session.buffers.save(a).unwrap();
         session.saved_state(
             session.buffers.get(a).unwrap().state(),
@@ -211,7 +211,7 @@ fn refile_captured_save() {
         let save = session.buffers.prepare_save(b, None).unwrap();
         let old = save.state();
         let plan = plan(&session);
-        session.publish_refile(plan).unwrap();
+        session.publish_refile(&plan).unwrap();
         let outcome = if uncertain {
             session.buffers.publish_with(save, &mut Fault(true))
         } else {
@@ -280,7 +280,7 @@ fn archive_atomic_rejection() {
             change(&mut session, selected);
         }
         let before = [snapshot(&session, a), snapshot(&session, b)];
-        assert!(session.publish_refile(plan).is_err(), "{name}");
+        assert!(session.publish_refile(&plan).is_err(), "{name}");
         assert_eq!(
             [snapshot(&session, a), snapshot(&session, b)],
             before,
@@ -295,7 +295,7 @@ fn archive_partial_saves() {
     for (name, uncertain) in [("write rejected", false), ("completion unresolved", true)] {
         let (fixture, mut session, a, b) = editor();
         let plan = archive_plan(&session);
-        session.publish_refile(plan).unwrap();
+        session.publish_refile(&plan).unwrap();
         let archived = snapshot(&session, b).0;
         assert!(archived.contains(":ARCHIVE_FILE:"));
         let outcome = session.buffers.save(a).unwrap();

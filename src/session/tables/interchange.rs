@@ -84,13 +84,14 @@ impl Session {
     ) -> Result<(), String> {
         self.table_target_available(&target)?;
         let buffer = self.buffer().map_err(|e| e.to_string())?;
-        let save = Save::projection(buffer, text, target.clone());
-        if !target.is_present() {
+        let present = target.is_present();
+        let save = Save::projection(buffer, text, target);
+        if !present {
             return self.launch_table_file(request, Work::Publish(save));
         }
         self.input
             .argument(
-                &format!("Replace table data {}? yes/no: ", target.path().display()),
+                &format!("Replace table data {}? yes/no: ", save.target().display()),
                 "",
             )
             .map_err(|e| e.to_string())?;
@@ -162,7 +163,7 @@ impl Session {
             Err("Table import source changed; destination unchanged".into())
         }
     }
-    pub(super) fn table_export_result(&mut self, outcome: file::Outcome) {
+    pub(super) fn table_export_result(&mut self, outcome: &file::Outcome) {
         let path = outcome.target().display();
         let detail = outcome.error().map(ToString::to_string).unwrap_or_default();
         match outcome.publication() {
