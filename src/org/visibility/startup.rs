@@ -1,5 +1,6 @@
 use crate::config::StartupVisibility;
 use crate::org::{Cancellation, Structure, StructureKind};
+use std::ops::Range;
 
 use super::{Level, Outline, Visibility};
 
@@ -11,19 +12,7 @@ pub(super) fn declaration(
     text: &ropey::Rope,
     cancel: &Cancellation,
 ) -> Option<StartupVisibility> {
-    // A keyword's own value is literal text for coloring. Protect enclosing
-    // literal forms here, rather than accidentally excluding every keyword.
-    let mut protected: Vec<_> = structure
-        .raw_nodes()
-        .filter(|node| {
-            node.kind == StructureKind::Malformed
-                || matches!(node.kind, StructureKind::Block(_))
-                    && node.context == Some(crate::org::InlineContext::Literal)
-        })
-        .map(|node| node.source.clone())
-        .collect();
-    protected.extend(model.drawers.iter().map(|d| d.start..d.end));
-    super::model::merge(&mut protected);
+    let protected = protected_ranges(model, structure);
     let mut found = None;
     let mut last = 0;
     for node in structure
@@ -73,6 +62,23 @@ pub(super) fn declaration(
     found
 }
 
+// A keyword's own value is literal text for coloring. Protect enclosing
+// literal forms here, rather than accidentally excluding every keyword.
+fn protected_ranges(model: &Outline, structure: &Structure) -> Vec<Range<usize>> {
+    let mut protected: Vec<_> = structure
+        .raw_nodes()
+        .filter(|node| {
+            node.kind == StructureKind::Malformed
+                || matches!(node.kind, StructureKind::Block(_))
+                    && node.context == Some(crate::org::InlineContext::Literal)
+        })
+        .map(|node| node.source.clone())
+        .collect();
+    protected.extend(model.drawers.iter().map(|d| d.start..d.end));
+    super::model::merge(&mut protected);
+    protected
+}
+
 impl Outline {
     pub(crate) fn startup_ready(&self) -> bool {
         self.complete().is_ok() && self.malformed.is_empty()
@@ -84,7 +90,7 @@ impl Visibility {
         if !self.model.startup_ready() {
             return Err("Org startup observation is incomplete or malformed");
         }
-        let mut next = Self::new(self.model.clone());
+        let mut next = Self::new(std::sync::Arc::clone(&self.model));
         match self.model.startup.unwrap_or(configured) {
             StartupVisibility::Overview => {
                 next.levels.fill(Level::Closed);

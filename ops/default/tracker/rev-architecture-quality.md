@@ -133,10 +133,11 @@ Dependency: Slice 6 integrated
 Branch: refactor/rev-architecture-quality-07-org
 PR: pending
 Report: ops/default/report/slices/rev-architecture-quality/slice-7-org.md
-Validation: pending; frozen ordered commands in plan and controller configuration
+Progress: first cohort clears all four source findings across 431 selected files, makes shared snapshot ownership explicit and removes redundant owned clones; Clippy diagnostics decrease from 316 to 284, with 377 deferred outside this slice
+Validation: frozen quality passes compilation/formatting/source guards but retains 284 Clippy blockers; frozen native command stops at org_agenda with 70 passed and 27 failed, all reproduced on unchanged base be5daac794cfc3c5fa2a991dd4890cd3f7b95e25 (68 passed, 29 failed); documentation and diff checks pass; a separate focused run stops at org_editing with 148 passed and 87 failed, matching the unchanged base exactly; the other six targets are not reached
 
 - [ ] T7.1: Correct selected lint/source findings in native Org and its session document/agenda/capture/table/export/execution adapters, keeping parsing and publication responsibilities distinct.
-- [ ] T7.2: Extract cohesive validation, preparation and outcome handlers while preserving Org source text, navigation, folding/indentation, native consent, state ownership and document limits.
+- [x] T7.2: Extract cohesive validation, preparation and outcome handlers while preserving Org source text, navigation, folding/indentation, native consent, state ownership and document limits.
 - [ ] T7.3: Run relevant existing native Org integration cases, preserving public command names, keybindings, timestamps, agenda/capture targets, formulas and code-block behavior.
 
 ## Slice 8: Session interaction and completion owner

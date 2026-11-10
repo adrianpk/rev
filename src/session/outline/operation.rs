@@ -12,9 +12,7 @@ impl Session {
         model: &Outline,
         command: OrgCommand,
     ) -> Result<(), String> {
-        let target = self
-            .heading_target(model, command)
-            .map_err(|e| e.to_string())?;
+        let target = self.heading_target(model, command)?;
         self.place_point(target).map_err(|e| e.to_string())
     }
 

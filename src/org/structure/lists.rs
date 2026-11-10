@@ -40,7 +40,7 @@ impl Parser<'_> {
         let indent = self.rows[row].indent;
         let mut node = Raw::new(
             StructureKind::Item { indent },
-            self.range(rows.clone()),
+            self.range(rows),
             Some(frame.parent),
         );
         if let Token::Bullet { content, .. } = self.rows[row].token {

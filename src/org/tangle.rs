@@ -177,7 +177,7 @@ impl Plan {
         let mut identities = BTreeMap::new();
         for target in self.targets {
             options::check(cancel)?;
-            let prepared = Prepared::new(target, inputs.clone(), cancel)?;
+            let prepared = Prepared::new(target, std::sync::Arc::clone(&inputs), cancel)?;
             if let Some(o) = prepared.target.observation()
                 && identities
                     .insert((o.device, o.inode), prepared.target.path().to_owned())

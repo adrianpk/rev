@@ -45,6 +45,10 @@ impl Session {
         if let Some(action) = self.table_return(command) {
             return action;
         }
+        self.outline_command(command)
+    }
+
+    fn outline_command(&mut self, command: OrgCommand) -> Action {
         if self.attachment.is_some() {
             return self.message("Attachment interaction pending; C-g cancels");
         }

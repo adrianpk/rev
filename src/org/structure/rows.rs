@@ -37,6 +37,24 @@ pub(super) fn collect(
 // Closed literal blocks own their contents within context-free heading boundaries.
 // Two bounded passes avoid rescanning a suffix for every malformed opener.
 fn literal_rows(rows: &mut [Row], work: &mut Work<'_>) -> Parsed<()> {
+    literal_closings(rows, work)?;
+    let mut index = 0;
+    while index < rows.len() {
+        work.tick()?;
+        if let Some(close) = rows[index].close {
+            for row in &mut rows[index + 1..close] {
+                work.tick()?;
+                row.token = Token::Text;
+            }
+            index = close + 1;
+        } else {
+            index += 1;
+        }
+    }
+    Ok(())
+}
+
+fn literal_closings(rows: &mut [Row], work: &mut Work<'_>) -> Parsed<()> {
     use super::BlockKind;
     let mut closings = HashMap::new();
     for (index, row) in rows.iter_mut().enumerate().rev() {
@@ -52,19 +70,6 @@ fn literal_rows(rows: &mut [Row], work: &mut Work<'_>) -> Parsed<()> {
                 _,
             ) => row.close = closings.get(name).copied(),
             _ => (),
-        }
-    }
-    let mut index = 0;
-    while index < rows.len() {
-        work.tick()?;
-        if let Some(close) = rows[index].close {
-            for row in &mut rows[index + 1..close] {
-                work.tick()?;
-                row.token = Token::Text;
-            }
-            index = close + 1;
-        } else {
-            index += 1;
         }
     }
     Ok(())

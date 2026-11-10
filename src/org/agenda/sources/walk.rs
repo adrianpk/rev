@@ -41,7 +41,7 @@ impl Walk {
         let canonical = fs::canonicalize(&path).map_err(|e| (Some(path.clone()), e.to_string()))?;
         if self.seen.insert((canonical, path.clone())) {
             let read = fs::read_dir(&path).map_err(|e| (Some(path.clone()), e.to_string()))?;
-            self.directory = Some((path.clone(), read));
+            self.directory = Some((path, read));
         }
         // A directory or ignored child is a progress boundary, never end-of-walk.
         Ok(Step::Progress)

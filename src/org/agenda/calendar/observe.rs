@@ -254,7 +254,7 @@ fn add(
     facts.events.push(Event {
         source,
         byte: header.byte,
-        title: header.title.clone(),
+        title: Arc::clone(&header.title),
         done: header.done,
         value,
         kind,

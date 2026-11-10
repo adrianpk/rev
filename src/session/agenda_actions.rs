@@ -13,7 +13,10 @@ use crate::{
 };
 pub(in crate::session) use bulk::BulkPrompt;
 pub(in crate::session) use marks::Marks;
-use std::time::{Duration, Instant};
+use std::{
+    sync::Arc,
+    time::{Duration, Instant},
+};
 #[derive(Clone, Copy, PartialEq, Eq)]
 enum Phase {
     Resolve,
@@ -88,7 +91,7 @@ impl Session {
             return Ok(ActionTarget {
                 source: s.result.sources[row.source].clone(),
                 byte: row.byte,
-                title: row.title.clone(),
+                title: Arc::clone(&row.title),
             });
         }
         let s = self
@@ -102,7 +105,7 @@ impl Session {
         Ok(ActionTarget {
             source: s.calendar.sources[row.source].clone(),
             byte: row.byte,
-            title: row.title.clone(),
+            title: Arc::clone(&row.title),
         })
     }
     fn begin_agenda_action(&mut self, command: C) -> Action {

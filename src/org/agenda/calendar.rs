@@ -198,10 +198,10 @@ impl Calendar {
                 + std::time::Duration::from_secs(policy.limits.job_seconds as u64),
         );
         let facts = Arc::new(observe::sources(sources, policy, &bounded));
-        Ok(project::calendar(facts, query, &bounded))
+        Ok(project::calendar(&facts, query, &bounded))
     }
     pub fn project(&self, query: CalendarQuery, cancel: &Cancellation) -> Self {
-        project::calendar(self.facts.clone(), query, cancel)
+        project::calendar(&self.facts, query, cancel)
     }
     pub fn complete(&self) -> bool {
         !self.truncated && !self.cancelled && self.issues.is_empty()
@@ -257,13 +257,13 @@ pub(crate) struct CalendarProjection {
 }
 impl CalendarProjection {
     pub(crate) fn run(self, cancel: &Cancellation) -> Calendar {
-        project::calendar(self.facts, self.query, cancel)
+        project::calendar(&self.facts, self.query, cancel)
     }
 }
 impl Calendar {
     pub(crate) fn projection(&self, query: CalendarQuery) -> CalendarProjection {
         CalendarProjection {
-            facts: self.facts.clone(),
+            facts: Arc::clone(&self.facts),
             query,
         }
     }

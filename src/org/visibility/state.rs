@@ -14,21 +14,25 @@ impl Visibility {
             OrgCommand::ShowAll => self.global(0),
             OrgCommand::HideAllDrawers
             | OrgCommand::ShowAllDrawers
-            | OrgCommand::ToggleAllDrawers => {
-                if !self.model.malformed.is_empty() {
-                    return Err("Org drawer observation is malformed");
-                }
-                let hide = match command {
-                    OrgCommand::HideAllDrawers => true,
-                    OrgCommand::ShowAllDrawers => false,
-                    _ => self.drawers.iter().any(|hidden| !hidden),
-                };
-                self.drawers.fill(hide);
-            }
+            | OrgCommand::ToggleAllDrawers => return self.all_drawers(command),
             _ => return self.local(command, byte),
         }
         Ok(())
     }
+
+    fn all_drawers(&mut self, command: OrgCommand) -> Result<(), &'static str> {
+        if !self.model.malformed.is_empty() {
+            return Err("Org drawer observation is malformed");
+        }
+        let hide = match command {
+            OrgCommand::HideAllDrawers => true,
+            OrgCommand::ShowAllDrawers => false,
+            _ => self.drawers.iter().any(|hidden| !hidden),
+        };
+        self.drawers.fill(hide);
+        Ok(())
+    }
+
     fn global(&mut self, mode: u8) {
         self.global = mode;
         let level = [Level::Full, Level::Closed, Level::Children][usize::from(mode)];

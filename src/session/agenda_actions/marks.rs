@@ -89,7 +89,7 @@ impl Session {
                 s.result.rows.iter().map(|r| ActionTarget {
                     source: s.result.sources[r.source].clone(),
                     byte: r.byte,
-                    title: r.title.clone(),
+                    title: Arc::clone(&r.title),
                 })
             });
         let calendar = self
@@ -101,7 +101,7 @@ impl Session {
                 s.calendar.rows.iter().map(|r| ActionTarget {
                     source: s.calendar.sources[r.source].clone(),
                     byte: r.byte,
-                    title: r.title.clone(),
+                    title: Arc::clone(&r.title),
                 })
             });
         query.chain(calendar)

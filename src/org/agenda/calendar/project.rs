@@ -1,7 +1,11 @@
 use super::*;
 use crate::org::time::{CivilDateTime, CivilTime, Resolution, TimestampRange};
 use std::time::{Duration, Instant};
-pub(super) fn calendar(facts: Arc<Facts>, query: CalendarQuery, cancel: &Cancellation) -> Calendar {
+pub(super) fn calendar(
+    facts: &Arc<Facts>,
+    query: CalendarQuery,
+    cancel: &Cancellation,
+) -> Calendar {
     let bounded = cancel.bounded(Instant::now() + Duration::from_secs(facts.seconds as u64));
     let mut view = Calendar {
         query,
@@ -11,7 +15,7 @@ pub(super) fn calendar(facts: Arc<Facts>, query: CalendarQuery, cancel: &Cancell
         issues: facts.issues.clone(),
         truncated: facts.truncated,
         cancelled: false,
-        facts: facts.clone(),
+        facts: Arc::clone(facts),
     };
     for event in &facts.events {
         if bounded.is_cancelled() {
@@ -205,7 +209,7 @@ fn push(
         time: times.start,
         end_time: times.end,
         kind,
-        title: event.title.clone(),
+        title: Arc::clone(&event.title),
         source: event.source,
         byte: event.byte,
         unresolved,
