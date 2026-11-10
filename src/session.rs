@@ -135,15 +135,7 @@ pub struct Session {
     lsp: crate::lsp::Client,
     installation: crate::lsp::install::Manager,
     installation_notice: String,
-    completion: Option<Completion>,
-    completion_generation: u64,
-    completion_request: Option<u64>,
-    completion_state: Option<crate::input::EditingState>,
-    completion_source: Option<CompletionSource>,
-    completion_work: crate::completion::job::Work,
-    completion_resolve: Option<completion::resolve::Resolving>,
-    completion_recent: Vec<BufferId>,
-    completion_policy: crate::config::Completion,
+    completion: completion::State,
     bookmark_visit: Option<bookmarks::Navigation>,
     bookmark_storage: bookmarks::Persistence,
     bookmark_list: Option<bookmarks::List>,
@@ -483,15 +475,7 @@ impl Session {
             lsp,
             installation: Default::default(),
             installation_notice: String::new(),
-            completion_policy,
-            completion: None,
-            completion_generation: 0,
-            completion_request: None,
-            completion_state: None,
-            completion_source: None,
-            completion_work: crate::completion::job::Work::default(),
-            completion_resolve: None,
-            completion_recent: Vec::new(),
+            completion: completion::State::new(completion_policy),
             bookmark_visit: None,
             bookmark_storage,
             bookmark_list: None,
@@ -693,7 +677,7 @@ impl Session {
         self.expire_terminals();
         self.invalidate_completion();
         for (_, view) in self.windows.iter() {
-            if self.completion_work.owns(view.point.stamp.buffer)
+            if self.completion.owns_source(view.point.stamp.buffer)
                 && self
                     .buffers
                     .get(view.point.stamp.buffer)?

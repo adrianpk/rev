@@ -23,27 +23,31 @@ impl Resolving {
 }
 impl Session {
     pub(in crate::session) fn completion_remaining(&self, now: Instant) -> Option<Duration> {
-        self.completion_work
+        self.completion
+            .worker
             .remaining(now)
             .into_iter()
             .chain(
-                self.completion_resolve
+                self.completion
+                    .resolving
                     .as_ref()
                     .map(|resolve| resolve.poll_at.saturating_duration_since(now)),
             )
             .min()
     }
     pub(super) fn resolution_current(&self) -> bool {
-        self.completion_resolve
+        self.completion
+            .resolving
             .as_ref()
             .is_some_and(|resolve| self.check_completion_target(&resolve.completion).is_ok())
     }
     pub(super) fn poll_resolution(&mut self, now: Instant) -> Option<Action> {
-        let pending = self.completion_resolve.as_mut()?;
+        let pending = self.completion.resolving.as_mut()?;
         pending.poll_at = now + Duration::from_millis(10);
         let mut reply = pending.ticket.poll()?;
         let mut pending = self
-            .completion_resolve
+            .completion
+            .resolving
             .take()
             .expect("completed selected resolve");
         if let Err(error) = self.check_completion_target(&pending.completion) {
@@ -71,7 +75,7 @@ impl Session {
         let result = self.capture_completion().map(|mut request| {
             request.native_only = true;
             request.fallback_reason = reason;
-            self.completion_work.queue(request);
+            self.completion.worker.queue(request);
         });
         match result {
             Ok(()) => self.message("Completion resolve failed; using native fallback"),

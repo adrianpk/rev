@@ -151,8 +151,9 @@ Branch: refactor/rev-architecture-quality-08-interaction
 PR: pending
 Report: ops/default/report/slices/rev-architecture-quality/slice-8-interaction.md
 Validation: pending; frozen ordered commands in plan and controller configuration
+Progress: F6 completion owner implemented; 44 completion integration cases and 12 completion unit cases pass. Scoped quality still reports 172 Clippy diagnostic instances and 123 source findings. The frozen native command fails in commands with 188 passed and 16 failed; remaining suites and canonical PR preparation are pending.
 
-- [ ] T8.1: Resolve F6 with a cohesive completion concern owner and explicit admission/retirement transitions; keep public completion observations and native editing/context semantics intact.
+- [x] T8.1: Resolve F6 with a cohesive completion concern owner and explicit admission/retirement transitions; keep public completion observations and native editing/context semantics intact.
 - [ ] T8.2: Correct remaining command/input/macro/session selected diagnostics and source bounds, including retained macro body identity without raw-pointer-type casts or identity-spelling workarounds.
 - [ ] T8.3: Verify both interaction profiles, prefix arguments, semantic macro replay/history, stale completion, transient ownership and source/view/context switches using native regression suites.
 

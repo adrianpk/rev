@@ -1,5 +1,7 @@
 pub(super) mod resolve;
 mod sources;
+mod state;
+pub(super) use state::State;
 
 use crate::buffer::edit::Cursor;
 use crate::command::{Command, CompletionCommand as C};
@@ -12,7 +14,7 @@ use super::{Action, Session};
 impl Session {
     /// Current source-bound candidates. Observation never edits or reparses text.
     pub fn completion(&self) -> Option<&Completion> {
-        self.completion.as_ref().filter(|completion| {
+        self.completion.popup.as_ref().filter(|completion| {
             if !self.completion_state_current() {
                 return false;
             }
@@ -27,34 +29,28 @@ impl Session {
 
     /// Last admitted source outcome for the current invocation, including empty fallback.
     pub fn completion_source(&self) -> Option<crate::completion::CompletionSource> {
-        self.completion_source
+        self.completion.source
     }
 
     pub(super) fn dismiss_completion(&mut self) {
-        if let Some(resolve) = self.completion_resolve.take() {
-            resolve.cancel();
-        }
-        self.completion_source = None;
-        self.completion = None;
-        self.completion_request = None;
-        self.completion_state = None;
-        self.completion_work.cancel();
+        self.completion.dismiss();
         self.input.set_completion(false);
     }
 
     pub(super) fn invalidate_completion(&mut self) {
-        if self.completion_request.is_some() && !self.completion_state_current() {
+        if self.completion.has_request() && !self.completion_state_current() {
             self.dismiss_completion();
             return;
         }
-        if self.completion.is_some() && self.completion().is_none() {
+        if self.completion.popup.is_some() && self.completion().is_none() {
             self.dismiss_completion();
         }
-        if self.completion_request.is_some()
-            && self.completion.is_none()
+        if self.completion.has_request()
+            && self.completion.popup.is_none()
             && !self.resolution_current()
             && !self
-                .completion_work
+                .completion
+                .worker
                 .current(self.windows.selected_id(), self.view().point)
         {
             self.dismiss_completion();
@@ -109,7 +105,7 @@ impl Session {
         let now = std::time::Instant::now();
         let result = self.capture_completion().map(|mut request| {
             request.due = now;
-            self.completion_work.queue(request);
+            self.completion.worker.queue(request);
         });
         match result {
             Ok(()) => self.expire_completion(now),
@@ -122,18 +118,13 @@ impl Session {
 
     fn capture_completion(&mut self) -> Result<Request, String> {
         self.activate_lsp();
-        if !self.completion_policy.enabled {
+        if !self.completion.policy.enabled {
             return Err("Completion is disabled".into());
         }
         if !self.completion_focus() {
             return Err("Completion requires source editing focus".into());
         }
-        self.completion_generation = self
-            .completion_generation
-            .checked_add(1)
-            .ok_or("Completion identity exhausted")?;
-        self.completion_request = Some(self.completion_generation);
-        self.completion_state = self.editing_state();
+        let generation = self.completion.admit(self.editing_state())?;
         let point = self.view().point;
         let view = self.windows.selected_id();
         let semantic = self.lsp.completion_possible(point.stamp.buffer);
@@ -145,18 +136,18 @@ impl Session {
             return Err("buffer is read-only".into());
         }
         completion_available(buffer, semantic)?;
-        let mut request = Request::capture(buffer, view, self.completion_generation, point)?;
-        request.policy = self.completion_policy.clone();
+        let mut request = Request::capture(buffer, view, generation, point)?;
+        request.policy = self.completion.policy.clone();
         Ok(request)
     }
 
     pub(super) fn expire_completion(&mut self, now: std::time::Instant) -> Action {
         self.invalidate_completion();
         let mut action = self.poll_resolution(now).unwrap_or(Action::Wait);
-        if let Some(result) = self.completion_work.poll(now) {
+        if let Some(result) = self.completion.worker.poll(now) {
             action = self.receive_completion(result);
         }
-        if self.completion_work.ready(now)
+        if self.completion.worker.ready(now)
             && let Err(error) = self.launch_completion(now)
         {
             self.dismiss_completion();
@@ -167,7 +158,8 @@ impl Session {
 
     fn launch_completion(&mut self, now: std::time::Instant) -> Result<(), String> {
         let id = self
-            .completion_work
+            .completion
+            .worker
             .pending
             .as_ref()
             .ok_or("No completion pending")?
@@ -179,7 +171,8 @@ impl Session {
             Ok(sources) => sources,
             Err(_)
                 if self
-                    .completion_work
+                    .completion
+                    .worker
                     .pending
                     .as_ref()
                     .is_some_and(|r| r.semantic.is_some()) =>
@@ -192,14 +185,14 @@ impl Session {
             .iter()
             .map(|source| source.observation.stamp.buffer)
             .collect();
-        if let Some(request) = self.completion_work.pending.as_mut() {
+        if let Some(request) = self.completion.worker.pending.as_mut() {
             request.limited = limited;
             request.observations = sources
                 .iter()
                 .map(|source| source.observation.clone())
                 .collect();
         }
-        if let Err(error) = self.completion_work.start(sources, now) {
+        if let Err(error) = self.completion.worker.start(sources, now) {
             self.abandon_completion_sources(ids);
             return Err(error);
         }
@@ -210,7 +203,8 @@ impl Session {
         self.activate_lsp();
         let buffer = self.buffers.get(id).map_err(|e| e.to_string())?;
         let request = self
-            .completion_work
+            .completion
+            .worker
             .pending
             .as_mut()
             .ok_or("No completion pending")?;
@@ -237,10 +231,13 @@ impl Session {
             Err(error) => return self.failed_completion(request, &error),
         };
         self.restore_completion_sources(output.sources);
-        if self.completion_request != Some(output.request.generation) {
+        if !self
+            .completion
+            .matches_generation(output.request.generation)
+        {
             return Action::Redraw;
         }
-        self.completion_source = output.result.as_ref().ok().map(Completion::source);
+        self.completion.source = output.result.as_ref().ok().map(Completion::source);
         let manual = output.request.manual;
         let limited = output.request.limited;
         let result = output
@@ -261,7 +258,7 @@ impl Session {
             }
             Ok(true) => self.message(""),
             Ok(false) => {
-                self.completion_request = None;
+                self.completion.retire_request();
                 if manual {
                     self.message(if limited {
                         "Native completion observation limit reached"
@@ -273,7 +270,7 @@ impl Session {
                 }
             }
             Err(error) => {
-                self.completion_request = None;
+                self.completion.retire_request();
                 if manual {
                     self.error(&error)
                 } else {
@@ -291,7 +288,7 @@ impl Session {
                 .map(|source| source.stamp.buffer)
                 .collect(),
         );
-        if self.completion_request == Some(request.generation) {
+        if self.completion.matches_generation(request.generation) {
             self.dismiss_completion();
         }
         self.error(error)
@@ -302,7 +299,7 @@ impl Session {
         if completion.candidates().is_empty() {
             return Ok(false);
         }
-        self.completion = Some(completion);
+        self.completion.popup = Some(completion);
         self.input.set_completion(true);
         Ok(true)
     }
@@ -321,13 +318,13 @@ impl Session {
             return Err("buffer is read-only".into());
         }
         if !self.completion_state_current()
-            || self.completion_request != Some(completion.generation)
+            || !self.completion.matches_generation(completion.generation)
             || !completion.current(buffer, self.windows.selected_id(), self.view().point)
             || !completion.sources_current(&self.buffers)
         {
             return Err("Stale completion target".into());
         }
-        if !self.completion_focus() || !self.completion_policy.enabled {
+        if !self.completion_focus() || !self.completion.policy.enabled {
             return Err("Completion requires source editing focus".into());
         }
         Ok(())
@@ -335,7 +332,7 @@ impl Session {
 
     fn navigate_completion(&mut self, previous: bool) -> Action {
         self.invalidate_completion();
-        let Some(completion) = &mut self.completion else {
+        let Some(completion) = &mut self.completion.popup else {
             return self.message("No active completion");
         };
         completion.navigate(previous);
@@ -343,17 +340,17 @@ impl Session {
     }
 
     fn publish_completion(&mut self) -> Result<bool, String> {
-        if self.completion_resolve.is_some() {
+        if self.completion.resolving.is_some() {
             return Ok(false);
         }
-        let completion = self.completion.take().ok_or("No active completion")?;
+        let completion = self.completion.popup.take().ok_or("No active completion")?;
         self.check_completion(&completion)?;
         if let Some(proposal) = completion.proposal() {
             let ticket = self
                 .lsp
                 .resolve(proposal)
                 .ok_or("Completion connection is obsolete")?;
-            self.completion_resolve = Some(resolve::Resolving::new(completion, ticket));
+            self.completion.resolving = Some(resolve::Resolving::new(completion, ticket));
             return Ok(false);
         }
         self.finish_completion(completion).map(|_| true)
@@ -362,7 +359,7 @@ impl Session {
     fn finish_completion(&mut self, completion: Completion) -> Result<(), String> {
         self.input.set_completion(false);
         let edit = self.completion_edit(&completion);
-        self.completion_request = None;
+        self.completion.retire_request();
         self.apply_completion(edit?).map_err(|e| e.to_string())
     }
 
@@ -419,9 +416,9 @@ impl Session {
     fn toggle_completion(&mut self, automatic: bool) -> Action {
         self.dismiss_completion();
         let value = if automatic {
-            &mut self.completion_policy.automatic
+            &mut self.completion.policy.automatic
         } else {
-            &mut self.completion_policy.enabled
+            &mut self.completion.policy.enabled
         };
         *value = !*value;
         let name = if automatic {
@@ -434,7 +431,7 @@ impl Session {
     }
 
     fn completion_state_current(&self) -> bool {
-        self.completion_state == self.editing_state()
+        self.completion.editing_current(self.editing_state())
     }
 
     fn automatic_completion_state(&self) -> bool {
@@ -490,24 +487,24 @@ impl Session {
 
     pub(super) fn schedule_completion(&mut self, now: std::time::Instant) {
         if !self.automatic_completion_state()
-            || !self.completion_policy.enabled
-            || !self.completion_policy.automatic
+            || !self.completion.policy.enabled
+            || !self.completion.policy.automatic
         {
             return;
         }
         self.dismiss_completion();
         let Ok(mut request) = self.capture_completion() else {
-            self.completion_request = None;
+            self.completion.retire_request();
             return;
         };
         if !self.automatic_completion(&request) {
-            self.completion_request = None;
+            self.completion.retire_request();
             return;
         }
         request.manual = false;
         request.due =
-            now + std::time::Duration::from_millis(self.completion_policy.delay_ms as u64);
-        self.completion_work.queue(request);
+            now + std::time::Duration::from_millis(self.completion.policy.delay_ms as u64);
+        self.completion.worker.queue(request);
     }
 }
 

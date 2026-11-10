@@ -81,10 +81,7 @@ impl Session {
         ids.sort_by_key(|id| {
             (
                 *id != current,
-                self.completion_recent
-                    .iter()
-                    .position(|recent| recent == id)
-                    .unwrap_or(MAX_BUFFERS),
+                self.completion.recency(*id),
                 std::cmp::Reverse(*id),
             )
         });
@@ -92,10 +89,7 @@ impl Session {
     }
 
     pub(in crate::session) fn touch_completion_source(&mut self, id: BufferId) {
-        self.completion_recent
-            .retain(|prior| *prior != id && self.buffers.get(*prior).is_ok());
-        self.completion_recent.insert(0, id);
-        self.completion_recent.truncate(MAX_BUFFERS);
+        self.completion.touch(id, &self.buffers);
     }
 
     pub(super) fn restore_completion_sources(&mut self, sources: Vec<Source>) {

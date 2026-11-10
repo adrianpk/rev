@@ -72,7 +72,7 @@ impl Session {
             && !self.input.navigation_pending()
             && !self.layout_held()
             && self.bookmark_visit.is_none()
-            && self.completion_request.is_none()
+            && !self.completion.has_request()
             && self.pending.is_none()
     }
 }

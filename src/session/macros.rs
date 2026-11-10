@@ -80,7 +80,7 @@ impl Session {
             && !self.git_visible()
             && !self.bookmark_list_active()
             && self.pending.is_none()
-            && self.completion.is_none()
+            && !self.completion.has_popup()
     }
 
     pub(super) fn stop_macro(&mut self, reason: StopReason, message: &str) -> Action {

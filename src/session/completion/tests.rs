@@ -28,7 +28,7 @@ fn completion_colors() {
                 crossterm::event::KeyModifiers::NONE,
             ),
         ));
-        assert!(session.completion_work.pending.is_some());
+        assert!(session.completion.worker.pending.is_some());
         if paint {
             let pending = session.frame().unwrap();
             assert_eq!(session.buffer().unwrap().mode(), "Rust", "debounce colors");
@@ -36,10 +36,11 @@ fn completion_colors() {
         }
         let request = session.capture_completion().unwrap();
         let id = request.point.stamp.buffer;
-        session.completion_work.queue(request);
+        session.completion.worker.queue(request);
         let (sources, _) = session.completion_sources(id).unwrap();
         session
-            .completion_work
+            .completion
+            .worker
             .start(sources, std::time::Instant::now())
             .unwrap();
         let working = session.frame().unwrap();
@@ -130,19 +131,19 @@ fn worker_replacement() {
     let request = session.capture_completion().unwrap();
     let old = request.generation;
     let id = request.point.stamp.buffer;
-    session.completion_work.queue(request);
+    session.completion.worker.queue(request);
     session.expire_completion(std::time::Instant::now() + std::time::Duration::from_millis(1));
-    assert!(session.completion_work.owns(id));
+    assert!(session.completion.worker.owns(id));
     // Queue before polling: begin_completion may eagerly reap an already
     // finished worker, so its pending-slot lifetime is not a timing guarantee.
     let newest = session.capture_completion().unwrap();
-    session.completion_work.queue(newest);
-    assert!(session.completion_work.pending.is_some());
+    session.completion.worker.queue(newest);
+    assert!(session.completion.worker.pending.is_some());
     settle(&mut session);
     assert!(session.completion().unwrap().generation > old);
     session.execute(Command::Completion(C::Cancel));
     settle(&mut session);
-    assert!(!session.completion_work.owns(id));
+    assert!(!session.completion.worker.owns(id));
     assert!(session.remaining_input(std::time::Instant::now()).is_none());
     assert!(session.buffer().unwrap().history().is_empty());
     assert_eq!(
@@ -181,7 +182,7 @@ fn settle(session: &mut Session) {
     loop {
         let now = std::time::Instant::now();
         session.expire_input(now);
-        if session.completion_work.remaining(now).is_none() {
+        if session.completion.worker.remaining(now).is_none() {
             break;
         }
         assert!(now < deadline);
@@ -343,7 +344,7 @@ fn changed_in_flight() {
     let path = fixture.write("other.rs", "fn sample_other() {}\n");
     let other = session.buffers.visit(&path).unwrap();
     session.begin_completion();
-    assert!(session.completion_work.owns(other));
+    assert!(session.completion.worker.owns(other));
     change_observation(&mut session, other, "edit");
     settle(&mut session);
     assert!(session.completion().is_none());
@@ -439,7 +440,7 @@ fn modal_state_result() {
         .set_editing_state(crate::input::EditingState::Normal);
     assert!(session.install_completion(proposal).is_err());
     session.invalidate_completion();
-    assert!(session.completion_request.is_none());
+    assert!(!session.completion.has_request());
     assert_eq!(session.view().point, point);
     assert!(session.buffer().unwrap().history().is_empty());
 }
