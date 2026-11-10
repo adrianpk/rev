@@ -422,7 +422,7 @@ impl Session {
                 .find_map(|pause| pause.runner.as_ref())
         });
         let limits = ancestor
-            .map(|run| run.limits.clone())
+            .map(|run| Arc::clone(&run.limits))
             .unwrap_or_else(|| Arc::new(crate::macros::Limits::new()));
         if !limits.iteration() {
             return self.stop_macro(
@@ -431,11 +431,11 @@ impl Session {
             );
         }
         limits.resume();
-        let budget = limits.text.clone();
-        let outer_group = ancestor.map(|run| run.group.clone());
+        let budget = Arc::clone(&limits.text);
+        let outer_group = ancestor.map(|run| Arc::clone(&run.group));
         let group = outer_group
             .clone()
-            .unwrap_or_else(|| crate::buffer::edit::AutomaticGroup::new(budget.clone()));
+            .unwrap_or_else(|| crate::buffer::edit::AutomaticGroup::new(Arc::clone(&budget)));
         self.input.macro_editing = false;
         self.macros.stop = None;
         let mut counter = definition.counter.clone();
@@ -448,7 +448,7 @@ impl Session {
             counter,
             append: false,
             definition,
-            iterations: (count > 0).then_some(count as usize),
+            iterations: usize::try_from(count).ok().filter(|count| *count > 0),
             iteration: 0,
             step: 0,
             limits,

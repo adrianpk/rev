@@ -391,7 +391,7 @@ fn readonly_resolved() {
         .unwrap()
         .set_readonly(true);
     assert_eq!(
-        session.finish_completion(completion).unwrap_err(),
+        session.finish_completion(&completion).unwrap_err(),
         "buffer is read-only"
     );
     let buffer = session.buffer().unwrap();

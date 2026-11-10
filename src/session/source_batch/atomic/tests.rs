@@ -205,7 +205,7 @@ fn observe_complete_batch() {
     let seen = Arc::new(Mutex::new(Vec::new()));
     buffers.get_mut(a).unwrap().observe(Some(Arc::new(Probe {
         other,
-        seen: seen.clone(),
+        seen: Arc::clone(&seen),
     })));
     let batch = prepare(&mut buffers, &windows, [a, b]);
     assert!(seen.lock().unwrap().is_empty());

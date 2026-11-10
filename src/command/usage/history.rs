@@ -25,7 +25,7 @@ struct Memory {
 }
 
 impl Memory {
-    fn error(&mut self, error: impl ToString) {
+    fn error(&mut self, error: &impl ToString) {
         let message = error.to_string();
         if self.last_error.as_ref() != Some(&message) {
             self.notice = Some(message.clone());
@@ -77,7 +77,7 @@ impl History {
                 .memory
                 .lock()
                 .expect("command usage owner")
-                .error(error),
+                .error(&error),
         }
         history
     }
@@ -100,7 +100,7 @@ impl History {
         }
         let Some(next) = memory.next.checked_add(1) else {
             memory.enabled = false;
-            memory.error(Error::Unavailable(
+            memory.error(&Error::Unavailable(
                 "event identity exhausted; persistence suspended",
             ));
             return;
@@ -146,7 +146,7 @@ impl History {
         drop(memory);
         self.last_attempt = through;
         let mut store = self.store.take().expect("idle store");
-        let shared = self.memory.clone();
+        let shared = Arc::clone(&self.memory);
         match thread::Builder::new()
             .name("command-usage".into())
             .spawn(move || {
@@ -158,7 +158,7 @@ impl History {
             Err(_) => {
                 let mut memory = self.memory.lock().expect("command usage owner");
                 memory.enabled = false;
-                memory.error(Error::Unavailable(
+                memory.error(&Error::Unavailable(
                     "cannot start publication worker; persistence suspended",
                 ));
             }
@@ -174,7 +174,7 @@ impl History {
             Err(_) => {
                 let mut memory = self.memory.lock().expect("command usage owner");
                 memory.enabled = false;
-                memory.error(Error::Unavailable(
+                memory.error(&Error::Unavailable(
                     "publication worker failed; persistence suspended",
                 ));
             }
@@ -209,6 +209,7 @@ impl History {
         if !memory.pending.is_empty() {
             return Err(Error::Unavailable("publication remains pending").to_string());
         }
+        drop(memory);
         Ok(())
     }
 
@@ -253,7 +254,7 @@ fn complete(shared: &Mutex<Memory>, result: Result<Vec<String>, Error>, through:
             if error.suspends() {
                 memory.enabled = false;
             }
-            memory.error(error);
+            memory.error(&error);
         }
     }
 }

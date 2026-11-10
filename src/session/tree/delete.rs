@@ -36,13 +36,13 @@ impl Session {
             Ok(DeleteDecision::Recursive(deletion)) => self.delete_question(deletion),
             Ok(DeleteDecision::Ready(deletion)) => {
                 let deleted = self.buffers.delete(deletion);
-                self.deleted(deleted)
+                self.deleted(&deleted)
             }
             Err(error) => self.delete_notice(error.to_string(), Message::Error),
         }
     }
 
-    fn deleted(&mut self, deleted: Deleted) -> Action {
+    fn deleted(&mut self, deleted: &Deleted) -> Action {
         let mut notice = match deleted.error() {
             Some(error) => format!("Delete failed; may be partial: {error}; open text retained"),
             None => format!(

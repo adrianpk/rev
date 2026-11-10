@@ -172,7 +172,7 @@ impl Session {
                 && named.saved.as_ref().is_some_and(|s| s.binding.is_some()),
             prompt,
             name,
-            definition: Some(named.definition.clone()),
+            definition: Some(Arc::clone(&named.definition)),
             deletion: None,
         };
         self.macro_library_confirm(consent)
@@ -186,7 +186,7 @@ impl Session {
     }
     pub(in crate::session) fn macro_library_answer(
         &mut self,
-        consent: Consent,
+        consent: &Consent,
         accepted: bool,
     ) -> Action {
         if !accepted {
@@ -245,7 +245,7 @@ impl Session {
         named.saved = Some(Saved {
             id: record.id,
             revision: record.revision,
-            baseline: named.definition.clone(),
+            baseline: Arc::clone(&named.definition),
             description: named.description.clone(),
             binding: record
                 .binding
@@ -341,7 +341,7 @@ impl Session {
             let saved = Saved {
                 id: record.id,
                 revision: record.revision,
-                baseline: definition.clone(),
+                baseline: Arc::clone(&definition),
                 description: record.description.clone(),
                 binding: stored_binding,
                 active_binding: binding.clone(),

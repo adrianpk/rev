@@ -56,7 +56,7 @@ fn names_metadata() {
     use crate::macros::Named;
     let mut session = session();
     record(&mut session, false, "");
-    let source = session.macros.ring.front().unwrap().clone();
+    let source = Arc::clone(session.macros.ring.front().unwrap());
     for index in 0..256 {
         let name = MacroName::new(&format!("item-{index}")).unwrap();
         let definition = session.macros.snapshot(&source).unwrap();
@@ -148,7 +148,7 @@ fn names_memory() {
                 break;
             }
         }
-        let source = state.ring.front().unwrap().clone();
+        let source = Arc::clone(state.ring.front().unwrap());
         let definition = match state.snapshot(&source) {
             Ok(definition) => definition,
             Err(reason) => {
@@ -177,6 +177,71 @@ fn names_memory() {
     assert!((2..256).contains(&state.names.len()));
 }
 
+// Snapshots at the name ceiling share one charged body. Replacing those names
+// with equal text in distinct allocations reaches the ceiling with a one-entry ring.
+#[test]
+fn shared_bodies() {
+    use crate::command::MacroName;
+    use crate::macros::{NAME_LIMIT, Named, State, Step};
+    let entry = session().macro_entry();
+    let mut state = State::default();
+    let mut recorder = Recorder::new(entry);
+    recorder.stage(Step::Text("x".repeat(220_000))).unwrap();
+    recorder.accept().unwrap();
+    state.publish(recorder, 1).unwrap();
+    let source = Arc::clone(state.ring.front().unwrap());
+    for index in 0..NAME_LIMIT {
+        let definition = state.snapshot(&source).unwrap();
+        state
+            .name_snapshot(
+                MacroName::new(&format!("item-{index}")).unwrap(),
+                Named {
+                    saved: None,
+                    definition,
+                    source: (source.id, source.revision),
+                    description: None,
+                },
+            )
+            .unwrap();
+    }
+    assert_eq!(state.names.len(), NAME_LIMIT);
+    let mut refused = false;
+    for index in 0..NAME_LIMIT {
+        let mut recorder = Recorder::new(entry);
+        recorder.stage(Step::Text("x".repeat(220_000))).unwrap();
+        recorder.accept().unwrap();
+        if let Err(reason) = state.publish(recorder, 1) {
+            assert_eq!(reason, StopReason::RetainedMemory);
+            refused = true;
+            break;
+        }
+        let source = Arc::clone(state.ring.front().unwrap());
+        let definition = match state.snapshot(&source) {
+            Ok(definition) => definition,
+            Err(reason) => {
+                assert_eq!(reason, StopReason::RetainedMemory);
+                refused = true;
+                break;
+            }
+        };
+        if let Err(error) = state.name_snapshot(
+            MacroName::new(&format!("item-{index}")).unwrap(),
+            Named {
+                saved: None,
+                definition,
+                source: (source.id, source.revision),
+                description: None,
+            },
+        ) {
+            assert!(error.contains("48 MiB"));
+            refused = true;
+            break;
+        }
+    }
+    assert!(refused);
+    assert_eq!(state.names.len(), NAME_LIMIT);
+}
+
 // A removed captured command cannot be retargeted by a candidate row or ring
 // index. An admitted nested call cannot renew the outer logical-step budget.
 #[test]
@@ -186,7 +251,7 @@ fn names_admission() {
     for missing in [false, true] {
         let mut session = session();
         record(&mut session, false, "");
-        let source = session.macros.ring.front().unwrap().clone();
+        let source = Arc::clone(session.macros.ring.front().unwrap());
         let name = MacroName::new("part").unwrap();
         let definition = session.macros.snapshot(&source).unwrap();
         session
@@ -269,7 +334,7 @@ fn names_context() {
 fn ring_snapshot() {
     let mut session = session();
     record(&mut session, false, "");
-    let pinned = session.macros.ring.front().unwrap().clone();
+    let pinned = Arc::clone(session.macros.ring.front().unwrap());
     let steps = pinned.steps.len();
     session.handle(key(KeyCode::Char('u'), KeyModifiers::CONTROL));
     session.handle(key(KeyCode::Char('u'), KeyModifiers::CONTROL));
@@ -298,7 +363,7 @@ fn ring_append_limit() {
         session.handle(key(KeyCode::Char('f'), KeyModifiers::CONTROL));
     }
     session.handle(key(KeyCode::F(4), KeyModifiers::NONE));
-    let pinned = session.macros.ring.front().unwrap().clone();
+    let pinned = Arc::clone(session.macros.ring.front().unwrap());
     session.handle(key(KeyCode::Char('u'), KeyModifiers::CONTROL));
     session.handle(key(KeyCode::Char('u'), KeyModifiers::CONTROL));
     session.handle(key(KeyCode::F(3), KeyModifiers::NONE));
@@ -348,12 +413,7 @@ fn queries_budget() {
     session.handle(key(KeyCode::Char('X'), KeyModifiers::NONE));
     session.handle(key(KeyCode::F(4), KeyModifiers::NONE));
     replay(&mut session);
-    let outer = session.macros.pauses[0]
-        .runner
-        .as_ref()
-        .unwrap()
-        .limits
-        .clone();
+    let outer = Arc::clone(&session.macros.pauses[0].runner.as_ref().unwrap().limits);
     outer.steps.store(
         crate::macros::RUN_STEPS - 1,
         std::sync::atomic::Ordering::Relaxed,
@@ -560,11 +620,11 @@ fn step_edit_stale() {
     record(&mut session, false, "");
     session.execute(Command::Macro(MacroCommand::StepEdit));
     session.expire_input(Instant::now());
-    let original = session.macros.ring.front().unwrap().clone();
+    let original = Arc::clone(session.macros.ring.front().unwrap());
     let mut changed = (*original).clone();
     changed.revision += 1;
     let changed = Arc::new(changed);
-    session.macros.ring[0] = changed.clone();
+    session.macros.ring[0] = Arc::clone(&changed);
     session.handle(key(KeyCode::Char('c'), KeyModifiers::NONE));
     drain_macro(&mut session);
     assert!(Arc::ptr_eq(session.macros.ring.front().unwrap(), &changed));
@@ -578,10 +638,10 @@ fn step_edit_stale() {
 fn step_edit_budget() {
     let mut session = session();
     record(&mut session, false, "");
-    let original = session.macros.ring.front().unwrap().clone();
+    let original = Arc::clone(session.macros.ring.front().unwrap());
     session.execute(Command::Macro(MacroCommand::StepEdit));
     session.expire_input(Instant::now());
-    let limits = session.macros.runner.as_ref().unwrap().limits.clone();
+    let limits = Arc::clone(&session.macros.runner.as_ref().unwrap().limits);
     limits.steps.store(
         crate::macros::RUN_STEPS - 1,
         std::sync::atomic::Ordering::Relaxed,
@@ -604,7 +664,7 @@ fn step_edit_owner() {
     record(&mut session, false, "");
     session.execute(Command::Macro(MacroCommand::StepEdit));
     session.expire_input(Instant::now());
-    let original = session.macros.ring.front().unwrap().clone();
+    let original = Arc::clone(session.macros.ring.front().unwrap());
     let end = session.buffer().unwrap().len_chars();
     session.replace(end..end, "foreign").unwrap();
     session.handle(key(KeyCode::Char('y'), KeyModifiers::NONE));

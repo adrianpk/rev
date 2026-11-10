@@ -225,7 +225,7 @@ fn read(path: &Path) -> Result<Option<Vec<u8>>, Error> {
     if before.len() > BYTES as u64 {
         return Err(Error::Bound);
     }
-    let mut bytes = vec![0; before.len() as usize];
+    let mut bytes = vec![0; usize::try_from(before.len()).expect("bounded command history size")];
     file.read_exact(&mut bytes)
         .map_err(|_| Error::Unavailable("history changed during reading"))?;
     let mut extra = [0];

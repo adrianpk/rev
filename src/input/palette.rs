@@ -107,10 +107,12 @@ impl Palette {
     /// Candidate rows only; the query has its own reserved row. Even an empty
     /// result requests one row so the empty state has an explicit surface.
     pub fn requested_rows(&self) -> u16 {
-        self.candidates()
+        let rows = self
+            .candidates()
             .len()
             .max(1)
-            .min(self.policy.candidate_limit) as u16
+            .min(self.policy.candidate_limit);
+        u16::try_from(rows).expect("validated minibuffer row limit")
     }
 
     pub fn selected(&self) -> Option<usize> {

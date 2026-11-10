@@ -232,7 +232,7 @@ impl Session {
             return self.prepare_argument_history();
         }
         let work = Arc::new(Mutex::new(LayoutBudget::new()));
-        let scopes = self.layout_scopes(work.clone())?;
+        let scopes = self.layout_scopes(work)?;
         let work = scopes.0.first().expect("live windows own a source").work();
         let view = self.view();
         let buffer = self.buffer()?;
@@ -298,7 +298,7 @@ impl Session {
         self.layout.replaying = true;
         let mut action = Action::Wait;
         if let Some(held) = self.layout.held.take() {
-            action = self.replay_held(held);
+            action = self.replay_held(&held);
         }
         for _ in 0..super::events::INPUT_BATCH_EVENTS {
             if self.layout.held.is_some()
@@ -318,7 +318,7 @@ impl Session {
         self.layout.replaying = false;
         Some(action)
     }
-    fn replay_held(&mut self, held: Held) -> Action {
+    fn replay_held(&mut self, held: &Held) -> Action {
         let valid = held.selected == self.windows.selected_id()
             && match held.request {
                 Request::Command(_)

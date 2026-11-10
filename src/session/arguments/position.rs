@@ -20,8 +20,8 @@ impl Session {
                 } else {
                     len - distance
                 }
-                .clamp(0, len) as usize;
-                let point = Scalar(target);
+                .clamp(0, len);
+                let point = Scalar(usize::try_from(target).expect("clamped buffer position"));
                 work.candidate.point.position = if coordinates.is_boundary(point)? {
                     point
                 } else {
@@ -30,7 +30,7 @@ impl Session {
                 work.candidate.reset_navigation();
             }
             Command::GotoLine => {
-                let row = (value - 1) as usize;
+                let row = usize::try_from(value - 1).expect("positive line argument");
                 work.candidate.point.position = if row < buffer.len_lines() {
                     coordinates.from_line(LineByte { row, column: 0 })?
                 } else {
@@ -41,7 +41,7 @@ impl Session {
             Command::Scroll(Scroll::Recenter) => {
                 let rows = usize::from(self.pane_size().text_rows());
                 let offset = if value >= 0 {
-                    value as usize
+                    usize::try_from(value).expect("nonnegative recenter argument")
                 } else {
                     rows.saturating_sub(value.unsigned_abs() as usize)
                 };

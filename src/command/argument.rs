@@ -61,12 +61,9 @@ impl PrefixArgument {
         if value > Self::LIMIT as u32 {
             return None;
         }
+        let value = i32::try_from(value).expect("prefix magnitude is bounded by LIMIT");
         Some(Self(
-            ArgumentForm::Integer(if negative {
-                -(value as i32)
-            } else {
-                value as i32
-            }),
+            ArgumentForm::Integer(if negative { -value } else { value }),
             negative && value == 0,
         ))
     }

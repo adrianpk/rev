@@ -12,7 +12,7 @@ impl Session {
             .macros
             .names
             .get(&name)
-            .map(|named| named.definition.clone())
+            .map(|named| Arc::clone(&named.definition))
         else {
             return self.stop_macro(StopReason::MissingCommand, "Named macro is unavailable");
         };
@@ -29,7 +29,7 @@ impl Session {
             .bindings
             .values()
             .find_map(|target| match target {
-                Target::Snapshot(definition) if definition.id == id => Some(definition.clone()),
+                Target::Snapshot(definition) if definition.id == id => Some(Arc::clone(definition)),
                 _ => None,
             });
         let Some(definition) = definition else {

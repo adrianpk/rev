@@ -100,7 +100,7 @@ impl Session {
         if edits.is_empty() {
             return Err("Macro completion has no literal edits".into());
         }
-        self.apply_completion((edits, Scalar(absolute(point, literal.cursor)?)))
+        self.apply_completion(&(edits, Scalar(absolute(point, literal.cursor)?)))
             .map_err(|e| e.to_string())
     }
 }

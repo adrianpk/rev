@@ -228,7 +228,7 @@ impl Session {
         let (request, result) = result;
         let output = match result {
             Ok(output) => output,
-            Err(error) => return self.failed_completion(request, &error),
+            Err(error) => return self.failed_completion(&request, &error),
         };
         self.restore_completion_sources(output.sources);
         if !self
@@ -280,7 +280,7 @@ impl Session {
         }
     }
 
-    fn failed_completion(&mut self, request: Request, error: &str) -> Action {
+    fn failed_completion(&mut self, request: &Request, error: &str) -> Action {
         self.abandon_completion_sources(
             request
                 .observations
@@ -353,14 +353,14 @@ impl Session {
             self.completion.resolving = Some(resolve::Resolving::new(completion, ticket));
             return Ok(false);
         }
-        self.finish_completion(completion).map(|_| true)
+        self.finish_completion(&completion).map(|_| true)
     }
 
-    fn finish_completion(&mut self, completion: Completion) -> Result<(), String> {
+    fn finish_completion(&mut self, completion: &Completion) -> Result<(), String> {
         self.input.set_completion(false);
-        let edit = self.completion_edit(&completion);
+        let edit = self.completion_edit(completion);
         self.completion.retire_request();
-        self.apply_completion(edit?).map_err(|e| e.to_string())
+        self.apply_completion(&edit?).map_err(|e| e.to_string())
     }
 
     fn completion_edit(&self, completion: &Completion) -> Result<Edits, String> {
@@ -370,7 +370,7 @@ impl Session {
 
     pub(super) fn apply_completion(
         &mut self,
-        edit: Edits,
+        edit: &Edits,
     ) -> Result<(), crate::buffer::edit::Error> {
         let buffer = self.buffers.get_mut(edit.0[0].source.stamp.buffer)?;
         let points = self.windows.points(buffer)?;
@@ -380,7 +380,7 @@ impl Session {
         };
         let mut prepared = buffer.prepare(&edit.0, &points.values, Some(cursor))?;
         prepared.set_origin(self.windows.selected_id());
-        self.macro_capture_completion(&edit)?;
+        self.macro_capture_completion(edit)?;
         let buffer = self.buffers.get_mut(edit.0[0].source.stamp.buffer)?;
         self.windows.publish(buffer, prepared, points)?;
         self.windows.selected_mut().reset_navigation();

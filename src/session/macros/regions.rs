@@ -153,7 +153,7 @@ impl Session {
                 run.counter.iteration_start = run.counter.current;
                 run.counter.format = run.definition.initial_format.clone();
                 run.group = run.outer_group.clone().unwrap_or_else(|| {
-                    crate::buffer::edit::AutomaticGroup::new(run.budget.clone())
+                    crate::buffer::edit::AutomaticGroup::new(Arc::clone(&run.budget))
                 });
                 run.expected = expected;
                 run.waiting = waiting;

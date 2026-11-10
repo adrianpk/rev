@@ -35,21 +35,17 @@ impl Session {
         if edits.is_empty() {
             return Ok(false);
         }
-        Ok(self.publish_whitespace(&source, edits)?)
+        Ok(self.publish_whitespace(&source, &edits)?)
     }
 
-    fn publish_whitespace(
-        &mut self,
-        source: &Span,
-        edits: Vec<Replacement>,
-    ) -> Result<bool, Error> {
+    fn publish_whitespace(&mut self, source: &Span, edits: &[Replacement]) -> Result<bool, Error> {
         let buffer = self.buffers.get_mut(source.stamp.buffer)?;
         let points = self.windows.points(buffer)?;
         let cursor = Cursor {
             index: points.initiator,
-            position: endpoint(&edits, source, points.values[points.initiator].position)?,
+            position: endpoint(edits, source, points.values[points.initiator].position)?,
         };
-        let mut prepared = buffer.prepare(&edits, &points.values, Some(cursor))?;
+        let mut prepared = buffer.prepare(edits, &points.values, Some(cursor))?;
         prepared.set_origin(self.windows.selected_id());
         self.windows.publish(buffer, prepared, points)?;
         self.windows.selected_mut().reset_navigation();

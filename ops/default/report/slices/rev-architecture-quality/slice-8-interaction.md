@@ -35,14 +35,36 @@ Macro playback still tests popup presence at its original admission boundary;
 one-normal transitions still test admitted request presence. Existing in-module
 completion cases use the new owner without changing their assertions, inputs or
 deadlines. No generic job framework, dependency, public API or resource limit has
-been introduced. The remaining selected native source and Clippy corrections are
-pending.
+been introduced.
+
+Macro retained-memory admission now borrows typed `Arc` identities for the duration
+of one check. `Arc::ptr_eq` deduplicates definition allocations, shared step bodies
+and region anchors. Stored definitions and active recording/replay state have
+separate accounting walks, with the original byte charges, reservations, traversal
+order and 48 MiB ceiling. Shared bodies count once; equal content in distinct
+allocations counts separately. The new `shared_bodies` regression exercises both
+properties through named snapshots and a one-entry ring.
+
+Command and session helpers that only inspect an input now borrow it. Shared
+ownership uses explicit `Arc::clone`; layout preparation moves its budget owner
+instead of retaining an unnecessary extra reference. Command ranking constructs
+owned promoted names directly, preserving recent/frequent ordering while removing
+an intermediate collection. Command-history and bookmark guards end after their
+last protected reads.
+
+Checked numeric conversions retain the existing name/identity, prefix, file-size,
+catalog-revision and candidate-row bounds. Position conversions follow the
+existing clamping and positive-argument admission. Macro ring rotation keeps
+Euclidean normalization, and zero/negative repeat counts retain their unbounded
+iteration representation. The remaining selected source-bound corrections are
+pending; selected Clippy admission now passes.
 
 ## Contracts Added or Changed
 
 One private completion owner replaces nine independent session fields. Public
 package signatures, completion observations, input commands and keybindings remain
-unchanged.
+unchanged. Private inspection/publication helpers borrow their immutable inputs;
+existing admission, publication and freshness checks retain authority.
 
 ## Files of Interest
 
@@ -62,7 +84,8 @@ Final clean-HEAD validation is pending. The frozen ordered commands are unchange
 - `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo run --locked --quiet -p rev --example documentation-check`
 - `git diff --check`
 
-Development checks on the completion owner:
+Initial completion-owner checks, retained from checkpoint
+`e0a2cf6becc0ef49e0bc88796a8948933105ac60`:
 
 - Frozen scoped quality: formatting and all-target compilation passed; admission
   still fails with 172 selected Clippy diagnostic instances and 123 native source
@@ -89,11 +112,29 @@ The unresolved `commands` cases are `command_sequences`,
 `terminal::suffix_phases` and `vertical::geometry::candidate_limits`.
 Their assertions, inputs, timeouts and budgets have not been changed.
 
+Current ownership and representation checks:
+
+- Frozen scoped quality: formatting and all-target compilation passed. Selected
+  Clippy admission passes with zero blocking diagnostics; 121 native source
+  findings remain. Coverage stays at 380 of 1,835 first-party Rust files.
+- Frozen native regression command: 188 passed and 16 failed in `commands`, with
+  the same failure identities as the retained completion-owner checkpoint.
+- Frozen documentation check: passed 684 commands, 299 configuration entries,
+  106 reachable pages and 743 local links and anchors.
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --lib -- --test-threads=1`: passed all 186 library unit cases, including the new `shared_bodies` case.
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --test modal --test completion --test macros --no-fail-fast -- --test-threads=1`: failed overall; completion passed 44 cases, macros passed 110, and modal passed 122 with two failures.
+- `target/debug/examples/source-check --workspace --scope src/macros/names.rs --scope src/session/macros/tests.rs --scope src/command/argument.rs`: passed all three selected source files.
+- `git diff --check`: passed.
+
+The modal failures are `contexts::colon_ranking` and `keymaps::state_hints`.
+Their assertions expect only a command name and binding; the observed rows also
+include the command description. Those assertions and fixtures remain unchanged.
+
 ## Risks and Follow-ups
 
 Preserve native input/view context, stale completion rejection, transient
 ownership, semantic macro replay/history and the retained macro body identity.
-Selected quality corrections, resolution of the command-suite failures, the
-remaining native regression suites, canonical PR preparation and exact clean-HEAD
-evidence remain pending. F6 has focused regression coverage; Slice 8 is not ready
-for integration.
+The remaining 121 source findings, resolution of the 16 command and two modal
+failures, canonical PR preparation and exact clean-HEAD evidence remain pending.
+F6 and shared macro-body accounting have focused regression coverage; Slice 8 is
+not ready for integration.

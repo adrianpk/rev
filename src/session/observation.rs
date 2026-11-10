@@ -149,7 +149,7 @@ impl Session {
                     .settings()
                     .files
                     .external_change_debounce_ms,
-                self.observation.wake.clone(),
+                Arc::clone(&self.observation.wake),
             ) {
                 Ok(watch) => self.observation.watch = Some(watch),
                 Err(error) => {
@@ -290,7 +290,7 @@ impl Session {
         self.message(&notice)
     }
 
-    pub(super) fn observed_reload(&mut self, source: Source, reload: Reload) -> Action {
+    pub(super) fn observed_reload(&mut self, source: &Source, reload: Reload) -> Action {
         let admitted = self
             .buffers
             .get(source.id)
@@ -305,7 +305,7 @@ impl Session {
             Err(error) => {
                 self.clear_reload_origin();
                 return self.observation_notice(
-                    &source,
+                    source,
                     &format!("local source changed: {error}; use revert-buffer"),
                 );
             }
@@ -321,7 +321,7 @@ impl Session {
         }
         self.clear_reload_origin();
         self.observation_notice(
-            &source,
+            source,
             if dirty {
                 "external change conflicts with unsaved text; use revert-buffer"
             } else {

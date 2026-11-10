@@ -61,6 +61,7 @@ impl Session {
             .unwrap_or(state.cursor.min(rows.len().saturating_sub(1)));
         state.rows = rows;
         state.generation = records.generation();
+        drop(records);
         state.marked.clear();
         state.top = state.top.min(state.cursor);
     }

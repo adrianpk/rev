@@ -86,7 +86,7 @@ impl Session {
             Capture::Kill
         };
         let rectangle = Arc::new(Rectangle::capture(buffer, &selection, capture)?);
-        let entry = self.kills.prepare_block(rectangle.clone());
+        let entry = self.kills.prepare_block(Arc::clone(&rectangle));
         let changed = if request.action.copies() {
             false
         } else {

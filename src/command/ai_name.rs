@@ -18,7 +18,7 @@ impl AiName {
         }
         let mut value = Self {
             bytes: [0; 67],
-            len: (name.len() + 3) as u8,
+            len: u8::try_from(name.len() + 3).expect("AI command names fit 67 bytes"),
         };
         value.bytes[..3].copy_from_slice(b"ai-");
         value.bytes[3..usize::from(value.len)].copy_from_slice(name.as_bytes());

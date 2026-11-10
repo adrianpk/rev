@@ -60,7 +60,7 @@ impl Session {
                     return Some(self.resolve_fallback(Fallback::Unavailable));
                 }
                 pending.completion.resolved(reply.items.remove(0));
-                match self.finish_completion(pending.completion) {
+                match self.finish_completion(&pending.completion) {
                     Ok(()) => self.message(""),
                     Err(error) => self.error(&error),
                 }

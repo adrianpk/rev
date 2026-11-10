@@ -30,7 +30,7 @@ impl MacroName {
         }
         let mut value = Self {
             bytes: [0; 64],
-            len: name.len() as u8,
+            len: u8::try_from(name.len()).expect("macro names fit 64 bytes"),
         };
         value.bytes[..name.len()].copy_from_slice(name.as_bytes());
         Ok(value)

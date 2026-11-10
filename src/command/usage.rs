@@ -55,16 +55,19 @@ impl Usage {
             })
             .collect();
         used.sort_by(|a, b| b.2.cmp(&a.2).then_with(|| a.0.cmp(b.0)));
-        let mut promoted: Vec<_> = used.iter().take(RECENT).map(|entry| entry.0).collect();
+        // Own promoted names before mutating the candidate slice they came from.
+        let mut promoted: Vec<String> = used
+            .iter()
+            .take(RECENT)
+            .map(|entry| entry.0.to_owned())
+            .collect();
         used.drain(..used.len().min(RECENT));
         used.sort_by(|a, b| {
             b.1.cmp(&a.1)
                 .then_with(|| b.2.cmp(&a.2))
                 .then_with(|| a.0.cmp(b.0))
         });
-        promoted.extend(used.iter().take(FREQUENT).map(|entry| entry.0));
-        // Own the names before mutating the candidate slice they came from.
-        let promoted: Vec<String> = promoted.into_iter().map(str::to_owned).collect();
+        promoted.extend(used.iter().take(FREQUENT).map(|entry| entry.0.to_owned()));
         candidates.sort_by(|a, b| {
             let position = |command: &Command| {
                 promoted

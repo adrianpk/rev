@@ -250,7 +250,7 @@ impl Session {
                     .copied()
                     .filter(|r| menu.flagged.contains(&r.0))
                     .collect();
-                self.macro_menu_apply(Consent {
+                self.macro_menu_apply(&Consent {
                     targets,
                     copy: false,
                 })
@@ -270,7 +270,7 @@ impl Session {
                     self.pending = Some(Pending::MacroMenuConsent(Box::new(consent)));
                     self.focus_message("Named and saved snapshots remain independent")
                 } else {
-                    self.macro_menu_apply(consent)
+                    self.macro_menu_apply(&consent)
                 }
             }
             MacroCommand::MenuTranspose => {
@@ -287,26 +287,26 @@ impl Session {
                 self.message("Macro row transposed")
             }
             MacroCommand::MenuKeys => {
-                let source = self
-                    .macros
-                    .ring
-                    .iter()
-                    .find(|d| d.id == target.0)
-                    .expect("current row")
-                    .clone();
+                let source = Arc::clone(
+                    self.macros
+                        .ring
+                        .iter()
+                        .find(|d| d.id == target.0)
+                        .expect("current row"),
+                );
                 self.macro_open_definition(Selection::Ring(source), false)
             }
             MacroCommand::MenuColumn => {
                 match self.macro_menu.as_ref().expect("active menu").column {
                     0 => self.macro_menu_action(MacroCommand::MenuPosition),
                     1 => {
-                        let source = self
-                            .macros
-                            .ring
-                            .iter()
-                            .find(|d| d.id == target.0)
-                            .expect("current row")
-                            .clone();
+                        let source = Arc::clone(
+                            self.macros
+                                .ring
+                                .iter()
+                                .find(|d| d.id == target.0)
+                                .expect("current row"),
+                        );
                         self.macro_name_source(source)
                     }
                     2 | 4 => self.macro_menu_action(MacroCommand::MenuCounter),
@@ -349,7 +349,7 @@ impl Session {
     }
     pub(in crate::session) fn macro_menu_argument(
         &mut self,
-        prompt: Prompt,
+        prompt: &Prompt,
         value: &str,
     ) -> Action {
         if !self.macro_menu_active() {
@@ -406,7 +406,7 @@ impl Session {
     }
     pub(in crate::session) fn macro_menu_answer(
         &mut self,
-        consent: Consent,
+        consent: &Consent,
         accepted: bool,
     ) -> Action {
         if !accepted {
@@ -417,7 +417,7 @@ impl Session {
         }
         self.macro_menu_apply(consent)
     }
-    fn macro_menu_apply(&mut self, consent: Consent) -> Action {
+    fn macro_menu_apply(&mut self, consent: &Consent) -> Action {
         if consent.targets.is_empty() {
             return self.message("No macro rows selected or flagged");
         }

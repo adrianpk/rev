@@ -37,7 +37,8 @@ impl Session {
                 (&value, &self.buffers.snapshot().settings().org.todo),
             )?
         };
-        self.publish_timer_source(plan).map_err(|e| e.to_string())?;
+        self.publish_timer_source(&plan)
+            .map_err(|e| e.to_string())?;
         self.timer = next;
         self.timer_notice = false;
         self.message("Org timer inserted");
@@ -72,7 +73,7 @@ impl Session {
             cursor: Some(cursor),
         })
     }
-    fn publish_timer_source(&mut self, plan: ListEdit) -> Result<(), Error> {
+    fn publish_timer_source(&mut self, plan: &ListEdit) -> Result<(), Error> {
         let buffer = self.buffers.get_mut(self.view().point.stamp.buffer)?;
         let points = self.windows.points(buffer)?;
         let mut prepared = buffer.prepare(

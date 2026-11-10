@@ -105,11 +105,11 @@ impl Session {
             )));
             return self.focus_message("Bindings keep the same command name");
         }
-        self.macro_publish_name(draft, name)
+        self.macro_publish_name(&draft, name)
     }
 
-    fn macro_publish_name(&mut self, draft: Draft, name: MacroName) -> Action {
-        if !self.macro_draft_current(&draft) {
+    fn macro_publish_name(&mut self, draft: &Draft, name: MacroName) -> Action {
+        if !self.macro_draft_current(draft) {
             return self.message("Macro naming source or catalog changed");
         }
         let definition = match self.macros.snapshot(&draft.source) {
@@ -154,21 +154,21 @@ impl Session {
                 )));
                 self.focus_message("Only the session source layer changes")
             }
-            Ok(false) => self.macro_publish_binding(*draft, sequence),
+            Ok(false) => self.macro_publish_binding(&draft, &sequence),
         }
     }
 
-    fn macro_publish_binding(&mut self, draft: Draft, sequence: Sequence) -> Action {
-        if !self.macro_draft_current(&draft) {
+    fn macro_publish_binding(&mut self, draft: &Draft, sequence: &Sequence) -> Action {
+        if !self.macro_draft_current(draft) {
             return self.message("Macro binding source or catalog changed");
         }
         if let Err(reason) = self.macros.admit_memory(None) {
             return self.stop_macro(reason, "Macro retained memory exceeds 48 MiB");
         }
-        if let Err(error) = self.input.macro_binding_check(&sequence) {
+        if let Err(error) = self.input.macro_binding_check(sequence) {
             return self.error(&error);
         }
-        if !self.macros.bindings.contains_key(&sequence) && self.macros.bindings.len() == NAME_LIMIT
+        if !self.macros.bindings.contains_key(sequence) && self.macros.bindings.len() == NAME_LIMIT
         {
             return self.error("Session macro bindings exceed 256 records");
         }
@@ -192,7 +192,7 @@ impl Session {
             return self.error("Macro catalog revision exhausted");
         };
         self.macros.bindings.retain(|key, previous| {
-            !crate::input::macro_bindings::overlaps(key, &sequence)
+            !crate::input::macro_bindings::overlaps(key, sequence)
                 && !matches!((previous, &target), (Target::Named(a), Target::Named(b)) if a == b)
         });
         self.macros.bindings.insert(sequence.clone(), target);
@@ -210,8 +210,8 @@ impl Session {
             return self.message("Session macro change canceled");
         }
         match consent {
-            Consent::Name(draft, name) => self.macro_publish_name(draft, name),
-            Consent::Binding(draft, sequence) => self.macro_publish_binding(draft, sequence),
+            Consent::Name(draft, name) => self.macro_publish_name(&draft, name),
+            Consent::Binding(draft, sequence) => self.macro_publish_binding(&draft, &sequence),
         }
     }
 

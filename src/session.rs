@@ -442,9 +442,9 @@ impl Session {
         let terminals = terminals::Work::new(
             &buffers.snapshot().settings().terminal,
             std::env::current_dir().map_err(|e| view::Error::WorkingDirectory(e.kind()))?,
-            observation.wake.clone(),
+            std::sync::Arc::clone(&observation.wake),
         );
-        let git = git::Work::new(buffers.snapshot(), observation.wake.clone())
+        let git = git::Work::new(buffers.snapshot(), std::sync::Arc::clone(&observation.wake))
             .map_err(|e| view::Error::WorkingDirectory(e.kind()))?;
         Ok(Self {
             context: crate::context::Context::Standalone,
@@ -607,10 +607,10 @@ impl Session {
             if sources.insert(view.point.stamp.buffer) {
                 coordinates.push(crate::coordinates::Scope::new(
                     self.buffers.get(view.point.stamp.buffer)?,
-                    work.clone(),
+                    std::sync::Arc::clone(&work),
                 ));
             }
-            fragments.push(view.layout_scope(work.clone()));
+            fragments.push(view.layout_scope(std::sync::Arc::clone(&work)));
         }
         Ok((coordinates, fragments))
     }
@@ -896,31 +896,31 @@ impl Session {
             Outcome::MacroQuery(answer) => self.macro_query_answer(answer),
             Outcome::MacroKey(sequence) if matches!(self.pending, Some(Pending::MacroStepKey)) => {
                 self.pending = None;
-                self.macro_step_key(sequence)
+                self.macro_step_key(&sequence)
             }
             Outcome::MacroKey(sequence)
                 if matches!(self.pending, Some(Pending::MacroDefinitionKey)) =>
             {
                 self.pending = None;
-                self.macro_definition_key(sequence)
+                self.macro_definition_key(&sequence)
             }
             Outcome::MacroKey(sequence) => self.macro_key_argument(sequence),
             Outcome::Selection(selection) => self.select_candidate(selection),
             Outcome::Complete => self.complete_argument(),
             Outcome::Changed => self.input_changed(),
             Outcome::Paste(text) => self.habit_paste(&text),
-            _ => self.input_feedback(outcome, now),
+            _ => self.input_feedback(&outcome, now),
         }
     }
 
-    fn input_feedback(&mut self, outcome: Outcome, now: std::time::Instant) -> Action {
-        if let Some(message) = self.blocked_input(&outcome) {
+    fn input_feedback(&mut self, outcome: &Outcome, now: std::time::Instant) -> Action {
+        if let Some(message) = self.blocked_input(outcome) {
             return self.message(message);
         }
         match outcome {
-            Outcome::Pointer(event) => self.pointer(event, now),
-            Outcome::Editing(key) => self.typing(key),
-            Outcome::Prefix(prefix) => self.prefix_notice(prefix),
+            Outcome::Pointer(event) => self.pointer(*event, now),
+            Outcome::Editing(key) => self.typing(*key),
+            Outcome::Prefix(prefix) => self.prefix_notice(*prefix),
             Outcome::Message(message) => self.notice(message),
             _ => Action::Wait,
         }

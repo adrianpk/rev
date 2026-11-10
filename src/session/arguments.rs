@@ -268,7 +268,7 @@ impl Session {
             invocation.command,
             Command::DeleteChar | Command::BackwardDeleteChar | Command::Kill(_)
         ) {
-            return self.publish_argument_range(work);
+            return self.publish_argument_range(&work);
         }
         self.command_boundary(invocation.command);
         if let Err(error) = self.stop_typing() {
@@ -282,7 +282,7 @@ impl Session {
         }
     }
 
-    fn publish_argument_range(&mut self, work: Movement) -> Action {
+    fn publish_argument_range(&mut self, work: &Movement) -> Action {
         let command = work.invocation.command;
         let point = self.view().point.position.0;
         let target = work.candidate.point.position.0;

@@ -46,10 +46,12 @@ impl Names {
         self.top
     }
     pub(crate) fn requested_rows(&self) -> u16 {
-        self.candidates()
+        let rows = self
+            .candidates()
             .len()
             .max(1)
-            .min(self.policy.candidate_limit) as u16
+            .min(self.policy.candidate_limit);
+        u16::try_from(rows).expect("validated minibuffer row limit")
     }
     fn reveal(&mut self, rows: u16) {
         if rows == 0 {

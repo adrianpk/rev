@@ -150,7 +150,7 @@ impl Session {
                 }
             }
             Ok(Completed::Read(reload)) => match self.reload.origin.clone() {
-                Some(source) => self.observed_reload(source, reload),
+                Some(source) => self.observed_reload(&source, reload),
                 None => self.reload_read(reload),
             },
             Ok(Completed::Checked(candidate)) => self.reload_publish(candidate),

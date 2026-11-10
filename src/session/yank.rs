@@ -100,7 +100,12 @@ impl Session {
         let result = if pop {
             self.rotate_argument_yank(value)
         } else {
-            self.select_argument_yank(if plain { 0 } else { (value - 1) as usize }, plain)
+            let index = if plain {
+                0
+            } else {
+                usize::try_from(value - 1).expect("positive yank index")
+            };
+            self.select_argument_yank(index, plain)
         };
         self.sync_input_context();
         match result {

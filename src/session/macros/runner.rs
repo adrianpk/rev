@@ -117,7 +117,7 @@ impl Session {
                     run.counter.iteration_start = run.counter.current;
                     run.counter.format = run.definition.initial_format.clone();
                     run.group = run.outer_group.clone().unwrap_or_else(|| {
-                        crate::buffer::edit::AutomaticGroup::new(run.budget.clone())
+                        crate::buffer::edit::AutomaticGroup::new(std::sync::Arc::clone(&run.budget))
                     });
                 }
                 if run.parent.is_none()
@@ -135,7 +135,8 @@ impl Session {
             let refresh = matches!(step, Some(Step::Redisplay));
             let run = self.macros.runner.as_mut().expect("live runner");
             run.limits.steps.fetch_add(1, Ordering::Relaxed);
-            self.buffers.automatic_group(Some(run.group.clone()));
+            self.buffers
+                .automatic_group(Some(std::sync::Arc::clone(&run.group)));
             self.macros.expanded = true;
             if let Some(trigger) = trigger {
                 self.macro_replay_trigger(trigger);
@@ -341,7 +342,8 @@ impl Session {
                     .flatten()
             });
         if let Some(run) = run {
-            self.buffers.automatic_group(Some(run.group.clone()));
+            self.buffers
+                .automatic_group(Some(std::sync::Arc::clone(&run.group)));
             true
         } else {
             false
@@ -392,7 +394,7 @@ impl Session {
         });
         if let Some(run) = run {
             self.buffers
-                .automatic_group(active.then(|| run.group.clone()));
+                .automatic_group(active.then(|| std::sync::Arc::clone(&run.group)));
         }
         self.macros.expanded = active && self.macros.runner.is_some();
         self.macros.dispatching = active && self.macros.recorder.is_some() && self.layout_active();

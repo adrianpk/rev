@@ -23,16 +23,16 @@ impl Session {
         let format = effective.format;
         self.message(&format!(
             "Gutter: visible={}({}) mode={:?}({}) current_line={:?}({}) side={:?}({}) digits={} padding={}/{}(startup)",
-            effective.visible, source(overrides.visible),
-            effective.mode, source(overrides.mode),
-            effective.current_line, source(overrides.current_line),
-            effective.side, source(overrides.side),
+            effective.visible, source(&overrides.visible),
+            effective.mode, source(&overrides.mode),
+            effective.current_line, source(&overrides.current_line),
+            effective.side, source(&overrides.side),
             format.minimum_digits(), format.left_padding(), format.right_padding(),
         ))
     }
 }
 
-fn source<T>(value: Option<T>) -> &'static str {
+fn source<T>(value: &Option<T>) -> &'static str {
     if value.is_some() { "view" } else { "startup" }
 }
 

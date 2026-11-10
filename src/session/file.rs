@@ -136,7 +136,7 @@ impl Session {
     }
     fn file_argument(&mut self, pending: Option<Pending>, path: String) -> Action {
         match pending {
-            Some(Pending::MacroMenuPrompt(prompt)) => self.macro_menu_argument(*prompt, &path),
+            Some(Pending::MacroMenuPrompt(prompt)) => self.macro_menu_argument(&prompt, &path),
             Some(Pending::MacroEditSelect) => self.macro_edit_selected(&path),
             Some(Pending::MacroLibrary(prompt)) => self.macro_library_argument(*prompt, &path),
             Some(Pending::MacroName(draft)) => self.macro_name_argument(*draft, &path),
@@ -178,19 +178,19 @@ impl Session {
             Some(Pending::TreeRename(rename)) => self.tree_renamed(rename, &path),
             Some(Pending::TreeCreate(creation)) => self.tree_created(creation, &path),
             Some(Pending::Replace(state)) => self.replace_argument(*state, path),
-            pending => self.file_destination_argument(pending, path),
+            pending => self.file_destination_argument(pending, &path),
         }
     }
-    fn file_destination_argument(&mut self, pending: Option<Pending>, path: String) -> Action {
+    fn file_destination_argument(&mut self, pending: Option<Pending>, path: &str) -> Action {
         match pending {
             Some(Pending::Write { buffer, after }) => {
-                if !self.macro_accept_argument(crate::macros::Role::Write, &path) {
+                if !self.macro_accept_argument(crate::macros::Role::Write, path) {
                     return Action::Redraw;
                 }
-                self.save_to(buffer, Some(Path::new(&path)), after)
+                self.save_to(buffer, Some(Path::new(path)), after)
             }
             Some(Pending::Buffer { command, default }) => {
-                self.buffer_argument(command, default, &path)
+                self.buffer_argument(command, default, path)
             }
             _ => self.message("No file argument is pending"),
         }

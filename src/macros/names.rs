@@ -1,6 +1,5 @@
 use super::*;
 use crate::command::MacroName;
-use std::collections::BTreeSet;
 
 pub(crate) const NAME_LIMIT: usize = 256;
 pub(crate) const CALL_LIMIT: usize = 16;
@@ -42,11 +41,23 @@ impl State {
         self.memory_admission(extra.iter())
     }
     fn memory_admission<'a>(
-        &self,
+        &'a self,
         extra: impl Iterator<Item = &'a Arc<Definition>>,
     ) -> Result<(), StopReason> {
         let mut retained = Retained::default();
         retained.bytes += self.names.len() * 4096 + self.bindings.len() * 1024;
+        self.retain_definitions(&mut retained);
+        for definition in extra {
+            retained.definition(definition);
+        }
+        self.retain_activity(&mut retained);
+        // Reserve one bounded native naming/binding draft and selector copies.
+        (retained.bytes + 8192 <= RETAINED_BYTES)
+            .then_some(())
+            .ok_or(StopReason::RetainedMemory)
+    }
+
+    fn retain_definitions<'a>(&'a self, retained: &mut Retained<'a>) {
         for definition in self
             .ring
             .iter()
@@ -71,9 +82,9 @@ impl State {
         if let Some(definition) = &self.draft_pin {
             retained.definition(definition);
         }
-        for definition in extra {
-            retained.definition(definition);
-        }
+    }
+
+    fn retain_activity<'a>(&'a self, retained: &mut Retained<'a>) {
         retained.bytes += self
             .recent
             .entries
@@ -97,10 +108,6 @@ impl State {
                 retained.recorder(recorder);
             }
         }
-        // Reserve one bounded native naming/binding draft and selector copies.
-        (retained.bytes + 8192 <= RETAINED_BYTES)
-            .then_some(())
-            .ok_or(StopReason::RetainedMemory)
     }
 
     pub fn name_snapshot(&mut self, name: MacroName, named: Named) -> Result<(), String> {
@@ -127,21 +134,28 @@ impl State {
 }
 
 #[derive(Default)]
-struct Retained {
+struct Retained<'a> {
     bytes: usize,
-    definitions: BTreeSet<usize>,
-    bodies: BTreeSet<usize>,
-    regions: BTreeSet<usize>,
+    definitions: Vec<&'a Arc<Definition>>,
+    bodies: Vec<&'a Arc<[Step]>>,
+    regions: Vec<&'a Arc<std::sync::Mutex<crate::buffer::edit::MacroLines>>>,
 }
-impl Retained {
-    fn definition(&mut self, definition: &Arc<Definition>) {
-        if self.definitions.insert(Arc::as_ptr(definition) as usize) {
+impl<'a> Retained<'a> {
+    fn definition(&mut self, definition: &'a Arc<Definition>) {
+        if !self
+            .definitions
+            .iter()
+            .any(|prior| Arc::ptr_eq(prior, definition))
+        {
+            self.definitions.push(definition);
             self.bytes += 4096;
         }
-        if self
+        if !self
             .bodies
-            .insert(Arc::as_ptr(&definition.steps) as *const Step as usize)
+            .iter()
+            .any(|prior| Arc::ptr_eq(prior, &definition.steps))
         {
+            self.bodies.push(&definition.steps);
             self.bytes += definition.retained_bytes;
         }
     }
@@ -153,7 +167,7 @@ impl Retained {
             self.bytes += command.bytes();
         }
     }
-    fn runner(&mut self, run: &Runner) {
+    fn runner(&mut self, run: &'a Runner) {
         self.definition(&run.definition);
         self.bytes += 4096
             + run
@@ -167,8 +181,12 @@ impl Retained {
             .map(|arg| arg.value.len() + 64)
             .sum::<usize>();
         if let Some(region) = &run.region
-            && self.regions.insert(Arc::as_ptr(&region.anchors) as usize)
+            && !self
+                .regions
+                .iter()
+                .any(|prior| Arc::ptr_eq(prior, &region.anchors))
         {
+            self.regions.push(&region.anchors);
             self.bytes += region
                 .anchors
                 .lock()

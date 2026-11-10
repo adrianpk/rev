@@ -20,10 +20,10 @@ impl Session {
         let Some(source) = self.macros.ring.front().cloned() else {
             return self.message("No keyboard macro is available");
         };
-        let action = self.start_definition(source.clone(), 1, None);
+        let action = self.start_definition(Arc::clone(&source), 1, None);
         if self.macros.runner.is_some() {
             self.macros.step_editor = Some(Editor {
-                target: Selection::Ring(source.clone()),
+                target: Selection::Ring(Arc::clone(&source)),
                 candidate: source,
                 allowance: 0,
                 continuing: false,
@@ -189,7 +189,7 @@ impl Session {
             .sum();
         definition.steps = steps.into();
         let candidate = Arc::new(definition);
-        Record::draft(&Selection::Ring(candidate.clone()), None).map_err(|e| e.to_string())?;
+        Record::draft(&Selection::Ring(Arc::clone(&candidate)), None).map_err(|e| e.to_string())?;
         self.macros
             .admit_memory(Some(&candidate))
             .map_err(|_| "Step edit exceeds 48 MiB retained memory")?;
@@ -197,7 +197,7 @@ impl Session {
             .step_editor
             .as_mut()
             .expect("step editor")
-            .candidate = candidate.clone();
+            .candidate = Arc::clone(&candidate);
         self.macros
             .runner
             .as_mut()
@@ -247,7 +247,7 @@ impl Session {
             .capturing = true;
         self.message("Step input: ordinary editing is recorded; C-j finishes at a complete command; C-g cancels definition changes")
     }
-    pub(in crate::session) fn macro_step_key(&mut self, keys: Sequence) -> Action {
+    pub(in crate::session) fn macro_step_key(&mut self, keys: &Sequence) -> Action {
         let Some(run) = &mut self.macros.runner else {
             return self.message("Step key target was lost");
         };

@@ -58,7 +58,7 @@ impl Session {
             }
             LinearCommand::Copy => {
                 let source = self.active_region()?;
-                Ok(self.copy_region(source)?)
+                Ok(self.copy_region(&source)?)
             }
             LinearCommand::Yank => self.yank(),
             LinearCommand::Pop => self.yank_pop(),
@@ -72,11 +72,11 @@ impl Session {
             .ok_or(Error::Inactive)
     }
 
-    fn copy_region(&mut self, source: Span) -> Result<bool, edit::Error> {
+    fn copy_region(&mut self, source: &Span) -> Result<bool, edit::Error> {
         if source.range.is_empty() {
             return Ok(false);
         }
-        let text = self.buffer()?.slice(&source)?.into();
+        let text = self.buffer()?.slice(source)?.into();
         self.kills.copy(text);
         Ok(true)
     }

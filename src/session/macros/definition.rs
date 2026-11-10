@@ -76,7 +76,7 @@ impl Session {
                 self.macros
                     .names
                     .get(&n)
-                    .map(|v| Selection::Named(n, v.definition.clone()))
+                    .map(|v| Selection::Named(n, Arc::clone(&v.definition)))
             })
             .or_else(|| {
                 let key = Sequence::parse(value).ok()?;
@@ -85,8 +85,8 @@ impl Session {
                         .macros
                         .names
                         .get(name)
-                        .map(|v| Selection::Named(*name, v.definition.clone())),
-                    Target::Snapshot(source) => Some(Selection::Bound(key, source.clone())),
+                        .map(|v| Selection::Named(*name, Arc::clone(&v.definition))),
+                    Target::Snapshot(source) => Some(Selection::Bound(key, Arc::clone(source))),
                 }
             });
         match target {
@@ -121,7 +121,7 @@ impl Session {
                 self.discard_capture_buffer(buffer)?;
                 return Err(e);
             }
-            self.macros.draft_pin = Some(target.source().clone());
+            self.macros.draft_pin = Some(Arc::clone(target.source()));
             self.macro_draft = Some(Draft {
                 buffer,
                 target,
@@ -247,11 +247,11 @@ impl Session {
         }
         None
     }
-    pub(in crate::session) fn macro_definition_key(&mut self, keys: Sequence) -> Action {
+    pub(in crate::session) fn macro_definition_key(&mut self, keys: &Sequence) -> Action {
         if !self.macro_definition_selected() {
             return self.message("Macro key insertion target changed");
         }
-        match Record::key_notation(&keys) {
+        match Record::key_notation(keys) {
             Ok(text) => self.paste_text(&text),
             Err(e) => self.error(&e.to_string()),
         }

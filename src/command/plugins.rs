@@ -37,7 +37,7 @@ impl PluginName {
         let id = rev_plugin_sdk::identity::CommandId::new(name)?;
         let mut value = Self {
             bytes: [0; 130],
-            len: id.as_str().len() as u8,
+            len: u8::try_from(id.as_str().len()).expect("SDK command identities fit 130 bytes"),
         };
         value.bytes[..usize::from(value.len)].copy_from_slice(id.as_str().as_bytes());
         Ok(value)

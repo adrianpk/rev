@@ -409,7 +409,9 @@ impl Catalog {
         self.validate()?;
         let mut doc = DocumentMut::new();
         doc["schema_version"] = toml_edit::value(i64::from(self.schema_version));
-        doc["revision"] = toml_edit::value(self.revision as i64);
+        doc["revision"] = toml_edit::value(
+            i64::try_from(self.revision).expect("validated macro catalog revision"),
+        );
         let mut records = ArrayOfTables::new();
         for record in &self.macros {
             records.push(record.table()?);
@@ -812,7 +814,8 @@ impl Input {
             Self::Completion { edits, cursor } => {
                 if edits.iter().any(|e| {
                     e.end < e.start
-                        || e.end.checked_sub(e.start) != Some(e.expected.chars().count() as i64)
+                        || !i64::try_from(e.expected.chars().count())
+                            .is_ok_and(|count| e.end.checked_sub(e.start) == Some(count))
                         || e.text.contains('\0')
                 }) {
                     return Err(Error::Invalid("completion source precondition"));
@@ -882,7 +885,7 @@ impl Record {
     ) -> Result<Self, Error> {
         let source = target.source();
         let named = Named {
-            definition: source.clone(),
+            definition: std::sync::Arc::clone(source),
             source: (source.id, source.revision),
             description,
             saved: None,

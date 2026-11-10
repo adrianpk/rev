@@ -113,7 +113,7 @@ impl Session {
         {
             return Err(Error::ChangedPositions);
         }
-        let count = work.argument.value() as usize;
+        let count = usize::try_from(work.argument.value()).expect("positive text argument");
         if work.generated.is_none() {
             let (unit, suffix) = match &work.entry {
                 Entry::Literal(text) => (Cow::Borrowed(text.as_str()), None),

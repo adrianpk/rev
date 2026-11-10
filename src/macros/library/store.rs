@@ -224,7 +224,9 @@ fn anchor(directory: &File) -> PathBuf {
     PathBuf::from(format!("/proc/self/fd/{}", directory.as_raw_fd()))
 }
 fn flags() -> i32 {
-    (OFlags::NOFOLLOW | OFlags::NONBLOCK | OFlags::CLOEXEC).bits() as i32
+    (OFlags::NOFOLLOW | OFlags::NONBLOCK | OFlags::CLOEXEC)
+        .bits()
+        .cast_signed()
 }
 struct Lock(File);
 impl Lock {
@@ -294,7 +296,9 @@ fn read(path: &Path) -> Result<Option<Vec<u8>>, Error> {
     if before.len() > codec::LIBRARY_BYTES as u64 {
         return Err(Error::Capacity("encoded macro library"));
     }
-    let mut bytes = Vec::with_capacity(before.len() as usize);
+    let mut bytes = Vec::with_capacity(
+        usize::try_from(before.len()).expect("bounded encoded macro library size"),
+    );
     Read::by_ref(&mut file)
         .take(codec::LIBRARY_BYTES as u64 + 1)
         .read_to_end(&mut bytes)

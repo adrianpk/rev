@@ -34,7 +34,8 @@ impl Session {
         self.layout.history = Some(Replay {
             invocation,
             expected: self.view().point,
-            remaining: invocation.argument.value() as usize,
+            remaining: usize::try_from(invocation.argument.value())
+                .expect("positive history argument"),
             stopped: None,
         });
         if let Some(action) = self.layout_argument_history() {

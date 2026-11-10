@@ -102,9 +102,10 @@ impl Session {
                 } else {
                     count
                 };
-                self.macros
-                    .ring
-                    .rotate_left(count.rem_euclid(len as i64) as usize);
+                let length = i64::try_from(len).expect("bounded macro ring");
+                let rotation = usize::try_from(count.rem_euclid(length))
+                    .expect("nonnegative bounded macro rotation");
+                self.macros.ring.rotate_left(rotation);
             }
             MacroCommand::Delete => {
                 self.macros.ring.pop_front();
