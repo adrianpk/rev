@@ -97,7 +97,7 @@ fn emit(output: &mut impl Write, bytes: &[u8], operation: &str) -> io::Result<()
     output
         .write_all(bytes)
         .and_then(|()| output.flush())
-        .map_err(|error| super::context(error, operation))
+        .map_err(|error| super::context(&error, operation))
 }
 
 #[cfg(test)]

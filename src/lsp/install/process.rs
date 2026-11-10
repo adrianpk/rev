@@ -18,7 +18,7 @@ impl Process {
             .process_group(0)
             .spawn()
             .map_err(|e| format!("launch installation helper: {e}"))?;
-        let pid = Pid::from_raw(child.id() as i32).expect("spawned child has a positive PID");
+        let pid = Pid::from_child(&child);
         Ok(Self {
             child: Some(child),
             pid,
@@ -94,7 +94,8 @@ impl Process {
         while Instant::now() < deadline {
             if self.exited()?
                 && !crate::process::group::running(
-                    self.pid.as_raw_nonzero().get() as u32,
+                    u32::try_from(self.pid.as_raw_nonzero().get())
+                        .expect("owned helper PID is positive"),
                     deadline,
                 )?
             {

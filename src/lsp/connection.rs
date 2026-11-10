@@ -36,19 +36,20 @@ impl Connection {
         let status = Arc::new(Mutex::new(Status::Starting));
         let stderr = Arc::new(Mutex::new(VecDeque::new()));
         let inbox = Arc::new(Inbox::default());
+        let requests = super::requests::Requests::new(&policy);
         let mut supervisor = Supervisor {
             server,
             root,
-            policy: policy.clone(),
-            status: status.clone(),
-            inbox: inbox.clone(),
+            policy,
+            status: Arc::clone(&status),
+            inbox: Arc::clone(&inbox),
             stopping: false,
             deadline: None,
             capabilities: None,
             documents: Documents::default(),
-            requests: super::requests::Requests::new(&policy),
+            requests,
         };
-        let retained = stderr.clone();
+        let retained = Arc::clone(&stderr);
         let worker = std::thread::Builder::new()
             .name("rev-lsp".into())
             .spawn(move || {
@@ -119,7 +120,7 @@ impl Supervisor {
         let mut result = Ok(());
         let io_result = io::drive(
             pipes,
-            self.inbox.clone(),
+            Arc::clone(&self.inbox),
             stderr,
             self.policy.max_message_bytes,
             |output| {

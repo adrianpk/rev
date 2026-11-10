@@ -38,7 +38,7 @@ impl Activation {
         let worker_cancel = cancel.clone();
         let ready = Arc::new(AtomicBool::new(false));
         let complete = Completion {
-            ready: ready.clone(),
+            ready: Arc::clone(&ready),
             wake,
         };
         let (send, result) = mpsc::sync_channel(1);
@@ -114,7 +114,7 @@ impl Session {
             .get(&id)
             .ok_or("Terminal creation context unavailable")?
             .clone();
-        let wake = self.observation.wake.clone();
+        let wake = Arc::clone(&self.observation.wake);
         let program = viewer.program(uri.into(), directory);
         self.terminals.link = Some(
             Activation::start(program, Arc::new(move || wake.signal()))

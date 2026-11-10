@@ -184,7 +184,10 @@ impl Session {
             .offset
             .min(grid.history_size());
         let mut point = Point::new(
-            Line(i32::from(event.row) - offset as i32),
+            Line(
+                i32::from(event.row)
+                    - i32::try_from(offset).expect("terminal scrollback is at most 20000 lines"),
+            ),
             Column(usize::from(event.column)),
         );
         if grid[point].flags.contains(Flags::WIDE_CHAR_SPACER) {

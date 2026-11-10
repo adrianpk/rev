@@ -36,10 +36,10 @@ pub(super) fn release(bytes: &[u8], repository: &str, name: &str) -> Result<Exac
         .into_iter()
         .find(|a| a.name == name)
         .ok_or("official release lacks the verified Linux x86-64 asset")?;
-    exact(&release.tag_name, repository, name, asset)
+    exact(&release.tag_name, repository, name, &asset)
 }
 
-fn exact(tag: &str, repository: &str, name: &str, asset: Asset) -> Result<Exact, String> {
+fn exact(tag: &str, repository: &str, name: &str, asset: &Asset) -> Result<Exact, String> {
     let url = format!(
         "https://github.com/{repository}/releases/download/{}/{name}",
         tag

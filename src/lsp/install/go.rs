@@ -60,7 +60,7 @@ fn acquire(
     let metadata = tools
         .helper(cache, &["list", "-m", "-json", &format!("{MODULE}@latest")])
         .run(cancel, None)
-        .map_err(prerequisite)?;
+        .map_err(|error| prerequisite(&error))?;
     let exact = module(&metadata, None)?;
     let source = format!(
         "https://proxy.golang.org/{MODULE}/@v/{}.info",
@@ -95,7 +95,7 @@ fn verify(
     let metadata = tools
         .helper(cache, &["mod", "download", "-json", &target])
         .run(cancel, None)
-        .map_err(prerequisite)?;
+        .map_err(|error| prerequisite(&error))?;
     let exact = module(&metadata, Some(version))?;
     if !super::evidence::go_sum(&exact.sum) || !super::evidence::go_sum(&exact.go_mod_sum) {
         return Err("Go module download lacks checksum-database provenance".into());
@@ -123,7 +123,9 @@ fn build(
     helper
         .watch
         .push((candidate.directory.clone(), super::PAYLOAD_BYTES));
-    helper.run(cancel, None).map_err(prerequisite)?;
+    helper
+        .run(cancel, None)
+        .map_err(|error| prerequisite(&error))?;
     fs::File::open(candidate.directory.join("gopls"))
         .and_then(|file| file.sync_all())
         .map_err(|e| format!("sync built Go server: {e}"))
@@ -190,7 +192,7 @@ fn version_valid(version: &str) -> bool {
             .all(|n| !n.is_empty() && n.bytes().all(|b| b.is_ascii_digit()))
 }
 
-fn prerequisite(error: String) -> String {
+fn prerequisite(error: &str) -> String {
     format!(
         "Go acquisition failed with the installed local compiler; install a sufficient Go version separately if required: {error}"
     )

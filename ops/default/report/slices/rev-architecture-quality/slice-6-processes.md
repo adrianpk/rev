@@ -14,9 +14,8 @@ in native AI/Pi, LSP, shell, terminal and process owners and their session adapt
 
 ## Delivered Behavior
 
-The first implementation cohort separates process argument validation, fixed
-editor setup, repository environment admission, child capture and finite group
-cleanup. Positive child identities use checked conversion and shared cancellation
+The process owner separates argument validation, fixed editor setup, repository
+environment admission, child capture and finite group cleanup. Positive child identities use checked conversion and shared cancellation
 ownership is explicit.
 
 AI source selection has one linear-region admission step. Pi resource extraction
@@ -46,11 +45,23 @@ The native source map owns its aggregate admission. Copied conflict context
 separates native capture, role/saved-source projection and bounded encoding.
 Literal command persistence separates name admission from publication.
 
-The complete Slice 6 implementation remains in progress. The full quality check
-has 151 blocking Clippy diagnostics, down from 196, and one source finding,
-down from 34. All nine AI session files pass canonical scoped quality with no
-blocking diagnostics. The remaining source finding is the existing public
-retained-session signature; selected LSP, shell and terminal diagnostics remain.
+LSP queue and completion owners release mutex guards before notification and
+owned-event boxing. Shared references are explicit; frozen launch policy and
+owned response fields transfer directly to their consumers. Installer helpers
+borrow observations, retain sorted unique payload leases and use checked process
+and persistence conversions. Public npm/removal request shapes are preserved.
+
+Shell workers and result publication borrow their captured observations without
+moving IO or waiting onto input/rendering. Terminal copy owns physical-row/history
+conversion; legacy mouse and panel conversions use existing admitted bounds.
+Terminal error context borrows its source without changing restoration behavior.
+
+All-target compilation and selected Clippy now pass across all 117 slice files,
+with zero blocking diagnostics, down from 196; 693 diagnostics remain deferred
+outside this slice. Source findings decreased from 34 to one. The full quality
+command still fails on the existing public retained-session signature, whose
+compatibility decision remains pending. Canonical PR preparation and final
+clean-HEAD Looper validation remain pending.
 
 ## Implementation Notes
 
@@ -89,8 +100,21 @@ retained-session signature; selected LSP, shell and terminal diagnostics remain.
   checked window publication, single-undo behavior and authority consumption
   before cleanup. Saved commands retain collision/capacity checks and publish
   through the existing root owner.
-- Remaining work includes selected LSP, shell, terminal and adapter ownership/
-  conversion diagnostics and the public compatibility decision below.
+- LSP queue message priority, atomic permit accounting and generation/revision
+  checks remain unchanged. Completion responses transfer owned fields while
+  retaining immutable-field admission, ordering and fallback. Stream shutdown
+  still precedes thread joining, child reaping and payload-lease release.
+- Installer launch paths retain sorted unique inode leases. Typed child IDs
+  retain the unreaped-leader/NOWAIT rule, TERM/KILL and finite cleanup deadlines.
+  Timestamp encoding follows the existing signed-range validation. Narrow,
+  reasoned Clippy expectations preserve the public owned npm inheritance and
+  removal settings requests; their private helpers borrow.
+- Shell input is still released before child IO, complete stdout is retained
+  before source publication, and cancellation/result ownership is unchanged.
+- Terminal conversions retain 20,000 history lines, 200 panel rows, legacy mouse
+  coordinates at most 223, 1 MiB copy text, 8 MiB aggregate projections and 32
+  states. Physical grid rows and native scalar coordinates remain distinct.
+  Restoration still attempts every acquired obligation and retains failed ones.
 
 ## Contracts Added or Changed
 
@@ -116,24 +140,29 @@ are preserved.
   complete conflict snapshots.
 - `src/session/ai/results.rs` and `save.rs`: captured result acceptance/cleanup
   and literal command publication; borrowed fixture configuration is explicit.
+- `src/lsp/budget.rs`, `inbox.rs`, `completion.rs` and `documents.rs`: bounded
+  ledger/queue guards, shared activation and completion response ownership.
+- `src/lsp/connection.rs`, `io.rs` and `install/`: frozen policy and streams,
+  payload leases, typed helper identity, timestamps and public request shapes.
+- `src/shell.rs`, `src/session/shell.rs` and `src/terminal/`: borrowed worker/result
+  observations and unchanged error/restoration context.
+- `src/session/terminals/`: admitted physical-grid/copy/mouse conversions.
 - `tests/ai/discovery.rs`: explicit prefix-insertion position in the native map.
 
 ## Validation
 
-Working-tree implementation evidence follows. Exact clean-HEAD Looper validation
-and canonical PR preparation remain pending. The previous full native run
-predates the Pi and AI session decompositions. Current focused checks cover the
-changed owners; no previous result is final clean-HEAD evidence.
+Current working-tree evidence follows; historical focused checks are labeled.
+Canonical PR preparation and successful frozen clean-HEAD Looper validation remain
+pending. The full native run covers the current implementation; final validation
+must follow the public compatibility decision and its implementation.
 
-- Failed: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 bash scripts/check-quality.sh --scope src/ai.rs --scope src/ai --scope src/lsp.rs --scope src/lsp --scope src/process.rs --scope src/process --scope src/shell.rs --scope src/shell --scope src/terminal.rs --scope src/terminal --scope src/session/ai.rs --scope src/session/ai --scope src/session/lsp.rs --scope src/session/lsp --scope src/session/shell.rs --scope src/session/shell --scope src/session/terminals.rs --scope src/session/terminals`. All-target compilation succeeds; 151 selected Clippy diagnostics and one source finding remain across 117 selected files.
-- Previously passed: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --test ai --test lsp --test lsp_installation --test shell_commands --test integrated_terminal --test pi -- --test-threads=1`. The first implementation cohort passed all 213 ordinary native cases across the six suites, with three existing explicit upstream-acquisition cases ignored by default. A fresh final-head run remains required.
+- Failed: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 bash scripts/check-quality.sh --scope src/ai.rs --scope src/ai --scope src/lsp.rs --scope src/lsp --scope src/process.rs --scope src/process --scope src/shell.rs --scope src/shell --scope src/terminal.rs --scope src/terminal --scope src/session/ai.rs --scope src/session/ai --scope src/session/lsp.rs --scope src/session/lsp --scope src/session/shell.rs --scope src/session/shell --scope src/session/terminals.rs --scope src/session/terminals`. All-target compilation and selected Clippy pass across 117 selected files, with zero blocking diagnostics and 693 selected-profile diagnostics deferred outside this slice. The command fails solely on the existing six-parameter public retained-session signature; the other source guards pass.
+- Passed: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --test ai --test lsp --test lsp_installation --test shell_commands --test integrated_terminal --test pi -- --test-threads=1`. All 213 native cases pass across the six suites: 26 AI, 49 integrated-terminal, 46 LSP, 39 installation, 15 Pi and 38 shell. The same three explicit upstream-acquisition cases remain ignored by default.
 - Passed: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo run --locked --quiet -p rev --example documentation-check`. 106 reachable pages, 743 local links/anchors, 684 commands and 299 configuration entries.
-- Previously passed: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 bash scripts/check-quality.sh --scope src/ai/pi`. All-target compilation, scoped Clippy and source policy pass for eight private Pi files, with zero blocking diagnostics and 847 diagnostics deferred outside this smaller selection.
-- Passed: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --test ai --test pi -- --test-threads=1`. All 26 AI and 15 Pi cases pass after the AI session decomposition, including native source maps, captured result ownership, directory admission, deadlines, cancellation, binding capacity and retained-history reuse.
+- Passed: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --lib lsp:: -- --test-threads=1`. Five native permit, control-slot and snapshot-retirement cases pass, including concurrent retirement and failed-worker lease release.
 - Previously passed: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --lib process:: -- --test-threads=1`. Ten native process cases passed for the unchanged first-cohort process implementation.
-- Passed: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 bash scripts/check-quality.sh --scope src/session/ai.rs --scope src/session/ai`. All-target compilation, scoped Clippy and source policy pass for all nine AI session files, with zero blocking diagnostics and 844 selected-profile diagnostics deferred outside this selection.
-- Passed: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --lib session::ai:: -- --test-threads=1`. Six native result-publication cases preserve literal bytes, readonly/revision guards, presentation controls and captured apply/discard ownership.
-- Passed: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --test git_integration conflicts::explanation:: -- --test-threads=1`. All four entrypoints pass, including the existing child-only RPC fixture; the native cases cover copied text/binary/dirty source facts, optional-AI admission and historical results without edit/stage/continue rights.
+- Previously passed: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --lib session::ai:: -- --test-threads=1`. Six native result-publication cases preserve literal bytes, readonly/revision guards, presentation controls and captured apply/discard ownership.
+- Previously passed: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --test git_integration conflicts::explanation:: -- --test-threads=1`. All four entrypoints pass, including the existing child-only RPC fixture; the native cases cover copied text/binary/dirty source facts, optional-AI admission and historical results without edit/stage/continue rights.
 - Passed: `git diff --check`.
 
 The unchanged slice base `ebfe3f4798c6` reproduces the source-map failure before
@@ -150,7 +179,10 @@ API compatibility requirement conflict at that signature. A bounded proposal is
 with a public history request and adaptations only in `src/ai/pi.rs`,
 `src/session/ai/capture.rs` and `tests/pi/sessions.rs`. These are its two existing
 callers. This proposal is not applied; an explicit compatibility decision is
-required before changing that public signature. Other private slice corrections
-remain authorized and pending.
+required before changing that public signature. The private corrections are
+implemented and selected Clippy is clear. This public signature is the sole
+remaining quality blocker; no source limit, protocol, assertion, timeout or
+resource budget was changed to bypass it. PR preparation and successful frozen
+clean-HEAD validation must follow the decision and implementation.
 
 The controller owns merge, full delivery-set validation and successor startup.

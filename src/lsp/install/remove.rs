@@ -52,6 +52,10 @@ fn points(text: &str, payload: &Path) -> bool {
         .starts_with(payload)
 }
 
+#[expect(
+    clippy::needless_pass_by_value,
+    reason = "Preserve the public owned settings request across unchanged-source checks and payload deletion."
+)]
 pub fn remove(
     storage: &mut Storage,
     edit: SettingsEdit,

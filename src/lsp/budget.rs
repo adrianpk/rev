@@ -19,8 +19,9 @@ impl Budget {
         }
         used.0 += 1;
         used.1 += bytes;
+        drop(used);
         Ok(Permit {
-            budget: self.clone(),
+            budget: Arc::clone(self),
             bytes,
         })
     }
@@ -34,6 +35,7 @@ impl Permit {
             return Err("LSP outbound byte queue limit exceeded".into());
         }
         used.1 = total;
+        drop(used);
         self.bytes = bytes;
         Ok(())
     }

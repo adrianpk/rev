@@ -73,7 +73,10 @@ fn legacy(button: u8, column: u32, row: u32, utf8: bool) -> Option<Vec<u8>> {
             );
         }
     } else {
-        bytes.extend([column as u8 + 32, row as u8 + 32]);
+        bytes.extend([
+            u8::try_from(column).expect("legacy mouse column is at most 223") + 32,
+            u8::try_from(row).expect("legacy mouse row is at most 223") + 32,
+        ]);
     }
     Some(bytes)
 }

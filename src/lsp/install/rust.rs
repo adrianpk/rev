@@ -60,7 +60,7 @@ fn acquire(
     if let Err(error) = result {
         candidate.installation.status = State::Incomplete;
         let saved = storage.save(candidate.installation);
-        return Err(incomplete(error, saved));
+        return Err(incomplete(&error, saved));
     }
     candidate.installation.status = State::Ready;
     candidate.installation.verified_at = Some(
@@ -85,7 +85,7 @@ fn acquire(
     })
 }
 
-fn incomplete(error: String, saved: Result<Option<String>, String>) -> String {
+fn incomplete(error: &str, saved: Result<Option<String>, String>) -> String {
     match saved {
         Ok(None) => format!("{error}; candidate retained as incomplete"),
         Ok(Some(warning)) => format!("{error}; candidate marked incomplete; {warning}"),

@@ -88,7 +88,8 @@ impl Work {
             visible: false,
             focused: false,
             host_cancel: false,
-            height: prefs.panel_height as u16,
+            height: u16::try_from(prefs.panel_height)
+                .expect("admitted terminal panel height is at most 200"),
             home: None,
             closing: Default::default(),
             buffers: Default::default(),

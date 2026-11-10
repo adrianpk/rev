@@ -102,21 +102,21 @@ impl Client {
         let token = Activation::new(
             buffer.stamp(),
             (connection.generation, generation),
-            self.snapshot_bytes.clone(),
+            Arc::clone(&self.snapshot_bytes),
             buffer.len_bytes(),
         )?;
         let uri = roots::uri(&path)?;
-        let inbox = connection.inbox.clone();
+        let inbox = Arc::clone(&connection.inbox);
         inbox.document(Event::Open {
-            token: token.clone(),
+            token: Arc::clone(&token),
             stamp: buffer.stamp(),
             uri,
             language: language.clone(),
             text: buffer.text_snapshot(),
         });
         buffer.observe(Some(Arc::new(Sink {
-            activation: token.clone(),
-            inbox: inbox.clone(),
+            activation: Arc::clone(&token),
+            inbox: Arc::clone(&inbox),
         })));
         self.attachments.insert(
             buffer.id(),
@@ -255,7 +255,7 @@ impl Client {
         self.attach_buffer(buffer, tree);
         if let Some(attachment) = self.attachments.get(&buffer.id()) {
             attachment.inbox.document(Event::Save {
-                token: attachment.token.clone(),
+                token: Arc::clone(&attachment.token),
                 stamp: buffer.stamp(),
                 text: buffer.text_snapshot(),
             });

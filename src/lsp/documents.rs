@@ -148,7 +148,7 @@ impl Observer for Sink {
             return;
         }
         self.inbox
-            .document(Event::Change(publication, self.activation.clone()));
+            .document(Event::Change(publication, Arc::clone(&self.activation)));
     }
 }
 
@@ -266,10 +266,10 @@ impl Documents {
                 output,
                 caps,
             ),
-            Event::Change(value, token) => self.change(value, token, permit, (output, caps)),
+            Event::Change(value, token) => self.change(&value, &token, permit, (output, caps)),
             Event::Close(id, generation) => self.close((id, generation), permit, output, caps),
             Event::Save { token, stamp, text } => {
-                self.save(Saved { token, stamp, text }, permit, output, caps)
+                self.save(&Saved { token, stamp, text }, permit, output, caps)
             }
         }
     }
@@ -308,20 +308,20 @@ impl Documents {
 
     fn change(
         &mut self,
-        value: Published,
-        token: Arc<Activation>,
+        value: &Published,
+        token: &Activation,
         permit: Permit,
         wire: (&Outbox, &Capabilities),
     ) -> Result<(), String> {
         if !token.active() {
             return Ok(());
         }
-        let doc = self.current(value.before, &token)?;
+        let doc = self.current(value.before, token)?;
         let version = doc
             .version
             .checked_add(1)
             .ok_or("LSP document version exhausted")?;
-        let changes = changes(&value, wire.1)?;
+        let changes = changes(value, wire.1)?;
         wire.0.document(
             &json!({"jsonrpc":"2.0","method":"textDocument/didChange","params":{
                 "textDocument":{"uri":doc.uri,"version":version},"contentChanges":changes
@@ -368,7 +368,7 @@ impl Documents {
 
     fn save(
         &mut self,
-        saved: Saved,
+        saved: &Saved,
         permit: Permit,
         output: &Outbox,
         caps: &Capabilities,
@@ -434,17 +434,17 @@ mod tests {
                 Activation::new(
                     buffers.get(id).unwrap().stamp(),
                     (1, generation),
-                    total.clone(),
+                    Arc::clone(&total),
                     DOCUMENT_BYTES,
                 )
                 .unwrap(),
             );
         }
         let stamp = buffers.get(buffers.initial()).unwrap().stamp();
-        assert!(Activation::new(stamp, (1, 5), total.clone(), DOCUMENT_BYTES).is_err());
+        assert!(Activation::new(stamp, (1, 5), Arc::clone(&total), DOCUMENT_BYTES).is_err());
         assert_eq!(total.load(Ordering::Acquire), SNAPSHOT_BYTES);
         tokens[0].retire();
-        let restored = Activation::new(stamp, (1, 6), total.clone(), DOCUMENT_BYTES).unwrap();
+        let restored = Activation::new(stamp, (1, 6), Arc::clone(&total), DOCUMENT_BYTES).unwrap();
         assert!(!tokens[1].resize(DOCUMENT_BYTES + 1));
         assert_eq!(total.load(Ordering::Acquire), SNAPSHOT_BYTES);
         tokens[2].limit();
@@ -460,10 +460,10 @@ mod tests {
         let buffers = crate::buffer::Buffers::new().unwrap();
         let stamp = buffers.get(buffers.initial()).unwrap().stamp();
         let total = Arc::new(AtomicUsize::new(0));
-        let token = Activation::new(stamp, (1, 1), total.clone(), 16).unwrap();
+        let token = Activation::new(stamp, (1, 1), Arc::clone(&total), 16).unwrap();
         let inbox = Inbox::default();
         inbox.document(Event::Open {
-            token: token.clone(),
+            token: Arc::clone(&token),
             stamp,
             uri: "file:///owned".into(),
             language: "rust".into(),
@@ -472,13 +472,13 @@ mod tests {
         inbox.close();
         assert!(!token.active());
         assert_eq!(total.load(Ordering::Acquire), 0);
-        let token = Activation::new(stamp, (1, 2), total.clone(), 16).unwrap();
+        let token = Activation::new(stamp, (1, 2), Arc::clone(&total), 16).unwrap();
         let mut documents = Documents::default();
         token.synchronized(stamp, 1);
         documents.0.insert(
             stamp.buffer,
             Opened {
-                token: token.clone(),
+                token: Arc::clone(&token),
                 uri: "file:///owned".into(),
                 generation: 2,
                 stamp,
@@ -500,8 +500,8 @@ mod tests {
         let stamp = buffers.get(buffers.initial()).unwrap().stamp();
         let total = Arc::new(AtomicUsize::new(0));
         for generation in 1..=100 {
-            let token = Activation::new(stamp, (1, generation), total.clone(), 16).unwrap();
-            let publisher = token.clone();
+            let token = Activation::new(stamp, (1, generation), Arc::clone(&total), 16).unwrap();
+            let publisher = Arc::clone(&token);
             let worker = std::thread::spawn(move || {
                 for _ in 0..100 {
                     publisher.resize(32);

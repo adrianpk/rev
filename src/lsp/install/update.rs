@@ -69,7 +69,7 @@ impl Update {
         cancel: &Cancellation,
     ) -> Result<Outcome, String> {
         retained(storage, &self.previous)?;
-        edit.check_unchanged().map_err(|e| e.to_string())?;
+        edit.check_unchanged()?;
         let language = self
             .previous
             .launches

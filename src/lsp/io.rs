@@ -92,15 +92,20 @@ pub(super) fn drive(
     limit: usize,
     run: impl FnOnce(Outbox),
 ) -> Result<(), String> {
-    let input = pipes.input.try_clone().map_err(|e| e.to_string())?;
-    let output = pipes.output.try_clone().map_err(|e| e.to_string())?;
-    let error = pipes.error.try_clone().map_err(|e| e.to_string())?;
+    let Pipes {
+        input: owned_input,
+        output: owned_output,
+        error: owned_error,
+    } = pipes;
+    let input = owned_input.try_clone().map_err(|e| e.to_string())?;
+    let output = owned_output.try_clone().map_err(|e| e.to_string())?;
+    let error = owned_error.try_clone().map_err(|e| e.to_string())?;
     let (send, receive) = mpsc::sync_channel::<Frame>(QUEUE_MESSAGES);
-    let budget = inbox.budget.clone();
+    let budget = Arc::clone(&inbox.budget);
     std::thread::scope(|scope| {
-        let read_inbox = inbox.clone();
+        let read_inbox = Arc::clone(&inbox);
         scope.spawn(move || read_output(output, &read_inbox, limit));
-        scope.spawn(move || read_stderr(error, stderr));
+        scope.spawn(move || read_stderr(error, &stderr));
         scope.spawn(move || {
             let mut input = input;
             for data in receive {
@@ -116,7 +121,7 @@ pub(super) fn drive(
             budget,
             limit,
         });
-        for socket in [&pipes.input, &pipes.output, &pipes.error] {
+        for socket in [&owned_input, &owned_output, &owned_error] {
             let _ = socket.shutdown(Shutdown::Both);
         }
     });
@@ -136,7 +141,7 @@ fn read_output(output: UnixStream, inbox: &Inbox, limit: usize) {
     }
 }
 
-fn read_stderr(mut input: UnixStream, stderr: Stderr) {
+fn read_stderr(mut input: UnixStream, stderr: &Mutex<VecDeque<u8>>) {
     let mut bytes = [0; 4096];
     while let Ok(count) = input.read(&mut bytes) {
         if count == 0 {

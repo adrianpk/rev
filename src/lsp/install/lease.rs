@@ -5,18 +5,14 @@ use std::os::unix::fs::MetadataExt;
 use std::path::{Path, PathBuf};
 
 pub(crate) fn launch(server: &crate::config::Server, root: &Path) -> Result<Vec<File>, String> {
-    let mut paths: Vec<_> = server
+    let paths = server
         .args
         .iter()
         .chain(server.env.values())
         .map(PathBuf::from)
-        .filter(|p| p.is_absolute())
-        .collect();
-    if let Some(executable) = executable(server, root) {
-        paths.push(executable);
-    }
+        .filter(|p| p.is_absolute());
     let payloads: std::collections::BTreeSet<_> = paths
-        .into_iter()
+        .chain(executable(server, root))
         .filter_map(|p| p.canonicalize().ok())
         .filter_map(|p| {
             p.ancestors()

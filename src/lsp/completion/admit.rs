@@ -4,7 +4,7 @@ use serde_json::Value;
 use std::ops::Range;
 use std::sync::Arc;
 
-pub(super) fn response(query: &Query, value: Value, wire: (&Encoding, bool)) -> Reply {
+pub(super) fn response(query: &Query, value: &Value, wire: (&Encoding, bool)) -> Reply {
     let incomplete = value
         .get("isIncomplete")
         .and_then(Value::as_bool)
@@ -71,7 +71,7 @@ fn candidate(
             additional,
             proposal: context
                 .resolve
-                .then(|| Proposal::new(context.clone(), item)),
+                .then(|| Proposal::new(Arc::clone(context), item)),
         },
     ))
 }
@@ -200,5 +200,5 @@ pub(super) fn resolved(query: &Query, value: Value, encoding: &Encoding) -> Repl
     else {
         return Reply::fallback(Fallback::NoAdmitted);
     };
-    response(query, Value::Array(vec![item]), (encoding, false))
+    response(query, &Value::Array(vec![item]), (encoding, false))
 }

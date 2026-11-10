@@ -112,7 +112,7 @@ impl Session {
             });
         match point {
             Ok(point) => self.terminal_copy_link(key, point),
-            Err(error) => self.error(&error.to_string()),
+            Err(error) => self.error(&error),
         }
     }
     pub(in crate::session::terminals) fn terminal_copy_link(

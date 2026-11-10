@@ -66,6 +66,7 @@ impl Inbox {
             Err(_) => return,
         };
         state.documents.push_back((Work::Completion(query), permit));
+        drop(state);
         self.wake.notify_one();
     }
 
@@ -77,6 +78,7 @@ impl Inbox {
             state.bytes += bytes;
             state.messages.push_back((message, bytes));
         }
+        drop(state);
         self.wake.notify_one();
     }
 
@@ -101,10 +103,12 @@ impl Inbox {
         };
         let mut pending = self.pending.lock().expect("LSP inbox lock");
         if pending.closed {
+            drop(pending);
             event.retire();
             return;
         }
         pending.documents.push_back((Work::Document(event), permit));
+        drop(pending);
         self.wake.notify_one();
     }
 
@@ -152,16 +156,22 @@ impl Inbox {
         match state.messages.pop_front() {
             Some((message, bytes)) => {
                 state.bytes -= bytes;
+                drop(state);
                 Event::Message(Box::new(message))
             }
-            None => self.document_event(&mut state, ready),
+            None => {
+                let work = if ready {
+                    state.documents.pop_front()
+                } else {
+                    None
+                };
+                drop(state);
+                Self::document_event(work)
+            }
         }
     }
-    fn document_event(&self, state: &mut Pending, ready: bool) -> Event {
-        if !ready {
-            return Event::Timeout;
-        }
-        match state.documents.pop_front() {
+    fn document_event(work: Option<(Work, Permit)>) -> Event {
+        match work {
             Some((Work::Document(event), permit)) => Event::Document(Box::new(event), permit),
             Some((Work::Completion(query), permit)) => Event::Completion(Box::new(query), permit),
             None => Event::Timeout,

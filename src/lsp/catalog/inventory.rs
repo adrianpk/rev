@@ -35,7 +35,7 @@ fn render(
     for language in languages.iter().take(128) {
         if let Some((name, server)) = snapshot.settings().lsp.selected(language) {
             let custom_path = server.env.get("PATH").map(OsStr::new).or(path);
-            let status = availability(executable(&server.command, custom_path));
+            let status = availability(&executable(&server.command, custom_path));
             let (origin, version) = origin(&server.command, facts);
             let _ = writeln!(
                 text,
@@ -75,7 +75,7 @@ fn render(
             .collect::<Vec<_>>()
             .join(", ");
         let custom_path = server.env.get("PATH").map(OsStr::new).or(path);
-        let status = availability(executable(&server.command, custom_path));
+        let status = availability(&executable(&server.command, custom_path));
         let _ = writeln!(
             text,
             "{} | {languages} | {} | {status}",
@@ -120,7 +120,7 @@ fn cell(value: &str) -> String {
         .collect()
 }
 
-fn availability(value: Executable) -> &'static str {
+fn availability(value: &Executable) -> &'static str {
     match value {
         Executable::Available(_) => "available; protocol unverified",
         Executable::Missing => "missing executable; install it or choose another profile",

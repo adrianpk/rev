@@ -21,7 +21,7 @@ pub(super) struct Context {
 impl Context {
     pub fn capture(query: &Query, defaults: Value, resolve: bool) -> Option<Arc<Self>> {
         Some(Arc::new(Self {
-            token: query.token.clone(),
+            token: Arc::clone(&query.token),
             version: query.token.version()?,
             stamp: query.stamp,
             text: query.text.clone(),
@@ -77,13 +77,16 @@ impl Proposal {
     }
     pub(super) fn merge(&self, result: Value) -> Option<Value> {
         let original = self.request();
-        result.get("label")?.as_str()?;
+        let Value::Object(fields) = result else {
+            return None;
+        };
+        fields.get("label")?.as_str()?;
         let mut merged = original.clone();
-        for (key, value) in result.as_object()? {
-            if immutable(key) && original.get(key) != Some(value) {
+        for (key, value) in fields {
+            if immutable(&key) && original.get(&key) != Some(&value) {
                 return None;
             }
-            merged[key] = value.clone();
+            merged[&key] = value;
         }
         Some(merged)
     }

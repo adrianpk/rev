@@ -212,7 +212,7 @@ impl Session {
             && self.view().point == request.source;
         let message = match outcome {
             Err(error) => self.shell_failure(&error),
-            Ok(outcome) => self.shell_result(&request, outcome),
+            Ok(outcome) => self.shell_result(&request, &outcome),
         };
         // Completion retains output without taking focus or replacing another
         // prompt's echo. The explicit output command visits the retained identity.
@@ -228,19 +228,19 @@ impl Session {
         }
         format!("Shell command failed: {error}; shell-command-output opens diagnostics")
     }
-    fn shell_result(&mut self, request: &Request, outcome: Outcome) -> String {
+    fn shell_result(&mut self, request: &Request, outcome: &Outcome) -> String {
         // Retain complete stdout before any source publication. Allocation failure
         // cannot leave an edit that has no inspectable output owner.
         if let Err(error) = self.retain_shell_output(Some(&outcome.stdout), None) {
             return format!("Shell result could not be retained: {error}");
         }
         let publication = if outcome.status.success() && request.target.kind.edits() {
-            Some(self.publish_shell(request, &outcome))
+            Some(self.publish_shell(request, outcome))
         } else {
             None
         };
         let detail = publication_detail(&publication);
-        if let Err(error) = self.retain_shell_diagnostics(&outcome, &publication) {
+        if let Err(error) = self.retain_shell_diagnostics(outcome, &publication) {
             return format!("Shell output retained{detail}; diagnostics unavailable: {error}");
         }
         format!(

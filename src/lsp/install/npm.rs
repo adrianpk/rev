@@ -19,6 +19,10 @@ pub(super) struct Pin {
 
 /// Install one admitted npm recipe into its final owned prefix. All package
 /// versions are exact, lifecycle scripts are disabled and the lock is retained.
+#[expect(
+    clippy::needless_pass_by_value,
+    reason = "Preserve the public owned inheritance request for one managed installation invocation."
+)]
 pub fn install_npm(
     storage: &mut Storage,
     recipe: &str,
@@ -34,7 +38,7 @@ pub fn install_npm(
     };
     storage.progress.set(super::Phase::Checking);
     let mut cache = Cache::new(&storage.roots().cache)?;
-    let result = acquire(storage, id, &cache, inherited, cancel);
+    let result = acquire(storage, id, &cache, &inherited, cancel);
     cache.finish(result)
 }
 
@@ -42,7 +46,7 @@ fn acquire(
     storage: &mut Storage,
     recipe: &'static str,
     cache: &Cache,
-    inherited: BTreeMap<String, Server>,
+    inherited: &BTreeMap<String, Server>,
     cancel: &Cancellation,
 ) -> Result<Outcome, String> {
     let tools = Tools::discover(cache, cancel)?;
@@ -99,7 +103,7 @@ fn resolve_one(
     })
 }
 
-fn launches(candidate: &mut Candidate, recipe: &str, inherited: BTreeMap<String, Server>) {
+fn launches(candidate: &mut Candidate, recipe: &str, inherited: &BTreeMap<String, Server>) {
     let recipe = crate::lsp::catalog::RECIPES
         .iter()
         .find(|r| r.id == recipe)

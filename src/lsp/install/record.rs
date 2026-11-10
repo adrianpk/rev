@@ -186,9 +186,14 @@ impl Installation {
             State::Ready => "ready",
             State::Incomplete => "incomplete",
         });
-        table["created_at"] = value(self.created_at as i64);
+        table["created_at"] = value(
+            i64::try_from(self.created_at)
+                .expect("validated installation timestamp fits persistence"),
+        );
         if let Some(time) = self.verified_at {
-            table["verified_at"] = value(time as i64);
+            table["verified_at"] = value(
+                i64::try_from(time).expect("validated verification timestamp fits persistence"),
+            );
         }
         table
     }

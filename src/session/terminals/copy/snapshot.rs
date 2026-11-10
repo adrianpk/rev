@@ -47,7 +47,9 @@ impl Snapshot {
             history,
         };
         let mut scalars = 0;
-        for line in -(history as i32)..i32::from(session.geometry().rows) {
+        let history_line =
+            i32::try_from(history).expect("terminal scrollback is at most 20000 lines");
+        for line in -history_line..i32::from(session.geometry().rows) {
             let row = row(session, Line(line))?;
             let start = scalars;
             scalars += row.chars().count();
@@ -126,11 +128,14 @@ impl Snapshot {
         2 * self.text.len() + self.rows.len() * size_of::<std::ops::Range<usize>>() + 256 * 1024
     }
     pub fn point(&self, session: &Session, point: Point) -> Scalar {
-        let index = (point.line.0 + self.history as i32).max(0) as usize;
+        let history =
+            i32::try_from(self.history).expect("terminal scrollback is at most 20000 lines");
+        let index =
+            usize::try_from((point.line.0 + history).max(0)).expect("snapshot row is nonnegative");
         let index = index.min(self.rows.len() - 1);
         let range = &self.rows[index];
         let grid = session.screen().grid();
-        let line = Line(index as i32 - self.history as i32);
+        let line = self.line(index);
         let column = point.column.0.min(usize::from(session.geometry().columns));
         let before: usize = (0..column)
             .map(|column| {
@@ -140,6 +145,13 @@ impl Snapshot {
             })
             .sum();
         Scalar((range.start + before).min(range.end))
+    }
+    pub fn line(&self, row: usize) -> Line {
+        let row =
+            i32::try_from(row).expect("snapshot row fits admitted scrollback and u16 geometry");
+        let history =
+            i32::try_from(self.history).expect("terminal scrollback is at most 20000 lines");
+        Line(row - history)
     }
     pub fn top(&self, viewport: Viewport, buffer: &Buffer) -> Result<usize, String> {
         let index = self

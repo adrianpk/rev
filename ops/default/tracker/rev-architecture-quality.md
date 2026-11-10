@@ -117,12 +117,12 @@ Dependency: Slice 5 integrated
 Branch: refactor/rev-architecture-quality-06-processes
 PR: pending
 Report: ops/default/report/slices/rev-architecture-quality/slice-6-processes.md
-Progress: process/AI-target/Pi-resource/history, private Pi RPC/supervisor and AI session capture/poll/publication phases are implemented; source findings decreased from 34 to one and full-scope Clippy diagnostics from 196 to 151; canonical AI session quality passes for all nine files; selected LSP/shell/terminal corrections and the public retained-session compatibility decision remain pending
-Validation: AI session all-target quality, six result-publication tests, all 26 AI and 15 Pi regressions, four Git explanation entrypoints, documentation and diff checks pass; the unchanged private Pi files passed their prior canonical scope; the prior full native run passed 213 cases with three existing upstream-acquisition ignores; full scoped quality still fails with 151 Clippy diagnostics and the public six-parameter retained-session signature; final clean-HEAD Looper evidence is pending
+Progress: all private process/AI/Pi/LSP/shell/terminal corrections are implemented; all-target compilation and selected Clippy pass across 117 files with zero blocking diagnostics (196 initially), with 693 deferred outside this slice; source findings decreased from 34 to one; the public retained-session compatibility decision is the sole remaining quality blocker
+Validation: the exact six-suite native command passes all 213 cases with the same three upstream-acquisition ignores; all five LSP ledger/retirement tests, documentation and diff checks pass; full scoped quality fails solely on the public six-parameter retained-session signature; canonical PR preparation and successful frozen clean-HEAD Looper evidence must follow the explicit compatibility decision and implementation
 
 - [ ] T6.1: Correct selected ownership, narrowing, guard-lifetime and source-policy findings in AI/Pi, LSP, shell, integrated-terminal and native process owners plus their session adapters.
-- [ ] T6.2: Keep worker IO away from input/rendering, shared mailboxes intentional, owned process cleanup/cancellation finite and generation-bound; preserve existing environment/credential redaction and terminal restoration.
-- [ ] T6.3: Exercise real owned child fixtures and native request/reload/fallback/terminal relocation boundaries without changing protocol capabilities, external configuration or unrelated host processes.
+- [x] T6.2: Keep worker IO away from input/rendering, shared mailboxes intentional, owned process cleanup/cancellation finite and generation-bound; preserve existing environment/credential redaction and terminal restoration.
+- [x] T6.3: Exercise real owned child fixtures and native request/reload/fallback/terminal relocation boundaries without changing protocol capabilities, external configuration or unrelated host processes.
 
 ## Slice 7: Org workflow decomposition
 

@@ -29,7 +29,7 @@ pub struct Terminal<W: Write> {
 impl<W: Write> Terminal<W> {
     /// Acquires raw input. Dropping this owner restores it even before entry.
     pub fn acquire(output: W) -> io::Result<Self> {
-        enable_raw_mode().map_err(|error| context(error, "enable raw mode"))?;
+        enable_raw_mode().map_err(|error| context(&error, "enable raw mode"))?;
         Ok(Self {
             output: BufWriter::new(output),
             raw: true,
@@ -119,7 +119,7 @@ impl<W: Write> Terminal<W> {
         self.output
             .execute(command)
             .map(|_| ())
-            .map_err(|error| context(error, operation))
+            .map_err(|error| context(&error, operation))
     }
 
     fn show(&mut self) -> io::Result<()> {
@@ -148,7 +148,7 @@ impl<W: Write> Terminal<W> {
 
     fn release(&mut self) -> io::Result<()> {
         if self.raw {
-            disable_raw_mode().map_err(|error| context(error, "disable raw mode"))?;
+            disable_raw_mode().map_err(|error| context(&error, "disable raw mode"))?;
             self.raw = false;
         }
         Ok(())
@@ -178,7 +178,7 @@ impl<W: Write> Terminal<W> {
         let crate::config::Rgb(r, g, b) = color;
         write!(self.output, "\x1b]12;#{r:02x}{g:02x}{b:02x}\x07")
             .and_then(|()| self.output.flush())
-            .map_err(|error| context(error, "set cursor color"))
+            .map_err(|error| context(&error, "set cursor color"))
     }
 
     fn reset_cursor_color(&mut self) -> io::Result<()> {
@@ -186,7 +186,7 @@ impl<W: Write> Terminal<W> {
             self.output
                 .write_all(b"\x1b]112\x07")
                 .and_then(|()| self.output.flush())
-                .map_err(|error| context(error, "reset cursor color"))?;
+                .map_err(|error| context(&error, "reset cursor color"))?;
             self.cursor_color = false;
         }
         Ok(())
@@ -221,7 +221,7 @@ impl<W: Write> Drop for Terminal<W> {
     }
 }
 
-fn context(error: io::Error, operation: &str) -> io::Error {
+fn context(error: &io::Error, operation: &str) -> io::Error {
     io::Error::new(error.kind(), format!("{operation}: {error}"))
 }
 

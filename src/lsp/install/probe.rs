@@ -98,7 +98,7 @@ fn response(
         return initialized(message, streams);
     }
     if phase == 1 && message.id == Some(json!(2)) {
-        return shutdown(message, streams);
+        return shutdown(&message, streams);
     }
     Ok(phase)
 }
@@ -113,7 +113,7 @@ fn initialized(message: Message, streams: &mut Streams) -> Result<u8, String> {
     Ok(1)
 }
 
-fn shutdown(message: Message, streams: &mut Streams) -> Result<u8, String> {
+fn shutdown(message: &Message, streams: &mut Streams) -> Result<u8, String> {
     if message.error.is_some() {
         return Err("probe shutdown rejected".into());
     }

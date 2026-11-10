@@ -84,7 +84,14 @@ impl Operation {
         let control = cancel.clone();
         let worker = thread::Builder::new()
             .name("shell-command".into())
-            .spawn(move || run(program, invocation.input, invocation.file, control))
+            .spawn(move || {
+                run(
+                    program,
+                    invocation.input,
+                    invocation.file.as_ref(),
+                    &control,
+                )
+            })
             .map_err(|e| format!("Start shell worker: {e}"))?;
         Ok(Self {
             cancel,
@@ -116,16 +123,16 @@ impl Operation {
 fn run(
     program: Program,
     input: Option<Vec<u8>>,
-    file: Option<crate::file::Location>,
-    control: Cancellation,
+    file: Option<&crate::file::Location>,
+    control: &Cancellation,
 ) -> Result<Outcome, String> {
     let staged = input::stage(input.as_deref())?;
     drop(input);
     let collected = match staged {
-        Some(file) => program.run_input(Some(file), None, &control),
-        None => program.run(&control),
+        Some(file) => program.run_input(Some(file), None, control),
+        None => program.run(control),
     }?;
-    let observed = file.as_ref().map_or(Ok(None), |file| {
+    let observed = file.map_or(Ok(None), |file| {
         crate::file::observe(file.path()).map_err(|e| format!("Observe shell source: {e}"))
     });
     Ok(Outcome {

@@ -2,7 +2,7 @@ use super::snapshot::Snapshot;
 use crate::term::Session;
 use alacritty_terminal::{
     grid::Dimensions,
-    index::{Column, Line, Point},
+    index::{Column, Point},
     term::cell::Flags,
 };
 use std::ops::Range;
@@ -30,7 +30,7 @@ impl Links {
         let mut links = Self::default();
         let grid = session.screen().grid();
         for (row, range) in snapshot.rows.iter().enumerate() {
-            let line = Line(row as i32 - snapshot.history as i32);
+            let line = snapshot.line(row);
             let mut start = range.start;
             for column in 0..grid.columns() {
                 let cell = &grid[Point::new(line, Column(column))];

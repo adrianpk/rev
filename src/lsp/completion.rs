@@ -101,10 +101,12 @@ impl Ticket {
     }
     pub(super) fn finish(&self, reply: Reply) {
         let mut result = self.0.result.lock().expect("LSP completion lock");
-        if result.is_none() {
-            *result = Some(reply);
-            self.0.wake.notify_one();
+        if result.is_some() {
+            return;
         }
+        *result = Some(reply);
+        drop(result);
+        self.0.wake.notify_one();
     }
 }
 
@@ -132,7 +134,7 @@ impl Query {
         let mut reply = if self.resolve.is_some() {
             admit::resolved(self, result, wire.0)
         } else {
-            admit::response(self, result, wire)
+            admit::response(self, &result, wire)
         };
         let Some(version) = self
             .token
@@ -185,7 +187,7 @@ impl Client {
         let ticket = Ticket::new(&connection.inbox);
         let query = Query {
             ticket: ticket.clone(),
-            token: attachment.token.clone(),
+            token: Arc::clone(&attachment.token),
             stamp: buffer.stamp(),
             text: buffer.text_snapshot(),
             point: target.0,
@@ -211,7 +213,7 @@ impl Client {
         let ticket = Ticket::new(&connection.inbox);
         let query = Query {
             ticket: ticket.clone(),
-            token: context.token.clone(),
+            token: Arc::clone(&context.token),
             stamp: context.stamp,
             text: context.text.clone(),
             point: context.point,
