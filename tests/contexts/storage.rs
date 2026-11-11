@@ -127,20 +127,18 @@ fn concurrent_publication() {
     let fixture = fixture::Fixture::new();
     let (_, base, path) = seeded(&fixture);
     let barrier = Arc::new(Barrier::new(2));
-    let threads: Vec<_> = ["One", "Two"]
-        .into_iter()
-        .map(|name| {
-            let path = path.clone();
-            let base = base.clone();
-            let barrier = barrier.clone();
-            std::thread::spawn(move || {
-                let (store, _) = Store::open(&path).unwrap();
-                let prepared = renamed(&base, name);
-                barrier.wait();
-                store.publish(&prepared)
-            })
+    // Eager array mapping starts both barrier participants before either join.
+    let threads = ["One", "Two"].map(|name| {
+        let path = path.clone();
+        let base = base.clone();
+        let barrier = Arc::clone(&barrier);
+        std::thread::spawn(move || {
+            let (store, _) = Store::open(&path).unwrap();
+            let prepared = renamed(&base, name);
+            barrier.wait();
+            store.publish(&prepared)
         })
-        .collect();
+    });
     let outcomes: Vec<_> = threads
         .into_iter()
         .map(|thread| thread.join().unwrap())

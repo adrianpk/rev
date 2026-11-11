@@ -7,7 +7,7 @@ fn prepare(owner: &mut Repositories, refs: Arc<Refs>, name: &str, kind: TagKind)
     let id = owner.prepare_tag(refs, name, kind, head).unwrap();
     let update = finish(owner);
     assert!(update.published, "{:?}", owner.record(id));
-    owner.tag_intent(context).unwrap().clone()
+    Arc::clone(owner.tag_intent(context).unwrap())
 }
 fn create(owner: &mut Repositories, intent: Arc<TagIntent>, text: &str, success: bool) {
     let id = owner.create_tag(intent, text).unwrap();
@@ -116,7 +116,12 @@ fn signing_and_draft() {
     let refs = observe(&repository, &mut owner);
     let intent = prepare(&mut owner, refs, "failed", TagKind::Annotated);
     assert!(intent.signing);
-    create(&mut owner, intent.clone(), "Retained annotation\n", false);
+    create(
+        &mut owner,
+        Arc::clone(&intent),
+        "Retained annotation\n",
+        false,
+    );
     assert_eq!(owner.tag_draft(&intent), Some("Retained annotation\n"));
     let record = owner.records().last().unwrap();
     assert!(

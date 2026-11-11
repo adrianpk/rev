@@ -224,7 +224,7 @@ fn stale_inspection() {
     let sequence = observe(&mut owner);
     assert!(
         owner
-            .inspect_conflict(sequence.clone(), Path::new("other"))
+            .inspect_conflict(Arc::clone(&sequence), Path::new("other"))
             .is_err()
     );
     fs::write(repository.root.join("file"), "saved resolution\n").unwrap();

@@ -55,7 +55,7 @@ fn fair_contexts() -> Result<()> {
     let repositories: Vec<_> = (0..4).map(|_| large()).collect::<Result<_>>()?;
     byte_refusal(&repositories)?;
     let wakes = Arc::new(AtomicUsize::new(0));
-    let notifications = wakes.clone();
+    let notifications = Arc::clone(&wakes);
     let mut owner = Repositories::new(
         &repositories[0].snapshot(POLICY),
         Arc::new(move || {
@@ -65,7 +65,7 @@ fn fair_contexts() -> Result<()> {
     for repository in &repositories {
         assert!(repository.open(&mut owner, &repository.root).published);
     }
-    let retained = owner.contexts()[0].observation.clone();
+    let retained = Arc::clone(&owner.contexts()[0].observation);
     let ids: Vec<_> = owner.contexts().iter().map(|c| c.id).collect();
     for id in &ids {
         owner.refresh(*id)?;
@@ -204,7 +204,7 @@ fn output_retention() -> Result<()> {
             vec!["show".into(), "HEAD:large".into()],
         )?;
         assert!(finish(&mut owner).published);
-        let plan = owner.family_plan().unwrap().clone();
+        let plan = Arc::clone(owner.family_plan().unwrap());
         let id = owner.execute_family(plan)?;
         finish(&mut owner);
         let record = owner.record(id).unwrap();
@@ -232,7 +232,7 @@ fn malformed() -> Result<()> {
     repository.commit();
     let mut owner = repository.owner("");
     assert!(repository.open(&mut owner, &repository.root).published);
-    let retained = owner.contexts()[0].observation.clone();
+    let retained = Arc::clone(&owner.contexts()[0].observation);
     // Installed Git cannot emit corrupt porcelain deterministically. This
     // explicit parser-boundary double proves refusal, not real Git corruption.
     fs::write(

@@ -165,25 +165,23 @@ fn concurrent_publishers() {
     let fixture = Fixture::new();
     let path = fixture.0.join("history.toml");
     let barrier = Arc::new(Barrier::new(2));
-    let tasks: Vec<_> = ["undo", "newline"]
-        .into_iter()
-        .map(|name| {
-            let barrier = barrier.clone();
-            let path = path.clone();
-            std::thread::spawn(move || {
-                let (mut store, _) = Store::open(&path).unwrap();
-                barrier.wait();
-                let deadline = Instant::now() + Duration::from_secs(2);
-                loop {
-                    match store.publish(&names(&[name])) {
-                        Ok(window) => return window,
-                        Err(Error::Busy) if Instant::now() < deadline => std::thread::yield_now(),
-                        Err(error) => panic!("{error}"),
-                    }
+    // Eager array mapping starts both barrier participants before either join.
+    let tasks = ["undo", "newline"].map(|name| {
+        let barrier = Arc::clone(&barrier);
+        let path = path.clone();
+        std::thread::spawn(move || {
+            let (mut store, _) = Store::open(&path).unwrap();
+            barrier.wait();
+            let deadline = Instant::now() + Duration::from_secs(2);
+            loop {
+                match store.publish(&names(&[name])) {
+                    Ok(window) => return window,
+                    Err(Error::Busy) if Instant::now() < deadline => std::thread::yield_now(),
+                    Err(error) => panic!("{error}"),
                 }
-            })
+            }
         })
-        .collect();
+    });
     let windows: Vec<_> = tasks.into_iter().map(|task| task.join().unwrap()).collect();
     let final_window = disk(&path);
     assert!(final_window == ["undo", "newline"] || final_window == ["newline", "undo"]);

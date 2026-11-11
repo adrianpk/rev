@@ -19,7 +19,7 @@ fn state(owner: &mut Repositories) -> Arc<Sequence> {
 fn prepared(owner: &mut Repositories, bad: ObjectId, good: ObjectId) -> Arc<BisectPlan> {
     let s = state(owner);
     let id = owner
-        .prepare_bisect(s.refs.clone(), &bad.hex(), &good.hex())
+        .prepare_bisect(Arc::clone(&s.refs), &bad.hex(), &good.hex())
         .unwrap();
     assert!(finish(owner).published, "{:?}", owner.record(id));
     owner.contexts()[0].bisect_plan.clone().unwrap()
@@ -100,7 +100,7 @@ fn manual_bisect() {
         let s = state(&mut owner);
         assert!(
             owner
-                .classify_bisect(s.clone(), BisectAction::Good)
+                .classify_bisect(Arc::clone(&s), BisectAction::Good)
                 .is_err()
         );
         let id = owner.classify_bisect(s, BisectAction::Reset).unwrap();
@@ -150,7 +150,11 @@ fn bisect_ambiguity() {
     assert_eq!(b.result, BisectResult::Ambiguous);
     assert_eq!(b.remaining, 3);
     assert_eq!(b.skipped.len(), 2);
-    assert!(owner.classify_bisect(s.clone(), BisectAction::Bad).is_err());
+    assert!(
+        owner
+            .classify_bisect(Arc::clone(&s), BisectAction::Bad)
+            .is_err()
+    );
     let id = owner.classify_bisect(s, BisectAction::Reset).unwrap();
     finish(&mut owner);
     assert_eq!(owner.record(id).unwrap().outcome, Outcome::Verified);
@@ -200,7 +204,7 @@ fn bisect_fences() {
     repository.open(&mut owner, &repository.root);
     let s = state(&mut owner);
     let id = owner
-        .prepare_bisect(s.refs.clone(), &ids[0].hex(), &ids[3].hex())
+        .prepare_bisect(Arc::clone(&s.refs), &ids[0].hex(), &ids[3].hex())
         .unwrap();
     assert!(!finish(&mut owner).published);
     assert_eq!(owner.record(id).unwrap().effects, Effects::NotStarted);
@@ -230,7 +234,7 @@ fn bisect_fences() {
     let s = state(&mut owner);
     assert_ne!(s.refs.completeness, rev::git::Completeness::Complete);
     let id = owner
-        .prepare_bisect(s.refs.clone(), &ids[3].hex(), &ids[0].hex())
+        .prepare_bisect(Arc::clone(&s.refs), &ids[3].hex(), &ids[0].hex())
         .unwrap();
     assert!(!finish(&mut owner).published);
     assert_eq!(owner.record(id).unwrap().effects, Effects::NotStarted);

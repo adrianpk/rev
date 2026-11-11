@@ -72,7 +72,7 @@ fn saved_roundtrip() {
         );
         assert_eq!(fs::read(repository.root.join(&path)).unwrap(), b"base\n");
         assert!(!repository.root.join("untracked").exists());
-        owner.show_stash(stashes.clone(), object).unwrap();
+        owner.show_stash(Arc::clone(&stashes), object).unwrap();
         let update = finish(&mut owner);
         assert!(update.published);
         let detail = owner.contexts()[0].stash_detail.as_ref().unwrap();
@@ -265,7 +265,7 @@ fn stash_admission() {
     assert!(
         owner
             .prepare_stash(
-                stashes.clone(),
+                Arc::clone(&stashes),
                 StashAction::Drop(stashes.entries[0].object)
             )
             .is_err()
@@ -273,7 +273,7 @@ fn stash_admission() {
     let mut owner = repository.owner("max_detail_bytes=16384");
     let stashes = list(&repository, &mut owner);
     owner
-        .show_stash(stashes.clone(), stashes.entries[0].object)
+        .show_stash(Arc::clone(&stashes), stashes.entries[0].object)
         .unwrap();
     let update = finish(&mut owner);
     assert!(update.published, "{:?}", owner.record(update.operation));
@@ -288,7 +288,7 @@ fn stash_admission() {
     fs::write(repository.root.join("file"), "dirty\n").unwrap();
     let id = owner
         .prepare_stash(
-            stashes.clone(),
+            Arc::clone(&stashes),
             StashAction::Apply(stashes.entries[0].object),
         )
         .unwrap();
@@ -314,7 +314,11 @@ fn stash_ordinal() {
     let mut owner = repository.owner("");
     let stashes = list(&repository, &mut owner);
     let selected = stashes.entries[1].object;
-    let plan = prepare(&mut owner, stashes.clone(), StashAction::Drop(selected));
+    let plan = prepare(
+        &mut owner,
+        Arc::clone(&stashes),
+        StashAction::Drop(selected),
+    );
     repository.git(["stash", "store", "--message=external", &selected.hex()]);
     let before = repository.git(["stash", "list", "--format=%H"]);
     assert_eq!(before.iter().filter(|b| **b == b'\n').count(), 3);

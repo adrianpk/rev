@@ -28,7 +28,7 @@ fn amend_objects() {
         .unwrap();
     owner.prepare_amend(context).unwrap();
     assert!(finish(&mut owner).published);
-    let composition = owner.composition(context).unwrap().clone();
+    let composition = Arc::clone(owner.composition(context).unwrap());
     assert!(
         matches!(composition.mode, CommitMode::Amend { head: id } if id.hex().as_bytes() == head.strip_suffix(b"\n").unwrap())
     );
@@ -83,13 +83,13 @@ fn fixup_objects() {
     let observation = owner.commit_observation(context).unwrap();
     owner.prepare_fixup(observation, "chosen").unwrap();
     assert!(finish(&mut owner).published);
-    let composition = owner.composition(context).unwrap().clone();
+    let composition = Arc::clone(owner.composition(context).unwrap());
     assert!(matches!(composition.mode, CommitMode::Fixup { target: id } if id.hex() == target));
     repository.git(["branch", "--force", "chosen", "HEAD"]);
     let accepted = format!("{}fixup body\n", composition.message);
     assert!(
         owner
-            .commit_prepared(composition.clone(), "fixup! Wrong target\n")
+            .commit_prepared(Arc::clone(&composition), "fixup! Wrong target\n")
             .is_err()
     );
     owner.commit_prepared(composition, &accepted).unwrap();
@@ -138,7 +138,7 @@ fn prepared_preconditions() {
     finish(&mut owner);
     owner.prepare_amend(context).unwrap();
     finish(&mut owner);
-    let composition = owner.composition(context).unwrap().clone();
+    let composition = Arc::clone(owner.composition(context).unwrap());
     repository.git(["commit", "--allow-empty", "-m", "External"]);
     let head = repository.git(["rev-parse", "HEAD"]);
     owner

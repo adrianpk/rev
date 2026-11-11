@@ -53,7 +53,7 @@ fn index_commit(profile: &str, format: &str) -> Result<()> {
     plain(editor, 'n');
     plain(editor, 's');
     wait(editor, |s| s.echo().contains("Index updated and verified"));
-    let mut first = base.clone();
+    let mut first = base;
     first[3] = changed[3].clone();
     assert_eq!(
         repository.git(["show", ":source.txt"]),

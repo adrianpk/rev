@@ -72,7 +72,7 @@ fn aliases_and_overlap() {
     assert_eq!(
         reference,
         FileReference::RootRelative {
-            root: inner.id.clone(),
+            root: inner.id,
             path: NativePath::relative(Path::new("source")).unwrap()
         }
     );
@@ -246,7 +246,7 @@ fn canonical_files() {
         "Overlapping",
         vec![outer.clone(), inner.clone()],
     );
-    let reference = FileReference::capture(&source, &[outer.clone(), inner.clone()]).unwrap();
+    let reference = FileReference::capture(&source, &[outer.clone(), inner]).unwrap();
     catalog.sessions[0].snapshot = Ok(Snapshot {
         files: vec![
             entry(reference.clone()),

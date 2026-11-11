@@ -55,20 +55,14 @@ fn bounded_inspection() {
     let revision = h.revisions().next().unwrap();
     owner
         .show_revision(
-            h.clone(),
+            Arc::clone(&h),
             revision.object,
             revision.parents.first().copied(),
         )
         .unwrap();
     let u = finish(&mut owner);
     assert!(u.published, "{:?}", owner.record(u.operation));
-    let detail = owner
-        .context(id)
-        .unwrap()
-        .revision
-        .as_ref()
-        .unwrap()
-        .clone();
+    let detail = Arc::clone(owner.context(id).unwrap().revision.as_ref().unwrap());
     owner
         .revision_file(detail, std::path::Path::new("large"))
         .unwrap();
@@ -111,16 +105,14 @@ fn deleted_binary_and_helpers() {
     let h = history(&mut owner);
     let current = h.revisions().next().unwrap();
     owner
-        .show_revision(h.clone(), current.object, current.parents.first().copied())
+        .show_revision(
+            Arc::clone(&h),
+            current.object,
+            current.parents.first().copied(),
+        )
         .unwrap();
     assert!(finish(&mut owner).published);
-    let d = owner
-        .context(id)
-        .unwrap()
-        .revision
-        .as_ref()
-        .unwrap()
-        .clone();
+    let d = Arc::clone(owner.context(id).unwrap().revision.as_ref().unwrap());
     owner
         .revision_file(d, std::path::Path::new("old.txt"))
         .unwrap();
@@ -129,15 +121,11 @@ fn deleted_binary_and_helpers() {
     assert_eq!(file.object.hex(), initial);
     assert_eq!(file.bytes, b"old bytes\n");
     let root = h.revisions().find(|r| r.object.hex() == initial).unwrap();
-    owner.show_revision(h.clone(), root.object, None).unwrap();
+    owner
+        .show_revision(Arc::clone(&h), root.object, None)
+        .unwrap();
     assert!(finish(&mut owner).published);
-    let d = owner
-        .context(id)
-        .unwrap()
-        .revision
-        .as_ref()
-        .unwrap()
-        .clone();
+    let d = Arc::clone(owner.context(id).unwrap().revision.as_ref().unwrap());
     owner
         .revision_file(d, std::path::Path::new("binary.bin"))
         .unwrap();
@@ -191,7 +179,7 @@ fn metadata_admission() {
     let revision = h.revisions().next().unwrap();
     assert!(
         owner
-            .show_revision(h.clone(), revision.object, None)
+            .show_revision(Arc::clone(&h), revision.object, None)
             .is_err()
     );
     assert_eq!(object(&r, "HEAD"), head);

@@ -212,7 +212,7 @@ fn incompatible_refresh() {
         Family::RunShellCommand,
         vec!["mv .git moved-git; printf actual-child".into()],
     );
-    let prior = plan.observation.as_ref().unwrap().clone();
+    let prior = Arc::clone(plan.observation.as_ref().unwrap());
     unknown(&mut owner, plan, 0);
     let context = &owner.contexts()[0];
     assert!(Arc::ptr_eq(&context.observation, &prior));

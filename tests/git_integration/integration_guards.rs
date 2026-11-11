@@ -71,7 +71,7 @@ fn stale_sequence() {
         assert!(
             owner
                 .control_sequence(
-                    state.clone(),
+                    Arc::clone(&state),
                     SequenceControl::Abort,
                     Some(SequenceFamily::Rebase)
                 )
@@ -79,7 +79,7 @@ fn stale_sequence() {
         );
         assert!(
             owner
-                .control_sequence(state.clone(), SequenceControl::Continue, None)
+                .control_sequence(Arc::clone(&state), SequenceControl::Continue, None)
                 .is_err()
         );
         match changed {

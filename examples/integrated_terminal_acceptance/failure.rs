@@ -43,7 +43,7 @@ pub(crate) fn host(root: &Path) -> Result<()> {
         .unwrap();
     let failed = Rc::new(Cell::new(false));
     let writer = FailOnce {
-        failed: failed.clone(),
+        failed: Rc::clone(&failed),
         output: io::stdout(),
     };
     let mut terminal = rev::terminal::Terminal::acquire(writer)?;

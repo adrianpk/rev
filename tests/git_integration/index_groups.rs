@@ -142,18 +142,18 @@ fn hunks() {
     let diff = compare(&mut owner, Group::Unstaged, Path::new("a"));
     assert_eq!(diff.hunks.len(), 3);
     let first = IndexTarget::Hunk {
-        diff: diff.clone(),
+        diff: Arc::clone(&diff),
         hunk: diff.hunks[0].id,
     };
     let last = IndexTarget::Hunk {
-        diff: diff.clone(),
+        diff: Arc::clone(&diff),
         hunk: diff.hunks[2].id,
     };
     assert!(
         owner
             .change_index_group(
                 IndexDirection::Stage,
-                &[first.clone(), IndexTarget::Path(diff.clone())]
+                &[first.clone(), IndexTarget::Path(diff)]
             )
             .is_err()
     );
@@ -185,7 +185,7 @@ fn hunks() {
         .hunks
         .iter()
         .map(|h| IndexTarget::Hunk {
-            diff: staged.clone(),
+            diff: Arc::clone(&staged),
             hunk: h.id,
         })
         .collect();
@@ -203,3 +203,4 @@ fn hunks() {
     let diff = compare(&mut owner, Group::Unstaged, Path::new("a"));
     change(&mut owner, IndexDirection::Stage, IndexTarget::Path(diff));
 }
+use std::sync::Arc;

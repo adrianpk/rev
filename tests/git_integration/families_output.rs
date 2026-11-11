@@ -40,7 +40,7 @@ fn plan(
     assert!(update.published, "{:?}", owner.record(id));
     assert_eq!(owner.record(id).unwrap().effects, Effects::NotStarted);
     assert!(!destination.exists());
-    owner.family_plan().unwrap().clone()
+    Arc::clone(owner.family_plan().unwrap())
 }
 fn history(format: &str) -> (Repository, String) {
     let repository = Repository::new(format);

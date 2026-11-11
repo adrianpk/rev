@@ -7,13 +7,7 @@ fn observe(owner: &mut Repositories) -> Arc<Refs> {
     owner.refs(context).unwrap();
     let update = finish(owner);
     assert!(update.published, "{:?}", owner.record(update.operation));
-    owner
-        .context(context)
-        .unwrap()
-        .refs
-        .as_ref()
-        .unwrap()
-        .clone()
+    Arc::clone(owner.context(context).unwrap().refs.as_ref().unwrap())
 }
 fn topic(repository: &Repository, conflict: bool) {
     fs::write(repository.root.join("file"), "base\n").unwrap();
@@ -244,7 +238,7 @@ fn sequence_controls() {
         }
         let state = sequence(&mut owner);
         let id = owner
-            .control_sequence(state.clone(), action, state.family)
+            .control_sequence(Arc::clone(&state), action, state.family)
             .unwrap();
         let update = finish(&mut owner);
         let record = owner.record(id).unwrap();

@@ -141,7 +141,7 @@ fn subscriptions() {
         ),
         (
             json!(["changed"]),
-            json!([handle.clone(), handle.clone()]),
+            json!([&handle, &handle]),
             "invalid_arguments",
         ),
         (

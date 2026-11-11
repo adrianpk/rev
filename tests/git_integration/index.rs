@@ -14,18 +14,19 @@ use rev::git::{
 use std::{ffi::OsString, fs, os::unix::ffi::OsStringExt, path::Path, sync::Arc};
 
 fn compare(owner: &mut Repositories, group: Group, path: &Path) -> Arc<Diff> {
-    let observation = owner.contexts()[0].observation.clone();
+    let observation = Arc::clone(&owner.contexts()[0].observation);
     owner
         .compare(observation.context, observation.generation, group, path)
         .unwrap();
     assert!(finish(owner).published);
-    owner
-        .context(observation.context)
-        .unwrap()
-        .detail
-        .as_ref()
-        .unwrap()
-        .clone()
+    Arc::clone(
+        owner
+            .context(observation.context)
+            .unwrap()
+            .detail
+            .as_ref()
+            .unwrap(),
+    )
 }
 fn change(owner: &mut Repositories, direction: IndexDirection, target: IndexTarget) {
     let operation = owner.change_index(direction, target).unwrap();
@@ -197,7 +198,7 @@ fn hunk_boundaries() {
                 .change_index(
                     IndexDirection::Unstage,
                     IndexTarget::Hunk {
-                        diff: diff.clone(),
+                        diff: Arc::clone(&diff),
                         hunk
                     }
                 )
@@ -235,7 +236,7 @@ fn stale_preflight() {
         let expected_index = repository.git(["show", ":source"]);
         let expected_source = fs::read(&path).unwrap();
         let id = owner
-            .change_index(IndexDirection::Stage, IndexTarget::Path(diff.clone()))
+            .change_index(IndexDirection::Stage, IndexTarget::Path(Arc::clone(&diff)))
             .unwrap();
         assert!(!finish(&mut owner).published);
         assert_eq!(owner.record(id).unwrap().effects, Effects::NotStarted);
@@ -365,22 +366,22 @@ fn common_storage() {
             .compare(context, generation, Group::Unstaged, Path::new("source"))
             .unwrap();
         assert!(finish(&mut owner).published);
-        targets.push(
-            owner
-                .context(context)
-                .unwrap()
-                .detail
-                .as_ref()
-                .unwrap()
-                .clone(),
-        );
+        targets.push(Arc::clone(
+            owner.context(context).unwrap().detail.as_ref().unwrap(),
+        ));
     }
     owner
-        .change_index(IndexDirection::Stage, IndexTarget::Path(targets[0].clone()))
+        .change_index(
+            IndexDirection::Stage,
+            IndexTarget::Path(Arc::clone(&targets[0])),
+        )
         .unwrap();
     assert!(
         owner
-            .change_index(IndexDirection::Stage, IndexTarget::Path(targets[1].clone()))
+            .change_index(
+                IndexDirection::Stage,
+                IndexTarget::Path(Arc::clone(&targets[1]))
+            )
             .unwrap_err()
             .contains("common storage")
     );
@@ -388,7 +389,7 @@ fn common_storage() {
     change(
         &mut owner,
         IndexDirection::Stage,
-        IndexTarget::Path(targets[1].clone()),
+        IndexTarget::Path(Arc::clone(&targets[1])),
     );
     assert_eq!(repository.git(["show", ":source"]), b"main change\n");
     assert_eq!(

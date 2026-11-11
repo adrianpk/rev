@@ -8,7 +8,7 @@ fn reflog(owner: &mut Repositories) -> Arc<rev::git::Reflog> {
     owner.reflog(id).unwrap();
     let u = finish(owner);
     assert!(u.published, "{:?}", owner.record(u.operation));
-    owner.context(id).unwrap().reflog.as_ref().unwrap().clone()
+    Arc::clone(owner.context(id).unwrap().reflog.as_ref().unwrap())
 }
 
 // Opposite endpoint order produces opposite real Git changes; range endpoints
@@ -32,7 +32,7 @@ fn exact_ranges() {
             (base, end, b"-value 0".as_slice(), b"+value 3".as_slice()),
             (end, base, b"-value 3".as_slice(), b"+value 0".as_slice()),
         ] {
-            owner.show_range(h.clone(), base, end).unwrap();
+            owner.show_range(Arc::clone(&h), base, end).unwrap();
             let u = finish(&mut owner);
             assert!(u.published, "{:?}", owner.record(u.operation));
             let d = owner
@@ -70,7 +70,7 @@ fn reflog_objects() {
     assert_eq!(current.entries.len(), 3);
     assert_eq!(current.entries[2].object, target);
     assert!(owner.show_reflog(first, target).is_err());
-    owner.show_reflog(current.clone(), target).unwrap();
+    owner.show_reflog(Arc::clone(&current), target).unwrap();
     let u = finish(&mut owner);
     assert!(u.published, "{:?}", owner.record(u.operation));
     assert_eq!(
@@ -118,7 +118,7 @@ fn blame_renamed_source() {
         owner.blame(id, &new).unwrap();
         let u = finish(&mut owner);
         assert!(u.published, "{:?}", owner.record(u.operation));
-        let b = owner.context(id).unwrap().blame.as_ref().unwrap().clone();
+        let b = Arc::clone(owner.context(id).unwrap().blame.as_ref().unwrap());
         assert_eq!(b.lines.len(), 3);
         assert_eq!(b.completeness, Completeness::Complete);
         for (i, line) in b.lines.iter().enumerate() {
@@ -128,7 +128,7 @@ fn blame_renamed_source() {
             assert_eq!(line.path, if i == 1 { new.clone() } else { old.clone() });
             assert_eq!(line.author, b"Example Author");
         }
-        owner.inspect_blame(b.clone(), 3, true).unwrap();
+        owner.inspect_blame(Arc::clone(&b), 3, true).unwrap();
         let u = finish(&mut owner);
         assert!(u.published, "{:?}", owner.record(u.operation));
         let file = owner.context(id).unwrap().revision_file.as_ref().unwrap();

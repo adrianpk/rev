@@ -249,7 +249,7 @@ fn merge_noop_amend() {
         .unwrap();
     owner.prepare_amend(context).unwrap();
     finish(&mut owner);
-    let composition = owner.composition(context).unwrap().clone();
+    let composition = Arc::clone(owner.composition(context).unwrap());
     let message = composition.message.clone();
     owner.commit_prepared(composition, &message).unwrap();
     finish(&mut owner);

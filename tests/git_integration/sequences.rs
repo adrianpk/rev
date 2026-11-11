@@ -178,7 +178,7 @@ fn explicit_mainlines() {
         assert!(
             owner
                 .prepare_sequence(
-                    h.clone(),
+                    Arc::clone(&h),
                     ApplyKind::CherryPick,
                     &[RevisionChoice {
                         object: first,
@@ -321,13 +321,13 @@ fn application_admission() {
         };
         assert!(
             owner
-                .prepare_sequence(h.clone(), ApplyKind::CherryPick, &[choice, choice])
+                .prepare_sequence(Arc::clone(&h), ApplyKind::CherryPick, &[choice, choice])
                 .is_err()
         );
         assert!(
             owner
                 .prepare_sequence(
-                    h.clone(),
+                    Arc::clone(&h),
                     ApplyKind::CherryPick,
                     &[RevisionChoice {
                         object: first,

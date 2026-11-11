@@ -52,7 +52,7 @@ fn cycle(buffer: &rev::buffer::Buffer) -> Result<Duration> {
     let mut job = Job::default();
     let (sender, receiver) = mpsc::sync_channel(0);
     let observed = std::sync::Arc::new(std::sync::atomic::AtomicBool::new(false));
-    let worker = observed.clone();
+    let worker = std::sync::Arc::clone(&observed);
     job.start(buffer.stamp(), move |cancel| {
         let first = scan.advance(cancel);
         sender.send(first).expect("owned setup receiver");

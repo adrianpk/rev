@@ -10,7 +10,7 @@ pub(super) fn prepare(owner: &mut Repositories, refs: Arc<Refs>) -> Arc<PushInte
     let id = owner.prepare_push(refs, b"refs/heads/main", None).unwrap();
     let update = finish(owner);
     assert!(update.published, "{:?}", owner.record(id));
-    owner.push_intent(context).unwrap().clone()
+    Arc::clone(owner.push_intent(context).unwrap())
 }
 pub(super) fn object(repository: &Repository, remote: &std::path::Path, name: &str) -> Vec<u8> {
     repository.git(["--git-dir", remote.to_str().unwrap(), "rev-parse", name])
@@ -46,7 +46,7 @@ fn exact_upstream() {
         assert_eq!(intent.remote(), b"origin");
         assert_eq!(intent.destination(), b"refs/heads/main");
         assert!(!format!("{intent:?}").contains(destination.to_str().unwrap()));
-        let id = owner.push(intent.clone()).unwrap();
+        let id = owner.push(Arc::clone(&intent)).unwrap();
         assert!(owner.push(intent).is_err());
         let update = finish(&mut owner);
         assert!(update.published, "{:?}", owner.record(id));
@@ -158,7 +158,7 @@ fn stale_push() {
     repository.open(&mut owner, &repository.root);
     let refs = observe(&mut owner);
     let id = owner
-        .prepare_push(refs.clone(), b"refs/heads/main", Some(b"other"))
+        .prepare_push(Arc::clone(&refs), b"refs/heads/main", Some(b"other"))
         .unwrap();
     assert!(!finish(&mut owner).published);
     assert_eq!(owner.record(id).unwrap().effects, Effects::NotStarted);

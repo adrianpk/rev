@@ -171,7 +171,8 @@ Dependency: Slice 8 integrated
 Branch: refactor/rev-architecture-quality-09-fixtures
 PR: pending
 Report: ops/default/report/slices/rev-architecture-quality/slice-9-fixtures.md
-Validation: pending; frozen ordered commands in plan and controller configuration
+Validation: development all-target compilation and 13 focused native cases pass; scoped quality remains failing with 99 blocking selected Clippy diagnostics and 123 source findings; final frozen clean-HEAD validation pending
+Progress: measured all 704 selected Rust files and 70 Cargo roots. The first ownership cohort reduces blocking Clippy diagnostics from 201 to 99 by making shared clones explicit, moving unused fixture values and preserving eager concurrent startup before joins. Test identities, assertion-site counts, snapshot/consent/resource contracts and deadlines remain unchanged. No selected clone_on_ref_ptr, redundant_clone or needless_collect findings remain; four selected-profile diagnostics stay deferred outside this scope. Native source decomposition, remaining diagnostics and final PR preparation are pending.
 
 - [ ] T9.1: Resolve remaining selected diagnostics and existing source bounds in native test and example code, including every Cargo root and shared fixture ownership.
 - [ ] T9.2: Keep existing case identities, semantic/resource/PTY assertions and varied Unicode/numeric inputs; extract cohesive setup/check steps instead of hiding branches in macros, closures or unrelated parameter bundles.

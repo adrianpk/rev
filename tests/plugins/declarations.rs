@@ -372,7 +372,7 @@ fn selectors() {
 fn admission_bounds() {
     let f = Fixture::new();
     let base = manifest("field.notes");
-    let mut exact = base.clone();
+    let mut exact = base;
     exact.push('#');
     exact.push_str(&"x".repeat(rev::plugins::declarations::MANIFEST_BYTES - exact.len()));
     f.write("package.toml", &exact);

@@ -11,7 +11,7 @@ fn observe(repository: &Repository, owner: &mut Repositories) -> Arc<Refs> {
         owner.record(update.operation).unwrap().outcome,
         Outcome::Verified
     );
-    let refs = owner.context(id).unwrap().refs.as_ref().unwrap().clone();
+    let refs = Arc::clone(owner.context(id).unwrap().refs.as_ref().unwrap());
     assert!(owner.check_refs(&refs).is_ok());
     assert!(
         refs.observation
@@ -220,7 +220,7 @@ fn ref_limits_and_heads() {
     assert!(
         owner
             .branch(
-                refs.clone(),
+                Arc::clone(&refs),
                 BranchAction::Create {
                     name: "rejected".into(),
                     target: refs.head.unwrap()

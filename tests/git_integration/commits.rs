@@ -181,8 +181,9 @@ fn normal_draft_limits() {
         "a\0b".to_owned(),
         "x".repeat(MAX_COMMIT_BYTES + 1),
     ] {
-        assert!(owner.commit(observation.clone(), &text).is_err());
+        assert!(owner.commit(Arc::clone(&observation), &text).is_err());
         assert_eq!(owner.commit_draft(context), Some("previous"));
         assert!(!owner.busy());
     }
 }
+use std::sync::Arc;

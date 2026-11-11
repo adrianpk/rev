@@ -128,7 +128,7 @@ fn checked_roundtrip() {
         let plan = prepare(&mut owner, observed, WorktreeAction::Unlock(path.clone()));
         change(&mut owner, plan);
         let observed = owner.context(source).unwrap().worktrees.clone().unwrap();
-        owner.visit_worktree(observed.clone(), &path).unwrap();
+        owner.visit_worktree(Arc::clone(&observed), &path).unwrap();
         let visited = finish(&mut owner);
         assert!(visited.published, "{:?}", owner.record(visited.operation));
         assert_ne!(visited.context, Some(source));

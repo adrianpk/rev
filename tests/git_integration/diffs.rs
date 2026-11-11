@@ -8,7 +8,7 @@ use rev::git::{
 use std::{ffi::OsString, fs, os::unix::ffi::OsStringExt, path::Path, sync::Arc};
 
 fn compare(owner: &mut Repositories, group: Group, path: &Path) -> Arc<Diff> {
-    let observation = owner.contexts()[0].observation.clone();
+    let observation = Arc::clone(&owner.contexts()[0].observation);
     let id = owner
         .compare(observation.context, observation.generation, group, path)
         .unwrap();
@@ -16,13 +16,14 @@ fn compare(owner: &mut Repositories, group: Group, path: &Path) -> Arc<Diff> {
     assert_eq!(update.operation, id);
     assert_eq!(update.kind, OperationKind::Diff);
     assert!(update.published, "{:?}", owner.records());
-    owner
-        .context(observation.context)
-        .unwrap()
-        .detail
-        .as_ref()
-        .unwrap()
-        .clone()
+    Arc::clone(
+        owner
+            .context(observation.context)
+            .unwrap()
+            .detail
+            .as_ref()
+            .unwrap(),
+    )
 }
 fn contains(bytes: &[u8], text: &[u8]) -> bool {
     bytes.windows(text.len()).any(|part| part == text)
@@ -299,7 +300,7 @@ fn stale_generation() {
     let mut owner = repository.owner("");
     repository.open(&mut owner, &repository.root);
     let detail = compare(&mut owner, Group::Unstaged, Path::new("file"));
-    let old = detail.observation.clone();
+    let old = Arc::clone(&detail.observation);
     owner.refresh(old.context).unwrap();
     assert!(finish(&mut owner).published);
     assert!(!owner.detail_current(&detail));
@@ -313,7 +314,7 @@ fn stale_generation() {
             )
             .is_err()
     );
-    let current = owner.context(old.context).unwrap().observation.clone();
+    let current = Arc::clone(&owner.context(old.context).unwrap().observation);
     assert!(
         owner
             .compare(

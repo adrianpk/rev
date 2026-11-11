@@ -39,7 +39,7 @@ fn prepare(
     let update = finish(owner);
     assert!(update.published, "{:?}", owner.record(id));
     assert_eq!(owner.record(id).unwrap().effects, Effects::NotStarted);
-    owner.family_plan().unwrap().clone()
+    Arc::clone(owner.family_plan().unwrap())
 }
 fn execute(owner: &mut Repositories, plan: Arc<FamilyPlan>) {
     let id = owner.execute_family(plan).unwrap();

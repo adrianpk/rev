@@ -80,7 +80,7 @@ fn ordered_controls() {
             assert_eq!(state.total, Some(3));
             assert!(
                 owner
-                    .control_sequence(state.clone(), SequenceControl::Continue, None)
+                    .control_sequence(Arc::clone(&state), SequenceControl::Continue, None)
                     .is_err()
             );
             let wrong = if kind == ApplyKind::CherryPick {

@@ -188,7 +188,7 @@ fn bounded_replacement() {
     let mut owner = repository.owner("max_status_paths=2\nmax_process_records=2");
     assert!(repository.open(&mut owner, &repository.root).published);
     let id = context_id(&owner);
-    let retained = owner.context(id).unwrap().observation.clone();
+    let retained = Arc::clone(&owner.context(id).unwrap().observation);
     let status = retained.status.as_ref().unwrap();
     assert_eq!(status.paths.len(), 2);
     assert_eq!(
@@ -372,7 +372,7 @@ fn retained_contexts() {
     let repository = Repository::new("sha1");
     let mut owner = repository.owner("");
     assert!(repository.open(&mut owner, &repository.root).published);
-    let retained = owner.contexts()[0].observation.clone();
+    let retained = Arc::clone(&owner.contexts()[0].observation);
     let id = retained.context;
     owner.refresh(id).unwrap();
     assert!(
@@ -444,7 +444,7 @@ fn rejected_publication() {
             ""
         });
         repository.open(&mut owner, &repository.root);
-        let retained = owner.contexts()[0].observation.clone();
+        let retained = Arc::clone(&owner.contexts()[0].observation);
         let injected = if case == "malformed" {
             "printf '# branch.oid (initial)\\000# branch.head main\\000invalid record\\000'\nexit 0"
         } else if case == "changed HEAD" {

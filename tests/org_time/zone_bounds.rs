@@ -35,7 +35,7 @@ fn invalid_tzif_fields() {
         bytes[at..at + 4].copy_from_slice(&count.to_be_bytes());
         assert!(Zone::from_tzif(&bytes).is_err(), "{name}");
     }
-    let mut bytes = base.clone();
+    let mut bytes = base;
     bytes.extend([0]);
     assert!(Zone::from_tzif(&bytes).is_err());
 }
@@ -111,7 +111,7 @@ fn tzif_limits() {
         0
     );
     assert!(Zone::from_tzif(&vec![0; 1048577]).is_err());
-    let mut mismatch = base.clone();
+    let mut mismatch = base;
     mismatch[55] = b'2';
     assert!(Zone::from_tzif(&mismatch).is_err());
 }

@@ -215,7 +215,7 @@ fn denied_source(name: &str) {
         "editor.indent_width = 2\ninclude = ['private/child.toml']",
     );
     let (selected, denied) = match name {
-        "root" => (root.clone(), root.clone()),
+        "root" => (root.clone(), root),
         "include" => (root, child),
         "parent" => (child, fixture.0.join("private")),
         _ => unreachable!("known permission fixture"),

@@ -7,13 +7,7 @@ fn observe(owner: &mut Repositories) -> Arc<Refs> {
     owner.refs(context).unwrap();
     let update = finish(owner);
     assert!(update.published, "{:?}", owner.record(update.operation));
-    owner
-        .context(context)
-        .unwrap()
-        .refs
-        .as_ref()
-        .unwrap()
-        .clone()
+    Arc::clone(owner.context(context).unwrap().refs.as_ref().unwrap())
 }
 fn remote(repository: &Repository, name: &str) -> PathBuf {
     let path = repository.fixture.0.join(format!("{name}.git"));
@@ -56,8 +50,8 @@ fn selected_fetch() {
         let mut owner = repository.owner("");
         repository.open(&mut owner, &repository.root);
         let refs = observe(&mut owner);
-        assert!(owner.fetch(refs.clone(), b"missing").is_err());
-        let id = owner.fetch(refs.clone(), b"origin").unwrap();
+        assert!(owner.fetch(Arc::clone(&refs), b"missing").is_err());
+        let id = owner.fetch(Arc::clone(&refs), b"origin").unwrap();
         assert!(owner.fetch(refs, b"origin").is_err());
         let update = finish(&mut owner);
         assert!(update.published, "{:?}", owner.record(id));
@@ -113,7 +107,7 @@ fn fetch_admission() {
     let mut owner = repository.owner("");
     repository.open(&mut owner, &repository.root);
     let refs = observe(&mut owner);
-    let id = owner.fetch(refs.clone(), b"path-only").unwrap();
+    let id = owner.fetch(Arc::clone(&refs), b"path-only").unwrap();
     finish(&mut owner);
     let record = owner.record(id).unwrap();
     assert_eq!(record.outcome, Outcome::Failed);

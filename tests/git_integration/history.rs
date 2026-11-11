@@ -13,13 +13,7 @@ fn history(owner: &mut Repositories) -> Arc<History> {
     let context = owner.contexts()[0].id;
     owner.log(context, None).unwrap();
     assert!(finish(owner).published, "{:?}", owner.records());
-    owner
-        .context(context)
-        .unwrap()
-        .history
-        .as_ref()
-        .unwrap()
-        .clone()
+    Arc::clone(owner.context(context).unwrap().history.as_ref().unwrap())
 }
 fn object(repository: &Repository, revision: &str) -> String {
     String::from_utf8(repository.git(["rev-parse", revision]))
@@ -46,21 +40,22 @@ fn ancestry_pages() {
         assert_eq!(h.revisions().next().unwrap().object.hex(), head);
         assert_eq!(h.revisions().count(), 2);
         for _ in 0..2 {
-            owner.continue_history(h.clone(), true).unwrap();
+            owner.continue_history(Arc::clone(&h), true).unwrap();
             assert!(finish(&mut owner).published);
-            h = owner
-                .context(h.observation.context)
-                .unwrap()
-                .history
-                .as_ref()
-                .unwrap()
-                .clone();
+            h = Arc::clone(
+                owner
+                    .context(h.observation.context)
+                    .unwrap()
+                    .history
+                    .as_ref()
+                    .unwrap(),
+            );
         }
         assert_eq!(h.pages.len(), 3);
         assert!(h.more && h.page_limit);
         assert!(
             owner
-                .continue_history(h.clone(), true)
+                .continue_history(Arc::clone(&h), true)
                 .unwrap_err()
                 .contains("limit")
         );
@@ -75,21 +70,24 @@ fn ancestry_pages() {
             h.revisions().map(|r| r.object.hex()).collect::<Vec<_>>(),
             expected.lines().collect::<Vec<_>>()
         );
-        owner.continue_history(h.clone(), false).unwrap();
+        owner.continue_history(Arc::clone(&h), false).unwrap();
         assert!(finish(&mut owner).published);
-        let refreshed = owner
-            .context(h.observation.context)
-            .unwrap()
-            .history
-            .as_ref()
-            .unwrap()
-            .clone();
+        let refreshed = Arc::clone(
+            owner
+                .context(h.observation.context)
+                .unwrap()
+                .history
+                .as_ref()
+                .unwrap(),
+        );
         assert_eq!(refreshed.pages.len(), 3);
         assert!(Arc::ptr_eq(&h.pages[0], &refreshed.pages[0]));
         assert_eq!(repository.git(["status", "--porcelain=v2", "-z"]), before);
         assert_eq!(object(&repository, "HEAD"), head);
         repository.commit();
-        owner.continue_history(refreshed.clone(), false).unwrap();
+        owner
+            .continue_history(Arc::clone(&refreshed), false)
+            .unwrap();
         assert!(!finish(&mut owner).published);
         assert!(Arc::ptr_eq(
             owner
@@ -134,7 +132,7 @@ fn revisions_and_parents() {
     assert_eq!(merge.parents.len(), 2);
     for parent in &merge.parents {
         owner
-            .show_revision(h.clone(), merge.object, Some(*parent))
+            .show_revision(Arc::clone(&h), merge.object, Some(*parent))
             .unwrap();
         assert!(finish(&mut owner).published, "{:?}", owner.records());
         let d = owner
@@ -152,7 +150,7 @@ fn revisions_and_parents() {
     let revision = h.revisions().find(|r| r.object.hex() == rename).unwrap();
     owner
         .show_revision(
-            h.clone(),
+            Arc::clone(&h),
             revision.object,
             revision.parents.first().copied(),
         )
@@ -173,7 +171,7 @@ fn revisions_and_parents() {
     let foreign = ObjectId::parse(&[b'1'; 64], d.object.format()).unwrap();
     assert!(
         owner
-            .show_revision(h.clone(), merge.object, Some(foreign))
+            .show_revision(Arc::clone(&h), merge.object, Some(foreign))
             .is_err()
     );
     assert_eq!(object(&repository, "HEAD"), head);
@@ -201,13 +199,14 @@ fn unborn_and_detached() {
     assert!(finish(&mut owner).published);
     owner.log(h.observation.context, Some("HEAD")).unwrap();
     assert!(finish(&mut owner).published);
-    let accepted = owner
-        .context(h.observation.context)
-        .unwrap()
-        .history
-        .as_ref()
-        .unwrap()
-        .clone();
+    let accepted = Arc::clone(
+        owner
+            .context(h.observation.context)
+            .unwrap()
+            .history
+            .as_ref()
+            .unwrap(),
+    );
     assert_eq!(accepted.root.unwrap().hex(), object(&repository, "HEAD"));
     owner
         .log(h.observation.context, Some("missing-revision"))
@@ -240,7 +239,7 @@ fn changed_ancestry() {
         format!("{}\n", h.root.unwrap().hex()),
     )
     .unwrap();
-    owner.continue_history(h.clone(), true).unwrap();
+    owner.continue_history(Arc::clone(&h), true).unwrap();
     let update = finish(&mut owner);
     assert!(!update.published);
     let record = owner.record(update.operation).unwrap();
