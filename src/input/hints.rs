@@ -50,13 +50,8 @@ impl Input {
             probe.cancel();
             probe.workspace_completion = self.workspace_completion;
             if let Some(command) = probe.resolve_hint(&sequence) {
-                let command = if self.map_context() == super::keymap::Context::Tree {
-                    if command == Command::InsertTab {
-                        continue;
-                    }
-                    TreeCommand::alias(command).map_or(command, Command::Tree)
-                } else {
-                    command
+                let Some(command) = self.hint_command(command) else {
+                    continue;
                 };
                 hints.entry(command.name().to_owned()).or_insert(label);
             }
@@ -65,6 +60,16 @@ impl Input {
             hints.insert("universal-argument".into(), label);
         }
         hints
+    }
+
+    fn hint_command(&self, command: Command) -> Option<Command> {
+        if self.map_context() != super::keymap::Context::Tree {
+            return Some(command);
+        }
+        if command == Command::InsertTab {
+            return None;
+        }
+        Some(TreeCommand::alias(command).map_or(command, Command::Tree))
     }
 
     fn resolve_hint(&mut self, sequence: &Sequence) -> Option<Command> {
@@ -89,6 +94,10 @@ impl Input {
                 }
             }
         }
+        self.resolve_hint_sequence(sequence)
+    }
+
+    fn resolve_hint_sequence(&mut self, sequence: &Sequence) -> Option<Command> {
         let now = Instant::now();
         let last = sequence.chords().len() - 1;
         for (index, chord) in sequence.chords().iter().enumerate() {

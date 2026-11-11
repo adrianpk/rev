@@ -15,15 +15,20 @@ impl Input {
         let accepts_text = self.accepts_text();
         match &mut self.context {
             Context::Editing if accepts_text => Outcome::Paste(text),
-            Context::Search(prompt) => prompt.literal_paste(&text),
-            Context::Literal(prompt) => prompt.literal_paste(&text),
+            Context::Search(prompt) | Context::Literal(prompt) => prompt.literal_paste(&text),
             Context::Command(palette) => palette.paste(&text),
             Context::Names(names) => names.paste(&text),
+            _ => self.paste_argument(&text),
+        }
+    }
+
+    fn paste_argument(&mut self, text: &str) -> Outcome {
+        match &mut self.context {
             Context::Calendar(prompt)
             | Context::Argument(prompt)
             | Context::ArgumentDigit(prompt)
             | Context::Shell(prompt)
-            | Context::Path(prompt) => prompt.paste(&text),
+            | Context::Path(prompt) => prompt.paste(text),
             _ => Outcome::Message("Paste is unavailable in this input context"),
         }
     }

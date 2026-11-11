@@ -253,6 +253,12 @@ impl Input {
             Context::Search(prompt) => Some(prompt),
             Context::Command(palette) => Some(palette.prompt()),
             Context::Names(names) => Some(names.prompt()),
+            _ => self.argument_prompt(),
+        }
+    }
+
+    fn argument_prompt(&self) -> Option<&Prompt> {
+        match &self.context {
             Context::Calendar(prompt)
             | Context::Argument(prompt)
             | Context::ArgumentDigit(prompt)
@@ -386,13 +392,26 @@ impl Input {
     fn focused(&mut self, key: Key) -> Outcome {
         match &mut self.context {
             Context::Search(prompt) => search::handle(prompt, key),
-            Context::Editing if self.workspace_startup => inventory::handle(key),
-            Context::Editing => self.literal(key),
+            Context::Editing => self.editing_key(key),
             Context::Argument(prompt) | Context::Calendar(prompt) => prompt.handle(key),
             Context::ArgumentDigit(_) => self.argument_digit(key),
             Context::Shell(prompt) => self.shell_history.handle(prompt, key),
             Context::Path(prompt) => path::handle(prompt, key),
             Context::Literal(prompt) => replace::argument(prompt, key),
+            _ => self.focused_choice(key),
+        }
+    }
+
+    fn editing_key(&self, key: Key) -> Outcome {
+        if self.workspace_startup {
+            inventory::handle(key)
+        } else {
+            self.literal(key)
+        }
+    }
+
+    fn focused_choice(&mut self, key: Key) -> Outcome {
+        match &mut self.context {
             Context::ReplaceDecision => replace::answer(key),
             Context::MacroStep(_) => step_edit::answer(key),
             Context::MacroQuery => macros::answer(key),

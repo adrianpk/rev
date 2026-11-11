@@ -101,6 +101,15 @@ impl Input {
             .map(|_| (self.chords.clone(), self.chords.len()));
         self.clear_sequence();
         self.argument.continuation = None;
+        self.update_argument(command, key, continuation)
+    }
+
+    fn update_argument(
+        &mut self,
+        command: Command,
+        key: Option<Key>,
+        continuation: Option<(Vec<Key>, usize)>,
+    ) -> Outcome {
         let value = match command {
             Command::PrefixArgument => match self.argument.value.form() {
                 ArgumentForm::Integer(_) | ArgumentForm::NegativeOnly => {
@@ -146,6 +155,26 @@ impl Input {
         if self.focus() != Focus::Editing || !self.argument.value.supplied() {
             return None;
         }
+        if let Some(outcome) = self.argument_continuation(key) {
+            return Some(outcome);
+        }
+        if self.argument.terminated || !self.chords.is_empty() {
+            return None;
+        }
+        if let Some(digit) = digit(key) {
+            return Some(
+                self.admit_argument(self.argument.value.digit(digit), Command::DigitArgument),
+            );
+        }
+        if key.code == KeyCode::Char('-')
+            && matches!(key.modifiers, KeyModifiers::NONE | KeyModifiers::ALT)
+        {
+            return Some(self.prefix_control(Command::NegativeArgument, Some(key)));
+        }
+        None
+    }
+
+    fn argument_continuation(&mut self, key: Key) -> Option<Outcome> {
         if let Some((mut keys, root)) = self.argument.continuation.take() {
             keys.push(key);
             if let Some(sequence) = Sequence::from_chords(&keys) {
@@ -163,19 +192,6 @@ impl Input {
                 self.clear_prefix();
                 return Some(Outcome::Message("Undefined key sequence"));
             }
-        }
-        if self.argument.terminated || !self.chords.is_empty() {
-            return None;
-        }
-        if let Some(digit) = digit(key) {
-            return Some(
-                self.admit_argument(self.argument.value.digit(digit), Command::DigitArgument),
-            );
-        }
-        if key.code == KeyCode::Char('-')
-            && matches!(key.modifiers, KeyModifiers::NONE | KeyModifiers::ALT)
-        {
-            return Some(self.prefix_control(Command::NegativeArgument, Some(key)));
         }
         None
     }
@@ -207,46 +223,51 @@ impl Input {
 
     pub(super) fn argument_outcome(&mut self, outcome: Outcome) -> Outcome {
         match outcome {
-            Outcome::Command(command)
-                if command.prefix_control() && self.focus() == Focus::Editing =>
-            {
-                self.prefix_control(command, None)
-            }
-            Outcome::Command(Command::ExecuteExtended) => outcome,
-            Outcome::Command(command) if self.argument.value.supplied() => {
-                let argument = std::mem::take(&mut self.argument);
-                Outcome::Invocation(Box::new(Invocation {
-                    command,
-                    argument: argument.value,
-                    origin: argument.origin.expect("supplied input has an origin"),
-                }))
-            }
-            Outcome::Command(_) => {
-                self.clear_argument();
-                outcome
-            }
-            Outcome::Editing(key)
-                if self.argument.value.supplied()
-                    && self.focus() == Focus::Editing
-                    && matches!(key.plain(), Some(KeyCode::Char(c)) if !c.is_control()) =>
-            {
+            Outcome::Command(command) => self.command_argument_outcome(command),
+            Outcome::Editing(key) if self.literal_argument_key(key) => {
                 let KeyCode::Char(character) = key.code else {
                     unreachable!()
                 };
                 self.text_invocation(character.to_string())
             }
-            Outcome::Paste(text)
-                if self.argument.value.supplied() && self.focus() == Focus::Editing =>
-            {
-                self.text_invocation(text)
-            }
-            Outcome::Editing(_) | Outcome::Paste(_) | Outcome::Pointer(_)
+            Outcome::Paste(text) if self.argument_admits_text() => self.text_invocation(text),
+            _ => self.retire_editing_argument(outcome),
+        }
+    }
+
+    fn command_argument_outcome(&mut self, command: Command) -> Outcome {
+        if command.prefix_control() && self.focus() == Focus::Editing {
+            return self.prefix_control(command, None);
+        }
+        if command == Command::ExecuteExtended {
+            return Outcome::Command(command);
+        }
+        if self.argument.value.supplied() {
+            let argument = std::mem::take(&mut self.argument);
+            return Outcome::Invocation(Box::new(Invocation {
+                command,
+                argument: argument.value,
+                origin: argument.origin.expect("supplied input has an origin"),
+            }));
+        }
+        self.clear_argument();
+        Outcome::Command(command)
+    }
+
+    fn argument_admits_text(&self) -> bool {
+        self.argument.value.supplied() && self.focus() == Focus::Editing
+    }
+
+    fn literal_argument_key(&self, key: Key) -> bool {
+        self.argument_admits_text()
+            && matches!(key.plain(), Some(KeyCode::Char(c)) if !c.is_control())
+    }
+
+    fn retire_editing_argument(&mut self, outcome: Outcome) -> Outcome {
+        match outcome {
+            Outcome::Editing(_) | Outcome::Paste(_) | Outcome::Pointer(_) | Outcome::Message(_)
                 if self.focus() == Focus::Editing =>
             {
-                self.clear_argument();
-                outcome
-            }
-            Outcome::Message(_) if self.focus() == Focus::Editing => {
                 self.clear_argument();
                 outcome
             }

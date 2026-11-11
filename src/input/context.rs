@@ -13,16 +13,18 @@ impl Input {
     /// Terminal first refusal is shared by actual dispatch and hint inspection.
     pub(crate) fn terminal_host_command(key: Key) -> Option<Command> {
         if key.control('q') {
-            Some(Command::Terminal(TerminalCommand::SendNextKey))
-        } else if key.code == KeyCode::Char('x') && key.modifiers == KeyModifiers::ALT {
-            Some(Command::ExecuteExtended)
-        } else if key.control('y') {
-            Some(Command::Terminal(TerminalCommand::Yank))
-        } else if key.code == KeyCode::Char('y') && key.modifiers == KeyModifiers::ALT {
-            Some(Command::Terminal(TerminalCommand::YankPop))
-        } else {
-            None
+            return Some(Command::Terminal(TerminalCommand::SendNextKey));
         }
+        if key.code == KeyCode::Char('x') && key.modifiers == KeyModifiers::ALT {
+            return Some(Command::ExecuteExtended);
+        }
+        if key.control('y') {
+            return Some(Command::Terminal(TerminalCommand::Yank));
+        }
+        if key.code == KeyCode::Char('y') && key.modifiers == KeyModifiers::ALT {
+            return Some(Command::Terminal(TerminalCommand::YankPop));
+        }
+        None
     }
 
     pub(crate) fn terminal_host_key(&self, key: Key) -> bool {
@@ -62,32 +64,8 @@ impl Input {
                 MapContext::Editor
             };
         }
-        if self.workspace_git_commit {
-            return MapContext::GitCommit;
-        }
-        if self.workspace_git && self.workspace_git_worktree {
-            return MapContext::GitWorktree;
-        }
-        if self.workspace_git && self.workspace_git_stash {
-            return MapContext::GitStash;
-        }
-        if self.workspace_git && self.workspace_git_conflict {
-            return MapContext::GitConflict;
-        }
-        if self.workspace_git && self.workspace_git_sequence {
-            return MapContext::GitSequence;
-        }
-        if self.workspace_git && self.workspace_git_refs {
-            return MapContext::GitRefs;
-        }
-        if self.workspace_git && self.workspace_git_inspect {
-            return MapContext::GitInspect;
-        }
-        if self.workspace_git && self.workspace_git_history {
-            return MapContext::GitHistory;
-        }
-        if self.workspace_git {
-            return MapContext::Git;
+        if let Some(context) = self.git_context() {
+            return context;
         }
         if let Some(context) = self.workspace_macro {
             return context;
@@ -103,6 +81,38 @@ impl Input {
         }
         self.workspace_org
             .map_or(MapContext::Editor, super::OrgContext::keymap)
+    }
+
+    fn git_context(&self) -> Option<MapContext> {
+        if self.workspace_git_commit {
+            return Some(MapContext::GitCommit);
+        }
+        self.workspace_git.then(|| self.git_map_context())
+    }
+
+    fn git_map_context(&self) -> MapContext {
+        if self.workspace_git_worktree {
+            return MapContext::GitWorktree;
+        }
+        if self.workspace_git_stash {
+            return MapContext::GitStash;
+        }
+        if self.workspace_git_conflict {
+            return MapContext::GitConflict;
+        }
+        if self.workspace_git_sequence {
+            return MapContext::GitSequence;
+        }
+        if self.workspace_git_refs {
+            return MapContext::GitRefs;
+        }
+        if self.workspace_git_inspect {
+            return MapContext::GitInspect;
+        }
+        if self.workspace_git_history {
+            return MapContext::GitHistory;
+        }
+        MapContext::Git
     }
 
     pub(super) fn context_binding(&mut self, binding: Binding, key: Key, custom: bool) -> Outcome {
@@ -319,47 +329,11 @@ impl Input {
 
 impl Input {
     pub(crate) fn startup_command(command: Command) -> bool {
-        use crate::command::{ModalCommand, navigation::Target};
-        match command {
-            Command::DashboardOpen
-            | Command::KeyboardQuit
-            | Command::Modal(ModalCommand::Normal)
-            | Command::ExecuteExtended
-            | Command::Quit
-            | Command::MouseMode
-            | Command::Newline
-            | Command::Scroll(_)
-            | Command::Motion(
-                Motion::BufferStart | Motion::BufferEnd | Motion::LineStart | Motion::LineEnd,
-            )
-            | Command::GenerateNewBuffer
-            | Command::FindFile
-            | Command::OpenDirectory
-            | Command::ContextClose
-            | Command::ProjectCreate
-            | Command::ProjectPromote
-            | Command::ProjectSwitch
-            | Command::ProjectList
-            | Command::WorkspaceCreate
-            | Command::WorkspaceOpen
-            | Command::WorkspaceList
-            | Command::WorkspaceAddDirectory
-            | Command::WorkspaceAddProject
-            | Command::WorkspaceRemoveRoot
-            | Command::ProjectRename
-            | Command::ProjectForget
-            | Command::ProjectSetRoot
-            | Command::ProjectPromoteToWorkspace
-            | Command::ProjectDuplicateAsWorkspace
-            | Command::WorkspaceRename
-            | Command::WorkspaceForget
-            | Command::WorkspaceSetRootPath => true,
-            Command::Navigate(n) => matches!(
-                n.target,
-                Target::Line(_) | Target::Buffer(_) | Target::LineStart | Target::LineEnd
-            ),
-            _ => false,
-        }
+        startup_host_command(command)
+            || startup_navigation(command)
+            || startup_source_command(command)
+            || startup_project_command(command)
+            || startup_workspace_command(command)
     }
 }
 
@@ -377,4 +351,76 @@ impl Input {
         }
         self.clear_prefix();
     }
+}
+
+fn startup_host_command(command: Command) -> bool {
+    matches!(
+        command,
+        Command::DashboardOpen
+            | Command::KeyboardQuit
+            | Command::Modal(crate::command::ModalCommand::Normal)
+            | Command::ExecuteExtended
+            | Command::Quit
+            | Command::MouseMode
+    )
+}
+
+fn startup_navigation(command: Command) -> bool {
+    use crate::command::navigation::Target;
+    match command {
+        Command::Newline | Command::Scroll(_) => true,
+        Command::Motion(motion) => startup_motion(motion),
+        Command::Navigate(n) => matches!(
+            n.target,
+            Target::Line(_) | Target::Buffer(_) | Target::LineStart | Target::LineEnd
+        ),
+        _ => false,
+    }
+}
+
+fn startup_motion(motion: Motion) -> bool {
+    matches!(
+        motion,
+        Motion::BufferStart | Motion::BufferEnd | Motion::LineStart | Motion::LineEnd
+    )
+}
+
+fn startup_source_command(command: Command) -> bool {
+    matches!(
+        command,
+        Command::GenerateNewBuffer
+            | Command::FindFile
+            | Command::OpenDirectory
+            | Command::ContextClose
+    )
+}
+
+fn startup_project_command(command: Command) -> bool {
+    matches!(
+        command,
+        Command::ProjectCreate
+            | Command::ProjectPromote
+            | Command::ProjectSwitch
+            | Command::ProjectList
+            | Command::ProjectRename
+            | Command::ProjectForget
+            | Command::ProjectSetRoot
+            | Command::ProjectPromoteToWorkspace
+            | Command::ProjectDuplicateAsWorkspace
+    )
+}
+
+fn startup_workspace_command(command: Command) -> bool {
+    matches!(
+        command,
+        Command::WorkspaceCreate
+            | Command::WorkspaceOpen
+            | Command::WorkspaceList
+            | Command::WorkspaceAddDirectory
+            | Command::WorkspaceAddProject
+            | Command::WorkspaceRemoveRoot
+            | Command::WorkspaceRename
+            | Command::WorkspaceForget
+            | Command::WorkspaceSetRootPath
+    )
 }

@@ -89,6 +89,12 @@ impl Context {
             Self::BookmarkList => "bookmark_list",
             Self::MacroDefinition => "macro_definition",
             Self::MacroMenu => "macro_menu",
+            _ => self.git_name(),
+        }
+    }
+
+    fn git_name(self) -> &'static str {
+        match self {
             Self::Git => "git",
             Self::GitCommit => "git_commit",
             Self::GitHistory => "git_history",
@@ -196,6 +202,11 @@ impl Effective {
             Context::BookmarkList => &self.bookmark_list,
             Context::MacroDefinition => &self.macro_definition,
             Context::MacroMenu => &self.macro_menu,
+            _ => self.git_map(context),
+        }
+    }
+    fn git_map(&self, context: Context) -> &Map {
+        match context {
             Context::Git => &self.git,
             Context::GitCommit => &self.git_commit,
             Context::GitHistory => &self.git_history,

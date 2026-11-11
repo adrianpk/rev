@@ -54,6 +54,12 @@ pub(super) fn bindings(context: Context) -> &'static [(&'static str, &'static st
         Context::BookmarkList => BOOKMARK_LIST,
         Context::MacroDefinition => MACRO_DEFINITION,
         Context::MacroMenu => MACRO_MENU,
+        _ => git_bindings(context),
+    }
+}
+
+fn git_bindings(context: Context) -> &'static [(&'static str, &'static str)] {
+    match context {
         Context::Git => GIT,
         Context::GitHistory => GIT_HISTORY,
         Context::GitInspect => GIT_INSPECT,

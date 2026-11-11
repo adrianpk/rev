@@ -1,4 +1,4 @@
-use super::keymap::{Context as MapContext, Sequence};
+use super::keymap::{Context as MapContext, Map, Sequence};
 use super::{Context, Error, Focus, Input, Key, Outcome, Prompt};
 use crate::command::{Binding, Command, MacroName};
 use crossterm::event::KeyCode;
@@ -143,28 +143,16 @@ impl Input {
             capture.keys.pop();
             return Outcome::Message("Key has no admitted native binding notation");
         };
-        if capture.binding
-            && capture.keys.len() == 1
-            && let Some(KeyCode::Char(c)) = key.plain()
-            && (c.is_ascii_digit() || c.is_ascii_uppercase())
-        {
-            sequence = Sequence::parse(&format!("C-x C-k {c}")).expect("reserved macro slot");
+        if let Some(slot) = capture.reserved_slot(key) {
+            sequence = slot;
         } else {
             let map = if capture.modal {
                 self.keymaps.vim_map(capture.context, capture.local)
             } else {
                 self.keymaps.map(capture.context)
             };
-            let prefix = map.is_prefix(&sequence)
-                || self.macro_bindings.keys().any(|target| {
-                    target != &sequence && target.chords().starts_with(sequence.chords())
-                });
-            let argument = matches!(map.lookup(&sequence), Some(Binding::Command(command)) if command.prefix_control());
-            if prefix && !argument && capture.keys.len() < Sequence::MAX_CHORDS {
-                if capture.prompt.replace(&sequence.to_string()).is_err() {
-                    return Outcome::Message("Macro key display exceeds the native prompt limit");
-                }
-                return Outcome::Changed;
+            if let Some(outcome) = capture.continue_prefix(map, &self.macro_bindings, &sequence) {
+                return outcome;
             }
         }
         self.context = Context::Editing;
@@ -210,21 +198,62 @@ impl Input {
                 && overlaps(key, sequence)
         });
         for context in MapContext::ALL {
-            for (key, target) in self.keymaps.map(context).bindings() {
-                if !overlaps(key, sequence) {
-                    continue;
-                }
-                if matches!(target, Binding::Command(Command::KeyboardQuit)) {
-                    return Err("Macro bindings cannot shadow native cancellation".into());
-                }
-                if matches!(target, Binding::Command(command) if command.prefix_control())
-                    && key.chords().len() <= sequence.chords().len()
-                {
-                    return Err("Macro bindings cannot shadow native prefix arguments".into());
-                }
-                occupied = true;
-            }
+            occupied |= macro_map_overlap(self.keymaps.map(context), sequence)?;
         }
         Ok(occupied)
+    }
+}
+
+fn macro_map_overlap(map: &Map, sequence: &Sequence) -> Result<bool, String> {
+    let mut occupied = false;
+    for (key, target) in map.bindings() {
+        if !overlaps(key, sequence) {
+            continue;
+        }
+        if matches!(target, Binding::Command(Command::KeyboardQuit)) {
+            return Err("Macro bindings cannot shadow native cancellation".into());
+        }
+        if matches!(target, Binding::Command(command) if command.prefix_control())
+            && key.chords().len() <= sequence.chords().len()
+        {
+            return Err("Macro bindings cannot shadow native prefix arguments".into());
+        }
+        occupied = true;
+    }
+    Ok(occupied)
+}
+
+impl Capture {
+    fn reserved_slot(&self, key: Key) -> Option<Sequence> {
+        if self.binding
+            && self.keys.len() == 1
+            && let Some(KeyCode::Char(c)) = key.plain()
+            && (c.is_ascii_digit() || c.is_ascii_uppercase())
+        {
+            return Some(Sequence::parse(&format!("C-x C-k {c}")).expect("reserved macro slot"));
+        }
+        None
+    }
+
+    fn continue_prefix(
+        &mut self,
+        map: &Map,
+        bindings: &BTreeMap<Sequence, Command>,
+        sequence: &Sequence,
+    ) -> Option<Outcome> {
+        let prefix = map.is_prefix(sequence)
+            || bindings
+                .keys()
+                .any(|target| target != sequence && target.chords().starts_with(sequence.chords()));
+        let argument = matches!(map.lookup(sequence), Some(Binding::Command(command)) if command.prefix_control());
+        if prefix && !argument && self.keys.len() < Sequence::MAX_CHORDS {
+            if self.prompt.replace(&sequence.to_string()).is_err() {
+                return Some(Outcome::Message(
+                    "Macro key display exceeds the native prompt limit",
+                ));
+            }
+            return Some(Outcome::Changed);
+        }
+        None
     }
 }

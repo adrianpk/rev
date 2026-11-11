@@ -71,22 +71,25 @@ impl Context {
         }
         match self {
             Self::Completion => completion(target),
-            Self::OrgAgenda => org_navigation(target) || agenda_action(target),
-            Self::OrgCalendar => calendar(target) || minibuffer(target),
+            Self::OrgAgenda | Self::OrgCalendar => self.org_available(target),
             Self::Minibuffer => minibuffer(target),
             Self::Tree => tree(target),
-            Self::MacroMenu => matches!(
-                target,
-                Binding::Command(
-                    Command::Macro(_)
-                        | Command::KeyboardQuit
-                        | Command::ExecuteExtended
-                        | Command::Scroll(_)
-                        | Command::Motion(_)
-                        | Command::Region(_)
-                )
-            ),
+            Self::MacroMenu => macro_menu(target),
             Self::BookmarkList => bookmark_list(target),
+            _ => self.git_available(target),
+        }
+    }
+
+    fn org_available(self, target: Binding) -> bool {
+        match self {
+            Self::OrgAgenda => org_navigation(target) || agenda_action(target),
+            Self::OrgCalendar => calendar(target) || minibuffer(target),
+            _ => unreachable!("non-Org context has a separate availability owner"),
+        }
+    }
+
+    fn git_available(self, target: Binding) -> bool {
+        match self {
             Self::Git
             | Self::GitHistory
             | Self::GitInspect
@@ -94,24 +97,7 @@ impl Context {
             | Self::GitSequence
             | Self::GitWorktree
             | Self::GitStash
-            | Self::GitConflict => {
-                matches!(
-                    target,
-                    Binding::Command(
-                        Command::Git(_)
-                            | Command::Quit
-                            | Command::KeyboardQuit
-                            | Command::ExecuteExtended
-                            | Command::Scroll(
-                                Scroll::NextLine
-                                    | Scroll::PreviousLine
-                                    | Scroll::PageForward
-                                    | Scroll::PageBackward
-                            )
-                            | Command::Motion(Motion::BufferStart | Motion::BufferEnd)
-                    )
-                )
-            }
+            | Self::GitConflict => git(target),
             _ => unreachable!("editing context handled"),
         }
     }
@@ -234,6 +220,39 @@ fn completion(target: Binding) -> bool {
                     | crate::command::CompletionCommand::Accept
                     | crate::command::CompletionCommand::Cancel
             ) | Command::KeyboardQuit
+        )
+    )
+}
+
+fn macro_menu(target: Binding) -> bool {
+    matches!(
+        target,
+        Binding::Command(
+            Command::Macro(_)
+                | Command::KeyboardQuit
+                | Command::ExecuteExtended
+                | Command::Scroll(_)
+                | Command::Motion(_)
+                | Command::Region(_)
+        )
+    )
+}
+
+fn git(target: Binding) -> bool {
+    matches!(
+        target,
+        Binding::Command(
+            Command::Git(_)
+                | Command::Quit
+                | Command::KeyboardQuit
+                | Command::ExecuteExtended
+                | Command::Scroll(
+                    Scroll::NextLine
+                        | Scroll::PreviousLine
+                        | Scroll::PageForward
+                        | Scroll::PageBackward
+                )
+                | Command::Motion(Motion::BufferStart | Motion::BufferEnd)
         )
     )
 }

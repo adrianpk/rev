@@ -307,30 +307,35 @@ impl Default for State {
 impl State {
     pub fn counter(&self) -> &Counter {
         if let Some(run) = &self.runner {
-            &run.counter
-        } else if let Some(recorder) = &self.recorder {
-            &recorder.counter
-        } else if let Some(pause) = self.pauses.last() {
-            if let Some(run) = &pause.runner {
+            return &run.counter;
+        }
+        if let Some(recorder) = &self.recorder {
+            return &recorder.counter;
+        }
+        if let Some(pause) = self.pauses.last() {
+            return if let Some(run) = &pause.runner {
                 &run.counter
             } else if let Some(recorder) = &pause.recorder {
                 &recorder.counter
             } else {
                 &self.scratch
-            }
-        } else {
-            self.ring
-                .front()
-                .map_or(&self.scratch, |definition| &definition.counter)
+            };
         }
+        self.ring
+            .front()
+            .map_or(&self.scratch, |definition| &definition.counter)
     }
 
     pub fn set_counter(&mut self, counter: Counter) {
         if let Some(run) = &mut self.runner {
             run.counter = counter;
-        } else if let Some(recorder) = &mut self.recorder {
+            return;
+        }
+        if let Some(recorder) = &mut self.recorder {
             recorder.counter = counter;
-        } else if let Some(pause) = self.pauses.last_mut() {
+            return;
+        }
+        if let Some(pause) = self.pauses.last_mut() {
             if let Some(run) = &mut pause.runner {
                 run.counter = counter;
             } else if let Some(recorder) = &mut pause.recorder {
@@ -338,7 +343,9 @@ impl State {
             } else {
                 self.scratch = counter;
             }
-        } else if let Some(definition) = self.ring.front_mut() {
+            return;
+        }
+        if let Some(definition) = self.ring.front_mut() {
             let mut updated = (**definition).clone();
             updated.counter = counter;
             *definition = Arc::new(updated);
@@ -414,18 +421,19 @@ impl State {
 
     pub fn status(&self) -> Status {
         if self.recorder.is_some() {
-            Status::Recording
-        } else if self.runner.is_some() {
-            Status::Playing
-        } else if let Some(pause) = self.pauses.last() {
-            if pause.recorder.is_some() {
+            return Status::Recording;
+        }
+        if self.runner.is_some() {
+            return Status::Playing;
+        }
+        if let Some(pause) = self.pauses.last() {
+            return if pause.recorder.is_some() {
                 Status::Recording
             } else {
                 Status::Playing
-            }
-        } else {
-            Status::Idle
+            };
         }
+        Status::Idle
     }
 
     pub fn active(&self) -> bool {

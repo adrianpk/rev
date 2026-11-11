@@ -151,7 +151,7 @@ Branch: refactor/rev-architecture-quality-08-interaction
 PR: pending
 Report: ops/default/report/slices/rev-architecture-quality/slice-8-interaction.md
 Validation: pending; frozen ordered commands in plan and controller configuration
-Progress: F6 completion owner implemented. Selected Clippy admission passes with zero blocking diagnostics; 121 source findings remain. Macro memory admission uses borrowed Arc identities with unchanged byte charges and limits. All 186 library, 44 completion and 110 macro cases pass. Commands retain the same 16 failures (188 passed); modal has two failures (122 passed). Canonical PR preparation and final validation remain pending.
+Progress: F6 completion owner implemented. Selected Clippy admission passes with zero blocking diagnostics. Separating input routing, prefix handling, hints, bindings and counter formatting resolves 25 source findings, reducing 121 to 96. Macro memory admission retains borrowed Arc identities and unchanged limits. All 186 library, 44 completion, 110 macro and nine selected plugin-keymap cases pass. Commands retain the same 16 failures (188 passed); modal retains the same two failures (122 passed). Canonical PR preparation and final validation remain pending.
 
 - [x] T8.1: Resolve F6 with a cohesive completion concern owner and explicit admission/retirement transitions; keep public completion observations and native editing/context semantics intact.
 - [ ] T8.2: Correct remaining command/input/macro/session selected diagnostics and source bounds, including retained macro body identity without raw-pointer-type casts or identity-spelling workarounds.

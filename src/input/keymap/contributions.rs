@@ -46,20 +46,7 @@ pub(crate) fn overlaps(a: &Sequence, b: &Sequence) -> bool {
 impl Map {
     /// Preserve native recovery/state transitions and refuse unreachable chords.
     pub(crate) fn admit_plugin(&self, sequence: &Sequence) -> Result<(), String> {
-        use crossterm::event::{KeyCode, KeyModifiers};
-        if sequence
-            .chords()
-            .first()
-            .is_some_and(|k| k.modifiers == KeyModifiers::ALT && k.code == KeyCode::Char('x'))
-            || sequence
-                .chords()
-                .iter()
-                .any(|k| k.control('g') || k.control(']') || k.code == KeyCode::Esc)
-            || sequence.chords().first().is_some_and(|k| {
-                k.modifiers == KeyModifiers::ALT
-                    && matches!(k.code,KeyCode::Char(c) if c.is_ascii_digit() || c == '-')
-            })
-        {
+        if native_control_sequence(sequence) {
             return Err(
                 "plugin binding shadows native cancellation, Escape or prefix arguments".into(),
             );
@@ -107,43 +94,7 @@ impl Map {
     /// a scope. Equal-priority overlapping defaults never select an arrival winner.
     pub(crate) fn contributions(&self, values: &[Contribution]) -> (Self, Vec<ResolutionStatus>) {
         let mut map = self.clone();
-        let mut statuses = vec![ResolutionStatus::Shadowed; values.len()];
-        for rank in (0..=3).rev() {
-            let eligible: Vec<_> = values
-                .iter()
-                .enumerate()
-                .filter(|(_, v)| v.rank() == rank)
-                .filter(|(_, v)| {
-                    !(!v.local
-                        && self
-                            .entries
-                            .iter()
-                            .any(|(k, e)| e.custom && overlaps(k, &v.sequence)))
-                })
-                .filter(|(_, v)| {
-                    !values.iter().zip(&statuses).any(|(other, status)| {
-                        other.rank() > rank
-                            && *status == ResolutionStatus::Effective
-                            && overlaps(&other.sequence, &v.sequence)
-                    })
-                })
-                .map(|(i, _)| i)
-                .collect();
-            for &i in &eligible {
-                let value = &values[i];
-                let conflict = eligible.iter().any(|&j| {
-                    i != j
-                        && overlaps(&values[j].sequence, &value.sequence)
-                        && (values[j].command != value.command
-                            || values[j].sequence != value.sequence)
-                });
-                statuses[i] = if conflict {
-                    ResolutionStatus::Conflicting
-                } else {
-                    ResolutionStatus::Effective
-                };
-            }
-        }
+        let statuses = self.contribution_statuses(values);
         for (value, status) in values.iter().zip(&statuses) {
             if *status != ResolutionStatus::Effective {
                 continue;
@@ -159,6 +110,51 @@ impl Map {
             );
         }
         (map, statuses)
+    }
+    fn contribution_statuses(&self, values: &[Contribution]) -> Vec<ResolutionStatus> {
+        let mut statuses = vec![ResolutionStatus::Shadowed; values.len()];
+        for rank in (0..=3).rev() {
+            let eligible = self.eligible_contributions(values, &statuses, rank);
+            for &i in &eligible {
+                let value = &values[i];
+                let conflict = eligible.iter().any(|&j| {
+                    i != j
+                        && overlaps(&values[j].sequence, &value.sequence)
+                        && (values[j].command != value.command
+                            || values[j].sequence != value.sequence)
+                });
+                statuses[i] = if conflict {
+                    ResolutionStatus::Conflicting
+                } else {
+                    ResolutionStatus::Effective
+                };
+            }
+        }
+        statuses
+    }
+
+    fn eligible_contributions(
+        &self,
+        values: &[Contribution],
+        statuses: &[ResolutionStatus],
+        rank: u8,
+    ) -> Vec<usize> {
+        values
+            .iter()
+            .enumerate()
+            .filter(|(_, value)| value.rank() == rank)
+            .filter(|(_, value)| !self.user_binding_precedes(value))
+            .filter(|(_, value)| !higher_contribution_precedes(value, values, statuses, rank))
+            .map(|(index, _)| index)
+            .collect()
+    }
+
+    fn user_binding_precedes(&self, value: &Contribution) -> bool {
+        !value.local
+            && self
+                .entries
+                .iter()
+                .any(|(key, entry)| entry.custom && overlaps(key, &value.sequence))
     }
 }
 
@@ -186,4 +182,33 @@ impl super::Effective {
         }
         Ok(())
     }
+}
+
+fn higher_contribution_precedes(
+    value: &Contribution,
+    values: &[Contribution],
+    statuses: &[ResolutionStatus],
+    rank: u8,
+) -> bool {
+    values.iter().zip(statuses).any(|(other, status)| {
+        other.rank() > rank
+            && *status == ResolutionStatus::Effective
+            && overlaps(&other.sequence, &value.sequence)
+    })
+}
+
+fn native_control_sequence(sequence: &Sequence) -> bool {
+    sequence.chords().first().is_some_and(native_entry_key)
+        || sequence.chords().iter().any(native_cancel_key)
+}
+
+fn native_entry_key(key: &crate::input::Key) -> bool {
+    use crossterm::event::{KeyCode, KeyModifiers};
+    key.modifiers == KeyModifiers::ALT
+        && (key.code == KeyCode::Char('x')
+            || matches!(key.code, KeyCode::Char(c) if c.is_ascii_digit() || c == '-'))
+}
+
+fn native_cancel_key(key: &crate::input::Key) -> bool {
+    key.control('g') || key.control(']') || key.code == crossterm::event::KeyCode::Esc
 }

@@ -42,12 +42,7 @@ impl Operation {
 /// Parse and render together so accepted formats always have a bounded result.
 /// Negative values use a sign and magnitude in every supported radix.
 pub(crate) fn render(format: &str, value: i64) -> Result<String, &'static str> {
-    if format.contains('\0') {
-        return Err("Macro counter format contains NUL");
-    }
-    if format.len() > 256 {
-        return Err("Macro counter format exceeds 256 bytes");
-    }
+    admit_format(format)?;
     let mut chars = format.chars().peekable();
     let mut output = String::new();
     let mut converted = false;
@@ -65,77 +60,7 @@ pub(crate) fn render(format: &str, value: i64) -> Result<String, &'static str> {
             return Err("Macro counter format requires one integer conversion");
         }
         converted = true;
-        let (mut left, mut plus, mut space, mut alternate, mut zero) =
-            (false, false, false, false, false);
-        loop {
-            match chars.peek() {
-                Some('-') => left = true,
-                Some('+') => plus = true,
-                Some(' ') => space = true,
-                Some('#') => alternate = true,
-                Some('0') => zero = true,
-                _ => break,
-            }
-            chars.next();
-        }
-        let width = decimal(&mut chars)?.unwrap_or(0);
-        let precision = if chars.peek() == Some(&'.') {
-            chars.next();
-            Some(decimal(&mut chars)?.unwrap_or(0))
-        } else {
-            None
-        };
-        let conversion = chars.next().ok_or("Incomplete macro counter format")?;
-        let magnitude = value.unsigned_abs();
-        let mut digits = match conversion {
-            'd' => magnitude.to_string(),
-            'o' => format!("{magnitude:o}"),
-            'x' => format!("{magnitude:x}"),
-            'X' => format!("{magnitude:X}"),
-            _ => return Err("Macro counter format supports d, o, x and X only"),
-        };
-        if precision == Some(0) && magnitude == 0 {
-            digits.clear();
-        }
-        if let Some(precision) = precision {
-            digits = format!(
-                "{}{}",
-                "0".repeat(precision.saturating_sub(digits.len())),
-                digits
-            );
-        }
-        let sign = if value < 0 {
-            "-"
-        } else if plus {
-            "+"
-        } else if space {
-            " "
-        } else {
-            ""
-        };
-        let prefix = if alternate {
-            match conversion {
-                'o' if !digits.starts_with('0') => "0",
-                'x' if magnitude != 0 => "0x",
-                'X' if magnitude != 0 => "0X",
-                _ => "",
-            }
-        } else {
-            ""
-        };
-        let padding = width.saturating_sub(sign.len() + prefix.len() + digits.len());
-        if !left && (!zero || precision.is_some()) {
-            output.push_str(&" ".repeat(padding));
-        }
-        output.push_str(sign);
-        output.push_str(prefix);
-        if !left && zero && precision.is_none() {
-            output.push_str(&"0".repeat(padding));
-        }
-        output.push_str(&digits);
-        if left {
-            output.push_str(&" ".repeat(padding));
-        }
+        Conversion::parse(&mut chars)?.render(value, &mut output)?;
     }
     if !converted {
         return Err("Macro counter format requires one integer conversion");
@@ -144,6 +69,128 @@ pub(crate) fn render(format: &str, value: i64) -> Result<String, &'static str> {
         return Err("Rendered macro counter exceeds 512 bytes");
     }
     Ok(output)
+}
+
+#[derive(Default)]
+struct Flags {
+    left: bool,
+    plus: bool,
+    space: bool,
+    alternate: bool,
+    zero: bool,
+}
+
+impl Flags {
+    fn parse(chars: &mut std::iter::Peekable<std::str::Chars<'_>>) -> Self {
+        let mut flags = Self::default();
+        loop {
+            match chars.peek() {
+                Some('-') => flags.left = true,
+                Some('+') => flags.plus = true,
+                Some(' ') => flags.space = true,
+                Some('#') => flags.alternate = true,
+                Some('0') => flags.zero = true,
+                _ => break,
+            }
+            chars.next();
+        }
+        flags
+    }
+
+    fn sign(&self, value: i64) -> &'static str {
+        if value < 0 {
+            "-"
+        } else if self.plus {
+            "+"
+        } else if self.space {
+            " "
+        } else {
+            ""
+        }
+    }
+}
+
+struct Conversion {
+    flags: Flags,
+    width: usize,
+    precision: Option<usize>,
+    radix: char,
+}
+
+impl Conversion {
+    fn parse(chars: &mut std::iter::Peekable<std::str::Chars<'_>>) -> Result<Self, &'static str> {
+        let flags = Flags::parse(chars);
+        let width = decimal(chars)?.unwrap_or(0);
+        let precision = if chars.peek() == Some(&'.') {
+            chars.next();
+            Some(decimal(chars)?.unwrap_or(0))
+        } else {
+            None
+        };
+        let radix = chars.next().ok_or("Incomplete macro counter format")?;
+        Ok(Self {
+            flags,
+            width,
+            precision,
+            radix,
+        })
+    }
+
+    fn render(&self, value: i64, output: &mut String) -> Result<(), &'static str> {
+        let magnitude = value.unsigned_abs();
+        let mut digits = match self.radix {
+            'd' => magnitude.to_string(),
+            'o' => format!("{magnitude:o}"),
+            'x' => format!("{magnitude:x}"),
+            'X' => format!("{magnitude:X}"),
+            _ => return Err("Macro counter format supports d, o, x and X only"),
+        };
+        if self.precision == Some(0) && magnitude == 0 {
+            digits.clear();
+        }
+        if let Some(precision) = self.precision {
+            digits = format!(
+                "{}{}",
+                "0".repeat(precision.saturating_sub(digits.len())),
+                digits
+            );
+        }
+        let sign = self.flags.sign(value);
+        let prefix = self.prefix(magnitude, &digits);
+        self.append(output, sign, prefix, &digits);
+        Ok(())
+    }
+
+    fn prefix(&self, magnitude: u64, digits: &str) -> &'static str {
+        if self.flags.alternate {
+            match self.radix {
+                'o' if !digits.starts_with('0') => "0",
+                'x' if magnitude != 0 => "0x",
+                'X' if magnitude != 0 => "0X",
+                _ => "",
+            }
+        } else {
+            ""
+        }
+    }
+
+    fn append(&self, output: &mut String, sign: &str, prefix: &str, digits: &str) {
+        let padding = self
+            .width
+            .saturating_sub(sign.len() + prefix.len() + digits.len());
+        if !self.flags.left && (!self.flags.zero || self.precision.is_some()) {
+            output.push_str(&" ".repeat(padding));
+        }
+        output.push_str(sign);
+        output.push_str(prefix);
+        if !self.flags.left && self.flags.zero && self.precision.is_none() {
+            output.push_str(&"0".repeat(padding));
+        }
+        output.push_str(digits);
+        if self.flags.left {
+            output.push_str(&" ".repeat(padding));
+        }
+    }
 }
 
 fn decimal(
@@ -159,4 +206,14 @@ fn decimal(
         value = Some(next);
     }
     Ok(value)
+}
+
+fn admit_format(format: &str) -> Result<(), &'static str> {
+    if format.contains('\0') {
+        return Err("Macro counter format contains NUL");
+    }
+    if format.len() > 256 {
+        return Err("Macro counter format exceeds 256 bytes");
+    }
+    Ok(())
 }

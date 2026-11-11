@@ -38,24 +38,36 @@ pub(super) fn answer(key: Key) -> Outcome {
         Some(MacroStep::RemoveRest)
     } else {
         match key.plain() {
-            Some(KeyCode::Char(' ' | 'y')) => Some(MacroStep::Execute),
-            Some(KeyCode::Char('n' | 'd') | KeyCode::Backspace) => Some(MacroStep::Remove),
-            Some(KeyCode::Char('f')) => Some(MacroStep::Skip),
-            Some(KeyCode::Tab) => Some(MacroStep::Group),
-            Some(KeyCode::Char('c')) => Some(MacroStep::Continue),
             Some(KeyCode::Char('q')) => Some(MacroStep::Cancel),
             Some(KeyCode::Char('?')) => Some(MacroStep::Help),
-            Some(KeyCode::Char('i')) => Some(MacroStep::Insert),
-            Some(KeyCode::Char('I')) => Some(MacroStep::InsertKey),
-            Some(KeyCode::Char('r')) => Some(MacroStep::Replace),
-            Some(KeyCode::Char('R')) => Some(MacroStep::ReplaceKey),
-            Some(KeyCode::Char('a')) => Some(MacroStep::After),
-            Some(KeyCode::Char('A')) => Some(MacroStep::Append),
-            _ => None,
+            code => execution_choice(code),
         }
     };
     choice.map_or(
         Outcome::Message("Step editor: ? shows choices"),
         Outcome::MacroStep,
     )
+}
+
+fn execution_choice(code: Option<KeyCode>) -> Option<MacroStep> {
+    match code {
+        Some(KeyCode::Char(' ' | 'y')) => Some(MacroStep::Execute),
+        Some(KeyCode::Char('n' | 'd') | KeyCode::Backspace) => Some(MacroStep::Remove),
+        Some(KeyCode::Char('f')) => Some(MacroStep::Skip),
+        Some(KeyCode::Tab) => Some(MacroStep::Group),
+        Some(KeyCode::Char('c')) => Some(MacroStep::Continue),
+        _ => definition_choice(code),
+    }
+}
+
+fn definition_choice(code: Option<KeyCode>) -> Option<MacroStep> {
+    match code {
+        Some(KeyCode::Char('i')) => Some(MacroStep::Insert),
+        Some(KeyCode::Char('I')) => Some(MacroStep::InsertKey),
+        Some(KeyCode::Char('r')) => Some(MacroStep::Replace),
+        Some(KeyCode::Char('R')) => Some(MacroStep::ReplaceKey),
+        Some(KeyCode::Char('a')) => Some(MacroStep::After),
+        Some(KeyCode::Char('A')) => Some(MacroStep::Append),
+        _ => None,
+    }
 }
