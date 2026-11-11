@@ -270,7 +270,7 @@ Branch: fix/rev-architecture-quality-git-cleanup-2
 Expected PR title: fix(git): stabilize owned cleanup during conflict resolution
 PR: #26 - https://forge.adrianpk.com/rev/rev/pulls/26
 Implementation: 0e8cf144aba9360b585df103fc85043309fecd2f
-Validation: all eight ordered repair/focused checks passed through Looper on clean published implementation HEAD 0e8cf144aba9360b585df103fc85043309fecd2f in validation 7KU3SWMAIABRTRXN2VTZO35CV3; fresh final PR-HEAD evidence is required after this reference commit
+Validation: the earlier eight-command sequences passed technically on implementation HEAD 0e8cf144aba9360b585df103fc85043309fecd2f (7KU3SWMAIABRTRXN2VTZO35CV3) and reference HEAD b84ddf700365459182f1c03dc9c58c0cd68147ce (TA2N2ESAVVQERXBOS6NHQJSWOW), but controller review rejected their required-command order; fresh final PR-HEAD evidence with the complete five-command prefix is required
 Report: ops/default/report/slices/rev-architecture-quality/slice-10-enforcement.md
 Failed candidate: 3165ff2e69575daaf09ddca6b5ed48aef4ccf506
 Failure evidence: MAUHSFFUQ2SVVJ2PKWGVFU2FGP
@@ -304,9 +304,16 @@ from 94 to 110. All 46 path-completion cases now pass with no ignores; all 44
 focused context cases pass, including both profiles' save/discard/cancel paths. Runtime
 files, the pinned identity, frozen commands and full-gate requirements are
 unchanged. Canonical PR #26 targets dev with the pinned identity, immutable
-report-introduction link and all eight successful commands. The installed staged
+report-introduction link and successful commands. The installed staged
 hook passes all 1,838 first-party files and 73 Cargo roots with no Clippy/source
 findings. The controller owns integration and the full-gate rerun.
+
+Command-order correction: all five injected required commands stay together in
+canonical order, including `git diff --check` at position five. The three focused
+checks follow that complete prefix; a repeated `git diff --check` closes the
+sequence. This nine-command order is used for the refreshed PR body and clean-HEAD
+evidence. No test, assertion, runtime file, resource limit or delivery identity
+changes in this correction.
 
 ## Final acceptance
 

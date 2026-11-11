@@ -240,14 +240,15 @@ Runtime files, freshness/consent guards, deadlines, resource limits, budgets and
 the frozen commands are unchanged. The worker has not run the full gate. The
 original slice and repair 1 remain delivered; delivery-set closure is pending.
 
-Repair 2 retains the five frozen repair commands above. Additional focused
-checks run after the four Cargo/quality commands and before `git diff --check`:
+Repair 2 retains all five frozen repair commands above as an uninterrupted
+prefix, including `git diff --check` at position five. The additional focused
+checks below follow that complete prefix, then `git diff --check` runs again:
 
 - `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 bash scripts/check-quality.sh --scope tests/path_completion/acceptance.rs --scope tests/path_completion/failures.rs --scope tests/path_completion/stale.rs`
 - `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --test path_completion -- --test-threads=1`
 - `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --test contexts -- editor:: --test-threads=1`
 
-All eight ordered checks pass through Looper on the clean published implementation
+The earlier eight-command sequence passed through Looper on the clean published implementation
 HEAD `0e8cf144aba9360b585df103fc85043309fecd2f`, validation
 `7KU3SWMAIABRTRXN2VTZO35CV3`. This includes zero findings in both quality scopes,
 14 process tests, nine Git conflict-resolution cases (102.52 seconds), 46 path
@@ -255,5 +256,11 @@ completion cases (12.53 seconds), 44 focused context cases (61.81 seconds),
 documentation and the final diff check. The installed staged hook also checks all
 1,838 first-party files and 73 Cargo roots with zero Clippy/source findings.
 Canonical PR #26 records the immutable report-introduction link and successful
-commands. The reference commit requires fresh final PR-HEAD evidence; Looper
-records that result against the exact candidate before controller acceptance.
+commands. The reference HEAD `b84ddf700365459182f1c03dc9c58c0cd68147ce` also passed
+that sequence in `TA2N2ESAVVQERXBOS6NHQJSWOW`. Controller review rejected its
+command order because focused checks preceded the required fifth command.
+The corrected nine-command sequence keeps the entire frozen prefix together,
+then runs the three focused checks and a final repeated diff check. Fresh
+clean-HEAD evidence is required after this documentation correction; Looper
+records it against the exact candidate before controller acceptance. Runtime
+files, assertions and every gate requirement remain unchanged.

@@ -457,5 +457,7 @@ successful directory acceptance replaces it with fresh temporary work. Keep
 held-Return suppression, canonical symlink identity, current-kind revalidation,
 dirty-source decisions, unrelated disk bytes and all case inputs/bounds intact.
 No runtime behavior change is required. Retain the pinned repair identity and
-the five ordered repair checks above, with focused fixture quality, path
-completion and context-departure regressions before the final diff check.
+all five ordered repair checks above as an uninterrupted prefix, including
+`git diff --check` in fifth position. Then run focused fixture quality, path
+completion and context-departure regressions, followed by another
+`git diff --check`. The focused checks cannot displace any required prefix entry.
