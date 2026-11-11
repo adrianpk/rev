@@ -17,7 +17,9 @@ Gate repair 2 implementation: `0e8cf144aba9360b585df103fc85043309fecd2f`
 Gate repair 2 integrated: `ab813819e0e53f246660ac8fd702609e743b3dfb` through canonical PR #26.
 Gate repair 2 state: delivered; controller full gate pending.
 Gate repair 3 branch: `fix/rev-architecture-quality-recovery-paths-3`
-Gate repair 3 state: implemented; canonical validation and PR preparation pending.
+Gate repair 3 PR: [#27](https://forge.adrianpk.com/rev/rev/pulls/27)
+Gate repair 3 implementation: `82160a02e730e2f8f202ad28a8f06884735e6ac2`
+Gate repair 3 state: PR open; final PR-HEAD validation and controller review pending.
 
 ## Purpose
 
@@ -301,8 +303,15 @@ resource/time, protocol or gate changes are included. The same Slice 10 report
 and pinned repair identity remain in use; the worker does not run the full gate.
 
 The implementation recovery command passes all 26 cases, with no ignores, in
-22.18 seconds. The unchanged five-command clean-HEAD record follows, including
-the existing native parent-navigation regressions.
+22.18 seconds. All five unchanged ordered checks pass through Looper on clean
+published implementation HEAD `82160a02e730e2f8f202ad28a8f06884735e6ac2` in
+`QC7FU7PXI3ZXPFLLCBRTZSUFEF`: zero Clippy/source findings in the one-file scope,
+all 26 recovery cases (23.86 seconds), all seven native parent-navigation cases
+(8.89 seconds), documentation and diff checks. The installed staged hook also
+passes all 1,838 first-party files and 73 Cargo roots with zero Clippy/source
+findings. Canonical PR #27 targets dev with the pinned title/branch, immutable
+report-introduction link and five unique successful commands. The reference
+commit requires fresh final PR-HEAD evidence before controller acceptance.
 
 Frozen repair commands, in canonical order:
 

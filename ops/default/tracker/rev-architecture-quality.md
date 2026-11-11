@@ -324,10 +324,12 @@ during this document closure. The controller full gate remains pending.
 
 ## Gate repair 3: Denied tree entry identity
 
-State: implemented; canonical validation and PR preparation pending
+State: PR open; final PR-HEAD validation and controller review pending
 Branch: fix/rev-architecture-quality-recovery-paths-3
 Expected PR title: test(recovery): select denied tree entries by identity
-PR: pending
+PR: #27 - https://forge.adrianpk.com/rev/rev/pulls/27
+Implementation: 82160a02e730e2f8f202ad28a8f06884735e6ac2
+Validation: all five required commands passed through Looper on clean published implementation HEAD 82160a02e730e2f8f202ad28a8f06884735e6ac2 in validation QC7FU7PXI3ZXPFLLCBRTZSUFEF; fresh final PR-HEAD evidence follows this reference commit
 Report: ops/default/report/slices/rev-architecture-quality/slice-10-enforcement.md
 Failed candidate: 2c42309240f35b3d94550c6a0efed0eea8c24899
 Failure evidence: H4HN2DZKILYOMQO3HOE2K3OPT3
@@ -349,7 +351,12 @@ timeouts or full-gate commands change. The controller owns integration and the
 unchanged full-gate rerun.
 
 Implementation check: all 26 recovery cases pass with no ignores in 22.18 seconds.
-The exact clean-HEAD five-command record and parent-navigation regressions follow.
+The exact clean-HEAD record passes scoped quality with zero Clippy/source findings,
+all 26 recovery cases (23.86 seconds), all seven native parent-navigation cases
+(8.89 seconds), documentation and diff checks. The installed staged hook checks
+all 1,838 first-party files and 73 Cargo roots with no Clippy/source findings.
+Canonical PR #27 targets dev with the pinned identity, immutable report link and
+five unique successful commands; the controller owns final acceptance and merge.
 
 ## Final acceptance
 
