@@ -263,6 +263,38 @@ supplies the unchanged ordered five-command repair evidence; its nine Git cases
 pass in 135.68 seconds. Canonical PR #25 is merged into dev. The controller owns
 the unchanged full-gate rerun.
 
+## Gate repair 2: Retained failure outside cleanup paths
+
+State: blocked on scope
+Branch: fix/rev-architecture-quality-git-cleanup-2
+Expected PR title: fix(git): stabilize owned cleanup during conflict resolution
+PR: not opened; the recorded failure needs a path-scope decision
+Report: ops/default/report/slices/rev-architecture-quality/slice-10-enforcement.md
+Failed candidate: 3165ff2e69575daaf09ddca6b5ed48aef4ccf506
+Failure evidence: MAUHSFFUQ2SVVJ2PKWGVFU2FGP
+
+The retained controller gate passed all 190 library tests and all 242 Git
+integration cases, including conflict resolution. It then failed during
+`env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --workspace --all-targets -- --test-threads=1`:
+the `path_completion` target passed 43 cases and failed three, with no ignores.
+
+- `acceptance::directory_return` at `tests/path_completion/acceptance.rs:132`
+  observes a different buffer/view after directory selection.
+- `failures::symlink_directory` at `tests/path_completion/failures.rs:136`
+  observes a changed buffer stamp after selecting a symlink to a directory.
+- `stale::changed_kind` at `tests/path_completion/stale.rs:79` observes empty
+  text instead of the retained document when a selected file becomes a directory.
+
+Those assertions require directory browsing to retain the current document.
+The current allowed paths cover process cleanup and Git conflicts, plus delivery
+documents; they do not include these fixtures or the session directory-opening
+owner. No cleanup defect is demonstrated by this log; a cleanup change would be
+speculative rather than address these assertion contexts. Correction requires an explicit scope
+decision from the controller or maintainer. The pinned repair identity, every
+assertion, frozen repair command and full-gate requirement remain unchanged.
+No full gate or new reproduction was run by this worker; the failed controller
+log and assertion contexts supply this diagnosis. Runtime files are unchanged.
+
 ## Final acceptance
 
 - [ ] F1-F7 and complete selected source/lint findings corrected with evidence.

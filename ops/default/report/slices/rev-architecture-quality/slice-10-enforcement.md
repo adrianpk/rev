@@ -204,3 +204,22 @@ outside first-party lint admission. New native behavior and test coverage are no
 claimed from static lint success.
 The gate repair is integrated with exact clean PR-HEAD evidence recorded through
 Looper. The controller must rerun the unchanged full gate before set closure.
+
+### Gate repair 2 scope blocker
+
+The controller rerun at `3165ff2e69575daaf09ddca6b5ed48aef4ccf506`
+(`MAUHSFFUQ2SVVJ2PKWGVFU2FGP`) passed all 190 library tests and all 242 Git
+integration cases. The native all-targets command then failed three of the 46
+`path_completion` cases: `acceptance::directory_return`,
+`failures::symlink_directory` and `stale::changed_kind`. Directory selection
+replaced the document view or buffer, contrary to the existing assertions.
+
+The injected repair 2 branch remains
+`fix/rev-architecture-quality-git-cleanup-2`, with its pinned Git cleanup title.
+Its allowed runtime and test paths contain only process cleanup and Git conflict
+owners. The failing fixtures and session directory-opening owner fall outside
+that scope. The tracker records the failing command and assertion locations;
+an explicit scope decision is required before correcting those owners. No
+runtime files, assertions, deadlines, budgets or gate requirements were changed,
+and no additional full gate was run by the worker. The original slice and repair
+1 remain delivered; delivery-set closure remains pending.
