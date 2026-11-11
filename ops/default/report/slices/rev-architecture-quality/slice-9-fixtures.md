@@ -159,6 +159,22 @@ negative case, exact edit/byte limit, child-process boundary and timeout. The
 marked document is borrowed during setup; the native session retains the same
 owned buffers and configuration.
 
+Plugin fixtures separate result creation, pending-input cancellation, crash
+retirement, retained-result navigation and save checks while keeping exactly the
+two original PTY journeys. Resource fixtures retain all five fresh-process
+profiles, the 524,288-byte reads, 128 delivered events, original sampling order
+and owned editor/peer exit assertions. Workload observations and idle resource
+samples have explicit private owners; keymap setup borrows plugin defaults and
+native user bindings together.
+
+The executable peer separates raw buffer correlation, event/journey reactions
+and SDK client lifecycle ownership. It retains every message in a received
+chunk, nested failure routing, typed callback retirement, controlled late-command
+threads, finite request/flood loops, all original byte/time limits and exact wire
+records. Oversized store catalog construction is separate from the original
+corruption/refusal matrix. All 15 case identities, 92 assertion sites and
+text/numeric literal multiplicities remain unchanged in the five Rust files.
+
 ## Contracts Added or Changed
 
 No runtime, package API, protocol, policy or acceptance changes are planned.
@@ -205,6 +221,12 @@ The existing five frozen commands and final controller gate remain required.
   and explicit local/connection resolve retirement.
 - `tests/lsp_installation/go.rs`, `npm.rs` and `optional-native.rs`: controlled
   installer faults and native launch-restoration checks.
+- `tests/plugins/lifecycle.rs` and `state.rs`: borrowed keymap setup and
+  independent oversized-record catalog construction.
+- `tests/plugins/peer.rs`: raw framing/correlation, event reactions and SDK
+  callback/process lifecycle owners.
+- `tests/plugins/faults/pty.rs` and `resources.rs`: unchanged real PTY journeys,
+  bounded workloads, idle samples and owned-process cleanup checks.
 - `examples/git_integration_acceptance/`: snapshot and staged-content ownership.
 - `examples/integrated_terminal_acceptance/failure.rs`: explicit shared failure
   injection state; host terminal cleanup behavior is unchanged.
@@ -351,9 +373,26 @@ Development checks for LSP ownership and lifecycle fixtures:
   timeouts and resource limits are unchanged.
 - `git diff --check`: passed.
 
+Development checks for plugin fixture and peer ownership:
+
+- The frozen scoped quality command still fails overall: 46 native source
+  findings remain, down from 56, all in developer examples. Formatting,
+  all-target compilation and scoped Clippy admission pass with zero blocking
+  diagnostics; four selected-profile diagnostics remain deferred outside this
+  scope. Coverage remains 704 of 1,836 first-party Rust files and 70 of 73 Cargo
+  roots across two packages.
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --test plugins -- --test-threads=1`: passed all 86 existing plugin cases, including native PTYs, resource profiles, peer framing/handshake faults, nested invocation, subscriptions, macro recording, persistence and cleanup. The isolated child case is included in that total.
+- `target/debug/examples/source-check --workspace --scope tests --scope crates/rev-plugin-sdk/tests`: passed source admission for all 582 selected test/SDK-test files and 43 Cargo roots across both packages. This direct source check does not run Clippy; the preceding scoped quality run supplies compiler/Clippy evidence.
+- Static comparison against clean
+  `106dfbc007b9465a03d1b3d34f595090c866a7a5` preserves all 15 case identities,
+  92 assertion sites and text/numeric literal multiplicities in the five changed
+  Rust files. Wire inputs, consent, stale/canceled callback refusals, deadlines,
+  byte/count limits and owned process boundaries remain unchanged.
+- `git diff --check`: passed.
+
 ## Risks and Follow-ups
 
-Selected Clippy admission is complete. The remaining 56 native source findings
-require cohesive fixture/example decomposition. T9.1-T9.3 remain in progress.
+Selected Clippy admission is complete. The remaining 46 native source findings
+require cohesive developer-example decomposition. T9.1-T9.3 remain in progress.
 The canonical PR, final ordered clean-HEAD evidence and controller integration
 remain pending.

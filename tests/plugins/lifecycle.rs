@@ -62,6 +62,10 @@ struct Spec<'a> {
     ignore_term: bool,
     declaration: Option<&'a str>,
 }
+struct Keymaps<'a> {
+    defaults: &'a [(&'a str, &'a str)],
+    native: &'a str,
+}
 pub(super) struct Editor {
     pub(super) fixture: Fixture,
     pub(super) session: Session,
@@ -101,7 +105,16 @@ impl Editor {
         } else {
             Vec::new()
         };
-        Self::setup(profile, &specs, &startup, bindings, config, false)
+        Self::setup(
+            profile,
+            &specs,
+            &startup,
+            &Keymaps {
+                defaults: bindings,
+                native: config,
+            },
+            false,
+        )
     }
     pub(super) fn recording(profile: &str, mode: &str, declaration: Option<&str>) -> Self {
         let context = if profile == "modal" {
@@ -129,8 +142,10 @@ impl Editor {
             profile,
             specs.as_slice(),
             &[],
-            bindings.as_slice(),
-            "",
+            &Keymaps {
+                defaults: bindings.as_slice(),
+                native: "",
+            },
             true,
         )
     }
@@ -191,16 +206,26 @@ impl Editor {
         editor
     }
     fn packages(profile: &str, specs: &[Spec<'_>], startup: &[&str]) -> Self {
-        Self::setup(profile, specs, startup, &[], "", false)
+        Self::setup(
+            profile,
+            specs,
+            startup,
+            &Keymaps {
+                defaults: &[],
+                native: "",
+            },
+            false,
+        )
     }
     fn setup(
         profile: &str,
         specs: &[Spec<'_>],
         startup: &[&str],
-        bindings: &[(&str, &str)],
-        config: &str,
+        keymaps: &Keymaps<'_>,
         library: bool,
     ) -> Self {
+        let bindings = keymaps.defaults;
+        let config = keymaps.native;
         let fixture = Fixture::new();
         let mut manifests = Vec::new();
         for spec in specs {

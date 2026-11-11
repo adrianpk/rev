@@ -314,11 +314,7 @@ fn invalid_stores() {
                 "invalid_arguments"
             }
             "count" => {
-                let mut text = "schema_version=1\nrevision=257\n".to_owned();
-                for i in 0..257 {
-                    text.push_str(&format!("[[records]]\nconcern='notes'\nrecord='r{i:03}'\nversion={}\nvalue_json='null'\n",i+1));
-                }
-                fs::write(&file, text).unwrap();
+                oversized_record_catalog(&file);
                 "invalid_arguments"
             }
             "record" => {
@@ -375,6 +371,17 @@ fn invalid_stores() {
         assert_eq!(fs::read(&victim).unwrap(), valid, "{variant}");
         assert!(!root.0.join("config").exists());
     }
+}
+
+fn oversized_record_catalog(file: &Path) {
+    let mut text = "schema_version=1\nrevision=257\n".to_owned();
+    for i in 0..257 {
+        text.push_str(&format!(
+            "[[records]]\nconcern='notes'\nrecord='r{i:03}'\nversion={}\nvalue_json='null'\n",
+            i + 1
+        ));
+    }
+    fs::write(file, text).unwrap();
 }
 
 // Caller-side payload limits and the aggregate encoded ceiling reject a whole

@@ -176,109 +176,180 @@ fn resource_profiles() -> Result<()> {
         ("large-read", Some("events"), true, true),
         ("event-load", Some("events"), true, false),
     ] {
-        let mut native = Native::start("non-modal", mode, startup, large)?;
-        let pid = native.editor_pid()?;
-        let peer = if startup {
-            wait(|| native.peer_path("offers").exists())
-                .map_err(|e| format!("{profile} startup: {e}"))?;
-            Some(
-                fs::read_to_string(native.peer_path("starts"))?
-                    .trim()
-                    .to_owned(),
-            )
-        } else {
-            None
-        };
-        let mut work = Duration::ZERO;
-        let mut delivered = 0;
-        if large {
-            native.request(
-                0,
-                "buffers.list",
-                &json!({"page":{"cursor":null,"limit":256},"kind":"text"}),
-            )?;
-            let list = native.response(0)?;
-            let source = list["buffers"]
-                .as_array()
-                .unwrap()
-                .iter()
-                .find(|v| v["name"].as_str().unwrap().ends_with("source.txt"))
-                .unwrap();
-            let start = Instant::now();
-            for n in 1..=4 {
-                native.request(n,"buffers.read",&json!({"buffer":source["stamp"]["buffer"],"range":{"start":0,"end":524288},"expected_revision":null}))?;
-            }
-            native.terminal.send(b"!")?;
-            native.terminal.frame(|f| f.contains("!llll"))?;
-            work = start.elapsed();
-            for n in 1..=4 {
-                assert_eq!(native.response(n)?["text"].as_str().unwrap().len(), 524288);
-            }
-        } else if profile == "event-load" {
-            native.request(
-                0,
-                "events.subscribe",
-                &json!({"kinds":["changed"],"buffers":[]}),
-            )?;
-            native.response(0)?;
-            let start = Instant::now();
-            native.terminal.send(&[b'e'; 128])?;
-            native.terminal.frame(|f| f.contains("eeeeeeee"))?;
-            work = start.elapsed();
-            wait(|| {
-                fs::read_to_string(native.peer_path("events"))
-                    .is_ok_and(|s| s.lines().count() >= 128)
-            })?;
-            delivered = fs::read_to_string(native.peer_path("events"))?
-                .lines()
-                .count();
-            assert_eq!(delivered, 128);
-        }
-        let before = support::cpu_ticks(&pid)?;
-        let peer_before = peer.as_ref().map(|p| support::cpu_ticks(p)).transpose()?;
-        native.terminal.idle()?;
-        let ticks = support::cpu_ticks(&pid)?.saturating_sub(before);
-        let peer_ticks = peer
-            .as_ref()
-            .zip(peer_before)
-            .map(|(p, b)| support::cpu_ticks(p).map(|a| a.saturating_sub(b)))
-            .transpose()?
-            .unwrap_or(0);
-        let peer_rss = peer
-            .as_ref()
-            .map(|p| memory(p, "VmRSS:"))
-            .transpose()?
-            .unwrap_or(0);
-        let peer_fds = peer
-            .as_ref()
-            .map(|p| descriptors(p))
-            .transpose()?
-            .unwrap_or(0);
-        if !startup {
-            assert!(!native.peer_path("starts").exists());
-        }
-        println!(
-            "MEASURE plugins profile={profile} launch_us={} rss_kib={} peak_kib={} fds={} idle_ticks={ticks} peer_rss_kib={peer_rss} peer_fds={peer_fds} peer_idle_ticks={peer_ticks} work_input_us={} events={delivered} tty_bytes={}",
-            native.launch.as_micros(),
-            memory(&pid, "VmRSS:")?,
-            memory(&pid, "VmHWM:")?,
-            descriptors(&pid)?,
-            work.as_micros(),
-            native.terminal.bytes()
-        );
-        if large || profile == "event-load" {
-            native.terminal.send(b"\x18\x13")?;
-            let saved = native.fixture.0.join("workspace/source.txt");
-            native.terminal.frame(|_| {
-                fs::read_to_string(&saved)
-                    .is_ok_and(|text| text.starts_with(if large { "!" } else { "eeeeeeee" }))
-            })?;
-        }
-        native.terminal.finish()?;
-        assert!(!Path::new(&format!("/proc/{pid}")).exists());
-        if let Some(peer) = peer {
-            assert!(!Path::new(&format!("/proc/{peer}")).exists());
-        }
+        resource_profile(profile, mode, startup, large)?;
     }
+    Ok(())
+}
+
+struct Work {
+    elapsed: Duration,
+    delivered: usize,
+}
+struct Idle {
+    ticks: u64,
+    peer_ticks: u64,
+    peer_rss: u64,
+    peer_fds: usize,
+}
+
+fn resource_profile(profile: &str, mode: Option<&str>, startup: bool, large: bool) -> Result<()> {
+    let mut native = Native::start("non-modal", mode, startup, large)?;
+    let pid = native.editor_pid()?;
+    let peer = started_peer(&native, profile, startup)?;
+    let work = run_work(&mut native, profile, large)?;
+    let idle = idle_profile(&mut native, &pid, peer.as_deref())?;
+    if !startup {
+        assert!(!native.peer_path("starts").exists());
+    }
+    report_profile(&native, profile, &pid, &idle, &work)?;
+    finish_profile(&mut native, &pid, peer.as_deref(), profile, large)
+}
+
+fn started_peer(native: &Native, profile: &str, startup: bool) -> Result<Option<String>> {
+    Ok(if startup {
+        wait(|| native.peer_path("offers").exists())
+            .map_err(|e| format!("{profile} startup: {e}"))?;
+        Some(
+            fs::read_to_string(native.peer_path("starts"))?
+                .trim()
+                .to_owned(),
+        )
+    } else {
+        None
+    })
+}
+
+fn run_work(native: &mut Native, profile: &str, large: bool) -> Result<Work> {
+    let mut work = Work {
+        elapsed: Duration::ZERO,
+        delivered: 0,
+    };
+    if large {
+        work.elapsed = read_work(native)?;
+    } else if profile == "event-load" {
+        work = event_work(native)?;
+    }
+    Ok(work)
+}
+
+fn read_work(native: &mut Native) -> Result<Duration> {
+    native.request(
+        0,
+        "buffers.list",
+        &json!({"page":{"cursor":null,"limit":256},"kind":"text"}),
+    )?;
+    let list = native.response(0)?;
+    let source = list["buffers"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .find(|v| v["name"].as_str().unwrap().ends_with("source.txt"))
+        .unwrap();
+    let start = Instant::now();
+    for n in 1..=4 {
+        native.request(n,"buffers.read",&json!({"buffer":source["stamp"]["buffer"],"range":{"start":0,"end":524288},"expected_revision":null}))?;
+    }
+    native.terminal.send(b"!")?;
+    native.terminal.frame(|f| f.contains("!llll"))?;
+    let elapsed = start.elapsed();
+    for n in 1..=4 {
+        assert_eq!(native.response(n)?["text"].as_str().unwrap().len(), 524288);
+    }
+    Ok(elapsed)
+}
+
+fn event_work(native: &mut Native) -> Result<Work> {
+    native.request(
+        0,
+        "events.subscribe",
+        &json!({"kinds":["changed"],"buffers":[]}),
+    )?;
+    native.response(0)?;
+    let start = Instant::now();
+    native.terminal.send(&[b'e'; 128])?;
+    native.terminal.frame(|f| f.contains("eeeeeeee"))?;
+    let elapsed = start.elapsed();
+    wait(|| {
+        fs::read_to_string(native.peer_path("events")).is_ok_and(|s| s.lines().count() >= 128)
+    })?;
+    let delivered = fs::read_to_string(native.peer_path("events"))?
+        .lines()
+        .count();
+    assert_eq!(delivered, 128);
+    Ok(Work { elapsed, delivered })
+}
+
+fn idle_profile(native: &mut Native, pid: &str, peer: Option<&str>) -> Result<Idle> {
+    let before = support::cpu_ticks(pid)?;
+    let peer_before = peer.map(support::cpu_ticks).transpose()?;
+    native.terminal.idle()?;
+    let ticks = support::cpu_ticks(pid)?.saturating_sub(before);
+    let peer_ticks = peer
+        .zip(peer_before)
+        .map(|(p, b)| support::cpu_ticks(p).map(|a| a.saturating_sub(b)))
+        .transpose()?
+        .unwrap_or(0);
+    let peer_rss = peer.map(|p| memory(p, "VmRSS:")).transpose()?.unwrap_or(0);
+    let peer_fds = peer.map(descriptors).transpose()?.unwrap_or(0);
+    Ok(Idle {
+        ticks,
+        peer_ticks,
+        peer_rss,
+        peer_fds,
+    })
+}
+
+fn report_profile(
+    native: &Native,
+    profile: &str,
+    pid: &str,
+    idle: &Idle,
+    work: &Work,
+) -> Result<()> {
+    let Idle {
+        ticks,
+        peer_ticks,
+        peer_rss,
+        peer_fds,
+    } = idle;
+    let delivered = work.delivered;
+    let work = work.elapsed;
+    println!(
+        "MEASURE plugins profile={profile} launch_us={} rss_kib={} peak_kib={} fds={} idle_ticks={ticks} peer_rss_kib={peer_rss} peer_fds={peer_fds} peer_idle_ticks={peer_ticks} work_input_us={} events={delivered} tty_bytes={}",
+        native.launch.as_micros(),
+        memory(pid, "VmRSS:")?,
+        memory(pid, "VmHWM:")?,
+        descriptors(pid)?,
+        work.as_micros(),
+        native.terminal.bytes()
+    );
+    Ok(())
+}
+
+fn finish_profile(
+    native: &mut Native,
+    pid: &str,
+    peer: Option<&str>,
+    profile: &str,
+    large: bool,
+) -> Result<()> {
+    if large || profile == "event-load" {
+        save_work(native, large)?;
+    }
+    native.terminal.finish()?;
+    assert!(!Path::new(&format!("/proc/{pid}")).exists());
+    if let Some(peer) = peer {
+        assert!(!Path::new(&format!("/proc/{peer}")).exists());
+    }
+    Ok(())
+}
+
+fn save_work(native: &mut Native, large: bool) -> Result<()> {
+    native.terminal.send(b"\x18\x13")?;
+    let saved = native.fixture.0.join("workspace/source.txt");
+    native.terminal.frame(|_| {
+        fs::read_to_string(&saved)
+            .is_ok_and(|text| text.starts_with(if large { "!" } else { "eeeeeeee" }))
+    })?;
     Ok(())
 }
