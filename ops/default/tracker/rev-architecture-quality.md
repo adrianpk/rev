@@ -308,12 +308,15 @@ report-introduction link and successful commands. The installed staged
 hook passes all 1,838 first-party files and 73 Cargo roots with no Clippy/source
 findings. The controller owns integration and the full-gate rerun.
 
-Command-order correction: all five injected required commands stay together in
-canonical order, including `git diff --check` at position five. The three focused
-checks follow that complete prefix; a repeated `git diff --check` closes the
-sequence. This nine-command order is used for the refreshed PR body and clean-HEAD
-evidence. No test, assertion, runtime file, resource limit or delivery identity
-changes in this correction.
+Canonical-command correction: controller review also rejected the subsequent
+nine-command sequence because it duplicated `git diff --check`, despite its
+technical pass in SCTGSZ252MHZRTG4ZQQDU6PV26 on b1dd1ebd686845648f4003f1d390d1218701389e.
+The canonical PR body and clean-HEAD record now use exactly the five injected
+required commands, each once, ending with `git diff --check`. Focused fixture
+quality, path-completion and context regressions run separately and retain their
+evidence in the existing report. Fresh canonical evidence is required for this
+documentation correction. No test, assertion, runtime file, resource limit or
+delivery identity changes.
 
 ## Final acceptance
 

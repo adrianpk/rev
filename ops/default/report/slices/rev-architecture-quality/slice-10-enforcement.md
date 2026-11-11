@@ -240,9 +240,9 @@ Runtime files, freshness/consent guards, deadlines, resource limits, budgets and
 the frozen commands are unchanged. The worker has not run the full gate. The
 original slice and repair 1 remain delivered; delivery-set closure is pending.
 
-Repair 2 retains all five frozen repair commands above as an uninterrupted
-prefix, including `git diff --check` at position five. The additional focused
-checks below follow that complete prefix, then `git diff --check` runs again:
+Repair 2 uses exactly the five frozen repair commands above in its canonical PR
+body and clean-HEAD record, ending with one `git diff --check`. Additional focused
+checks below run separately; their evidence supplements that canonical record:
 
 - `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 bash scripts/check-quality.sh --scope tests/path_completion/acceptance.rs --scope tests/path_completion/failures.rs --scope tests/path_completion/stale.rs`
 - `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --test path_completion -- --test-threads=1`
@@ -259,8 +259,11 @@ Canonical PR #26 records the immutable report-introduction link and successful
 commands. The reference HEAD `b84ddf700365459182f1c03dc9c58c0cd68147ce` also passed
 that sequence in `TA2N2ESAVVQERXBOS6NHQJSWOW`. Controller review rejected its
 command order because focused checks preceded the required fifth command.
-The corrected nine-command sequence keeps the entire frozen prefix together,
-then runs the three focused checks and a final repeated diff check. Fresh
-clean-HEAD evidence is required after this documentation correction; Looper
-records it against the exact candidate before controller acceptance. Runtime
-files, assertions and every gate requirement remain unchanged.
+The subsequent nine-command sequence passed technically on
+`b1dd1ebd686845648f4003f1d390d1218701389e` in `SCTGSZ252MHZRTG4ZQQDU6PV26`,
+but controller review rejected its duplicate diff command. Canonical validation
+now contains exactly the five required commands, each nonempty and unique, in
+their injected order. Focused regression evidence remains separate from that
+list. Fresh checks are required after this documentation correction; Looper
+records the canonical five against the exact clean candidate before controller
+acceptance. Runtime files, assertions and every gate requirement are unchanged.

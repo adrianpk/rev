@@ -457,7 +457,8 @@ successful directory acceptance replaces it with fresh temporary work. Keep
 held-Return suppression, canonical symlink identity, current-kind revalidation,
 dirty-source decisions, unrelated disk bytes and all case inputs/bounds intact.
 No runtime behavior change is required. Retain the pinned repair identity and
-all five ordered repair checks above as an uninterrupted prefix, including
-`git diff --check` in fifth position. Then run focused fixture quality, path
-completion and context-departure regressions, followed by another
-`git diff --check`. The focused checks cannot displace any required prefix entry.
+use exactly the five ordered repair checks above for canonical PR validation
+and its clean-HEAD evidence, including `git diff --check` once in fifth position.
+Keep focused fixture quality, path completion and context-departure regression
+evidence separately in the existing report. Do not duplicate or displace any
+required command in the canonical sequence.
