@@ -90,93 +90,97 @@ fn configured_geometry() {
     let text = "preamble\n* Parent\nbody\n** Child\nchild\n*** Deep\ndeep\n* Return\nbody";
     for profile in ["non-modal", "modal"] {
         for wrapped in [true, false] {
-            for (name, policy, pretty, expected) in [
-                (
-                    "default",
-                    "",
-                    true,
-                    vec![
-                        "preamble",
-                        "◉ Parent",
-                        "  body",
-                        "  ○ Child",
-                        "    child",
-                        "    ✸ Deep",
-                        "      deep",
-                        "◉ Return",
-                        "  body",
-                    ],
-                ),
-                (
-                    "disabled",
-                    "org.indent=false",
-                    true,
-                    vec![
-                        "preamble",
-                        "◉ Parent",
-                        "body",
-                        "○ Child",
-                        "child",
-                        "✸ Deep",
-                        "deep",
-                        "◉ Return",
-                        "body",
-                    ],
-                ),
-                (
-                    "source",
-                    "",
-                    false,
-                    vec![
-                        "preamble",
-                        "* Parent",
-                        "  body",
-                        " ** Child",
-                        "    child",
-                        "  *** Deep",
-                        "      deep",
-                        "* Return",
-                        "  body",
-                    ],
-                ),
-            ] {
-                let config = format!(
-                    "editor.interaction_profile='{profile}'\neditor.soft_wrap={wrapped}\norg.headings.pretty={pretty}\n{policy}"
-                );
-                let (f, mut session) = editor(&config, text, 60, 16);
-                let stamp = session.buffer().unwrap().stamp();
-                let state = session.buffer().unwrap().state();
-                let frame = session.frame().unwrap();
-                for (row, expected) in expected.iter().enumerate() {
-                    assert_eq!(
-                        frame.rows()[row].text().trim_end(),
-                        *expected,
-                        "{profile}/{wrapped}/{name}/{row}"
-                    );
-                }
-                goto(&mut session, 3);
-                assert_eq!(
-                    session.frame().unwrap().cursor(),
-                    Some(Position {
-                        row: 2,
-                        column: if name == "disabled" { 0 } else { 2 }
-                    })
-                );
-                assert_eq!(
-                    session.view().cell(session.buffer().unwrap()).unwrap(),
-                    Cell { row: 2, column: 0 }
-                );
-                assert_eq!(session.buffer().unwrap().stamp(), stamp);
-                assert_eq!(session.buffer().unwrap().state(), state);
-                assert_eq!(source(&session), text);
-                assert!(session.buffer().unwrap().history().is_empty());
-                session.execute(Command::SaveBuffer);
-                assert_eq!(
-                    std::fs::read(f.0.join("notes.org")).unwrap(),
-                    text.as_bytes()
-                );
-            }
+            check_configured_geometry(profile, wrapped, text);
         }
+    }
+}
+
+fn check_configured_geometry(profile: &str, wrapped: bool, text: &str) {
+    for (name, policy, pretty, expected) in [
+        (
+            "default",
+            "",
+            true,
+            vec![
+                "preamble",
+                "◉ Parent",
+                "  body",
+                "  ○ Child",
+                "    child",
+                "    ✸ Deep",
+                "      deep",
+                "◉ Return",
+                "  body",
+            ],
+        ),
+        (
+            "disabled",
+            "org.indent=false",
+            true,
+            vec![
+                "preamble",
+                "◉ Parent",
+                "body",
+                "○ Child",
+                "child",
+                "✸ Deep",
+                "deep",
+                "◉ Return",
+                "body",
+            ],
+        ),
+        (
+            "source",
+            "",
+            false,
+            vec![
+                "preamble",
+                "* Parent",
+                "  body",
+                " ** Child",
+                "    child",
+                "  *** Deep",
+                "      deep",
+                "* Return",
+                "  body",
+            ],
+        ),
+    ] {
+        let config = format!(
+            "editor.interaction_profile='{profile}'\neditor.soft_wrap={wrapped}\norg.headings.pretty={pretty}\n{policy}"
+        );
+        let (f, mut session) = editor(&config, text, 60, 16);
+        let stamp = session.buffer().unwrap().stamp();
+        let state = session.buffer().unwrap().state();
+        let frame = session.frame().unwrap();
+        for (row, expected) in expected.iter().enumerate() {
+            assert_eq!(
+                frame.rows()[row].text().trim_end(),
+                *expected,
+                "{profile}/{wrapped}/{name}/{row}"
+            );
+        }
+        goto(&mut session, 3);
+        assert_eq!(
+            session.frame().unwrap().cursor(),
+            Some(Position {
+                row: 2,
+                column: if name == "disabled" { 0 } else { 2 }
+            })
+        );
+        assert_eq!(
+            session.view().cell(session.buffer().unwrap()).unwrap(),
+            Cell { row: 2, column: 0 }
+        );
+        assert_eq!(session.buffer().unwrap().stamp(), stamp);
+        assert_eq!(session.buffer().unwrap().state(), state);
+        assert_eq!(source(&session), text);
+        assert!(session.buffer().unwrap().history().is_empty());
+        session.execute(Command::SaveBuffer);
+        assert_eq!(
+            std::fs::read(f.0.join("notes.org")).unwrap(),
+            text.as_bytes()
+        );
     }
 }
 
@@ -233,31 +237,40 @@ fn unicode_round_trips() {
         let coordinates = Coordinates::new(b).unwrap();
         let mut view = session.view().clone();
         for width in [3, 8, 12, 24] {
-            let size = Size { width, height: 20 };
-            for point in [Scalar(0), Scalar(2), Scalar(12), Scalar(b.len_chars())] {
-                if !coordinates.is_boundary(point).unwrap() {
-                    continue;
-                }
-                view.point.position = point;
-                view.reveal(b, size).unwrap();
-                let frame = Frame::project(b, &view, size, "").unwrap();
-                let cursor = frame.cursor().unwrap();
-                assert!(cursor.column < width);
-                let hit = view
-                    .hit(b, Area::new(0, 0, width, 18).unwrap(), cursor)
-                    .unwrap()
-                    .unwrap();
-                assert_eq!(hit.position, point, "{wrapped}/{width}/{point:?}");
-                assert!(
-                    frame
-                        .rows()
-                        .iter()
-                        .all(|row| unicode_width::UnicodeWidthStr::width(row.text())
-                            == usize::from(width))
-                );
-            }
+            check_unicode_viewport(b, &coordinates, &mut view, width, wrapped);
         }
         assert_eq!(source(&session), text);
+    }
+}
+
+fn check_unicode_viewport(
+    b: &rev::buffer::Buffer,
+    coordinates: &Coordinates<'_>,
+    view: &mut View,
+    width: u16,
+    wrapped: bool,
+) {
+    let size = Size { width, height: 20 };
+    for point in [Scalar(0), Scalar(2), Scalar(12), Scalar(b.len_chars())] {
+        if !coordinates.is_boundary(point).unwrap() {
+            continue;
+        }
+        view.point.position = point;
+        view.reveal(b, size).unwrap();
+        let frame = Frame::project(b, view, size, "").unwrap();
+        let cursor = frame.cursor().unwrap();
+        assert!(cursor.column < width);
+        let hit = view
+            .hit(b, Area::new(0, 0, width, 18).unwrap(), cursor)
+            .unwrap()
+            .unwrap();
+        assert_eq!(hit.position, point, "{wrapped}/{width}/{point:?}");
+        assert!(
+            frame
+                .rows()
+                .iter()
+                .all(|row| unicode_width::UnicodeWidthStr::width(row.text()) == usize::from(width))
+        );
     }
 }
 

@@ -24,6 +24,10 @@ choices, catalog names and key-event phases. Numeric geometry, scalar positions,
 TZif counts and timestamps use checked conversions. The existing test data,
 wire records, resource ceilings and acceptance outcomes are unchanged.
 
+Geometry fixtures separate policy and viewport setup from per-frame checks for
+bookmark fields, gutter partitions, completion hints, tree presentation and Org
+source positions. Existing case matrices and golden expectations are retained.
+
 ## Implementation Notes
 
 The baseline covers 704 of 1,836 first-party Rust files, both workspace packages
@@ -82,6 +86,18 @@ The publication and catalog unit-test bodies remain byte-identical. All five
 wrapping inputs and their invocation order remain byte-identical, and assertion
 counts are unchanged in all three files.
 
+The geometry cohort separates marker admission from field partitioning, wrapping
+labels from gutter policy combinations, and viewport setup from heading/cursor
+hit-map checks. Tree entry roles, selected cells, labels and isolated NO_COLOR
+journeys keep their independent expected values. Wrapped overlay checks still
+distinguish active-file tree selection from source search and region spans.
+
+All 59 existing case identities and 487 assertion sites remain in the 12 changed
+Rust files. Static comparison preserves every text and numeric literal with its
+original multiplicity. Native event order, geometry combinations, source bytes,
+timeouts and resource bounds remain unchanged. A wrapping view moves into its
+final clipped observation instead of cloning an owner that has no later use.
+
 ## Contracts Added or Changed
 
 No runtime, package API, protocol, policy or acceptance changes are planned.
@@ -103,6 +119,13 @@ The existing five frozen commands and final controller gate remain required.
 - `examples/userguide-publication.rs`: owned Markdown projection and bounded
   file/fragment/anchor finishing steps.
 - `examples/wrap-performance.rs`: native probe phases with owned timings.
+- `tests/bookmarks/markers.rs` and `tests/gutter/`: independent marker, number,
+  wrapping and source-overlay checks across the original geometry matrices.
+- `tests/display.rs` and `tests/display/`: clipped golden rows, complete hints,
+  tree palette roles, selection and isolated color-policy checks.
+- `tests/org_headings/geometry.rs` and `tests/org_indentation.rs`: viewport,
+  source/pretty-heading and Unicode cursor/hit-map checks.
+- `tests/tree/geometry.rs`: standalone tree projection at each admitted width.
 - `examples/git_integration_acceptance/`: snapshot and staged-content ownership.
 - `examples/integrated_terminal_acceptance/failure.rs`: explicit shared failure
   injection state; host terminal cleanup behavior is unchanged.
@@ -169,9 +192,24 @@ Development checks for publication and wrapping probe phases:
   timeout, input, resource budget or acceptance condition is relaxed.
 - `git diff --check`: passed.
 
+Development checks for native geometry fixtures:
+
+- The frozen scoped quality command still fails overall: 94 native source
+  findings remain, down from 114. Formatting, all-target compilation and scoped
+  Clippy admission pass with zero blocking diagnostics; four selected-profile
+  diagnostics remain deferred outside this scope. Coverage remains 704 of 1,836
+  first-party Rust files and 70 of 73 Cargo roots across two packages.
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --test bookmarks --test display --test gutter --test org_headings --test org_indentation --test tree -- --test-threads=1`: passed all 260 existing native cases: 58 bookmark, 47 display, 37 gutter, 16 Org heading, 18 Org indentation and 84 tree cases. Existing child-process assertions are included in their parent cases.
+- Static comparison against the clean
+  `7e46584e7a04d8eabe2f03ab00f02373fcee0338` baseline preserves all 59 case
+  identities, 487 assertion sites and all text/numeric literal multiplicities
+  across the 12 changed Rust files. No acceptance condition, timeout, input or
+  resource budget is relaxed.
+- `git diff --check`: passed.
+
 ## Risks and Follow-ups
 
-Selected Clippy admission is complete. The remaining 114 native source findings
+Selected Clippy admission is complete. The remaining 94 native source findings
 require cohesive fixture/example decomposition. T9.1-T9.3 remain in progress.
 The canonical PR, final ordered clean-HEAD evidence and controller integration
 remain pending.

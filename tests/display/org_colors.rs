@@ -36,10 +36,10 @@ fn clipped_source() {
             view.bookmark_markers = false;
             view.left = left;
             let frame = Frame::project(buffer, &view, Size { width, height: 3 }, "").unwrap();
-            let expected = if wrap {
-                if width == 5 { "◉    " } else { "◉   " }
-            } else {
-                unwrapped
+            let expected = match (wrap, width) {
+                (true, 5) => "◉    ",
+                (true, _) => "◉   ",
+                _ => unwrapped,
             };
             assert_eq!(frame.rows()[0].text(), expected, "{name}, wrap={wrap}");
             let syntax = frame.rows()[0].syntax();

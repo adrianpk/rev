@@ -20,56 +20,70 @@ fn source_and_pretty_geometry() {
             );
             let buffer = buffers.get_mut(view.point.stamp.buffer).unwrap();
             observe(buffer, Limits::default());
-            for width in [40, 80] {
-                for left in if wrapped {
-                    vec![0]
-                } else {
-                    vec![0, 2, 7, 8, 9]
-                } {
-                    view.left = left;
-                    for point in 0usize..=8 {
-                        view.point.position = Scalar(point);
-                        let frame =
-                            Frame::project(buffer, &view, Size { width, height: 12 }, "").unwrap();
-                        if left == 0 {
-                            assert!(body(&frame, 0).starts_with(if pretty {
-                                "○ Heading"
-                            } else {
-                                "******** Heading"
-                            }));
-                        }
-                        let column = point.saturating_sub(if pretty { 7 } else { 0 });
-                        let expected = column.checked_sub(left).map(|column| Position {
-                            row: 0,
-                            column: 7 + u16::try_from(column).unwrap(),
-                        });
-                        assert_eq!(
-                            frame.cursor(),
-                            expected,
-                            "{wrapped}/{pretty}/{left}/{point}"
-                        );
-                        if let Some(cursor) = frame.cursor() {
-                            let hit = view
-                                .hit(buffer, Area::new(0, 0, width, 10).unwrap(), cursor)
-                                .unwrap()
-                                .unwrap();
-                            assert_eq!(
-                                hit.position,
-                                Scalar(if pretty { point.max(7) } else { point })
-                            );
-                        }
-                        assert!(
-                            frame
-                                .rows()
-                                .iter()
-                                .all(|row| row.text().width() == usize::from(width))
-                        );
-                    }
-                }
-            }
+            check_heading_viewports(buffer, &mut view, wrapped, pretty);
             assert_eq!(text(buffer), source);
             assert!(buffer.history().is_empty());
         }
+    }
+}
+
+fn check_heading_viewports(buffer: &Buffer, view: &mut View, wrapped: bool, pretty: bool) {
+    for width in [40, 80] {
+        for left in if wrapped {
+            vec![0]
+        } else {
+            vec![0, 2, 7, 8, 9]
+        } {
+            view.left = left;
+            check_heading_projection(buffer, view, width, wrapped, pretty);
+        }
+    }
+}
+
+fn check_heading_projection(
+    buffer: &Buffer,
+    view: &mut View,
+    width: u16,
+    wrapped: bool,
+    pretty: bool,
+) {
+    let left = view.left;
+    for point in 0usize..=8 {
+        view.point.position = Scalar(point);
+        let frame = Frame::project(buffer, view, Size { width, height: 12 }, "").unwrap();
+        if left == 0 {
+            assert!(body(&frame, 0).starts_with(if pretty {
+                "○ Heading"
+            } else {
+                "******** Heading"
+            }));
+        }
+        let column = point.saturating_sub(if pretty { 7 } else { 0 });
+        let expected = column.checked_sub(left).map(|column| Position {
+            row: 0,
+            column: 7 + u16::try_from(column).unwrap(),
+        });
+        assert_eq!(
+            frame.cursor(),
+            expected,
+            "{wrapped}/{pretty}/{left}/{point}"
+        );
+        if let Some(cursor) = frame.cursor() {
+            let hit = view
+                .hit(buffer, Area::new(0, 0, width, 10).unwrap(), cursor)
+                .unwrap()
+                .unwrap();
+            assert_eq!(
+                hit.position,
+                Scalar(if pretty { point.max(7) } else { point })
+            );
+        }
+        assert!(
+            frame
+                .rows()
+                .iter()
+                .all(|row| row.text().width() == usize::from(width))
+        );
     }
 }
 

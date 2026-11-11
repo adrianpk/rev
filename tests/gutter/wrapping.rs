@@ -31,67 +31,80 @@ fn logical_labels() {
                 CurrentLine::Zero,
                 CurrentLine::Hidden,
             ] {
-                let mut view = View::new(buffer);
-                view.bookmark_markers = false;
-                view.point.position = Scalar(5);
-                view.gutter = Policy::new(Settings {
-                    side,
-                    mode,
-                    current_line,
-                    ..Settings::default()
-                });
-                let frame = Frame::project(
+                check_logical_labels(
                     buffer,
-                    &view,
-                    Size {
-                        width: 12,
-                        height: 10,
+                    Settings {
+                        side,
+                        mode,
+                        current_line,
+                        ..Settings::default()
                     },
-                    "",
-                )
-                .unwrap();
-                let current = match current_line {
-                    CurrentLine::Absolute => "1",
-                    CurrentLine::Zero => "0",
-                    CurrentLine::Hidden => "",
-                };
-                let next = if mode == Mode::Absolute { "2" } else { "1" };
-                let final_line = if mode == Mode::Absolute { "3" } else { "2" };
-                let labels = (0..8)
-                    .map(|r| number(&frame, r, side, 12))
-                    .collect::<Vec<_>>();
-                assert_eq!(
-                    labels,
-                    [current, "", "", next, "", final_line, "", ""],
-                    "{side:?}/{mode:?}/{current_line:?}"
                 );
-                let cells = surface::draw(&frame);
-                let column = if side == Side::Left { 3 } else { 10 };
-                assert!(cells[&(0, column)].bold);
-                for row in 1..8 {
-                    assert!(!cells[&(row, column)].bold);
-                }
-                assert_eq!(
-                    frame.cursor(),
-                    Some(Position {
-                        column: if side == Side::Left { 7 } else { 1 },
-                        row: 1
-                    })
-                );
-                let size = Size {
-                    width: 12,
-                    height: 3,
-                };
-                let mut clipped = view.clone();
-                clipped.reveal(buffer, size).unwrap();
-                let clipped = Frame::project(buffer, &clipped, size, "").unwrap();
-                assert_eq!(number(&clipped, 0, side, 12), "");
-                assert!(!surface::draw(&clipped)[&(0, column)].bold);
             }
         }
     }
     assert!(buffer.history().is_empty());
     assert!(!buffer.is_modified());
+}
+
+fn check_logical_labels(buffer: &rev::buffer::Buffer, settings: Settings) {
+    let Settings {
+        side,
+        mode,
+        current_line,
+        ..
+    } = settings;
+    let mut view = View::new(buffer);
+    view.bookmark_markers = false;
+    view.point.position = Scalar(5);
+    view.gutter = Policy::new(settings);
+    let frame = Frame::project(
+        buffer,
+        &view,
+        Size {
+            width: 12,
+            height: 10,
+        },
+        "",
+    )
+    .unwrap();
+    let current = match current_line {
+        CurrentLine::Absolute => "1",
+        CurrentLine::Zero => "0",
+        CurrentLine::Hidden => "",
+    };
+    let next = if mode == Mode::Absolute { "2" } else { "1" };
+    let final_line = if mode == Mode::Absolute { "3" } else { "2" };
+    let labels = (0..8)
+        .map(|r| number(&frame, r, side, 12))
+        .collect::<Vec<_>>();
+    assert_eq!(
+        labels,
+        [current, "", "", next, "", final_line, "", ""],
+        "{side:?}/{mode:?}/{current_line:?}"
+    );
+    let cells = surface::draw(&frame);
+    let column = if side == Side::Left { 3 } else { 10 };
+    assert!(cells[&(0, column)].bold);
+    for row in 1..8 {
+        assert!(!cells[&(row, column)].bold);
+    }
+    assert_eq!(
+        frame.cursor(),
+        Some(Position {
+            column: if side == Side::Left { 7 } else { 1 },
+            row: 1
+        })
+    );
+    let size = Size {
+        width: 12,
+        height: 3,
+    };
+    let mut clipped = view;
+    clipped.reveal(buffer, size).unwrap();
+    let clipped = Frame::project(buffer, &clipped, size, "").unwrap();
+    assert_eq!(number(&clipped, 0, side, 12), "");
+    assert!(!surface::draw(&clipped)[&(0, column)].bold);
 }
 
 // A scrolled continuation keeps an empty number field; source-relative labels

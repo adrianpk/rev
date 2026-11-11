@@ -83,23 +83,29 @@ fn partition_grid() {
         (Side::Right, Format::default(), false),
     ] {
         for lines in [1, 10_000, usize::MAX] {
-            for (width, height) in (0..=40).flat_map(|w| [0, 1, 5].map(move |h| (w, h))) {
-                let settings = Settings {
+            check_partition_sizes(
+                lines,
+                Settings {
                     side,
                     format,
                     visible,
                     ..Settings::default()
-                };
-                for markers in [false, true] {
-                    check_partition(area(2, 3, width, height), lines, settings, markers);
-                    check_partition(
-                        area(u16::MAX - width, u16::MAX - height, width, height),
-                        lines,
-                        settings,
-                        markers,
-                    );
-                }
-            }
+                },
+            );
+        }
+    }
+}
+
+fn check_partition_sizes(lines: usize, settings: Settings) {
+    for (width, height) in (0..=40).flat_map(|w| [0, 1, 5].map(move |h| (w, h))) {
+        for markers in [false, true] {
+            check_partition(area(2, 3, width, height), lines, settings, markers);
+            check_partition(
+                area(u16::MAX - width, u16::MAX - height, width, height),
+                lines,
+                settings,
+                markers,
+            );
         }
     }
 }
@@ -121,6 +127,11 @@ fn check_partition(content: Area, lines: usize, settings: Settings, markers: boo
     if numbered || marked {
         assert!(text.width() >= Geometry::MIN_TEXT_COLUMNS);
     }
+    check_partition_fields(content, geometry, field, settings.side);
+}
+
+fn check_partition_fields(content: Area, geometry: Geometry, field: u16, side: Side) {
+    let text = geometry.text();
     let mut fields = Vec::new();
     if let Some(marker) = geometry.marker() {
         assert_eq!(marker.width(), 1);
@@ -131,7 +142,7 @@ fn check_partition(content: Area, lines: usize, settings: Settings, markers: boo
         fields.push(numbers);
     }
     fields.push(text);
-    if settings.side == Side::Right {
+    if side == Side::Right {
         fields.reverse();
     }
     let mut column = content.column();

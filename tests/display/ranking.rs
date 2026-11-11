@@ -122,40 +122,7 @@ fn hint_geometry() {
         for row in frame.rows() {
             assert_eq!(row.text().width(), usize::from(width), "{case}");
         }
-        if width >= 8 {
-            let row = frame
-                .rows()
-                .iter()
-                .find(|row| row.band() == Band::Completion)
-                .unwrap();
-            assert_eq!(
-                row.text().contains("M-界"),
-                visible,
-                "{case}: {:?}",
-                row.text()
-            );
-            if visible {
-                assert!(row.text().starts_with("save-buffer  "), "{case}");
-                if width == 80 {
-                    assert!(
-                        row.text()
-                            .trim_end()
-                            .ends_with("Save to the current destination."),
-                        "{case}"
-                    );
-                } else {
-                    assert!(row.text().trim_end().ends_with("[M-界]"), "{case}");
-                }
-                if width == 80 {
-                    assert!(
-                        row.text().find("M-界").unwrap() < 40,
-                        "{case}: distant hint"
-                    );
-                }
-            } else {
-                assert!(!row.text().contains("M-"), "{case}");
-            }
-        }
+        check_completion_hint(&frame, case, width, visible);
         assert_eq!(editor.buffer().unwrap().stamp(), stamp, "{case}");
     }
     key(&mut editor, KeyCode::Tab);
@@ -179,6 +146,43 @@ fn hint_geometry() {
     editor.execute(Command::KeyboardQuit);
     editor.execute(Command::ExecuteExtended);
     assert_eq!(names(&mut editor)[0], "save-buffer");
+}
+
+fn check_completion_hint(frame: &rev::display::Frame, case: &str, width: u16, visible: bool) {
+    if width >= 8 {
+        let row = frame
+            .rows()
+            .iter()
+            .find(|row| row.band() == Band::Completion)
+            .unwrap();
+        assert_eq!(
+            row.text().contains("M-界"),
+            visible,
+            "{case}: {:?}",
+            row.text()
+        );
+        if visible {
+            assert!(row.text().starts_with("save-buffer  "), "{case}");
+            if width == 80 {
+                assert!(
+                    row.text()
+                        .trim_end()
+                        .ends_with("Save to the current destination."),
+                    "{case}"
+                );
+            } else {
+                assert!(row.text().trim_end().ends_with("[M-界]"), "{case}");
+            }
+            if width == 80 {
+                assert!(
+                    row.text().find("M-界").unwrap() < 40,
+                    "{case}: distant hint"
+                );
+            }
+        } else {
+            assert!(!row.text().contains("M-"), "{case}");
+        }
+    }
 }
 
 // The actual frame writer uses status_text for unselected secondary cells and

@@ -225,71 +225,73 @@ fn wrapped_overlays() {
         (19, false, true),
         (19, true, true),
     ] {
-        let fixture = Fixture::new();
-        let mut session = editor(&fixture, right, visible);
-        session.handle(Event::Resize(width, 13));
-        session.execute(Command::Motion(Motion::ForwardChar));
-        session.execute(Command::Region(RegionCommand::Set));
-        session.execute(Command::SearchForward);
-        session.handle(Event::Paste("target".into()));
-        let frame = session.frame().unwrap();
-        let content = text_panel(&session, width).content();
-        let tree = Composition::workspace(
-            session.windows(),
-            session.tree(),
-            Size { width, height: 13 },
-            0,
-        )
-        .unwrap()
-        .tree()
-        .map(|panel| panel.content());
-        let cells = surface::draw(&frame);
-        let mut searched = String::new();
-        let mut selected = String::new();
-        for (row, painted) in frame.rows().iter().enumerate() {
-            for (span, text) in [
-                (painted.search(), &mut searched),
-                (painted.selection(), &mut selected),
-            ] {
-                if let Some(span) = span {
-                    // Active-file highlighting owns its tree row independently
-                    // of the source region in the selected editing pane.
-                    if tree
-                        .is_some_and(|area| span == (area.column()..area.column() + area.width()))
-                    {
-                        assert_eq!(
-                            session.tree().entries()[row].path(),
-                            fixture.0.join("main.rs")
-                        );
-                        assert_eq!(
-                            session.buffer().unwrap().file().unwrap().path(),
-                            fixture.0.join("main.rs")
-                        );
-                        assert!(painted.search().is_none());
-                        continue;
-                    }
-                    assert!(
-                        row >= usize::from(content.row())
-                            && row < usize::from(content.row() + content.height()),
-                        "{width}/{right}/{visible}: row {row}, span {span:?}, content {content:?}; {}",
-                        painted.text()
-                    );
-                    assert!(
-                        span.start >= content.column()
-                            && span.end <= content.column() + content.width()
-                    );
-                    for col in span {
-                        text.push(cells[&(row, usize::from(col))].character);
-                    }
-                }
+        check_wrapped_overlays(width, right, visible);
+    }
+}
+
+fn check_wrapped_overlays(width: u16, right: bool, visible: bool) {
+    let fixture = Fixture::new();
+    let mut session = editor(&fixture, right, visible);
+    session.handle(Event::Resize(width, 13));
+    session.execute(Command::Motion(Motion::ForwardChar));
+    session.execute(Command::Region(RegionCommand::Set));
+    session.execute(Command::SearchForward);
+    session.handle(Event::Paste("target".into()));
+    let frame = session.frame().unwrap();
+    let content = text_panel(&session, width).content();
+    let tree = Composition::workspace(
+        session.windows(),
+        session.tree(),
+        Size { width, height: 13 },
+        0,
+    )
+    .unwrap()
+    .tree()
+    .map(|panel| panel.content());
+    let cells = surface::draw(&frame);
+    let mut searched = String::new();
+    let mut selected = String::new();
+    for (row, painted) in frame.rows().iter().enumerate() {
+        for (span, text) in [
+            (painted.search(), &mut searched),
+            (painted.selection(), &mut selected),
+        ] {
+            let Some(span) = span else {
+                continue;
+            };
+            // Active-file highlighting owns its tree row independently
+            // of the source region in the selected editing pane.
+            if tree.is_some_and(|area| span == (area.column()..area.column() + area.width())) {
+                assert_eq!(
+                    session.tree().entries()[row].path(),
+                    fixture.0.join("main.rs")
+                );
+                assert_eq!(
+                    session.buffer().unwrap().file().unwrap().path(),
+                    fixture.0.join("main.rs")
+                );
+                assert!(painted.search().is_none());
+                continue;
+            }
+            assert!(
+                row >= usize::from(content.row())
+                    && row < usize::from(content.row() + content.height()),
+                "{width}/{right}/{visible}: row {row}, span {span:?}, content {content:?}; {}",
+                painted.text()
+            );
+            assert!(
+                span.start >= content.column() && span.end <= content.column() + content.width()
+            );
+            for col in span {
+                text.push(cells[&(row, usize::from(col))].character);
             }
         }
-        assert_eq!(searched, "target", "{width}/{right}/{visible}");
-        assert_eq!(selected, "fn target", "{width}/{right}/{visible}");
-        assert_eq!(session.search_match().unwrap().range, 4..10);
-        assert_eq!(session.view().point.position, Scalar(10));
-        assert_eq!(session.view().left, 0);
-        assert!(frame.cursor().is_some());
-        assert!(session.buffer().unwrap().history().is_empty());
     }
+    assert_eq!(searched, "target", "{width}/{right}/{visible}");
+    assert_eq!(selected, "fn target", "{width}/{right}/{visible}");
+    assert_eq!(session.search_match().unwrap().range, 4..10);
+    assert_eq!(session.view().point.position, Scalar(10));
+    assert_eq!(session.view().left, 0);
+    assert!(frame.cursor().is_some());
+    assert!(session.buffer().unwrap().history().is_empty());
 }

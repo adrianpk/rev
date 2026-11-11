@@ -159,41 +159,46 @@ fn narrow_geometry() {
                 visible,
                 ..Settings::default()
             };
-            for width in 0..=20 {
-                for height in [0, 1, 8] {
-                    let content = area(width, height);
-                    let numbers = Geometry::new(content, 999, settings).unwrap();
-                    let actual = Geometry::with_marker(content, 999, settings, true).unwrap();
-                    assert_eq!(
-                        actual.numbers().map(|field| field.width()),
-                        numbers.numbers().map(|field| field.width())
-                    );
-                    let expected = height > 0 && numbers.text().width() >= 4;
-                    assert_eq!(
-                        actual.marker().is_some(),
-                        expected,
-                        "{side:?}/{visible}/{width}/{height}"
-                    );
-                    assert_eq!(
-                        actual.text().width(),
-                        numbers.text().width() - u16::from(expected)
-                    );
-                    if let Some(marker) = actual.marker() {
-                        assert_eq!(marker.width(), 1);
-                        assert!(actual.text().width() >= 3);
-                        assert!(
-                            actual
-                                .text()
-                                .local(Position {
-                                    column: marker.column(),
-                                    row: marker.row()
-                                })
-                                .is_none()
-                        );
-                    } else {
-                        assert_eq!(actual, numbers);
-                    }
-                }
+            check_marker_geometry(settings);
+        }
+    }
+}
+
+fn check_marker_geometry(settings: Settings) {
+    let Settings { side, visible, .. } = settings;
+    for width in 0..=20 {
+        for height in [0, 1, 8] {
+            let content = area(width, height);
+            let numbers = Geometry::new(content, 999, settings).unwrap();
+            let actual = Geometry::with_marker(content, 999, settings, true).unwrap();
+            assert_eq!(
+                actual.numbers().map(|field| field.width()),
+                numbers.numbers().map(|field| field.width())
+            );
+            let expected = height > 0 && numbers.text().width() >= 4;
+            assert_eq!(
+                actual.marker().is_some(),
+                expected,
+                "{side:?}/{visible}/{width}/{height}"
+            );
+            assert_eq!(
+                actual.text().width(),
+                numbers.text().width() - u16::from(expected)
+            );
+            if let Some(marker) = actual.marker() {
+                assert_eq!(marker.width(), 1);
+                assert!(actual.text().width() >= 3);
+                assert!(
+                    actual
+                        .text()
+                        .local(Position {
+                            column: marker.column(),
+                            row: marker.row()
+                        })
+                        .is_none()
+                );
+            } else {
+                assert_eq!(actual, numbers);
             }
         }
     }
@@ -214,66 +219,15 @@ fn independent_fields() {
     for side in [Side::Left, Side::Right] {
         for mode in [Mode::Absolute, Mode::Relative] {
             for visible in [false, true] {
-                let mut view = s.view().clone();
-                view.gutter = Policy::new(Settings {
-                    side,
-                    mode,
-                    visible,
-                    ..Settings::default()
-                });
-                let frame = project(&s, &view, 24, 8);
-                assert_eq!(rows(&frame), [1]);
-                let rendered = frame.rows()[1].text();
-                match (side, visible) {
-                    (Side::Left, true) => assert!(rendered.starts_with("■   2 │second")),
-                    (Side::Right, true) => {
-                        assert!(rendered.starts_with("second"));
-                        assert!(rendered.ends_with("│   2 ■"));
-                    }
-                    (Side::Left, false) => assert!(rendered.starts_with("■second")),
-                    (Side::Right, false) => {
-                        assert!(rendered.starts_with("second"));
-                        assert!(rendered.ends_with('■'));
-                    }
-                }
-                let geometry = view
-                    .gutter_geometry(s.buffer().unwrap(), area(24, 6))
-                    .unwrap();
-                let marker = geometry.marker().unwrap();
-                assert_eq!(
-                    frame.rows()[1]
-                        .text()
-                        .chars()
-                        .nth(usize::from(marker.column())),
-                    Some('■')
+                check_marker_fields(
+                    &s,
+                    Settings {
+                        side,
+                        mode,
+                        visible,
+                        ..Settings::default()
+                    },
                 );
-                assert_eq!(
-                    view.hit(
-                        s.buffer().unwrap(),
-                        area(24, 6),
-                        Position {
-                            column: marker.column(),
-                            row: 1
-                        }
-                    )
-                    .unwrap(),
-                    None
-                );
-                let text = geometry.text();
-                let hit = view
-                    .hit(
-                        s.buffer().unwrap(),
-                        area(24, 6),
-                        Position {
-                            column: text.column(),
-                            row: 1,
-                        },
-                    )
-                    .unwrap()
-                    .unwrap();
-                assert_eq!(hit.position, Scalar(6));
-                view.bookmark_markers = false;
-                assert!(rows(&project(&s, &view, 24, 8)).is_empty());
                 assert_eq!(s.bookmarks().iter().cloned().collect::<Vec<_>>(), records);
             }
         }
@@ -281,6 +235,65 @@ fn independent_fields() {
     assert_eq!(std::fs::read_to_string(path).unwrap(), "first\nsecond\n");
     assert!(!s.buffer().unwrap().is_modified());
     assert!(s.buffer().unwrap().history().is_empty());
+}
+
+fn check_marker_fields(s: &Session, settings: Settings) {
+    let Settings { side, visible, .. } = settings;
+    let mut view = s.view().clone();
+    view.gutter = Policy::new(settings);
+    let frame = project(s, &view, 24, 8);
+    assert_eq!(rows(&frame), [1]);
+    let rendered = frame.rows()[1].text();
+    match (side, visible) {
+        (Side::Left, true) => assert!(rendered.starts_with("■   2 │second")),
+        (Side::Right, true) => {
+            assert!(rendered.starts_with("second"));
+            assert!(rendered.ends_with("│   2 ■"));
+        }
+        (Side::Left, false) => assert!(rendered.starts_with("■second")),
+        (Side::Right, false) => {
+            assert!(rendered.starts_with("second"));
+            assert!(rendered.ends_with('■'));
+        }
+    }
+    let geometry = view
+        .gutter_geometry(s.buffer().unwrap(), area(24, 6))
+        .unwrap();
+    let marker = geometry.marker().unwrap();
+    assert_eq!(
+        frame.rows()[1]
+            .text()
+            .chars()
+            .nth(usize::from(marker.column())),
+        Some('■')
+    );
+    assert_eq!(
+        view.hit(
+            s.buffer().unwrap(),
+            area(24, 6),
+            Position {
+                column: marker.column(),
+                row: 1
+            }
+        )
+        .unwrap(),
+        None
+    );
+    let text = geometry.text();
+    let hit = view
+        .hit(
+            s.buffer().unwrap(),
+            area(24, 6),
+            Position {
+                column: text.column(),
+                row: 1,
+            },
+        )
+        .unwrap()
+        .unwrap();
+    assert_eq!(hit.position, Scalar(6));
+    view.bookmark_markers = false;
+    assert!(rows(&project(s, &view, 24, 8)).is_empty());
 }
 
 // Publication, history and deletion invalidate the row index even when the

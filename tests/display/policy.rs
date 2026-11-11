@@ -37,16 +37,12 @@ fn policy_clipping() {
                 width: width + 6,
                 height: 4,
             };
-            let expected = if wrap {
-                match (tab_width, left) {
-                    (8, 0) => "a           ",
-                    (32, _) => "a         ",
-                    (4, 2) => "a       ",
-                    (8, 9) => "a     ",
-                    _ => unwrapped,
-                }
-            } else {
-                unwrapped
+            let expected = match (wrap, tab_width, left) {
+                (true, 8, 0) => "a           ",
+                (true, 32, _) => "a         ",
+                (true, 4, 2) => "a       ",
+                (true, 8, 9) => "a     ",
+                _ => unwrapped,
             };
             let frame = Frame::project(buffer, &view, size, "").unwrap();
             assert_eq!(

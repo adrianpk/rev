@@ -136,19 +136,7 @@ fn mixed_clipping() {
         );
         let mut buffers = Buffers::with_settings(startup.snapshot).unwrap();
         for (name, source, left, width, unwrapped) in cases {
-            let expected = if wrap {
-                match name {
-                    "right wide" | "left wide" | "whole wide" => "ab ",
-                    "both edges" => "界 ",
-                    "tab fragment" => "a   ",
-                    "tab stops" => "      ",
-                    "combining" => "ae\u{301}z",
-                    "emoji edge" => "a👩\u{200d}💻",
-                    _ => unwrapped,
-                }
-            } else {
-                unwrapped
-            };
+            let expected = clipped_expected(wrap, name, unwrapped);
             let id = buffers.create(source).unwrap();
             let buffer = buffers.get(id).unwrap();
             let mut view = View::new(buffer);
@@ -168,6 +156,18 @@ fn mixed_clipping() {
             );
             assert!(!buffer.is_modified(), "{name}");
         }
+    }
+}
+
+fn clipped_expected<'a>(wrap: bool, name: &str, unwrapped: &'a str) -> &'a str {
+    match (wrap, name) {
+        (true, "right wide" | "left wide" | "whole wide") => "ab ",
+        (true, "both edges") => "界 ",
+        (true, "tab fragment") => "a   ",
+        (true, "tab stops") => "      ",
+        (true, "combining") => "ae\u{301}z",
+        (true, "emoji edge") => "a👩\u{200d}💻",
+        _ => unwrapped,
     }
 }
 
