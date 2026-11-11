@@ -1,6 +1,6 @@
 # Slice 10: Staged enforcement and acceptance
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-architecture-quality
 Plan: [Architecture Quality Delivery](../../../plan/rev-architecture-quality.md)
 Tracker: [Architecture Quality Tracker](../../../tracker/rev-architecture-quality.md)
@@ -10,6 +10,7 @@ Integrated: `67dd8de1e9b51868f8f38379fc0079defd2a8d87` through canonical PR #24.
 Gate repair branch: `fix/rev-architecture-quality-git-cleanup-1`
 Gate repair PR: [#25](https://forge.adrianpk.com/rev/rev/pulls/25)
 Gate repair implementation: `6f8e282f6688405d8f0bd001673e74934d657a58`
+Gate repair integrated: `ab30c95e4a164a54bcc3db606e2d4f4340335ea9` through canonical PR #25.
 
 ## Purpose
 
@@ -68,7 +69,7 @@ cannot refresh the metadata measured by the raw index-preservation assertion.
 ### Gate repair: Owned Git cleanup
 
 The original Slice 10 delivery remains integrated through canonical PR #24.
-This report is reopened for review of the bounded gate repair.
+The bounded gate repair is integrated through canonical PR #25.
 
 Controller validation `LYMBVLYJ4VGE3RDKMUABFBAYJQ` on integrated candidate
 `4d92ea260259a8a453810e193582f3b0f508595c` passed lint/hooks but failed the native
@@ -182,8 +183,9 @@ Additional focused checks:
 - `bash .githooks/pre-commit` - complete actual worktree staged candidate passed both cold and unchanged warm checks, with exact index bytes preserved.
 - `git diff --check` - passed.
 
-Gate repair checks, in canonical order; final clean published HEAD evidence is
-recorded through Looper after the repair PR references are committed:
+Gate repair checks, in canonical order, passed through Looper on clean published
+and integrated HEAD `ab30c95e4a164a54bcc3db606e2d4f4340335ea9` in validation
+`CFTQW7EQ4MUNXXPT5GUEYWMLFY` after the repair PR references were committed:
 
 - `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 bash scripts/check-quality.sh --scope src/process.rs --scope src/process --scope src/git/work/command.rs --scope src/git/work/conflicts --scope tests/git_integration/support.rs --scope tests/git_integration/conflicts_resolution.rs` - passed for all 16 selected files; zero Clippy/source findings.
 - `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --lib -- process:: --test-threads=1` - all 14 pass during implementation.
@@ -200,6 +202,5 @@ No main/release/publication
 operation is included. Foreign vendored compiler warnings remain visible and are
 outside first-party lint admission. New native behavior and test coverage are not
 claimed from static lint success.
-The gate repair awaits canonical review/integration; exact clean PR-HEAD evidence
-is recorded through Looper.
-The controller must rerun the unchanged full gate after repair integration.
+The gate repair is integrated with exact clean PR-HEAD evidence recorded through
+Looper. The controller must rerun the unchanged full gate before set closure.

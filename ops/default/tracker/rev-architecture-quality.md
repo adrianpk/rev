@@ -198,10 +198,10 @@ Validation: all five frozen commands passed through Looper on clean published HE
 
 ## Gate preparation
 
-All ten original slice PRs (#15-#24) are merged into dev. Their delivered tracker
-entries remain closed; the existing Slice 10 report now records the approved gate
-repair under review. The delivery set remains in progress until controller
-acceptance and the permitted Markdown closure.
+All ten original slice PRs (#15-#24) and gate repair PR #25 are merged into dev.
+All ten slice reports and the repair tracker entry are delivered. The delivery
+set remains in progress until controller acceptance and the permitted Markdown
+closure.
 
 `make install-hooks` has activated repository-local `core.hooksPath=.githooks`.
 Primary and linked-worktree hook resolution are verified. The existing default
@@ -211,8 +211,9 @@ installed linked-worktree commits and independent concurrent caches, pass in the
 integrated Slice 10 evidence above.
 
 Prerequisite validation on the final clean preparation HEAD uses strict
-`make lint`, `make test-hooks` and `git diff --check`, with the approved compiler
-resource environment. Looper records the exact HEAD and ordered commands.
+`make lint`, `make test-hooks`, documentation checks, the User Guide build and
+`git diff --check`, with the approved compiler resource environment. Looper records
+the exact HEAD and ordered commands.
 Required build tools and the clean external compatibility checkout are present.
 The controller owns the unchanged full gate; it has not run during preparation.
 
@@ -237,11 +238,13 @@ must run the unchanged full gate; no full-gate result has been accepted.
 
 ## Gate repair 1: Owned Git cleanup
 
-State: reviewing
+State: delivered
 Branch: fix/rev-architecture-quality-git-cleanup-1
 Expected PR title: fix(git): stabilize owned cleanup during conflict resolution
 PR: #25 - https://forge.adrianpk.com/rev/rev/pulls/25
 Implementation: 6f8e282f6688405d8f0bd001673e74934d657a58
+Integrated: ab30c95e4a164a54bcc3db606e2d4f4340335ea9 through canonical PR #25
+Validation: all five frozen repair commands passed through Looper on clean published HEAD ab30c95e4a164a54bcc3db606e2d4f4340335ea9 in validation CFTQW7EQ4MUNXXPT5GUEYWMLFY
 Report: ops/default/report/slices/rev-architecture-quality/slice-10-enforcement.md
 Failed candidate: 4d92ea260259a8a453810e193582f3b0f508595c
 Failure evidence: LYMBVLYJ4VGE3RDKMUABFBAYJQ
@@ -256,8 +259,9 @@ redirected descendants, TERM-to-KILL escalation, cancellation and timeout. All n
 conflict-resolution cases pass in 104.56 seconds with the original assertions and
 deadlines. Scoped quality passes for all 16 selected files with zero Clippy/source
 findings, and documentation checks pass. The final clean PR-HEAD Looper record
-supplies the unchanged ordered five-command repair evidence. The controller owns
-repair integration and the full-gate rerun.
+supplies the unchanged ordered five-command repair evidence; its nine Git cases
+pass in 135.68 seconds. Canonical PR #25 is merged into dev. The controller owns
+the unchanged full-gate rerun.
 
 ## Final acceptance
 
