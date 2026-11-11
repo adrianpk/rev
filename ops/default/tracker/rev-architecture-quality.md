@@ -215,7 +215,7 @@ resource environment. Looper records the exact HEAD and ordered commands.
 Required build tools and the clean external compatibility checkout are present.
 The controller owns the unchanged full gate; it has not run during preparation.
 
-Preparation blocker: validation `LQEF2BERF3HCTSRCFFVZRNG35J` on clean published
+Resolved preparation blocker: validation `LQEF2BERF3HCTSRCFFVZRNG35J` on clean published
 HEAD `775e1ddaf4ab857c120a8415d66df56fbe3dd5b7` passed strict Clippy with zero
 blocking/deferred diagnostics, then failed native source policy. Primary discovery
 includes 1,838 Rust files and rejects retained scratch source
@@ -226,8 +226,13 @@ uses checkout ownership to exclude ignored local experiments outside Cargo
 owners, while retaining tracked/new sources, explicit Cargo roots and their
 source directories. Archives/index exports preserve full filesystem discovery.
 All ten native source-check tests and full strict lint pass after correction.
-Fresh final-slice validation on the published preparation HEAD remains required
-before same-run continuation; no full-gate result has been accepted.
+Validation `ONIP3HX6U5DVGAISU2XIF4CJ46` on clean published correction HEAD
+`afc1d770a9a04fd92e47e4ce594f26753fa00d16` passes all five frozen Slice 10
+commands: full strict lint, all 28 hook cases, documentation, User Guide build and
+whitespace. Coverage is 1,837 first-party Rust files, both packages and all 73
+Cargo roots, with zero blocking/deferred Clippy diagnostics or source findings.
+Preparation evidence is keyed by the exact clean published HEAD. The controller
+must run the unchanged full gate; no full-gate result has been accepted.
 
 ## Final acceptance
 
