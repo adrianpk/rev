@@ -50,23 +50,9 @@ impl Terminal {
             .stdout(Stdio::piped())
             .spawn()?;
         let input = child.stdin.take();
-        let mut output = child.stdout.take().unwrap();
+        let output = child.stdout.take().unwrap();
         let (send, received) = sync_channel(256);
-        let reader = std::thread::spawn(move || {
-            let mut bytes = 0;
-            while bytes <= OUTPUT_LIMIT {
-                let mut chunk = vec![0; 8192];
-                let count = match output.read(&mut chunk) {
-                    Ok(0) | Err(_) => break,
-                    Ok(n) => n,
-                };
-                bytes += count;
-                chunk.truncate(count);
-                if send.send(chunk).is_err() {
-                    break;
-                }
-            }
-        });
+        let reader = std::thread::spawn(move || Self::read_output(output, &send));
         let mut terminal = Self {
             child,
             input,
@@ -105,6 +91,25 @@ impl Terminal {
                 .any(|v| v.trim_end_matches(';') == "-echo")
         );
         Ok(terminal)
+    }
+
+    fn read_output(
+        mut output: std::process::ChildStdout,
+        send: &std::sync::mpsc::SyncSender<Vec<u8>>,
+    ) {
+        let mut bytes = 0;
+        while bytes <= OUTPUT_LIMIT {
+            let mut chunk = vec![0; 8192];
+            let count = match output.read(&mut chunk) {
+                Ok(0) | Err(_) => break,
+                Ok(n) => n,
+            };
+            bytes += count;
+            chunk.truncate(count);
+            if send.send(chunk).is_err() {
+                break;
+            }
+        }
     }
 
     fn wait(&mut self, predicate: impl Fn(&str) -> bool) -> Result<(), Box<dyn Error>> {
@@ -234,16 +239,48 @@ pub(super) fn run(root: &Path, binary: &Path, wrapper: &Path) -> Result<(), Box<
     let org = std::fs::read(&org_path)?;
     let started = Instant::now();
     let mut terminal = Terminal::start(root, binary, wrapper)?;
+    interact(&mut terminal, rust.len())?;
+    idle(&mut terminal);
+    terminal.finish()?;
+    assert_eq!(std::fs::read(rust_path)?, rust);
+    assert_eq!(std::fs::read(org_path)?, org);
+    assert!(!root.join("workspace/not-created").exists());
+    println!(
+        "PASS Linux PTY joint journey: {}ms, {} output bytes; SGR click, splits, visual editing/search, resize, no-wrap, cancellation, exact save, idle silence and restored TTY",
+        started.elapsed().as_millis(),
+        terminal.bytes
+    );
+    Ok(())
+}
+
+fn interact(terminal: &mut Terminal, source_length: usize) -> Result<(), Box<dyn Error>> {
+    choose_file(terminal)?;
+    split_org(terminal)?;
+    visual_edit(terminal)?;
+    search_resize(terminal)?;
+    no_wrap(terminal, source_length)?;
+    Ok(())
+}
+
+fn choose_file(terminal: &mut Terminal) -> Result<(), Box<dyn Error>> {
     terminal.send(b"\x18\x06a\t")?;
     terminal.frame(|f| f.contains("Find file: alpha.rs") && f.contains("*scratch*"))?;
     terminal.send(b"\r")?;
     terminal.frame(|f| status(f, "> alpha.rs -- RW -- L1 C1 Rust"))?;
+    Ok(())
+}
+
+fn split_org(terminal: &mut Terminal) -> Result<(), Box<dyn Error>> {
     terminal.send(b"\x18\x33")?;
     let frame = terminal.frame(|f| f.matches("alpha.rs -- RW").count() == 2)?;
     let row = tree_row(&frame, "bravo.org");
     terminal.send(format!("\x1b[<0;2;{row}M").as_bytes())?;
     terminal
         .frame(|f| status(f, "> bravo.org -- RW -- L1 C1 Org") && f.contains("alpha.rs -- RW"))?;
+    Ok(())
+}
+
+fn visual_edit(terminal: &mut Terminal) -> Result<(), Box<dyn Error>> {
     terminal.send(b"\x18o")?;
     terminal.frame(|f| status(f, "> alpha.rs -- RW -- L1 C1 Rust"))?;
     terminal.send(b"\x0e")?;
@@ -254,6 +291,10 @@ pub(super) fn run(root: &Path, binary: &Path, wrapper: &Path) -> Result<(), Box<
     terminal.frame(|f| f.contains("alpha.rs ** RW"))?;
     terminal.send(b"\x18u")?;
     terminal.frame(|f| status(f, "> alpha.rs -- RW -- L1 C"))?;
+    Ok(())
+}
+
+fn search_resize(terminal: &mut Terminal) -> Result<(), Box<dyn Error>> {
     terminal.send(b"\x1b<\x13NEEDLE")?;
     terminal.frame(|f| f.contains("I-search:") && f.contains("NEEDLE"))?;
     terminal.send(b"\x07")?;
@@ -262,12 +303,25 @@ pub(super) fn run(root: &Path, binary: &Path, wrapper: &Path) -> Result<(), Box<
         terminal.resize(width)?;
         terminal.frame(|f| status(f, "> alpha.rs -- RW -- L1 C1 Rust"))?;
     }
+    Ok(())
+}
+
+fn no_wrap(terminal: &mut Terminal, source_length: usize) -> Result<(), Box<dyn Error>> {
     terminal.send(b"\x1bxvisual-line-mode\r\x05")?;
-    terminal.frame(|f| status(f, &format!("> alpha.rs -- RW -- L1 C{} Rust", rust.len())))?;
+    terminal.frame(|f| {
+        status(
+            f,
+            &format!("> alpha.rs -- RW -- L1 C{} Rust", source_length),
+        )
+    })?;
     terminal.send(b"\x1bxvisual-line-mode\r\x18\x13")?;
     terminal.frame(|f| f.contains("Saved"))?;
     terminal.send(b"\x18\x06not-created\x07")?;
     terminal.frame(|f| f.contains("Quit") && !f.contains("Find file:"))?;
+    Ok(())
+}
+
+fn idle(terminal: &mut Terminal) {
     // A settled session has no periodic redraw. The existing long-line probe
     // separately checks all pending native layout/input work has retired.
     terminal.output.clear();
@@ -279,14 +333,4 @@ pub(super) fn run(root: &Path, binary: &Path, wrapper: &Path) -> Result<(), Box<
             .recv_timeout(Duration::from_millis(350)),
         Err(RecvTimeoutError::Timeout)
     ));
-    terminal.finish()?;
-    assert_eq!(std::fs::read(rust_path)?, rust);
-    assert_eq!(std::fs::read(org_path)?, org);
-    assert!(!root.join("workspace/not-created").exists());
-    println!(
-        "PASS Linux PTY joint journey: {}ms, {} output bytes; SGR click, splits, visual editing/search, resize, no-wrap, cancellation, exact save, idle silence and restored TTY",
-        started.elapsed().as_millis(),
-        terminal.bytes
-    );
-    Ok(())
 }

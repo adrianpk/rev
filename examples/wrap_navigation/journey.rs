@@ -5,12 +5,13 @@ use std::time::{Duration, Instant};
 use crossterm::event::{
     Event, KeyCode, KeyEvent, KeyModifiers, MouseButton, MouseEvent, MouseEventKind,
 };
-use rev::buffer::Buffers;
+use rev::buffer::{BufferId, Buffers};
 use rev::command::{Command, History, Motion, OrgCommand, Split};
 use rev::config::{Snapshot, default_template, prepare};
 use rev::display::Band;
 use rev::session::Session;
 use rev::view::{Size, View};
+use rev::window::ViewId;
 
 fn key(session: &mut Session, code: KeyCode, modifiers: KeyModifiers) {
     session.handle(Event::Key(KeyEvent::new(code, modifiers)));
@@ -58,9 +59,22 @@ fn settle(session: &mut Session) -> Result<(), Box<dyn Error>> {
 // One real event/composition journey must work with absent-file defaults and
 // both the packaged and compiled complete templates, not merely equal TOML.
 fn journey(root: &Path, settings: &Snapshot) -> Result<(), Box<dyn Error>> {
+    let mut session = native(settings)?;
+    let work = root.join("workspace");
+    let rust = std::fs::read(work.join("alpha.rs"))?;
+    let org = std::fs::read(work.join("bravo.org"))?;
+    let cwd = std::env::current_dir()?;
+    let (rust_view, org_view) = open_sources(&mut session, &work, &rust, &org)?;
+    visual_journey(&mut session, rust_view, &work, &rust)?;
+    finish_native(&mut session, org_view, &org, &cwd)?;
+    retained_files(&work, &rust, &org)?;
+    Ok(())
+}
+
+fn native(settings: &Snapshot) -> Result<Session, Box<dyn Error>> {
     let buffers = Buffers::with_settings(settings.clone())?;
     let view = View::with_settings(buffers.get(buffers.initial())?, settings);
-    let mut session = Session::new(
+    let session = Session::new(
         buffers,
         view,
         Size {
@@ -68,12 +82,26 @@ fn journey(root: &Path, settings: &Snapshot) -> Result<(), Box<dyn Error>> {
             height: 24,
         },
     )?;
-    let work = root.join("workspace");
-    let rust = std::fs::read(work.join("alpha.rs"))?;
-    let org = std::fs::read(work.join("bravo.org"))?;
-    let cwd = std::env::current_dir()?;
+    Ok(session)
+}
+
+fn open_sources(
+    session: &mut Session,
+    work: &Path,
+    rust: &[u8],
+    org: &[u8],
+) -> Result<(ViewId, ViewId), Box<dyn Error>> {
+    let scratch = directory(session, work)?;
+    open_rust(session, work, rust, scratch)?;
+    let rust_view = session.windows().selected_id();
+    let org_view = open_org(session, work, org)?;
+    fold_org(session, org)?;
+    Ok((rust_view, org_view))
+}
+
+fn directory(session: &mut Session, work: &Path) -> Result<BufferId, Box<dyn Error>> {
     let scratch = session.view().point.stamp.buffer;
-    session.load(&work)?;
+    session.load(work)?;
     assert_eq!(session.view().point.stamp.buffer, scratch);
     assert!(session.tree().visible() && session.tree().focused());
     assert_eq!(session.tree().entries().len(), 4);
@@ -85,9 +113,18 @@ fn journey(root: &Path, settings: &Snapshot) -> Result<(), Box<dyn Error>> {
             .any(|r| r.text().contains("nested.txt"))
     );
 
-    find(&mut session);
+    Ok(scratch)
+}
+
+fn open_rust(
+    session: &mut Session,
+    work: &Path,
+    rust: &[u8],
+    scratch: BufferId,
+) -> Result<(), Box<dyn Error>> {
+    find(session);
     session.handle(Event::Paste("a".into()));
-    key(&mut session, KeyCode::Tab, KeyModifiers::NONE);
+    key(session, KeyCode::Tab, KeyModifiers::NONE);
     let frame = session.frame()?;
     let query = frame
         .rows()
@@ -101,14 +138,17 @@ fn journey(root: &Path, settings: &Snapshot) -> Result<(), Box<dyn Error>> {
         scratch,
         "Tab accepted a file"
     );
-    enter(&mut session);
+    enter(session);
     assert_eq!(
         session.buffer()?.file().unwrap().path(),
         work.join("alpha.rs")
     );
-    assert_eq!(source(&session), rust);
+    assert_eq!(source(session), rust);
     assert!(session.buffer()?.soft_wrap());
-    let rust_view = session.windows().selected_id();
+    Ok(())
+}
+
+fn open_org(session: &mut Session, work: &Path, org: &[u8]) -> Result<ViewId, Box<dyn Error>> {
     session.execute(Command::Split(Split::Right));
     let org_view = session.windows().order()[1];
     session.select_view(org_view)?;
@@ -126,45 +166,56 @@ fn journey(root: &Path, settings: &Snapshot) -> Result<(), Box<dyn Error>> {
         modifiers: KeyModifiers::NONE,
     }));
     assert_eq!(session.windows().selected_id(), org_view);
-    assert_eq!(source(&session), org);
+    assert_eq!(source(session), org);
     assert_eq!(
         session.tree().selected().unwrap().path(),
         work.join("bravo.org")
     );
-    assert_eq!(session.tree().root(), Some(work.as_path()));
+    assert_eq!(session.tree().root(), Some(work));
+    Ok(org_view)
+}
+
+fn fold_org(session: &mut Session, org: &[u8]) -> Result<(), Box<dyn Error>> {
     session.execute(Command::Org(OrgCommand::HideSubtree));
-    settle(&mut session)?;
+    settle(session)?;
     let frame = session.frame()?;
     assert!(!frame.rows().iter().any(|r| r.text().contains("HIDDEN")));
-    assert_eq!(source(&session), org);
+    assert_eq!(source(session), org);
     assert!(session.buffer()?.history().is_empty());
 
-    session.select_view(rust_view)?;
-    assert_eq!(source(&session), rust);
-    control(&mut session, 'n');
+    Ok(())
+}
+
+fn visual_edit(session: &mut Session, rust: &[u8]) -> Result<(), Box<dyn Error>> {
+    assert_eq!(source(session), rust);
+    control(session, 'n');
     let point = session.view().point.position;
     assert!(point.0 > 0 && point.0 < rust.iter().position(|b| *b == b'\n').unwrap());
-    control(&mut session, 'a');
+    control(session, 'a');
     let start = session.view().point.position;
-    control(&mut session, 'k');
+    control(session, 'k');
     let killed = session.killed_text().unwrap().to_string();
     assert!(!killed.is_empty() && !killed.contains('\n'));
     assert_eq!(session.buffer()?.history().len(), 1);
-    let mut expected = rust.clone();
+    let mut expected = rust.to_vec();
     expected.drain(start.0..start.0 + killed.len());
-    assert_eq!(source(&session), expected);
-    control(&mut session, 'y');
-    assert_eq!(source(&session), rust);
+    assert_eq!(source(session), expected);
+    control(session, 'y');
+    assert_eq!(source(session), rust);
     session.execute(Command::History(History::Undo));
-    assert_eq!(source(&session), expected);
+    assert_eq!(source(session), expected);
     session.execute(Command::History(History::Undo));
-    assert_eq!(source(&session), rust);
+    assert_eq!(source(session), rust);
     assert!(!session.buffer()?.is_modified());
 
+    Ok(())
+}
+
+fn visual_selection(session: &mut Session, rust: &[u8]) -> Result<(), Box<dyn Error>> {
     session.execute(Command::Motion(Motion::BufferStart));
-    control(&mut session, ' ');
-    control(&mut session, 'n');
-    control(&mut session, 'n');
+    control(session, ' ');
+    control(session, 'n');
+    control(session, 'n');
     let end = session.view().point.position.0;
     assert!(
         session
@@ -175,49 +226,89 @@ fn journey(root: &Path, settings: &Snapshot) -> Result<(), Box<dyn Error>> {
             .count()
             >= 2
     );
-    key(&mut session, KeyCode::Char('w'), KeyModifiers::ALT);
+    key(session, KeyCode::Char('w'), KeyModifiers::ALT);
     assert_eq!(
         session.killed_text().unwrap().to_string().as_bytes(),
         &rust[..end]
     );
-    control(&mut session, 'g');
+    control(session, 'g');
+    Ok(())
+}
+
+fn search(session: &mut Session, rust: &[u8]) -> Result<(), Box<dyn Error>> {
     session.execute(Command::Motion(Motion::BufferStart));
-    control(&mut session, 's');
+    control(session, 's');
     session.handle(Event::Paste("NEEDLE".into()));
     let target = rust.windows(6).position(|b| b == b"NEEDLE").unwrap() + 6;
     assert_eq!(session.view().point.position.0, target);
     assert!(session.frame()?.cursor().is_some());
-    control(&mut session, 'g');
+    control(session, 'g');
     assert_eq!(
         session.view().point.position.0,
         0,
         "search cancellation lost origin"
     );
 
+    Ok(())
+}
+
+fn resize_wrap(session: &mut Session, rust: &[u8]) -> Result<(), Box<dyn Error>> {
     for width in [48, 100, 80] {
         session.handle(Event::Resize(width, 24));
         assert!(session.frame()?.cursor().is_some());
-        assert_eq!(source(&session), rust);
+        assert_eq!(source(session), rust);
     }
-    extended(&mut session, "visual-line-mode");
+    extended(session, "visual-line-mode");
     assert!(!session.buffer()?.soft_wrap());
-    control(&mut session, 'e');
+    control(session, 'e');
     assert_eq!(session.view().point.position.0, rust.len() - 1);
     assert!(session.frame()?.cursor().is_some());
-    extended(&mut session, "visual-line-mode");
+    extended(session, "visual-line-mode");
     assert!(session.buffer()?.soft_wrap());
-    assert_eq!(source(&session), rust);
-    find(&mut session);
+    assert_eq!(source(session), rust);
+    Ok(())
+}
+
+fn cancel_file(session: &mut Session, work: &Path, rust: &[u8]) -> Result<(), Box<dyn Error>> {
+    find(session);
     session.handle(Event::Paste("not-created".into()));
-    control(&mut session, 'g');
-    assert_eq!(source(&session), rust);
+    control(session, 'g');
+    assert_eq!(source(session), rust);
     assert!(!work.join("not-created").exists());
+    Ok(())
+}
+
+fn finish_native(
+    session: &mut Session,
+    org_view: ViewId,
+    org: &[u8],
+    cwd: &Path,
+) -> Result<(), Box<dyn Error>> {
     session.select_view(org_view)?;
-    assert_eq!(source(&session), org);
+    assert_eq!(source(session), org);
     assert!(session.buffer()?.history().is_empty());
     assert_eq!(std::env::current_dir()?, cwd);
+    Ok(())
+}
+
+fn retained_files(work: &Path, rust: &[u8], org: &[u8]) -> Result<(), Box<dyn Error>> {
     assert_eq!(std::fs::read(work.join("alpha.rs"))?, rust);
     assert_eq!(std::fs::read(work.join("bravo.org"))?, org);
+    Ok(())
+}
+
+fn visual_journey(
+    session: &mut Session,
+    rust_view: ViewId,
+    work: &Path,
+    rust: &[u8],
+) -> Result<(), Box<dyn Error>> {
+    session.select_view(rust_view)?;
+    visual_edit(session, rust)?;
+    visual_selection(session, rust)?;
+    search(session, rust)?;
+    resize_wrap(session, rust)?;
+    cancel_file(session, work, rust)?;
     Ok(())
 }
 

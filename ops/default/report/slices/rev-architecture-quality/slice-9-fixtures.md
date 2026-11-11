@@ -202,6 +202,17 @@ All 99 assertion sites and text/numeric literal multiplicities remain unchanged
 across the six example files. No row/color expectation, event sequence, timeout,
 stream limit or process ownership boundary is changed.
 
+Wrapping-navigation examples separate directory admission, Tab-only file
+selection, Rust/Org split views, fold projection, visual editing/selection,
+search cancellation, resize/wrap policy and retained-file checks. The original
+scratch-buffer identity remains captured before directory loading and is shared
+with the later Tab assertion. PTY startup keeps the same bounded reader thread,
+channel and process owners; its extracted reader borrows the thread-owned sender.
+
+Both wrapping files preserve all 58 assertion sites and text/numeric literal
+multiplicities. Input bytes, geometry matrices, EOF behavior, stream limits,
+eight-second deadline, idle interval and owned-child cleanup remain unchanged.
+
 ## Contracts Added or Changed
 
 No runtime, package API, protocol, policy or acceptance changes are planned.
@@ -262,6 +273,8 @@ The existing five frozen commands and final controller gate remain required.
   retained selection, recall, restarted dispatch and paired publisher phases.
 - `examples/command_keybinding_hints_acceptance/`: Org hint origins, modal
   equivalence, terminal setup, palette geometry and named/bound dispatch checks.
+- `examples/wrap_navigation/journey.rs` and `pty.rs`: directory/file/split,
+  visual editing/search, wrap/resize and bounded reader/input/idle phases.
 - `examples/git_integration_acceptance/`: snapshot and staged-content ownership.
 - `examples/integrated_terminal_acceptance/failure.rs`: explicit shared failure
   injection state; host terminal cleanup behavior is unchanged.
@@ -478,9 +491,34 @@ Development checks for command-ranking and keybinding-hint example phases:
   remain unchanged.
 - `git diff --check`: passed.
 
+Development checks for wrapping-navigation example phases:
+
+- The frozen scoped quality command still fails overall: 20 native source
+  findings remain, down from 23, all in other developer examples. Formatting,
+  all-target compilation and scoped Clippy admission pass with zero blocking
+  diagnostics; four selected-profile diagnostics remain deferred outside this
+  scope. Coverage remains 704 of 1,836 first-party Rust files and 70 of 73 Cargo
+  roots across two packages.
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo build --locked -p rev --bin rev --example wrap-navigation`: passed after correcting the extracted scratch identity and borrowing the reader thread's sender.
+- The existing real PTY journey passes before and after decomposition with the
+  original wrapper, inputs, eight-second/1-MiB owner and 350-ms idle assertion.
+  Both runs emit 75,608 output bytes and retain click/split, visual editing,
+  search, resize, no-wrap, cancellation, exact-save and terminal restoration
+  checks. A temporary harness calls the unchanged PTY entry point because the
+  preceding standalone native journey already fails at the clean baseline.
+- The standalone native journey retains its baseline first-directory assertion
+  failure: actual `BufferId(2)` differs from expected `BufferId(1)`. The failed
+  assertion and both values are identical before and after; it is not reported
+  as passing acceptance.
+- Static comparison against clean
+  `590ea30976e9abff0b0e1e22b1d055dee29cb0b0` preserves all 58 assertion sites
+  and text/numeric literal multiplicities across the two changed Rust files.
+  No case, assertion, time/byte bound or expected value is relaxed.
+- `git diff --check`: passed.
+
 ## Risks and Follow-ups
 
-Selected Clippy admission is complete. The remaining 23 native source findings
+Selected Clippy admission is complete. The remaining 20 native source findings
 require cohesive developer-example decomposition. T9.1-T9.3 remain in progress.
 The canonical PR, final ordered clean-HEAD evidence and controller integration
 remain pending.
@@ -493,3 +531,7 @@ and PTY checks and the isolated file-tree `NO_COLOR` matrix pass.
 The standalone command-ranking native and keybinding-hint native/PTY examples
 retain their baseline expectation failures recorded above. Their assertions and
 bounds remain intact. Ranking's two restart PTYs and paired-publisher mode pass.
+
+The standalone wrapping native journey retains its pre-existing directory-buffer
+identity expectation failure. Its real PTY journey passes before and after with
+the original checks and bounds.
