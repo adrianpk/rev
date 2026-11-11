@@ -1,5 +1,5 @@
-// These advisory diagnostics become blocking for selected owners during adoption.
-// Baseline compiler/all-group diagnostics remain blocking across the workspace.
+// The inherited workspace policy and the canonical driver enforce this profile.
+// Scoped diagnostic admission remains available for explicit development checks.
 pub(super) const SELECTED: &[&str] = &[
     "redundant_clone",
     "needless_pass_by_value",
@@ -45,9 +45,14 @@ pub(super) fn print_flags() {
 }
 
 pub(super) fn flags() -> Vec<String> {
-    ["-Wclippy::all", "-Dunfulfilled_lint_expectations"]
-        .into_iter()
-        .map(str::to_owned)
-        .chain(SELECTED.iter().map(|name| format!("-Wclippy::{name}")))
-        .collect()
+    [
+        "-Dwarnings",
+        "-Dclippy::all",
+        "-Dunfulfilled_lint_expectations",
+        "-Dclippy::disallowed_methods",
+    ]
+    .into_iter()
+    .map(str::to_owned)
+    .chain(SELECTED.iter().map(|name| format!("-Dclippy::{name}")))
+    .collect()
 }

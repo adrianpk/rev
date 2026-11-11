@@ -44,7 +44,7 @@ impl BufferId {
     /// no source binding until checked navigation publishes one.
     pub(crate) const UNBOUND: Self = Self(0);
     fn next() -> Result<Self, Error> {
-        NEXT.fetch_update(Ordering::Relaxed, Ordering::Relaxed, |value| {
+        NEXT.try_update(Ordering::Relaxed, Ordering::Relaxed, |value| {
             value.checked_add(1)
         })
         .map(Self)

@@ -37,7 +37,7 @@ impl Limits {
     }
     pub fn iteration(&self) -> bool {
         self.iterations
-            .fetch_update(Ordering::Relaxed, Ordering::Relaxed, |value| {
+            .try_update(Ordering::Relaxed, Ordering::Relaxed, |value| {
                 (value < RUN_STEPS).then_some(value + 1)
             })
             .is_ok()

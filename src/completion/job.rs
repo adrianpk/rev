@@ -77,7 +77,7 @@ impl Work {
     pub fn start(&mut self, snapshot: Vec<Source>, now: Instant) -> Result<(), String> {
         let request = self.pending.take().ok_or("No native request is pending")?;
         let cancel = Arc::new(AtomicBool::new(false));
-        let worker_cancel = cancel.clone();
+        let worker_cancel = Arc::clone(&cancel);
         let worker_request = request.clone();
         let sources = snapshot
             .iter()
@@ -144,7 +144,7 @@ fn extract(
     cancel: &Arc<AtomicBool>,
 ) -> Result<Vec<Symbol>, String> {
     if let Some(scan) = sources.first_mut().and_then(|source| source.org.take()) {
-        let cancellation = crate::org::Cancellation::shared(cancel.clone(), deadline);
+        let cancellation = crate::org::Cancellation::shared(Arc::clone(cancel), deadline);
         return request.org(scan, &sources[0].text, &cancellation);
     }
     let mut symbols = Vec::new();

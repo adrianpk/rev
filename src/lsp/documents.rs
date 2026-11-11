@@ -84,7 +84,7 @@ impl Activation {
         let old = *retained;
         let admitted = self
             .total
-            .fetch_update(Ordering::AcqRel, Ordering::Acquire, |total| {
+            .try_update(Ordering::AcqRel, Ordering::Acquire, |total| {
                 (total - old)
                     .checked_add(bytes)
                     .filter(|total| *total <= SNAPSHOT_BYTES)

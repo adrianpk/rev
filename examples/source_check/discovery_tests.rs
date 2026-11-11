@@ -70,3 +70,28 @@ fn scope_admission() {
         );
     }
 }
+
+// A private lint target must not admit stale default-target generated Rust or
+// a rendered copy of documented source as another first-party implementation.
+#[test]
+fn alternate_target() {
+    let fixture = Fixture::new();
+    fixture.workspace();
+    fixture.write("target/userguide/example.rs", "unsafe fn generated() {}\n");
+    let metadata = Command::new(std::env::var_os("CARGO").unwrap_or_else(|| "cargo".into()))
+        .args(["metadata", "--locked", "--no-deps", "--format-version", "1"])
+        .current_dir(&fixture.0)
+        .env("CARGO_TARGET_DIR", fixture.0.join("lint-output"))
+        .output()
+        .unwrap();
+    assert!(metadata.status.success());
+    let workspace =
+        Workspace::from_metadata(serde_json::from_slice(&metadata.stdout).unwrap()).unwrap();
+    assert_eq!(workspace.sources.len(), 9);
+    assert!(
+        workspace
+            .sources
+            .keys()
+            .all(|path| !path.starts_with(fixture.0.join("target")))
+    );
+}

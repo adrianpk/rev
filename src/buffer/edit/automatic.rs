@@ -18,7 +18,7 @@ impl AutomaticGroup {
 
     pub(crate) fn charge(&self, bytes: usize) -> Result<(), Error> {
         self.budget
-            .fetch_update(Ordering::Relaxed, Ordering::Relaxed, |used| {
+            .try_update(Ordering::Relaxed, Ordering::Relaxed, |used| {
                 used.checked_add(bytes)
                     .filter(|total| *total <= GENERATED_BYTES)
             })

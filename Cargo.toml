@@ -2,6 +2,31 @@
 members = ["crates/rev-plugin-sdk"]
 resolver = "3"
 
+[workspace.lints.rust]
+unsafe_code = "forbid"
+warnings = "deny"
+unfulfilled_lint_expectations = "deny"
+
+[workspace.lints.clippy]
+all = { level = "deny", priority = -1 }
+redundant_clone = "deny"
+needless_pass_by_value = "deny"
+needless_collect = "deny"
+trivially_copy_pass_by_ref = "deny"
+large_types_passed_by_value = "deny"
+clone_on_ref_ptr = "deny"
+unused_async = "deny"
+significant_drop_in_scrutinee = "deny"
+significant_drop_tightening = "deny"
+cast_possible_truncation = "deny"
+cast_possible_wrap = "deny"
+cast_sign_loss = "deny"
+cast_precision_loss = "deny"
+disallowed_methods = "deny"
+
+[lints]
+workspace = true
+
 [package]
 name = "rev"
 version = "0.6.0"

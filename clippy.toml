@@ -1,0 +1,18 @@
+disallowed-methods = [
+    { path = "std::mem::forget", reason = "Keep resource retirement explicit instead of suppressing Drop." },
+    { path = "std::boxed::Box::leak", reason = "Retain an owned lifetime instead of leaking an allocation." },
+    { path = "std::boxed::Box::into_raw", reason = "Keep ownership in safe typed owners." },
+    { path = "std::rc::Rc::into_raw", reason = "Keep shared ownership in safe typed owners." },
+    { path = "std::sync::Arc::into_raw", reason = "Keep shared ownership in safe typed owners." },
+    { path = "std::boxed::Box::into_raw_with_allocator", reason = "Keep allocation ownership in safe typed owners." },
+    { path = "std::rc::Rc::into_raw_with_allocator", reason = "Keep shared allocation ownership explicit." },
+    { path = "std::sync::Arc::into_raw_with_allocator", reason = "Keep shared allocation ownership explicit." },
+    { path = "std::rc::Weak::into_raw", reason = "Keep weak ownership in safe typed owners." },
+    { path = "std::sync::Weak::into_raw", reason = "Keep weak ownership in safe typed owners." },
+    { path = "std::vec::Vec::leak", reason = "Retain an owned lifetime instead of leaking an allocation." },
+    { path = "std::string::String::leak", reason = "Retain an owned lifetime instead of leaking an allocation." },
+    { path = "std::vec::Vec::into_raw_parts", reason = "Keep allocation ownership in safe typed owners." },
+    { path = "std::vec::Vec::into_raw_parts_with_alloc", reason = "Keep allocation ownership in safe typed owners." },
+    { path = "std::string::String::into_raw_parts", reason = "Keep text allocation ownership explicit." },
+    { path = "std::ffi::CString::into_raw", reason = "First-party FFI and raw ownership transfers are forbidden." },
+]

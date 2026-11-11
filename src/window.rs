@@ -32,7 +32,7 @@ impl fmt::Display for ViewId {
 
 impl ViewId {
     fn next() -> Result<Self, Error> {
-        NEXT.fetch_update(Ordering::Relaxed, Ordering::Relaxed, |value| {
+        NEXT.try_update(Ordering::Relaxed, Ordering::Relaxed, |value| {
             value.checked_add(1)
         })
         .map(Self)

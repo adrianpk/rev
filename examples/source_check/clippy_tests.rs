@@ -152,7 +152,12 @@ fn compile(fixture: &Fixture, scopes: &[PathBuf]) -> Admission {
             "--message-format=json",
             "--",
         ])
-        .args(profile::flags())
+        .args(["-Wclippy::all", "-Dunfulfilled_lint_expectations"])
+        .args(
+            profile::SELECTED
+                .iter()
+                .map(|name| format!("-Wclippy::{name}")),
+        )
         .output()
         .unwrap();
     let admission = read(&mut output.stdout.as_slice(), &workspace, &sources).unwrap();

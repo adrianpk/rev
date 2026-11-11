@@ -1,0 +1,151 @@
+#!/usr/bin/env bash
+set -euo pipefail
+umask 077
+
+fail() { printf 'Commit check: %s\n' "$*" >&2; exit 1; }
+
+# Git normally enters the worktree root before running this hook. Resolve all
+# storage from Git so linked worktrees and temporary commit indexes stay local.
+root=$(git rev-parse --show-toplevel)
+cd -- "$root"
+gitdir=$(git rev-parse --absolute-git-dir)
+index=$(git rev-parse --path-format=absolute --git-path index)
+cache="$gitdir/rev-commit-check"
+hook="$root/.githooks/pre-commit"
+[[ ! -L "$root/.githooks" && -f "$hook" && ! -L "$hook" ]] || fail 'unsafe hook path'
+[[ -f "$index" && ! -L "$index" ]] || fail 'missing or symlinked index'
+
+private_directory() {
+    local path=$1
+    if [[ ! -e "$path" && ! -L "$path" ]]; then
+        mkdir -m 700 -- "$path" || fail "cannot create private directory: $path"
+    fi
+    [[ -d "$path" && ! -L "$path" && -O "$path" ]] || fail "unsafe cache directory: $path"
+    [[ $(stat -c %a -- "$path") == 700 ]] || fail "cache directory must have mode 700: $path"
+}
+
+if [[ ! -e "$cache" && ! -L "$cache" ]]; then
+    mkdir -m 700 -- "$cache" || fail 'cannot acquire new cache directory'
+    printf '%s\n' "$gitdir" > "$cache/owner"
+fi
+private_directory "$cache"
+[[ -f "$cache/owner" && ! -L "$cache/owner" && -O "$cache/owner" && $(cat -- "$cache/owner") == "$gitdir" ]] || fail 'unrecognized cache owner; existing files preserved'
+[[ ! -L "$cache/lock" ]] || fail 'symlinked cache lock'
+if [[ -e "$cache/lock" ]]; then
+    [[ -f "$cache/lock" && -O "$cache/lock" && $(stat -c %a -- "$cache/lock") == 600 ]] || fail 'unsafe cache lock'
+fi
+exec 9<>"$cache/lock"
+flock -n 9 || fail 'another commit check owns this worktree cache; retry after it finishes'
+
+# Private ownership plus a nonblocking lock protects retained source and target
+# paths. A cancelled invocation leaves them intact; only the next owner replaces
+# the export. Normal Cargo targets are never used or removed here.
+private_directory "$cache/run"
+private_directory "$cache/target"
+private_directory "$cache/source"
+for file in index original entries paths files; do
+    [[ ! -L "$cache/run/$file" ]] || fail 'symlinked cache metadata'
+done
+cp -- "$index" "$cache/run/original"
+cp -- "$cache/run/original" "$cache/run/index"
+export GIT_INDEX_FILE="$cache/run/index"
+export GIT_OPTIONAL_LOCKS=0
+[[ -z $(git ls-files --unmerged) ]] || fail 'resolve index conflicts before committing'
+tree=$(git write-tree)
+export GIT_ATTR_SOURCE="$tree"
+git diff --cached --no-ext-diff --check
+
+# The bootstrap must agree with the candidate too. This prevents an unstaged
+# hook repair from admitting different staged enforcement logic.
+git show "$tree:.githooks/pre-commit" | cmp -s -- "$hook" - || fail 'hook differs from the staged candidate'
+
+critical_path() {
+    case "$1" in
+        *.rs|Cargo.toml|*/Cargo.toml|Cargo.lock|*/Cargo.lock|*clippy*.toml|*rustfmt*.toml|rust-toolchain*|.cargo/*|.gitattributes|*/.gitattributes|Makefile|.githooks/*|scripts/*|AGENTS.md|.agents/*) return 0 ;;
+        *) return 1 ;;
+    esac
+}
+
+# Do not follow a staged symlink to source/configuration outside the candidate.
+# This repository has no tracked symlinks or submodules to resolve separately.
+git ls-tree --full-tree -r -z "$tree" > "$cache/run/entries"
+while IFS= read -r -d '' entry; do
+    mode=${entry%% *}
+    path=${entry#*$'\t'}
+    [[ "$mode" != 160000 ]] || fail 'submodule source is not an index snapshot'
+    if [[ "$mode" == 120000 ]]; then
+        fail "symlinked check input: $path"
+    fi
+done < "$cache/run/entries"
+
+native=false
+git diff --cached --no-ext-diff --no-renames --name-only -z > "$cache/run/paths"
+while IFS= read -r -d '' path; do
+    if critical_path "$path"; then native=true; fi
+done < "$cache/run/paths"
+
+if "$native"; then
+    # Copy exact blob bytes, without checkout filters, export-ignore attributes
+    # or line-ending conversion. Preserve matching files and their timestamps so
+    # Cargo can reuse unchanged source rather than rebuilding every target.
+    [[ -z $(find "$cache/source" -mindepth 1 ! -type f ! -type d -print -quit) ]] || fail 'unsafe retained export path'
+    declare -A wanted=()
+    while IFS= read -r -d '' entry; do
+        path=${entry#*$'\t'}
+        wanted["$path"]=1
+    done < "$cache/run/entries"
+    find "$cache/source" -type f -print0 > "$cache/run/files"
+    while IFS= read -r -d '' file; do
+        path=${file#"$cache/source/"}
+        if [[ -z ${wanted["$path"]+present} ]]; then rm -- "$file"; fi
+    done < "$cache/run/files"
+    find "$cache/source" -mindepth 1 -depth -type d -empty -delete
+    while IFS= read -r -d '' entry; do
+        metadata=${entry%%$'\t'*}
+        path=${entry#*$'\t'}
+        blob=${metadata##* }
+        mode=${metadata%% *}
+        if [[ "$path" == */* ]]; then mkdir -p -- "$cache/source/${path%/*}"; fi
+        actual=''
+        if [[ -f "$cache/source/$path" ]]; then
+            actual=$(git hash-object --no-filters -- "$cache/source/$path")
+        fi
+        if [[ "$actual" != "$blob" ]]; then
+            git cat-file blob "$blob" > "$cache/source/$path"
+        fi
+        if [[ "$mode" == 100755 ]]; then
+            chmod 700 -- "$cache/source/$path"
+        else
+            chmod 600 -- "$cache/source/$path"
+        fi
+    done < "$cache/run/entries"
+    [[ -f "$cache/source/scripts/check-quality.sh" && ! -L "$cache/source/scripts/check-quality.sh" ]] || fail 'staged quality driver is missing or unsafe'
+    (
+        cd -- "$cache/source"
+        unset GIT_INDEX_FILE GIT_DIR GIT_WORK_TREE GIT_PREFIX GIT_ATTR_SOURCE
+        export CARGO_TARGET_DIR="$cache/target"
+        export CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1
+        # Compile complete workspace targets even for one changed Rust file.
+        bash scripts/check-quality.sh
+    )
+    [[ -z $(find "$cache/source" -type l -print -quit) ]] || fail 'check changed the exported source paths'
+    while IFS= read -r -d '' entry; do
+        metadata=${entry%%$'\t'*}
+        path=${entry#*$'\t'}
+        blob=${metadata##* }
+        [[ -f "$cache/source/$path" ]] || fail "check removed exported source: $path"
+        actual=$(git hash-object --no-filters -- "$cache/source/$path")
+        [[ "$actual" == "$blob" ]] || fail "check changed exported source: $path"
+        mode=${metadata%% *}
+        if [[ "$mode" == 100755 ]]; then
+            [[ -x "$cache/source/$path" ]] || fail "check changed exported mode: $path"
+        else
+            [[ ! -x "$cache/source/$path" ]] || fail "check changed exported mode: $path"
+        fi
+    done < "$cache/run/entries"
+else
+    printf '%s\n' 'Commit check: docs/data-only candidate passed whitespace and index integrity checks.'
+fi
+
+[[ -f "$index" && ! -L "$index" ]] && cmp -s -- "$index" "$cache/run/original" || fail 'index changed during validation; stage the intended candidate and retry'
+printf 'Commit check: passed staged tree %s.\n' "$tree"

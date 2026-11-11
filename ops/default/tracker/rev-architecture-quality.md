@@ -182,16 +182,17 @@ Progress: measured all 704 selected Rust files and 70 Cargo roots. The first own
 
 ## Slice 10: Staged enforcement and acceptance
 
-State: active
+State: reviewing
 Dependency: Slice 9 integrated
 Branch: chore/rev-architecture-quality-10-enforcement
 PR: pending
 Report: ops/default/report/slices/rev-architecture-quality/slice-10-enforcement.md
-Validation: pending; frozen ordered commands in plan and controller configuration
+Progress: inherited strict policy, complete source discovery, canonical commands and exact staged-index enforcement are implemented. All 28 real hook fixtures, nine native checker tests, the existing hello workflow, documentation and User Guide checks pass. The actual staged hook passes with all 1836 files and 73 Cargo roots, zero diagnostics and unchanged index bytes. Timings and F1-F7 reconciliation are in the report. Canonical PR reference and final clean-HEAD ordered evidence follow; hook activation and full gate remain controller-owned.
+Validation: final published PR-HEAD evidence is recorded through the unchanged five-command Looper sequence
 
-- [ ] T10.1: Adopt the final inherited workspace Clippy/source policy, exact method restrictions and reasoned local expectations; add canonical Makefile commands and concise repository AGENTS/local concern guidance.
-- [ ] T10.2: Implement the nonmutating index-snapshot hook, exclusively owned per-worktree reusable cache and explicit install procedure; verify real Git partial staging, manifests/policy changes, deletes/renames, conflicts, concurrency and unchanged user content.
-- [ ] T10.3: Recheck F1-F7 and the criteria map against final code, measure cold/warm checks, document use, run focused enforcement acceptance and prepare the unchanged controller gate/Markdown closure.
+- [x] T10.1: Adopt the final inherited workspace Clippy/source policy, exact method restrictions and reasoned local expectations; add canonical Makefile commands and concise repository AGENTS/local concern guidance.
+- [x] T10.2: Implement the nonmutating index-snapshot hook, exclusively owned per-worktree reusable cache and explicit install procedure; verify real Git partial staging, manifests/policy changes, deletes/renames, conflicts, concurrency and unchanged user content.
+- [x] T10.3: Recheck F1-F7 and the criteria map against final code, measure cold/warm checks, document use, run focused enforcement acceptance and prepare the unchanged controller gate/Markdown closure.
 
 ## Final acceptance
 

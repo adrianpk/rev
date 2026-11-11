@@ -10,9 +10,9 @@ else
     exit 1
 fi
 
-# The Rust policy owner supplies the exact selected profile. Explicit warning
-# admission preserves compiler/all-group failures without stopping compilation
-# early on selected diagnostics belonging to later adoption slices.
+# The Rust policy owner supplies the strict inherited profile. Every warning
+# and selected ownership/representation diagnostic blocks the final workspace;
+# scopes select native source review, never downgrade compiler enforcement.
 profile="$(cargo run --locked --quiet -p rev --example source-check -- --print-clippy-flags)"
 mapfile -t lint_flags <<< "$profile"
 diagnostics="$(mktemp -d "${TMPDIR:-/tmp}/rev-quality.XXXXXXXX")"

@@ -97,7 +97,7 @@ impl Drop for Temporary {
 
 fn candidate(parent: &Path) -> io::Result<PathBuf> {
     let id = NEXT
-        .fetch_update(Ordering::Relaxed, Ordering::Relaxed, |value| {
+        .try_update(Ordering::Relaxed, Ordering::Relaxed, |value| {
             value.checked_add(1)
         })
         .map_err(|_| io::Error::other("temporary file identities are exhausted"))?;

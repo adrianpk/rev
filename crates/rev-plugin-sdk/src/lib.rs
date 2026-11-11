@@ -47,7 +47,7 @@
 //! # Ok::<(), Box<dyn std::error::Error>>(())
 //! ```
 #![forbid(unsafe_code)]
-#![warn(clippy::missing_errors_doc, clippy::missing_panics_doc)]
+#![deny(clippy::missing_errors_doc, clippy::missing_panics_doc)]
 
 pub mod client;
 pub mod identity;

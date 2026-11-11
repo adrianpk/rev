@@ -121,7 +121,7 @@ struct Budget {
 }
 fn reserve(counter: &AtomicUsize, count: usize, limit: usize) -> bool {
     counter
-        .fetch_update(Ordering::AcqRel, Ordering::Acquire, |old| {
+        .try_update(Ordering::AcqRel, Ordering::Acquire, |old| {
             old.checked_add(count).filter(|new| *new <= limit)
         })
         .is_ok()
@@ -397,7 +397,7 @@ pub(crate) struct Host {
 impl Default for Host {
     fn default() -> Self {
         let serial = NEXT_SESSION
-            .fetch_update(Ordering::Relaxed, Ordering::Relaxed, |v| v.checked_add(1))
+            .try_update(Ordering::Relaxed, Ordering::Relaxed, |v| v.checked_add(1))
             .expect("host session identities exhausted");
         // Process-local counters distinguish simultaneous library hosts; epoch
         // nanoseconds also separate sequential editor lifetimes after PID reuse.

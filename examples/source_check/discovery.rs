@@ -155,7 +155,12 @@ fn collect(
 }
 
 fn admitted_directory(path: &Path, owner: &Path, target: &Path) -> bool {
-    if path.starts_with(target) || path.file_name().is_some_and(|name| name == ".git") {
+    // A separate lint cache must not turn the checkout's ordinary Cargo output
+    // into first-party source. Explicit Cargo roots there still fail admission.
+    if path.starts_with(target)
+        || path == owner.join("target")
+        || path.file_name().is_some_and(|name| name == ".git")
+    {
         return false;
     }
     path == owner || !path.join("Cargo.toml").exists()

@@ -24,7 +24,7 @@ impl Budget {
 
     pub fn reserve(&self, bytes: usize) -> Result<Lease, String> {
         self.0
-            .fetch_update(Ordering::AcqRel, Ordering::Acquire, |used| {
+            .try_update(Ordering::AcqRel, Ordering::Acquire, |used| {
                 used.checked_add(bytes)
                     .filter(|next| *next <= SESSION_BYTES)
             })
