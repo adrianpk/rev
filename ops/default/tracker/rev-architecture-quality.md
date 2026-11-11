@@ -215,6 +215,15 @@ resource environment. Looper records the exact HEAD and ordered commands.
 Required build tools and the clean external compatibility checkout are present.
 The controller owns the unchanged full gate; it has not run during preparation.
 
+Preparation blocker: validation `LQEF2BERF3HCTSRCFFVZRNG35J` on clean published
+HEAD `775e1ddaf4ab857c120a8415d66df56fbe3dd5b7` passed strict Clippy with zero
+blocking/deferred diagnostics, then failed native source policy. Primary discovery
+includes 1,838 Rust files and rejects retained scratch source
+`.tmp/command-description-review.rs`: `main cyclomatic 25 exceeds 10`.
+Hook acceptance and the final diff check were not reached in this batch.
+The scratch file and source policy are preserved. A bounded scope decision for
+the retained scratch source is required before preparation can declare readiness.
+
 ## Final acceptance
 
 - [ ] F1-F7 and complete selected source/lint findings corrected with evidence.
