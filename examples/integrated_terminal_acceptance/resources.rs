@@ -237,10 +237,15 @@ fn retired(baseline: usize, workers: usize) -> Result<()> {
 fn binary_size(binary: &Path) -> Result<()> {
     let bytes = fs::metadata(binary)?.len();
     let baseline = 21576728_u64;
+    #[expect(
+        clippy::cast_precision_loss,
+        reason = "Only the informational ratio uses floating point; byte counts and deltas stay exact."
+    )]
+    let ratio = bytes as f64 / baseline as f64;
     println!(
         "MEASURE release binary: bytes={bytes} recorded_pre_terminal_baseline_bytes={baseline} baseline_commit=507862798782d15235f3758868ab33cd3611c57e delta_bytes={} ratio={:.6}; baseline is the Slice 1 normal-release observation, not a fresh rebuild",
-        bytes as i64 - baseline as i64,
-        bytes as f64 / baseline as f64
+        i128::from(bytes) - i128::from(baseline),
+        ratio
     );
     Ok(())
 }

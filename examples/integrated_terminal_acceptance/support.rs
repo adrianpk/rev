@@ -160,7 +160,7 @@ pub(crate) fn screen(session: &rev::term::Session) -> String {
     (0..grid.screen_lines())
         .map(|row| {
             (0..grid.columns())
-                .map(|column| grid[Point::new(Line(row as i32), Column(column))].c)
+                .map(|column| grid[Point::new(Line(i32::try_from(row).unwrap()), Column(column))].c)
                 .collect::<String>()
         })
         .collect::<Vec<_>>()

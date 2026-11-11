@@ -6,21 +6,21 @@ use std::time::{Duration, Instant};
 fn replacement(start: usize, end: usize, text: &str) -> Value {
     json!({"range":{"start":start,"end":end},"text":text})
 }
-fn target(buffer: &Value, replacements: Vec<Value>) -> Value {
+fn target(buffer: &Value, replacements: &[Value]) -> Value {
     json!({"stamp":buffer["stamp"],"replacements":replacements})
 }
-fn batch(targets: Vec<Value>) -> Value {
+fn batch(targets: &[Value]) -> Value {
     json!({"operation":"collect-1","targets":targets,"origin":{"package":"field.notes","operation":"collect-1","depth":0}})
 }
 fn describe(rpc: &mut Rpc, buffer: &Value) -> Value {
     rpc.ok(
         "buffers.describe",
-        json!({"buffer":buffer["stamp"]["buffer"]}),
+        &json!({"buffer":buffer["stamp"]["buffer"]}),
     )
 }
 fn read(rpc: &mut Rpc, buffer: &Value) -> String {
     let current = describe(rpc, buffer);
-    rpc.ok("buffers.read", json!({"buffer":current["stamp"]["buffer"],"range":{"start":0,"end":current["scalar_len"]},"expected_revision":current["stamp"]["revision"]}))["text"].as_str().unwrap().to_owned()
+    rpc.ok("buffers.read", &json!({"buffer":current["stamp"]["buffer"],"range":{"start":0,"end":current["scalar_len"]},"expected_revision":current["stamp"]["revision"]}))["text"].as_str().unwrap().to_owned()
 }
 fn current_text(rpc: &Rpc) -> String {
     let b = rpc.editor.session.buffer().unwrap();
@@ -43,15 +43,9 @@ fn local_history() {
             .execute(Command::Motion(Motion::BufferEnd));
         let result = rpc.ok(
             "edits.apply",
-            batch(vec![
-                target(
-                    &a,
-                    vec![replacement(0, 6, "first"), replacement(7, 8, "🌱")],
-                ),
-                target(
-                    &b,
-                    vec![replacement(0, 6, "second"), replacement(7, 9, "é")],
-                ),
+            &batch(&[
+                target(&a, &[replacement(0, 6, "first"), replacement(7, 8, "🌱")]),
+                target(&b, &[replacement(0, 6, "second"), replacement(7, 9, "é")]),
             ]),
         );
         assert_eq!(result["operation"], "collect-1");
@@ -107,47 +101,47 @@ fn refused_targets() {
     foreign["stamp"]["buffer"]["session"] = "foreign-host".into();
     let mut missing = b.clone();
     missing["stamp"]["buffer"]["id"] = "buffer-0".into();
-    let good = target(&a, vec![replacement(0, 6, "must not publish")]);
+    let good = target(&a, &[replacement(0, 6, "must not publish")]);
     let cases = [
         (
             "readonly",
-            target(&readonly, vec![replacement(0, 1, "x")]),
+            target(&readonly, &[replacement(0, 1, "x")]),
             "read_only",
         ),
         (
             "stale",
-            target(&stale, vec![replacement(0, 1, "x")]),
+            target(&stale, &[replacement(0, 1, "x")]),
             "stale_revision",
         ),
         (
             "foreign",
-            target(&foreign, vec![replacement(0, 1, "x")]),
+            target(&foreign, &[replacement(0, 1, "x")]),
             "missing_buffer",
         ),
         (
             "missing",
-            target(&missing, vec![replacement(0, 1, "x")]),
+            target(&missing, &[replacement(0, 1, "x")]),
             "missing_buffer",
         ),
         (
             "range",
-            target(&b, vec![replacement(0, 999, "x")]),
+            target(&b, &[replacement(0, 999, "x")]),
             "invalid_range",
         ),
         (
             "overlap",
-            target(&b, vec![replacement(0, 3, "x"), replacement(2, 4, "y")]),
+            target(&b, &[replacement(0, 3, "x"), replacement(2, 4, "y")]),
             "edit_conflict",
         ),
         (
             "equal-start",
-            target(&b, vec![replacement(1, 1, "x"), replacement(1, 1, "y")]),
+            target(&b, &[replacement(1, 1, "x"), replacement(1, 1, "y")]),
             "edit_conflict",
         ),
-        ("empty", target(&b, vec![]), "invalid_arguments"),
+        ("empty", target(&b, &[]), "invalid_arguments"),
     ];
     for (name, bad, kind) in cases {
-        rpc.error("edits.apply", batch(vec![good.clone(), bad]), kind);
+        rpc.error("edits.apply", &batch(&[good.clone(), bad]), kind);
         let buffer = rpc.editor.session.buffer().unwrap();
         assert_eq!(
             buffer.stamp().revision.to_string(),
@@ -166,7 +160,7 @@ fn refused_targets() {
     }
     rpc.error(
         "edits.apply",
-        batch(vec![good.clone(), good]),
+        &batch(&[good.clone(), good]),
         "edit_conflict",
     );
     assert_eq!(current_text(&rpc), "source 🦀\n");
@@ -218,9 +212,9 @@ fn shared_views() {
     let scratch = rpc.editor.session.buffer().unwrap().stamp();
     rpc.ok(
         "edits.apply",
-        batch(vec![
-            target(&a, vec![replacement(0, 0, "+")]),
-            target(&b, vec![replacement(0, 0, "#")]),
+        &batch(&[
+            target(&a, &[replacement(0, 0, "+")]),
+            target(&b, &[replacement(0, 0, "#")]),
         ]),
     );
     assert_eq!(rpc.editor.session.buffer().unwrap().stamp(), scratch);
@@ -246,9 +240,9 @@ fn no_implicit_save() {
     let b = create(&mut rpc, "Result", "result", false);
     rpc.ok(
         "edits.apply",
-        batch(vec![
-            target(&a, vec![replacement(0, 4, "memory")]),
-            target(&b, vec![replacement(0, 6, "edited")]),
+        &batch(&[
+            target(&a, &[replacement(0, 4, "memory")]),
+            target(&b, &[replacement(0, 6, "edited")]),
         ]),
     );
     assert_eq!(current_text(&rpc), "memory text\n");
@@ -263,16 +257,16 @@ fn no_implicit_save() {
 fn finite_batches() {
     let mut rpc = Rpc::new("non-modal");
     let a = source(&mut rpc);
-    let mut params = batch(vec![target(&a, vec![replacement(0, 0, "x")])]);
+    let mut params = batch(&[target(&a, &[replacement(0, 0, "x")])]);
     params["origin"]["package"] = "other.notes".into();
-    rpc.error("edits.apply", params, "namespace_conflict");
-    rpc.error("edits.apply", batch(vec![]), "limit_exceeded");
+    rpc.error("edits.apply", &params, "namespace_conflict");
+    rpc.error("edits.apply", &batch(&[]), "limit_exceeded");
     let oversized = "x".repeat(256 * 1024 + 1);
     rpc.error(
         "edits.apply",
-        batch(vec![target(
+        &batch(&[target(
             &a,
-            vec![replacement(0, 0, &oversized), replacement(1, 1, &oversized)],
+            &[replacement(0, 0, &oversized), replacement(1, 1, &oversized)],
         )]),
         "limit_exceeded",
     );
@@ -281,11 +275,11 @@ fn finite_batches() {
         buffers.push(create(&mut rpc, &format!("Target {n}"), "", false));
     }
     let payload = "x".repeat(32 * 1024);
-    let targets = buffers
+    let targets: Vec<_> = buffers
         .iter()
-        .map(|b| target(b, vec![replacement(0, 0, &payload)]))
+        .map(|b| target(b, &[replacement(0, 0, &payload)]))
         .collect();
-    let result = rpc.ok("edits.apply", batch(targets));
+    let result = rpc.ok("edits.apply", &batch(&targets));
     assert_eq!(result["stamps"].as_array().unwrap().len(), 16);
     for b in &buffers {
         assert_eq!(describe(&mut rpc, b)["stamp"]["revision"], "2");
@@ -302,7 +296,7 @@ fn retired_batch() {
     let point = rpc.editor.session.view().point;
     let sequence = rpc.enqueue(
         "edits.apply",
-        batch(vec![target(&a, vec![replacement(0, 0, "late")])]),
+        &batch(&[target(&a, &[replacement(0, 0, "late")])]),
     );
     let deadline = Instant::now() + Duration::from_secs(5);
     while rpc.editor.status().pending == 0 {
@@ -334,18 +328,15 @@ fn completion_retirement() {
     let readonly = create(&mut rpc, "Readonly", "protected", true);
     rpc.editor.session.execute(Command::Completion(C::AtPoint));
     rpc.editor.wait(|e| e.session.completion().is_some());
-    let end = a["scalar_len"].as_u64().unwrap() as usize;
-    let change = target(&a, vec![replacement(end - 3, end, "call")]);
+    let end = usize::try_from(a["scalar_len"].as_u64().unwrap()).unwrap();
+    let change = target(&a, &[replacement(end - 3, end, "call")]);
     rpc.error(
         "edits.apply",
-        batch(vec![
-            change.clone(),
-            target(&readonly, vec![replacement(0, 0, "x")]),
-        ]),
+        &batch(&[change.clone(), target(&readonly, &[replacement(0, 0, "x")])]),
         "read_only",
     );
     assert!(rpc.editor.session.completion().is_some());
-    rpc.ok("edits.apply", batch(vec![change]));
+    rpc.ok("edits.apply", &batch(&[change]));
     assert!(rpc.editor.session.completion().is_none());
     let text = current_text(&rpc);
     rpc.editor.session.execute(Command::Completion(C::Accept));
@@ -367,13 +358,10 @@ fn resources_and_consent() {
     let mut special = a.clone();
     special["stamp"]["buffer"]["id"] = format!("buffer-{}", generated.id()).into();
     special["stamp"]["revision"] = generated.stamp().revision.to_string().into();
-    let good = target(&a, vec![replacement(0, 0, "x")]);
+    let good = target(&a, &[replacement(0, 0, "x")]);
     rpc.error(
         "edits.apply",
-        batch(vec![
-            good.clone(),
-            target(&special, vec![replacement(0, 0, "x")]),
-        ]),
+        &batch(&[good.clone(), target(&special, &[replacement(0, 0, "x")])]),
         "unsupported_resource",
     );
     assert_eq!(describe(&mut rpc, &a), a);
@@ -386,7 +374,7 @@ fn resources_and_consent() {
     special["stamp"]["revision"] = terminal.stamp().revision.to_string().into();
     rpc.error(
         "edits.apply",
-        batch(vec![good, target(&special, vec![replacement(0, 0, "x")])]),
+        &batch(&[good, target(&special, &[replacement(0, 0, "x")])]),
         "unsupported_resource",
     );
     assert_eq!(describe(&mut rpc, &a), a);
@@ -398,7 +386,7 @@ fn resources_and_consent() {
     assert!(question.contains("y=save"), "{question}");
     rpc.error(
         "edits.apply",
-        batch(vec![target(&a, vec![replacement(0, 0, "late")])]),
+        &batch(&[target(&a, &[replacement(0, 0, "late")])]),
         "busy",
     );
     assert_eq!(rpc.editor.session.echo(), question);

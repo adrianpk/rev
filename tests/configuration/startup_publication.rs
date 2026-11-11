@@ -37,7 +37,7 @@ fn first_start() {
         if fallback {
             command.env_remove("XDG_CONFIG_HOME");
         }
-        success(command.output().unwrap());
+        success(&command.output().unwrap());
         let relative = if fallback {
             "home/.config/rev/config.toml"
         } else {
@@ -218,7 +218,7 @@ fn concurrent_startup() {
     wait_for(|| ready_count(&fixture) == 4);
     fixture.write("project/release", "go");
     while let Some(child) = children.0.pop() {
-        success(child.wait_with_output().unwrap());
+        success(&child.wait_with_output().unwrap());
     }
     let root = fixture.0.join("user/rev/config.toml");
     assert_eq!(std::fs::read(&root).unwrap(), default_template().as_bytes());

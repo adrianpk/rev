@@ -55,7 +55,7 @@ fn path(editor: &mut Session, group: &str, name: &str) {
         .find(|(_, s)| s.contains(name))
         .unwrap()
         .0;
-    click(editor, row as u16);
+    click(editor, u16::try_from(row).unwrap());
 }
 fn tab(editor: &mut Session) {
     key(editor, KeyCode::Tab, KeyModifiers::NONE);
@@ -167,7 +167,7 @@ fn refreshed_hunk() {
         tab(editor);
         compared(editor);
         let rows = render(editor);
-        let row = rows.iter().rposition(|s| s.contains("@@")).unwrap() as u16;
+        let row = u16::try_from(rows.iter().rposition(|s| s.contains("@@")).unwrap()).unwrap();
         click(editor, row);
         let hunk = selected(editor);
         plain(editor, 'g');

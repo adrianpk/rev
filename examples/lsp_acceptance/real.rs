@@ -58,7 +58,12 @@ pub(crate) fn exercise(root: &Path) -> Result<()> {
     )?;
     let settings = rev::config::prepare(&root.join("config.toml"));
     assert!(settings.diagnostic.is_none());
-    let mut session = open(root, "main.rs", &(DISK.to_owned() + "|"), settings.snapshot)?;
+    let mut session = open(
+        root,
+        "main.rs",
+        &(DISK.to_owned() + "|"),
+        &settings.snapshot,
+    )?;
     session.replace(0..DISK.chars().count(), UNSAVED)?;
     session.execute(Command::Motion(Motion::BufferEnd));
     for _ in 0..4 {

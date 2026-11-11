@@ -108,7 +108,7 @@ recording='reject'
     pub fn editor_pid(&self) -> Result<String> {
         Ok(fs::read_to_string(self.fixture.0.join("editor.pid"))?)
     }
-    pub fn request(&mut self, sequence: usize, method: &str, params: Value) -> Result<()> {
+    pub fn request(&mut self, sequence: usize, method: &str, params: &Value) -> Result<()> {
         let temporary = self.peer_path("request-tmp");
         fs::write(
             &temporary,
@@ -195,7 +195,7 @@ fn resource_profiles() -> Result<()> {
             native.request(
                 0,
                 "buffers.list",
-                json!({"page":{"cursor":null,"limit":256},"kind":"text"}),
+                &json!({"page":{"cursor":null,"limit":256},"kind":"text"}),
             )?;
             let list = native.response(0)?;
             let source = list["buffers"]
@@ -206,7 +206,7 @@ fn resource_profiles() -> Result<()> {
                 .unwrap();
             let start = Instant::now();
             for n in 1..=4 {
-                native.request(n,"buffers.read",json!({"buffer":source["stamp"]["buffer"],"range":{"start":0,"end":524288},"expected_revision":null}))?;
+                native.request(n,"buffers.read",&json!({"buffer":source["stamp"]["buffer"],"range":{"start":0,"end":524288},"expected_revision":null}))?;
             }
             native.terminal.send(b"!")?;
             native.terminal.frame(|f| f.contains("!llll"))?;
@@ -218,7 +218,7 @@ fn resource_profiles() -> Result<()> {
             native.request(
                 0,
                 "events.subscribe",
-                json!({"kinds":["changed"],"buffers":[]}),
+                &json!({"kinds":["changed"],"buffers":[]}),
             )?;
             native.response(0)?;
             let start = Instant::now();

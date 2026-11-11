@@ -167,7 +167,7 @@ fn visual_pointer() {
     let frame = editor.frame().unwrap();
     let row = frame.rows()[0].text();
     let offset = row.find("alpha").unwrap();
-    let left = unicode_width::UnicodeWidthStr::width(&row[..offset]) as u16;
+    let left = u16::try_from(unicode_width::UnicodeWidthStr::width(&row[..offset])).unwrap();
     editor.handle(mouse(MouseEventKind::Down(MouseButton::Left), left + 1));
     editor.handle(mouse(MouseEventKind::Drag(MouseButton::Left), left + 3));
     editor.handle(mouse(MouseEventKind::Up(MouseButton::Left), left + 3));

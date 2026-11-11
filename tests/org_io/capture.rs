@@ -24,7 +24,7 @@ pub(super) fn choice(path: &Path, kind: CaptureKind, target: CaptureTarget) -> C
         },
     }
 }
-pub(super) fn discover(choice: Choice, buffers: &Buffers) -> Result<Resolved, String> {
+pub(super) fn discover(choice: &Choice, buffers: &Buffers) -> Result<Resolved, String> {
     choice
         .discover(buffers, &Org::default(), Date::new(2024, 3, 1).unwrap())?
         .run(&Cancellation::default())
@@ -109,7 +109,7 @@ fn capture_target_shapes() {
     ] {
         let original = format!("\u{feff}{}", source.replace('\n', "\r\n"));
         let path = f.write("target.org", &original);
-        let result = discover(choice(&path, kind, target), &buffers)
+        let result = discover(&choice(&path, kind, target), &buffers)
             .unwrap_or_else(|e| panic!("{name}: {e}"));
         assert!(
             matches!(result.source.version, DestinationVersion::Disk(_)),
@@ -142,7 +142,7 @@ fn capture_missing_targets() {
     let buffers = Buffers::new().unwrap();
     let path = f.0.join("absent/notes.org");
     let result = discover(
-        choice(&path, CaptureKind::Entry, heading("Tasks")),
+        &choice(&path, CaptureKind::Entry, heading("Tasks")),
         &buffers,
     )
     .unwrap();
@@ -155,7 +155,7 @@ fn capture_missing_targets() {
         file: String::new(),
         outline: vec!["Journal".into()],
     };
-    let result = discover(choice(&path, CaptureKind::Entry, target), &buffers).unwrap();
+    let result = discover(&choice(&path, CaptureKind::Entry, target), &buffers).unwrap();
     assert_eq!(
         result
             .target
@@ -170,7 +170,7 @@ fn capture_missing_targets() {
         ("list", CaptureKind::Item),
         ("table", CaptureKind::TableLine),
     ] {
-        let result = discover(choice(&path, kind, heading("Journal")), &buffers).unwrap();
+        let result = discover(&choice(&path, kind, heading("Journal")), &buffers).unwrap();
         assert!(
             matches!(
                 result.target.container,
@@ -190,7 +190,7 @@ fn capture_target_identity() {
     let source = "* Work\n** Tasks\n* Home\n** Tasks\n#+begin_src text\n,* Fake\n#+end_src\n";
     let path = f.write("notes.org", source);
     let error = discover(
-        choice(&path, CaptureKind::Entry, heading("Tasks")),
+        &choice(&path, CaptureKind::Entry, heading("Tasks")),
         &buffers,
     )
     .err()
@@ -200,12 +200,16 @@ fn capture_target_identity() {
         file: String::new(),
         outline: vec!["Home".into(), "Tasks".into()],
     };
-    let result = discover(choice(&path, CaptureKind::Entry, target), &buffers).unwrap();
+    let result = discover(&choice(&path, CaptureKind::Entry, target), &buffers).unwrap();
     assert_eq!(
         result.target.parent,
         Some(Byte(source.rfind("** Tasks").unwrap()))
     );
-    let result = discover(choice(&path, CaptureKind::Entry, heading("Fake")), &buffers).unwrap();
+    let result = discover(
+        &choice(&path, CaptureKind::Entry, heading("Fake")),
+        &buffers,
+    )
+    .unwrap();
     assert_eq!(result.target.missing[0].title, "Fake");
     assert_eq!(std::fs::read_to_string(path).unwrap(), source);
 }
@@ -229,7 +233,7 @@ fn capture_canonical_source() {
     buffer.set_readonly(true);
     let stamp = buffer.stamp();
     let result = discover(
-        choice(&alias, CaptureKind::Plain, heading("Tasks")),
+        &choice(&alias, CaptureKind::Plain, heading("Tasks")),
         &buffers,
     )
     .unwrap();

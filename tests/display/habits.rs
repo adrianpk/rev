@@ -20,7 +20,7 @@ fn graph() -> HabitGraph {
         .into_iter()
         .enumerate()
         .map(|(i, state)| HabitCell {
-            date: date.add_days(i as i64).unwrap(),
+            date: date.add_days(i64::try_from(i).unwrap()).unwrap(),
             state,
             completed: i < 2,
             today: i == 2,

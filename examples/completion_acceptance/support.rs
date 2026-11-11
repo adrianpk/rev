@@ -22,14 +22,19 @@ pub(super) fn source(session: &Session) -> String {
         .to_string()
 }
 
-pub(super) fn open(root: &Path, name: &str, document: &str, settings: Snapshot) -> Result<Session> {
+pub(super) fn open(
+    root: &Path,
+    name: &str,
+    document: &str,
+    settings: &Snapshot,
+) -> Result<Session> {
     let marker = document.find('|').ok_or("missing point marker")?;
     let text = document.replacen('|', "", 1);
     let path = root.join("workspace").join(name);
     std::fs::write(&path, text)?;
     let mut buffers = Buffers::with_settings(settings.clone())?;
     let id = buffers.visit(&path)?;
-    let mut view = View::with_settings(buffers.get(id)?, &settings);
+    let mut view = View::with_settings(buffers.get(id)?, settings);
     view.point.position = Scalar(document[..marker].chars().count());
     Ok(Session::new(buffers, view, SIZE)?)
 }

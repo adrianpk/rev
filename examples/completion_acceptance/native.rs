@@ -14,7 +14,7 @@ struct Case {
 
 pub(super) fn run(root: &Path, libraries: &super::assets::Compiled) -> Result<()> {
     for case in cases() {
-        language(root, case)?;
+        language(root, &case)?;
     }
     automatic(root)?;
     org(root)?;
@@ -107,8 +107,8 @@ fn cases() -> [Case; 11] {
     ]
 }
 
-fn language(root: &Path, case: Case) -> Result<()> {
-    let mut session = open(root, case.file, case.document, Snapshot::default())?;
+fn language(root: &Path, case: &Case) -> Result<()> {
+    let mut session = open(root, case.file, case.document, &Snapshot::default())?;
     assert_eq!(session.buffer()?.mode(), case.mode);
     let original = source(&session);
     let point = session.view().point;
@@ -152,7 +152,7 @@ fn automatic(root: &Path) -> Result<()> {
         root,
         "automatic.rs",
         "fn configuration() {}\nfn main() { c| }",
-        Snapshot::default(),
+        &Snapshot::default(),
     )?;
     key(&mut session, KeyCode::Char('o'));
     assert!(session.completion().is_none());
@@ -182,7 +182,7 @@ fn org(root: &Path) -> Result<()> {
         ("See [[fi|]]", "file:"),
         ("* Target heading\n[[*Tar|]]\n", "Target%20heading"),
     ] {
-        let mut session = open(root, "notes.org", document, Snapshot::default())?;
+        let mut session = open(root, "notes.org", document, &Snapshot::default())?;
         let original = source(&session);
         complete(&mut session)?;
         select(&mut session, wanted);
@@ -191,7 +191,7 @@ fn org(root: &Path) -> Result<()> {
         session.execute(Command::History(History::Undo));
         assert_eq!(source(&session), original);
     }
-    let mut session = open(root, "prose.org", "ordinary pro|se\n", Snapshot::default())?;
+    let mut session = open(root, "prose.org", "ordinary pro|se\n", &Snapshot::default())?;
     complete(&mut session)?;
     assert!(session.completion().is_none());
     assert!(session.buffer()?.history().is_empty());
@@ -223,7 +223,7 @@ fn external(root: &Path, libraries: &super::assets::Compiled) -> Result<()> {
         root,
         "external.py",
         "def configuration():\n    pass\nconf|\n",
-        settings.snapshot,
+        &settings.snapshot,
     )?;
     super::assets::settle(&mut session);
     assert_eq!(session.buffer()?.mode(), "External");
@@ -254,7 +254,7 @@ fn fallback(root: &Path, highlights: &Path, completions: &Path) -> Result<()> {
         root,
         "fallback.rs",
         "fn configuration() {}\nfn main() { conf| }",
-        settings.snapshot,
+        &settings.snapshot,
     )?;
     settle(&mut fallback)?;
     assert!(

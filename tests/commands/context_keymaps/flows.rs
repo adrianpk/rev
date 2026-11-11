@@ -20,8 +20,8 @@ fn path_accept_aliases() {
     assert_ne!(stamp.buffer, prior.buffer);
     assert!(session.buffer().unwrap().file().is_none());
     assert_eq!(text(&session), "");
-    session.handle(phase(meta('a'), KeyEventKind::Repeat));
-    session.handle(phase(meta('a'), KeyEventKind::Release));
+    session.handle(phase(&meta('a'), KeyEventKind::Repeat));
+    session.handle(phase(&meta('a'), KeyEventKind::Release));
     assert_eq!(session.buffer().unwrap().stamp(), stamp);
     assert_eq!(
         session.tree().root(),
@@ -33,8 +33,8 @@ fn path_accept_aliases() {
     session.handle(meta('k'));
     session.handle(meta('a'));
     assert_eq!(session.buffer().unwrap().file().unwrap().path(), target);
-    session.handle(phase(meta('a'), KeyEventKind::Repeat));
-    session.handle(phase(meta('a'), KeyEventKind::Release));
+    session.handle(phase(&meta('a'), KeyEventKind::Repeat));
+    session.handle(phase(&meta('a'), KeyEventKind::Release));
     assert_eq!(text(&session), "target");
     assert_eq!(std::fs::read(source).unwrap(), b"retained");
     assert_eq!(std::fs::read(target).unwrap(), b"target");
@@ -180,7 +180,7 @@ fn selected_arguments() {
         session.handle(accept.clone());
         for kind in [KeyEventKind::Repeat, KeyEventKind::Release] {
             assert_eq!(
-                session.handle(phase(accept.clone(), kind)),
+                session.handle(phase(&accept, kind)),
                 rev::session::Action::Wait,
                 "{name}"
             );
@@ -197,7 +197,7 @@ fn selected_arguments() {
             "{name}"
         );
         session.handle(Event::Paste(target.to_str().unwrap().into()));
-        session.handle(phase(accept.clone(), KeyEventKind::Repeat));
+        session.handle(phase(&accept, KeyEventKind::Repeat));
         assert!(!target.exists(), "{name}");
         session.handle(accept.clone());
         assert_eq!(
@@ -208,7 +208,7 @@ fn selected_arguments() {
         assert_eq!(session.buffer().unwrap().stamp(), stamp, "{name}");
         assert!(session.buffer().unwrap().history().is_empty(), "{name}");
         assert_eq!(
-            session.handle(phase(accept, KeyEventKind::Repeat)),
+            session.handle(phase(&accept, KeyEventKind::Repeat)),
             rev::session::Action::Wait,
             "{name}"
         );
@@ -267,7 +267,7 @@ fn find_file_aliases() {
     assert_eq!(session.echo(), "");
     assert_eq!(session.buffer().unwrap().stamp(), stamp);
     session.handle(meta('a'));
-    session.handle(phase(meta('a'), KeyEventKind::Repeat));
+    session.handle(phase(&meta('a'), KeyEventKind::Repeat));
     assert_eq!(text(&session), "opened");
     assert_eq!(session.buffer().unwrap().file().unwrap().path(), path);
     assert!(session.buffer().unwrap().history().is_empty());
@@ -285,7 +285,7 @@ fn command_continuation() {
     session.execute(Command::ExecuteExtended);
     session.handle(Event::Paste("find-file".into()));
     session.handle(meta('a'));
-    session.handle(phase(meta('a'), KeyEventKind::Repeat));
+    session.handle(phase(&meta('a'), KeyEventKind::Repeat));
     assert!(
         session
             .frame()
@@ -331,7 +331,7 @@ fn prompt_prefixes() {
     assert_eq!(input.handle(character('g')), Outcome::Argument("aé".into()));
     assert_eq!(input.prefix(), None);
     assert_eq!(
-        input.handle(phase(character('g'), KeyEventKind::Repeat)),
+        input.handle(phase(&character('g'), KeyEventKind::Repeat)),
         Outcome::Ignored
     );
 }
@@ -447,7 +447,7 @@ fn tree_transitions() {
     session.handle(meta('z'));
     session.execute(Command::InsertTab);
     assert!(!session.tree().focused());
-    session.handle(phase(character('a'), KeyEventKind::Repeat));
+    session.handle(phase(&character('a'), KeyEventKind::Repeat));
     assert_eq!(text(&session), "retained");
     session.handle(character('a'));
     assert_eq!(text(&session), "aretained");
@@ -477,7 +477,7 @@ fn filesystem_arguments() {
         session.handle(meta(alias));
         session.handle(Event::Paste("new-é.txt".into()));
         session.handle(meta('a'));
-        session.handle(phase(meta('a'), KeyEventKind::Repeat));
+        session.handle(phase(&meta('a'), KeyEventKind::Repeat));
         assert!(fixture.0.join("root/new-é.txt").is_file(), "{operation}");
         assert_eq!(fixture.0.join("root/a.txt").exists(), operation == "create");
         assert_eq!(text(&session), "retained");
@@ -497,7 +497,7 @@ fn recursive_consent() {
     session.handle(meta('d'));
     session.handle(character('y'));
     assert!(session.echo().contains("recursively delete"));
-    session.handle(phase(character('y'), KeyEventKind::Repeat));
+    session.handle(phase(&character('y'), KeyEventKind::Repeat));
     session.handle(meta('a'));
     assert!(fixture.0.join("root/dir/item").exists());
     session.handle(control('g'));
@@ -525,7 +525,7 @@ fn tree_open_sequence() {
     let opened = session.buffer().unwrap().id();
     assert_ne!(opened, original);
     assert_eq!(text(&session), "other");
-    session.handle(phase(character('a'), KeyEventKind::Repeat));
+    session.handle(phase(&character('a'), KeyEventKind::Repeat));
     assert_eq!(session.buffer().unwrap().id(), opened);
     assert_eq!(text(&session), "other");
     assert!(session.buffer().unwrap().history().is_empty());

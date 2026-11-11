@@ -18,14 +18,14 @@ pub fn tzif(
             0,
             0,
             0,
-            transitions.len() as u32,
-            types.len() as u32,
-            names.len() as u32,
+            u32::try_from(transitions.len()).unwrap(),
+            u32::try_from(types.len()).unwrap(),
+            u32::try_from(names.len()).unwrap(),
         ],
     ));
     for (seconds, _) in transitions {
         if version == 0 {
-            bytes.extend((*seconds as i32).to_be_bytes())
+            bytes.extend(i32::try_from(*seconds).unwrap().to_be_bytes())
         } else {
             bytes.extend(seconds.to_be_bytes())
         }

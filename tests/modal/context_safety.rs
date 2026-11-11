@@ -149,7 +149,7 @@ fn completion_pointer_boundary() {
     let frame = editor.frame().unwrap();
     let row = frame.rows()[0].text();
     let at = row.rfind("fn cfg_value").unwrap();
-    let column = unicode_width::UnicodeWidthStr::width(&row[..at]) as u16;
+    let column = u16::try_from(unicode_width::UnicodeWidthStr::width(&row[..at])).unwrap();
     editor.handle(Event::Mouse(MouseEvent {
         kind: MouseEventKind::Down(MouseButton::Left),
         column,

@@ -18,7 +18,7 @@ fn decision_actions() {
     );
     assert_eq!(input.focus(), Focus::Decision);
     assert_eq!(
-        input.handle(phase(character('y'), KeyEventKind::Repeat)),
+        input.handle(phase(&character('y'), KeyEventKind::Repeat)),
         Outcome::Ignored
     );
     assert_eq!(input.handle(character('n')), Outcome::Decision(false));
@@ -41,7 +41,7 @@ fn replacement_consent() {
     session.handle(Event::Paste("cat".into()));
     session.handle(meta('a'));
     session.handle(Event::Paste("界".into()));
-    session.handle(phase(meta('a'), KeyEventKind::Repeat));
+    session.handle(phase(&meta('a'), KeyEventKind::Repeat));
     assert!(
         session
             .frame()
@@ -58,14 +58,14 @@ fn replacement_consent() {
         meta('a'),
         key(KeyCode::Enter),
         Event::Paste("y".into()),
-        phase(character('y'), KeyEventKind::Repeat),
+        phase(&character('y'), KeyEventKind::Repeat),
     ] {
         session.handle(event);
         assert_eq!(session.buffer().unwrap().stamp(), stamp);
         assert_eq!(text(&session), "cat cat");
     }
     session.handle(character('y'));
-    session.handle(phase(character('y'), KeyEventKind::Repeat));
+    session.handle(phase(&character('y'), KeyEventKind::Repeat));
     assert_eq!(text(&session), "界 cat");
     assert_eq!(session.buffer().unwrap().history().len(), 1);
     session.handle(control('g'));
@@ -88,7 +88,7 @@ fn filesystem_consent() {
         meta('a'),
         key(KeyCode::Enter),
         Event::Paste("y".into()),
-        phase(character('y'), KeyEventKind::Repeat),
+        phase(&character('y'), KeyEventKind::Repeat),
     ] {
         session.handle(event);
         assert_eq!(

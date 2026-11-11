@@ -7,17 +7,17 @@ use std::fs;
 fn describe(rpc: &mut Rpc, buffer: &Value) -> Value {
     rpc.ok(
         "buffers.describe",
-        json!({"buffer":buffer["stamp"]["buffer"]}),
+        &json!({"buffer":buffer["stamp"]["buffer"]}),
     )
 }
-fn save(rpc: &mut Rpc, buffer: &Value, path: Value) -> Value {
-    rpc.ok("buffers.save", json!({"buffer":buffer["stamp"]["buffer"], "expected_revision":buffer["stamp"]["revision"], "expected_disk":buffer["expected_disk"], "path":path}))
+fn save(rpc: &mut Rpc, buffer: &Value, path: &Value) -> Value {
+    rpc.ok("buffers.save", &json!({"buffer":buffer["stamp"]["buffer"], "expected_revision":buffer["stamp"]["revision"], "expected_disk":buffer["expected_disk"], "path":path}))
 }
 fn context(rpc: &mut Rpc) -> Value {
     rpc.editor.call("field.notes.collect");
     rpc.ok(
         "commands.list",
-        json!({"page":{"cursor":null,"limit":1},"query":"forward-char"}),
+        &json!({"page":{"cursor":null,"limit":1},"query":"forward-char"}),
     );
     let calls = fs::read_to_string(rpc.editor.path("calls")).unwrap();
     let call: Value = serde_json::from_str(calls.lines().last().unwrap()).unwrap();
@@ -35,19 +35,19 @@ fn explicit_save_close() {
         let mut rpc = Rpc::new(profile);
         let original = rpc.editor.session.buffer().unwrap().id();
         let result = create(&mut rpc, "Saved result", "🦀\r\n", false);
-        rpc.error("buffers.close", json!({"buffer":result["stamp"]["buffer"],"expected_revision":result["stamp"]["revision"]}), "confirmation_required");
+        rpc.error("buffers.close", &json!({"buffer":result["stamp"]["buffer"],"expected_revision":result["stamp"]["revision"]}), "confirmation_required");
         let path = rpc.editor.fixture.0.join("saved.txt");
-        let saved = save(&mut rpc, &result, json!(path));
+        let saved = save(&mut rpc, &result, &json!(path));
         assert_eq!(saved["stamp"], result["stamp"]);
         assert_eq!(fs::read_to_string(&path).unwrap(), "🦀\r\n");
         let current = describe(&mut rpc, &result);
         assert_eq!(current["modified"], false);
         assert_eq!(current["expected_disk"], saved["expected_disk"]);
         assert_eq!(rpc.editor.session.buffer().unwrap().id(), original);
-        rpc.ok("buffers.close", json!({"buffer":result["stamp"]["buffer"],"expected_revision":result["stamp"]["revision"]}));
+        rpc.ok("buffers.close", &json!({"buffer":result["stamp"]["buffer"],"expected_revision":result["stamp"]["revision"]}));
         rpc.error(
             "buffers.describe",
-            json!({"buffer":result["stamp"]["buffer"]}),
+            &json!({"buffer":result["stamp"]["buffer"]}),
             "missing_buffer",
         );
         assert_eq!(fs::read_to_string(&path).unwrap(), "🦀\r\n");
@@ -60,7 +60,7 @@ fn explicit_save_close() {
 fn save_preconditions() {
     let mut rpc = Rpc::new("non-modal");
     let path = rpc.editor.fixture.write("existing.txt", "original\n");
-    let opened = rpc.ok("buffers.open", json!({"path":path}));
+    let opened = rpc.ok("buffers.open", &json!({"path":path}));
     rpc.switch(opened["name"].as_str().unwrap());
     rpc.editor.session.handle(Event::Paste("edited ".into()));
     let changed = describe(&mut rpc, &opened);
@@ -78,19 +78,19 @@ fn save_preconditions() {
             "state_conflict",
         ),
     ] {
-        rpc.error("buffers.save", json!({"buffer":opened["stamp"]["buffer"],"expected_revision":revision,"expected_disk":disk,"path":null}), kind);
+        rpc.error("buffers.save", &json!({"buffer":opened["stamp"]["buffer"],"expected_revision":revision,"expected_disk":disk,"path":null}), kind);
         assert_eq!(fs::read_to_string(&path).unwrap(), "original\n", "{label}");
     }
     fs::write(&path, "external\n").unwrap();
-    rpc.error("buffers.save", json!({"buffer":changed["stamp"]["buffer"],"expected_revision":changed["stamp"]["revision"],"expected_disk":changed["expected_disk"],"path":null}), "state_conflict");
+    rpc.error("buffers.save", &json!({"buffer":changed["stamp"]["buffer"],"expected_revision":changed["stamp"]["revision"],"expected_disk":changed["expected_disk"],"path":null}), "state_conflict");
     assert_eq!(fs::read_to_string(&path).unwrap(), "external\n");
     assert_eq!(describe(&mut rpc, &opened)["modified"], true);
     let unsaved = create(&mut rpc, "Unsaved", "owned", false);
-    rpc.error("buffers.save", json!({"buffer":unsaved["stamp"]["buffer"],"expected_revision":unsaved["stamp"]["revision"],"expected_disk":{"kind":"absent"},"path":path}), "confirmation_required");
+    rpc.error("buffers.save", &json!({"buffer":unsaved["stamp"]["buffer"],"expected_revision":unsaved["stamp"]["revision"],"expected_disk":{"kind":"absent"},"path":path}), "confirmation_required");
     assert_eq!(fs::read_to_string(&path).unwrap(), "external\n");
     let readonly = create(&mut rpc, "Read only", "keep", true);
     let absent = rpc.editor.fixture.0.join("absent.txt");
-    rpc.error("buffers.save", json!({"buffer":readonly["stamp"]["buffer"],"expected_revision":readonly["stamp"]["revision"],"expected_disk":{"kind":"absent"},"path":absent}), "read_only");
+    rpc.error("buffers.save", &json!({"buffer":readonly["stamp"]["buffer"],"expected_revision":readonly["stamp"]["revision"],"expected_disk":{"kind":"absent"},"path":absent}), "read_only");
     assert!(!absent.exists());
 }
 
@@ -104,13 +104,13 @@ fn captured_native_motion() {
         let captured = context(&mut rpc);
         let catalog = rpc.ok(
             "commands.list",
-            json!({"page":{"cursor":null,"limit":1},"query":"forward-char"}),
+            &json!({"page":{"cursor":null,"limit":1},"query":"forward-char"}),
         );
         assert_eq!(catalog["commands"][0]["noninteractive"], true);
         assert!(!catalog["next"].is_null());
         let second = rpc.ok(
             "commands.list",
-            json!({"page":{"cursor":catalog["next"],"limit":1},"query":"forward-char"}),
+            &json!({"page":{"cursor":catalog["next"],"limit":1},"query":"forward-char"}),
         );
         assert_ne!(second["commands"][0]["id"], catalog["commands"][0]["id"]);
         let captured_pane = rpc.editor.session.windows().selected_id();
@@ -122,7 +122,7 @@ fn captured_native_motion() {
             .execute(Command::Window(WindowCommand::Other));
         let selected = rpc.editor.session.windows().selected_id();
         assert_ne!(captured_pane, selected);
-        rpc.ok("commands.invoke", invoke("end-of-buffer", &captured));
+        rpc.ok("commands.invoke", &invoke("end-of-buffer", &captured));
         assert_eq!(rpc.editor.session.windows().selected_id(), selected);
         assert_eq!(
             rpc.editor
@@ -141,11 +141,11 @@ fn captured_native_motion() {
             ("execute-extended-command", "unsupported_invocation"),
             ("missing-command", "command_unavailable"),
         ] {
-            rpc.error("commands.invoke", invoke(command, &captured), kind);
+            rpc.error("commands.invoke", &invoke(command, &captured), kind);
         }
         let mut invalid = invoke("forward-char", &captured);
         invalid["arguments"] = json!({"text":"not admitted"});
-        rpc.error("commands.invoke", invalid, "invalid_arguments");
+        rpc.error("commands.invoke", &invalid, "invalid_arguments");
     }
 }
 
@@ -158,7 +158,7 @@ fn qualified_calls() {
     fs::write(rpc.editor.path("reply-calls"), "ready").unwrap();
     let mut params = invoke("field.notes.collect", &captured);
     params["arguments"] = json!({"label":"🦀"});
-    let result = rpc.ok("commands.invoke", params.clone());
+    let result = rpc.ok("commands.invoke", &params);
     assert_eq!(result["value"]["arguments"], params["arguments"]);
     assert_eq!(result["value"]["context"]["origin"]["depth"], 1);
     assert_eq!(
@@ -170,13 +170,13 @@ fn qualified_calls() {
         "field.notes"
     );
     params["arguments"] = json!({"label":123});
-    rpc.error("commands.invoke", params, "invalid_arguments");
+    rpc.error("commands.invoke", &params, "invalid_arguments");
     for field in ["generation", "invocation"] {
         let mut forged = captured.clone();
         forged[field] = json!("9999");
         rpc.error(
             "commands.invoke",
-            invoke("forward-char", &forged),
+            &invoke("forward-char", &forged),
             "unsupported_invocation",
         );
     }
@@ -185,7 +185,7 @@ fn qualified_calls() {
     forged["origin"]["operation"] = json!("forged");
     rpc.error(
         "commands.invoke",
-        invoke("forward-char", &forged),
+        &invoke("forward-char", &forged),
         "unsupported_invocation",
     );
     for (field, value, kind) in [
@@ -205,12 +205,12 @@ fn qualified_calls() {
         } else {
             invalid[field] = value;
         }
-        rpc.error("commands.invoke", invoke("forward-char", &invalid), kind);
+        rpc.error("commands.invoke", &invoke("forward-char", &invalid), kind);
     }
     rpc.editor.session.handle(Event::Paste("!".into()));
     rpc.error(
         "commands.invoke",
-        invoke("forward-char", &captured),
+        &invoke("forward-char", &captured),
         "stale_revision",
     );
 }
@@ -222,7 +222,7 @@ fn nested_bound() {
     let mut rpc = Rpc::new("non-modal");
     let captured = context(&mut rpc);
     fs::write(rpc.editor.path("recursive"), "ready").unwrap();
-    let response = rpc.request("commands.invoke", invoke("field.notes.collect", &captured));
+    let response = rpc.request("commands.invoke", &invoke("field.notes.collect", &captured));
     assert!(
         ["limit_exceeded", "busy"].contains(&response["error"]["data"]["kind"].as_str().unwrap()),
         "{response}"
@@ -250,12 +250,12 @@ fn consent_and_cancel() {
     rpc.editor.session.execute(Command::Quit);
     rpc.error(
         "commands.invoke",
-        invoke("forward-char", &captured),
+        &invoke("forward-char", &captured),
         "unsupported_invocation",
     );
     rpc.error(
         "buffers.close",
-        json!({"buffer":result["stamp"]["buffer"],"expected_revision":result["stamp"]["revision"]}),
+        &json!({"buffer":result["stamp"]["buffer"],"expected_revision":result["stamp"]["revision"]}),
         "busy",
     );
     rpc.editor.session.handle(Event::Key(KeyEvent::new(
@@ -263,7 +263,7 @@ fn consent_and_cancel() {
         KeyModifiers::CONTROL,
     )));
     let path = rpc.editor.fixture.0.join("cancelled.txt");
-    rpc.enqueue("buffers.save", json!({"buffer":result["stamp"]["buffer"],"expected_revision":result["stamp"]["revision"],"expected_disk":result["expected_disk"],"path":path}));
+    rpc.enqueue("buffers.save", &json!({"buffer":result["stamp"]["buffer"],"expected_revision":result["stamp"]["revision"],"expected_disk":result["expected_disk"],"path":path}));
     rpc.editor.session.handle(Event::Key(KeyEvent::new(
         KeyCode::Char('g'),
         KeyModifiers::CONTROL,
@@ -279,14 +279,14 @@ fn consent_and_cancel() {
 fn associated_save() {
     let mut rpc = Rpc::new("non-modal");
     let path = rpc.editor.fixture.write("encoded.txt", "\u{feff}old\r\n");
-    let opened = rpc.ok("buffers.open", json!({"path":path}));
+    let opened = rpc.ok("buffers.open", &json!({"path":path}));
     rpc.switch(opened["name"].as_str().unwrap());
     let id = rpc.editor.session.buffer().unwrap().id();
     rpc.editor.session.handle(Event::Paste("new ".into()));
     let changed = describe(&mut rpc, &opened);
     rpc.switch("*scratch*");
     let selected = rpc.editor.session.buffer().unwrap().id();
-    save(&mut rpc, &changed, Value::Null);
+    save(&mut rpc, &changed, &Value::Null);
     assert_eq!(rpc.editor.session.buffer().unwrap().id(), selected);
     assert_eq!(fs::read_to_string(&path).unwrap(), "\u{feff}new old\r\n");
     rpc.switch(opened["name"].as_str().unwrap());
@@ -302,7 +302,7 @@ fn associated_save() {
             .count(),
         2
     );
-    rpc.ok("buffers.close", json!({"buffer":changed["stamp"]["buffer"],"expected_revision":changed["stamp"]["revision"]}));
+    rpc.ok("buffers.close", &json!({"buffer":changed["stamp"]["buffer"],"expected_revision":changed["stamp"]["revision"]}));
     assert!(
         rpc.editor
             .session

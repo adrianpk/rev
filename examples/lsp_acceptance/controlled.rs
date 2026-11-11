@@ -23,7 +23,7 @@ pub(crate) fn run(root: &Path) -> Result<()> {
     std::fs::write(root.join("config.toml"), config)?;
     let settings = rev::config::prepare(&root.join("config.toml"));
     assert!(settings.diagnostic.is_none());
-    let session = open(&root, "main.rs", DOCUMENT, settings.snapshot)?;
+    let session = open(&root, "main.rs", DOCUMENT, &settings.snapshot)?;
     let mut journey = Journey {
         root,
         session,
@@ -44,7 +44,7 @@ impl Journey {
         select(&mut self.session, "cfg_native");
         idle(&mut self.session);
         assert!(!self.root.join("peer.pid").exists());
-        self.result(json!([{"label":"cfg_server","data":{"selected":1}}]))?;
+        self.result(&json!([{"label":"cfg_server","data":{"selected":1}}]))?;
         std::fs::write(self.root.join("peer.resolved"), json!({"label":"cfg_server","additionalTextEdits":[{"range":{"start":{"line":0,"character":0},"end":{"line":0,"character":0}},"newText":"use demo::Thing;\n"}]}).to_string())?;
         self.session.execute(Command::Lsp(LspCommand::Mode));
         synchronized(&mut self.session)?;
@@ -104,7 +104,7 @@ impl Journey {
         Ok(())
     }
     fn empty_and_failed(&mut self) -> Result<()> {
-        self.result(json!([]))?;
+        self.result(&json!([]))?;
         self.native(Some(F::Empty))?;
         assert!(matches!(
             self.session.lsp_status(),
@@ -174,7 +174,7 @@ impl Journey {
         synchronized(&mut self.session)?;
         support::pid(&self.root)
     }
-    fn result(&self, value: serde_json::Value) -> Result<()> {
+    fn result(&self, value: &serde_json::Value) -> Result<()> {
         std::fs::write(self.root.join("peer.result"), value.to_string())?;
         Ok(())
     }

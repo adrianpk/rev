@@ -29,7 +29,7 @@ pub(super) fn editor(root: &Path, config: &str) -> Result<Session> {
         root,
         "source.txt",
         "a|bc\nsecond line\n",
-        settings(root, config)?,
+        &settings(root, config)?,
     )
 }
 

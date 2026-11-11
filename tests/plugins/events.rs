@@ -43,15 +43,18 @@ fn rpc(profile: &str) -> Rpc {
     e.wait(|e| e.status().state == State::Active);
     Rpc::from_editor(e)
 }
-fn subscribe(rpc: &mut Rpc, kinds: &[&str], buffers: Vec<Value>) -> Value {
-    rpc.ok("events.subscribe", json!({"kinds":kinds,"buffers":buffers}))
+fn subscribe(rpc: &mut Rpc, kinds: &[&str], buffers: &[Value]) -> Value {
+    rpc.ok(
+        "events.subscribe",
+        &json!({"kinds":kinds,"buffers":buffers}),
+    )
 }
 fn edit(event: &Value, stamp: &Value) -> Value {
     let mut origin = event["origin"].clone();
     origin["package"] = "field.notes".into();
     json!({"operation":"callback-edit", "origin":origin, "targets":[{"stamp":stamp,"replacements":[{"range":{"start":0,"end":0},"text":"!"}]}]})
 }
-fn wire(e: &mut Editor, id: &str, sequence: usize, method: &str, params: Value) -> Value {
+fn wire(e: &mut Editor, id: &str, sequence: usize, method: &str, params: &Value) -> Value {
     let directory = e.fixture.0.join(id);
     // The child polls final paths: expose only complete request records.
     let temporary = directory.join("request-tmp");
@@ -72,12 +75,12 @@ fn publications() {
     for profile in ["non-modal", "modal"] {
         let mut rpc = rpc(profile);
         let a = source(&mut rpc);
-        let sub = subscribe(&mut rpc, &["opened", "changed", "closed"], vec![]);
+        let sub = subscribe(&mut rpc, &["opened", "changed", "closed"], &[]);
         let b = create(&mut rpc, "Hidden event target", "hidden", false);
         let params = json!({"operation":"native-batch","origin":{"package":"field.notes","operation":"native-batch","depth":0},"targets":[
             {"stamp":a["stamp"],"replacements":[{"range":{"start":0,"end":0},"text":"λ"}]},
             {"stamp":b["stamp"],"replacements":[{"range":{"start":0,"end":0},"text":"β"}]}]});
-        let result = rpc.ok("edits.apply", params);
+        let result = rpc.ok("edits.apply", &params);
         rpc.editor.wait(|e| events(e, IDS[0]).len() >= 3);
         let observed = events(&rpc.editor, IDS[0]);
         assert_eq!(observed[0]["kind"], "opened");
@@ -107,7 +110,7 @@ fn publications() {
         rpc.editor.wait(|e| events(e, IDS[0]).len() >= 5);
         // A clean hidden buffer can close through the explicit native policy.
         let clean = create(&mut rpc, "Clean close", "", false);
-        rpc.ok("buffers.close", json!({"buffer":clean["stamp"]["buffer"],"expected_revision":clean["stamp"]["revision"]}));
+        rpc.ok("buffers.close", &json!({"buffer":clean["stamp"]["buffer"],"expected_revision":clean["stamp"]["revision"]}));
         rpc.editor
             .wait(|e| events(e, IDS[0]).iter().any(|v| v["kind"] == "closed"));
         let observed = events(&rpc.editor, IDS[0]);
@@ -152,11 +155,11 @@ fn subscriptions() {
     ] {
         rpc.error(
             "events.subscribe",
-            json!({"kinds":kinds,"buffers":buffers}),
+            &json!({"kinds":kinds,"buffers":buffers}),
             kind,
         );
     }
-    let sub = subscribe(&mut rpc, &["changed"], vec![handle]);
+    let sub = subscribe(&mut rpc, &["changed"], &[handle]);
     create(&mut rpc, "Filtered", "", false);
     rpc.editor.session.insert('x');
     rpc.editor.wait(|e| events(e, IDS[0]).len() == 1);
@@ -171,13 +174,13 @@ fn subscriptions() {
         forged[field] = value;
         rpc.error(
             "commands.invoke",
-            json!({"command":"field.notes.collect","arguments":{},"context":forged}),
+            &json!({"command":"field.notes.collect","arguments":{},"context":forged}),
             "unsupported_invocation",
         );
     }
     rpc.ok(
         "commands.invoke",
-        json!({"command":"field.notes.collect","arguments":{},"context":context}),
+        &json!({"command":"field.notes.collect","arguments":{},"context":context}),
     );
     assert_eq!(
         lines(&rpc.editor, IDS[0], "calls")[0]["params"]["context"]["origin"]["depth"],
@@ -185,33 +188,33 @@ fn subscriptions() {
     );
     // Removing one of two matching subscriptions must preserve the other's
     // authority for the same delivered causal root.
-    let extra = subscribe(&mut rpc, &["changed"], vec![a["stamp"]["buffer"].clone()]);
+    let extra = subscribe(&mut rpc, &["changed"], &[a["stamp"]["buffer"].clone()]);
     rpc.editor.session.insert('y');
     rpc.editor.wait(|e| events(e, IDS[0]).len() == 3);
     let shared = events(&rpc.editor, IDS[0]).last().unwrap().clone();
     rpc.ok(
         "events.unsubscribe",
-        json!({"subscription":extra["subscription"]}),
+        &json!({"subscription":extra["subscription"]}),
     );
     let current = source(&mut rpc)["stamp"].clone();
-    rpc.ok("edits.apply", edit(&shared, &current));
+    rpc.ok("edits.apply", &edit(&shared, &current));
     rpc.ok(
         "events.unsubscribe",
-        json!({"subscription":sub["subscription"]}),
+        &json!({"subscription":sub["subscription"]}),
     );
     let stamp = source(&mut rpc)["stamp"].clone();
-    rpc.error("edits.apply", edit(&event, &stamp), "cancelled");
+    rpc.error("edits.apply", &edit(&event, &stamp), "cancelled");
     rpc.error(
         "events.unsubscribe",
-        json!({"subscription":sub["subscription"]}),
+        &json!({"subscription":sub["subscription"]}),
         "invalid_arguments",
     );
     for _ in 0..16 {
-        subscribe(&mut rpc, &["changed"], vec![]);
+        subscribe(&mut rpc, &["changed"], &[]);
     }
     rpc.error(
         "events.subscribe",
-        json!({"kinds":["changed"],"buffers":[]}),
+        &json!({"kinds":["changed"],"buffers":[]}),
         "limit_exceeded",
     );
 }
@@ -227,7 +230,7 @@ fn causal_chain() {
             id,
             0,
             "events.subscribe",
-            json!({"kinds":["changed"],"buffers":[]}),
+            &json!({"kinds":["changed"],"buffers":[]}),
         );
         fs::write(e.fixture.0.join(id).join("react"), "").unwrap();
     }
@@ -266,7 +269,7 @@ fn nested_commands() {
         IDS[0],
         0,
         "events.subscribe",
-        json!({"kinds":["changed"],"buffers":[]}),
+        &json!({"kinds":["changed"],"buffers":[]}),
     );
     fs::write(e.fixture.0.join(IDS[0]).join("nested-react"), "").unwrap();
     fs::write(e.fixture.0.join(IDS[1]).join("command-edit"), "").unwrap();
@@ -303,7 +306,7 @@ fn nested_commands() {
 #[test]
 fn resnapshot() {
     let mut rpc = rpc("non-modal");
-    let sub = subscribe(&mut rpc, &["changed"], vec![]);
+    let sub = subscribe(&mut rpc, &["changed"], &[]);
     rpc.editor.session.insert('a');
     rpc.editor.wait(|e| events(e, IDS[0]).len() == 1);
     let old = events(&rpc.editor, IDS[0])[0].clone();
@@ -316,12 +319,12 @@ fn resnapshot() {
     assert_eq!(invalidated.last().unwrap()["kind"], "resnapshot");
     assert!(invalidated.last().unwrap()["stamp"].is_null());
     let stamp = source(&mut rpc)["stamp"].clone();
-    rpc.error("edits.apply", edit(&old, &stamp), "cancelled");
+    rpc.error("edits.apply", &edit(&old, &stamp), "cancelled");
     rpc.ok(
         "events.unsubscribe",
-        json!({"subscription":sub["subscription"]}),
+        &json!({"subscription":sub["subscription"]}),
     );
-    subscribe(&mut rpc, &["changed"], vec![]);
+    subscribe(&mut rpc, &["changed"], &[]);
     let before = events(&rpc.editor, IDS[0]).len();
     rpc.editor.session.insert('r');
     rpc.editor.wait(|e| events(e, IDS[0]).len() == before + 1);
@@ -344,7 +347,7 @@ fn slow_consumers() {
                 id,
                 0,
                 "events.subscribe",
-                json!({"kinds":["changed"],"buffers":[]}),
+                &json!({"kinds":["changed"],"buffers":[]}),
             );
             fs::write(e.fixture.0.join(id).join("pause"), "").unwrap();
         }
@@ -378,7 +381,7 @@ fn slow_consumers() {
                 id,
                 1,
                 "buffers.list",
-                json!({"page":{"cursor":null,"limit":64},"kind":"text"}),
+                &json!({"page":{"cursor":null,"limit":64},"kind":"text"}),
             );
             assert!(!result["buffers"].as_array().unwrap().is_empty());
             assert_eq!(e.session.plugin_status(id).unwrap().state, State::Active);
@@ -395,18 +398,18 @@ fn slow_consumers() {
 #[test]
 fn late_callback() {
     let mut rpc = rpc("non-modal");
-    let sub = subscribe(&mut rpc, &["changed"], vec![]);
+    let sub = subscribe(&mut rpc, &["changed"], &[]);
     rpc.editor.session.insert('a');
     rpc.editor.wait(|e| events(e, IDS[0]).len() == 1);
     let event = events(&rpc.editor, IDS[0])[0].clone();
     fs::write(rpc.editor.path("hold-command"), "").unwrap();
-    let pending = rpc.enqueue("commands.invoke", json!({"command":"field.notes.collect","arguments":{},"context":{
+    let pending = rpc.enqueue("commands.invoke", &json!({"command":"field.notes.collect","arguments":{},"context":{
         "invocation":format!("event:{}",event["sequence"].as_str().unwrap()),"generation":event["generation"],"origin":event["origin"],
         "stamp":event["stamp"],"pane":null,"point":null,"selection":null,"prefix":null}}));
     rpc.editor.wait(|e| lines(e, IDS[0], "calls").len() == 1);
     rpc.ok(
         "events.unsubscribe",
-        json!({"subscription":sub["subscription"]}),
+        &json!({"subscription":sub["subscription"]}),
     );
     fs::write(rpc.editor.path("release-command"), "").unwrap();
     rpc.editor.wait(|e| {
@@ -442,7 +445,7 @@ fn invalidation_timeout() {
         IDS[0],
         0,
         "events.subscribe",
-        json!({"kinds":["changed"],"buffers":[]}),
+        &json!({"kinds":["changed"],"buffers":[]}),
     );
     fs::write(e.path("pause"), "").unwrap();
     e.session.insert('p');
@@ -472,7 +475,7 @@ fn invalidation_timeout() {
 #[test]
 fn reconnect() {
     let mut rpc = rpc("non-modal");
-    let sub = subscribe(&mut rpc, &["changed"], vec![]);
+    let sub = subscribe(&mut rpc, &["changed"], &[]);
     rpc.editor.session.insert('a');
     rpc.editor.wait(|e| events(e, IDS[0]).len() == 1);
     let old = events(&rpc.editor, IDS[0])[0].clone();
@@ -491,13 +494,13 @@ fn reconnect() {
         .wait(|e| e.status().state == State::Active && e.status().generation != old_generation);
     let mut rpc = Rpc::from_editor(rpc.editor);
     let stamp = source(&mut rpc)["stamp"].clone();
-    rpc.error("edits.apply", edit(&old, &stamp), "unsupported_invocation");
+    rpc.error("edits.apply", &edit(&old, &stamp), "unsupported_invocation");
     rpc.error(
         "events.unsubscribe",
-        json!({"subscription":sub["subscription"]}),
+        &json!({"subscription":sub["subscription"]}),
         "invalid_arguments",
     );
-    subscribe(&mut rpc, &["changed"], vec![]);
+    subscribe(&mut rpc, &["changed"], &[]);
     rpc.editor.session.insert('b');
     rpc.editor.wait(|e| events(e, IDS[0]).len() == 2);
     let event = events(&rpc.editor, IDS[0])[1].clone();

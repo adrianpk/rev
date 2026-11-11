@@ -9,7 +9,7 @@ use std::time::{Duration, Instant};
 fn import() -> Value {
     json!({"range":{"start":{"line":0,"character":0},"end":{"line":0,"character":0}},"newText":"use demo::Thing;\n"})
 }
-fn resolved(f: &Fixture, extra: Value) {
+fn resolved(f: &Fixture, extra: &Value) {
     f.write(
         "peer.resolved",
         &json!({"label":"cfg_server","additionalTextEdits":extra}).to_string(),
@@ -28,10 +28,10 @@ fn methods(f: &Fixture, method: &str) -> Vec<Value> {
 #[test]
 fn resolved_import() {
     let f = Fixture::new();
-    resolved(&f, json!([import()]));
+    resolved(&f, &json!([import()]));
     let items =
         json!([{"label":"cfg_other","data":{"index":1}},{"label":"cfg_server","data":{"index":2}}]);
-    let mut s = session(&f, "resolve", RUST, "main.rs", items, false);
+    let mut s = session(&f, "resolve", RUST, "main.rs", &items, false);
     complete(&mut s);
     assert!(methods(&f, "completionItem/resolve").is_empty());
     key(&mut s, KeyCode::Down);
@@ -77,7 +77,7 @@ fn resolved_import() {
 fn immediate_import() {
     let f = Fixture::new();
     let items = json!([{"label":"cfg_server","additionalTextEdits":[import()]}]);
-    let mut s = session(&f, "ready", RUST, "main.rs", items, false);
+    let mut s = session(&f, "ready", RUST, "main.rs", &items, false);
     complete(&mut s);
     key(&mut s, KeyCode::Enter);
     settle(&mut s);
@@ -113,8 +113,8 @@ fn resolved_defaults() {
         };
         let extra = json!([{"range":{"start":{"line":1,"character":20},"end":{"line":1,"character":end}},"newText":"\"x\""},
             {"range":{"start":{"line":0,"character":0},"end":{"line":0,"character":9}},"newText":"// import"}]);
-        resolved(&f, extra);
-        let mut s = session(&f, mode, &source, "main.rs", defaults, false);
+        resolved(&f, &extra);
+        let mut s = session(&f, mode, &source, "main.rs", &defaults, false);
         complete(&mut s);
         key(&mut s, KeyCode::Tab);
         settle(&mut s);
@@ -164,7 +164,7 @@ fn rejected_resolves() {
             "resolve",
             RUST,
             "main.rs",
-            json!([{"label":"cfg_server"}]),
+            &json!([{"label":"cfg_server"}]),
             false,
         );
         complete(&mut s);
@@ -196,7 +196,7 @@ fn rejected_initial_edits() {
     let mut cross = import();
     cross["textDocument"] = json!({"uri":"file:///other.rs"});
     let items = json!([{"label":"cfg_server","additionalTextEdits":[cross]}]);
-    let mut s = session(&f, "ready", RUST, "main.rs", items, false);
+    let mut s = session(&f, "ready", RUST, "main.rs", &items, false);
     complete(&mut s);
     assert_eq!(
         s.completion_source(),
@@ -205,7 +205,7 @@ fn rejected_initial_edits() {
     assert!(s.buffer().unwrap().history().is_empty());
     let f = Fixture::new();
     let defaults = json!({"isIncomplete":false,"itemDefaults":{"editRange":{"start":{"line":1,"character":12},"end":{"line":1,"character":15},"uri":"file:///other.rs"}},"items":[{"label":"cfg_server"}]});
-    let mut s = session(&f, "resolve", RUST, "main.rs", defaults, false);
+    let mut s = session(&f, "resolve", RUST, "main.rs", &defaults, false);
     complete(&mut s);
     assert_eq!(
         s.completion_source(),
@@ -229,7 +229,7 @@ fn resolve_failures() {
             mode,
             RUST,
             "main.rs",
-            json!([{"label":"cfg_server"}]),
+            &json!([{"label":"cfg_server"}]),
             false,
         );
         complete(&mut s);
@@ -264,13 +264,13 @@ fn retired_resolves() {
         "cancel", "edit", "undo", "view", "exclude", "restore", "disable", "restart", "invoke",
     ] {
         let f = Fixture::new();
-        resolved(&f, json!([import()]));
+        resolved(&f, &json!([import()]));
         let mut s = session(
             &f,
             "resolve-late",
             RUST,
             "main.rs",
-            json!([{"label":"cfg_server"}]),
+            &json!([{"label":"cfg_server"}]),
             false,
         );
         complete(&mut s);
@@ -353,13 +353,13 @@ fn edit_limits() {
         let f = Fixture::new();
         let source = "// h\n".repeat(33) + RUST;
         let extras:Vec<_>=(0..count).map(|line|json!({"range":{"start":{"line":line,"character":0},"end":{"line":line,"character":0}},"newText":"// import\n"})).collect();
-        resolved(&f, json!(extras));
+        resolved(&f, &json!(extras));
         let mut s = session(
             &f,
             "resolve",
             &source,
             "main.rs",
-            json!([{"label":"cfg_server"}]),
+            &json!([{"label":"cfg_server"}]),
             false,
         );
         complete(&mut s);
@@ -396,13 +396,13 @@ fn edit_limits() {
         let mut extra = import();
         let inserted = "x".repeat(256 * 1024 - "cfg_server".len() + excess);
         extra["newText"] = json!(inserted);
-        resolved(&f, json!([extra]));
+        resolved(&f, &json!([extra]));
         let mut s = session(
             &f,
             "resolve",
             RUST,
             "main.rs",
-            json!([{"label":"cfg_server"}]),
+            &json!([{"label":"cfg_server"}]),
             false,
         );
         complete(&mut s);
@@ -431,13 +431,13 @@ fn edit_limits() {
 #[test]
 fn retired_connection() {
     let f = Fixture::new();
-    resolved(&f, json!([import()]));
+    resolved(&f, &json!([import()]));
     let mut s = session(
         &f,
         "resolve",
         RUST,
         "main.rs",
-        json!([{"label":"cfg_server"}]),
+        &json!([{"label":"cfg_server"}]),
         false,
     );
     complete(&mut s);
@@ -466,13 +466,13 @@ fn rejected_unicode() {
         for column in [4, if mode == "resolve" { 6 } else { 8 }] {
             let f = Fixture::new();
             let invalid = json!({"range":{"start":{"line":0,"character":column},"end":{"line":0,"character":column}},"newText":"bad"});
-            resolved(&f, json!([import(), invalid]));
+            resolved(&f, &json!([import(), invalid]));
             let mut s = session(
                 &f,
                 mode,
                 source,
                 "main.rs",
-                json!([{"label":"cfg_server"}]),
+                &json!([{"label":"cfg_server"}]),
                 false,
             );
             complete(&mut s);
@@ -494,7 +494,7 @@ fn rejected_unicode() {
 fn reload_retires_completion() {
     let f = Fixture::new();
     let items = json!([{"label":"cfg_server","data":{"index":1}}]);
-    let mut s = session(&f, "resolve", RUST, "main.rs", items, false);
+    let mut s = session(&f, "resolve", RUST, "main.rs", &items, false);
     complete(&mut s);
     assert!(s.completion().is_some());
     let external = "fn external_value() {}\nfn main() { external_value(); }\n";

@@ -56,7 +56,7 @@ pub(super) fn exercise(root: &Path) -> Result<()> {
     )?;
     let config = rev::config::prepare(&root.join("config.toml"));
     assert!(config.diagnostic.is_none());
-    let mut editor = open(root, "main.rs", &format!("{DISK}|"), config.snapshot)?;
+    let mut editor = open(root, "main.rs", &format!("{DISK}|"), &config.snapshot)?;
     editor.replace(0..DISK.chars().count(), UNSAVED)?;
     editor.execute(Command::Motion(Motion::BufferEnd));
     for _ in 0..4 {

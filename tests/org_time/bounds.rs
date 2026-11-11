@@ -40,7 +40,7 @@ fn gregorian_cycle() {
             Date::new(date.year(), date.month(), date.day()).unwrap(),
             date
         );
-        assert_eq!(date.weekday(), ((2 + days) % 7 + 1) as u8);
+        assert_eq!(date.weekday(), u8::try_from((2 + days) % 7 + 1).unwrap());
         assert_eq!(date.add_days(-days).unwrap(), start);
     }
     assert_eq!(

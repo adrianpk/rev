@@ -80,7 +80,7 @@ fn semantic_colors() {
             .iter()
             .position(|r| r.text().contains("source.txt"))
             .unwrap();
-        click(editor, row as u16);
+        click(editor, u16::try_from(row).unwrap());
         key(editor, KeyCode::Tab, KeyModifiers::NONE);
         wait(editor, |s| {
             s.echo().contains("comparison retained as read-only")
@@ -89,7 +89,7 @@ fn semantic_colors() {
             .iter()
             .position(|r| r.contains("@@"))
             .unwrap();
-        click(editor, row as u16);
+        click(editor, u16::try_from(row).unwrap());
         key(editor, KeyCode::Tab, KeyModifiers::NONE);
         check_diff(editor, added, removed);
         editor.execute(Command::Git(GitCommand::Diff));
@@ -110,7 +110,7 @@ fn semantic_colors() {
             .iter()
             .position(|r| r.contains("untracked.txt"))
             .unwrap();
-        click(editor, row as u16);
+        click(editor, u16::try_from(row).unwrap());
         editor.execute(Command::Git(GitCommand::Diff));
         wait(editor, |s| {
             s.echo().contains("comparison retained as read-only")

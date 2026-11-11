@@ -118,7 +118,7 @@ fn selected_path() {
     });
     let rows = render(editor);
     let row = rows.iter().position(|s| s.starts_with("  a")).unwrap();
-    crate::status::presentation::click(editor, row as u16);
+    crate::status::presentation::click(editor, u16::try_from(row).unwrap());
     key(editor, KeyCode::Enter, KeyModifiers::NONE);
     wait(editor, |e| {
         e.echo().contains("Checked conflict sides retained")

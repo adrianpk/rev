@@ -152,7 +152,7 @@ fn presentation(editor: &mut Session, decorated: bool, nerd_fonts: bool) -> Resu
             (cell.foreground, cell.background),
             (
                 Some(if decorated {
-                    Rgb(channel as u8, 2, 3)
+                    Rgb(u8::try_from(channel)?, 2, 3)
                 } else {
                     palette.foreground
                 }),
@@ -233,12 +233,14 @@ fn press(column: u16, row: u16) -> Event {
 }
 
 fn interaction(editor: &mut Session, root: &Path) -> Result<()> {
-    let row = editor
-        .tree()
-        .entries()
-        .iter()
-        .position(|entry| entry.path().ends_with("界é.txt"))
-        .ok_or("missing Unicode entry")? as u16;
+    let row = u16::try_from(
+        editor
+            .tree()
+            .entries()
+            .iter()
+            .position(|entry| entry.path().ends_with("界é.txt"))
+            .ok_or("missing Unicode entry")?,
+    )?;
     let hit = editor.tree().hit(row).ok_or("missing canonical hit")?;
     for column in [0, 2, 4, 6, 23] {
         editor.handle(press(column, row));

@@ -294,7 +294,10 @@ pub(super) fn run(root: &Path, binary: &Path, wrapper: &Path) -> Result<(), Box<
     let records = document["bookmarks"].as_array().unwrap();
     assert_eq!(records.len(), 1);
     assert_eq!(records[0]["name"].as_str(), Some("pty"));
-    assert_eq!(records[0]["position"].as_integer(), Some(position as i64));
+    assert_eq!(
+        records[0]["position"].as_integer(),
+        Some(i64::try_from(position)?)
+    );
     assert_eq!(std::fs::read(&path)?, original);
     let mut second = Terminal::start(root, binary, wrapper, "origin.txt")?;
     second.send(b"\x18rbpty\r")?;

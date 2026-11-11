@@ -11,10 +11,15 @@ pub(super) fn run(root: &Path, binary: &Path) -> Result<()> {
     burst(root)?;
     let bytes = std::fs::metadata(binary)?.len();
     let baseline = 18_931_160_u64;
+    #[expect(
+        clippy::cast_precision_loss,
+        reason = "Only the informational ratio uses floating point; byte counts and deltas stay exact."
+    )]
+    let ratio = bytes as f64 / baseline as f64;
     println!(
         "MEASURE modal executable: bytes={bytes} recorded_lsp_baseline_bytes={baseline} delta_bytes={} ratio={:.6}; same normal release flags, separate server excluded",
-        bytes as i64 - baseline as i64,
-        bytes as f64 / baseline as f64
+        i128::from(bytes) - i128::from(baseline),
+        ratio
     );
     println!("MEASURE native modal driver peak_rss={}", peak_rss("self")?);
     Ok(())
@@ -22,7 +27,7 @@ pub(super) fn run(root: &Path, binary: &Path) -> Result<()> {
 
 fn counts(root: &Path) -> Result<()> {
     let text = "word 界 e\u{301} tail\r\n".repeat(16_384);
-    let mut editor = open(root, "large.txt", &format!("|{text}"), settings(root)?)?;
+    let mut editor = open(root, "large.txt", &format!("|{text}"), &settings(root)?)?;
     let started = Instant::now();
     keys(&mut editor, "4294967295w")?;
     assert_eq!(editor.view().point.position, Scalar(text.chars().count()));
@@ -47,7 +52,7 @@ fn counts(root: &Path) -> Result<()> {
 
 fn block(root: &Path) -> Result<()> {
     let text = "\t界e\u{301}tail\r\n".repeat(4096);
-    let mut editor = open(root, "block.txt", &format!("|{text}"), settings(root)?)?;
+    let mut editor = open(root, "block.txt", &format!("|{text}"), &settings(root)?)?;
     let started = Instant::now();
     control(&mut editor, 'v');
     keys(&mut editor, "2l4095jd")?;
@@ -65,7 +70,7 @@ fn block(root: &Path) -> Result<()> {
 }
 
 fn burst(root: &Path) -> Result<()> {
-    let mut editor = open(root, "burst.txt", "|abcdefgh\nnext\n", settings(root)?)?;
+    let mut editor = open(root, "burst.txt", "|abcdefgh\nnext\n", &settings(root)?)?;
     let started = Instant::now();
     for _ in 0..64 {
         keys(&mut editor, "lh")?;

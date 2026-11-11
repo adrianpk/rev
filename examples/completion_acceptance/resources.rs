@@ -14,10 +14,15 @@ pub(super) fn run(root: &Path, binary: &Path) -> Result<()> {
     burst(root)?;
     let bytes = std::fs::metadata(binary)?.len();
     let baseline = 13_326_584_u64;
+    #[expect(
+        clippy::cast_precision_loss,
+        reason = "Only the informational ratio uses floating point; byte counts and deltas stay exact."
+    )]
+    let ratio = bytes as f64 / baseline as f64;
     println!(
         "MEASURE editor executable: bytes={bytes} baseline_bytes={baseline} delta_bytes={} ratio={:.6}; baseline uses the recorded normal release profile",
-        bytes as i64 - baseline as i64,
-        bytes as f64 / baseline as f64
+        i128::from(bytes) - i128::from(baseline),
+        ratio
     );
     println!("MEASURE native acceptance peak_rss={}", peak_rss("self")?);
     Ok(())
@@ -76,7 +81,7 @@ fn inventory_session(root: &Path) -> Result<Session> {
 
 fn limits(root: &Path) -> Result<()> {
     let oversized = format!("//{}\n|", "x".repeat(2 * 1024 * 1024));
-    let mut session = open(root, "oversized.rs", &oversized, Snapshot::default())?;
+    let mut session = open(root, "oversized.rs", &oversized, &Snapshot::default())?;
     let stamp = session.buffer()?.stamp();
     complete(&mut session)?;
     assert!(session.completion().is_none());
@@ -88,7 +93,7 @@ fn limits(root: &Path) -> Result<()> {
         symbols.push_str(&format!("fn symbol_{index:04}() {{}}\n"));
     }
     symbols.push_str("fn main() { symbol| }\n");
-    let mut session = open(root, "symbols.rs", &symbols, Snapshot::default())?;
+    let mut session = open(root, "symbols.rs", &symbols, &Snapshot::default())?;
     let original = source(&session);
     complete(&mut session)?;
     assert!(session.completion().is_none());
@@ -107,7 +112,7 @@ fn burst(root: &Path) -> Result<()> {
         document.push_str(&format!("fn burst_{index:04}() {{}}\n"));
     }
     document.push_str("fn main() { bur| }\n");
-    let mut session = open(root, "burst.rs", &document, Snapshot::default())?;
+    let mut session = open(root, "burst.rs", &document, &Snapshot::default())?;
     let original = source(&session);
     let started = Instant::now();
     let mut longest = Duration::ZERO;

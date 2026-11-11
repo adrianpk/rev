@@ -97,7 +97,7 @@ pub(super) fn run(root: &Path) -> Result<()> {
     assert_eq!(document["bookmarks"].as_array().unwrap().len(), 1);
     assert_eq!(
         document["bookmarks"][0]["position"].as_integer(),
-        Some((target + 5) as i64)
+        Some(i64::try_from(target + 5)?)
     );
     let mut reopened = Session::startup(None, SIZE)?;
     reopened.load(&root.join("workspace"))?;

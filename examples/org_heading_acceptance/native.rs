@@ -61,7 +61,8 @@ fn controls(editor: &mut Session) -> Result<()> {
         frame.cursor(),
         cursor.map(|mut position| {
             position.column =
-                7 + editor.view().cell(editor.buffer().unwrap()).unwrap().column as u16;
+                7 + u16::try_from(editor.view().cell(editor.buffer().unwrap()).unwrap().column)
+                    .unwrap();
             position
         })
     );

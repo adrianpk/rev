@@ -23,7 +23,7 @@ impl Rpc {
             sequence: 0,
         }
     }
-    pub(super) fn enqueue(&mut self, method: &str, params: Value) -> usize {
+    pub(super) fn enqueue(&mut self, method: &str, params: &Value) -> usize {
         let seq = self.sequence;
         self.sequence += 1;
         let path = self.editor.path(&format!("request-{seq}"));
@@ -32,7 +32,7 @@ impl Rpc {
         fs::rename(temp, path).unwrap();
         seq
     }
-    pub(super) fn request(&mut self, method: &str, params: Value) -> Value {
+    pub(super) fn request(&mut self, method: &str, params: &Value) -> Value {
         let seq = self.enqueue(method, params);
         self.editor
             .wait(|e| e.path(&format!("response-{seq}")).exists());
@@ -43,12 +43,12 @@ impl Rpc {
         assert_eq!(value["id"], format!("buffer-request-{seq}"));
         value
     }
-    pub(super) fn ok(&mut self, method: &str, params: Value) -> Value {
+    pub(super) fn ok(&mut self, method: &str, params: &Value) -> Value {
         let response = self.request(method, params);
         assert!(response.get("error").is_none(), "{response}");
         response["result"].clone()
     }
-    pub(super) fn error(&mut self, method: &str, params: Value, kind: &str) {
+    pub(super) fn error(&mut self, method: &str, params: &Value, kind: &str) {
         let response = self.request(method, params);
         assert_eq!(response["error"]["data"]["kind"], kind, "{response}");
         assert_eq!(response["error"]["data"]["request"], response["id"]);
@@ -59,7 +59,7 @@ impl Rpc {
         loop {
             let result = self.ok(
                 "buffers.list",
-                json!({"page":{"cursor":cursor,"limit":1},"kind":"text"}),
+                &json!({"page":{"cursor":cursor,"limit":1},"kind":"text"}),
             );
             buffers.extend(result["buffers"].as_array().unwrap().iter().cloned());
             cursor = result["next"].clone();
@@ -87,7 +87,7 @@ pub(super) fn source(rpc: &mut Rpc) -> Value {
 pub(super) fn create(rpc: &mut Rpc, name: &str, text: &str, read_only: bool) -> Value {
     rpc.ok(
         "buffers.create",
-        json!({"name":name,"text":text,"read_only":read_only}),
+        &json!({"name":name,"text":text,"read_only":read_only}),
     )
 }
 
@@ -105,10 +105,10 @@ fn hidden_sources() {
         assert_eq!(result["modified"], true);
         assert!(result["path"].is_null());
         assert_eq!(result["kind"], "text");
-        let read = rpc.ok("buffers.read", json!({"buffer":source["stamp"]["buffer"],"range":{"start":7,"end":8},"expected_revision":source["stamp"]["revision"]}));
+        let read = rpc.ok("buffers.read", &json!({"buffer":source["stamp"]["buffer"],"range":{"start":7,"end":8},"expected_revision":source["stamp"]["revision"]}));
         assert_eq!(read["text"], "🦀");
         assert_eq!(read["stamp"], source["stamp"]);
-        let read = rpc.ok("buffers.read", json!({"buffer":result["stamp"]["buffer"],"range":{"start":7,"end":12},"expected_revision":null}));
+        let read = rpc.ok("buffers.read", &json!({"buffer":result["stamp"]["buffer"],"range":{"start":7,"end":12},"expected_revision":null}));
         assert_eq!(read["text"], "e\u{301}🦀\r\n");
         assert_eq!(rpc.editor.session.buffer().unwrap().id(), original);
         let created = rpc.list();
@@ -147,32 +147,32 @@ fn handle_and_range_errors() {
     let mut rpc = Rpc::new("non-modal");
     let source = source(&mut rpc);
     rpc.editor.session.handle(Event::Paste("!".into()));
-    rpc.error("buffers.read", json!({"buffer":source["stamp"]["buffer"],"range":{"start":0,"end":1},"expected_revision":source["stamp"]["revision"]}), "stale_revision");
+    rpc.error("buffers.read", &json!({"buffer":source["stamp"]["buffer"],"range":{"start":0,"end":1},"expected_revision":source["stamp"]["revision"]}), "stale_revision");
     for range in [
         json!({"start":0,"end":999}),
         json!({"start":u64::MAX,"end":u64::MAX}),
     ] {
         rpc.error(
             "buffers.read",
-            json!({"buffer":source["stamp"]["buffer"],"range":range,"expected_revision":null}),
+            &json!({"buffer":source["stamp"]["buffer"],"range":range,"expected_revision":null}),
             "invalid_range",
         );
     }
-    let read = rpc.ok("buffers.read", json!({"buffer":source["stamp"]["buffer"],"range":{"start":0,"end":1},"expected_revision":null}));
+    let read = rpc.ok("buffers.read", &json!({"buffer":source["stamp"]["buffer"],"range":{"start":0,"end":1},"expected_revision":null}));
     assert_eq!(read["text"], "!");
     assert_ne!(read["stamp"]["revision"], source["stamp"]["revision"]);
     let mut foreign = source["stamp"]["buffer"].clone();
     foreign["session"] = "other-host".into();
     rpc.error(
         "buffers.describe",
-        json!({"buffer":foreign}),
+        &json!({"buffer":foreign}),
         "missing_buffer",
     );
     let mut missing = source["stamp"]["buffer"].clone();
     missing["id"] = "buffer-0".into();
     rpc.error(
         "buffers.describe",
-        json!({"buffer":missing}),
+        &json!({"buffer":missing}),
         "missing_buffer",
     );
     let empty = create(&mut rpc, "Empty result", "", false);
@@ -186,30 +186,30 @@ fn handle_and_range_errors() {
     )));
     rpc.error(
         "buffers.describe",
-        json!({"buffer":empty["stamp"]["buffer"]}),
+        &json!({"buffer":empty["stamp"]["buffer"]}),
         "missing_buffer",
     );
     rpc.error(
         "buffers.list",
-        json!({"page":{"cursor":"foreign-cursor","limit":1},"kind":null}),
+        &json!({"page":{"cursor":"foreign-cursor","limit":1},"kind":null}),
         "invalid_arguments",
     );
     rpc.error(
         "buffers.list",
-        json!({"page":{"cursor":null,"limit":257},"kind":null}),
+        &json!({"page":{"cursor":null,"limit":257},"kind":null}),
         "limit_exceeded",
     );
     rpc.error(
         "buffers.list",
-        json!({"page":{"cursor":null,"limit":1},"kind":"terminal"}),
+        &json!({"page":{"cursor":null,"limit":1},"kind":"terminal"}),
         "unsupported_resource",
     );
     rpc.error(
         "buffers.create",
-        json!({"name":"bad\nname","text":"", "read_only":false}),
+        &json!({"name":"bad\nname","text":"", "read_only":false}),
         "invalid_arguments",
     );
-    rpc.error("buffers.read", json!({"buffer":source["stamp"]["buffer"],"range":{"start":0,"end":0},"expected_revision":null,"force":true}), "invalid_arguments");
+    rpc.error("buffers.read", &json!({"buffer":source["stamp"]["buffer"],"range":{"start":0,"end":0},"expected_revision":null,"force":true}), "invalid_arguments");
 }
 
 // Canonical aliases reuse native unsaved source identity; new and missing file
@@ -223,27 +223,27 @@ fn canonical_open() {
     let native = source(&mut rpc);
     let alias = rpc.editor.fixture.0.join("alias.txt");
     std::os::unix::fs::symlink(&path, &alias).unwrap();
-    let opened = rpc.ok("buffers.open", json!({"path":alias}));
+    let opened = rpc.ok("buffers.open", &json!({"path":alias}));
     assert_eq!(opened["stamp"], native["stamp"]);
     let other = rpc.editor.fixture.write("other.txt", "hidden\n");
-    let result = rpc.ok("buffers.open", json!({"path":other}));
+    let result = rpc.ok("buffers.open", &json!({"path":other}));
     assert_ne!(result["stamp"]["buffer"], native["stamp"]["buffer"]);
     assert_eq!(source(&mut rpc)["stamp"], native["stamp"]);
     assert_eq!(fs::read_to_string(path).unwrap(), "disk content\n");
     let missing = rpc.editor.fixture.0.join("not-created.txt");
-    let result = rpc.ok("buffers.open", json!({"path":missing}));
+    let result = rpc.ok("buffers.open", &json!({"path":missing}));
     assert_eq!(result["scalar_len"], 0);
     assert_eq!(result["expected_disk"]["kind"], "absent");
     assert!(!missing.exists());
     rpc.error(
         "buffers.open",
-        json!({"path":rpc.editor.fixture.0}),
+        &json!({"path":rpc.editor.fixture.0}),
         "unsupported_resource",
     );
     let binary = rpc.editor.fixture.write("binary.txt", "bad\0input");
     rpc.error(
         "buffers.open",
-        json!({"path":binary}),
+        &json!({"path":binary}),
         "unsupported_resource",
     );
 }
@@ -260,7 +260,7 @@ fn native_placement() {
     for placement in ["split_horizontal", "split_vertical"] {
         let shown = rpc.ok(
             "buffers.show",
-            json!({"buffer":result["stamp"]["buffer"],"pane":pane,"placement":placement}),
+            &json!({"buffer":result["stamp"]["buffer"],"pane":pane,"placement":placement}),
         );
         assert_ne!(shown["pane"], pane);
         assert_eq!(rpc.editor.session.windows().selected_id(), original);
@@ -272,7 +272,7 @@ fn native_placement() {
     let prompt = rpc.editor.session.echo().to_owned();
     rpc.error(
         "buffers.show",
-        json!({"buffer":result["stamp"]["buffer"],"pane":pane,"placement":"current"}),
+        &json!({"buffer":result["stamp"]["buffer"],"pane":pane,"placement":"current"}),
         "unsupported_invocation",
     );
     assert_eq!(rpc.editor.session.echo(), prompt);
@@ -281,7 +281,7 @@ fn native_placement() {
     foreign["session"] = "foreign-host".into();
     rpc.error(
         "buffers.show",
-        json!({"buffer":result["stamp"]["buffer"],"pane":foreign,"placement":"current"}),
+        &json!({"buffer":result["stamp"]["buffer"],"pane":foreign,"placement":"current"}),
         "unsupported_invocation",
     );
     let closed = rpc
@@ -296,11 +296,11 @@ fn native_placement() {
     rpc.editor
         .session
         .execute(Command::Window(rev::command::WindowCommand::Delete));
-    rpc.error("buffers.show", json!({"buffer":result["stamp"]["buffer"],"pane":{"session":pane["session"],"id":format!("pane-{closed}")},"placement":"current"}), "unsupported_invocation");
+    rpc.error("buffers.show", &json!({"buffer":result["stamp"]["buffer"],"pane":{"session":pane["session"],"id":format!("pane-{closed}")},"placement":"current"}), "unsupported_invocation");
     rpc.editor.session.select_view(original).unwrap();
     let shown = rpc.ok(
         "buffers.show",
-        json!({"buffer":result["stamp"]["buffer"],"pane":pane,"placement":"current"}),
+        &json!({"buffer":result["stamp"]["buffer"],"pane":pane,"placement":"current"}),
     );
     assert_eq!(shown["pane"], pane);
     assert_eq!(
@@ -324,7 +324,7 @@ fn unsupported_resources() {
         json!({"session":source["stamp"]["buffer"]["session"],"id":format!("buffer-{generated}")});
     rpc.error(
         "buffers.describe",
-        json!({"buffer":handle}),
+        &json!({"buffer":handle}),
         "unsupported_resource",
     );
     assert!(
@@ -341,7 +341,7 @@ fn unsupported_resources() {
         json!({"session":source["stamp"]["buffer"]["session"],"id":format!("buffer-{terminal}")});
     rpc.error(
         "buffers.describe",
-        json!({"buffer":handle}),
+        &json!({"buffer":handle}),
         "unsupported_resource",
     );
     assert!(
@@ -349,8 +349,8 @@ fn unsupported_resources() {
             .iter()
             .any(|b| b["stamp"]["buffer"]["id"] == format!("buffer-{terminal}"))
     );
-    rpc.error("buffers.save", json!({}), "invalid_arguments");
-    rpc.error("events.subscribe", json!({}), "invalid_arguments");
+    rpc.error("buffers.save", &json!({}), "invalid_arguments");
+    rpc.error("events.subscribe", &json!({}), "invalid_arguments");
 }
 
 // The byte ceiling is checked on a native scalar slice before copying it. Large
@@ -359,10 +359,10 @@ fn unsupported_resources() {
 fn read_byte_limit() {
     let mut rpc = Rpc::new("non-modal");
     let path = rpc.editor.fixture.write("large.txt", &"🦀".repeat(140000));
-    let opened = rpc.ok("buffers.open", json!({"path":path}));
-    rpc.error("buffers.read", json!({"buffer":opened["stamp"]["buffer"],"range":{"start":0,"end":140000},"expected_revision":null}), "limit_exceeded");
+    let opened = rpc.ok("buffers.open", &json!({"path":path}));
+    rpc.error("buffers.read", &json!({"buffer":opened["stamp"]["buffer"],"range":{"start":0,"end":140000},"expected_revision":null}), "limit_exceeded");
     for (start, end) in [(0, 131072), (131072, 140000), (140000, 140000)] {
-        let result = rpc.ok("buffers.read", json!({"buffer":opened["stamp"]["buffer"],"range":{"start":start,"end":end},"expected_revision":opened["stamp"]["revision"]}));
+        let result = rpc.ok("buffers.read", &json!({"buffer":opened["stamp"]["buffer"],"range":{"start":start,"end":end},"expected_revision":opened["stamp"]["revision"]}));
         assert_eq!(
             result["text"].as_str().unwrap().chars().count(),
             end - start
@@ -373,7 +373,7 @@ fn read_byte_limit() {
         .unwrap()
         .set_len(16 * 1024 * 1024 + 1)
         .unwrap();
-    rpc.error("buffers.open", json!({"path":oversized}), "limit_exceeded");
+    rpc.error("buffers.open", &json!({"path":oversized}), "limit_exceeded");
     assert!(
         !rpc.list()
             .iter()
@@ -401,7 +401,7 @@ fn captured_context() {
     rpc.editor.call("field.notes.collect");
     let other = rpc.editor.fixture.write("focus.txt", "other\n");
     rpc.editor.session.load(&other).unwrap();
-    let read = rpc.ok("buffers.read", json!({"buffer":captured["stamp"]["buffer"],"range":{"start":0,"end":6},"expected_revision":captured["stamp"]["revision"]}));
+    let read = rpc.ok("buffers.read", &json!({"buffer":captured["stamp"]["buffer"],"range":{"start":0,"end":6},"expected_revision":captured["stamp"]["revision"]}));
     assert_eq!(read["text"], "source");
     rpc.editor.wait(|e| e.path("calls").exists());
     let calls = fs::read_to_string(rpc.editor.path("calls")).unwrap();
@@ -460,12 +460,12 @@ fn departure_ownership() {
     assert!(question.contains("y=save"), "{question}");
     rpc.error(
         "buffers.create",
-        json!({"name":"Late output","text":"unsaved","read_only":false}),
+        &json!({"name":"Late output","text":"unsaved","read_only":false}),
         "busy",
     );
     let path = rpc.editor.fixture.write("late-open.txt", "late");
-    rpc.error("buffers.open", json!({"path":path}), "busy");
-    let read = rpc.ok("buffers.read", json!({"buffer":source["stamp"]["buffer"],"range":{"start":0,"end":1},"expected_revision":null}));
+    rpc.error("buffers.open", &json!({"path":path}), "busy");
+    let read = rpc.ok("buffers.read", &json!({"buffer":source["stamp"]["buffer"],"range":{"start":0,"end":1},"expected_revision":null}));
     assert_eq!(read["text"], "!");
     assert_eq!(rpc.editor.session.echo(), question);
     rpc.editor.session.execute(Command::KeyboardQuit);

@@ -140,7 +140,11 @@ fn checked_columns() {
         assert_eq!(
             session.frame().unwrap().cursor(),
             Some(Position {
-                column: 6 + if wrap { width.max(2) as u16 } else { 0 },
+                column: 6 + if wrap {
+                    u16::try_from(width.max(2)).unwrap()
+                } else {
+                    0
+                },
                 row: 0
             })
         );

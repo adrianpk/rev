@@ -41,7 +41,7 @@ fn source_and_pretty_geometry() {
                         let column = point.saturating_sub(if pretty { 7 } else { 0 });
                         let expected = column.checked_sub(left).map(|column| Position {
                             row: 0,
-                            column: 7 + column as u16,
+                            column: 7 + u16::try_from(column).unwrap(),
                         });
                         assert_eq!(
                             frame.cursor(),
@@ -94,7 +94,7 @@ fn prefix_selection() {
             frame.cursor(),
             Some(Position {
                 row: 0,
-                column: 7 + point.saturating_sub(2) as u16
+                column: 7 + u16::try_from(point.saturating_sub(2)).unwrap()
             })
         );
         assert_eq!(

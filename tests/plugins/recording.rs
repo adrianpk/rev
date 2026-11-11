@@ -366,7 +366,7 @@ fn unrelated_edits() {
     let mut rpc = Rpc::from_editor(e);
     let captured = source(&mut rpc);
     press(&mut rpc.editor, "F3 F8");
-    rpc.error("edits.apply", json!({"operation":"unrelated", "origin":{"package":null,"operation":"unrelated","depth":0}, "targets":[{"stamp":captured["stamp"], "replacements":[{"range":{"start":0,"end":0},"text":"wrong"}]}]}), "busy");
+    rpc.error("edits.apply", &json!({"operation":"unrelated", "origin":{"package":null,"operation":"unrelated","depth":0}, "targets":[{"stamp":captured["stamp"], "replacements":[{"range":{"start":0,"end":0},"text":"wrong"}]}]}), "busy");
     assert_eq!(text(&rpc.editor), "source 🦀\n");
     assert_eq!(rpc.editor.session.macro_status(), Status::Recording);
     press(&mut rpc.editor, "C-g");

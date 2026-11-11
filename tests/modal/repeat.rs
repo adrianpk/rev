@@ -8,7 +8,7 @@ fn place(editor: &mut Session, position: usize) {
         let mut request = rev::command::Navigation::new(
             rev::command::navigation::Target::Character(rev::search::Direction::Forward),
         );
-        request.count = Some(position as u32);
+        request.count = Some(u32::try_from(position).unwrap());
         editor.execute(Command::Navigate(request));
     }
     settle(editor);

@@ -59,10 +59,10 @@ fn explicit_defaults() {
     assert_eq!(document.files.external_change_max_buffers, Some(256));
 }
 
-fn editor(snapshot: rev::config::Snapshot, path: &Path) -> rev::session::Session {
+fn editor(snapshot: &rev::config::Snapshot, path: &Path) -> rev::session::Session {
     let mut buffers = rev::buffer::Buffers::with_settings(snapshot.clone()).unwrap();
     let id = buffers.visit(path).unwrap();
-    let view = rev::view::View::with_settings(buffers.get(id).unwrap(), &snapshot);
+    let view = rev::view::View::with_settings(buffers.get(id).unwrap(), snapshot);
     rev::session::Session::new(
         buffers,
         view,
@@ -106,8 +106,8 @@ fn native_equivalence() {
     let fixture = super::fixture::Fixture::new();
     let path = fixture.write("source.txt", &"a\t界e\u{301}\r\n".repeat(30));
     let config = fixture.write("config.toml", default_template());
-    let mut packaged = editor(rev::config::prepare(&config).snapshot, &path);
-    let mut built_in = editor(rev::config::Snapshot::default(), &path);
+    let mut packaged = editor(&rev::config::prepare(&config).snapshot, &path);
+    let mut built_in = editor(&rev::config::Snapshot::default(), &path);
     assert_eq!(wire(&mut packaged), wire(&mut built_in));
     let events = [
         mouse(P::ScrollDown, 7, 0),

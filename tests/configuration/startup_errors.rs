@@ -166,7 +166,7 @@ fn unresolved_environment() {
         "editor.indent_width = 2",
     );
     success(
-        process("startup::errors::unresolved_environment", &fixture)
+        &process("startup::errors::unresolved_environment", &fixture)
             .env_remove("HOME")
             .env("XDG_CONFIG_HOME", "relative")
             .output()

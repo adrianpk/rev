@@ -86,10 +86,10 @@ pub(super) fn formulas() -> Result<()> {
             let result = program.evaluate(&grid, Policy::default(), &cancel)?;
             require(result.len() == 10000, "formula graph lost cells")?;
             require(
-                result
-                    .iter()
-                    .enumerate()
-                    .all(|(n, c)| c.value == (n + 1) as f64 && c.text == (n + 1).to_string()),
+                result.iter().enumerate().all(|(n, c)| {
+                    c.value == f64::from(u32::try_from(n + 1).unwrap())
+                        && c.text == (n + 1).to_string()
+                }),
                 "formula chain result changed",
             )?;
             Ok(result)

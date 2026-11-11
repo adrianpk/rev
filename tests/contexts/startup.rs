@@ -19,7 +19,10 @@ fn action_row(s: &mut Session, label: &str) -> (u16, u16) {
         .iter()
         .find(|r| r.text().contains(label))
         .unwrap();
-    (row.text().find(label).unwrap() as u16 - 2, row.row())
+    (
+        u16::try_from(row.text().find(label).unwrap()).unwrap() - 2,
+        row.row(),
+    )
 }
 fn mouse(s: &mut Session, kind: MouseEventKind, column: u16, row: u16) {
     s.handle(Event::Mouse(MouseEvent {

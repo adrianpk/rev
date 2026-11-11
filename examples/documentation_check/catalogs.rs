@@ -20,7 +20,7 @@ pub fn check(root: &Path) -> Result<()> {
         ("bindings.md", "org/bindings.md", Some(2)),
     ] {
         let sources = read_pair(root, core, org)?;
-        same_names(core, names(&sources, column), &live)?;
+        same_names(core, &names(&sources, column), &live)?;
     }
     let sources = read_pair(root, "defaults.md", "org/configuration.md")?;
     let count = check_configuration(root, &sources)?;
@@ -99,7 +99,7 @@ fn names(sources: &[String], column: Option<usize>) -> Vec<String> {
         .collect()
 }
 
-fn same_names(owner: &str, names: Vec<String>, expected: &BTreeSet<String>) -> Result<()> {
+fn same_names(owner: &str, names: &[String], expected: &BTreeSet<String>) -> Result<()> {
     let actual: BTreeSet<_> = names.iter().cloned().collect();
     require(
         actual.len() == names.len(),
@@ -142,7 +142,11 @@ fn configuration_rows(sources: &[String]) -> Result<Rows> {
 fn check_configuration(root: &Path, sources: &[String]) -> Result<usize> {
     let rows = configuration_rows(sources)?;
     let expected = schema(&models(root)?)?;
-    same_names("configuration", rows.keys().cloned().collect(), &expected)?;
+    same_names(
+        "configuration",
+        &rows.keys().cloned().collect::<Vec<_>>(),
+        &expected,
+    )?;
     let sample: toml::Value = toml::from_str(rev::config::default_template())?;
     require(
         fs::read(root.join("docs/reference/config.toml"))?
@@ -159,7 +163,7 @@ fn check_configuration(root: &Path, sources: &[String]) -> Result<usize> {
 // The dedicated reference must stay complete as live terminal commands evolve.
 fn check_terminal_reference(root: &Path) -> Result<()> {
     let source = fs::read_to_string(root.join("docs/reference/integrated-terminal.md"))?;
-    let declared = names(&[source], None)
+    let declared: Vec<_> = names(&[source], None)
         .into_iter()
         .filter(|name| name.starts_with("terminal-"))
         .collect();
@@ -168,7 +172,7 @@ fn check_terminal_reference(root: &Path) -> Result<()> {
         .map(|command| command.name().to_owned())
         .filter(|name| name.starts_with("terminal-"))
         .collect();
-    same_names("integrated terminal reference", declared, &expected)
+    same_names("integrated terminal reference", &declared, &expected)
 }
 
 // Compare the focused settings table with the same live schema and packaged
@@ -192,7 +196,7 @@ fn check_terminal_settings(
         .collect();
     same_names(
         "integrated terminal settings",
-        rows.keys().cloned().collect(),
+        &rows.keys().cloned().collect::<Vec<_>>(),
         &expected,
     )?;
     for (key, row) in rows {
@@ -374,7 +378,7 @@ mod tests {
             .into_iter()
             .map(|command| command.name().to_owned())
             .collect();
-        assert!(same_names("commands", original.clone(), &expected).is_ok());
+        assert!(same_names("commands", &original, &expected).is_ok());
         for (name, target) in [
             ("missing core", "find-file"),
             ("missing Org", "org-mode"),
@@ -387,7 +391,7 @@ mod tests {
             } else {
                 changed.push(target.into());
             }
-            assert!(same_names(name, changed, &expected).is_err(), "{name}");
+            assert!(same_names(name, &changed, &expected).is_err(), "{name}");
         }
     }
 
@@ -432,7 +436,7 @@ mod tests {
         assert!(
             same_names(
                 "configuration",
-                rows.keys().cloned().collect(),
+                &rows.keys().cloned().collect::<Vec<_>>(),
                 &schema(&models).unwrap()
             )
             .is_err()

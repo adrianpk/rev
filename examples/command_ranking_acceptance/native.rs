@@ -215,7 +215,7 @@ fn session(root: &Path, path: &Path, policy: &str) -> Result<Session> {
     let startup = prepare(&config);
     assert!(startup.diagnostic.is_none(), "{:?}", startup.diagnostic);
     Ok(
-        open(root, "native.txt", "|retained source\n", startup.snapshot)?
+        open(root, "native.txt", "|retained source\n", &startup.snapshot)?
             .with_command_usage(History::open(path)),
     )
 }

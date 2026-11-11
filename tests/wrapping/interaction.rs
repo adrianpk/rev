@@ -170,7 +170,10 @@ fn continuation_autoscroll() {
             session.expire_input(now + Duration::from_millis(tick * 100)),
             Action::Redraw
         );
-        assert_eq!(point(&session), (tick as usize * 3 + 4) * 6 + 2);
+        assert_eq!(
+            point(&session),
+            (usize::try_from(tick).unwrap() * 3 + 4) * 6 + 2
+        );
         assert_eq!(session.view().top, 0);
         assert!(
             session

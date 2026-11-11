@@ -86,7 +86,7 @@ fn source_copy_and_edit() {
             session.frame().unwrap().cursor(),
             Some(rev::display::Position {
                 row: 0,
-                column: 7 + point.position.0 as u16,
+                column: 7 + u16::try_from(point.position.0).unwrap(),
             })
         );
         if profile == "modal" {

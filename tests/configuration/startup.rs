@@ -32,7 +32,7 @@ fn process(test: &str, fixture: &Fixture) -> Process {
     process
 }
 
-fn success(output: std::process::Output) {
+fn success(output: &std::process::Output) {
     assert!(
         output.status.success(),
         "{}\n{}",
@@ -42,7 +42,7 @@ fn success(output: std::process::Output) {
 }
 
 fn child(test: &str, fixture: &Fixture) {
-    success(process(test, fixture).output().unwrap());
+    success(&process(test, fixture).output().unwrap());
 }
 
 fn isolated() -> bool {

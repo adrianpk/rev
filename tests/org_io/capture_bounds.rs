@@ -58,17 +58,21 @@ fn capture_failed_sources() {
         let path = f.0.join("bad.org");
         fs::write(&path, &bytes).unwrap();
         assert!(
-            discover(choice(&path, CaptureKind::Entry, heading("Task")), &buffers).is_err(),
+            discover(
+                &choice(&path, CaptureKind::Entry, heading("Task")),
+                &buffers
+            )
+            .is_err(),
             "{name}"
         );
         assert_eq!(fs::read(path).unwrap(), bytes, "{name}");
     }
-    assert!(discover(choice(&f.0, CaptureKind::Entry, heading("Task")), &buffers).is_err());
+    assert!(discover(&choice(&f.0, CaptureKind::Entry, heading("Task")), &buffers).is_err());
     let dangling = f.0.join("dangling.org");
     std::os::unix::fs::symlink("absent.org", &dangling).unwrap();
     assert!(
         discover(
-            choice(&dangling, CaptureKind::Entry, heading("Task")),
+            &choice(&dangling, CaptureKind::Entry, heading("Task")),
             &buffers
         )
         .is_err()
@@ -87,7 +91,7 @@ fn capture_date_plans() {
         file: String::new(),
         outline: vec![],
     };
-    let result = discover(choice(&path, CaptureKind::Entry, target.clone()), &buffers).unwrap();
+    let result = discover(&choice(&path, CaptureKind::Entry, target.clone()), &buffers).unwrap();
     assert_eq!(result.target.missing.len(), 1);
     assert_eq!(result.target.missing[0].title, "2024-03-01 Friday");
     assert_eq!(
@@ -101,7 +105,7 @@ fn capture_date_plans() {
     assert_eq!(fs::read_to_string(&path).unwrap(), source);
     fs::write(&path, "* 2024\n** 2024-03 March\n** 2024-03 Other\n").unwrap();
     assert!(
-        discover(choice(&path, CaptureKind::Entry, target), &buffers)
+        discover(&choice(&path, CaptureKind::Entry, target), &buffers)
             .err()
             .unwrap()
             .contains("Ambiguous")
@@ -113,7 +117,7 @@ fn capture_date_plans() {
         outline: vec!["Base".into()],
     };
     assert!(
-        discover(choice(&path, CaptureKind::Entry, target), &buffers)
+        discover(&choice(&path, CaptureKind::Entry, target), &buffers)
             .err()
             .unwrap()
             .contains("256-level")

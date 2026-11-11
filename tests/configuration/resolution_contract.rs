@@ -155,7 +155,11 @@ fn palette_projection() {
         let expected = if index == 0 {
             Rgb(0xa0, 0xb1, 0xc2)
         } else {
-            Rgb((index + 1) as u8, (64 + index) as u8, (128 + index) as u8)
+            Rgb(
+                u8::try_from(index + 1).unwrap(),
+                u8::try_from(64 + index).unwrap(),
+                u8::try_from(128 + index).unwrap(),
+            )
         };
         assert_eq!(*color, expected, "{role}");
         let key: Vec<_> = std::iter::once("palette").chain(role.split('.')).collect();

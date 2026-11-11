@@ -121,7 +121,7 @@ fn geometry(root: &Path) -> Result<()> {
                             .split('│')
                             .next()
                             .ok_or("missing tree divider")?;
-                        assert_eq!(label.width(), width as usize);
+                        assert_eq!(label.width(), usize::try_from(width)?);
                         if width == 9 {
                             assert!(label.ends_with(if decorated { "界é" } else { "界é.t" }));
                         }

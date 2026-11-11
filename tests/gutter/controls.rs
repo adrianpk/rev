@@ -7,11 +7,11 @@ use rev::view::{Size, View};
 
 use super::{Buffers, config_fixture::Fixture, relative::point};
 
-fn editor(snapshot: Snapshot) -> Session {
+fn editor(snapshot: &Snapshot) -> Session {
     let mut buffers = Buffers::with_settings(snapshot.clone()).unwrap();
     let id = buffers.create("界\te\u{301}\r\nsecond\n").unwrap();
     let buffer = buffers.get(id).unwrap();
-    let mut view = View::with_settings(buffer, &snapshot);
+    let mut view = View::with_settings(buffer, snapshot);
     view.bookmark_markers = false;
     point(&mut view, buffer, 1);
     Session::new(
@@ -41,7 +41,7 @@ fn named(session: &mut Session, command: G) {
 // calculation, current forms and right placement are checked in real frame cells.
 #[test]
 fn native_operations() {
-    let mut session = editor(Snapshot::default());
+    let mut session = editor(&Snapshot::default());
     let stamp = session.buffer().unwrap().stamp();
     let point = session.view().point;
     for (command, visible, mode, current, side, last, label) in [
@@ -153,7 +153,7 @@ fn inspect_reset() {
     let startup = prepare(&root);
     assert!(startup.diagnostic.is_none());
     let initial = startup.snapshot.settings().gutter;
-    let mut session = editor(startup.snapshot);
+    let mut session = editor(&startup.snapshot);
     named(&mut session, G::Inspect);
     assert_eq!(
         session.echo(),
@@ -189,7 +189,7 @@ fn inspect_reset() {
 fn shared_controls() {
     let fixture = Fixture::new();
     let path = fixture.write("other.txt", "other\r\n");
-    let mut session = editor(Snapshot::default());
+    let mut session = editor(&Snapshot::default());
     named(&mut session, G::Relative);
     let initial = session.view().clone();
     session.execute(Command::Split(Split::Right));
@@ -227,7 +227,7 @@ fn context_admission() {
         );
         let startup = prepare(&root);
         assert!(startup.diagnostic.is_none());
-        let mut session = editor(startup.snapshot);
+        let mut session = editor(&startup.snapshot);
         session.handle(Event::Key(KeyEvent::new(
             KeyCode::Char('j'),
             KeyModifiers::ALT,
@@ -241,7 +241,7 @@ fn context_admission() {
             assert!(prepare(&root).diagnostic.is_some());
         }
     }
-    let mut session = editor(Snapshot::default());
+    let mut session = editor(&Snapshot::default());
     let before = session.view().clone();
     session.execute(Command::ExecuteExtended);
     session.handle(Event::Paste("gutter-".into()));

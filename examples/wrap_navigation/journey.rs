@@ -57,9 +57,9 @@ fn settle(session: &mut Session) -> Result<(), Box<dyn Error>> {
 
 // One real event/composition journey must work with absent-file defaults and
 // both the packaged and compiled complete templates, not merely equal TOML.
-fn journey(root: &Path, settings: Snapshot) -> Result<(), Box<dyn Error>> {
+fn journey(root: &Path, settings: &Snapshot) -> Result<(), Box<dyn Error>> {
     let buffers = Buffers::with_settings(settings.clone())?;
-    let view = View::with_settings(buffers.get(buffers.initial())?, &settings);
+    let view = View::with_settings(buffers.get(buffers.initial())?, settings);
     let mut session = Session::new(
         buffers,
         view,
@@ -225,11 +225,11 @@ pub(super) fn run(root: &Path) -> Result<(), Box<dyn Error>> {
     let packaged = Path::new(env!("CARGO_MANIFEST_DIR")).join("docs/reference/config.toml");
     let compiled = root.join("compiled-template.toml");
     std::fs::write(&compiled, default_template())?;
-    journey(root, Snapshot::default())?;
+    journey(root, &Snapshot::default())?;
     for path in [packaged, compiled] {
         let startup = prepare(&path);
         assert!(startup.diagnostic.is_none());
-        journey(root, startup.snapshot)?;
+        journey(root, &startup.snapshot)?;
     }
     println!(
         "PASS native joint journey: factory, packaged and compiled templates; directory/Tab/click, Rust/Org splits, wrap kill/selection/search, resize, cancellation and explicit no-wrap"

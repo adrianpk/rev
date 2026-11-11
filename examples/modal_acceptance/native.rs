@@ -51,12 +51,12 @@ pub(super) fn run(root: &Path) -> Result<()> {
 }
 
 fn isolation(root: &Path) -> Result<()> {
-    let mut emacs = open(root, "emacs.txt", "|one two", Snapshot::default())?;
+    let mut emacs = open(root, "emacs.txt", "|one two", &Snapshot::default())?;
     keys(&mut emacs, "i:/")?;
     assert_eq!(source(&emacs), "i:/one two");
     assert_eq!(emacs.editing_state(), None);
     assert_eq!(emacs.interaction_profile(), InteractionProfile::NonModal);
-    let mut vim = open(root, "normal.txt", "|one two", settings(root)?)?;
+    let mut vim = open(root, "normal.txt", "|one two", &settings(root)?)?;
     keys(&mut vim, "q")?;
     vim.handle(Event::Paste("refused".into()));
     assert_eq!(source(&vim), "one two");
@@ -77,7 +77,7 @@ fn editing(root: &Path) -> Result<()> {
         root,
         "editing.txt",
         &format!("|{original}"),
-        settings(root)?,
+        &settings(root)?,
     )?;
     selections(&mut editor)?;
     repeat_jumps(&mut editor)?;
@@ -122,8 +122,8 @@ fn repeat_jumps(editor: &mut Session) -> Result<()> {
 
 fn commands(root: &Path) -> Result<()> {
     let config = settings(root)?;
-    let mut colon = open(root, "colon.txt", "|one\ntwo\n", config.clone())?;
-    let mut extended = open(root, "extended.txt", "|one\ntwo\n", config)?;
+    let mut colon = open(root, "colon.txt", "|one\ntwo\n", &config)?;
+    let mut extended = open(root, "extended.txt", "|one\ntwo\n", &config)?;
     colon_line(&mut colon)?;
     extended.execute(Command::ExecuteExtended);
     answer(&mut extended, "goto-line")?;
@@ -152,7 +152,7 @@ fn visual_cancel(colon: &mut Session) -> Result<()> {
 
 fn completion(root: &Path) -> Result<()> {
     let original = "fn cfg_value() {}\nfn main() { cfg| }\n";
-    let mut editor = open(root, "complete.rs", original, settings(root)?)?;
+    let mut editor = open(root, "complete.rs", original, &settings(root)?)?;
     keys(&mut editor, "i")?;
     complete(&mut editor)?;
     select(&mut editor, "cfg_value");

@@ -225,7 +225,7 @@ fn semantic_pointer() {
     entry(editor);
     wait(editor, |s| s.git_observation().is_some());
     let frame = render(editor);
-    let row = frame.iter().position(|s| s.contains("zeta")).unwrap() as u16;
+    let row = u16::try_from(frame.iter().position(|s| s.contains("zeta")).unwrap()).unwrap();
     click(editor, row);
     assert!(selected(editor).contains("zeta"));
     let generation = editor.git_observation().unwrap().generation;
@@ -243,13 +243,16 @@ fn semantic_pointer() {
     );
     assert!(selected(editor).contains("zeta"));
     let frame = render(editor);
-    let omega = frame.iter().position(|s| s.contains("omega")).unwrap() as u16;
+    let omega = u16::try_from(frame.iter().position(|s| s.contains("omega")).unwrap()).unwrap();
     click(editor, omega);
     assert!(selected(editor).contains("omega"));
-    let row = render(editor)
-        .iter()
-        .position(|s| s.contains("Untracked (3)"))
-        .unwrap() as u16;
+    let row = u16::try_from(
+        render(editor)
+            .iter()
+            .position(|s| s.contains("Untracked (3)"))
+            .unwrap(),
+    )
+    .unwrap();
     click(editor, row);
     key(editor, KeyCode::Tab, KeyModifiers::NONE);
     let frame = render(editor).join("\n");

@@ -15,7 +15,7 @@ pub(super) fn session(
     mode: &str,
     source: &str,
     name: &str,
-    result: Value,
+    result: &Value,
     automatic: bool,
 ) -> Session {
     fixture.write("peer.result", &result.to_string());
@@ -121,7 +121,7 @@ fn primary_forms() {
     ];
     for (name, result, kind) in forms {
         let f = Fixture::new();
-        let mut s = session(&f, "ready", RUST, "main.rs", result, false);
+        let mut s = session(&f, "ready", RUST, "main.rs", &result, false);
         let original = text(&s);
         let point = s.view().point;
         complete(&mut s);
@@ -168,7 +168,7 @@ fn shared_filter() {
         {"label":"cfg command", "command":{"command":"run"}},
         {"label":"cfg import", "additionalTextEdits":[{"range":{},"newText":"import"}]}
     ]);
-    let mut s = session(&f, "ready", RUST, "main.rs", result, false);
+    let mut s = session(&f, "ready", RUST, "main.rs", &result, false);
     complete(&mut s);
     assert_eq!(labels(&s), ["cfg_b", "cfg_a", "cfg_z", "subsequence"]);
     assert_eq!(s.completion().unwrap().selected(), Some(0));
@@ -194,7 +194,7 @@ fn native_fallbacks() {
     ];
     for (mode, result, reason) in cases {
         let f = Fixture::new();
-        let mut s = session(&f, mode, RUST, "main.rs", result, false);
+        let mut s = session(&f, mode, RUST, "main.rs", &result, false);
         complete(&mut s);
         assert_eq!(
             s.completion_source(),
@@ -212,7 +212,7 @@ fn native_fallbacks() {
         }
     }
     let f = Fixture::new();
-    let mut s = session(&f, "ready", "* |\n", "note.org", json!([]), false);
+    let mut s = session(&f, "ready", "* |\n", "note.org", &json!([]), false);
     complete(&mut s);
     assert_eq!(s.completion_source(), Some(Source::Native(Fallback::Empty)));
     assert!(labels(&s).iter().any(|label| label.starts_with("TODO")));
@@ -228,7 +228,7 @@ fn unbundled_source() {
         "ready",
         "cfg|",
         "main.custom",
-        json!([{"label":"cfg_server", "filterText":"cfg_unsaved"}]),
+        &json!([{"label":"cfg_server", "filterText":"cfg_unsaved"}]),
         false,
     );
     s.replace(0..3, "cfg_unsaved").unwrap();
@@ -277,7 +277,7 @@ fn late_replies() {
             "late",
             RUST,
             "main.rs",
-            json!([{"label":"cfg_server"}]),
+            &json!([{"label":"cfg_server"}]),
             false,
         );
         s.execute(Command::Completion(C::AtPoint));
@@ -333,7 +333,7 @@ fn encoded_replacement() {
             json!({"start":{"line":0,"character":start},"end":{"line":0,"character":start+9}});
         let result = json!({"isIncomplete":false,"itemDefaults":{"editRange":{"insert":insert,"replace":replace}},
             "items":[{"label":"cfg_server","textEditText":"cfg_server"}]});
-        let mut s = session(&f, mode, &source, "main.rs", result, false);
+        let mut s = session(&f, mode, &source, "main.rs", &result, false);
         complete(&mut s);
         assert!(
             matches!(s.completion_source(), Some(Source::Semantic { .. })),
@@ -372,7 +372,7 @@ fn range_admission() {
         {"label":"cfg_ok","insertText":"cfg_ok"}
     ]);
     let f = Fixture::new();
-    let mut s = session(&f, "ready", source, "main.rs", items, false);
+    let mut s = session(&f, "ready", source, "main.rs", &items, false);
     complete(&mut s);
     assert_eq!(labels(&s), ["cfg_ok"]);
     key(&mut s, KeyCode::Tab);
@@ -385,7 +385,7 @@ fn range_admission() {
 fn current_list_refresh() {
     let f = Fixture::new();
     let result = json!({"isIncomplete":true,"items":[{"label":"cfg_server"}]});
-    let mut s = session(&f, "ready", RUST, "main.rs", result, true);
+    let mut s = session(&f, "ready", RUST, "main.rs", &result, true);
     complete(&mut s);
     assert_eq!(
         s.completion_source(),
@@ -445,7 +445,7 @@ fn optional_source() {
             "ready",
             RUST,
             "main.rs",
-            json!([{"label":"cfg_server"}]),
+            &json!([{"label":"cfg_server"}]),
             false,
         );
         s.execute(Command::Lsp(if disable {
@@ -486,7 +486,7 @@ fn candidate_bound() {
         items.push(json!({"label":format!("cfg_{index:03}"), "sortText":"z"}));
     }
     items.push(json!({"label":"cfg_first","sortText":"!"}));
-    let mut s = session(&f, "ready", RUST, "main.rs", json!(items), false);
+    let mut s = session(&f, "ready", RUST, "main.rs", &json!(items), false);
     complete(&mut s);
     let names = labels(&s);
     assert_eq!(names.len(), 200);
@@ -505,7 +505,7 @@ fn semantic_context() {
         "ready",
         "{\"answer\": tr|}",
         "value.json",
-        json!([{"label":"true"}]),
+        &json!([{"label":"true"}]),
         false,
     );
     complete(&mut s);
@@ -518,7 +518,7 @@ fn semantic_context() {
         "ready",
         "// cfg|\n",
         "main.rs",
-        json!([{"label":"cfgu_server"}]),
+        &json!([{"label":"cfgu_server"}]),
         true,
     );
     key(&mut s, KeyCode::Char('u'));

@@ -41,16 +41,16 @@ fn text(editor: &Editor) -> String {
         .unwrap()
         .to_string()
 }
-fn bind(rpc: &mut Rpc, key: &str, context: &str, scope: Value) -> Value {
+fn bind(rpc: &mut Rpc, key: &str, context: &str, scope: &Value) -> Value {
     rpc.ok(
         "keymaps.bind",
-        json!({"command":"field.notes.collect","keys":key,"context":context,"scope":scope}),
+        &json!({"command":"field.notes.collect","keys":key,"context":context,"scope":scope}),
     )
 }
 fn pump(rpc: &mut Rpc) {
     rpc.list();
 }
-fn other(rpc: &mut Rpc, seq: usize, method: &str, params: Value) -> Value {
+fn other(rpc: &mut Rpc, seq: usize, method: &str, params: &Value) -> Value {
     let root = rpc.editor.fixture.0.join("other.notes");
     fs::write(
         root.join(format!("request-{seq}")),
@@ -169,7 +169,7 @@ fn local_scope() {
             &mut rpc,
             "C-e",
             context,
-            json!({"kind":"buffer","buffer":result["stamp"]["buffer"]}),
+            &json!({"kind":"buffer","buffer":result["stamp"]["buffer"]}),
         );
         assert_eq!(local["status"], "effective");
         assert_eq!(local["underlying"][0]["provenance"], "user");
@@ -185,7 +185,7 @@ fn local_scope() {
         assert_eq!(calls(&rpc.editor, "field.notes"), 1);
         rpc.ok(
             "keymaps.unbind",
-            json!({"registrations":[local["registration"]]}),
+            &json!({"registrations":[local["registration"]]}),
         );
         rpc.editor
             .session
@@ -195,7 +195,7 @@ fn local_scope() {
         assert_eq!(calls(&rpc.editor, "field.notes"), 1);
         rpc.ok(
             "buffers.describe",
-            json!({"buffer":original["stamp"]["buffer"]}),
+            &json!({"buffer":original["stamp"]["buffer"]}),
         );
     }
 }
@@ -232,13 +232,13 @@ fn user_selectors() {
     pump(&mut rpc);
     assert_eq!(calls(&rpc.editor, "field.notes"), 0);
     let path = rpc.editor.fixture.0.join("result.rs");
-    rpc.ok("buffers.save",json!({"buffer":result["stamp"]["buffer"],"path":path,"expected_revision":result["stamp"]["revision"],"expected_disk":result["expected_disk"]}));
+    rpc.ok("buffers.save",&json!({"buffer":result["stamp"]["buffer"],"path":path,"expected_revision":result["stamp"]["revision"],"expected_disk":result["expected_disk"]}));
     press(&mut rpc.editor, "F8");
     pump(&mut rpc);
     assert_eq!(calls(&rpc.editor, "field.notes"), 1);
     assert_eq!(calls(&rpc.editor, "other.notes"), 0);
     let raw = rpc.editor.fixture.write("unowned.rs", "fn raw() {}\n");
-    let opened = rpc.ok("buffers.open", json!({"path":raw}));
+    let opened = rpc.ok("buffers.open", &json!({"path":raw}));
     rpc.switch(opened["name"].as_str().unwrap());
     press(&mut rpc.editor, "F8");
     pump(&mut rpc);
@@ -264,16 +264,16 @@ fn admission_and_retirement() {
         ("M-1", "editor"),
         ("Escape", "vim_insert"),
     ] {
-        rpc.error("keymaps.bind",json!({"command":"field.notes.collect","keys":keys,"context":context,"scope":{"kind":"global"}}),"invalid_arguments");
+        rpc.error("keymaps.bind",&json!({"command":"field.notes.collect","keys":keys,"context":context,"scope":{"kind":"global"}}),"invalid_arguments");
     }
     let mut foreign = source["stamp"]["buffer"].clone();
     foreign["session"] = json!("foreign");
-    rpc.error("keymaps.bind",json!({"command":"field.notes.collect","keys":"F8","context":"vim_normal","scope":{"kind":"buffer","buffer":foreign}}),"missing_buffer");
-    rpc.error("keymaps.bind",json!({"command":"other.notes.collect","keys":"F8","context":"vim_normal","scope":{"kind":"global"}}),"namespace_conflict");
-    let bound = bind(&mut rpc, "F8", "vim_normal", json!({"kind":"global"}));
+    rpc.error("keymaps.bind",&json!({"command":"field.notes.collect","keys":"F8","context":"vim_normal","scope":{"kind":"buffer","buffer":foreign}}),"missing_buffer");
+    rpc.error("keymaps.bind",&json!({"command":"other.notes.collect","keys":"F8","context":"vim_normal","scope":{"kind":"global"}}),"namespace_conflict");
+    let bound = bind(&mut rpc, "F8", "vim_normal", &json!({"kind":"global"}));
     rpc.error(
         "keymaps.unbind",
-        json!({"registrations":[bound["registration"],"missing"]}),
+        &json!({"registrations":[bound["registration"],"missing"]}),
         "invalid_arguments",
     );
     press(&mut rpc.editor, "F8");
@@ -300,14 +300,14 @@ fn dynamic_conflicts() {
         let mut rpc = Rpc::from_editor(e);
         let params = json!({"command":"other.notes.collect","keys":"F8","context":"editor","scope":{"kind":"global"}});
         let (mine, theirs) = if reverse {
-            let theirs = other(&mut rpc, 0, "keymaps.bind", params);
+            let theirs = other(&mut rpc, 0, "keymaps.bind", &params);
             (
-                bind(&mut rpc, "F8", "editor", json!({"kind":"global"})),
+                bind(&mut rpc, "F8", "editor", &json!({"kind":"global"})),
                 theirs,
             )
         } else {
-            let mine = bind(&mut rpc, "F8", "editor", json!({"kind":"global"}));
-            (mine, other(&mut rpc, 0, "keymaps.bind", params))
+            let mine = bind(&mut rpc, "F8", "editor", &json!({"kind":"global"}));
+            (mine, other(&mut rpc, 0, "keymaps.bind", &params))
         };
         assert_eq!(
             if reverse {
@@ -325,14 +325,14 @@ fn dynamic_conflicts() {
         );
         rpc.error(
             "keymaps.unbind",
-            json!({"registrations":[theirs["result"]["registration"]]}),
+            &json!({"registrations":[theirs["result"]["registration"]]}),
             "namespace_conflict",
         );
         let response = other(
             &mut rpc,
             1,
             "keymaps.unbind",
-            json!({"registrations":[theirs["result"]["registration"]]}),
+            &json!({"registrations":[theirs["result"]["registration"]]}),
         );
         assert!(response.get("error").is_none(), "{response}");
         press(&mut rpc.editor, "F8");
@@ -400,7 +400,7 @@ fn finite_registrations() {
     let mut rpc = Rpc::from_editor(e);
     let mut ids = Vec::new();
     for _ in 0..128 {
-        ids.push(bind(&mut rpc, "F8", "editor", json!({"kind":"global"}))["registration"].clone());
+        ids.push(bind(&mut rpc, "F8", "editor", &json!({"kind":"global"}))["registration"].clone());
     }
     assert_eq!(
         ids.iter()
@@ -409,10 +409,10 @@ fn finite_registrations() {
             .len(),
         128
     );
-    rpc.error("keymaps.bind",json!({"command":"field.notes.collect","keys":"F8","context":"editor","scope":{"kind":"global"}}),"limit_exceeded");
-    rpc.ok("keymaps.unbind", json!({"registrations":ids}));
+    rpc.error("keymaps.bind",&json!({"command":"field.notes.collect","keys":"F8","context":"editor","scope":{"kind":"global"}}),"limit_exceeded");
+    rpc.ok("keymaps.unbind", &json!({"registrations":ids}));
     assert_eq!(
-        bind(&mut rpc, "F8", "editor", json!({"kind":"global"}))["status"],
+        bind(&mut rpc, "F8", "editor", &json!({"kind":"global"}))["status"],
         "effective"
     );
 }

@@ -207,11 +207,11 @@ fn workspace_reset() {
     );
 }
 
-fn phase(event: Event, kind: crossterm::event::KeyEventKind) -> Event {
+fn phase(event: &Event, kind: crossterm::event::KeyEventKind) -> Event {
     let Event::Key(event) = event else {
         unreachable!()
     };
-    Event::Key(KeyEvent { kind, ..event })
+    Event::Key(KeyEvent { kind, ..*event })
 }
 
 fn text(session: &Session) -> String {
@@ -233,9 +233,9 @@ fn configured_phases() {
     let mut input = Input::with_settings(&snapshot);
     assert_eq!(input.handle(meta('z')), Outcome::Prefix(Prefix::Sequence));
     for event in [
-        phase(meta('z'), Repeat),
-        phase(character('a'), Repeat),
-        phase(character('a'), Release),
+        phase(&meta('z'), Repeat),
+        phase(&character('a'), Repeat),
+        phase(&character('a'), Release),
     ] {
         assert_eq!(input.handle(event), Outcome::Ignored);
     }
@@ -244,7 +244,7 @@ fn configured_phases() {
         Outcome::Command(Command::Newline)
     );
     assert_eq!(
-        input.handle(phase(character('a'), Repeat)),
+        input.handle(phase(&character('a'), Repeat)),
         Outcome::Ignored
     );
     assert_eq!(
@@ -252,11 +252,11 @@ fn configured_phases() {
         Outcome::Command(Command::Scroll(Scroll::NextLine))
     );
     assert_eq!(
-        input.handle(phase(meta('j'), Repeat)),
+        input.handle(phase(&meta('j'), Repeat)),
         Outcome::Command(Command::Scroll(Scroll::NextLine))
     );
     input.handle(meta('q'));
-    assert_eq!(input.handle(phase(meta('q'), Repeat)), Outcome::Ignored);
+    assert_eq!(input.handle(phase(&meta('q'), Repeat)), Outcome::Ignored);
 }
 
 // The maximum admitted prefix remains transient until its final chord. One
@@ -273,7 +273,7 @@ fn bounded_sequence() {
     }
     assert_eq!(session.echo(), "M-z a b c d e f");
     session.handle(character('g'));
-    session.handle(phase(character('g'), Repeat));
+    session.handle(phase(&character('g'), Repeat));
     assert_eq!(text(&session), "\n");
     assert_eq!(session.buffer().unwrap().history().len(), 1);
 }
@@ -412,16 +412,13 @@ fn acceptance_aliases() {
         let mut input = Input::with_settings(&settings(""));
         input.argument("Text: ", "kept").unwrap();
         input.handle(character('a'));
-        assert_eq!(
-            input.handle(phase(accept.clone(), Repeat)),
-            Outcome::Ignored
-        );
+        assert_eq!(input.handle(phase(&accept, Repeat)), Outcome::Ignored);
         assert_eq!(input.prompt().unwrap().text(), "kepta");
         assert_eq!(
             input.handle(accept.clone()),
             Outcome::Argument("kepta".into())
         );
-        assert_eq!(input.handle(phase(accept, Repeat)), Outcome::Ignored);
+        assert_eq!(input.handle(phase(&accept, Repeat)), Outcome::Ignored);
     }
 }
 

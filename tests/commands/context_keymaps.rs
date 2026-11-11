@@ -24,11 +24,11 @@ fn meta(value: char) -> Event {
     Event::Key(KeyEvent::new(KeyCode::Char(value), KeyModifiers::ALT))
 }
 
-fn phase(event: Event, kind: KeyEventKind) -> Event {
+fn phase(event: &Event, kind: KeyEventKind) -> Event {
     let Event::Key(event) = event else {
         unreachable!()
     };
-    Event::Key(KeyEvent { kind, ..event })
+    Event::Key(KeyEvent { kind, ..*event })
 }
 
 fn editor(config: &str, source: &str) -> Session {
@@ -216,7 +216,7 @@ fn prompt_actions() {
     input.handle(character('é'));
     assert_eq!(input.handle(meta('a')), Outcome::Argument("é界".into()));
     assert_eq!(
-        input.handle(phase(meta('a'), KeyEventKind::Repeat)),
+        input.handle(phase(&meta('a'), KeyEventKind::Repeat)),
         Outcome::Ignored
     );
     assert!(matches!(input.handle(character('a')), Outcome::Editing(_)));
@@ -258,7 +258,7 @@ fn tree_actions() {
     assert!(session.tree().selected().unwrap().is_parent());
     session.handle(meta('j'));
     assert!(session.tree().selected().unwrap().path().ends_with("a.txt"));
-    session.handle(phase(meta('j'), KeyEventKind::Repeat));
+    session.handle(phase(&meta('j'), KeyEventKind::Repeat));
     assert!(session.tree().selected().unwrap().path().ends_with("b.txt"));
     assert_eq!(session.buffer().unwrap().stamp(), stamp);
     session.handle(meta('e'));

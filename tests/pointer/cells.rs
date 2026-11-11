@@ -38,7 +38,7 @@ fn glyph_boundaries() {
         view.bookmark_markers = false;
         for (column, &scalar) in expected.iter().enumerate() {
             assert_eq!(
-                hit(&view, buffer, 6 + column as u16, 0),
+                hit(&view, buffer, 6 + u16::try_from(column).unwrap(), 0),
                 Some(scalar),
                 "{name}/{column}"
             );
@@ -147,7 +147,7 @@ fn clipped_cells() {
                         buffer,
                         content,
                         Position {
-                            column: 6 + column as u16,
+                            column: 6 + u16::try_from(column).unwrap(),
                             row: 0,
                         },
                     )
@@ -175,7 +175,7 @@ fn policy_origins() {
             view.gutter.apply(Change::Side(side));
             let content = Area::new(2, 3, 44, 3).unwrap();
             let origin = if side == Side::Left { 8 } else { 2 };
-            let stop = width.max(2) as u16;
+            let stop = u16::try_from(width.max(2)).unwrap();
             let point = view
                 .hit(
                     buffer,

@@ -298,7 +298,7 @@ fn selected_syntax() {
         .with_palette(&startup.snapshot.settings().palette);
         assert_eq!(
             frame.rows()[0].selection(),
-            Some(start as u16 + 6..end as u16 + 6)
+            Some(u16::try_from(start).unwrap() + 6..u16::try_from(end).unwrap() + 6)
         );
         assert!(!frame.rows()[0].syntax().is_empty());
         let cells = surface::draw(&frame);

@@ -649,7 +649,7 @@ fn prompt_acquisition() {
 fn deliver(
     buffer: &mut rev::buffer::Buffer,
     point: &mut rev::buffer::edit::Point,
-    outcome: Outcome,
+    outcome: &Outcome,
 ) {
     if let Outcome::Editing(Key {
         code: KeyCode::Char(value),
@@ -685,20 +685,20 @@ fn document_isolation() {
     };
     let mut input = Input::default();
     for event in [control('x'), character('r'), control('g')] {
-        deliver(buffer, &mut point, input.handle(event));
+        deliver(buffer, &mut point, &input.handle(event));
     }
     input.argument("Path: ", "").unwrap();
     for event in [control('x'), character('r'), control('c'), control('g')] {
-        deliver(buffer, &mut point, input.handle(event));
+        deliver(buffer, &mut point, &input.handle(event));
     }
     input.argument("Path: ", "file").unwrap();
-    deliver(buffer, &mut point, input.handle(key(KeyCode::Enter)));
+    deliver(buffer, &mut point, &input.handle(key(KeyCode::Enter)));
     input.decision("Overwrite? y/n").unwrap();
-    deliver(buffer, &mut point, input.handle(character('y')));
+    deliver(buffer, &mut point, &input.handle(character('y')));
     assert_eq!(buffer.stamp(), stamp);
     assert!(buffer.history().is_empty());
     assert_eq!(point.position, rev::coordinates::Scalar(8));
-    deliver(buffer, &mut point, input.handle(character('z')));
+    deliver(buffer, &mut point, &input.handle(character('z')));
     assert_eq!(buffer.stamp().revision, stamp.revision + 1);
     assert_eq!(buffer.history().len(), 1);
     assert_eq!(point.position, rev::coordinates::Scalar(9));

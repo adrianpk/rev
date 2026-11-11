@@ -41,7 +41,10 @@ fn decimal_width() {
         (10_000, 5),
         (99_999, 5),
         (100_000, 6),
-        (usize::MAX, usize::MAX.to_string().len() as u8),
+        (
+            usize::MAX,
+            u8::try_from(usize::MAX.to_string().len()).unwrap(),
+        ),
     ] {
         for minimum in [1, 4, 20] {
             let settings = Settings {

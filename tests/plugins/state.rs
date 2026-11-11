@@ -24,22 +24,22 @@ fn path(root: &Path, package: &str) -> PathBuf {
         .join("state.toml")
 }
 fn get(rpc: &mut Rpc, concern: &str, record: &str) -> Value {
-    rpc.ok("state.get", json!({"concern":concern,"record":record}))
+    rpc.ok("state.get", &json!({"concern":concern,"record":record}))
 }
-fn put(rpc: &mut Rpc, concern: &str, record: &str, expected: Value, value: Value) -> Value {
+fn put(rpc: &mut Rpc, concern: &str, record: &str, expected: &Value, value: &Value) -> Value {
     rpc.ok(
         "state.put",
-        json!({"concern":concern,"record":record,"expected_version":expected,"value":value}),
+        &json!({"concern":concern,"record":record,"expected_version":expected,"value":value}),
     )
 }
-fn list(rpc: &mut Rpc, concern: &str, cursor: Value, limit: usize) -> Value {
+fn list(rpc: &mut Rpc, concern: &str, cursor: &Value, limit: usize) -> Value {
     rpc.ok(
         "state.list",
-        json!({"concern":concern,"page":{"cursor":cursor,"limit":limit}}),
+        &json!({"concern":concern,"page":{"cursor":cursor,"limit":limit}}),
     )
 }
 fn seed(rpc: &mut Rpc) -> Value {
-    put(rpc, "notes", "alpha", Value::Null, json!("first"))
+    put(rpc, "notes", "alpha", &Value::Null, &json!("first"))
 }
 fn reply(rpc: &mut Rpc, sequence: usize) -> Value {
     rpc.editor
@@ -56,7 +56,7 @@ fn persistence() {
     let mut rpc = rpc(&root.0);
     assert_eq!(get(&mut rpc, "notes", "absent")["status"], "absent");
     assert_eq!(
-        list(&mut rpc, "notes", Value::Null, 256)["records"],
+        list(&mut rpc, "notes", &Value::Null, 256)["records"],
         json!([])
     );
     assert!(!root.0.join("state").exists());
@@ -71,7 +71,7 @@ fn persistence() {
     ];
     let mut expected = Value::Null;
     for value in values {
-        expected = put(&mut rpc, "notes", "alpha", expected, value.clone())["version"].clone();
+        expected = put(&mut rpc, "notes", "alpha", &expected, &value)["version"].clone();
         let result = get(&mut rpc, "notes", "alpha");
         assert_eq!(result["status"], "present");
         assert_eq!(result["value"], value);
@@ -109,8 +109,8 @@ fn concurrent_instances() {
     let first = seed(&mut a);
     assert_eq!(get(&mut b, "notes", "alpha")["version"], first["version"]);
     let params = |label| json!({"concern":"notes","record":"alpha","expected_version":first["version"],"value":label});
-    let qa = a.enqueue("state.put", params("writer-a"));
-    let qb = b.enqueue("state.put", params("writer-b"));
+    let qa = a.enqueue("state.put", &params("writer-a"));
+    let qb = b.enqueue("state.put", &params("writer-b"));
     let results = [reply(&mut a, qa), reply(&mut b, qb)];
     assert_eq!(
         results.iter().filter(|v| v.get("result").is_some()).count(),
@@ -120,22 +120,22 @@ fn concurrent_instances() {
     let loser = results.iter().find(|v| v.get("error").is_some()).unwrap();
     assert!([json!("busy"), json!("state_conflict")].contains(&loser["error"]["data"]["kind"]));
     let current = get(&mut b, "notes", "alpha");
-    b.error("state.put", params("stale"), "state_conflict");
-    let beta = put(&mut b, "notes", "beta", Value::Null, json!("independent"));
-    let gamma = put(&mut a, "other", "gamma", Value::Null, json!(true));
+    b.error("state.put", &params("stale"), "state_conflict");
+    let beta = put(&mut b, "notes", "beta", &Value::Null, &json!("independent"));
+    let gamma = put(&mut a, "other", "gamma", &Value::Null, &json!(true));
     let updated = put(
         &mut a,
         "notes",
         "alpha",
-        current["version"].clone(),
-        json!("updated-a"),
+        &current["version"],
+        &json!("updated-a"),
     );
     put(
         &mut b,
         "notes",
         "beta",
-        beta["version"].clone(),
-        json!("updated-b"),
+        &beta["version"],
+        &json!("updated-b"),
     );
     assert_eq!(get(&mut b, "notes", "alpha")["version"], updated["version"]);
     assert_eq!(get(&mut a, "notes", "beta")["value"], "updated-b");
@@ -151,39 +151,39 @@ fn deletion_and_pages() {
     let first = seed(&mut rpc);
     rpc.error(
         "state.delete",
-        json!({"concern":"notes","record":"alpha","expected_version":"99"}),
+        &json!({"concern":"notes","record":"alpha","expected_version":"99"}),
         "state_conflict",
     );
     rpc.ok(
         "state.delete",
-        json!({"concern":"notes","record":"alpha","expected_version":first["version"]}),
+        &json!({"concern":"notes","record":"alpha","expected_version":first["version"]}),
     );
     assert_eq!(get(&mut rpc, "notes", "alpha")["status"], "absent");
-    let second = put(&mut rpc, "notes", "alpha", Value::Null, json!(null));
+    let second = put(&mut rpc, "notes", "alpha", &Value::Null, &json!(null));
     assert!(
         second["version"].as_str().unwrap().parse::<u64>().unwrap()
             > first["version"].as_str().unwrap().parse::<u64>().unwrap()
     );
-    rpc.error("state.put",json!({"concern":"notes","record":"alpha","expected_version":first["version"],"value":"ABA"}),"state_conflict");
-    put(&mut rpc, "notes", "charlie", Value::Null, json!(3));
-    put(&mut rpc, "notes", "bravo", Value::Null, json!(2));
-    let page = list(&mut rpc, "notes", Value::Null, 1);
+    rpc.error("state.put",&json!({"concern":"notes","record":"alpha","expected_version":first["version"],"value":"ABA"}),"state_conflict");
+    put(&mut rpc, "notes", "charlie", &Value::Null, &json!(3));
+    put(&mut rpc, "notes", "bravo", &Value::Null, &json!(2));
+    let page = list(&mut rpc, "notes", &Value::Null, 1);
     assert_eq!(page["records"][0]["record"], "alpha");
-    let next = list(&mut rpc, "notes", page["next"].clone(), 1);
+    let next = list(&mut rpc, "notes", &page["next"], 1);
     assert_eq!(next["records"][0]["record"], "bravo");
     assert_eq!(
-        list(&mut rpc, "notes", next["next"].clone(), 1)["records"][0]["record"],
+        list(&mut rpc, "notes", &next["next"], 1)["records"][0]["record"],
         "charlie"
     );
     rpc.error(
         "state.list",
-        json!({"concern":"other","page":{"cursor":page["next"],"limit":1}}),
+        &json!({"concern":"other","page":{"cursor":page["next"],"limit":1}}),
         "invalid_arguments",
     );
-    put(&mut rpc, "other", "delta", Value::Null, json!(4));
+    put(&mut rpc, "other", "delta", &Value::Null, &json!(4));
     rpc.error(
         "state.list",
-        json!({"concern":"notes","page":{"cursor":page["next"],"limit":1}}),
+        &json!({"concern":"notes","page":{"cursor":page["next"],"limit":1}}),
         "state_conflict",
     );
 }
@@ -226,16 +226,16 @@ fn contention() {
     };
     rpc.editor.wait(|_| held.directory.join("locked").exists());
     let params = json!({"concern":"notes","record":"alpha","expected_version":first["version"],"value":"blocked"});
-    rpc.error("state.put", params.clone(), "busy");
+    rpc.error("state.put", &params, "busy");
     rpc.error(
         "state.get",
-        json!({"concern":"notes","record":"alpha"}),
+        &json!({"concern":"notes","record":"alpha"}),
         "busy",
     );
     rpc.editor.session.handle(Event::Paste("native".into()));
     assert!(rpc.editor.session.buffer().unwrap().len_chars() > "source 🦀\n".chars().count());
     drop(held);
-    rpc.ok("state.put", params);
+    rpc.ok("state.put", &params);
     assert_eq!(get(&mut rpc, "notes", "alpha")["value"], "blocked");
 }
 
@@ -265,11 +265,11 @@ fn namespaces() {
     ] {
         let mut params = json!({"concern":"notes","record":"alpha"});
         params[field] = value;
-        rpc.error("state.get", params, "invalid_arguments");
+        rpc.error("state.get", &params, "invalid_arguments");
     }
     rpc.error(
         "state.put",
-        json!({"concern":"notes","record":"omitted","value":null}),
+        &json!({"concern":"notes","record":"omitted","value":null}),
         "invalid_arguments",
     );
     assert!(!root.0.join("config").exists());
@@ -277,7 +277,7 @@ fn namespaces() {
     fs::create_dir_all(root.0.join("state/macros")).unwrap();
     let neighbor = root.0.join("state/macros/library.toml");
     fs::write(&neighbor, "native neighbor").unwrap();
-    put(&mut rpc, "notes", "beta", Value::Null, json!(true));
+    put(&mut rpc, "notes", "beta", &Value::Null, &json!(true));
     assert_eq!(fs::read_to_string(neighbor).unwrap(), "native neighbor");
 }
 
@@ -363,12 +363,12 @@ fn invalid_stores() {
         let before = fs::read(&file).unwrap();
         rpc.error(
             "state.get",
-            json!({"concern":"notes","record":"alpha"}),
+            &json!({"concern":"notes","record":"alpha"}),
             kind,
         );
         rpc.error(
             "state.put",
-            json!({"concern":"notes","record":"beta","expected_version":null,"value":true}),
+            &json!({"concern":"notes","record":"beta","expected_version":null,"value":true}),
             kind,
         );
         assert_eq!(fs::read(&file).unwrap(), before, "{variant}");
@@ -385,22 +385,16 @@ fn bounds() {
     let mut rpc = rpc(&root.0);
     seed(&mut rpc);
     let before = fs::read(path(&root.0, "field.notes")).unwrap();
-    rpc.error("state.put",json!({"concern":"notes","record":"oversized","expected_version":null,"value":"x".repeat(256*1024)}),"limit_exceeded");
+    rpc.error("state.put",&json!({"concern":"notes","record":"oversized","expected_version":null,"value":"x".repeat(256*1024)}),"limit_exceeded");
     assert_eq!(fs::read(path(&root.0, "field.notes")).unwrap(), before);
     let data = json!("x".repeat(240 * 1024));
     for i in 0..17 {
-        put(
-            &mut rpc,
-            "large",
-            &format!("r{i:03}"),
-            Value::Null,
-            data.clone(),
-        );
+        put(&mut rpc, "large", &format!("r{i:03}"), &Value::Null, &data);
     }
     let before = fs::read(path(&root.0, "field.notes")).unwrap();
     rpc.error(
         "state.put",
-        json!({"concern":"large","record":"overflow","expected_version":null,"value":data}),
+        &json!({"concern":"large","record":"overflow","expected_version":null,"value":data}),
         "limit_exceeded",
     );
     assert_eq!(fs::read(path(&root.0, "field.notes")).unwrap(), before);
