@@ -1,11 +1,14 @@
 # Slice 9: Fixtures and developer examples
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-architecture-quality
 Plan: [Architecture Quality Delivery](../../../plan/rev-architecture-quality.md)
 Tracker: [Architecture Quality Tracker](../../../tracker/rev-architecture-quality.md)
 Branch: `refactor/rev-architecture-quality-09-fixtures`
 PR: [#23](https://forge.adrianpk.com/rev/rev/pulls/23)
+
+Integrated: `1faac03dee6c434fca043fcfb3cd374468038c4d` through canonical PR #23.
+Final validation: all five frozen checks passed in `5YBIGE4TEDA4NXJB4RNFFCAX2A` on that clean published HEAD.
 
 ## Purpose
 
