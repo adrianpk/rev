@@ -322,6 +322,35 @@ PR #26 is verified merged; both gate repairs and all ten slices are delivered.
 No test, assertion, runtime file, resource limit or delivery identity changes
 during this document closure. The controller full gate remains pending.
 
+## Gate repair 3: Denied tree entry identity
+
+State: implemented; canonical validation and PR preparation pending
+Branch: fix/rev-architecture-quality-recovery-paths-3
+Expected PR title: test(recovery): select denied tree entries by identity
+PR: pending
+Report: ops/default/report/slices/rev-architecture-quality/slice-10-enforcement.md
+Failed candidate: 2c42309240f35b3d94550c6a0efed0eea8c24899
+Failure evidence: H4HN2DZKILYOMQO3HOE2K3OPT3
+
+The controller gate passed 25 recovery cases and failed `paths::failed_paths`:
+one downward move selected the existing parent row at `/tmp`, not the fixture's
+denied directory. The unchanged focused case reproduces that failure. Reusing
+the file's bounded path selector reaches genuine permission denial, then exposes
+the old five-row count: the four filesystem children and root now also have a
+parent navigation row, making six visible rows.
+
+The fixture now selects the denied path by identity, checks the navigation row's
+kind and parent path, and keeps both exact row-count assertions at six. Repeated
+refresh also verifies that the parent row remains present. The two existing case
+identities remain; assertion sites increase from 29 to 32. Permission modes and
+restoration, cyclic paths, history/syntax snapshots, BOM/CRLF bytes, undo/redo and
+the later successful save remain unchanged. No runtime files, input bounds,
+timeouts or full-gate commands change. The controller owns integration and the
+unchanged full-gate rerun.
+
+Implementation check: all 26 recovery cases pass with no ignores in 22.18 seconds.
+The exact clean-HEAD five-command record and parent-navigation regressions follow.
+
 ## Final acceptance
 
 - [ ] F1-F7 and complete selected source/lint findings corrected with evidence.

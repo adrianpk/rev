@@ -28,6 +28,7 @@ fn retained(fixture: &Fixture) -> (Buffers, rev::buffer::BufferId) {
 // Cyclic paths and genuine permission denial fail before publishing a visit.
 // Repeated tree refresh/expansion and failed ingress retain both history arms,
 // exact BOM/CRLF bytes and current syntax; later real save still succeeds.
+// Select by identity past the parent navigation row, which stays in row counts.
 #[test]
 fn failed_paths() {
     let fixture = Fixture::new();
@@ -39,7 +40,9 @@ fn failed_paths() {
     fs::write(denied.join("child.rs"), b"retained").unwrap();
     let mut tree = Tree::new(fixture.0.clone());
     tree.expand().unwrap();
-    tree.move_selection(true);
+    assert!(tree.entries()[1].is_parent());
+    assert_eq!(tree.entries()[1].path(), fixture.0.parent().unwrap());
+    select(&mut tree, &denied);
     assert_eq!(tree.selected().unwrap().path(), denied);
     fs::set_permissions(&denied, fs::Permissions::from_mode(0o000)).unwrap();
     let result = tree.expand();
@@ -47,7 +50,7 @@ fn failed_paths() {
     let failure = result.unwrap_err();
     assert_eq!(failure.kind(), ErrorKind::PermissionDenied);
     assert!(!tree.selected().unwrap().expanded());
-    assert_eq!(tree.entries().len(), 5);
+    assert_eq!(tree.entries().len(), 6);
     let before = snapshot(buffers.get(id).unwrap());
     let captures = buffers.get(id).unwrap().syntax().captures(
         buffers.get(id).unwrap(),
@@ -77,7 +80,8 @@ fn failed_paths() {
             assert!(tree.selected().unwrap().is_symlink());
             tree.expand().unwrap();
             tree.refresh().unwrap();
-            assert_eq!(tree.entries().len(), 5);
+            assert!(tree.entries()[1].is_parent());
+            assert_eq!(tree.entries().len(), 6);
         }
         tree.collapse();
         tree.collapse();

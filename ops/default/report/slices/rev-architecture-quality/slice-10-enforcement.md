@@ -16,6 +16,8 @@ Gate repair 2 PR: [#26](https://forge.adrianpk.com/rev/rev/pulls/26)
 Gate repair 2 implementation: `0e8cf144aba9360b585df103fc85043309fecd2f`
 Gate repair 2 integrated: `ab813819e0e53f246660ac8fd702609e743b3dfb` through canonical PR #26.
 Gate repair 2 state: delivered; controller full gate pending.
+Gate repair 3 branch: `fix/rev-architecture-quality-recovery-paths-3`
+Gate repair 3 state: implemented; canonical validation and PR preparation pending.
 
 ## Purpose
 
@@ -135,6 +137,7 @@ and native regressions. A green linter does not prove those properties.
   `docs/reference/plugin-hello.rs`: bounded final-adoption corrections.
 - `src/process/capture.rs`, `src/process/capture/cleanup.rs` and
   `src/process/capture/tests.rs`: bounded cleanup observations and regressions.
+- `tests/recovery/paths.rs`: denied-entry identity and parent-row recovery checks.
 
 ## Validation
 
@@ -277,3 +280,34 @@ Both gate repairs and all ten slice reports are delivered. Runtime files,
 assertions and every gate requirement are unchanged; the controller full gate
 remains pending. Fresh preparation evidence is recorded against the clean
 document-closure HEAD before returning it for that gate.
+
+### Gate repair 3 denied tree entries
+
+The retained controller gate at `2c42309240f35b3d94550c6a0efed0eea8c24899`
+(`H4HN2DZKILYOMQO3HOE2K3OPT3`) passes 25 recovery cases and fails
+`paths::failed_paths`. The unmodified focused case reproduces selection of
+`/tmp`, the parent navigation row, rather than the fixture's denied directory.
+Changing only selection to the existing bounded path helper reaches the real
+permission-denial assertions, then reproduces the stale row count (six versus
+five). The root and four filesystem entries now include the existing parent
+navigation row; no source entry or resource capacity is added by this repair.
+
+The fixture selects the denied directory by identity, checks the parent row's
+kind and path, and retains both exact visible-row counts at six. Each refresh
+also retains the parent-row check. Both original case identities and every
+permission, input, history, syntax, byte-preservation, save and undo/redo journey
+remain. Assertion sites increase from 29 to 32. No runtime, freshness/consent,
+resource/time, protocol or gate changes are included. The same Slice 10 report
+and pinned repair identity remain in use; the worker does not run the full gate.
+
+The implementation recovery command passes all 26 cases, with no ignores, in
+22.18 seconds. The unchanged five-command clean-HEAD record follows, including
+the existing native parent-navigation regressions.
+
+Frozen repair commands, in canonical order:
+
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 bash scripts/check-quality.sh --scope tests/recovery/paths.rs`
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --test recovery -- --test-threads=1`
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --test tree -- parent:: --test-threads=1`
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo run --locked --quiet -p rev --example documentation-check`
+- `git diff --check`

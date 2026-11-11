@@ -10,7 +10,7 @@ Specification: [Architecture Quality and Commit Checks](../spec/editor-architect
 Review: [Architecture and Ownership Nit Review](../report/rev-architecture-nit-review.md)
 Concern: [Pending Editor Work](../README.md)
 Active slice: none; all ten slices integrated, controller full gate pending
-Active gate repair: none; both repairs integrated, controller full gate pending
+Active gate repair: repair 3 recovery path fixture; controller full gate pending
 Tracker: [Architecture Quality Tracker](../tracker/rev-architecture-quality.md)
 
 ## Outcome and authority
@@ -462,3 +462,27 @@ and its clean-HEAD evidence, including `git diff --check` once in fifth position
 Keep focused fixture quality, path completion and context-departure regression
 evidence separately in the existing report. Do not duplicate or displace any
 required command in the canonical sequence.
+
+### Gate repair 3: Denied tree entry identity
+
+Branch: `fix/rev-architecture-quality-recovery-paths-3`
+Expected PR title: `test(recovery): select denied tree entries by identity`
+Report: `ops/default/report/slices/rev-architecture-quality/slice-10-enforcement.md`
+Failed integrated candidate: `2c42309240f35b3d94550c6a0efed0eea8c24899`
+Failure evidence: `H4HN2DZKILYOMQO3HOE2K3OPT3`
+
+Correct only `tests/recovery/paths.rs` and these delivery documents. Select the
+denied directory with the existing bounded path-identity helper rather than a
+positional move through the parent navigation row. Retain exact visible-row
+counts while accounting for that existing navigation row. Preserve genuine
+permission denial and restoration, cyclic-path errors, source snapshots, syntax,
+BOM/CRLF bytes, undo/redo, subsequent save, inputs and resource/time limits.
+No runtime behavior, numbered slice or delivery identity changes are included.
+
+Frozen ordered repair checks, each once:
+
+1. `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 bash scripts/check-quality.sh --scope tests/recovery/paths.rs`
+2. `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --test recovery -- --test-threads=1`
+3. `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --test tree -- parent:: --test-threads=1`
+4. `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo run --locked --quiet -p rev --example documentation-check`
+5. `git diff --check`
