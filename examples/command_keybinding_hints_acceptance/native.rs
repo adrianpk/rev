@@ -131,51 +131,8 @@ pub(super) fn run(root: &Path) -> Result<()> {
         let snapshot = settings(&root.join(name), &config)?;
         inspect(&snapshot, None, target, hint)?;
     }
-    for role in OrgContext::ALL {
-        let snapshot = settings(&root.join(format!("org-{role:?}")), "")?;
-        inspect(
-            &snapshot,
-            Some(role),
-            "save-buffer",
-            if matches!(
-                role,
-                OrgContext::Editing | OrgContext::Capture | OrgContext::SourceEdit
-            ) {
-                Some("C-x C-s")
-            } else {
-                None
-            },
-        )?;
-    }
-    for (name, parent, local, expected) in [
-        ("inherited", "'M-j a'='mouse-mode'", "", Some("M-j a")),
-        (
-            "shadow-leaf",
-            "'M-j a'='mouse-mode'",
-            "'M-j'='newline'",
-            None,
-        ),
-        (
-            "shadow-prefix",
-            "'M-j'='mouse-mode'",
-            "'M-j a'='newline'",
-            None,
-        ),
-        (
-            "local",
-            "'M-j'='mouse-mode'",
-            "'M-j'='newline'\n'M-q'='mouse-mode'",
-            Some("M-q"),
-        ),
-    ] {
-        let snapshot = settings(
-            &root.join(name),
-            &format!(
-                "editor.interaction_profile='modal'\n[keys.vim_normal]\n{parent}\n[keys.org]\n{local}"
-            ),
-        )?;
-        inspect(&snapshot, Some(OrgContext::Editing), "mouse-mode", expected)?;
-    }
+    org_origins(root)?;
+    inheritance(root)?;
     registered(&root.join("registered"))?;
     crate::contexts::run(&root.join("contexts"))?;
     println!(
@@ -211,39 +168,8 @@ fn inspect(
             assert_eq!(outcome, Outcome::Command(command), "{role:?}: {hint}");
         }
     }
-    input.handle(Event::Paste("C-x C-s".into()));
-    assert!(
-        input
-            .palette()
-            .ok_or("missing palette")?
-            .candidates()
-            .is_empty()
-    );
-    input.set_org_context(if role.is_some() {
-        None
-    } else {
-        Some(OrgContext::Agenda)
-    });
-    let retired = input.palette().ok_or("missing retired palette")?;
-    // The hint-only query above has no rows; inspect identities rather than
-    // making retirement vacuously pass over that empty filtered result.
-    assert!(
-        Command::ALL
-            .into_iter()
-            .all(|command| retired.hint(command).is_none()),
-        "changed origin must retire hints"
-    );
-    input.cancel();
-    input.set_org_context(role);
-    input.commands()?;
-    assert_eq!(
-        input
-            .palette()
-            .ok_or("missing palette")?
-            .hint(Command::named(target).ok_or("unknown target")?),
-        expected
-    );
-    Ok(())
+    retire_origin(&mut input, role)?;
+    restore_origin(&mut input, role, target, expected)
 }
 
 fn registered(root: &Path) -> Result<()> {
@@ -276,5 +202,100 @@ fn registered(root: &Path) -> Result<()> {
     editor.execute(Command::ExecuteExtended);
     key(&mut editor, KeyCode::Enter);
     assert_eq!(editor.echo(), "No AI result is ready");
+    Ok(())
+}
+
+fn org_origins(root: &Path) -> Result<()> {
+    for role in OrgContext::ALL {
+        let snapshot = settings(&root.join(format!("org-{role:?}")), "")?;
+        inspect(
+            &snapshot,
+            Some(role),
+            "save-buffer",
+            if matches!(
+                role,
+                OrgContext::Editing | OrgContext::Capture | OrgContext::SourceEdit
+            ) {
+                Some("C-x C-s")
+            } else {
+                None
+            },
+        )?;
+    }
+    Ok(())
+}
+fn inheritance(root: &Path) -> Result<()> {
+    for (name, parent, local, expected) in [
+        ("inherited", "'M-j a'='mouse-mode'", "", Some("M-j a")),
+        (
+            "shadow-leaf",
+            "'M-j a'='mouse-mode'",
+            "'M-j'='newline'",
+            None,
+        ),
+        (
+            "shadow-prefix",
+            "'M-j'='mouse-mode'",
+            "'M-j a'='newline'",
+            None,
+        ),
+        (
+            "local",
+            "'M-j'='mouse-mode'",
+            "'M-j'='newline'\n'M-q'='mouse-mode'",
+            Some("M-q"),
+        ),
+    ] {
+        let snapshot = settings(
+            &root.join(name),
+            &format!(
+                "editor.interaction_profile='modal'\n[keys.vim_normal]\n{parent}\n[keys.org]\n{local}"
+            ),
+        )?;
+        inspect(&snapshot, Some(OrgContext::Editing), "mouse-mode", expected)?;
+    }
+    Ok(())
+}
+fn retire_origin(input: &mut Input, role: Option<OrgContext>) -> Result<()> {
+    input.handle(Event::Paste("C-x C-s".into()));
+    assert!(
+        input
+            .palette()
+            .ok_or("missing palette")?
+            .candidates()
+            .is_empty()
+    );
+    input.set_org_context(if role.is_some() {
+        None
+    } else {
+        Some(OrgContext::Agenda)
+    });
+    let retired = input.palette().ok_or("missing retired palette")?;
+    // The hint-only query above has no rows; inspect identities rather than
+    // making retirement vacuously pass over that empty filtered result.
+    assert!(
+        Command::ALL
+            .into_iter()
+            .all(|command| retired.hint(command).is_none()),
+        "changed origin must retire hints"
+    );
+    Ok(())
+}
+fn restore_origin(
+    input: &mut Input,
+    role: Option<OrgContext>,
+    target: &str,
+    expected: Option<&str>,
+) -> Result<()> {
+    input.cancel();
+    input.set_org_context(role);
+    input.commands()?;
+    assert_eq!(
+        input
+            .palette()
+            .ok_or("missing palette")?
+            .hint(Command::named(target).ok_or("unknown target")?),
+        expected
+    );
     Ok(())
 }

@@ -149,45 +149,11 @@ pub(super) fn run(root: &Path) -> Result<()> {
         ),
     ] {
         let fixture = root.join(name);
-        let path = fixture.join("history.toml");
-        std::fs::create_dir_all(&fixture)?;
-        if !events.is_empty() {
-            let (mut store, _) = Store::open(&path)?;
-            store.publish(&events.iter().map(|name| (*name).into()).collect::<Vec<_>>())?;
-        }
+        let path = seed_usage(&fixture, &events)?;
         let mut editor = session(&fixture, &path, policy)?;
         editor.execute(Command::ExecuteExtended);
         editor.handle(Event::Paste(query.into()));
-        let rows = names(&mut editor)?;
-        assert_eq!(&rows[..expected.len()], expected, "{name}");
-        assert!(rows.iter().all(|name| !name.contains("removed")), "{name}");
-        assert_eq!(
-            rows.iter().collect::<std::collections::BTreeSet<_>>().len(),
-            rows.len()
-        );
-        if name == "empty" {
-            assert!(rows.windows(2).all(|pair| pair[0] < pair[1]));
-            key(&mut editor, KeyCode::Enter);
-            assert_eq!(editor.echo(), "No AI result is ready");
-        } else {
-            // Inspect the writer's actual selected colors, not just row metadata.
-            let frame = editor.frame()?;
-            let row = frame
-                .rows()
-                .iter()
-                .position(|row| row.band() == Band::Completion && row.selection().is_some())
-                .ok_or("missing selected row")?;
-            let cells = crate::surface::draw(&frame);
-            assert_eq!(
-                cells[&(row, 0)].background,
-                Some(Palette::default().selection)
-            );
-            assert_eq!(
-                cells[&(row, 0)].foreground,
-                Some(Palette::default().selection_text)
-            );
-            cancel(&mut editor);
-        }
+        promotion_case(&mut editor, name, &expected)?;
         assert_eq!(source(&editor), "retained source\n");
         assert!(!editor.buffer()?.is_modified());
         if events.is_empty() {
@@ -289,15 +255,7 @@ fn controls(root: &Path) -> Result<()> {
     let (mut other, _) = Store::open(&path)?;
     other.publish(&["undo".into(), "undo-redo".into()])?;
     let mut editor = session(root, &path, "prefix-then-substring")?;
-    editor.execute(Command::ExecuteExtended);
-    key(&mut editor, KeyCode::Down);
-    let before = names(&mut editor)?;
-    other.publish(&["goto-line".into()])?;
-    for (width, height) in [(4, 2), (80, 24)] {
-        editor.handle(Event::Resize(width, height));
-        editor.frame()?;
-    }
-    assert_eq!(names(&mut editor)?, before);
+    stable_selection(&mut editor, &mut other)?;
     key(&mut editor, KeyCode::Tab);
     assert!(
         editor
@@ -366,5 +324,60 @@ fn rejected_state(root: &Path) -> Result<()> {
         assert_eq!(std::fs::read_to_string(&path)?, record);
         assert_eq!(source(&editor), "retained source\n");
     }
+    Ok(())
+}
+
+fn seed_usage(fixture: &Path, events: &[&str]) -> Result<std::path::PathBuf> {
+    let path = fixture.join("history.toml");
+    std::fs::create_dir_all(fixture)?;
+    if !events.is_empty() {
+        let (mut store, _) = Store::open(&path)?;
+        store.publish(&events.iter().map(|name| (*name).into()).collect::<Vec<_>>())?;
+    }
+    Ok(path)
+}
+fn promotion_case(editor: &mut Session, name: &str, expected: &[&str]) -> Result<()> {
+    let rows = names(editor)?;
+    assert_eq!(&rows[..expected.len()], expected, "{name}");
+    assert!(rows.iter().all(|name| !name.contains("removed")), "{name}");
+    assert_eq!(
+        rows.iter().collect::<std::collections::BTreeSet<_>>().len(),
+        rows.len()
+    );
+    if name == "empty" {
+        assert!(rows.windows(2).all(|pair| pair[0] < pair[1]));
+        key(editor, KeyCode::Enter);
+        assert_eq!(editor.echo(), "No AI result is ready");
+    } else {
+        // Inspect the writer's actual selected colors, not just row metadata.
+        let frame = editor.frame()?;
+        let row = frame
+            .rows()
+            .iter()
+            .position(|row| row.band() == Band::Completion && row.selection().is_some())
+            .ok_or("missing selected row")?;
+        let cells = crate::surface::draw(&frame);
+        assert_eq!(
+            cells[&(row, 0)].background,
+            Some(Palette::default().selection)
+        );
+        assert_eq!(
+            cells[&(row, 0)].foreground,
+            Some(Palette::default().selection_text)
+        );
+        cancel(editor);
+    }
+    Ok(())
+}
+fn stable_selection(editor: &mut Session, other: &mut Store) -> Result<()> {
+    editor.execute(Command::ExecuteExtended);
+    key(editor, KeyCode::Down);
+    let before = names(editor)?;
+    other.publish(&["goto-line".into()])?;
+    for (width, height) in [(4, 2), (80, 24)] {
+        editor.handle(Event::Resize(width, height));
+        editor.frame()?;
+    }
+    assert_eq!(names(editor)?, before);
     Ok(())
 }

@@ -16,38 +16,7 @@ pub(super) fn run(root: &Path) -> Result<()> {
         ("line", ModalCommand::VisualLine, "M-b"),
         ("block", ModalCommand::VisualBlock, "M-c"),
     ] {
-        let mut bound = editor(&root.join(name).join("bound"), config)?;
-        let mut named = editor(&root.join(name).join("named"), config)?;
-        for owner in [&mut bound, &mut named] {
-            owner.execute(Command::Modal(state));
-        }
-        let before = (
-            bound.editing_state(),
-            bound.view().point,
-            bound.buffer()?.mark(),
-        );
-        check_row(&mut bound, "forward-char", Some(hint))?;
-        assert_eq!(
-            (
-                bound.editing_state(),
-                bound.view().point,
-                bound.buffer()?.mark()
-            ),
-            before,
-            "{name}: cancel"
-        );
-        send(&mut bound, hint)?;
-        named.execute(Command::Motion(Motion::ForwardChar));
-        assert_eq!(bound.view().point.position, Scalar(2), "{name}");
-        assert_eq!(
-            bound.view().point.position,
-            named.view().point.position,
-            "{name}"
-        );
-        assert_eq!(bound.editing_state(), named.editing_state(), "{name}");
-        assert_eq!(bound.buffer()?.mark(), named.buffer()?.mark(), "{name}");
-        assert_eq!(bound.buffer()?.visual(), named.buffer()?.visual(), "{name}");
-        assert_eq!(source(&bound), "abc\nsecond line\n");
+        modal_case(root, config, name, state, hint)?;
     }
     tree(&root.join("tree"))?;
     git(&root.join("git"))?;
@@ -103,16 +72,7 @@ fn git(root: &Path) -> Result<()> {
 }
 
 fn terminal(root: &Path, profile: &str) -> Result<()> {
-    std::fs::create_dir_all(root)?;
-    let script = root.join("terminal.sh");
-    std::fs::write(
-        &script,
-        "printf 'READY\\n'\nwhile IFS= read -r line; do printf '%s\\n' \"$line\"; done\n",
-    )?;
-    let config = format!(
-        "editor.interaction_profile='{profile}'\nterminal.program='/bin/sh'\nterminal.args=[{}]\n[keys.editor]\n'C-x z'='terminal-toggle'\n'M-j'='mouse-mode'\n'C-c s'='mouse-mode'\n[keys.vim_normal]\n'C-x z'='terminal-toggle'\n'M-j'='mouse-mode'\n'C-c s'='mouse-mode'",
-        serde_json::to_string(&script)?
-    );
+    let config = terminal_settings(root, profile)?;
     let mut owner = editor(root, &config)?;
     owner.execute(Command::Terminal(TerminalCommand::Open));
     assert!(owner.terminal_focused(), "{}", owner.echo());
@@ -126,4 +86,67 @@ fn terminal(root: &Path, profile: &str) -> Result<()> {
     cancel(&mut owner)?;
     owner.shutdown_terminals()?;
     Ok(())
+}
+
+fn modal_case(
+    root: &Path,
+    config: &str,
+    name: &str,
+    state: ModalCommand,
+    hint: &str,
+) -> Result<()> {
+    let mut bound = editor(&root.join(name).join("bound"), config)?;
+    let mut named = editor(&root.join(name).join("named"), config)?;
+    for owner in [&mut bound, &mut named] {
+        owner.execute(Command::Modal(state));
+    }
+    let before = (
+        bound.editing_state(),
+        bound.view().point,
+        bound.buffer()?.mark(),
+    );
+    check_row(&mut bound, "forward-char", Some(hint))?;
+    assert_eq!(
+        (
+            bound.editing_state(),
+            bound.view().point,
+            bound.buffer()?.mark()
+        ),
+        before,
+        "{name}: cancel"
+    );
+    send(&mut bound, hint)?;
+    named.execute(Command::Motion(Motion::ForwardChar));
+    same_motion(&bound, &named, name)?;
+    Ok(())
+}
+fn same_motion(
+    bound: &rev::session::Session,
+    named: &rev::session::Session,
+    name: &str,
+) -> Result<()> {
+    assert_eq!(bound.view().point.position, Scalar(2), "{name}");
+    assert_eq!(
+        bound.view().point.position,
+        named.view().point.position,
+        "{name}"
+    );
+    assert_eq!(bound.editing_state(), named.editing_state(), "{name}");
+    assert_eq!(bound.buffer()?.mark(), named.buffer()?.mark(), "{name}");
+    assert_eq!(bound.buffer()?.visual(), named.buffer()?.visual(), "{name}");
+    assert_eq!(source(bound), "abc\nsecond line\n");
+    Ok(())
+}
+fn terminal_settings(root: &Path, profile: &str) -> Result<String> {
+    std::fs::create_dir_all(root)?;
+    let script = root.join("terminal.sh");
+    std::fs::write(
+        &script,
+        "printf 'READY\\n'\nwhile IFS= read -r line; do printf '%s\\n' \"$line\"; done\n",
+    )?;
+    let config = format!(
+        "editor.interaction_profile='{profile}'\nterminal.program='/bin/sh'\nterminal.args=[{}]\n[keys.editor]\n'C-x z'='terminal-toggle'\n'M-j'='mouse-mode'\n'C-c s'='mouse-mode'\n[keys.vim_normal]\n'C-x z'='terminal-toggle'\n'M-j'='mouse-mode'\n'C-c s'='mouse-mode'",
+        serde_json::to_string(&script)?
+    );
+    Ok(config)
 }

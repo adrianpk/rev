@@ -188,6 +188,20 @@ across the five example files. The zero-column tree composition retains its
 original early continuation before checking the cached identity. No fixed-row
 expectation, input, timeout, stream ceiling or acceptance condition is changed.
 
+Command-ranking examples separate usage seeding, promotion, retained selection,
+first invocation, session-local recall, resize and restarted dispatch. The first
+PTY owner is still explicitly dropped before its replacement starts. Paired
+publishers retain the same two concurrent editors, publication checks and
+unchanged-file assertions.
+
+Keybinding-hint examples separate Org origin installation/retirement, modal
+equivalence, terminal preparation, palette presentation and argument dispatch.
+Geometry checks retain the outer session's original scalar point, and named and
+bound motions still compare source, mark, visual and modal state independently.
+All 99 assertion sites and text/numeric literal multiplicities remain unchanged
+across the six example files. No row/color expectation, event sequence, timeout,
+stream limit or process ownership boundary is changed.
+
 ## Contracts Added or Changed
 
 No runtime, package API, protocol, policy or acceptance changes are planned.
@@ -244,6 +258,10 @@ The existing five frozen commands and final controller gate remain required.
   style/hit-map and real-input/tree-label phases with unchanged assertions.
 - `examples/better_gutter_acceptance/native.rs` and `pty.rs`: explicit native
   policy/geometry and PTY copy, wrapping, resize and retained-file check phases.
+- `examples/command_ranking_acceptance/native.rs` and `pty.rs`: usage promotion,
+  retained selection, recall, restarted dispatch and paired publisher phases.
+- `examples/command_keybinding_hints_acceptance/`: Org hint origins, modal
+  equivalence, terminal setup, palette geometry and named/bound dispatch checks.
 - `examples/git_integration_acceptance/`: snapshot and staged-content ownership.
 - `examples/integrated_terminal_acceptance/failure.rs`: explicit shared failure
   injection state; host terminal cleanup behavior is unchanged.
@@ -432,9 +450,37 @@ Development checks for tree/gutter example phases:
   order and resource/time bounds remain unchanged.
 - `git diff --check`: passed.
 
+Development checks for command-ranking and keybinding-hint example phases:
+
+- The frozen scoped quality command still fails overall: 23 native source
+  findings remain, down from 33, all in other developer examples. Formatting,
+  all-target compilation and scoped Clippy admission pass with zero blocking
+  diagnostics; four selected-profile diagnostics remain deferred outside this
+  scope. Coverage remains 704 of 1,836 first-party Rust files and 70 of 73 Cargo
+  roots across two packages.
+- Both existing ranking PTY restart journeys and the paired-publisher mode pass
+  before and after decomposition. The same 30-second outer bounds and existing
+  eight-second/1-MiB PTY owners cover idle behavior, persisted ranking,
+  session-local recall, resize, exactly-once dispatch, complete publication,
+  unchanged files/configuration and restored terminal attributes.
+- The standalone ranking native example fails before and after at its existing
+  empty-query expected-command comparison. The hint native example retains the
+  same foreground-color assertion failure. Their failed assertions and actual
+  and expected values are identical to the clean baseline; neither is reported
+  as passing acceptance.
+- Both hint PTY profiles retain the existing first-candidate frame expectation
+  failure. The visible row includes the command description after its hint;
+  complete failure diagnostics are byte-identical before and after the cohort.
+- Static comparison against clean
+  `cf448f6940a5e906f74c65aace8b5a0b8cdc7731` preserves all 99 assertion sites
+  and text/numeric literal multiplicities across the six changed Rust files.
+  Original inputs, negative coverage, freshness checks and resource/time limits
+  remain unchanged.
+- `git diff --check`: passed.
+
 ## Risks and Follow-ups
 
-Selected Clippy admission is complete. The remaining 33 native source findings
+Selected Clippy admission is complete. The remaining 23 native source findings
 require cohesive developer-example decomposition. T9.1-T9.3 remain in progress.
 The canonical PR, final ordered clean-HEAD evidence and controller integration
 remain pending.
@@ -443,3 +489,7 @@ The standalone file-tree native and PTY examples retain their pre-existing
 fixed-row expectation failures recorded above. Their assertions and limits stay
 unchanged; they are not reported as successful acceptance. The gutter native
 and PTY checks and the isolated file-tree `NO_COLOR` matrix pass.
+
+The standalone command-ranking native and keybinding-hint native/PTY examples
+retain their baseline expectation failures recorded above. Their assertions and
+bounds remain intact. Ranking's two restart PTYs and paired-publisher mode pass.

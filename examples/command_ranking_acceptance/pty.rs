@@ -70,45 +70,14 @@ pub(super) fn journey(root: &Path, binary: &Path, wrapper: &Path, profile: &str)
     let prefix = if profile == "modal" { ":" } else { "\x1bx" };
     let started = Instant::now();
     let mut first = Terminal::start(root, binary, wrapper, "first.txt")?;
-    assert!(!state(root).exists(), "startup must not create history");
-    first.send(format!("{prefix}goto\t").as_bytes())?;
-    first.frame(|frame| prompt(frame, "M-x goto-line "))?;
-    assert!(
-        !state(root).exists(),
-        "Tab must not publish a named invocation"
-    );
-    first.send(b"\r")?;
-    first.frame(|frame| row(frame, 24).starts_with("Goto line:"))?;
-    first.send(b"\x07")?;
-    first.frame(|frame| !frame.contains("Goto line:"))?;
-    first.idle()?;
-    first.finish()?;
-    assert_eq!(Store::open(&state(root))?.1, ["goto-line"]);
+    initial_invocation(&mut first, root, prefix)?;
     let first_bytes = first.bytes();
     drop(first);
 
     let mut restarted = Terminal::start(root, binary, wrapper, "restart.txt")?;
-    restarted.send(prefix.as_bytes())?;
-    restarted.frame(|frame| first_candidate(frame, "goto-line"))?;
-    // Recall is still session-local after restart, even though ranking persists.
-    restarted.send(b"\x1bp")?;
-    restarted.frame(|frame| {
-        (1..=24).any(|number| row(frame, number).contains("Command history is empty"))
-    })?;
-    restarted.send(b"\x07")?;
-    restarted.frame(|frame| !frame.contains("M-x "))?;
-    restarted.send(prefix.as_bytes())?;
-    restarted.frame(|frame| first_candidate(frame, "goto-line"))?;
-    restarted.resize(12, 40)?;
-    restarted.frame(|frame| first_candidate(frame, "goto-line"))?;
-    restarted.resize(24, 80)?;
-    restarted.frame(|frame| first_candidate(frame, "goto-line"))?;
-    restarted.send(b"\t\r")?;
-    restarted.frame(|frame| row(frame, 24).starts_with("Goto line:"))?;
-    restarted.send(b"\x07")?;
-    restarted.frame(|frame| !frame.contains("Goto line:"))?;
-    restarted.finish()?;
-    assert_eq!(Store::open(&state(root))?.1, ["goto-line", "goto-line"]);
+    recall_after_restart(&mut restarted, prefix)?;
+    ranked_resize(&mut restarted, prefix)?;
+    accept_restarted(&mut restarted, root)?;
     unchanged(root, &config, &["first.txt", "restart.txt"])?;
     assert!(started.elapsed() < Duration::from_secs(30));
     println!(
@@ -131,11 +100,7 @@ pub(super) fn paired(root: &Path, binary: &Path, wrapper: &Path) -> Result<()> {
     left.send(b"\x1bxundo\r")?;
     left.finish()?;
     assert_eq!(Store::open(&state(root))?.1, ["undo"]);
-    right.send(b"\x1bxgoto-line\r")?;
-    right.frame(|frame| row(frame, 24).starts_with("Goto line:"))?;
-    right.send(b"\x07")?;
-    right.frame(|frame| !frame.contains("Goto line:"))?;
-    right.finish()?;
+    argument_dispatch(&mut right)?;
     assert_eq!(Store::open(&state(root))?.1, ["undo", "goto-line"]);
     unchanged(root, &config, &["left.txt", "right.txt"])?;
     assert!(started.elapsed() < Duration::from_secs(30));
@@ -145,5 +110,61 @@ pub(super) fn paired(root: &Path, binary: &Path, wrapper: &Path) -> Result<()> {
         left.bytes(),
         right.bytes()
     );
+    Ok(())
+}
+
+fn initial_invocation(terminal: &mut Terminal, root: &Path, prefix: &str) -> Result<()> {
+    assert!(!state(root).exists(), "startup must not create history");
+    terminal.send(format!("{prefix}goto\t").as_bytes())?;
+    terminal.frame(|frame| prompt(frame, "M-x goto-line "))?;
+    assert!(
+        !state(root).exists(),
+        "Tab must not publish a named invocation"
+    );
+    terminal.send(b"\r")?;
+    terminal.frame(|frame| row(frame, 24).starts_with("Goto line:"))?;
+    terminal.send(b"\x07")?;
+    terminal.frame(|frame| !frame.contains("Goto line:"))?;
+    terminal.idle()?;
+    terminal.finish()?;
+    assert_eq!(Store::open(&state(root))?.1, ["goto-line"]);
+    Ok(())
+}
+fn recall_after_restart(terminal: &mut Terminal, prefix: &str) -> Result<()> {
+    terminal.send(prefix.as_bytes())?;
+    terminal.frame(|frame| first_candidate(frame, "goto-line"))?;
+    // Recall is still session-local after restart, even though ranking persists.
+    terminal.send(b"\x1bp")?;
+    terminal.frame(|frame| {
+        (1..=24).any(|number| row(frame, number).contains("Command history is empty"))
+    })?;
+    terminal.send(b"\x07")?;
+    terminal.frame(|frame| !frame.contains("M-x "))?;
+    Ok(())
+}
+fn ranked_resize(terminal: &mut Terminal, prefix: &str) -> Result<()> {
+    terminal.send(prefix.as_bytes())?;
+    terminal.frame(|frame| first_candidate(frame, "goto-line"))?;
+    terminal.resize(12, 40)?;
+    terminal.frame(|frame| first_candidate(frame, "goto-line"))?;
+    terminal.resize(24, 80)?;
+    terminal.frame(|frame| first_candidate(frame, "goto-line"))?;
+    Ok(())
+}
+fn accept_restarted(terminal: &mut Terminal, root: &Path) -> Result<()> {
+    terminal.send(b"\t\r")?;
+    terminal.frame(|frame| row(frame, 24).starts_with("Goto line:"))?;
+    terminal.send(b"\x07")?;
+    terminal.frame(|frame| !frame.contains("Goto line:"))?;
+    terminal.finish()?;
+    assert_eq!(Store::open(&state(root))?.1, ["goto-line", "goto-line"]);
+    Ok(())
+}
+fn argument_dispatch(terminal: &mut Terminal) -> Result<()> {
+    terminal.send(b"\x1bxgoto-line\r")?;
+    terminal.frame(|frame| row(frame, 24).starts_with("Goto line:"))?;
+    terminal.send(b"\x07")?;
+    terminal.frame(|frame| !frame.contains("Goto line:"))?;
+    terminal.finish()?;
     Ok(())
 }
