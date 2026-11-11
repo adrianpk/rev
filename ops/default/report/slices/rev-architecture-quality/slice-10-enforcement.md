@@ -12,7 +12,9 @@ Gate repair PR: [#25](https://forge.adrianpk.com/rev/rev/pulls/25)
 Gate repair implementation: `6f8e282f6688405d8f0bd001673e74934d657a58`
 Gate repair integrated: `ab30c95e4a164a54bcc3db606e2d4f4340335ea9` through canonical PR #25.
 Gate repair 2 branch: `fix/rev-architecture-quality-git-cleanup-2`
-Gate repair 2 state: implemented; exact clean-HEAD validation and PR preparation pending.
+Gate repair 2 PR: [#26](https://forge.adrianpk.com/rev/rev/pulls/26)
+Gate repair 2 implementation: `0e8cf144aba9360b585df103fc85043309fecd2f`
+Gate repair 2 state: PR open; final PR-HEAD validation and controller review pending.
 
 ## Purpose
 
@@ -233,8 +235,7 @@ nested file visits and unchanged original/unrelated disk contents remain covered
 All 14 existing case identities and input paths, contents and events remain;
 assertion sites increase from 94 to 110. The corrected target passes all 46 cases
 with no ignores in 11.36 seconds. All 44 focused context cases also pass in 58.07
-seconds, including both profiles' save/discard/cancel journeys. Exact clean-HEAD
-repair validation follows.
+seconds, including both profiles' save/discard/cancel journeys.
 Runtime files, freshness/consent guards, deadlines, resource limits, budgets and
 the frozen commands are unchanged. The worker has not run the full gate. The
 original slice and repair 1 remain delivered; delivery-set closure is pending.
@@ -245,3 +246,14 @@ checks run after the four Cargo/quality commands and before `git diff --check`:
 - `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 bash scripts/check-quality.sh --scope tests/path_completion/acceptance.rs --scope tests/path_completion/failures.rs --scope tests/path_completion/stale.rs`
 - `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --test path_completion -- --test-threads=1`
 - `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --test contexts -- editor:: --test-threads=1`
+
+All eight ordered checks pass through Looper on the clean published implementation
+HEAD `0e8cf144aba9360b585df103fc85043309fecd2f`, validation
+`7KU3SWMAIABRTRXN2VTZO35CV3`. This includes zero findings in both quality scopes,
+14 process tests, nine Git conflict-resolution cases (102.52 seconds), 46 path
+completion cases (12.53 seconds), 44 focused context cases (61.81 seconds),
+documentation and the final diff check. The installed staged hook also checks all
+1,838 first-party files and 73 Cargo roots with zero Clippy/source findings.
+Canonical PR #26 records the immutable report-introduction link and successful
+commands. The reference commit requires fresh final PR-HEAD evidence; Looper
+records that result against the exact candidate before controller acceptance.

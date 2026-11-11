@@ -265,10 +265,12 @@ the unchanged full-gate rerun.
 
 ## Gate repair 2: Directory acceptance fixtures
 
-State: implemented; exact clean-HEAD validation and PR preparation pending
+State: PR open; final PR-HEAD validation and controller review pending
 Branch: fix/rev-architecture-quality-git-cleanup-2
 Expected PR title: fix(git): stabilize owned cleanup during conflict resolution
-PR: not opened
+PR: #26 - https://forge.adrianpk.com/rev/rev/pulls/26
+Implementation: 0e8cf144aba9360b585df103fc85043309fecd2f
+Validation: all eight ordered repair/focused checks passed through Looper on clean published implementation HEAD 0e8cf144aba9360b585df103fc85043309fecd2f in validation 7KU3SWMAIABRTRXN2VTZO35CV3; fresh final PR-HEAD evidence is required after this reference commit
 Report: ops/default/report/slices/rev-architecture-quality/slice-10-enforcement.md
 Failed candidate: 3165ff2e69575daaf09ddca6b5ed48aef4ccf506
 Failure evidence: MAUHSFFUQ2SVVJ2PKWGVFU2FGP
@@ -301,7 +303,10 @@ events, contents, freshness guards and bounds remain; assertion sites increase
 from 94 to 110. All 46 path-completion cases now pass with no ignores; all 44
 focused context cases pass, including both profiles' save/discard/cancel paths. Runtime
 files, the pinned identity, frozen commands and full-gate requirements are
-unchanged. The controller owns integration and the full-gate rerun.
+unchanged. Canonical PR #26 targets dev with the pinned identity, immutable
+report-introduction link and all eight successful commands. The installed staged
+hook passes all 1,838 first-party files and 73 Cargo roots with no Clippy/source
+findings. The controller owns integration and the full-gate rerun.
 
 ## Final acceptance
 
