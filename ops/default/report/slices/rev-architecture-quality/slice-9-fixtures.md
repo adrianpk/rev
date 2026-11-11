@@ -175,6 +175,19 @@ records. Oversized store catalog construction is separate from the original
 corruption/refusal matrix. All 15 case identities, 92 assertion sites and
 text/numeric literal multiplicities remain unchanged in the five Rust files.
 
+Developer tree/gutter examples separate configuration rejection, per-setting
+workspace projection, expected entry styling, bookmark cells, full-row hit checks,
+cached-tree resize and retained-file checks. Gutter presentation keeps the same
+side/number/visibility/marker/width matrix, independent expected partitions,
+marker color/hit checks, completion placement and source-only copy assertions.
+PTY fixtures retain the same owner and event sequence through marker visibility,
+resize/wrapping, copy/yank/undo, idle checks, finish and unchanged disk/configuration.
+
+All 75 assertion sites and text/numeric literal multiplicities are preserved
+across the five example files. The zero-column tree composition retains its
+original early continuation before checking the cached identity. No fixed-row
+expectation, input, timeout, stream ceiling or acceptance condition is changed.
+
 ## Contracts Added or Changed
 
 No runtime, package API, protocol, policy or acceptance changes are planned.
@@ -227,6 +240,10 @@ The existing five frozen commands and final controller gate remain required.
   callback/process lifecycle owners.
 - `tests/plugins/faults/pty.rs` and `resources.rs`: unchanged real PTY journeys,
   bounded workloads, idle samples and owned-process cleanup checks.
+- `examples/better_file_tree_acceptance/`: configuration/workspace, independent
+  style/hit-map and real-input/tree-label phases with unchanged assertions.
+- `examples/better_gutter_acceptance/native.rs` and `pty.rs`: explicit native
+  policy/geometry and PTY copy, wrapping, resize and retained-file check phases.
 - `examples/git_integration_acceptance/`: snapshot and staged-content ownership.
 - `examples/integrated_terminal_acceptance/failure.rs`: explicit shared failure
   injection state; host terminal cleanup behavior is unchanged.
@@ -390,9 +407,39 @@ Development checks for plugin fixture and peer ownership:
   byte/count limits and owned process boundaries remain unchanged.
 - `git diff --check`: passed.
 
+Development checks for tree/gutter example phases:
+
+- The frozen scoped quality command still fails overall: 33 native source
+  findings remain, down from 46, all in other developer examples. Formatting,
+  all-target compilation and scoped Clippy admission pass with zero blocking
+  diagnostics; four selected-profile diagnostics remain deferred outside this
+  scope. Coverage remains 704 of 1,836 first-party Rust files and 70 of 73 Cargo
+  roots across two packages.
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 bash scripts/check-better-gutter.sh`: passed before and after decomposition, including the native glyph/geometry/legacy/color/fold/completion/copy matrix, both real PTY profiles, idle checks, unchanged files and restored terminal attributes.
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo build --locked -p rev --example better-file-tree-acceptance`: passed after the final configuration-path borrow correction.
+- The standalone file-tree native command fails before and after the cohort
+  at the same nine-cell Unicode-label assertion. Its unchanged PTY journey
+  also fails the first folder-row frame expectation; the displayed frame
+  includes the parent row above that folder. The complete PTY failure diagnostic
+  is byte-identical across both runs. No assertion is removed or adjusted.
+- All four isolated file-tree `NO_COLOR` settings pass before and after, with
+  byte-identical successful output. These bounded mode checks use the existing
+  20-second wrapper and unchanged eight-second/1-MiB PTY owner.
+- Static comparison against clean
+  `c3428be18edabe81aaa828c883331449ea0ae200` preserves every one of the 75
+  assertion sites and all text/numeric literal multiplicities in the five
+  changed Rust files. Original matrices, row expectations, source bytes, event
+  order and resource/time bounds remain unchanged.
+- `git diff --check`: passed.
+
 ## Risks and Follow-ups
 
-Selected Clippy admission is complete. The remaining 46 native source findings
+Selected Clippy admission is complete. The remaining 33 native source findings
 require cohesive developer-example decomposition. T9.1-T9.3 remain in progress.
 The canonical PR, final ordered clean-HEAD evidence and controller integration
 remain pending.
+
+The standalone file-tree native and PTY examples retain their pre-existing
+fixed-row expectation failures recorded above. Their assertions and limits stay
+unchanged; they are not reported as successful acceptance. The gutter native
+and PTY checks and the isolated file-tree `NO_COLOR` matrix pass.

@@ -6,8 +6,9 @@ use rev::command::{BookmarkCommand, Command, TreeCommand};
 use rev::config::{Rgb, prepare};
 use rev::panel::Composition;
 use rev::session::Session;
-use rev::tree::Kind;
+use rev::tree::{Entry, Hit, Kind};
 use rev::view::{Size, View};
+use std::collections::BTreeMap;
 use std::os::unix::fs::symlink;
 use std::path::Path;
 use unicode_width::UnicodeWidthStr;
@@ -59,19 +60,7 @@ fn open(
     nerd_fonts: bool,
     explicit: bool,
 ) -> Result<Session> {
-    std::fs::create_dir_all(root.join("workspace/folder"))?;
-    for name in [
-        "main.rs",
-        "notes.org",
-        "Cargo.toml",
-        "data.bin",
-        "界é.txt",
-        "ctl\x1b[31m.txt",
-        "folder/child.txt",
-    ] {
-        std::fs::write(root.join("workspace").join(name), DOCUMENT)?;
-    }
-    symlink("folder", root.join("workspace/link.rs"))?;
+    prepare_files(root)?;
     let palette = ROLES
         .iter()
         .enumerate()
@@ -113,6 +102,23 @@ fn open(
     Ok(editor)
 }
 
+fn prepare_files(root: &Path) -> Result<()> {
+    std::fs::create_dir_all(root.join("workspace/folder"))?;
+    for name in [
+        "main.rs",
+        "notes.org",
+        "Cargo.toml",
+        "data.bin",
+        "界é.txt",
+        "ctl\x1b[31m.txt",
+        "folder/child.txt",
+    ] {
+        std::fs::write(root.join("workspace").join(name), DOCUMENT)?;
+    }
+    symlink("folder", root.join("workspace/link.rs"))?;
+    Ok(())
+}
+
 fn role(kind: Kind) -> (usize, char, char) {
     match kind {
         Kind::Root => (1, '◆', '\u{f1b2}'),
@@ -128,97 +134,24 @@ fn role(kind: Kind) -> (usize, char, char) {
 fn presentation(editor: &mut Session, decorated: bool, nerd_fonts: bool) -> Result<()> {
     let frame = editor.frame()?;
     let cells = surface::draw(&frame);
-    let palette = rev::config::Palette::default();
+    let style = TreeStyle {
+        decorated,
+        nerd_fonts,
+        palette: rev::config::Palette::default(),
+    };
     let mut seen = [false; 7];
     for (row, entry) in editor.tree().entries().iter().enumerate() {
-        let expected = match entry.path().file_name().and_then(|name| name.to_str()) {
-            Some("workspace") => Kind::Root,
-            Some("folder") => Kind::Directory,
-            Some("main.rs") => Kind::Source,
-            Some("Cargo.toml") => Kind::Configuration,
-            Some("data.bin") => Kind::File,
-            Some("link.rs") => Kind::Symlink,
-            _ => Kind::Document,
-        };
-        assert_eq!(entry.kind(), expected);
-        let (channel, ordinary, icon) = role(entry.kind());
+        let channel = style.entry(row, entry, &cells)?;
         seen[channel - 1] = true;
-        let column = if row == 0 { 2 } else { 4 };
-        let cell = cells[&(row, column)];
-        if decorated {
-            assert_eq!(cell.character, if nerd_fonts { icon } else { ordinary });
-        }
-        assert_eq!(
-            (cell.foreground, cell.background),
-            (
-                Some(if decorated {
-                    Rgb(u8::try_from(channel)?, 2, 3)
-                } else {
-                    palette.foreground
-                }),
-                Some(palette.tree)
-            )
-        );
-        assert_eq!(cells[&(row, column + 2)].foreground, cell.foreground);
     }
     assert!(seen.into_iter().all(|seen| seen));
-    let expected_root = if !decorated {
-        "v workspace/"
-    } else if nerd_fonts {
-        "▾ \u{f1b2} workspace/"
-    } else {
-        "▾ ◆ workspace/"
-    };
-    assert!(frame.rows()[0].text().starts_with(expected_root));
-    if !decorated {
-        for label in ["  > folder/", "    main.rs", "    notes.org", "  @ link.rs"] {
-            assert!(frame.rows().iter().any(|row| row.text().starts_with(label)));
-        }
-    }
-    assert!(
-        frame
-            .rows()
-            .iter()
-            .any(|row| row.text().contains("ctl^[[31m.txt"))
-    );
-    let composition = Composition::workspace(editor.windows(), editor.tree(), SIZE, 0)
-        .ok_or("missing composition")?;
-    let content = composition.panels()[0].1.content();
-    let marker = editor
-        .view()
-        .gutter_geometry(editor.buffer()?, content)?
-        .marker()
-        .ok_or("missing marker")?;
-    assert_eq!(
-        cells[&(usize::from(marker.row()), usize::from(marker.column()))].character,
-        if nerd_fonts { '\u{f02e}' } else { '■' }
-    );
-    editor.execute(Command::Tree(TreeCommand::Focus));
-    let cells = surface::draw(&editor.frame()?);
-    for column in 0..24 {
-        assert_eq!(
-            (
-                cells[&(0, column)].foreground,
-                cells[&(0, column)].background
-            ),
-            (
-                Some(palette.tree_selected_text),
-                Some(palette.tree_selected)
-            )
-        );
-    }
+    style.labels(&frame);
+    bookmark_marker(editor, &cells, nerd_fonts)?;
+    selected_root(editor, &style.palette)?;
     editor.execute(Command::Tree(TreeCommand::Next));
     editor.execute(Command::Tree(TreeCommand::Expand));
     let frame = editor.frame()?;
-    let directory = if !decorated {
-        "  v folder/"
-    } else if nerd_fonts {
-        "  ▾ \u{f07c} folder/"
-    } else {
-        "  ▾ / folder/"
-    };
-    assert!(frame.rows()[1].text().starts_with(directory));
-    assert!(frame.rows()[2].text().contains("child.txt"));
+    style.directory(&frame);
     editor.execute(Command::Tree(TreeCommand::Collapse));
     Ok(())
 }
@@ -242,27 +175,7 @@ fn interaction(editor: &mut Session, root: &Path) -> Result<()> {
             .ok_or("missing Unicode entry")?,
     )?;
     let hit = editor.tree().hit(row).ok_or("missing canonical hit")?;
-    for column in [0, 2, 4, 6, 23] {
-        editor.handle(press(column, row));
-        assert!(
-            editor
-                .tree()
-                .selected()
-                .ok_or("missing selection")?
-                .path()
-                .ends_with("界é.txt")
-        );
-        assert_eq!(editor.tree().hit(row), Some(hit.clone()));
-        assert!(editor.tree().focused());
-        assert!(
-            editor
-                .buffer()?
-                .file()
-                .ok_or("missing file")?
-                .path()
-                .ends_with("main.rs")
-        );
-    }
+    select_entry(editor, row, &hit)?;
     editor.execute(Command::Tree(TreeCommand::Open));
     assert!(!editor.tree().focused());
     assert!(
@@ -274,36 +187,7 @@ fn interaction(editor: &mut Session, root: &Path) -> Result<()> {
             .ends_with("界é.txt")
     );
     editor.execute(Command::Tree(TreeCommand::Focus));
-    // Once observed, selection, clipping, movement and resize use cached paths.
-    std::fs::remove_dir_all(root.join("workspace"))?;
-    for width in [31, 0, 100, 40, 100] {
-        editor.handle(Event::Resize(width, if width == 0 { 0 } else { 16 }));
-        let frame = editor.frame()?;
-        assert!(
-            frame
-                .rows()
-                .iter()
-                .all(|row| row.text().width() == usize::from(width))
-        );
-        if width > 0 {
-            assert_eq!(editor.tree().focused(), width >= 32);
-        }
-    }
-    editor.handle(Event::Mouse(MouseEvent {
-        kind: MouseEventKind::ScrollDown,
-        column: 4,
-        row: 1,
-        modifiers: KeyModifiers::NONE,
-    }));
-    editor.frame()?;
-    assert!(
-        editor
-            .tree()
-            .selected()
-            .ok_or("missing cached selection")?
-            .path()
-            .ends_with("界é.txt")
-    );
+    cached_tree(editor, root)?;
     Ok(())
 }
 
@@ -343,6 +227,181 @@ pub(super) fn no_color(root: &Path) -> Result<()> {
     }
     println!(
         "PASS isolated NO_COLOR: all four settings retain symbols and reverse-video selection without RGB"
+    );
+    Ok(())
+}
+
+fn expected_kind(path: &Path) -> Kind {
+    match path.file_name().and_then(|name| name.to_str()) {
+        Some("workspace") => Kind::Root,
+        Some("folder") => Kind::Directory,
+        Some("main.rs") => Kind::Source,
+        Some("Cargo.toml") => Kind::Configuration,
+        Some("data.bin") => Kind::File,
+        Some("link.rs") => Kind::Symlink,
+        _ => Kind::Document,
+    }
+}
+struct TreeStyle {
+    decorated: bool,
+    nerd_fonts: bool,
+    palette: rev::config::Palette,
+}
+impl TreeStyle {
+    fn entry(
+        &self,
+        row: usize,
+        entry: &Entry,
+        cells: &BTreeMap<(usize, usize), surface::Cell>,
+    ) -> Result<usize> {
+        let expected = expected_kind(entry.path());
+        assert_eq!(entry.kind(), expected);
+        let (channel, ordinary, icon) = role(entry.kind());
+        let column = if row == 0 { 2 } else { 4 };
+        let cell = cells[&(row, column)];
+        if self.decorated {
+            assert_eq!(
+                cell.character,
+                if self.nerd_fonts { icon } else { ordinary }
+            );
+        }
+        assert_eq!(
+            (cell.foreground, cell.background),
+            (
+                Some(if self.decorated {
+                    Rgb(u8::try_from(channel)?, 2, 3)
+                } else {
+                    self.palette.foreground
+                }),
+                Some(self.palette.tree)
+            )
+        );
+        assert_eq!(cells[&(row, column + 2)].foreground, cell.foreground);
+        Ok(channel)
+    }
+    fn labels(&self, frame: &rev::display::Frame) {
+        let expected_root = if !self.decorated {
+            "v workspace/"
+        } else if self.nerd_fonts {
+            "▾ \u{f1b2} workspace/"
+        } else {
+            "▾ ◆ workspace/"
+        };
+        assert!(frame.rows()[0].text().starts_with(expected_root));
+        if !self.decorated {
+            for label in ["  > folder/", "    main.rs", "    notes.org", "  @ link.rs"] {
+                assert!(frame.rows().iter().any(|row| row.text().starts_with(label)));
+            }
+        }
+        assert!(
+            frame
+                .rows()
+                .iter()
+                .any(|row| row.text().contains("ctl^[[31m.txt"))
+        );
+    }
+    fn directory(&self, frame: &rev::display::Frame) {
+        let directory = if !self.decorated {
+            "  v folder/"
+        } else if self.nerd_fonts {
+            "  ▾ \u{f07c} folder/"
+        } else {
+            "  ▾ / folder/"
+        };
+        assert!(frame.rows()[1].text().starts_with(directory));
+        assert!(frame.rows()[2].text().contains("child.txt"));
+    }
+}
+fn bookmark_marker(
+    editor: &mut Session,
+    cells: &BTreeMap<(usize, usize), surface::Cell>,
+    nerd_fonts: bool,
+) -> Result<()> {
+    let composition = Composition::workspace(editor.windows(), editor.tree(), SIZE, 0)
+        .ok_or("missing composition")?;
+    let content = composition.panels()[0].1.content();
+    let marker = editor
+        .view()
+        .gutter_geometry(editor.buffer()?, content)?
+        .marker()
+        .ok_or("missing marker")?;
+    assert_eq!(
+        cells[&(usize::from(marker.row()), usize::from(marker.column()))].character,
+        if nerd_fonts { '\u{f02e}' } else { '■' }
+    );
+    Ok(())
+}
+fn selected_root(editor: &mut Session, palette: &rev::config::Palette) -> Result<()> {
+    editor.execute(Command::Tree(TreeCommand::Focus));
+    let cells = surface::draw(&editor.frame()?);
+    for column in 0..24 {
+        assert_eq!(
+            (
+                cells[&(0, column)].foreground,
+                cells[&(0, column)].background
+            ),
+            (
+                Some(palette.tree_selected_text),
+                Some(palette.tree_selected)
+            )
+        );
+    }
+    Ok(())
+}
+fn select_entry(editor: &mut Session, row: u16, hit: &Hit) -> Result<()> {
+    for column in [0, 2, 4, 6, 23] {
+        editor.handle(press(column, row));
+        assert!(
+            editor
+                .tree()
+                .selected()
+                .ok_or("missing selection")?
+                .path()
+                .ends_with("界é.txt")
+        );
+        assert_eq!(editor.tree().hit(row), Some((*hit).clone()));
+        assert!(editor.tree().focused());
+        assert!(
+            editor
+                .buffer()?
+                .file()
+                .ok_or("missing file")?
+                .path()
+                .ends_with("main.rs")
+        );
+    }
+    Ok(())
+}
+fn cached_tree(editor: &mut Session, root: &Path) -> Result<()> {
+    // Once observed, selection, clipping, movement and resize use cached paths.
+    std::fs::remove_dir_all(root.join("workspace"))?;
+    for width in [31, 0, 100, 40, 100] {
+        editor.handle(Event::Resize(width, if width == 0 { 0 } else { 16 }));
+        let frame = editor.frame()?;
+        assert!(
+            frame
+                .rows()
+                .iter()
+                .all(|row| row.text().width() == usize::from(width))
+        );
+        if width > 0 {
+            assert_eq!(editor.tree().focused(), width >= 32);
+        }
+    }
+    editor.handle(Event::Mouse(MouseEvent {
+        kind: MouseEventKind::ScrollDown,
+        column: 4,
+        row: 1,
+        modifiers: KeyModifiers::NONE,
+    }));
+    editor.frame()?;
+    assert!(
+        editor
+            .tree()
+            .selected()
+            .ok_or("missing cached selection")?
+            .path()
+            .ends_with("界é.txt")
     );
     Ok(())
 }

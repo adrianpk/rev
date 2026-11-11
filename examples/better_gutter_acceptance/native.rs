@@ -99,25 +99,7 @@ fn presentation(root: &Path, name: &str, preferences: &str, glyph: char, color: 
     let records = editor.bookmarks().iter().cloned().collect::<Vec<_>>();
     let before = (editor.buffer()?.stamp(), editor.buffer()?.state());
     for side in [Side::Left, Side::Right] {
-        if editor.view().gutter.effective().side != side {
-            editor.execute(Command::Gutter(GutterCommand::ToggleSide));
-        }
-        for mode in [GutterCommand::Absolute, GutterCommand::Relative] {
-            editor.execute(Command::Gutter(mode));
-            for visible in [true, false] {
-                if editor.view().gutter.effective().visible != visible {
-                    editor.execute(Command::Gutter(GutterCommand::Toggle));
-                }
-                for markers in [true, false] {
-                    if editor.view().bookmark_markers != markers {
-                        editor.execute(Command::Bookmark(BookmarkCommand::Markers));
-                    }
-                    for width in [3, 4, 9, 10, 40] {
-                        geometry(&mut editor, width, glyph, color)?;
-                    }
-                }
-            }
-        }
+        number_modes(&mut editor, side, glyph, color)?;
     }
     copied(&mut editor)?;
     assert_eq!(
@@ -125,20 +107,18 @@ fn presentation(root: &Path, name: &str, preferences: &str, glyph: char, color: 
         records
     );
     assert_eq!((editor.buffer()?.stamp(), editor.buffer()?.state()), before);
-    assert!(editor.buffer()?.history().is_empty());
-    let mut bytes = Vec::new();
-    rev::file::write(editor.buffer()?, &mut bytes)?;
-    assert_eq!(bytes, DOCUMENT.as_bytes());
-    assert_eq!(std::fs::read(root.join("workspace").join(file))?, bytes);
+    unchanged_source(&editor, &root.join("workspace").join(file))?;
     Ok(())
 }
 
 fn geometry(editor: &mut Session, width: u16, glyph: char, color: Rgb) -> Result<()> {
     editor.handle(Event::Resize(width, 12));
     let settings = editor.view().gutter.effective();
-    let numbers = settings.visible && width >= 9;
-    let field = if numbers { 6 } else { 0 };
-    let marker = editor.view().bookmark_markers && width - field >= 4;
+    let Expected {
+        numbers,
+        field,
+        marker,
+    } = expected_geometry(editor, width);
     let content = Area::new(0, 0, width, 10).ok_or("invalid native content")?;
     let geometry = editor.view().gutter_geometry(editor.buffer()?, content)?;
     assert_eq!(geometry.numbers().is_some(), numbers);
@@ -157,34 +137,12 @@ fn geometry(editor: &mut Session, width: u16, glyph: char, color: Rgb) -> Result
         assert_eq!(row.text().width(), usize::from(width));
     }
     if let Some(area) = geometry.marker() {
-        assert_eq!(
-            area.column(),
-            if settings.side == Side::Left {
-                0
-            } else {
-                width - 1
-            }
-        );
-        let cells = surface::draw(&frame);
-        let cell = cells[&(0, usize::from(area.column()))];
-        assert_eq!((cell.character, cell.foreground), (glyph, Some(color)));
-        assert_eq!(
-            editor.view().hit(
-                editor.buffer()?,
-                content,
-                Position {
-                    column: area.column(),
-                    row: 0
-                }
-            )?,
-            None
-        );
-        crossterm::style::force_color_output(false);
-        let mut bytes = Vec::new();
-        frame.write(&mut bytes)?;
-        let output = String::from_utf8(bytes)?;
-        assert!(output.contains(glyph) && !output.contains("\x1b[38;"));
-        crossterm::style::force_color_output(true);
+        let style = MarkerStyle {
+            glyph,
+            color,
+            side: settings.side,
+        };
+        marker_style(editor, &frame, content, area, &style)?;
     }
     Ok(())
 }
@@ -268,19 +226,124 @@ fn completion(root: &Path) -> Result<()> {
     for (width, popup_column) in [(80, 23), (40, 18), (80, 23)] {
         editor.handle(Event::Resize(width, 12));
         let frame = editor.frame()?;
-        let selected = frame
-            .rows()
-            .iter()
-            .find(|row| row.selection().is_some())
-            .ok_or("missing native popup")?;
-        assert!(selected.text().contains("cfg_value"));
-        assert_eq!(
-            selected.selection().ok_or("missing popup range")?.start,
-            popup_column
-        );
-        assert_eq!(frame.cursor().ok_or("missing source cursor")?.column, 22);
+        completion_popup(&frame, popup_column)?;
     }
     assert!(!editor.buffer()?.is_modified());
     assert!(editor.buffer()?.history().is_empty());
     Ok(())
+}
+
+fn number_modes(editor: &mut Session, side: Side, glyph: char, color: Rgb) -> Result<()> {
+    if editor.view().gutter.effective().side != side {
+        editor.execute(Command::Gutter(GutterCommand::ToggleSide));
+    }
+    for mode in [GutterCommand::Absolute, GutterCommand::Relative] {
+        editor.execute(Command::Gutter(mode));
+        number_visibility(editor, glyph, color)?;
+    }
+    Ok(())
+}
+fn number_visibility(editor: &mut Session, glyph: char, color: Rgb) -> Result<()> {
+    for visible in [true, false] {
+        if editor.view().gutter.effective().visible != visible {
+            editor.execute(Command::Gutter(GutterCommand::Toggle));
+        }
+        marker_visibility(editor, glyph, color)?;
+    }
+    Ok(())
+}
+fn marker_visibility(editor: &mut Session, glyph: char, color: Rgb) -> Result<()> {
+    for markers in [true, false] {
+        if editor.view().bookmark_markers != markers {
+            editor.execute(Command::Bookmark(BookmarkCommand::Markers));
+        }
+        for width in [3, 4, 9, 10, 40] {
+            geometry(editor, width, glyph, color)?;
+        }
+    }
+    Ok(())
+}
+struct MarkerStyle {
+    glyph: char,
+    color: Rgb,
+    side: Side,
+}
+fn marker_style(
+    editor: &Session,
+    frame: &Frame,
+    content: Area,
+    area: Area,
+    style: &MarkerStyle,
+) -> Result<()> {
+    assert_eq!(
+        area.column(),
+        if style.side == Side::Left {
+            0
+        } else {
+            content.width() - 1
+        }
+    );
+    let cells = surface::draw(frame);
+    let cell = cells[&(0, usize::from(area.column()))];
+    assert_eq!(
+        (cell.character, cell.foreground),
+        (style.glyph, Some(style.color))
+    );
+    assert_eq!(
+        editor.view().hit(
+            editor.buffer()?,
+            content,
+            Position {
+                column: area.column(),
+                row: 0
+            }
+        )?,
+        None
+    );
+    crossterm::style::force_color_output(false);
+    let mut bytes = Vec::new();
+    frame.write(&mut bytes)?;
+    let output = String::from_utf8(bytes)?;
+    assert!(output.contains(style.glyph) && !output.contains("\x1b[38;"));
+    crossterm::style::force_color_output(true);
+    Ok(())
+}
+fn completion_popup(frame: &Frame, popup_column: u16) -> Result<()> {
+    let selected = frame
+        .rows()
+        .iter()
+        .find(|row| row.selection().is_some())
+        .ok_or("missing native popup")?;
+    assert!(selected.text().contains("cfg_value"));
+    assert_eq!(
+        selected.selection().ok_or("missing popup range")?.start,
+        popup_column
+    );
+    assert_eq!(frame.cursor().ok_or("missing source cursor")?.column, 22);
+    Ok(())
+}
+
+fn unchanged_source(editor: &Session, path: &Path) -> Result<()> {
+    assert!(editor.buffer()?.history().is_empty());
+    let mut bytes = Vec::new();
+    rev::file::write(editor.buffer()?, &mut bytes)?;
+    assert_eq!(bytes, DOCUMENT.as_bytes());
+    assert_eq!(std::fs::read(path)?, bytes);
+    Ok(())
+}
+struct Expected {
+    numbers: bool,
+    field: u16,
+    marker: bool,
+}
+fn expected_geometry(editor: &Session, width: u16) -> Expected {
+    let settings = editor.view().gutter.effective();
+    let numbers = settings.visible && width >= 9;
+    let field = if numbers { 6 } else { 0 };
+    let marker = editor.view().bookmark_markers && width - field >= 4;
+    Expected {
+        numbers,
+        field,
+        marker,
+    }
 }
