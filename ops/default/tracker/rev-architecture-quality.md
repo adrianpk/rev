@@ -240,7 +240,8 @@ must run the unchanged full gate; no full-gate result has been accepted.
 State: reviewing
 Branch: fix/rev-architecture-quality-git-cleanup-1
 Expected PR title: fix(git): stabilize owned cleanup during conflict resolution
-PR: pending
+PR: #25 - https://forge.adrianpk.com/rev/rev/pulls/25
+Implementation: 6f8e282f6688405d8f0bd001673e74934d657a58
 Report: ops/default/report/slices/rev-architecture-quality/slice-10-enforcement.md
 Failed candidate: 4d92ea260259a8a453810e193582f3b0f508595c
 Failure evidence: LYMBVLYJ4VGE3RDKMUABFBAYJQ

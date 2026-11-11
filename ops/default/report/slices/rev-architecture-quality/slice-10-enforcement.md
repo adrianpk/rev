@@ -8,7 +8,8 @@ Branch: `chore/rev-architecture-quality-10-enforcement`
 PR: [#24](https://forge.adrianpk.com/rev/rev/pulls/24)
 Integrated: `67dd8de1e9b51868f8f38379fc0079defd2a8d87` through canonical PR #24.
 Gate repair branch: `fix/rev-architecture-quality-git-cleanup-1`
-Gate repair PR: pending
+Gate repair PR: [#25](https://forge.adrianpk.com/rev/rev/pulls/25)
+Gate repair implementation: `6f8e282f6688405d8f0bd001673e74934d657a58`
 
 ## Purpose
 
