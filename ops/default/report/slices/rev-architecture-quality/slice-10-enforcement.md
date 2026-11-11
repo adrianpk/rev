@@ -1,11 +1,12 @@
 # Slice 10: Staged enforcement and acceptance
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-architecture-quality
 Plan: [Architecture Quality Delivery](../../../plan/rev-architecture-quality.md)
 Tracker: [Architecture Quality Tracker](../../../tracker/rev-architecture-quality.md)
 Branch: `chore/rev-architecture-quality-10-enforcement`
 PR: [#24](https://forge.adrianpk.com/rev/rev/pulls/24)
+Integrated: `67dd8de1e9b51868f8f38379fc0079defd2a8d87` through canonical PR #24.
 
 ## Purpose
 
@@ -66,8 +67,8 @@ cannot refresh the metadata measured by the raw index-preservation assertion.
 - Added inherited workspace lint tables, explicit method restrictions and strict
   canonical flags; retained the five/three/ten source limits and SDK protocols.
 - Added repository architecture, ownership, convention and validation guidance.
-- Added exact staged candidate and private-cache commit enforcement. Installation
-  and the final integrated gate remain controller-owned after integration.
+- Added exact staged candidate and private-cache commit enforcement. Authorized
+  prepare_gate setup has installed the hooks; the final gate remains controller-owned.
 
 Review reconciliation before controller acceptance:
 
@@ -79,7 +80,7 @@ Review reconciliation before controller acceptance:
 | F4 | `Invocation`/queued `Call` own arguments; `Pending` retains correlation, context, permit, deadline and completion authority without arguments. No new payload or latency claim is inferred. |
 | F5 | Keymap refresh compares its owned observation by reference and moves it into the cache after publication; an unchanged hit does not duplicate the observation vector. |
 | F6 | `completion::state::State` owns invocation identity, editing authority, source, popup, worker, resolver and bounded recency. Dismissal cancels resolution/worker authority; captured-source and late-result guards remain. |
-| F7 | Canonical commands, real staged-index/partial-staging/concurrency fixtures and explicit conflict-preserving installation are present. Actual checkout activation follows integration. |
+| F7 | Canonical commands, real staged-index/partial-staging/concurrency fixtures and explicit conflict-preserving installation are present. Repository-local activation and linked-worktree hook resolution are verified during prepare_gate. |
 
 The specification's criteria map remains the review contract. Mechanical checks
 cover its selected ownership, conversion, lifetime, source and exception rules.
@@ -101,9 +102,16 @@ and native regressions. A green linter does not prove those properties.
 
 Implementation checks pass for complete workspace lint, real hook acceptance,
 all nine source-checker tests, the existing hello workflow, documentation catalogs
-and the Spore User Guide build. Final clean-HEAD evidence is the Looper check record for the published PR HEAD,
-using the exact ordered commands below. The unchanged full gate and actual
-checkout hook activation are controller acceptance steps after integration.
+and the Spore User Guide build. All five frozen commands passed on the clean
+published and integrated HEAD `67dd8de1e9b51868f8f38379fc0079defd2a8d87` in Looper
+validation `RH3QDRJEPZIQ77JIV5ERDRERDT`, using the exact ordered commands below.
+The unchanged full gate remains a controller acceptance step after preparation.
+
+After integration, authorized `make install-hooks` setup activated repository-local
+`core.hooksPath=.githooks`. Primary and linked-worktree hook resolution are verified;
+the default hook directory contained only samples, with no conflicting hooks or
+another repository's configuration changed. Fresh prerequisite evidence for the
+clean preparation HEAD is recorded separately through Looper.
 
 All 28 hook fixture cases pass. Hook acceptance covers both partial-staging directions, a real installed commit,
 docs-only admission, native bounds, other-member coverage, staged manifest/lint/
@@ -145,8 +153,9 @@ Additional focused checks:
 
 ## Risks and Follow-ups
 
-The controller must verify local hook activation after integration and execute
-the unchanged full gate before delivery-set closure. No main/release/publication
+The controller must execute the unchanged full gate before delivery-set closure.
+Local hook activation is verified; the delivery set remains in progress.
+No main/release/publication
 operation is included. Foreign vendored compiler warnings remain visible and are
 outside first-party lint admission. New native behavior and test coverage are not
 claimed from static lint success.

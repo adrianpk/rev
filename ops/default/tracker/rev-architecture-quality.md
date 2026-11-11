@@ -9,7 +9,7 @@ Planning baseline: abbf0c21eeae1680c02c7a477fa0894d7996a393
 Specification: [Architecture Quality and Commit Checks](../spec/editor-architecture-quality.md)
 Review: [Architecture and Ownership Nit Review](../report/rev-architecture-nit-review.md)
 Concern: [Pending Editor Work](../README.md)
-Active slice: Slice 10 - Staged enforcement and acceptance
+Active slice: none; all ten slices integrated, controller full gate pending
 Plan: [Architecture Quality Delivery](../plan/rev-architecture-quality.md)
 Execution authorized: one ten-slice Looper run, automatic canonical integration into dev and local hook setup
 Progress owner: selected Looper run; no second runtime tracker
@@ -182,18 +182,38 @@ Progress: measured all 704 selected Rust files and 70 Cargo roots. The first own
 
 ## Slice 10: Staged enforcement and acceptance
 
-State: reviewing
+State: delivered
 Dependency: Slice 9 integrated
 Branch: chore/rev-architecture-quality-10-enforcement
 PR: #24 - https://forge.adrianpk.com/rev/rev/pulls/24
 Implementation: a4166260ce545008099475c40047cc345831edc9
 Report: ops/default/report/slices/rev-architecture-quality/slice-10-enforcement.md
-Progress: inherited strict policy, complete source discovery, canonical commands and exact staged-index enforcement are implemented. All 28 real hook fixtures, nine native checker tests, the existing hello workflow, documentation and User Guide checks pass. The actual staged hook passes with all 1836 files and 73 Cargo roots, zero diagnostics and unchanged index bytes. Timings and F1-F7 reconciliation are in the report. Canonical PR #24 is open against dev; final clean-HEAD ordered evidence follows; hook activation and full gate remain controller-owned.
-Validation: final published PR-HEAD evidence is recorded through the unchanged five-command Looper sequence
+Progress: inherited strict policy, complete source discovery, canonical commands and exact staged-index enforcement are implemented. All 28 real hook fixtures, nine native checker tests, the existing hello workflow, documentation and User Guide checks pass. The actual staged hook passes with all 1836 files and 73 Cargo roots, zero diagnostics and unchanged index bytes. Timings and F1-F7 reconciliation are in the report. Canonical PR #24 is merged into dev; the unchanged full gate remains controller-owned.
+Integrated: 67dd8de1e9b51868f8f38379fc0079defd2a8d87 through canonical PR #24
+Validation: all five frozen commands passed through Looper on clean published HEAD 67dd8de1e9b51868f8f38379fc0079defd2a8d87 in validation RH3QDRJEPZIQ77JIV5ERDRERDT
 
 - [x] T10.1: Adopt the final inherited workspace Clippy/source policy, exact method restrictions and reasoned local expectations; add canonical Makefile commands and concise repository AGENTS/local concern guidance.
 - [x] T10.2: Implement the nonmutating index-snapshot hook, exclusively owned per-worktree reusable cache and explicit install procedure; verify real Git partial staging, manifests/policy changes, deletes/renames, conflicts, concurrency and unchanged user content.
 - [x] T10.3: Recheck F1-F7 and the criteria map against final code, measure cold/warm checks, document use, run focused enforcement acceptance and prepare the unchanged controller gate/Markdown closure.
+
+## Gate preparation
+
+All ten canonical PRs (#15-#24) are merged into dev and all ten slice reports are
+delivered. The delivery set remains in progress until controller acceptance and
+the permitted Markdown closure.
+
+`make install-hooks` has activated repository-local `core.hooksPath=.githooks`.
+Primary and linked-worktree hook resolution are verified. The existing default
+hook directory contained only samples; no conflicting hooks or another
+repository's configuration were changed. All 28 real hook cases, including
+installed linked-worktree commits and independent concurrent caches, pass in the
+integrated Slice 10 evidence above.
+
+Prerequisite validation on the final clean preparation HEAD uses strict
+`make lint`, `make test-hooks` and `git diff --check`, with the approved compiler
+resource environment. Looper records the exact HEAD and ordered commands.
+Required build tools and the clean external compatibility checkout are present.
+The controller owns the unchanged full gate; it has not run during preparation.
 
 ## Final acceptance
 
