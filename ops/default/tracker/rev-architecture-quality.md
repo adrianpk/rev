@@ -265,12 +265,13 @@ the unchanged full-gate rerun.
 
 ## Gate repair 2: Directory acceptance fixtures
 
-State: PR open; final PR-HEAD validation and controller review pending
+State: delivered
 Branch: fix/rev-architecture-quality-git-cleanup-2
 Expected PR title: fix(git): stabilize owned cleanup during conflict resolution
 PR: #26 - https://forge.adrianpk.com/rev/rev/pulls/26
 Implementation: 0e8cf144aba9360b585df103fc85043309fecd2f
-Validation: the earlier eight-command sequences passed technically on implementation HEAD 0e8cf144aba9360b585df103fc85043309fecd2f (7KU3SWMAIABRTRXN2VTZO35CV3) and reference HEAD b84ddf700365459182f1c03dc9c58c0cd68147ce (TA2N2ESAVVQERXBOS6NHQJSWOW), but controller review rejected their required-command order; fresh final PR-HEAD evidence with the complete five-command prefix is required
+Integrated: ab813819e0e53f246660ac8fd702609e743b3dfb through canonical PR #26
+Validation: all five required commands passed through Looper on clean published and integrated HEAD ab813819e0e53f246660ac8fd702609e743b3dfb in validation MPIGY2O6ICXU2PFYLBBPFEUHXD; the canonical PR body matches this exact nonempty unique command list
 Report: ops/default/report/slices/rev-architecture-quality/slice-10-enforcement.md
 Failed candidate: 3165ff2e69575daaf09ddca6b5ed48aef4ccf506
 Failure evidence: MAUHSFFUQ2SVVJ2PKWGVFU2FGP
@@ -313,10 +314,13 @@ nine-command sequence because it duplicated `git diff --check`, despite its
 technical pass in SCTGSZ252MHZRTG4ZQQDU6PV26 on b1dd1ebd686845648f4003f1d390d1218701389e.
 The canonical PR body and clean-HEAD record now use exactly the five injected
 required commands, each once, ending with `git diff --check`. Focused fixture
-quality, path-completion and context regressions run separately and retain their
-evidence in the existing report. Fresh canonical evidence is required for this
-documentation correction. No test, assertion, runtime file, resource limit or
-delivery identity changes.
+quality, path-completion and context regressions ran separately on that same
+integrated HEAD: quality passes all three selected files, all 46 path-completion
+cases pass, and all 44 focused context cases pass. The canonical five cover 14
+process tests, nine Git conflict cases, quality, documentation and diff checks.
+PR #26 is verified merged; both gate repairs and all ten slices are delivered.
+No test, assertion, runtime file, resource limit or delivery identity changes
+during this document closure. The controller full gate remains pending.
 
 ## Final acceptance
 

@@ -10,7 +10,7 @@ Specification: [Architecture Quality and Commit Checks](../spec/editor-architect
 Review: [Architecture and Ownership Nit Review](../report/rev-architecture-nit-review.md)
 Concern: [Pending Editor Work](../README.md)
 Active slice: none; all ten slices integrated, controller full gate pending
-Active gate repair: repair 2 PR #26; final PR-HEAD validation and controller review pending
+Active gate repair: none; both repairs integrated, controller full gate pending
 Tracker: [Architecture Quality Tracker](../tracker/rev-architecture-quality.md)
 
 ## Outcome and authority

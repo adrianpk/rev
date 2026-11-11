@@ -14,7 +14,8 @@ Gate repair integrated: `ab30c95e4a164a54bcc3db606e2d4f4340335ea9` through canon
 Gate repair 2 branch: `fix/rev-architecture-quality-git-cleanup-2`
 Gate repair 2 PR: [#26](https://forge.adrianpk.com/rev/rev/pulls/26)
 Gate repair 2 implementation: `0e8cf144aba9360b585df103fc85043309fecd2f`
-Gate repair 2 state: PR open; final PR-HEAD validation and controller review pending.
+Gate repair 2 integrated: `ab813819e0e53f246660ac8fd702609e743b3dfb` through canonical PR #26.
+Gate repair 2 state: delivered; controller full gate pending.
 
 ## Purpose
 
@@ -264,6 +265,15 @@ The subsequent nine-command sequence passed technically on
 but controller review rejected its duplicate diff command. Canonical validation
 now contains exactly the five required commands, each nonempty and unique, in
 their injected order. Focused regression evidence remains separate from that
-list. Fresh checks are required after this documentation correction; Looper
-records the canonical five against the exact clean candidate before controller
-acceptance. Runtime files, assertions and every gate requirement are unchanged.
+list. The final canonical five passed through Looper on clean published and
+integrated HEAD `ab813819e0e53f246660ac8fd702609e743b3dfb` in validation
+`MPIGY2O6ICXU2PFYLBBPFEUHXD`. They cover all 14 process tests, nine Git conflict
+cases (81.19 seconds), the 16-file quality scope, documentation and diff checks.
+The canonical PR body matches those five commands exactly, with no duplicates.
+Separate focused checks on the same HEAD pass quality for all three fixture
+files, all 46 path-completion cases (11.16 seconds) and all 44 context cases
+(54.37 seconds). Forgejo confirms PR #26 is merged into dev at that exact HEAD.
+Both gate repairs and all ten slice reports are delivered. Runtime files,
+assertions and every gate requirement are unchanged; the controller full gate
+remains pending. Fresh preparation evidence is recorded against the clean
+document-closure HEAD before returning it for that gate.
