@@ -259,6 +259,15 @@ preserves all 2,889 existing test identities and all 19,672 assertion sites in
 704 Rust files. Only test/example implementation and this report/tracker change;
 no runtime owner, public package API, wire format, policy limit or budget changes.
 
+The final PR-head validation exposed a scheduler-dependent signed-movement
+fixture observation. The counted-movement owner publishes only when its complete
+candidate finishes and can yield after its existing four-millisecond input
+batch. The unchanged fixture observed a position before servicing that deferred
+work. Its six counted-motion observations now all use the existing bounded
+settle helper; five calls are added. The ten-second fixture deadline, four-ms
+runtime batch, all scalar/Unicode/CRLF expectations and every input stay intact.
+The separate deferred/cancel tests retain their original in-flight observations.
+
 ## Contracts Added or Changed
 
 No runtime, public package API, protocol, policy or acceptance contract changes
@@ -651,6 +660,25 @@ Development checks for Pi and interoperability example phases:
   and text/numeric literal multiplicities across the five changed Rust files.
   Final per-file comparison with the original Slice 9 inventory preserves all
   2,889 test identities and 19,672 assertion sites across 704 selected files.
+- `git diff --check`: passed.
+
+Final PR-head validation and counted-movement fixture correction:
+
+- Looper validation `67BIF33WCHYITLZILMJUMWYVWF` on clean published PR-reference
+  HEAD `3bd8ac436a933cf0998f3c84d8c2f4159f320256` passed scoped quality but
+  failed native check 2: 203 command cases passed and `signed_movement` observed
+  `Scalar(0)` instead of `Scalar(12)`. Later frozen commands were not executed
+  in that attempt. The preceding complete implementation-head result remains
+  recorded above; it does not substitute for current PR-head validation.
+- The signed-movement case and its editor helper were unchanged from integrated
+  `dev`. The correction services native cooperative work before each position
+  observation through the fixture's existing settle helper. No runtime source,
+  acceptance assertion, varied input, deadline or resource limit changes.
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --test commands -- prefix_arguments:: --test-threads=1`: passed all 28 existing prefix cases, including deferred work, cancellation, contextual ownership and signed movement; 176 unrelated cases were filtered out.
+- Static comparison preserves the file's existing identities, assertion-site
+  count and all text/numeric literal multiplicities. Only five existing-helper
+  calls are added. The new candidate requires fresh, unchanged ordered Looper
+  validation before readiness.
 - `git diff --check`: passed.
 
 ## Risks and Follow-ups
