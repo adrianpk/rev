@@ -15,6 +15,8 @@ use std::{
     time::{Duration, Instant},
 };
 
+mod cleanup;
+
 pub(crate) enum Editors {
     Disabled,
     AcceptMessage,
@@ -318,37 +320,12 @@ impl Owned {
     }
 
     pub fn stop(&mut self, exited: bool) -> Result<ExitStatus, String> {
-        let start = Instant::now();
-        let deadline = start + Duration::from_secs(2);
-        self.signal(if exited { Signal::KILL } else { Signal::TERM })?;
-        // The leader remains unreaped, so its group ID cannot be reused.
-        // After SIGKILL and a complete no-live-member observation, another
-        // whole process-table scan cannot establish more cleanup authority.
-        if exited && !self.running(deadline)? {
-            return self.reap();
-        }
-        self.terminate(start, deadline)?;
+        cleanup::stop(
+            exited,
+            |signal| self.signal(signal),
+            |end| self.running(end),
+        )?;
         self.reap()
-    }
-
-    fn terminate(&self, start: Instant, deadline: Instant) -> Result<(), String> {
-        let grace = start + Duration::from_millis(500);
-        self.wait_group(grace, deadline)?;
-        if self.running(deadline)? {
-            self.signal(Signal::KILL)?;
-        }
-        self.wait_group(deadline, deadline)?;
-        if self.running(deadline)? {
-            return Err("Git process-group cleanup timed out".into());
-        }
-        Ok(())
-    }
-
-    fn wait_group(&self, until: Instant, deadline: Instant) -> Result<(), String> {
-        while Instant::now() < until && self.running(deadline)? {
-            std::thread::sleep(Duration::from_millis(2));
-        }
-        Ok(())
     }
 
     fn reap(&mut self) -> Result<ExitStatus, String> {

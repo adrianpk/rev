@@ -1,12 +1,14 @@
 # Slice 10: Staged enforcement and acceptance
 
-Status: delivered
+Status: reviewing
 Delivery set: rev-architecture-quality
 Plan: [Architecture Quality Delivery](../../../plan/rev-architecture-quality.md)
 Tracker: [Architecture Quality Tracker](../../../tracker/rev-architecture-quality.md)
 Branch: `chore/rev-architecture-quality-10-enforcement`
 PR: [#24](https://forge.adrianpk.com/rev/rev/pulls/24)
 Integrated: `67dd8de1e9b51868f8f38379fc0079defd2a8d87` through canonical PR #24.
+Gate repair branch: `fix/rev-architecture-quality-git-cleanup-1`
+Gate repair PR: pending
 
 ## Purpose
 
@@ -62,6 +64,33 @@ repositories. It does not stop unrelated processes or change this checkout's hoo
 configuration. Fixture status/diff observations use another index copy so they
 cannot refresh the metadata measured by the raw index-preservation assertion.
 
+### Gate repair: Owned Git cleanup
+
+The original Slice 10 delivery remains integrated through canonical PR #24.
+This report is reopened for review of the bounded gate repair.
+
+Controller validation `LYMBVLYJ4VGE3RDKMUABFBAYJQ` on integrated candidate
+`4d92ea260259a8a453810e193582f3b0f508595c` passed lint/hooks but failed the native
+Git suite: 241 cases passed and `conflicts::resolution::sides_then_stage` remained
+in Cleanup at the existing five-second per-operation fixture deadline. The
+isolated baseline passes in 36.39 seconds, so it does not reproduce on every run.
+
+The capture cleanup path discarded complete no-live-member observations and
+rescanned the process table. A later observation failure could retain an already
+stopped group. The cohesive cleanup owner now carries that shutdown result through
+TERM grace, KILL and final reaping. An exited leader goes directly through KILL
+observation. The leader remains unreaped until the last signal/observation, and
+incomplete or failed observations still retain cleanup authority. The two-second
+cleanup budget, 500-ms TERM grace, 250-ms drain, output limits, cancellation and
+Git freshness/effects/publication guards remain unchanged.
+
+The deterministic `shutdown_observed` regression fails before the correction
+with a redundant-observation error and passes afterward. Real child regressions
+cover exited leaders whose descendants inherit or redirect output, plus actual
+TERM-to-KILL escalation. Existing cancellation, timeout, private workspace,
+process-state and reaping tests remain.
+No Git fixture assertion, timeout, input or repository-state check is changed.
+
 ## Contracts Added or Changed
 
 - Added inherited workspace lint tables, explicit method restrictions and strict
@@ -97,6 +126,8 @@ and native regressions. A green linter does not prove those properties.
 - `Makefile`, `AGENTS.md`, `.agents/`: canonical commands and repository guidance.
 - `src/completion/job.rs`, atomic admission/identity owners and
   `docs/reference/plugin-hello.rs`: bounded final-adoption corrections.
+- `src/process/capture.rs`, `src/process/capture/cleanup.rs` and
+  `src/process/capture/tests.rs`: bounded cleanup observations and regressions.
 
 ## Validation
 
@@ -150,6 +181,15 @@ Additional focused checks:
 - `bash .githooks/pre-commit` - complete actual worktree staged candidate passed both cold and unchanged warm checks, with exact index bytes preserved.
 - `git diff --check` - passed.
 
+Gate repair checks, in canonical order; final clean published HEAD evidence is
+recorded through Looper after the repair PR references are committed:
+
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 bash scripts/check-quality.sh --scope src/process.rs --scope src/process --scope src/git/work/command.rs --scope src/git/work/conflicts --scope tests/git_integration/support.rs --scope tests/git_integration/conflicts_resolution.rs` - passed for all 16 selected files; zero Clippy/source findings.
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --lib -- process:: --test-threads=1` - all 14 pass during implementation.
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --test git_integration -- conflicts::resolution --test-threads=1` - all nine pass in 104.56 seconds.
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo run --locked --quiet -p rev --example documentation-check` - passed.
+- `git diff --check` - passed.
+
 
 ## Risks and Follow-ups
 
@@ -159,3 +199,6 @@ No main/release/publication
 operation is included. Foreign vendored compiler warnings remain visible and are
 outside first-party lint admission. New native behavior and test coverage are not
 claimed from static lint success.
+The gate repair awaits canonical review/integration; exact clean PR-HEAD evidence
+is recorded through Looper.
+The controller must rerun the unchanged full gate after repair integration.

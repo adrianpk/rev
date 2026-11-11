@@ -198,9 +198,10 @@ Validation: all five frozen commands passed through Looper on clean published HE
 
 ## Gate preparation
 
-All ten canonical PRs (#15-#24) are merged into dev and all ten slice reports are
-delivered. The delivery set remains in progress until controller acceptance and
-the permitted Markdown closure.
+All ten original slice PRs (#15-#24) are merged into dev. Their delivered tracker
+entries remain closed; the existing Slice 10 report now records the approved gate
+repair under review. The delivery set remains in progress until controller
+acceptance and the permitted Markdown closure.
 
 `make install-hooks` has activated repository-local `core.hooksPath=.githooks`.
 Primary and linked-worktree hook resolution are verified. The existing default
@@ -233,6 +234,29 @@ whitespace. Coverage is 1,837 first-party Rust files, both packages and all 73
 Cargo roots, with zero blocking/deferred Clippy diagnostics or source findings.
 Preparation evidence is keyed by the exact clean published HEAD. The controller
 must run the unchanged full gate; no full-gate result has been accepted.
+
+## Gate repair 1: Owned Git cleanup
+
+State: reviewing
+Branch: fix/rev-architecture-quality-git-cleanup-1
+Expected PR title: fix(git): stabilize owned cleanup during conflict resolution
+PR: pending
+Report: ops/default/report/slices/rev-architecture-quality/slice-10-enforcement.md
+Failed candidate: 4d92ea260259a8a453810e193582f3b0f508595c
+Failure evidence: LYMBVLYJ4VGE3RDKMUABFBAYJQ
+
+The retained native gate passed 241 Git cases and failed `sides_then_stage` while
+its operation remained in Cleanup. Its isolated baseline passes in 36.39 seconds;
+the five-second per-operation assertion is unchanged. A deterministic regression
+reproduces redundant process-table observation after shutdown was established.
+Cleanup now retains that observation through the same signalling, ownership and
+reaping boundary. All 14 process-owner tests pass, including real exited leaders,
+redirected descendants, TERM-to-KILL escalation, cancellation and timeout. All nine
+conflict-resolution cases pass in 104.56 seconds with the original assertions and
+deadlines. Scoped quality passes for all 16 selected files with zero Clippy/source
+findings, and documentation checks pass. The final clean PR-HEAD Looper record
+supplies the unchanged ordered five-command repair evidence. The controller owns
+repair integration and the full-gate rerun.
 
 ## Final acceptance
 

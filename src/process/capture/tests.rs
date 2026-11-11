@@ -99,6 +99,59 @@ fn bounded_cleanup() {
     }
 }
 
+// An exited leader still owns descendants, even when they redirect both
+// streams. Completion reaps the leader and observes descendant shutdown.
+#[test]
+fn exited_descendants() {
+    for script in [
+        "echo $$ > leader; sleep 30 & echo $! > descendant; printf done",
+        "echo $$ > leader; sleep 30 >/dev/null 2>&1 & echo $! > descendant; printf done",
+    ] {
+        let fixture = Fixture::new();
+        let start = Instant::now();
+        let result = program(&fixture, script, 4096).run(&Cancellation::default(), |_, _| {});
+        assert_eq!(result.end, End::Exited, "{:?}", result.diagnostic);
+        assert!(result.status.unwrap().success());
+        assert!(result.retained.is_none(), "{:?}", result.diagnostic);
+        assert_eq!(result.stdout, b"done");
+        assert!(start.elapsed() < Duration::from_secs(4));
+        let leader = std::fs::read_to_string(fixture.0.join("leader")).unwrap();
+        assert!(!PathBuf::from(format!("/proc/{}", leader.trim())).exists());
+        let descendant = std::fs::read_to_string(fixture.0.join("descendant")).unwrap();
+        let stat = std::fs::read_to_string(format!("/proc/{}/stat", descendant.trim()));
+        assert!(stat.is_err() || stat.unwrap().split_once(") ").unwrap().1.starts_with('Z'));
+    }
+}
+
+// A real group ignoring TERM must still receive KILL within the same cleanup
+// budget, with the leader reaped and its descendant stopped before return.
+#[test]
+fn term_escalation() {
+    use std::os::unix::process::ExitStatusExt;
+    let fixture = Fixture::new();
+    let mut program = program(
+        &fixture,
+        "trap '' TERM; echo $$ > leader; sleep 30 & echo $! > descendant; printf before; wait",
+        4096,
+    );
+    let mut owned = program.launch(None, &Cancellation::default()).unwrap();
+    let deadline = Instant::now() + Duration::from_secs(4);
+    while !fixture.0.join("descendant").exists() {
+        assert!(Instant::now() < deadline, "TERM fixture did not start");
+        std::thread::sleep(Duration::from_millis(2));
+    }
+    let leader = owned.child_id();
+    let status = owned.stop(false).unwrap();
+    assert_eq!(status.signal(), Some(9));
+    owned.drain(4096).unwrap();
+    assert_eq!(owned.streams.take(), (b"before".to_vec(), Vec::new()));
+    assert!(Instant::now() < deadline);
+    assert!(!PathBuf::from(format!("/proc/{leader}")).exists());
+    let descendant = std::fs::read_to_string(fixture.0.join("descendant")).unwrap();
+    let stat = std::fs::read_to_string(format!("/proc/{}/stat", descendant.trim()));
+    assert!(stat.is_err() || stat.unwrap().split_once(") ").unwrap().1.starts_with('Z'));
+}
+
 // NUL and aggregate argv overflow fail before process launch. A pre-cancelled
 // request likewise cannot create a child or claim an exit status.
 #[test]

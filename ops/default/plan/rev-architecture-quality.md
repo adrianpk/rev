@@ -10,6 +10,7 @@ Specification: [Architecture Quality and Commit Checks](../spec/editor-architect
 Review: [Architecture and Ownership Nit Review](../report/rev-architecture-nit-review.md)
 Concern: [Pending Editor Work](../README.md)
 Active slice: none; all ten slices integrated, controller full gate pending
+Active gate repair: fix/rev-architecture-quality-git-cleanup-1
 Tracker: [Architecture Quality Tracker](../tracker/rev-architecture-quality.md)
 
 ## Outcome and authority
@@ -411,3 +412,30 @@ closure changes only this plan/tracker/specification, the review report, concern
 index and the ten slice report Markdown paths. Mark F1-F7 resolved with evidence,
 record any genuine review limits, deliver all reports and mark artifacts Completed.
 Do not edit runtime, lint/hook policy or command strings after the tested candidate.
+
+### Gate repair 1: Owned Git cleanup
+
+Branch: `fix/rev-architecture-quality-git-cleanup-1`
+Expected PR title: `fix(git): stabilize owned cleanup during conflict resolution`
+Report: `ops/default/report/slices/rev-architecture-quality/slice-10-enforcement.md`
+Failed integrated candidate: `4d92ea260259a8a453810e193582f3b0f508595c`
+Failure evidence: `LYMBVLYJ4VGE3RDKMUABFBAYJQ`
+
+The retained gate failed in `conflicts::resolution::sides_then_stage`, with the
+operation still in Cleanup at its unchanged five-second fixture deadline.
+Preserve completed process-group shutdown observations through cleanup, retain
+the unreaped leader until the last signal/observation, and keep the existing
+two-second cleanup budget, 500-ms TERM grace and 250-ms output drain. Correct only
+the approved process cleanup owner and its regressions; retain Git consent,
+freshness, effects, publication and repository-state assertions.
+
+Frozen ordered repair checks:
+
+1. `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 bash scripts/check-quality.sh --scope src/process.rs --scope src/process --scope src/git/work/command.rs --scope src/git/work/conflicts --scope tests/git_integration/support.rs --scope tests/git_integration/conflicts_resolution.rs`
+2. `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --lib -- process:: --test-threads=1`
+3. `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --test git_integration -- conflicts::resolution --test-threads=1`
+4. `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo run --locked --quiet -p rev --example documentation-check`
+5. `git diff --check`
+
+This is a bounded repair using the existing Slice 10 report. The controller owns
+integration and the unchanged full gate; no additional numbered slice is created.
