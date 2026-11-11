@@ -65,6 +65,23 @@ Static comparison preserves all original string, character and numeric literals
 in the changed Rust files. Only the three explicit ratio reasons are added.
 Existing test identities and assertion-site counts remain unchanged.
 
+Publication output has explicit file projection, asset copy and HTML finishing
+phases. A private Markdown projection owner keeps its source, cursor, fence,
+output and fragment map together, with named literal, image, table and ordered
+step handling. Fence transitions, duplicate-anchor allocation and code-span cell
+scanning retain their original boundaries. The canonical/reference configuration
+sample comparison is a separate catalog concern.
+
+The wrapping latency probe owns its native session, original scalar position and
+measurements. Scrolling, queued reversal, far reversal, resize, editing and exact
+source restoration remain in their original order, with the same event counts,
+512-batch settle ceiling, idle checks and timing boundaries. Both developer
+example crate roots now declare `#![forbid(unsafe_code)]`.
+
+The publication and catalog unit-test bodies remain byte-identical. All five
+wrapping inputs and their invocation order remain byte-identical, and assertion
+counts are unchanged in all three files.
+
 ## Contracts Added or Changed
 
 No runtime, package API, protocol, policy or acceptance changes are planned.
@@ -81,7 +98,11 @@ The existing five frozen commands and final controller gate remain required.
 - `tests/org_time/zone_fixture.rs`: checked independent TZif encoding.
 - `tests/plugins/buffers.rs` and its RPC consumers: borrowed request observations.
 - `examples/completion_acceptance/support.rs`: shared borrowed configuration.
-- `examples/documentation_check/catalogs.rs`: borrowed catalog comparisons.
+- `examples/documentation_check/catalogs.rs`: borrowed catalog comparisons and
+  independent packaged/reference sample validation.
+- `examples/userguide-publication.rs`: owned Markdown projection and bounded
+  file/fragment/anchor finishing steps.
+- `examples/wrap-performance.rs`: native probe phases with owned timings.
 - `examples/git_integration_acceptance/`: snapshot and staged-content ownership.
 - `examples/integrated_terminal_acceptance/failure.rs`: explicit shared failure
   injection state; host terminal cleanup behavior is unchanged.
@@ -128,9 +149,29 @@ Development checks for borrowed observations and checked numeric fixtures:
   files. No input, consent guard, assertion, timeout or resource limit is relaxed.
 - `git diff --check`: passed.
 
+Development checks for publication and wrapping probe phases:
+
+- The frozen scoped quality command still fails overall: 114 native source
+  findings remain, down from 123. Formatting, all-target compilation and scoped
+  Clippy admission pass with zero blocking diagnostics; four selected-profile
+  diagnostics remain deferred outside this scope. Coverage remains 704 of 1,836
+  first-party Rust files and 70 of 73 Cargo roots across two packages.
+- `target/debug/examples/source-check --workspace --scope examples/userguide-publication.rs --scope examples/wrap-performance.rs --scope examples/documentation_check/catalogs.rs`: passed native source policy for all three changed files, including both Cargo roots; Clippy is checked separately by the scoped quality command.
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --example userguide-publication --example documentation-check`: passed all 13 existing unit cases: six publication projection/anchor/table/list cases and seven documentation/catalog/schema drift cases.
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo run --locked --quiet -p rev --example documentation-check`: passed 684 commands, 299 configuration entries, 106 reachable pages and 743 local links and anchors.
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo run --locked --quiet -p rev --example wrap-performance`: passed all five existing bounded native scenarios: token, words, Unicode, regional indicators and many lines; exact source, scalar restoration and idle assertions remain intact.
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo build --locked -p rev --example userguide-publication`: passed; the resulting owned producer generated all 106 canonical Markdown pages.
+- Compared independent before/after publication fixtures against the clean
+  `8b50c254ee67d8eddb3df53c2b3053d855fbba69` producer: all 279 output files are
+  byte-identical, including projected pages, fragments, assets and the book tree.
+- Existing publication/catalog unit-test bodies, wrapping scenario inputs/order
+  and every changed file's assertion-site count are unchanged. No policy limit,
+  timeout, input, resource budget or acceptance condition is relaxed.
+- `git diff --check`: passed.
+
 ## Risks and Follow-ups
 
-Selected Clippy admission is complete. The remaining 123 native source findings
-require cohesive fixture/example decomposition and complete Cargo-root safety
-declarations. T9.1-T9.3 remain in progress. The canonical PR, final ordered
-clean-HEAD evidence and controller integration remain pending.
+Selected Clippy admission is complete. The remaining 114 native source findings
+require cohesive fixture/example decomposition. T9.1-T9.3 remain in progress.
+The canonical PR, final ordered clean-HEAD evidence and controller integration
+remain pending.

@@ -147,17 +147,22 @@ fn check_configuration(root: &Path, sources: &[String]) -> Result<usize> {
         &rows.keys().cloned().collect::<Vec<_>>(),
         &expected,
     )?;
-    let sample: toml::Value = toml::from_str(rev::config::default_template())?;
-    require(
-        fs::read(root.join("docs/reference/config.toml"))?
-            == rev::config::default_template().as_bytes(),
-        "packaged/reference sample mismatch",
-    )?;
+    let sample = packaged_sample(root)?;
     for (key, row) in &rows {
         check_default(&sample, key, row)?;
     }
     check_terminal_settings(root, &expected, &sample)?;
     Ok(rows.len())
+}
+
+fn packaged_sample(root: &Path) -> Result<toml::Value> {
+    let sample = toml::from_str(rev::config::default_template())?;
+    require(
+        fs::read(root.join("docs/reference/config.toml"))?
+            == rev::config::default_template().as_bytes(),
+        "packaged/reference sample mismatch",
+    )?;
+    Ok(sample)
 }
 
 // The dedicated reference must stay complete as live terminal commands evolve.

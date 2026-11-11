@@ -1,3 +1,5 @@
+#![forbid(unsafe_code)]
+
 //! Project the canonical Markdown documentation into a Spore publication.
 use std::collections::{BTreeMap, BTreeSet};
 use std::error::Error;
@@ -18,43 +20,9 @@ fn main() -> Result<()> {
     collect(&root, &root, &mut files)?;
     files.sort();
     if std::env::args().nth(2).as_deref() == Some("--finish") {
-        for source in &files {
-            if source.extension().is_some_and(|value| value == "md") {
-                let input = fs::read_to_string(root.join(source))?;
-                let output = destination.join("public").join(output_path(source));
-                write(
-                    &output,
-                    &anchor_html(&fs::read_to_string(&output)?, &anchors(&input))?,
-                )?;
-            }
-        }
-        return Ok(());
+        return finish(&root, &destination, &files);
     }
-    let mut fragments = BTreeMap::new();
-    for source in &files {
-        if source.extension().is_some_and(|value| value == "md") {
-            let content = fs::read_to_string(root.join(source))?;
-            let title = content
-                .lines()
-                .find_map(|line| line.strip_prefix("# "))
-                .ok_or_else(|| format!("{}: missing title", source.display()))?;
-            let projected = project(&content, source, &mut fragments)?;
-            let metadata = format!(
-                "@meta[page_id = \"{}\", short_title = \"{}\"]\n\n",
-                page_id(source),
-                quoted(title)
-            );
-            let output = destination.join(format!("{}.spmd", output_path(source).display()));
-            write(&output, &(metadata + &projected))?;
-        } else {
-            let output = destination.join("downloads").join(output_path(source));
-            fs::create_dir_all(output.parent().ok_or("Asset has no parent")?)?;
-            fs::copy(root.join(source), output)?;
-        }
-    }
-    for (name, content) in fragments {
-        write(&destination.join(name), &content)?;
-    }
+    project_files(&root, &destination, &files)?;
     extend_tree(&destination, &files)?;
     println!(
         "Projected {} Markdown pages for Spore",
@@ -63,6 +31,67 @@ fn main() -> Result<()> {
             .filter(|path| path.extension().is_some_and(|value| value == "md"))
             .count()
     );
+    Ok(())
+}
+
+fn finish(root: &Path, destination: &Path, files: &[PathBuf]) -> Result<()> {
+    for source in files {
+        if source.extension().is_some_and(|value| value == "md") {
+            finish_page(root, destination, source)?;
+        }
+    }
+    Ok(())
+}
+
+fn finish_page(root: &Path, destination: &Path, source: &Path) -> Result<()> {
+    let input = fs::read_to_string(root.join(source))?;
+    let output = destination.join("public").join(output_path(source));
+    write(
+        &output,
+        &anchor_html(&fs::read_to_string(&output)?, &anchors(&input))?,
+    )
+}
+
+fn project_files(root: &Path, destination: &Path, files: &[PathBuf]) -> Result<()> {
+    let mut fragments = BTreeMap::new();
+    for source in files {
+        if source.extension().is_some_and(|value| value == "md") {
+            project_page(root, destination, source, &mut fragments)?;
+        } else {
+            copy_asset(root, destination, source)?;
+        }
+    }
+    for (name, content) in fragments {
+        write(&destination.join(name), &content)?;
+    }
+    Ok(())
+}
+
+fn project_page(
+    root: &Path,
+    destination: &Path,
+    source: &Path,
+    fragments: &mut BTreeMap<PathBuf, String>,
+) -> Result<()> {
+    let content = fs::read_to_string(root.join(source))?;
+    let title = content
+        .lines()
+        .find_map(|line| line.strip_prefix("# "))
+        .ok_or_else(|| format!("{}: missing title", source.display()))?;
+    let projected = project(&content, source, fragments)?;
+    let metadata = format!(
+        "@meta[page_id = \"{}\", short_title = \"{}\"]\n\n",
+        page_id(source),
+        quoted(title)
+    );
+    let output = destination.join(format!("{}.spmd", output_path(source).display()));
+    write(&output, &(metadata + &projected))
+}
+
+fn copy_asset(root: &Path, destination: &Path, source: &Path) -> Result<()> {
+    let output = destination.join("downloads").join(output_path(source));
+    fs::create_dir_all(output.parent().ok_or("Asset has no parent")?)?;
+    fs::copy(root.join(source), output)?;
     Ok(())
 }
 
@@ -115,88 +144,147 @@ fn project(
     source: &Path,
     fragments: &mut BTreeMap<PathBuf, String>,
 ) -> Result<String> {
-    let lines: Vec<_> = content.lines().collect();
-    let mut output = String::new();
-    let mut fence: Option<(char, usize)> = None;
-    let mut index = 0;
-    while index < lines.len() {
-        let line = lines[index];
-        if let Some(marker) = fence_marker(line) {
-            match fence {
-                None => fence = Some(marker),
-                Some((kind, width)) if marker.0 == kind && marker.1 >= width => fence = None,
-                _ => {}
-            }
-            output.push_str(line);
-            output.push('\n');
-            index += 1;
-            continue;
-        }
-        if fence.is_some() {
-            output.push_str(line);
-            output.push('\n');
-            index += 1;
-            continue;
-        }
-        if let Some(image) = image(line, source)? {
-            let fragment =
-                PathBuf::from(format!("_fragments/{}-image-{index}.sp", page_id(source)));
-            output.push_str(&format!("@include[path = \"{}\"]\n\n", fragment.display()));
-            fragments.insert(fragment, image);
-            index += 1;
-            continue;
-        }
-        if line.starts_with('|') && index + 1 < lines.len() && alignment(lines[index + 1]) {
-            let fragment = PathBuf::from(format!("_fragments/{}-{index}.sp", page_id(source)));
-            let mut table = String::from("@table{\n@thead{\n");
-            table.push_str(&table_row(line, source, true)?);
-            table.push_str("}\n@tbody{\n");
-            index += 2;
-            while index < lines.len() && lines[index].starts_with('|') {
-                table.push_str(&table_row(lines[index], source, false)?);
-                index += 1;
-            }
-            table.push_str("}\n}\n");
-            output.push_str(&format!("@include[path = \"{}\"]\n\n", fragment.display()));
-            fragments.insert(fragment, table);
-            continue;
-        }
-        if numbered_item(line).is_some() {
-            let fragment =
-                PathBuf::from(format!("_fragments/{}-steps-{index}.sp", page_id(source)));
-            let mut list = String::from("@list[ordered = true]{\n");
-            while index < lines.len() {
-                let Some(text) = numbered_item(lines[index]) else {
-                    break;
-                };
-                let mut text = text.to_string();
-                index += 1;
-                while index < lines.len()
-                    && lines[index].starts_with([' ', '\t'])
-                    && !lines[index].trim().is_empty()
-                {
-                    text.push(' ');
-                    text.push_str(lines[index].trim());
-                    index += 1;
-                }
-                list.push_str(&format!(
-                    "@item{{{}}}\n",
-                    inline(&rewrite_links(&text, source)?)?
-                ));
-            }
-            list.push_str("}\n");
-            output.push_str(&format!("@include[path = \"{}\"]\n\n", fragment.display()));
-            fragments.insert(fragment, list);
-            continue;
-        }
-        output.push_str(&rewrite_links(line, source)?);
-        output.push('\n');
-        index += 1;
+    Projection {
+        lines: content.lines().collect(),
+        source,
+        fragments,
+        output: String::new(),
+        fence: None,
+        index: 0,
     }
-    if fence.is_some() {
-        return Err(format!("{}: unclosed code fence", source.display()).into());
+    .run()
+}
+
+struct Projection<'a> {
+    lines: Vec<&'a str>,
+    source: &'a Path,
+    fragments: &'a mut BTreeMap<PathBuf, String>,
+    output: String,
+    fence: Option<(char, usize)>,
+    index: usize,
+}
+
+impl Projection<'_> {
+    fn run(mut self) -> Result<String> {
+        while self.index < self.lines.len() {
+            self.line()?;
+        }
+        if self.fence.is_some() {
+            return Err(format!("{}: unclosed code fence", self.source.display()).into());
+        }
+        Ok(self.output)
     }
-    Ok(output)
+
+    fn line(&mut self) -> Result<()> {
+        let line = self.lines[self.index];
+        if self.literal(line) {
+            self.push_line(line);
+            return Ok(());
+        }
+        if let Some(image) = image(line, self.source)? {
+            let fragment = PathBuf::from(format!(
+                "_fragments/{}-image-{}.sp",
+                page_id(self.source),
+                self.index
+            ));
+            self.include(fragment, image);
+            self.index += 1;
+            return Ok(());
+        }
+        if self.table()? {
+            return Ok(());
+        }
+        if self.steps()? {
+            return Ok(());
+        }
+        self.push_line(&rewrite_links(line, self.source)?);
+        Ok(())
+    }
+
+    fn literal(&mut self, line: &str) -> bool {
+        let Some(marker) = fence_marker(line) else {
+            return self.fence.is_some();
+        };
+        advance_fence(&mut self.fence, marker);
+        true
+    }
+
+    fn push_line(&mut self, line: &str) {
+        self.output.push_str(line);
+        self.output.push('\n');
+        self.index += 1;
+    }
+
+    fn include(&mut self, fragment: PathBuf, content: String) {
+        self.output
+            .push_str(&format!("@include[path = \"{}\"]\n\n", fragment.display()));
+        self.fragments.insert(fragment, content);
+    }
+
+    fn table(&mut self) -> Result<bool> {
+        let line = self.lines[self.index];
+        if !line.starts_with('|')
+            || self.index + 1 >= self.lines.len()
+            || !alignment(self.lines[self.index + 1])
+        {
+            return Ok(false);
+        }
+        let fragment = PathBuf::from(format!(
+            "_fragments/{}-{}.sp",
+            page_id(self.source),
+            self.index
+        ));
+        let mut table = String::from("@table{\n@thead{\n");
+        table.push_str(&table_row(line, self.source, true)?);
+        table.push_str("}\n@tbody{\n");
+        self.index += 2;
+        while self.index < self.lines.len() && self.lines[self.index].starts_with('|') {
+            table.push_str(&table_row(self.lines[self.index], self.source, false)?);
+            self.index += 1;
+        }
+        table.push_str("}\n}\n");
+        self.include(fragment, table);
+        Ok(true)
+    }
+
+    fn steps(&mut self) -> Result<bool> {
+        if numbered_item(self.lines[self.index]).is_none() {
+            return Ok(false);
+        }
+        let fragment = PathBuf::from(format!(
+            "_fragments/{}-steps-{}.sp",
+            page_id(self.source),
+            self.index
+        ));
+        let mut list = String::from("@list[ordered = true]{\n");
+        while self.index < self.lines.len() {
+            let Some(text) = numbered_item(self.lines[self.index]) else {
+                break;
+            };
+            let text = self.step_text(text);
+            list.push_str(&format!(
+                "@item{{{}}}\n",
+                inline(&rewrite_links(&text, self.source)?)?
+            ));
+        }
+        list.push_str("}\n");
+        self.include(fragment, list);
+        Ok(true)
+    }
+
+    fn step_text(&mut self, text: &str) -> String {
+        let mut text = text.to_string();
+        self.index += 1;
+        while self.index < self.lines.len()
+            && self.lines[self.index].starts_with([' ', '\t'])
+            && !self.lines[self.index].trim().is_empty()
+        {
+            text.push(' ');
+            text.push_str(self.lines[self.index].trim());
+            self.index += 1;
+        }
+        text
+    }
 }
 
 fn numbered_item(line: &str) -> Option<&str> {
@@ -239,25 +327,36 @@ fn anchors(content: &str) -> Vec<String> {
     let mut fence = None;
     for line in content.lines() {
         if let Some(marker) = fence_marker(line) {
-            if fence.is_none() {
-                fence = Some(marker);
-            } else if fence.is_some_and(|(kind, width)| marker.0 == kind && marker.1 >= width) {
-                fence = None;
-            }
-        } else if fence.is_none()
-            && let Some(title) = heading(line)
-        {
-            let base = slug(title);
-            let mut id = base.clone();
-            let mut number = 1;
-            while !seen.insert(id.clone()) {
-                id = format!("{base}-{number}");
-                number += 1;
-            }
-            result.push(id);
+            advance_fence(&mut fence, marker);
+            continue;
+        }
+        if fence.is_some() {
+            continue;
+        }
+        if let Some(title) = heading(line) {
+            result.push(unique_anchor(title, &mut seen));
         }
     }
     result
+}
+
+fn advance_fence(fence: &mut Option<(char, usize)>, marker: (char, usize)) {
+    match *fence {
+        None => *fence = Some(marker),
+        Some((kind, width)) if marker.0 == kind && marker.1 >= width => *fence = None,
+        _ => {}
+    }
+}
+
+fn unique_anchor(title: &str, seen: &mut BTreeSet<String>) -> String {
+    let base = slug(title);
+    let mut id = base.clone();
+    let mut number = 1;
+    while !seen.insert(id.clone()) {
+        id = format!("{base}-{number}");
+        number += 1;
+    }
+    id
 }
 
 // Spore assigns numbered heading IDs. Retain them and add the canonical
@@ -402,27 +501,36 @@ fn cells(line: &str) -> Vec<String> {
             if let Some(next) = chars.next() {
                 cell.push(next);
             }
-        } else if value == '`' {
-            let mut width = 1;
-            while chars.peek() == Some(&'`') {
-                chars.next();
-                width += 1;
-            }
-            if code == 0 {
-                code = width;
-            } else if code == width {
-                code = 0;
-            }
+            continue;
+        }
+        if value == '`' {
+            let width = code_width(&mut chars, &mut code);
             cell.push_str(&"`".repeat(width));
-        } else if value == '|' && code == 0 {
+            continue;
+        }
+        if value == '|' && code == 0 {
             cells.push(cell.trim().into());
             cell.clear();
-        } else {
-            cell.push(value);
+            continue;
         }
+        cell.push(value);
     }
     cells.push(cell.trim().into());
     cells
+}
+
+fn code_width(chars: &mut std::iter::Peekable<std::str::Chars<'_>>, code: &mut usize) -> usize {
+    let mut width = 1;
+    while chars.peek() == Some(&'`') {
+        chars.next();
+        width += 1;
+    }
+    if *code == 0 {
+        *code = width;
+    } else if *code == width {
+        *code = 0;
+    }
+    width
 }
 
 fn alignment(line: &str) -> bool {
