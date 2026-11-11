@@ -594,24 +594,28 @@ fn insertion_refusal() {
     for profile in ["non-modal", "modal"] {
         for number in ["0", "-2"] {
             for command in ["newline", "insert-tab"] {
-                let mut session = editor(
-                    &format!("editor.interaction_profile='{profile}'"),
-                    "a\r\nb",
-                    1,
-                );
-                if profile == "modal" {
-                    session.execute(Command::Modal(rev::command::ModalCommand::Insert));
-                }
-                let before = super::snapshot(session.buffer().unwrap(), &[session.view().point]);
-                count(&mut session, number);
-                named(&mut session, command);
-                settle(&mut session);
-                assert_eq!(
-                    super::snapshot(session.buffer().unwrap(), &[session.view().point]),
-                    before,
-                    "{profile} {number} {command}"
-                );
+                check_insertion_refusal(profile, number, command);
             }
         }
     }
+}
+
+fn check_insertion_refusal(profile: &str, number: &str, command: &str) {
+    let mut session = editor(
+        &format!("editor.interaction_profile='{profile}'"),
+        "a\r\nb",
+        1,
+    );
+    if profile == "modal" {
+        session.execute(Command::Modal(rev::command::ModalCommand::Insert));
+    }
+    let before = super::snapshot(session.buffer().unwrap(), &[session.view().point]);
+    count(&mut session, number);
+    named(&mut session, command);
+    settle(&mut session);
+    assert_eq!(
+        super::snapshot(session.buffer().unwrap(), &[session.view().point]),
+        before,
+        "{profile} {number} {command}"
+    );
 }

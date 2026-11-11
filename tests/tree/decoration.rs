@@ -2,7 +2,7 @@ use std::os::unix::fs::symlink;
 
 use rev::buffer::Buffers;
 use rev::config::prepare;
-use rev::tree::Kind;
+use rev::tree::{Entry, Kind};
 use rev::view::View;
 
 use super::*;
@@ -184,26 +184,18 @@ fn label_modes() {
         std::fs::create_dir(fixture.0.join("root.rs/folder.md")).unwrap();
         symlink("folder.md", fixture.0.join("root.rs/link.rs")).unwrap();
         let mut session = configured(&fixture, config);
+        let labels = Labels {
+            root,
+            directory,
+            source,
+            document,
+            configuration,
+            file,
+            link,
+        };
         let frame = session.frame().unwrap();
         for (row, entry) in session.tree().entries().iter().enumerate() {
-            let expected = match entry.kind() {
-                Kind::Root => root,
-                Kind::Directory if entry.is_parent() => {
-                    if config.contains("decorated=false") {
-                        "    .."
-                    } else if config.contains("nerd_fonts=true") {
-                        "    \u{f148} .."
-                    } else {
-                        "    ↑ .."
-                    }
-                }
-                Kind::Directory => directory,
-                Kind::Source => source,
-                Kind::Document => document,
-                Kind::Configuration => configuration,
-                Kind::File => file,
-                Kind::Symlink => link,
-            };
+            let expected = labels.row(entry, config);
             assert_eq!(
                 frame.rows()[row]
                     .text()
@@ -250,5 +242,40 @@ fn label_modes() {
                 "{name}: root change"
             );
         }
+    }
+}
+
+struct Labels<'a> {
+    root: &'a str,
+    directory: &'a str,
+    source: &'a str,
+    document: &'a str,
+    configuration: &'a str,
+    file: &'a str,
+    link: &'a str,
+}
+
+impl Labels<'_> {
+    fn row(&self, entry: &Entry, config: &str) -> &str {
+        match entry.kind() {
+            Kind::Root => self.root,
+            Kind::Directory if entry.is_parent() => parent_label(config),
+            Kind::Directory => self.directory,
+            Kind::Source => self.source,
+            Kind::Document => self.document,
+            Kind::Configuration => self.configuration,
+            Kind::File => self.file,
+            Kind::Symlink => self.link,
+        }
+    }
+}
+
+fn parent_label(config: &str) -> &'static str {
+    if config.contains("decorated=false") {
+        "    .."
+    } else if config.contains("nerd_fonts=true") {
+        "    \u{f148} .."
+    } else {
+        "    ↑ .."
     }
 }

@@ -548,20 +548,8 @@ fn positioned_rows() {
                 let config = format!("editor.soft_wrap = {wrapped}");
                 let mut counted = editor(&config, source, 25);
                 let mut ordinary = editor(&config, source, 25);
-                for session in [&mut counted, &mut ordinary] {
-                    for _ in 0..3 {
-                        session.execute(Command::Scroll(Scroll::NextLine));
-                        settle(session);
-                    }
-                }
-                for _ in 0..rows {
-                    ordinary.execute(Command::Scroll(if backward {
-                        Scroll::PreviousLine
-                    } else {
-                        Scroll::NextLine
-                    }));
-                    settle(&mut ordinary);
-                }
+                prepare_positioned_sources(&mut counted, &mut ordinary);
+                scroll_reference_rows(&mut ordinary, rows, backward);
                 ordinary.execute(Command::Motion(motion));
                 settle(&mut ordinary);
                 count(&mut counted, number);
@@ -575,6 +563,26 @@ fn positioned_rows() {
                 assert_eq!(text(&counted), source);
             }
         }
+    }
+}
+
+fn prepare_positioned_sources(counted: &mut Session, ordinary: &mut Session) {
+    for session in [counted, ordinary] {
+        for _ in 0..3 {
+            session.execute(Command::Scroll(Scroll::NextLine));
+            settle(session);
+        }
+    }
+}
+
+fn scroll_reference_rows(session: &mut Session, rows: usize, backward: bool) {
+    for _ in 0..rows {
+        session.execute(Command::Scroll(if backward {
+            Scroll::PreviousLine
+        } else {
+            Scroll::NextLine
+        }));
+        settle(session);
     }
 }
 

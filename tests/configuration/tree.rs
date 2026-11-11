@@ -76,12 +76,10 @@ fn precedence() {
             assert!(!settings.tree.visible, "{name}");
             assert!(settings.gutter.nerd_fonts, "{name}");
             assert_eq!(settings.palette, Settings::default().palette, "{name}");
-            let origin = if !explicit.is_empty() {
-                Some(root.as_path())
-            } else if !inherited.is_empty() {
-                Some(base.as_path())
-            } else {
-                None
+            let origin = match (explicit.is_empty(), inherited.is_empty()) {
+                (false, _) => Some(root.as_path()),
+                (true, false) => Some(base.as_path()),
+                (true, true) => None,
             };
             assert_eq!(startup.snapshot.origin(&["tree", field]), origin, "{name}");
             assert_eq!(std::fs::read_to_string(root).unwrap(), text);

@@ -391,27 +391,7 @@ fn catalog_dispatch() {
                 assert_ne!(palette.buffer().unwrap().id(), initial.1);
                 assert!(direct.buffer().unwrap().file().is_none());
                 assert!(palette.buffer().unwrap().file().is_none());
-                // Untitled names include their process-wide buffer identity.
-                // Compare every row and the full status after those exact names.
-                let left = format!("> {}", direct.buffer().unwrap().name());
-                let right = format!("> {}", palette.buffer().unwrap().name());
-                let direct_rows = surface(&mut direct);
-                let palette_rows = surface(&mut palette);
-                assert_eq!(direct_rows.len(), palette_rows.len());
-                for (a, b) in direct_rows.iter().zip(&palette_rows) {
-                    if let Some(tail) = a.strip_prefix(&left) {
-                        assert_eq!(
-                            Some(tail.trim_end()),
-                            b.strip_prefix(&right).map(str::trim_end)
-                        );
-                        assert_eq!(
-                            unicode_width::UnicodeWidthStr::width(a.as_str()),
-                            unicode_width::UnicodeWidthStr::width(b.as_str())
-                        );
-                    } else {
-                        assert_eq!(a, b);
-                    }
-                }
+                check_generated_rows(&mut direct, &mut palette);
             } else {
                 assert_eq!(
                     surface(&mut direct),
@@ -427,6 +407,30 @@ fn catalog_dispatch() {
             "{}",
             command.name()
         );
+    }
+}
+
+fn check_generated_rows(direct: &mut Session, palette: &mut Session) {
+    // Untitled names include their process-wide buffer identity.
+    // Compare every row and the full status after those exact names.
+    let left = format!("> {}", direct.buffer().unwrap().name());
+    let right = format!("> {}", palette.buffer().unwrap().name());
+    let direct_rows = surface(direct);
+    let palette_rows = surface(palette);
+    assert_eq!(direct_rows.len(), palette_rows.len());
+    for (a, b) in direct_rows.iter().zip(&palette_rows) {
+        if let Some(tail) = a.strip_prefix(&left) {
+            assert_eq!(
+                Some(tail.trim_end()),
+                b.strip_prefix(&right).map(str::trim_end)
+            );
+            assert_eq!(
+                unicode_width::UnicodeWidthStr::width(a.as_str()),
+                unicode_width::UnicodeWidthStr::width(b.as_str())
+            );
+        } else {
+            assert_eq!(a, b);
+        }
     }
 }
 

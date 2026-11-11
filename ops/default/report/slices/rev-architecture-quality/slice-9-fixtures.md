@@ -98,6 +98,19 @@ original multiplicity. Native event order, geometry combinations, source bytes,
 timeouts and resource bounds remain unchanged. A wrapping view moves into its
 final clipped observation instead of cloning an owner that has no later use.
 
+
+Dispatch fixtures separate route setup from advertised-chord replay and generated
+buffer frame comparisons. Counted row motion retains both native sessions and
+its original uncounted reference sequence; insertion refusal keeps zero and
+negative inputs under both profiles. Tree click matrices, cached-path admission,
+parent-substitution faults and all seven independent label roles retain their
+original cases, source/history assertions and filesystem permission restoration.
+
+The dispatch cohort preserves all 115 case identities, 668 assertion sites and
+text/numeric literal multiplicities across its 11 Rust files. Macro buffer-name
+navigation computes the same direction before selecting its inventory route;
+configuration provenance expresses the same root/include/omission cases directly.
+
 ## Contracts Added or Changed
 
 No runtime, package API, protocol, policy or acceptance changes are planned.
@@ -207,9 +220,25 @@ Development checks for native geometry fixtures:
   resource budget is relaxed.
 - `git diff --check`: passed.
 
+
+Development checks for dispatch and tree interaction fixtures:
+
+- The frozen scoped quality command still fails overall: 82 native source
+  findings remain, down from 94. Formatting, all-target compilation and scoped
+  Clippy admission pass with zero blocking diagnostics; four selected-profile
+  diagnostics remain deferred outside this scope. Coverage remains 704 of 1,836
+  first-party Rust files and 70 of 73 Cargo roots across two packages.
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --test commands --test macros --test editing --test pointer --test tree --test configuration -- context_keymaps::tree_up_directory editor_keymaps::effective_hints palette::catalog_dispatch prefix_arguments::positioned_rows prefix_arguments::insertion_refusal tree_click_policy::activation_policy tree_decoration::full_row_actions tree::precedence capture::buffer_names decoration::label_modes parent::rejected_parent --test-threads=1`: passed all 11 affected existing native cases, including every advertised command's direct/named dispatch parity.
+- Static comparison against clean
+  `88a0f0a1c8ce4fb12bd293b8174159f0f90cedf5` preserves all 115 existing case
+  identities, 668 assertion sites and text/numeric literal multiplicities in the
+  11 changed Rust files. Inputs, event order, negative coverage, deadlines and
+  resource limits remain unchanged.
+- `git diff --check`: passed.
+
 ## Risks and Follow-ups
 
-Selected Clippy admission is complete. The remaining 94 native source findings
+Selected Clippy admission is complete. The remaining 82 native source findings
 require cohesive fixture/example decomposition. T9.1-T9.3 remain in progress.
 The canonical PR, final ordered clean-HEAD evidence and controller integration
 remain pending.

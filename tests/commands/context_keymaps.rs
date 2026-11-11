@@ -110,84 +110,88 @@ fn tree_up_directory() {
     );
     for profile in ["non-modal", "modal"] {
         for route in ["key", "named", "remapped"] {
-            let mapping = if route == "remapped" {
-                "[keys.tree]\n'^'='tree-next-line'\n'M-u'='tree-up-directory'"
-            } else {
-                ""
-            };
-            let (fixture, mut session) = tree_editor(&format!(
-                "editor.interaction_profile='{profile}'\n{mapping}"
-            ));
-            session.handle(Event::Resize(140, 18));
-            let source = session.buffer().unwrap().stamp();
-            let point = session.view().point;
-            let previous = session.tree().root().unwrap().to_owned();
-            if route == "key" {
-                session.handle(character('^'));
-            } else {
-                if route == "remapped" {
-                    session.handle(character('^'));
-                    assert_eq!(session.tree().root(), Some(previous.as_path()));
-                }
-                session.execute(Command::ExecuteExtended);
-                session.handle(Event::Paste("tree-up-directory".into()));
-                let frame = session.frame().unwrap();
-                let row = frame
-                    .rows()
-                    .iter()
-                    .find(|r| r.text().starts_with("tree-up-directory"))
-                    .unwrap();
-                assert!(
-                    row.text()
-                        .contains(if route == "remapped" { "[M-u]" } else { "[^]" })
-                );
-                assert!(
-                    row.text()
-                        .trim_end()
-                        .ends_with(command.description().unwrap())
-                );
-                if route == "named" {
-                    session.handle(key(KeyCode::Enter));
-                } else {
-                    session.execute(Command::KeyboardQuit);
-                    session.handle(meta('u'));
-                }
-            }
-            assert_eq!(
-                session.tree().root(),
-                Some(fixture.0.as_path()),
-                "{profile}/{route}: {}",
-                session.echo()
-            );
-            assert_eq!(session.tree().selected().unwrap().path(), previous);
-            assert!(session.tree().focused());
-            assert_eq!(session.buffer().unwrap().stamp(), source);
-            assert_eq!(session.view().point, point);
-            assert_eq!(text(&session), "retained");
-            assert!(session.buffer().unwrap().history().is_empty());
-            session.handle(key(KeyCode::Tab));
-            session.execute(Command::Region(rev::command::RegionCommand::Set));
-            session.execute(Command::Motion(rev::command::Motion::BufferEnd));
-            let source_point = session.view().point;
-            let mark = session.buffer().unwrap().mark();
-            session.execute(Command::ExecuteExtended);
-            session.handle(Event::Paste("tree-up-directory".into()));
-            session.handle(key(KeyCode::Enter));
-            assert!(session.echo().contains("not focused"));
-            assert_eq!(session.tree().root(), Some(fixture.0.as_path()));
-            assert_eq!(session.buffer().unwrap().stamp(), source);
-            assert_eq!(session.buffer().unwrap().mark(), mark);
-            assert_eq!(session.view().point, source_point);
-            session.execute(Command::KeyboardQuit);
-            session.handle(character('^'));
-            assert_eq!(session.tree().root(), Some(fixture.0.as_path()));
-            if profile == "non-modal" {
-                assert_eq!(text(&session), "retained^");
-            } else {
-                assert_eq!(text(&session), "retained");
-                assert_eq!(session.view().point.position, rev::coordinates::Scalar(0));
-            }
+            check_tree_up_route(profile, route, command);
         }
+    }
+}
+
+fn check_tree_up_route(profile: &str, route: &str, command: Command) {
+    let mapping = if route == "remapped" {
+        "[keys.tree]\n'^'='tree-next-line'\n'M-u'='tree-up-directory'"
+    } else {
+        ""
+    };
+    let (fixture, mut session) = tree_editor(&format!(
+        "editor.interaction_profile='{profile}'\n{mapping}"
+    ));
+    session.handle(Event::Resize(140, 18));
+    let source = session.buffer().unwrap().stamp();
+    let point = session.view().point;
+    let previous = session.tree().root().unwrap().to_owned();
+    if route == "key" {
+        session.handle(character('^'));
+    } else {
+        if route == "remapped" {
+            session.handle(character('^'));
+            assert_eq!(session.tree().root(), Some(previous.as_path()));
+        }
+        session.execute(Command::ExecuteExtended);
+        session.handle(Event::Paste("tree-up-directory".into()));
+        let frame = session.frame().unwrap();
+        let row = frame
+            .rows()
+            .iter()
+            .find(|r| r.text().starts_with("tree-up-directory"))
+            .unwrap();
+        assert!(
+            row.text()
+                .contains(if route == "remapped" { "[M-u]" } else { "[^]" })
+        );
+        assert!(
+            row.text()
+                .trim_end()
+                .ends_with(command.description().unwrap())
+        );
+        if route == "named" {
+            session.handle(key(KeyCode::Enter));
+        } else {
+            session.execute(Command::KeyboardQuit);
+            session.handle(meta('u'));
+        }
+    }
+    assert_eq!(
+        session.tree().root(),
+        Some(fixture.0.as_path()),
+        "{profile}/{route}: {}",
+        session.echo()
+    );
+    assert_eq!(session.tree().selected().unwrap().path(), previous);
+    assert!(session.tree().focused());
+    assert_eq!(session.buffer().unwrap().stamp(), source);
+    assert_eq!(session.view().point, point);
+    assert_eq!(text(&session), "retained");
+    assert!(session.buffer().unwrap().history().is_empty());
+    session.handle(key(KeyCode::Tab));
+    session.execute(Command::Region(rev::command::RegionCommand::Set));
+    session.execute(Command::Motion(rev::command::Motion::BufferEnd));
+    let source_point = session.view().point;
+    let mark = session.buffer().unwrap().mark();
+    session.execute(Command::ExecuteExtended);
+    session.handle(Event::Paste("tree-up-directory".into()));
+    session.handle(key(KeyCode::Enter));
+    assert!(session.echo().contains("not focused"));
+    assert_eq!(session.tree().root(), Some(fixture.0.as_path()));
+    assert_eq!(session.buffer().unwrap().stamp(), source);
+    assert_eq!(session.buffer().unwrap().mark(), mark);
+    assert_eq!(session.view().point, source_point);
+    session.execute(Command::KeyboardQuit);
+    session.handle(character('^'));
+    assert_eq!(session.tree().root(), Some(fixture.0.as_path()));
+    if profile == "non-modal" {
+        assert_eq!(text(&session), "retained^");
+    } else {
+        assert_eq!(text(&session), "retained");
+        assert_eq!(session.view().point.position, rev::coordinates::Scalar(0));
     }
 }
 

@@ -263,18 +263,7 @@ fn rejected_parent() {
         let history = session.buffer().unwrap().history().len();
         let parent = f.0.join("parent");
         let moved = f.0.join("moved");
-        match reason {
-            "missing-child" | "child-link" => fs::rename(&root, &moved).unwrap(),
-            "missing-parent" | "parent-link" => fs::rename(&parent, &moved).unwrap(),
-            "denied" => fs::set_permissions(&parent, fs::Permissions::from_mode(0o000)).unwrap(),
-            _ => {}
-        }
-        if reason == "parent-link" {
-            symlink(&moved, &parent).unwrap();
-        }
-        if reason == "child-link" {
-            symlink(&moved, &root).unwrap();
-        }
+        substitute_parent(reason, &root, &parent, &moved);
         tree(&mut session, TreeCommand::UpDirectory);
         if reason == "denied" {
             fs::set_permissions(&parent, fs::Permissions::from_mode(0o755)).unwrap();
@@ -313,6 +302,21 @@ fn rejected_parent() {
                 .collect::<Vec<_>>(),
             views
         );
+    }
+}
+
+fn substitute_parent(reason: &str, root: &Path, parent: &Path, moved: &Path) {
+    match reason {
+        "missing-child" | "child-link" => fs::rename(root, moved).unwrap(),
+        "missing-parent" | "parent-link" => fs::rename(parent, moved).unwrap(),
+        "denied" => fs::set_permissions(parent, fs::Permissions::from_mode(0o000)).unwrap(),
+        _ => {}
+    }
+    if reason == "parent-link" {
+        symlink(moved, parent).unwrap();
+    }
+    if reason == "child-link" {
+        symlink(moved, root).unwrap();
     }
 }
 

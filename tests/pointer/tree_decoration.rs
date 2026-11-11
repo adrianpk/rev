@@ -42,62 +42,65 @@ fn full_row_actions() {
     for (decorated, nerd_fonts) in [(false, false), (false, true), (true, false), (true, true)] {
         for activate in [false, true] {
             for width in [5, 9, 24] {
-                let fixture = Fixture::new();
-                let mut session = editor(&fixture, decorated, nerd_fonts, activate, width);
-                let target = fixture.0.join("root/界é.txt");
-                let root = fixture.0.join("root");
-                let stamp = session.buffer().unwrap().stamp();
-                if !activate {
-                    std::fs::remove_file(&target).unwrap();
-                }
-                for column in 0..width {
-                    session.execute(Command::Tree(TreeCommand::Focus));
-                    while session.tree().selected().unwrap().path() != root {
-                        session.execute(Command::Tree(TreeCommand::Previous));
-                    }
-                    session.frame().unwrap();
-                    let expected = session.tree().hit(3).unwrap();
-                    let position = Position { column, row: 3 };
-                    let composition =
-                        Composition::workspace(session.windows(), session.tree(), size(), 0)
-                            .unwrap();
-                    // Tree projection uses these same full content bounds, independently
-                    // of what portion of a label survived clipping at this column.
-                    assert!(
-                        composition
-                            .tree()
-                            .unwrap()
-                            .content()
-                            .local(position)
-                            .is_some()
-                    );
-                    assert_eq!(
-                        session.handle(press(position)),
-                        rev::session::Action::Redraw
-                    );
-                    assert_eq!(session.tree().selected().unwrap().path(), target);
-                    assert_eq!(session.tree().focused(), !activate);
-                    assert_eq!(session.tree().hit(3), Some(expected));
-                    assert_eq!(
-                        session.frame().unwrap().rows()[3].selection(),
-                        Some(0..width)
-                    );
-                    if !activate {
-                        session.execute(Command::KeyboardQuit);
-                        let frame = session.frame().unwrap();
-                        assert_eq!(frame.rows()[2].selection(), Some(0..width));
-                        assert_eq!(frame.rows()[3].selection(), None);
-                    }
-                    if activate {
-                        assert_eq!(session.buffer().unwrap().file().unwrap().path(), target);
-                    } else {
-                        assert_eq!(session.buffer().unwrap().stamp(), stamp);
-                    }
-                    assert!(session.buffer().unwrap().history().is_empty());
-                    assert!(!session.buffer().unwrap().is_modified());
-                }
+                check_full_row_actions(decorated, nerd_fonts, activate, width);
             }
         }
+    }
+}
+
+fn check_full_row_actions(decorated: bool, nerd_fonts: bool, activate: bool, width: u16) {
+    let fixture = Fixture::new();
+    let mut session = editor(&fixture, decorated, nerd_fonts, activate, width);
+    let target = fixture.0.join("root/界é.txt");
+    let root = fixture.0.join("root");
+    let stamp = session.buffer().unwrap().stamp();
+    if !activate {
+        std::fs::remove_file(&target).unwrap();
+    }
+    for column in 0..width {
+        session.execute(Command::Tree(TreeCommand::Focus));
+        while session.tree().selected().unwrap().path() != root {
+            session.execute(Command::Tree(TreeCommand::Previous));
+        }
+        session.frame().unwrap();
+        let expected = session.tree().hit(3).unwrap();
+        let position = Position { column, row: 3 };
+        let composition =
+            Composition::workspace(session.windows(), session.tree(), size(), 0).unwrap();
+        // Tree projection uses these same full content bounds, independently
+        // of what portion of a label survived clipping at this column.
+        assert!(
+            composition
+                .tree()
+                .unwrap()
+                .content()
+                .local(position)
+                .is_some()
+        );
+        assert_eq!(
+            session.handle(press(position)),
+            rev::session::Action::Redraw
+        );
+        assert_eq!(session.tree().selected().unwrap().path(), target);
+        assert_eq!(session.tree().focused(), !activate);
+        assert_eq!(session.tree().hit(3), Some(expected));
+        assert_eq!(
+            session.frame().unwrap().rows()[3].selection(),
+            Some(0..width)
+        );
+        if !activate {
+            session.execute(Command::KeyboardQuit);
+            let frame = session.frame().unwrap();
+            assert_eq!(frame.rows()[2].selection(), Some(0..width));
+            assert_eq!(frame.rows()[3].selection(), None);
+        }
+        if activate {
+            assert_eq!(session.buffer().unwrap().file().unwrap().path(), target);
+        } else {
+            assert_eq!(session.buffer().unwrap().stamp(), stamp);
+        }
+        assert!(session.buffer().unwrap().history().is_empty());
+        assert!(!session.buffer().unwrap().is_modified());
     }
 }
 

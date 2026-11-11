@@ -427,7 +427,6 @@ fn acceptance_aliases() {
 // ordinary input, so a hint cannot borrow minibuffer bindings or execute work.
 #[test]
 fn effective_hints() {
-    use rev::input::keymap::Sequence;
     for (case, config, command, expected) in [
         ("factory", "", "save-buffer", Some("C-x C-s")),
         (
@@ -475,13 +474,7 @@ fn effective_hints() {
         let mut dispatch = Input::with_settings(&snapshot);
         for command in palette.candidates() {
             if let Some(hint) = palette.hint(command) {
-                dispatch.cancel();
-                let mut result = Outcome::Ignored;
-                for chord in Sequence::parse(hint).unwrap().chords() {
-                    result =
-                        dispatch.handle(Event::Key(KeyEvent::new(chord.code, chord.modifiers)));
-                }
-                assert_eq!(result, super::command_outcome(command), "{case}: {hint}");
+                check_advertised_hint(&mut dispatch, command, hint, case);
             }
         }
         input.handle(Event::Paste("C-x C-s".into()));
@@ -490,6 +483,16 @@ fn effective_hints() {
             "{case}: hint-only match"
         );
     }
+}
+
+fn check_advertised_hint(dispatch: &mut Input, command: Command, hint: &str, case: &str) {
+    use rev::input::keymap::Sequence;
+    dispatch.cancel();
+    let mut result = Outcome::Ignored;
+    for chord in Sequence::parse(hint).unwrap().chords() {
+        result = dispatch.handle(Event::Key(KeyEvent::new(chord.code, chord.modifiers)));
+    }
+    assert_eq!(result, super::command_outcome(command), "{case}: {hint}");
 }
 
 // Filtering, Tab and named acceptance retain canonical identities. Registered

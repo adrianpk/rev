@@ -98,17 +98,18 @@ fn buffer_names() {
         .unwrap();
         session.handle(key(KeyCode::F(3)));
         for name in [&second_name, &first_name] {
+            let direction = if name == &second_name {
+                KeyCode::Down
+            } else {
+                KeyCode::Up
+            };
             if inventory {
                 feed(
                     &mut session,
                     [
                         control('x'),
                         control('b'),
-                        key(if name == &second_name {
-                            KeyCode::Down
-                        } else {
-                            KeyCode::Up
-                        }),
+                        key(direction),
                         key(KeyCode::Enter),
                     ],
                 );

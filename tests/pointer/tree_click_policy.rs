@@ -46,74 +46,77 @@ fn configured(fixture: &Fixture, enabled: bool, activate: bool) -> Session {
 fn activation_policy() {
     for enabled in [false, true] {
         for activate in [false, true] {
-            let fixture = Fixture::new();
-            let mut session = configured(&fixture, enabled, activate);
-            let position = cell(&mut session, "choice.txt");
-            let stamp = session.buffer().unwrap().stamp();
-            let history = session.buffer().unwrap().history().len();
-            let target = fixture.0.join("root/choice.txt");
-            fixture.write(
-                "config.toml",
-                &format!(
-                    "mouse.enabled = true\nmouse.tree_activate_on_click = {}",
-                    !activate
-                ),
-            );
-            let permissions = fs::metadata(fixture.0.join("root")).unwrap().permissions();
-            if !activate && enabled {
-                fs::remove_file(&target).unwrap();
-                fs::set_permissions(fixture.0.join("root"), fs::Permissions::from_mode(0o000))
-                    .unwrap();
-            }
-            let action = session.handle(press(position));
-            fs::set_permissions(fixture.0.join("root"), permissions).unwrap();
-            if enabled && activate {
-                assert_eq!(source(&session), "choice");
-                assert!(!session.tree().focused());
-            } else {
-                assert_eq!(session.buffer().unwrap().stamp(), stamp);
-                assert_eq!(session.buffer().unwrap().history().len(), history);
-                assert_eq!(source(&session), "!retained");
-                assert_eq!(session.tree().focused(), enabled);
-                assert_eq!(
-                    action,
-                    if enabled {
-                        Action::Redraw
-                    } else {
-                        Action::Wait
-                    }
-                );
-            }
-            if enabled && !activate {
-                assert_eq!(session.tree().selected().unwrap().path(), target);
-                assert!(!target.exists());
-                fixture.write("root/choice.txt", "choice");
-                session.handle(Event::Key(KeyEvent::new(
-                    KeyCode::Enter,
-                    KeyModifiers::NONE,
-                )));
-                assert_eq!(source(&session), "choice");
-            } else if !enabled {
-                assert_eq!(
-                    session.tree().selected().unwrap().path(),
-                    fixture.0.join("root")
-                );
-                session.execute(Command::MouseMode);
-                session.handle(press(position));
-                assert_eq!(session.tree().selected().unwrap().path(), target);
-                assert_eq!(session.tree().focused(), !activate);
-                assert_eq!(
-                    source(&session),
-                    if activate { "choice" } else { "!retained" }
-                );
-            }
-            assert_eq!(
-                fs::read(fixture.0.join("root/source.txt")).unwrap(),
-                b"retained"
-            );
-            assert_eq!(fs::read(target).unwrap(), b"choice");
+            check_activation_policy(enabled, activate);
         }
     }
+}
+
+fn check_activation_policy(enabled: bool, activate: bool) {
+    let fixture = Fixture::new();
+    let mut session = configured(&fixture, enabled, activate);
+    let position = cell(&mut session, "choice.txt");
+    let stamp = session.buffer().unwrap().stamp();
+    let history = session.buffer().unwrap().history().len();
+    let target = fixture.0.join("root/choice.txt");
+    fixture.write(
+        "config.toml",
+        &format!(
+            "mouse.enabled = true\nmouse.tree_activate_on_click = {}",
+            !activate
+        ),
+    );
+    let permissions = fs::metadata(fixture.0.join("root")).unwrap().permissions();
+    if !activate && enabled {
+        fs::remove_file(&target).unwrap();
+        fs::set_permissions(fixture.0.join("root"), fs::Permissions::from_mode(0o000)).unwrap();
+    }
+    let action = session.handle(press(position));
+    fs::set_permissions(fixture.0.join("root"), permissions).unwrap();
+    if enabled && activate {
+        assert_eq!(source(&session), "choice");
+        assert!(!session.tree().focused());
+    } else {
+        assert_eq!(session.buffer().unwrap().stamp(), stamp);
+        assert_eq!(session.buffer().unwrap().history().len(), history);
+        assert_eq!(source(&session), "!retained");
+        assert_eq!(session.tree().focused(), enabled);
+        assert_eq!(
+            action,
+            if enabled {
+                Action::Redraw
+            } else {
+                Action::Wait
+            }
+        );
+    }
+    if enabled && !activate {
+        assert_eq!(session.tree().selected().unwrap().path(), target);
+        assert!(!target.exists());
+        fixture.write("root/choice.txt", "choice");
+        session.handle(Event::Key(KeyEvent::new(
+            KeyCode::Enter,
+            KeyModifiers::NONE,
+        )));
+        assert_eq!(source(&session), "choice");
+    } else if !enabled {
+        assert_eq!(
+            session.tree().selected().unwrap().path(),
+            fixture.0.join("root")
+        );
+        session.execute(Command::MouseMode);
+        session.handle(press(position));
+        assert_eq!(session.tree().selected().unwrap().path(), target);
+        assert_eq!(session.tree().focused(), !activate);
+        assert_eq!(
+            source(&session),
+            if activate { "choice" } else { "!retained" }
+        );
+    }
+    assert_eq!(
+        fs::read(fixture.0.join("root/source.txt")).unwrap(),
+        b"retained"
+    );
+    assert_eq!(fs::read(target).unwrap(), b"choice");
 }
 
 // File aliases retain the canonical dirty buffer, point and history through
