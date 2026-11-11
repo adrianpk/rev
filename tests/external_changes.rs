@@ -239,26 +239,8 @@ fn unavailable_sources() {
         edit(buffer, "local ");
         let stamp = buffer.stamp();
         let evidence = buffer.file().unwrap().clone();
-        match name {
-            "utf8" => fs::write(&path, [0xff]).unwrap(),
-            "nul" => fs::write(&path, b"a\0b").unwrap(),
-            "oversized" => fs::write(&path, vec![b'x'; LIMIT + 1]).unwrap(),
-            "missing" => fs::remove_file(&path).unwrap(),
-            "directory" => {
-                fs::remove_file(&path).unwrap();
-                fs::create_dir(&path).unwrap();
-            }
-            "symlink" => {
-                fs::remove_file(&path).unwrap();
-                symlink(fixture.file("other", b"elsewhere"), &path).unwrap();
-            }
-            "permissions" => {
-                fs::set_permissions(&path, fs::Permissions::from_mode(0o0)).unwrap();
-                if fs::read(&path).is_ok() {
-                    continue;
-                }
-            }
-            _ => unreachable!(),
+        if !unavailable_source(&fixture, &path, name) {
+            continue;
         }
         assert!(
             buffer.request_reload(LIMIT).unwrap().read().is_err(),
@@ -273,6 +255,31 @@ fn unavailable_sources() {
             assert!(!path.exists());
         }
     }
+}
+
+fn unavailable_source(fixture: &Fixture, path: &Path, name: &str) -> bool {
+    match name {
+        "utf8" => fs::write(path, [0xff]).unwrap(),
+        "nul" => fs::write(path, b"a\0b").unwrap(),
+        "oversized" => fs::write(path, vec![b'x'; LIMIT + 1]).unwrap(),
+        "missing" => fs::remove_file(path).unwrap(),
+        "directory" => {
+            fs::remove_file(path).unwrap();
+            fs::create_dir(path).unwrap();
+        }
+        "symlink" => {
+            fs::remove_file(path).unwrap();
+            symlink(fixture.file("other", b"elsewhere"), path).unwrap();
+        }
+        "permissions" => {
+            fs::set_permissions(path, fs::Permissions::from_mode(0o0)).unwrap();
+            if fs::read(path).is_ok() {
+                return false;
+            }
+        }
+        _ => unreachable!(),
+    }
+    true
 }
 
 // Consent is bound to buffer revision and the observed destination. Controlled

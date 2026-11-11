@@ -296,60 +296,62 @@ fn native_discard_confirmation() {
 fn native_discard_guards() {
     for profile in ["non-modal", "modal"] {
         for case in ["dirty", "alias", "changed"] {
-            let repository = Repository::new("sha1");
-            let path = repository.root.join("a");
-            fs::write(&path, "index\n").unwrap();
-            std::os::unix::fs::symlink("a", repository.root.join("alias")).unwrap();
-            repository.commit();
-            fs::write(&path, "working\n").unwrap();
-            let index = repository.git(["ls-files", "--stage", "-z"]);
-            let mut owned = editor(
-                &repository,
-                profile,
-                "[files]\nexternal_changes='ask'\n",
-                false,
-            );
-            let editor = &mut owned.0;
-            editor
-                .load(&if case == "alias" {
-                    repository.root.join("alias")
-                } else {
-                    path.clone()
-                })
-                .unwrap();
-            if case != "changed" {
-                if profile == "modal" {
-                    plain(editor, 'i');
-                }
-                plain(editor, 'x');
-                assert!(editor.buffer().unwrap().is_modified());
-            }
-            let before = text(editor);
-            entry(editor);
-            wait(editor, |s| s.git_observation().is_some());
-            plain(editor, 'n');
-            plain(editor, 'k');
-            if case == "changed" {
-                wait(editor, |s| s.echo().contains("y=discard"));
-                fs::write(&path, "newer\n").unwrap();
-                plain(editor, 'y');
-                assert!(editor.echo().contains("destination changed"));
-                assert_eq!(fs::read(&path).unwrap(), b"newer\n");
-            } else {
-                wait(editor, |s| s.echo().contains("unsaved text"));
-                assert_eq!(fs::read(&path).unwrap(), b"working\n");
-                plain(editor, '*');
-                plain(editor, 'k');
-                assert!(editor.echo().contains("clear marked groups"));
-                plain(editor, '0');
-                plain(editor, 'n');
-                assert!(selected(editor).contains("@@"));
-                plain(editor, 'k');
-                assert!(editor.echo().contains("hunks and sections are unsupported"));
-            }
-            assert_eq!(repository.git(["ls-files", "--stage", "-z"]), index);
-            plain(editor, 'q');
-            assert_eq!(text(editor), before);
+            check_discard_guards(profile, case);
         }
     }
+}
+
+fn check_discard_guards(profile: &str, case: &str) {
+    let repository = Repository::new("sha1");
+    let path = repository.root.join("a");
+    fs::write(&path, "index\n").unwrap();
+    std::os::unix::fs::symlink("a", repository.root.join("alias")).unwrap();
+    repository.commit();
+    fs::write(&path, "working\n").unwrap();
+    let index = repository.git(["ls-files", "--stage", "-z"]);
+    let mut owned = editor(
+        &repository,
+        profile,
+        "[files]\nexternal_changes='ask'\n",
+        false,
+    );
+    let editor = &mut owned.0;
+    if case == "alias" {
+        editor.load(&repository.root.join("alias")).unwrap();
+    } else {
+        editor.load(&path).unwrap();
+    }
+    if case != "changed" {
+        if profile == "modal" {
+            plain(editor, 'i');
+        }
+        plain(editor, 'x');
+        assert!(editor.buffer().unwrap().is_modified());
+    }
+    let before = text(editor);
+    entry(editor);
+    wait(editor, |s| s.git_observation().is_some());
+    plain(editor, 'n');
+    plain(editor, 'k');
+    if case == "changed" {
+        wait(editor, |s| s.echo().contains("y=discard"));
+        fs::write(&path, "newer\n").unwrap();
+        plain(editor, 'y');
+        assert!(editor.echo().contains("destination changed"));
+        assert_eq!(fs::read(&path).unwrap(), b"newer\n");
+    } else {
+        wait(editor, |s| s.echo().contains("unsaved text"));
+        assert_eq!(fs::read(&path).unwrap(), b"working\n");
+        plain(editor, '*');
+        plain(editor, 'k');
+        assert!(editor.echo().contains("clear marked groups"));
+        plain(editor, '0');
+        plain(editor, 'n');
+        assert!(selected(editor).contains("@@"));
+        plain(editor, 'k');
+        assert!(editor.echo().contains("hunks and sections are unsupported"));
+    }
+    assert_eq!(repository.git(["ls-files", "--stage", "-z"]), index);
+    plain(editor, 'q');
+    assert_eq!(text(editor), before);
 }

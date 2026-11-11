@@ -113,28 +113,7 @@ fn partial_and_missing() {
     for variant in ["delete", "binary", "partial", "symlink"] {
         let repository = Repository::new("sha1");
         let path = Path::new("file");
-        if variant == "binary" {
-            topic(&repository, path, b"a\0base", b"b\0current", b"c\0applied");
-        } else if variant == "partial" {
-            topic(
-                &repository,
-                path,
-                &vec![b'a'; 20000],
-                &vec![b'b'; 20000],
-                &vec![b'c'; 20000],
-            );
-        } else {
-            topic(&repository, path, b"base\n", b"current\n", b"applied\n");
-        }
-        if variant == "delete" {
-            repository.git(["rm", "--", "file"]);
-            repository.commit();
-        }
-        if variant == "symlink" {
-            fs::remove_file(repository.root.join(path)).unwrap();
-            std::os::unix::fs::symlink("target", repository.root.join(path)).unwrap();
-            repository.commit();
-        }
+        prepare_partial_conflict(&repository, path, variant);
         stopped(&repository, &["merge", "topic"]);
         let mut owner = repository.owner(if variant == "partial" {
             "max_detail_bytes=16384"
@@ -169,40 +148,69 @@ fn partial_and_missing() {
                     .is_err()
             );
         }
-        match variant {
-            "delete" => {
-                assert!(conflict.side(ConflictRole::Current).is_none());
-                assert!(conflict.kind().contains("deleted"));
-            }
-            "binary" => {
-                assert!(conflict.sides.iter().flatten().all(|s| s.binary && !s.text));
-            }
-            "partial" => {
-                assert!(matches!(
-                    conflict.completeness,
-                    Completeness::Truncated { .. }
-                ));
-                assert!(!conflict.sides.iter().flatten().any(|s| s.text));
-                assert!(
-                    conflict
-                        .sides
-                        .iter()
-                        .flatten()
-                        .map(|s| s.bytes.len())
-                        .sum::<usize>()
-                        <= 16384
-                );
-            }
-            _ => {
-                assert!(
-                    conflict
-                        .sides
-                        .iter()
-                        .flatten()
-                        .any(|s| s.mode == 0o120000 && !s.text)
-                );
-            }
+        check_partial_sides(&conflict, variant);
+    }
+}
+
+fn check_partial_sides(conflict: &Conflict, variant: &str) {
+    match variant {
+        "delete" => {
+            assert!(conflict.side(ConflictRole::Current).is_none());
+            assert!(conflict.kind().contains("deleted"));
         }
+        "binary" => {
+            assert!(conflict.sides.iter().flatten().all(|s| s.binary && !s.text));
+        }
+        "partial" => {
+            assert!(matches!(
+                conflict.completeness,
+                Completeness::Truncated { .. }
+            ));
+            assert!(!conflict.sides.iter().flatten().any(|s| s.text));
+            assert!(
+                conflict
+                    .sides
+                    .iter()
+                    .flatten()
+                    .map(|s| s.bytes.len())
+                    .sum::<usize>()
+                    <= 16384
+            );
+        }
+        _ => {
+            assert!(
+                conflict
+                    .sides
+                    .iter()
+                    .flatten()
+                    .any(|s| s.mode == 0o120000 && !s.text)
+            );
+        }
+    }
+}
+
+fn prepare_partial_conflict(repository: &Repository, path: &Path, variant: &str) {
+    if variant == "binary" {
+        topic(repository, path, b"a\0base", b"b\0current", b"c\0applied");
+    } else if variant == "partial" {
+        topic(
+            repository,
+            path,
+            &vec![b'a'; 20000],
+            &vec![b'b'; 20000],
+            &vec![b'c'; 20000],
+        );
+    } else {
+        topic(repository, path, b"base\n", b"current\n", b"applied\n");
+    }
+    if variant == "delete" {
+        repository.git(["rm", "--", "file"]);
+        repository.commit();
+    }
+    if variant == "symlink" {
+        fs::remove_file(repository.root.join(path)).unwrap();
+        std::os::unix::fs::symlink("target", repository.root.join(path)).unwrap();
+        repository.commit();
     }
 }
 

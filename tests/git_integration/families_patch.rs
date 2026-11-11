@@ -281,29 +281,7 @@ fn protected_input() {
         let path = target(&repository, &base, "stale-consumer");
         let mut owner = repository.owner("");
         let prepared = plan(&repository, &mut owner, &path, Family::ApplyPatch, &input);
-        match change {
-            "bytes" => fs::write(&input, b"changed\n").unwrap(),
-            "identity" => {
-                let bytes = fs::read(&input).unwrap();
-                fs::remove_file(&input).unwrap();
-                fs::write(&input, bytes).unwrap();
-            }
-            "config" => {
-                repository.git(["config", "apply.whitespace", "fix"]);
-            }
-            "index" => {
-                fs::write(path.join("new"), "external\n").unwrap();
-                git(&repository, &path, &["add", "--all"]);
-            }
-            "head" => {
-                git(
-                    &repository,
-                    &path,
-                    &["commit", "--allow-empty", "--message=External"],
-                );
-            }
-            _ => unreachable!(),
-        }
+        change_reviewed_input(&repository, &path, &input, change);
         let before = git(&repository, &path, &["ls-files", "--stage", "-z"]);
         let id = owner.execute_family(prepared).unwrap();
         finish(&mut owner);
@@ -352,6 +330,32 @@ fn protected_input() {
             .unwrap();
         assert!(!finish(&mut owner).published, "{variant}");
         assert_eq!(owner.record(id).unwrap().effects, Effects::NotStarted);
+    }
+}
+
+fn change_reviewed_input(repository: &Repository, path: &Path, input: &Path, change: &str) {
+    match change {
+        "bytes" => fs::write(input, b"changed\n").unwrap(),
+        "identity" => {
+            let bytes = fs::read(input).unwrap();
+            fs::remove_file(input).unwrap();
+            fs::write(input, bytes).unwrap();
+        }
+        "config" => {
+            repository.git(["config", "apply.whitespace", "fix"]);
+        }
+        "index" => {
+            fs::write(path.join("new"), "external\n").unwrap();
+            git(repository, path, &["add", "--all"]);
+        }
+        "head" => {
+            git(
+                repository,
+                path,
+                &["commit", "--allow-empty", "--message=External"],
+            );
+        }
+        _ => unreachable!(),
     }
 }
 

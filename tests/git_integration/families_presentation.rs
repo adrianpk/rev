@@ -346,29 +346,7 @@ fn native_notes_sparse() {
             assert!(render(editor).join("\n").contains("Argument Review"));
             accept(editor);
             wait(editor, |e| e.echo().contains("repository command verified"));
-            if prefix == 'T' && suffix == 'a' {
-                let note = String::from_utf8(repository.git([
-                    "notes",
-                    "--ref",
-                    "refs/notes/native",
-                    "list",
-                    "HEAD",
-                ]))
-                .unwrap();
-                assert!(editor.echo().contains(note.trim()), "{}", editor.echo());
-                assert_eq!(
-                    repository.git(["notes", "--ref", "refs/notes/native", "show", "HEAD"]),
-                    b"native note\n"
-                );
-            } else if prefix == 'T' {
-                assert!(
-                    repository
-                        .git(["notes", "--ref", "refs/notes/native", "list"])
-                        .is_empty()
-                );
-            } else {
-                assert_eq!(repository.root.join("beta/file").exists(), suffix == 'd');
-            }
+            check_metadata_effects(&repository, editor, prefix, suffix);
             assert_eq!(text(editor), original);
         }
         plain(editor, 'q');
@@ -384,6 +362,37 @@ fn native_notes_sparse() {
         plain(editor, 'q');
         assert_eq!(text(editor), modified);
         assert!(repository.root.join("beta/file").is_file());
+    }
+}
+
+fn check_metadata_effects(
+    repository: &Repository,
+    editor: &rev::session::Session,
+    prefix: char,
+    suffix: char,
+) {
+    if prefix == 'T' && suffix == 'a' {
+        let note = String::from_utf8(repository.git([
+            "notes",
+            "--ref",
+            "refs/notes/native",
+            "list",
+            "HEAD",
+        ]))
+        .unwrap();
+        assert!(editor.echo().contains(note.trim()), "{}", editor.echo());
+        assert_eq!(
+            repository.git(["notes", "--ref", "refs/notes/native", "show", "HEAD"]),
+            b"native note\n"
+        );
+    } else if prefix == 'T' {
+        assert!(
+            repository
+                .git(["notes", "--ref", "refs/notes/native", "list"])
+                .is_empty()
+        );
+    } else {
+        assert_eq!(repository.root.join("beta/file").exists(), suffix == 'd');
     }
 }
 

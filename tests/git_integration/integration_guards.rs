@@ -273,15 +273,7 @@ fn autosquash_admission() {
     for changed in ["HEAD", "disk", "ambiguous", "limit"] {
         let repository = Repository::new("sha1");
         autosquash_source(&repository);
-        if changed == "ambiguous" {
-            for message in ["Duplicate", "Duplicate", "fixup! Duplicate"] {
-                repository.git(["commit", "--allow-empty", "-m", message]);
-            }
-        } else if changed == "limit" {
-            for _ in 0..253 {
-                repository.git(["commit", "--allow-empty", "-m", "Extra"]);
-            }
-        }
+        autosquash_candidate(&repository, changed);
         let mut owner = repository.owner("");
         repository.open(&mut owner, &repository.root);
         let refs = observe(&mut owner);
@@ -309,5 +301,17 @@ fn autosquash_admission() {
             assert_eq!(repository.git(["rev-parse", "HEAD"]), head);
         }
         assert!(!repository.root.join(".git/rebase-merge").exists());
+    }
+}
+
+fn autosquash_candidate(repository: &Repository, changed: &str) {
+    if changed == "ambiguous" {
+        for message in ["Duplicate", "Duplicate", "fixup! Duplicate"] {
+            repository.git(["commit", "--allow-empty", "-m", message]);
+        }
+    } else if changed == "limit" {
+        for _ in 0..253 {
+            repository.git(["commit", "--allow-empty", "-m", "Extra"]);
+        }
     }
 }

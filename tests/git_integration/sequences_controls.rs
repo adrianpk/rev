@@ -69,104 +69,108 @@ fn ordered_controls() {
             SequenceControl::Skip,
             SequenceControl::Abort,
         ] {
-            let repository = Repository::new(format);
-            let targets = conflict(&repository, kind);
-            let original = object(&repository, "HEAD");
-            let original_tree = repository.git(["rev-parse", "HEAD^{tree}"]);
-            let mut owner = stopped(&repository, kind, &targets);
-            let before = object(&repository, "HEAD");
-            let state = refresh(&mut owner);
-            assert_eq!(state.step, Some(2));
-            assert_eq!(state.total, Some(3));
-            assert!(
-                owner
-                    .control_sequence(Arc::clone(&state), SequenceControl::Continue, None)
-                    .is_err()
-            );
-            let wrong = if kind == ApplyKind::CherryPick {
-                SequenceFamily::Revert
-            } else {
-                SequenceFamily::CherryPick
-            };
-            assert!(owner.control_sequence(state, action, Some(wrong)).is_err());
-            if action == SequenceControl::Continue {
-                fs::write(repository.root.join("file"), "resolved\n").unwrap();
-                repository.git(["add", "--", "file"]);
-            }
-            let state = refresh(&mut owner);
-            let id = owner.control_sequence(state, action, None).unwrap();
-            let update = finish(&mut owner);
-            let record = owner.record(id).unwrap();
-            assert!(update.published, "{kind:?} {action:?}: {record:?}");
-            assert_eq!(
-                record.effects,
-                Effects::Verified,
-                "{kind:?} {action:?}: {record:?}"
-            );
-            assert_eq!(
-                record.outcome,
-                match action {
-                    SequenceControl::Continue => Outcome::Verified,
-                    SequenceControl::Skip => Outcome::Skipped,
-                    SequenceControl::Abort => Outcome::Aborted,
-                },
-                "{kind:?} {action:?}: {record:?}"
-            );
-            assert!(
-                owner.contexts()[0]
-                    .sequence
-                    .as_ref()
-                    .unwrap()
-                    .family
-                    .is_none()
-            );
-            assert!(repository.git(["status", "--porcelain"]).is_empty());
-            assert_eq!(
-                repository.git(["symbolic-ref", "HEAD"]),
-                b"refs/heads/main\n"
-            );
-            assert_eq!(object(&repository, "topic"), targets[2]);
-            if action == SequenceControl::Abort {
-                assert_eq!(object(&repository, "HEAD"), original);
-                assert_eq!(repository.git(["rev-parse", "HEAD^{tree}"]), original_tree);
-            } else {
-                assert_ne!(object(&repository, "HEAD"), before);
-                let count = if action == SequenceControl::Continue {
-                    3
-                } else {
-                    2
-                };
-                assert_eq!(
-                    repository.git(["rev-list", "--count", &format!("{}..HEAD", original.hex())]),
-                    format!("{count}\n").as_bytes()
-                );
-                assert_eq!(
-                    fs::read(repository.root.join("file")).unwrap(),
-                    if action == SequenceControl::Continue {
-                        b"resolved\n".as_slice()
-                    } else {
-                        b"local\n"
-                    }
-                );
-                assert_eq!(
-                    repository.root.join("first").exists(),
-                    kind == ApplyKind::CherryPick
-                );
-                assert_eq!(
-                    repository.root.join("last").exists(),
-                    kind == ApplyKind::CherryPick
-                );
-                let middle = if action == SequenceControl::Continue {
-                    object(&repository, "HEAD~1")
-                } else {
-                    before
-                };
-                assert_eq!(
-                    repository.git(["show", "--no-patch", "--format=%P", "HEAD"]),
-                    format!("{}\n", middle.hex()).as_bytes()
-                );
-            }
+            check_ordered_control(kind, format, action);
         }
+    }
+}
+
+fn check_ordered_control(kind: ApplyKind, format: &str, action: SequenceControl) {
+    let repository = Repository::new(format);
+    let targets = conflict(&repository, kind);
+    let original = object(&repository, "HEAD");
+    let original_tree = repository.git(["rev-parse", "HEAD^{tree}"]);
+    let mut owner = stopped(&repository, kind, &targets);
+    let before = object(&repository, "HEAD");
+    let state = refresh(&mut owner);
+    assert_eq!(state.step, Some(2));
+    assert_eq!(state.total, Some(3));
+    assert!(
+        owner
+            .control_sequence(Arc::clone(&state), SequenceControl::Continue, None)
+            .is_err()
+    );
+    let wrong = if kind == ApplyKind::CherryPick {
+        SequenceFamily::Revert
+    } else {
+        SequenceFamily::CherryPick
+    };
+    assert!(owner.control_sequence(state, action, Some(wrong)).is_err());
+    if action == SequenceControl::Continue {
+        fs::write(repository.root.join("file"), "resolved\n").unwrap();
+        repository.git(["add", "--", "file"]);
+    }
+    let state = refresh(&mut owner);
+    let id = owner.control_sequence(state, action, None).unwrap();
+    let update = finish(&mut owner);
+    let record = owner.record(id).unwrap();
+    assert!(update.published, "{kind:?} {action:?}: {record:?}");
+    assert_eq!(
+        record.effects,
+        Effects::Verified,
+        "{kind:?} {action:?}: {record:?}"
+    );
+    assert_eq!(
+        record.outcome,
+        match action {
+            SequenceControl::Continue => Outcome::Verified,
+            SequenceControl::Skip => Outcome::Skipped,
+            SequenceControl::Abort => Outcome::Aborted,
+        },
+        "{kind:?} {action:?}: {record:?}"
+    );
+    assert!(
+        owner.contexts()[0]
+            .sequence
+            .as_ref()
+            .unwrap()
+            .family
+            .is_none()
+    );
+    assert!(repository.git(["status", "--porcelain"]).is_empty());
+    assert_eq!(
+        repository.git(["symbolic-ref", "HEAD"]),
+        b"refs/heads/main\n"
+    );
+    assert_eq!(object(&repository, "topic"), targets[2]);
+    if action == SequenceControl::Abort {
+        assert_eq!(object(&repository, "HEAD"), original);
+        assert_eq!(repository.git(["rev-parse", "HEAD^{tree}"]), original_tree);
+    } else {
+        assert_ne!(object(&repository, "HEAD"), before);
+        let count = if action == SequenceControl::Continue {
+            3
+        } else {
+            2
+        };
+        assert_eq!(
+            repository.git(["rev-list", "--count", &format!("{}..HEAD", original.hex())]),
+            format!("{count}\n").as_bytes()
+        );
+        assert_eq!(
+            fs::read(repository.root.join("file")).unwrap(),
+            if action == SequenceControl::Continue {
+                b"resolved\n".as_slice()
+            } else {
+                b"local\n"
+            }
+        );
+        assert_eq!(
+            repository.root.join("first").exists(),
+            kind == ApplyKind::CherryPick
+        );
+        assert_eq!(
+            repository.root.join("last").exists(),
+            kind == ApplyKind::CherryPick
+        );
+        let middle = if action == SequenceControl::Continue {
+            object(&repository, "HEAD~1")
+        } else {
+            before
+        };
+        assert_eq!(
+            repository.git(["show", "--no-patch", "--format=%P", "HEAD"]),
+            format!("{}\n", middle.hex()).as_bytes()
+        );
     }
 }
 

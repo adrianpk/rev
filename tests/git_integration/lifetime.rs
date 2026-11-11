@@ -120,95 +120,103 @@ fn selected_cancellation() {
 #[test]
 fn guarded_exit() {
     for (profile, live_terminal) in [("non-modal", true), ("modal", true), ("non-modal", false)] {
-        let repository = Repository::new("sha1");
-        let script = repository.fixture.write(
-            "terminal.sh",
-            "while IFS= read -r line; do printf '%s\\n' \"$line\"; done\n",
+        check_guarded_exit(profile, live_terminal);
+    }
+}
+
+fn check_guarded_exit(profile: &str, live_terminal: bool) {
+    let repository = Repository::new("sha1");
+    let script = repository.fixture.write(
+        "terminal.sh",
+        "while IFS= read -r line; do printf '%s\\n' \"$line\"; done\n",
+    );
+    let extra = format!(
+        "[terminal]\nprogram='/bin/sh'\nargs=[{}]",
+        serde_json::to_string(&script).unwrap()
+    );
+    let mut owned = editor(&repository, profile, &extra, true);
+    let editor = &mut owned.0;
+    editor.insert('!');
+    let source = text(editor);
+    if live_terminal {
+        editor.execute(Command::Terminal(TerminalCommand::Open));
+    }
+    let terminal = editor.terminals().ids().next();
+    entry(editor);
+    wait(editor, |s| s.git_observation().is_some());
+    let pid_file = hold(&repository);
+    let process = start_held(editor, &pid_file);
+    for cancel in [false, true] {
+        assert_eq!(editor.execute(Command::Quit), Action::Redraw);
+        assert!(editor.echo().contains("y=save"));
+        answer(editor, 'n');
+        assert!(editor.echo().contains("terminate owned Git operations"));
+        key(editor, KeyCode::Enter, KeyModifiers::NONE);
+        editor.handle(Event::Paste("y".into()));
+        assert!(
+            process.exists(),
+            "Return/paste cannot grant termination consent"
         );
-        let extra = format!(
-            "[terminal]\nprogram='/bin/sh'\nargs=[{}]",
-            serde_json::to_string(&script).unwrap()
-        );
-        let mut owned = editor(&repository, profile, &extra, true);
-        let editor = &mut owned.0;
-        editor.insert('!');
-        let source = text(editor);
-        if live_terminal {
-            editor.execute(Command::Terminal(TerminalCommand::Open));
-        }
-        let terminal = editor.terminals().ids().next();
-        entry(editor);
-        wait(editor, |s| s.git_observation().is_some());
-        let pid_file = hold(&repository);
-        let process = start_held(editor, &pid_file);
-        for cancel in [false, true] {
-            assert_eq!(editor.execute(Command::Quit), Action::Redraw);
-            assert!(editor.echo().contains("y=save"));
+        if cancel {
+            key(editor, KeyCode::Char('g'), KeyModifiers::CONTROL);
+        } else {
             answer(editor, 'n');
-            assert!(editor.echo().contains("terminate owned Git operations"));
-            key(editor, KeyCode::Enter, KeyModifiers::NONE);
-            editor.handle(Event::Paste("y".into()));
-            assert!(
-                process.exists(),
-                "Return/paste cannot grant termination consent"
-            );
-            if cancel {
-                key(editor, KeyCode::Char('g'), KeyModifiers::CONTROL);
-            } else {
-                answer(editor, 'n');
-            }
-            assert!(process.exists());
-            if let Some(id) = terminal {
-                assert!(editor.terminals().get(id).unwrap().owns_process());
-            }
-            assert_eq!(text(editor), source);
-            assert!(editor.buffer().unwrap().is_modified());
         }
+        assert!(process.exists());
         if let Some(id) = terminal {
-            editor.execute(Command::Quit);
-            answer(editor, 'n');
-            answer(editor, 'y');
-            assert!(editor.echo().contains("terminal sessions"));
-            assert!(process.exists(), "Git consent alone does not begin cleanup");
-            answer(editor, 'n');
-            assert!(process.exists());
             assert!(editor.terminals().get(id).unwrap().owns_process());
         }
+        assert_eq!(text(editor), source);
+        assert!(editor.buffer().unwrap().is_modified());
+    }
+    if let Some(id) = terminal {
         editor.execute(Command::Quit);
         answer(editor, 'n');
         answer(editor, 'y');
-        if terminal.is_some() {
-            answer(editor, 'y');
-        }
-        if !live_terminal {
-            // Exit cancellation after consent cannot undo already requested
-            // cleanup, but must prevent the coordinator from later exiting.
-            key(editor, KeyCode::Char('g'), KeyModifiers::CONTROL);
-            let deadline = Instant::now() + Duration::from_secs(5);
-            while process.exists() {
-                assert_ne!(editor.expire_input(Instant::now()), Action::Exit);
-                assert!(Instant::now() < deadline);
-                std::thread::sleep(Duration::from_millis(2));
-            }
-            assert_ne!(editor.expire_input(Instant::now()), Action::Exit);
-            assert!(editor.buffer().unwrap().is_modified());
-            continue;
-        }
+        assert!(editor.echo().contains("terminal sessions"));
+        assert!(process.exists(), "Git consent alone does not begin cleanup");
+        answer(editor, 'n');
+        assert!(process.exists());
+        assert!(editor.terminals().get(id).unwrap().owns_process());
+    }
+    editor.execute(Command::Quit);
+    answer(editor, 'n');
+    answer(editor, 'y');
+    if terminal.is_some() {
+        answer(editor, 'y');
+    }
+    if !live_terminal {
+        // Exit cancellation after consent cannot undo already requested
+        // cleanup, but must prevent the coordinator from later exiting.
+        key(editor, KeyCode::Char('g'), KeyModifiers::CONTROL);
         let deadline = Instant::now() + Duration::from_secs(5);
-        loop {
-            if editor.expire_input(Instant::now()) == Action::Exit {
-                break;
-            }
-            assert!(Instant::now() < deadline, "exit cleanup: {}", editor.echo());
+        while process.exists() {
+            assert_ne!(editor.expire_input(Instant::now()), Action::Exit);
+            assert!(Instant::now() < deadline);
             std::thread::sleep(Duration::from_millis(2));
         }
-        assert!(!process.exists());
-        assert!(editor.terminals().ids().next().is_none());
-        assert_eq!(text(editor), source);
-        assert_eq!(
-            fs::read_to_string(repository.root.join("source.txt")).unwrap(),
-            "LOCAL_SOURCE_SENTINEL\n"
-        );
+        assert_ne!(editor.expire_input(Instant::now()), Action::Exit);
+        assert!(editor.buffer().unwrap().is_modified());
+        return;
+    }
+    wait_for_exit(editor);
+    assert!(!process.exists());
+    assert!(editor.terminals().ids().next().is_none());
+    assert_eq!(text(editor), source);
+    assert_eq!(
+        fs::read_to_string(repository.root.join("source.txt")).unwrap(),
+        "LOCAL_SOURCE_SENTINEL\n"
+    );
+}
+
+fn wait_for_exit(editor: &mut rev::session::Session) {
+    let deadline = Instant::now() + Duration::from_secs(5);
+    loop {
+        if editor.expire_input(Instant::now()) == Action::Exit {
+            break;
+        }
+        assert!(Instant::now() < deadline, "exit cleanup: {}", editor.echo());
+        std::thread::sleep(Duration::from_millis(2));
     }
 }
 

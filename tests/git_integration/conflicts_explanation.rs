@@ -26,7 +26,6 @@ fn peer(repository: &Repository, mode: &str) -> std::path::PathBuf {
 #[test]
 fn rpc_peer() {
     use std::io::{BufRead, Read, Write};
-    use std::time::{Duration, Instant};
     let Some(root) = std::env::var_os("REV_GIT_CONFLICT_PEER_DIR") else {
         return;
     };
@@ -66,21 +65,26 @@ fn rpc_peer() {
             );
             send(serde_json::json!({"type":"agent_end","messages":[]}));
             if gate {
-                fs::write(root.join("partial"), "").unwrap();
-                let deadline = Instant::now() + Duration::from_secs(5);
-                while !root.join("release").exists() {
-                    assert!(
-                        Instant::now() < deadline,
-                        "owned conflict peer settlement deadline"
-                    );
-                    std::thread::sleep(Duration::from_millis(2));
-                }
+                settle_gate(&root);
             }
             send(serde_json::json!({"type":"agent_settled","aborted":false}));
         }
     }
     fs::write(root.join("closed"), "").unwrap();
 }
+fn settle_gate(root: &Path) {
+    use std::time::{Duration, Instant};
+    fs::write(root.join("partial"), "").unwrap();
+    let deadline = Instant::now() + Duration::from_secs(5);
+    while !root.join("release").exists() {
+        assert!(
+            Instant::now() < deadline,
+            "owned conflict peer settlement deadline"
+        );
+        std::thread::sleep(Duration::from_millis(2));
+    }
+}
+
 fn configured(path: &Path) -> String {
     format!(
         "[ai.pi]\ncommand={}\npersist_sessions=false\nrequest_timeout_ms=5000\n",
@@ -128,20 +132,7 @@ fn optional_ai() {
         }
         let disk = fs::read(repository.root.join("file")).unwrap();
         plain(editor, 'H');
-        wait(editor, |e| {
-            let echo = e.echo().to_ascii_lowercase();
-            if variant == "missing" {
-                echo.contains("pi")
-                    && (echo.contains("unavailable")
-                        || echo.contains("failed")
-                        || echo.contains("cannot")
-                        || echo.contains("could not"))
-            } else if variant == "bound" {
-                echo.contains("explanation") && echo.contains("admission")
-            } else {
-                echo.contains("capture failed or became stale")
-            }
-        });
+        wait(editor, |e| failed_admission(e, variant));
         assert!(editor.git_visible());
         assert_eq!(repository.git(["ls-files", "--stage", "-z"]), index);
         assert_eq!(fs::read(repository.root.join("file")).unwrap(), disk);
@@ -155,6 +146,21 @@ fn optional_ai() {
         });
         plain(editor, 'n');
         assert!(editor.echo().contains("Conflict resolution canceled"));
+    }
+}
+
+fn failed_admission(editor: &rev::session::Session, variant: &str) -> bool {
+    let echo = editor.echo().to_ascii_lowercase();
+    if variant == "missing" {
+        echo.contains("pi")
+            && (echo.contains("unavailable")
+                || echo.contains("failed")
+                || echo.contains("cannot")
+                || echo.contains("could not"))
+    } else if variant == "bound" {
+        echo.contains("explanation") && echo.contains("admission")
+    } else {
+        echo.contains("capture failed or became stale")
     }
 }
 

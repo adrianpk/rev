@@ -211,15 +211,7 @@ fn protected_removal() {
                 "Current",
             )
         } else {
-            (
-                observed,
-                path.clone(),
-                if variant == "sequence" {
-                    "active Git sequence"
-                } else {
-                    "clean saved files"
-                },
-            )
+            (observed, path.clone(), dirty_removal_reason(variant))
         };
         refused(
             &mut owner,
@@ -229,6 +221,14 @@ fn protected_removal() {
         );
         assert!(path.join("file").exists());
         assert!(metadata.exists());
+    }
+}
+
+fn dirty_removal_reason(variant: &str) -> &'static str {
+    if variant == "sequence" {
+        "active Git sequence"
+    } else {
+        "clean saved files"
     }
 }
 

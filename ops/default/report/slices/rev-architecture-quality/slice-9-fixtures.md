@@ -127,6 +127,23 @@ write order, forbidden combinations, source retention, deadlines and resource
 ceilings are unchanged. The wait predicate uses the existing polling callback's
 mutable-session signature without changing its accepted feedback or wait budget.
 
+
+Git fixtures separate conflict data preparation and side assertions, stale
+review mutations, literal index-path seeding, metadata effects, autosquash
+candidate construction and complete control scenarios. Dirty/aliased sources,
+protected worktree removal and wrong/missing sequence authority retain their
+existing refusal and unchanged-state checks. The controlled conflict RPC peer
+keeps its 4,259,840-byte input ceiling and gated five-second settlement wait.
+
+Exit fixtures separate each profile/entry/decision case and the bounded native
+cleanup wait. Return/paste cannot grant Git termination, declining either owner
+keeps jobs alive, and cancellation after cleanup starts still prevents later
+exit. External reload faults retain the original permission-capability exception
+and cannot acknowledge missing, rebound, oversized or invalid source text.
+All 69 case identities, 593 assertion sites and text/numeric literal multiplicities
+remain unchanged in the 12 Rust files. A discard source path is borrowed directly
+instead of cloned into its temporary load selection.
+
 ## Contracts Added or Changed
 
 No runtime, package API, protocol, policy or acceptance changes are planned.
@@ -162,6 +179,13 @@ The existing five frozen commands and final controller gate remain required.
   capacity/staging fault preparation.
 - `tests/language_assets/admission.rs` and `tests/syntax/preferences.rs`:
   independent grammar samples, malformed query catalogs and cached asset faults.
+- `tests/git_integration/conflicts.rs` and `conflicts_explanation.rs`: bounded
+  conflict fixtures, independent side assertions and gated RPC settlement.
+- `tests/git_integration/families_*`, `index_*`, `integration_guards.rs`,
+  `repository_worktrees.rs` and `sequences_controls.rs`: captured-input,
+  metadata, path-group, worktree and ordered-control acceptance phases.
+- `tests/git_integration/lifetime.rs`, `tests/recovery/quit.rs` and
+  `tests/external_changes.rs`: owned cleanup, exit consent and reload faults.
 - `examples/git_integration_acceptance/`: snapshot and staged-content ownership.
 - `examples/integrated_terminal_acceptance/failure.rs`: explicit shared failure
   injection state; host terminal cleanup behavior is unchanged.
@@ -275,9 +299,26 @@ Development checks for admission and retained-state fixtures:
   acceptance condition is removed or relaxed.
 - `git diff --check`: passed.
 
+
+Development checks for Git and exit fixture phases:
+
+- The frozen scoped quality command still fails overall: 61 native source
+  findings remain, down from 75. Formatting, all-target compilation and scoped
+  Clippy admission pass with zero blocking diagnostics; four selected-profile
+  diagnostics remain deferred outside this scope. Coverage remains 704 of 1,836
+  first-party Rust files and 70 of 73 Cargo roots across two packages.
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --test git_integration --test external_changes --test recovery -- conflicts::partial_and_missing conflicts::explanation::optional_ai conflicts::explanation::historical_source families::patch::protected_input families::presentation::native_notes_sparse index::groups::paths index::presentation::native_discard_guards integration::guards::autosquash_admission lifetime::guarded_exit repository::worktrees::protected_removal sequences::controls::ordered_controls unavailable_sources quit::quit_alias_decisions --test-threads=1`: passed all 13 affected existing native cases, including gated historical conflict settlement, index/metadata/worktree refusals, autosquash bounds, sequence controls, owned Git/terminal cleanup and all quit decision routes.
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --test git_integration -- --exact index::presentation::native_discard_guards --test-threads=1`: passed after the final path-borrow correction, retaining all six dirty/alias/changed combinations under both input profiles.
+- Static comparison against clean
+  `a0a450cc74470d71b3df694bd70ec4f7a986bba2` preserves all 69 case identities,
+  593 assertion sites and text/numeric literal multiplicities in the 12 changed
+  Rust files. Resource caps, event order, consent, deadlines and negative
+  coverage remain unchanged.
+- `git diff --check`: passed.
+
 ## Risks and Follow-ups
 
-Selected Clippy admission is complete. The remaining 75 native source findings
+Selected Clippy admission is complete. The remaining 61 native source findings
 require cohesive fixture/example decomposition. T9.1-T9.3 remain in progress.
 The canonical PR, final ordered clean-HEAD evidence and controller integration
 remain pending.

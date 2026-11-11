@@ -10,17 +10,7 @@ fn paths() {
     for born in [false, true] {
         let repository = Repository::new("sha1");
         let raw = OsString::from_vec(b":(glob)raw\n\xff".to_vec());
-        for name in [Path::new("a"), Path::new(&raw), Path::new("other")] {
-            if !born || name != Path::new(&raw) {
-                fs::write(repository.root.join(name), b"base\0\n").unwrap();
-            }
-        }
-        if born {
-            repository.commit();
-        }
-        for name in [Path::new("a"), Path::new(&raw), Path::new("other")] {
-            fs::write(repository.root.join(name), b"changed\0\n").unwrap();
-        }
+        seed_group_paths(&repository, &raw, born);
         let initial = repository.git(["ls-files", "--stage", "-z"]);
         let mut owner = repository.owner("");
         repository.open(&mut owner, &repository.root);
@@ -65,6 +55,20 @@ fn paths() {
                 b"changed\0\n"
             );
         }
+    }
+}
+
+fn seed_group_paths(repository: &Repository, raw: &std::ffi::OsStr, born: bool) {
+    for name in [Path::new("a"), Path::new(raw), Path::new("other")] {
+        if !born || name != Path::new(raw) {
+            fs::write(repository.root.join(name), b"base\0\n").unwrap();
+        }
+    }
+    if born {
+        repository.commit();
+    }
+    for name in [Path::new("a"), Path::new(raw), Path::new("other")] {
+        fs::write(repository.root.join(name), b"changed\0\n").unwrap();
     }
 }
 
