@@ -31,35 +31,31 @@ impl Atomic {
         windows: &Windows,
         targets: &[(BufferId, Vec<Replacement>)],
     ) -> Result<Self, Error> {
+        let mut atomic = Self::with_capacity(targets.len())?;
+        for (id, edits) in targets {
+            if atomic.participants.iter().any(|p| p.id == *id) {
+                return Err(Error::Order);
+            }
+            let participant = Participant::prepare(buffers, windows, *id, edits)?;
+            atomic.stamps.push(participant.edit.after());
+            atomic.participants.push(participant);
+        }
+        Ok(atomic)
+    }
+
+    fn with_capacity(capacity: usize) -> Result<Self, Error> {
         let mut participants = Vec::new();
         let mut stamps = Vec::new();
         let mut observations = Vec::new();
         participants
-            .try_reserve_exact(targets.len())
+            .try_reserve_exact(capacity)
             .map_err(|_| Error::Capacity)?;
         stamps
-            .try_reserve_exact(targets.len())
+            .try_reserve_exact(capacity)
             .map_err(|_| Error::Capacity)?;
         observations
-            .try_reserve_exact(targets.len())
+            .try_reserve_exact(capacity)
             .map_err(|_| Error::Capacity)?;
-        for (id, edits) in targets {
-            if participants.iter().any(|p: &Participant| p.id == *id) {
-                return Err(Error::Order);
-            }
-            let buffer = buffers.get_mut(*id)?;
-            let points = windows.capture_points(buffer)?;
-            let prepared = buffer.prepare(edits, &points.values, None)?;
-            let tops = points.map_tops(&prepared)?;
-            let edit = buffer.reserve_edit(prepared, &points.values)?;
-            stamps.push(edit.after());
-            participants.push(Participant {
-                id: *id,
-                edit,
-                points,
-                tops,
-            });
-        }
         Ok(Self {
             participants,
             stamps,
@@ -111,6 +107,27 @@ impl Atomic {
                 .notify_publication(observation);
         }
         self.stamps
+    }
+}
+
+impl Participant {
+    fn prepare(
+        buffers: &mut Buffers,
+        windows: &Windows,
+        id: BufferId,
+        edits: &[Replacement],
+    ) -> Result<Self, Error> {
+        let buffer = buffers.get_mut(id)?;
+        let points = windows.capture_points(buffer)?;
+        let prepared = buffer.prepare(edits, &points.values, None)?;
+        let tops = points.map_tops(&prepared)?;
+        let edit = buffer.reserve_edit(prepared, &points.values)?;
+        Ok(Self {
+            id,
+            edit,
+            points,
+            tops,
+        })
     }
 }
 

@@ -26,6 +26,24 @@ impl Session {
         self.remember_context_position();
         self.bookmark_visit = None;
         self.bookmark_iteration = None;
+        self.admit_file_ingress()?;
+        self.cancel_pointer_capture();
+        self.yank = None;
+        self.kills.break_chain();
+        let result = self.ingress(path, directories);
+        if result.is_ok() {
+            if self.bookmark_list_active() {
+                self.bookmark_list = None;
+            }
+            self.sync_input_context();
+        }
+        if let Err(error) = &result {
+            self.error(&error.to_string());
+        }
+        result
+    }
+
+    fn admit_file_ingress(&self) -> io::Result<()> {
         if self.tangling.is_some() || self.execution.is_some() || self.feeds.is_some() {
             return Err(io::Error::other(
                 "Source output owns input; C-g cancels remaining files",
@@ -41,20 +59,7 @@ impl Session {
                 "Capture owns this view; abort the draft before visiting a file",
             ));
         }
-        self.cancel_pointer_capture();
-        self.yank = None;
-        self.kills.break_chain();
-        let result = self.ingress(path, directories);
-        if result.is_ok() {
-            if self.bookmark_list_active() {
-                self.bookmark_list = None;
-            }
-            self.sync_input_context();
-        }
-        if let Err(error) = &result {
-            self.error(&error.to_string());
-        }
-        result
+        Ok(())
     }
 
     fn ingress(&mut self, path: &Path, directories: bool) -> io::Result<()> {
@@ -145,6 +150,12 @@ impl Session {
                 view,
                 point,
             }) => self.macro_counter_argument(command, view, point, &path),
+            pending => self.context_prompt_argument(pending, path),
+        }
+    }
+
+    fn context_prompt_argument(&mut self, pending: Option<Pending>, path: String) -> Action {
+        match pending {
             Some(Pending::ContextManagement(p)) => self.management_argument(*p, &path),
             Some(Pending::WorkspaceName(c)) => self.workspace_name(*c, &path),
             Some(Pending::Workspaces(c)) => self.workspace_selected(c, &path),
@@ -152,10 +163,22 @@ impl Session {
             Some(Pending::WorkspaceRoot(c)) => self.workspace_root_selected(*c, &path),
             Some(Pending::ProjectName(creation)) => self.project_name(*creation, &path),
             Some(Pending::Projects(choices)) => self.project_selected(choices, &path),
+            pending => self.git_reference_argument(pending, path),
+        }
+    }
+
+    fn git_reference_argument(&mut self, pending: Option<Pending>, path: String) -> Action {
+        match pending {
             Some(Pending::GitWorktree(prompt)) => self.git_worktree_argument(*prompt, &path),
             Some(Pending::GitRepository(prompt)) => self.git_repository_argument(*prompt, &path),
             Some(Pending::GitTagPrompt(prompt)) => self.git_tag_argument(*prompt, &path),
             Some(Pending::GitBranchName(prompt)) => self.git_branch_name(*prompt, &path),
+            pending => self.git_operation_argument(pending, path),
+        }
+    }
+
+    fn git_operation_argument(&mut self, pending: Option<Pending>, path: String) -> Action {
+        match pending {
             Some(Pending::GitHistoryRoot(context)) => self.git_history_root(context, &path),
             Some(Pending::GitBisect(prompt)) => self.git_bisect_argument(*prompt, &path),
             Some(Pending::GitSequenceMainline(selection)) => {
@@ -163,6 +186,12 @@ impl Session {
             }
             Some(Pending::GitHistoryParent(detail)) => self.git_history_parent(detail, &path),
             Some(Pending::GitFixup(observation)) => self.git_fixup_argument(observation, &path),
+            pending => self.process_prompt_argument(pending, path),
+        }
+    }
+
+    fn process_prompt_argument(&mut self, pending: Option<Pending>, path: String) -> Action {
+        match pending {
             Some(Pending::TerminalRename(id)) => self.terminal_renamed(id, &path),
             Some(Pending::Shell(request)) => self.shell_argument(*request, &path),
             Some(Pending::Plugin(command)) => self.plugin_argument(command, &path),
@@ -171,6 +200,12 @@ impl Session {
             Some(Pending::AiDirectory) => self.ai_directory_argument(&path),
             Some(Pending::AiModel(models)) => self.ai_model_argument(models, &path),
             Some(Pending::LspSetup(prompt)) => self.lsp_setup_argument(*prompt, &path),
+            pending => self.source_prompt_argument(pending, path),
+        }
+    }
+
+    fn source_prompt_argument(&mut self, pending: Option<Pending>, path: String) -> Action {
+        match pending {
             Some(Pending::Bookmark(prompt)) => self.bookmark_argument(prompt, &path),
             Some(Pending::BookmarkQuit(sources)) => self.bookmark_quit_answer(&path, sources),
             Some(pending) if pending.org_argument() => self.org_argument(pending, &path),

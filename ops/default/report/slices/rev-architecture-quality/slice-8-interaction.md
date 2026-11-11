@@ -142,6 +142,24 @@ publication keeps empty batches passive and holds its lock across rebasing and
 replacement. Ambiguous completion still suspends retries to avoid duplicate
 usage.
 
+Session file admission, argument routing, consent and cancellation now delegate
+to their native concern handlers. Pending values move once to the selected
+handler; resource cancellation still precedes document cancellation. Prompt
+questions preserve their existing consent text and macro-pause fallback.
+
+File observation separates borrowed reconciliation, checked generation
+assignment, retired-source cleanup, watcher updates and queued-event coalescing.
+Reload publication retains current-source checks and the five-second deadline;
+late or canceled work keeps its single worker slot until nonblocking retirement.
+No observation queue, source-count, byte or debounce bound has changed.
+
+Startup separates target presentation, nested cancellation, navigation and
+Project/Workspace actions. Existing command mappings, fallback to the retained
+context and pointer arming checks are unchanged. Paste, search acceptance,
+argument yanking and tree outcomes retain their original admission and
+publication order. Atomic source edits reserve every participant before final
+checks and publish all sources/views before notifying observers.
+
 ## Contracts Added or Changed
 
 One private completion owner replaces nine independent session fields. Public
@@ -166,6 +184,14 @@ existing admission, publication and freshness checks retain authority.
   admission and guarded publication with unchanged schema and commit semantics.
 - `src/command/usage/store.rs`: bounded history reads and locked pending-event
   publication.
+- `src/session/file.rs`, `src/session/prompt.rs` and `src/session/save.rs`:
+  native argument, cancellation and consent routing.
+- `src/session/observation.rs` and `src/session/reload.rs`: source reconciliation,
+  queue admission and worker retirement with unchanged freshness/deadline checks.
+- `src/session/startup/` and `src/session/startup.rs`: target presentation,
+  nested cancellation and native startup action families.
+- `src/session/source_batch/atomic.rs`: reserved participant preparation before
+  all-source publication and deferred observer notification.
 - `src/session.rs` and `src/session/completion/`: composition, source restoration,
   resolver polling, stale-result checks and publication.
 - `src/command/`, `src/input/`, `src/macros/` and `src/session/`: selected native
@@ -299,12 +325,31 @@ Development checks for persisted input and publication:
 - `target/debug/examples/source-check --workspace --scope src/macros/library --scope src/command/usage/store.rs`: passed all five selected source files, including every source changed in this cohort.
 - `git diff --check`: passed.
 
+Development checks for native interaction transitions:
+
+- Frozen scoped quality: formatting and all-target compilation passed. Selected
+  Clippy admission passes with zero blocking diagnostics; 205 selected-profile
+  diagnostics remain deferred outside the scope. Native source findings decreased
+  from 30 to nine, resolving 21 existing findings without adding any. Coverage
+  remains 381 of 1,836 first-party Rust files. Remaining findings belong to
+  command metadata and keymap compilation; all session sources satisfy the bounds.
+- Frozen native regression command: 188 passed and the same 16 `commands` cases
+  failed as in checkpoint `c77aa353117e197f0b4e85a9f3bb2e3f74427ddb`.
+- Frozen documentation check: passed 684 commands, 299 configuration entries,
+  106 reachable pages and 743 local links and anchors.
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --lib -- --test-threads=1`: passed all 186 library unit cases, including atomic source publication and retirement of stale observation notices.
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --test modal --test completion --test macros --no-fail-fast -- --test-threads=1`: failed overall; completion passed 44 cases, macros passed 110, and modal passed 122 with the same two failure identities listed above.
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --test editing --test search --test files --test external_changes --test contexts --test bookmarks --test tree --test configuration --no-fail-fast -- --test-threads=1`: passed all 606 cases: 114 editing, 30 search, 75 file, 21 external-change, 62 context, 58 bookmark, 84 tree and 162 configuration cases, with no ignores.
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --test command_usage -- --test-threads=1`: failed with 14 passed and the same `startup::startup_owner` failure as checkpoint `c77aa353117e197f0b4e85a9f3bb2e3f74427ddb`.
+- `target/debug/examples/source-check --workspace --scope src/session`: passed all 297 selected session files, including every source changed in this cohort. Public signatures and existing in-module test bodies are unchanged; no assertions, inputs, timeouts or budgets were edited.
+- `git diff --check`: passed.
+
 ## Risks and Follow-ups
 
 Preserve native input/view context, stale completion rejection, transient
 ownership, semantic macro replay/history and the retained macro body identity.
-The remaining 30 source findings, resolution of the 16 command and two modal
-failures plus the additional command-usage startup failure, canonical PR
+The remaining nine source findings, resolution of the 16 command and two modal
+failures plus the retained command-usage startup failure, canonical PR
 preparation and exact clean-HEAD evidence remain pending. F6, shared macro-body
 accounting, native dispatch, counted planning, macro lifecycle and publication
 owners have focused regression coverage; Slice 8 is not ready for integration.

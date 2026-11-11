@@ -23,6 +23,23 @@ impl Work {
             ..Self::default()
         }
     }
+
+    fn generation(&mut self, id: BufferId, file: &crate::file::Location) -> Option<u64> {
+        let prior = self
+            .sources
+            .binary_search_by_key(&id, |s| s.id)
+            .ok()
+            .map(|index| &self.sources[index])
+            .filter(|s| s.path == file.path() && s.baseline.as_ref() == file.observation());
+        match prior {
+            Some(prior) => Some(prior.generation),
+            None => {
+                let next = self.next.checked_add(1)?;
+                self.next = next;
+                Some(next)
+            }
+        }
+    }
 }
 
 impl Session {
@@ -36,6 +53,24 @@ impl Session {
             .settings()
             .files
             .external_change_max_buffers;
+        if let Some(limited) = self.unchanged_observations(limit) {
+            self.observation_limit(limited);
+            return;
+        }
+        let Some((sources, limited)) = self.prepare_observation_sources(limit) else {
+            self.message("file observation generation exhausted; use revert-buffer");
+            return;
+        };
+        self.observation_limit(limited);
+        if sources == self.observation.sources {
+            return;
+        }
+        self.retire_observation_sources(&sources);
+        self.update_observation_watch(&sources);
+        self.observation.sources = sources;
+    }
+
+    fn unchanged_observations(&self, limit: usize) -> Option<bool> {
         // The common typing/navigation path compares borrowed evidence only.
         // Source vectors follow the registry's stable BufferId order.
         let mut count = 0;
@@ -56,18 +91,12 @@ impl Session {
             });
             count += 1;
         }
-        if unchanged && count == self.observation.sources.len() {
-            if over_limit && !self.observation.limited {
-                self.message(
-                    "File observation buffer limit reached; use revert-buffer for unobserved files",
-                );
-            }
-            self.observation.limited = over_limit;
-            return;
-        }
+        (unchanged && count == self.observation.sources.len()).then_some(over_limit)
+    }
+
+    fn prepare_observation_sources(&mut self, limit: usize) -> Option<(Vec<Source>, bool)> {
         let mut sources = Vec::new();
         let mut limited = false;
-        let mut exhausted = false;
         for buffer in self.buffers.iter().filter(|b| !b.is_transient()) {
             let Some(file) = buffer.file() else {
                 continue;
@@ -76,24 +105,7 @@ impl Session {
                 limited = true;
                 break;
             }
-            let prior = self
-                .observation
-                .sources
-                .binary_search_by_key(&buffer.id(), |s| s.id)
-                .ok()
-                .map(|index| &self.observation.sources[index])
-                .filter(|s| s.path == file.path() && s.baseline.as_ref() == file.observation());
-            let generation = match prior {
-                Some(prior) => prior.generation,
-                None => {
-                    let Some(next) = self.observation.next.checked_add(1) else {
-                        exhausted = true;
-                        break;
-                    };
-                    self.observation.next = next;
-                    next
-                }
-            };
+            let generation = self.observation.generation(buffer.id(), file)?;
             sources.push(Source {
                 id: buffer.id(),
                 generation,
@@ -101,19 +113,19 @@ impl Session {
                 baseline: file.observation().cloned(),
             });
         }
-        if exhausted {
-            self.message("file observation generation exhausted; use revert-buffer");
-            return;
-        }
+        Some((sources, limited))
+    }
+
+    fn observation_limit(&mut self, limited: bool) {
         if limited && !self.observation.limited {
             self.message(
                 "File observation buffer limit reached; use revert-buffer for unobserved files",
             );
         }
         self.observation.limited = limited;
-        if sources == self.observation.sources {
-            return;
-        }
+    }
+
+    fn retire_observation_sources(&mut self, sources: &[Source]) {
         let retired: Vec<_> = self
             .observation
             .sources
@@ -139,11 +151,14 @@ impl Session {
         self.observation
             .notices
             .retain(|id, _| sources.iter().any(|s| s.id == *id));
+    }
+
+    fn update_observation_watch(&mut self, sources: &[Source]) {
         if let Some(watch) = &self.observation.watch {
-            watch.update(sources.clone());
+            watch.update(sources.to_vec());
         } else if !sources.is_empty() {
             match Watch::start(
-                sources.clone(),
+                sources.to_vec(),
                 self.buffers
                     .snapshot()
                     .settings()
@@ -159,7 +174,6 @@ impl Session {
                 }
             }
         }
-        self.observation.sources = sources;
     }
 
     pub(super) fn current_observation(&self, source: &Source) -> bool {
@@ -197,29 +211,7 @@ impl Session {
     }
 
     pub(super) fn expire_observation(&mut self) -> Action {
-        let mut action = Action::Wait;
-        if self.observation_ready()
-            && let Some(watch) = &self.observation.watch
-        {
-            let (events, diagnostic) = watch.take();
-            if let Some(diagnostic) = diagnostic {
-                action = self.message(&diagnostic);
-            }
-            for event in events {
-                if self.current_observation(&event.source) {
-                    if let Some(queued) = self
-                        .observation
-                        .pending
-                        .iter_mut()
-                        .find(|e| e.source.id == event.source.id)
-                    {
-                        *queued = event;
-                    } else {
-                        self.observation.pending.push_back(event);
-                    }
-                }
-            }
-        }
+        let action = self.take_observation_events();
         if !self.reload_idle() || matches!(self.pending, Some(Pending::Reload(_))) {
             return action;
         }
@@ -244,33 +236,69 @@ impl Session {
                 "file is missing; text retained; use revert-buffer after recreation",
             ),
             Disk::Image(Some(observed)) => {
-                let request = match self.buffers.get(changed.source.id) {
-                    Ok(buffer) => {
-                        // An editor-owned save/reload already acknowledged this
-                        // exact completed observation; do not manufacture a loop.
-                        if buffer.file().and_then(|f| f.observation()) == Some(&observed) {
-                            return action;
-                        }
-                        buffer.request_reload(
-                            self.buffers
-                                .snapshot()
-                                .settings()
-                                .files
-                                .external_change_max_bytes,
-                        )
-                    }
-                    Err(_) => return action,
-                };
-                match request
-                    .and_then(|request| self.start_observed_reload(request, changed.source.clone()))
-                {
-                    Ok(()) => action,
-                    Err(error) => self.observation_notice(
-                        &changed.source,
-                        &format!("{error}; use revert-buffer"),
-                    ),
-                }
+                self.reload_observed_image(&changed.source, &observed, action)
             }
+        }
+    }
+
+    fn take_observation_events(&mut self) -> Action {
+        let mut action = Action::Wait;
+        if self.observation_ready()
+            && let Some(watch) = &self.observation.watch
+        {
+            let (events, diagnostic) = watch.take();
+            if let Some(diagnostic) = diagnostic {
+                action = self.message(&diagnostic);
+            }
+            for event in events {
+                self.queue_observation_event(event);
+            }
+        }
+        action
+    }
+
+    fn queue_observation_event(&mut self, event: Changed) {
+        if !self.current_observation(&event.source) {
+            return;
+        }
+        if let Some(queued) = self
+            .observation
+            .pending
+            .iter_mut()
+            .find(|e| e.source.id == event.source.id)
+        {
+            *queued = event;
+        } else {
+            self.observation.pending.push_back(event);
+        }
+    }
+
+    fn reload_observed_image(
+        &mut self,
+        source: &Source,
+        observed: &crate::file::Observation,
+        action: Action,
+    ) -> Action {
+        let request = match self.buffers.get(source.id) {
+            Ok(buffer) => {
+                // An editor-owned save/reload already acknowledged this
+                // exact completed observation; do not manufacture a loop.
+                if buffer.file().and_then(|f| f.observation()) == Some(observed) {
+                    return action;
+                }
+                buffer.request_reload(
+                    self.buffers
+                        .snapshot()
+                        .settings()
+                        .files
+                        .external_change_max_bytes,
+                )
+            }
+            Err(_) => return action,
+        };
+        match request.and_then(|request| self.start_observed_reload(request, source.clone())) {
+            Ok(()) => action,
+            Err(error) => self.observation_notice(source, &format!("{error}; use revert-buffer")),
         }
     }
 

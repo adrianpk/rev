@@ -216,7 +216,18 @@ impl Session {
         if !self.tree.focused() {
             return self.message("File tree is not focused");
         }
-        let result = match command {
+        let result = self.navigate_tree(command);
+        match result {
+            Ok(()) => match self.tree.diagnostic() {
+                Some(message) => self.notice(message),
+                None => self.message("File tree updated"),
+            },
+            Err(error) => self.error(&error.to_string()),
+        }
+    }
+
+    fn navigate_tree(&mut self, command: TreeCommand) -> std::io::Result<()> {
+        match command {
             TreeCommand::Previous => {
                 self.tree.move_selection(false);
                 Ok(())
@@ -243,13 +254,6 @@ impl Session {
                 self.tree.up_directory()
             }
             _ => unreachable!("presentation commands route before tree navigation"),
-        };
-        match result {
-            Ok(()) => match self.tree.diagnostic() {
-                Some(message) => self.notice(message),
-                None => self.message("File tree updated"),
-            },
-            Err(error) => self.error(&error.to_string()),
         }
     }
 }

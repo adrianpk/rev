@@ -7,17 +7,7 @@ impl Session {
     pub(super) fn activity_frame(&self, frame: &mut Frame) -> Result<(), Error> {
         let timer = self.timer_status();
         let shell = self.shell_status();
-        let macro_status = match self.macro_wait() {
-            Some(crate::macros::Wait::Query) => Some("Macro?".to_owned()),
-            Some(crate::macros::Wait::Editing) => {
-                Some(format!("Macro edit {}/4", self.macros.pauses.len()))
-            }
-            _ => match self.macro_status() {
-                crate::macros::Status::Recording => Some("Def".to_owned()),
-                crate::macros::Status::Playing => Some("Macro".to_owned()),
-                crate::macros::Status::Idle => None,
-            },
-        };
+        let macro_status = self.macro_activity_label();
         if timer.is_none() && shell.is_none() && macro_status.is_none() {
             return Ok(());
         }
@@ -37,5 +27,19 @@ impl Session {
         }
         frame.activity_status(&label)?;
         Ok(())
+    }
+
+    fn macro_activity_label(&self) -> Option<String> {
+        match self.macro_wait() {
+            Some(crate::macros::Wait::Query) => Some("Macro?".to_owned()),
+            Some(crate::macros::Wait::Editing) => {
+                Some(format!("Macro edit {}/4", self.macros.pauses.len()))
+            }
+            _ => match self.macro_status() {
+                crate::macros::Status::Recording => Some("Def".to_owned()),
+                crate::macros::Status::Playing => Some("Macro".to_owned()),
+                crate::macros::Status::Idle => None,
+            },
+        }
     }
 }

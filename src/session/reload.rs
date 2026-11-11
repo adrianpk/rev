@@ -99,23 +99,7 @@ impl Session {
             return Action::Wait;
         };
         if !task.is_finished() {
-            if !self.reload.canceled
-                && self
-                    .reload
-                    .started
-                    .is_some_and(|t| t.elapsed() > crate::file::reload::DEADLINE)
-            {
-                self.reload.canceled = true;
-                if let Some(source) = self.reload.origin.clone() {
-                    return self.observation_notice(
-                        &source,
-                        "reload deadline exceeded; late work cannot publish; use revert-buffer",
-                    );
-                }
-                return self
-                    .error("reload: five-second deadline exceeded; late work cannot publish");
-            }
-            return Action::Wait;
+            return self.wait_reload();
         }
         // is_finished makes this join nonblocking. Timed-out/canceled work owns
         // the only slot until it exits; no series of replacement threads forms.
@@ -155,6 +139,25 @@ impl Session {
             },
             Ok(Completed::Checked(candidate)) => self.reload_publish(candidate),
         }
+    }
+
+    fn wait_reload(&mut self) -> Action {
+        if !self.reload.canceled
+            && self
+                .reload
+                .started
+                .is_some_and(|t| t.elapsed() > crate::file::reload::DEADLINE)
+        {
+            self.reload.canceled = true;
+            if let Some(source) = self.reload.origin.clone() {
+                return self.observation_notice(
+                    &source,
+                    "reload deadline exceeded; late work cannot publish; use revert-buffer",
+                );
+            }
+            return self.error("reload: five-second deadline exceeded; late work cannot publish");
+        }
+        Action::Wait
     }
 
     fn reload_read(&mut self, reload: Reload) -> Action {

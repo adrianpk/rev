@@ -58,16 +58,9 @@ impl Session {
             severity = crate::display::Message::Warning;
             notice.push_str(&format!("; tree refresh failed: {error}"));
         }
-        if let crate::context::Context::Directory(path) = &mut self.context
-            && let Some(root) = self.tree.chosen_root()
-        {
-            match crate::context::NativePath::absolute(root) {
-                Ok(root) => *path = root,
-                Err(error) => {
-                    severity = crate::display::Message::Warning;
-                    notice.push_str(&format!("; temporary context root: {error}"));
-                }
-            }
+        if let Err(error) = self.retarget_renamed_context() {
+            severity = crate::display::Message::Warning;
+            notice.push_str(&format!("; temporary context root: {error}"));
         }
         if self.buffers.snapshot().settings().bookmarks.save
             == crate::config::BookmarkSave::OnChange
@@ -80,5 +73,14 @@ impl Session {
         let action = self.message(&notice);
         self.echo_kind = severity;
         action
+    }
+
+    fn retarget_renamed_context(&mut self) -> Result<(), crate::context::Error> {
+        if let crate::context::Context::Directory(path) = &mut self.context
+            && let Some(root) = self.tree.chosen_root()
+        {
+            *path = crate::context::NativePath::absolute(root)?;
+        }
+        Ok(())
     }
 }

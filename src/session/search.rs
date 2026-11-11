@@ -125,39 +125,49 @@ impl Session {
                 }
                 self.search(direction)
             }
-            SearchAction::Accept => {
-                if let Some(Pending::Search(state)) = &self.pending {
-                    if self.macros.active() && !state.query.is_empty() && state.found.is_none() {
-                        return self.stop_macro(
-                            crate::macros::StopReason::NativeFailure,
-                            "Macro search has no match",
-                        );
-                    }
-                    let value = state.query.clone();
-                    if !self.macro_accept_argument(crate::macros::Role::Search, &value) {
-                        return Action::Redraw;
-                    }
-                }
-                if let Some(action) = self.accept_operator_search() {
-                    return action;
-                }
-                if let Some(Pending::Search(state)) = &self.pending
-                    && state.found.is_some()
-                {
-                    let jump = self.prepare_jump_between(
-                        state.origin.point,
-                        self.buffer().expect("checked search source"),
-                        self.view().point,
-                    );
-                    match jump {
-                        Ok(record) => self.publish_jump(record),
-                        Err(error) => return self.error(&error.to_string()),
-                    }
-                }
-                self.confirm_search();
-                self.message("")
+            SearchAction::Accept => self.accept_search(),
+        }
+    }
+
+    fn accept_search(&mut self) -> Action {
+        if let Some(action) = self.admit_macro_search() {
+            return action;
+        }
+        if let Some(action) = self.accept_operator_search() {
+            return action;
+        }
+        if let Some(Pending::Search(state)) = &self.pending
+            && state.found.is_some()
+        {
+            let jump = self.prepare_jump_between(
+                state.origin.point,
+                self.buffer().expect("checked search source"),
+                self.view().point,
+            );
+            match jump {
+                Ok(record) => self.publish_jump(record),
+                Err(error) => return self.error(&error.to_string()),
             }
         }
+        self.confirm_search();
+        self.message("")
+    }
+
+    fn admit_macro_search(&mut self) -> Option<Action> {
+        let Some(Pending::Search(state)) = &self.pending else {
+            return None;
+        };
+        if self.macros.active() && !state.query.is_empty() && state.found.is_none() {
+            return Some(self.stop_macro(
+                crate::macros::StopReason::NativeFailure,
+                "Macro search has no match",
+            ));
+        }
+        let value = state.query.clone();
+        if !self.macro_accept_argument(crate::macros::Role::Search, &value) {
+            return Some(Action::Redraw);
+        }
+        None
     }
 
     pub(super) fn accept_operator_search(&mut self) -> Option<Action> {

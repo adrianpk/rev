@@ -20,6 +20,10 @@ impl Session {
         if let Err(error) = self.stop_typing() {
             return self.error(&error.to_string());
         }
+        self.publish_paste(text)
+    }
+
+    fn publish_paste(&mut self, text: &str) -> Action {
         if text.contains('\0') {
             return self.message("Paste contains NUL; binary input rejected");
         }

@@ -32,16 +32,7 @@ impl Session {
         let mut session = Self::from_buffers(buffers, view, size).map_err(io::Error::other)?;
         session.startup_bookmarks();
         session.startup_contexts();
-        session.startup_file(path.as_deref())?;
-        if path.is_some() {
-            session.tree.present()?;
-        } else {
-            session.dashboard_open();
-        }
-        if let Some(message) = session.tree.diagnostic() {
-            session.notice(message);
-        }
-        session.follow_tree();
+        session.present_startup_target(path.as_deref())?;
         session.startup_clock_state();
         session.prepare_bookmark_markers();
         let plugin_state_diagnostic = crate::config::Roots::from_env()
@@ -66,6 +57,20 @@ impl Session {
             session.notice(&diagnostic);
         }
         Ok(session)
+    }
+
+    fn present_startup_target(&mut self, path: Option<&Path>) -> io::Result<()> {
+        self.startup_file(path)?;
+        if path.is_some() {
+            self.tree.present()?;
+        } else {
+            self.dashboard_open();
+        }
+        if let Some(message) = self.tree.diagnostic() {
+            self.notice(message);
+        }
+        self.follow_tree();
+        Ok(())
     }
 
     fn startup_file(&mut self, path: Option<&Path>) -> io::Result<()> {

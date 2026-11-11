@@ -77,6 +77,12 @@ impl Session {
             }
             Some(Pending::MacroMenuConsent(consent)) => self.macro_menu_answer(&consent, accepted),
             Some(Pending::MacroConsent(consent)) => self.macro_name_consent(*consent, accepted),
+            pending => self.git_pending_decision(pending, accepted),
+        }
+    }
+
+    fn git_pending_decision(&mut self, pending: Option<Pending>, accepted: bool) -> Action {
+        match pending {
             Some(Pending::GitDiscard(consent)) => self.git_discard_answer(*consent, accepted),
             Some(Pending::GitRef(consent)) => self.git_ref_answer(*consent, accepted),
             Some(Pending::GitQuit {
@@ -85,6 +91,12 @@ impl Session {
                 ..
             }) => self.git_quit_answer(accepted, operations, sources),
             Some(Pending::GitShutdown { .. }) => self.git_shutdown_answer(accepted),
+            pending => self.terminal_pending_decision(pending, accepted),
+        }
+    }
+
+    fn terminal_pending_decision(&mut self, pending: Option<Pending>, accepted: bool) -> Action {
+        match pending {
             Some(Pending::TerminalQuit { sources, .. }) => {
                 self.terminal_quit_answer(accepted, sources)
             }
@@ -96,6 +108,12 @@ impl Session {
                     self.message("Terminal retained")
                 }
             }
+            pending => self.source_pending_decision(pending, accepted),
+        }
+    }
+
+    fn source_pending_decision(&mut self, pending: Option<Pending>, accepted: bool) -> Action {
+        match pending {
             Some(Pending::Reload(reload)) => self.reload_answer(*reload, accepted),
             Some(Pending::Quit(quit)) => self.quit_answer(quit, accepted),
             Some(Pending::BookmarkReload(candidate)) => {
@@ -113,16 +131,23 @@ impl Session {
             Some(Pending::Save {
                 confirmation,
                 after,
-            }) => {
-                if !accepted {
-                    return self.message("Save canceled");
-                }
-                let state = confirmation.state();
-                let outcome = self.buffers.confirm_save(*confirmation);
-                self.saved_state(state, &outcome, after)
-            }
+            }) => self.save_decision(*confirmation, after, accepted),
             _ => self.message("No decision is pending"),
         }
+    }
+
+    fn save_decision(
+        &mut self,
+        confirmation: Confirmation,
+        after: AfterSave,
+        accepted: bool,
+    ) -> Action {
+        if !accepted {
+            return self.message("Save canceled");
+        }
+        let state = confirmation.state();
+        let outcome = self.buffers.confirm_save(confirmation);
+        self.saved_state(state, &outcome, after)
     }
 
     pub(super) fn saved_state(
@@ -199,41 +224,29 @@ impl Session {
             self.echo = format!("{}; {message}", deletion.message());
             return Action::Redraw;
         }
-        let question = match &self.pending {
-            Some(Pending::MacroLibraryConsent(consent)) => Some(consent.question()),
-            Some(Pending::MacroMenuConsent(consent)) => Some(consent.question()),
-            Some(Pending::MacroConsent(consent)) => Some(consent.question()),
-            Some(Pending::Replace(state)) if state.deciding() => {
-                Some("Replace occurrence? [y/n/q]")
-            }
-            Some(Pending::GitDiscard(consent)) => Some(consent.message.as_str()),
-            Some(Pending::GitRef(consent)) => Some(consent.message.as_str()),
-            Some(Pending::Quit(quit)) => Some(quit.question.as_str()),
-            Some(Pending::Save { confirmation, .. }) => Some(confirmation.message()),
-            Some(Pending::Kill { message, .. }) => Some(message.as_str()),
-            Some(Pending::TerminalClose { message, .. }) => Some(message.as_str()),
-            Some(Pending::TerminalQuit { message, .. } | Pending::TerminalShutdown { message }) => {
-                Some(message.as_str())
-            }
-            Some(Pending::GitQuit { message, .. } | Pending::GitShutdown { message }) => {
-                Some(message.as_str())
-            }
-            _ if self.input.focus() == crate::input::Focus::Decision
-                && matches!(
-                    self.macro_wait(),
-                    Some(crate::macros::Wait::Query | crate::macros::Wait::Step)
-                ) =>
-            {
-                self.input.label()
-            }
-            _ => None,
-        };
+        let question = self.focus_question();
         if let Some(question) = question {
+            let echo = format!("{question}; {message}");
             self.echo_kind = crate::display::Message::Normal;
-            self.echo = format!("{question}; {message}");
+            self.echo = echo;
             return Action::Redraw;
         }
         self.message(message)
+    }
+
+    fn focus_question(&self) -> Option<&str> {
+        if let Some(question) = self.pending.as_ref().and_then(Pending::decision_question) {
+            return Some(question);
+        }
+        if self.input.focus() == crate::input::Focus::Decision
+            && matches!(
+                self.macro_wait(),
+                Some(crate::macros::Wait::Query | crate::macros::Wait::Step)
+            )
+        {
+            return self.input.label();
+        }
+        None
     }
 
     fn save_result(&mut self, outcome: &Outcome) -> Action {
@@ -249,5 +262,33 @@ impl Session {
             "save: {publication}: {error}; target {:?}",
             outcome.target()
         ))
+    }
+}
+
+impl Pending {
+    fn decision_question(&self) -> Option<&str> {
+        match self {
+            Self::MacroLibraryConsent(consent) => Some(consent.question()),
+            Self::MacroMenuConsent(consent) => Some(consent.question()),
+            Self::MacroConsent(consent) => Some(consent.question()),
+            Self::Replace(state) if state.deciding() => Some("Replace occurrence? [y/n/q]"),
+            Self::Quit(quit) => Some(quit.question.as_str()),
+            Self::Save { confirmation, .. } => Some(confirmation.message()),
+            Self::Kill { message, .. } => Some(message.as_str()),
+            _ => self.resource_question(),
+        }
+    }
+
+    fn resource_question(&self) -> Option<&str> {
+        match self {
+            Self::GitDiscard(consent) => Some(consent.message.as_str()),
+            Self::GitRef(consent) => Some(consent.message.as_str()),
+            Self::TerminalClose { message, .. } => Some(message.as_str()),
+            Self::TerminalQuit { message, .. } | Self::TerminalShutdown { message } => {
+                Some(message.as_str())
+            }
+            Self::GitQuit { message, .. } | Self::GitShutdown { message } => Some(message.as_str()),
+            _ => None,
+        }
     }
 }

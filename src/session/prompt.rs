@@ -57,27 +57,8 @@ impl Session {
     }
 
     fn prepare_keyboard_quit(&mut self) -> Option<Action> {
-        if self.cancel_context_operation() {
-            return Some(self.message("Canceling Project preparation; live sources retained"));
-        }
-        if let Some(action) = self.cancel_git_ref() {
+        if let Some(action) = self.cancel_resource_prompt() {
             return Some(action);
-        }
-        if let Some(action) = self.cancel_git_discard() {
-            return Some(action);
-        }
-        if let Some(action) = self.cancel_shell_input() {
-            return Some(action);
-        }
-        if let Some(action) = self.cancel_ai_input() {
-            return Some(action);
-        }
-        if self.cancel_reload() {
-            self.input.cancel();
-            return Some(self.message("Reload canceled; buffer text retained"));
-        }
-        if self.cancel_lsp_interaction() {
-            return Some(self.message("LSP setup or management interaction cancelled"));
         }
         self.clock_recovery_pin = None;
         self.org.cancel();
@@ -112,6 +93,32 @@ impl Session {
             return Some(self.message("Quit"));
         }
         self.restore_search();
+        None
+    }
+
+    fn cancel_resource_prompt(&mut self) -> Option<Action> {
+        if self.cancel_context_operation() {
+            return Some(self.message("Canceling Project preparation; live sources retained"));
+        }
+        if let Some(action) = self.cancel_git_ref() {
+            return Some(action);
+        }
+        if let Some(action) = self.cancel_git_discard() {
+            return Some(action);
+        }
+        if let Some(action) = self.cancel_shell_input() {
+            return Some(action);
+        }
+        if let Some(action) = self.cancel_ai_input() {
+            return Some(action);
+        }
+        if self.cancel_reload() {
+            self.input.cancel();
+            return Some(self.message("Reload canceled; buffer text retained"));
+        }
+        if self.cancel_lsp_interaction() {
+            return Some(self.message("LSP setup or management interaction cancelled"));
+        }
         None
     }
 
@@ -160,6 +167,14 @@ impl Session {
             return self.complete_org_argument();
         }
         match self.pending {
+            Some(Pending::Path(_)) => self.complete_path(),
+            Some(Pending::Buffer { .. }) => self.complete_buffer(),
+            _ => self.complete_literal_argument(),
+        }
+    }
+
+    fn complete_literal_argument(&mut self) -> Action {
+        match self.pending {
             Some(Pending::Shell(_)) => self.message("Enter a shell command; C-g cancels"),
             Some(Pending::Ai(_)) => {
                 self.message("Enter a literal instruction for the captured AI target; C-g cancels")
@@ -168,11 +183,9 @@ impl Session {
                 self.message("Enter a new lowercase AI command name; C-g cancels")
             }
             Some(Pending::AiDirectory) => self.message("Enter a directory path; C-g cancels"),
-            Some(Pending::Path(_)) => self.complete_path(),
             Some(Pending::GotoLine { .. }) => {
                 self.message("Enter a signed decimal line number; C-g cancels")
             }
-            Some(Pending::Buffer { .. }) => self.complete_buffer(),
             Some(Pending::TreeCreate(_) | Pending::TreeRename(_)) => {
                 self.message("Enter one name; C-g cancels")
             }

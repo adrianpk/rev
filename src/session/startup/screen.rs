@@ -59,16 +59,7 @@ impl Session {
         if self.startup_screen.is_some() {
             return self.message("Startup screen is already open");
         }
-        if self.context_storage.busy()
-            || self.context_prepared.is_some()
-            || self.context_management.is_some()
-            || self.context_membership.is_some()
-            || self.pending.is_some()
-            || self.input.focus() != Focus::Editing
-            || self.layout_active()
-            || self.git_shutdown_active()
-            || self.terminal_shutdown_active()
-        {
+        if self.dashboard_interaction_active() {
             return self.error("Finish or cancel the current interaction before dashboard-open");
         }
         if self.capture.is_some()
@@ -87,6 +78,18 @@ impl Session {
         self.startup_screen = Some(Screen::default());
         self.sync_input_context();
         self.message("Arrows select; Enter opens; M-x or modal colon runs commands; C-g returns")
+    }
+
+    fn dashboard_interaction_active(&self) -> bool {
+        self.context_storage.busy()
+            || self.context_prepared.is_some()
+            || self.context_management.is_some()
+            || self.context_membership.is_some()
+            || self.pending.is_some()
+            || self.input.focus() != Focus::Editing
+            || self.layout_active()
+            || self.git_shutdown_active()
+            || self.terminal_shutdown_active()
     }
     pub(in crate::session) fn leave_dashboard(&mut self) {
         self.startup_screen = None;
@@ -131,44 +134,35 @@ impl Session {
             screen.armed = None;
         }
         if command == Command::KeyboardQuit || command == Command::Modal(ModalCommand::Normal) {
-            let nested = self.pending.is_some() || self.context_prepared.is_some();
-            self.cancel_quit();
-            self.context_prepared = None;
-            self.context_membership = None;
-            self.context_management = None;
-            self.pending = None;
-            self.command_origin = None;
-            self.input.cancel();
-            if !nested {
-                self.leave_dashboard();
-                self.sync_input_context();
-            }
-            return Some(self.message(if nested {
-                "Selection canceled; startup screen retained"
-            } else {
-                "Returned to retained context"
-            }));
+            return Some(self.cancel_startup_selection());
         }
-        let selection = match command {
-            Command::Scroll(Scroll::NextLine | Scroll::PageForward) => Some(Selection::Next),
-            Command::Scroll(Scroll::PreviousLine | Scroll::PageBackward) => {
-                Some(Selection::Previous)
-            }
-            Command::Motion(Motion::BufferStart | Motion::LineStart) => Some(Selection::First),
-            Command::Motion(Motion::BufferEnd | Motion::LineEnd) => Some(Selection::Last),
-            Command::Navigate(n) => match n.target {
-                Target::Line(Direction::Forward) => Some(Selection::Next),
-                Target::Line(Direction::Backward) => Some(Selection::Previous),
-                Target::Buffer(Direction::Backward) | Target::LineStart => Some(Selection::First),
-                Target::Buffer(Direction::Forward) | Target::LineEnd => Some(Selection::Last),
-                _ => None,
-            },
-            Command::Newline => Some(Selection::Accept),
-            _ => None,
-        };
-        if let Some(selection) = selection {
+        if let Some(selection) = selection_for_command(command) {
             return Some(self.startup_selection(selection));
         }
+        self.startup_action(command)
+    }
+
+    fn cancel_startup_selection(&mut self) -> Action {
+        let nested = self.pending.is_some() || self.context_prepared.is_some();
+        self.cancel_quit();
+        self.context_prepared = None;
+        self.context_membership = None;
+        self.context_management = None;
+        self.pending = None;
+        self.command_origin = None;
+        self.input.cancel();
+        if !nested {
+            self.leave_dashboard();
+            self.sync_input_context();
+        }
+        self.message(if nested {
+            "Selection canceled; startup screen retained"
+        } else {
+            "Returned to retained context"
+        })
+    }
+
+    fn startup_action(&mut self, command: Command) -> Option<Action> {
         Some(match command {
             Command::ExecuteExtended => self.extended(),
             Command::Quit => self.quit(),
@@ -177,20 +171,32 @@ impl Session {
             Command::FindFile => self.find_file(),
             Command::OpenDirectory => self.open_directory(),
             Command::ContextClose => self.close_context(),
+            command => return self.startup_project_action(command),
+        })
+    }
+
+    fn startup_project_action(&mut self, command: Command) -> Option<Action> {
+        Some(match command {
             Command::ProjectCreate => self.project_create(),
             Command::ProjectPromote => self.project_promote(),
             Command::ProjectSwitch | Command::ProjectList => self.project_list(),
+            command @ (Command::ProjectRename
+            | Command::ProjectForget
+            | Command::ProjectSetRoot
+            | Command::ProjectPromoteToWorkspace
+            | Command::ProjectDuplicateAsWorkspace) => self.manage_context(command),
+            command => return self.startup_workspace_action(command),
+        })
+    }
+
+    fn startup_workspace_action(&mut self, command: Command) -> Option<Action> {
+        Some(match command {
             Command::WorkspaceCreate => self.workspace_create(),
             Command::WorkspaceOpen | Command::WorkspaceList => self.workspace_list(),
             Command::WorkspaceAddDirectory => self.workspace_add_directory(),
             Command::WorkspaceAddProject => self.workspace_add_project(),
             Command::WorkspaceRemoveRoot => self.workspace_remove_root(),
-            command @ (Command::ProjectRename
-            | Command::ProjectForget
-            | Command::ProjectSetRoot
-            | Command::ProjectPromoteToWorkspace
-            | Command::ProjectDuplicateAsWorkspace
-            | Command::WorkspaceRename
+            command @ (Command::WorkspaceRename
             | Command::WorkspaceForget
             | Command::WorkspaceSetRootPath) => self.manage_context(command),
             _ => {
@@ -293,6 +299,35 @@ impl Session {
         }
     }
 }
+fn selection_for_command(command: Command) -> Option<Selection> {
+    match command {
+        Command::Scroll(scroll) => selection_for_scroll(scroll),
+        Command::Motion(Motion::BufferStart | Motion::LineStart) => Some(Selection::First),
+        Command::Motion(Motion::BufferEnd | Motion::LineEnd) => Some(Selection::Last),
+        Command::Navigate(n) => selection_for_target(n.target),
+        Command::Newline => Some(Selection::Accept),
+        _ => None,
+    }
+}
+
+fn selection_for_scroll(scroll: Scroll) -> Option<Selection> {
+    match scroll {
+        Scroll::NextLine | Scroll::PageForward => Some(Selection::Next),
+        Scroll::PreviousLine | Scroll::PageBackward => Some(Selection::Previous),
+        _ => None,
+    }
+}
+
+fn selection_for_target(target: Target) -> Option<Selection> {
+    match target {
+        Target::Line(Direction::Forward) => Some(Selection::Next),
+        Target::Line(Direction::Backward) => Some(Selection::Previous),
+        Target::Buffer(Direction::Backward) | Target::LineStart => Some(Selection::First),
+        Target::Buffer(Direction::Forward) | Target::LineEnd => Some(Selection::Last),
+        _ => None,
+    }
+}
+
 fn startup_color() -> bool {
     !crossterm::style::Colored::ansi_color_disabled_memoized()
 }

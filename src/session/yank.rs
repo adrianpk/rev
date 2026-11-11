@@ -80,7 +80,7 @@ impl Session {
 impl Session {
     pub(super) fn argument_yank(&mut self, invocation: crate::input::Invocation) -> super::Action {
         use crate::command::{ArgumentForm, LinearCommand};
-        if self.context_storage.locked() || self.terminals.focused || self.terminal_copy_active() {
+        if self.argument_yank_read_only() {
             return self.error("Source text is read-only");
         }
         let value = invocation.argument.value();
@@ -97,7 +97,20 @@ impl Session {
         if let Err(error) = self.stop_typing() {
             return self.error(&error.to_string());
         }
-        let result = if pop {
+        let result = self.argument_yank_entry(value, plain, pop);
+        self.sync_input_context();
+        match result {
+            Ok(changed) => self.finish(Ok(changed)),
+            Err(error) => self.error(&error.to_string()),
+        }
+    }
+
+    fn argument_yank_read_only(&self) -> bool {
+        self.context_storage.locked() || self.terminals.focused || self.terminal_copy_active()
+    }
+
+    fn argument_yank_entry(&mut self, value: i32, plain: bool, pop: bool) -> Result<bool, Error> {
+        if pop {
             self.rotate_argument_yank(value)
         } else {
             let index = if plain {
@@ -106,11 +119,6 @@ impl Session {
                 usize::try_from(value - 1).expect("positive yank index")
             };
             self.select_argument_yank(index, plain)
-        };
-        self.sync_input_context();
-        match result {
-            Ok(changed) => self.finish(Ok(changed)),
-            Err(error) => self.error(&error.to_string()),
         }
     }
 
@@ -142,6 +150,15 @@ impl Session {
         if !exchange {
             return Ok(self.publish_yank(at..at, &text, index)?);
         }
+        self.exchange_argument_yank(text, index, at)
+    }
+
+    fn exchange_argument_yank(
+        &mut self,
+        text: String,
+        index: usize,
+        at: usize,
+    ) -> Result<bool, Error> {
         // Prepare point and mark with the source transaction. No fallible
         // endpoint change remains after publication, including joined clusters.
         let buffer = self
