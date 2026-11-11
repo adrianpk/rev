@@ -130,40 +130,94 @@ pub enum GitCommand {
 
 impl GitCommand {
     pub fn name(self) -> &'static str {
+        self.creation_name()
+    }
+
+    fn creation_name(self) -> &'static str {
         match self {
             Self::Clone => "git-clone",
             Self::CloneShallow => "git-clone-shallow",
             Self::CloneBare => "git-clone-bare",
             Self::CloneMirror => "git-clone-mirror",
             Self::Init => "git-init",
+            _ => self.ignore_name(),
+        }
+    }
+
+    fn ignore_name(self) -> &'static str {
+        match self {
             Self::Ignore => "git-ignore",
             Self::IgnoreExclude => "git-ignore-exclude",
+            _ => self.submodule_name(),
+        }
+    }
+
+    fn submodule_name(self) -> &'static str {
+        match self {
             Self::SubmoduleAdd => "git-submodule-add",
             Self::SubmoduleList => "git-submodule-list",
             Self::SubmoduleUpdate => "git-submodule-update",
             Self::SubmoduleSync => "git-submodule-sync",
             Self::SubmoduleDeinit => "git-submodule-deinit",
+            _ => self.subtree_name(),
+        }
+    }
+
+    fn subtree_name(self) -> &'static str {
+        match self {
             Self::SubtreeAdd => "git-subtree-add",
             Self::SubtreeMerge => "git-subtree-merge",
             Self::SubtreePull => "git-subtree-pull",
             Self::SubtreePush => "git-subtree-push",
             Self::SubtreeSplit => "git-subtree-split",
+            _ => self.notes_name(),
+        }
+    }
+
+    fn notes_name(self) -> &'static str {
+        match self {
             Self::NotesAdd => "git-notes-add",
             Self::NotesRemove => "git-notes-remove",
             Self::NotesPrune => "git-notes-prune",
+            _ => self.sparse_name(),
+        }
+    }
+
+    fn sparse_name(self) -> &'static str {
+        match self {
             Self::SparseEnable => "git-sparse-checkout-enable",
             Self::SparseDisable => "git-sparse-checkout-disable",
             Self::SparseReapply => "git-sparse-checkout-reapply",
             Self::SparseSet => "git-sparse-checkout-set",
             Self::SparseAdd => "git-sparse-checkout-add",
+            _ => self.patch_name(),
+        }
+    }
+
+    fn patch_name(self) -> &'static str {
+        match self {
             Self::FormatPatch => "git-format-patch",
             Self::SaveDiff => "git-save-diff",
             Self::RequestPull => "git-request-pull",
             Self::ApplyPatch => "git-apply-patch",
             Self::ApplyMailbox => "git-apply-mailbox",
+            _ => self.process_name(),
+        }
+    }
+
+    fn process_name(self) -> &'static str {
+        match self {
             Self::RunCommand => "git-run-command",
             Self::RunShellCommand => "git-run-shell-command",
+            Self::Processes => "git-processes",
+            Self::ProcessShow => "git-process-show",
+            Self::ProcessCancel => "git-process-cancel",
+            _ => self.worktree_name(),
+        }
+    }
 
+    fn worktree_name(self) -> &'static str {
+        match self {
             Self::WorktreeList => "git-worktree-list",
             Self::WorktreeCreate => "git-worktree-create",
             Self::WorktreeVisit => "git-worktree-visit",
@@ -171,7 +225,12 @@ impl GitCommand {
             Self::WorktreeUnlock => "git-worktree-unlock",
             Self::WorktreePrune => "git-worktree-prune",
             Self::WorktreeRemove => "git-worktree-remove",
+            _ => self.stash_name(),
+        }
+    }
 
+    fn stash_name(self) -> &'static str {
+        match self {
             Self::StashList => "git-stash-list",
             Self::StashCreate => "git-stash-create",
             Self::StashShow => "git-stash-show",
@@ -179,86 +238,157 @@ impl GitCommand {
             Self::StashPop => "git-stash-pop",
             Self::StashBranch => "git-stash-branch",
             Self::StashDrop => "git-stash-drop",
+            _ => self.merge_name(),
+        }
+    }
 
+    fn merge_name(self) -> &'static str {
+        match self {
             Self::Merge => "git-merge",
             Self::MergeFastForward => "git-merge-fast-forward",
             Self::MergeNoFastForward => "git-merge-no-fast-forward",
-            Self::Rebase => "git-rebase",
             Self::MergeContinue => "git-merge-continue",
             Self::MergeAbort => "git-merge-abort",
+            _ => self.rebase_name(),
+        }
+    }
+
+    fn rebase_name(self) -> &'static str {
+        match self {
+            Self::Rebase => "git-rebase",
             Self::RebaseAutosquash => "git-rebase-autosquash",
             Self::RebaseContinue => "git-rebase-continue",
             Self::RebaseSkip => "git-rebase-skip",
             Self::RebaseAbort => "git-rebase-abort",
+            _ => self.operation_name(),
+        }
+    }
+
+    fn operation_name(self) -> &'static str {
+        match self {
+            Self::OperationStatus => "git-operation-status",
             Self::OperationContinue => "git-operation-continue",
             Self::OperationSkip => "git-operation-skip",
             Self::OperationAbort => "git-operation-abort",
+            _ => self.conflict_name(),
+        }
+    }
+
+    fn conflict_name(self) -> &'static str {
+        match self {
             Self::Conflicts => "git-conflicts",
+            Self::ConflictVisit => "git-conflict-visit",
+            Self::ConflictExplain => "git-conflict-explain",
             Self::ConflictUseBase => "git-conflict-use-base",
             Self::ConflictUseCurrent => "git-conflict-use-current",
             Self::ConflictUseApplied => "git-conflict-use-applied",
             Self::ConflictDelete => "git-conflict-delete",
             Self::ConflictStage => "git-conflict-stage",
-            Self::ConflictExplain => "git-conflict-explain",
-            Self::ConflictVisit => "git-conflict-visit",
-            Self::OperationStatus => "git-operation-status",
+            _ => self.reference_name(),
+        }
+    }
+
+    fn reference_name(self) -> &'static str {
+        match self {
+            Self::Refs => "git-refs",
             Self::TagCreate => "git-tag-create",
             Self::TagDelete => "git-tag-delete",
-
-            Self::Push => "git-push",
-            Self::Fetch => "git-fetch",
-            Self::Refs => "git-refs",
             Self::BranchCreate => "git-branch-create",
             Self::BranchSwitch => "git-branch-switch",
             Self::BranchRename => "git-branch-rename",
             Self::BranchDelete => "git-branch-delete",
+            _ => self.remote_name(),
+        }
+    }
 
+    fn remote_name(self) -> &'static str {
+        match self {
+            Self::Fetch => "git-fetch",
+            Self::Push => "git-push",
+            _ => self.history_name(),
+        }
+    }
+
+    fn history_name(self) -> &'static str {
+        match self {
+            Self::Log => "git-log",
+            Self::Show => "git-show",
+            Self::LogNextPage => "git-log-next-page",
             Self::ShowRange => "git-show-range",
-            Self::CherryPickContinue => "git-cherry-pick-continue",
-            Self::CherryPickSkip => "git-cherry-pick-skip",
-            Self::CherryPickAbort => "git-cherry-pick-abort",
-            Self::RevertContinue => "git-revert-continue",
-            Self::RevertSkip => "git-revert-skip",
-            Self::RevertAbort => "git-revert-abort",
+            Self::Reflog => "git-reflog",
+            Self::Blame => "git-blame",
+            Self::SequenceMark => "git-sequence-mark",
+            Self::SequenceUnmark => "git-sequence-unmark",
+            _ => self.bisect_name(),
+        }
+    }
+
+    fn bisect_name(self) -> &'static str {
+        match self {
             Self::BisectStart => "git-bisect-start",
             Self::BisectGood => "git-bisect-good",
             Self::BisectBad => "git-bisect-bad",
             Self::BisectSkip => "git-bisect-skip",
             Self::BisectReset => "git-bisect-reset",
+            _ => self.sequence_name(),
+        }
+    }
+
+    fn sequence_name(self) -> &'static str {
+        match self {
             Self::CherryPick => "git-cherry-pick",
+            Self::CherryPickContinue => "git-cherry-pick-continue",
+            Self::CherryPickSkip => "git-cherry-pick-skip",
+            Self::CherryPickAbort => "git-cherry-pick-abort",
             Self::Revert => "git-revert",
-            Self::SequenceMark => "git-sequence-mark",
-            Self::SequenceUnmark => "git-sequence-unmark",
-            Self::Reflog => "git-reflog",
-            Self::Blame => "git-blame",
-            Self::Log => "git-log",
-            Self::Show => "git-show",
-            Self::LogNextPage => "git-log-next-page",
-            Self::Status => "git-status",
+            Self::RevertContinue => "git-revert-continue",
+            Self::RevertSkip => "git-revert-skip",
+            Self::RevertAbort => "git-revert-abort",
+            _ => self.commit_name(),
+        }
+    }
+
+    fn commit_name(self) -> &'static str {
+        match self {
             Self::Commit => "git-commit",
             Self::CommitAmend => "git-commit-amend",
             Self::CommitFixup => "git-commit-fixup",
             Self::CommitSubmit => "git-commit-submit",
             Self::CommitCancel => "git-commit-cancel",
-            Self::Quit => "git-quit",
-            Self::Refresh => "git-refresh",
-            Self::ToggleSection => "git-toggle-section",
-            Self::Diff => "git-diff",
-            Self::VisitFile => "git-visit-file",
+            _ => self.index_name(),
+        }
+    }
+
+    fn index_name(self) -> &'static str {
+        match self {
             Self::Discard => "git-discard",
             Self::Mark => "git-mark",
             Self::Unmark => "git-unmark",
             Self::UnmarkAll => "git-unmark-all",
             Self::Stage => "git-stage",
             Self::Unstage => "git-unstage",
+            _ => self.status_name(),
+        }
+    }
+
+    fn status_name(self) -> &'static str {
+        match self {
+            Self::Status => "git-status",
+            Self::Quit => "git-quit",
+            Self::Refresh => "git-refresh",
+            Self::ToggleSection => "git-toggle-section",
+            Self::Diff => "git-diff",
+            Self::VisitFile => "git-visit-file",
             Self::Dispatch => "git-dispatch",
-            Self::Processes => "git-processes",
-            Self::ProcessShow => "git-process-show",
-            Self::ProcessCancel => "git-process-cancel",
+            _ => unreachable!("other command metadata belongs to an earlier concern"),
         }
     }
 
     pub(crate) fn description(self) -> &'static str {
+        self.creation_description()
+    }
+
+    fn creation_description(self) -> &'static str {
         match self {
             Self::Clone => {
                 "Review literal clone arguments and an explicit absent destination, then verify the created regular repository."
@@ -275,12 +405,24 @@ impl GitCommand {
             Self::Init => {
                 "Prepare initialization at an explicit absent destination and verify its unborn repository identity."
             }
+            _ => self.ignore_description(),
+        }
+    }
+
+    fn ignore_description(self) -> &'static str {
+        match self {
             Self::Ignore => {
                 "Visit the ordinary worktree .gitignore file without inserting a pattern or saving text."
             }
             Self::IgnoreExclude => {
                 "Visit the ordinary common Git info/exclude file through its native visiting owner."
             }
+            _ => self.submodule_description(),
+        }
+    }
+
+    fn submodule_description(self) -> &'static str {
+        match self {
             Self::SubmoduleAdd => {
                 "Review a submodule metadata name, source URL and literal path, then verify its gitlink and checkout."
             }
@@ -296,6 +438,12 @@ impl GitCommand {
             Self::SubmoduleDeinit => {
                 "Review non-forced deinitialization of one checked clean submodule, preserving its parent gitlink."
             }
+            _ => self.subtree_description(),
+        }
+    }
+
+    fn subtree_description(self) -> &'static str {
+        match self {
             Self::SubtreeAdd => {
                 "Review an explicit prefix, source repository and pinned full branch object before importing a subtree."
             }
@@ -311,6 +459,12 @@ impl GitCommand {
             Self::SubtreeSplit => {
                 "Review an exact commit and prefix, then inspect the full split object while preserving local HEAD and saved files."
             }
+            _ => self.notes_description(),
+        }
+    }
+
+    fn notes_description(self) -> &'static str {
+        match self {
             Self::NotesAdd => {
                 "Review a full notes ref, exact target object and literal message; verify the stored note bytes."
             }
@@ -320,6 +474,12 @@ impl GitCommand {
             Self::NotesPrune => {
                 "Review exact missing-object note targets and prune only those candidates."
             }
+            _ => self.sparse_description(),
+        }
+    }
+
+    fn sparse_description(self) -> &'static str {
+        match self {
             Self::SparseEnable => {
                 "Review enabling cone mode and verify actual tracked-file materialization."
             }
@@ -335,6 +495,12 @@ impl GitCommand {
             Self::SparseAdd => {
                 "Review literal relative directories and add them to the captured cone selection."
             }
+            _ => self.patch_description(),
+        }
+    }
+
+    fn patch_description(self) -> &'static str {
+        match self {
             Self::FormatPatch => {
                 "Review an explicit local commit range and complete mailbox bytes, then save to one absent output file."
             }
@@ -350,13 +516,33 @@ impl GitCommand {
             Self::ApplyMailbox => {
                 "Review one complete local mailbox, then apply its decoded patches as checked commits."
             }
+            _ => self.process_description(),
+        }
+    }
+
+    fn process_description(self) -> &'static str {
+        match self {
             Self::RunCommand => {
                 "Compose literal Git argv and review executable, cwd and unknown postconditions before execution."
             }
             Self::RunShellCommand => {
                 "Explicitly compose one shell command using the configured shell program and arguments, with exact review."
             }
+            Self::Processes => {
+                "Inspect active and recent owned operations without cancelling them."
+            }
+            Self::ProcessShow => {
+                "Inspect the selected operation; the Return binding dispatches through git-visit-file."
+            }
+            Self::ProcessCancel => {
+                "Cancel the selected live operation through its exact identity; menus and prompts keep first refusal."
+            }
+            _ => self.worktree_description(),
+        }
+    }
 
+    fn worktree_description(self) -> &'static str {
+        match self {
             Self::WorktreeList => {
                 "List linked worktrees, their branches, lock reasons and prune state."
             }
@@ -376,7 +562,12 @@ impl GitCommand {
                 "Review all captured missing unlocked worktree records and prune only while the complete registry remains unchanged."
             }
             Self::WorktreeRemove => "Review removal of a clean, unlocked linked worktree.",
+            _ => self.stash_description(),
+        }
+    }
 
+    fn stash_description(self) -> &'static str {
+        match self {
             Self::StashList => {
                 "Open a bounded exact stash list; subjects and ordinal labels never supply mutation authority."
             }
@@ -398,21 +589,39 @@ impl GitCommand {
             Self::StashDrop => {
                 "Review removal of one exact stash entry without changing the saved working files or index."
             }
+            _ => self.merge_description(),
+        }
+    }
 
+    fn merge_description(self) -> &'static str {
+        match self {
             Self::Merge => "Review merge with fast-forward allowed.",
             Self::MergeFastForward => {
                 "Review one exact target and require fast-forward-only integration."
             }
             Self::MergeNoFastForward => "Review merge-commit policy.",
-            Self::Rebase => "Review ordinary rebase onto the selected exact commit.",
             Self::MergeContinue => "Refresh and confirm continuation of a compatible merge.",
             Self::MergeAbort => "Refresh and confirm restoration of the original merge context.",
+            _ => self.rebase_description(),
+        }
+    }
+
+    fn rebase_description(self) -> &'static str {
+        match self {
+            Self::Rebase => "Review ordinary rebase onto the selected exact commit.",
             Self::RebaseAutosquash => "Review the finite ordered source plan before autosquash.",
             Self::RebaseContinue => {
                 "Refresh and confirm continuation after saved staged resolutions."
             }
             Self::RebaseSkip => "Refresh and confirm skipping the current compatible rebase step.",
             Self::RebaseAbort => "Refresh and confirm restoration of the original rebase context.",
+            _ => self.operation_description(),
+        }
+    }
+
+    fn operation_description(self) -> &'static str {
+        match self {
+            Self::OperationStatus => "Inspect actual Git-owned sequence state and conflicts.",
             Self::OperationContinue => {
                 "Review continuation against the fresh actual compatible family."
             }
@@ -420,8 +629,20 @@ impl GitCommand {
             Self::OperationAbort => {
                 "Review abort against exact original lineage and fresh Git state."
             }
+            _ => self.conflict_description(),
+        }
+    }
+
+    fn conflict_description(self) -> &'static str {
+        match self {
             Self::Conflicts => {
                 "Inspect actual Git sequence state and exact selectable conflict paths."
+            }
+            Self::ConflictVisit => {
+                "Inspect selected stages, then visit the canonical editable result."
+            }
+            Self::ConflictExplain => {
+                "Ask AI to explain the selected conflict without applying a resolution."
             }
             Self::ConflictUseBase => {
                 "Review complete Base replacement of only the checked working file."
@@ -438,45 +659,59 @@ impl GitCommand {
             Self::ConflictStage => {
                 "Review staging of captured saved text or absence; protect unsaved results and reject stale evidence."
             }
-            Self::ConflictExplain => {
-                "Ask AI to explain the selected conflict without applying a resolution."
-            }
-            Self::ConflictVisit => {
-                "Inspect selected stages, then visit the canonical editable result."
-            }
-            Self::OperationStatus => "Inspect actual Git-owned sequence state and conflicts.",
+            _ => self.reference_description(),
+        }
+    }
+
+    fn reference_description(self) -> &'static str {
+        match self {
+            Self::Refs => "Inspect exact native repository refs.",
             Self::TagCreate => {
                 "Confirm a local lightweight tag or explicitly compose an annotated tag."
             }
             Self::TagDelete => "Confirm deletion of the exact local tag object.",
-
-            Self::Push => {
-                "Review one exact source branch and its configured upstream destination before publication."
-            }
-            Self::Fetch => "Fetch the selected configured remote without integration.",
-            Self::Refs => "Inspect exact native repository refs.",
             Self::BranchCreate => "Confirm a new local branch at the selected full commit.",
             Self::BranchSwitch => "Confirm a checked clean local branch switch.",
             Self::BranchRename => "Confirm the exact local branch and new name.",
             Self::BranchDelete => "Confirm non-forced local deletion.",
+            _ => self.remote_description(),
+        }
+    }
 
+    fn remote_description(self) -> &'static str {
+        match self {
+            Self::Fetch => "Fetch the selected configured remote without integration.",
+            Self::Push => {
+                "Review one exact source branch and its configured upstream destination before publication."
+            }
+            _ => self.history_description(),
+        }
+    }
+
+    fn history_description(self) -> &'static str {
+        match self {
+            Self::Log => "Open exact bounded ancestry; detached HEAD collects an explicit root.",
+            Self::Show => {
+                "Inspect full revision metadata, changed paths and exact parent comparison."
+            }
+            Self::LogNextPage => "Continue exact ancestry from its pinned root.",
             Self::ShowRange => {
                 "Compare the marked exact base and selected endpoint in their explicit order."
             }
-            Self::CherryPickContinue => {
-                "Refresh and review continue of the exact retained cherry-pick request."
+            Self::Reflog => "Inspect bounded exact HEAD reflog entries.",
+            Self::Blame => "Attribute the selected or visiting source at checked HEAD.",
+            Self::SequenceMark => {
+                "Append an exact ordered revision without changing the range base."
             }
-            Self::CherryPickSkip => {
-                "Refresh and review skip of the exact retained cherry-pick request."
+            Self::SequenceUnmark => {
+                "Remove an ordered revision, retaining remaining order and the base."
             }
-            Self::CherryPickAbort => {
-                "Refresh and review abort of the exact retained cherry-pick request."
-            }
-            Self::RevertContinue => {
-                "Refresh and review continue of the exact retained revert request."
-            }
-            Self::RevertSkip => "Refresh and review skip of the exact retained revert request.",
-            Self::RevertAbort => "Refresh and review abort of the exact retained revert request.",
+            _ => self.bisect_description(),
+        }
+    }
+
+    fn bisect_description(self) -> &'static str {
+        match self {
             Self::BisectStart => "Review good and bad revisions and start a manual bisect.",
             Self::BisectGood => {
                 "Review the exact current candidate and record the user-supplied good verdict."
@@ -490,26 +725,38 @@ impl GitCommand {
             Self::BisectReset => {
                 "Review and restore the checked original branch/object; reject missing or changed original lineage."
             }
+            _ => self.sequence_description(),
+        }
+    }
+
+    fn sequence_description(self) -> &'static str {
+        match self {
             Self::CherryPick => {
                 "Review exact ordered revisions and explicit merge mainlines before applying them."
+            }
+            Self::CherryPickContinue => {
+                "Refresh and review continue of the exact retained cherry-pick request."
+            }
+            Self::CherryPickSkip => {
+                "Refresh and review skip of the exact retained cherry-pick request."
+            }
+            Self::CherryPickAbort => {
+                "Refresh and review abort of the exact retained cherry-pick request."
             }
             Self::Revert => {
                 "Review exact ordered revisions and explicit merge mainlines before reverting them."
             }
-            Self::SequenceMark => {
-                "Append an exact ordered revision without changing the range base."
+            Self::RevertContinue => {
+                "Refresh and review continue of the exact retained revert request."
             }
-            Self::SequenceUnmark => {
-                "Remove an ordered revision, retaining remaining order and the base."
-            }
-            Self::Reflog => "Inspect bounded exact HEAD reflog entries.",
-            Self::Blame => "Attribute the selected or visiting source at checked HEAD.",
-            Self::Log => "Open exact bounded ancestry; detached HEAD collects an explicit root.",
-            Self::Show => {
-                "Inspect full revision metadata, changed paths and exact parent comparison."
-            }
-            Self::LogNextPage => "Continue exact ancestry from its pinned root.",
-            Self::Status => "Discover the current repository and open full-canvas native Status.",
+            Self::RevertSkip => "Refresh and review skip of the exact retained revert request.",
+            Self::RevertAbort => "Refresh and review abort of the exact retained revert request.",
+            _ => self.commit_description(),
+        }
+    }
+
+    fn commit_description(self) -> &'static str {
+        match self {
             Self::Commit => {
                 "Open native commit text directly; a subsequent c is literal message text."
             }
@@ -525,19 +772,12 @@ impl GitCommand {
             Self::CommitCancel => {
                 "Cancel before process start; retain commit/tag drafts and restore the source owner."
             }
-            Self::Quit => {
-                "Dismiss the innermost menu or return to the retained editing context; owned work continues."
-            }
-            Self::Refresh => {
-                "Request a replacement observation; retain confirmed Status on failure."
-            }
-            Self::ToggleSection => {
-                "Collapse or expand the selected Status group, path comparison or semantic hunk."
-            }
-            Self::Diff => "Inspect the exact selected comparison as read-only detail.",
-            Self::VisitFile => {
-                "Visit the canonical current source, preserving an existing modified buffer."
-            }
+            _ => self.index_description(),
+        }
+    }
+
+    fn index_description(self) -> &'static str {
+        match self {
             Self::Discard => {
                 "Confirm one tracked unstaged whole path from its index; protect dirty visiting buffers."
             }
@@ -552,16 +792,28 @@ impl GitCommand {
             Self::Unstage => {
                 "Unstage the selected path, hunk or marked group without changing working files."
             }
+            _ => self.status_description(),
+        }
+    }
+
+    fn status_description(self) -> &'static str {
+        match self {
+            Self::Status => "Discover the current repository and open full-canvas native Status.",
+            Self::Quit => {
+                "Dismiss the innermost menu or return to the retained editing context; owned work continues."
+            }
+            Self::Refresh => {
+                "Request a replacement observation; retain confirmed Status on failure."
+            }
+            Self::ToggleSection => {
+                "Collapse or expand the selected Status group, path comparison or semantic hunk."
+            }
+            Self::Diff => "Inspect the exact selected comparison as read-only detail.",
+            Self::VisitFile => {
+                "Visit the canonical current source, preserving an existing modified buffer."
+            }
             Self::Dispatch => "Show the available native Git actions.",
-            Self::Processes => {
-                "Inspect active and recent owned operations without cancelling them."
-            }
-            Self::ProcessShow => {
-                "Inspect the selected operation; the Return binding dispatches through git-visit-file."
-            }
-            Self::ProcessCancel => {
-                "Cancel the selected live operation through its exact identity; menus and prompts keep first refusal."
-            }
+            _ => unreachable!("other command metadata belongs to an earlier concern"),
         }
     }
 }

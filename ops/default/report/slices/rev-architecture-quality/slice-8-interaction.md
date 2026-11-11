@@ -160,6 +160,21 @@ argument yanking and tree outcomes retain their original admission and
 publication order. Atomic source edits reserve every participant before final
 checks and publish all sources/views before notifying observers.
 
+Command metadata now delegates to named native concerns: repository creation,
+submodules/subtrees, notes, sparse checkout, patches, processes, worktrees,
+stashes, integration/conflicts, references, history, commits and Status; macro
+recording, playback, counters, library, definition editing and menu actions have
+their own handlers. All 119 Git and 52 macro variants retain their exact names
+and descriptions. Public enums, signatures, `Command::ALL`, selector aliases and
+metadata for user-defined commands are unchanged.
+
+Keymap compilation prepares inherited editing layers before independent native
+maps, then moves each validated map into the effective candidate. Repository
+maps compile after transient editors, tree and bookmarks; the commit overlay
+retains its earlier position. The 15 independent native map calls preserve their
+contexts, override sources and validation order. The private preparation holders
+add no map copies or publication boundary.
+
 ## Contracts Added or Changed
 
 One private completion owner replaces nine independent session fields. Public
@@ -192,6 +207,10 @@ existing admission, publication and freshness checks retain authority.
   nested cancellation and native startup action families.
 - `src/session/source_batch/atomic.rs`: reserved participant preparation before
   all-source publication and deferred observer notification.
+- `src/command/git.rs`, `src/command/macros.rs` and `src/command.rs`: native
+  metadata concerns with unchanged catalog identities and literal descriptions.
+- `src/input/keymap.rs`: inherited editing preparation and ordered repository
+  map compilation before effective-map construction.
 - `src/session.rs` and `src/session/completion/`: composition, source restoration,
   resolver polling, stale-result checks and publication.
 - `src/command/`, `src/input/`, `src/macros/` and `src/session/`: selected native
@@ -199,7 +218,7 @@ existing admission, publication and freshness checks retain authority.
 
 ## Validation
 
-Final clean-HEAD validation is pending. The frozen ordered commands are unchanged:
+Final successful clean-HEAD validation is pending. The frozen ordered commands are unchanged:
 
 - `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 bash scripts/check-quality.sh --scope src/command.rs --scope src/command --scope src/input.rs --scope src/input --scope src/macros.rs --scope src/macros --scope src/session.rs --scope src/session`
 - `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --test commands --test modal --test completion --test macros -- --test-threads=1`
@@ -344,12 +363,65 @@ Development checks for native interaction transitions:
 - `target/debug/examples/source-check --workspace --scope src/session`: passed all 297 selected session files, including every source changed in this cohort. Public signatures and existing in-module test bodies are unchanged; no assertions, inputs, timeouts or budgets were edited.
 - `git diff --check`: passed.
 
+Development checks for command metadata and keymap preparation:
+
+- Frozen scoped quality: passed formatting, all-target compilation, selected
+  Clippy admission and native source policy across all 381 selected files. The
+  final nine source findings are resolved; no new findings appeared. Selected
+  Clippy has zero blocking diagnostics, with 205 selected-profile diagnostics
+  deferred outside this scope. Coverage remains 381 of 1,836 first-party Rust
+  files across two packages.
+- Frozen native regression command: 188 passed and the same 16 `commands` cases
+  failed as in checkpoint `9c76fee60ac3e0b06e38ee348015536873172606`.
+- Frozen documentation check: passed 684 commands, 299 configuration entries,
+  106 reachable pages and 743 local links and anchors.
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --lib -- --test-threads=1`: passed all 186 library unit cases.
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --test modal --test completion --test macros --no-fail-fast -- --test-threads=1`: failed overall; completion passed 44 cases, macros passed 110, and modal passed 122 with the same two failure identities listed above.
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --test configuration -- --test-threads=1`: passed all 162 configuration cases, including inherited-map, overlay, alias, profile and startup contracts.
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --test plugins -- keymaps:: --test-threads=1`: passed all nine selected plugin-keymap cases; 77 other plugin cases were filtered out.
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --test command_usage -- --test-threads=1`: failed with 14 passed and the same `startup::startup_owner` failure as checkpoint `9c76fee60ac3e0b06e38ee348015536873172606`.
+- Static comparison confirms unchanged metadata for every Git/macro variant,
+  unchanged public signatures/enums and `Command::ALL`, and the same ordered
+  contexts and override sources for all 15 independent native map calls. Test
+  files, assertions, inputs, timeouts and resource bounds are unchanged.
+- `git diff --check`: passed.
+
 ## Risks and Follow-ups
 
 Preserve native input/view context, stale completion rejection, transient
 ownership, semantic macro replay/history and the retained macro body identity.
-The remaining nine source findings, resolution of the 16 command and two modal
-failures plus the retained command-usage startup failure, canonical PR
-preparation and exact clean-HEAD evidence remain pending. F6, shared macro-body
-accounting, native dispatch, counted planning, macro lifecycle and publication
-owners have focused regression coverage; Slice 8 is not ready for integration.
+Scoped quality and T8.2 are complete. Resolution of the 16 command and two modal
+failures plus the retained command-usage startup failure, canonical PR preparation
+and successful exact clean-HEAD evidence remain pending. F6, shared macro-body
+accounting, native dispatch, counted planning, macro lifecycle, publication and
+keymap preparation have focused regression coverage; Slice 8 is not ready for
+integration.
+
+A maintainer scope decision is required before correcting the retained acceptance
+fixtures. The approved plan requires tests to retain their assertions and varied
+inputs. The proposed exception is limited to the following existing fixtures:
+
+- Align catalog name grammar, numeric-prefix outcomes, the now-bound macro-query
+  suffix and the four implemented Org visibility commands in `tests/commands.rs`,
+  `tests/commands/editor_keymaps.rs`, `tests/commands/keymap.rs`,
+  `tests/commands/org_catalog.rs`, `tests/commands/shell.rs` and
+  `tests/commands/terminal.rs`.
+- Include existing command descriptions in selector-row expectations in
+  `tests/commands/context_keymaps.rs`, `tests/modal/contexts.rs` and
+  `tests/modal/keymaps.rs`. Prepare the shared tree fixture in
+  `tests/commands/context_keymaps.rs` for stable native interaction, retaining
+  every create/rename/delete, repeat, cancellation and fresh-consent assertion in
+  its existing flow/guard cases.
+- Align empty-query selection, retirement and persisted ranking fixtures with
+  the complete current catalog in `tests/commands/flows.rs`,
+  `tests/commands/selection.rs`, `tests/commands/vertical/geometry.rs` and
+  `tests/command_usage/startup.rs`. Preserve the case-specific acceptance and
+  ranking checks rather than removing them.
+
+These 13 test paths are a proposal, not implemented changes. The requested
+exception preserves case identities and semantic/negative coverage; it permits
+only stale expected metadata/outcomes and bounded fixture targeting or initial
+preparation. It adds no runtime behavior, API/protocol change, ignored case,
+removed assertion, timeout/resource change, command change, slice or gate
+deferral. Every frozen Slice 8 check and the unchanged controller gate remain
+required before acceptance.

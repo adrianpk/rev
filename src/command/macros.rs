@@ -57,48 +57,94 @@ pub enum MacroCommand {
 
 impl MacroCommand {
     pub fn name(self) -> &'static str {
+        self.recording_name()
+    }
+
+    fn recording_name(self) -> &'static str {
         match self {
             Self::StartOrCounter => "kmacro-start-macro-or-insert-counter",
             Self::Start => "kmacro-start-macro",
             Self::End => "kmacro-end-macro",
             Self::EndOrCall => "kmacro-end-or-call-macro",
             Self::EndAndCall => "kmacro-end-and-call-macro",
+            _ => self.playback_name(),
+        }
+    }
+
+    fn playback_name(self) -> &'static str {
+        match self {
             Self::CallRepeat => "kmacro-end-or-call-macro-repeat",
             Self::CallSecond => "kmacro-call-ring-2nd-repeat",
-            Self::Next => "kmacro-cycle-ring-next",
-            Self::Previous => "kmacro-cycle-ring-previous",
-            Self::Delete => "kmacro-delete-ring-head",
-            Self::Swap => "kmacro-swap-ring",
-            Self::Redisplay => "kmacro-redisplay",
-            Self::InsertCounter => "kmacro-insert-counter",
-            Self::SetCounter => "kmacro-set-counter",
-            Self::AddCounter => "kmacro-add-counter",
-            Self::SetFormat => "kmacro-set-format",
             Self::ApplyLines => "apply-macro-to-region-lines",
             Self::Query => "kbd-macro-query",
             Self::Resume => "exit-recursive-edit",
             Self::Abort => "abort-recursive-edit",
+            Self::Redisplay => "kmacro-redisplay",
+            _ => self.ring_name(),
+        }
+    }
+
+    fn ring_name(self) -> &'static str {
+        match self {
+            Self::Next => "kmacro-cycle-ring-next",
+            Self::Previous => "kmacro-cycle-ring-previous",
+            Self::Delete => "kmacro-delete-ring-head",
+            Self::Swap => "kmacro-swap-ring",
+            _ => self.counter_name(),
+        }
+    }
+
+    fn counter_name(self) -> &'static str {
+        match self {
+            Self::InsertCounter => "kmacro-insert-counter",
+            Self::SetCounter => "kmacro-set-counter",
+            Self::AddCounter => "kmacro-add-counter",
+            Self::SetFormat => "kmacro-set-format",
+            _ => self.library_name(),
+        }
+    }
+
+    fn library_name(self) -> &'static str {
+        match self {
             Self::Name => "kmacro-name-last-macro",
             Self::Bind => "kmacro-bind-to-key",
             Self::Save => "kmacro-save",
             Self::Load => "kmacro-load",
             Self::DeleteSaved => "kmacro-delete",
             Self::Export => "insert-kbd-macro",
+            _ => self.definition_name(),
+        }
+    }
+
+    fn definition_name(self) -> &'static str {
+        match self {
             Self::Edit => "kmacro-edit-macro",
             Self::EditRepeat => "kmacro-edit-macro-repeat",
             Self::EditNamed => "edit-kbd-macro",
             Self::Lossage => "kmacro-edit-lossage",
             Self::StepEdit => "kmacro-step-edit-macro",
-            Self::List => "list-keyboard-macros",
             Self::FinishEdit => "edmacro-finish-edit",
             Self::InsertKey => "edmacro-insert-key",
             Self::RegionLines => "edmacro-set-macro-to-region-lines",
+            _ => self.menu_edit_name(),
+        }
+    }
+
+    fn menu_edit_name(self) -> &'static str {
+        match self {
+            Self::List => "list-keyboard-macros",
             Self::MenuPosition => "kmacro-menu-edit-position",
             Self::MenuTranspose => "kmacro-menu-transpose",
             Self::MenuCounter => "kmacro-menu-edit-counter",
             Self::MenuFormat => "kmacro-menu-edit-format",
             Self::MenuKeys => "kmacro-menu-edit-keys",
             Self::MenuColumn => "kmacro-menu-edit-column",
+            _ => self.menu_marks_name(),
+        }
+    }
+
+    fn menu_marks_name(self) -> &'static str {
+        match self {
             Self::MenuFlag => "kmacro-menu-flag-for-deletion",
             Self::MenuFlaggedDelete => "kmacro-menu-do-flagged-delete",
             Self::MenuMark => "kmacro-menu-mark",
@@ -107,55 +153,108 @@ impl MacroCommand {
             Self::MenuUnmark => "kmacro-menu-unmark",
             Self::MenuUnmarkBackward => "kmacro-menu-unmark-backward",
             Self::MenuUnmarkAll => "kmacro-menu-unmark-all",
+            _ => self.menu_view_name(),
+        }
+    }
+
+    fn menu_view_name(self) -> &'static str {
+        match self {
             Self::MenuRefresh => "kmacro-menu-refresh",
             Self::MenuQuit => "kmacro-menu-quit",
             Self::MenuHelp => "kmacro-menu-help",
+            _ => unreachable!("other command metadata belongs to an earlier concern"),
         }
     }
 
     pub(crate) fn description(self) -> &'static str {
+        self.recording_description()
+    }
+
+    fn recording_description(self) -> &'static str {
         match self {
             Self::StartOrCounter => "Start recording, or insert the current macro counter.",
             Self::Start => "Start or append to a keyboard macro.",
             Self::End => "Finish recording a keyboard macro.",
             Self::EndOrCall => "Finish recording, or run the current keyboard macro.",
             Self::EndAndCall => "Finish recording and run the current keyboard macro.",
+            _ => self.playback_description(),
+        }
+    }
+
+    fn playback_description(self) -> &'static str {
+        match self {
             Self::CallRepeat => "Run the current macro and enable ring repeat keys.",
             Self::CallSecond => "Run the second macro and enable ring repeat keys.",
-            Self::Next => "Select the next older keyboard macro.",
-            Self::Previous => "Select the next newer keyboard macro.",
-            Self::Delete => "Remove the current macro from the session ring.",
-            Self::Swap => "Exchange the first two macros in the ring.",
-            Self::Redisplay => "Refresh the display during macro playback.",
-            Self::InsertCounter => "Insert a macro counter value.",
-            Self::SetCounter => "Set or reset the current macro counter.",
-            Self::AddCounter => "Add to or restore the current macro counter.",
-            Self::SetFormat => "Set the integer format for macro counters.",
             Self::ApplyLines => "Run the current macro on logical lines in the region.",
             Self::Query => "Add a confirmation or editing pause to a macro.",
             Self::Resume => "Resume a macro after its manual editing pause.",
             Self::Abort => "Abort a macro editing pause and its playback.",
+            Self::Redisplay => "Refresh the display during macro playback.",
+            _ => self.ring_description(),
+        }
+    }
+
+    fn ring_description(self) -> &'static str {
+        match self {
+            Self::Next => "Select the next older keyboard macro.",
+            Self::Previous => "Select the next newer keyboard macro.",
+            Self::Delete => "Remove the current macro from the session ring.",
+            Self::Swap => "Exchange the first two macros in the ring.",
+            _ => self.counter_description(),
+        }
+    }
+
+    fn counter_description(self) -> &'static str {
+        match self {
+            Self::InsertCounter => "Insert a macro counter value.",
+            Self::SetCounter => "Set or reset the current macro counter.",
+            Self::AddCounter => "Add to or restore the current macro counter.",
+            Self::SetFormat => "Set the integer format for macro counters.",
+            _ => self.library_description(),
+        }
+    }
+
+    fn library_description(self) -> &'static str {
+        match self {
             Self::Name => "Give the current macro a session command name.",
             Self::Bind => "Bind a session macro to a key sequence.",
             Self::Save => "Save a named macro in the persistent library.",
             Self::Load => "Reload saved macros without running them.",
             Self::DeleteSaved => "Explicitly remove a macro from the saved library.",
             Self::Export => "Insert a named macro definition as TOML text.",
+            _ => self.definition_description(),
+        }
+    }
+
+    fn definition_description(self) -> &'static str {
+        match self {
             Self::Edit => "Edit the current keyboard macro definition.",
             Self::EditRepeat => "Edit the current macro and enable ring repeat keys.",
             Self::EditNamed => "Select a named or bound macro to edit.",
             Self::Lossage => "Make a macro from recent recordable input.",
             Self::StepEdit => "Execute and edit a macro one step at a time.",
-            Self::List => "List and manage the session macro ring.",
             Self::FinishEdit => "Apply a checked macro definition draft.",
             Self::InsertKey => "Insert the next key sequence in macro notation.",
             Self::RegionLines => "Use complete selected definition lines as the macro body.",
+            _ => self.menu_edit_description(),
+        }
+    }
+
+    fn menu_edit_description(self) -> &'static str {
+        match self {
+            Self::List => "List and manage the session macro ring.",
             Self::MenuPosition => "Change the selected macro's ring position.",
             Self::MenuTranspose => "Move the selected macro above its predecessor.",
             Self::MenuCounter => "Change the selected macro counter.",
             Self::MenuFormat => "Change the selected macro counter format.",
             Self::MenuKeys => "Edit the selected macro definition.",
             Self::MenuColumn => "Edit the selected macro property.",
+            _ => self.menu_marks_description(),
+        }
+    }
+
+    fn menu_marks_description(self) -> &'static str {
+        match self {
             Self::MenuFlag => "Flag selected macros for ring deletion.",
             Self::MenuFlaggedDelete => "Remove flagged macros from the ring.",
             Self::MenuMark => "Mark selected macros for menu operations.",
@@ -164,9 +263,16 @@ impl MacroCommand {
             Self::MenuUnmark => "Clear selected macro marks and deletion flags.",
             Self::MenuUnmarkBackward => "Clear a macro mark and move backward.",
             Self::MenuUnmarkAll => "Clear all macro menu marks and flags.",
+            _ => self.menu_view_description(),
+        }
+    }
+
+    fn menu_view_description(self) -> &'static str {
+        match self {
             Self::MenuRefresh => "Refresh the macro menu.",
             Self::MenuQuit => "Close the macro menu and restore its source view.",
             Self::MenuHelp => "Show the macro menu commands and bindings.",
+            _ => unreachable!("other command metadata belongs to an earlier concern"),
         }
     }
 }

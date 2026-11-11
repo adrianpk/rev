@@ -250,40 +250,117 @@ pub(crate) fn compile_ai(
     profile: crate::config::InteractionProfile,
     commands: Option<&std::collections::BTreeMap<String, crate::config::AiCommand>>,
 ) -> Result<Effective, Error> {
-    let (editor, minibuffer, org_calendar) = base_maps(keys, commands)?;
-    let (org, org_capture, org_source_edit) = org_editing_maps(&editor, keys, commands)?;
-    let vim = vim::maps(keys, commands)?;
-    let vim_org = vim::org_maps(keys, &vim, profile, commands)?;
+    let editing = EditingMaps::compile(keys, profile, commands)?;
+    let completion = Map::compile(Context::Completion, &keys.completion, commands)?;
+    let git_commit = Map::overlay(
+        &editing.editor,
+        Context::GitCommit,
+        &keys.git_commit,
+        commands,
+    )?;
+    let macro_definition = Map::overlay(
+        &editing.editor,
+        Context::MacroDefinition,
+        &keys.macro_definition,
+        commands,
+    )?;
+    let macro_menu = Map::compile(Context::MacroMenu, &keys.macro_menu, commands)?;
+    let tree = Map::compile(Context::Tree, &keys.tree, commands)?;
+    let bookmark_list = Map::compile(Context::BookmarkList, &keys.bookmark_list, commands)?;
+    let repositories = RepositoryMaps::compile(keys, commands)?;
+    let org_agenda = Map::compile(Context::OrgAgenda, &keys.org_agenda, commands)?;
     Ok(Effective {
-        vim,
-        vim_org,
-        completion: Map::compile(Context::Completion, &keys.completion, commands)?,
-        org,
-        org_capture,
-        org_source_edit,
-        git_commit: Map::overlay(&editor, Context::GitCommit, &keys.git_commit, commands)?,
-        macro_definition: Map::overlay(
-            &editor,
-            Context::MacroDefinition,
-            &keys.macro_definition,
-            commands,
-        )?,
-        macro_menu: Map::compile(Context::MacroMenu, &keys.macro_menu, commands)?,
-        editor,
-        minibuffer,
-        tree: Map::compile(Context::Tree, &keys.tree, commands)?,
-        bookmark_list: Map::compile(Context::BookmarkList, &keys.bookmark_list, commands)?,
-        git: Map::compile(Context::Git, &keys.git, commands)?,
-        git_history: Map::compile(Context::GitHistory, &keys.git_history, commands)?,
-        git_inspect: Map::compile(Context::GitInspect, &keys.git_inspect, commands)?,
-        git_refs: Map::compile(Context::GitRefs, &keys.git_refs, commands)?,
-        git_sequence: Map::compile(Context::GitSequence, &keys.git_sequence, commands)?,
-        git_worktree: Map::compile(Context::GitWorktree, &keys.git_worktree, commands)?,
-        git_stash: Map::compile(Context::GitStash, &keys.git_stash, commands)?,
-        git_conflict: Map::compile(Context::GitConflict, &keys.git_conflict, commands)?,
-        org_agenda: Map::compile(Context::OrgAgenda, &keys.org_agenda, commands)?,
-        org_calendar,
+        vim: editing.vim,
+        vim_org: editing.vim_org,
+        completion,
+        org: editing.org,
+        org_capture: editing.org_capture,
+        org_source_edit: editing.org_source_edit,
+        git_commit,
+        macro_definition,
+        macro_menu,
+        editor: editing.editor,
+        minibuffer: editing.minibuffer,
+        tree,
+        bookmark_list,
+        git: repositories.git,
+        git_history: repositories.git_history,
+        git_inspect: repositories.git_inspect,
+        git_refs: repositories.git_refs,
+        git_sequence: repositories.git_sequence,
+        git_worktree: repositories.git_worktree,
+        git_stash: repositories.git_stash,
+        git_conflict: repositories.git_conflict,
+        org_agenda,
+        org_calendar: editing.org_calendar,
     })
+}
+
+/// Inherited editing layers precede every independent native map. Their owned
+/// maps are moved into Effective only after the complete candidate is valid.
+struct EditingMaps {
+    editor: Map,
+    minibuffer: Map,
+    org_calendar: Map,
+    org: Map,
+    org_capture: Map,
+    org_source_edit: Map,
+    vim: BTreeMap<Context, Map>,
+    vim_org: BTreeMap<(Context, Context), Map>,
+}
+
+impl EditingMaps {
+    fn compile(
+        keys: &crate::config::Keymaps,
+        profile: crate::config::InteractionProfile,
+        commands: Option<&BTreeMap<String, crate::config::AiCommand>>,
+    ) -> Result<Self, Error> {
+        let (editor, minibuffer, org_calendar) = base_maps(keys, commands)?;
+        let (org, org_capture, org_source_edit) = org_editing_maps(&editor, keys, commands)?;
+        let vim = vim::maps(keys, commands)?;
+        let vim_org = vim::org_maps(keys, &vim, profile, commands)?;
+        Ok(Self {
+            editor,
+            minibuffer,
+            org_calendar,
+            org,
+            org_capture,
+            org_source_edit,
+            vim,
+            vim_org,
+        })
+    }
+}
+
+/// Git's independent map family follows transient editors, tree and bookmarks
+/// in the existing validation order; the commit overlay is compiled earlier.
+struct RepositoryMaps {
+    git: Map,
+    git_history: Map,
+    git_inspect: Map,
+    git_refs: Map,
+    git_sequence: Map,
+    git_worktree: Map,
+    git_stash: Map,
+    git_conflict: Map,
+}
+
+impl RepositoryMaps {
+    fn compile(
+        keys: &crate::config::Keymaps,
+        commands: Option<&BTreeMap<String, crate::config::AiCommand>>,
+    ) -> Result<Self, Error> {
+        Ok(Self {
+            git: Map::compile(Context::Git, &keys.git, commands)?,
+            git_history: Map::compile(Context::GitHistory, &keys.git_history, commands)?,
+            git_inspect: Map::compile(Context::GitInspect, &keys.git_inspect, commands)?,
+            git_refs: Map::compile(Context::GitRefs, &keys.git_refs, commands)?,
+            git_sequence: Map::compile(Context::GitSequence, &keys.git_sequence, commands)?,
+            git_worktree: Map::compile(Context::GitWorktree, &keys.git_worktree, commands)?,
+            git_stash: Map::compile(Context::GitStash, &keys.git_stash, commands)?,
+            git_conflict: Map::compile(Context::GitConflict, &keys.git_conflict, commands)?,
+        })
+    }
 }
 
 fn base_maps(

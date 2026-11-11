@@ -878,6 +878,12 @@ impl Command {
             Self::AiDefined(name) => name.name(),
             Self::PluginDefined(name) => name.name(),
             Self::Plugin(command) => command.name(),
+            _ => self.request_name(),
+        }
+    }
+
+    fn request_name(&self) -> &str {
+        match self {
             Self::Navigate(request) => request.name(),
             Self::Edit(request) => request.name(),
             Self::Modal(command) => command.name(),
@@ -899,6 +905,12 @@ impl Command {
             | Self::PluginDefined(_) => {
                 unreachable!("user commands retain optional metadata")
             }
+            _ => self.request_description(),
+        }
+    }
+
+    fn request_description(&self) -> &'static str {
+        match self {
             Self::Navigate(request) => request.description(),
             Self::Edit(request) => request.description(),
             Self::Modal(command) => command.description(),
@@ -941,6 +953,12 @@ impl Command {
         match self {
             Self::Rectangle(command) => command.name(),
             Self::Gutter(command) => command.name(),
+            _ => self.selector_name(),
+        }
+    }
+
+    fn selector_name(self) -> &'static str {
+        match self {
             Self::ExecuteExtended => "execute-extended-command",
             Self::PrefixArgument => "prefix-argument",
             Self::UniversalArgument => "universal-argument",
@@ -948,51 +966,105 @@ impl Command {
             Self::NegativeArgument => "negative-argument",
             Self::Quit => "save-buffers-kill-terminal",
             Self::QuitAlias => "quit",
+            Self::KeyboardQuit => "keyboard-quit",
+            _ => self.file_name(),
+        }
+    }
+
+    fn file_name(self) -> &'static str {
+        match self {
             Self::FindFile => "find-file",
             Self::GenerateNewBuffer => "generate-new-buffer",
+            Self::GotoLine => "goto-line",
+            Self::SaveBuffer => "save-buffer",
+            Self::RevertBuffer => "revert-buffer",
+            Self::WriteFile => "write-file",
+            _ => self.context_name(),
+        }
+    }
+
+    fn context_name(self) -> &'static str {
+        match self {
             Self::OpenDirectory => "open-directory",
             Self::ContextClose => "context-close",
             Self::DashboardOpen => "dashboard-open",
+            _ => self.project_name(),
+        }
+    }
+
+    fn project_name(self) -> &'static str {
+        match self {
             Self::ProjectCreate => "project-create",
             Self::ProjectPromote => "project-promote",
             Self::ProjectSwitch => "project-switch-project",
             Self::ProjectList => "project-list",
-            Self::WorkspaceCreate => "workspace-create",
-            Self::WorkspaceOpen => "workspace-open",
-            Self::WorkspaceList => "workspace-list",
-            Self::WorkspaceAddDirectory => "workspace-add-directory",
-            Self::WorkspaceAddProject => "workspace-add-project",
-            Self::WorkspaceRemoveRoot => "workspace-remove-root",
+            _ => self.project_management_name(),
+        }
+    }
+
+    fn project_management_name(self) -> &'static str {
+        match self {
             Self::ProjectRename => "project-rename",
             Self::ProjectForget => "project-forget",
             Self::ProjectSetRoot => "project-set-root",
             Self::ProjectPromoteToWorkspace => "project-promote-to-workspace",
             Self::ProjectDuplicateAsWorkspace => "project-duplicate-as-workspace",
+            _ => self.workspace_name(),
+        }
+    }
+
+    fn workspace_name(self) -> &'static str {
+        match self {
+            Self::WorkspaceCreate => "workspace-create",
+            Self::WorkspaceOpen => "workspace-open",
+            Self::WorkspaceList => "workspace-list",
             Self::WorkspaceRename => "workspace-rename",
             Self::WorkspaceForget => "workspace-forget",
+            _ => self.workspace_roots_name(),
+        }
+    }
+
+    fn workspace_roots_name(self) -> &'static str {
+        match self {
+            Self::WorkspaceAddDirectory => "workspace-add-directory",
+            Self::WorkspaceAddProject => "workspace-add-project",
+            Self::WorkspaceRemoveRoot => "workspace-remove-root",
             Self::WorkspaceSetRootPath => "workspace-set-root-path",
-            Self::GotoLine => "goto-line",
-            Self::SaveBuffer => "save-buffer",
-            Self::RevertBuffer => "revert-buffer",
+            _ => self.ai_request_name(),
+        }
+    }
+
+    fn ai_request_name(self) -> &'static str {
+        match self {
             Self::AiExplain => "ai-explain",
             Self::AiPrompt => "ai-prompt",
             Self::AiImplement => "ai-implement",
             Self::AiApplyResult => "ai-apply-result",
             Self::AiDiscardResult => "ai-discard-result",
+            _ => self.ai_session_name(),
+        }
+    }
+
+    fn ai_session_name(self) -> &'static str {
+        match self {
             Self::AiSetDirectory => "ai-set-directory",
             Self::AiSelectModel => "ai-select-model",
             Self::AiResetSession => "ai-reset-session",
             Self::AiDisconnect => "ai-disconnect",
             Self::AiCancel => "ai-cancel",
             Self::AiSaveCommand => "ai-save-command",
+            _ => self.shell_name(),
+        }
+    }
+
+    fn shell_name(self) -> &'static str {
+        match self {
             Self::ShellCommand => "shell-command",
             Self::ShellCommandOnRegion => "shell-command-on-region",
             Self::ShellFilterRegion => "shell-filter-region",
             Self::ShellCommandInsert => "shell-command-insert",
             Self::ShellCommandCancel => "shell-command-cancel",
             Self::ShellCommandOutput => "shell-command-output",
-            Self::WriteFile => "write-file",
-            Self::KeyboardQuit => "keyboard-quit",
             _ => self.search_name(),
         }
     }
@@ -1001,13 +1073,38 @@ impl Command {
         match self {
             Self::Rectangle(command) => command.description(),
             Self::Gutter(command) => command.description(),
+            _ => self.selector_description(),
+        }
+    }
+
+    fn selector_description(self) -> &'static str {
+        match self {
             Self::ExecuteExtended => "Find and invoke a command.",
             Self::PrefixArgument => "Set an argument for the next command.",
             Self::DigitArgument => "Add a digit to the pending command argument.",
             Self::NegativeArgument => "Set the sign of the pending command argument.",
             Self::Quit => "Exit rev after resolving unsaved work and active processes.",
+            Self::KeyboardQuit => "Cancel the current interaction or deactivate the region.",
+            _ => self.file_description(),
+        }
+    }
+
+    fn file_description(self) -> &'static str {
+        match self {
             Self::FindFile => "Open a file or directory.",
             Self::GenerateNewBuffer => "Add an unnamed buffer in the active context.",
+            Self::GotoLine => "Go to a one-based logical line number.",
+            Self::SaveBuffer => "Save to the current destination.",
+            Self::RevertBuffer => {
+                "Reload a checked disk image; confirm before discarding unsaved text."
+            }
+            Self::WriteFile => "Save the current buffer to another destination.",
+            _ => self.context_description(),
+        }
+    }
+
+    fn context_description(self) -> &'static str {
+        match self {
             Self::OpenDirectory => {
                 "Choose an existing directory and replace the context after source decisions and owned cleanup."
             }
@@ -1015,20 +1112,22 @@ impl Command {
                 "Resolve current source work, close its context and return to the startup screen."
             }
             Self::DashboardOpen => "Retain current work and show the native startup actions.",
+            _ => self.project_description(),
+        }
+    }
+
+    fn project_description(self) -> &'static str {
+        match self {
             Self::ProjectCreate => "Choose a directory, name it and open the registered Project.",
             Self::ProjectPromote => "Register the temporary directory while retaining live work.",
             Self::ProjectSwitch => "Restore a Project selected by name/path.",
             Self::ProjectList => "Choose a registered Project and restore its file session.",
-            Self::WorkspaceCreate => "Name and open an empty Workspace.",
-            Self::WorkspaceOpen => "Restore a Workspace selected by name/path.",
-            Self::WorkspaceList => "Choose a Workspace and restore its file session.",
-            Self::WorkspaceAddDirectory => "Append an existing directory to the active Workspace.",
-            Self::WorkspaceAddProject => {
-                "Append a Project directory without importing its saved files."
-            }
-            Self::WorkspaceRemoveRoot => {
-                "Resolve only files losing coverage and remove their root membership."
-            }
+            _ => self.project_management_description(),
+        }
+    }
+
+    fn project_management_description(self) -> &'static str {
+        match self {
             Self::ProjectRename => "Select a Project and change only its display name.",
             Self::ProjectForget => {
                 "Remove Project metadata; active live work becomes a temporary directory."
@@ -1042,18 +1141,41 @@ impl Command {
             Self::ProjectDuplicateAsWorkspace => {
                 "Resolve source decisions, retain the Project and open an independent Workspace copy of its file session."
             }
+            _ => self.workspace_description(),
+        }
+    }
+
+    fn workspace_description(self) -> &'static str {
+        match self {
+            Self::WorkspaceCreate => "Name and open an empty Workspace.",
+            Self::WorkspaceOpen => "Restore a Workspace selected by name/path.",
+            Self::WorkspaceList => "Choose a Workspace and restore its file session.",
             Self::WorkspaceRename => "Select a Workspace and change only its display name.",
             Self::WorkspaceForget => {
                 "Remove Workspace metadata; active work resolves source decisions and closes the context."
             }
+            _ => self.workspace_roots_description(),
+        }
+    }
+
+    fn workspace_roots_description(self) -> &'static str {
+        match self {
+            Self::WorkspaceAddDirectory => "Append an existing directory to the active Workspace.",
+            Self::WorkspaceAddProject => {
+                "Append a Project directory without importing its saved files."
+            }
+            Self::WorkspaceRemoveRoot => {
+                "Resolve only files losing coverage and remove their root membership."
+            }
             Self::WorkspaceSetRootPath => {
                 "Select a Workspace/root identity and an existing replacement directory."
             }
-            Self::GotoLine => "Go to a one-based logical line number.",
-            Self::SaveBuffer => "Save to the current destination.",
-            Self::RevertBuffer => {
-                "Reload a checked disk image; confirm before discarding unsaved text."
-            }
+            _ => self.ai_request_description(),
+        }
+    }
+
+    fn ai_request_description(self) -> &'static str {
+        match self {
             Self::AiExplain => "Explain the selected text using the chosen AI context.",
             Self::AiPrompt => {
                 "Request an AI transformation of the selection or insertion at point."
@@ -1063,12 +1185,24 @@ impl Command {
                 "Apply the selected proposal once to its original checked target."
             }
             Self::AiDiscardResult => "Discard the pending result without editing source.",
+            _ => self.ai_session_description(),
+        }
+    }
+
+    fn ai_session_description(self) -> &'static str {
+        match self {
             Self::AiSetDirectory => "Choose a session-local AI context root.",
             Self::AiSelectModel => "Choose a Pi-reported provider/model for this editor session.",
             Self::AiResetSession => "Start fresh owned history on the next explicit invocation.",
             Self::AiDisconnect => "Stop the Pi connection while keeping its history and results.",
             Self::AiCancel => "Cancel the active invocation or AI-owned input/result.",
             Self::AiSaveCommand => "Save the successful literal instruction as a reusable command.",
+            _ => self.shell_description(),
+        }
+    }
+
+    fn shell_description(self) -> &'static str {
+        match self {
             Self::ShellCommand => "Run a shell command and retain its output.",
             Self::ShellCommandOnRegion => "Run a shell command with the selected text as input.",
             Self::ShellFilterRegion => {
@@ -1081,8 +1215,6 @@ impl Command {
             Self::ShellCommandOutput => {
                 "Visit the last retained read-only plain-text result or diagnostics."
             }
-            Self::WriteFile => "Save the current buffer to another destination.",
-            Self::KeyboardQuit => "Cancel the current interaction or deactivate the region.",
             _ => self.search_description(),
         }
     }
