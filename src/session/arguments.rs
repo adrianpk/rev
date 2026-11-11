@@ -51,26 +51,8 @@ impl Session {
             }
             return self.message("Command argument origin changed");
         }
-        if let Some(action) = self.macro_menu_command(invocation.command) {
+        if let Some(action) = self.execute_invocation_control(invocation) {
             return action;
-        }
-        if let Some(action) = self.macro_definition_guard(invocation.command) {
-            return action;
-        }
-        if let Some(action) = self.macro_command_guard(invocation.command) {
-            return action;
-        }
-        if let Command::PluginDefined(name) = invocation.command {
-            return self.plugin_counted(name, invocation.argument);
-        }
-        if let Command::Macro(control) = invocation.command {
-            return self.macro_command(control, invocation.argument);
-        }
-        if let Command::MacroNamed(name) = invocation.command {
-            return self.macro_named_call(name, invocation.argument);
-        }
-        if let Command::MacroBinding(id) = invocation.command {
-            return self.macro_bound_call(id, invocation.argument);
         }
         if self.terminals.focused
             || self.capture_blocks_input()
@@ -83,6 +65,35 @@ impl Session {
         if let Some(action) = self.argument_tree(invocation) {
             return action;
         }
+        self.execute_source_invocation(invocation)
+    }
+
+    fn execute_invocation_control(&mut self, invocation: Invocation) -> Option<Action> {
+        if let Some(action) = self.macro_menu_command(invocation.command) {
+            return Some(action);
+        }
+        if let Some(action) = self.macro_definition_guard(invocation.command) {
+            return Some(action);
+        }
+        if let Some(action) = self.macro_command_guard(invocation.command) {
+            return Some(action);
+        }
+        if let Command::PluginDefined(name) = invocation.command {
+            return Some(self.plugin_counted(name, invocation.argument));
+        }
+        if let Command::Macro(control) = invocation.command {
+            return Some(self.macro_command(control, invocation.argument));
+        }
+        if let Command::MacroNamed(name) = invocation.command {
+            return Some(self.macro_named_call(name, invocation.argument));
+        }
+        if let Command::MacroBinding(id) = invocation.command {
+            return Some(self.macro_bound_call(id, invocation.argument));
+        }
+        None
+    }
+
+    fn execute_source_invocation(&mut self, invocation: Invocation) -> Action {
         if self.source_layout_focus()
             && invocation.command == Command::GotoLine
             && invocation.argument.value() <= 0
@@ -97,19 +108,8 @@ impl Session {
         if let Some(command) = variant {
             return self.execute(command);
         }
-        if self.source_layout_focus() {
-            if matches!(invocation.command, Command::Newline | Command::InsertTab) {
-                return self.execute_argument_insertion(invocation);
-            }
-            if let Command::History(direction) = invocation.command {
-                return self.execute_argument_history(invocation, direction);
-            }
-            if matches!(
-                invocation.command,
-                Command::Linear(LinearCommand::Yank | LinearCommand::Pop)
-            ) {
-                return self.argument_yank(invocation);
-            }
+        if let Some(action) = self.execute_argument_entry(invocation) {
+            return action;
         }
         if !self.argument_movement(invocation.command) {
             // Commands acquire numeric meaning only through their native policy.
@@ -119,6 +119,24 @@ impl Session {
             return action;
         }
         self.publish_argument_movement(invocation)
+    }
+
+    fn execute_argument_entry(&mut self, invocation: Invocation) -> Option<Action> {
+        if self.source_layout_focus() {
+            if matches!(invocation.command, Command::Newline | Command::InsertTab) {
+                return Some(self.execute_argument_insertion(invocation));
+            }
+            if let Command::History(direction) = invocation.command {
+                return Some(self.execute_argument_history(invocation, direction));
+            }
+            if matches!(
+                invocation.command,
+                Command::Linear(LinearCommand::Yank | LinearCommand::Pop)
+            ) {
+                return Some(self.argument_yank(invocation));
+            }
+        }
+        None
     }
 
     pub(super) fn argument_movement(&self, command: Command) -> bool {
@@ -146,33 +164,10 @@ impl Session {
         &mut self,
         invocation: Invocation,
     ) -> Result<(), Error> {
-        if !self.input.invocation_current(invocation.origin)
-            || !self.argument_movement(invocation.command)
-        {
-            return Err(crate::buffer::edit::Error::ChangedPositions.into());
-        }
+        self.admit_argument_movement(invocation)?;
         let size = self.pane_size();
-        let mut movement = self
-            .layout
-            .movement
-            .take()
-            .filter(|work| work.invocation == invocation && work.size == size)
-            .unwrap_or_else(|| Movement {
-                invocation,
-                size,
-                candidate: self.view().clone(),
-                remaining: argument_distance(invocation),
-                kind: movement_kind(invocation.command, argument_reverse(invocation)),
-            });
-        let deletion = matches!(
-            invocation.command,
-            Command::DeleteChar | Command::BackwardDeleteChar
-        );
-        let region = deletion
-            .then(|| self.buffer()?.region(self.view().point))
-            .transpose()?
-            .flatten()
-            .filter(|span| !span.range.is_empty());
+        let mut movement = self.argument_movement_work(invocation, size);
+        let region = self.argument_deletion_region(invocation)?;
         let result = if matches!(movement.kind, MovementKind::Position) {
             self.prepare_argument_position(&mut movement)
         } else if region.is_some()
@@ -183,9 +178,7 @@ impl Session {
         } else if invocation.argument.value() == 0
             && invocation.command == Command::Kill(KillCommand::Line)
         {
-            movement.candidate.point.position =
-                Coordinates::new(self.buffer()?)?.line_start(self.view().point.position)?;
-            movement.remaining = 0;
+            self.prepare_zero_line_argument(&mut movement)?;
             Ok(())
         } else {
             self.advance_argument_movement(&mut movement)
@@ -193,6 +186,51 @@ impl Session {
         let result = result.and_then(|()| self.finish_argument_row(&mut movement));
         self.layout.movement = Some(movement);
         result
+    }
+
+    fn admit_argument_movement(&self, invocation: Invocation) -> Result<(), Error> {
+        if !self.input.invocation_current(invocation.origin)
+            || !self.argument_movement(invocation.command)
+        {
+            return Err(crate::buffer::edit::Error::ChangedPositions.into());
+        }
+        Ok(())
+    }
+
+    fn argument_movement_work(&mut self, invocation: Invocation, size: Size) -> Movement {
+        self.layout
+            .movement
+            .take()
+            .filter(|work| work.invocation == invocation && work.size == size)
+            .unwrap_or_else(|| Movement {
+                invocation,
+                size,
+                candidate: self.view().clone(),
+                remaining: argument_distance(invocation),
+                kind: movement_kind(invocation.command, argument_reverse(invocation)),
+            })
+    }
+
+    fn argument_deletion_region(
+        &self,
+        invocation: Invocation,
+    ) -> Result<Option<crate::buffer::Span>, Error> {
+        let deletion = matches!(
+            invocation.command,
+            Command::DeleteChar | Command::BackwardDeleteChar
+        );
+        Ok(deletion
+            .then(|| self.buffer()?.region(self.view().point))
+            .transpose()?
+            .flatten()
+            .filter(|span| !span.range.is_empty()))
+    }
+
+    fn prepare_zero_line_argument(&self, movement: &mut Movement) -> Result<(), Error> {
+        movement.candidate.point.position =
+            Coordinates::new(self.buffer()?)?.line_start(self.view().point.position)?;
+        movement.remaining = 0;
+        Ok(())
     }
 
     fn advance_argument_movement(&self, work: &mut Movement) -> Result<(), Error> {
@@ -205,37 +243,7 @@ impl Session {
                 return Ok(());
             }
             let point = work.candidate.point.position;
-            match work.kind {
-                MovementKind::Position => unreachable!("absolute positions prepare separately"),
-                MovementKind::Motion(motion) => {
-                    work.candidate.point.position = match motion {
-                        Motion::ForwardChar => coordinates.next_observed(point)?,
-                        Motion::BackwardChar => coordinates.previous_observed(point)?,
-                        _ => motion.target(&coordinates, point)?,
-                    };
-                    work.candidate.reset_navigation();
-                }
-                MovementKind::Line { backward } => {
-                    work.candidate.point.position = if backward {
-                        let start = coordinates.line_start(point)?;
-                        if start.0 == 0 {
-                            start
-                        } else {
-                            coordinates.line_start(coordinates.previous_observed(start)?)?
-                        }
-                    } else {
-                        coordinates.next_observed(coordinates.line_end(point)?)?
-                    };
-                }
-                MovementKind::Row(scroll) => {
-                    let width = work.candidate.text_width(buffer, work.size)?;
-                    if buffer.soft_wrap() && width > 0 {
-                        work.candidate.visual_scroll(buffer, width, scroll, 1)?;
-                    } else {
-                        work.candidate.scroll(buffer, scroll, 1)?;
-                    }
-                }
-            }
+            work.advance(buffer, &coordinates)?;
             work.remaining -= 1;
             if work.candidate.point.position == point {
                 work.remaining = 0;
@@ -287,13 +295,7 @@ impl Session {
         let point = self.view().point.position.0;
         let target = work.candidate.point.position.0;
         let result = (|| {
-            let mut range = point.min(target)..point.max(target);
-            if matches!(command, Command::DeleteChar | Command::BackwardDeleteChar)
-                && let Some(region) = self.buffer()?.region(self.view().point)?
-                && !region.range.is_empty()
-            {
-                range = region.range;
-            }
+            let range = self.argument_edit_range(command, point.min(target)..point.max(target))?;
             if range.is_empty() {
                 return Ok(false);
             }
@@ -311,6 +313,20 @@ impl Session {
         self.finish(result)
     }
 
+    fn argument_edit_range(
+        &self,
+        command: Command,
+        range: std::ops::Range<usize>,
+    ) -> Result<std::ops::Range<usize>, crate::buffer::edit::Error> {
+        if matches!(command, Command::DeleteChar | Command::BackwardDeleteChar)
+            && let Some(region) = self.buffer()?.region(self.view().point)?
+            && !region.range.is_empty()
+        {
+            return Ok(region.range);
+        }
+        Ok(range)
+    }
+
     pub(super) fn execute_prefix_control(&mut self, command: Command) -> Action {
         let outcome = self.input.prefix_control(command, None);
         match outcome {
@@ -321,56 +337,122 @@ impl Session {
     }
 }
 
+impl Movement {
+    fn advance(
+        &mut self,
+        buffer: &crate::buffer::Buffer,
+        coordinates: &Coordinates<'_>,
+    ) -> Result<(), Error> {
+        match self.kind {
+            MovementKind::Position => unreachable!("absolute positions prepare separately"),
+            MovementKind::Motion(motion) => self.advance_motion(coordinates, motion),
+            MovementKind::Line { backward } => self.advance_line(coordinates, backward),
+            MovementKind::Row(scroll) => self.advance_row(buffer, scroll),
+        }
+    }
+
+    fn advance_motion(
+        &mut self,
+        coordinates: &Coordinates<'_>,
+        motion: Motion,
+    ) -> Result<(), Error> {
+        let point = self.candidate.point.position;
+        self.candidate.point.position = match motion {
+            Motion::ForwardChar => coordinates.next_observed(point)?,
+            Motion::BackwardChar => coordinates.previous_observed(point)?,
+            _ => motion.target(coordinates, point)?,
+        };
+        self.candidate.reset_navigation();
+        Ok(())
+    }
+
+    fn advance_line(&mut self, coordinates: &Coordinates<'_>, backward: bool) -> Result<(), Error> {
+        let point = self.candidate.point.position;
+        self.candidate.point.position = if backward {
+            let start = coordinates.line_start(point)?;
+            if start.0 == 0 {
+                start
+            } else {
+                coordinates.line_start(coordinates.previous_observed(start)?)?
+            }
+        } else {
+            coordinates.next_observed(coordinates.line_end(point)?)?
+        };
+        Ok(())
+    }
+
+    fn advance_row(&mut self, buffer: &crate::buffer::Buffer, scroll: Scroll) -> Result<(), Error> {
+        let width = self.candidate.text_width(buffer, self.size)?;
+        if buffer.soft_wrap() && width > 0 {
+            self.candidate.visual_scroll(buffer, width, scroll, 1)?;
+        } else {
+            self.candidate.scroll(buffer, scroll, 1)?;
+        }
+        Ok(())
+    }
+}
+
 fn movement_kind(command: Command, reverse: bool) -> MovementKind {
     match command {
-        Command::Motion(Motion::BufferStart | Motion::BufferEnd)
-        | Command::GotoLine
-        | Command::Scroll(Scroll::Recenter) => MovementKind::Position,
-        Command::Motion(Motion::LineStart | Motion::LineEnd) => MovementKind::Row(if reverse {
-            Scroll::PreviousLine
-        } else {
-            Scroll::NextLine
-        }),
-        Command::Motion(motion) => MovementKind::Motion(if reverse {
-            match motion {
-                Motion::ForwardChar => Motion::BackwardChar,
-                Motion::BackwardChar => Motion::ForwardChar,
-                Motion::ForwardWord => Motion::BackwardWord,
-                Motion::BackwardWord => Motion::ForwardWord,
-                _ => unreachable!("only distance motions admit signed arguments"),
-            }
-        } else {
-            motion
-        }),
-        Command::DeleteChar | Command::BackwardDeleteChar => movement_kind(
-            Command::Motion(if command == Command::DeleteChar {
-                Motion::ForwardChar
-            } else {
-                Motion::BackwardChar
-            }),
-            reverse,
-        ),
-        Command::Kill(KillCommand::Word | KillCommand::BackwardWord) => movement_kind(
-            Command::Motion(if command == Command::Kill(KillCommand::Word) {
-                Motion::ForwardWord
-            } else {
-                Motion::BackwardWord
-            }),
-            reverse,
-        ),
-        Command::Kill(KillCommand::Line) => MovementKind::Line { backward: reverse },
+        Command::GotoLine | Command::Scroll(Scroll::Recenter) => MovementKind::Position,
+        Command::Motion(motion) => motion_kind(motion, reverse),
+        Command::DeleteChar | Command::BackwardDeleteChar | Command::Kill(_) => {
+            deletion_kind(command, reverse)
+        }
         Command::Scroll(scroll) => MovementKind::Row(if reverse {
-            match scroll {
-                Scroll::NextLine => Scroll::PreviousLine,
-                Scroll::PreviousLine => Scroll::NextLine,
-                Scroll::PageForward => Scroll::PageBackward,
-                Scroll::PageBackward => Scroll::PageForward,
-                Scroll::Recenter => unreachable!(),
-            }
+            reverse_scroll(scroll)
         } else {
             scroll
         }),
         _ => unreachable!("counted movement policy checked before preparation"),
+    }
+}
+
+fn motion_kind(motion: Motion, reverse: bool) -> MovementKind {
+    match motion {
+        Motion::BufferStart | Motion::BufferEnd => MovementKind::Position,
+        Motion::LineStart | Motion::LineEnd => MovementKind::Row(if reverse {
+            Scroll::PreviousLine
+        } else {
+            Scroll::NextLine
+        }),
+        _ => MovementKind::Motion(if reverse {
+            reverse_motion(motion)
+        } else {
+            motion
+        }),
+    }
+}
+
+fn deletion_kind(command: Command, reverse: bool) -> MovementKind {
+    let motion = match command {
+        Command::DeleteChar => Motion::ForwardChar,
+        Command::BackwardDeleteChar => Motion::BackwardChar,
+        Command::Kill(KillCommand::Word) => Motion::ForwardWord,
+        Command::Kill(KillCommand::BackwardWord) => Motion::BackwardWord,
+        Command::Kill(KillCommand::Line) => return MovementKind::Line { backward: reverse },
+        _ => unreachable!("only deletions have a counted range"),
+    };
+    motion_kind(motion, reverse)
+}
+
+fn reverse_motion(motion: Motion) -> Motion {
+    match motion {
+        Motion::ForwardChar => Motion::BackwardChar,
+        Motion::BackwardChar => Motion::ForwardChar,
+        Motion::ForwardWord => Motion::BackwardWord,
+        Motion::BackwardWord => Motion::ForwardWord,
+        _ => unreachable!("only distance motions admit signed arguments"),
+    }
+}
+
+fn reverse_scroll(scroll: Scroll) -> Scroll {
+    match scroll {
+        Scroll::NextLine => Scroll::PreviousLine,
+        Scroll::PreviousLine => Scroll::NextLine,
+        Scroll::PageForward => Scroll::PageBackward,
+        Scroll::PageBackward => Scroll::PageForward,
+        Scroll::Recenter => unreachable!(),
     }
 }
 

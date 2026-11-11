@@ -10,47 +10,32 @@ impl Session {
     pub(super) fn prepare_argument_position(&self, work: &mut Movement) -> Result<(), Error> {
         let buffer = self.buffer()?;
         let coordinates = Coordinates::new(buffer)?;
-        let value = work.invocation.argument.value();
         match work.invocation.command {
             Command::Motion(Motion::BufferStart | Motion::BufferEnd) => {
-                let len = buffer.len_chars() as i128;
-                let distance = len * i128::from(value) / 10;
-                let target = if work.invocation.command == Command::Motion(Motion::BufferStart) {
-                    distance
-                } else {
-                    len - distance
-                }
-                .clamp(0, len);
-                let point = Scalar(usize::try_from(target).expect("clamped buffer position"));
-                work.candidate.point.position = if coordinates.is_boundary(point)? {
-                    point
-                } else {
-                    coordinates.previous(point)?
-                };
-                work.candidate.reset_navigation();
+                work.prepare_fraction(buffer, &coordinates)?;
             }
-            Command::GotoLine => {
-                let row = usize::try_from(value - 1).expect("positive line argument");
-                work.candidate.point.position = if row < buffer.len_lines() {
-                    coordinates.from_line(LineByte { row, column: 0 })?
-                } else {
-                    coordinates.end()
-                };
-                work.candidate.reset_navigation();
-            }
-            Command::Scroll(Scroll::Recenter) => {
-                let rows = usize::from(self.pane_size().text_rows());
-                let offset = if value >= 0 {
-                    usize::try_from(value).expect("nonnegative recenter argument")
-                } else {
-                    rows.saturating_sub(value.unsigned_abs() as usize)
-                };
-                work.candidate
-                    .recenter_at(buffer, self.pane_size(), offset)?;
-            }
+            Command::GotoLine => work.prepare_line(buffer, &coordinates)?,
+            Command::Scroll(Scroll::Recenter) => self.prepare_argument_recenter(work, buffer)?,
             _ => unreachable!("only absolute positioning uses this owner"),
         }
         work.remaining = 0;
+        Ok(())
+    }
+
+    fn prepare_argument_recenter(
+        &self,
+        work: &mut Movement,
+        buffer: &crate::buffer::Buffer,
+    ) -> Result<(), Error> {
+        let value = work.invocation.argument.value();
+        let rows = usize::from(self.pane_size().text_rows());
+        let offset = if value >= 0 {
+            usize::try_from(value).expect("nonnegative recenter argument")
+        } else {
+            rows.saturating_sub(value.unsigned_abs() as usize)
+        };
+        work.candidate
+            .recenter_at(buffer, self.pane_size(), offset)?;
         Ok(())
     }
 
@@ -96,5 +81,47 @@ impl Session {
             self.sync_input_context();
         }
         Some(self.message("File tree updated"))
+    }
+}
+
+impl Movement {
+    fn prepare_fraction(
+        &mut self,
+        buffer: &crate::buffer::Buffer,
+        coordinates: &Coordinates<'_>,
+    ) -> Result<(), Error> {
+        let value = self.invocation.argument.value();
+        let len = buffer.len_chars() as i128;
+        let distance = len * i128::from(value) / 10;
+        let target = if self.invocation.command == Command::Motion(Motion::BufferStart) {
+            distance
+        } else {
+            len - distance
+        }
+        .clamp(0, len);
+        let point = Scalar(usize::try_from(target).expect("clamped buffer position"));
+        self.candidate.point.position = if coordinates.is_boundary(point)? {
+            point
+        } else {
+            coordinates.previous(point)?
+        };
+        self.candidate.reset_navigation();
+        Ok(())
+    }
+
+    fn prepare_line(
+        &mut self,
+        buffer: &crate::buffer::Buffer,
+        coordinates: &Coordinates<'_>,
+    ) -> Result<(), Error> {
+        let value = self.invocation.argument.value();
+        let row = usize::try_from(value - 1).expect("positive line argument");
+        self.candidate.point.position = if row < buffer.len_lines() {
+            coordinates.from_line(LineByte { row, column: 0 })?
+        } else {
+            coordinates.end()
+        };
+        self.candidate.reset_navigation();
+        Ok(())
     }
 }

@@ -83,6 +83,32 @@ and 512-byte output checks retain their original errors and order. Counter/statu
 selection uses early returns while retaining active runner, recorder, last pause
 and ring/scratch precedence; an empty pause still selects scratch.
 
+Native session dispatch now belongs to `src/session/dispatch.rs`, with private
+handlers for source, Project, Workspace, AI request/control, shell and editing
+commands. All 54 dispatched variants retain their handlers, and navigation
+bookkeeping still runs once before dispatch. Public execution separates macro
+control admission from context/source admission in the original order. Macro
+answers and terminal scalar insertion retain their pending-token and focus checks.
+
+Counted argument handling separates control invocations, source policy, reusable
+movement planning and individual motion/line/row steps. Each movement batch still
+permits at most 256 steps and four milliseconds. Region lookup and zero-line
+preparation retain their original early-error behavior; pending distance work
+still retains its partial plan. Absolute positions, signed reversal, zero arguments and region
+replacement keep the same checks. Text generation separates unit selection,
+checked payload sizing and range admission, retaining the 8 MiB ceiling and
+publication only after complete preparation.
+
+Frame projection keeps source completion outside the derived-work budget and
+separates composition from overlays. Event readiness, pointer retirement, Escape
+expiration and native editing/macro dispatch have explicit boundaries. The input
+batch still admits at most 32 events and four milliseconds. Background owners
+advance once in their original order, with shutdown Exit retaining precedence.
+Held layout replay still checks selection and the request-specific point or
+complete-view geometry before publication. Startup/Git versus editing context
+synchronization and modal component-focus admission retain their original
+ordering.
+
 ## Contracts Added or Changed
 
 One private completion owner replaces nine independent session fields. Public
@@ -94,6 +120,11 @@ existing admission, publication and freshness checks retain authority.
 
 - `src/session/completion/state.rs`: completion invocation ownership and explicit
   admission, cancellation and retirement transitions.
+- `src/session/dispatch.rs`: native command handlers after admission and navigation.
+- `src/session/arguments/` and `src/session/arguments.rs`: counted planning,
+  payload/range admission and publication under the existing budgets.
+- `src/session/events.rs` and `src/session/layout.rs`: ready-input ownership,
+  pointer retirement and checked deferred replay.
 - `src/session.rs` and `src/session/completion/`: composition, source restoration,
   resolver polling, stale-result checks and publication.
 - `src/command/`, `src/input/`, `src/macros/` and `src/session/`: selected native
@@ -155,7 +186,8 @@ The modal failures are `contexts::colon_ranking` and `keymaps::state_hints`.
 Their assertions expect only a command name and binding; the observed rows also
 include the command description. Those assertions and fixtures remain unchanged.
 
-Development checks for input routing and counter formatting:
+Input routing and counter formatting checks recorded in checkpoint
+`6091f3fa19cccfc315fe2bed3ec7020d01a59bb5`:
 
 - Frozen scoped quality: formatting and all-target compilation passed. Selected
   Clippy admission still passes with zero blocking diagnostics and 205
@@ -172,11 +204,30 @@ Development checks for input routing and counter formatting:
 - `target/debug/examples/source-check --workspace --scope src/input.rs --scope src/input/argument.rs --scope src/input/context.rs --scope src/input/hints.rs --scope src/input/keymap/availability.rs --scope src/input/keymap/contributions.rs --scope src/input/keymap/defaults.rs --scope src/input/macro_bindings.rs --scope src/input/paste.rs --scope src/input/step_edit.rs --scope src/macros.rs --scope src/macros/counter.rs`: passed all 12 selected source files. The modified `src/input/keymap.rs` remains covered by the frozen quality command and retains its `compile_ai` complexity finding.
 - `git diff --check`: passed.
 
+Development checks for session admission and dispatch:
+
+- Frozen scoped quality: formatting and all-target compilation passed. Selected
+  Clippy admission passes with zero blocking diagnostics; 205 selected-profile
+  diagnostics remain deferred outside the scope. Native source policy still
+  fails with 75 findings, down from 96. All 21 removed findings were existing;
+  no new findings appeared. Coverage is 381 of 1,836 first-party Rust files,
+  including the new native dispatcher.
+- Frozen native regression command: 188 passed and the same 16 `commands` cases
+  failed as in checkpoint `6091f3fa19cccfc315fe2bed3ec7020d01a59bb5`.
+- Frozen documentation check: passed 684 commands, 299 configuration entries,
+  106 reachable pages and 743 local links and anchors.
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --lib -- --test-threads=1`: passed all 186 library unit cases.
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --test modal --test completion --test macros --no-fail-fast -- --test-threads=1`: failed overall; completion passed 44 cases, macros passed 110, and modal passed 122 with the same two failure identities listed above.
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --test coordinates --test display --test pointer --no-fail-fast -- --test-threads=1`: passed all 24 coordinate, 47 display and 68 pointer cases.
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --test plugins -- recording:: --test-threads=1`: passed all ten selected plugin-recording cases, including prefix policy, semantic calls, replay ownership and cancellation; 76 other plugin cases were filtered out.
+- `target/debug/examples/source-check --workspace --scope src/session.rs --scope src/session/dispatch.rs --scope src/session/arguments --scope src/session/arguments.rs --scope src/session/events.rs --scope src/session/layout.rs --scope src/session/mode.rs --scope src/session/modal.rs`: passed all ten selected source files, covering every modified source and the existing argument-history helper.
+- `git diff --check`: passed.
+
 ## Risks and Follow-ups
 
 Preserve native input/view context, stale completion rejection, transient
 ownership, semantic macro replay/history and the retained macro body identity.
-The remaining 96 source findings, resolution of the 16 command and two modal
+The remaining 75 source findings, resolution of the 16 command and two modal
 failures, canonical PR preparation and exact clean-HEAD evidence remain pending.
-F6 and shared macro-body accounting have focused regression coverage; Slice 8 is
-not ready for integration.
+F6, shared macro-body accounting, native dispatch and counted planning have
+focused regression coverage; Slice 8 is not ready for integration.

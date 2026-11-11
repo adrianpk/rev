@@ -54,18 +54,8 @@ impl Session {
         argument: PrefixArgument,
         entry: Entry,
     ) -> Action {
-        if !self.source_layout_focus() || !self.input.invocation_current(origin) {
-            return self.message("Source text argument origin changed");
-        }
-        if self.context_storage.locked() || self.terminals.focused || self.terminal_copy_active() {
-            return self.error("Source text is read-only");
-        }
-        if self.capture_blocks_input()
-            || self.tangling.is_some()
-            || self.execution.is_some()
-            || self.feeds.is_some()
-        {
-            return self.message("Source output owns input; C-g cancels remaining work");
+        if let Some(action) = self.argument_text_guard(origin) {
+            return action;
         }
         if argument.value() < 0 {
             return self.error("Text insertion requires a nonnegative argument");
@@ -95,6 +85,23 @@ impl Session {
         self.publish_argument_text()
     }
 
+    fn argument_text_guard(&mut self, origin: InvocationOrigin) -> Option<Action> {
+        if !self.source_layout_focus() || !self.input.invocation_current(origin) {
+            return Some(self.message("Source text argument origin changed"));
+        }
+        if self.context_storage.locked() || self.terminals.focused || self.terminal_copy_active() {
+            return Some(self.error("Source text is read-only"));
+        }
+        if self.capture_blocks_input()
+            || self.tangling.is_some()
+            || self.execution.is_some()
+            || self.feeds.is_some()
+        {
+            return Some(self.message("Source output owns input; C-g cancels remaining work"));
+        }
+        None
+    }
+
     pub(in crate::session) fn prepare_argument_text(&mut self) -> Result<(), crate::view::Error> {
         let mut work = self
             .layout
@@ -115,41 +122,67 @@ impl Session {
         }
         let count = usize::try_from(work.argument.value()).expect("positive text argument");
         if work.generated.is_none() {
-            let (unit, suffix) = match &work.entry {
-                Entry::Literal(text) => (Cow::Borrowed(text.as_str()), None),
-                Entry::Newline => (Cow::Borrowed(buffer.newline()), None),
-                Entry::Tab => match buffer.policy().indent_style {
-                    IndentStyle::Tabs => (Cow::Borrowed("\t"), None),
-                    IndentStyle::Spaces => {
-                        let width = buffer.policy().indent_width;
-                        let column = Coordinates::new(buffer)?
-                            .to_cell(self.view().point.position)?
-                            .column;
-                        let first = width - column % width;
-                        (Cow::Owned(" ".repeat(first)), Some(width))
-                    }
-                },
-            };
-            let bytes = if let Some(width) = suffix {
-                (count - 1)
-                    .checked_mul(width)
-                    .and_then(|bytes| bytes.checked_add(unit.len()))
-            } else {
-                unit.len().checked_mul(count)
-            }
-            .ok_or(Error::Capacity)?;
-            if bytes > INSERTION_BYTES {
-                return Err(Error::Capacity);
-            }
-            buffer.check_edit_payload(bytes)?;
-            let generated = if suffix.is_some() {
-                " ".repeat(bytes)
-            } else {
-                unit.repeat(count)
-            };
-            work.generated = Some(generated);
+            work.generated = Some(self.generate_argument_payload(work, buffer, count)?);
         }
         let generated = work.generated.as_deref().expect("payload admitted");
+        work.range = Some(self.argument_payload_range(work, buffer, generated)?);
+        Ok(())
+    }
+
+    fn argument_text_unit<'a>(
+        &self,
+        entry: &'a Entry,
+        buffer: &'a crate::buffer::Buffer,
+    ) -> Result<(Cow<'a, str>, Option<usize>), Error> {
+        Ok(match entry {
+            Entry::Literal(text) => (Cow::Borrowed(text.as_str()), None),
+            Entry::Newline => (Cow::Borrowed(buffer.newline()), None),
+            Entry::Tab => match buffer.policy().indent_style {
+                IndentStyle::Tabs => (Cow::Borrowed("\t"), None),
+                IndentStyle::Spaces => {
+                    let width = buffer.policy().indent_width;
+                    let column = Coordinates::new(buffer)?
+                        .to_cell(self.view().point.position)?
+                        .column;
+                    let first = width - column % width;
+                    (Cow::Owned(" ".repeat(first)), Some(width))
+                }
+            },
+        })
+    }
+
+    fn generate_argument_payload(
+        &self,
+        work: &Text,
+        buffer: &crate::buffer::Buffer,
+        count: usize,
+    ) -> Result<String, Error> {
+        let (unit, suffix) = self.argument_text_unit(&work.entry, buffer)?;
+        let bytes = if let Some(width) = suffix {
+            (count - 1)
+                .checked_mul(width)
+                .and_then(|bytes| bytes.checked_add(unit.len()))
+        } else {
+            unit.len().checked_mul(count)
+        }
+        .ok_or(Error::Capacity)?;
+        if bytes > INSERTION_BYTES {
+            return Err(Error::Capacity);
+        }
+        buffer.check_edit_payload(bytes)?;
+        Ok(if suffix.is_some() {
+            " ".repeat(bytes)
+        } else {
+            unit.repeat(count)
+        })
+    }
+
+    fn argument_payload_range(
+        &self,
+        work: &Text,
+        buffer: &crate::buffer::Buffer,
+        generated: &str,
+    ) -> Result<Range<usize>, Error> {
         // Literal replacement uses the admitted region once. Newline and tab
         // retain their existing insertion policy, independent of region state.
         let region = if matches!(work.entry, Entry::Literal(_)) {
@@ -157,7 +190,7 @@ impl Session {
         } else {
             None
         };
-        work.range = Some(
+        Ok(
             if let Some(region) = region.filter(|span| !span.range.is_empty()) {
                 region.range
             } else if matches!(work.entry, Entry::Literal(_)) {
@@ -166,8 +199,7 @@ impl Session {
                 let at = self.view().point.position.0;
                 at..at
             },
-        );
-        Ok(())
+        )
     }
 
     pub(in crate::session) fn publish_argument_text(&mut self) -> Action {

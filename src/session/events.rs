@@ -10,13 +10,7 @@ pub(super) const INPUT_BATCH_TIME: Duration = Duration::from_millis(4);
 
 impl Session {
     pub(super) fn read_input(&mut self) -> io::Result<Action> {
-        if self.layout_full() {
-            return Ok(self.expire_input(Instant::now()));
-        }
-        if self.observation_ready() && !event::poll(Duration::ZERO)? {
-            return Ok(self.expire_input(Instant::now()));
-        }
-        if !self.input_ready(Instant::now(), event::poll)? {
+        if !self.native_input_ready()? {
             return Ok(self.expire_input(Instant::now()));
         }
         let event = event::read()?;
@@ -34,36 +28,55 @@ impl Session {
                 Ok(None)
             }
         })?;
+        Ok(self.advance_input_owners(action))
+    }
+
+    fn native_input_ready(&mut self) -> io::Result<bool> {
+        if self.layout_full() {
+            return Ok(false);
+        }
+        if self.observation_ready() && !event::poll(Duration::ZERO)? {
+            return Ok(false);
+        }
+        self.input_ready(Instant::now(), event::poll)
+    }
+
+    fn advance_input_owners(&mut self, action: Action) -> Action {
         // Filesystem work gets one bounded turn after native input, even under
         // a continuous typing burst. Other input deadlines retain their owner.
-        if action != Action::Exit {
-            self.publish_command_usage();
-            let shell = self.expire_shell();
-            let git = self.expire_git();
-            let terminal = self.expire_terminals();
-            let ai = self.expire_ai();
-            let reload = self.expire_reload();
-            let observed = self.expire_observation();
-            let plugins = self.expire_plugins();
-            let shutdown = self.advance_terminal_shutdown();
-            let git_shutdown = self.advance_git_shutdown();
-            if shutdown == Action::Exit || git_shutdown == Action::Exit {
-                return Ok(Action::Exit);
-            }
-            if shutdown != Action::Wait
-                || git_shutdown != Action::Wait
-                || terminal != Action::Wait
-                || shell != Action::Wait
-                || git != Action::Wait
-                || ai != Action::Wait
-                || reload != Action::Wait
-                || observed != Action::Wait
-                || plugins != Action::Wait
-            {
-                return Ok(Action::Redraw);
-            }
+        if action == Action::Exit {
+            return action;
         }
-        Ok(action)
+        self.publish_command_usage();
+        let shell = self.expire_shell();
+        let git = self.expire_git();
+        let terminal = self.expire_terminals();
+        let ai = self.expire_ai();
+        let reload = self.expire_reload();
+        let observed = self.expire_observation();
+        let plugins = self.expire_plugins();
+        let shutdown = self.advance_terminal_shutdown();
+        let git_shutdown = self.advance_git_shutdown();
+        if shutdown == Action::Exit || git_shutdown == Action::Exit {
+            return Action::Exit;
+        }
+        if [
+            shutdown,
+            git_shutdown,
+            terminal,
+            shell,
+            git,
+            ai,
+            reload,
+            observed,
+            plugins,
+        ]
+        .into_iter()
+        .any(|outcome| outcome != Action::Wait)
+        {
+            return Action::Redraw;
+        }
+        action
     }
 
     /// The native owner blocks indefinitely without deadlines or ready input.
@@ -198,23 +211,11 @@ impl Session {
         if bookmark_input(&event) {
             self.bookmark_visit = None;
         }
-        if self.obsolete_pointer(&event) {
-            // The pending frame exposes no current source mapping. Do not let
-            // a click on an obsolete surface redirect a canonical source edit.
-            self.cancel_pointer_capture();
-            self.cancel_terminal_pointer();
+        if !self.prepare_ready_pointer(&event) {
             return Action::Wait;
         }
-        if !matches!(event, Event::Mouse(_)) {
-            self.cancel_pointer_capture();
-            self.cancel_terminal_pointer();
-        }
         self.sync_input_context();
-        let expired = if matches!(event, Event::Resize(..)) && self.layout_active() {
-            Action::Wait
-        } else {
-            self.expire_escape(now)
-        };
+        let expired = self.expire_ready_escape(&event, now);
         if let Event::Resize(width, height) = event {
             self.resize_startup();
             let action = self.resize(width, height);
@@ -235,6 +236,33 @@ impl Session {
         if let Some(action) = self.terminal_input(&event) {
             return action;
         }
+        self.handle_editing_input(event, now, expired)
+    }
+
+    fn prepare_ready_pointer(&mut self, event: &Event) -> bool {
+        if self.obsolete_pointer(event) {
+            // The pending frame exposes no current source mapping. Do not let
+            // a click on an obsolete surface redirect a canonical source edit.
+            self.cancel_pointer_capture();
+            self.cancel_terminal_pointer();
+            return false;
+        }
+        if !matches!(event, Event::Mouse(_)) {
+            self.cancel_pointer_capture();
+            self.cancel_terminal_pointer();
+        }
+        true
+    }
+
+    fn expire_ready_escape(&mut self, event: &Event, now: Instant) -> Action {
+        if matches!(event, Event::Resize(..)) && self.layout_active() {
+            Action::Wait
+        } else {
+            self.expire_escape(now)
+        }
+    }
+
+    fn handle_editing_input(&mut self, event: Event, now: Instant, expired: Action) -> Action {
         self.terminals.host_cancel = crate::input::Input::interrupt(&event)
             && (self.input.focus() != crate::input::Focus::Editing
                 || self.pending.is_some()

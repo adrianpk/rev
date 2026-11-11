@@ -264,30 +264,35 @@ impl Session {
             Request::ArgumentText => self.prepare_argument_text(),
             Request::ArgumentHistory => unreachable!("history uses progressive native admission"),
             Request::Invocation(invocation) => self.prepare_argument_movement(invocation),
-            Request::Command(Command::Edit(request)) => self.editing_preflight(request),
-            Request::Command(Command::Navigate(request)) => {
-                self.navigation_view(request).map(|_| ())
-            }
-            Request::Command(Command::Scroll(scroll)) => self.scrolling_view(scroll).map(|_| ()),
-            Request::Command(Command::Modal(command)) => self.modal_target(command).map(|_| ()),
-            Request::Command(Command::Motion(motion)) => self.motion_target(motion).map(|_| ()),
-            Request::Command(Command::Kill(command)) => self.kill_span(command).map(|_| ()),
-            Request::Command(Command::Org(command)) => {
-                if command.source_block() || command.table() {
-                    // These workers retain the complete view. Let the existing
-                    // Org owner finish initial presentation before capturing it.
-                    self.refresh_org();
-                    if self.view().pending_org_visibility()
-                        && self.org.remaining(Instant::now()).is_some()
-                    {
-                        return Err(crate::coordinates::Error::Pending.into());
-                    }
-                }
-                self.revealing_view().map(|_| ())
-            }
-            Request::Command(_) => unreachable!("only layout-dependent commands are prepared"),
+            Request::Command(command) => self.prepared_command(command),
             Request::Pointer(event, _) => self.prepare_pointer(event),
         }
+    }
+
+    fn prepared_command(&mut self, command: Command) -> Result<(), Error> {
+        match command {
+            Command::Edit(request) => self.editing_preflight(request),
+            Command::Navigate(request) => self.navigation_view(request).map(|_| ()),
+            Command::Scroll(scroll) => self.scrolling_view(scroll).map(|_| ()),
+            Command::Modal(command) => self.modal_target(command).map(|_| ()),
+            Command::Motion(motion) => self.motion_target(motion).map(|_| ()),
+            Command::Kill(command) => self.kill_span(command).map(|_| ()),
+            Command::Org(command) => self.prepare_org_request(command),
+            _ => unreachable!("only layout-dependent commands are prepared"),
+        }
+    }
+
+    fn prepare_org_request(&mut self, command: crate::command::OrgCommand) -> Result<(), Error> {
+        if command.source_block() || command.table() {
+            // These workers retain the complete view. Let the existing
+            // Org owner finish initial presentation before capturing it.
+            self.refresh_org();
+            if self.view().pending_org_visibility() && self.org.remaining(Instant::now()).is_some()
+            {
+                return Err(crate::coordinates::Error::Pending.into());
+            }
+        }
+        self.revealing_view().map(|_| ())
     }
 
     pub(super) fn expire_layout_input(&mut self) -> Option<Action> {
@@ -319,21 +324,7 @@ impl Session {
         Some(action)
     }
     fn replay_held(&mut self, held: &Held) -> Action {
-        let valid = held.selected == self.windows.selected_id()
-            && match held.request {
-                Request::Command(_)
-                | Request::Invocation(_)
-                | Request::ArgumentText
-                | Request::ArgumentHistory => held.point == self.view().point,
-                Request::Pointer(..) => {
-                    held.size == self.size
-                        && held.views.len() == self.windows.iter().len()
-                        && held.views.iter().all(|(id, view)| {
-                            self.windows.get(*id).is_ok_and(|current| current == view)
-                        })
-                }
-            };
-        if !valid {
+        if !self.held_layout_current(held) {
             self.layout.movement = None;
             self.layout.text = None;
             self.layout.history = None;
@@ -350,6 +341,23 @@ impl Session {
             }
         }
     }
+    fn held_layout_current(&self, held: &Held) -> bool {
+        held.selected == self.windows.selected_id()
+            && match held.request {
+                Request::Command(_)
+                | Request::Invocation(_)
+                | Request::ArgumentText
+                | Request::ArgumentHistory => held.point == self.view().point,
+                Request::Pointer(..) => {
+                    held.size == self.size
+                        && held.views.len() == self.windows.iter().len()
+                        && held.views.iter().all(|(id, view)| {
+                            self.windows.get(*id).is_ok_and(|current| current == view)
+                        })
+                }
+            }
+    }
+
     fn replay_deferred(&mut self, input: Deferred) -> Action {
         let interrupt = match &input {
             Deferred::Command(command) => *command == Command::KeyboardQuit,

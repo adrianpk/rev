@@ -24,6 +24,7 @@ pub use crate::completion::{
 mod refile;
 pub use refile::{ResultEntry as RefileResult, Status as RefileStatus};
 mod attachment;
+mod dispatch;
 mod document;
 mod edit;
 mod editing;
@@ -637,6 +638,10 @@ impl Session {
         if self.layout_active() {
             return self.pending_frame();
         }
+        self.project_budgeted_frame()
+    }
+
+    fn project_budgeted_frame(&mut self) -> Result<Frame, view::Error> {
         let mut budget = view::LayoutBudget::new();
         if !self.prepare_frame_layout(&mut budget)? {
             return self.pending_frame();
@@ -714,16 +719,7 @@ impl Session {
         self.input.reveal_names(candidate_rows);
         self.reveal_paths(candidate_rows);
         self.reveal_workspace(composition.as_ref())?;
-        let mut frame = match &composition {
-            Some(composition) => Frame::compose_workspace(
-                &self.buffers,
-                &self.windows,
-                &self.tree,
-                composition,
-                &self.echo,
-            )?,
-            None => Frame::compose(&self.buffers, &self.windows, self.size, &self.echo)?,
-        };
+        let mut frame = self.compose_native_frame(composition.as_ref())?;
         self.native_overlays(&mut frame, composition.as_ref())?;
         frame.message_kind(self.echo_kind);
         self.highlight_search(&mut frame, composition.as_ref())?;
@@ -732,6 +728,22 @@ impl Session {
         self.retire_frame_work();
         self.layout_pending = false;
         Ok(frame)
+    }
+
+    fn compose_native_frame(
+        &self,
+        composition: Option<&crate::panel::Composition>,
+    ) -> Result<Frame, view::Error> {
+        match composition {
+            Some(composition) => Frame::compose_workspace(
+                &self.buffers,
+                &self.windows,
+                &self.tree,
+                composition,
+                &self.echo,
+            ),
+            None => Frame::compose(&self.buffers, &self.windows, self.size, &self.echo),
+        }
     }
 
     fn native_overlays(
@@ -892,6 +904,16 @@ impl Session {
             Outcome::Argument(path) => self.argument(path),
             Outcome::PathAccept => self.accept_path(),
             Outcome::Decision(accepted) => self.decision(accepted),
+            Outcome::Selection(selection) => self.select_candidate(selection),
+            Outcome::Complete => self.complete_argument(),
+            Outcome::Changed => self.input_changed(),
+            Outcome::Paste(text) => self.habit_paste(&text),
+            _ => self.macro_argument_outcome(outcome, now),
+        }
+    }
+
+    fn macro_argument_outcome(&mut self, outcome: Outcome, now: std::time::Instant) -> Action {
+        match outcome {
             Outcome::MacroStep(answer) => self.macro_step_answer(answer),
             Outcome::MacroQuery(answer) => self.macro_query_answer(answer),
             Outcome::MacroKey(sequence) if matches!(self.pending, Some(Pending::MacroStepKey)) => {
@@ -905,10 +927,6 @@ impl Session {
                 self.macro_definition_key(&sequence)
             }
             Outcome::MacroKey(sequence) => self.macro_key_argument(sequence),
-            Outcome::Selection(selection) => self.select_candidate(selection),
-            Outcome::Complete => self.complete_argument(),
-            Outcome::Changed => self.input_changed(),
-            Outcome::Paste(text) => self.habit_paste(&text),
             _ => self.input_feedback(&outcome, now),
         }
     }
@@ -961,27 +979,38 @@ impl Session {
     /// Executes the same implemented command enum produced by key bindings.
     pub fn execute(&mut self, command: Command) -> Action {
         let command = command.canonical();
-        if let Some(action) = self.macro_menu_command(command) {
+        if let Some(action) = self.execute_macro_control(command) {
             return action;
-        }
-        if let Some(action) = self.macro_definition_guard(command) {
-            return action;
-        }
-        if let Some(action) = self.macro_command_guard(command) {
-            return action;
-        }
-        if let Command::Macro(control) = command {
-            return self.macro_command(control, Default::default());
-        }
-        if let Command::MacroNamed(name) = command {
-            return self.macro_named_call(name, Default::default());
-        }
-        if let Command::MacroBinding(id) = command {
-            return self.macro_bound_call(id, Default::default());
         }
         if command.prefix_control() {
             return self.execute_prefix_control(command);
         }
+        self.execute_context_command(command)
+    }
+
+    fn execute_macro_control(&mut self, command: Command) -> Option<Action> {
+        if let Some(action) = self.macro_menu_command(command) {
+            return Some(action);
+        }
+        if let Some(action) = self.macro_definition_guard(command) {
+            return Some(action);
+        }
+        if let Some(action) = self.macro_command_guard(command) {
+            return Some(action);
+        }
+        if let Command::Macro(control) = command {
+            return Some(self.macro_command(control, Default::default()));
+        }
+        if let Command::MacroNamed(name) = command {
+            return Some(self.macro_named_call(name, Default::default()));
+        }
+        if let Command::MacroBinding(id) = command {
+            return Some(self.macro_bound_call(id, Default::default()));
+        }
+        None
+    }
+
+    fn execute_context_command(&mut self, command: Command) -> Action {
         if command == Command::KeyboardQuit && self.cancel_context_operation() {
             return self.message("Project preparation canceled; live sources retained");
         }
@@ -1126,65 +1155,6 @@ impl Session {
         }
     }
 
-    fn dispatch(&mut self, command: Command) -> Action {
-        self.navigation(command);
-        match command {
-            Command::Plugin(command) => self.plugin_command(command),
-            Command::PluginDefined(name) => self.plugin_defined(name),
-            Command::Quit => self.quit(),
-            Command::FindFile => self.find_file(),
-            Command::GenerateNewBuffer => self.generate_new_buffer(),
-            Command::OpenDirectory => self.open_directory(),
-            Command::ContextClose => self.close_context(),
-            Command::DashboardOpen => self.dashboard_open(),
-            Command::ProjectCreate => self.project_create(),
-            Command::ProjectPromote => self.project_promote(),
-            Command::ProjectSwitch | Command::ProjectList => self.project_list(),
-            Command::WorkspaceCreate => self.workspace_create(),
-            Command::WorkspaceOpen | Command::WorkspaceList => self.workspace_list(),
-            Command::WorkspaceAddDirectory => self.workspace_add_directory(),
-            Command::WorkspaceAddProject => self.workspace_add_project(),
-            Command::WorkspaceRemoveRoot => self.workspace_remove_root(),
-            command @ (Command::ProjectRename
-            | Command::ProjectForget
-            | Command::ProjectSetRoot
-            | Command::ProjectPromoteToWorkspace
-            | Command::ProjectDuplicateAsWorkspace
-            | Command::WorkspaceRename
-            | Command::WorkspaceForget
-            | Command::WorkspaceSetRootPath) => self.manage_context(command),
-            Command::SaveBuffer => self.save_buffer(),
-            Command::RevertBuffer => self.revert_buffer(),
-            Command::AiSaveCommand => self.ai_save_command(),
-            Command::AiDefined(name) => self.ai_defined(name),
-            Command::MacroNamed(name) => self.macro_named_call(name, Default::default()),
-            Command::MacroBinding(id) => self.macro_bound_call(id, Default::default()),
-            Command::AiExplain => self.ai_command(ai::Kind::Explain),
-            Command::AiPrompt => self.ai_command(ai::Kind::Prompt),
-            Command::AiImplement => self.ai_command(ai::Kind::Implement),
-            Command::AiApplyResult => self.ai_apply_result(),
-            Command::AiDiscardResult => self.ai_discard_result(),
-            Command::AiSetDirectory => self.ai_set_directory(),
-            Command::AiSelectModel => self.ai_select_model(),
-            Command::AiResetSession => self.ai_reset_session(),
-            Command::AiDisconnect => self.ai_disconnect(),
-            Command::AiCancel => self.ai_cancel_command(),
-            Command::ShellCommand => self.shell_command(crate::shell::Kind::Command),
-            Command::ShellCommandOnRegion => self.shell_command(crate::shell::Kind::Region),
-            Command::ShellFilterRegion => self.shell_command(crate::shell::Kind::Filter),
-            Command::ShellCommandInsert => self.shell_command(crate::shell::Kind::Insert),
-            Command::ShellCommandCancel => self.shell_cancel(),
-            Command::ShellCommandOutput => self.shell_output(),
-            Command::WriteFile => self.write_file(),
-            Command::Buffer(command) => self.buffer_command(command),
-            Command::Motion(motion) => self.motion(motion),
-            Command::Scroll(scroll) => self.scroll(scroll),
-            Command::History(history) => self.history(history),
-            Command::KeyboardQuit => self.keyboard_quit(),
-            _ => self.edit_command(command),
-        }
-    }
-
     fn command_boundary(&mut self, command: Command) {
         if self.input.focus() == crate::input::Focus::Editing
             && !self.tree.focused()
@@ -1247,13 +1217,7 @@ impl Session {
             return self.error("Terminal copy text is read-only");
         }
         if self.terminals.focused {
-            if self.input.focus() != crate::input::Focus::Editing || self.pending.is_some() {
-                return self.error("A host prompt owns input focus");
-            }
-            if character.is_control() {
-                return self.error("Control character rejected");
-            }
-            return self.terminal_send(character.to_string().as_bytes());
+            return self.insert_terminal_scalar(character);
         }
         self.dismiss_completion();
         if self.bookmark_list_active() {
@@ -1277,6 +1241,16 @@ impl Session {
         let text = character.encode_utf8(&mut bytes);
         let result = self.type_text(text);
         self.finish(result)
+    }
+
+    fn insert_terminal_scalar(&mut self, character: char) -> Action {
+        if self.input.focus() != crate::input::Focus::Editing || self.pending.is_some() {
+            return self.error("A host prompt owns input focus");
+        }
+        if character.is_control() {
+            return self.error("Control character rejected");
+        }
+        self.terminal_send(character.to_string().as_bytes())
     }
 
     fn typing(&mut self, key: Key) -> Action {

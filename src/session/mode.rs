@@ -33,6 +33,10 @@ impl Session {
         if self.git_visible() {
             return;
         }
+        self.sync_editing_context();
+    }
+
+    fn sync_editing_context(&mut self) {
         self.sync_terminal_focus();
         self.input.set_terminal_owner(
             self.terminals

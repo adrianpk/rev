@@ -19,14 +19,7 @@ impl Session {
         if self.interaction_profile() != InteractionProfile::Modal {
             return self.message("This command requires the modal startup profile");
         }
-        if self.input.focus() != Focus::Editing
-            || self.tree.focused()
-            || self.bookmark_list_active()
-            || matches!(
-                self.input.org_context(),
-                Some(crate::input::OrgContext::Agenda | crate::input::OrgContext::Calendar)
-            )
-        {
+        if self.modal_component_owns_input() {
             return self.message("A component owns input focus");
         }
         if command == ModalCommand::Normal
@@ -49,6 +42,16 @@ impl Session {
             Ok(()) => self.message(""),
             Err(error) => self.error(&error.to_string()),
         }
+    }
+
+    fn modal_component_owns_input(&self) -> bool {
+        self.input.focus() != Focus::Editing
+            || self.tree.focused()
+            || self.bookmark_list_active()
+            || matches!(
+                self.input.org_context(),
+                Some(crate::input::OrgContext::Agenda | crate::input::OrgContext::Calendar)
+            )
     }
 
     fn enter_modal(&mut self, command: ModalCommand) -> Result<(), Error> {
