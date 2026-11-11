@@ -484,7 +484,7 @@ fn effective_hints() {
                     result =
                         dispatch.handle(Event::Key(KeyEvent::new(chord.code, chord.modifiers)));
                 }
-                assert_eq!(result, Outcome::Command(command), "{case}: {hint}");
+                assert_eq!(result, super::command_outcome(command), "{case}: {hint}");
             }
         }
         input.handle(Event::Paste("C-x C-s".into()));

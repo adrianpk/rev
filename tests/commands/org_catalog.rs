@@ -49,7 +49,7 @@ fn check_role(snapshot: &Snapshot, role: OrgContext) {
         let sequence = Sequence::parse(chord).unwrap();
         assert_eq!(
             press(&mut input, &sequence),
-            Outcome::Command(command),
+            super::command_outcome(command),
             "{role:?}: {chord} -> {name}"
         );
         assert_eq!(Command::named(name), Some(command), "{name}");
@@ -97,6 +97,10 @@ fn outline_notice(command: OrgCommand) -> bool {
             | HideDrawer
             | ShowDrawer
             | ToggleDrawer
+            | HideAllDrawers
+            | ShowAllDrawers
+            | ToggleAllDrawers
+            | CycleSetStartupVisibility
             | NextHeading
             | PreviousHeading
             | ForwardHeading

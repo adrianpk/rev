@@ -6,7 +6,7 @@ fn meta(value: char) -> Event {
 }
 
 // Exact shell sequences coexist with Org's longer C-u route. Cancellation and
-// invalid suffixes consume the prefix without inventing universal arguments.
+// invalid suffixes retire the argument; a digit remains valid argument input.
 #[test]
 fn shell_sequences() {
     for org in [None, Some(OrgContext::Editing)] {
@@ -21,7 +21,7 @@ fn shell_sequences() {
             if prefix {
                 assert_eq!(
                     input.handle(control('u')),
-                    Outcome::Prefix(Prefix::Sequence)
+                    Outcome::ArgumentPrefix(Command::PrefixArgument)
                 );
             }
             assert_eq!(input.handle(meta(suffix)), Outcome::Command(command));
@@ -30,14 +30,21 @@ fn shell_sequences() {
     }
     let mut input = Input::default();
     input.set_org_context(Some(OrgContext::Editing));
-    for event in [control('u'), control('c'), control('v')] {
-        assert!(matches!(input.handle(event), Outcome::Prefix(_)));
+    assert_eq!(
+        input.handle(control('u')),
+        Outcome::ArgumentPrefix(Command::PrefixArgument)
+    );
+    for event in [control('c'), control('v')] {
+        assert_eq!(
+            input.handle(event),
+            Outcome::ArgumentPrefix(Command::PrefixArgument)
+        );
     }
     assert_eq!(
         input.handle(character('t')),
         Outcome::Command(Command::Org(rev::command::OrgCommand::TangleBlock))
     );
-    for suffix in [control('g'), character('4')] {
+    for suffix in [control('g'), meta('q')] {
         input.handle(control('u'));
         assert!(matches!(
             input.handle(suffix),
@@ -45,6 +52,17 @@ fn shell_sequences() {
         ));
         assert!(matches!(input.handle(character('a')), Outcome::Editing(_)));
     }
+    input.handle(control('u'));
+    assert_eq!(
+        input.handle(character('4')),
+        Outcome::ArgumentPrefix(Command::DigitArgument)
+    );
+    assert_eq!(input.prefix_argument().value(), 4);
+    let Outcome::TextInvocation(invocation) = input.handle(character('a')) else {
+        panic!("numeric argument did not reach text insertion");
+    };
+    assert_eq!(invocation.text, "a");
+    assert_eq!(invocation.argument.value(), 4);
 }
 
 // Effective overrides replace exact defaults while modal C-u remains its native

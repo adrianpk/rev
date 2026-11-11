@@ -61,6 +61,42 @@ fn tree_editor(config: &str) -> (super::config_fixture::Fixture, Session) {
     (fixture, session)
 }
 
+// Select a real loaded entry through native navigation, including the parent
+// row, so consent tests never accidentally target navigation or a neighbor.
+fn select_tree(session: &mut Session, path: &std::path::Path) {
+    let entries = session.tree().entries();
+    let target = entries
+        .iter()
+        .position(|entry| entry.path() == path)
+        .unwrap();
+    let current = entries
+        .iter()
+        .position(|entry| entry.path() == session.tree().selected().unwrap().path())
+        .unwrap();
+    let direction = if target < current {
+        KeyCode::Up
+    } else {
+        KeyCode::Down
+    };
+    for _ in 0..target.abs_diff(current) {
+        session.handle(key(direction));
+    }
+    assert_eq!(session.tree().selected().unwrap().path(), path);
+}
+
+fn command_tokens<'a>(name: &'a str, hint: Option<&'a str>) -> Vec<&'a str> {
+    std::iter::once(name)
+        .chain(hint.into_iter().flat_map(str::split_whitespace))
+        .chain(
+            Command::named(name)
+                .unwrap()
+                .description()
+                .into_iter()
+                .flat_map(str::split_whitespace),
+        )
+        .collect()
+}
+
 // Both profiles share keyboard/named/remapped upward navigation and effective
 // hints. Source-focused refusal preserves the source region; source caret input
 // retains its profile's ordinary behavior rather than navigating the tree.
@@ -320,12 +356,11 @@ fn context_hints() {
     session.execute(Command::ExecuteExtended);
     session.handle(Event::Paste("newline".into()));
     assert!(
-        session
-            .frame()
-            .unwrap()
-            .rows()
-            .iter()
-            .any(|row| row.text().trim() == "newline")
+        session.frame().unwrap().rows().iter().any(|row| row
+            .text()
+            .split_whitespace()
+            .collect::<Vec<_>>()
+            == command_tokens("newline", None))
     );
     for (name, hint) in [
         ("forward-char", None),
@@ -343,9 +378,7 @@ fn context_hints() {
             .find(|row| row.text().starts_with(name))
             .unwrap();
         let hint = hint.map(|hint| format!("[{hint}]"));
-        let expected: Vec<_> = std::iter::once(name)
-            .chain(hint.as_deref().into_iter().flat_map(str::split_whitespace))
-            .collect();
+        let expected = command_tokens(name, hint.as_deref());
         assert_eq!(
             row.text().split_whitespace().collect::<Vec<_>>(),
             expected,
@@ -356,13 +389,11 @@ fn context_hints() {
     session.execute(Command::ExecuteExtended);
     session.handle(Event::Paste("tree-refresh".into()));
     assert!(
-        session
-            .frame()
-            .unwrap()
-            .rows()
-            .iter()
-            .any(|row| row.text().starts_with("tree-refresh")
-                && row.text().trim_end().ends_with("[M-j]"))
+        session.frame().unwrap().rows().iter().any(|row| row
+            .text()
+            .split_whitespace()
+            .collect::<Vec<_>>()
+            == command_tokens("tree-refresh", Some("[M-j]")))
     );
 }
 
@@ -409,14 +440,19 @@ fn terminal_hints() {
                     )
                 });
             let hint = hint.map(|hint| format!("[{hint}]"));
-            let expected: Vec<_> = std::iter::once(name)
-                .chain(hint.as_deref().into_iter().flat_map(str::split_whitespace))
-                .collect();
-            assert_eq!(
-                row.text().split_whitespace().collect::<Vec<_>>(),
-                expected,
-                "{profile}: {name}"
+            let prefix = std::iter::once(name)
+                .chain(hint.as_deref())
+                .collect::<Vec<_>>()
+                .join(" ");
+            let actual = row.text().split_whitespace().collect::<Vec<_>>().join(" ");
+            let expected = command_tokens(name, hint.as_deref()).join(" ");
+            // Names and complete hints survive the 80-column viewport; the
+            // description occupies the remaining cells and may end mid-word.
+            assert!(
+                actual.starts_with(&format!("{prefix} ")),
+                "{profile}: {actual}"
             );
+            assert!(expected.starts_with(&actual), "{profile}: {actual}");
             session.handle(control('g'));
         }
         session.shutdown_terminals().unwrap();

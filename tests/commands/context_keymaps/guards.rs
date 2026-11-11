@@ -80,7 +80,7 @@ fn filesystem_consent() {
         "[keys.tree]\n'M-d' = 'tree-delete'\n[keys.minibuffer]\n'M-a' = 'minibuffer-accept'\n'M-q x' = 'keyboard-quit'",
     );
     session.execute(Command::Tree(TreeCommand::Expand));
-    session.handle(key(KeyCode::Down));
+    select_tree(&mut session, &fixture.0.join("root/a.txt"));
     let stamp = session.buffer().unwrap().stamp();
     session.handle(meta('d'));
     assert!(session.echo().starts_with("Delete "));

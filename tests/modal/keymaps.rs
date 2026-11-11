@@ -136,9 +136,18 @@ fn state_hints() {
             .find(|row| row.band() == rev::display::Band::Completion)
             .unwrap();
         let expected_hint = format!("[{hint}]");
+        let expected: Vec<_> = ["save-buffer", expected_hint.as_str()]
+            .into_iter()
+            .chain(
+                Command::SaveBuffer
+                    .description()
+                    .unwrap()
+                    .split_whitespace(),
+            )
+            .collect();
         assert_eq!(
             first.text().split_whitespace().collect::<Vec<_>>(),
-            ["save-buffer", expected_hint.as_str()],
+            expected,
             "{case}"
         );
         editor.handle(key(KeyCode::Tab));

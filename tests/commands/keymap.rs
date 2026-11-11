@@ -77,7 +77,7 @@ fn editor_defaults() {
         let Binding::Command(command) = Binding::named(name).unwrap() else {
             panic!("prompt action in editor defaults: {name}");
         };
-        assert_eq!(outcome, Outcome::Command(command), "{sequence}");
+        assert_eq!(outcome, super::command_outcome(command), "{sequence}");
     }
 }
 

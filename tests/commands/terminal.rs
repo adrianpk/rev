@@ -190,7 +190,7 @@ fn suffix_phases() {
         (
             vec![super::control('x')],
             'q',
-            Outcome::Message("Undefined key sequence"),
+            Outcome::Command(Command::Macro(rev::command::MacroCommand::Query)),
         ),
         (
             vec![super::control('x'), super::character('r')],

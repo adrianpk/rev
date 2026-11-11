@@ -45,7 +45,8 @@ mod whitespace;
 
 use crossterm::event::{Event, KeyCode, KeyEvent, KeyModifiers};
 use rev::command::{
-    BufferCommand, Command, KillCommand, LinearCommand, RegionCommand, Split, WindowCommand,
+    BufferCommand, Command, KillCommand, LinearCommand, MacroCommand, RegionCommand, Split,
+    WindowCommand,
 };
 use rev::input::{Focus, Input, Key, Outcome, Prefix};
 
@@ -59,6 +60,21 @@ fn character(value: char) -> Event {
 
 fn control(value: char) -> Event {
     Event::Key(KeyEvent::new(KeyCode::Char(value), KeyModifiers::CONTROL))
+}
+
+// Numeric-prefix bindings update argument state rather than dispatch an edit.
+fn command_outcome(command: Command) -> Outcome {
+    let rev::command::Binding::Command(command) =
+        rev::command::Binding::named(command.name()).unwrap()
+    else {
+        panic!("native command resolved to a prompt action");
+    };
+    match command {
+        Command::PrefixArgument | Command::DigitArgument | Command::NegativeArgument => {
+            Outcome::ArgumentPrefix(command)
+        }
+        _ => Outcome::Command(command),
+    }
 }
 
 fn feed(input: &mut Input, events: Vec<Event>) -> Vec<Outcome> {
@@ -198,7 +214,7 @@ fn command_sequences() {
             command
                 .name()
                 .bytes()
-                .all(|byte| byte.is_ascii_lowercase() || byte == b'-')
+                .all(|byte| byte.is_ascii_lowercase() || byte.is_ascii_digit() || byte == b'-')
         );
     }
     assert_eq!(Command::named("find-file"), Some(Command::FindFile));
@@ -305,9 +321,9 @@ fn prefix_recovery() {
             Outcome::Message("Undefined key sequence"),
         ),
         (
-            "invalid suffix",
+            "macro query",
             vec![control('x'), character('q')],
-            Outcome::Message("Undefined key sequence"),
+            Outcome::Command(Command::Macro(MacroCommand::Query)),
         ),
         (
             "plain suffix",

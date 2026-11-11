@@ -95,7 +95,7 @@ fn startup_child(profile: &str) {
             .text()
             .split_whitespace()
             .next(),
-        Some("ai-apply-result")
+        Some("abort-recursive-edit")
     );
     // Independent configuration and history failures share one non-modal echo;
     // neither owner can erase the other's operation or source diagnostic.

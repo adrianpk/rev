@@ -463,7 +463,7 @@ fn filesystem_arguments() {
         );
         session.execute(Command::Tree(TreeCommand::Expand));
         if operation == "rename" {
-            session.handle(key(KeyCode::Down));
+            select_tree(&mut session, &fixture.0.join("root/a.txt"));
         }
         let stamp = session.buffer().unwrap().stamp();
         session.handle(meta(alias));
@@ -493,7 +493,7 @@ fn recursive_consent() {
     );
     fixture.write("root/dir/item", "child");
     session.execute(Command::Tree(TreeCommand::Refresh));
-    session.handle(key(KeyCode::Down));
+    select_tree(&mut session, &fixture.0.join("root/dir"));
     session.handle(meta('d'));
     session.handle(character('y'));
     assert!(session.echo().contains("recursively delete"));

@@ -54,7 +54,7 @@ fn acceptance_rules() {
             "empty",
             "",
             vec![],
-            Outcome::Command(Command::AiApplyResult),
+            Outcome::Command(Command::Macro(super::MacroCommand::Abort)),
         ),
         (
             "exact",
@@ -90,13 +90,13 @@ fn acceptance_rules() {
             "explicit empty",
             "",
             vec![key(KeyCode::Up)],
-            Outcome::Command(Command::AiApplyResult),
+            Outcome::Command(Command::Macro(super::MacroCommand::Abort)),
         ),
         (
             "completed empty",
             "",
             vec![key(KeyCode::Tab)],
-            Outcome::Command(Command::AiApplyResult),
+            Outcome::Command(Command::Macro(super::MacroCommand::Abort)),
         ),
         (
             "no match",

@@ -28,6 +28,13 @@ run/conversation/counters/frozen checks during recovery. Main/release/tag, mirro
 site publication and global editor installation stay separate. No changes to
 Coredrift, Hatmax, external examples or global machine/agent configuration.
 
+Technical recovery authorization: when this run stops, inspect the actual
+failure, correct implementation defects or stale fixtures against existing
+approved behavior, validate, publish and resume the same retained run without
+another routine scope-approval pause. Preserve case purposes, negative coverage,
+resource/time bounds, frozen checks, configuration and consumed budgets. A
+failing test must not be made green by accepting unintended runtime behavior.
+
 Use Conventional Commits without task-ID suffixes. Follow the existing three-
 section PR body and canonical per-slice report, with successful exact ordered
 validation through looper validate. Preserve unrelated work and other controllers.
@@ -297,6 +304,14 @@ Findings: F3, F6.
 - T8.1: Resolve F6 with a cohesive completion concern owner and explicit admission/retirement transitions; keep public completion observations and native editing/context semantics intact.
 - T8.2: Correct remaining command/input/macro/session selected diagnostics and source bounds, including retained macro body identity without raw-pointer-type casts or identity-spelling workarounds.
 - T8.3: Verify both interaction profiles, prefix arguments, semantic macro replay/history, stale completion, transient ownership and source/view/context switches using native regression suites.
+
+Approved fixture correction: reconcile the 15 test files listed in the Slice 8
+report with existing numeric-prefix outcomes, macro command names and routes,
+Org visibility commands, command descriptions, complete catalog ordering and
+explicit filesystem target selection, including the two flow/guard fixture
+files. Preserve invalid-input, cancellation, consent,
+source/history and resource assertions. No runtime behavior or frozen command
+changes are authorized by this fixture correction.
 
 Frozen ordered focused checks:
 

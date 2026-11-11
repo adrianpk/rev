@@ -386,20 +386,30 @@ Development checks for command metadata and keymap preparation:
   files, assertions, inputs, timeouts and resource bounds are unchanged.
 - `git diff --check`: passed.
 
+Fixture reconciliation, following maintainer technical-recovery authorization:
+
+- The initial focused command cohort passed 37 cases; its remaining description,
+  alias and numeric-prefix assertions were corrected against the existing native
+  contracts. The startup ranking regression passed independently.
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --test commands --test modal -- context_keymaps::terminal_hints editor_keymaps::effective_hints contexts::colon_ranking keymaps::state_hints --test-threads=1`: passed all four cases, retaining both interaction profiles.
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --test commands -- shell::shell_sequences --test-threads=1`: passed, including the preserved tangle continuation, cancellation, invalid Meta input and counted text insertion.
+- Final ordered clean-published-HEAD validation remains required through
+  `looper validate`; these focused results do not replace its evidence.
+
 ## Risks and Follow-ups
 
 Preserve native input/view context, stale completion rejection, transient
 ownership, semantic macro replay/history and the retained macro body identity.
-Scoped quality and T8.2 are complete. Resolution of the 16 command and two modal
-failures plus the retained command-usage startup failure, canonical PR preparation
-and successful exact clean-HEAD evidence remain pending. F6, shared macro-body
+Scoped quality and T8.2 are complete. The retained fixture failures have focused
+corrections; canonical PR preparation and successful exact clean-HEAD evidence
+remain pending. F6, shared macro-body
 accounting, native dispatch, counted planning, macro lifecycle, publication and
 keymap preparation have focused regression coverage; Slice 8 is not ready for
 integration.
 
-A maintainer scope decision is required before correcting the retained acceptance
-fixtures. The approved plan requires tests to retain their assertions and varied
-inputs. The proposed exception is limited to the following existing fixtures:
+The maintainer authorized technical diagnosis, bounded corrections, validation
+and same-run continuation without repeated routine approval pauses. The fixture
+correction reconciles the following existing tests with approved behavior:
 
 - Align catalog name grammar, numeric-prefix outcomes, the now-bound macro-query
   suffix and the four implemented Org visibility commands in `tests/commands.rs`,
@@ -408,20 +418,24 @@ inputs. The proposed exception is limited to the following existing fixtures:
   `tests/commands/terminal.rs`.
 - Include existing command descriptions in selector-row expectations in
   `tests/commands/context_keymaps.rs`, `tests/modal/contexts.rs` and
-  `tests/modal/keymaps.rs`. Prepare the shared tree fixture in
-  `tests/commands/context_keymaps.rs` for stable native interaction, retaining
-  every create/rename/delete, repeat, cancellation and fresh-consent assertion in
-  its existing flow/guard cases.
+  `tests/modal/keymaps.rs`. Keep full command identities and hints while allowing
+  descriptions to clip at the unchanged 80-column terminal viewport. Select
+  actual filesystem paths through native tree navigation in
+  `tests/commands/context_keymaps.rs`, `tests/commands/context_keymaps/flows.rs`
+  and `tests/commands/context_keymaps/guards.rs`, retaining the parent row and
+  every create/rename/delete, repeat, cancellation and fresh-consent assertion.
 - Align empty-query selection, retirement and persisted ranking fixtures with
   the complete current catalog in `tests/commands/flows.rs`,
   `tests/commands/selection.rs`, `tests/commands/vertical/geometry.rs` and
   `tests/command_usage/startup.rs`. Preserve the case-specific acceptance and
   ranking checks rather than removing them.
 
-These 13 test paths are a proposal, not implemented changes. The requested
-exception preserves case identities and semantic/negative coverage; it permits
-only stale expected metadata/outcomes and bounded fixture targeting or initial
-preparation. It adds no runtime behavior, API/protocol change, ignored case,
-removed assertion, timeout/resource change, command change, slice or gate
+These 15 test paths preserve case identities and semantic/negative coverage.
+The two flow/guard files replace positional assumptions with explicit target
+selection rather than changing tree defaults. Numeric text input remains a
+positive counted-insertion case; an actually unbound Meta key preserves
+invalid-prefix coverage. Alias hints still dispatch their canonical action.
+There is no runtime behavior, API/protocol change, ignored case, removed
+assertion, timeout/resource change, frozen command change, slice or gate
 deferral. Every frozen Slice 8 check and the unchanged controller gate remain
 required before acceptance.

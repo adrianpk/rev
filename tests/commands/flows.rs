@@ -228,7 +228,7 @@ fn entry_retirement() {
     for (name, column) in [
         ("next-line", Some(8)),
         ("absent-command", Some(8)),
-        ("", None),
+        ("", Some(8)),
     ] {
         let mut session = editor();
         named(&mut session, name);
