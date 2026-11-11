@@ -124,6 +124,24 @@ Library reload still validates the whole catalog before per-record admission,
 quarantines independent collisions, and updates bindings only after accepting the
 named snapshot. Saved-library mutation remains explicit and consent-controlled.
 
+Persisted macro conversion separates catalog headers, record identity, entry
+profiles and each native input family. Schema declarations, bounded decoding,
+error precedence and retained-byte charges are unchanged. The structural bounds
+case keeps all 16 named invalid inputs and every assertion; its mutations now
+belong to aggregate, record, step and encoded-record helpers.
+
+Macro publication owns its lock and anchored directory in one private guard,
+retaining both through staging, replacement and observation. Candidate admission
+still precedes directory creation; revision checks and schema upgrades occur only
+at explicit publication. Replacement remains the commit point, with uncertain
+post-replacement observation retaining the candidate and reporting a warning.
+
+Macro-library and command-history reads separate metadata admission, bounded IO
+and freshness checks without changing their order or limits. Command-history
+publication keeps empty batches passive and holds its lock across rebasing and
+replacement. Ambiguous completion still suspends retries to avoid duplicate
+usage.
+
 ## Contracts Added or Changed
 
 One private completion owner replaces nine independent session fields. Public
@@ -143,6 +161,10 @@ existing admission, publication and freshness checks retain authority.
 - `src/session/macros/`: capture, replay, counters, menu actions, step editing and
   explicit library admission under the existing native owners and budgets.
 - `src/macros/editing.rs`: pinned ring/named target checks before revision
+  publication.
+- `src/macros/library/codec.rs` and `src/macros/library/store.rs`: persisted input
+  admission and guarded publication with unchanged schema and commit semantics.
+- `src/command/usage/store.rs`: bounded history reads and locked pending-event
   publication.
 - `src/session.rs` and `src/session/completion/`: composition, source restoration,
   resolver polling, stale-result checks and publication.
@@ -259,12 +281,30 @@ Development checks for macro lifecycle owners:
 - `target/debug/examples/source-check --workspace --scope src/session/macros.rs --scope src/session/macros --scope src/macros/editing.rs`: passed all 18 selected source files, including every modified source, all session macro modules and the shared definition publisher.
 - `git diff --check`: passed.
 
+Development checks for persisted input and publication:
+
+- Frozen scoped quality: formatting and all-target compilation passed. Selected
+  Clippy admission passes with zero blocking diagnostics; 205 selected-profile
+  diagnostics remain deferred outside the scope. Native source findings decreased
+  from 44 to 30, resolving 14 existing findings without adding any. Coverage
+  remains 381 of 1,836 first-party Rust files.
+- Frozen native regression command: 188 passed and the same 16 `commands` cases
+  failed as in checkpoint `1cc980d1c67564d7418326f76fc66be0bf8d0d51`.
+- Frozen documentation check: passed 684 commands, 299 configuration entries,
+  106 reachable pages and 743 local links and anchors.
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --lib -- --test-threads=1`: passed all 186 library unit cases, including codec bounds, publication faults and revision exhaustion.
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --test modal --test completion --test macros --no-fail-fast -- --test-threads=1`: failed overall; completion passed 44 cases, macros passed 110, and modal passed 122 with the same two failure identities listed above.
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --test plugins -- recording:: --test-threads=1`: passed all ten selected plugin-recording cases; 76 other plugin cases were filtered out.
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --test command_usage -- --test-threads=1`: failed with 14 passed and one failed. All seven store cases pass, covering bounded/passive reads, lock admission, concurrent rebasing and publication faults. `startup::startup_owner` observes `abort-recursive-edit` as the first candidate where it expects `ai-apply-result`. This target was not measured at the retained checkpoint; the failure remains unresolved. Its assertions, inputs and deadlines are unchanged.
+- `target/debug/examples/source-check --workspace --scope src/macros/library --scope src/command/usage/store.rs`: passed all five selected source files, including every source changed in this cohort.
+- `git diff --check`: passed.
+
 ## Risks and Follow-ups
 
 Preserve native input/view context, stale completion rejection, transient
 ownership, semantic macro replay/history and the retained macro body identity.
-The remaining 44 source findings, resolution of the 16 command and two modal
-failures, canonical PR preparation and exact clean-HEAD evidence remain pending.
-F6, shared macro-body accounting, native dispatch, counted planning and macro
-lifecycle owners have focused regression coverage; Slice 8 is not ready for
-integration.
+The remaining 30 source findings, resolution of the 16 command and two modal
+failures plus the additional command-usage startup failure, canonical PR
+preparation and exact clean-HEAD evidence remain pending. F6, shared macro-body
+accounting, native dispatch, counted planning, macro lifecycle and publication
+owners have focused regression coverage; Slice 8 is not ready for integration.

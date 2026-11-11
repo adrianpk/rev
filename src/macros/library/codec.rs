@@ -318,12 +318,7 @@ impl SearchInput {
         {
             return Err(Error::Invalid("search pattern or continuation"));
         }
-        let name = match (self.entry, self.direction) {
-            (SearchEntry::Incremental, SearchDirection::Forward) => "isearch-forward",
-            (SearchEntry::Incremental, SearchDirection::Backward) => "isearch-backward",
-            (SearchEntry::Modal, SearchDirection::Forward) => "modal-search-forward",
-            (SearchEntry::Modal, SearchDirection::Backward) => "modal-search-backward",
-        };
+        let name = self.command_name();
         let mut arguments: Vec<_> = self
             .continuations
             .iter()
@@ -346,6 +341,14 @@ impl SearchInput {
                 .transpose()?,
             arguments,
         }))
+    }
+    fn command_name(&self) -> &'static str {
+        match (self.entry, self.direction) {
+            (SearchEntry::Incremental, SearchDirection::Forward) => "isearch-forward",
+            (SearchEntry::Incremental, SearchDirection::Backward) => "isearch-backward",
+            (SearchEntry::Modal, SearchDirection::Forward) => "modal-search-forward",
+            (SearchEntry::Modal, SearchDirection::Backward) => "modal-search-backward",
+        }
     }
 }
 impl SearchDirection {
@@ -378,15 +381,7 @@ impl Catalog {
         Ok(catalog)
     }
     fn validate(&self) -> Result<(), Error> {
-        if !matches!(self.schema_version, 1 | 2)
-            || self.revision == 0
-            || self.revision > i64::MAX as u64
-        {
-            return Err(Error::Invalid("schema version or aggregate revision"));
-        }
-        if self.macros.len() > NAME_LIMIT {
-            return Err(Error::Capacity("256 saved records"));
-        }
+        self.validate_header()?;
         let mut ids = BTreeSet::new();
         let mut names = BTreeSet::new();
         let mut retained = 0usize;
@@ -405,6 +400,19 @@ impl Catalog {
         }
         Ok(())
     }
+    fn validate_header(&self) -> Result<(), Error> {
+        if !matches!(self.schema_version, 1 | 2)
+            || self.revision == 0
+            || self.revision > i64::MAX as u64
+        {
+            return Err(Error::Invalid("schema version or aggregate revision"));
+        }
+        if self.macros.len() > NAME_LIMIT {
+            return Err(Error::Capacity("256 saved records"));
+        }
+        Ok(())
+    }
+
     pub fn encode(&self) -> Result<Vec<u8>, Error> {
         self.validate()?;
         let mut doc = DocumentMut::new();
@@ -504,34 +512,8 @@ impl Record {
         Ok(table)
     }
     pub fn definition(&self, id: u64) -> Result<Definition, Error> {
-        if self.id.len() != 32
-            || !self
-                .id
-                .bytes()
-                .all(|b| b.is_ascii_digit() || (b'a'..=b'f').contains(&b))
-            || self.revision == 0
-            || self.revision > i64::MAX as u64
-        {
-            return Err(Error::Invalid("record identity/revision"));
-        }
-        MacroName::stored_name(&self.name).map_err(|_| Error::Invalid("command name"))?;
-        if self.description.as_ref().is_some_and(|s| s.len() > 512) {
-            return Err(Error::Capacity("512-byte description"));
-        }
-        if let Some(binding) = &self.binding {
-            Sequence::parse(binding).map_err(|_| Error::Invalid("native binding"))?;
-        }
-        let entry = match (self.profile, self.entry_state) {
-            (Profile::NonModal, Mode::Editing) => Entry {
-                profile: InteractionProfile::NonModal,
-                mode: None,
-            },
-            (Profile::Modal, mode) if mode != Mode::Editing => Entry {
-                profile: InteractionProfile::Modal,
-                mode: Some(mode.native()?),
-            },
-            _ => return Err(Error::Invalid("entry profile/state")),
-        };
+        self.validate_identity()?;
+        let entry = self.native_entry()?;
         if self.steps.len() > STEP_LIMIT {
             return Err(Error::Capacity("4096 steps"));
         }
@@ -561,6 +543,40 @@ impl Record {
             initial_format: initial.clone(),
             entry,
             steps: steps.into(),
+        })
+    }
+    fn validate_identity(&self) -> Result<(), Error> {
+        if self.id.len() != 32
+            || !self
+                .id
+                .bytes()
+                .all(|b| b.is_ascii_digit() || (b'a'..=b'f').contains(&b))
+            || self.revision == 0
+            || self.revision > i64::MAX as u64
+        {
+            return Err(Error::Invalid("record identity/revision"));
+        }
+        MacroName::stored_name(&self.name).map_err(|_| Error::Invalid("command name"))?;
+        if self.description.as_ref().is_some_and(|s| s.len() > 512) {
+            return Err(Error::Capacity("512-byte description"));
+        }
+        if let Some(binding) = &self.binding {
+            Sequence::parse(binding).map_err(|_| Error::Invalid("native binding"))?;
+        }
+        Ok(())
+    }
+
+    fn native_entry(&self) -> Result<Entry, Error> {
+        Ok(match (self.profile, self.entry_state) {
+            (Profile::NonModal, Mode::Editing) => Entry {
+                profile: InteractionProfile::NonModal,
+                mode: None,
+            },
+            (Profile::Modal, mode) if mode != Mode::Editing => Entry {
+                profile: InteractionProfile::Modal,
+                mode: Some(mode.native()?),
+            },
+            _ => return Err(Error::Invalid("entry profile/state")),
         })
     }
 }
@@ -616,19 +632,7 @@ impl RawArgument {
                     value = value.extend().ok_or(Error::Invalid("prefix depth"))?;
                 }
             }
-            Self::Integer { value: n } => {
-                if n.unsigned_abs() > PrefixArgument::LIMIT as u32 {
-                    return Err(Error::Invalid("prefix integer"));
-                }
-                if n < 0 {
-                    value = value.negate();
-                }
-                for digit in n.unsigned_abs().to_string().bytes() {
-                    value = value
-                        .digit(u32::from(digit - b'0'))
-                        .ok_or(Error::Invalid("prefix integer"))?;
-                }
-            }
+            Self::Integer { value: n } => extend_integer_argument(&mut value, n)?,
             Self::NegativeOnly => value = value.negate(),
         }
         Ok(value)
@@ -687,43 +691,12 @@ impl PromptRole {
 }
 impl Input {
     fn from_native(step: &Step) -> Result<Self, Error> {
-        Ok(match step {
-            Step::Plugin(call) => Self::PluginCall {
-                command: call.command.to_string(),
-                arguments_json: serde_json::to_string(&call.arguments)
-                    .map_err(|_| Error::Invalid("plugin arguments"))?,
-                prefix: call.prefix,
-            },
-            Step::Key(key) => Self::Key {
-                key: key_text(*key)?,
-            },
-            Step::Text(text) => Self::Text { text: text.clone() },
-            Step::Command(c) if SearchInput::matches(c) => Self::Search(SearchInput::capture(c)?),
-            Step::Command(c) => Self::Command {
-                name: c.name.clone(),
-                argument: RawArgument::from_native(c.argument),
-                keys: c
-                    .keys
-                    .as_ref()
-                    .map(|keys| {
-                        keys.iter()
-                            .map(|s| match s {
-                                Step::Key(k) => key_text(*k),
-                                _ => Err(Error::Invalid("command trigger key")),
-                            })
-                            .collect()
-                    })
-                    .transpose()?,
-                arguments: c
-                    .arguments
-                    .iter()
-                    .map(|a| Arg {
-                        role: PromptRole::from_native(a.role),
-                        value: a.value.clone(),
-                    })
-                    .collect(),
-            },
-            Step::Completion(c) => Self::Completion {
+        match step {
+            Step::Plugin(call) => Self::plugin_from_native(call),
+            Step::Key(key) => key_text(*key).map(|key| Self::Key { key }),
+            Step::Text(text) => Ok(Self::Text { text: text.clone() }),
+            Step::Command(command) => Self::command_from_native(command),
+            Step::Completion(c) => Ok(Self::Completion {
                 edits: c
                     .edits
                     .iter()
@@ -735,123 +708,209 @@ impl Input {
                     })
                     .collect(),
                 cursor: c.cursor,
-            },
-            Step::Counter(op) => Self::Counter {
-                action: match op {
-                    counter::Operation::Insert(p) => CounterInput::Insert {
-                        argument: RawArgument::from_native(*p),
-                    },
-                    counter::Operation::Set(value) => CounterInput::Set { value: *value },
-                    counter::Operation::Reset => CounterInput::Reset,
-                    counter::Operation::Add(value) => CounterInput::Add { value: *value },
-                    counter::Operation::Restore => CounterInput::Restore,
-                    counter::Operation::Format(format) => CounterInput::Format {
-                        format: format.clone(),
-                    },
-                },
-            },
-            Step::Redisplay => Self::Redisplay,
-            Step::Query(mode) => Self::Query {
-                mode: match mode {
-                    QueryMode::Confirm => Query::Confirm,
-                    QueryMode::Edit => Query::Edit,
-                },
-            },
+            }),
+            Step::Counter(op) => Ok(Self::Counter {
+                action: CounterInput::from_native(op),
+            }),
+            Step::Redisplay => Ok(Self::Redisplay),
+            Step::Query(mode) => Ok(Self::Query {
+                mode: Query::from_native(*mode),
+            }),
+        }
+    }
+
+    fn plugin_from_native(call: &PluginCall) -> Result<Self, Error> {
+        Ok(Self::PluginCall {
+            command: call.command.to_string(),
+            arguments_json: serde_json::to_string(&call.arguments)
+                .map_err(|_| Error::Invalid("plugin arguments"))?,
+            prefix: call.prefix,
         })
     }
+
+    fn command_from_native(c: &CommandStep) -> Result<Self, Error> {
+        if SearchInput::matches(c) {
+            return Ok(Self::Search(SearchInput::capture(c)?));
+        }
+        Ok(Self::Command {
+            name: c.name.clone(),
+            argument: RawArgument::from_native(c.argument),
+            keys: c
+                .keys
+                .as_ref()
+                .map(|keys| {
+                    keys.iter()
+                        .map(|s| match s {
+                            Step::Key(k) => key_text(*k),
+                            _ => Err(Error::Invalid("command trigger key")),
+                        })
+                        .collect()
+                })
+                .transpose()?,
+            arguments: c
+                .arguments
+                .iter()
+                .map(|a| Arg {
+                    role: PromptRole::from_native(a.role),
+                    value: a.value.clone(),
+                })
+                .collect(),
+        })
+    }
+
     fn native(&self) -> Result<Step, Error> {
-        Ok(match self {
+        match self {
             Self::PluginCall {
                 command,
                 arguments_json,
                 prefix,
-            } => {
-                let call = PluginCall {
-                    command: rev_plugin_sdk::identity::CommandId::new(command)
-                        .map_err(|_| Error::Invalid("qualified plugin identity"))?,
-                    arguments: serde_json::from_str(arguments_json)
-                        .map_err(|_| Error::Invalid("plugin argument JSON"))?,
-                    prefix: *prefix,
-                };
-                call.validate().map_err(Error::Invalid)?;
-                Step::Plugin(call)
-            }
-            Self::Key { key } => Step::Key(parse_key(key)?),
-            Self::Text { text } => {
-                if text.contains('\0') {
-                    return Err(Error::Invalid("NUL text"));
-                }
-                Step::Text(text.clone())
-            }
+            } => native_plugin(command, arguments_json, *prefix),
+            Self::Key { key } => parse_key(key).map(Step::Key),
+            Self::Text { text } => native_text(text),
             Self::Command {
                 name,
                 argument,
                 keys,
                 arguments,
-            } => {
-                if MacroName::stored_name(name).is_err()
-                    || keys.as_ref().is_some_and(|k| k.is_empty() || k.len() > 32)
-                {
-                    return Err(Error::Invalid("command name or trigger"));
-                }
-                Step::Command(CommandStep {
-                    name: name.clone(),
-                    argument: argument.native()?,
-                    keys: keys
-                        .as_ref()
-                        .map(|ks| ks.iter().map(|k| parse_key(k).map(Step::Key)).collect())
-                        .transpose()?,
-                    arguments: arguments
-                        .iter()
-                        .map(|a| Argument {
-                            role: a.role.native(),
-                            value: a.value.clone(),
-                        })
-                        .collect(),
-                })
+            } => native_command(name, argument, keys.as_deref(), arguments),
+            Self::Search(search) => search.native(),
+            Self::Completion { edits, cursor } => native_completion(edits, *cursor),
+            Self::Counter { action } => action.native().map(Step::Counter),
+            Self::Redisplay => Ok(Step::Redisplay),
+            Self::Query { mode } => Ok(Step::Query(mode.native())),
+        }
+    }
+}
+
+impl CounterInput {
+    fn from_native(operation: &counter::Operation) -> Self {
+        match operation {
+            counter::Operation::Insert(p) => Self::Insert {
+                argument: RawArgument::from_native(*p),
+            },
+            counter::Operation::Set(value) => Self::Set { value: *value },
+            counter::Operation::Reset => Self::Reset,
+            counter::Operation::Add(value) => Self::Add { value: *value },
+            counter::Operation::Restore => Self::Restore,
+            counter::Operation::Format(format) => Self::Format {
+                format: format.clone(),
+            },
+        }
+    }
+
+    fn native(&self) -> Result<counter::Operation, Error> {
+        Ok(match self {
+            Self::Insert { argument } => counter::Operation::Insert(argument.native()?),
+            Self::Set { value } => counter::Operation::Set(*value),
+            Self::Reset => counter::Operation::Reset,
+            Self::Add { value } => counter::Operation::Add(*value),
+            Self::Restore => counter::Operation::Restore,
+            Self::Format { format } => {
+                counter::render(format, i64::MIN).map_err(Error::Invalid)?;
+                counter::Operation::Format(format.clone())
             }
-            Self::Search(search) => search.native()?,
-            Self::Completion { edits, cursor } => {
-                if edits.iter().any(|e| {
-                    e.end < e.start
-                        || !i64::try_from(e.expected.chars().count())
-                            .is_ok_and(|count| e.end.checked_sub(e.start) == Some(count))
-                        || e.text.contains('\0')
-                }) {
-                    return Err(Error::Invalid("completion source precondition"));
-                }
-                Step::Completion(LiteralCompletion {
-                    edits: edits
-                        .iter()
-                        .map(|e| CompletionEdit {
-                            start: e.start,
-                            end: e.end,
-                            expected: e.expected.clone(),
-                            text: e.text.clone(),
-                        })
-                        .collect(),
-                    cursor: *cursor,
-                })
-            }
-            Self::Counter { action } => Step::Counter(match action {
-                CounterInput::Insert { argument } => counter::Operation::Insert(argument.native()?),
-                CounterInput::Set { value } => counter::Operation::Set(*value),
-                CounterInput::Reset => counter::Operation::Reset,
-                CounterInput::Add { value } => counter::Operation::Add(*value),
-                CounterInput::Restore => counter::Operation::Restore,
-                CounterInput::Format { format } => {
-                    counter::render(format, i64::MIN).map_err(Error::Invalid)?;
-                    counter::Operation::Format(format.clone())
-                }
-            }),
-            Self::Redisplay => Step::Redisplay,
-            Self::Query { mode } => Step::Query(match mode {
-                Query::Confirm => QueryMode::Confirm,
-                Query::Edit => QueryMode::Edit,
-            }),
         })
     }
 }
+
+impl Query {
+    fn from_native(mode: QueryMode) -> Self {
+        match mode {
+            QueryMode::Confirm => Self::Confirm,
+            QueryMode::Edit => Self::Edit,
+        }
+    }
+
+    fn native(self) -> QueryMode {
+        match self {
+            Self::Confirm => QueryMode::Confirm,
+            Self::Edit => QueryMode::Edit,
+        }
+    }
+}
+
+fn native_plugin(command: &str, arguments_json: &str, prefix: Option<i64>) -> Result<Step, Error> {
+    let call = PluginCall {
+        command: rev_plugin_sdk::identity::CommandId::new(command)
+            .map_err(|_| Error::Invalid("qualified plugin identity"))?,
+        arguments: serde_json::from_str(arguments_json)
+            .map_err(|_| Error::Invalid("plugin argument JSON"))?,
+        prefix,
+    };
+    call.validate().map_err(Error::Invalid)?;
+    Ok(Step::Plugin(call))
+}
+
+fn native_text(text: &str) -> Result<Step, Error> {
+    if text.contains('\0') {
+        return Err(Error::Invalid("NUL text"));
+    }
+    Ok(Step::Text(text.into()))
+}
+
+fn native_command(
+    name: &str,
+    argument: &RawArgument,
+    keys: Option<&[String]>,
+    arguments: &[Arg],
+) -> Result<Step, Error> {
+    if MacroName::stored_name(name).is_err() || keys.is_some_and(|k| k.is_empty() || k.len() > 32) {
+        return Err(Error::Invalid("command name or trigger"));
+    }
+    Ok(Step::Command(CommandStep {
+        name: name.into(),
+        argument: argument.native()?,
+        keys: keys
+            .map(|ks| ks.iter().map(|k| parse_key(k).map(Step::Key)).collect())
+            .transpose()?,
+        arguments: arguments
+            .iter()
+            .map(|a| Argument {
+                role: a.role.native(),
+                value: a.value.clone(),
+            })
+            .collect(),
+    }))
+}
+
+fn native_completion(edits: &[Edit], cursor: i64) -> Result<Step, Error> {
+    if edits.iter().any(|e| {
+        e.end < e.start
+            || !i64::try_from(e.expected.chars().count())
+                .is_ok_and(|count| e.end.checked_sub(e.start) == Some(count))
+            || e.text.contains('\0')
+    }) {
+        return Err(Error::Invalid("completion source precondition"));
+    }
+    Ok(Step::Completion(LiteralCompletion {
+        edits: edits
+            .iter()
+            .map(|e| CompletionEdit {
+                start: e.start,
+                end: e.end,
+                expected: e.expected.clone(),
+                text: e.text.clone(),
+            })
+            .collect(),
+        cursor,
+    }))
+}
+
+fn extend_integer_argument(value: &mut PrefixArgument, n: i32) -> Result<(), Error> {
+    if n.unsigned_abs() > PrefixArgument::LIMIT as u32 {
+        return Err(Error::Invalid("prefix integer"));
+    }
+    if n < 0 {
+        *value = value.negate();
+    }
+    for digit in n.unsigned_abs().to_string().bytes() {
+        *value = value
+            .digit(u32::from(digit - b'0'))
+            .ok_or(Error::Invalid("prefix integer"))?;
+    }
+    Ok(())
+}
+
 fn key_text(key: Key) -> Result<String, Error> {
     Sequence::from_chords(&[key])
         .map(|s| s.to_string())

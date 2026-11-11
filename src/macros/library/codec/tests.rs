@@ -173,67 +173,15 @@ fn structural_bounds() {
             revision: 1,
             macros: vec![valid.clone()],
         };
-        match variant {
-            "schema" => catalog.schema_version = 3,
-            "zero" => catalog.revision = 0,
-            "id" => catalog.macros[0].id = "A".repeat(32),
-            "duplicate-id" => {
-                let mut second = valid.clone();
-                second.name = "bravo".into();
-                catalog.macros.push(second);
-            }
-            "duplicate-name" => {
-                let mut second = valid.clone();
-                second.id = "0".repeat(32);
-                catalog.macros.push(second);
-            }
-            "description" => catalog.macros[0].description = Some("λ".repeat(257)),
-            "steps" => catalog.macros[0].steps = vec![Input::Redisplay; 4097],
-            "format" => catalog.macros[0].counter.format = "%129d".into(),
-            "profile" => catalog.macros[0].entry_state = Mode::Normal,
-            "command-name" => {
-                catalog.macros[0].steps = vec![Input::Command {
-                    name: "123".into(),
-                    argument: RawArgument::Absent,
-                    keys: None,
-                    arguments: Vec::new(),
-                }]
-            }
-            "prefix" => {
-                catalog.macros[0].steps = vec![Input::Counter {
-                    action: CounterInput::Insert {
-                        argument: RawArgument::PlainPrefix { depth: 0 },
-                    },
-                }]
-            }
-            "completion" => {
-                catalog.macros[0].steps = vec![Input::Completion {
-                    cursor: 0,
-                    edits: vec![Edit {
-                        start: i64::MIN,
-                        end: i64::MAX,
-                        expected: "".into(),
-                        text: "".into(),
-                    }],
-                }]
-            }
-            "encoded" => {
-                catalog.macros[0].steps = vec![Input::Text {
-                    text: "A".repeat(DEFINITION_BYTES),
-                }]
-            }
-            "names" => catalog.macros = vec![valid.clone(); 257],
-            "unknown-field" | "unknown-kind" => {
-                let text = valid.export().unwrap();
-                let text = if variant == "unknown-field" {
-                    format!("unexpected=1\n{text}")
-                } else {
-                    text.replace("kind = \"text\"", "kind = \"execute\"")
-                };
-                assert!(Catalog::decode(Some(text.as_bytes())).is_err(), "{variant}");
-                continue;
-            }
-            _ => unreachable!(),
+        if let Some(text) = corrupt_encoded_record(&valid, variant) {
+            assert!(Catalog::decode(Some(text.as_bytes())).is_err(), "{variant}");
+            continue;
+        }
+        if !(corrupt_aggregate(&mut catalog, &valid, variant)
+            || corrupt_record(&mut catalog, variant)
+            || corrupt_steps(&mut catalog, variant))
+        {
+            unreachable!();
         }
         assert!(catalog.encode().is_err(), "{variant}");
     }
@@ -258,6 +206,88 @@ fn structural_bounds() {
     );
     let bytes = vec![b' '; LIBRARY_BYTES + 1];
     assert!(Catalog::decode(Some(&bytes)).is_err());
+}
+
+fn corrupt_aggregate(catalog: &mut Catalog, valid: &Record, variant: &str) -> bool {
+    match variant {
+        "schema" => catalog.schema_version = 3,
+        "zero" => catalog.revision = 0,
+        "duplicate-id" => {
+            let mut second = valid.clone();
+            second.name = "bravo".into();
+            catalog.macros.push(second);
+        }
+        "duplicate-name" => {
+            let mut second = valid.clone();
+            second.id = "0".repeat(32);
+            catalog.macros.push(second);
+        }
+        "names" => catalog.macros = vec![valid.clone(); 257],
+        _ => return false,
+    }
+    true
+}
+
+fn corrupt_record(catalog: &mut Catalog, variant: &str) -> bool {
+    match variant {
+        "id" => catalog.macros[0].id = "A".repeat(32),
+        "description" => catalog.macros[0].description = Some("λ".repeat(257)),
+        "format" => catalog.macros[0].counter.format = "%129d".into(),
+        "profile" => catalog.macros[0].entry_state = Mode::Normal,
+        _ => return false,
+    }
+    true
+}
+
+fn corrupt_steps(catalog: &mut Catalog, variant: &str) -> bool {
+    match variant {
+        "steps" => catalog.macros[0].steps = vec![Input::Redisplay; 4097],
+        "command-name" => {
+            catalog.macros[0].steps = vec![Input::Command {
+                name: "123".into(),
+                argument: RawArgument::Absent,
+                keys: None,
+                arguments: Vec::new(),
+            }];
+        }
+        "prefix" => {
+            catalog.macros[0].steps = vec![Input::Counter {
+                action: CounterInput::Insert {
+                    argument: RawArgument::PlainPrefix { depth: 0 },
+                },
+            }];
+        }
+        "completion" => {
+            catalog.macros[0].steps = vec![Input::Completion {
+                cursor: 0,
+                edits: vec![Edit {
+                    start: i64::MIN,
+                    end: i64::MAX,
+                    expected: "".into(),
+                    text: "".into(),
+                }],
+            }];
+        }
+        "encoded" => {
+            catalog.macros[0].steps = vec![Input::Text {
+                text: "A".repeat(DEFINITION_BYTES),
+            }];
+        }
+        _ => return false,
+    }
+    true
+}
+
+fn corrupt_encoded_record(valid: &Record, variant: &str) -> Option<String> {
+    let text = match variant {
+        "unknown-field" | "unknown-kind" => valid.export().unwrap(),
+        _ => return None,
+    };
+    Some(if variant == "unknown-field" {
+        format!("unexpected=1\n{text}")
+    } else {
+        text.replace("kind = \"text\"", "kind = \"execute\"")
+    })
 }
 
 // Schema 2 adds an inert qualified variant without relaxing native names or

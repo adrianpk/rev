@@ -98,6 +98,14 @@ impl Store {
         if pending.is_empty() {
             return format::decode(read(&self.path)?.as_deref());
         }
+        self.publish_pending(pending, output)
+    }
+
+    fn publish_pending(
+        &mut self,
+        pending: &[String],
+        output: &mut impl Output,
+    ) -> Result<Vec<String>, Error> {
         let parent = self.path.parent().ok_or(Error::Invalid)?;
         fs::DirBuilder::new()
             .recursive(true)
@@ -216,6 +224,13 @@ fn read(path: &Path) -> Result<Option<Vec<u8>>, Error> {
         Err(error) if error.kind() == std::io::ErrorKind::NotFound => return Ok(None),
         Err(_) => return Err(Error::Unavailable("cannot read command history")),
     };
+    let before = history_metadata(&file)?;
+    let bytes = history_bytes(&mut file, &before)?;
+    check_history_read(&file, path, &before)?;
+    Ok(Some(bytes))
+}
+
+fn history_metadata(file: &File) -> Result<fs::Metadata, Error> {
     let before = file
         .metadata()
         .map_err(|_| Error::Unavailable("cannot inspect command history"))?;
@@ -225,6 +240,10 @@ fn read(path: &Path) -> Result<Option<Vec<u8>>, Error> {
     if before.len() > BYTES as u64 {
         return Err(Error::Bound);
     }
+    Ok(before)
+}
+
+fn history_bytes(file: &mut File, before: &fs::Metadata) -> Result<Vec<u8>, Error> {
     let mut bytes = vec![0; usize::try_from(before.len()).expect("bounded command history size")];
     file.read_exact(&mut bytes)
         .map_err(|_| Error::Unavailable("history changed during reading"))?;
@@ -236,6 +255,10 @@ fn read(path: &Path) -> Result<Option<Vec<u8>>, Error> {
     {
         return Err(Error::Bound);
     }
+    Ok(bytes)
+}
+
+fn check_history_read(file: &File, path: &Path, before: &fs::Metadata) -> Result<(), Error> {
     let after = file
         .metadata()
         .map_err(|_| Error::Unavailable("cannot finish inspecting command history"))?;
@@ -250,5 +273,5 @@ fn read(path: &Path) -> Result<Option<Vec<u8>>, Error> {
     {
         return Err(Error::Unavailable("history changed during reading"));
     }
-    Ok(Some(bytes))
+    Ok(())
 }
