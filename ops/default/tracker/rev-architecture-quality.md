@@ -221,8 +221,13 @@ blocking/deferred diagnostics, then failed native source policy. Primary discove
 includes 1,838 Rust files and rejects retained scratch source
 `.tmp/command-description-review.rs`: `main cyclomatic 25 exceeds 10`.
 Hook acceptance and the final diff check were not reached in this batch.
-The scratch file and source policy are preserved. A bounded scope decision for
-the retained scratch source is required before preparation can declare readiness.
+The scratch file is preserved byte for byte. The authorized technical correction
+uses checkout ownership to exclude ignored local experiments outside Cargo
+owners, while retaining tracked/new sources, explicit Cargo roots and their
+source directories. Archives/index exports preserve full filesystem discovery.
+All ten native source-check tests and full strict lint pass after correction.
+Fresh final-slice validation on the published preparation HEAD remains required
+before same-run continuation; no full-gate result has been accepted.
 
 ## Final acceptance
 

@@ -57,9 +57,10 @@ impl Workspace {
             packages: metadata.workspace_members.into_iter().collect(),
             sources: BTreeMap::new(),
         };
+        let checkout = super::ownership::checkout_sources(&workspace.root)?;
         for package in metadata.packages {
             if workspace.packages.contains(&package.id) {
-                workspace.member(&package, &metadata.target_directory)?;
+                workspace.member(&package, &metadata.target_directory, checkout.as_ref())?;
             }
         }
         if workspace.sources.is_empty() {
@@ -68,7 +69,12 @@ impl Workspace {
         Ok(workspace)
     }
 
-    fn member(&mut self, package: &Package, target: &Path) -> Result<()> {
+    fn member(
+        &mut self,
+        package: &Package,
+        target: &Path,
+        checkout: Option<&BTreeSet<PathBuf>>,
+    ) -> Result<()> {
         let directory = package
             .manifest_path
             .parent()
@@ -76,11 +82,17 @@ impl Workspace {
             .canonicalize()?;
         let mut paths = BTreeSet::new();
         collect(&directory, &directory, target, &mut paths)?;
+        let roots = package
+            .targets
+            .iter()
+            .map(|target| target.src_path.canonicalize())
+            .collect::<std::io::Result<Vec<_>>>()?;
         for path in paths {
-            self.sources.entry(path).or_insert(false);
+            if super::ownership::admitted_source(&path, &directory, &roots, checkout) {
+                self.sources.entry(path).or_insert(false);
+            }
         }
-        for target in &package.targets {
-            let root = target.src_path.canonicalize()?;
+        for root in roots {
             if !self.sources.contains_key(&root) {
                 return Err(format!(
                     "Cargo target is outside its first-party source owner: {}",

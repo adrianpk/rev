@@ -84,6 +84,12 @@ Without scopes, check the complete first-party workspace and reject every select
 violation. Empty/unresolvable selections fail. Never narrow ordinary final commit
 checks to changed lines; compile complete applicable workspace crate/target owners.
 
+Preparation correction: separate checkout-owned Rust from ignored local scratch
+outside Cargo owners. Retain tracked and nonignored new sources, every explicit
+Cargo root and files below Cargo source directories. Index exports and archives
+without a matching worktree retain full filesystem discovery. Keep scratch bytes,
+quality thresholds, inherited lint rules, frozen checks and the full gate intact.
+
 The staged hook executes staged source/manifests/policy/tooling in an immutable
 index export, not the worktree. Use private per-worktree cache ownership and safe
 stable paths to avoid gratuitous rebuilds; preserve untracked/ignored user data,

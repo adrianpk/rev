@@ -95,3 +95,59 @@ fn alternate_target() {
             .all(|path| !path.starts_with(fixture.0.join("target")))
     );
 }
+
+// Ignored local scratch stays unchanged and outside the checkout inventory;
+// tracked files, new source, Cargo roots and their modules remain owned.
+#[test]
+fn checkout_ownership() {
+    let fixture = Fixture::new();
+    fixture.workspace();
+    fixture.write("notes/owned.rs", "pub fn owned() {}\n");
+    for args in [&["init", "--quiet"][..], &["add", "."][..]] {
+        assert!(
+            Command::new("git")
+                .args(args)
+                .current_dir(&fixture.0)
+                .status()
+                .unwrap()
+                .success()
+        );
+    }
+    fixture.write(".gitignore", ".local/\nnotes/\nsrc/private/\ntools/\n");
+    let scratch = "not a Cargo source\n";
+    let path = fixture.write(".local/review.rs", scratch);
+    fixture.write("src/new.rs", "pub fn new() {}\n");
+    fixture.write("src/private/child.rs", "pub fn child() {}\n");
+    let workspace = Workspace::at(&fixture.0).unwrap();
+    assert!(!workspace.sources.contains_key(&path));
+    for (name, root) in [
+        ("notes/owned.rs", false),
+        ("src/new.rs", false),
+        ("src/private/child.rs", false),
+        ("tools/check.rs", true),
+    ] {
+        assert_eq!(
+            workspace.sources.get(&fixture.0.join(name)),
+            Some(&root),
+            "{name}"
+        );
+    }
+    assert_eq!(fs::read_to_string(path).unwrap(), scratch);
+    local_target(&fixture);
+}
+
+fn local_target(fixture: &Fixture) {
+    let manifest = fs::read_to_string(fixture.0.join("Cargo.toml")).unwrap();
+    fixture.write(
+        "Cargo.toml",
+        &format!("{manifest}\n[[example]]\nname='local'\npath='.local/main.rs'\n"),
+    );
+    let root = fixture.write(".local/main.rs", "#![forbid(unsafe_code)]\nfn main() {}\n");
+    let workspace = Workspace::at(&fixture.0).unwrap();
+    assert_eq!(workspace.sources.get(&root), Some(&true));
+    assert!(
+        workspace
+            .sources
+            .contains_key(&fixture.0.join(".local/review.rs"))
+    );
+}

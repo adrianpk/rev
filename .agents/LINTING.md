@@ -11,6 +11,12 @@ native source-policy owner; discovery includes every workspace package and Cargo
 root and excludes foreign/generated code by ownership. Explicit `--scope PATH`
 checks are for focused development and cannot replace final workspace acceptance.
 
+In a Git checkout, tracked Rust and nonignored new Rust belong to the inventory.
+Ignore rules cannot exclude explicit Cargo roots or their source directories.
+Ignored local experiments outside those owners are preserved without becoming
+repository sources. Index exports and source archives keep the complete
+filesystem inventory; their checks do not depend on a matching Git worktree.
+
 Commit checks use the immutable staged candidate, never an unstaged correction.
 Preserve index/worktree bytes, untracked files, ignored data and active builds.
 Do not bypass hooks, autoformat, stash, clean caches or relax acceptance to make a

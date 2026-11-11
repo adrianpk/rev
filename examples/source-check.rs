@@ -14,6 +14,8 @@ mod check;
 mod clippy;
 #[path = "source_check/discovery.rs"]
 mod discovery;
+#[path = "source_check/ownership.rs"]
+mod ownership;
 #[path = "source_check/profile.rs"]
 mod profile;
 
