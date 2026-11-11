@@ -109,7 +109,8 @@ fn vanished_choice() {
 }
 
 // A child symlink remains an untraversed list leaf until explicit Return.
-// Accepting a directory referent opens its canonical browsing root.
+// Acceptance replaces source work with its canonical temporary browsing root;
+// neither selection nor departure rewrites the source file.
 #[test]
 fn symlink_directory() {
     let fixture = Fixture::new();
@@ -127,19 +128,27 @@ fn symlink_directory() {
             .any(|row| row.text().trim() == "nested.txt")
     );
     session.handle(key(KeyCode::Up));
+    assert_eq!(session.buffer().unwrap().stamp(), stamp);
     session.handle(key(KeyCode::Enter));
     assert!(!query(&session.frame().unwrap()).starts_with("Find file:"));
     assert_eq!(
         session.tree().root(),
         Some(fixture.0.join("root/child").as_path())
     );
-    assert_eq!(session.buffer().unwrap().stamp(), stamp);
+    assert_ne!(session.buffer().unwrap().stamp().buffer, stamp.buffer);
+    assert_eq!(text(&session), "");
+    assert!(session.buffer().unwrap().file().is_none());
+    assert!(!session.buffer().unwrap().is_modified());
     session.handle(key(KeyCode::Down));
     session.handle(key(KeyCode::Enter));
     assert_eq!(text(&session), "nested");
     assert_eq!(
         session.buffer().unwrap().file().unwrap().path(),
         fixture.0.join("root/child/nested.txt")
+    );
+    assert_eq!(
+        std::fs::read(fixture.0.join("root/source.txt")).unwrap(),
+        b"retained\ntext"
     );
 }
 

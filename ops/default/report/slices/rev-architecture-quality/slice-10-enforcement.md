@@ -11,6 +11,8 @@ Gate repair branch: `fix/rev-architecture-quality-git-cleanup-1`
 Gate repair PR: [#25](https://forge.adrianpk.com/rev/rev/pulls/25)
 Gate repair implementation: `6f8e282f6688405d8f0bd001673e74934d657a58`
 Gate repair integrated: `ab30c95e4a164a54bcc3db606e2d4f4340335ea9` through canonical PR #25.
+Gate repair 2 branch: `fix/rev-architecture-quality-git-cleanup-2`
+Gate repair 2 state: implemented; exact clean-HEAD validation and PR preparation pending.
 
 ## Purpose
 
@@ -205,21 +207,41 @@ claimed from static lint success.
 The gate repair is integrated with exact clean PR-HEAD evidence recorded through
 Looper. The controller must rerun the unchanged full gate before set closure.
 
-### Gate repair 2 scope blocker
+### Gate repair 2 directory acceptance
 
 The controller rerun at `3165ff2e69575daaf09ddca6b5ed48aef4ccf506`
 (`MAUHSFFUQ2SVVJ2PKWGVFU2FGP`) passed all 190 library tests and all 242 Git
 integration cases. The native all-targets command then failed three of the 46
 `path_completion` cases: `acceptance::directory_return`,
-`failures::symlink_directory` and `stale::changed_kind`. Directory selection
-replaced the document view or buffer, contrary to the existing assertions.
+`failures::symlink_directory` and `stale::changed_kind`. Successful directory
+acceptance replaced the document view or buffer, contrary to stale fixture
+expectations. The unchanged focused suite reproduces all three failures in
+12.67 seconds (43 passed, three failed).
 
 The injected repair 2 branch remains
 `fix/rev-architecture-quality-git-cleanup-2`, with its pinned Git cleanup title.
-Its allowed runtime and test paths contain only process cleanup and Git conflict
-owners. The failing fixtures and session directory-opening owner fall outside
-that scope. The tracker records the failing command and assertion locations;
-an explicit scope decision is required before correcting those owners. No
-runtime files, assertions, deadlines, budgets or gate requirements were changed,
-and no additional full gate was run by the worker. The original slice and repair
-1 remain delivered; delivery-set closure remains pending.
+The initial injection excluded the failing fixtures, so the first checkpoint
+recorded the scope blocker. The current injection adds exactly the three fixture
+files. [Directory acceptance](../../../spec/editor-file-navigation.md) and
+[editing contexts](../../../../../docs/reference/contexts.md) already require
+fresh temporary work after checked departure. No runtime correction is needed.
+
+Source-retention assertions now check the still-open prompt. Post-acceptance
+checks require a new clean unnamed buffer, and held Return must retain that new
+view/stamp and expanded root. Symlink referent checks, current-kind revalidation,
+nested file visits and unchanged original/unrelated disk contents remain covered.
+All 14 existing case identities and input paths, contents and events remain;
+assertion sites increase from 94 to 110. The corrected target passes all 46 cases
+with no ignores in 11.36 seconds. All 44 focused context cases also pass in 58.07
+seconds, including both profiles' save/discard/cancel journeys. Exact clean-HEAD
+repair validation follows.
+Runtime files, freshness/consent guards, deadlines, resource limits, budgets and
+the frozen commands are unchanged. The worker has not run the full gate. The
+original slice and repair 1 remain delivered; delivery-set closure is pending.
+
+Repair 2 retains the five frozen repair commands above. Additional focused
+checks run after the four Cargo/quality commands and before `git diff --check`:
+
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 bash scripts/check-quality.sh --scope tests/path_completion/acceptance.rs --scope tests/path_completion/failures.rs --scope tests/path_completion/stale.rs`
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --test path_completion -- --test-threads=1`
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --test contexts -- editor:: --test-threads=1`

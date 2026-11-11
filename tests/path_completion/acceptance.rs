@@ -102,8 +102,9 @@ fn typed_file() {
     }
 }
 
-// Selected and typed directories finish opening without visiting a buffer.
-// Held Return cannot toggle the new root; a fresh tree choice opens its file.
+// Selected and typed directories retain source state until acceptance, then
+// enter fresh temporary work. Held Return cannot change that view or root;
+// a fresh tree choice opens its file without changing the previous disk source.
 #[test]
 fn directory_return() {
     for selected in [false, true] {
@@ -111,12 +112,15 @@ fn directory_return() {
         let mut session = editor(&fixture);
         let view = session.view().clone();
         let stamp = session.buffer().unwrap().stamp();
+        let generation = session.context_generation();
         session.execute(Command::FindFile);
         if selected {
             session.handle(key(KeyCode::Up));
         } else {
             session.handle(Event::Paste("./child".into()));
         }
+        assert_eq!(*session.view(), view);
+        assert_eq!(session.buffer().unwrap().stamp(), stamp);
         session.handle(key(KeyCode::Enter));
         assert!(!query(&session.frame().unwrap()).starts_with("Find file:"));
         assert_eq!(
@@ -124,17 +128,28 @@ fn directory_return() {
             Some(fixture.0.join("root/child").as_path())
         );
         assert!(session.tree().focused() && session.tree().entries()[0].expanded());
+        assert_ne!(session.context_generation(), generation);
+        assert_ne!(session.buffer().unwrap().stamp().buffer, stamp.buffer);
+        assert_eq!(text(&session), "");
+        assert!(session.buffer().unwrap().file().is_none());
+        assert!(!session.buffer().unwrap().is_modified());
+        let opened_view = session.view().clone();
+        let opened_stamp = session.buffer().unwrap().stamp();
         session.handle(Event::Key(KeyEvent::new_with_kind(
             KeyCode::Enter,
             KeyModifiers::NONE,
             KeyEventKind::Repeat,
         )));
-        assert_eq!(*session.view(), view);
-        assert_eq!(session.buffer().unwrap().stamp(), stamp);
+        assert_eq!(*session.view(), opened_view);
+        assert_eq!(session.buffer().unwrap().stamp(), opened_stamp);
         assert!(session.tree().entries()[0].expanded());
         session.handle(key(KeyCode::Down));
         session.handle(key(KeyCode::Enter));
         assert_eq!(text(&session), "nested");
+        assert_eq!(
+            std::fs::read(fixture.0.join("root/source.txt")).unwrap(),
+            b"retained\ntext"
+        );
     }
 }
 

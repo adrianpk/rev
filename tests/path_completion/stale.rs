@@ -52,7 +52,8 @@ fn changed_contents() {
 }
 
 // UI03-UI04: Return rechecks the selected path's current kind. Cached labels
-// cannot force an obsolete target kind or visit a replacement list row.
+// cannot force an obsolete target kind or visit a replacement list row. A
+// directory enters fresh temporary work only after the unchanged source departs.
 #[test]
 fn changed_kind() {
     for was_directory in [false, true] {
@@ -69,6 +70,7 @@ fn changed_kind() {
         session.handle(key(KeyCode::Up));
         replace_kind(&target, was_directory);
         fixture.write("root/chosen-earlier", "unrelated");
+        assert_eq!(text(&session), "retained\ntext");
         session.handle(key(KeyCode::Enter));
         if was_directory {
             assert_eq!(text(&session), "replacement");
@@ -76,7 +78,8 @@ fn changed_kind() {
         } else {
             assert!(!query(&session.frame().unwrap()).starts_with("Find file:"));
             assert_eq!(session.tree().root(), Some(target.as_path()));
-            assert_eq!(text(&session), "retained\ntext");
+            assert_eq!(text(&session), "");
+            assert!(session.buffer().unwrap().file().is_none());
             session.handle(key(KeyCode::Down));
             session.handle(key(KeyCode::Enter));
             assert_eq!(text(&session), "child contents");
@@ -85,6 +88,10 @@ fn changed_kind() {
         assert_eq!(
             fs::read(fixture.0.join("root/chosen-earlier")).unwrap(),
             b"unrelated"
+        );
+        assert_eq!(
+            fs::read(fixture.0.join("root/document.txt")).unwrap(),
+            b"retained\ntext"
         );
     }
 }

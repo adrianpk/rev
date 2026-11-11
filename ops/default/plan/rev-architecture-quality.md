@@ -10,7 +10,7 @@ Specification: [Architecture Quality and Commit Checks](../spec/editor-architect
 Review: [Architecture and Ownership Nit Review](../report/rev-architecture-nit-review.md)
 Concern: [Pending Editor Work](../README.md)
 Active slice: none; all ten slices integrated, controller full gate pending
-Active gate repair: repair 2 blocked on the injected path scope; repair 1 integrated
+Active gate repair: repair 2 directory-acceptance fixtures; repair 1 integrated
 Tracker: [Architecture Quality Tracker](../tracker/rev-architecture-quality.md)
 
 ## Outcome and authority
@@ -439,3 +439,23 @@ Frozen ordered repair checks:
 
 This is a bounded repair using the existing Slice 10 report. The controller owns
 integration and the unchanged full gate; no additional numbered slice is created.
+
+### Gate repair 2: Directory acceptance fixtures
+
+Branch: `fix/rev-architecture-quality-git-cleanup-2`
+Expected PR title: `fix(git): stabilize owned cleanup during conflict resolution`
+Report: `ops/default/report/slices/rev-architecture-quality/slice-10-enforcement.md`
+Failed integrated candidate: `3165ff2e69575daaf09ddca6b5ed48aef4ccf506`
+Failure evidence: `MAUHSFFUQ2SVVJ2PKWGVFU2FGP`
+
+The retained gate passed all library and Git cases, then exposed three stale
+directory-acceptance expectations. The injected scope now includes exactly
+`tests/path_completion/acceptance.rs`, `tests/path_completion/failures.rs` and
+`tests/path_completion/stale.rs`. Correct those fixtures against NAV01 and the
+existing temporary-context departure contract: selection retains source work;
+successful directory acceptance replaces it with fresh temporary work. Keep
+held-Return suppression, canonical symlink identity, current-kind revalidation,
+dirty-source decisions, unrelated disk bytes and all case inputs/bounds intact.
+No runtime behavior change is required. Retain the pinned repair identity and
+the five ordered repair checks above, with focused fixture quality, path
+completion and context-departure regressions before the final diff check.
