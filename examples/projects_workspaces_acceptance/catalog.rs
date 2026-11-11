@@ -138,24 +138,8 @@ pub(crate) fn ordinary(directory: &Path) -> Result<Catalog> {
 // large snapshots independently fit 2 MiB; their combined size admits no fifth.
 pub(crate) fn boundary(directory: &Path) -> Result<Catalog> {
     let mut catalog = Catalog::default();
-    for i in 0..MAX_PROJECTS {
-        let name = if i == 0 {
-            format!("P000{}", "x".repeat(MAX_NAME_BYTES - 4))
-        } else {
-            format!("P{i:03}")
-        };
-        project(&mut catalog, &directory.join(format!("p{i:03}")), &name)?;
-    }
-    for i in 0..MAX_WORKSPACES {
-        let roots = if i == 0 {
-            (0..MAX_ROOTS)
-                .map(|n| root(&directory.join(format!("r{n:03}"))))
-                .collect::<Result<Vec<_>>>()?
-        } else {
-            vec![]
-        };
-        workspace(&mut catalog, &format!("W{i:03}"), roots)?;
-    }
+    boundary_projects(&mut catalog, directory)?;
+    boundary_workspaces(&mut catalog, directory)?;
     files(&mut catalog, 0, MAX_FILES, 0)?;
     for index in 1..=4 {
         files(&mut catalog, index, MAX_FILES, 1000)?;
@@ -217,4 +201,30 @@ pub(crate) fn session_boundary(directory: &Path) -> Result<(Catalog, usize)> {
     ));
     assert_eq!(catalog.encode()?, bytes);
     Ok((catalog, charged))
+}
+
+fn boundary_projects(catalog: &mut Catalog, directory: &Path) -> Result<()> {
+    for i in 0..MAX_PROJECTS {
+        let name = if i == 0 {
+            format!("P000{}", "x".repeat(MAX_NAME_BYTES - 4))
+        } else {
+            format!("P{i:03}")
+        };
+        project(catalog, &directory.join(format!("p{i:03}")), &name)?;
+    }
+    Ok(())
+}
+
+fn boundary_workspaces(catalog: &mut Catalog, directory: &Path) -> Result<()> {
+    for i in 0..MAX_WORKSPACES {
+        let roots = if i == 0 {
+            (0..MAX_ROOTS)
+                .map(|n| root(&directory.join(format!("r{n:03}"))))
+                .collect::<Result<Vec<_>>>()?
+        } else {
+            vec![]
+        };
+        workspace(catalog, &format!("W{i:03}"), roots)?;
+    }
+    Ok(())
 }

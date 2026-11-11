@@ -222,6 +222,18 @@ checks remain intact. PTY phases keep the original byte streams, bounded reader
 and explicit first-owner drop before restart. All 80 assertion sites and
 text/numeric literal multiplicities remain unchanged across three Rust files.
 
+Projects/Workspaces examples separate Project and Workspace catalog seeding,
+large storage preparation/publication/measurement, canceled catalog and staged
+reads, repeated restore/capture, capacity refusal and retained source checks.
+The storage fixture owns the original large copies and releases them together
+before native restoration, at the same point as before. Cancellation checks
+borrow their existing stamp/generation/bytes snapshot across all three cycles.
+PTY phases separate startup/palette/geometry, promotion and source anchors,
+duplication refusal, session membership, blank Workspace creation, root removal,
+conversion and explicit file/directory restarts. All 81 assertion sites and
+text/numeric literal multiplicities remain in the three Rust files; serial
+process drops, freshness, capacity, time and stream limits are unchanged.
+
 ## Contracts Added or Changed
 
 No runtime, package API, protocol, policy or acceptance changes are planned.
@@ -290,6 +302,9 @@ The existing five frozen commands and final controller gate remain required.
 
 - `examples/bookmark_acceptance/`: explicit native record/store/source lifecycle,
   measured bounded projection/relocation and PTY restart phases.
+
+- `examples/projects_workspaces_acceptance/`: count/byte catalogs, explicit
+  storage/native cancellation owners and serial real-input lifecycle phases.
 
 ## Validation
 
@@ -549,9 +564,35 @@ Development checks for bookmark example phases:
   Inputs, event order, session drops, deadlines and resource bounds are unchanged.
 - `git diff --check`: passed.
 
+Development checks for Projects/Workspaces example phases:
+
+- The frozen scoped quality command still fails overall: five native source
+  findings remain, down from 16, in Pi and interoperability examples. Formatting,
+  all-target compilation and scoped Clippy admission pass with zero blocking
+  diagnostics and the same four deferred diagnostics outside this scope.
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo check --locked -p rev --example projects-workspaces-acceptance`: passed.
+- The existing `scripts/check-projects-workspaces.sh` passes native ordinary,
+  session-byte and aggregate/count-bound resource checks before and after. Both
+  runs retain 256 Projects, 128 Workspaces, 64 roots, 512 files, 8,354,858 source
+  catalog bytes and 8,354,610 candidate bytes. Cancellation, 513th-file refusal,
+  exact source retention, idle and descriptor/thread retirement assertions pass.
+- Both non-modal real PTY journeys pass, including all three serial starts,
+  exactly the original inputs and 858,106 + 6,687 + 7,785 output bytes in each
+  run. Palette, resize, Unicode anchors, membership, atomic conversion,
+  unchanged files/configuration and terminal restoration checks remain intact.
+- The modal PTY reaches its existing eight-second deadline before and after
+  decomposition. Its final frame differs between the two failures; this is
+  retained baseline failure evidence, not a successful or byte-identical
+  acceptance claim. The 30-second outer bound, eight-second/1-MiB editor owner,
+  all frame predicates and original event order remain unchanged.
+- Static comparison against clean
+  `57de2e0f43b3662a72de10c053d6c6a967bf3a6e` preserves all 81 assertion sites
+  and text/numeric literal multiplicities in the three changed Rust files.
+- `git diff --check`: passed.
+
 ## Risks and Follow-ups
 
-Selected Clippy admission is complete. The remaining 16 native source findings
+Selected Clippy admission is complete. The remaining five native source findings
 require cohesive developer-example decomposition. T9.1-T9.3 remain in progress.
 The canonical PR, final ordered clean-HEAD evidence and controller integration
 remain pending.
@@ -568,3 +609,7 @@ bounds remain intact. Ranking's two restart PTYs and paired-publisher mode pass.
 The standalone wrapping native journey retains its pre-existing directory-buffer
 identity expectation failure. Its real PTY journey passes before and after with
 the original checks and bounds.
+
+Projects/Workspaces native and non-modal PTY acceptance pass before and after.
+The modal PTY retains a baseline deadline failure; no budget or assertion is
+adjusted to make that standalone helper pass.

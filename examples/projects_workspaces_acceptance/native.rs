@@ -132,22 +132,7 @@ pub(super) fn run(root: &Path) -> Result<()> {
     ordinary(&root.join("ordinary"))?;
     session_bytes(&root.join("session"))?;
     boundary(&root.join("boundary"))?;
-    let deadline = Instant::now() + Duration::from_secs(3);
-    while descriptors()? != fds || threads()? != workers {
-        assert!(
-            Instant::now() < deadline,
-            "context owner did not retire descriptors/threads"
-        );
-        std::thread::sleep(Duration::from_millis(1));
-    }
-    println!(
-        "MEASURE ownership: fds_before={fds} fds_after={} threads_before={workers} threads_after={} rss_before_kib={before} rss_after_kib={} peak_rss={}",
-        descriptors()?,
-        threads()?,
-        rss()?,
-        peak_rss("self")?
-    );
-    Ok(())
+    ownership(fds, workers, before)
 }
 
 fn session_bytes(root: &Path) -> Result<()> {
@@ -183,14 +168,8 @@ fn ordinary(root: &Path) -> Result<()> {
     );
     let state = seed(root, &catalog)?;
     let mut editor = session(root, state.clone())?;
-    let stamp = editor.buffer()?.stamp();
     let mut turns = Turns::default();
-    list(&mut editor, &mut turns)?;
-    assert_eq!(editor.buffer()?.stamp(), stamp);
-    assert_eq!(source(&editor), catalog::DOCUMENT);
-    cancel(&mut editor);
-    assert_eq!(fs::read(&state)?, bytes);
-    quiet(&mut editor)?;
+    retained_listing(&mut editor, &mut turns, &state, &bytes)?;
     println!(
         "MEASURE ordinary: artifacts=50 session_files=1000 encoded_bytes={} encoded_capacity={} elapsed_us={} service_passes={} longest_pass_us={} resize_us={} rss_kib={} peak_rss={}",
         bytes.len(),
@@ -206,90 +185,12 @@ fn ordinary(root: &Path) -> Result<()> {
 }
 
 fn boundary(root: &Path) -> Result<()> {
-    let start = Instant::now();
-    let before = rss()?;
-    let base = catalog::boundary(&root.join("roots"))?;
-    let bytes = base.encode()?;
-    let encoded_rss = rss()?;
-    let state = seed(root, &base)?;
-    let (store, observed) = Store::open(&state)?;
-    assert_eq!(observed, base);
-    drop(observed);
-    catalog::overflow(&base)?;
-    assert_eq!(fs::read(&state)?, bytes);
-    let mut candidate = base.clone();
-    candidate.projects[0].name = Name::new("Measured")?;
-    candidate.projects[0].revision = candidate.projects[0].revision.next()?;
-    let prepared = base.prepare(candidate)?;
-    let prepared_rss = rss()?;
-    let candidate_bytes = prepared.candidate().encode()?.len();
-    let publication = store.publish(&prepared)?;
-    assert!(publication.durability_warning.is_none());
-    assert_eq!(Store::open(&state)?.1, publication.catalog);
-    println!(
-        "MEASURE boundary storage: projects={} workspaces={} max_roots={} max_files={} source_encoded_bytes={} source_vec_capacity={} candidate_encoded_bytes={candidate_bytes} rss_before_kib={before} rss_encoded_kib={encoded_rss} rss_prepared_kib={prepared_rss} rss_published_kib={} peak_rss={} elapsed_us={}",
-        base.projects.len(),
-        base.workspaces.len(),
-        base.workspaces[0].roots.len(),
-        MAX_FILES,
-        bytes.len(),
-        bytes.capacity(),
-        rss()?,
-        peak_rss("self")?,
-        start.elapsed().as_micros()
-    );
-    let id = publication.catalog.projects[0].id.clone();
-    let source_root = publication.catalog.projects[0]
-        .root
-        .path
-        .as_path()
-        .to_owned();
-    drop((base, prepared, publication, store, bytes));
-    println!(
-        "MEASURE released storage fixture copies: rss_kib={} peak_rss={}",
-        rss()?,
-        peak_rss("self")?
-    );
+    let (state, id, source_root) = StorageFixture::prepare(root)?.publish()?;
     let mut editor = session(root, state.clone())?;
     let mut turns = Turns::default();
-    canceled(&mut editor, &mut turns, &state)?;
-    let mut rounds = Vec::new();
-    for _ in 0..2 {
-        if editor.dashboard_visible() {
-            cancel(&mut editor);
-        }
-        rounds.push(round(&mut editor, &mut turns, &state, &id)?);
-    }
-    quiet(&mut editor)?;
-    cancel(&mut editor);
-    choose(&mut editor, &mut turns, "Measured")?;
-    let extra = root.join("extra.txt");
-    fs::write(&extra, "loose source")?;
-    editor.load(&extra)?;
-    let retained = (
-        editor.buffer()?.stamp(),
-        editor.context_generation(),
-        fs::read(&state)?,
-    );
-    editor.execute(Command::ContextClose);
-    assert!(
-        editor.echo().contains("file capacity exceeded"),
-        "{}",
-        editor.echo()
-    );
-    assert_eq!(editor.context(), &Context::Project(id));
-    assert_eq!(editor.buffer()?.stamp(), retained.0);
-    assert_eq!(editor.context_generation(), retained.1);
-    assert_eq!(fs::read(&state)?, retained.2);
-    assert_eq!(source(&editor), "loose source");
-    assert!(!editor.dashboard_visible());
-    for i in 0..MAX_FILES {
-        assert_eq!(
-            fs::read(source_root.join(format!("file-{i:03}")))?,
-            catalog::DOCUMENT.as_bytes()
-        );
-    }
-    assert_eq!(fs::read(&extra)?, b"loose source");
+    let rounds = restoration_rounds(&mut editor, &mut turns, &state, &id)?;
+    let extra = capture_overflow(&mut editor, &mut turns, &state, id, root)?;
+    retained_sources(&source_root, &extra)?;
     println!(
         "MEASURE boundary session: files=512 rounds_restore_capture_us_rss_kib={rounds:?} service_passes={} longest_pass_us={} resize_us={} peak_fds={} peak_threads={} rss_kib={} peak_rss={}; 513th capture rejected with unchanged state/source",
         turns.passes,
@@ -309,38 +210,13 @@ fn canceled(editor: &mut Session, turns: &mut Turns, state: &Path) -> Result<()>
         editor.context_generation(),
         fs::read(state)?,
     );
-    let mut samples = Vec::new();
-    for _ in 0..3 {
-        editor.execute(Command::ProjectList);
-        cancel(editor);
-        pump(editor, turns, |s| {
-            s.remaining_input(Instant::now()).is_none()
-        })?;
-        assert_eq!(editor.buffer()?.stamp(), retained.0);
-        assert_eq!(editor.context_generation(), retained.1);
-        assert_eq!(fs::read(state)?, retained.2);
-        samples.push(rss()?);
-    }
-    list(editor, turns)?;
-    editor.handle(Event::Paste("Measured".into()));
-    editor.handle(Event::Key(KeyEvent::new(KeyCode::Tab, KeyModifiers::NONE)));
-    enter(editor);
-    pump(editor, turns, |s| {
-        s.echo().starts_with("Preparing Project files")
-    })?;
-    cancel(editor);
-    pump(editor, turns, |s| {
-        s.remaining_input(Instant::now()).is_none()
-    })?;
+    let samples = canceled_reads(editor, turns, state, &retained)?;
+    canceled_staging(editor, turns)?;
     assert_eq!(editor.buffer()?.stamp(), retained.0);
     assert_eq!(editor.context_generation(), retained.1);
     assert!(matches!(editor.context(), Context::Standalone));
     assert_eq!(fs::read(state)?, retained.2);
-    println!(
-        "MEASURE canceled catalog reads: cycles=3 retained_rss_kib={samples:?} after_staged_cancel_kib={} peak_rss={}; source generation/stamp/state preserved",
-        rss()?,
-        peak_rss("self")?
-    );
+    observe_canceled(&samples)?;
     Ok(())
 }
 fn quiet(editor: &mut Session) -> Result<()> {
@@ -409,4 +285,236 @@ fn round(
     );
     drop(catalog);
     Ok((restore_us, capture_us, rss()?))
+}
+
+fn ownership(fds: usize, workers: usize, before: usize) -> Result<()> {
+    let deadline = Instant::now() + Duration::from_secs(3);
+    while descriptors()? != fds || threads()? != workers {
+        assert!(
+            Instant::now() < deadline,
+            "context owner did not retire descriptors/threads"
+        );
+        std::thread::sleep(Duration::from_millis(1));
+    }
+    println!(
+        "MEASURE ownership: fds_before={fds} fds_after={} threads_before={workers} threads_after={} rss_before_kib={before} rss_after_kib={} peak_rss={}",
+        descriptors()?,
+        threads()?,
+        rss()?,
+        peak_rss("self")?
+    );
+    Ok(())
+}
+
+fn retained_listing(
+    editor: &mut Session,
+    turns: &mut Turns,
+    state: &Path,
+    bytes: &[u8],
+) -> Result<()> {
+    let stamp = editor.buffer()?.stamp();
+    list(editor, turns)?;
+    assert_eq!(editor.buffer()?.stamp(), stamp);
+    assert_eq!(source(editor), catalog::DOCUMENT);
+    cancel(editor);
+    assert_eq!(fs::read(state)?, bytes);
+    quiet(editor)?;
+    Ok(())
+}
+
+struct StorageFixture {
+    start: Instant,
+    before: usize,
+    base: Catalog,
+    bytes: Vec<u8>,
+    encoded_rss: usize,
+    state: PathBuf,
+    store: Store,
+}
+
+impl StorageFixture {
+    fn prepare(root: &Path) -> Result<Self> {
+        let start = Instant::now();
+        let before = rss()?;
+        let base = catalog::boundary(&root.join("roots"))?;
+        let bytes = base.encode()?;
+        let encoded_rss = rss()?;
+        let state = seed(root, &base)?;
+        let (store, observed) = Store::open(&state)?;
+        assert_eq!(observed, base);
+        drop(observed);
+        catalog::overflow(&base)?;
+        assert_eq!(fs::read(&state)?, bytes);
+        Ok(Self {
+            start,
+            before,
+            base,
+            bytes,
+            encoded_rss,
+            state,
+            store,
+        })
+    }
+
+    fn publish(self) -> Result<(PathBuf, rev::context::ProjectId, PathBuf)> {
+        let mut candidate = self.base.clone();
+        candidate.projects[0].name = Name::new("Measured")?;
+        candidate.projects[0].revision = candidate.projects[0].revision.next()?;
+        let prepared = self.base.prepare(candidate)?;
+        let prepared_rss = rss()?;
+        let candidate_bytes = prepared.candidate().encode()?.len();
+        let publication = self.store.publish(&prepared)?;
+        assert!(publication.durability_warning.is_none());
+        assert_eq!(Store::open(&self.state)?.1, publication.catalog);
+        self.observe(candidate_bytes, prepared_rss)?;
+        let id = publication.catalog.projects[0].id.clone();
+        let source_root = publication.catalog.projects[0]
+            .root
+            .path
+            .as_path()
+            .to_owned();
+        let Self {
+            base,
+            bytes,
+            state,
+            store,
+            ..
+        } = self;
+        drop((base, prepared, publication, store, bytes));
+        released_storage()?;
+        Ok((state, id, source_root))
+    }
+
+    fn observe(&self, candidate_bytes: usize, prepared_rss: usize) -> Result<()> {
+        let before = self.before;
+        let encoded_rss = self.encoded_rss;
+        println!(
+            "MEASURE boundary storage: projects={} workspaces={} max_roots={} max_files={} source_encoded_bytes={} source_vec_capacity={} candidate_encoded_bytes={candidate_bytes} rss_before_kib={before} rss_encoded_kib={encoded_rss} rss_prepared_kib={prepared_rss} rss_published_kib={} peak_rss={} elapsed_us={}",
+            self.base.projects.len(),
+            self.base.workspaces.len(),
+            self.base.workspaces[0].roots.len(),
+            MAX_FILES,
+            self.bytes.len(),
+            self.bytes.capacity(),
+            rss()?,
+            peak_rss("self")?,
+            self.start.elapsed().as_micros()
+        );
+        Ok(())
+    }
+}
+
+fn released_storage() -> Result<()> {
+    println!(
+        "MEASURE released storage fixture copies: rss_kib={} peak_rss={}",
+        rss()?,
+        peak_rss("self")?
+    );
+    Ok(())
+}
+
+fn restoration_rounds(
+    editor: &mut Session,
+    turns: &mut Turns,
+    state: &Path,
+    id: &rev::context::ProjectId,
+) -> Result<Vec<(u128, u128, usize)>> {
+    canceled(editor, turns, state)?;
+    let mut rounds = Vec::new();
+    for _ in 0..2 {
+        if editor.dashboard_visible() {
+            cancel(editor);
+        }
+        rounds.push(round(editor, turns, state, id)?);
+    }
+    quiet(editor)?;
+    Ok(rounds)
+}
+
+fn capture_overflow(
+    editor: &mut Session,
+    turns: &mut Turns,
+    state: &Path,
+    id: rev::context::ProjectId,
+    root: &Path,
+) -> Result<PathBuf> {
+    cancel(editor);
+    choose(editor, turns, "Measured")?;
+    let extra = root.join("extra.txt");
+    fs::write(&extra, "loose source")?;
+    editor.load(&extra)?;
+    let retained = (
+        editor.buffer()?.stamp(),
+        editor.context_generation(),
+        fs::read(state)?,
+    );
+    editor.execute(Command::ContextClose);
+    assert!(
+        editor.echo().contains("file capacity exceeded"),
+        "{}",
+        editor.echo()
+    );
+    assert_eq!(editor.context(), &Context::Project(id));
+    assert_eq!(editor.buffer()?.stamp(), retained.0);
+    assert_eq!(editor.context_generation(), retained.1);
+    assert_eq!(fs::read(state)?, retained.2);
+    assert_eq!(source(editor), "loose source");
+    assert!(!editor.dashboard_visible());
+    Ok(extra)
+}
+
+fn retained_sources(source_root: &Path, extra: &Path) -> Result<()> {
+    for i in 0..MAX_FILES {
+        assert_eq!(
+            fs::read(source_root.join(format!("file-{i:03}")))?,
+            catalog::DOCUMENT.as_bytes()
+        );
+    }
+    assert_eq!(fs::read(extra)?, b"loose source");
+    Ok(())
+}
+
+fn canceled_reads(
+    editor: &mut Session,
+    turns: &mut Turns,
+    state: &Path,
+    retained: &(rev::buffer::Stamp, rev::context::Generation, Vec<u8>),
+) -> Result<Vec<usize>> {
+    let mut samples = Vec::new();
+    for _ in 0..3 {
+        editor.execute(Command::ProjectList);
+        cancel(editor);
+        pump(editor, turns, |s| {
+            s.remaining_input(Instant::now()).is_none()
+        })?;
+        assert_eq!(editor.buffer()?.stamp(), retained.0);
+        assert_eq!(editor.context_generation(), retained.1);
+        assert_eq!(fs::read(state)?, retained.2);
+        samples.push(rss()?);
+    }
+    Ok(samples)
+}
+
+fn canceled_staging(editor: &mut Session, turns: &mut Turns) -> Result<()> {
+    list(editor, turns)?;
+    editor.handle(Event::Paste("Measured".into()));
+    editor.handle(Event::Key(KeyEvent::new(KeyCode::Tab, KeyModifiers::NONE)));
+    enter(editor);
+    pump(editor, turns, |s| {
+        s.echo().starts_with("Preparing Project files")
+    })?;
+    cancel(editor);
+    pump(editor, turns, |s| {
+        s.remaining_input(Instant::now()).is_none()
+    })?;
+    Ok(())
+}
+
+fn observe_canceled(samples: &[usize]) -> Result<()> {
+    println!(
+        "MEASURE canceled catalog reads: cycles=3 retained_rss_kib={samples:?} after_staged_cancel_kib={} peak_rss={}; source generation/stamp/state preserved",
+        rss()?,
+        peak_rss("self")?
+    );
+    Ok(())
 }
