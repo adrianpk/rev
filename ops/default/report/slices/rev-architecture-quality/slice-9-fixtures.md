@@ -1,11 +1,11 @@
 # Slice 9: Fixtures and developer examples
 
-Status: drafting
+Status: reviewing
 Delivery set: rev-architecture-quality
 Plan: [Architecture Quality Delivery](../../../plan/rev-architecture-quality.md)
 Tracker: [Architecture Quality Tracker](../../../tracker/rev-architecture-quality.md)
 Branch: `refactor/rev-architecture-quality-09-fixtures`
-PR: pending
+PR: [#23](https://forge.adrianpk.com/rev/rev/pulls/23)
 
 ## Purpose
 
@@ -339,13 +339,22 @@ The existing five frozen commands and final controller gate remain required.
 
 ## Validation
 
-Final successful clean-HEAD evidence is pending. Frozen ordered commands:
+The five frozen commands below passed in order on clean published implementation
+HEAD `5a2d56a3d858484a1bc6afa1ae6614b046e72099` before the PR-reference update.
+Use Looper's exact clean-HEAD record for the final PR candidate. Frozen ordered
+commands:
 
 - `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 bash scripts/check-quality.sh --scope tests --scope examples --scope crates/rev-plugin-sdk/tests`
 - `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --test macros --test commands --test plugins -- --test-threads=1`
 - `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --workspace --doc`
 - `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo run --locked --quiet -p rev --example documentation-check`
 - `git diff --check`
+
+The native command passed all 204 command, 110 macro and 86 plugin cases, with
+no failures, ignores or filtered cases. The SDK doc test passed. Documentation
+checks passed 684 commands, 299 configuration entries, 106 reachable pages and
+743 local links/anchors. Warm scoped quality took 14.51 seconds; the serial
+native command took 924.25 seconds under the unchanged resource prefix.
 
 Development checks for shared fixture ownership:
 
@@ -646,9 +655,12 @@ Development checks for Pi and interoperability example phases:
 
 ## Risks and Follow-ups
 
-Selected fixture/example Clippy and source admission is complete. Existing case,
-assertion, input and resource contracts are preserved. T9.3, the canonical PR,
-final ordered clean-HEAD evidence and controller integration remain pending.
+T9.1-T9.3 are implemented in canonical [PR #23](https://forge.adrianpk.com/rev/rev/pulls/23).
+Selected fixture/example Clippy and source admission is complete, and all frozen
+commands pass on the implementation HEAD recorded above. Existing case,
+assertion, input and resource contracts are preserved. The PR-reference commit
+requires its own exact clean-HEAD Looper record. Review, integration, the unchanged
+full gate and successor startup remain controller-owned.
 
 The standalone file-tree native and PTY examples retain their pre-existing
 fixed-row expectation failures recorded above. Their assertions and limits stay
