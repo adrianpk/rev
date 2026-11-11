@@ -274,35 +274,7 @@ fn failures(directory: &Path, storage: &mut Storage) {
         let mut value: serde_json::Value = serde_json::from_slice(&good).unwrap();
         let metadata = directory.join("ts/node_modules/typescript/package.json");
         let original = fs::read(&metadata).unwrap();
-        match failure {
-            "engine" => {
-                fs::write(directory.join("engine"), "").unwrap();
-            }
-            "six" => {
-                fs::write(directory.join("no-six"), "").unwrap();
-            }
-            "pin" => {
-                value["packages"][""]["dependencies"]["typescript"] = "7.0.0".into();
-            }
-            "integrity" => {
-                value["packages"]["node_modules/typescript"]["integrity"] = "".into();
-            }
-            "source" => {
-                value["packages"]["node_modules/typescript"]["resolved"] = "file:///outside".into();
-            }
-            "identity" => {
-                fs::write(&metadata, r#"{"name":"typescript","version":"7.0.0"}"#).unwrap();
-            }
-            "escape" => {
-                let bin = directory.join("ts/node_modules/.bin").join(TS);
-                fs::remove_file(&bin).unwrap();
-                symlink("/bin/sh", bin).unwrap();
-            }
-            "probe" => {
-                fs::write(directory.join("probe-fail"), "").unwrap();
-            }
-            _ => unreachable!(),
-        }
+        corrupt_package(directory, &metadata, &mut value, failure);
         fs::write(&lock_path, value.to_string()).unwrap();
         let error = install_npm(storage, TS, BTreeMap::new(), &Cancellation::default())
             .err()
@@ -357,4 +329,41 @@ fn missing_runtime() {
     );
     assert!(storage.registry().installations.is_empty());
     assert!(!roots.data.join("lsp/installations.toml").exists());
+}
+
+fn corrupt_package(
+    directory: &Path,
+    metadata: &Path,
+    value: &mut serde_json::Value,
+    failure: &str,
+) {
+    match failure {
+        "engine" => {
+            fs::write(directory.join("engine"), "").unwrap();
+        }
+        "six" => {
+            fs::write(directory.join("no-six"), "").unwrap();
+        }
+        "pin" => {
+            value["packages"][""]["dependencies"]["typescript"] = "7.0.0".into();
+        }
+        "integrity" => {
+            value["packages"]["node_modules/typescript"]["integrity"] = "".into();
+        }
+        "source" => {
+            value["packages"]["node_modules/typescript"]["resolved"] = "file:///outside".into();
+        }
+        "identity" => {
+            fs::write(metadata, r#"{"name":"typescript","version":"7.0.0"}"#).unwrap();
+        }
+        "escape" => {
+            let bin = directory.join("ts/node_modules/.bin").join(TS);
+            fs::remove_file(&bin).unwrap();
+            symlink("/bin/sh", bin).unwrap();
+        }
+        "probe" => {
+            fs::write(directory.join("probe-fail"), "").unwrap();
+        }
+        _ => unreachable!(),
+    }
 }

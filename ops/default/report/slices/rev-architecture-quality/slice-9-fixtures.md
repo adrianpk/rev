@@ -144,6 +144,21 @@ All 69 case identities, 593 assertion sites and text/numeric literal multiplicit
 remain unchanged in the 12 Rust files. A discard source path is borrowed directly
 instead of cloned into its temporary load selection.
 
+LSP completion fixtures borrow a marked document descriptor that keeps source
+text and its path together across all 26 existing session calls. Resolve
+retirement distinguishes local editing/view/invocation changes from connection
+retirement without changing any action, version guard or late-response wait.
+Go and npm fixtures separate acquisition fault preparation from the original
+refusal, registry-retention and cache-cleanup assertions. Optional native
+installations separate user launch overrides from required-path/option
+restoration checks under both input profiles.
+
+The LSP cohort preserves all 27 case identities, 193 assertion sites and
+text/numeric literal multiplicities in its five Rust files. It retains every
+negative case, exact edit/byte limit, child-process boundary and timeout. The
+marked document is borrowed during setup; the native session retains the same
+owned buffers and configuration.
+
 ## Contracts Added or Changed
 
 No runtime, package API, protocol, policy or acceptance changes are planned.
@@ -186,6 +201,10 @@ The existing five frozen commands and final controller gate remain required.
   metadata, path-group, worktree and ordered-control acceptance phases.
 - `tests/git_integration/lifetime.rs`, `tests/recovery/quit.rs` and
   `tests/external_changes.rs`: owned cleanup, exit consent and reload faults.
+- `tests/lsp/candidates.rs` and `tests/lsp/edits.rs`: borrowed marked documents
+  and explicit local/connection resolve retirement.
+- `tests/lsp_installation/go.rs`, `npm.rs` and `optional-native.rs`: controlled
+  installer faults and native launch-restoration checks.
 - `examples/git_integration_acceptance/`: snapshot and staged-content ownership.
 - `examples/integrated_terminal_acceptance/failure.rs`: explicit shared failure
   injection state; host terminal cleanup behavior is unchanged.
@@ -316,9 +335,25 @@ Development checks for Git and exit fixture phases:
   coverage remain unchanged.
 - `git diff --check`: passed.
 
+Development checks for LSP ownership and lifecycle fixtures:
+
+- The frozen scoped quality command still fails overall: 56 native source
+  findings remain, down from 61. Formatting, all-target compilation and scoped
+  Clippy admission pass with zero blocking diagnostics; four selected-profile
+  diagnostics remain deferred outside this scope. Coverage remains 704 of 1,836
+  first-party Rust files and 70 of 73 Cargo roots across two packages.
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --test lsp --test lsp_installation -- --test-threads=1`: passed all 46 LSP and 39 offline installer cases, including the changed resolve, Go, npm and optional native workflows. The three existing explicit upstream-acquisition ignores remain unchanged.
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --test lsp -- candidates:: edits:: --test-threads=1`: passed all 22 affected completion cases after the final marked-document borrow correction; 24 unrelated cases were filtered out.
+- Static comparison against clean
+  `c0b5cdd3ef2c643cf3124abd44b5c4f89c737227` preserves all 27 case identities,
+  193 assertion sites and text/numeric literal multiplicities in the five changed
+  Rust files. Inputs, freshness guards, negative coverage, child boundaries,
+  timeouts and resource limits are unchanged.
+- `git diff --check`: passed.
+
 ## Risks and Follow-ups
 
-Selected Clippy admission is complete. The remaining 61 native source findings
+Selected Clippy admission is complete. The remaining 56 native source findings
 require cohesive fixture/example decomposition. T9.1-T9.3 remain in progress.
 The canonical PR, final ordered clean-HEAD evidence and controller integration
 remain pending.

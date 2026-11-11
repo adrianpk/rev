@@ -1,8 +1,11 @@
 use super::workflows::{answer, key, named, session, text};
 use crate::fixture::Fixture;
 use crossterm::event::{KeyCode, KeyModifiers};
-use rev::config::{Preference, Roots, SettingsEdit, prepare};
-use rev::lsp::{Status, install::Registry};
+use rev::config::{Preference, Roots, Server, SettingsEdit, prepare};
+use rev::lsp::{
+    Status,
+    install::{Installation, Registry},
+};
 use std::fs;
 use std::time::{Duration, Instant};
 
@@ -93,24 +96,7 @@ fn native_optional() {
         let (_, server) = snapshot.settings().lsp.selected(language).unwrap();
         assert!(server.command.starts_with(roots.data.to_str().unwrap()));
         let mut changed = server.clone();
-        changed.env.insert("USER_OPTION".into(), "retained".into());
-        if recipe == "ruby-lsp" {
-            changed
-                .env
-                .insert("GEM_HOME".into(), "/outside/gems".into());
-        }
-        if recipe == "ols" {
-            changed
-                .env
-                .insert("OLS_BUILTIN_FOLDER".into(), "/outside/builtin".into());
-            changed.initialization_options["enable_snippets"] = toml::Value::Boolean(true);
-            changed.initialization_options["enable_fake_methods"] = toml::Value::Boolean(true);
-            changed
-                .initialization_options
-                .as_table_mut()
-                .unwrap()
-                .insert("retained".into(), toml::Value::Boolean(true));
-        }
+        customize_launch(&mut changed, recipe);
         let mut edit = SettingsEdit::capture(&root).unwrap();
         let current = format!("user-{language}");
         edit.register(&current, &changed);
@@ -125,40 +111,7 @@ fn native_optional() {
         assert_eq!(fs::read_to_string(fixture.join("calls")).unwrap(), calls);
         let snapshot = prepare(&root).snapshot;
         let (_, selected) = snapshot.settings().lsp.selected(language).unwrap();
-        assert_eq!(selected.env["USER_OPTION"], "retained");
-        if recipe == "ruby-lsp" {
-            assert_eq!(
-                selected.env["GEM_HOME"],
-                roots
-                    .data
-                    .join(&installation.payload)
-                    .join("gems")
-                    .to_str()
-                    .unwrap()
-            );
-            assert_eq!(selected.env["BUNDLE_FROZEN"], "true");
-        }
-        if recipe == "ols" {
-            assert_eq!(
-                selected.env["OLS_BUILTIN_FOLDER"],
-                roots
-                    .data
-                    .join(&installation.payload)
-                    .join("source/builtin")
-                    .to_str()
-                    .unwrap()
-            );
-            for option in ["enable_snippets", "enable_fake_methods"] {
-                assert_eq!(
-                    selected.initialization_options[option].as_bool(),
-                    Some(false)
-                );
-            }
-            assert_eq!(
-                selected.initialization_options["retained"].as_bool(),
-                Some(true)
-            );
-        }
+        check_restored_launch(selected, installation, &roots, recipe);
         assert_eq!(text(&s), edited);
         assert_eq!(s.view().point, point);
         assert_eq!(s.lsp_status(), Status::Disabled);
@@ -206,4 +159,67 @@ fn native_optional() {
     let inventory = text(&s);
     assert!(!inventory.contains("/outside/gems"));
     assert!(!inventory.contains("USER_OPTION"));
+}
+
+fn customize_launch(changed: &mut Server, recipe: &str) {
+    changed.env.insert("USER_OPTION".into(), "retained".into());
+    if recipe == "ruby-lsp" {
+        changed
+            .env
+            .insert("GEM_HOME".into(), "/outside/gems".into());
+    }
+    if recipe == "ols" {
+        changed
+            .env
+            .insert("OLS_BUILTIN_FOLDER".into(), "/outside/builtin".into());
+        changed.initialization_options["enable_snippets"] = toml::Value::Boolean(true);
+        changed.initialization_options["enable_fake_methods"] = toml::Value::Boolean(true);
+        changed
+            .initialization_options
+            .as_table_mut()
+            .unwrap()
+            .insert("retained".into(), toml::Value::Boolean(true));
+    }
+}
+
+fn check_restored_launch(
+    selected: &Server,
+    installation: &Installation,
+    roots: &Roots,
+    recipe: &str,
+) {
+    assert_eq!(selected.env["USER_OPTION"], "retained");
+    if recipe == "ruby-lsp" {
+        assert_eq!(
+            selected.env["GEM_HOME"],
+            roots
+                .data
+                .join(&installation.payload)
+                .join("gems")
+                .to_str()
+                .unwrap()
+        );
+        assert_eq!(selected.env["BUNDLE_FROZEN"], "true");
+    }
+    if recipe == "ols" {
+        assert_eq!(
+            selected.env["OLS_BUILTIN_FOLDER"],
+            roots
+                .data
+                .join(&installation.payload)
+                .join("source/builtin")
+                .to_str()
+                .unwrap()
+        );
+        for option in ["enable_snippets", "enable_fake_methods"] {
+            assert_eq!(
+                selected.initialization_options[option].as_bool(),
+                Some(false)
+            );
+        }
+        assert_eq!(
+            selected.initialization_options["retained"].as_bool(),
+            Some(true)
+        );
+    }
 }

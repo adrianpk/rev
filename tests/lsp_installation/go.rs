@@ -154,27 +154,7 @@ fn isolated_module() {
         ("probe", "protocol probe failed"),
     ] {
         metadata(&directory, "v0.23.0", SUM, false);
-        match failure {
-            "compiler" => {
-                fs::write(directory.join("compiler"), "").unwrap();
-            }
-            "version" => metadata(&directory, "latest", SUM, false),
-            "sum" => metadata(&directory, "v0.23.0", "", false),
-            "replace" => metadata(&directory, "v0.23.0", SUM, true),
-            "build" => {
-                let p = directory.join("build.json");
-                let s = fs::read_to_string(&p).unwrap();
-                fs::write(
-                    p,
-                    s.replace(SUM, "h1:BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB="),
-                )
-                .unwrap();
-            }
-            "probe" => {
-                fs::write(directory.join("probe-fail"), "").unwrap();
-            }
-            _ => unreachable!(),
-        }
+        fail_module(&directory, failure);
         let error = install_go(&mut storage, None, &Cancellation::default())
             .err()
             .expect(failure);
@@ -207,6 +187,30 @@ fn isolated_module() {
     let calls = fs::read_to_string(directory.join("calls")).unwrap();
     assert_eq!(calls.matches("@latest").count(), 7);
     assert!(!calls.contains("env -w"));
+}
+
+fn fail_module(directory: &Path, failure: &str) {
+    match failure {
+        "compiler" => {
+            fs::write(directory.join("compiler"), "").unwrap();
+        }
+        "version" => metadata(directory, "latest", SUM, false),
+        "sum" => metadata(directory, "v0.23.0", "", false),
+        "replace" => metadata(directory, "v0.23.0", SUM, true),
+        "build" => {
+            let p = directory.join("build.json");
+            let s = fs::read_to_string(&p).unwrap();
+            fs::write(
+                p,
+                s.replace(SUM, "h1:BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB="),
+            )
+            .unwrap();
+        }
+        "probe" => {
+            fs::write(directory.join("probe-fail"), "").unwrap();
+        }
+        _ => unreachable!(),
+    }
 }
 
 // Missing Go is diagnosed before version resolution or candidate publication.
