@@ -195,23 +195,41 @@ impl Session {
         if !self.macro_library_current(&consent.prompt) {
             return self.message("Macro library source or catalog changed");
         }
-        let Some(store) = &self.macros.library else {
+        if self.macros.library.is_none() {
             return self.message("Macro library is unavailable");
-        };
-        if let Some((id, revision)) = &consent.deletion {
-            let publication = match store.delete(consent.name.name(), id, *revision) {
-                Ok(p) => p,
-                Err(e) => return self.error(&e.to_string()),
-            };
-            if let Some(named) = self.macros.names.get_mut(&consent.name) {
-                named.saved = None;
-            }
-            return self.message(if publication.warning {
-                "Saved macro deleted; durability could not be confirmed"
-            } else {
-                "Saved macro deleted; session snapshots remain available"
-            });
         }
+        if let Some((id, revision)) = &consent.deletion {
+            return self.macro_library_delete(consent, id, *revision);
+        }
+        self.macro_library_save(consent)
+    }
+
+    fn macro_library_delete(&mut self, consent: &Consent, id: &str, revision: u64) -> Action {
+        let store = self
+            .macros
+            .library
+            .as_ref()
+            .expect("admitted macro library");
+        let publication = match store.delete(consent.name.name(), id, revision) {
+            Ok(p) => p,
+            Err(e) => return self.error(&e.to_string()),
+        };
+        if let Some(named) = self.macros.names.get_mut(&consent.name) {
+            named.saved = None;
+        }
+        self.message(if publication.warning {
+            "Saved macro deleted; durability could not be confirmed"
+        } else {
+            "Saved macro deleted; session snapshots remain available"
+        })
+    }
+
+    fn macro_library_save(&mut self, consent: &Consent) -> Action {
+        let store = self
+            .macros
+            .library
+            .as_ref()
+            .expect("admitted macro library");
         let Some(named) = self.macros.names.get(&consent.name) else {
             return self.message("Named macro disappeared");
         };
@@ -278,91 +296,7 @@ impl Session {
         // The whole aggregate has passed structural validation before any name
         // or binding is admitted. Independent collisions quarantine one record.
         for record in catalog.macros {
-            let name = match MacroName::new(&record.name) {
-                Ok(n) => n,
-                Err(_) => {
-                    diagnostics.push(format!("{}: command name collision", record.name));
-                    continue;
-                }
-            };
-            let active = self.named_macro_binding(name);
-            let stale = self.macros.names.get(&name).is_some_and(|n| {
-                n.saved
-                    .as_ref()
-                    .is_none_or(|s| s.id != record.id || !s.clean(n, active.as_ref()))
-            });
-            let identity_collision =
-                self.macros.names.iter().any(|(n, v)| {
-                    *n != name && v.saved.as_ref().is_some_and(|s| s.id == record.id)
-                });
-            let command_collision = self
-                .input
-                .command_named(name.name())
-                .is_some_and(|c| !matches!(c, Command::MacroNamed(_)));
-            if stale || identity_collision || command_collision {
-                diagnostics.push(format!(
-                    "{}: unsaved or conflicting session definition preserved",
-                    name.name()
-                ));
-                continue;
-            }
-            let source = record.definition(0).map_err(|e| e.to_string())?;
-            let definition = match self.macros.snapshot(&source) {
-                Ok(d) => d,
-                Err(_) => {
-                    diagnostics.push(format!("{}: retained memory limit", name.name()));
-                    continue;
-                }
-            };
-            let stored_binding = record
-                .binding
-                .as_ref()
-                .map(|s| Sequence::parse(s).expect("structurally validated binding"));
-            let binding = stored_binding
-                .as_ref()
-                .filter(|key| {
-                    self.input
-                        .macro_library_binding_check(key, name)
-                        .is_ok_and(|occupied| !occupied)
-                        && (self.macros.bindings.len() < crate::macros::NAME_LIMIT
-                            || self
-                                .macros
-                                .bindings
-                                .values()
-                                .any(|target| matches!(target, Target::Named(n) if *n == name)))
-                })
-                .cloned();
-            if stored_binding.is_some() && binding.is_none() {
-                diagnostics.push(format!(
-                    "{}: saved binding inactive because it conflicts",
-                    name.name()
-                ));
-            }
-            let saved = Saved {
-                id: record.id,
-                revision: record.revision,
-                baseline: Arc::clone(&definition),
-                description: record.description.clone(),
-                binding: stored_binding,
-                active_binding: binding.clone(),
-            };
-            let named = Named {
-                source: (definition.id, definition.revision),
-                definition,
-                description: record.description,
-                saved: Some(saved),
-            };
-            if let Err(e) = self.macros.name_snapshot(name, named) {
-                diagnostics.push(format!("{}: {e}", name.name()));
-                continue;
-            }
-            self.macros
-                .bindings
-                .retain(|_, target| !matches!(target,Target::Named(n) if *n==name));
-            if let Some(key) = binding {
-                self.macros.bindings.insert(key, Target::Named(name));
-            }
-            self.sync_macro_catalog();
+            self.admit_macro_library_record(record, &mut diagnostics)?;
         }
         for (name, named) in &self.macros.names {
             if named
@@ -382,5 +316,112 @@ impl Session {
         } else {
             Err(format!("Macro library: {}", diagnostics.join("; ")))
         }
+    }
+
+    fn admit_macro_library_record(
+        &mut self,
+        record: Record,
+        diagnostics: &mut Vec<String>,
+    ) -> Result<(), String> {
+        let name = match MacroName::new(&record.name) {
+            Ok(n) => n,
+            Err(_) => {
+                diagnostics.push(format!("{}: command name collision", record.name));
+                return Ok(());
+            }
+        };
+        if self.macro_library_conflict(name, &record) {
+            diagnostics.push(format!(
+                "{}: unsaved or conflicting session definition preserved",
+                name.name()
+            ));
+            return Ok(());
+        }
+        let source = record.definition(0).map_err(|e| e.to_string())?;
+        let definition = match self.macros.snapshot(&source) {
+            Ok(d) => d,
+            Err(_) => {
+                diagnostics.push(format!("{}: retained memory limit", name.name()));
+                return Ok(());
+            }
+        };
+        let (stored_binding, binding) = self.macro_library_bindings(&record, name);
+        if stored_binding.is_some() && binding.is_none() {
+            diagnostics.push(format!(
+                "{}: saved binding inactive because it conflicts",
+                name.name()
+            ));
+        }
+        let saved = Saved {
+            id: record.id,
+            revision: record.revision,
+            baseline: Arc::clone(&definition),
+            description: record.description.clone(),
+            binding: stored_binding,
+            active_binding: binding.clone(),
+        };
+        let named = Named {
+            source: (definition.id, definition.revision),
+            definition,
+            description: record.description,
+            saved: Some(saved),
+        };
+        if let Err(e) = self.macros.name_snapshot(name, named) {
+            diagnostics.push(format!("{}: {e}", name.name()));
+            return Ok(());
+        }
+        self.macros
+            .bindings
+            .retain(|_, target| !matches!(target,Target::Named(n) if *n==name));
+        if let Some(key) = binding {
+            self.macros.bindings.insert(key, Target::Named(name));
+        }
+        self.sync_macro_catalog();
+        Ok(())
+    }
+
+    fn macro_library_conflict(&self, name: MacroName, record: &Record) -> bool {
+        let active = self.named_macro_binding(name);
+        let stale = self.macros.names.get(&name).is_some_and(|n| {
+            n.saved
+                .as_ref()
+                .is_none_or(|s| s.id != record.id || !s.clean(n, active.as_ref()))
+        });
+        let identity_collision = self
+            .macros
+            .names
+            .iter()
+            .any(|(n, v)| *n != name && v.saved.as_ref().is_some_and(|s| s.id == record.id));
+        let command_collision = self
+            .input
+            .command_named(name.name())
+            .is_some_and(|c| !matches!(c, Command::MacroNamed(_)));
+        stale || identity_collision || command_collision
+    }
+
+    fn macro_library_bindings(
+        &self,
+        record: &Record,
+        name: MacroName,
+    ) -> (Option<Sequence>, Option<Sequence>) {
+        let stored_binding = record
+            .binding
+            .as_ref()
+            .map(|s| Sequence::parse(s).expect("structurally validated binding"));
+        let binding = stored_binding
+            .as_ref()
+            .filter(|key| {
+                self.input
+                    .macro_library_binding_check(key, name)
+                    .is_ok_and(|occupied| !occupied)
+                    && (self.macros.bindings.len() < crate::macros::NAME_LIMIT
+                        || self
+                            .macros
+                            .bindings
+                            .values()
+                            .any(|target| matches!(target, Target::Named(n) if *n == name)))
+            })
+            .cloned();
+        (stored_binding, binding)
     }
 }

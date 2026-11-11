@@ -112,6 +112,10 @@ impl Session {
             self.macro_menu_close();
             return None;
         }
+        self.macro_menu_checked_command(command)
+    }
+
+    fn macro_menu_checked_command(&mut self, command: Command) -> Option<Action> {
         if matches!(command, Command::Window(_) | Command::Split(_)) {
             return None;
         }
@@ -132,8 +136,11 @@ impl Session {
             self.macro_menu_refresh();
             return Some(self.message("Macro ring changed; menu refreshed; retry the action"));
         }
-        Some(match command {
-            Command::Macro(c) => self.macro_menu_action(c),
+        Some(self.macro_menu_dispatch(command))
+    }
+
+    fn macro_menu_scroll(&mut self, command: Command) -> Option<Action> {
+        let action = match command {
             Command::Scroll(Scroll::NextLine) => self.macro_menu_move(1, false),
             Command::Scroll(Scroll::PreviousLine) => self.macro_menu_move(1, true),
             Command::Scroll(Scroll::PageForward) => {
@@ -144,6 +151,17 @@ impl Session {
             }
             Command::Motion(Motion::BufferStart) => self.macro_menu_move(usize::MAX, true),
             Command::Motion(Motion::BufferEnd) => self.macro_menu_move(usize::MAX, false),
+            _ => return None,
+        };
+        Some(action)
+    }
+
+    fn macro_menu_dispatch(&mut self, command: Command) -> Action {
+        if let Some(action) = self.macro_menu_scroll(command) {
+            return action;
+        }
+        match command {
+            Command::Macro(c) => self.macro_menu_action(c),
             Command::Motion(Motion::ForwardChar | Motion::BackwardChar) => {
                 let menu = self.macro_menu.as_mut().expect("active menu");
                 menu.column = (menu.column
@@ -161,7 +179,7 @@ impl Session {
                 self.message("Macro menu region anchor set")
             }
             _ => self.message("Read-only macro menu; ? shows local commands; q returns to source"),
-        })
+        }
     }
     fn macro_menu_move(&mut self, count: usize, backward: bool) -> Action {
         let menu = self.macro_menu.as_mut().expect("active menu");
@@ -211,82 +229,131 @@ impl Session {
         else {
             return self.message("Macro ring is empty");
         };
+        self.macro_menu_row_action(command, target)
+    }
+
+    fn macro_menu_row_action(&mut self, command: MacroCommand, target: (u64, u64)) -> Action {
+        if let Some(action) = self.macro_menu_selection_action(command) {
+            return action;
+        }
         match command {
+            MacroCommand::MenuTranspose => self.macro_menu_transpose(target),
+            MacroCommand::MenuKeys => self.macro_menu_edit(target),
+            MacroCommand::MenuColumn => self.macro_menu_column(target),
+            MacroCommand::MenuPosition | MacroCommand::MenuCounter | MacroCommand::MenuFormat => {
+                self.macro_menu_prompt(command, target)
+            }
+            _ => self.message("This macro command is unavailable in the read-only menu"),
+        }
+    }
+
+    fn macro_menu_selection_action(&mut self, command: MacroCommand) -> Option<Action> {
+        let action = match command {
             MacroCommand::MenuFlag | MacroCommand::MenuMark | MacroCommand::MenuUnmark => {
-                let targets = self.macro_menu_targets();
-                let menu = self.macro_menu.as_mut().expect("active menu");
-                for (id, _) in targets {
-                    match command {
-                        MacroCommand::MenuFlag => {
-                            menu.flagged.insert(id);
-                        }
-                        MacroCommand::MenuMark => {
-                            menu.marked.insert(id);
-                        }
-                        _ => {
-                            menu.flagged.remove(&id);
-                            menu.marked.remove(&id);
-                        }
-                    }
+                self.macro_menu_mark(command)
+            }
+            MacroCommand::MenuUnmarkBackward => self.macro_menu_unmark_backward(),
+            MacroCommand::MenuFlaggedDelete => self.macro_menu_delete_flagged(),
+            MacroCommand::MenuCopy | MacroCommand::MenuDelete => self.macro_menu_consent(command),
+            _ => return None,
+        };
+        Some(action)
+    }
+
+    fn macro_menu_mark(&mut self, command: MacroCommand) -> Action {
+        let targets = self.macro_menu_targets();
+        let menu = self.macro_menu.as_mut().expect("active menu");
+        for (id, _) in targets {
+            match command {
+                MacroCommand::MenuFlag => {
+                    menu.flagged.insert(id);
                 }
-                menu.anchor = None;
-                self.macro_menu_move(1, false)
-            }
-            MacroCommand::MenuUnmarkBackward => {
-                self.macro_menu_move(1, true);
-                let menu = self.macro_menu.as_mut().expect("active menu");
-                if let Some((id, _)) = menu.rows.get(menu.cursor) {
-                    menu.marked.remove(id);
-                    menu.flagged.remove(id);
+                MacroCommand::MenuMark => {
+                    menu.marked.insert(id);
                 }
-                menu.anchor = None;
-                Action::Redraw
-            }
-            MacroCommand::MenuFlaggedDelete => {
-                let menu = self.macro_menu.as_ref().expect("active menu");
-                let targets = menu
-                    .rows
-                    .iter()
-                    .copied()
-                    .filter(|r| menu.flagged.contains(&r.0))
-                    .collect();
-                self.macro_menu_apply(&Consent {
-                    targets,
-                    copy: false,
-                })
-            }
-            MacroCommand::MenuCopy | MacroCommand::MenuDelete => {
-                let targets = self.macro_menu_targets();
-                let copy = command == MacroCommand::MenuCopy;
-                let consent = Consent { targets, copy };
-                let limit = self.buffers.snapshot().settings().macros.ring_limit;
-                if !copy
-                    || consent.targets.len() > 1
-                    || self.macros.ring.len() + consent.targets.len() > limit
-                {
-                    if let Err(e) = self.input.decision(consent.question()) {
-                        return self.error(&e.to_string());
-                    }
-                    self.pending = Some(Pending::MacroMenuConsent(Box::new(consent)));
-                    self.focus_message("Named and saved snapshots remain independent")
-                } else {
-                    self.macro_menu_apply(&consent)
+                _ => {
+                    menu.flagged.remove(&id);
+                    menu.marked.remove(&id);
                 }
             }
-            MacroCommand::MenuTranspose => {
-                let index = self
-                    .macros
-                    .ring
-                    .iter()
-                    .position(|d| d.id == target.0)
-                    .expect("current row");
-                if index > 0 {
-                    self.macros.ring.swap(index, index - 1);
-                }
-                self.macro_menu_refresh();
-                self.message("Macro row transposed")
+        }
+        menu.anchor = None;
+        self.macro_menu_move(1, false)
+    }
+
+    fn macro_menu_unmark_backward(&mut self) -> Action {
+        self.macro_menu_move(1, true);
+        let menu = self.macro_menu.as_mut().expect("active menu");
+        if let Some((id, _)) = menu.rows.get(menu.cursor) {
+            menu.marked.remove(id);
+            menu.flagged.remove(id);
+        }
+        menu.anchor = None;
+        Action::Redraw
+    }
+
+    fn macro_menu_delete_flagged(&mut self) -> Action {
+        let menu = self.macro_menu.as_ref().expect("active menu");
+        let targets = menu
+            .rows
+            .iter()
+            .copied()
+            .filter(|r| menu.flagged.contains(&r.0))
+            .collect();
+        self.macro_menu_apply(&Consent {
+            targets,
+            copy: false,
+        })
+    }
+
+    fn macro_menu_consent(&mut self, command: MacroCommand) -> Action {
+        let targets = self.macro_menu_targets();
+        let copy = command == MacroCommand::MenuCopy;
+        let consent = Consent { targets, copy };
+        let limit = self.buffers.snapshot().settings().macros.ring_limit;
+        if !copy
+            || consent.targets.len() > 1
+            || self.macros.ring.len() + consent.targets.len() > limit
+        {
+            if let Err(e) = self.input.decision(consent.question()) {
+                return self.error(&e.to_string());
             }
-            MacroCommand::MenuKeys => {
+            self.pending = Some(Pending::MacroMenuConsent(Box::new(consent)));
+            self.focus_message("Named and saved snapshots remain independent")
+        } else {
+            self.macro_menu_apply(&consent)
+        }
+    }
+
+    fn macro_menu_transpose(&mut self, target: (u64, u64)) -> Action {
+        let index = self
+            .macros
+            .ring
+            .iter()
+            .position(|d| d.id == target.0)
+            .expect("current row");
+        if index > 0 {
+            self.macros.ring.swap(index, index - 1);
+        }
+        self.macro_menu_refresh();
+        self.message("Macro row transposed")
+    }
+
+    fn macro_menu_edit(&mut self, target: (u64, u64)) -> Action {
+        let source = Arc::clone(
+            self.macros
+                .ring
+                .iter()
+                .find(|d| d.id == target.0)
+                .expect("current row"),
+        );
+        self.macro_open_definition(Selection::Ring(source), false)
+    }
+
+    fn macro_menu_column(&mut self, target: (u64, u64)) -> Action {
+        match self.macro_menu.as_ref().expect("active menu").column {
+            0 => self.macro_menu_action(MacroCommand::MenuPosition),
+            1 => {
                 let source = Arc::clone(
                     self.macros
                         .ring
@@ -294,59 +361,43 @@ impl Session {
                         .find(|d| d.id == target.0)
                         .expect("current row"),
                 );
-                self.macro_open_definition(Selection::Ring(source), false)
+                self.macro_name_source(source)
             }
-            MacroCommand::MenuColumn => {
-                match self.macro_menu.as_ref().expect("active menu").column {
-                    0 => self.macro_menu_action(MacroCommand::MenuPosition),
-                    1 => {
-                        let source = Arc::clone(
-                            self.macros
-                                .ring
-                                .iter()
-                                .find(|d| d.id == target.0)
-                                .expect("current row"),
-                        );
-                        self.macro_name_source(source)
-                    }
-                    2 | 4 => self.macro_menu_action(MacroCommand::MenuCounter),
-                    3 => self.macro_menu_action(MacroCommand::MenuFormat),
-                    _ => self.macro_menu_action(MacroCommand::MenuKeys),
-                }
-            }
-            MacroCommand::MenuPosition | MacroCommand::MenuCounter | MacroCommand::MenuFormat => {
-                let source = self
-                    .macros
-                    .ring
-                    .iter()
-                    .find(|d| d.id == target.0)
-                    .expect("current row");
-                let (label, initial) = match command {
-                    MacroCommand::MenuPosition => (
-                        "Ring position (zero based): ",
-                        self.macro_menu
-                            .as_ref()
-                            .expect("active menu")
-                            .cursor
-                            .to_string(),
-                    ),
-                    MacroCommand::MenuCounter => {
-                        ("Macro counter: ", source.counter.current.to_string())
-                    }
-                    _ => ("Macro counter format: ", source.initial_format.clone()),
-                };
-                if let Err(e) = self.input.argument(label, &initial) {
-                    return self.error(&e.to_string());
-                }
-                self.pending = Some(Pending::MacroMenuPrompt(Box::new(Prompt {
-                    target,
-                    property: command,
-                })));
-                self.message("")
-            }
-            _ => self.message("This macro command is unavailable in the read-only menu"),
+            2 | 4 => self.macro_menu_action(MacroCommand::MenuCounter),
+            3 => self.macro_menu_action(MacroCommand::MenuFormat),
+            _ => self.macro_menu_action(MacroCommand::MenuKeys),
         }
     }
+
+    fn macro_menu_prompt(&mut self, command: MacroCommand, target: (u64, u64)) -> Action {
+        let source = self
+            .macros
+            .ring
+            .iter()
+            .find(|d| d.id == target.0)
+            .expect("current row");
+        let (label, initial) = match command {
+            MacroCommand::MenuPosition => (
+                "Ring position (zero based): ",
+                self.macro_menu
+                    .as_ref()
+                    .expect("active menu")
+                    .cursor
+                    .to_string(),
+            ),
+            MacroCommand::MenuCounter => ("Macro counter: ", source.counter.current.to_string()),
+            _ => ("Macro counter format: ", source.initial_format.clone()),
+        };
+        if let Err(e) = self.input.argument(label, &initial) {
+            return self.error(&e.to_string());
+        }
+        self.pending = Some(Pending::MacroMenuPrompt(Box::new(Prompt {
+            target,
+            property: command,
+        })));
+        self.message("")
+    }
+
     pub(in crate::session) fn macro_menu_argument(
         &mut self,
         prompt: &Prompt,
@@ -355,47 +406,7 @@ impl Session {
         if !self.macro_menu_active() {
             return self.message("Macro menu owner changed");
         }
-        let result = (|| -> Result<(), String> {
-            let source = self
-                .macros
-                .ring
-                .iter()
-                .find(|d| (d.id, d.revision) == prompt.target)
-                .cloned()
-                .ok_or("Macro menu target changed")?;
-            if prompt.property == MacroCommand::MenuPosition {
-                let position = value
-                    .parse::<usize>()
-                    .map_err(|_| "Ring position requires a nonnegative integer")?;
-                if position >= self.macros.ring.len() {
-                    return Err("Ring position is outside the current ring".into());
-                }
-                let current = self
-                    .macros
-                    .ring
-                    .iter()
-                    .position(|d| d.id == source.id)
-                    .ok_or("Macro row was removed")?;
-                self.macros.ring.remove(current);
-                self.macros.ring.insert(position, source);
-                return Ok(());
-            }
-            let mut candidate = (*source).clone();
-            if prompt.property == MacroCommand::MenuCounter {
-                candidate.counter.current = value
-                    .parse::<i64>()
-                    .map_err(|_| "Macro counter requires a signed 64-bit integer")?;
-            } else {
-                let format = if value.is_empty() { "%d" } else { value };
-                crate::macros::counter::render(format, i64::MIN).map_err(str::to_owned)?;
-                candidate.counter.format = format.into();
-                candidate.initial_format = format.into();
-            }
-            let limit = self.buffers.snapshot().settings().macros.ring_limit;
-            self.macros
-                .replace_definition(&Selection::Ring(source), candidate, None, limit)?;
-            Ok(())
-        })();
+        let result = self.macro_update_menu_property(prompt, value);
         match result {
             Ok(()) => {
                 self.macro_menu_refresh();
@@ -404,6 +415,52 @@ impl Session {
             Err(e) => self.error(&e),
         }
     }
+    fn macro_update_menu_property(&mut self, prompt: &Prompt, value: &str) -> Result<(), String> {
+        let source = self
+            .macros
+            .ring
+            .iter()
+            .find(|d| (d.id, d.revision) == prompt.target)
+            .cloned()
+            .ok_or("Macro menu target changed")?;
+        if prompt.property == MacroCommand::MenuPosition {
+            return self.macro_menu_position(source, value);
+        }
+        let mut candidate = (*source).clone();
+        if prompt.property == MacroCommand::MenuCounter {
+            candidate.counter.current = value
+                .parse::<i64>()
+                .map_err(|_| "Macro counter requires a signed 64-bit integer")?;
+        } else {
+            let format = if value.is_empty() { "%d" } else { value };
+            crate::macros::counter::render(format, i64::MIN).map_err(str::to_owned)?;
+            candidate.counter.format = format.into();
+            candidate.initial_format = format.into();
+        }
+        let limit = self.buffers.snapshot().settings().macros.ring_limit;
+        self.macros
+            .replace_definition(&Selection::Ring(source), candidate, None, limit)?;
+        Ok(())
+    }
+
+    fn macro_menu_position(&mut self, source: Arc<Definition>, value: &str) -> Result<(), String> {
+        let position = value
+            .parse::<usize>()
+            .map_err(|_| "Ring position requires a nonnegative integer")?;
+        if position >= self.macros.ring.len() {
+            return Err("Ring position is outside the current ring".into());
+        }
+        let current = self
+            .macros
+            .ring
+            .iter()
+            .position(|d| d.id == source.id)
+            .ok_or("Macro row was removed")?;
+        self.macros.ring.remove(current);
+        self.macros.ring.insert(position, source);
+        Ok(())
+    }
+
     pub(in crate::session) fn macro_menu_answer(
         &mut self,
         consent: &Consent,
@@ -558,4 +615,41 @@ impl Session {
         }
         frame.macro_menu(&lines, *panel)
     }
+}
+
+pub(super) fn local_command(command: MacroCommand) -> bool {
+    property_command(command) || selection_command(command) || view_command(command)
+}
+
+fn property_command(command: MacroCommand) -> bool {
+    matches!(
+        command,
+        MacroCommand::MenuPosition
+            | MacroCommand::MenuTranspose
+            | MacroCommand::MenuCounter
+            | MacroCommand::MenuFormat
+            | MacroCommand::MenuKeys
+            | MacroCommand::MenuColumn
+    )
+}
+
+fn selection_command(command: MacroCommand) -> bool {
+    matches!(
+        command,
+        MacroCommand::MenuFlag
+            | MacroCommand::MenuFlaggedDelete
+            | MacroCommand::MenuMark
+            | MacroCommand::MenuCopy
+            | MacroCommand::MenuDelete
+            | MacroCommand::MenuUnmark
+            | MacroCommand::MenuUnmarkBackward
+            | MacroCommand::MenuUnmarkAll
+    )
+}
+
+fn view_command(command: MacroCommand) -> bool {
+    matches!(
+        command,
+        MacroCommand::MenuRefresh | MacroCommand::MenuQuit | MacroCommand::MenuHelp
+    )
 }

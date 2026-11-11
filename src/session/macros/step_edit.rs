@@ -38,16 +38,9 @@ impl Session {
     pub(super) fn macro_step_boundary(&mut self) -> Option<Action> {
         let editor = self.macros.step_editor.as_ref()?;
         let run = self.macros.runner.as_ref()?;
-        if editor.capturing
-            || !self.macros.pauses.is_empty()
-            || editor.input.is_some()
-            || run.definition.id != editor.candidate.id
-            || run.parent.is_some()
-            || !run.trigger.is_empty()
-            || !run.arguments.is_empty()
-            || self.pending.is_some()
-            || self.input.focus() != Focus::Editing
-            || self.input.macro_input_pending()
+        if !self.macro_step_editor_ready(editor)
+            || !step_runner_ready(editor, run)
+            || !self.macro_step_native_ready()
         {
             return None;
         }
@@ -58,11 +51,21 @@ impl Session {
             self.macros.step_editor.as_mut().expect("step editor").after = None;
             return Some(self.macro_step_read(request));
         }
-        if run.step >= editor.candidate.steps.len() || editor.continuing || editor.allowance > 0 {
+        if !step_question_due(editor, run) {
             return None;
         }
         Some(self.macro_step_ask())
     }
+    fn macro_step_editor_ready(&self, editor: &Editor) -> bool {
+        !editor.capturing && self.macros.pauses.is_empty() && editor.input.is_none()
+    }
+
+    fn macro_step_native_ready(&self) -> bool {
+        self.pending.is_none()
+            && self.input.focus() == Focus::Editing
+            && !self.input.macro_input_pending()
+    }
+
     fn macro_step_ask(&mut self) -> Action {
         let Some(run) = self.macros.runner.as_mut() else {
             return self.message("No step editor runner");
@@ -113,10 +116,38 @@ impl Session {
         let index = run.step;
         let editor = self.macros.step_editor.as_mut().expect("step editor");
         editor.asking = false;
+        self.macro_step_answer_action(answer, index, text_entry)
+    }
+
+    fn macro_step_answer_action(
+        &mut self,
+        answer: MacroStep,
+        index: usize,
+        text_entry: bool,
+    ) -> Action {
+        if self.macro_step_execution_answer(answer, index, text_entry) {
+            return self.message("Step editor resumed");
+        }
+        if matches!(answer, MacroStep::Remove | MacroStep::RemoveRest) {
+            return self.macro_step_remove(answer, index);
+        }
+        if let Some(request) = step_insertion(answer, index) {
+            return self.macro_step_read(request);
+        }
+        self.macro_step_followup(answer, index)
+    }
+
+    fn macro_step_execution_answer(
+        &mut self,
+        answer: MacroStep,
+        index: usize,
+        text_entry: bool,
+    ) -> bool {
+        let editor = self.macros.step_editor.as_mut().expect("step editor");
         match answer {
             MacroStep::Execute => editor.allowance = 1,
             MacroStep::Continue => editor.continuing = true,
-            MacroStep::Skip => run.step += 1,
+            MacroStep::Skip => self.macros.runner.as_mut().expect("step runner").step += 1,
             MacroStep::Group => {
                 let text = |s: &Step| {
                     matches!(s, Step::Text(_))
@@ -128,31 +159,30 @@ impl Session {
                     .count()
                     .max(1);
             }
-            MacroStep::Remove | MacroStep::RemoveRest => {
-                let mut steps = editor.candidate.steps.to_vec();
-                if answer == MacroStep::Remove {
-                    if index < steps.len() {
-                        steps.remove(index);
-                    }
-                } else {
-                    steps.truncate(index);
-                }
-                return match self.macro_step_candidate(steps) {
-                    Ok(()) => self.message("Pending definition updated; source effects retained"),
-                    Err(e) => self.stop_macro(StopReason::CaptureLimit, &e),
-                };
+            _ => return false,
+        }
+        true
+    }
+
+    fn macro_step_remove(&mut self, answer: MacroStep, index: usize) -> Action {
+        let editor = self.macros.step_editor.as_ref().expect("step editor");
+        let mut steps = editor.candidate.steps.to_vec();
+        if answer == MacroStep::Remove {
+            if index < steps.len() {
+                steps.remove(index);
             }
-            MacroStep::Insert
-            | MacroStep::InsertKey
-            | MacroStep::Replace
-            | MacroStep::ReplaceKey => {
-                let request = Insertion {
-                    index,
-                    replace: matches!(answer, MacroStep::Replace | MacroStep::ReplaceKey),
-                    key_only: matches!(answer, MacroStep::InsertKey | MacroStep::ReplaceKey),
-                };
-                return self.macro_step_read(request);
-            }
+        } else {
+            steps.truncate(index);
+        }
+        match self.macro_step_candidate(steps) {
+            Ok(()) => self.message("Pending definition updated; source effects retained"),
+            Err(e) => self.stop_macro(StopReason::CaptureLimit, &e),
+        }
+    }
+
+    fn macro_step_followup(&mut self, answer: MacroStep, index: usize) -> Action {
+        let editor = self.macros.step_editor.as_mut().expect("step editor");
+        match answer {
             MacroStep::After => {
                 editor.allowance = 1;
                 editor.after = Some(Insertion {
@@ -173,7 +203,7 @@ impl Session {
                 self.macro_step_ask();
                 return self.message("Step: SPC/y execute; n/d/DEL remove; f skip once; TAB text group; c continue; C-k remove rest; i/I insert; r/R replace; a after; A run remainder then append; lowercase input ends C-j; q/C-g cancels changes");
             }
-            MacroStep::Cancel => {}
+            _ => {}
         }
         self.message("Step editor resumed")
     }
@@ -305,7 +335,7 @@ impl Session {
                 "Step editing canceled; real source edits retained",
             ));
         }
-        if matches!(event, Event::Key(key) if key.kind != crossterm::event::KeyEventKind::Release && key.modifiers == crossterm::event::KeyModifiers::CONTROL && matches!(key.code, crossterm::event::KeyCode::Char('j' | 'J')))
+        if finishes_step_input(event)
             && self.pending.is_none()
             && self.input.focus() == Focus::Editing
             && !self.input.macro_input_pending()
@@ -383,4 +413,35 @@ impl Session {
             },
         )
     }
+}
+
+fn step_runner_ready(editor: &Editor, run: &Runner) -> bool {
+    run.definition.id == editor.candidate.id
+        && run.parent.is_none()
+        && run.trigger.is_empty()
+        && run.arguments.is_empty()
+}
+
+fn step_question_due(editor: &Editor, run: &Runner) -> bool {
+    run.step < editor.candidate.steps.len() && !editor.continuing && editor.allowance == 0
+}
+
+fn step_insertion(answer: MacroStep, index: usize) -> Option<Insertion> {
+    match answer {
+        MacroStep::Insert | MacroStep::InsertKey | MacroStep::Replace | MacroStep::ReplaceKey => {
+            Some(Insertion {
+                index,
+                replace: matches!(answer, MacroStep::Replace | MacroStep::ReplaceKey),
+                key_only: matches!(answer, MacroStep::InsertKey | MacroStep::ReplaceKey),
+            })
+        }
+        _ => None,
+    }
+}
+
+fn finishes_step_input(event: &Event) -> bool {
+    matches!(event, Event::Key(key)
+        if key.kind != crossterm::event::KeyEventKind::Release
+            && key.modifiers == crossterm::event::KeyModifiers::CONTROL
+            && matches!(key.code, crossterm::event::KeyCode::Char('j' | 'J')))
 }

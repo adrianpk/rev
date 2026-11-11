@@ -122,15 +122,16 @@ impl Session {
                 return Some(self.message("Semantic plugin call is pending; C-g cancels"));
             }
         }
+        self.macro_native_input_guard(event)
+    }
+
+    fn macro_native_input_guard(&mut self, event: &Event) -> Option<Action> {
         if !self.macros.expanded && self.macro_manual() {
             if Input::interrupt(event) {
                 self.stop_macro(StopReason::Canceled, "Keyboard macro canceled");
                 return None;
             }
-            if let Some(action) = self.macro_manual_guard() {
-                return Some(action);
-            }
-            return None;
+            return self.macro_manual_guard();
         }
         if self.macros.recorder.is_some() && matches!(event, Event::Mouse(_)) {
             return Some(self.stop_macro(
@@ -138,6 +139,10 @@ impl Session {
                 "Keyboard macro recording stopped before pointer input",
             ));
         }
+        self.macro_running_input_guard(event)
+    }
+
+    fn macro_running_input_guard(&mut self, event: &Event) -> Option<Action> {
         if self.macros.expanded || self.macros.runner.is_none() {
             return None;
         }
@@ -188,23 +193,38 @@ impl Session {
             return None;
         }
         if self.macro_manual() {
-            if let Some(action) = self.macro_manual_guard() {
-                return Some(action);
-            }
-            if supported(command) || matches!(command, Command::Macro(_)) {
-                return None;
-            }
-            return Some(self.stop_macro(
-                StopReason::Unsupported,
-                "Manual macro editing stopped before unsupported command",
-            ));
+            return self.macro_manual_command_guard(command);
         }
+        self.macro_automatic_command_guard(command)
+    }
+
+    fn macro_manual_command_guard(&mut self, command: Command) -> Option<Action> {
+        if let Some(action) = self.macro_manual_guard() {
+            return Some(action);
+        }
+        if supported(command) || matches!(command, Command::Macro(_)) {
+            return None;
+        }
+        Some(self.stop_macro(
+            StopReason::Unsupported,
+            "Manual macro editing stopped before unsupported command",
+        ))
+    }
+
+    fn macro_automatic_command_guard(&mut self, command: Command) -> Option<Action> {
         if matches!(command, Command::MacroNamed(_) | Command::MacroBinding(_)) {
             return None;
         }
         if matches!(command, Command::Macro(_)) && !self.macros.expanded {
             return None;
         }
+        if self.macros.expanded {
+            return self.macro_expanded_command_guard(command);
+        }
+        self.macro_dispatch_command_guard(command)
+    }
+
+    fn macro_expanded_command_guard(&mut self, command: Command) -> Option<Action> {
         if self.macros.expanded
             && matches!(
                 command,
@@ -226,6 +246,10 @@ impl Session {
                 "Macro completion requires a captured literal edit",
             ));
         }
+        self.macro_dispatch_command_guard(command)
+    }
+
+    fn macro_dispatch_command_guard(&mut self, command: Command) -> Option<Action> {
         if (!self.macros.expanded && !self.macros.dispatching) || !supported(command) {
             return Some(self.stop_macro(
                 StopReason::Unsupported,
@@ -244,55 +268,82 @@ impl Session {
         if let Err(error) = self.stop_typing() {
             return self.error(&error.to_string());
         }
+        if let Some(action) = self.macro_library_control(command, argument) {
+            return action;
+        }
+        if command == MacroCommand::List {
+            return self.macro_menu_open();
+        }
+        if menu::local_command(command) {
+            return self.message("Open the macro menu before using its local commands");
+        }
+        if let Some(action) = self.macro_definition_control(command) {
+            return action;
+        }
+        if let Some(action) = self.macro_session_control(command, argument) {
+            return action;
+        }
+        self.macro_recording_command(command, argument)
+    }
+
+    fn macro_library_control(
+        &mut self,
+        command: MacroCommand,
+        argument: PrefixArgument,
+    ) -> Option<Action> {
         match command {
             MacroCommand::Save
             | MacroCommand::Load
             | MacroCommand::DeleteSaved
-            | MacroCommand::Export => return self.macro_library_command(command, argument),
-            MacroCommand::StepEdit => return self.macro_step_start(),
-            MacroCommand::List => return self.macro_menu_open(),
-            MacroCommand::MenuPosition
-            | MacroCommand::MenuTranspose
-            | MacroCommand::MenuCounter
-            | MacroCommand::MenuFormat
-            | MacroCommand::MenuKeys
-            | MacroCommand::MenuColumn
-            | MacroCommand::MenuFlag
-            | MacroCommand::MenuFlaggedDelete
-            | MacroCommand::MenuMark
-            | MacroCommand::MenuCopy
-            | MacroCommand::MenuDelete
-            | MacroCommand::MenuUnmark
-            | MacroCommand::MenuUnmarkBackward
-            | MacroCommand::MenuUnmarkAll
-            | MacroCommand::MenuRefresh
-            | MacroCommand::MenuQuit
-            | MacroCommand::MenuHelp => {
-                return self.message("Open the macro menu before using its local commands");
-            }
+            | MacroCommand::Export => Some(self.macro_library_command(command, argument)),
+            _ => None,
+        }
+    }
+
+    fn macro_definition_control(&mut self, command: MacroCommand) -> Option<Action> {
+        match command {
+            MacroCommand::StepEdit => Some(self.macro_step_start()),
             MacroCommand::Edit
             | MacroCommand::EditRepeat
             | MacroCommand::EditNamed
             | MacroCommand::Lossage
             | MacroCommand::FinishEdit
             | MacroCommand::InsertKey
-            | MacroCommand::RegionLines => return self.macro_definition_command(command),
-            MacroCommand::Name => return self.macro_name_prompt(false),
-            MacroCommand::Bind => return self.macro_name_prompt(true),
-            MacroCommand::Query => return self.macro_query_command(argument),
-            MacroCommand::Resume => return self.macro_resume(),
+            | MacroCommand::RegionLines => Some(self.macro_definition_command(command)),
+            _ => None,
+        }
+    }
+
+    fn macro_session_control(
+        &mut self,
+        command: MacroCommand,
+        argument: PrefixArgument,
+    ) -> Option<Action> {
+        let action = match command {
+            MacroCommand::Name => self.macro_name_prompt(false),
+            MacroCommand::Bind => self.macro_name_prompt(true),
+            MacroCommand::Query => self.macro_query_command(argument),
+            MacroCommand::Resume => self.macro_resume(),
             MacroCommand::Abort => {
-                return if self.macro_manual() {
+                if self.macro_manual() {
                     self.stop_macro(StopReason::Canceled, "Macro editing aborted")
                 } else {
                     self.message("No macro editing pause is active")
-                };
+                }
             }
-            MacroCommand::ApplyLines => return self.macro_region_start(),
-            _ => {}
-        }
+            MacroCommand::ApplyLines => self.macro_region_start(),
+            _ => return None,
+        };
+        Some(action)
+    }
+
+    fn macro_recording_effect(
+        &mut self,
+        command: MacroCommand,
+        argument: PrefixArgument,
+    ) -> Option<Action> {
         if command == MacroCommand::StartOrCounter && self.macros.recorder.is_some() {
-            return self.macro_counter_command(MacroCommand::InsertCounter, argument);
+            return Some(self.macro_counter_command(MacroCommand::InsertCounter, argument));
         }
         if matches!(
             command,
@@ -301,17 +352,32 @@ impl Session {
                 | MacroCommand::AddCounter
                 | MacroCommand::SetFormat
         ) {
-            return self.macro_counter_command(command, argument);
+            return Some(self.macro_counter_command(command, argument));
         }
         if command == MacroCommand::Redisplay {
-            if let Some(recorder) = &mut self.macros.recorder
-                && let Err(reason) = recorder
-                    .stage(crate::macros::Step::Redisplay)
-                    .and_then(|()| recorder.accept())
-            {
-                return self.stop_macro(reason, "Keyboard macro recording limit exceeded");
-            }
-            return self.message("");
+            return Some(self.macro_redisplay());
+        }
+        None
+    }
+
+    fn macro_redisplay(&mut self) -> Action {
+        if let Some(recorder) = &mut self.macros.recorder
+            && let Err(reason) = recorder
+                .stage(crate::macros::Step::Redisplay)
+                .and_then(|()| recorder.accept())
+        {
+            return self.stop_macro(reason, "Keyboard macro recording limit exceeded");
+        }
+        self.message("")
+    }
+
+    fn macro_recording_command(
+        &mut self,
+        command: MacroCommand,
+        argument: PrefixArgument,
+    ) -> Action {
+        if let Some(action) = self.macro_recording_effect(command, argument) {
+            return action;
         }
         if self.macros.expanded || self.macros.runner.is_some() {
             return self.stop_macro(
@@ -322,6 +388,17 @@ impl Session {
         if matches!(command, MacroCommand::Start | MacroCommand::StartOrCounter) {
             return self.macro_start_recording(argument);
         }
+        if let Some(action) = self.macro_ring_control(command, argument) {
+            return action;
+        }
+        self.macro_end_recording(command, argument)
+    }
+
+    fn macro_ring_control(
+        &mut self,
+        command: MacroCommand,
+        argument: PrefixArgument,
+    ) -> Option<Action> {
         if matches!(
             command,
             MacroCommand::Next
@@ -330,8 +407,12 @@ impl Session {
                 | MacroCommand::Swap
                 | MacroCommand::CallSecond
         ) {
-            return self.macro_ring_command(command, argument);
+            return Some(self.macro_ring_command(command, argument));
         }
+        None
+    }
+
+    fn macro_publish_recording(&mut self, command: MacroCommand) -> Result<bool, Action> {
         let recorded = self.macros.recorder.is_some();
         if let Some(recorder) = self.macros.recorder.take() {
             if recorder.steps.len() == recorder.original_len {
@@ -340,30 +421,26 @@ impl Session {
                     iteration: 0,
                     step: 0,
                 });
-                return self.message("Empty recording discarded; previous macro retained");
+                return Err(self.message("Empty recording discarded; previous macro retained"));
             }
             let limit = self.buffers.snapshot().settings().macros.ring_limit;
             if let Err(reason) = self.macros.publish(recorder, limit) {
-                return self.stop_macro(reason, "Keyboard macro definition revision limit reached");
+                return Err(
+                    self.stop_macro(reason, "Keyboard macro definition revision limit reached")
+                );
             }
         } else if command == MacroCommand::End {
-            return self.message("No keyboard macro is being recorded");
+            return Err(self.message("No keyboard macro is being recorded"));
         }
-        let count = if recorded {
-            match command {
-                MacroCommand::EndOrCall => 0,
-                MacroCommand::End if argument.value() > 0 => {
-                    if argument.supplied() {
-                        argument.value() - 1
-                    } else {
-                        0
-                    }
-                }
-                _ => argument.value(),
-            }
-        } else {
-            argument.value()
+        Ok(recorded)
+    }
+
+    fn macro_end_recording(&mut self, command: MacroCommand, argument: PrefixArgument) -> Action {
+        let recorded = match self.macro_publish_recording(command) {
+            Ok(recorded) => recorded,
+            Err(action) => return action,
         };
+        let count = recorded_count(command, argument, recorded);
         self.macros.repeat = match command {
             MacroCommand::EndAndCall => Some(crate::macros::Repeat::EndCall),
             MacroCommand::CallRepeat => Some(crate::macros::Repeat::Ring),
@@ -516,4 +593,22 @@ fn supported(command: Command) -> bool {
             | Command::GenerateNewBuffer
             | Command::Completion(_)
     )
+}
+
+fn recorded_count(command: MacroCommand, argument: PrefixArgument, recorded: bool) -> i32 {
+    if recorded {
+        match command {
+            MacroCommand::EndOrCall => 0,
+            MacroCommand::End if argument.value() > 0 => {
+                if argument.supplied() {
+                    argument.value() - 1
+                } else {
+                    0
+                }
+            }
+            _ => argument.value(),
+        }
+    } else {
+        argument.value()
+    }
 }

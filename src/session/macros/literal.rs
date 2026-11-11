@@ -87,15 +87,7 @@ impl Session {
         let point = self.view().point.position.0;
         let mut edits = Vec::new();
         for edit in literal.edits {
-            let range = absolute(point, edit.start)?..absolute(point, edit.end)?;
-            let source = buffer.span(range).map_err(|e| e.to_string())?;
-            if buffer.slice(&source).map_err(|e| e.to_string())? != edit.expected {
-                return Err("Macro completion source precondition differs".into());
-            }
-            edits.push(Replacement {
-                source,
-                text: edit.text,
-            });
+            edits.push(literal_replacement(buffer, point, edit)?);
         }
         if edits.is_empty() {
             return Err("Macro completion has no literal edits".into());
@@ -117,4 +109,20 @@ fn absolute(point: usize, offset: i64) -> Result<usize, String> {
         .and_then(|at| at.checked_add(offset))
         .and_then(|at| usize::try_from(at).ok())
         .ok_or_else(|| "Macro completion range is outside the source".into())
+}
+
+fn literal_replacement(
+    buffer: &crate::buffer::Buffer,
+    point: usize,
+    edit: CompletionEdit,
+) -> Result<Replacement, String> {
+    let range = absolute(point, edit.start)?..absolute(point, edit.end)?;
+    let source = buffer.span(range).map_err(|e| e.to_string())?;
+    if buffer.slice(&source).map_err(|e| e.to_string())? != edit.expected {
+        return Err("Macro completion source precondition differs".into());
+    }
+    Ok(Replacement {
+        source,
+        text: edit.text,
+    })
 }

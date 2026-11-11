@@ -3,6 +3,12 @@ use crate::input::Outcome;
 use crate::macros::{Argument, CommandStep, Role, Step, StopReason};
 use crate::session::{Action, Pending, Session};
 
+enum Capture {
+    Waiting,
+    Named(Command),
+    Physical(Option<Command>),
+}
+
 impl Session {
     pub(in crate::session) fn macro_capture_outcome(
         &mut self,
@@ -14,77 +20,107 @@ impl Session {
         if matches!(self.pending, Some(Pending::MacroCounter { .. })) {
             return None;
         }
-        let command = match outcome {
-            Outcome::Command(command) | Outcome::ArgumentPrefix(command) => Some(*command),
-            Outcome::Invocation(invocation) => Some(invocation.command),
-            _ => None,
-        };
+        let command = outcome_command(outcome);
         if command == Some(Command::KeyboardQuit) {
             self.macros.fail(StopReason::Canceled);
             return None;
         }
+        let capture = match self.macro_capture_admission(outcome, command) {
+            Ok(Capture::Waiting) => return None,
+            Ok(capture) => capture,
+            Err(action) => return Some(action),
+        };
+        self.macro_capture_accepted(outcome, &capture)
+    }
+
+    fn macro_capture_admission(
+        &mut self,
+        outcome: &Outcome,
+        command: Option<Command>,
+    ) -> Result<Capture, Action> {
         let recorder = self.macros.recorder.as_mut().expect("capture owner");
         let named = recorder.selecting && matches!(self.pending, Some(Pending::Command));
         if command == Some(Command::ExecuteExtended) && !named {
             recorder.discard_pending();
             recorder.selecting = true;
-            return None;
+            return Ok(Capture::Waiting);
         }
         if recorder.selecting && !named {
-            return None;
+            return Ok(Capture::Waiting);
         }
+        self.macro_capture_selected_outcome(outcome, command, named)
+    }
+
+    fn macro_capture_selected_outcome(
+        &mut self,
+        outcome: &Outcome,
+        command: Option<Command>,
+        named: bool,
+    ) -> Result<Capture, Action> {
         if named && command.is_none() {
             if self.input.focus() == crate::input::Focus::Editing
                 && matches!(outcome, Outcome::Message(_))
             {
-                return Some(self.stop_macro(
+                return Err(self.stop_macro(
                     StopReason::MissingCommand,
                     "Macro command selection was not accepted",
                 ));
             }
             // Query text, completion and candidate navigation are presentation.
-            return None;
+            return Ok(Capture::Waiting);
         }
+        if self.macro_capture_control(outcome, command) {
+            return Ok(Capture::Waiting);
+        }
+        if named {
+            Ok(Capture::Named(command.expect("accepted named command")))
+        } else {
+            Ok(Capture::Physical(command))
+        }
+    }
+
+    fn macro_capture_control(&mut self, outcome: &Outcome, command: Option<Command>) -> bool {
+        let recorder = self.macros.recorder.as_mut().expect("capture owner");
         if command.is_some_and(|c| matches!(c, Command::Macro(_))) {
             recorder.selecting = false;
             recorder.discard_pending();
-            return None;
+            return true;
         }
         if recorder.command.is_some() {
-            return None;
+            return true;
         }
         if matches!(command, Some(Command::PluginDefined(_))) {
             // Live plugin admission owns semantic capture after validating its
             // policy and literal arguments; never retain the physical trigger.
             recorder.selecting = false;
             recorder.discard_pending();
-            return None;
+            return true;
         }
         if let Some(command @ Command::MacroNamed(_)) = command {
-            let argument = match outcome {
-                Outcome::Invocation(invocation) => invocation.argument,
-                _ => PrefixArgument::default(),
-            };
             recorder.selecting = false;
             recorder.discard_pending();
             recorder.begin_command(
                 CommandStep {
                     name: command.name().into(),
-                    argument,
+                    argument: outcome_argument(outcome),
                     keys: None,
                     arguments: Vec::new(),
                 },
                 true,
             );
-            return None;
+            return true;
         }
         if let Some(Command::Completion(control)) = command {
             recorder.selecting = false;
             if control == CompletionCommand::AtPoint {
                 recorder.discard_pending();
             }
-            return None;
+            return true;
         }
+        false
+    }
+
+    fn macro_capture_accepted(&mut self, outcome: &Outcome, capture: &Capture) -> Option<Action> {
         if matches!(outcome, Outcome::Ignored) {
             return None;
         }
@@ -102,31 +138,45 @@ impl Session {
                 self.stop_macro(StopReason::Unsupported, "Keyboard macro paste was rejected"),
             );
         }
-        let argument = match outcome {
-            Outcome::Invocation(invocation) => invocation.argument,
-            _ => PrefixArgument::default(),
-        };
-        if named {
-            let command = command.expect("accepted named command").canonical();
-            let step = CommandStep {
-                name: command.name().into(),
-                argument,
-                keys: None,
-                arguments: Vec::new(),
-            };
-            recorder.selecting = false;
-            recorder.discard_pending();
-            if command.prefix_control() {
-                if let Err(reason) = recorder.stage(Step::Command(step)) {
-                    return Some(
-                        self.stop_macro(reason, "Keyboard macro recording limit exceeded"),
-                    );
-                }
-            } else {
-                recorder.begin_command(step, true);
+        match capture {
+            Capture::Named(command) => {
+                self.macro_capture_named(*command, outcome_argument(outcome))
             }
-            return None;
+            Capture::Physical(command) => self.macro_capture_physical(outcome, *command),
+            Capture::Waiting => None,
         }
+    }
+
+    fn macro_capture_named(
+        &mut self,
+        command: Command,
+        argument: PrefixArgument,
+    ) -> Option<Action> {
+        let command = command.canonical();
+        let step = CommandStep {
+            name: command.name().into(),
+            argument,
+            keys: None,
+            arguments: Vec::new(),
+        };
+        let recorder = self.macros.recorder.as_mut().expect("capture owner");
+        recorder.selecting = false;
+        recorder.discard_pending();
+        if command.prefix_control() {
+            if let Err(reason) = recorder.stage(Step::Command(step)) {
+                return Some(self.stop_macro(reason, "Keyboard macro recording limit exceeded"));
+            }
+        } else {
+            recorder.begin_command(step, true);
+        }
+        None
+    }
+
+    fn macro_capture_physical(
+        &mut self,
+        outcome: &Outcome,
+        command: Option<Command>,
+    ) -> Option<Action> {
         let text_bytes = match outcome {
             Outcome::Paste(text) => text.len(),
             Outcome::TextInvocation(text) => text.text.len(),
@@ -148,26 +198,37 @@ impl Session {
                 _ => None,
             });
         if let Some(step) = step {
-            if let Err(reason) = recorder.stage(step) {
-                return Some(self.stop_macro(reason, "Keyboard macro recording limit exceeded"));
-            }
-            if let Some(command) = command.filter(|c| prompting(*c)) {
-                recorder.begin_command(
-                    CommandStep {
-                        name: command.canonical().name().into(),
-                        argument,
-                        keys: None,
-                        arguments: Vec::new(),
-                    },
-                    false,
-                );
-            } else if !matches!(
-                outcome,
-                Outcome::Prefix(_) | Outcome::ArgumentPrefix(_) | Outcome::Changed
-            ) && let Err(reason) = recorder.accept()
-            {
-                return Some(self.stop_macro(reason, "Keyboard macro recording limit exceeded"));
-            }
+            return self.macro_capture_physical_step(step, outcome, command);
+        }
+        None
+    }
+
+    fn macro_capture_physical_step(
+        &mut self,
+        step: Step,
+        outcome: &Outcome,
+        command: Option<Command>,
+    ) -> Option<Action> {
+        let recorder = self.macros.recorder.as_mut().expect("capture owner");
+        if let Err(reason) = recorder.stage(step) {
+            return Some(self.stop_macro(reason, "Keyboard macro recording limit exceeded"));
+        }
+        if let Some(command) = command.filter(|c| prompting(*c)) {
+            recorder.begin_command(
+                CommandStep {
+                    name: command.canonical().name().into(),
+                    argument: outcome_argument(outcome),
+                    keys: None,
+                    arguments: Vec::new(),
+                },
+                false,
+            );
+        } else if !matches!(
+            outcome,
+            Outcome::Prefix(_) | Outcome::ArgumentPrefix(_) | Outcome::Changed
+        ) && let Err(reason) = recorder.accept()
+        {
+            return Some(self.stop_macro(reason, "Keyboard macro recording limit exceeded"));
         }
         None
     }
@@ -234,4 +295,19 @@ fn prompting(command: Command) -> bool {
                 ..
             })
     )
+}
+
+pub(super) fn outcome_command(outcome: &Outcome) -> Option<Command> {
+    match outcome {
+        Outcome::Command(command) | Outcome::ArgumentPrefix(command) => Some(*command),
+        Outcome::Invocation(invocation) => Some(invocation.command),
+        _ => None,
+    }
+}
+
+fn outcome_argument(outcome: &Outcome) -> PrefixArgument {
+    match outcome {
+        Outcome::Invocation(invocation) => invocation.argument,
+        _ => PrefixArgument::default(),
+    }
 }

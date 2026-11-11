@@ -18,51 +18,7 @@ impl Session {
         }
         let key = self.input.logical_key;
         let command = if self.input.focus() == Focus::Editing && self.pending.is_none() {
-            key.and_then(|key| match repeat {
-                Repeat::EndCall
-                    if key.code == crossterm::event::KeyCode::Char('e')
-                        && key.modifiers.is_empty() =>
-                {
-                    Some(MacroCommand::EndAndCall)
-                }
-                Repeat::Ring
-                    if key.code == crossterm::event::KeyCode::Char('k')
-                        && key.modifiers == crossterm::event::KeyModifiers::CONTROL =>
-                {
-                    Some(MacroCommand::CallRepeat)
-                }
-                Repeat::Ring
-                    if key.code == crossterm::event::KeyCode::Char('l')
-                        && key.modifiers == crossterm::event::KeyModifiers::CONTROL =>
-                {
-                    Some(MacroCommand::CallSecond)
-                }
-                Repeat::Ring
-                    if key.code == crossterm::event::KeyCode::Char('n')
-                        && key.modifiers == crossterm::event::KeyModifiers::CONTROL =>
-                {
-                    Some(MacroCommand::Next)
-                }
-                Repeat::Ring
-                    if key.code == crossterm::event::KeyCode::Char('p')
-                        && key.modifiers == crossterm::event::KeyModifiers::CONTROL =>
-                {
-                    Some(MacroCommand::Previous)
-                }
-                Repeat::Ring
-                    if key.code == crossterm::event::KeyCode::Char('d')
-                        && key.modifiers == crossterm::event::KeyModifiers::CONTROL =>
-                {
-                    Some(MacroCommand::Delete)
-                }
-                Repeat::Ring
-                    if key.code == crossterm::event::KeyCode::Char('t')
-                        && key.modifiers == crossterm::event::KeyModifiers::CONTROL =>
-                {
-                    Some(MacroCommand::Swap)
-                }
-                _ => None,
-            })
+            key.and_then(|key| repeat_command(repeat, key))
         } else {
             None
         };
@@ -73,5 +29,31 @@ impl Session {
             self.macros.repeat = None;
             outcome
         }
+    }
+}
+
+fn repeat_command(repeat: Repeat, key: crate::input::Key) -> Option<MacroCommand> {
+    match repeat {
+        Repeat::EndCall
+            if key.code == crossterm::event::KeyCode::Char('e') && key.modifiers.is_empty() =>
+        {
+            Some(MacroCommand::EndAndCall)
+        }
+        Repeat::Ring if key.modifiers == crossterm::event::KeyModifiers::CONTROL => {
+            ring_command(key.code)
+        }
+        _ => None,
+    }
+}
+
+fn ring_command(code: crossterm::event::KeyCode) -> Option<MacroCommand> {
+    match code {
+        crossterm::event::KeyCode::Char('k') => Some(MacroCommand::CallRepeat),
+        crossterm::event::KeyCode::Char('l') => Some(MacroCommand::CallSecond),
+        crossterm::event::KeyCode::Char('n') => Some(MacroCommand::Next),
+        crossterm::event::KeyCode::Char('p') => Some(MacroCommand::Previous),
+        crossterm::event::KeyCode::Char('d') => Some(MacroCommand::Delete),
+        crossterm::event::KeyCode::Char('t') => Some(MacroCommand::Swap),
+        _ => None,
     }
 }

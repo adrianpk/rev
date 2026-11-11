@@ -75,22 +75,7 @@ impl Session {
             .to_line(Scalar(region.range.start))
             .map_err(|error| error.to_string())?
             .row;
-        let mut positions = Vec::new();
-        for row in first..buffer.len_lines() {
-            let position = coordinates
-                .from_cell(Cell { row, column: 0 })
-                .map_err(|error| error.to_string())?;
-            if position.0 >= region.range.end {
-                break;
-            }
-            if position.0 >= region.range.start {
-                if positions.len() == MACRO_LINE_LIMIT {
-                    return Err("Macro region exceeds 65536 original line anchors".into());
-                }
-                positions.push(position);
-            }
-        }
-        Ok(positions)
+        region_line_positions(buffer, &coordinates, &region.range, first)
     }
 
     pub(super) fn macro_region_next(&mut self) -> Action {
@@ -109,60 +94,65 @@ impl Session {
             region.next += 1;
             drop(anchors);
             if let Some(position) = position {
-                if view != self.windows.selected_id() || stamp != self.view().point.stamp {
-                    return self.stop_macro(
-                        StopReason::OwnerChanged,
-                        "Macro region source owner changed",
-                    );
-                }
-                if self.macro_entry()
-                    != self
-                        .macros
-                        .runner
-                        .as_ref()
-                        .expect("region runner")
-                        .definition
-                        .entry
-                {
-                    return self.stop_macro(
-                        StopReason::EntryState,
-                        "Macro region iteration did not restore its entry state",
-                    );
-                }
-                let run = self.macros.runner.as_mut().expect("region runner");
-                if run.limits.steps.load(Ordering::Relaxed) >= crate::macros::RUN_STEPS {
-                    return self.stop_macro(
-                        StopReason::StepBudget,
-                        "Keyboard macro logical step limit reached",
-                    );
-                }
-                if !run.limits.iteration() {
-                    return self.stop_macro(
-                        StopReason::IterationBudget,
-                        "Keyboard macro iteration limit reached",
-                    );
-                }
-                if let Err(error) = self.macro_line_point(Point { stamp, position }) {
-                    return self.stop_macro(StopReason::OwnerChanged, &error);
-                }
-                let waiting = self.layout_active();
-                let expected = (self.windows.selected_id(), self.view().point);
-                let run = self.macros.runner.as_mut().expect("region runner");
-                run.iteration += 1;
-                run.step = 0;
-                run.counter.iteration_start = run.counter.current;
-                run.counter.format = run.definition.initial_format.clone();
-                run.group = run.outer_group.clone().unwrap_or_else(|| {
-                    crate::buffer::edit::AutomaticGroup::new(Arc::clone(&run.budget))
-                });
-                run.expected = expected;
-                run.waiting = waiting;
-                return Action::Redraw;
+                return self.macro_region_advance(view, Point { stamp, position });
             }
             if started.elapsed() >= crate::session::events::INPUT_BATCH_TIME {
                 break;
             }
         }
+        Action::Redraw
+    }
+
+    fn macro_region_advance(&mut self, view: crate::window::ViewId, point: Point) -> Action {
+        if view != self.windows.selected_id() || point.stamp != self.view().point.stamp {
+            return self.stop_macro(
+                StopReason::OwnerChanged,
+                "Macro region source owner changed",
+            );
+        }
+        if self.macro_entry()
+            != self
+                .macros
+                .runner
+                .as_ref()
+                .expect("region runner")
+                .definition
+                .entry
+        {
+            return self.stop_macro(
+                StopReason::EntryState,
+                "Macro region iteration did not restore its entry state",
+            );
+        }
+        let run = self.macros.runner.as_mut().expect("region runner");
+        if run.limits.steps.load(Ordering::Relaxed) >= crate::macros::RUN_STEPS {
+            return self.stop_macro(
+                StopReason::StepBudget,
+                "Keyboard macro logical step limit reached",
+            );
+        }
+        if !run.limits.iteration() {
+            return self.stop_macro(
+                StopReason::IterationBudget,
+                "Keyboard macro iteration limit reached",
+            );
+        }
+        if let Err(error) = self.macro_line_point(point) {
+            return self.stop_macro(StopReason::OwnerChanged, &error);
+        }
+        let waiting = self.layout_active();
+        let expected = (self.windows.selected_id(), self.view().point);
+        let run = self.macros.runner.as_mut().expect("region runner");
+        run.iteration += 1;
+        run.step = 0;
+        run.counter.iteration_start = run.counter.current;
+        run.counter.format = run.definition.initial_format.clone();
+        run.group = run
+            .outer_group
+            .clone()
+            .unwrap_or_else(|| crate::buffer::edit::AutomaticGroup::new(Arc::clone(&run.budget)));
+        run.expected = expected;
+        run.waiting = waiting;
         Action::Redraw
     }
 
@@ -173,4 +163,28 @@ impl Session {
         self.place_view(candidate)
             .map_err(|error| error.to_string())
     }
+}
+
+fn region_line_positions(
+    buffer: &crate::buffer::Buffer,
+    coordinates: &Coordinates<'_>,
+    range: &std::ops::Range<usize>,
+    first: usize,
+) -> Result<Vec<Scalar>, String> {
+    let mut positions = Vec::new();
+    for row in first..buffer.len_lines() {
+        let position = coordinates
+            .from_cell(Cell { row, column: 0 })
+            .map_err(|error| error.to_string())?;
+        if position.0 >= range.end {
+            break;
+        }
+        if position.0 >= range.start {
+            if positions.len() == MACRO_LINE_LIMIT {
+                return Err("Macro region exceeds 65536 original line anchors".into());
+            }
+            positions.push(position);
+        }
+    }
+    Ok(positions)
 }

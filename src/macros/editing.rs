@@ -46,27 +46,10 @@ impl State {
             .ok_or("Macro catalog revision exhausted")?;
         match target {
             Selection::Ring(source) => {
-                let current = self
-                    .ring
-                    .iter_mut()
-                    .find(|d| d.id == source.id)
-                    .ok_or("Macro target was removed")?;
-                if !Arc::ptr_eq(current, source) {
-                    return Err("Macro target changed; draft retained".into());
-                }
-                *current = candidate;
+                self.replace_ring_definition(source, candidate)?;
             }
             Selection::Named(name, source) => {
-                let named = self
-                    .names
-                    .get_mut(name)
-                    .ok_or("Named macro target was removed")?;
-                if !Arc::ptr_eq(&named.definition, source) {
-                    return Err("Named macro target changed; draft retained".into());
-                }
-                named.source = (candidate.id, candidate.revision);
-                named.definition = candidate;
-                named.description = description;
+                self.replace_named_definition(name, source, candidate, description)?;
             }
             Selection::Bound(key, source) => {
                 let Some(Target::Snapshot(current)) = self.bindings.get_mut(key) else {
@@ -83,6 +66,43 @@ impl State {
             }
         }
         self.catalog_revision = revision;
+        Ok(())
+    }
+
+    fn replace_ring_definition(
+        &mut self,
+        source: &Arc<Definition>,
+        candidate: Arc<Definition>,
+    ) -> Result<(), String> {
+        let current = self
+            .ring
+            .iter_mut()
+            .find(|d| d.id == source.id)
+            .ok_or("Macro target was removed")?;
+        if !Arc::ptr_eq(current, source) {
+            return Err("Macro target changed; draft retained".into());
+        }
+        *current = candidate;
+        Ok(())
+    }
+
+    fn replace_named_definition(
+        &mut self,
+        name: &MacroName,
+        source: &Arc<Definition>,
+        candidate: Arc<Definition>,
+        description: Option<String>,
+    ) -> Result<(), String> {
+        let named = self
+            .names
+            .get_mut(name)
+            .ok_or("Named macro target was removed")?;
+        if !Arc::ptr_eq(&named.definition, source) {
+            return Err("Named macro target changed; draft retained".into());
+        }
+        named.source = (candidate.id, candidate.revision);
+        named.definition = candidate;
+        named.description = description;
         Ok(())
     }
 }

@@ -9,11 +9,7 @@ impl Session {
         if self.macros.expanded || self.macro_manual() || self.macro_definition_selected() {
             return;
         }
-        let command = match outcome {
-            Outcome::Command(c) | Outcome::ArgumentPrefix(c) => Some(*c),
-            Outcome::Invocation(i) => Some(i.command),
-            _ => None,
-        };
+        let command = super::capture::outcome_command(outcome);
         if command == Some(Command::KeyboardQuit) {
             self.macros.recent.draft = None;
             return;
@@ -24,6 +20,10 @@ impl Session {
             self.macros.recent.draft = None;
             return;
         }
+        self.macro_recent_capture(outcome, source);
+    }
+
+    fn macro_recent_capture(&mut self, outcome: &Outcome, source: bool) {
         let pending = self
             .macros
             .recent

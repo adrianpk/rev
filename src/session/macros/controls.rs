@@ -96,16 +96,7 @@ impl Session {
         }
         match command {
             MacroCommand::Next | MacroCommand::Previous => {
-                let count = i64::from(argument.value());
-                let count = if command == MacroCommand::Previous {
-                    -count
-                } else {
-                    count
-                };
-                let length = i64::try_from(len).expect("bounded macro ring");
-                let rotation = usize::try_from(count.rem_euclid(length))
-                    .expect("nonnegative bounded macro rotation");
-                self.macros.ring.rotate_left(rotation);
+                self.macro_rotate_ring(command, argument, len);
             }
             MacroCommand::Delete => {
                 self.macros.ring.pop_front();
@@ -125,5 +116,18 @@ impl Session {
             "Keyboard macro ring: {} entries",
             self.macros.ring.len()
         ))
+    }
+
+    fn macro_rotate_ring(&mut self, command: MacroCommand, argument: PrefixArgument, len: usize) {
+        let count = i64::from(argument.value());
+        let count = if command == MacroCommand::Previous {
+            -count
+        } else {
+            count
+        };
+        let length = i64::try_from(len).expect("bounded macro ring");
+        let rotation =
+            usize::try_from(count.rem_euclid(length)).expect("nonnegative bounded macro rotation");
+        self.macros.ring.rotate_left(rotation);
     }
 }

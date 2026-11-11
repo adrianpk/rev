@@ -17,6 +17,17 @@ pub(in crate::session) struct Draft {
     mode: Option<crate::input::EditingState>,
     repeat: bool,
 }
+impl Draft {
+    fn accepts(&self, record: &Record) -> bool {
+        record.id == self.template.id
+            && record.revision == self.template.revision
+            && record.name == self.template.name
+            && record.binding == self.template.binding
+            && (matches!(self.target, Selection::Named(..))
+                || record.description == self.template.description)
+    }
+}
+
 impl Session {
     pub(in crate::session) fn macro_definition_selected(&self) -> bool {
         self.macro_draft
@@ -26,16 +37,7 @@ impl Session {
     pub(super) fn macro_definition_command(&mut self, command: MacroCommand) -> Action {
         match command {
             MacroCommand::FinishEdit => return self.macro_finish_definition(),
-            MacroCommand::InsertKey => {
-                if !self.macro_definition_selected() {
-                    return self.message("Select a macro definition draft first");
-                }
-                if let Err(e) = self.input.macro_literal_key_capture() {
-                    return self.error(&e.to_string());
-                }
-                self.pending = Some(Pending::MacroDefinitionKey);
-                return self.message("Read a normalized native key sequence; C-g cancels");
-            }
+            MacroCommand::InsertKey => return self.macro_definition_read_key(),
             MacroCommand::RegionLines => return self.macro_definition_region(),
             _ => {}
         }
@@ -66,6 +68,17 @@ impl Session {
         };
         self.macro_open_definition(Selection::Ring(source), command == MacroCommand::EditRepeat)
     }
+    fn macro_definition_read_key(&mut self) -> Action {
+        if !self.macro_definition_selected() {
+            return self.message("Select a macro definition draft first");
+        }
+        if let Err(e) = self.input.macro_literal_key_capture() {
+            return self.error(&e.to_string());
+        }
+        self.pending = Some(Pending::MacroDefinitionKey);
+        self.message("Read a normalized native key sequence; C-g cancels")
+    }
+
     pub(in crate::session) fn macro_edit_selected(&mut self, value: &str) -> Action {
         if !self.macro_source() {
             return self.message("Macro editing source changed");
@@ -96,20 +109,7 @@ impl Session {
     }
     pub(super) fn macro_open_definition(&mut self, target: Selection, repeat: bool) -> Action {
         let result = (|| -> Result<(), String> {
-            if self.macro_draft.is_some() {
-                return Err("Another macro draft is retained".into());
-            }
-            self.stop_typing().map_err(|e| e.to_string())?;
-            self.macros
-                .admit_memory(Some(target.source()))
-                .map_err(|_| "Macro retained memory exceeds 48 MiB")?;
-            let description = match &target {
-                Selection::Named(n, _) => {
-                    self.macros.names.get(n).and_then(|v| v.description.clone())
-                }
-                _ => None,
-            };
-            let template = Record::draft(&target, description).map_err(|e| e.to_string())?;
+            let template = self.macro_definition_template(&target)?;
             let text = template.draft_text().map_err(|e| e.to_string())?;
             let mode = self.editing_state();
             let buffer = self.buffers.macro_draft(&text).map_err(|e| e.to_string())?;
@@ -134,6 +134,21 @@ impl Session {
         })();
         match result {Ok(())=>self.message("Macro definition: C-c C-c applies; close buffer discards; C-c C-q inserts keys; C-c C-r selects body lines"),Err(e)=>self.error(&e)}
     }
+    fn macro_definition_template(&mut self, target: &Selection) -> Result<Record, String> {
+        if self.macro_draft.is_some() {
+            return Err("Another macro draft is retained".into());
+        }
+        self.stop_typing().map_err(|e| e.to_string())?;
+        self.macros
+            .admit_memory(Some(target.source()))
+            .map_err(|_| "Macro retained memory exceeds 48 MiB")?;
+        let description = match target {
+            Selection::Named(n, _) => self.macros.names.get(n).and_then(|v| v.description.clone()),
+            _ => None,
+        };
+        Record::draft(target, description).map_err(|e| e.to_string())
+    }
+
     fn macro_definition_record(&self) -> Result<Record, String> {
         if !self.macro_definition_selected() {
             return Err("Select the retained macro definition draft".into());
@@ -156,13 +171,7 @@ impl Session {
         }
         let record = catalog.macros.remove(0);
         let draft = self.macro_draft.as_ref().ok_or("No macro draft")?;
-        if record.id != draft.template.id
-            || record.revision != draft.template.revision
-            || record.name != draft.template.name
-            || record.binding != draft.template.binding
-            || (!matches!(draft.target, Selection::Named(..))
-                && record.description != draft.template.description)
-        {
+        if !draft.accepts(&record) {
             return Err(
                 "Macro draft cannot retarget its pinned identity, revision, name or binding".into(),
             );
@@ -259,30 +268,7 @@ impl Session {
     fn macro_definition_region(&mut self) -> Action {
         let result = (|| -> Result<String, String> {
             let record = self.macro_definition_record()?;
-            let buffer = self.buffer().map_err(|e| e.to_string())?;
-            let span = buffer
-                .region(self.view().point)
-                .map_err(|e| e.to_string())?
-                .ok_or("Select complete definition lines first")?;
-            if span.range.is_empty() {
-                return Err("Select complete definition lines first".into());
-            }
-            for position in [span.range.start, span.range.end] {
-                if position > 0
-                    && buffer
-                        .slice(
-                            &buffer
-                                .span(position - 1..position)
-                                .map_err(|e| e.to_string())?,
-                        )
-                        .map_err(|e| e.to_string())?
-                        != "\n"
-                    && position != buffer.len_chars()
-                {
-                    return Err("Definition selection requires complete lines".into());
-                }
-            }
-            let fragment = buffer.slice(&span).map_err(|e| e.to_string())?.to_string();
+            let fragment = self.macro_definition_fragment()?;
             record
                 .region_body(&fragment)
                 .and_then(|r| r.draft_text())
@@ -300,6 +286,23 @@ impl Session {
             Err(e) => self.error(&e),
         }
     }
+    fn macro_definition_fragment(&self) -> Result<String, String> {
+        let buffer = self.buffer().map_err(|e| e.to_string())?;
+        let span = buffer
+            .region(self.view().point)
+            .map_err(|e| e.to_string())?
+            .ok_or("Select complete definition lines first")?;
+        if span.range.is_empty() {
+            return Err("Select complete definition lines first".into());
+        }
+        for position in [span.range.start, span.range.end] {
+            if !complete_definition_line(buffer, position)? {
+                return Err("Definition selection requires complete lines".into());
+            }
+        }
+        Ok(buffer.slice(&span).map_err(|e| e.to_string())?.to_string())
+    }
+
     fn macro_edit_lossage(&mut self) -> Action {
         let Some((entry, _)) = self.macros.recent.entries.front() else {
             return self.message("No recent recordable input is available");
@@ -328,4 +331,24 @@ impl Session {
             Err(reason) => self.stop_macro(reason, "Recent input exceeds macro admission"),
         }
     }
+}
+
+fn complete_definition_line(
+    buffer: &crate::buffer::Buffer,
+    position: usize,
+) -> Result<bool, String> {
+    if position > 0
+        && buffer
+            .slice(
+                &buffer
+                    .span(position - 1..position)
+                    .map_err(|e| e.to_string())?,
+            )
+            .map_err(|e| e.to_string())?
+            != "\n"
+        && position != buffer.len_chars()
+    {
+        return Ok(false);
+    }
+    Ok(true)
 }

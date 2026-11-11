@@ -6,157 +6,31 @@ use crossterm::event::{Event, KeyEvent};
 use std::sync::atomic::Ordering;
 use std::time::{Duration, Instant};
 
+enum Replay {
+    Trigger(Step),
+    Argument(Argument),
+    Step(Step),
+}
+
 impl Session {
     /// One finite host turn; native layout completes before the next step.
     /// Consent gives input back to its native owner without an automatic wake.
     pub(in crate::session) fn expire_macro(&mut self) -> Action {
         self.macro_finish_capture();
-        if self.plugin_macro_waiting() {
-            if self
-                .macros
-                .runner
-                .as_ref()
-                .is_some_and(|run| run.limits.elapsed() >= Duration::from_secs(60))
-            {
-                return self.stop_macro(
-                    StopReason::TimeBudget,
-                    "Keyboard macro active time limit reached",
-                );
-            }
-            return Action::Wait;
-        }
-        if self.macros.runner.is_none()
-            || self.layout_active()
-            || self
-                .macros
-                .runner
-                .as_ref()
-                .is_some_and(|run| run.consent.is_some() || run.query)
-        {
-            return Action::Wait;
+        if let Some(action) = self.macro_runner_wait() {
+            return action;
         }
         let started = Instant::now();
         for _ in 0..256 {
-            let point = (self.windows.selected_id(), self.view().point);
-            if let Some(run) = &mut self.macros.runner
-                && run.waiting
-            {
-                run.expected = point;
-                run.waiting = false;
-            }
-            if let Some(action) = self.macro_step_boundary() {
-                return action;
-            }
-            let entry = self.macro_entry();
-            let run = self.macros.runner.as_mut().expect("live runner");
-            if point != run.expected {
-                return self.stop_macro(
-                    StopReason::OwnerChanged,
-                    "Keyboard macro source owner changed",
-                );
-            }
-            if run.limits.elapsed() >= Duration::from_secs(60) {
-                return self.stop_macro(
-                    StopReason::TimeBudget,
-                    "Keyboard macro active time limit reached",
-                );
-            }
-            let completed = run.step == run.definition.steps.len()
-                && run.trigger.is_empty()
-                && run.arguments.is_empty()
-                && run.iterations == Some(run.iteration + 1)
-                && self.pending.is_none()
-                && self.input.focus() == Focus::Editing;
-            if run.limits.steps.load(Ordering::Relaxed) >= crate::macros::RUN_STEPS && !completed {
-                return self.stop_macro(
-                    StopReason::StepBudget,
-                    "Keyboard macro logical step limit reached",
-                );
-            }
-            let trigger = run.trigger.pop_front();
-            let argument = if trigger.is_none() {
-                run.arguments.pop_front()
-            } else {
-                None
+            let input = match self.macro_next_input() {
+                Ok(input) => input,
+                Err(action) => return action,
             };
-            let step = if argument.is_none() && trigger.is_none() {
-                if self.macro_consent_pending() {
-                    let run = self.macros.runner.as_mut().expect("live runner");
-                    run.consent = Some(Instant::now());
-                    run.limits.pause();
-                    return Action::Redraw;
-                }
-                if self.pending.is_some() || self.input.focus() != Focus::Editing {
-                    return self.stop_macro(
-                        StopReason::PromptMismatch,
-                        "Macro prompt has no matching captured argument",
-                    );
-                }
-                let run = self.macros.runner.as_mut().expect("live runner");
-                if run.step == run.definition.steps.len() {
-                    if run.region.is_some() {
-                        return self.macro_region_next();
-                    }
-                    run.iteration += 1;
-                    if Some(run.iteration) == run.iterations {
-                        return self.macro_run_finished();
-                    }
-                    if entry != run.definition.entry {
-                        return self.stop_macro(
-                            StopReason::EntryState,
-                            "Keyboard macro did not restore its entry state for another iteration",
-                        );
-                    }
-                    if !run.limits.iteration() {
-                        return self.stop_macro(
-                            StopReason::IterationBudget,
-                            "Keyboard macro iteration limit reached",
-                        );
-                    }
-                    run.step = 0;
-                    run.counter.iteration_start = run.counter.current;
-                    run.counter.format = run.definition.initial_format.clone();
-                    run.group = run.outer_group.clone().unwrap_or_else(|| {
-                        crate::buffer::edit::AutomaticGroup::new(std::sync::Arc::clone(&run.budget))
-                    });
-                }
-                if run.parent.is_none()
-                    && let Some(editor) = &mut self.macros.step_editor
-                    && !editor.capturing
-                {
-                    editor.allowance = editor.allowance.saturating_sub(1);
-                }
-                let step = run.definition.steps[run.step].clone();
-                run.step += 1;
-                Some(step)
-            } else {
-                None
-            };
-            let refresh = matches!(step, Some(Step::Redisplay));
-            let run = self.macros.runner.as_mut().expect("live runner");
-            run.limits.steps.fetch_add(1, Ordering::Relaxed);
-            self.buffers
-                .automatic_group(Some(std::sync::Arc::clone(&run.group)));
-            self.macros.expanded = true;
-            if let Some(trigger) = trigger {
-                self.macro_replay_trigger(trigger);
-            } else if let Some(argument) = argument {
-                self.macro_replay_argument(argument);
-            } else if let Some(step) = step {
-                self.macro_replay_step(step);
-            }
-            self.macros.expanded = false;
-            self.buffers.automatic_group(None);
-            let waiting = self.layout_active();
-            let expected = (self.windows.selected_id(), self.view().point);
-            if let Some(run) = self.macros.runner.as_mut() {
-                run.expected = expected;
-                run.waiting = waiting;
-                if run.consent.is_some() || run.query {
-                    return Action::Redraw;
-                }
-            } else {
-                return Action::Redraw;
+            let refresh = matches!(input, Replay::Step(Step::Redisplay));
+            self.macro_replay_input(input);
+            let waiting = match self.macro_replay_progress() {
+                Ok(waiting) => waiting,
+                Err(action) => return action,
             };
             if self.plugin_macro_waiting() {
                 break;
@@ -166,6 +40,177 @@ impl Session {
             }
         }
         Action::Redraw
+    }
+
+    fn macro_runner_wait(&mut self) -> Option<Action> {
+        if self.plugin_macro_waiting() {
+            if self
+                .macros
+                .runner
+                .as_ref()
+                .is_some_and(|run| run.limits.elapsed() >= Duration::from_secs(60))
+            {
+                return Some(self.stop_macro(
+                    StopReason::TimeBudget,
+                    "Keyboard macro active time limit reached",
+                ));
+            }
+            return Some(Action::Wait);
+        }
+        if self.macros.runner.is_none()
+            || self.layout_active()
+            || self
+                .macros
+                .runner
+                .as_ref()
+                .is_some_and(|run| run.consent.is_some() || run.query)
+        {
+            return Some(Action::Wait);
+        }
+        None
+    }
+
+    fn macro_next_input(&mut self) -> Result<Replay, Action> {
+        let point = (self.windows.selected_id(), self.view().point);
+        if let Some(run) = &mut self.macros.runner
+            && run.waiting
+        {
+            run.expected = point;
+            run.waiting = false;
+        }
+        if let Some(action) = self.macro_step_boundary() {
+            return Err(action);
+        }
+        let entry = self.macro_entry();
+        self.macro_check_step(point)?;
+        let run = self.macros.runner.as_mut().expect("live runner");
+        if let Some(trigger) = run.trigger.pop_front() {
+            return Ok(Replay::Trigger(trigger));
+        }
+        if let Some(argument) = run.arguments.pop_front() {
+            return Ok(Replay::Argument(argument));
+        }
+        self.macro_next_definition_step(entry).map(Replay::Step)
+    }
+
+    fn macro_check_step(
+        &mut self,
+        point: (crate::window::ViewId, crate::buffer::edit::Point),
+    ) -> Result<(), Action> {
+        let run = self.macros.runner.as_mut().expect("live runner");
+        if point != run.expected {
+            return Err(self.stop_macro(
+                StopReason::OwnerChanged,
+                "Keyboard macro source owner changed",
+            ));
+        }
+        if run.limits.elapsed() >= Duration::from_secs(60) {
+            return Err(self.stop_macro(
+                StopReason::TimeBudget,
+                "Keyboard macro active time limit reached",
+            ));
+        }
+        let completed = run.step == run.definition.steps.len()
+            && run.trigger.is_empty()
+            && run.arguments.is_empty()
+            && run.iterations == Some(run.iteration + 1)
+            && self.pending.is_none()
+            && self.input.focus() == Focus::Editing;
+        if run.limits.steps.load(Ordering::Relaxed) >= crate::macros::RUN_STEPS && !completed {
+            return Err(self.stop_macro(
+                StopReason::StepBudget,
+                "Keyboard macro logical step limit reached",
+            ));
+        }
+        Ok(())
+    }
+
+    fn macro_next_definition_step(&mut self, entry: crate::macros::Entry) -> Result<Step, Action> {
+        if self.macro_consent_pending() {
+            let run = self.macros.runner.as_mut().expect("live runner");
+            run.consent = Some(Instant::now());
+            run.limits.pause();
+            return Err(Action::Redraw);
+        }
+        if self.pending.is_some() || self.input.focus() != Focus::Editing {
+            return Err(self.stop_macro(
+                StopReason::PromptMismatch,
+                "Macro prompt has no matching captured argument",
+            ));
+        }
+        self.macro_continue_iteration(entry)?;
+        let run = self.macros.runner.as_mut().expect("live runner");
+        if run.parent.is_none()
+            && let Some(editor) = &mut self.macros.step_editor
+            && !editor.capturing
+        {
+            editor.allowance = editor.allowance.saturating_sub(1);
+        }
+        let step = run.definition.steps[run.step].clone();
+        run.step += 1;
+        Ok(step)
+    }
+
+    fn macro_continue_iteration(&mut self, entry: crate::macros::Entry) -> Result<(), Action> {
+        let run = self.macros.runner.as_mut().expect("live runner");
+        if run.step != run.definition.steps.len() {
+            return Ok(());
+        }
+        if run.region.is_some() {
+            return Err(self.macro_region_next());
+        }
+        run.iteration += 1;
+        if Some(run.iteration) == run.iterations {
+            return Err(self.macro_run_finished());
+        }
+        if entry != run.definition.entry {
+            return Err(self.stop_macro(
+                StopReason::EntryState,
+                "Keyboard macro did not restore its entry state for another iteration",
+            ));
+        }
+        if !run.limits.iteration() {
+            return Err(self.stop_macro(
+                StopReason::IterationBudget,
+                "Keyboard macro iteration limit reached",
+            ));
+        }
+        run.step = 0;
+        run.counter.iteration_start = run.counter.current;
+        run.counter.format = run.definition.initial_format.clone();
+        run.group = run.outer_group.clone().unwrap_or_else(|| {
+            crate::buffer::edit::AutomaticGroup::new(std::sync::Arc::clone(&run.budget))
+        });
+        Ok(())
+    }
+
+    fn macro_replay_input(&mut self, input: Replay) {
+        let run = self.macros.runner.as_mut().expect("live runner");
+        run.limits.steps.fetch_add(1, Ordering::Relaxed);
+        self.buffers
+            .automatic_group(Some(std::sync::Arc::clone(&run.group)));
+        self.macros.expanded = true;
+        match input {
+            Replay::Trigger(trigger) => self.macro_replay_trigger(trigger),
+            Replay::Argument(argument) => self.macro_replay_argument(argument),
+            Replay::Step(step) => self.macro_replay_step(step),
+        }
+        self.macros.expanded = false;
+        self.buffers.automatic_group(None);
+    }
+
+    fn macro_replay_progress(&mut self) -> Result<bool, Action> {
+        let waiting = self.layout_active();
+        let expected = (self.windows.selected_id(), self.view().point);
+        let Some(run) = self.macros.runner.as_mut() else {
+            return Err(Action::Redraw);
+        };
+        run.expected = expected;
+        run.waiting = waiting;
+        if run.consent.is_some() || run.query {
+            return Err(Action::Redraw);
+        }
+        Ok(waiting)
     }
 
     fn macro_replay_step(&mut self, step: Step) {
@@ -191,29 +236,30 @@ impl Session {
                     self.error(&error);
                 }
             }
-            Step::Command(command) => {
-                self.macros.runner.as_mut().expect("live runner").arguments =
-                    command.arguments.into();
-                if let Some(keys) = command.keys {
-                    self.macros.runner.as_mut().expect("live runner").trigger = keys.into();
-                } else if let Some(native) = self.input.command_named(&command.name) {
-                    self.sync_input_context();
-                    if command.argument.supplied() {
-                        self.execute_invocation(Invocation {
-                            command: native.canonical(),
-                            argument: command.argument,
-                            origin: self.input.invocation_origin(),
-                        });
-                    } else {
-                        self.execute(native);
-                    }
-                } else {
-                    self.stop_macro(
-                        StopReason::MissingCommand,
-                        "Recorded command name is unavailable",
-                    );
-                }
+            Step::Command(command) => self.macro_replay_command(command),
+        }
+    }
+
+    fn macro_replay_command(&mut self, command: crate::macros::CommandStep) {
+        self.macros.runner.as_mut().expect("live runner").arguments = command.arguments.into();
+        if let Some(keys) = command.keys {
+            self.macros.runner.as_mut().expect("live runner").trigger = keys.into();
+        } else if let Some(native) = self.input.command_named(&command.name) {
+            self.sync_input_context();
+            if command.argument.supplied() {
+                self.execute_invocation(Invocation {
+                    command: native.canonical(),
+                    argument: command.argument,
+                    origin: self.input.invocation_origin(),
+                });
+            } else {
+                self.execute(native);
             }
+        } else {
+            self.stop_macro(
+                StopReason::MissingCommand,
+                "Recorded command name is unavailable",
+            );
         }
     }
 
@@ -259,21 +305,31 @@ impl Session {
             return;
         }
         if search {
-            if let Err(error) = self.input.search_literal(&argument.value) {
-                self.error(&error.to_string());
-                return;
-            }
-            self.search_step();
-            if self.macros.runner.is_none() {
-                return;
-            }
-            if let Role::SearchRepeat(direction) = argument.role {
-                self.search_action(crate::input::SearchAction::Repeat(direction));
-            } else {
-                self.input.cancel();
-                self.search_action(crate::input::SearchAction::Accept);
-            }
-        } else if let Some(Pending::Inventory(default)) = self.pending {
+            self.macro_replay_search_argument(&argument);
+        } else {
+            self.macro_replay_prompt_argument(argument);
+        }
+    }
+
+    fn macro_replay_search_argument(&mut self, argument: &Argument) {
+        if let Err(error) = self.input.search_literal(&argument.value) {
+            self.error(&error.to_string());
+            return;
+        }
+        self.search_step();
+        if self.macros.runner.is_none() {
+            return;
+        }
+        if let Role::SearchRepeat(direction) = argument.role {
+            self.search_action(crate::input::SearchAction::Repeat(direction));
+        } else {
+            self.input.cancel();
+            self.search_action(crate::input::SearchAction::Accept);
+        }
+    }
+
+    fn macro_replay_prompt_argument(&mut self, argument: Argument) {
+        if let Some(Pending::Inventory(default)) = self.pending {
             self.input.cancel();
             self.buffer_argument(
                 crate::command::BufferCommand::Switch,

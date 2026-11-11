@@ -109,6 +109,21 @@ complete-view geometry before publication. Startup/Git versus editing context
 synchronization and modal component-focus admission retain their original
 ordering.
 
+Macro execution separates runner waiting, admitted input, iteration boundaries,
+replay and progress publication. Trigger keys still precede captured arguments
+and definition steps. Source/profile checks, consent pauses and shared undo
+groups retain their original order. Host turns remain bounded by 256 steps and
+four milliseconds, with the same active-time, logical-step and iteration limits.
+
+Recording separates command selection, semantic/plugin/completion controls, named
+commands and physical input. Counters retain preparation, capture, insertion and
+state publication order. Step editing, menu actions and definition drafts keep
+their existing ownership, pinned identity/revision and complete-line checks.
+Region replay retains its 65,536-anchor ceiling and cooperative turn budget.
+Library reload still validates the whole catalog before per-record admission,
+quarantines independent collisions, and updates bindings only after accepting the
+named snapshot. Saved-library mutation remains explicit and consent-controlled.
+
 ## Contracts Added or Changed
 
 One private completion owner replaces nine independent session fields. Public
@@ -125,6 +140,10 @@ existing admission, publication and freshness checks retain authority.
   payload/range admission and publication under the existing budgets.
 - `src/session/events.rs` and `src/session/layout.rs`: ready-input ownership,
   pointer retirement and checked deferred replay.
+- `src/session/macros/`: capture, replay, counters, menu actions, step editing and
+  explicit library admission under the existing native owners and budgets.
+- `src/macros/editing.rs`: pinned ring/named target checks before revision
+  publication.
 - `src/session.rs` and `src/session/completion/`: composition, source restoration,
   resolver polling, stale-result checks and publication.
 - `src/command/`, `src/input/`, `src/macros/` and `src/session/`: selected native
@@ -223,11 +242,29 @@ Development checks for session admission and dispatch:
 - `target/debug/examples/source-check --workspace --scope src/session.rs --scope src/session/dispatch.rs --scope src/session/arguments --scope src/session/arguments.rs --scope src/session/events.rs --scope src/session/layout.rs --scope src/session/mode.rs --scope src/session/modal.rs`: passed all ten selected source files, covering every modified source and the existing argument-history helper.
 - `git diff --check`: passed.
 
+Development checks for macro lifecycle owners:
+
+- Frozen scoped quality: formatting and all-target compilation passed. Selected
+  Clippy admission passes with zero blocking diagnostics; 205 selected-profile
+  diagnostics remain deferred outside the scope. Native source findings decreased
+  from 75 to 44, resolving 31 existing findings without adding any. Coverage
+  remains 381 of 1,836 first-party Rust files.
+- Frozen native regression command: 188 passed and the same 16 `commands` cases
+  failed as in checkpoint `98520c9b1ace08f6837648297198d526e04d3f3a`.
+- Frozen documentation check: passed 684 commands, 299 configuration entries,
+  106 reachable pages and 743 local links and anchors.
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --lib -- --test-threads=1`: passed all 186 library unit cases.
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --test modal --test completion --test macros --no-fail-fast -- --test-threads=1`: failed overall; completion passed 44 cases, macros passed 110, and modal passed 122 with the same two failure identities listed above.
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --test plugins -- recording:: --test-threads=1`: passed all ten selected plugin-recording cases; 76 other plugin cases were filtered out.
+- `target/debug/examples/source-check --workspace --scope src/session/macros.rs --scope src/session/macros --scope src/macros/editing.rs`: passed all 18 selected source files, including every modified source, all session macro modules and the shared definition publisher.
+- `git diff --check`: passed.
+
 ## Risks and Follow-ups
 
 Preserve native input/view context, stale completion rejection, transient
 ownership, semantic macro replay/history and the retained macro body identity.
-The remaining 75 source findings, resolution of the 16 command and two modal
+The remaining 44 source findings, resolution of the 16 command and two modal
 failures, canonical PR preparation and exact clean-HEAD evidence remain pending.
-F6, shared macro-body accounting, native dispatch and counted planning have
-focused regression coverage; Slice 8 is not ready for integration.
+F6, shared macro-body accounting, native dispatch, counted planning and macro
+lifecycle owners have focused regression coverage; Slice 8 is not ready for
+integration.
