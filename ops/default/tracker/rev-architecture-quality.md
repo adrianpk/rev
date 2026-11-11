@@ -9,7 +9,7 @@ Planning baseline: abbf0c21eeae1680c02c7a477fa0894d7996a393
 Specification: [Architecture Quality and Commit Checks](../spec/editor-architecture-quality.md)
 Review: [Architecture and Ownership Nit Review](../report/rev-architecture-nit-review.md)
 Concern: [Pending Editor Work](../README.md)
-Active slice: Slice 8 - Session interaction and completion owner
+Active slice: Slice 9 - Fixtures and developer examples
 Plan: [Architecture Quality Delivery](../plan/rev-architecture-quality.md)
 Execution authorized: one ten-slice Looper run, automatic canonical integration into dev and local hook setup
 Progress owner: selected Looper run; no second runtime tracker
@@ -145,13 +145,13 @@ Correction: stable/unobserved fixtures preserve explicit pending and cancellatio
 
 ## Slice 8: Session interaction and completion owner
 
-State: reviewing
+State: delivered
 Dependency: Slice 7 integrated
 Branch: refactor/rev-architecture-quality-08-interaction
 PR: #22 - https://forge.adrianpk.com/rev/rev/pulls/22
 Report: ops/default/report/slices/rev-architecture-quality/slice-8-interaction.md
-Validation: all four frozen ordered commands passed at f4ac3a6b5da4628b73c7bd2e6f81bfa95373a0c6 in RZVDMKSGOZZAYO4HD2GR3WIUUY; fresh evidence for the final PR-reference HEAD is required
-Progress: F6 and T8.2 are complete. Frozen scoped quality at the published checkpoint passes all 381 selected files with zero blocking Clippy diagnostics and zero source findings; 205 selected-profile diagnostics remain deferred outside this scope. Command metadata retains all 119 Git and 52 macro variant names/descriptions; inherited maps preserve compilation order and public representation. The maintainer-approved fixture correction reconciles the 16 command, two modal and one command-usage failures with existing numeric-prefix outcomes, macro commands, descriptions, catalog ordering and the tree parent row. All 482 frozen native cases and 15 command-usage cases pass, preserving semantic/negative coverage, consent, freshness, source/history, deadlines and budgets. Canonical PR #22 targets dev and records the immutable report-introduction link and frozen commands. Final PR-reference HEAD evidence is recorded separately by the controller; integration and the delivery-set gate remain controller-owned.
+Validation: all four frozen ordered commands passed at 6edcb6e81c6bf168c8ed525f5c48a258933150ba in ZZ4B65BSUURXCTIABTXRHS6FO5; canonical PR #22 merged that exact HEAD into dev
+Progress: F6 and T8.2 are complete. Frozen scoped quality at the published checkpoint passes all 381 selected files with zero blocking Clippy diagnostics and zero source findings; 205 selected-profile diagnostics remain deferred outside this scope. Command metadata retains all 119 Git and 52 macro variant names/descriptions; inherited maps preserve compilation order and public representation. The maintainer-approved fixture correction reconciles the 16 command, two modal and one command-usage failures with existing numeric-prefix outcomes, macro commands, descriptions, catalog ordering and the tree parent row. All 482 frozen native cases and 15 command-usage cases pass, preserving semantic/negative coverage, consent, freshness, source/history, deadlines and budgets. Canonical PR #22 targets dev and records the immutable report-introduction link and frozen commands. Final PR-reference HEAD validation passed and canonical PR #22 is merged; the unchanged delivery-set gate remains controller-owned.
 
 - [x] T8.1: Resolve F6 with a cohesive completion concern owner and explicit admission/retirement transitions; keep public completion observations and native editing/context semantics intact.
 - [x] T8.2: Correct remaining command/input/macro/session selected diagnostics and source bounds, including retained macro body identity without raw-pointer-type casts or identity-spelling workarounds.
@@ -162,11 +162,11 @@ validation and same-run continuation without repeated routine approval pauses.
 The report's fixture correction, including its two flow/guard files, is approved
 against existing behavior;
 negative coverage, consent, source/history, resource bounds and frozen commands
-remain required. The fixture commit passes all four frozen checks; PR-reference preparation requires fresh validation of its final HEAD.
+remain required. Both the fixture and final PR-reference commits passed all four frozen checks; canonical integration is verified.
 
 ## Slice 9: Fixtures and developer examples
 
-State: planned
+State: in progress
 Dependency: Slice 8 integrated
 Branch: refactor/rev-architecture-quality-09-fixtures
 PR: pending

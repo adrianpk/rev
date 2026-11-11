@@ -1,6 +1,6 @@
 # Slice 8: Session interaction and completion owner
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-architecture-quality
 Plan: [Architecture Quality Delivery](../../../plan/rev-architecture-quality.md)
 Tracker: [Architecture Quality Tracker](../../../tracker/rev-architecture-quality.md)
@@ -230,8 +230,9 @@ at clean published commit `f4ac3a6b5da4628b73c7bd2e6f81bfa95373a0c6`:
   pages and 743 local links and anchors.
 - `git diff --check` passed.
 
-The PR-reference HEAD requires the same ordered clean-HEAD evidence, recorded
-separately by the controller. The frozen commands remain unchanged:
+Final PR-reference commit `6edcb6e81c6bf168c8ed525f5c48a258933150ba` passed
+all four commands in validation `ZZ4B65BSUURXCTIABTXRHS6FO5`. Canonical PR #22
+merged that exact commit into `dev`. The frozen commands remain unchanged:
 
 - `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 bash scripts/check-quality.sh --scope src/command.rs --scope src/command --scope src/input.rs --scope src/input --scope src/macros.rs --scope src/macros --scope src/session.rs --scope src/session`
 - `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --test commands --test modal --test completion --test macros -- --test-threads=1`
@@ -409,8 +410,8 @@ Fixture reconciliation, following maintainer technical-recovery authorization:
 - `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --test commands -- shell::shell_sequences --test-threads=1`: passed, including the preserved tangle continuation, cancellation, invalid Meta input and counted text insertion.
 - `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --test command_usage -- --test-threads=1`: passed all 15 cases at `f4ac3a6b5da4628b73c7bd2e6f81bfa95373a0c6`, including persisted startup ranking.
 - Ordered validation `RZVDMKSGOZZAYO4HD2GR3WIUUY` also passed every
-  frozen command at that clean published fixture commit. Fresh evidence for
-  the final PR-reference HEAD is required through `looper validate`.
+  frozen command at that clean published fixture commit. The final
+  PR-reference HEAD also passed, as recorded at the start of this section.
 
 ## Risks and Follow-ups
 
@@ -419,8 +420,8 @@ ownership, semantic macro replay/history and the retained macro body identity.
 T8.1, T8.2 and T8.3 are complete, with all frozen checks passing at the fixture
 commit. F6, shared macro-body accounting, native dispatch, counted planning,
 macro lifecycle, publication and keymap preparation have regression coverage.
-Canonical review, integration and the unchanged delivery-set gate remain with
-the controller; Slice 9 has not started.
+Canonical PR #22 is merged into `dev`. The unchanged delivery-set gate remains
+controller-owned; the next recorded slice covers fixtures and examples.
 
 The maintainer authorized technical diagnosis, bounded corrections, validation
 and same-run continuation without repeated routine approval pauses. The fixture
