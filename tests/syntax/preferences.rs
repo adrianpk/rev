@@ -36,18 +36,7 @@ fn grammar_policy() {
         ),
     ] {
         let fixture = Fixture::new();
-        let source = match mode {
-            "Go" => "package main\nfunc main() {}\n",
-            "C" => "int main(void) { return 1; }\n",
-            "HTML" => "<div></div>\n",
-            "CSS" => ".sample { color: red; }\n",
-            "JavaScript" => "function main() {}\n",
-            "TypeScript" => "type Sample = number;\n",
-            "TSX" => "const view = <div />;\n",
-            "JSON" => "{\"sample\": 1}\n",
-            "TOML" => "sample = 1\n",
-            _ => "fn main() {}\n",
-        };
+        let source = grammar_source(mode);
         let path = fixture.file(name, source);
         let startup = prepare(&fixture.file("config.toml", config));
         assert!(startup.diagnostic.is_none(), "{config}");
@@ -63,6 +52,25 @@ fn grammar_policy() {
         assert_eq!(text(buffer), source);
         assert!(buffer.history().is_empty() && !buffer.is_modified());
     }
+}
+
+fn grammar_source(mode: &str) -> &'static str {
+    let samples = [
+        ("Go", "package main\nfunc main() {}\n"),
+        ("C", "int main(void) { return 1; }\n"),
+        ("HTML", "<div></div>\n"),
+        ("CSS", ".sample { color: red; }\n"),
+        ("JavaScript", "function main() {}\n"),
+        ("TypeScript", "type Sample = number;\n"),
+        ("TSX", "const view = <div />;\n"),
+        ("JSON", "{\"sample\": 1}\n"),
+        ("TOML", "sample = 1\n"),
+    ];
+    samples
+        .into_iter()
+        .find(|(name, _)| *name == mode)
+        .map(|(_, source)| source)
+        .unwrap_or("fn main() {}\n")
 }
 
 // The cutoff counts UTF-8 bytes and admits equality. Crossing it invalidates

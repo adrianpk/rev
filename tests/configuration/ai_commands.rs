@@ -21,24 +21,7 @@ fn admitted() -> AiCommand {
 // into replacement. Definitions remain bounded literal records with all fields.
 #[test]
 fn definition_bounds() {
-    for input in ["selection", "point", "buffer"] {
-        for context in ["input", "directory"] {
-            for output in ["explanation", "insert", "replace"] {
-                let text = format!(
-                    "[ai.commands.total]\n{}",
-                    definition(input, context, output)
-                );
-                let valid = output == "explanation"
-                    || (input == "point" && output == "insert")
-                    || (input != "point" && output == "replace");
-                assert_eq!(
-                    parse(Path::new("commands.toml"), text.as_bytes()).is_ok(),
-                    valid,
-                    "{input}/{context}/{output}"
-                );
-            }
-        }
-    }
+    check_target_combinations();
     for name in [
         "explain",
         "save-command",
@@ -126,6 +109,27 @@ fn definition_bounds() {
     }
     let missing = "[ai.commands.total]\nprompt='literal'\ninput='selection'\ncontext='input'";
     assert!(parse(Path::new("commands.toml"), missing.as_bytes()).is_err());
+}
+
+fn check_target_combinations() {
+    for input in ["selection", "point", "buffer"] {
+        for context in ["input", "directory"] {
+            for output in ["explanation", "insert", "replace"] {
+                let text = format!(
+                    "[ai.commands.total]\n{}",
+                    definition(input, context, output)
+                );
+                let valid = output == "explanation"
+                    || (input == "point" && output == "insert")
+                    || (input != "point" && output == "replace");
+                assert_eq!(
+                    parse(Path::new("commands.toml"), text.as_bytes()).is_ok(),
+                    valid,
+                    "{input}/{context}/{output}"
+                );
+            }
+        }
+    }
 }
 
 // References resolve after includes and root overrides, but an undefined name,

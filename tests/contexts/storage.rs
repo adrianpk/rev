@@ -374,48 +374,13 @@ fn capacity_admission() {
                 workspace(&mut next, "Many", roots);
             }
             "files" | "snapshot bytes" => {
-                let width = if case == "snapshot bytes" { 4000 } else { 8 };
-                let count = if case == "snapshot bytes" {
-                    MAX_FILES
-                } else {
-                    MAX_FILES + 1
-                };
-                let files = (0..count)
-                    .map(|i| {
-                        entry(FileReference::LooseAbsolute(
-                            NativePath::absolute(
-                                &Path::new("/").join(format!("{i}{}", "\\".repeat(width))),
-                            )
-                            .unwrap(),
-                        ))
-                    })
-                    .collect();
-                next.sessions[0].snapshot = Ok(Snapshot {
-                    files,
-                    active_file: None,
-                });
+                next.sessions[0].snapshot = Ok(oversized_snapshot(case));
                 next.sessions[0].reference.revision = Revision::INITIAL.next().unwrap();
                 next.projects[0].session_ref = next.sessions[0].reference.clone();
                 next.projects[0].revision = next.projects[0].revision.next().unwrap();
             }
             "catalog bytes" => {
-                for i in 0..8 {
-                    workspace(&mut next, &format!("W{i}"), vec![]);
-                    let files = (0..MAX_FILES)
-                        .map(|j| {
-                            entry(FileReference::LooseAbsolute(
-                                NativePath::absolute(
-                                    &Path::new("/").join(format!("{j}{}", "a".repeat(2200))),
-                                )
-                                .unwrap(),
-                            ))
-                        })
-                        .collect();
-                    next.sessions.last_mut().unwrap().snapshot = Ok(Snapshot {
-                        files,
-                        active_file: None,
-                    });
-                }
+                oversized_catalog(&mut next);
             }
             _ => unreachable!(),
         }
@@ -437,34 +402,74 @@ fn capacity_admission() {
     assert!(store.publish(&base.prepare(next).unwrap()).is_ok());
 }
 
+fn oversized_snapshot(case: &str) -> Snapshot {
+    let width = if case == "snapshot bytes" { 4000 } else { 8 };
+    let count = if case == "snapshot bytes" {
+        MAX_FILES
+    } else {
+        MAX_FILES + 1
+    };
+    let files = (0..count)
+        .map(|i| {
+            entry(FileReference::LooseAbsolute(
+                NativePath::absolute(&Path::new("/").join(format!("{i}{}", "\\".repeat(width))))
+                    .unwrap(),
+            ))
+        })
+        .collect();
+    Snapshot {
+        files,
+        active_file: None,
+    }
+}
+
+fn oversized_catalog(next: &mut Catalog) {
+    for i in 0..8 {
+        workspace(next, &format!("W{i}"), vec![]);
+        let files = (0..MAX_FILES)
+            .map(|j| {
+                entry(FileReference::LooseAbsolute(
+                    NativePath::absolute(&Path::new("/").join(format!("{j}{}", "a".repeat(2200))))
+                        .unwrap(),
+                ))
+            })
+            .collect();
+        next.sessions.last_mut().unwrap().snapshot = Ok(Snapshot {
+            files,
+            active_file: None,
+        });
+    }
+}
+
+struct StagingChange {
+    phase: &'static str,
+    path: std::path::PathBuf,
+}
+impl Output for StagingChange {
+    fn flush(&mut self, file: &mut File) -> io::Result<()> {
+        std::io::Write::flush(file)?;
+        match self.phase {
+            "catalog" => fs::write(&self.path, b"changed externally"),
+            "lock" => {
+                let lock = self.path.with_extension("toml.lock");
+                fs::rename(&lock, self.path.with_extension("retained-lock"))?;
+                fs::write(lock, b"replacement lock")
+            }
+            "parent" => {
+                let parent = self.path.parent().unwrap();
+                fs::rename(parent, parent.with_extension("retained"))?;
+                fs::create_dir(parent)
+            }
+            _ => unreachable!(),
+        }
+    }
+}
+
 // Substitution after staging is checked before the replacement point. Preserve
 // a changed catalog and both renamed directories instead of following a new
 // pathname or recreating an unlocked lockfile.
 #[test]
 fn staging_substitution() {
-    struct Change {
-        phase: &'static str,
-        path: std::path::PathBuf,
-    }
-    impl Output for Change {
-        fn flush(&mut self, file: &mut File) -> io::Result<()> {
-            std::io::Write::flush(file)?;
-            match self.phase {
-                "catalog" => fs::write(&self.path, b"changed externally"),
-                "lock" => {
-                    let lock = self.path.with_extension("toml.lock");
-                    fs::rename(&lock, self.path.with_extension("retained-lock"))?;
-                    fs::write(lock, b"replacement lock")
-                }
-                "parent" => {
-                    let parent = self.path.parent().unwrap();
-                    fs::rename(parent, parent.with_extension("retained"))?;
-                    fs::create_dir(parent)
-                }
-                _ => unreachable!(),
-            }
-        }
-    }
     for phase in ["catalog", "lock", "parent"] {
         let fixture = fixture::Fixture::new();
         let (store, base, path) = seeded(&fixture);
@@ -473,7 +478,7 @@ fn staging_substitution() {
             store
                 .publish_with(
                     &renamed(&base, "Rejected"),
-                    &mut Change {
+                    &mut StagingChange {
                         phase,
                         path: path.clone()
                     }

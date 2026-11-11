@@ -426,28 +426,7 @@ fn publication_rejections() {
         if case.ends_with("busy") {
             lock.try_lock().unwrap();
         }
-        if case.ends_with("stale") {
-            let mut next = before.clone();
-            next.projects[0].name = Name::new("Other writer").unwrap();
-            next.projects[0].revision = next.projects[0].revision.next().unwrap();
-            Store::open(&path)
-                .unwrap()
-                .0
-                .publish(&before.prepare(next).unwrap())
-                .unwrap();
-        }
-        if case.ends_with("corrupt") {
-            fs::write(&path, "broken = [").unwrap();
-        }
-        if case == "name" || case == "root" {
-            let mut next = before.clone();
-            let target = f.write("other/source", "other");
-            super::super::project(&mut next, target.parent().unwrap(), "Taken");
-            Store::open(&path)
-                .unwrap()
-                .0
-                .publish(&before.prepare(next).unwrap())
-                .unwrap();
+        if competing_catalog(case, &f, &path, &before) {
             cancel(&mut s);
             select(
                 &mut s,
@@ -472,11 +451,7 @@ fn publication_rejections() {
                 "Rejected"
             },
         );
-        ready(&mut s, |s| {
-            s.echo().contains("Contexts:")
-                || s.echo().contains("already registered")
-                || s.echo().contains("conflict")
-        });
+        ready(&mut s, publication_failed);
         if case.ends_with("busy") {
             lock.unlock().unwrap();
         }
@@ -489,6 +464,40 @@ fn publication_rejections() {
         assert!(text(&s).starts_with('!'));
         assert_eq!(fs::read_to_string(source).unwrap(), "a界e\u{301}\nline\n");
     }
+}
+
+fn competing_catalog(case: &str, f: &fixture::Fixture, path: &Path, before: &Catalog) -> bool {
+    if case.ends_with("stale") {
+        let mut next = before.clone();
+        next.projects[0].name = Name::new("Other writer").unwrap();
+        next.projects[0].revision = next.projects[0].revision.next().unwrap();
+        Store::open(path)
+            .unwrap()
+            .0
+            .publish(&before.prepare(next).unwrap())
+            .unwrap();
+    }
+    if case.ends_with("corrupt") {
+        fs::write(path, "broken = [").unwrap();
+    }
+    if case == "name" || case == "root" {
+        let mut next = before.clone();
+        let target = f.write("other/source", "other");
+        super::super::project(&mut next, target.parent().unwrap(), "Taken");
+        Store::open(path)
+            .unwrap()
+            .0
+            .publish(&before.prepare(next).unwrap())
+            .unwrap();
+        return true;
+    }
+    false
+}
+
+fn publication_failed(s: &mut Session) -> bool {
+    s.echo().contains("Contexts:")
+        || s.echo().contains("already registered")
+        || s.echo().contains("conflict")
 }
 
 // Replacement paths are identities observed before source decisions. Replacing

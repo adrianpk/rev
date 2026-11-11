@@ -172,6 +172,65 @@ fn artwork_and_resize() {
     s.load(&source).unwrap();
     show(&mut s);
     s.handle(Event::Resize(120, 30));
+    check_artwork(&mut s);
+    select(&mut s, 3);
+    for (width, height) in [
+        (120, 20),
+        (50, 10),
+        (5, 3),
+        (0, 0),
+        (1, 1),
+        (20, 1),
+        (120, 30),
+    ] {
+        s.handle(Event::Resize(width, height));
+        let frame = s.poll_frame().unwrap();
+        assert_eq!(frame.rows().len(), usize::from(height));
+        assert!(
+            frame
+                .rows()
+                .iter()
+                .all(|r| unicode_width::UnicodeWidthStr::width(r.text()) == usize::from(width))
+        );
+        if width > 0 && height > 0 {
+            assert_eq!(
+                frame
+                    .rows()
+                    .iter()
+                    .filter(|r| r.selection().is_some())
+                    .count(),
+                1
+            );
+        }
+        if width < 58 || height < 14 {
+            assert!(
+                frame
+                    .rows()
+                    .iter()
+                    .all(|r| !r.text().contains('▀') && !r.text().contains('▄'))
+            );
+        }
+        if width > 16 && height > 0 {
+            let mut output = Vec::new();
+            frame.write(&mut output).unwrap();
+            let output = String::from_utf8(output).unwrap();
+            assert!(
+                output.contains("48;2;26;27;38m"),
+                "{width}x{height}: {output:?}"
+            );
+        }
+    }
+    key(&mut s, KeyCode::Enter);
+    ready(&mut s, |s| s.echo().contains("No registered Workspaces"));
+    cancel(&mut s);
+    assert!(!s.dashboard_visible());
+    let mut output = Vec::new();
+    s.frame().unwrap().write(&mut output).unwrap();
+    assert!(String::from_utf8(output).unwrap().contains("source"));
+    assert_eq!(text(&s), "source");
+}
+
+fn check_artwork(s: &mut Session) {
     let frame = s.frame().unwrap();
     assert_eq!(frame.rows().len(), 30);
     assert_eq!(
@@ -229,61 +288,6 @@ fn artwork_and_resize() {
         }
         assert!(output.contains("38;2;129;74;255m") || output.contains("48;2;129;74;255m"));
     }
-    select(&mut s, 3);
-    for (width, height) in [
-        (120, 20),
-        (50, 10),
-        (5, 3),
-        (0, 0),
-        (1, 1),
-        (20, 1),
-        (120, 30),
-    ] {
-        s.handle(Event::Resize(width, height));
-        let frame = s.poll_frame().unwrap();
-        assert_eq!(frame.rows().len(), usize::from(height));
-        assert!(
-            frame
-                .rows()
-                .iter()
-                .all(|r| unicode_width::UnicodeWidthStr::width(r.text()) == usize::from(width))
-        );
-        if width > 0 && height > 0 {
-            assert_eq!(
-                frame
-                    .rows()
-                    .iter()
-                    .filter(|r| r.selection().is_some())
-                    .count(),
-                1
-            );
-        }
-        if width < 58 || height < 14 {
-            assert!(
-                frame
-                    .rows()
-                    .iter()
-                    .all(|r| !r.text().contains('▀') && !r.text().contains('▄'))
-            );
-        }
-        if width > 16 && height > 0 {
-            let mut output = Vec::new();
-            frame.write(&mut output).unwrap();
-            let output = String::from_utf8(output).unwrap();
-            assert!(
-                output.contains("48;2;26;27;38m"),
-                "{width}x{height}: {output:?}"
-            );
-        }
-    }
-    key(&mut s, KeyCode::Enter);
-    ready(&mut s, |s| s.echo().contains("No registered Workspaces"));
-    cancel(&mut s);
-    assert!(!s.dashboard_visible());
-    let mut output = Vec::new();
-    s.frame().unwrap().write(&mut output).unwrap();
-    assert!(String::from_utf8(output).unwrap().contains("source"));
-    assert_eq!(text(&s), "source");
 }
 
 // Pointer admission shares current placement with painting. Banner clicks,

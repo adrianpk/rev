@@ -73,44 +73,7 @@ fn rejection_fallback() {
             "tree_sitter_rust"
         };
         let config = rust_config(&fixture, &parser, symbol);
-        match case {
-            "empty" => {
-                fixture.write("completions.scm", "");
-            }
-            "scope-only" => {
-                fixture.write("completions.scm", "(block) @scope");
-            }
-            "property" => {
-                fixture.write("completions.scm", "((identifier) @function (#set! custom))");
-            }
-            "highlight-capture" => {
-                fixture.write("highlights.scm", "(identifier) @typo");
-            }
-            "highlights" => {
-                fixture.write("highlights.scm", "(absent) @function");
-            }
-            "completions" => {
-                fixture.write("completions.scm", "(absent) @function");
-            }
-            "capture" => {
-                fixture.write("completions.scm", "(identifier) @typo");
-            }
-            "predicate" => {
-                fixture.write(
-                    "completions.scm",
-                    "((identifier) @function (#unknown? @function))",
-                );
-            }
-            "utf8" => std::fs::write(fixture.0.join("completions.scm"), [255]).unwrap(),
-            "large" => {
-                fixture.write("completions.scm", &" ".repeat(1024 * 1024 + 1));
-            }
-            "directory" => {
-                std::fs::remove_file(fixture.0.join("highlights.scm")).unwrap();
-                std::fs::create_dir(fixture.0.join("highlights.scm")).unwrap();
-            }
-            _ => (),
-        }
+        reject_asset(&fixture, case);
         let path = fixture.write("sample.rs", "fn intact() {}\n");
         let mut editor = session(configured(&fixture, &config), &path);
         support::settle(&mut editor);
@@ -136,6 +99,42 @@ fn rejection_fallback() {
             Some(Err(error.as_str())),
             "{case}"
         );
+    }
+}
+
+fn reject_asset(fixture: &Fixture, case: &str) {
+    let queries = [
+        ("empty", "completions.scm", ""),
+        ("scope-only", "completions.scm", "(block) @scope"),
+        (
+            "property",
+            "completions.scm",
+            "((identifier) @function (#set! custom))",
+        ),
+        ("highlight-capture", "highlights.scm", "(identifier) @typo"),
+        ("highlights", "highlights.scm", "(absent) @function"),
+        ("completions", "completions.scm", "(absent) @function"),
+        ("capture", "completions.scm", "(identifier) @typo"),
+        (
+            "predicate",
+            "completions.scm",
+            "((identifier) @function (#unknown? @function))",
+        ),
+    ];
+    if let Some((_, file, source)) = queries.into_iter().find(|(name, _, _)| *name == case) {
+        fixture.write(file, source);
+        return;
+    }
+    match case {
+        "utf8" => std::fs::write(fixture.0.join("completions.scm"), [255]).unwrap(),
+        "large" => {
+            fixture.write("completions.scm", &" ".repeat(1024 * 1024 + 1));
+        }
+        "directory" => {
+            std::fs::remove_file(fixture.0.join("highlights.scm")).unwrap();
+            std::fs::create_dir(fixture.0.join("highlights.scm")).unwrap();
+        }
+        _ => (),
     }
 }
 

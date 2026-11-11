@@ -111,6 +111,22 @@ text/numeric literal multiplicities across its 11 Rust files. Macro buffer-name
 navigation computes the same direction before selecting its inventory route;
 configuration provenance expresses the same root/include/omission cases directly.
 
+
+Admission fixtures separate typed AI target combinations, competing context
+catalog writes, publication feedback, oversized snapshot/catalog builders and
+staged Output substitution. The same locks, revisions, file identities, encoded
+path widths, count limits and maximum-file positive control remain observable.
+Dashboard artwork checks retain the original frame/palette assertions before
+resizing the same live session. Grammar samples and malformed query texts are
+explicit fixture catalogs; byte/size/file-type faults retain their original
+filesystem operations and cached-rejection assertions.
+
+The admission cohort preserves all 39 case identities, 342 assertion sites and
+text/numeric literal multiplicities across its six Rust files. Native event and
+write order, forbidden combinations, source retention, deadlines and resource
+ceilings are unchanged. The wait predicate uses the existing polling callback's
+mutable-session signature without changing its accepted feedback or wait budget.
+
 ## Contracts Added or Changed
 
 No runtime, package API, protocol, policy or acceptance changes are planned.
@@ -139,6 +155,13 @@ The existing five frozen commands and final controller gate remain required.
 - `tests/org_headings/geometry.rs` and `tests/org_indentation.rs`: viewport,
   source/pretty-heading and Unicode cursor/hit-map checks.
 - `tests/tree/geometry.rs`: standalone tree projection at each admitted width.
+- `tests/configuration/ai_commands.rs`: typed target combinations and original
+  invalid-name, definition and size/count boundary checks.
+- `tests/contexts/management.rs`, `tests/contexts/startup.rs` and
+  `tests/contexts/storage.rs`: competing writes, retained artwork and explicit
+  capacity/staging fault preparation.
+- `tests/language_assets/admission.rs` and `tests/syntax/preferences.rs`:
+  independent grammar samples, malformed query catalogs and cached asset faults.
 - `examples/git_integration_acceptance/`: snapshot and staged-content ownership.
 - `examples/integrated_terminal_acceptance/failure.rs`: explicit shared failure
   injection state; host terminal cleanup behavior is unchanged.
@@ -236,9 +259,25 @@ Development checks for dispatch and tree interaction fixtures:
   resource limits remain unchanged.
 - `git diff --check`: passed.
 
+
+Development checks for admission and retained-state fixtures:
+
+- The frozen scoped quality command still fails overall: 75 native source
+  findings remain, down from 82. Formatting, all-target compilation and scoped
+  Clippy admission pass with zero blocking diagnostics; four selected-profile
+  diagnostics remain deferred outside this scope. Coverage remains 704 of 1,836
+  first-party Rust files and 70 of 73 Cargo roots across two packages.
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --test configuration --test contexts --test syntax --test language_assets -- ai_commands::definition_bounds management::publication_rejections startup::artwork_and_resize storage::capacity_admission storage::staging_substitution preferences::grammar_policy admission::rejection_fallback --test-threads=1`: passed all seven affected existing native cases, including all original negative combinations, competing writes, storage limits and cached asset failures.
+- Static comparison against clean
+  `61b33ea77404cca9075ba321c40a0b6422622ba2` preserves all 39 existing case
+  identities, 342 assertion sites and text/numeric literal multiplicities in the
+  six changed Rust files. No input, assertion, timeout, resource ceiling or
+  acceptance condition is removed or relaxed.
+- `git diff --check`: passed.
+
 ## Risks and Follow-ups
 
-Selected Clippy admission is complete. The remaining 82 native source findings
+Selected Clippy admission is complete. The remaining 75 native source findings
 require cohesive fixture/example decomposition. T9.1-T9.3 remain in progress.
 The canonical PR, final ordered clean-HEAD evidence and controller integration
 remain pending.
