@@ -28,6 +28,11 @@ Geometry fixtures separate policy and viewport setup from per-frame checks for
 bookmark fields, gutter partitions, completion hints, tree presentation and Org
 source positions. Existing case matrices and golden expectations are retained.
 
+All 704 selected Rust files now pass formatting, all-target compilation, scoped
+Clippy admission and native source policy. Both workspace packages and all 70
+selected Cargo roots retain the existing profile and source limits. The four
+selected-profile diagnostics outside this slice remain explicitly deferred.
+
 ## Implementation Notes
 
 The baseline covers 704 of 1,836 first-party Rust files, both workspace packages
@@ -234,9 +239,30 @@ conversion and explicit file/directory restarts. All 81 assertion sites and
 text/numeric literal multiplicities remain in the three Rust files; serial
 process drops, freshness, capacity, time and stream limits are unchanged.
 
+Pi examples separate directory/project/configuration preparation, dirty native
+snapshot provenance, atomic reload invalidation, saved command/apply/undo,
+private history restoration/reset, idle measurements and missing-backend checks.
+First-disconnect, reset and exit keep their original session/process retirement
+sequence. PTY phases retain the same prompt-owning reload, stale-result refusal
+and explicit child/terminal cleanup. Manual live mode still checks its explicit
+environment guard before any filesystem or provider work; it was not executed.
+
+Interoperability examples own disk fixtures, dirty hidden/orphan source
+observations, collected result identity/generation and retired editable text
+separately. The existing session guard still shuts down its owned package on
+exit; native result navigation/local F8, generation, source-stamp and undo
+assertions keep their original order. All 75 assertion sites and text/numeric
+literal multiplicities remain unchanged across these five Rust files.
+
+A final per-file comparison across the entire original selected inventory
+preserves all 2,889 existing test identities and all 19,672 assertion sites in
+704 Rust files. Only test/example implementation and this report/tracker change;
+no runtime owner, public package API, wire format, policy limit or budget changes.
+
 ## Contracts Added or Changed
 
-No runtime, package API, protocol, policy or acceptance changes are planned.
+No runtime, public package API, protocol, policy or acceptance contract changes
+are introduced.
 The existing five frozen commands and final controller gate remain required.
 
 ## Files of Interest
@@ -305,6 +331,11 @@ The existing five frozen commands and final controller gate remain required.
 
 - `examples/projects_workspaces_acceptance/`: count/byte catalogs, explicit
   storage/native cancellation owners and serial real-input lifecycle phases.
+
+- `examples/ai_pi_acceptance/`: fixture preparation, native history/reload and
+  PTY input/process lifecycle phases; the manual live guard remains explicit.
+- `examples/plugin-interop.rs`: owned input files, original-source observations,
+  collected/retired result checks and guarded native package cleanup.
 
 ## Validation
 
@@ -590,12 +621,34 @@ Development checks for Projects/Workspaces example phases:
   and text/numeric literal multiplicities in the three changed Rust files.
 - `git diff --check`: passed.
 
+Development checks for Pi and interoperability example phases:
+
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 bash scripts/check-quality.sh --scope tests --scope examples --scope crates/rev-plugin-sdk/tests`: passed. Formatting, all-target compilation, scoped Clippy admission and native source policy all pass across 704 files, both packages and 70 selected Cargo roots. There are zero blocking diagnostics and zero source findings; the four diagnostics outside this scope remain deferred.
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo build --locked -p rev --bin rev --example ai-pi-acceptance --example plugin-interop`: passed before and after decomposition.
+- Both native Pi journeys and both real PTY profiles pass before and after with
+  the installed native Pi 1.3.0 executable pinned directly. All fixtures use a
+  fresh private agent directory, offline provider and disabled telemetry; live
+  mode is unset. Original 35-second native wrappers, six-/12-second waits,
+  five-second reap bound and eight-second/1-MiB terminal ownership are unchanged.
+  No installation, acquisition, live-provider operation or user state is used.
+- Interoperability under both profiles passes before and after against the same
+  existing collector executable, SHA-256
+  `c70e5091474aae16646b7f79e30f7171800846b6d1eac1c54c0720d7d175a4e8`.
+  Successful output is byte-identical. This focused comparison neither rebuilds
+  nor changes the separate client repository; the controller still owns the
+  frozen full-gate rebuild and interoperability command.
+- Static comparison against clean
+  `eb4cc1f121d11eda79b81c89731d7a77cfc3a661` preserves all 75 assertion sites
+  and text/numeric literal multiplicities across the five changed Rust files.
+  Final per-file comparison with the original Slice 9 inventory preserves all
+  2,889 test identities and 19,672 assertion sites across 704 selected files.
+- `git diff --check`: passed.
+
 ## Risks and Follow-ups
 
-Selected Clippy admission is complete. The remaining five native source findings
-require cohesive developer-example decomposition. T9.1-T9.3 remain in progress.
-The canonical PR, final ordered clean-HEAD evidence and controller integration
-remain pending.
+Selected fixture/example Clippy and source admission is complete. Existing case,
+assertion, input and resource contracts are preserved. T9.3, the canonical PR,
+final ordered clean-HEAD evidence and controller integration remain pending.
 
 The standalone file-tree native and PTY examples retain their pre-existing
 fixed-row expectation failures recorded above. Their assertions and limits stay

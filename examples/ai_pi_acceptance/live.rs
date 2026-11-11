@@ -17,6 +17,11 @@ pub(crate) fn run(root: &Path) -> Result<()> {
     let source = "fn add(a: i32, b: i32) -> i32 { a + b }\n";
     fs::write(root.join("toy.rs"), source)?;
     let message = serde_json::json!({"instruction":"Explain in one short English sentence what the supplied toy Rust function returns. Respond only with a JSON object containing version:1 and text:string.","context":"input","history":"fresh input-only","observations":{"text":source},"dirty_sources":[]}).to_string();
+    let policy = policy()?;
+    execute(root, source, message, policy)
+}
+
+fn policy() -> Result<Pi> {
     let policy = Pi {
         command: std::env::current_exe()?
             .to_str()
@@ -28,15 +33,13 @@ pub(crate) fn run(root: &Path) -> Result<()> {
         request_timeout_ms: 45_000,
         ..Pi::default()
     };
+    Ok(policy)
+}
+
+fn execute(root: &Path, source: &str, message: String, policy: Pi) -> Result<()> {
     let started = Instant::now();
     let mut operation = Operation::start(policy, root.canonicalize()?, message, 1)?;
-    while !operation.finished() {
-        if started.elapsed() >= Duration::from_secs(60) {
-            operation.cancel();
-            return Err("live operation exceeded one-minute deadline".into());
-        }
-        std::thread::sleep(Duration::from_millis(2));
-    }
+    wait(&mut operation, started)?;
     let result = operation.take().ok_or("missing live result")??;
     assert!(!result.text.trim().is_empty());
     assert!(!result.directory && result.history.contains("fresh input-only"));
@@ -53,5 +56,16 @@ pub(crate) fn run(root: &Path) -> Result<()> {
         "MEASURE live {}",
         fs::read_to_string(root.join("live-counts"))?
     );
+    Ok(())
+}
+
+fn wait(operation: &mut Operation, started: Instant) -> Result<()> {
+    while !operation.finished() {
+        if started.elapsed() >= Duration::from_secs(60) {
+            operation.cancel();
+            return Err("live operation exceeded one-minute deadline".into());
+        }
+        std::thread::sleep(Duration::from_millis(2));
+    }
     Ok(())
 }
