@@ -1,6 +1,6 @@
 # Slice 8: Session interaction and completion owner
 
-Status: drafting
+Status: reviewing
 Delivery set: rev-architecture-quality
 Plan: [Architecture Quality Delivery](../../../plan/rev-architecture-quality.md)
 Tracker: [Architecture Quality Tracker](../../../tracker/rev-architecture-quality.md)
@@ -56,8 +56,8 @@ Checked numeric conversions retain the existing name/identity, prefix, file-size
 catalog-revision and candidate-row bounds. Position conversions follow the
 existing clamping and positive-argument admission. Macro ring rotation keeps
 Euclidean normalization, and zero/negative repeat counts retain their unbounded
-iteration representation. The remaining selected source-bound corrections are
-pending; selected Clippy admission now passes.
+iteration representation. Selected Clippy admission and all selected source
+bounds pass after the remaining cohorts described below.
 
 Input routing now separates Git context selection, startup command families and
 context-specific map names, defaults and availability. Their original precedence,
@@ -218,7 +218,20 @@ existing admission, publication and freshness checks retain authority.
 
 ## Validation
 
-Final successful clean-HEAD validation is pending. The frozen ordered commands are unchanged:
+Ordered validation `RZVDMKSGOZZAYO4HD2GR3WIUUY` passed all four frozen commands
+at clean published commit `f4ac3a6b5da4628b73c7bd2e6f81bfa95373a0c6`:
+
+- Scoped quality passed formatting, all-target compilation, Clippy admission
+  and source policy for all 381 selected files, with zero blocking diagnostics
+  or source findings. The 205 deferred diagnostics belong outside this scope.
+- Native regression suites passed all 482 cases: 204 commands, 44 completion,
+  110 macros and 124 modal cases, with no failures or ignored cases.
+- Documentation passed 684 commands, 299 configuration entries, 106 reachable
+  pages and 743 local links and anchors.
+- `git diff --check` passed.
+
+The PR-reference HEAD requires the same ordered clean-HEAD evidence, recorded
+separately by the controller. The frozen commands remain unchanged:
 
 - `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 bash scripts/check-quality.sh --scope src/command.rs --scope src/command --scope src/input.rs --scope src/input --scope src/macros.rs --scope src/macros --scope src/session.rs --scope src/session`
 - `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --test commands --test modal --test completion --test macros -- --test-threads=1`
@@ -241,7 +254,7 @@ Initial completion-owner checks, retained from checkpoint
 - `target/debug/examples/source-check --workspace --scope src/session/completion.rs --scope src/session/completion`: passed all five selected source files.
 - `git diff --check`: passed.
 
-The unresolved `commands` cases are `command_sequences`,
+The initial failing `commands` cases were `command_sequences`,
 `context_keymaps::context_hints`,
 `context_keymaps::flows::filesystem_arguments`,
 `context_keymaps::flows::recursive_consent`,
@@ -251,7 +264,8 @@ The unresolved `commands` cases are `command_sequences`,
 `org_catalog::default_routes`, `org_catalog::native_catalog`, `prefix_recovery`,
 `selection::acceptance_rules`, `shell::shell_sequences`,
 `terminal::suffix_phases` and `vertical::geometry::candidate_limits`.
-Their assertions, inputs, timeouts and budgets have not been changed.
+At that checkpoint their assertions, inputs, timeouts and budgets were unchanged;
+the authorized fixture reconciliation and passing results are recorded below.
 
 Ownership and representation checks from checkpoint
 `0f34fa97f9af8e37651378a854994d54ab9b8011`:
@@ -268,9 +282,9 @@ Ownership and representation checks from checkpoint
 - `target/debug/examples/source-check --workspace --scope src/macros/names.rs --scope src/session/macros/tests.rs --scope src/command/argument.rs`: passed all three selected source files.
 - `git diff --check`: passed.
 
-The modal failures are `contexts::colon_ranking` and `keymaps::state_hints`.
-Their assertions expect only a command name and binding; the observed rows also
-include the command description. Those assertions and fixtures remain unchanged.
+The modal failures at that checkpoint were `contexts::colon_ranking` and
+`keymaps::state_hints`. Their old expectations omitted the existing command
+description. The authorized fixture reconciliation below includes that metadata.
 
 Input routing and counter formatting checks recorded in checkpoint
 `6091f3fa19cccfc315fe2bed3ec7020d01a59bb5`:
@@ -393,19 +407,20 @@ Fixture reconciliation, following maintainer technical-recovery authorization:
   contracts. The startup ranking regression passed independently.
 - `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --test commands --test modal -- context_keymaps::terminal_hints editor_keymaps::effective_hints contexts::colon_ranking keymaps::state_hints --test-threads=1`: passed all four cases, retaining both interaction profiles.
 - `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --test commands -- shell::shell_sequences --test-threads=1`: passed, including the preserved tangle continuation, cancellation, invalid Meta input and counted text insertion.
-- Final ordered clean-published-HEAD validation remains required through
-  `looper validate`; these focused results do not replace its evidence.
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --test command_usage -- --test-threads=1`: passed all 15 cases at `f4ac3a6b5da4628b73c7bd2e6f81bfa95373a0c6`, including persisted startup ranking.
+- Ordered validation `RZVDMKSGOZZAYO4HD2GR3WIUUY` also passed every
+  frozen command at that clean published fixture commit. Fresh evidence for
+  the final PR-reference HEAD is required through `looper validate`.
 
 ## Risks and Follow-ups
 
 Preserve native input/view context, stale completion rejection, transient
 ownership, semantic macro replay/history and the retained macro body identity.
-Scoped quality and T8.2 are complete. The retained fixture failures have focused
-corrections; canonical PR preparation and successful exact clean-HEAD evidence
-remain pending. F6, shared macro-body
-accounting, native dispatch, counted planning, macro lifecycle, publication and
-keymap preparation have focused regression coverage; Slice 8 is not ready for
-integration.
+T8.1, T8.2 and T8.3 are complete, with all frozen checks passing at the fixture
+commit. F6, shared macro-body accounting, native dispatch, counted planning,
+macro lifecycle, publication and keymap preparation have regression coverage.
+Canonical review, integration and the unchanged delivery-set gate remain with
+the controller; Slice 9 has not started.
 
 The maintainer authorized technical diagnosis, bounded corrections, validation
 and same-run continuation without repeated routine approval pauses. The fixture

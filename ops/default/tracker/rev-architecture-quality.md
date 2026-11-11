@@ -145,24 +145,24 @@ Correction: stable/unobserved fixtures preserve explicit pending and cancellatio
 
 ## Slice 8: Session interaction and completion owner
 
-State: in progress
+State: reviewing
 Dependency: Slice 7 integrated
 Branch: refactor/rev-architecture-quality-08-interaction
 PR: pending
 Report: ops/default/report/slices/rev-architecture-quality/slice-8-interaction.md
-Validation: final successful clean-HEAD evidence pending; frozen ordered commands unchanged
-Progress: F6 and T8.2 are complete. Frozen scoped quality at the published checkpoint passes all 381 selected files with zero blocking Clippy diagnostics and zero source findings; 205 selected-profile diagnostics remain deferred outside this scope. Command metadata retains all 119 Git and 52 macro variant names/descriptions; inherited maps preserve compilation order and public representation. The maintainer-approved fixture correction reconciles the 16 command, two modal and one command-usage failures with existing numeric-prefix outcomes, macro commands, descriptions, catalog ordering and the tree parent row. Focused cases pass, preserving semantic/negative coverage, consent, freshness, source/history, deadlines and budgets. Canonical PR preparation and successful final clean-HEAD validation remain pending.
+Validation: all four frozen ordered commands passed at f4ac3a6b5da4628b73c7bd2e6f81bfa95373a0c6 in RZVDMKSGOZZAYO4HD2GR3WIUUY; fresh evidence for the final PR-reference HEAD is required
+Progress: F6 and T8.2 are complete. Frozen scoped quality at the published checkpoint passes all 381 selected files with zero blocking Clippy diagnostics and zero source findings; 205 selected-profile diagnostics remain deferred outside this scope. Command metadata retains all 119 Git and 52 macro variant names/descriptions; inherited maps preserve compilation order and public representation. The maintainer-approved fixture correction reconciles the 16 command, two modal and one command-usage failures with existing numeric-prefix outcomes, macro commands, descriptions, catalog ordering and the tree parent row. All 482 frozen native cases and 15 command-usage cases pass, preserving semantic/negative coverage, consent, freshness, source/history, deadlines and budgets. PR references and final clean-HEAD validation remain to be recorded; integration and the delivery-set gate belong to the controller.
 
 - [x] T8.1: Resolve F6 with a cohesive completion concern owner and explicit admission/retirement transitions; keep public completion observations and native editing/context semantics intact.
 - [x] T8.2: Correct remaining command/input/macro/session selected diagnostics and source bounds, including retained macro body identity without raw-pointer-type casts or identity-spelling workarounds.
-- [ ] T8.3: Verify both interaction profiles, prefix arguments, semantic macro replay/history, stale completion, transient ownership and source/view/context switches using native regression suites.
+- [x] T8.3: Verify both interaction profiles, prefix arguments, semantic macro replay/history, stale completion, transient ownership and source/view/context switches using native regression suites.
 
 Decision: the maintainer authorizes diagnosis, bounded technical corrections,
 validation and same-run continuation without repeated routine approval pauses.
 The report's fixture correction, including its two flow/guard files, is approved
 against existing behavior;
 negative coverage, consent, source/history, resource bounds and frozen commands
-remain required. Final clean-HEAD validation and PR preparation remain pending.
+remain required. The fixture commit passes all four frozen checks; PR-reference preparation requires fresh validation of its final HEAD.
 
 ## Slice 9: Fixtures and developer examples
 
