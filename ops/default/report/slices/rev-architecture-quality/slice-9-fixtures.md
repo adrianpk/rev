@@ -213,6 +213,15 @@ Both wrapping files preserve all 58 assertion sites and text/numeric literal
 multiplicities. Input bytes, geometry matrices, EOF behavior, stream limits,
 eight-second deadline, idle interval and owned-child cleanup remain unchanged.
 
+Bookmark examples separate record admission, edit/undo/save, alias/marker
+projection, list/exit, persisted reopen, relocation, folded-source reveal and
+unavailable/malformed-store protection. Resource fixtures own their source,
+settings and timing observations; all 1,024 records, the overflow refusal,
+512-batch projection ceiling, 128-pass relocation bound and canceled origin
+checks remain intact. PTY phases keep the original byte streams, bounded reader
+and explicit first-owner drop before restart. All 80 assertion sites and
+text/numeric literal multiplicities remain unchanged across three Rust files.
+
 ## Contracts Added or Changed
 
 No runtime, package API, protocol, policy or acceptance changes are planned.
@@ -278,6 +287,9 @@ The existing five frozen commands and final controller gate remain required.
 - `examples/git_integration_acceptance/`: snapshot and staged-content ownership.
 - `examples/integrated_terminal_acceptance/failure.rs`: explicit shared failure
   injection state; host terminal cleanup behavior is unchanged.
+
+- `examples/bookmark_acceptance/`: explicit native record/store/source lifecycle,
+  measured bounded projection/relocation and PTY restart phases.
 
 ## Validation
 
@@ -516,9 +528,30 @@ Development checks for wrapping-navigation example phases:
   No case, assertion, time/byte bound or expected value is relaxed.
 - `git diff --check`: passed.
 
+Development checks for bookmark example phases:
+
+- The frozen scoped quality command still fails overall: 16 native source
+  findings remain, down from 20, all in other developer examples. Formatting,
+  all-target compilation and scoped Clippy admission pass with zero blocking
+  diagnostics and the same four deferred diagnostics outside this scope.
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo check --locked -p rev --example bookmark-acceptance`: passed.
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo build --locked -p rev --bin rev --example bookmark-acceptance`: passed before and after decomposition.
+- The existing native, resource and real restart PTY journeys pass before and
+  after in isolated fixtures using the existing terminal wrapper. Resource
+  acceptance retains 2,477,825 source bytes, all 1,024 records, overflow refusal,
+  exact restoration, canceled relocation and idle checks. Both runs settle the
+  original relocated record in 17 passes, below the unchanged 128-pass ceiling.
+  PTY ownership keeps the original eight-second/1-MiB bounds and 350-ms idle
+  assertion. Timing/RSS observations are development-profile measurements.
+- Static comparison against clean
+  `3ffc2b5cf8e8943e8b29b6788424d72f2a4b0cb7` preserves all 80 assertion sites
+  and text/numeric literal multiplicities in the three changed Rust files.
+  Inputs, event order, session drops, deadlines and resource bounds are unchanged.
+- `git diff --check`: passed.
+
 ## Risks and Follow-ups
 
-Selected Clippy admission is complete. The remaining 20 native source findings
+Selected Clippy admission is complete. The remaining 16 native source findings
 require cohesive developer-example decomposition. T9.1-T9.3 remain in progress.
 The canonical PR, final ordered clean-HEAD evidence and controller integration
 remain pending.

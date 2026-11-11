@@ -60,23 +60,9 @@ impl Terminal {
             .stdout(Stdio::piped())
             .spawn()?;
         let input = child.stdin.take();
-        let mut output = child.stdout.take().unwrap();
+        let output = child.stdout.take().unwrap();
         let (send, received) = sync_channel(256);
-        let reader = std::thread::spawn(move || {
-            let mut bytes = 0;
-            while bytes <= OUTPUT_LIMIT {
-                let mut chunk = vec![0; 8192];
-                let count = match output.read(&mut chunk) {
-                    Ok(0) | Err(_) => break,
-                    Ok(n) => n,
-                };
-                bytes += count;
-                chunk.truncate(count);
-                if send.send(chunk).is_err() {
-                    break;
-                }
-            }
-        });
+        let reader = std::thread::spawn(move || Self::read_output(output, &send));
         let mut terminal = Self {
             child,
             input,
@@ -114,6 +100,25 @@ impl Terminal {
                 .any(|v| v.trim_end_matches(';') == "-echo")
         );
         Ok(terminal)
+    }
+
+    fn read_output(
+        mut output: std::process::ChildStdout,
+        send: &std::sync::mpsc::SyncSender<Vec<u8>>,
+    ) {
+        let mut bytes = 0;
+        while bytes <= OUTPUT_LIMIT {
+            let mut chunk = vec![0; 8192];
+            let count = match output.read(&mut chunk) {
+                Ok(0) | Err(_) => break,
+                Ok(n) => n,
+            };
+            bytes += count;
+            chunk.truncate(count);
+            if send.send(chunk).is_err() {
+                break;
+            }
+        }
     }
 
     fn wait(&mut self, predicate: impl Fn(&str) -> bool) -> Result<(), Box<dyn Error>> {
@@ -244,12 +249,42 @@ fn status(frame: &str, marker: &str) -> bool {
 }
 
 pub(super) fn run(root: &Path, binary: &Path, wrapper: &Path) -> Result<(), Box<dyn Error>> {
-    use unicode_width::UnicodeWidthStr;
     let path = root.join("workspace/alpha.txt");
     let original = std::fs::read(&path)?;
     let position = original.iter().position(|b| *b == b'\n').unwrap() + 1;
     let started = Instant::now();
     let mut first = Terminal::start(root, binary, wrapper, "alpha.txt")?;
+    first_journey(&mut first)?;
+    let first_bytes = first.bytes;
+    drop(first);
+
+    let store = root.join("pty/data/rev/bookmarks.toml");
+    saved_record(&store, position)?;
+    assert_eq!(std::fs::read(&path)?, original);
+    let mut second = Terminal::start(root, binary, wrapper, "origin.txt")?;
+    second_journey(&mut second)?;
+    empty_store(root, &store)?;
+    assert_eq!(std::fs::read(path)?, original);
+    println!(
+        "PASS Linux PTY bookmark restart: {}ms, {first_bytes}/{} output bytes; set/refusal, edit/undo, splits, independent numbers/markers, resize, list/delete, persisted jump, missing-name cancellation, 350ms idle silence and restored TTY",
+        started.elapsed().as_millis(),
+        second.bytes
+    );
+    Ok(())
+}
+
+fn first_journey(first: &mut Terminal) -> Result<(), Box<dyn Error>> {
+    set_and_refuse(first)?;
+    edit_undo(first)?;
+    split_markers(first)?;
+    number_policy(first)?;
+    resizing(first)?;
+    delete_list(first)?;
+    first.finish()?;
+    Ok(())
+}
+
+fn set_and_refuse(first: &mut Terminal) -> Result<(), Box<dyn Error>> {
     first.send(b"\x1bxgoto-line\r2\r\x18rmpty\r")?;
     first.frame(|f| {
         f.contains("Bookmark set")
@@ -260,24 +295,46 @@ pub(super) fn run(root: &Path, binary: &Path, wrapper: &Path) -> Result<(), Box<
     first.frame(|f| f.contains("already exists"))?;
     first.send(b"\x07")?;
     first.frame(|f| f.contains("Quit") && status(f, "> alpha.txt -- RW -- L2 C1 Text"))?;
+    Ok(())
+}
+
+fn edit_undo(first: &mut Terminal) -> Result<(), Box<dyn Error>> {
     first.send(b"\x1b<\x1b[200~temporary edit\n\x1b[201~")?;
     first.frame(|f| f.contains("alpha.txt ** RW"))?;
     first.send(b"\x18u")?;
     first.frame(|f| f.contains("alpha.txt -- RW") && !f.contains("temporary edit"))?;
+    Ok(())
+}
+
+fn split_markers(first: &mut Terminal) -> Result<(), Box<dyn Error>> {
     first.send(b"\x18rbpty\r\x18\x32")?;
     first.frame(|f| f.matches("alpha.txt -- RW").count() == 2 && f.matches('■').count() == 2)?;
     first.send(b"\x1bxbookmark-markers-mode\r")?;
     first.frame(|f| f.matches("alpha.txt -- RW").count() == 2 && f.matches('■').count() == 1)?;
+    Ok(())
+}
+
+fn number_policy(first: &mut Terminal) -> Result<(), Box<dyn Error>> {
+    use unicode_width::UnicodeWidthStr;
     first.send(b"\x1bxgutter-toggle-line-numbers\r\x1bxbookmark-markers-mode\r")?;
     first.frame(|f| f.matches("alpha.txt -- RW").count() == 2 && f.matches('■').count() == 2)?;
     first.send(b"\x1bxgutter-set-line-numbers-relative\r\x1bxgutter-toggle-line-number-side\r")?;
     first.frame(|f| f.matches('■').count() == 2 && screen_row(f, 1).width() == 100)?;
+    Ok(())
+}
+
+fn resizing(first: &mut Terminal) -> Result<(), Box<dyn Error>> {
+    use unicode_width::UnicodeWidthStr;
     for width in [80, 120, 100] {
         first.resize(width)?;
         first.frame(|f| {
             screen_row(f, 1).width() == usize::from(width) && f.matches('■').count() == 2
         })?;
     }
+    Ok(())
+}
+
+fn delete_list(first: &mut Terminal) -> Result<(), Box<dyn Error>> {
     first.send(b"\x18rmpty second\r\x18rl")?;
     first.frame(|f| f.contains("*Bookmarks* [read-only] 2 entries") && f.contains("pty second"))?;
     first.send(b"\x1b[Bdx")?;
@@ -285,12 +342,11 @@ pub(super) fn run(root: &Path, binary: &Path, wrapper: &Path) -> Result<(), Box<
         .frame(|f| f.contains("*Bookmarks* [read-only] 1 entries") && !f.contains("pty second"))?;
     first.send(b"q\x1bxbookmark-save\r")?;
     first.frame(|f| f.contains("Bookmarks saved") && f.matches('■').count() == 2)?;
-    first.finish()?;
-    let first_bytes = first.bytes;
-    drop(first);
+    Ok(())
+}
 
-    let store = root.join("pty/data/rev/bookmarks.toml");
-    let document: toml::Value = toml::from_str(&std::fs::read_to_string(&store)?)?;
+fn saved_record(store: &Path, position: usize) -> Result<(), Box<dyn Error>> {
+    let document: toml::Value = toml::from_str(&std::fs::read_to_string(store)?)?;
     let records = document["bookmarks"].as_array().unwrap();
     assert_eq!(records.len(), 1);
     assert_eq!(records[0]["name"].as_str(), Some("pty"));
@@ -298,21 +354,44 @@ pub(super) fn run(root: &Path, binary: &Path, wrapper: &Path) -> Result<(), Box<
         records[0]["position"].as_integer(),
         Some(i64::try_from(position)?)
     );
-    assert_eq!(std::fs::read(&path)?, original);
-    let mut second = Terminal::start(root, binary, wrapper, "origin.txt")?;
+    Ok(())
+}
+
+fn second_journey(second: &mut Terminal) -> Result<(), Box<dyn Error>> {
+    persisted_jump(second)?;
+    missing_name(second)?;
+    remove_all(second)?;
+    idle(second);
+    second.finish()?;
+    Ok(())
+}
+
+fn persisted_jump(second: &mut Terminal) -> Result<(), Box<dyn Error>> {
     second.send(b"\x18rbpty\r")?;
     second
         .frame(|f| status(f, "> alpha.txt -- RW -- L2 C1 Text") && f.matches('■').count() == 1)?;
+    Ok(())
+}
+
+fn missing_name(second: &mut Terminal) -> Result<(), Box<dyn Error>> {
     second.send(b"\x18rbmissing\r")?;
     second.frame(|f| f.contains("No bookmark") && f.contains("missing"))?;
     second.send(b"\x07")?;
     second.frame(|f| f.contains("Quit") && status(f, "> alpha.txt -- RW -- L2 C1 Text"))?;
+    Ok(())
+}
+
+fn remove_all(second: &mut Terminal) -> Result<(), Box<dyn Error>> {
     second.send(b"\x18rl")?;
     second.frame(|f| f.contains("*Bookmarks* [read-only] 1 entries"))?;
     second.send(b"dx")?;
     second.frame(|f| f.contains("*Bookmarks* [read-only] 0 entries"))?;
     second.send(b"q\x1bxbookmark-save\r")?;
     second.frame(|f| f.contains("Bookmarks saved") && !f.contains('■'))?;
+    Ok(())
+}
+
+fn idle(second: &mut Terminal) {
     // Once native work has settled, idle input has no periodic redraw.
     assert!(matches!(
         second
@@ -322,8 +401,10 @@ pub(super) fn run(root: &Path, binary: &Path, wrapper: &Path) -> Result<(), Box<
             .recv_timeout(Duration::from_millis(350)),
         Err(RecvTimeoutError::Timeout)
     ));
-    second.finish()?;
-    let document: toml::Value = toml::from_str(&std::fs::read_to_string(&store)?)?;
+}
+
+fn empty_store(root: &Path, store: &Path) -> Result<(), Box<dyn Error>> {
+    let document: toml::Value = toml::from_str(&std::fs::read_to_string(store)?)?;
     assert_eq!(document["version"].as_integer(), Some(1));
     assert!(document.get("bookmarks").is_none());
     let config = root.join("verify-empty.toml");
@@ -333,11 +414,5 @@ pub(super) fn run(root: &Path, binary: &Path, wrapper: &Path) -> Result<(), Box<
     let loaded =
         super::support::configured(&startup.snapshot, Some(&root.join("workspace/origin.txt")))?;
     assert!(loaded.bookmarks().is_empty());
-    assert_eq!(std::fs::read(path)?, original);
-    println!(
-        "PASS Linux PTY bookmark restart: {}ms, {first_bytes}/{} output bytes; set/refusal, edit/undo, splits, independent numbers/markers, resize, list/delete, persisted jump, missing-name cancellation, 350ms idle silence and restored TTY",
-        started.elapsed().as_millis(),
-        second.bytes
-    );
     Ok(())
 }
