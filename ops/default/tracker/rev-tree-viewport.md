@@ -24,7 +24,7 @@ State: reviewing
 Dependency: approved preparation committed/pushed on clean dev
 Requirements: TVP01, TVP02, TVP03 and width-related TVP05, TVP06
 Branch: `feat/rev-tree-viewport-01-width`
-PR: pending
+PR: [#30](https://forge.adrianpk.com/rev/rev/pulls/30)
 Report: `ops/default/report/slices/rev-tree-viewport/slice-1-width.md`
 Validation: the six exact ordered commands in the plan and local configuration
 
@@ -63,4 +63,4 @@ Validation: the six exact ordered commands in the plan and local configuration
 - [ ] Remove only this set's clean inactive integrated worktrees without force;
   verify clean synchronized dev and final closure commit.
 
-Slice 1 is implemented in its dedicated worktree with focused, executable and documentation checks. Canonical PR references and final clean-HEAD validation follow before controller handoff. Slice 2 and the integrated gate remain pending.
+Slice 1 is implemented in its dedicated worktree with focused, executable and documentation checks. Canonical PR #30 is open against dev; implementation commit is `77f96b3b69c959fdeff8f0f9590ac074d0c0a7c6`. Final clean-HEAD validation follows the PR-reference commit before controller handoff. Slice 2 and the integrated gate remain pending.

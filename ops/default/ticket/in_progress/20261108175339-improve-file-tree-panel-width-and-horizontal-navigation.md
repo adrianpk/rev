@@ -9,7 +9,8 @@ scope: ui
 tags: file-tree, panels, navigation
 source: chat
 reported_at: 2026-11-08T17:53:39Z
-commits: []
+commits: [77f96b3b69c959fdeff8f0f9590ac074d0c0a7c6]
+pr: https://forge.adrianpk.com/rev/rev/pulls/30
 branch: feat/rev-tree-viewport-01-width
 started_at: 2026-11-12T20:57:59.810116Z
 ready_at: 2026-11-12T20:53:38.391200Z

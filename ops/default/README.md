@@ -89,7 +89,8 @@ approval boundaries.
   has an Accepted specification and [model](spec/editor-tree-viewport-model.md).
   The owner approved the two-slice [plan](plan/rev-tree-viewport.md) and
   [tracker](tracker/rev-tree-viewport.md). The [source ticket](ticket/in_progress/20261108175339-improve-file-tree-panel-width-and-horizontal-navigation.md)
-  is ready; implementation and acceptance are not yet complete.
+  is in_progress; Slice 1 is under review in PR #30. Slice 2 and integrated
+  acceptance remain pending.
 - [Delimiter Pairs](spec/editor-delimiter-pairs.md) and its
   [model](spec/editor-delimiter-pairs-model.md) remain Draft. Depth coloring and
   the restrained match alternative are settled; editing defaults, context rules,

@@ -5,7 +5,7 @@ Delivery set: rev-tree-viewport
 Plan: `ops/default/plan/rev-tree-viewport.md`
 Tracker: `ops/default/tracker/rev-tree-viewport.md`
 Branch: `feat/rev-tree-viewport-01-width`
-PR: pending
+PR: `#30`
 
 ## Purpose
 
@@ -30,6 +30,9 @@ TVP05/TVP06. Keep horizontal navigation for the approved second slice.
 
 ## Implementation Notes
 
+Implementation commit: `77f96b3b69c959fdeff8f0f9590ac074d0c0a7c6`.
+Canonical PR: https://forge.adrianpk.com/rev/rev/pulls/30
+
 The tree owns desired width and runtime automatic/manual ownership. Retained
 listing publication observes complete unpanned labels using the same sanitized
 Glyphs display columns as rendering. Width reads, drawing, navigation and resize
@@ -51,7 +54,7 @@ The source ticket records its real start and remains in_progress for both slices
   retains the existing tree.max_fraction and small-frame behavior.
 - Four canonical tree commands and their local/prefixed defaults are registered;
   the catalogs contain 688 commands and 300 configuration entries.
-- Command/configuration/key references, the User Guide Markdown and generated
+- The exact command description inventory and command/configuration/key references, the User Guide Markdown and generated
   Spore projection, and Unreleased describe the usable width controls.
 
 ## Files of Interest
@@ -81,9 +84,11 @@ Development checks passed before report introduction:
 - `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test contexts width_contexts -- --test-threads=1`
 - `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test pointer resized_targets -- --test-threads=1`
 - `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test commands context_keymaps::context_hints -- --test-threads=1`
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test commands reference -- --test-threads=1`
 
 The six width cases passed in 6.27 s, context transitions in 2.40 s, resized
-pointer targets in 2.34 s and selector hints in 3.03 s. Full native source policy
+pointer targets in 2.34 s, selector hints in 3.03 s and ten reference cases in
+4.04 s. Full native source policy
 passed for 1840 files and 73 Cargo roots; Clippy acceptance remains with the
 required lint command and active commit hook.
 
