@@ -8,7 +8,8 @@ Branch: `fix/rev-architecture-quality-acceptance`
 PR: `#28`
 Integrated: `74896fd18e90403c0961c16bc5ae86ea4932e633` through canonical PR #28.
 Gate repair branch: `fix/rev-architecture-quality-acceptance-reload-1`
-Gate repair PR: pending
+Gate repair PR: `#29`
+Gate repair implementation: `38b76c17ee14aeb165f52c725e77b6965f8a1096`
 Gate repair state: reviewing
 
 ## Purpose

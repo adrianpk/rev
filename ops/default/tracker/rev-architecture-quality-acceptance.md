@@ -68,7 +68,8 @@ The complete Git target must pass before another expanded gate attempt.
 
 Repair state: reviewing
 Branch: `fix/rev-architecture-quality-acceptance-reload-1`
-PR: pending
+PR: `#29`
+Implementation: `38b76c17ee14aeb165f52c725e77b6965f8a1096`
 Report: `ops/default/report/slices/rev-architecture-quality-acceptance/slice-1-standalone-acceptance.md`
 
 The exact native-merge case reproduced the premature source assertion in the
