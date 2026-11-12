@@ -79,4 +79,5 @@ five-second wait. Both profiles, submit aliases and later HEAD, dismissal,
 source and sequence-status assertions remain. Scoped quality passes all 55 Git
 fixture files with zero blocking diagnostics. The focused native case passes in
 both profiles; the complete Git target passes all 242 cases with no ignores in
-400.03 seconds. Final clean-HEAD evidence and controller integration remain pending.
+400.03 seconds. The controller's validator records final clean-HEAD evidence;
+integration remains controller-owned.
