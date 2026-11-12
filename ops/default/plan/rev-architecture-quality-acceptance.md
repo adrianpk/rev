@@ -81,3 +81,45 @@ current standalone-debt deferrals with verified correction evidence while keepin
 the historical failure/acceptance record explicit. Only configured Markdown
 closure paths may differ from the tested candidate. Main, releases and publication
 keep their existing approval boundaries.
+
+## Gate repair 1: Asynchronous merge source settlement
+
+The expanded gate retained failure `4QJ5NG6X2SBKG32XY4J7ITM45B`: 241 Git
+cases passed; the plain private PID namespace failed the cancelled-child
+procfs disappearance check because its PID 1 did not reap adopted children.
+This was a validation-environment defect. The corrected same-UID namespace uses
+an actual PID 1 reaper and runs the unchanged test executable as PID 2. Orphan
+reaping, status/signal propagation, five cancelled-child repetitions and the
+permission-denial fixture pass without assertion or deadline changes.
+
+The complete Git target in that corrected environment passed 241/242 cases in
+427.56 seconds. The only failure is `integration::presentation::native_merge`
+at its final exact source assertion: `LOCAL_SOURCE_SENTINEL\n` was observed
+before `changed source\n` had been published. Focused reproduction fails four
+of five accelerated runs; five normal-host runs pass. The runtime explicitly
+reports `Integration verified; source reload follows file policy`, and the
+existing native input loop independently services file observation and reload.
+
+Repair only `tests/git_integration/integration_presentation.rs`. Preserve both
+profiles, exact target/HEAD checks, both submit aliases, Git dismissal, exact
+source assertion and operation-status checks. Retain the existing single
+five-second settlement budget: latch the observed integration result and require
+the exact expected source within that same wait. Do not add another deadline,
+relax the bytes assertion, add sleeps or change runtime behavior. This bounded
+fixture correction is part of T1.6 and parent T10.4, not another product slice.
+
+- Exact repair branch: `fix/rev-architecture-quality-acceptance-reload-1`
+- Exact PR title: `fix(acceptance): await file reload after verified Git merge`
+- Canonical report: the existing Slice 1 report; record the environmental failure
+  and new fixture correction separately from PR #28.
+- Required focused checks: Git-source scoped quality; the exact native-merge
+  regression; the complete Git target; `git diff --check`. The two test commands
+  use the proven same-UID namespace with its PID 1 reaper.
+- Full gate: all frozen commands remain unchanged and mandatory. Any isolated
+  Rust execution must use that reaper and retain UID 1000. Record the runner and
+  its checksum with the final receipt; never report the failed batches as passed.
+
+Detailed diagnostics and environment tools are retained at
+`/home/adrian/Projects/playground/rev/20261112-1158-git-metadata-gate/`:
+`init-full-git.log`, `merge-reproductions.json`, `init-probes.json`, and
+`pid_init.py`. This diagnostic tooling changes no repository runtime or tests.

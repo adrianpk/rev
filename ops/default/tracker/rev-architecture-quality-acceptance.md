@@ -55,3 +55,13 @@ runner resolves from the frozen gate command. No gate commands, source files,
 assertions, resource bounds or build-cache ownership change during preparation.
 The controller runs all five complete acceptance scripts followed by the parent
 plan's unchanged eight-stage integrated gate on the exact clean candidate.
+
+## Required gate repair
+
+T1.6 remains open. The first retry retained one namespace init/reaping failure;
+its corrected environment then exposed a premature exact-source assertion in
+`integration::presentation::native_merge`. The plan pins the fixture-only
+repair branch `fix/rev-architecture-quality-acceptance-reload-1`, exact PR title,
+existing Slice 1 report and unchanged five-second settlement budget. Both
+profiles and every existing source/HEAD/dispatch/status assertion remain required.
+The complete Git target must pass before another expanded gate attempt.
