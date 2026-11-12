@@ -23,13 +23,14 @@ fn journey(
     let started = Instant::now();
     let mut terminal = Terminal::start(root, binary, wrapper, "terminal.txt")?;
     let labels = focus_tree(&mut terminal, profile, nerd_fonts)?;
+    width_controls(&mut terminal)?;
     activate_file(&mut terminal, &labels)?;
     resize_tree(&mut terminal, &labels)?;
     terminal.idle()?;
     terminal.finish()?;
     retained_files(root, &config)?;
     println!(
-        "PASS Linux PTY {profile}: root/directory symbols, arrow expansion, icon-cell file activation, 40/31/64-column resize, idle, unchanged disk/configuration and restored TTY; elapsed_ms={} output_bytes={}",
+        "PASS Linux PTY {profile}: root/directory symbols, arrow expansion, local/prefixed width controls, icon-cell file activation, 40/31/64-column resize, idle, unchanged disk/configuration and restored TTY; elapsed_ms={} output_bytes={}",
         started.elapsed().as_millis(),
         terminal.bytes()
     );
@@ -102,6 +103,20 @@ fn focus_tree(terminal: &mut Terminal, profile: &str, nerd_fonts: bool) -> Resul
         .frame(|frame| row(frame, 3).starts_with(open) && row(frame, 4).contains("child.txt"))?;
     Ok(labels)
 }
+fn width_controls(terminal: &mut Terminal) -> Result<()> {
+    for (keys, width) in [
+        (b"<".as_slice(), 14),
+        (b">".as_slice(), 18),
+        (b"\x18t>".as_slice(), 20),
+        (b"\x18t<".as_slice(), 18),
+        (b"\x18t=".as_slice(), 18),
+    ] {
+        terminal.send(keys)?;
+        terminal.frame(|frame| row(frame, 1).chars().nth(width) == Some('│'))?;
+    }
+    Ok(())
+}
+
 fn activate_file(terminal: &mut Terminal, labels: &Labels) -> Result<()> {
     let root_label = labels.root_label;
     // The kind field is part of the existing full-row activation target.

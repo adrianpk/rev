@@ -35,6 +35,7 @@ impl Tree {
             .ancestors()
             .find_map(|path| self.entries.iter().position(|entry| entry.path == path))
             .unwrap_or(0);
+        self.observe_width();
         result
     }
 

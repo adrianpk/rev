@@ -19,7 +19,7 @@ fn editor(
 ) -> Session {
     let source = fixture.write("root/source.rs", "retained");
     fixture.write("root/界é.txt", "choice");
-    let startup = prepare(&fixture.write("config.toml", &format!("tree.visible=true\ntree.width={width}\ntree.decorated={decorated}\ngutter.nerd_fonts={nerd_fonts}\nmouse.tree_activate_on_click={activate}")));
+    let startup = prepare(&fixture.write("config.toml", &format!("tree.visible=true\ntree.auto_width=false\ntree.width={width}\ntree.decorated={decorated}\ngutter.nerd_fonts={nerd_fonts}\nmouse.tree_activate_on_click={activate}")));
     assert!(startup.diagnostic.is_none(), "{:?}", startup.diagnostic);
     let mut buffers = Buffers::with_settings(startup.snapshot.clone()).unwrap();
     let id = buffers.visit(&source).unwrap();
@@ -156,5 +156,42 @@ fn cached_viewport() {
         assert_eq!(session.tree().hit(0), Some(current));
         session.frame().unwrap();
         assert!(!session.buffer().unwrap().is_modified());
+    }
+}
+
+// Width changes keep the same canonical row target through both icon catalogs
+// and minimal rows; clicking the new right edge never reaches source editing.
+#[test]
+fn resized_targets() {
+    for (decorated, nerd_fonts) in [(false, false), (false, true), (true, false), (true, true)] {
+        let fixture = Fixture::new();
+        let mut session = editor(&fixture, decorated, nerd_fonts, false, 24);
+        let stamp = session.buffer().unwrap().stamp();
+        let expected = session.tree().hit(3).unwrap();
+        for (command, width) in [
+            (TreeCommand::AutoWidthMode, 24),
+            (TreeCommand::Widen, 28),
+            (TreeCommand::Narrow, 24),
+            (TreeCommand::Narrow, 20),
+            (TreeCommand::ResetWidth, 24),
+        ] {
+            session.execute(Command::Tree(command));
+            session.frame().unwrap();
+            session.handle(press(Position {
+                column: width - 1,
+                row: 3,
+            }));
+            assert_eq!(session.tree().hit(3), Some(expected.clone()));
+            assert_eq!(
+                session.tree().selected().unwrap().path(),
+                fixture.0.join("root/界é.txt")
+            );
+            assert_eq!(
+                session.frame().unwrap().rows()[3].selection(),
+                Some(0..width)
+            );
+            assert_eq!(session.buffer().unwrap().stamp(), stamp);
+            assert!(session.buffer().unwrap().history().is_empty());
+        }
     }
 }

@@ -67,6 +67,7 @@ impl Tree {
         let start = self.children_start(self.selected);
         self.entries.splice(start..start, children.entries);
         self.follow_dirty = true;
+        self.observe_width();
         Ok(())
     }
 

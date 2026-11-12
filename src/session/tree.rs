@@ -103,7 +103,21 @@ impl Session {
         if self.input.focus() != Focus::Editing {
             return self.message("a prompt owns input focus");
         }
+        if self.tree_width_command(command) {
+            return self.message("File tree width updated");
+        }
         self.tree_entry(command)
+    }
+
+    fn tree_width_command(&mut self, command: TreeCommand) -> bool {
+        match command {
+            TreeCommand::Widen => self.tree.adjust_width(true),
+            TreeCommand::Narrow => self.tree.adjust_width(false),
+            TreeCommand::ResetWidth => self.tree.reset_width(),
+            TreeCommand::AutoWidthMode => self.tree.toggle_auto_width(),
+            _ => return false,
+        }
+        true
     }
 
     fn tree_entry(&mut self, command: TreeCommand) -> Action {

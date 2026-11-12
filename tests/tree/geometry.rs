@@ -46,7 +46,7 @@ fn check_name_width(
 ) {
     let startup = prepare(&fixture.write(
         "config.toml",
-        &format!("tree.visible=true\ntree.width={width}\ngutter.nerd_fonts={nerd_fonts}"),
+        &format!("tree.visible=true\ntree.auto_width=false\ntree.width={width}\ngutter.nerd_fonts={nerd_fonts}"),
     ));
     assert!(startup.diagnostic.is_none(), "{:?}", startup.diagnostic);
     let buffers = Buffers::with_settings(startup.snapshot.clone()).unwrap();

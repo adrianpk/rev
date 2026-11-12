@@ -67,7 +67,7 @@ fn presentation_retention() {
     }
     let fixture = Fixture::new();
     fixture.write("project/code.rs", "fn main() {}\n");
-    fixture.write("user/rev/config.toml", "tree.visible = true\ntree.width = 10\ntree.max_fraction = 0.5\nwindows.split_ratio = 0.25\nsyntax.enabled = false\nhistory.group_limit = 1\nminibuffer.input_limit = 3");
+    fixture.write("user/rev/config.toml", "tree.visible = true\ntree.auto_width = false\ntree.width = 10\ntree.max_fraction = 0.5\nwindows.split_ratio = 0.25\nsyntax.enabled = false\nhistory.group_limit = 1\nminibuffer.input_limit = 3");
     child("startup::lifetime::presentation_retention", &fixture);
 }
 

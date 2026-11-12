@@ -14,6 +14,10 @@ pub enum TreeCommand {
     Activate,
     Refresh,
     UpDirectory,
+    Widen,
+    Narrow,
+    ResetWidth,
+    AutoWidthMode,
 }
 
 impl TreeCommand {
@@ -32,6 +36,26 @@ impl TreeCommand {
 
     pub fn name(self) -> &'static str {
         match self {
+            Self::Widen => "tree-widen",
+            Self::Narrow => "tree-narrow",
+            Self::ResetWidth => "tree-reset-width",
+            Self::AutoWidthMode => "tree-auto-width-mode",
+            _ => self.entry_name(),
+        }
+    }
+
+    pub(crate) fn description(self) -> &'static str {
+        match self {
+            Self::Widen => "Widen by four columns; retain manual width.",
+            Self::Narrow => "Narrow by four columns; retain manual width.",
+            Self::ResetWidth => "Restore the configured tree width policy.",
+            Self::AutoWidthMode => "Toggle automatic fitting; freeze when disabled.",
+            _ => self.entry_description(),
+        }
+    }
+
+    fn entry_name(self) -> &'static str {
+        match self {
             Self::Delete => "tree-delete",
             Self::Rename => "tree-rename",
             Self::Open => "tree-open",
@@ -43,7 +67,7 @@ impl TreeCommand {
         }
     }
 
-    pub(crate) fn description(self) -> &'static str {
+    fn entry_description(self) -> &'static str {
         match self {
             Self::Delete => "Confirm removal, including separate recursive consent.",
             Self::Rename => "Rename one entry and reconcile visited paths.",

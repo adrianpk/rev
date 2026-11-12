@@ -4,7 +4,7 @@ Status: Accepted
 Date: 2026-11-12
 Format: OpenSpec; workspace specification contract
 Inspection baseline: `6746978285aa7cd5739b704cc0ab214e47e9050c`
-Source: [TKT-20261108175339](../ticket/ready/20261108175339-improve-file-tree-panel-width-and-horizontal-navigation.md)
+Source: [TKT-20261108175339](../ticket/in_progress/20261108175339-improve-file-tree-panel-width-and-horizontal-navigation.md)
 Model: [Tree Viewport Policy](editor-tree-viewport-model.md)
 Plan: [Tree Viewport Delivery](../plan/rev-tree-viewport.md)
 Tracker: [Tree Viewport Tracker](../tracker/rev-tree-viewport.md)

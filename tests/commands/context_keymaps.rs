@@ -371,6 +371,10 @@ fn context_hints() {
         ("insert-tab", None),
         ("tree-open", Some("M-a")),
         ("tree-expand", Some("C-f")),
+        ("tree-widen", Some(">")),
+        ("tree-narrow", Some("<")),
+        ("tree-reset-width", Some("C-x t =")),
+        ("tree-auto-width-mode", None),
     ] {
         session.handle(control('g'));
         session.execute(Command::ExecuteExtended);

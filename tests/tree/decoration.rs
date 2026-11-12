@@ -11,7 +11,7 @@ fn configured(fixture: &config_fixture::Fixture, config: &str) -> Session {
     let source = fixture.write("root.rs/data.bin", "retained");
     let startup = prepare(&fixture.write(
         "config.toml",
-        &format!("tree.visible=true\ntree.width=40\ntree.max_fraction=0.5\n{config}"),
+        &format!("tree.visible=true\ntree.auto_width=false\ntree.width=40\ntree.max_fraction=0.5\n{config}"),
     ));
     assert!(startup.diagnostic.is_none(), "{:?}", startup.diagnostic);
     let mut buffers = Buffers::with_settings(startup.snapshot).unwrap();

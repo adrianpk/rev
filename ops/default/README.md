@@ -88,7 +88,7 @@ approval boundaries.
 - [File-tree width and horizontal navigation](spec/editor-tree-viewport.md)
   has an Accepted specification and [model](spec/editor-tree-viewport-model.md).
   The owner approved the two-slice [plan](plan/rev-tree-viewport.md) and
-  [tracker](tracker/rev-tree-viewport.md). The [source ticket](ticket/ready/20261108175339-improve-file-tree-panel-width-and-horizontal-navigation.md)
+  [tracker](tracker/rev-tree-viewport.md). The [source ticket](ticket/in_progress/20261108175339-improve-file-tree-panel-width-and-horizontal-navigation.md)
   is ready; implementation and acceptance are not yet complete.
 - [Delimiter Pairs](spec/editor-delimiter-pairs.md) and its
   [model](spec/editor-delimiter-pairs-model.md) remain Draft. Depth coloring and

@@ -7,7 +7,7 @@ Approved: product owner; specification and established Looper delivery workflow
 Plan: [Tree Viewport Delivery](../plan/rev-tree-viewport.md)
 Specification: [File Tree Width and Horizontal Navigation](../spec/editor-tree-viewport.md)
 Model: [Tree Viewport Policy](../spec/editor-tree-viewport-model.md)
-Ticket: [TKT-20261108175339](../ticket/ready/20261108175339-improve-file-tree-panel-width-and-horizontal-navigation.md)
+Ticket: [TKT-20261108175339](../ticket/in_progress/20261108175339-improve-file-tree-panel-width-and-horizontal-navigation.md)
 Active slice: Slice 1 of 2 - Width policy
 Progress owner: native Looper checkpoint and canonical validation evidence
 
@@ -20,7 +20,7 @@ Progress owner: native Looper checkpoint and canonical validation evidence
 
 ## Slice 1: Width policy
 
-State: ready
+State: reviewing
 Dependency: approved preparation committed/pushed on clean dev
 Requirements: TVP01, TVP02, TVP03 and width-related TVP05, TVP06
 Branch: `feat/rev-tree-viewport-01-width`
@@ -28,11 +28,11 @@ PR: pending
 Report: `ops/default/report/slices/rev-tree-viewport/slice-1-width.md`
 Validation: the six exact ordered commands in the plan and local configuration
 
-- [ ] T1.1: Record real ticket start; implement complete auto_width configuration,
+- [x] T1.1: Record real ticket start; implement complete auto_width configuration,
   expanded-model high-water sizing and desired/actual width lifecycle.
-- [ ] T1.2: Deliver named/local/prefixed width and mode controls with native
+- [x] T1.2: Deliver named/local/prefixed width and mode controls with native
   regressions for policy, geometry, context, Unicode and source preservation.
-- [ ] T1.3: Deliver width guidance, catalogs/sample, User Guide/Spore, Unreleased,
+- [x] T1.3: Deliver width guidance, catalogs/sample, User Guide/Spore, Unreleased,
   existing executable acceptance and canonical report with real commit evidence.
 
 ## Slice 2: Horizontal navigation
@@ -63,4 +63,4 @@ Validation: the six exact ordered commands in the plan and local configuration
 - [ ] Remove only this set's clean inactive integrated worktrees without force;
   verify clean synchronized dev and final closure commit.
 
-No slice has started. No implementation or acceptance is claimed by preparation.
+Slice 1 is implemented in its dedicated worktree with focused, executable and documentation checks. Canonical PR references and final clean-HEAD validation follow before controller handoff. Slice 2 and the integrated gate remain pending.

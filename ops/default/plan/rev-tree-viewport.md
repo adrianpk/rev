@@ -9,7 +9,7 @@ Planning baseline: `6746978285aa7cd5739b704cc0ab214e47e9050c`
 Specification: [File Tree Width and Horizontal Navigation](../spec/editor-tree-viewport.md)
 Model: [Tree Viewport Policy](../spec/editor-tree-viewport-model.md)
 Tracker: [Tree Viewport Tracker](../tracker/rev-tree-viewport.md)
-Ticket: [TKT-20261108175339](../ticket/ready/20261108175339-improve-file-tree-panel-width-and-horizontal-navigation.md)
+Ticket: [TKT-20261108175339](../ticket/in_progress/20261108175339-improve-file-tree-panel-width-and-horizontal-navigation.md)
 Active slice: Slice 1 of 2 - Width policy
 
 ## Outcome and strategy

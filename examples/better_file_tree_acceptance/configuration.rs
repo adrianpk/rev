@@ -99,7 +99,7 @@ fn configured_geometry(root: &Path, decorated: bool, nerd_fonts: bool, width: i3
     std::fs::write(
         &config,
         format!(
-            "tree.visible=true\ntree.width={width}\ntree.decorated={decorated}\ngutter.nerd_fonts={nerd_fonts}"
+            "tree.visible=true\ntree.auto_width=false\ntree.width={width}\ntree.decorated={decorated}\ngutter.nerd_fonts={nerd_fonts}"
         ),
     )?;
     let startup = prepare(&config);

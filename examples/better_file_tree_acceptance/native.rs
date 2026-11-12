@@ -48,7 +48,7 @@ pub(super) fn run(root: &Path) -> Result<()> {
         }
     }
     println!(
-        "PASS native tree: both profiles, omitted defaults and four settings, seven kinds/colors, shared bookmark font, frozen configuration, directory expansion, canonical full-row selection/open, cached scroll/resize and unchanged source/history"
+        "PASS native tree: both profiles, omitted defaults and four settings, seven kinds/colors, shared bookmark font, retained automatic width, frozen configuration, directory expansion, canonical full-row selection/open, cached scroll/resize and unchanged source/history"
     );
     Ok(())
 }
@@ -418,11 +418,13 @@ fn select_entry(editor: &mut Session, row: u16, hit: &Hit) -> Result<()> {
     Ok(())
 }
 fn cached_tree(editor: &mut Session, root: &Path) -> Result<()> {
+    let desired = editor.tree().desired_width();
     // Once observed, selection, clipping, movement and resize use cached paths.
     std::fs::remove_dir_all(root.join("workspace"))?;
     for width in [31, 0, 100, 40, 100] {
         editor.handle(Event::Resize(width, if width == 0 { 0 } else { 16 }));
         let frame = editor.frame()?;
+        assert_eq!(editor.tree().desired_width(), desired);
         assert!(
             frame
                 .rows()

@@ -16,6 +16,8 @@ mod initialization;
 mod parent;
 #[path = "tree/preferences.rs"]
 mod preferences;
+#[path = "tree/width.rs"]
+mod width;
 
 use crossterm::event::{Event, KeyCode, KeyEvent, KeyModifiers};
 use rev::command::{Command, TreeCommand};
@@ -24,10 +26,18 @@ use rev::session::{Action, Session};
 use unicode_width::UnicodeWidthStr;
 
 fn editor() -> Session {
-    Session::empty(Size {
-        width: 48,
-        height: 8,
-    })
+    let fixture = config_fixture::Fixture::new();
+    let startup = rev::config::prepare(&fixture.write("config.toml", "tree.auto_width=false"));
+    let buffers = rev::buffer::Buffers::with_settings(startup.snapshot).unwrap();
+    let view = rev::view::View::new(buffers.get(buffers.initial()).unwrap());
+    Session::new(
+        buffers,
+        view,
+        Size {
+            width: 48,
+            height: 8,
+        },
+    )
     .unwrap()
 }
 fn key(code: KeyCode) -> Event {

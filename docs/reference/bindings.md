@@ -239,6 +239,10 @@ Every command below is also available as `M-x` followed by its exact name.
 | `^` in tree | `tree-up-directory` | Show the parent directory of an unanchored file tree. |
 | `M-x tree-toggle-directory` | `tree-toggle-directory` | Toggle a directory; leaves report an error. |
 | `C-x t r` | `tree-refresh` | Reload already opened tree branches. |
+| `>` in tree, `C-x t >` | `tree-widen` | Widen by four columns; retain manual width. |
+| `<` in tree, `C-x t <` | `tree-narrow` | Narrow by four columns; retain manual width. |
+| `C-x t =` | `tree-reset-width` | Restore the configured tree width policy. |
+| `M-x tree-auto-width-mode` | `tree-auto-width-mode` | Toggle automatic fitting; freeze when disabled. |
 | Return in tree, `C-x t o` | `tree-open` | Open a file or toggle a directory. |
 | `C-x t n` | `tree-create-file` | Create an empty file at the selected directory. |
 | `C-x t d` | `tree-create-directory` | Create a directory at the selected directory. |
@@ -934,6 +938,9 @@ releases and held acceptance keys cannot submit a newly acquired argument.
 | `C-x t t` | `toggle-file-tree` |
 | `C-x t f` | `focus-file-tree` |
 | `C-x t r` | `tree-refresh` |
+| `>`, `C-x t >` | `tree-widen` |
+| `<`, `C-x t <` | `tree-narrow` |
+| `C-x t =` | `tree-reset-width` |
 | `C-x t D` | `tree-delete` |
 | `C-x t R` | `tree-rename` |
 | `C-x t n` | `tree-create-file` |

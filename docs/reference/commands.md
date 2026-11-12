@@ -308,7 +308,7 @@ compiled M-x name once.
 | Search | `isearch-forward`, `isearch-backward`, `query-replace` |
 | Regions | `set-mark-command`, `exchange-point-and-mark` |
 | Kills and retained text | `kill-line`, `kill-word`, `backward-kill-word`, `kill-region`, `kill-ring-save`, `yank`, `yank-pop` |
-| Tree | `toggle-file-tree`, `focus-file-tree`, `tree-previous-line`, `tree-next-line`, `tree-expand`, `tree-collapse`, `tree-toggle-directory`, `tree-refresh`, `tree-up-directory`, `tree-open`, `tree-create-file`, `tree-create-directory`, `tree-rename`, `tree-delete` |
+| Tree | `toggle-file-tree`, `focus-file-tree`, `tree-previous-line`, `tree-next-line`, `tree-expand`, `tree-collapse`, `tree-toggle-directory`, `tree-refresh`, `tree-up-directory`, `tree-widen`, `tree-narrow`, `tree-reset-width`, `tree-auto-width-mode`, `tree-open`, `tree-create-file`, `tree-create-directory`, `tree-rename`, `tree-delete` |
 | Mouse | `mouse-mode` |
 | Modal state entry | `modal-enter-normal`, `modal-enter-insert`, `modal-enter-replace`, `modal-enter-insert-after`, `modal-enter-insert-line-first`, `modal-enter-insert-line-end`, `modal-open-line-below`, `modal-open-line-above`, `modal-enter-visual-character`, `modal-enter-visual-line`, `modal-enter-visual-block`, `modal-one-normal-command` |
 | Modal source navigation | `modal-forward-char`, `modal-backward-char`, `modal-next-line`, `modal-previous-line`, `modal-line-start`, `modal-line-first-text`, `modal-line-end`, `modal-buffer-end`, `modal-buffer-start`, `modal-repeat-find`, `modal-reverse-find`, `modal-next-paragraph`, `modal-previous-paragraph`, `modal-matching-delimiter`, `modal-page-forward` |

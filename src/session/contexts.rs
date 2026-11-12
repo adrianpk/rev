@@ -204,6 +204,7 @@ impl Session {
                 Some((metadata.dev(), metadata.ino()))
             }
             None => {
+                session.tree.inherit_width(&self.tree);
                 session.tree.hide_context();
                 None
             }

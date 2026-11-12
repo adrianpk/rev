@@ -70,6 +70,7 @@ files.bom = true
             visible: true,
             follow_active_buffer: true,
             decorated: true,
+            auto_width: true,
             width: 31,
             max_fraction: 0.4,
             root: TreeRoot::FileParent,

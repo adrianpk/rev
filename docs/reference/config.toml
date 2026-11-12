@@ -213,7 +213,9 @@ follow_active_buffer = true # Follow loaded active-file rows; false retains manu
 decorated = true         # Kind symbols and entry colors; false keeps minimal labels.
 # Boolean; initial visibility. Tiny/narrow terminals can hide the pane.
 visible = false
-# Integer 1..=512 preferred columns, subject to editor and terminal minima.
+# Boolean; fit expanded rows with a stable high-water mark. Runtime controls are session-only.
+auto_width = true
+# Integer 1..=512 automatic minimum, or fixed preference when auto_width is false.
 width = 24
 # Finite float 0.1..=0.5 maximum terminal-width share.
 max_fraction = 0.3333333333333333
@@ -665,6 +667,9 @@ bookmark = "#7aa2f7"            # Resolved logical-line bookmark marker.
 "C-x t t" = "toggle-file-tree"
 "C-x t f" = "focus-file-tree"
 "C-x t r" = "tree-refresh"
+"C-x t >" = "tree-widen"
+"C-x t <" = "tree-narrow"
+"C-x t =" = "tree-reset-width"
 "C-x t D" = "tree-delete"
 "C-x t R" = "tree-rename"
 "C-x t o" = "tree-open"
@@ -696,6 +701,8 @@ bookmark = "#7aa2f7"            # Resolved logical-line bookmark marker.
 "C-r" = "isearch-backward"
 
 [keys.tree]
+">" = "tree-widen"
+"<" = "tree-narrow"
 "^" = "tree-up-directory"
 "C-x g" = "git-status"
 "C-x C-f" = "find-file"
@@ -715,6 +722,9 @@ bookmark = "#7aa2f7"            # Resolved logical-line bookmark marker.
 "C-x t t" = "toggle-file-tree"
 "C-x t f" = "focus-file-tree"
 "C-x t r" = "tree-refresh"
+"C-x t >" = "tree-widen"
+"C-x t <" = "tree-narrow"
+"C-x t =" = "tree-reset-width"
 "C-x t D" = "tree-delete"
 "C-x t R" = "tree-rename"
 "C-x t o" = "tree-open"
@@ -1038,6 +1048,9 @@ bookmark = "#7aa2f7"            # Resolved logical-line bookmark marker.
 "C-x t t" = "toggle-file-tree"
 "C-x t f" = "focus-file-tree"
 "C-x t r" = "tree-refresh"
+"C-x t >" = "tree-widen"
+"C-x t <" = "tree-narrow"
+"C-x t =" = "tree-reset-width"
 "C-x t D" = "tree-delete"
 "C-x t R" = "tree-rename"
 "C-x t o" = "tree-open"
@@ -1237,6 +1250,9 @@ bookmark = "#7aa2f7"            # Resolved logical-line bookmark marker.
 "C-x t t" = "toggle-file-tree"
 "C-x t f" = "focus-file-tree"
 "C-x t r" = "tree-refresh"
+"C-x t >" = "tree-widen"
+"C-x t <" = "tree-narrow"
+"C-x t =" = "tree-reset-width"
 "C-x t D" = "tree-delete"
 "C-x t R" = "tree-rename"
 "C-x t o" = "tree-open"
@@ -1360,6 +1376,9 @@ bookmark = "#7aa2f7"            # Resolved logical-line bookmark marker.
 "C-x t t" = "toggle-file-tree"
 "C-x t f" = "focus-file-tree"
 "C-x t r" = "tree-refresh"
+"C-x t >" = "tree-widen"
+"C-x t <" = "tree-narrow"
+"C-x t =" = "tree-reset-width"
 "C-x t D" = "tree-delete"
 "C-x t R" = "tree-rename"
 "C-x t o" = "tree-open"
@@ -1464,6 +1483,9 @@ bookmark = "#7aa2f7"            # Resolved logical-line bookmark marker.
 "C-x t t" = "toggle-file-tree"
 "C-x t f" = "focus-file-tree"
 "C-x t r" = "tree-refresh"
+"C-x t >" = "tree-widen"
+"C-x t <" = "tree-narrow"
+"C-x t =" = "tree-reset-width"
 "C-x t D" = "tree-delete"
 "C-x t R" = "tree-rename"
 "C-x t o" = "tree-open"
@@ -1626,6 +1648,9 @@ bookmark = "#7aa2f7"            # Resolved logical-line bookmark marker.
 "C-x t t" = "toggle-file-tree"
 "C-x t f" = "focus-file-tree"
 "C-x t r" = "tree-refresh"
+"C-x t >" = "tree-widen"
+"C-x t <" = "tree-narrow"
+"C-x t =" = "tree-reset-width"
 "C-x t D" = "tree-delete"
 "C-x t R" = "tree-rename"
 "C-x t o" = "tree-open"
@@ -1788,6 +1813,9 @@ bookmark = "#7aa2f7"            # Resolved logical-line bookmark marker.
 "C-x t t" = "toggle-file-tree"
 "C-x t f" = "focus-file-tree"
 "C-x t r" = "tree-refresh"
+"C-x t >" = "tree-widen"
+"C-x t <" = "tree-narrow"
+"C-x t =" = "tree-reset-width"
 "C-x t D" = "tree-delete"
 "C-x t R" = "tree-rename"
 "C-x t o" = "tree-open"

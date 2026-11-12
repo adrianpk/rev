@@ -60,6 +60,7 @@ impl Tree {
         self.active = None;
         self.follow_dirty = true;
         self.follow_pending = false;
+        self.new_width_context();
         Ok(())
     }
 
@@ -68,6 +69,7 @@ impl Tree {
     pub(crate) fn without_context(&self) -> Self {
         Self {
             policy: self.policy.clone(),
+            width: self.width.for_context(&self.policy),
             nerd_fonts: self.nerd_fonts,
             ..Self::default()
         }
@@ -89,6 +91,7 @@ impl Tree {
     pub(crate) fn opening_directory(&self, path: &Path, size: Size) -> io::Result<Self> {
         let root = crate::file::directory(path)?;
         let mut candidate = Self::configured(root, &self.policy, self.nerd_fonts, true);
+        candidate.width = self.width.for_context(&self.policy);
         candidate.expand()?;
         candidate.focus(size)?;
         Ok(candidate)
@@ -105,6 +108,7 @@ impl Tree {
         };
         let mut candidate =
             Self::configured(parent.to_owned(), &self.policy, self.nerd_fonts, false);
+        candidate.width = self.width.for_context(&self.policy);
         candidate.visible = self.visible;
         if candidate.visible {
             candidate.expand()?;

@@ -69,6 +69,33 @@ To return to the tree, press `C-x t f`. Right expands a directory; Left
 collapses it or moves to its parent. `C-g` returns to editing while leaving
 the tree visible. `C-x t t` hides it.
 
+The tree automatically grows for expanded names, including entries below the
+visible rows. Folding a directory or selecting a short name keeps that width
+stable. The default minimum is 24 columns, and the panel uses at most one third
+of the terminal so your editing area remains usable.
+
+With tree focus, press `>` to widen or `<` to narrow it by four columns. That
+choice stays in effect while you browse, refresh or change directories. From
+an editing buffer, use `C-x t >` or `C-x t <`; ordinary `<` and `>` still type
+text. Press `C-x t =` to reset to your configured width policy. Automatic reset
+fits the currently expanded names, so it can return to more than 24 columns.
+
+Run `M-x tree-auto-width-mode` (or `:tree-auto-width-mode` in the modal profile)
+to toggle automatic fitting. Disabling keeps the current desired width;
+enabling fits the current tree again. These controls leave your configuration
+file unchanged. To start with fixed width, merge this into your existing
+`[tree]` table and restart:
+
+```toml
+[tree]
+auto_width = false
+width = 24
+```
+
+Set `auto_width = true` for automatic fitting; `width` then sets its normal
+minimum. A narrow terminal temporarily clamps or hides the panel, and the
+chosen desired width returns when space is available again.
+
 You can also open a file directly with `C-x C-f`. Type part of its name and
 use Tab to fill the highlighted suggestion. The first match is highlighted,
 even when several names share a prefix. Up/Down chooses another suggestion;

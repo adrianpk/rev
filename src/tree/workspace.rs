@@ -17,10 +17,12 @@ impl Tree {
             explicit_root: true,
             initialized: true,
             policy: self.policy.clone(),
+            width: self.width.for_context(&self.policy),
             nerd_fonts: self.nerd_fonts,
             entries: roots.iter().map(workspace_entry).collect(),
             ..Default::default()
         };
+        tree.observe_width();
         tree.focused = tree.width(size) > 0;
         tree.focus_pending = !tree.focused;
         tree
@@ -58,6 +60,7 @@ impl Tree {
             })
             .unwrap_or(0);
         self.top = self.top.min(self.selected);
+        self.observe_width();
     }
     pub(super) fn refresh_workspace(&mut self) -> io::Result<()> {
         let Some((_, roots)) = &self.workspace else {
@@ -100,6 +103,7 @@ impl Tree {
                 })
             })
             .unwrap_or(0);
+        self.observe_width();
         first_error.map_or(Ok(()), Err)
     }
 }

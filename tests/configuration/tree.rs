@@ -20,9 +20,11 @@ fn roles(palette: &TreePalette) -> [(&'static str, Rgb); 7] {
 fn defaults() {
     let absent: Document = toml::from_str("").unwrap();
     assert_eq!(absent.tree.decorated, None);
+    assert_eq!(absent.tree.auto_width, None);
     assert_eq!(absent.tree.follow_active_buffer, None);
     let settings = Settings::default();
     assert!(settings.tree.decorated);
+    assert!(settings.tree.auto_width);
     assert!(settings.tree.follow_active_buffer);
     assert!(!settings.tree.visible);
     assert!(!settings.gutter.nerd_fonts);
@@ -37,7 +39,7 @@ fn defaults() {
 // font, visibility, background and selection preferences remain independent.
 #[test]
 fn precedence() {
-    for field in ["decorated", "follow_active_buffer"] {
+    for field in ["decorated", "follow_active_buffer", "auto_width"] {
         for (name, inherited, explicit, expected) in [
             ("omitted", "", "", true),
             ("included false", "tree.decorated=false", "", false),
@@ -67,10 +69,10 @@ fn precedence() {
                 startup.diagnostic
             );
             let settings = startup.snapshot.settings();
-            let actual = if field == "decorated" {
-                settings.tree.decorated
-            } else {
-                settings.tree.follow_active_buffer
+            let actual = match field {
+                "decorated" => settings.tree.decorated,
+                "auto_width" => settings.tree.auto_width,
+                _ => settings.tree.follow_active_buffer,
             };
             assert_eq!(actual, expected, "{field}: {name}");
             assert!(!settings.tree.visible, "{name}");
@@ -152,6 +154,9 @@ fn rejected_leaves() {
             value.into(),
             "true".into(),
         ));
+    }
+    for value in ["1", "'false'", "[]", "{}"] {
+        cases.push(("tree.auto_width".into(), value.into(), "true".into()));
     }
     for (name, _) in roles(&TreePalette::default()) {
         for invalid in ["'#12345g'", "'#fff'", "1"] {

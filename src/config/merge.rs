@@ -415,6 +415,11 @@ impl Merge {
             &later.decorated,
         );
         self.leaf(&["tree", "visible"], &mut base.visible, &later.visible);
+        self.leaf(
+            &["tree", "auto_width"],
+            &mut base.auto_width,
+            &later.auto_width,
+        );
         self.leaf(&["tree", "width"], &mut base.width, &later.width);
         self.leaf(
             &["tree", "max_fraction"],

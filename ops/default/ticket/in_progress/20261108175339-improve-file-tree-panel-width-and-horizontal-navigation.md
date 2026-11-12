@@ -1,7 +1,7 @@
 ---
 id: TKT-20261108175339
 title: Resize the file-tree panel and reveal long nested names
-status: ready
+status: in_progress
 kind: task
 severity: unclassified
 priority: unclassified
@@ -10,6 +10,8 @@ tags: file-tree, panels, navigation
 source: chat
 reported_at: 2026-11-08T17:53:39Z
 commits: []
+branch: feat/rev-tree-viewport-01-width
+started_at: 2026-11-12T20:57:59.810116Z
 ready_at: 2026-11-12T20:53:38.391200Z
 ---
 
@@ -78,7 +80,7 @@ This is a captured product request, not a newly reproduced runtime regression.
 
 ## Agreed design
 
-Candidate function names; these commands are not implemented:
+Slice 1 implements the width commands; horizontal scroll commands remain planned for Slice 2:
 
 - tree-widen and tree-narrow for manual step changes.
 - tree-reset-width for normalization to the configured width policy.
@@ -257,7 +259,7 @@ defaults or implementation during capture.
 
 Product alignment is complete. On 2026-11-12 the owner authorized the
 specification and established implementation workflow. This ticket retains its
-identity and moves to ready for the two-slice Tree Viewport delivery.
+identity and is in progress for the two-slice Tree Viewport delivery.
 
 - [Specification](../../spec/editor-tree-viewport.md)
 - [Model](../../spec/editor-tree-viewport-model.md)

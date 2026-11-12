@@ -29,7 +29,7 @@ fn check_parent_presentation(decorated: bool, nerd_fonts: bool, width: usize) {
     }
     symlink("child", f.0.join("parent/link")).unwrap();
     let startup = prepare(&f.write("config.toml", &format!(
-        "tree.width={width}\ntree.max_fraction=0.5\ntree.decorated={decorated}\ngutter.nerd_fonts={nerd_fonts}"
+        "tree.auto_width=false\ntree.width={width}\ntree.max_fraction=0.5\ntree.decorated={decorated}\ngutter.nerd_fonts={nerd_fonts}"
     )));
     assert!(startup.diagnostic.is_none());
     let palette = startup.snapshot.settings().palette.clone();

@@ -9,6 +9,13 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 
 ### Added
 
+- The file tree now fits expanded names automatically without shrinking when
+  you fold or navigate. Widen or narrow it by four columns with tree-local
+  > / < or C-x t > / C-x t <, reset with C-x t =, and toggle fitting with
+  tree-auto-width-mode. Manual choices survive browsing and terminal resizing.
+  Set tree.auto_width to false for a fixed startup preference; runtime controls
+  leave your configuration file unchanged.
+
 - Inspect explicitly configured experimental plugins and find their qualified
   commands in M-x and the modal selector without starting their programs.
   Run trusted local packages on command use, selected startup or declared native

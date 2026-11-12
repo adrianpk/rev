@@ -242,9 +242,9 @@ listing is not an empty or complete observation. Failed initialization retains
 the previous root, source and usable tree state.
 
 Executable startup and supplied library snapshots apply `tree.visible`,
-`decorated`, `width`, `max_fraction`, `root`, `show_hidden` and `directories_first`. Initial
-visibility preserves editing focus. Width is the lesser of the preferred
-columns and maximum frame share; frames narrower than 32 columns still hide
+`decorated`, `auto_width`, `width`, `max_fraction`, `root`, `show_hidden` and
+`directories_first`. Initial visibility preserves editing focus. Actual width
+is the lesser of the retained desired columns and maximum frame share; frames narrower than 32 columns still hide
 the tree temporarily. Widening restores its focus intent unless editing or
 explicit cancellation has taken over. Explicit directory targets take precedence
 over `root` policy. Initial visible presentation and a new visible root observe
@@ -356,8 +356,38 @@ is claimed; all in-memory ropes survive either outcome.
 
 ## Geometry
 
-The pane uses at most 24 columns and at most one third of the frame, plus a
-single divider column. Editing panes divide the remaining width; status,
+The default automatic policy starts at the preferred minimum of 24 columns.
+Expansion and refresh can grow a retained desired-width high-water mark from
+all admitted expanded rows, including rows outside the vertical viewport.
+Folded descendants do not contribute. Measurement includes indentation,
+disclosure, icons, sanitized names and terminal display columns. Drawing,
+selection movement and resizing perform no directory discovery or measurement.
+Folding, scrolling, focus changes and hiding/showing never shrink this mark.
+Changing roots or Project/Workspace contexts starts a fresh automatic fit.
+Actual geometry uses at most `tree.max_fraction` of the frame (one third by
+default), plus a single divider column. A temporary cap preserves desired width
+for restoration when space returns.
+
+`tree-widen` and `tree-narrow` change desired width by four display columns,
+saturating at one column and the native terminal-cell representation limit.
+The manual choice suspends automatic fitting, even below `tree.width`, and
+survives navigation, refresh, expansion and root/context changes. Use `>`/`<`
+with tree focus, or `C-x t >`/`C-x t <` from either tree or source focus.
+Unmodified angle brackets retain ordinary source input behavior.
+
+`C-x t =` or `tree-reset-width` clears session overrides and the old automatic
+mark, then applies the configured policy to the currently expanded model.
+With `tree.auto_width = false`, `tree.width` is a fixed preferred width;
+reset restores that preference. With true (including omission), it is an
+automatic minimum and reset can fit wider current content.
+
+`tree-auto-width-mode` toggles runtime ownership. Enabling starts a fresh fit
+from the configured minimum; disabling freezes the current desired width.
+All four commands have descriptions and effective shortcut hints in M-x and
+the modal command selector. Runtime width and mode changes never rewrite TOML,
+change selection/root identity or modify source text, point, mark or history.
+
+Editing panes divide the remaining width; status,
 selection, search and cursor coordinates use that editing area. The session
 keeps a full-width echo/prompt row.
 

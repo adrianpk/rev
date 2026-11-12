@@ -272,13 +272,13 @@ Both use M-x or modal colon and leave this configuration unchanged.
 | `language` | Map of language IDs to partial tables | `{}` | IDs start with `[a-z]`, then contain only `[a-z0-9-]`; no grammar installation is implied. |
 | `files.associations` | Map of exact basenames or `*.suffix` to language IDs | `{}` | User rules override built-in recognition; see language rules below. |
 | `keys.completion` | Map of popup chord sequences to completion commands | Compiled map | Active cursor popup; all 7 entries are active in the sample. Escape is a reserved literal cancellation. |
-| `keys.editor` | Map of chord sequences to existing editor command names | Compiled map | Non-modal editing focus; all 120 entries are active in the sample. |
-| `keys.vim_normal` | Map of chord sequences to canonical commands | Compiled map | modal Normal editing; state entry, navigation/counts/search, operators, transfer, jump history, Replace, dot repetition, colon commands and native pane controls. The sample declares all 178 entries. |
-| `keys.vim_insert` | Map of chord sequences to canonical commands | Compiled map | modal Insert editing; independent native factories and one-Normal-command C-o. The sample declares all 121 entries. |
-| `keys.vim_replace` | Map of chord sequences to canonical commands | Compiled map | modal Replace editing; native modified controls, whole-grapheme overwrite and underline cursor. The sample declares all 120 entries. |
-| `keys.vim_visual_character` | Map of chord sequences to canonical commands | Compiled map | Visual Character navigation, inclusive selection and shared operators. The sample declares all 160 entries. |
-| `keys.vim_visual_line` | Map of chord sequences to canonical commands | Compiled map | Visual Line navigation, complete logical lines and shared operators. The sample declares all 160 entries. |
-| `keys.vim_visual_block` | Map of chord sequences to canonical commands | Compiled map | Visual Block navigation and atomic block delete/change/copy with logical grapheme columns. The sample declares all 156 entries. |
+| `keys.editor` | Map of chord sequences to existing editor command names | Compiled map | Non-modal editing focus; all 123 entries are active in the sample. |
+| `keys.vim_normal` | Map of chord sequences to canonical commands | Compiled map | modal Normal editing; state entry, navigation/counts/search, operators, transfer, jump history, Replace, dot repetition, colon commands and native pane controls. The sample declares all 181 entries. |
+| `keys.vim_insert` | Map of chord sequences to canonical commands | Compiled map | modal Insert editing; independent native factories and one-Normal-command C-o. The sample declares all 124 entries. |
+| `keys.vim_replace` | Map of chord sequences to canonical commands | Compiled map | modal Replace editing; native modified controls, whole-grapheme overwrite and underline cursor. The sample declares all 123 entries. |
+| `keys.vim_visual_character` | Map of chord sequences to canonical commands | Compiled map | Visual Character navigation, inclusive selection and shared operators. The sample declares all 163 entries. |
+| `keys.vim_visual_line` | Map of chord sequences to canonical commands | Compiled map | Visual Line navigation, complete logical lines and shared operators. The sample declares all 163 entries. |
+| `keys.vim_visual_block` | Map of chord sequences to canonical commands | Compiled map | Visual Block navigation and atomic block delete/change/copy with logical grapheme columns. The sample declares all 159 entries. |
 | `keys.minibuffer` | Map of chord sequences to admitted prompt actions/commands | Compiled map | Prompt focus; all 22 entries are active in the sample. |
 | `keys.git_refs` | Map of chord sequences to native ref commands | Compiled map | Ref inspection, explicit fetch, reviewed upstream push and confirmed local branch/tag actions in both profiles; all 49 entries are active in the sample. |
 | `keys.git_worktree` | Map of chord sequences to native worktree commands | Compiled map | Exact linked-worktree identities, checked Status visits and reviewed create/lock/unlock/prune/remove in both profiles; all 27 entries are active in the sample. |
@@ -292,7 +292,7 @@ Both use M-x or modal colon and leave this configuration unchanged.
 | `keys.macro_menu` | Map of chord sequences to native macro menu commands | Compiled map | Read-only ring component; all 29 entries are active in the sample, including native selection and recovery. |
 | `keys.git` | Map of chord sequences to admitted Git commands | Compiled map | One native Git interaction owner in both profiles; all 72 entries are active in the sample. |
 | `keys.bookmark_list` | Map of chord sequences to admitted bookmark-list commands | Compiled map | Read-only bookmark view; all 16 entries are active in the sample. Prompts retain their own input maps. |
-| `keys.tree` | Map of chord sequences to admitted tree commands | Compiled map | Tree focus; all 24 entries are active in the sample. |
+| `keys.tree` | Map of chord sequences to admitted tree commands | Compiled map | Tree focus; all 29 entries are active in the sample. |
 
 Only the fixed implemented [commands and context actions](bindings.md) are
 accepted as keymap values. No value unbinds a key or supplies code or consent.
@@ -441,7 +441,8 @@ edit limits and finite lifecycle.
 | `tree.decorated` | Boolean | `true` | Startup; kind symbols and semantic entry colors, with the catalog chosen by gutter.nerd_fonts. Set false for the existing minimal labels. |
 | `tree.follow_active_buffer` | Boolean | `true` | Startup; highlight the active editing file when its row is loaded. Reveal offscreen matches without expanding directories or replacing roots. False retains the manual selection across buffer changes. |
 | `tree.visible` | Boolean | `false` | Initial show preference; showing never steals editor focus. Narrow geometry can temporarily hide the pane. |
-| `tree.width` | Integer 1..=512 | `24` | Session; preferred tree columns, constrained by its frame share and complete editor geometry. |
+| `tree.auto_width` | Boolean | `true` | Startup/reset policy; fit all admitted expanded rows with a stable high-water mark. Explicit width actions retain session ownership. |
+| `tree.width` | Integer 1..=512 | `24` | Startup/reset; automatic minimum or fixed preferred columns when auto_width is false. Actual width is constrained by frame geometry. |
 | `tree.max_fraction` | Finite float 0.1..=0.5 | `0.3333333333333333` | Session; maximum terminal-width fraction for the tree. The divider is separate. |
 | `tree.root` | String: "auto", "cwd" or "file-parent" | `"auto"` | Explicit directory targets win. Otherwise auto/file-parent follow the visiting file parent, falling back to launch cwd; cwd retains launch cwd. |
 | `tree.show_hidden` | Boolean | `true` | Session; admit dot-prefixed tree entries. This does not filter find-file candidates. |

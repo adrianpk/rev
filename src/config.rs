@@ -661,7 +661,9 @@ pub struct Tree {
     pub follow_active_buffer: bool,
     /// Startup presentation only; visibility and navigation keep their own policy.
     pub decorated: bool,
-    /// 1..=512 preferred columns, constrained by available geometry.
+    /// Automatically fit admitted expanded rows with a retained high-water mark.
+    pub auto_width: bool,
+    /// 1..=512 automatic minimum or fixed preference, bounded by actual geometry.
     pub width: usize,
     /// Finite 0.1..=0.5 maximum frame share; small-frame hiding still applies.
     pub max_fraction: f64,
@@ -676,6 +678,7 @@ impl Default for Tree {
             visible: false,
             follow_active_buffer: true,
             decorated: true,
+            auto_width: true,
             width: 24,
             max_fraction: 0.3333333333333333,
             root: TreeRoot::Auto,
@@ -691,6 +694,7 @@ pub struct PartialTree {
     pub visible: Option<bool>,
     pub follow_active_buffer: Option<bool>,
     pub decorated: Option<bool>,
+    pub auto_width: Option<bool>,
     pub width: Option<i64>,
     pub max_fraction: Option<f64>,
     pub root: Option<TreeRoot>,

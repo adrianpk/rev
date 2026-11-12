@@ -70,7 +70,7 @@ fn initial_visibility() {
     for (width, fraction, expected) in [(1, 0.5, 1), (512, 0.5, 40), (24, 0.1, 8)] {
         let startup = prepare(&fixture.write(
             "config.toml",
-            &format!("tree.visible = true\ntree.width = {width}\ntree.max_fraction = {fraction}"),
+            &format!("tree.visible = true\ntree.auto_width = false\ntree.width = {width}\ntree.max_fraction = {fraction}"),
         ));
         assert!(startup.diagnostic.is_none());
         let buffers = Buffers::with_settings(startup.snapshot).unwrap();

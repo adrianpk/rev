@@ -8,6 +8,7 @@ mod presentation;
 mod refresh;
 mod rename;
 mod root;
+mod width;
 mod workspace;
 
 pub use create::{CreateKind, Creation};
@@ -33,6 +34,7 @@ pub struct Tree {
     selected: usize,
     top: usize,
     policy: crate::config::Tree,
+    width: width::Width,
     nerd_fonts: bool,
     explicit_root: bool,
     initialized: bool,
@@ -69,6 +71,7 @@ impl Tree {
     ) -> Self {
         let mut tree = Self {
             policy: policy.clone(),
+            width: width::Width::configured(policy),
             nerd_fonts,
             explicit_root,
             visible: policy.visible,
@@ -100,6 +103,7 @@ impl Tree {
         self.top = 0;
         self.initialized = false;
         self.follow_dirty = true;
+        self.new_width_context();
     }
 
     fn children_start(&self, index: usize) -> usize {
@@ -172,9 +176,7 @@ impl Tree {
             return 0;
         }
         let maximum = (f64::from(size.width) * self.policy.max_fraction).floor() as u16;
-        u16::try_from(self.policy.width)
-            .expect("admitted tree width fits terminal cells")
-            .min(maximum)
+        self.width.desired.min(maximum)
     }
 
     pub(crate) fn toggle(&mut self, size: Size) -> io::Result<()> {

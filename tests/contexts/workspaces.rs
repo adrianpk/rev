@@ -629,3 +629,44 @@ fn peer_presentations() {
         assert!(session.buffer().unwrap().file().is_none());
     }
 }
+
+// Runtime widths cross Directory, Project, Workspace and standalone replacements
+// in both profiles. Automatic reset starts from the new retained context only.
+#[test]
+fn width_contexts() {
+    for profile in ["non-modal", "modal"] {
+        let f = fixture::Fixture::new();
+        let source = f.write("project/source", "retained");
+        let mut session = configured(&f, profile);
+        session.load(source.parent().unwrap()).unwrap();
+        session.execute(Command::Tree(TreeCommand::ResetWidth));
+        session.execute(Command::Tree(TreeCommand::Narrow));
+        assert_eq!(session.tree().desired_width(), 20);
+        cancel(&mut session);
+        super::projects::promote(&mut session, profile, "Project");
+        create(&mut session, profile, "Workspace");
+        assert_eq!(session.tree().desired_width(), 20);
+        add(&mut session, profile, source.parent().unwrap());
+        assert_eq!(session.tree().desired_width(), 20);
+        assert!(!session.tree().auto_width());
+        command(&mut session, profile, "tree-auto-width-mode");
+        assert!(session.tree().auto_width());
+        let workspace_width = session.tree().desired_width();
+        assert!(workspace_width > 24);
+        command(&mut session, profile, "tree-narrow");
+        assert_eq!(session.tree().desired_width(), workspace_width - 4);
+        cancel(&mut session);
+        super::projects::choose(&mut session, profile, "Project");
+        ready(&mut session, |s| matches!(s.context(), Context::Project(_)));
+        assert_eq!(session.tree().desired_width(), workspace_width - 4);
+        cancel(&mut session);
+        named(&mut session, profile, "context-close");
+        ready(&mut session, |s| matches!(s.context(), Context::Standalone));
+        assert_eq!(session.tree().desired_width(), workspace_width - 4);
+        session.execute(Command::Tree(TreeCommand::ResetWidth));
+        session.load(source.parent().unwrap()).unwrap();
+        assert!(session.tree().auto_width());
+        assert_eq!(session.tree().desired_width(), 24);
+        assert_eq!(std::fs::read_to_string(source).unwrap(), "retained");
+    }
+}

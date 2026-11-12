@@ -211,6 +211,9 @@ pub(super) const EDITOR: &[(&str, &str)] = &[
     ("C-x t t", "toggle-file-tree"),
     ("C-x t f", "focus-file-tree"),
     ("C-x t r", "tree-refresh"),
+    ("C-x t >", "tree-widen"),
+    ("C-x t <", "tree-narrow"),
+    ("C-x t =", "tree-reset-width"),
     ("C-x t D", "tree-delete"),
     ("C-x t R", "tree-rename"),
     ("C-x t o", "tree-open"),
@@ -494,6 +497,8 @@ const MINIBUFFER: &[(&str, &str)] = &[
 ];
 
 const TREE: &[(&str, &str)] = &[
+    (">", "tree-widen"),
+    ("<", "tree-narrow"),
     ("^", "tree-up-directory"),
     ("C-x g", "git-status"),
     ("C-x C-f", "find-file"),
@@ -513,6 +518,9 @@ const TREE: &[(&str, &str)] = &[
     ("C-x t t", "toggle-file-tree"),
     ("C-x t f", "focus-file-tree"),
     ("C-x t r", "tree-refresh"),
+    ("C-x t >", "tree-widen"),
+    ("C-x t <", "tree-narrow"),
+    ("C-x t =", "tree-reset-width"),
     ("C-x t D", "tree-delete"),
     ("C-x t R", "tree-rename"),
     ("C-x t o", "tree-open"),
