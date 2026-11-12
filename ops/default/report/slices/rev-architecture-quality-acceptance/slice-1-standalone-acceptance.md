@@ -5,7 +5,7 @@ Delivery set: rev-architecture-quality-acceptance
 Plan: [Standalone Acceptance Correction](../../../plan/rev-architecture-quality-acceptance.md)
 Tracker: [Standalone Acceptance Tracker](../../../tracker/rev-architecture-quality-acceptance.md)
 Branch: `fix/rev-architecture-quality-acceptance`
-PR: pending
+PR: `#28`
 
 ## Purpose
 

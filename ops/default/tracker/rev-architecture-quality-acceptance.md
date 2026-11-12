@@ -23,7 +23,7 @@ Progress owner: selected correction Looper run
 
 Status: reviewing
 Branch: `fix/rev-architecture-quality-acceptance`
-PR: pending
+PR: `#28`
 Report: `ops/default/report/slices/rev-architecture-quality-acceptance/slice-1-standalone-acceptance.md`
 
 - [x] T1.1: Complete file-tree native/color/both-profile PTY acceptance passes.
