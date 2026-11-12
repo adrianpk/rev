@@ -423,3 +423,5 @@ Canonical report: the existing Slice 9 report.
 - [ ] T9.7: Make wrapping native, PTY and resource/performance acceptance pass.
 - [ ] T9.8: Make Projects/Workspaces native and both-profile PTY acceptance pass.
 - [ ] T10.4: Integrate the correction, pass the unchanged gate and five complete entrypoints on the exact candidate, then close this set without these deferred failures.
+
+Corrective execution: [bounded Looper correction](../plan/rev-architecture-quality-acceptance.md) with its own receipt and report; the original completed run remains historical evidence.

@@ -540,3 +540,5 @@ integrated candidate, followed by truthful plan/tracker/report closure. Record
 fresh native validation receipts; do not relabel the earlier gate as acceptance
 of the corrected sources. The scripts include bounded PTYs and the wrapping
 performance probe; a cold release build is an additional expected cost.
+
+Corrective execution: [bounded Looper correction](../plan/rev-architecture-quality-acceptance.md) with its own receipt and report; the original completed run remains historical evidence.
