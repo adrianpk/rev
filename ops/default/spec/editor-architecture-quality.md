@@ -1,7 +1,8 @@
 # Architecture Quality and Commit Checks
 
-Status: In progress
+Status: Completed
 Reopened: 2026-11-12; standalone acceptance correction is required for delivery closure
+Completed: 2026-11-12; expanded exact-candidate gate passed
 Date: 2026-11-09
 Version: 0.1
 Format: OpenSpec capability specification
@@ -211,7 +212,14 @@ records full-workspace lint, native tests, exact staged-index checks, local hook
 installation, SDK docs, Markdown/Spore and independent Go interoperability.
 The criteria map and all frozen requirements remain unchanged.
 
-The owner reopened delivery acceptance on 2026-11-12. The five standalone
-acceptance families listed in the plan must also pass their complete entrypoints.
-The earlier gate remains valid historical evidence for its exact candidate;
-final completion requires the corrected candidate and the extended acceptance.
+The owner reopened delivery acceptance on 2026-11-12. Canonical PR #28 and
+bounded fixture repair #29 discharge that standalone debt. The controller passed
+all five complete acceptance entrypoints followed by the unchanged eight-stage
+parent gate on clean published candidate
+`422d6f66945d30f7ae640726cf1a63d17586bb1d`, validation
+`VSWWUTEOGG2SGZW266X2FB7AMA`. The
+[correction closure](../report/slices/rev-architecture-quality-acceptance/slice-1-standalone-acceptance.md#delivery-set-closure)
+records the immutable receipt/log, runner identity and full results. AQL01-AQL06,
+F1-F7 and parent T9.4-T9.8/T10.4 are complete. The earlier gate and failed batches
+remain historical evidence. Only configured Markdown closure paths differ from
+the tested candidate; requirements, assertions and resource limits are unchanged.

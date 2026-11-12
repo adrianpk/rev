@@ -1,7 +1,8 @@
 # Architecture Quality Delivery
 
-Status: In progress
+Status: Completed
 Reopened: 2026-11-12; owner requires the recorded standalone acceptance debt to be corrected
+Completed: 2026-11-12; expanded gate accepts the standalone correction
 Date: 2026-11-09
 Delivery set: rev-architecture-quality
 Slice strategy: behavior-first
@@ -10,8 +11,8 @@ Planning baseline: abbf0c21eeae1680c02c7a477fa0894d7996a393
 Specification: [Architecture Quality and Commit Checks](../spec/editor-architecture-quality.md)
 Review: [Architecture and Ownership Nit Review](../report/rev-architecture-nit-review.md)
 Concern: [Pending Editor Work](../README.md)
-Active slice: Slice 9 acceptance correction; all ten implementation slices are integrated
-Active gate repair: standalone acceptance correction after three integrated gate repairs
+Active slice: none; all ten slices and the standalone correction are delivered
+Active gate repair: none; all approved repairs are integrated and accepted
 Tracker: [Architecture Quality Tracker](../tracker/rev-architecture-quality.md)
 
 ## Outcome and authority
@@ -542,3 +543,18 @@ of the corrected sources. The scripts include bounded PTYs and the wrapping
 performance probe; a cold release build is an additional expected cost.
 
 Corrective execution: [bounded Looper correction](../plan/rev-architecture-quality-acceptance.md) with its own receipt and report; the original completed run remains historical evidence.
+
+## Final standalone acceptance
+
+The reopened debt is discharged through canonical PR #28 and its bounded
+merge-settlement fixture repair #29. The controller passed all five complete
+standalone entrypoints followed by all eight unchanged parent gate stages on
+clean published candidate `422d6f66945d30f7ae640726cf1a63d17586bb1d`, validation
+`VSWWUTEOGG2SGZW266X2FB7AMA`. The
+[correction closure](../report/slices/rev-architecture-quality-acceptance/slice-1-standalone-acceptance.md#delivery-set-closure)
+records the immutable receipt/log, runner identity and complete results.
+T9.4-T9.8 and T10.4 are complete; both delivery sets and the specification/review
+are Completed, and all reports are delivered. Only configured Markdown closure
+paths differ from the tested candidate. The original gate and failed batches
+remain historical evidence; all acceptance commands, assertions and limits are
+preserved. No successor, main promotion, release or publication is included.

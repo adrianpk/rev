@@ -1,12 +1,13 @@
 # Standalone Acceptance Correction
 
-Status: In progress
+Status: Completed
 Date: 2026-11-12
+Completed: 2026-11-12; expanded exact-candidate gate passed
 Delivery set: rev-architecture-quality-acceptance
 Parent delivery set: rev-architecture-quality
 Slice strategy: behavior-first
 Approved: owner explicitly requires all recorded acceptance debt to be corrected before closing the parent set and requested Looper visibility
-Active slice: Slice 1, Standalone acceptance debt
+Active slice: none; Slice 1 and its gate repair are integrated and delivered
 Specification: [Architecture Quality and Commit Checks](../spec/editor-architecture-quality.md)
 Concern: [Pending Editor Work](../README.md)
 Tracker: [Standalone Acceptance Tracker](../tracker/rev-architecture-quality-acceptance.md)
@@ -123,3 +124,19 @@ Detailed diagnostics and environment tools are retained at
 `/home/adrian/Projects/playground/rev/20261112-1158-git-metadata-gate/`:
 `init-full-git.log`, `merge-reproductions.json`, `init-probes.json`, and
 `pid_init.py`. This diagnostic tooling changes no repository runtime or tests.
+
+## Final acceptance
+
+Canonical PR #28 and bounded gate repair #29 are integrated into `dev`. The
+controller passed all five complete standalone acceptance entrypoints followed
+by the parent's eight unchanged frozen gate stages on clean published candidate
+`422d6f66945d30f7ae640726cf1a63d17586bb1d`, validation
+`VSWWUTEOGG2SGZW266X2FB7AMA`. The immutable receipt is
+`422d6f66945d30f7ae640726cf1a63d17586bb1d.json`; the retained log is
+`422d6f66945d30f7ae640726cf1a63d17586bb1d.VSWWUTEOGG2SGZW266X2FB7AMA.log`.
+The [Slice 1 closure](../report/slices/rev-architecture-quality-acceptance/slice-1-standalone-acceptance.md#delivery-set-closure)
+records results, runner identity and acceptance limits. T1.1-T1.6 and parent
+T9.4-T9.8/T10.4 are complete. Both delivery sets are closed; all reports remain
+delivered. Only configured Markdown closure paths differ from the tested
+candidate. Earlier failures and the original parent receipt remain historical
+evidence; runtime, assertions, gate commands and resource limits are unchanged.

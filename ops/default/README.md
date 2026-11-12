@@ -62,19 +62,25 @@ retained as history. The legacy README notice is merged, the new repository and
 organization are public, and anonymous source access is verified. Associated
 repositories use rev/{repo-name}; concrete package names remain open.
 
-## Reopened quality acceptance
+## Completed quality acceptance
 
 [Architecture Quality and Commit Checks](spec/editor-architecture-quality.md), its
 [plan](plan/rev-architecture-quality.md), [tracker](tracker/rev-architecture-quality.md)
-and [review](report/rev-architecture-nit-review.md) are reopened for standalone acceptance correction. Ten slices through
+and [review](report/rev-architecture-nit-review.md) are Completed. Ten slices through
 PRs #15-#24 and three bounded repairs through PRs #25-#27 resolve F1-F7, adopt
 complete workspace lint/native source policy and enforce exact staged-index
 checks before commits. Repository-local hooks are installed. The unchanged
-controller gate passed at `5625b0dbd5648ca81c888a19ad1faedc5241524d`, validation
+initial controller gate passed at `5625b0dbd5648ca81c888a19ad1faedc5241524d`, validation
 `6XRS3YAETTKWUXPPWZ7L323GHI`. The [Slice 10 closure](report/slices/rev-architecture-quality/slice-10-enforcement.md#delivery-set-closure)
-records the initial results and limits. The owner now requires the five recorded
-standalone acceptance families to pass before final closure. Other proposals keep
-their separate approval boundaries.
+records the initial results and limits. The reopened standalone debt is discharged
+through canonical correction PR #28 and bounded fixture repair #29. All five
+complete standalone acceptance families followed by all eight unchanged parent
+gate stages passed on clean candidate `422d6f66945d30f7ae640726cf1a63d17586bb1d`,
+validation `VSWWUTEOGG2SGZW266X2FB7AMA`. The
+[correction closure](report/slices/rev-architecture-quality-acceptance/slice-1-standalone-acceptance.md#delivery-set-closure)
+records the fresh receipt, native/PTY/resource results and limits. Both delivery
+sets are Completed and all reports delivered. Other proposals keep their separate
+approval boundaries.
 
 ## Pending proposals
 

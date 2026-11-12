@@ -46,8 +46,8 @@ time/count/byte bounds remain in force. Build targets and the staged-check cache
 remain private to the worktree. The parent receipt remains historical evidence;
 all seven ordered checks passed through the controller's validator on clean
 published PR HEAD `74896fd18e90403c0961c16bc5ae86ea4932e633`. Forgejo and Acta
-confirm that exact HEAD is now integrated into `dev`. This delivery status
-records the slice merge; the expanded gate and delivery-set closure remain pending.
+confirm that exact HEAD is now integrated into `dev`. The expanded controller
+gate subsequently passed on the candidate recorded in Delivery-set closure.
 
 ## Contracts Added or Changed
 
@@ -90,8 +90,8 @@ fixture directories are removed by the original scripts.
 
 ## Risks and Follow-ups
 
-Integration is verified through canonical PR #28. The controller owns the expanded
-integrated gate and parent closure; those outcomes remain pending. The first cold
+Integration is verified through canonical PRs #28 and #29. The expanded controller
+gate and both delivery-set closures are accepted below. The first cold
 release build took about nine minutes. Two development file-tree runs reached the
 existing 20-second native deadline during concurrent compilation; a serial rerun passed without increasing
 that deadline. The existing foreign crossterm parentheses warning remains outside
@@ -129,7 +129,7 @@ The installed staged hook remains active. All four ordered repair checks passed
 through the controller's validator after PR-reference publication on clean
 published HEAD `ed9f8dedea2a7633d529220be0bcbc7cb579cd90`. Forgejo and Acta
 confirm that exact HEAD is integrated into `dev` through canonical PR #29.
-The expanded gate and delivery-set closure remain controller-owned and pending.
+The expanded controller gate subsequently passed as recorded below.
 
 Successful repair commands, in canonical order:
 
@@ -142,4 +142,53 @@ Runner identity for the clean-HEAD evidence: the plan's retained `pid_init.py`,
 SHA-256 `57ca92a038ef6348588f0dbf49cbb817141392e4888fe42911b756dec0aae608`.
 A direct probe verifies UID 1000 and child PID 2. The runner and its retained
 diagnostic files are unchanged. No environment failure is relabeled as a pass;
-the controller must run every unchanged full-gate requirement after integration.
+every unchanged full-gate requirement subsequently passed after integration.
+
+## Delivery-set closure
+
+Completed on 2026-11-12 after canonical PRs #28 and #29 integrated into `dev`.
+The controller passed the complete expanded gate on clean published candidate
+`422d6f66945d30f7ae640726cf1a63d17586bb1d`, validation
+`VSWWUTEOGG2SGZW266X2FB7AMA`. Immutable evidence record:
+`422d6f66945d30f7ae640726cf1a63d17586bb1d.json`. Retained gate log:
+`422d6f66945d30f7ae640726cf1a63d17586bb1d.VSWWUTEOGG2SGZW266X2FB7AMA.log`.
+Earlier failed and focused batches above keep their original candidate/outcome.
+
+The five complete standalone commands in the correction plan and the parent's
+eight frozen stages passed in that exact order through one unchanged chained
+command. Every build/check stage retained one job, disabled incremental output
+and zero dev/test debuginfo.
+
+| Stage | Result on the final candidate |
+| --- | --- |
+| `bash scripts/check-better-file-tree.sh` | Complete configuration, native both-profile, four-setting NO_COLOR and both-profile PTY journeys pass; Unicode, parent navigation, canonical hits, source/history, idle and TTY assertions remain. |
+| `bash scripts/check-command-ranking.sh` | Native ranking, both-profile restart PTYs and paired publishers pass with exact state, dispatch, source, idle and cleanup checks. |
+| `bash scripts/check-command-keybinding-hints.sh` | Native presentation/context dispatch/hints and both-profile PTYs pass, including complete narrow omission, effective bindings, colors and exactly-once usage. |
+| `bash scripts/check-wrap-navigation.sh` | Three native template variants, full PTY journey and all five release performance/resource scenarios pass with exact source restoration and original deadlines. |
+| `bash scripts/check-projects-workspaces.sh` | Native capacity/storage/session/resource checks and both-profile startup/restart PTYs pass unchanged; owned fixtures clean up. |
+| `make lint` | All 1,838 first-party Rust files, both packages and 73 Cargo roots pass formatting, strict Clippy and native source policy; zero blocking/deferred diagnostics or source findings. |
+| `make test-hooks` | All 28 real Git fixtures pass, including installed linked-worktree hooks and independent cache ownership. Cold/warm checks take 29s/2s. |
+| `cargo test --locked --workspace --all-targets -- --test-threads=1` | 3,078 top-level tests and seven nested child runs pass with zero failures. All 242 Git cases pass in 413.65s, including cancellation and native merge. Three existing opt-in acquisition ignores remain unchanged. |
+| `cargo test --locked --workspace --doc` | The public SDK doctest passes; the editor has zero doctests. |
+| `cargo run --locked --quiet -p rev --example documentation-check` | 684 commands, 299 configuration entries, 106 reachable pages and 743 local links/anchors pass. |
+| `bash scripts/build-user-guide.sh` | Local Spore User Guide builds under `target/userguide`. |
+| External `scripts/check-rev.sh` | Go tests and both-profile native interoperability pass against API `rev.plugins/0.1`, editor `0.6.0` at the exact candidate and client `3365b84649919492ade7e80c63139b459b5ad923`. |
+| `git diff --check` | Passes on the clean integrated candidate. |
+
+The approved same-UID PID namespace retains its PID 1 reaper and unchanged test
+execution as PID 2. Runner: the retained `pid_init.py` from the plan,
+SHA-256 `57ca92a038ef6348588f0dbf49cbb817141392e4888fe42911b756dec0aae608`,
+verified unchanged at closure. The preparation probe verified UID 1000 and child
+PID 2. Repository-local `core.hooksPath=.githooks` remains active. No owned Rev
+fixtures remain active; unrelated processes and per-worktree caches are preserved.
+
+T1.1-T1.6 and parent T9.4-T9.8/T10.4 are complete. Both delivery plan/tracker
+sets, the parent specification/review and concern index reflect verified closure;
+all eleven slice reports remain delivered. Only configured Markdown closure
+paths differ from the tested candidate. Runtime, test assertions, acceptance
+commands and resource/deadline bounds remain identical.
+
+The three existing opt-in upstream-acquisition tests and foreign vendored
+`crossterm` warning retain their documented limits. This gate executes all five
+previously deferred standalone entrypoints; it does not claim manual editor use,
+every other example's custom main, main promotion, release or publication.

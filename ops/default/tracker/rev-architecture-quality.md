@@ -1,7 +1,8 @@
 # Architecture Quality Tracker
 
-Status: In progress
+Status: Completed
 Reopened: 2026-11-12; standalone acceptance debt must pass before closure
+Completed: 2026-11-12; expanded gate accepts the standalone correction
 Date: 2026-11-09
 Delivery set: rev-architecture-quality
 Slice strategy: behavior-first
@@ -10,7 +11,7 @@ Planning baseline: abbf0c21eeae1680c02c7a477fa0894d7996a393
 Specification: [Architecture Quality and Commit Checks](../spec/editor-architecture-quality.md)
 Review: [Architecture and Ownership Nit Review](../report/rev-architecture-nit-review.md)
 Concern: [Pending Editor Work](../README.md)
-Active slice: Slice 9 acceptance correction; all ten implementation slices are integrated
+Active slice: none; all ten slices and the standalone correction are delivered
 Plan: [Architecture Quality Delivery](../plan/rev-architecture-quality.md)
 Execution authorized: one ten-slice Looper run, automatic canonical integration into dev and local hook setup
 Progress owner: this tracker; the completed Looper run retains historical evidence
@@ -410,18 +411,36 @@ release, mirror and publication actions are outside this completed set.
 
 ## Reopened standalone acceptance
 
-Owner authorization on 2026-11-12 supersedes the initial completion claim while
-the recorded example debt remains. Follow the existing plan's Standalone
-acceptance correction. Retain all previous receipts as historical evidence.
+Owner authorization on 2026-11-12 reopened the initial completion to discharge
+the recorded example debt through the plan's Standalone acceptance correction.
+The fresh final acceptance below closes that debt. Previous receipts retain
+their original candidates and outcomes as historical evidence.
 Branch: `fix/rev-architecture-quality-acceptance`.
 Expected PR title: `fix(acceptance): resolve standalone editor journeys`.
 Canonical report: the existing Slice 9 report.
 
-- [ ] T9.4: Make the complete file-tree native, color and both-profile PTY matrix pass.
-- [ ] T9.5: Make command-ranking native, restart and paired-publisher acceptance pass.
-- [ ] T9.6: Make keybinding-hint native and both-profile PTY acceptance pass.
-- [ ] T9.7: Make wrapping native, PTY and resource/performance acceptance pass.
-- [ ] T9.8: Make Projects/Workspaces native and both-profile PTY acceptance pass.
-- [ ] T10.4: Integrate the correction, pass the unchanged gate and five complete entrypoints on the exact candidate, then close this set without these deferred failures.
+- [x] T9.4: Make the complete file-tree native, color and both-profile PTY matrix pass.
+- [x] T9.5: Make command-ranking native, restart and paired-publisher acceptance pass.
+- [x] T9.6: Make keybinding-hint native and both-profile PTY acceptance pass.
+- [x] T9.7: Make wrapping native, PTY and resource/performance acceptance pass.
+- [x] T9.8: Make Projects/Workspaces native and both-profile PTY acceptance pass.
+- [x] T10.4: Integrate the correction, pass the unchanged gate and five complete entrypoints on the exact candidate, then close this set without these deferred failures.
 
 Corrective execution: [bounded Looper correction](../plan/rev-architecture-quality-acceptance.md) with its own receipt and report; the original completed run remains historical evidence.
+
+## Final standalone acceptance and closure
+
+Canonical PRs #28 and #29 are merged into `dev`. The controller passed the five
+complete standalone entrypoints and all eight unchanged parent gate stages in
+order on clean published candidate `422d6f66945d30f7ae640726cf1a63d17586bb1d`,
+validation `VSWWUTEOGG2SGZW266X2FB7AMA`. The
+[correction closure](../report/slices/rev-architecture-quality-acceptance/slice-1-standalone-acceptance.md#delivery-set-closure)
+records the immutable receipt/log, exact stage outcomes, runner checksum and
+unchanged acceptance limits. All 3,078 top-level native tests and seven nested
+child runs pass with zero failures; the three pre-existing acquisition ignores
+remain. All five formerly deferred standalone families now pass their complete
+native/PTY/resource journeys. T9.4-T9.8 and T10.4 are complete, both delivery sets
+and the parent specification/review are Completed, and all reports are delivered.
+The concern index is updated. Only configured Markdown closure paths differ
+from the tested candidate. No owned Rev fixtures remain active, and unrelated
+processes, files and per-worktree caches are preserved.

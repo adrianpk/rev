@@ -331,7 +331,7 @@ Frozen repair commands, in canonical order:
 
 ## Delivery-set closure
 
-Completed on 2026-11-12. All ten slice PRs (#15-#24) and three bounded gate repairs
+Initial closure on 2026-11-12. All ten slice PRs (#15-#24) and three bounded gate repairs
 (#25-#27) are integrated into `dev`. The controller passed the unchanged frozen
 integrated gate on clean published candidate `5625b0dbd5648ca81c888a19ad1faedc5241524d`
 in validation `6XRS3YAETTKWUXPPWZ7L323GHI`. The successful record is keyed by that
@@ -366,7 +366,34 @@ policy and frozen commands stay identical to the tested candidate.
 Acceptance limits remain explicit. The three opt-in live acquisition tests
 (`live::managed_go`, `live::managed_npm`, `live::optional_packages`) are not run.
 The foreign `crossterm` unused-parentheses warning remains outside first-party
-policy. [Slice 9](slice-9-fixtures.md#risks-and-follow-ups) retains standalone
-example expectation/deadline failures; compiling/testing all Cargo targets does
+policy. At this initial gate, [Slice 9](slice-9-fixtures.md#risks-and-follow-ups)
+retained standalone expectation/deadline failures; those are now discharged by
+the expanded acceptance below. Compiling/testing all Cargo targets alone does
 not execute every example's custom main journey. No manual editor session,
 allocation/latency benchmark, main promotion, release or publication is claimed.
+
+### Standalone acceptance closure
+
+The owner reopened the initial closure to correct all five recorded standalone
+families. Canonical PR #28 and bounded merge-settlement fixture repair #29 are
+integrated into `dev`. The controller passed the five complete entrypoints
+followed by all eight unchanged parent stages on clean published candidate
+`422d6f66945d30f7ae640726cf1a63d17586bb1d`, validation
+`VSWWUTEOGG2SGZW266X2FB7AMA`. The
+[correction closure](../rev-architecture-quality-acceptance/slice-1-standalone-acceptance.md#delivery-set-closure)
+records the immutable receipt/log, full stage results and unchanged same-UID
+reaper checksum. The initial receipt and earlier failures above remain historical.
+
+All five standalone native/PTY/resource journeys pass without deadline or
+assertion changes. Fresh full lint covers 1,838 files and 73 roots with zero
+blocking/deferred findings; all 28 hook cases pass (cold/warm 29s/2s). The
+3,078 top-level native tests and seven nested child runs pass with zero failures,
+including all 242 Git cases in 413.65s. SDK docs, Markdown/Spore, independent Go
+tests, both-profile interoperability and whitespace pass. The three existing
+opt-in acquisition ignores and foreign warning remain unchanged.
+
+Parent T9.4-T9.8 and T10.4 are complete. Both delivery plan/tracker sets, the
+specification and review are Completed; all reports are delivered and the
+concern index is updated. Only configured Markdown paths differ from the tested
+candidate. Repository-local hooks remain active, no owned Rev fixtures remain
+active, and unrelated processes, files and per-worktree caches are preserved.

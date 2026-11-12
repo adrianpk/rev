@@ -1,12 +1,13 @@
 # Standalone Acceptance Tracker
 
-Status: In progress
+Status: Completed
 Date: 2026-11-12
+Completed: 2026-11-12; expanded exact-candidate gate passed
 Delivery set: rev-architecture-quality-acceptance
 Parent delivery set: rev-architecture-quality
 Slice strategy: behavior-first
 Approved: owner explicitly requires all recorded acceptance debt to be corrected before closing the parent set and requested Looper visibility
-Active slice: Slice 1, Standalone acceptance debt
+Active slice: none; Slice 1 and its gate repair are integrated and delivered
 Specification: [Architecture Quality and Commit Checks](../spec/editor-architecture-quality.md)
 Concern: [Pending Editor Work](../README.md)
 Plan: [Standalone Acceptance Correction](../plan/rev-architecture-quality-acceptance.md)
@@ -32,19 +33,19 @@ Report: `ops/default/report/slices/rev-architecture-quality-acceptance/slice-1-s
 - [x] T1.3: Complete keybinding-hint native/both-profile PTY acceptance passes.
 - [x] T1.4: Complete wrapping native/PTY/performance acceptance passes.
 - [x] T1.5: Complete Projects/Workspaces native/both-profile PTY acceptance passes.
-- [ ] T1.6: Corrective PR integrated, expanded exact-candidate gate passed, and parent debt closure committed/pushed.
+- [x] T1.6: Corrective PR integrated, expanded exact-candidate gate passed, and parent debt closure committed/pushed.
 
 ## Acceptance
 
 All seven focused checks in the plan and both parts of the expanded integrated
-gate are required. The parent set remains reopened until all five entrypoints
-pass without the previously deferred failures.
+gate are required. All five entrypoints and the unchanged parent gate passed
+on the final candidate recorded below, discharging the standalone debt.
 
 ## Gate preparation
 
-Slice 1 is integrated and its report is delivered. The correction set and T1.6
-remain open until the controller passes the expanded gate and closes the parent
-delivery. The seven ordered focused commands passed on clean published and now
+Before the expanded gate, Slice 1 was integrated and its report delivered;
+T1.6 remained open for controller acceptance and parent closure. The seven
+ordered focused commands passed on clean published and now
 integrated HEAD `74896fd18e90403c0961c16bc5ae86ea4932e633`.
 
 The existing executable staged hook and repository-local
@@ -53,18 +54,18 @@ Spore and the existing PTY tools are available. The external plugin acceptance
 checkout is clean at `3365b84649919492ade7e80c63139b459b5ad923`; its original
 runner resolves from the frozen gate command. No gate commands, source files,
 assertions, resource bounds or build-cache ownership change during preparation.
-The controller runs all five complete acceptance scripts followed by the parent
-plan's unchanged eight-stage integrated gate on the exact clean candidate.
+The controller subsequently passed all five complete acceptance scripts followed
+by the parent's unchanged eight-stage gate on the exact candidate recorded below.
 
 ## Required gate repair
 
-T1.6 remains open. The first retry retained one namespace init/reaping failure;
+The first retry retained one namespace init/reaping failure;
 its corrected environment then exposed a premature exact-source assertion in
 `integration::presentation::native_merge`. The plan pins the fixture-only
 repair branch `fix/rev-architecture-quality-acceptance-reload-1`, exact PR title,
 existing Slice 1 report and unchanged five-second settlement budget. Both
 profiles and every existing source/HEAD/dispatch/status assertion remain required.
-The complete Git target must pass before another expanded gate attempt.
+The complete Git target passed before the successful expanded gate attempt.
 
 Repair state: delivered
 Branch: `fix/rev-architecture-quality-acceptance-reload-1`
@@ -84,4 +85,17 @@ both profiles; the complete Git target passes all 242 cases with no ignores in
 validator on clean published HEAD `ed9f8dedea2a7633d529220be0bcbc7cb579cd90`.
 Forgejo and Acta confirm its integration into `dev`. Gate preparation verifies
 the retained reaper checksum and its UID 1000 / child PID 2 execution without
-changing it. The expanded gate and T1.6 closure remain controller-owned and pending.
+changing it. The controller's expanded gate now passes as recorded below.
+
+## Final gate and closure
+
+Completed on clean published candidate
+`422d6f66945d30f7ae640726cf1a63d17586bb1d`, controller validation
+`VSWWUTEOGG2SGZW266X2FB7AMA`. All five complete standalone scripts and all
+eight unchanged parent stages passed in canonical order. The
+[Slice 1 closure](../report/slices/rev-architecture-quality-acceptance/slice-1-standalone-acceptance.md#delivery-set-closure)
+records the immutable receipt/log, full results and runner checksum. T1.1-T1.6,
+parent T9.4-T9.8 and T10.4 are complete; both plan/tracker sets, the parent
+specification and review are Completed. All reports are delivered and the concern
+index is updated. Closure changes only configured Markdown paths. No owned Rev
+test fixtures remain active; unrelated processes, files and build caches remain.

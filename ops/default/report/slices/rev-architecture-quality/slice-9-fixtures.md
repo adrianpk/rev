@@ -698,19 +698,38 @@ validation `5YBIGE4TEDA4NXJB4RNFFCAX2A` passed all five frozen checks on integra
 HEAD `1faac03dee6c434fca043fcfb3cd374468038c4d`. The unchanged controller gate is
 accepted in the closure linked above.
 
-The standalone file-tree native and PTY examples retain their pre-existing
-fixed-row expectation failures recorded above. Their assertions and limits stay
-unchanged; they are not reported as successful acceptance. The gutter native
-and PTY checks and the isolated file-tree `NO_COLOR` matrix pass.
+The following failures describe the historical Slice 9 checkpoint. The complete
+standalone correction and fresh final gate below now discharge this debt.
 
-The standalone command-ranking native and keybinding-hint native/PTY examples
-retain their baseline expectation failures recorded above. Their assertions and
-bounds remain intact. Ranking's two restart PTYs and paired-publisher mode pass.
+At that checkpoint, standalone file-tree native and PTY examples retained their
+pre-existing fixed-row expectation failures. Their assertions and limits stayed
+unchanged; the gutter journeys and isolated file-tree `NO_COLOR` matrix passed.
 
-The standalone wrapping native journey retains its pre-existing directory-buffer
-identity expectation failure. Its real PTY journey passes before and after with
-the original checks and bounds.
+Command-ranking native and keybinding-hint native/PTY examples retained their
+baseline expectation failures. Ranking's restart PTYs and paired publishers
+passed. Wrapping retained its directory-buffer identity expectation failure;
+its real PTY journey passed before and after with the original checks and bounds.
 
-Projects/Workspaces native and non-modal PTY acceptance pass before and after.
-The modal PTY retains a baseline deadline failure; no budget or assertion is
-adjusted to make that standalone helper pass.
+Projects/Workspaces native and non-modal PTY acceptance passed before and after.
+Its modal PTY retained a baseline deadline failure without a budget or assertion
+adjustment. These earlier failures remain recorded as failures.
+
+### Standalone acceptance closure
+
+Canonical PR #28 corrects stale file-tree, ranking, hint and wrapping fixtures
+against established product contracts. Projects/Workspaces passes unchanged.
+Bounded PR #29 settles verified Git integration and exact source reload within
+the original single five-second wait. No runtime behavior, resource bound or
+gate requirement changes are needed for this correction.
+
+All five complete standalone entrypoints and the parent's eight unchanged gate
+stages passed through the controller on clean published candidate
+`422d6f66945d30f7ae640726cf1a63d17586bb1d`, validation
+`VSWWUTEOGG2SGZW266X2FB7AMA`. This includes native/both-profile PTY file-tree,
+ranking restart/paired publishers, hints, wrapping's release performance matrix
+and native/both-profile Projects/Workspaces journeys. Parent T9.4-T9.8 and T10.4
+are complete. The
+[correction report](../rev-architecture-quality-acceptance/slice-1-standalone-acceptance.md#delivery-set-closure)
+records the immutable receipt/log, runner checksum, measured results and limits.
+The three opt-in acquisition ignores and foreign vendored warning remain; no
+standalone debt listed above remains deferred. This report remains delivered.

@@ -1,7 +1,8 @@
 # Architecture and Ownership Nit Review
 
-Status: In progress
+Status: Completed
 Reopened: 2026-11-12; recorded standalone acceptance failures require correction
+Completed: 2026-11-12; expanded exact-candidate gate passed
 Date: 2026-11-09
 Baseline: abbf0c21eeae1680c02c7a477fa0894d7996a393
 Scope: first-party editor, Rust SDK, integration tests, examples and developer quality tooling
@@ -198,8 +199,11 @@ This is a structural review of critical ownership/interaction/process/persistenc
 boundaries combined with a complete mechanical Rust inventory. It is not a
 line-by-line security audit of every test or a claim that all copying is harmful.
 
-All seven findings are resolved by the integrated delivery and unchanged final
-gate on `5625b0dbd5648ca81c888a19ad1faedc5241524d`, validation `6XRS3YAETTKWUXPPWZ7L323GHI`.
+All seven findings are resolved by the integrated delivery and final expanded
+gate on `422d6f66945d30f7ae640726cf1a63d17586bb1d`, validation
+`VSWWUTEOGG2SGZW266X2FB7AMA`. The initial parent gate on
+`5625b0dbd5648ca81c888a19ad1faedc5241524d`, validation
+`6XRS3YAETTKWUXPPWZ7L323GHI`, remains historical evidence for that candidate.
 The findings above retain their baseline descriptions and original file locations.
 
 | Finding | Resolution and evidence |
@@ -216,12 +220,16 @@ Mechanical checks cover their stated rules. Cohesive ownership, meaningful shari
 synchronization and captured lifetimes still require the explicit manual review
 and native regression obligations in the specification; the hook cannot prove
 architecture automatically. No measured allocation or latency improvement is
-claimed. The three opt-in upstream-acquisition cases remain ignored. Standalone
-example expectation/deadline failures documented in [Slice 9](slices/rev-architecture-quality/slice-9-fixtures.md#risks-and-follow-ups)
-remain outside the frozen gate and are not reported as passing journeys. The
-foreign vendored compiler warning remains outside first-party policy.
+claimed. The three opt-in upstream-acquisition cases remain ignored. The foreign
+vendored compiler warning remains outside first-party policy.
 
-The owner reopened the delivery on 2026-11-12 to correct those standalone
-acceptance failures. F1-F7 retain the evidence above, but overall closure remains
-pending the five complete acceptance entrypoints and fresh integrated evidence
-required by the reopened plan and tracker.
+The owner reopened the delivery on 2026-11-12 to correct the standalone failures
+retained in [Slice 9](slices/rev-architecture-quality/slice-9-fixtures.md#risks-and-follow-ups).
+Canonical PR #28 and bounded fixture repair #29 are integrated. All five complete
+standalone entrypoints and all eight unchanged parent stages now pass on the
+exact candidate above. The
+[correction closure](slices/rev-architecture-quality-acceptance/slice-1-standalone-acceptance.md#delivery-set-closure)
+records the fresh immutable receipt/log, runner identity, full native/PTY/resource
+results and limits. Both delivery sets are Completed; earlier failures retain
+their original outcomes. Only configured Markdown paths differ from the tested
+candidate; no requirement, assertion or resource limit changes at closure.
