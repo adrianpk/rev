@@ -7,6 +7,7 @@ use rev::input::keymap::Sequence;
 use rev::input::{Input, OrgContext, Outcome};
 use rev::session::Session;
 use std::path::Path;
+use unicode_width::UnicodeWidthStr;
 
 pub(super) fn settings(root: &Path, config: &str) -> Result<Snapshot> {
     std::fs::create_dir_all(root.join("workspace"))?;
@@ -44,7 +45,7 @@ pub(super) fn cancel(editor: &mut Session) -> Result<()> {
     send(editor, "C-g")
 }
 
-pub(super) fn row(editor: &mut Session, name: &str) -> Result<Vec<String>> {
+pub(super) fn row(editor: &mut Session, name: &str) -> Result<String> {
     editor.execute(Command::ExecuteExtended);
     editor.handle(Event::Paste(name.into()));
     let frame = editor.frame()?;
@@ -54,18 +55,39 @@ pub(super) fn row(editor: &mut Session, name: &str) -> Result<Vec<String>> {
         .find(|row| row.band() == Band::Completion && row.text().starts_with(name))
         .ok_or_else(|| format!("missing {name}: {}", editor.echo()))?
         .text()
-        .split_whitespace()
-        .map(str::to_owned)
-        .collect())
+        .to_owned())
 }
 
 pub(super) fn check_row(editor: &mut Session, name: &str, hint: Option<&str>) -> Result<()> {
     let hint = hint.map(|hint| format!("[{hint}]"));
     let expected: Vec<_> = std::iter::once(name)
         .chain(hint.as_deref().into_iter().flat_map(str::split_whitespace))
-        .map(str::to_owned)
         .collect();
-    assert_eq!(row(editor, name)?, expected, "{name}");
+    let row = row(editor, name)?;
+    let description = Command::named(name)
+        .and_then(|command| command.description())
+        .ok_or("missing built-in description")?;
+    let start = row
+        .find(
+            description
+                .split_whitespace()
+                .next()
+                .ok_or("empty description")?,
+        )
+        .ok_or("missing description column")?;
+    let (identity, annotation) = row.split_at(start);
+    assert_eq!(
+        identity.split_whitespace().collect::<Vec<_>>(),
+        expected,
+        "{name}"
+    );
+    // Context cases keep exact name/hint identities and the complete visible
+    // metadata, including a description clipped by the existing 80-cell frame.
+    let visible: String = description
+        .chars()
+        .take(row.width() - identity.width())
+        .collect();
+    assert_eq!(annotation.trim_end(), visible.trim_end(), "{name}");
     cancel(editor)
 }
 
@@ -165,11 +187,22 @@ fn inspect(
             for chord in Sequence::parse(hint)?.chords() {
                 outcome = dispatch.handle(Event::Key(KeyEvent::new(chord.code, chord.modifiers)));
             }
-            assert_eq!(outcome, Outcome::Command(command), "{role:?}: {hint}");
+            assert_eq!(outcome, dispatched(command), "{role:?}: {hint}");
         }
     }
     retire_origin(&mut input, role)?;
     restore_origin(&mut input, role, target, expected)
+}
+
+fn dispatched(command: Command) -> Outcome {
+    match command {
+        Command::QuitAlias => Outcome::Command(Command::Quit),
+        Command::UniversalArgument => Outcome::ArgumentPrefix(Command::PrefixArgument),
+        Command::PrefixArgument | Command::DigitArgument | Command::NegativeArgument => {
+            Outcome::ArgumentPrefix(command)
+        }
+        command => Outcome::Command(command),
+    }
 }
 
 fn registered(root: &Path) -> Result<()> {
@@ -200,6 +233,7 @@ fn registered(root: &Path) -> Result<()> {
     );
     let mut editor = editor(&root.join("session"), "")?;
     editor.execute(Command::ExecuteExtended);
+    editor.handle(Event::Paste("ai-apply-result".into()));
     key(&mut editor, KeyCode::Enter);
     assert_eq!(editor.echo(), "No AI result is ready");
     Ok(())

@@ -21,16 +21,16 @@ Progress owner: selected correction Looper run
 
 ## Slice 1: Standalone acceptance debt
 
-Status: planned
+Status: reviewing
 Branch: `fix/rev-architecture-quality-acceptance`
 PR: pending
 Report: `ops/default/report/slices/rev-architecture-quality-acceptance/slice-1-standalone-acceptance.md`
 
-- [ ] T1.1: Complete file-tree native/color/both-profile PTY acceptance passes.
-- [ ] T1.2: Complete ranking native/restart/paired-publisher acceptance passes.
-- [ ] T1.3: Complete keybinding-hint native/both-profile PTY acceptance passes.
-- [ ] T1.4: Complete wrapping native/PTY/performance acceptance passes.
-- [ ] T1.5: Complete Projects/Workspaces native/both-profile PTY acceptance passes.
+- [x] T1.1: Complete file-tree native/color/both-profile PTY acceptance passes.
+- [x] T1.2: Complete ranking native/restart/paired-publisher acceptance passes.
+- [x] T1.3: Complete keybinding-hint native/both-profile PTY acceptance passes.
+- [x] T1.4: Complete wrapping native/PTY/performance acceptance passes.
+- [x] T1.5: Complete Projects/Workspaces native/both-profile PTY acceptance passes.
 - [ ] T1.6: Corrective PR integrated, expanded exact-candidate gate passed, and parent debt closure committed/pushed.
 
 ## Acceptance

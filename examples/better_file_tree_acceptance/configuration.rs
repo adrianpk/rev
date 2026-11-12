@@ -114,12 +114,13 @@ fn configured_geometry(root: &Path, decorated: bool, nerd_fonts: bool, width: i3
         tree,
     };
     surface.tree.expand()?;
-    let identity = surface.tree.hit(1);
+    let unicode_row = surface.unicode_row()?;
+    let identity = surface.tree.hit(unicode_row);
     for columns in [100, 31, 0, 100] {
-        if !surface.check(columns, width, decorated)? {
+        if !surface.check(columns, width, decorated, unicode_row)? {
             continue;
         }
-        assert_eq!(surface.tree.hit(1), identity);
+        assert_eq!(surface.tree.hit(unicode_row), identity);
     }
     Ok(())
 }
@@ -129,7 +130,17 @@ struct Surface {
     tree: Tree,
 }
 impl Surface {
-    fn check(&self, columns: u16, width: i32, decorated: bool) -> Result<bool> {
+    fn unicode_row(&self) -> Result<u16> {
+        Ok(u16::try_from(
+            self.tree
+                .entries()
+                .iter()
+                .position(|entry| entry.path().ends_with("界é.txt"))
+                .ok_or("missing Unicode entry")?,
+        )?)
+    }
+
+    fn check(&self, columns: u16, width: i32, decorated: bool, unicode_row: u16) -> Result<bool> {
         let buffers = &self.buffers;
         let windows = &self.windows;
         let tree = &self.tree;
@@ -150,7 +161,7 @@ impl Surface {
         );
         assert_eq!(composition.tree().is_some(), columns >= 32);
         if columns >= 32 {
-            let label = frame.rows()[1]
+            let label = frame.rows()[usize::from(unicode_row)]
                 .text()
                 .split('│')
                 .next()

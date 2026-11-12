@@ -54,6 +54,7 @@ fn prepare(root: &Path, profile: &str, nerd_fonts: bool) -> Result<String> {
 }
 struct Labels {
     root_label: &'static str,
+    parent: &'static str,
     closed: &'static str,
     open: &'static str,
 }
@@ -75,6 +76,11 @@ fn labels(nerd_fonts: bool) -> Labels {
     };
     Labels {
         root_label,
+        parent: if nerd_fonts {
+            "    \u{f148} .."
+        } else {
+            "    ↑ .."
+        },
         closed,
         open,
     }
@@ -87,17 +93,19 @@ fn focus_tree(terminal: &mut Terminal, profile: &str, nerd_fonts: bool) -> Resul
     let closed = labels.closed;
     let open = labels.open;
     terminal.frame(|frame| {
-        row(frame, 1).starts_with(root_label) && row(frame, 2).starts_with(closed)
+        row(frame, 1).starts_with(root_label)
+            && row(frame, 2).starts_with(labels.parent)
+            && row(frame, 3).starts_with(closed)
     })?;
-    terminal.send(b"\x1b[B\x1b[C")?;
+    terminal.send(b"\x1b[B\x1b[B\x1b[C")?;
     terminal
-        .frame(|frame| row(frame, 2).starts_with(open) && row(frame, 3).contains("child.txt"))?;
+        .frame(|frame| row(frame, 3).starts_with(open) && row(frame, 4).contains("child.txt"))?;
     Ok(labels)
 }
 fn activate_file(terminal: &mut Terminal, labels: &Labels) -> Result<()> {
     let root_label = labels.root_label;
     // The kind field is part of the existing full-row activation target.
-    terminal.send(b"\x1b[<0;5;4M\x1b[<0;5;4m")?;
+    terminal.send(b"\x1b[<0;5;5M\x1b[<0;5;5m")?;
     terminal.frame(|frame| {
         row(frame, 1).starts_with(root_label) && row(frame, 1).contains("other document")
     })?;
@@ -115,7 +123,8 @@ fn resize_tree(terminal: &mut Terminal, labels: &Labels) -> Result<()> {
     terminal.frame(|frame| {
         row(frame, 1).starts_with(root_label)
             && row(frame, 1).contains("other document")
-            && row(frame, 2).starts_with(open)
+            && row(frame, 2).starts_with(labels.parent)
+            && row(frame, 3).starts_with(open)
     })?;
     Ok(())
 }

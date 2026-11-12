@@ -141,18 +141,40 @@ fn presentation(editor: &mut Session, decorated: bool, nerd_fonts: bool) -> Resu
     };
     let mut seen = [false; 7];
     for (row, entry) in editor.tree().entries().iter().enumerate() {
-        let channel = style.entry(row, entry, &cells)?;
+        let channel = style.entry(row, entry, &cells, entry.path().ends_with("main.rs"))?;
         seen[channel - 1] = true;
     }
     assert!(seen.into_iter().all(|seen| seen));
     style.labels(&frame);
     bookmark_marker(editor, &cells, nerd_fonts)?;
     selected_root(editor, &style.palette)?;
+    source_color(editor, &style)?;
+    editor.execute(Command::Tree(TreeCommand::Next));
+    assert!(
+        editor
+            .tree()
+            .selected()
+            .ok_or("missing parent row")?
+            .is_parent()
+    );
     editor.execute(Command::Tree(TreeCommand::Next));
     editor.execute(Command::Tree(TreeCommand::Expand));
     let frame = editor.frame()?;
     style.directory(&frame);
     editor.execute(Command::Tree(TreeCommand::Collapse));
+    Ok(())
+}
+
+fn source_color(editor: &mut Session, style: &TreeStyle) -> Result<()> {
+    let cells = surface::draw(&editor.frame()?);
+    let (row, source) = editor
+        .tree()
+        .entries()
+        .iter()
+        .enumerate()
+        .find(|(_, entry)| entry.path().ends_with("main.rs"))
+        .ok_or("missing source entry")?;
+    style.entry(row, source, &cells, false)?;
     Ok(())
 }
 
@@ -253,10 +275,19 @@ impl TreeStyle {
         row: usize,
         entry: &Entry,
         cells: &BTreeMap<(usize, usize), surface::Cell>,
+        selected: bool,
     ) -> Result<usize> {
-        let expected = expected_kind(entry.path());
+        let expected = if entry.is_parent() {
+            Kind::Directory
+        } else {
+            expected_kind(entry.path())
+        };
         assert_eq!(entry.kind(), expected);
-        let (channel, ordinary, icon) = role(entry.kind());
+        let (channel, ordinary, icon) = if entry.is_parent() {
+            (2, '↑', '\u{f148}')
+        } else {
+            role(entry.kind())
+        };
         let column = if row == 0 { 2 } else { 4 };
         let cell = cells[&(row, column)];
         if self.decorated {
@@ -268,12 +299,18 @@ impl TreeStyle {
         assert_eq!(
             (cell.foreground, cell.background),
             (
-                Some(if self.decorated {
+                Some(if selected {
+                    self.palette.tree_selected_text
+                } else if self.decorated {
                     Rgb(u8::try_from(channel)?, 2, 3)
                 } else {
                     self.palette.foreground
                 }),
-                Some(self.palette.tree)
+                Some(if selected {
+                    self.palette.tree_selected
+                } else {
+                    self.palette.tree
+                })
             )
         );
         assert_eq!(cells[&(row, column + 2)].foreground, cell.foreground);
@@ -288,6 +325,14 @@ impl TreeStyle {
             "▾ ◆ workspace/"
         };
         assert!(frame.rows()[0].text().starts_with(expected_root));
+        let parent = if !self.decorated {
+            "    .."
+        } else if self.nerd_fonts {
+            "    \u{f148} .."
+        } else {
+            "    ↑ .."
+        };
+        assert!(frame.rows()[1].text().starts_with(parent));
         if !self.decorated {
             for label in ["  > folder/", "    main.rs", "    notes.org", "  @ link.rs"] {
                 assert!(frame.rows().iter().any(|row| row.text().starts_with(label)));
@@ -308,8 +353,8 @@ impl TreeStyle {
         } else {
             "  ▾ / folder/"
         };
-        assert!(frame.rows()[1].text().starts_with(directory));
-        assert!(frame.rows()[2].text().contains("child.txt"));
+        assert!(frame.rows()[2].text().starts_with(directory));
+        assert!(frame.rows()[3].text().contains("child.txt"));
     }
 }
 fn bookmark_marker(

@@ -5,19 +5,12 @@ use std::path::Path;
 use std::time::{Duration, Instant};
 
 const DOCUMENT: &str = "retained source\nsecond line\n";
+const GOTO_ROW: &str = "goto-line              [M-j]  Go to a one-based logical line number.";
 
-fn candidate(frame: &str, name: &str, hint: Option<&str>) -> bool {
-    let hint = hint.map(|hint| format!("[{hint}]"));
-    let expected: Vec<_> = std::iter::once(name)
-        .chain(hint.as_deref().into_iter().flat_map(str::split_whitespace))
-        .collect();
+fn candidate(frame: &str, expected: &str) -> bool {
     // The editable query can scroll its label at narrow widths. Match the
     // complete candidate fields without using that label as row geometry.
-    (1..=24).any(|number| {
-        row(frame, number)
-            .split_whitespace()
-            .eq(expected.iter().copied())
-    })
+    (1..=24).any(|number| row(frame, number).trim_end() == expected)
 }
 fn prompt(frame: &str, expected: &str) -> bool {
     (1..=24).any(|number| row(frame, number).starts_with(expected))
@@ -61,9 +54,7 @@ fn prepare(root: &Path, config_path: &Path, config: &str) -> Result<()> {
 }
 fn hinted_selection(terminal: &mut Terminal, prefix: &str, history: &Path) -> Result<()> {
     terminal.send(format!("{prefix}goto\t").as_bytes())?;
-    terminal.frame(|frame| {
-        prompt(frame, "M-x goto-line ") && candidate(frame, "goto-line", Some("M-j"))
-    })?;
+    terminal.frame(|frame| prompt(frame, "M-x goto-line ") && candidate(frame, GOTO_ROW))?;
     assert!(
         terminal.contains("\x1b[7m"),
         "NO_COLOR selected row must use reverse video"
@@ -73,9 +64,9 @@ fn hinted_selection(terminal: &mut Terminal, prefix: &str, history: &Path) -> Re
         "hint rendering and Tab must not add usage"
     );
     terminal.resize(12, 12)?;
-    terminal.frame(|frame| candidate(frame, "goto-line", None))?;
+    terminal.frame(|frame| candidate(frame, "goto-line"))?;
     terminal.resize(24, 80)?;
-    terminal.frame(|frame| candidate(frame, "goto-line", Some("M-j")))?;
+    terminal.frame(|frame| candidate(frame, GOTO_ROW))?;
     Ok(())
 }
 fn named_argument(terminal: &mut Terminal) -> Result<()> {
@@ -101,8 +92,13 @@ fn hint_query(terminal: &mut Terminal, prefix: &str) -> Result<()> {
 }
 fn unbound_query(terminal: &mut Terminal, prefix: &str) -> Result<()> {
     terminal.send(format!("{prefix}mouse-mode\t").as_bytes())?;
-    terminal
-        .frame(|frame| prompt(frame, "M-x mouse-mode ") && candidate(frame, "mouse-mode", None))?;
+    terminal.frame(|frame| {
+        prompt(frame, "M-x mouse-mode ")
+            && candidate(
+                frame,
+                "mouse-mode    Toggle native pointer support for this session without writing set",
+            )
+    })?;
     terminal.send(b"\x07")?;
     terminal.frame(|frame| !frame.contains("M-x "))?;
     Ok(())

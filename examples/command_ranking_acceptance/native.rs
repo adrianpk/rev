@@ -38,7 +38,7 @@ pub(super) fn run(root: &Path) -> Result<()> {
             "prefix-then-substring",
             "",
             vec![],
-            vec!["ai-apply-result", "ai-cancel"],
+            vec!["abort-recursive-edit", "ai-apply-result"],
         ),
         (
             "overlap",
@@ -347,7 +347,7 @@ fn promotion_case(editor: &mut Session, name: &str, expected: &[&str]) -> Result
     if name == "empty" {
         assert!(rows.windows(2).all(|pair| pair[0] < pair[1]));
         key(editor, KeyCode::Enter);
-        assert_eq!(editor.echo(), "No AI result is ready");
+        assert_eq!(editor.echo(), "No macro editing pause is active");
     } else {
         // Inspect the writer's actual selected colors, not just row metadata.
         let frame = editor.frame()?;

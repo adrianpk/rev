@@ -72,7 +72,16 @@ fn secondary_colors(frame: &Frame) -> Result<()> {
             .ok_or("missing colored row")?;
         let hint_column = row.text().find('[').ok_or("missing shortcut field")?;
         assert!(hint_column < 40, "shortcut must stay near its command");
-        assert!(!row.text().contains('—'), "missing descriptions stay blank");
+        let description = if selected {
+            "Exit rev after resolving unsaved work and"
+        } else {
+            "Save to the current destination."
+        };
+        assert!(
+            row.text().trim_end().ends_with(description),
+            "{}",
+            row.text()
+        );
         for column in [0, hint_column, 78] {
             let cell = cells[&(usize::from(row.row()), column)];
             assert_eq!(
@@ -87,12 +96,10 @@ fn secondary_colors(frame: &Frame) -> Result<()> {
                 cell.foreground,
                 Some(if selected {
                     palette.selection_text
-                } else if column == hint_column {
+                } else if column != 0 {
                     palette.status_text
-                } else if column == 0 {
-                    palette.syntax.function
                 } else {
-                    palette.foreground
+                    palette.syntax.function
                 })
             );
         }
@@ -117,10 +124,16 @@ fn geometry(owner: &mut Session, name: &str, width: u16, height: u16, hint: bool
             .ok_or("missing geometry row")?;
         assert_eq!(row.text().contains("M-界"), hint, "{name}");
         if hint {
-            assert!(
-                row.text().starts_with("save-buffer  ")
-                    && row.text().trim_end().ends_with("[M-界]")
-            );
+            let expected = if width == 19 {
+                "save-buffer  [M-界]".to_owned()
+            } else {
+                format!(
+                    "save-buffer{}[M-界]{}Save to the current destination.",
+                    " ".repeat(17),
+                    " ".repeat(5)
+                )
+            };
+            assert_eq!(row.text().trim_end(), expected, "{name}");
         } else {
             assert!(!row.text().contains("M-"), "{name}: partial shortcut");
         }
@@ -160,9 +173,9 @@ fn scroll_identity(owner: &mut Session) -> Result<()> {
         owner.frame()?;
     }
     let selected = selected_name(owner)?;
-    assert!(
-        selected.starts_with("copy-rectangle-as-kill")
-            && selected.trim_end().ends_with("[C-x r M-w]")
+    assert_eq!(
+        selected.trim_end(),
+        "copy-rectangle-as-kill  [C-x r M-w]    Retain selected rectangle rows."
     );
     restore_selection(owner, &selected)?;
     Ok(())

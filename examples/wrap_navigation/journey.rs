@@ -8,6 +8,7 @@ use crossterm::event::{
 use rev::buffer::{BufferId, Buffers};
 use rev::command::{Command, History, Motion, OrgCommand, Split};
 use rev::config::{Snapshot, default_template, prepare};
+use rev::context::{Context, NativePath};
 use rev::display::Band;
 use rev::session::Session;
 use rev::view::{Size, View};
@@ -100,9 +101,20 @@ fn open_sources(
 }
 
 fn directory(session: &mut Session, work: &Path) -> Result<BufferId, Box<dyn Error>> {
-    let scratch = session.view().point.stamp.buffer;
+    let previous = session.view().point.stamp.buffer;
     session.load(work)?;
-    assert_eq!(session.view().point.stamp.buffer, scratch);
+    let scratch = session.view().point.stamp.buffer;
+    assert_ne!(
+        scratch, previous,
+        "directory entry must replace the context"
+    );
+    assert_eq!(
+        session.context(),
+        &Context::Directory(NativePath::absolute(work)?)
+    );
+    assert!(session.buffer()?.file().is_none());
+    assert!(!session.buffer()?.is_modified() && session.buffer()?.history().is_empty());
+    assert!(source(session).is_empty());
     assert!(session.tree().visible() && session.tree().focused());
     assert_eq!(session.tree().entries().len(), 4);
     assert!(
