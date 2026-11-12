@@ -651,7 +651,13 @@ fn width_contexts() {
         add(&mut session, profile, source.parent().unwrap());
         assert_eq!(session.tree().desired_width(), 20);
         assert!(!session.tree().auto_width());
+        command(&mut session, profile, "tree-scroll-right");
+        assert_eq!(session.tree().horizontal_offset(), 1);
+        let peer = f.write("peer/other", "peer");
+        add(&mut session, profile, peer.parent().unwrap());
+        assert_eq!(session.tree().horizontal_offset(), 1);
         command(&mut session, profile, "tree-auto-width-mode");
+        assert_eq!(session.tree().horizontal_offset(), 1);
         assert!(session.tree().auto_width());
         let workspace_width = session.tree().desired_width();
         assert!(workspace_width > 24);
@@ -660,6 +666,7 @@ fn width_contexts() {
         cancel(&mut session);
         super::projects::choose(&mut session, profile, "Project");
         ready(&mut session, |s| matches!(s.context(), Context::Project(_)));
+        assert_eq!(session.tree().horizontal_offset(), 0);
         assert_eq!(session.tree().desired_width(), workspace_width - 4);
         cancel(&mut session);
         named(&mut session, profile, "context-close");

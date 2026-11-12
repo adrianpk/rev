@@ -53,7 +53,7 @@ pub(super) fn run(root: &Path) -> Result<()> {
         }
     }
     println!(
-        "PASS native tree: both profiles, omitted defaults and four settings, seven kinds/colors, shared bookmark font, retained automatic width, frozen configuration, directory expansion, canonical full-row selection/open, cached scroll/resize and unchanged source/history"
+        "PASS native tree: both profiles, omitted defaults and four settings, seven kinds/colors, shared bookmark font, retained automatic width, frozen configuration, directory expansion, canonical full-row selection/open, cached pan/scroll/resize and unchanged source/history"
     );
     Ok(())
 }
@@ -435,7 +435,15 @@ fn cached_tree(editor: &mut Session, root: &Path) -> Result<()> {
     std::fs::remove_dir_all(root.join("workspace"))?;
     for width in [31, 0, 100, 40, 100] {
         editor.handle(Event::Resize(width, if width == 0 { 0 } else { 16 }));
+        if width == 40 {
+            editor.execute(Command::Tree(TreeCommand::ScrollRight));
+            editor.execute(Command::Tree(TreeCommand::ScrollRight));
+        }
         let frame = editor.frame()?;
+        assert_eq!(
+            editor.tree().horizontal_offset(),
+            if width == 40 { 2 } else { 0 }
+        );
         assert_eq!(editor.tree().desired_width(), desired);
         assert!(
             frame

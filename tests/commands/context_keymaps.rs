@@ -371,6 +371,8 @@ fn context_hints() {
         ("insert-tab", None),
         ("tree-open", Some("M-a")),
         ("tree-expand", Some("C-f")),
+        ("tree-scroll-left", Some("Left")),
+        ("tree-scroll-right", Some("Right")),
         ("tree-widen", Some(">")),
         ("tree-narrow", Some("<")),
         ("tree-reset-width", Some("C-x t =")),
@@ -466,4 +468,53 @@ fn terminal_hints() {
         session.shutdown_terminals().unwrap();
         assert_eq!(text(&session), "source stays native");
     }
+}
+
+// Both profiles expose actual tree arrow hints. An override retires the old
+// hint and route while a named pan retains the selected row and source buffer.
+#[test]
+fn horizontal_hints() {
+    for profile in ["non-modal", "modal"] {
+        for remapped in [false, true] {
+            horizontal_hint(profile, remapped);
+        }
+    }
+}
+
+fn horizontal_hint(profile: &str, remapped: bool) {
+    let mapping = if remapped {
+        "[keys.tree]\n'Right'='tree-next-line'\n'M-l'='tree-scroll-right'"
+    } else {
+        ""
+    };
+    let (_fixture, mut session) = tree_editor(&format!(
+        "editor.interaction_profile='{profile}'\n{mapping}"
+    ));
+    let stamp = session.buffer().unwrap().stamp();
+    let selected = session.tree().selected().unwrap().path().to_owned();
+    session.handle(meta('x'));
+    session.handle(Event::Paste("tree-scroll-right".into()));
+    let frame = session.frame().unwrap();
+    let row = frame
+        .rows()
+        .iter()
+        .find(|r| r.text().starts_with("tree-scroll-right"))
+        .unwrap();
+    assert!(
+        row.text()
+            .contains(if remapped { "[M-l]" } else { "[Right]" })
+    );
+    assert!(
+        row.text()
+            .contains("Pan all tree rows right by one column.")
+    );
+    session.handle(key(KeyCode::Enter));
+    assert_eq!(session.tree().selected().unwrap().path(), selected);
+    if remapped {
+        session.handle(meta('l'));
+        assert_eq!(session.tree().selected().unwrap().path(), selected);
+        session.handle(key(KeyCode::Right));
+        assert!(session.tree().selected().unwrap().is_parent());
+    }
+    assert_eq!(session.buffer().unwrap().stamp(), stamp);
 }

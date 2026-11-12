@@ -138,9 +138,9 @@ do not maintain a separate description list in publication templates.
 - **WHEN** the native catalog guard runs
 - **THEN** it fails and identifies the missing command.
 
-Current catalog: 684 built-in names: 683 canonical commands and the `quit` alias.
+Current catalog: 686 built-in names: 685 canonical commands and the `quit` alias.
 The separate plugin metadata reference adds four native plugin commands, for
-688 registered command names overall.
+690 registered command names overall.
 The alias reuses the exit action's description and effective shortcut. Four Org
 visibility commands were added by the Org Initial Visibility delivery.
 `tree-up-directory` is added by File Tree Parent Navigation. Tree Viewport adds
@@ -267,6 +267,8 @@ Full behavior and prerequisites remain in the linked command references.
 | `tree-narrow` | Narrow by four columns; retain manual width. |
 | `tree-reset-width` | Restore the configured tree width policy. |
 | `tree-auto-width-mode` | Toggle automatic fitting; freeze when disabled. |
+| `tree-scroll-left` | Pan all tree rows left by one column. |
+| `tree-scroll-right` | Pan all tree rows right by one column. |
 | `tree-rename` | Rename one entry and reconcile visited paths. |
 | `tree-toggle-directory` | Toggle a directory; leaves report an error. |
 

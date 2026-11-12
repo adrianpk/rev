@@ -27,7 +27,7 @@ impl Frame {
         };
         let content = panel.content();
         for row in 0..content.height() {
-            let label = tree.line(row, content.width())?;
+            let label = tree.line(row)?;
             let selected = tree.row_selected(row);
             // The tree and a live source region can occupy the same screen row.
             // Its selected face preserves both independent surface indications.
@@ -36,7 +36,11 @@ impl Frame {
                 .is_some();
             let source = Row {
                 row,
-                text: clip::line(Glyphs::for_text(&label)?, 0, content.width())?,
+                text: clip::line(
+                    Glyphs::for_text(&label)?,
+                    usize::from(tree.horizontal_offset()),
+                    content.width(),
+                )?,
                 syntax: Vec::new(),
                 band: Band::Document,
                 tone: if selected {

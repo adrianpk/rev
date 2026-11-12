@@ -10,6 +10,8 @@ mod follow;
 mod geometry;
 #[path = "tree/hits.rs"]
 mod hits;
+#[path = "tree/horizontal.rs"]
+mod horizontal;
 #[path = "tree/initialization.rs"]
 mod initialization;
 #[path = "tree/parent.rs"]

@@ -55,33 +55,39 @@ impl Tree {
 
     pub(crate) fn reset_width(&mut self) {
         self.width = Width::configured(&self.policy);
+        self.viewport.reset();
         self.observe_width();
     }
 
     pub(crate) fn toggle_auto_width(&mut self) {
         self.width.automatic = !self.width.automatic;
         if self.width.automatic {
-            self.new_width_context();
+            self.width.desired =
+                u16::try_from(self.policy.width).expect("admitted width fits terminal cells");
+            self.observe_width();
         }
     }
 
     pub(crate) fn inherit_width(&mut self, previous: &Self) {
         self.width = previous.width.for_context(&self.policy);
+        self.viewport.reset();
         self.observe_width();
     }
 
     pub(super) fn new_width_context(&mut self) {
         self.width = self.width.for_context(&self.policy);
+        self.viewport.reset();
         self.observe_width();
     }
 
     /// Called only when a retained listing is published or width ownership
     /// changes. Rendering, navigation and resizing do not measure or discover.
     pub(super) fn observe_width(&mut self) {
+        let extent = self
+            .content_width()
+            .expect("retained tree labels have valid bounded display coordinates");
+        self.viewport.observe(extent);
         if self.width.automatic {
-            let extent = self
-                .content_width()
-                .expect("retained tree labels have valid bounded display coordinates");
             self.width.desired = self.width.desired.max(extent);
         }
     }
@@ -89,7 +95,7 @@ impl Tree {
     fn content_width(&self) -> Result<u16, Error> {
         let mut extent = 0;
         for entry in &self.entries {
-            let label = entry.label(u16::MAX, self.policy.decorated, self.nerd_fonts)?;
+            let label = entry.label(self.policy.decorated, self.nerd_fonts)?;
             for glyph in Glyphs::for_text(&label)? {
                 let end = u16::try_from(glyph?.columns.end).unwrap_or(u16::MAX);
                 extent = extent.max(end);

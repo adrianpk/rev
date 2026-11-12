@@ -111,9 +111,9 @@ impl Prefix {
     const FIELD_WIDTH: u16 = 1;
     const WIDTH: u16 = 4;
 
-    pub(super) fn new(depth: usize, width: u16) -> Result<Self, crate::coordinates::Error> {
+    pub(super) fn new(depth: usize) -> Result<Self, crate::coordinates::Error> {
         use crate::coordinates::Error;
-        let depth = depth.min(usize::from(width.saturating_sub(Self::WIDTH + 2)) / 2);
+        let depth = depth.min(usize::from(u16::MAX - (Self::WIDTH + 2)) / 2);
         let indent = u16::try_from(depth)
             .ok()
             .and_then(|depth| depth.checked_mul(2))

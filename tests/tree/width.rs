@@ -7,7 +7,7 @@ use rev::view::View;
 
 use super::*;
 
-fn configured(fixture: &config_fixture::Fixture, config: &str) -> Session {
+pub(super) fn configured(fixture: &config_fixture::Fixture, config: &str) -> Session {
     let file = fixture.write("root/main.txt", "retained");
     let startup = prepare(&fixture.write("config.toml", config));
     assert!(startup.diagnostic.is_none(), "{:?}", startup.diagnostic);
@@ -25,7 +25,7 @@ fn configured(fixture: &config_fixture::Fixture, config: &str) -> Session {
     .unwrap()
 }
 
-fn choose(session: &mut Session, path: &Path) {
+pub(super) fn choose(session: &mut Session, path: &Path) {
     tree(session, TreeCommand::Focus);
     let index = session
         .tree()
@@ -52,7 +52,7 @@ fn choose(session: &mut Session, path: &Path) {
     }
 }
 
-fn prefix(session: &mut Session, suffix: char) {
+pub(super) fn prefix(session: &mut Session, suffix: char) {
     session.handle(Event::Key(KeyEvent::new(
         KeyCode::Char('x'),
         KeyModifiers::CONTROL,

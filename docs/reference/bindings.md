@@ -234,8 +234,10 @@ Every command below is also available as `M-x` followed by its exact name.
 | `C-x t f` | `focus-file-tree` | Focus the visible tree. |
 | Up, `C-p` in tree | `tree-previous-line` | Select the preceding visible entry. |
 | Down, `C-n` in tree | `tree-next-line` | Select the next visible entry. |
-| Right, `C-f` in tree | `tree-expand` | Lazily expand a directory. |
-| Left, `C-b` in tree | `tree-collapse` | Collapse or select the parent. |
+| Right in tree | `tree-scroll-right` | Pan all tree rows right by one column. |
+| Left in tree | `tree-scroll-left` | Pan all tree rows left by one column. |
+| `C-f` in tree | `tree-expand` | Lazily expand a directory. |
+| `C-b` in tree | `tree-collapse` | Collapse or select the parent. |
 | `^` in tree | `tree-up-directory` | Show the parent directory of an unanchored file tree. |
 | `M-x tree-toggle-directory` | `tree-toggle-directory` | Toggle a directory; leaves report an error. |
 | `C-x t r` | `tree-refresh` | Reload already opened tree branches. |
@@ -930,8 +932,10 @@ releases and held acceptance keys cannot submit a newly acquired argument.
 | `M-x` | `execute-extended-command` |
 | Up, `C-p` | `tree-previous-line` |
 | Down, `C-n` | `tree-next-line` |
-| Right, `C-f` | `tree-expand` |
-| Left, `C-b` | `tree-collapse` |
+| Right | `tree-scroll-right` |
+| Left | `tree-scroll-left` |
+| `C-f` | `tree-expand` |
+| `C-b` | `tree-collapse` |
 | `^` | `tree-up-directory` |
 | `RET`, `C-x t o` | `tree-open` |
 | `C-x C-c` | `save-buffers-kill-terminal` |

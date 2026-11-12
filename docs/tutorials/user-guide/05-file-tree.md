@@ -45,7 +45,7 @@ named `notes`; other entries are omitted:
 ```
 
 `◆` identifies the root and `≡` identifies documents. Directories have a `/`
-kind symbol and a separate `▸` disclosure; Right changes it to `▾` and shows
+kind symbol and a separate `▸` disclosure; C-f changes it to `▾` and shows
 the children. Source files use `λ`, configuration files `=`, other files `·`
 and symlinks `@`. The symbols remain useful without color.
 
@@ -65,7 +65,7 @@ where it was and explains the reason. Going up preserves your text, split panes
 and editing context; later file visits still follow their parent directories.
 An explicit directory root stays selected when you visit files elsewhere.
 
-To return to the tree, press `C-x t f`. Right expands a directory; Left
+To return to the tree, press `C-x t f`. C-f expands a directory; C-b
 collapses it or moves to its parent. `C-g` returns to editing while leaving
 the tree visible. `C-x t t` hides it.
 
@@ -95,6 +95,16 @@ width = 24
 Set `auto_width = true` for automatic fitting; `width` then sets its normal
 minimum. A narrow terminal temporarily clamps or hides the panel, and the
 chosen desired width returns when space is available again.
+
+When a name still extends beyond the width cap, use Left/Right in the tree to
+pan all rows one column at a time. The indentation and icons move with the names,
+so deep entries stay aligned. The arrows preserve selection and do not expand a
+directory; use C-f/C-b for expansion/collapse and Enter to open or toggle.
+Pan right to see a name's ending and left to return to its beginning. Position
+survives browsing, focus and hide/show. A wider pane or shorter content clamps
+only excess position. Changing roots or pressing `C-x t =` returns to the start.
+The named commands are `tree-scroll-left` and `tree-scroll-right`; find them with
+M-x or the modal selector, including their effective shortcuts.
 
 You can also open a file directly with `C-x C-f`. Type part of its name and
 use Tab to fill the highlighted suggestion. The first match is highlighted,

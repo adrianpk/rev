@@ -8,6 +8,7 @@ mod presentation;
 mod refresh;
 mod rename;
 mod root;
+mod viewport;
 mod width;
 mod workspace;
 
@@ -35,6 +36,7 @@ pub struct Tree {
     top: usize,
     policy: crate::config::Tree,
     width: width::Width,
+    viewport: viewport::Viewport,
     nerd_fonts: bool,
     explicit_root: bool,
     initialized: bool,
@@ -269,9 +271,9 @@ impl Tree {
             .map(Entry::kind)
     }
 
-    pub(crate) fn line(&self, row: u16, width: u16) -> Result<String, crate::coordinates::Error> {
+    pub(crate) fn line(&self, row: u16) -> Result<String, crate::coordinates::Error> {
         match self.row_entry(row) {
-            Some(entry) => entry.label(width, self.policy.decorated, self.nerd_fonts),
+            Some(entry) => entry.label(self.policy.decorated, self.nerd_fonts),
             None if self.workspace.is_some() && self.entries.is_empty() && row == 0 => {
                 Ok("No roots; workspace-add-directory".into())
             }

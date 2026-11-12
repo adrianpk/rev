@@ -155,7 +155,7 @@ pub enum Command {
 }
 
 impl Command {
-    pub const ALL: [Self; 688] = [
+    pub const ALL: [Self; 690] = [
         Self::Plugin(PluginCommand::List),
         Self::Plugin(PluginCommand::Activate),
         Self::Plugin(PluginCommand::Deactivate),
@@ -513,6 +513,8 @@ impl Command {
         Self::Tree(TreeCommand::Narrow),
         Self::Tree(TreeCommand::ResetWidth),
         Self::Tree(TreeCommand::AutoWidthMode),
+        Self::Tree(TreeCommand::ScrollLeft),
+        Self::Tree(TreeCommand::ScrollRight),
         Self::QueryReplace,
         Self::SearchForward,
         Self::SearchBackward,

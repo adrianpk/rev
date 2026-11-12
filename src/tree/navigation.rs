@@ -54,6 +54,7 @@ impl Tree {
             Err(error) => {
                 if entry.depth == 0 && entry.root_id.is_some() {
                     self.entries[self.selected].unavailable = true;
+                    self.observe_width();
                 }
                 return Err(error);
             }
@@ -91,6 +92,7 @@ impl Tree {
             self.follow_dirty = true;
             self.entries[self.selected].expanded = false;
             self.entries[self.selected].incomplete = false;
+            self.observe_width();
         } else if depth > 0 {
             self.selected = self.entries[..self.selected]
                 .iter()

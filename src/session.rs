@@ -788,6 +788,8 @@ impl Session {
         }
         let tree = composition.and_then(|composition| composition.tree());
         self.tree
+            .clamp_horizontal(tree.map_or(0, |panel| panel.content().width()));
+        self.tree
             .reveal(tree.map_or(0, |panel| panel.content().height()));
         let size = composition.map_or(self.size, |composition| composition.editing_size());
         self.windows.reveal(&self.buffers, size)?;
@@ -1306,6 +1308,7 @@ impl Session {
         if self.tree.resize(self.size) {
             self.focus_message("File tree hidden at this width");
         }
+        self.tree.clamp_horizontal(self.tree_panel_width());
         match self.stop_typing() {
             Ok(()) => Action::Redraw,
             Err(error) => self.error(&error.to_string()),

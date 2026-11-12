@@ -18,6 +18,8 @@ pub enum TreeCommand {
     Narrow,
     ResetWidth,
     AutoWidthMode,
+    ScrollLeft,
+    ScrollRight,
 }
 
 impl TreeCommand {
@@ -36,6 +38,8 @@ impl TreeCommand {
 
     pub fn name(self) -> &'static str {
         match self {
+            Self::ScrollLeft => "tree-scroll-left",
+            Self::ScrollRight => "tree-scroll-right",
             Self::Widen => "tree-widen",
             Self::Narrow => "tree-narrow",
             Self::ResetWidth => "tree-reset-width",
@@ -46,6 +50,8 @@ impl TreeCommand {
 
     pub(crate) fn description(self) -> &'static str {
         match self {
+            Self::ScrollLeft => "Pan all tree rows left by one column.",
+            Self::ScrollRight => "Pan all tree rows right by one column.",
             Self::Widen => "Widen by four columns; retain manual width.",
             Self::Narrow => "Narrow by four columns; retain manual width.",
             Self::ResetWidth => "Restore the configured tree width policy.",

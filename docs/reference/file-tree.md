@@ -170,8 +170,8 @@ clicked cached selection. Selection-only reads no filesystem entries.
 
 ## Traversal and refresh
 
-Up/Down (or C-p/C-n) move through visible entries without wrapping. Right
-(or C-f) expands a directory; Left (or C-b) collapses an expanded directory
+Up/Down (or C-p/C-n) move through visible entries without wrapping. C-f
+expands a directory; C-b collapses an expanded directory
 or selects the visible parent. Enter or `M-x tree-open` toggles a directory or opens a file through the same
 canonical pipeline as `find-file`. Existing visits reuse their live buffers,
 including unsaved text. Successful open returns to the retained editing window;
@@ -199,7 +199,7 @@ Press `^` in the tree or invoke `M-x tree-up-directory` from tree focus to
 show the parent of an automatic root. Both editing profiles use this tree-local
 binding. The directory just left becomes the selected, visible entry; Enter
 expands it to return to its children. Repeating the command moves up another
-level. Left/C-b still collapses or selects a parent already loaded in the tree.
+level. C-b still collapses or selects a parent already loaded in the tree.
 Remap the action through `[keys.tree]`; the command selector shows its effective
 binding. Source-focused invocation reports that the tree is not focused, and
 source caret input retains its ordinary editing behavior.
@@ -376,16 +376,33 @@ with tree focus, or `C-x t >`/`C-x t <` from either tree or source focus.
 Unmodified angle brackets retain ordinary source input behavior.
 
 `C-x t =` or `tree-reset-width` clears session overrides and the old automatic
-mark, then applies the configured policy to the currently expanded model.
+mark and horizontal offset, then applies the configured policy to the currently
+expanded model.
 With `tree.auto_width = false`, `tree.width` is a fixed preferred width;
 reset restores that preference. With true (including omission), it is an
 automatic minimum and reset can fit wider current content.
 
 `tree-auto-width-mode` toggles runtime ownership. Enabling starts a fresh fit
 from the configured minimum; disabling freezes the current desired width.
-All four commands have descriptions and effective shortcut hints in M-x and
+All six viewport commands have descriptions and effective shortcut hints in M-x
+and
 the modal command selector. Runtime width and mode changes never rewrite TOML,
 change selection/root identity or modify source text, point, mark or history.
+
+With tree focus, Left/Right or `tree-scroll-left`/`tree-scroll-right` pan every
+row by one display column, including indentation, disclosure and icons. They
+never open or expand an entry. At the width cap, pan to reveal the end of a long
+or deeply nested name. One shared offset keeps rows aligned; partial wide glyphs
+become spaces, while combining sequences remain whole. Indentation is retained
+at narrow widths so measurement and drawing use the same unpanned row shape.
+
+The offset survives selection, vertical scrolling, focus and hide/show. Wider
+geometry or shorter expanded content clamps only excess offset; folding retains
+the automatic width mark while updating current content bounds. Root/context
+changes and width reset return to the beginning. Mode changes retain position
+when it still fits. Hidden/zero geometry retains position until usable space
+returns. Panning uses cached observations and leaves source/history and row/path
+identities unchanged, including full-row pointer targets and active-file following.
 
 Editing panes divide the remaining width; status,
 selection, search and cursor coordinates use that editing area. The session

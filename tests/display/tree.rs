@@ -82,6 +82,9 @@ fn check_parent_presentation(decorated: bool, nerd_fonts: bool, width: usize) {
             );
         }
     }
+    if width == 6 {
+        check_panned_selection(&mut session, &frame);
+    }
     if width >= 24 {
         check_parent_labels(&frame, decorated, nerd_fonts);
     }
@@ -414,4 +417,23 @@ fn check_monochrome_tree(decorated: bool, nerd_fonts: bool) {
     assert!(!output.contains("38;2;") && !output.contains("48;2;"));
     assert!(output.matches("\x1b[7m").count() >= 4);
     assert!(!session.buffer().unwrap().is_modified());
+}
+
+// A displaced prefix changes text without moving the selected face or cursor.
+// Both catalogs and minimal rows retain the full native six-cell target.
+fn check_panned_selection(session: &mut Session, before: &Frame) {
+    let point = session.view().point;
+    session.execute(Command::Tree(TreeCommand::ScrollRight));
+    let frame = session.frame().unwrap();
+    assert_eq!(session.tree().horizontal_offset(), 1);
+    assert_ne!(frame.rows()[0].text(), before.rows()[0].text());
+    assert_eq!(frame.rows()[2].selection(), Some(0..6));
+    assert_eq!(frame.cursor(), before.cursor());
+    let old = surface::draw(before);
+    let new = surface::draw(&frame);
+    for column in 0..6 {
+        assert_eq!(new[&(2, column)].foreground, old[&(2, column)].foreground);
+        assert_eq!(new[&(2, column)].background, old[&(2, column)].background);
+    }
+    assert_eq!(session.view().point, point);
 }

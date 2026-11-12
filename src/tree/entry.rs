@@ -191,11 +191,10 @@ impl Entry {
 
     pub(super) fn label(
         &self,
-        width: u16,
         decorated: bool,
         nerd_fonts: bool,
     ) -> Result<String, crate::coordinates::Error> {
-        let prefix = self.label_prefix(width, decorated, nerd_fonts)?;
+        let prefix = self.label_prefix(decorated, nerd_fonts)?;
         let name = self
             .root_label
             .as_deref()
@@ -222,7 +221,6 @@ impl Entry {
     }
     fn label_prefix(
         &self,
-        width: u16,
         decorated: bool,
         nerd_fonts: bool,
     ) -> Result<String, crate::coordinates::Error> {
@@ -237,19 +235,19 @@ impl Entry {
             } else {
                 self.kind().symbol(nerd_fonts, self.expanded)
             };
-            super::presentation::Prefix::new(self.depth, width)?.render(disclosure, icon)?
+            super::presentation::Prefix::new(self.depth)?.render(disclosure, icon)?
         } else {
-            self.plain_prefix(width)
+            self.plain_prefix()
         })
     }
-    fn plain_prefix(&self, width: u16) -> String {
+    fn plain_prefix(&self) -> String {
         let marker = match (self.directory, self.expanded, self.symlink) {
             (true, true, _) => "v",
             (true, false, _) => ">",
             (_, _, true) => "@",
             _ => " ",
         };
-        let indent = self.depth.min(usize::from(width.saturating_sub(4)) / 2);
+        let indent = self.depth.min(usize::from(u16::MAX - 4) / 2);
         format!("{}{marker} ", "  ".repeat(indent))
     }
 }

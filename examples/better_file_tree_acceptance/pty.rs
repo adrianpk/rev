@@ -23,14 +23,14 @@ fn journey(
     let started = Instant::now();
     let mut terminal = Terminal::start(root, binary, wrapper, "terminal.txt")?;
     let labels = focus_tree(&mut terminal, profile, nerd_fonts)?;
-    width_controls(&mut terminal)?;
+    viewport_controls(&mut terminal, &labels)?;
     activate_file(&mut terminal, &labels)?;
     resize_tree(&mut terminal, &labels)?;
     terminal.idle()?;
     terminal.finish()?;
     retained_files(root, &config)?;
     println!(
-        "PASS Linux PTY {profile}: root/directory symbols, arrow expansion, local/prefixed width controls, icon-cell file activation, 40/31/64-column resize, idle, unchanged disk/configuration and restored TTY; elapsed_ms={} output_bytes={}",
+        "PASS Linux PTY {profile}: root/directory symbols, arrow panning, control expansion, shared deep/long viewport, local/prefixed width controls, icon-cell file activation, 40/31/64-column resize, idle, unchanged disk/configuration and restored TTY; elapsed_ms={} output_bytes={}",
         started.elapsed().as_millis(),
         terminal.bytes()
     );
@@ -38,17 +38,31 @@ fn journey(
 }
 
 fn prepare(root: &Path, profile: &str, nerd_fonts: bool) -> Result<String> {
-    for directory in ["workspace/folder", "pty/home", "pty/config/rev"] {
+    for directory in [
+        "workspace/folder/zdeep/nested",
+        "pty/home",
+        "pty/config/rev",
+    ] {
         std::fs::create_dir_all(root.join(directory))?;
     }
     let config = format!(
         "{}[gutter]\nvisible=false\nnerd_fonts={nerd_fonts}\n[bookmarks]\nmarkers=false\n",
-        crate::support::config(profile)
-            .replace("visible=false", "visible=false\nwidth=18\nmax_fraction=0.5")
+        crate::support::config(profile).replace(
+            "visible=false",
+            "visible=false\nauto_width=false\nwidth=18\nmax_fraction=0.5"
+        )
     );
     std::fs::write(root.join("workspace/terminal.txt"), DOCUMENT)?;
     std::fs::write(root.join("workspace/other.txt"), "other document\n")?;
     std::fs::write(root.join("workspace/folder/child.txt"), "child\n")?;
+    std::fs::write(
+        root.join("workspace/folder/zdeep/nested/a-very-long-nested-name-ending.txt"),
+        "nested\n",
+    )?;
+    std::fs::write(
+        root.join("workspace/z-shallow-long-name-ending.txt"),
+        "shallow\n",
+    )?;
     std::fs::write(root.join("pty/config/rev/config.toml"), &config)?;
     std::fs::write(root.join("pty/size"), "40 12\n")?;
     Ok(config)
@@ -98,9 +112,9 @@ fn focus_tree(terminal: &mut Terminal, profile: &str, nerd_fonts: bool) -> Resul
             && row(frame, 2).starts_with(labels.parent)
             && row(frame, 3).starts_with(closed)
     })?;
-    terminal.send(b"\x1b[B\x1b[B\x1b[C")?;
+    terminal.send(b"\x1b[B\x1b[B\x06")?;
     terminal
-        .frame(|frame| row(frame, 3).starts_with(open) && row(frame, 4).contains("child.txt"))?;
+        .frame(|frame| row(frame, 3).starts_with(open) && row(frame, 5).contains("child.txt"))?;
     Ok(labels)
 }
 fn width_controls(terminal: &mut Terminal) -> Result<()> {
@@ -117,10 +131,54 @@ fn width_controls(terminal: &mut Terminal) -> Result<()> {
     Ok(())
 }
 
+fn viewport_controls(terminal: &mut Terminal, labels: &Labels) -> Result<()> {
+    width_controls(terminal)?;
+    horizontal_viewport(terminal, labels)
+}
+
+// Actual arrows share the capped viewport across shallow and deep rows. The
+// control routes alone expand/fold; reset returns every row to its beginning.
+fn horizontal_viewport(terminal: &mut Terminal, labels: &Labels) -> Result<()> {
+    terminal.send(b"\x18t>\x1b[C")?;
+    terminal
+        .frame(|frame| row(frame, 1).starts_with(" ") && row(frame, 5).contains("child.txt"))?;
+    terminal.send(b"\x1b[D")?;
+    terminal.frame(|frame| row(frame, 1).starts_with(labels.root_label))?;
+    terminal.send(b"\x1b[B\x06\x1b[B\x06")?;
+    terminal.frame(|frame| row(frame, 6).contains("a-very-l"))?;
+    pan_ends(terminal, labels)?;
+    reset_and_fold(terminal, labels)
+}
+
+fn pan_ends(terminal: &mut Terminal, labels: &Labels) -> Result<()> {
+    terminal.send("\x1b[C".repeat(80).as_bytes())?;
+    terminal.frame(|frame| {
+        row(frame, 6)
+            .split('│')
+            .next()
+            .is_some_and(|label| label.ends_with("-ending.txt"))
+            && row(frame, 1).starts_with("                    │")
+            && row(frame, 10).contains("ending.txt")
+    })?;
+    terminal.send("\x1b[D".repeat(80).as_bytes())?;
+    terminal.frame(|frame| {
+        row(frame, 1).starts_with(labels.root_label) && row(frame, 6).contains("a-very-l")
+    })?;
+    Ok(())
+}
+
+fn reset_and_fold(terminal: &mut Terminal, labels: &Labels) -> Result<()> {
+    terminal.send(b"\x1b[C\x1b[C\x18t=")?;
+    terminal.frame(|frame| row(frame, 1).starts_with(labels.root_label))?;
+    terminal.send(b"\x02\x02\x02")?;
+    terminal.frame(|frame| row(frame, 6).contains("other.txt") && !frame.contains("a-very-l"))?;
+    Ok(())
+}
+
 fn activate_file(terminal: &mut Terminal, labels: &Labels) -> Result<()> {
     let root_label = labels.root_label;
     // The kind field is part of the existing full-row activation target.
-    terminal.send(b"\x1b[<0;5;5M\x1b[<0;5;5m")?;
+    terminal.send(b"\x1b[<0;5;6M\x1b[<0;5;6m")?;
     terminal.frame(|frame| {
         row(frame, 1).starts_with(root_label) && row(frame, 1).contains("other document")
     })?;
@@ -148,6 +206,11 @@ fn retained_files(root: &Path, config: &str) -> Result<()> {
         ("terminal.txt", DOCUMENT),
         ("other.txt", "other document\n"),
         ("folder/child.txt", "child\n"),
+        (
+            "folder/zdeep/nested/a-very-long-nested-name-ending.txt",
+            "nested\n",
+        ),
+        ("z-shallow-long-name-ending.txt", "shallow\n"),
     ] {
         assert_eq!(
             std::fs::read_to_string(root.join("workspace").join(name))?,

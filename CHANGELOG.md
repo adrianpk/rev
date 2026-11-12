@@ -14,7 +14,9 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
   > / < or C-x t > / C-x t <, reset with C-x t =, and toggle fitting with
   tree-auto-width-mode. Manual choices survive browsing and terminal resizing.
   Set tree.auto_width to false for a fixed startup preference; runtime controls
-  leave your configuration file unchanged.
+  leave your configuration file unchanged. Pan all rows with Left/Right to reveal
+  long or deeply nested names at the width cap. C-f/C-b still expand/collapse
+  directories, and Enter opens files or toggles directories.
 
 - Inspect explicitly configured experimental plugins and find their qualified
   commands in M-x and the modal selector without starting their programs.

@@ -109,6 +109,12 @@ impl Session {
         self.tree_entry(command)
     }
 
+    pub(super) fn tree_panel_width(&self) -> u16 {
+        self.composition()
+            .and_then(|composition| composition.tree())
+            .map_or(0, |panel| panel.content().width())
+    }
+
     fn tree_width_command(&mut self, command: TreeCommand) -> bool {
         match command {
             TreeCommand::Widen => self.tree.adjust_width(true),
@@ -117,6 +123,7 @@ impl Session {
             TreeCommand::AutoWidthMode => self.tree.toggle_auto_width(),
             _ => return false,
         }
+        self.tree.clamp_horizontal(self.tree_panel_width());
         true
     }
 
@@ -229,6 +236,14 @@ impl Session {
     fn tree_navigation(&mut self, command: TreeCommand) -> Action {
         if !self.tree.focused() {
             return self.message("File tree is not focused");
+        }
+        if let Some(right) = match command {
+            TreeCommand::ScrollLeft => Some(false),
+            TreeCommand::ScrollRight => Some(true),
+            _ => None,
+        } {
+            self.tree.pan(right, self.tree_panel_width());
+            return self.message("File tree viewport updated");
         }
         let result = self.navigate_tree(command);
         match result {

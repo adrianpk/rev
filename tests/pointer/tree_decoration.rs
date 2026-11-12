@@ -114,8 +114,13 @@ fn cached_viewport() {
             fixture.write(&format!("root/{index:02}-界é.txt"), "cached");
         }
         let mut session = editor(&fixture, decorated, nerd_fonts, false, 9);
+        session.execute(Command::Tree(TreeCommand::Focus));
         let root_hit = session.tree().hit(0).unwrap();
         std::fs::remove_dir_all(fixture.0.join("root")).unwrap();
+        for _ in 0..4 {
+            session.execute(Command::Tree(TreeCommand::ScrollRight));
+        }
+        assert_eq!(session.tree().horizontal_offset(), 4);
         let wheel = Event::Mouse(MouseEvent {
             kind: MouseEventKind::ScrollDown,
             column: 4,
@@ -154,6 +159,7 @@ fn cached_viewport() {
         session.handle(Event::Resize(100, 10));
         assert!(session.tree().focused());
         assert_eq!(session.tree().hit(0), Some(current));
+        assert_eq!(session.tree().horizontal_offset(), 4);
         session.frame().unwrap();
         assert!(!session.buffer().unwrap().is_modified());
     }
