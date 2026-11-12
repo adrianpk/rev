@@ -1,6 +1,7 @@
 # Architecture Quality and Commit Checks
 
-Status: Approved
+Status: Completed
+Completed: 2026-11-12
 Date: 2026-11-09
 Version: 0.1
 Format: OpenSpec capability specification
@@ -198,3 +199,14 @@ native workspace tests, hook partial-staging/concurrency cases, SDK docs, Markdo
 and generated Spore checks. Recheck the review against final code and identify
 remaining limitations truthfully. One successful exact integrated gate permits
 only the configured Markdown closure. Main/release/mirror actions stay separate.
+
+## Delivery evidence
+
+AQL01-AQL06 are Completed through all ten integrated slices and three bounded
+gate repairs. The unchanged controller gate passed on clean candidate
+`5625b0dbd5648ca81c888a19ad1faedc5241524d` in validation `6XRS3YAETTKWUXPPWZ7L323GHI`.
+The [review closure](../report/rev-architecture-nit-review.md#review-limits-and-remediation-closure)
+resolves F1-F7; the [Slice 10 closure](../report/slices/rev-architecture-quality/slice-10-enforcement.md#delivery-set-closure)
+records full-workspace lint, native tests, exact staged-index checks, local hook
+installation, SDK docs, Markdown/Spore and independent Go interoperability.
+The criteria map and all frozen requirements remain unchanged.

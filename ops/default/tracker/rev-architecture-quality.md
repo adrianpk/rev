@@ -1,6 +1,7 @@
 # Architecture Quality Tracker
 
-Status: In progress
+Status: Completed
+Completed: 2026-11-12
 Date: 2026-11-09
 Delivery set: rev-architecture-quality
 Slice strategy: behavior-first
@@ -9,7 +10,7 @@ Planning baseline: abbf0c21eeae1680c02c7a477fa0894d7996a393
 Specification: [Architecture Quality and Commit Checks](../spec/editor-architecture-quality.md)
 Review: [Architecture and Ownership Nit Review](../report/rev-architecture-nit-review.md)
 Concern: [Pending Editor Work](../README.md)
-Active slice: none; all ten slices integrated, controller full gate pending
+Active slice: none; all ten slices integrated and accepted
 Plan: [Architecture Quality Delivery](../plan/rev-architecture-quality.md)
 Execution authorized: one ten-slice Looper run, automatic canonical integration into dev and local hook setup
 Progress owner: selected Looper run; no second runtime tracker
@@ -30,6 +31,10 @@ Progress owner: selected Looper run; no second runtime tracker
 | Slice 10 | Staged enforcement and acceptance | chore/rev-architecture-quality-10-enforcement | chore(lint): enforce strict staged commit checks and document architecture rules | ops/default/report/slices/rev-architecture-quality/slice-10-enforcement.md |
 
 ## Slice tasks
+
+The entries below retain their slice-time measurements and correction history.
+All slices and repairs are delivered; final acceptance is recorded in
+[Final gate and closure](#final-gate-and-closure).
 
 ## Slice 1: Quality foundation
 
@@ -173,8 +178,8 @@ PR: #23 - https://forge.adrianpk.com/rev/rev/pulls/23
 Report: ops/default/report/slices/rev-architecture-quality/slice-9-fixtures.md
 Integrated: 1faac03dee6c434fca043fcfb3cd374468038c4d through canonical PR #23
 Final validation: all five frozen checks passed in 5YBIGE4TEDA4NXJB4RNFFCAX2A on that clean published HEAD
-Validation: all five frozen commands passed in order on clean published implementation HEAD 5a2d56a3d858484a1bc6afa1ae6614b046e72099: scoped quality has zero blocking Clippy diagnostics and zero source findings across 704 selected files and 70 roots; all 400 command/macro/plugin cases, the SDK doc test and documentation catalogs/pages/links pass. All 2889 existing test identities and 19672 assertion sites are preserved. Canonical PR #23 uses the approved title/branch and immutable report link. PR-reference validation 67BIF33WCHYITLZILMJUMWYVWF on 3bd8ac436a933cf0998f3c84d8c2f4159f320256 passed quality but failed signed_movement (203 command cases passed, one failed). The bounded fixture correction now services cooperative counted movement through its existing settle helper; all 28 prefix cases pass with assertions, inputs and deadlines preserved. Fresh unchanged ordered Looper validation is required for the corrected candidate before controller acceptance.
-Progress: measured all 704 selected Rust files and 70 Cargo roots. The first ownership cohort reduces blocking Clippy diagnostics from 201 to 99 by making shared clones explicit, moving unused fixture values and preserving eager concurrent startup before joins. Test identities, assertion-site counts, snapshot/consent/resource contracts and deadlines remain unchanged. No selected clone_on_ref_ptr, redundant_clone or needless_collect findings remain; four selected-profile diagnostics stay deferred outside this scope. The second cohort resolves the remaining selected Clippy diagnostics with borrowed configuration/RPC/capture/catalog/key-phase observations and checked numeric fixture conversions. Informational executable-size ratios retain three narrow reasoned precision expectations; all resource assertions and exact byte measurements remain unchanged. All original input literals, case identities and assertion-site counts are preserved across its 62 source files. The publication/probe cohort clears nine source findings through explicit Markdown/output phases and owned native probe timings; both remaining Cargo-root safety declarations are present. Existing publication/catalog unit bodies and wrapping inputs/order are unchanged. All 13 unit cases and five bounded wrapping scenarios pass, and all 279 canonical publication output files match the clean baseline byte for byte. The geometry cohort clears 20 more source findings through independent policy/viewport setup and frame, palette, label and hit-map checks. All 59 existing case identities, 487 assertion sites and text/numeric literal multiplicities remain unchanged in its 12 Rust files; all 260 affected native cases pass with the original bounds. The dispatch cohort clears 12 more source findings through route, chord replay, generated-buffer frame, counted-row reference, click-policy and parent-fault checks. Its 11 Rust files preserve all 115 existing case identities, 668 assertion sites and text/numeric literal multiplicities; all 11 affected native cases pass, including complete direct/named command parity. The admission cohort clears seven more source findings through explicit configuration combinations, competing writes, capacity/staging fixtures, artwork checks and grammar/query catalogs. Its six Rust files preserve all 39 existing case identities, 342 assertion sites and text/numeric literal multiplicities; all seven affected native cases pass with the original resource and retention boundaries. The Git/exit cohort clears 14 more source findings through explicit conflict, captured-review, index/metadata, autosquash, worktree/control and cleanup phases. Its 12 Rust files preserve all 69 existing case identities, 593 assertion sites and text/numeric literal multiplicities; all 13 affected native cases and the final path-borrow recheck pass with original consent, limits and deadlines. The LSP cohort clears five more source findings through borrowed marked documents, local/connection resolve retirement, controlled installer fault preparation and native launch-restoration checks. Its five Rust files preserve all 27 existing case identities, 193 assertion sites and text/numeric literal multiplicities; all 85 LSP/offline installer cases and the final 22-case borrow recheck pass, with the three existing explicit upstream-acquisition ignores unchanged. The plugin cohort clears all ten remaining test-source findings through explicit PTY/workload/idle phases, borrowed keymap setup, oversized store catalogs and separate raw buffer/event/SDK peer owners. Its five Rust files preserve all 15 case identities, 92 assertion sites and text/numeric literal multiplicities; all 86 plugin cases and all 582 selected test/SDK-test source files pass with original wire, consent, callback, deadline and resource boundaries. The tree/gutter example cohort clears 13 more source findings through explicit configuration, workspace/style/hit-map, geometry, copy and PTY phases. All 75 assertion sites and text/numeric literal multiplicities remain unchanged across five example files. Gutter native and both PTY profiles pass before/after; all four file-tree NO_COLOR settings pass with identical output. File-tree native/PTY fixed-row expectation failures already exist at c3428be18edabe81aaa828c883331449ea0ae200 and remain unchanged, with an identical native failed assertion and byte-identical PTY diagnostic. The ranking/hint example cohort clears ten more source findings through explicit promotion, recall, restart/paired dispatch, Org origins, palette geometry and modal-equivalence phases. All 99 assertion sites and text/numeric literal multiplicities remain unchanged across six Rust files. Ranking restart journeys under both profiles and paired publishers pass before/after with original process, idle and time/byte bounds. Ranking native and hint native/PTY expectation failures already exist at cf448f6940a5e906f74c65aace8b5a0b8cdc7731 and remain unchanged; native failed assertions/values match and hint PTY failure diagnostics are byte-identical. The wrapping-navigation cohort clears three more source findings through directory/file/split, visual editing/search, resize/wrap and bounded reader/PTY phases. Both Rust files preserve all 58 assertion sites and text/numeric literal multiplicities. Its real PTY journey passes before/after with original eight-second/1-MiB ownership, 350-ms idle assertion and unchanged inputs; both runs emit 75,608 output bytes. The native directory-buffer expectation already fails at 590ea30976e9abff0b0e1e22b1d055dee29cb0b0 and retains the same assertion and BufferId values. The bookmark example cohort clears four source findings through explicit native record/store/source lifecycle, measured projection/relocation and PTY restart phases. Three Rust files preserve all 80 assertion sites and text/numeric literal multiplicities. Native, 1,024-record resource and real restart PTY journeys pass before/after with original cancellation, session-drop, 512-batch/128-pass and eight-second/1-MiB boundaries. The Projects/Workspaces cohort clears 11 source findings through catalog seeding, owned storage publication, native cancellation/restore/capture and serial PTY startup/membership/conversion/restart phases. Three Rust files preserve all 81 assertion sites and text/numeric literal multiplicities. Native resource/capacity/retirement and non-modal PTY checks pass before/after with identical catalog/output byte totals. The modal PTY retains the existing eight-second deadline failure; final frame diagnostics differ, and no bound or expectation is relaxed. The Pi/interoperability cohort clears the last five source findings through explicit fixture/configuration, native reload/history/reset, bounded PTY and owned source/result lifecycle phases. Five Rust files preserve all 75 assertion sites and text/numeric literal multiplicities. Both native Pi profiles, both Pi PTYs and existing-client interoperability pass before/after with unchanged bounds; manual live mode is not executed. All 704 selected files and 70 roots now pass scoped quality, with all 2889 existing test identities and 19672 assertion sites preserved per file. All five frozen checks pass on the clean implementation HEAD, and canonical PR #23 is open against dev. The first PR-reference run exposed an immediate-position observation in the unchanged signed-movement fixture; five existing settle calls correct that observation, and all 28 prefix cases pass. Fresh final-HEAD validation and controller review/integration follow.
+Validation: all five frozen commands passed in order on clean published implementation HEAD 5a2d56a3d858484a1bc6afa1ae6614b046e72099: scoped quality has zero blocking Clippy diagnostics and zero source findings across 704 selected files and 70 roots; all 400 command/macro/plugin cases, the SDK doc test and documentation catalogs/pages/links pass. All 2889 existing test identities and 19672 assertion sites are preserved. Canonical PR #23 uses the approved title/branch and immutable report link. PR-reference validation 67BIF33WCHYITLZILMJUMWYVWF on 3bd8ac436a933cf0998f3c84d8c2f4159f320256 passed quality but failed signed_movement (203 command cases passed, one failed). The bounded fixture correction now services cooperative counted movement through its existing settle helper; all 28 prefix cases pass with assertions, inputs and deadlines preserved. Final unchanged ordered validation 5YBIGE4TEDA4NXJB4RNFFCAX2A passed on integrated HEAD 1faac03dee6c434fca043fcfb3cd374468038c4d; PR #23 is merged.
+Progress: measured all 704 selected Rust files and 70 Cargo roots. The first ownership cohort reduces blocking Clippy diagnostics from 201 to 99 by making shared clones explicit, moving unused fixture values and preserving eager concurrent startup before joins. Test identities, assertion-site counts, snapshot/consent/resource contracts and deadlines remain unchanged. No selected clone_on_ref_ptr, redundant_clone or needless_collect findings remain; four selected-profile diagnostics stay deferred outside this scope. The second cohort resolves the remaining selected Clippy diagnostics with borrowed configuration/RPC/capture/catalog/key-phase observations and checked numeric fixture conversions. Informational executable-size ratios retain three narrow reasoned precision expectations; all resource assertions and exact byte measurements remain unchanged. All original input literals, case identities and assertion-site counts are preserved across its 62 source files. The publication/probe cohort clears nine source findings through explicit Markdown/output phases and owned native probe timings; both remaining Cargo-root safety declarations are present. Existing publication/catalog unit bodies and wrapping inputs/order are unchanged. All 13 unit cases and five bounded wrapping scenarios pass, and all 279 canonical publication output files match the clean baseline byte for byte. The geometry cohort clears 20 more source findings through independent policy/viewport setup and frame, palette, label and hit-map checks. All 59 existing case identities, 487 assertion sites and text/numeric literal multiplicities remain unchanged in its 12 Rust files; all 260 affected native cases pass with the original bounds. The dispatch cohort clears 12 more source findings through route, chord replay, generated-buffer frame, counted-row reference, click-policy and parent-fault checks. Its 11 Rust files preserve all 115 existing case identities, 668 assertion sites and text/numeric literal multiplicities; all 11 affected native cases pass, including complete direct/named command parity. The admission cohort clears seven more source findings through explicit configuration combinations, competing writes, capacity/staging fixtures, artwork checks and grammar/query catalogs. Its six Rust files preserve all 39 existing case identities, 342 assertion sites and text/numeric literal multiplicities; all seven affected native cases pass with the original resource and retention boundaries. The Git/exit cohort clears 14 more source findings through explicit conflict, captured-review, index/metadata, autosquash, worktree/control and cleanup phases. Its 12 Rust files preserve all 69 existing case identities, 593 assertion sites and text/numeric literal multiplicities; all 13 affected native cases and the final path-borrow recheck pass with original consent, limits and deadlines. The LSP cohort clears five more source findings through borrowed marked documents, local/connection resolve retirement, controlled installer fault preparation and native launch-restoration checks. Its five Rust files preserve all 27 existing case identities, 193 assertion sites and text/numeric literal multiplicities; all 85 LSP/offline installer cases and the final 22-case borrow recheck pass, with the three existing explicit upstream-acquisition ignores unchanged. The plugin cohort clears all ten remaining test-source findings through explicit PTY/workload/idle phases, borrowed keymap setup, oversized store catalogs and separate raw buffer/event/SDK peer owners. Its five Rust files preserve all 15 case identities, 92 assertion sites and text/numeric literal multiplicities; all 86 plugin cases and all 582 selected test/SDK-test source files pass with original wire, consent, callback, deadline and resource boundaries. The tree/gutter example cohort clears 13 more source findings through explicit configuration, workspace/style/hit-map, geometry, copy and PTY phases. All 75 assertion sites and text/numeric literal multiplicities remain unchanged across five example files. Gutter native and both PTY profiles pass before/after; all four file-tree NO_COLOR settings pass with identical output. File-tree native/PTY fixed-row expectation failures already exist at c3428be18edabe81aaa828c883331449ea0ae200 and remain unchanged, with an identical native failed assertion and byte-identical PTY diagnostic. The ranking/hint example cohort clears ten more source findings through explicit promotion, recall, restart/paired dispatch, Org origins, palette geometry and modal-equivalence phases. All 99 assertion sites and text/numeric literal multiplicities remain unchanged across six Rust files. Ranking restart journeys under both profiles and paired publishers pass before/after with original process, idle and time/byte bounds. Ranking native and hint native/PTY expectation failures already exist at cf448f6940a5e906f74c65aace8b5a0b8cdc7731 and remain unchanged; native failed assertions/values match and hint PTY failure diagnostics are byte-identical. The wrapping-navigation cohort clears three more source findings through directory/file/split, visual editing/search, resize/wrap and bounded reader/PTY phases. Both Rust files preserve all 58 assertion sites and text/numeric literal multiplicities. Its real PTY journey passes before/after with original eight-second/1-MiB ownership, 350-ms idle assertion and unchanged inputs; both runs emit 75,608 output bytes. The native directory-buffer expectation already fails at 590ea30976e9abff0b0e1e22b1d055dee29cb0b0 and retains the same assertion and BufferId values. The bookmark example cohort clears four source findings through explicit native record/store/source lifecycle, measured projection/relocation and PTY restart phases. Three Rust files preserve all 80 assertion sites and text/numeric literal multiplicities. Native, 1,024-record resource and real restart PTY journeys pass before/after with original cancellation, session-drop, 512-batch/128-pass and eight-second/1-MiB boundaries. The Projects/Workspaces cohort clears 11 source findings through catalog seeding, owned storage publication, native cancellation/restore/capture and serial PTY startup/membership/conversion/restart phases. Three Rust files preserve all 81 assertion sites and text/numeric literal multiplicities. Native resource/capacity/retirement and non-modal PTY checks pass before/after with identical catalog/output byte totals. The modal PTY retains the existing eight-second deadline failure; final frame diagnostics differ, and no bound or expectation is relaxed. The Pi/interoperability cohort clears the last five source findings through explicit fixture/configuration, native reload/history/reset, bounded PTY and owned source/result lifecycle phases. Five Rust files preserve all 75 assertion sites and text/numeric literal multiplicities. Both native Pi profiles, both Pi PTYs and existing-client interoperability pass before/after with unchanged bounds; manual live mode is not executed. All 704 selected files and 70 roots now pass scoped quality, with all 2889 existing test identities and 19672 assertion sites preserved per file. All five frozen checks pass on the clean implementation HEAD; canonical PR #23 is now merged into dev. The first PR-reference run exposed an immediate-position observation in the unchanged signed-movement fixture; five existing settle calls correct that observation, and all 28 prefix cases pass. Final-HEAD validation 5YBIGE4TEDA4NXJB4RNFFCAX2A passed and controller integration is complete.
 
 - [x] T9.1: Resolve remaining selected diagnostics and existing source bounds in native test and example code, including every Cargo root and shared fixture ownership.
 - [x] T9.2: Keep existing case identities, semantic/resource/PTY assertions and varied Unicode/numeric inputs; extract cohesive setup/check steps instead of hiding branches in macros, closures or unrelated parameter bundles.
@@ -198,10 +203,10 @@ Validation: all five frozen commands passed through Looper on clean published HE
 
 ## Gate preparation
 
-All ten original slice PRs (#15-#24) and gate repair PR #25 are merged into dev.
-All ten slice reports and the repair tracker entry are delivered. The delivery
-set remains in progress until controller acceptance and the permitted Markdown
-closure.
+All ten original slice PRs (#15-#24) and all three repair PRs (#25-#27) are merged
+into dev. All ten reports and thirteen tracker entries are delivered. The
+preparation and repair evidence below is historical; final controller acceptance
+and Markdown closure are recorded at the end of this tracker.
 
 `make install-hooks` has activated repository-local `core.hooksPath=.githooks`.
 Primary and linked-worktree hook resolution are verified. The existing default
@@ -233,8 +238,9 @@ Validation `ONIP3HX6U5DVGAISU2XIF4CJ46` on clean published correction HEAD
 commands: full strict lint, all 28 hook cases, documentation, User Guide build and
 whitespace. Coverage is 1,837 first-party Rust files, both packages and all 73
 Cargo roots, with zero blocking/deferred Clippy diagnostics or source findings.
-Preparation evidence is keyed by the exact clean published HEAD. The controller
-must run the unchanged full gate; no full-gate result has been accepted.
+Preparation evidence is keyed by the exact clean published HEAD. That preparation
+did not establish full-gate acceptance; the successful controller result is
+recorded in Final gate and closure below.
 
 ## Gate repair 1: Owned Git cleanup
 
@@ -320,7 +326,7 @@ cases pass, and all 44 focused context cases pass. The canonical five cover 14
 process tests, nine Git conflict cases, quality, documentation and diff checks.
 PR #26 is verified merged; both gate repairs and all ten slices are delivered.
 No test, assertion, runtime file, resource limit or delivery identity changes
-during this document closure. The controller full gate remains pending.
+during that repair-document closure. The final controller gate is accepted below.
 
 ## Gate repair 3: Denied tree entry identity
 
@@ -360,14 +366,44 @@ Canonical PR #27 is verified merged into dev with the pinned identity, immutable
 report link and five unique successful commands. Its final clean-HEAD record
 passes all 26 recovery cases in 20.86 seconds and all seven parent-navigation
 cases in 8.06 seconds, with no ignores. All three repairs and all ten slices are
-delivered; the delivery set remains in progress pending the controller's unchanged
-full gate. Preparation changes only delivered-document entries and prerequisites.
+delivered. That preparation changed only delivered-document entries and
+prerequisites; the controller's unchanged full gate subsequently passed as below.
 
 ## Final acceptance
 
-- [ ] F1-F7 and complete selected source/lint findings corrected with evidence.
-- [ ] Exact staged-index, partial-staging, conflict and concurrent-check journeys pass without content changes.
-- [ ] Final workspace profile covers both packages/all applicable targets; no baselines or broad suppressions.
-- [ ] Integrated strict lint/hook checks pass and local hook installation is verified.
-- [ ] The unchanged full gate passed on the exact clean integrated candidate.
-- [ ] Ten reports delivered and permitted Markdown closure committed/pushed.
+- [x] F1-F7 and complete selected source/lint findings corrected with evidence.
+- [x] Exact staged-index, partial-staging, conflict and concurrent-check journeys pass without content changes.
+- [x] Final workspace profile covers both packages/all applicable targets; no baselines or broad suppressions.
+- [x] Integrated strict lint/hook checks pass and local hook installation is verified.
+- [x] The unchanged full gate passed on the exact clean integrated candidate.
+- [x] Ten reports delivered and permitted Markdown closure committed/pushed.
+
+## Final gate and closure
+
+Completed on 2026-11-12. The controller passed all eight unchanged integrated gate
+stages, in their frozen order, on clean published candidate
+`5625b0dbd5648ca81c888a19ad1faedc5241524d`, validation `6XRS3YAETTKWUXPPWZ7L323GHI`.
+The immutable evidence record and log share that candidate; the log basename is
+`5625b0dbd5648ca81c888a19ad1faedc5241524d.6XRS3YAETTKWUXPPWZ7L323GHI.log`.
+The [Slice 10 closure](../report/slices/rev-architecture-quality/slice-10-enforcement.md#delivery-set-closure)
+records the complete results and limits.
+
+- Strict lint covers 1,838 first-party Rust files, both packages and all 73 Cargo
+  roots, with zero blocking/deferred Clippy diagnostics or source findings.
+- All 28 exact staged-index/hook cases pass, including both partial-staging
+  directions, conflicts, changed index/export and independent linked-worktree
+  concurrency. Repository-local `core.hooksPath=.githooks` remains active.
+- All-target native tests pass: 3,078 top-level cases plus seven nested child
+  runs, zero failures. The three existing opt-in upstream-acquisition ignores
+  remain unchanged. SDK documentation adds one passing doctest.
+- Documentation checks pass for 684 commands, 299 configuration entries,
+  106 reachable pages and 743 local links/anchors. The Spore User Guide build,
+  both-profile independent Go interoperability and `git diff --check` pass.
+- F1-F7 are resolved in the original review; all ten reports remain delivered.
+  Only configured Markdown closure paths differ from the tested candidate.
+
+No owned test fixtures remain active at closure. Per-worktree build caches and
+unrelated files are preserved. The existing foreign dependency warning and
+standalone example limitations remain documented; the full gate does not claim
+manual editor acceptance or execute every example's custom entrypoint. Main,
+release, mirror and publication actions are outside this completed set.

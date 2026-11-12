@@ -136,11 +136,15 @@ All five frozen commands also passed once through the controller's validate
 command on clean published HEAD 2ff6786409c13793f0e1665ccf153fe72d8a2f42.
 Canonical PR #16 merged that exact head into dev.
 
+Delivery-set acceptance: the unchanged controller gate passed on clean candidate
+`5625b0dbd5648ca81c888a19ad1faedc5241524d` in validation `6XRS3YAETTKWUXPPWZ7L323GHI`.
+See the [final results and limits](slice-10-enforcement.md#delivery-set-closure).
+
 ## Risks and Follow-ups
 
-Other owners' selected-profile and source cleanup remain in their approved
-slices. Inherited workspace lints, staged-index enforcement, hook activation and
-the full integrated gate remain later delivery work. A passing linter does not
-prove domain ownership or absence of bugs. The existing vendored dependency
+Later slices completed other owners' selected-profile/source cleanup, inherited
+workspace lints and staged-index enforcement. Hook activation and the integrated
+gate are accepted in the delivery-set closure linked above. A passing linter does
+not prove domain ownership or absence of bugs. The existing vendored dependency
 warning remains outside first-party ownership. Public protocol/state versions,
 resource limits and regression assertions are retained; no dependency is added.

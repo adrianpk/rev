@@ -15,12 +15,12 @@ Gate repair 2 branch: `fix/rev-architecture-quality-git-cleanup-2`
 Gate repair 2 PR: [#26](https://forge.adrianpk.com/rev/rev/pulls/26)
 Gate repair 2 implementation: `0e8cf144aba9360b585df103fc85043309fecd2f`
 Gate repair 2 integrated: `ab813819e0e53f246660ac8fd702609e743b3dfb` through canonical PR #26.
-Gate repair 2 state: delivered; controller full gate pending.
+Gate repair 2 state: delivered; accepted in the final controller gate.
 Gate repair 3 branch: `fix/rev-architecture-quality-recovery-paths-3`
 Gate repair 3 PR: [#27](https://forge.adrianpk.com/rev/rev/pulls/27)
 Gate repair 3 implementation: `82160a02e730e2f8f202ad28a8f06884735e6ac2`
 Gate repair 3 integrated: `fdc7ab4f70216a7a2035a234dd7b8568f7c2b46c` through canonical PR #27.
-Gate repair 3 state: delivered; controller full gate pending.
+Gate repair 3 state: delivered; accepted in the final controller gate.
 
 ## Purpose
 
@@ -111,7 +111,7 @@ No Git fixture assertion, timeout, input or repository-state check is changed.
 - Added exact staged candidate and private-cache commit enforcement. Authorized
   prepare_gate setup has installed the hooks; the final gate remains controller-owned.
 
-Review reconciliation before controller acceptance:
+Review reconciliation confirmed by final controller acceptance:
 
 | Finding | Current evidence |
 | --- | --- |
@@ -207,14 +207,14 @@ and integrated HEAD `ab30c95e4a164a54bcc3db606e2d4f4340335ea9` in validation
 
 ## Risks and Follow-ups
 
-The controller must execute the unchanged full gate before delivery-set closure.
-Local hook activation is verified; the delivery set remains in progress.
-No main/release/publication
-operation is included. Foreign vendored compiler warnings remain visible and are
+The unchanged controller gate passed; final results and evidence limits are in
+Delivery-set closure below. Repository-local hook activation is verified.
+No main/release/publication operation is included. Foreign vendored compiler
+warnings remain visible and are
 outside first-party lint admission. New native behavior and test coverage are not
 claimed from static lint success.
 The gate repair is integrated with exact clean PR-HEAD evidence recorded through
-Looper. The controller must rerun the unchanged full gate before set closure.
+Looper. The final controller rerun is accepted in Delivery-set closure below.
 
 ### Gate repair 2 directory acceptance
 
@@ -317,9 +317,9 @@ also pass on the clean published and integrated final HEAD
 `3AUW5YLBWRCVKOZELSH4QOCW2D`, including all 26 recovery cases (20.86 seconds)
 and all seven parent-navigation cases (8.06 seconds), with no ignores.
 Forgejo confirms PR #27 is merged into dev at that exact HEAD. All three gate
-repairs and all ten reports are delivered; the delivery set remains in progress.
-The controller owns the unchanged full gate. Fresh prerequisite evidence is
-recorded against the clean document-closure HEAD before returning it for that gate.
+repairs and all ten reports are delivered. Fresh prerequisite evidence was
+recorded against the clean document-closure HEAD; the controller's unchanged
+full gate subsequently passed on that candidate as recorded below.
 
 Frozen repair commands, in canonical order:
 
@@ -328,3 +328,45 @@ Frozen repair commands, in canonical order:
 - `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --test tree -- parent:: --test-threads=1`
 - `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo run --locked --quiet -p rev --example documentation-check`
 - `git diff --check`
+
+## Delivery-set closure
+
+Completed on 2026-11-12. All ten slice PRs (#15-#24) and three bounded gate repairs
+(#25-#27) are integrated into `dev`. The controller passed the unchanged frozen
+integrated gate on clean published candidate `5625b0dbd5648ca81c888a19ad1faedc5241524d`
+in validation `6XRS3YAETTKWUXPPWZ7L323GHI`. The successful record is keyed by that
+candidate; its log basename is
+`5625b0dbd5648ca81c888a19ad1faedc5241524d.6XRS3YAETTKWUXPPWZ7L323GHI.log`.
+Earlier failed/preparation batches above remain historical evidence.
+
+Every stage in the plan's [frozen integrated gate](../../../plan/rev-architecture-quality.md#frozen-integrated-gate)
+passed in order through the controller's single chained command:
+
+| Stage | Result |
+| --- | --- |
+| `make lint` | Formatting, strict all-target/all-feature Clippy and native source policy pass: 1,838 first-party Rust files, both packages, all 73 roots, zero blocking or deferred diagnostics and zero source findings. |
+| `make test-hooks` | All 28 real Git fixtures pass. Both partial-staging directions, index/export tampering, conflicts, symlink/cache ownership and independent linked-worktree concurrency retain content integrity. Measured cold/warm fixture checks take 31s/2s. |
+| `cargo test --locked --workspace --all-targets -- --test-threads=1` | 3,078 top-level tests plus seven nested child runs pass; zero failures. All 190 editor library, 242 Git, 46 path-completion and 26 recovery cases pass. Three existing upstream-acquisition cases remain ignored. |
+| `cargo test --locked --workspace --doc` | The public SDK doctest passes; editor has zero doctests. |
+| `cargo run --locked --quiet -p rev --example documentation-check` | 684 commands, 299 configuration entries, 106 reachable Markdown pages and 743 local links/anchors pass. |
+| `bash scripts/build-user-guide.sh` | Local Spore User Guide builds under `target/userguide`. |
+| External `scripts/check-rev.sh` | Independent Go tests and non-modal/modal interoperability pass against API `rev.plugins/0.1`, editor `0.6.0` at the exact candidate and client `3365b84649919492ade7e80c63139b459b5ad923`. Source/history and local binding assertions pass. |
+| `git diff --check` | Passes on the clean integrated candidate. |
+
+All compiler/check stages used the unchanged one-job, disabled-incremental,
+zero-dev/test-debuginfo environment from the plan. The installed executable
+`.githooks/pre-commit` and repository-local `core.hooksPath=.githooks` are verified;
+the gate includes actual installed linked-worktree commits and separate caches.
+No owned test fixtures remain active. Existing caches and unrelated files remain.
+F1-F7 are resolved in the [review](../../../report/rev-architecture-nit-review.md#review-limits-and-remediation-closure),
+AQL01-AQL06 and the plan/tracker are Completed, and all ten reports are delivered.
+Only configured Markdown paths change during this closure; runtime, hook/lint
+policy and frozen commands stay identical to the tested candidate.
+
+Acceptance limits remain explicit. The three opt-in live acquisition tests
+(`live::managed_go`, `live::managed_npm`, `live::optional_packages`) are not run.
+The foreign `crossterm` unused-parentheses warning remains outside first-party
+policy. [Slice 9](slice-9-fixtures.md#risks-and-follow-ups) retains standalone
+example expectation/deadline failures; compiling/testing all Cargo targets does
+not execute every example's custom main journey. No manual editor session,
+allocation/latency benchmark, main promotion, release or publication is claimed.

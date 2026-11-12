@@ -1,6 +1,7 @@
 # Architecture Quality Delivery
 
-Status: In progress
+Status: Completed
+Completed: 2026-11-12
 Date: 2026-11-09
 Delivery set: rev-architecture-quality
 Slice strategy: behavior-first
@@ -9,8 +10,8 @@ Planning baseline: abbf0c21eeae1680c02c7a477fa0894d7996a393
 Specification: [Architecture Quality and Commit Checks](../spec/editor-architecture-quality.md)
 Review: [Architecture and Ownership Nit Review](../report/rev-architecture-nit-review.md)
 Concern: [Pending Editor Work](../README.md)
-Active slice: none; all ten slices integrated, controller full gate pending
-Active gate repair: none; all three repairs integrated, controller full gate pending
+Active slice: none; all ten slices integrated and accepted
+Active gate repair: none; all three repairs integrated and accepted
 Tracker: [Architecture Quality Tracker](../tracker/rev-architecture-quality.md)
 
 ## Outcome and authority
@@ -486,3 +487,18 @@ Frozen ordered repair checks, each once:
 3. `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --test tree -- parent:: --test-threads=1`
 4. `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo run --locked --quiet -p rev --example documentation-check`
 5. `git diff --check`
+
+## Delivery-set closure
+
+Completed on 2026-11-12 after all ten slice PRs (#15-#24) and three bounded
+repair PRs (#25-#27) integrated into `dev`. The controller passed the unchanged
+[frozen integrated gate](#frozen-integrated-gate) on clean candidate `5625b0dbd5648ca81c888a19ad1faedc5241524d`
+in validation `6XRS3YAETTKWUXPPWZ7L323GHI`. F1-F7 are resolved in the
+[review](../report/rev-architecture-nit-review.md#review-limits-and-remediation-closure).
+All ten reports are delivered; repository-local hook activation and linked-worktree
+ownership are verified. The [Slice 10 closure](../report/slices/rev-architecture-quality/slice-10-enforcement.md#delivery-set-closure)
+records final results and evidence limits.
+
+Closure changes only the configured Markdown paths. Runtime, quality policy and
+frozen commands remain identical to the tested candidate. Manual editor use,
+main promotion, release and publication remain separate from this acceptance.

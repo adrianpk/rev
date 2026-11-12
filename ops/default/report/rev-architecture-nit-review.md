@@ -1,6 +1,7 @@
 # Architecture and Ownership Nit Review
 
-Status: Reviewed; remediation pending
+Status: Completed
+Completed: 2026-11-12
 Date: 2026-11-09
 Baseline: abbf0c21eeae1680c02c7a477fa0894d7996a393
 Scope: first-party editor, Rust SDK, integration tests, examples and developer quality tooling
@@ -11,6 +12,8 @@ Tracker: [Architecture Quality Tracker](../tracker/rev-architecture-quality.md)
 ## Findings
 
 ### F1 - Source-policy discovery does not cover the Cargo workspace
+
+Resolution: Resolved; see the closure evidence below.
 
 Severity: high
 Area: tooling
@@ -32,6 +35,8 @@ script invocation compatibility through delegation rather than another policy.
 
 ### F2 - The complete Clippy target set already fails
 
+Resolution: Resolved; see the closure evidence below.
+
 Severity: medium
 Area: tooling
 File: tests/macros/pty.rs:16 and tests/macros/acceptance.rs:2
@@ -46,6 +51,8 @@ Recommendation: admit one shared test-support owner and reuse it from both
 journeys. Preserve real terminal/resource assertions and all existing cases.
 
 ### F3 - Existing source contracts have accumulated unchecked violations
+
+Resolution: Resolved; see the closure evidence below.
 
 Severity: high
 Area: architecture
@@ -68,6 +75,8 @@ macros or arbitrary parameter bags. Keep all scenarios and resource assertions.
 
 ### F4 - Plugin calls copy request payloads and retain them after encoding
 
+Resolution: Resolved; see the closure evidence below.
+
 Severity: medium
 Area: architecture
 File: src/plugins/lifecycle/worker.rs:302 and src/plugins/lifecycle.rs:140
@@ -87,6 +96,8 @@ causal-origin metadata, deadline/permit lifetime and exactly-once completion.
 
 ### F5 - Plugin keymap cache hits clone their comparison state
 
+Resolution: Resolved; see the closure evidence below.
+
 Severity: low
 Area: architecture
 File: src/session/plugins/keymaps.rs:52-86
@@ -103,6 +114,8 @@ once. Retain retirement, buffer selectors, current user precedence and conflict
 invalidation semantics; do not replace an observed generation with a bare boolean.
 
 ### F6 - Completion lifecycle fields have no cohesive session owner
+
+Resolution: Resolved; see the closure evidence below.
 
 Severity: medium
 Area: architecture
@@ -123,6 +136,8 @@ transition methods, preserving native input/view context and worker boundaries.
 Do not create a generic job framework or change the public completion behavior.
 
 ### F7 - Commit-time enforcement and a shared lint profile are absent
+
+Resolution: Resolved; see the closure evidence below.
 
 Severity: high
 Area: tooling
@@ -183,7 +198,25 @@ This is a structural review of critical ownership/interaction/process/persistenc
 boundaries combined with a complete mechanical Rust inventory. It is not a
 line-by-line security audit of every test or a claim that all copying is harmful.
 
-All seven findings enter the linked delivery. Close them only with actual changes,
-focused regression evidence and a final rerun. The specification maps every review
-criterion to enforceable checks or an explicit manual obligation; the hook cannot
-prove business ownership or architecture automatically.
+All seven findings are resolved by the integrated delivery and unchanged final
+gate on `5625b0dbd5648ca81c888a19ad1faedc5241524d`, validation `6XRS3YAETTKWUXPPWZ7L323GHI`.
+The findings above retain their baseline descriptions and original file locations.
+
+| Finding | Resolution and evidence |
+| --- | --- |
+| F1 | [Slice 1](slices/rev-architecture-quality/slice-1-foundation.md) makes the native checker own all Cargo members/target roots and rejects empty scopes. Final strict lint covers 1,838 first-party files, both packages and all 73 roots. |
+| F2 | [Slice 1](slices/rev-architecture-quality/slice-1-foundation.md) shares macro acceptance support once. Final all-target/all-feature Clippy and native macro/PTY regressions pass. |
+| F3 | [Slices 3-9](../plan/rev-architecture-quality.md#canonical-slice-map) extract concern-owned preparation, observation and publication; final source policy has zero findings with the five/three/ten and safety limits unchanged. Approved compatibility and fixture corrections are recorded in the plan. |
+| F4 | [Slice 2](slices/rev-architecture-quality/slice-2-plugins.md) separates queued arguments from pending correlation, retaining permit, deadline, context and exactly-once completion. All 86 plugin tests and independent Go interoperability pass. |
+| F5 | [Slice 2](slices/rev-architecture-quality/slice-2-plugins.md) compares keymap observations by reference and moves them into the cache after publication. Cache hits avoid the redundant observation clone; retirement, precedence and conflict regressions pass. |
+| F6 | [Slice 8](slices/rev-architecture-quality/slice-8-interaction.md) gives completion its own state and admission/retirement transitions. Native completion, modal, command and macro regressions pass with freshness and cancellation guards retained. |
+| F7 | [Slice 10](slices/rev-architecture-quality/slice-10-enforcement.md#delivery-set-closure) supplies inherited strict lints, canonical commands, exact staged-index enforcement and private per-worktree caches. All 28 real hook cases pass; local activation is verified. |
+
+Mechanical checks cover their stated rules. Cohesive ownership, meaningful sharing,
+synchronization and captured lifetimes still require the explicit manual review
+and native regression obligations in the specification; the hook cannot prove
+architecture automatically. No measured allocation or latency improvement is
+claimed. The three opt-in upstream-acquisition cases remain ignored. Standalone
+example expectation/deadline failures documented in [Slice 9](slices/rev-architecture-quality/slice-9-fixtures.md#risks-and-follow-ups)
+remain outside the frozen gate and are not reported as passing journeys. The
+foreign vendored compiler warning remains outside first-party policy.

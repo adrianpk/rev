@@ -182,6 +182,10 @@ that fixture correction. Baseline comparison restored all six implementation
 files byte-for-byte before the Pi run; no primary or other worktree source was
 changed. No assertion or runtime interaction behavior was changed to meet it.
 
+Delivery-set acceptance: the unchanged controller gate passed on clean candidate
+`5625b0dbd5648ca81c888a19ad1faedc5241524d` in validation `6XRS3YAETTKWUXPPWZ7L323GHI`.
+See the [final results and limits](slice-10-enforcement.md#delivery-set-closure).
+
 ## Risks and Follow-ups
 
 The approved `History` exception is a source-level public Rust API adjustment;
@@ -190,4 +194,5 @@ protocol, assertion, timeout or resource budget was changed to satisfy the
 checks. The three explicit live upstream-acquisition tests retain their existing
 default ignores; the native installation fixtures remain covered.
 
-The controller owns merge, full delivery-set validation and successor startup.
+Canonical PR #20 is integrated; the controller's full delivery-set validation
+is accepted in the closure linked above.

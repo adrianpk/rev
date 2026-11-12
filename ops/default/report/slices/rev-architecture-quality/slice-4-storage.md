@@ -96,7 +96,11 @@ private workspace-identity, bookmark-index and bounded-rescan regressions:
 
 The additional library check preceded the final PR-reference validation.
 
+Delivery-set acceptance: the unchanged controller gate passed on clean candidate
+`5625b0dbd5648ca81c888a19ad1faedc5241524d` in validation `6XRS3YAETTKWUXPPWZ7L323GHI`.
+See the [final results and limits](slice-10-enforcement.md#delivery-set-closure).
+
 ## Risks and Follow-ups
 
-Later domain diagnostics remain assigned to their recorded slices. The
-controller owns merges and the complete delivery-set gate.
+Later domain slices and all bounded repairs are integrated. The controller's
+complete delivery-set gate is accepted in the closure linked above.

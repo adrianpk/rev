@@ -110,11 +110,15 @@ bab0731eebfa4b92059590c56f112213b45b0163 also passed:
 - `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --test wrapping --test integrated_terminal -- --test-threads=1` — 26 wrapping and 49 terminal tests.
 - `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --test git_integration -- presentation --test-threads=1` — 66 presentation cases; 176 other Git cases filtered out.
 
+Delivery-set acceptance: the unchanged controller gate passed on clean candidate
+`5625b0dbd5648ca81c888a19ad1faedc5241524d` in validation `6XRS3YAETTKWUXPPWZ7L323GHI`.
+See the [final results and limits](slice-10-enforcement.md#delivery-set-closure).
+
 ## Risks and Follow-ups
 
 The approved fixture corrections preserve the original regression contracts.
 
-Other selected-profile owners, staged enforcement and the full integrated gate
-remain later delivery work. Scoped quality evidence does not establish full
-workspace adoption. The existing vendored dependency warning remains outside
-first-party ownership.
+Later slices completed other selected-profile owners and staged enforcement.
+The delivery-set closure linked above records full workspace adoption and the
+integrated gate separately from this slice's focused evidence. The existing
+vendored dependency warning remains outside first-party ownership.

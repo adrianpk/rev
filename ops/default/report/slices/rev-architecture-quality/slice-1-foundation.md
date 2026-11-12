@@ -118,11 +118,15 @@ links/anchors, 684 commands and 299 configuration entries. An additional local
 `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked -p rev --test macros -- pty::terminal_journeys --exact --test-threads=1`
 passed the existing PTY journey in both profiles (one test, 4.16 seconds).
 
+Delivery-set acceptance: the unchanged controller gate passed on clean candidate
+`5625b0dbd5648ca81c888a19ad1faedc5241524d` in validation `6XRS3YAETTKWUXPPWZ7L323GHI`.
+See the [final results and limits](slice-10-enforcement.md#delivery-set-closure).
+
 ## Risks and Follow-ups
 
-Global selected-profile and native source cleanup remain in the later approved
-slices. Inherited lint configuration, SDK documentation lints, staged-index
-enforcement, local hook activation and the full integrated gate are not claimed
-by this foundation. A passing linter does not establish domain ownership or
+Later slices completed global selected-profile/source cleanup, inherited lint
+configuration, SDK documentation lints and staged-index enforcement. Hook activation
+and the integrated gate are accepted in the delivery-set closure linked above.
+A passing linter does not establish domain ownership or
 absence of bugs. The existing vendored dependency warning remains outside
 first-party ownership. No dependency or runtime behavior changed.

@@ -684,14 +684,19 @@ Final PR-head validation and counted-movement fixture correction:
   validation before readiness.
 - `git diff --check`: passed.
 
+Delivery-set acceptance: the unchanged controller gate passed on clean candidate
+`5625b0dbd5648ca81c888a19ad1faedc5241524d` in validation `6XRS3YAETTKWUXPPWZ7L323GHI`.
+See the [final results and limits](slice-10-enforcement.md#delivery-set-closure).
+
 ## Risks and Follow-ups
 
 T9.1-T9.3 are implemented in canonical [PR #23](https://forge.adrianpk.com/rev/rev/pulls/23).
 Selected fixture/example Clippy and source admission is complete, and all frozen
 commands pass on the implementation HEAD recorded above. Existing case,
-assertion, input and resource contracts are preserved. The PR-reference commit
-requires its own exact clean-HEAD Looper record. Review, integration, the unchanged
-full gate and successor startup remain controller-owned.
+assertion, input and resource contracts are preserved. Final PR-reference
+validation `5YBIGE4TEDA4NXJB4RNFFCAX2A` passed all five frozen checks on integrated
+HEAD `1faac03dee6c434fca043fcfb3cd374468038c4d`. The unchanged controller gate is
+accepted in the closure linked above.
 
 The standalone file-tree native and PTY examples retain their pre-existing
 fixed-row expectation failures recorded above. Their assertions and limits stay

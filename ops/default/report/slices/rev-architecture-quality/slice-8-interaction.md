@@ -413,6 +413,10 @@ Fixture reconciliation, following maintainer technical-recovery authorization:
   frozen command at that clean published fixture commit. The final
   PR-reference HEAD also passed, as recorded at the start of this section.
 
+Delivery-set acceptance: the unchanged controller gate passed on clean candidate
+`5625b0dbd5648ca81c888a19ad1faedc5241524d` in validation `6XRS3YAETTKWUXPPWZ7L323GHI`.
+See the [final results and limits](slice-10-enforcement.md#delivery-set-closure).
+
 ## Risks and Follow-ups
 
 Preserve native input/view context, stale completion rejection, transient
@@ -420,8 +424,9 @@ ownership, semantic macro replay/history and the retained macro body identity.
 T8.1, T8.2 and T8.3 are complete, with all frozen checks passing at the fixture
 commit. F6, shared macro-body accounting, native dispatch, counted planning,
 macro lifecycle, publication and keymap preparation have regression coverage.
-Canonical PR #22 is merged into `dev`. The unchanged delivery-set gate remains
-controller-owned; the next recorded slice covers fixtures and examples.
+Canonical PR #22 is merged into `dev`; fixture/example and enforcement slices
+are also integrated. The unchanged delivery-set gate is accepted in the closure
+linked above.
 
 The maintainer authorized technical diagnosis, bounded corrections, validation
 and same-run continuation without repeated routine approval pauses. The fixture

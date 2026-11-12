@@ -262,8 +262,12 @@ using a process path. All three lifetime cases and the complete suite pass with
 the original reaping assertions and deadlines. Test names, timeouts and resource
 ceilings are unchanged.
 
+Delivery-set acceptance: the unchanged controller gate passed on clean candidate
+`5625b0dbd5648ca81c888a19ad1faedc5241524d` in validation `6XRS3YAETTKWUXPPWZ7L323GHI`.
+See the [final results and limits](slice-10-enforcement.md#delivery-set-closure).
+
 ## Risks and Follow-ups
 
 No remaining slice failure is recorded. Runtime context, file-tree,
-visiting-source and terminal protections are intact. The complete delivery-set
-gate and successor startup remain controller-owned.
+visiting-source and terminal protections are intact. The controller's complete
+delivery-set gate is accepted in the closure linked above.

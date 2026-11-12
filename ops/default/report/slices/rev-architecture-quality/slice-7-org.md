@@ -234,9 +234,13 @@ focused editing comparison also restored those exact implementation bytes. Those
 historical batches did not establish native-slice success; the complete corrected
 run above now passes all eight targets.
 
+Delivery-set acceptance: the unchanged controller gate passed on clean candidate
+`5625b0dbd5648ca81c888a19ad1faedc5241524d` in validation `6XRS3YAETTKWUXPPWZ7L323GHI`.
+See the [final results and limits](slice-10-enforcement.md#delivery-set-closure).
+
 ## Risks and Follow-ups
 
 No known Slice 7 check failures remain after the approved lifecycle correction.
-The 377 selected-profile diagnostics outside this slice remain for subsequent
-slices. Canonical PR #21 is integrated into `dev` with exact clean-HEAD evidence.
-The controller owns the remaining delivery-set progression and full gate.
+Later slices cleared the 377 selected-profile diagnostics outside this slice.
+Canonical PR #21 is integrated into `dev` with exact clean-HEAD evidence.
+The controller's integrated gate is accepted in the closure linked above.
