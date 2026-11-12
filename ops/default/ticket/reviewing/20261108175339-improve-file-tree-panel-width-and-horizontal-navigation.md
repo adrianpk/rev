@@ -1,7 +1,7 @@
 ---
 id: TKT-20261108175339
 title: Resize the file-tree panel and reveal long nested names
-status: in_progress
+status: reviewing
 kind: task
 severity: unclassified
 priority: unclassified
@@ -9,9 +9,10 @@ scope: ui
 tags: file-tree, panels, navigation
 source: chat
 reported_at: 2026-11-08T17:53:39Z
-commits: [77f96b3b69c959fdeff8f0f9590ac074d0c0a7c6]
-pr: https://forge.adrianpk.com/rev/rev/pulls/30
-branch: feat/rev-tree-viewport-01-width
+commits: [77f96b3b69c959fdeff8f0f9590ac074d0c0a7c6, 75078243383df1e5e1eda9c84483b22f8a200325]
+pr: https://forge.adrianpk.com/rev/rev/pulls/31
+branch: feat/rev-tree-viewport-02-horizontal
+reviewed_at: 2026-11-12T23:09:06.559297Z
 started_at: 2026-11-12T20:57:59.810116Z
 ready_at: 2026-11-12T20:53:38.391200Z
 ---
@@ -260,7 +261,7 @@ defaults or implementation during capture.
 
 Product alignment is complete. On 2026-11-12 the owner authorized the
 specification and established implementation workflow. This ticket retains its
-identity and is in progress for the two-slice Tree Viewport delivery.
+identity and is reviewing the two-slice Tree Viewport delivery.
 
 - [Specification](../../spec/editor-tree-viewport.md)
 - [Model](../../spec/editor-tree-viewport-model.md)
@@ -269,3 +270,9 @@ identity and is in progress for the two-slice Tree Viewport delivery.
 
 The native Looper controller owns implementation, canonical PR integration,
 the selected exact-candidate gate and documentation/ticket closure.
+
+Slice 1 is delivered through [PR #30](https://forge.adrianpk.com/rev/rev/pulls/30).
+Slice 2 T2.1-T2.3 delivers shared horizontal navigation, native routes and
+joint acceptance/documentation through [PR #31](https://forge.adrianpk.com/rev/rev/pulls/31).
+The implementation is reviewing; final integrated acceptance and ticket resolution
+remain controller-owned.

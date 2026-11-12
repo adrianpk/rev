@@ -5,7 +5,7 @@ Delivery set: rev-tree-viewport
 Plan: `ops/default/plan/rev-tree-viewport.md`
 Tracker: `ops/default/tracker/rev-tree-viewport.md`
 Branch: `feat/rev-tree-viewport-02-horizontal`
-PR: pending
+PR: `#31`
 
 ## Purpose
 
@@ -29,6 +29,9 @@ Deliver TVP04, TVP05 and TVP06 with joint acceptance of the width controls.
   canonical targets after panning, resizing and loss of the observed paths.
 
 ## Implementation Notes
+
+Implementation commit: `75078243383df1e5e1eda9c84483b22f8a200325`.
+Canonical PR: https://forge.adrianpk.com/rev/rev/pulls/31
 
 The existing tree owns cached current extent and horizontal position alongside
 width ownership. Listing publication measures sanitized unpanned rows, including
@@ -94,7 +97,7 @@ semantic/resource assertion was removed or weakened. Native cells establish the
 Unicode/font matrix; physical font appearance remains outside this evidence.
 
 Early focused failures corrected fixture expectations: natural indentation,
-directories-first row ordering, explicit tree focus before pan and the shared
+directories-first row ordering, explicit tree focus before pan in pointer/context fixtures and the shared
 M-x route while the tree owns input in both profiles. The PTY journey was split
 into cohesive owners to preserve the existing complexity bound. The terminal
 producer and all deadlines remain unchanged.

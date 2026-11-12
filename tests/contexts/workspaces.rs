@@ -651,7 +651,8 @@ fn width_contexts() {
         add(&mut session, profile, source.parent().unwrap());
         assert_eq!(session.tree().desired_width(), 20);
         assert!(!session.tree().auto_width());
-        command(&mut session, profile, "tree-scroll-right");
+        session.execute(Command::Tree(TreeCommand::Focus));
+        session.execute(Command::Tree(TreeCommand::ScrollRight));
         assert_eq!(session.tree().horizontal_offset(), 1);
         let peer = f.write("peer/other", "peer");
         add(&mut session, profile, peer.parent().unwrap());

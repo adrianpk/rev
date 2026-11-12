@@ -7,7 +7,7 @@ Approved: product owner; specification and established Looper delivery workflow
 Plan: [Tree Viewport Delivery](../plan/rev-tree-viewport.md)
 Specification: [File Tree Width and Horizontal Navigation](../spec/editor-tree-viewport.md)
 Model: [Tree Viewport Policy](../spec/editor-tree-viewport-model.md)
-Ticket: [TKT-20261108175339](../ticket/in_progress/20261108175339-improve-file-tree-panel-width-and-horizontal-navigation.md)
+Ticket: [TKT-20261108175339](../ticket/reviewing/20261108175339-improve-file-tree-panel-width-and-horizontal-navigation.md)
 Active slice: Slice 2 of 2 - Horizontal navigation
 Progress owner: native Looper checkpoint and canonical validation evidence
 
@@ -37,19 +37,19 @@ Validation: the six exact ordered commands in the plan and local configuration
 
 ## Slice 2: Horizontal navigation
 
-State: in_progress
+State: reviewing
 Dependency: Slice 1 integrated and closed on dev
 Requirements: TVP04, TVP05, TVP06 and joint TVP01-TVP03 acceptance
 Branch: `feat/rev-tree-viewport-02-horizontal`
-PR: pending
+PR: [#31](https://forge.adrianpk.com/rev/rev/pulls/31)
 Report: `ops/default/report/slices/rev-tree-viewport/slice-2-horizontal.md`
 Validation: the six exact ordered commands in the plan and local configuration
 
-- [ ] T2.1: Implement shared one-column viewport, glyph-safe presentation,
+- [x] T2.1: Implement shared one-column viewport, glyph-safe presentation,
   retained position and correct clamping/reset transitions.
-- [ ] T2.2: Deliver arrow/named routes, retained directory operations and native
+- [x] T2.2: Deliver arrow/named routes, retained directory operations and native
   regression protection for keys/hints, pointer, following and context identity.
-- [ ] T2.3: Complete combined native/PTY acceptance, documentation/Spore and
+- [x] T2.3: Complete combined native/PTY acceptance, documentation/Spore and
   Unreleased; report real evidence and move source ticket to reviewing.
 
 ## Final gate and closure
@@ -66,4 +66,6 @@ Validation: the six exact ordered commands in the plan and local configuration
 Slice 1 of 2 is delivered through merged canonical PR #30 at
 `03b0d22b322a97b7d374568b7bcbeb807bc38e73`. Exact clean-HEAD receipt
 `EXJXXB4JIRODJ7SWQL3EMTUVBW` passed all six ordered commands, including
-635 selected native tests. Slice 2 is active; the integrated gate remains pending.
+635 selected native tests. Slice 2 is reviewing through canonical PR #31. T2.1-T2.3 implementation is
+`75078243383df1e5e1eda9c84483b22f8a200325`; final PR-reference commits and the
+exact clean-HEAD receipt accompany controller handoff. The integrated gate remains pending.

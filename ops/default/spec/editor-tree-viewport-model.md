@@ -3,7 +3,7 @@
 Status: Accepted
 Date: 2026-11-12
 Specification: [File Tree Width and Horizontal Navigation](editor-tree-viewport.md)
-Source: [TKT-20261108175339](../ticket/in_progress/20261108175339-improve-file-tree-panel-width-and-horizontal-navigation.md)
+Source: [TKT-20261108175339](../ticket/reviewing/20261108175339-improve-file-tree-panel-width-and-horizontal-navigation.md)
 
 ## Configuration contract
 
