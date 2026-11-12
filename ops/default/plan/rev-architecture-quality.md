@@ -1,7 +1,7 @@
 # Architecture Quality Delivery
 
-Status: Completed
-Completed: 2026-11-12
+Status: In progress
+Reopened: 2026-11-12; owner requires the recorded standalone acceptance debt to be corrected
 Date: 2026-11-09
 Delivery set: rev-architecture-quality
 Slice strategy: behavior-first
@@ -10,8 +10,8 @@ Planning baseline: abbf0c21eeae1680c02c7a477fa0894d7996a393
 Specification: [Architecture Quality and Commit Checks](../spec/editor-architecture-quality.md)
 Review: [Architecture and Ownership Nit Review](../report/rev-architecture-nit-review.md)
 Concern: [Pending Editor Work](../README.md)
-Active slice: none; all ten slices integrated and accepted
-Active gate repair: none; all three repairs integrated and accepted
+Active slice: Slice 9 acceptance correction; all ten implementation slices are integrated
+Active gate repair: standalone acceptance correction after three integrated gate repairs
 Tracker: [Architecture Quality Tracker](../tracker/rev-architecture-quality.md)
 
 ## Outcome and authority
@@ -488,7 +488,7 @@ Frozen ordered repair checks, each once:
 4. `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo run --locked --quiet -p rev --example documentation-check`
 5. `git diff --check`
 
-## Delivery-set closure
+## Initial gate acceptance
 
 Completed on 2026-11-12 after all ten slice PRs (#15-#24) and three bounded
 repair PRs (#25-#27) integrated into `dev`. The controller passed the unchanged
@@ -502,3 +502,41 @@ records final results and evidence limits.
 Closure changes only the configured Markdown paths. Runtime, quality policy and
 frozen commands remain identical to the tested candidate. Manual editor use,
 main promotion, release and publication remain separate from this acceptance.
+
+## Standalone acceptance correction
+
+The owner reopened this set on 2026-11-12. The successful original gate and its
+completed controller remain historical evidence; they do not discharge the
+standalone failures recorded in Slice 9. Correct those failures in this same set
+before final closure. Do not reset the original checkpoint or start a second
+controller for it.
+
+Branch: `fix/rev-architecture-quality-acceptance`
+Expected PR title: `fix(acceptance): resolve standalone editor journeys`
+Report: `ops/default/report/slices/rev-architecture-quality/slice-9-fixtures.md`
+
+T9.4-T9.8 cover, respectively, file-tree native/PTY acceptance, command-ranking
+native acceptance, keybinding-hint native/both-profile PTY acceptance, wrapping
+native/PTY acceptance and Projects/Workspaces native/both-profile PTY acceptance.
+Reproduce the current failures, reconcile expectations with the written product
+contracts, and correct runtime behavior if it violates those contracts. Preserve
+negative coverage, varied Unicode inputs, exact file/history checks, terminal
+restoration, process ownership, idle checks and every existing resource/deadline
+bound. Do not remove checks or change a failure into a skip.
+
+Required acceptance commands, each run through its complete existing entrypoint:
+
+1. `bash scripts/check-better-file-tree.sh`
+2. `bash scripts/check-command-ranking.sh`
+3. `bash scripts/check-command-keybinding-hints.sh`
+4. `bash scripts/check-wrap-navigation.sh`
+5. `bash scripts/check-projects-workspaces.sh`
+
+Use the existing one-job, no-incremental, no-debug-info resource settings. During
+correction use these commands and scoped quality checks for the affected owners.
+Integrate the correction through one canonical PR into `dev`. T10.4 then requires
+the unchanged integrated gate and all five acceptance commands on the exact clean
+integrated candidate, followed by truthful plan/tracker/report closure. Record
+fresh native validation receipts; do not relabel the earlier gate as acceptance
+of the corrected sources. The scripts include bounded PTYs and the wrapping
+performance probe; a cold release build is an additional expected cost.

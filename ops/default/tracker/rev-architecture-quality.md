@@ -1,7 +1,7 @@
 # Architecture Quality Tracker
 
-Status: Completed
-Completed: 2026-11-12
+Status: In progress
+Reopened: 2026-11-12; standalone acceptance debt must pass before closure
 Date: 2026-11-09
 Delivery set: rev-architecture-quality
 Slice strategy: behavior-first
@@ -10,10 +10,10 @@ Planning baseline: abbf0c21eeae1680c02c7a477fa0894d7996a393
 Specification: [Architecture Quality and Commit Checks](../spec/editor-architecture-quality.md)
 Review: [Architecture and Ownership Nit Review](../report/rev-architecture-nit-review.md)
 Concern: [Pending Editor Work](../README.md)
-Active slice: none; all ten slices integrated and accepted
+Active slice: Slice 9 acceptance correction; all ten implementation slices are integrated
 Plan: [Architecture Quality Delivery](../plan/rev-architecture-quality.md)
 Execution authorized: one ten-slice Looper run, automatic canonical integration into dev and local hook setup
-Progress owner: selected Looper run; no second runtime tracker
+Progress owner: this tracker; the completed Looper run retains historical evidence
 
 ## Canonical slice map
 
@@ -378,7 +378,7 @@ prerequisites; the controller's unchanged full gate subsequently passed as below
 - [x] The unchanged full gate passed on the exact clean integrated candidate.
 - [x] Ten reports delivered and permitted Markdown closure committed/pushed.
 
-## Final gate and closure
+## Initial gate and closure
 
 Completed on 2026-11-12. The controller passed all eight unchanged integrated gate
 stages, in their frozen order, on clean published candidate
@@ -407,3 +407,19 @@ unrelated files are preserved. The existing foreign dependency warning and
 standalone example limitations remain documented; the full gate does not claim
 manual editor acceptance or execute every example's custom entrypoint. Main,
 release, mirror and publication actions are outside this completed set.
+
+## Reopened standalone acceptance
+
+Owner authorization on 2026-11-12 supersedes the initial completion claim while
+the recorded example debt remains. Follow the existing plan's Standalone
+acceptance correction. Retain all previous receipts as historical evidence.
+Branch: `fix/rev-architecture-quality-acceptance`.
+Expected PR title: `fix(acceptance): resolve standalone editor journeys`.
+Canonical report: the existing Slice 9 report.
+
+- [ ] T9.4: Make the complete file-tree native, color and both-profile PTY matrix pass.
+- [ ] T9.5: Make command-ranking native, restart and paired-publisher acceptance pass.
+- [ ] T9.6: Make keybinding-hint native and both-profile PTY acceptance pass.
+- [ ] T9.7: Make wrapping native, PTY and resource/performance acceptance pass.
+- [ ] T9.8: Make Projects/Workspaces native and both-profile PTY acceptance pass.
+- [ ] T10.4: Integrate the correction, pass the unchanged gate and five complete entrypoints on the exact candidate, then close this set without these deferred failures.

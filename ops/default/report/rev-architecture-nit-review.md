@@ -1,7 +1,7 @@
 # Architecture and Ownership Nit Review
 
-Status: Completed
-Completed: 2026-11-12
+Status: In progress
+Reopened: 2026-11-12; recorded standalone acceptance failures require correction
 Date: 2026-11-09
 Baseline: abbf0c21eeae1680c02c7a477fa0894d7996a393
 Scope: first-party editor, Rust SDK, integration tests, examples and developer quality tooling
@@ -220,3 +220,8 @@ claimed. The three opt-in upstream-acquisition cases remain ignored. Standalone
 example expectation/deadline failures documented in [Slice 9](slices/rev-architecture-quality/slice-9-fixtures.md#risks-and-follow-ups)
 remain outside the frozen gate and are not reported as passing journeys. The
 foreign vendored compiler warning remains outside first-party policy.
+
+The owner reopened the delivery on 2026-11-12 to correct those standalone
+acceptance failures. F1-F7 retain the evidence above, but overall closure remains
+pending the five complete acceptance entrypoints and fresh integrated evidence
+required by the reopened plan and tracker.

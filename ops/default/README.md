@@ -62,17 +62,19 @@ retained as history. The legacy README notice is merged, the new repository and
 organization are public, and anonymous source access is verified. Associated
 repositories use rev/{repo-name}; concrete package names remain open.
 
-## Completed quality delivery
+## Reopened quality acceptance
 
 [Architecture Quality and Commit Checks](spec/editor-architecture-quality.md), its
 [plan](plan/rev-architecture-quality.md), [tracker](tracker/rev-architecture-quality.md)
-and [review](report/rev-architecture-nit-review.md) are Completed. Ten slices through
+and [review](report/rev-architecture-nit-review.md) are reopened for standalone acceptance correction. Ten slices through
 PRs #15-#24 and three bounded repairs through PRs #25-#27 resolve F1-F7, adopt
 complete workspace lint/native source policy and enforce exact staged-index
 checks before commits. Repository-local hooks are installed. The unchanged
 controller gate passed at `5625b0dbd5648ca81c888a19ad1faedc5241524d`, validation
 `6XRS3YAETTKWUXPPWZ7L323GHI`. The [Slice 10 closure](report/slices/rev-architecture-quality/slice-10-enforcement.md#delivery-set-closure)
-records results and limits. Other proposals keep their separate approval boundaries.
+records the initial results and limits. The owner now requires the five recorded
+standalone acceptance families to pass before final closure. Other proposals keep
+their separate approval boundaries.
 
 ## Pending proposals
 

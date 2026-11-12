@@ -1,7 +1,7 @@
 # Architecture Quality and Commit Checks
 
-Status: Completed
-Completed: 2026-11-12
+Status: In progress
+Reopened: 2026-11-12; standalone acceptance correction is required for delivery closure
 Date: 2026-11-09
 Version: 0.1
 Format: OpenSpec capability specification
@@ -210,3 +210,8 @@ resolves F1-F7; the [Slice 10 closure](../report/slices/rev-architecture-quality
 records full-workspace lint, native tests, exact staged-index checks, local hook
 installation, SDK docs, Markdown/Spore and independent Go interoperability.
 The criteria map and all frozen requirements remain unchanged.
+
+The owner reopened delivery acceptance on 2026-11-12. The five standalone
+acceptance families listed in the plan must also pass their complete entrypoints.
+The earlier gate remains valid historical evidence for its exact candidate;
+final completion requires the corrected candidate and the extended acceptance.
