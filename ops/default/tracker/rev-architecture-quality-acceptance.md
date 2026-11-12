@@ -65,3 +65,17 @@ repair branch `fix/rev-architecture-quality-acceptance-reload-1`, exact PR title
 existing Slice 1 report and unchanged five-second settlement budget. Both
 profiles and every existing source/HEAD/dispatch/status assertion remain required.
 The complete Git target must pass before another expanded gate attempt.
+
+Repair state: reviewing
+Branch: `fix/rev-architecture-quality-acceptance-reload-1`
+PR: pending
+Report: `ops/default/report/slices/rev-architecture-quality-acceptance/slice-1-standalone-acceptance.md`
+
+The exact native-merge case reproduced the premature source assertion in the
+approved reaping namespace. The fixture now latches observed integration
+verification and requires the exact reloaded source within the same existing
+five-second wait. Both profiles, submit aliases and later HEAD, dismissal,
+source and sequence-status assertions remain. Scoped quality passes all 55 Git
+fixture files with zero blocking diagnostics. The focused native case passes in
+both profiles; the complete Git target passes all 242 cases with no ignores in
+400.03 seconds. Final clean-HEAD evidence and controller integration remain pending.

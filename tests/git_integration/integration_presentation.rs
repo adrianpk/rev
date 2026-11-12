@@ -36,7 +36,14 @@ fn native_merge() {
             key(editor, KeyCode::Char('c'), KeyModifiers::CONTROL);
             key(editor, KeyCode::Char('c'), KeyModifiers::CONTROL);
         }
-        wait(editor, |s| s.echo().contains("Integration verified"));
+        // Integration and file reload complete independently. Remember the
+        // verified result while both settle within this single existing wait.
+        let integration_verified = std::cell::Cell::new(false);
+        wait(editor, |s| {
+            integration_verified
+                .set(integration_verified.get() || s.echo().contains("Integration verified"));
+            integration_verified.get() && text(s) == "changed source\n"
+        });
         assert_eq!(repository.git(["rev-parse", "HEAD"]), target);
         plain(editor, 'q');
         plain(editor, 'q');

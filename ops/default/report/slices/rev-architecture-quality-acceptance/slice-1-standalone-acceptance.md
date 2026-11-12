@@ -7,6 +7,9 @@ Tracker: [Standalone Acceptance Tracker](../../../tracker/rev-architecture-quali
 Branch: `fix/rev-architecture-quality-acceptance`
 PR: `#28`
 Integrated: `74896fd18e90403c0961c16bc5ae86ea4932e633` through canonical PR #28.
+Gate repair branch: `fix/rev-architecture-quality-acceptance-reload-1`
+Gate repair PR: pending
+Gate repair state: reviewing
 
 ## Purpose
 
@@ -91,3 +94,48 @@ release build took about nine minutes. Two development file-tree runs reached th
 existing 20-second native deadline during concurrent compilation; a serial rerun passed without increasing
 that deadline. The existing foreign crossterm parentheses warning remains outside
 first-party lint admission and does not block the focused checks.
+
+## Gate repair 1: Merge source settlement
+
+Retained gate failure `4QJ5NG6X2SBKG32XY4J7ITM45B` on
+`ad1834fdd47957d4c8dcb251f1f4105dfe829dc9` passed 241 Git cases and failed
+`commits::effects::cancelled_child`: the earlier namespace PID 1 did not reap
+adopted children. This failed batch remains historical evidence. The approved
+same-UID runner now uses an actual PID 1 reaper, with the unchanged test binary
+as PID 2 and preserved exit/signal status. The retained corrected-environment
+Git run then passed 241/242 cases in 427.56 seconds and exposed the separate
+`integration::presentation::native_merge` failure: the editor still held
+`LOCAL_SOURCE_SENTINEL\n` when the final assertion required `changed source\n`.
+
+The unchanged exact native-merge command reproduces that source failure in this
+repair worktree in 0.63 seconds. Git's integration result explicitly precedes
+file-policy reload; the original wait only observed its transient message. The
+fixture now remembers that observed result and waits for the exact expected
+source in the same five-second budget. The existing input loop continues to
+service both asynchronous owners. No second wait, deadline, sleep, runtime
+change or weakened assertion is added. Both interaction profiles, explicit
+submit aliases, full target review, pre-submit rejection, exact target/HEAD and
+source assertions, Git dismissal and sequence-status checks remain unchanged.
+
+Only `tests/git_integration/integration_presentation.rs` changes executable test
+code. The exact corrected native case passes, including both profiles, in
+1.74 seconds. Scoped quality passes all 55 Git fixture files with zero blocking
+or deferred Clippy diagnostics and all native source bounds met. The complete
+Git target passes all 242 cases, with no failures or ignores, in 400.03 seconds;
+this includes the previously failing cancelled-child and native-merge cases.
+The installed staged hook remains active. Final clean-HEAD evidence is recorded
+separately by the controller's validator after PR-reference publication. The
+expanded gate remains controller-owned.
+
+Successful repair commands, in canonical order:
+
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 bash scripts/check-quality.sh --scope tests/git_integration`
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 CARGO_TARGET_X86_64_UNKNOWN_LINUX_GNU_RUNNER='unshare --user --map-current-user --pid --fork --mount-proc -- python3 /home/adrian/Projects/playground/rev/20261112-1158-git-metadata-gate/pid_init.py' cargo test --locked -p rev --test git_integration -- integration::presentation::native_merge --exact --test-threads=1`
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 CARGO_TARGET_X86_64_UNKNOWN_LINUX_GNU_RUNNER='unshare --user --map-current-user --pid --fork --mount-proc -- python3 /home/adrian/Projects/playground/rev/20261112-1158-git-metadata-gate/pid_init.py' cargo test --locked -p rev --test git_integration -- --test-threads=1`
+- `git diff --check`
+
+Runner identity for the clean-HEAD evidence: the plan's retained `pid_init.py`,
+SHA-256 `57ca92a038ef6348588f0dbf49cbb817141392e4888fe42911b756dec0aae608`.
+A direct probe verifies UID 1000 and child PID 2. The runner and its retained
+diagnostic files are unchanged. No environment failure is relabeled as a pass;
+the controller must run every unchanged full-gate requirement after integration.
