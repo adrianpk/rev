@@ -116,6 +116,22 @@ surface command was:
 The unchanged six-command batch must pass on the new clean PR HEAD; the earlier
 failed receipt is retained as failure evidence.
 
+The next clean-HEAD batch, BCAPNRYLLQ5VGBXBV35Z4QUCCV on
+`a8ac5400005ac0ccd5c33fae8d739754b0d88ef8`, passed lint and all 635 selected
+native tests, then reached the existing 20-second native acceptance deadline.
+An isolated reproduction returned 124 after 20.22 s. The fixture now shares one
+unchanged frame between root-selection and source-color assertions. Its full
+24-case configured-geometry matrix runs in the existing NO_COLOR invocation,
+which uses the same environment and its unchanged 20-second deadline. The ten
+interactive presentation variants remain in the native invocation. No case,
+assertion, input route or script deadline was removed or increased; the shell
+producer is unchanged. Per-variant measurements identify the workload explicitly.
+
+The bounded Better File Tree command then passed in 27.84 s across all three
+existing invocations, including its build. Native interactive cases measured
+0.80-1.13 s each; both PTYs passed in 1.29 s and 1.46 s with zero idle CPU ticks.
+The new fixture commit requires a fresh complete six-command receipt.
+
 Documentation passed with 106 reachable pages and 743 local links/anchors.
 The User Guide built through its canonical Markdown-to-Spore projection.
 Cargo execution uses the task-owned same-UID PID namespace runner with a real

@@ -56,9 +56,8 @@ pub(super) fn run(root: &Path) -> Result<()> {
         assert_eq!(std::fs::read_to_string(&config)?, text);
     }
     rejected_settings(&base, &config)?;
-    geometry(&fixture)?;
     println!(
-        "PASS configuration: omission/include/root precedence and origins, invalid booleans/RGB/roles reject whole candidate; four settings at 1/5/8/9/13/24 cells and hidden/zero/restored surfaces"
+        "PASS configuration: omission/include/root precedence and origins, invalid booleans/RGB/roles reject whole candidate"
     );
     Ok(())
 }
@@ -82,7 +81,8 @@ fn rejected_settings(base: &Path, config: &Path) -> Result<()> {
     Ok(())
 }
 
-fn geometry(root: &Path) -> Result<()> {
+pub(super) fn geometry(root: &Path) -> Result<()> {
+    std::fs::create_dir_all(root.join("workspace"))?;
     std::fs::write(root.join("workspace/界é.txt"), "retained")?;
     for decorated in [false, true] {
         for nerd_fonts in [false, true] {
@@ -91,6 +91,9 @@ fn geometry(root: &Path) -> Result<()> {
             }
         }
     }
+    println!(
+        "PASS configured geometry: four settings at 1/5/8/9/13/24 cells and hidden/zero/restored surfaces"
+    );
     Ok(())
 }
 

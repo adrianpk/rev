@@ -40,11 +40,16 @@ pub(super) fn run(root: &Path) -> Result<()> {
             ("minimal", false, false, true),
             ("minimal-font", false, true, true),
         ] {
+            let started = std::time::Instant::now();
             let fixture = root.join(format!("{profile}-{name}"));
             let mut editor = open(&fixture, profile, decorated, nerd_fonts, explicit)?;
             presentation(&mut editor, decorated, nerd_fonts)?;
             interaction(&mut editor, &fixture)?;
             unchanged(&editor, &fixture)?;
+            println!(
+                "MEASURE native {profile}/{name}: elapsed_ms={}",
+                started.elapsed().as_millis()
+            );
         }
     }
     println!(
@@ -147,8 +152,7 @@ fn presentation(editor: &mut Session, decorated: bool, nerd_fonts: bool) -> Resu
     assert!(seen.into_iter().all(|seen| seen));
     style.labels(&frame);
     bookmark_marker(editor, &cells, nerd_fonts)?;
-    selected_root(editor, &style.palette)?;
-    source_color(editor, &style)?;
+    selected_root(editor, &style)?;
     editor.execute(Command::Tree(TreeCommand::Next));
     assert!(
         editor
@@ -165,8 +169,11 @@ fn presentation(editor: &mut Session, decorated: bool, nerd_fonts: bool) -> Resu
     Ok(())
 }
 
-fn source_color(editor: &mut Session, style: &TreeStyle) -> Result<()> {
-    let cells = surface::draw(&editor.frame()?);
+fn source_color(
+    editor: &Session,
+    style: &TreeStyle,
+    cells: &BTreeMap<(usize, usize), surface::Cell>,
+) -> Result<()> {
     let (row, source) = editor
         .tree()
         .entries()
@@ -174,7 +181,7 @@ fn source_color(editor: &mut Session, style: &TreeStyle) -> Result<()> {
         .enumerate()
         .find(|(_, entry)| entry.path().ends_with("main.rs"))
         .ok_or("missing source entry")?;
-    style.entry(row, source, &cells, false)?;
+    style.entry(row, source, cells, false)?;
     Ok(())
 }
 
@@ -225,6 +232,9 @@ fn unchanged(editor: &Session, root: &Path) -> Result<()> {
 
 pub(super) fn no_color(root: &Path) -> Result<()> {
     assert!(std::env::var_os("NO_COLOR").is_some());
+    // Both native invocations use the same environment and fixed deadline.
+    // Keep the complete geometry matrix with this smaller rendering journey.
+    configuration::geometry(&root.join("configuration"))?;
     for (decorated, nerd_fonts) in [(false, false), (false, true), (true, false), (true, true)] {
         let mut editor = open(
             &root.join(format!("no-color-{decorated}-{nerd_fonts}")),
@@ -376,7 +386,8 @@ fn bookmark_marker(
     );
     Ok(())
 }
-fn selected_root(editor: &mut Session, palette: &rev::config::Palette) -> Result<()> {
+fn selected_root(editor: &mut Session, style: &TreeStyle) -> Result<()> {
+    let palette = &style.palette;
     editor.execute(Command::Tree(TreeCommand::Focus));
     let cells = surface::draw(&editor.frame()?);
     for column in 0..24 {
@@ -391,7 +402,8 @@ fn selected_root(editor: &mut Session, palette: &rev::config::Palette) -> Result
             )
         );
     }
-    Ok(())
+    // Selection and source-kind assertions share this unchanged native frame.
+    source_color(editor, style, &cells)
 }
 fn select_entry(editor: &mut Session, row: u16, hit: &Hit) -> Result<()> {
     for column in [0, 2, 4, 6, 23] {
