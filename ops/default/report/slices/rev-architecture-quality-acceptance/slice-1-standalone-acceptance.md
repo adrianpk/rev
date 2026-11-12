@@ -10,7 +10,8 @@ Integrated: `74896fd18e90403c0961c16bc5ae86ea4932e633` through canonical PR #28.
 Gate repair branch: `fix/rev-architecture-quality-acceptance-reload-1`
 Gate repair PR: `#29`
 Gate repair implementation: `38b76c17ee14aeb165f52c725e77b6965f8a1096`
-Gate repair state: reviewing
+Gate repair state: delivered
+Gate repair integrated: `ed9f8dedea2a7633d529220be0bcbc7cb579cd90` through canonical PR #29.
 
 ## Purpose
 
@@ -124,9 +125,11 @@ code. The exact corrected native case passes, including both profiles, in
 or deferred Clippy diagnostics and all native source bounds met. The complete
 Git target passes all 242 cases, with no failures or ignores, in 400.03 seconds;
 this includes the previously failing cancelled-child and native-merge cases.
-The installed staged hook remains active. Final clean-HEAD evidence is recorded
-separately by the controller's validator after PR-reference publication. The
-expanded gate remains controller-owned.
+The installed staged hook remains active. All four ordered repair checks passed
+through the controller's validator after PR-reference publication on clean
+published HEAD `ed9f8dedea2a7633d529220be0bcbc7cb579cd90`. Forgejo and Acta
+confirm that exact HEAD is integrated into `dev` through canonical PR #29.
+The expanded gate and delivery-set closure remain controller-owned and pending.
 
 Successful repair commands, in canonical order:
 

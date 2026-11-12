@@ -66,10 +66,11 @@ existing Slice 1 report and unchanged five-second settlement budget. Both
 profiles and every existing source/HEAD/dispatch/status assertion remain required.
 The complete Git target must pass before another expanded gate attempt.
 
-Repair state: reviewing
+Repair state: delivered
 Branch: `fix/rev-architecture-quality-acceptance-reload-1`
 PR: `#29`
 Implementation: `38b76c17ee14aeb165f52c725e77b6965f8a1096`
+Integrated: `ed9f8dedea2a7633d529220be0bcbc7cb579cd90` through canonical PR #29.
 Report: `ops/default/report/slices/rev-architecture-quality-acceptance/slice-1-standalone-acceptance.md`
 
 The exact native-merge case reproduced the premature source assertion in the
@@ -79,5 +80,8 @@ five-second wait. Both profiles, submit aliases and later HEAD, dismissal,
 source and sequence-status assertions remain. Scoped quality passes all 55 Git
 fixture files with zero blocking diagnostics. The focused native case passes in
 both profiles; the complete Git target passes all 242 cases with no ignores in
-400.03 seconds. The controller's validator records final clean-HEAD evidence;
-integration remains controller-owned.
+400.03 seconds. All four ordered repair checks passed through the controller's
+validator on clean published HEAD `ed9f8dedea2a7633d529220be0bcbc7cb579cd90`.
+Forgejo and Acta confirm its integration into `dev`. Gate preparation verifies
+the retained reaper checksum and its UID 1000 / child PID 2 execution without
+changing it. The expanded gate and T1.6 closure remain controller-owned and pending.
