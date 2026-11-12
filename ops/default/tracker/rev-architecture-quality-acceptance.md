@@ -21,9 +21,10 @@ Progress owner: selected correction Looper run
 
 ## Slice 1: Standalone acceptance debt
 
-Status: reviewing
+Status: delivered
 Branch: `fix/rev-architecture-quality-acceptance`
 PR: `#28`
+Integrated: `74896fd18e90403c0961c16bc5ae86ea4932e633` through canonical PR #28.
 Report: `ops/default/report/slices/rev-architecture-quality-acceptance/slice-1-standalone-acceptance.md`
 
 - [x] T1.1: Complete file-tree native/color/both-profile PTY acceptance passes.
@@ -38,3 +39,19 @@ Report: `ops/default/report/slices/rev-architecture-quality-acceptance/slice-1-s
 All seven focused checks in the plan and both parts of the expanded integrated
 gate are required. The parent set remains reopened until all five entrypoints
 pass without the previously deferred failures.
+
+## Gate preparation
+
+Slice 1 is integrated and its report is delivered. The correction set and T1.6
+remain open until the controller passes the expanded gate and closes the parent
+delivery. The seven ordered focused commands passed on clean published and now
+integrated HEAD `74896fd18e90403c0961c16bc5ae86ea4932e633`.
+
+The existing executable staged hook and repository-local
+`core.hooksPath=.githooks` are verified without reactivation. Cargo, Rust, Go,
+Spore and the existing PTY tools are available. The external plugin acceptance
+checkout is clean at `3365b84649919492ade7e80c63139b459b5ad923`; its original
+runner resolves from the frozen gate command. No gate commands, source files,
+assertions, resource bounds or build-cache ownership change during preparation.
+The controller runs all five complete acceptance scripts followed by the parent
+plan's unchanged eight-stage integrated gate on the exact clean candidate.

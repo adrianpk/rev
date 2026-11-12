@@ -1,11 +1,12 @@
 # Slice 1: Standalone Acceptance Debt
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-architecture-quality-acceptance
 Plan: [Standalone Acceptance Correction](../../../plan/rev-architecture-quality-acceptance.md)
 Tracker: [Standalone Acceptance Tracker](../../../tracker/rev-architecture-quality-acceptance.md)
 Branch: `fix/rev-architecture-quality-acceptance`
 PR: `#28`
+Integrated: `74896fd18e90403c0961c16bc5ae86ea4932e633` through canonical PR #28.
 
 ## Purpose
 
@@ -38,7 +39,10 @@ All original fixture counts, Unicode inputs, negative checks, byte/history/state
 assertions, color/frame checks, idle and TTY checks, subprocess ownership and
 time/count/byte bounds remain in force. Build targets and the staged-check cache
 remain private to the worktree. The parent receipt remains historical evidence;
-the controller records fresh ordered checks against the final clean PR HEAD.
+all seven ordered checks passed through the controller's validator on clean
+published PR HEAD `74896fd18e90403c0961c16bc5ae86ea4932e633`. Forgejo and Acta
+confirm that exact HEAD is now integrated into `dev`. This delivery status
+records the slice merge; the expanded gate and delivery-set closure remain pending.
 
 ## Contracts Added or Changed
 
@@ -81,9 +85,9 @@ fixture directories are removed by the original scripts.
 
 ## Risks and Follow-ups
 
-The controller owns integration, the expanded integrated gate and parent closure;
-those outcomes remain pending. The first cold release build took about nine
-minutes. Two development file-tree runs reached the existing 20-second native
-deadline during concurrent compilation; a serial rerun passed without increasing
+Integration is verified through canonical PR #28. The controller owns the expanded
+integrated gate and parent closure; those outcomes remain pending. The first cold
+release build took about nine minutes. Two development file-tree runs reached the
+existing 20-second native deadline during concurrent compilation; a serial rerun passed without increasing
 that deadline. The existing foreign crossterm parentheses warning remains outside
 first-party lint admission and does not block the focused checks.
