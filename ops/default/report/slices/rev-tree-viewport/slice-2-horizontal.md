@@ -1,6 +1,6 @@
 # Slice 2: Horizontal navigation
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-tree-viewport
 Plan: `ops/default/plan/rev-tree-viewport.md`
 Tracker: `ops/default/tracker/rev-tree-viewport.md`
@@ -68,6 +68,12 @@ The source ticket retains its identity and moves to reviewing for joint delivery
 
 ## Validation
 
+Canonical PR #31 merged into dev at
+`4a4f89a0bdf8c276d7066413beccce2a474952e3`. Clean-HEAD slice receipt
+`6TH5M2YS454DBGIGDPRZSUDQ3V` passed all six ordered commands, including
+639 selected native tests with no failures or ignored cases. This is slice
+acceptance; the fresh integrated gate remains pending for the controller.
+
 The exact clean-HEAD controller receipt after PR-reference commits owns the
 six ordered acceptance commands below. This report records implementation
 checks; it does not claim the controller-owned integrated delivery-set gate.
@@ -110,5 +116,6 @@ ordered command evidence.
 
 ## Risks and Follow-ups
 
-The controller owns merge, fresh integrated acceptance and final delivery-set
-closure. Physical font appearance retains the existing native-cell/PTY limit.
+The slice is integrated. The controller owns fresh integrated acceptance and
+final delivery-set closure. Physical font appearance retains the existing
+native-cell/PTY limit.

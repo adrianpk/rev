@@ -8,7 +8,7 @@ Plan: [Tree Viewport Delivery](../plan/rev-tree-viewport.md)
 Specification: [File Tree Width and Horizontal Navigation](../spec/editor-tree-viewport.md)
 Model: [Tree Viewport Policy](../spec/editor-tree-viewport-model.md)
 Ticket: [TKT-20261108175339](../ticket/reviewing/20261108175339-improve-file-tree-panel-width-and-horizontal-navigation.md)
-Active slice: Slice 2 of 2 - Horizontal navigation
+Active slice: None - both slices integrated; controller gate pending
 Progress owner: native Looper checkpoint and canonical validation evidence
 
 ## Canonical slice map
@@ -37,7 +37,7 @@ Validation: the six exact ordered commands in the plan and local configuration
 
 ## Slice 2: Horizontal navigation
 
-State: reviewing
+State: delivered
 Dependency: Slice 1 integrated and closed on dev
 Requirements: TVP04, TVP05, TVP06 and joint TVP01-TVP03 acceptance
 Branch: `feat/rev-tree-viewport-02-horizontal`
@@ -54,7 +54,7 @@ Validation: the six exact ordered commands in the plan and local configuration
 
 ## Final gate and closure
 
-- [ ] Verify both canonical PRs integrated and reports recorded.
+- [x] Verify both canonical PRs integrated and reports recorded.
 - [ ] Run unchanged selected gate on exact clean integrated dev; record candidate,
   commands, receipt, actual costs, execution environment and evidence limits.
 - [ ] Mark reports delivered; solve the source ticket with resolution fixed.
@@ -66,6 +66,24 @@ Validation: the six exact ordered commands in the plan and local configuration
 Slice 1 of 2 is delivered through merged canonical PR #30 at
 `03b0d22b322a97b7d374568b7bcbeb807bc38e73`. Exact clean-HEAD receipt
 `EXJXXB4JIRODJ7SWQL3EMTUVBW` passed all six ordered commands, including
-635 selected native tests. Slice 2 is reviewing through canonical PR #31. T2.1-T2.3 implementation is
-`75078243383df1e5e1eda9c84483b22f8a200325`; final PR-reference commits and the
-exact clean-HEAD receipt accompany controller handoff. The integrated gate remains pending.
+635 selected native tests. Slice 2 of 2 is delivered through merged canonical
+PR #31 at `4a4f89a0bdf8c276d7066413beccce2a474952e3`. Receipt
+`6TH5M2YS454DBGIGDPRZSUDQ3V` passed all six slice commands and 639 native tests.
+Both reports are delivered. The source ticket remains reviewing until fresh
+integrated acceptance and final closure.
+
+## Integrated gate preparation
+
+Both PR merge states, ancestry and clean synchronized dev were verified against
+the canonical forge and Acta. The two owned slice worktrees are removed after
+integration; unrelated worktrees and their caches are preserved. Existing hooks
+remain active and unchanged. The approved task-owned same-UID PID namespace
+runner is intact and its bounded startup check confirms UID 1000, child PID 2
+and parent PID 1. Exact wrapper/runner/checksum evidence remains outside versioned
+artifacts. Each checkout retains its own Cargo target.
+
+The controller must use the prepared external Cargo wrapper environment and the
+unchanged six-command gate against the clean pushed preparation commit. No full
+gate was run during preparation. The earlier slice receipt is not evidence for
+that new integrated candidate. Specification/model/plan/tracker completion and
+source-ticket resolution remain pending.
