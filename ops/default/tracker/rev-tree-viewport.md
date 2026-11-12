@@ -8,7 +8,7 @@ Plan: [Tree Viewport Delivery](../plan/rev-tree-viewport.md)
 Specification: [File Tree Width and Horizontal Navigation](../spec/editor-tree-viewport.md)
 Model: [Tree Viewport Policy](../spec/editor-tree-viewport-model.md)
 Ticket: [TKT-20261108175339](../ticket/in_progress/20261108175339-improve-file-tree-panel-width-and-horizontal-navigation.md)
-Active slice: Slice 1 of 2 - Width policy
+Active slice: Slice 2 of 2 - Horizontal navigation
 Progress owner: native Looper checkpoint and canonical validation evidence
 
 ## Canonical slice map
@@ -20,7 +20,7 @@ Progress owner: native Looper checkpoint and canonical validation evidence
 
 ## Slice 1: Width policy
 
-State: reviewing
+State: delivered
 Dependency: approved preparation committed/pushed on clean dev
 Requirements: TVP01, TVP02, TVP03 and width-related TVP05, TVP06
 Branch: `feat/rev-tree-viewport-01-width`
@@ -37,7 +37,7 @@ Validation: the six exact ordered commands in the plan and local configuration
 
 ## Slice 2: Horizontal navigation
 
-State: pending
+State: in_progress
 Dependency: Slice 1 integrated and closed on dev
 Requirements: TVP04, TVP05, TVP06 and joint TVP01-TVP03 acceptance
 Branch: `feat/rev-tree-viewport-02-horizontal`
@@ -63,4 +63,7 @@ Validation: the six exact ordered commands in the plan and local configuration
 - [ ] Remove only this set's clean inactive integrated worktrees without force;
   verify clean synchronized dev and final closure commit.
 
-Slice 1 is implemented in its dedicated worktree with focused, executable and documentation checks. Canonical PR #30 is open against dev; implementation commit is `77f96b3b69c959fdeff8f0f9590ac074d0c0a7c6`. Final clean-HEAD validation follows the PR-reference commit before controller handoff. Slice 2 and the integrated gate remain pending.
+Slice 1 of 2 is delivered through merged canonical PR #30 at
+`03b0d22b322a97b7d374568b7bcbeb807bc38e73`. Exact clean-HEAD receipt
+`EXJXXB4JIRODJ7SWQL3EMTUVBW` passed all six ordered commands, including
+635 selected native tests. Slice 2 is active; the integrated gate remains pending.

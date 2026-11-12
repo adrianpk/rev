@@ -10,7 +10,7 @@ Specification: [File Tree Width and Horizontal Navigation](../spec/editor-tree-v
 Model: [Tree Viewport Policy](../spec/editor-tree-viewport-model.md)
 Tracker: [Tree Viewport Tracker](../tracker/rev-tree-viewport.md)
 Ticket: [TKT-20261108175339](../ticket/in_progress/20261108175339-improve-file-tree-panel-width-and-horizontal-navigation.md)
-Active slice: Slice 1 of 2 - Width policy
+Active slice: Slice 2 of 2 - Horizontal navigation
 
 ## Outcome and strategy
 

@@ -1,6 +1,6 @@
 # Slice 1: Width policy
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-tree-viewport
 Plan: `ops/default/plan/rev-tree-viewport.md`
 Tracker: `ops/default/tracker/rev-tree-viewport.md`
@@ -66,6 +66,11 @@ The source ticket records its real start and remains in_progress for both slices
 - Existing Better File Tree native/PTY acceptance and `docs/reference/file-tree.md`.
 
 ## Validation
+
+Canonical PR #30 merged into dev at
+`03b0d22b322a97b7d374568b7bcbeb807bc38e73`. Final clean-HEAD receipt
+`EXJXXB4JIRODJ7SWQL3EMTUVBW` passed all six ordered commands and all
+635 selected native tests. The controller retains the exact command logs.
 
 The controller receipt for the final clean PR HEAD owns acceptance for this
 exact ordered list. It is recorded after PR-reference commits; this report does
