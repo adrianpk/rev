@@ -25,6 +25,7 @@ retain their own specification/model state.
 | Topic | Artifacts | State and remaining decisions |
 | --- | --- | --- |
 | Experimental plugin host/API | [Spec](spec/editor-plugin-system.md), [model](spec/editor-plugin-system-model.md), [plan](plan/rev-plugin-system.md), [tracker](tracker/rev-plugin-system.md) | Delivered / Completed. Thirteen canonical slices through PRs #1-#13 and artifact-selection repair #14 deliver PLG01-PLG12, the Rust SDK and independent Go interoperability. The unchanged controller gate passed at `883ad9d6c9bafd50df7e93549731fb03c64b08fd`, receipt `RWRJFWYYQPE2QZBP3APA2LD46F`; [Slice 13 closure](report/slices/rev-plugin-system/slice-13-acceptance.md#delivery-set-closure) records exact acceptance and evidence limits. Catalog/distribution, stable API adoption and the development-workflow plugin remain separate. |
+| File-tree width and horizontal navigation | [Spec](spec/editor-tree-viewport.md), [model](spec/editor-tree-viewport-model.md), [plan](plan/rev-tree-viewport.md), [tracker](tracker/rev-tree-viewport.md) | Accepted / Approved. Two slices deliver stable automatic width, manual four-column width controls and shared one-column horizontal navigation. Source ticket TKT-20261108175339 is ready; no implementation or acceptance is claimed. |
 | Keyboard macros | [Spec](spec/editor-keyboard-macros.md), [model](spec/editor-keyboard-macros-model.md), [plan](plan/rev-keyboard-macros.md), [tracker](tracker/rev-keyboard-macros.md) | Delivered / Completed. Eight slices through PRs #319-#326 deliver KMA01-KMA09: native recording/replay, named/prompt capture, ring/append/counters, queries and regions, independent names/bindings, explicit TOML persistence and definition/step/menu editing with User Guide/reference guidance. The unchanged controller gate passed at `0b67a3659b4ec63e5188b062e255c2f9b19900c1`, receipt `CAGQYNBGGZFQHTATRQRSHDE4K2`; [Slice 8 closure](report/slices/rev-keyboard-macros/slice-8-acceptance.md#delivery-set-closure) records the exact command, 325 selected tests, native/PTY acceptance and local Markdown/Spore results. |
 | Command prefix arguments | [Spec](spec/editor-prefix-arguments.md), [plan](plan/rev-prefix-arguments.md), [tracker](tracker/rev-prefix-arguments.md) | Delivered / Completed. Four slices through PRs #314-#317 deliver ARG01-ARG06: checked prefix entry, command-specific movement/edit/history meaning, contextual ownership and native acceptance with User Guide/reference guidance. The unchanged controller gate passed at `7cfef9be78fad975040ccd78dcb9cfebe32b28cd`, receipt `ZGGKKSNDW2ZMWGRELYH5WWFTZV`; [Slice 4 closure](report/slices/rev-prefix-arguments/slice-4-acceptance.md#delivery-set-closure) records the exact command, 207 selected tests and local Markdown/Spore results. |
 | File tree parent navigation | [Spec](spec/editor-tree-parent-navigation.md), [plan](plan/rev-tree-parent-navigation.md), [tracker](tracker/rev-tree-parent-navigation.md) | Delivered / Completed. One slice through PR #312 delivers TUP01-TUP04: tree-up-directory and tree-local ^ browse automatic ancestors while retaining the selected return directory and editing state. Explicit directory, Project, Workspace and configured cwd roots stay fixed. The unchanged controller gate passed at `d75db7c33994b51eeb6a3a01c0b05647105ab7c8`, log `FU4RKA7ANFGNAMEYBVMUXMDHTI`; [Slice 1 closure](report/slices/rev-tree-parent-navigation/slice-1-parent.md#delivery-set-closure) records the exact command, 107 selected tests and local Markdown/Spore results. |
@@ -84,10 +85,11 @@ approval boundaries.
 
 ## Pending proposals
 
-- [File-tree width and horizontal navigation](ticket/open/20261108175339-improve-file-tree-panel-width-and-horizontal-navigation.md)
-  has completed product alignment. Stable automatic fitting, manual four-column
-  adjustment, direct one-column arrow navigation, keybindings and TOML policy
-  are agreed. The canonical ticket remains open for separate implementation.
+- [File-tree width and horizontal navigation](spec/editor-tree-viewport.md)
+  has an Accepted specification and [model](spec/editor-tree-viewport-model.md).
+  The owner approved the two-slice [plan](plan/rev-tree-viewport.md) and
+  [tracker](tracker/rev-tree-viewport.md). The [source ticket](ticket/ready/20261108175339-improve-file-tree-panel-width-and-horizontal-navigation.md)
+  is ready; implementation and acceptance are not yet complete.
 - [Delimiter Pairs](spec/editor-delimiter-pairs.md) and its
   [model](spec/editor-delimiter-pairs-model.md) remain Draft. Depth coloring and
   the restrained match alternative are settled; editing defaults, context rules,

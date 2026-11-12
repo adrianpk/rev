@@ -1,7 +1,7 @@
 ---
 id: TKT-20261108175339
 title: Resize the file-tree panel and reveal long nested names
-status: open
+status: ready
 kind: task
 severity: unclassified
 priority: unclassified
@@ -10,6 +10,7 @@ tags: file-tree, panels, navigation
 source: chat
 reported_at: 2026-11-08T17:53:39Z
 commits: []
+ready_at: 2026-11-12T20:53:38.391200Z
 ---
 
 # Resize the file-tree panel and reveal long nested names
@@ -254,7 +255,14 @@ defaults or implementation during capture.
 
 ## Delivery boundary
 
-The owner completed product alignment and authorized canonicalization after
-the Keyboard Macros delivery closed. This ticket retains its original identity
-and open status. It records the agreed behavior for a separate implementation;
-no runtime change, implementation plan or successor controller is started here.
+Product alignment is complete. On 2026-11-12 the owner authorized the
+specification and established implementation workflow. This ticket retains its
+identity and moves to ready for the two-slice Tree Viewport delivery.
+
+- [Specification](../../spec/editor-tree-viewport.md)
+- [Model](../../spec/editor-tree-viewport-model.md)
+- [Plan](../../plan/rev-tree-viewport.md)
+- [Tracker](../../tracker/rev-tree-viewport.md)
+
+The native Looper controller owns implementation, canonical PR integration,
+the selected exact-candidate gate and documentation/ticket closure.
