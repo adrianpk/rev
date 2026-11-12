@@ -176,7 +176,9 @@ fn peer_tree_routes() {
         session.execute(Command::Tree(TreeCommand::Open));
         assert_eq!(session.buffer().unwrap().file().unwrap().path(), nested);
         let frame = session.frame().unwrap();
-        assert_eq!(frame.rows()[2].selection(), Some(0..24));
+        // Full peer-root labels fit to the default one-third cap at 100 columns.
+        assert!(session.tree().auto_width());
+        assert_eq!(frame.rows()[2].selection(), Some(0..33));
         let id = session.buffer().unwrap().id();
         session.insert('!');
         let stamp = session.buffer().unwrap().stamp();
@@ -190,7 +192,7 @@ fn peer_tree_routes() {
         let marked = frame
             .rows()
             .iter()
-            .filter(|r| r.selection() == Some(0..24))
+            .filter(|r| r.selection() == Some(0..33))
             .collect::<Vec<_>>();
         assert_eq!(marked.len(), 1);
         assert_eq!(marked[0].row(), 5);
@@ -201,7 +203,7 @@ fn peer_tree_routes() {
         let marked = frame
             .rows()
             .iter()
-            .filter(|r| r.selection() == Some(0..24))
+            .filter(|r| r.selection() == Some(0..33))
             .collect::<Vec<_>>();
         assert_eq!(marked.len(), 1);
         assert_eq!(marked[0].row(), 2);

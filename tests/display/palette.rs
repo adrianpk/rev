@@ -31,7 +31,7 @@ fn session() -> (config_fixture::Fixture, Session, Palette) {
         "warning",
         "error",
     ];
-    let config = roles
+    let mut config = roles
         .iter()
         .enumerate()
         .map(|(index, role)| {
@@ -39,6 +39,8 @@ fn session() -> (config_fixture::Fixture, Session, Palette) {
             format!("palette.{role} = '#{channel:02x}{channel:02x}{channel:02x}'\n")
         })
         .collect::<String>();
+    // Fixed geometry preserves the palette samples at the source/tree boundary.
+    config.push_str("tree.auto_width=false\n");
     let startup = prepare(&fixture.write("config.toml", &config));
     assert!(startup.diagnostic.is_none());
     let palette = startup.snapshot.settings().palette.clone();

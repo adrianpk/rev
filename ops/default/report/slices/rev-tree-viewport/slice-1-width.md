@@ -100,6 +100,22 @@ Early development runs exposed selector text clipping, sample-map counts, a
 Markdown table boundary and excess native action replay; focused corrections
 passed without increasing timeouts or weakening existing assertions.
 
+The first clean-HEAD batch, JIK24PM3BXI2LRYEZD4H4BPCE5 on
+`64dd5fec4726b40633c1e7957fb38e364fd0c744`, passed lint, 204 command tests
+(677.15 s) and 162 configuration tests (257.34 s), then failed one of 63
+context tests: a legacy Workspace highlight expected 24 columns rather than
+the new automatic 33-column cap. Its three exact highlight expectations now
+assert that cap and runtime automatic ownership. A fixed-column palette sample
+also explicitly selects fixed width, preserving its original RGB assertions.
+The corrected targets passed: contexts 63/63 (60.28 s), display 47/47
+(34.35 s), pointer 69/69 (78.50 s) and tree 90/90 (62.45 s). The successful
+surface command was:
+
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test display --test pointer --test tree -- --test-threads=1`
+
+The unchanged six-command batch must pass on the new clean PR HEAD; the earlier
+failed receipt is retained as failure evidence.
+
 Documentation passed with 106 reachable pages and 743 local links/anchors.
 The User Guide built through its canonical Markdown-to-Spore projection.
 Cargo execution uses the task-owned same-UID PID namespace runner with a real
