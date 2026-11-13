@@ -157,7 +157,7 @@ Slice 5 of 6 completed; Slice 6 is active.
 State: active
 Requirements: Joint MD01-MD06 and the complete reproducibility matrix
 Branch: `feat/rev-markdown-06-acceptance`
-PR: pending
+PR: `#39`
 Report: `ops/default/report/slices/rev-markdown/slice-6-acceptance.md`
 Validation: the exact ordered checks for Slice 6 in the plan and frozen local configuration
 
@@ -166,9 +166,11 @@ Validation: the exact ordered checks for Slice 6 in the plan and frozen local co
 - [ ] T6.3: Record native/PTY evidence and complete the report. Prepare the clean published integrated candidate for the controller-owned full gate; after success close only configured Markdown artifacts and remove this set's clean inactive integrated worktrees.
 
 Task commits: implementation and report introduction
-`0426fa99039d1b095940c38e3b8f6ed6db02817a`; evidence and PR references pending.
-All six required development commands pass in canonical order on that clean
-published HEAD. Native targets pass 423 cases without failures, ignored or
+`0426fa99039d1b095940c38e3b8f6ed6db02817a`; development evidence
+`850b4a3754ae458027b224f49974e9cbe3b6c3a0`; canonical
+PR [#39](https://forge.adrianpk.com/rev/rev/pulls/39).
+All six required development commands pass in canonical order on the clean
+published implementation HEAD. Native targets pass 423 cases without failures, ignored or
 filtered cases: commands 205/672.54 s, configuration 169/318.13 s and Markdown
 49/120.62 s. Native targets total 1,111.29 s. The joined native/PTY check passes
 eight native cases and four PTYs in 6.08 s; every PTY restores its terminal.

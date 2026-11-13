@@ -5,7 +5,7 @@ Delivery set: rev-markdown
 Plan: [Markdown Delivery](../../../plan/rev-markdown.md)
 Tracker: [Markdown Tracker](../../../tracker/rev-markdown.md)
 Branch: `feat/rev-markdown-06-acceptance`
-PR: pending
+PR: `#39`
 
 ## Purpose
 
@@ -30,6 +30,8 @@ controller-owned integrated delivery gate.
 ## Implementation Notes
 
 Implementation and report introduction: `0426fa99039d1b095940c38e3b8f6ed6db02817a`.
+Canonical PR: https://forge.adrianpk.com/rev/rev/pulls/39
+Development evidence commit: `850b4a3754ae458027b224f49974e9cbe3b6c3a0`.
 
 The acceptance crate uses one checked-in Markdown fixture, the existing bounded
 PTY owner and the existing frame-cell decoder. Each PTY keeps the existing
