@@ -1,6 +1,6 @@
 # Slice 3: List presentation and editing
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-markdown
 Plan: [Markdown Delivery](../../../plan/rev-markdown.md)
 Tracker: [Markdown Tracker](../../../tracker/rev-markdown.md)
@@ -87,10 +87,13 @@ All five required development commands passed in canonical order on clean
 implementation HEAD `4251b929e6b4493a59a0e7146ffb82a5e1c7b38b`, from
 2026-11-13T18:42:28Z to 2026-11-13T19:01:07Z. All 542 tests across six native
 targets passed without failures or ignored cases. Full lint, exact command and
-configuration documentation and whitespace checks passed. Final worker acceptance
-requires the controller receipt on the clean published PR HEAD after all
-PR-reference commits, without modifying that tested HEAD. The controller owns
-integration and the full delivery-set gate.
+configuration documentation and whitespace checks passed. Controller receipt `O7DFCKIXNY2ZQQTIKXKH7L3PGQ` passed all five ordered
+checks on clean published HEAD `d6d65ac09aa124b7155754bda6db1bf158e68349`,
+from 2026-11-13T19:03:08Z to 2026-11-13T19:21:13Z. All 542 native tests
+passed without failures or ignored cases; the native targets took 1,069.42 s.
+Canonical PR #36 merged into dev at that exact commit, verified against both
+dev refs and its Acta integration record. Slice 3 of 6 completed. The controller
+owns the remaining full delivery-set gate.
 
 - `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 make lint`
 - `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test markdown --test configuration --test commands --test display --test pointer -- --test-threads=1`

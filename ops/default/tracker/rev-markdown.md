@@ -8,7 +8,7 @@ Approved: product owner, 2026-11-13; approved specification, slicing and establi
 Plan: [Markdown Delivery](../plan/rev-markdown.md)
 Spec: [Markdown Editing and Presentation](../spec/editor-markdown-mode.md)
 Model: [Markdown Policy and Actions](../spec/editor-markdown-mode-model.md)
-Active slice: Slice 3 - List presentation and editing
+Active slice: Slice 4 - Table creation and field editing
 Progress owner: native Looper checkpoint, canonical PR state and exact-candidate validation receipts
 Parser decision: owner accepted pulldown-cmark 0.13.6 subject to compatible licensing; exact package and minimal graph verified
 
@@ -73,7 +73,7 @@ Slice 2 of 6 completed; Slice 3 is active.
 
 ## Slice 3: List presentation and editing
 
-State: active
+State: delivered
 Requirements: MD03 and list-related MD05/MD06
 Branch: `feat/rev-markdown-03-lists`
 PR: [#36](https://forge.adrianpk.com/rev/rev/pulls/36)
@@ -91,12 +91,15 @@ Task commits: T3.1-T3.3 implementation, regressions and report introduction at
 All five ordered development commands passed on that clean implementation HEAD:
 542 tests across six targets, no failed or ignored cases, full first-party lint,
 698-command/322-setting documentation and whitespace checks. Native targets took
-1,092.91 s. Final worker acceptance requires one exact clean published HEAD
-receipt after PR-reference commits; the controller owns integration.
+1,092.91 s. Controller receipt `O7DFCKIXNY2ZQQTIKXKH7L3PGQ` passed all five ordered
+checks on clean published HEAD `d6d65ac09aa124b7155754bda6db1bf158e68349`.
+All 542 native tests passed without failures or ignored cases in 1,069.42 s.
+Canonical PR #36 merged at that exact commit; both dev refs match.
+Slice 3 of 6 completed; Slice 4 is active.
 
 ## Slice 4: Table creation and field editing
 
-State: pending
+State: active
 Requirements: MD04 creation/alignment/navigation, MD05, MD06
 Branch: `feat/rev-markdown-04-tables`
 PR: pending
