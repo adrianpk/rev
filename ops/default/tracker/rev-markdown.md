@@ -102,7 +102,7 @@ Slice 3 of 6 completed; Slice 4 is active.
 State: active
 Requirements: MD04 creation/alignment/navigation, MD05, MD06
 Branch: `feat/rev-markdown-04-tables`
-PR: pending
+PR: [#37](https://forge.adrianpk.com/rev/rev/pulls/37)
 Report: `ops/default/report/slices/rev-markdown/slice-4-tables.md`
 Validation: the exact ordered checks for Slice 4 in the plan and frozen local configuration
 
@@ -111,7 +111,8 @@ Validation: the exact ordered checks for Slice 4 in the plan and frozen local co
 - [x] T4.3: Wire contextual table routes in both editing profiles and named selectors. Cover header-only tables, all alignments, literal code, ragged/invalid shapes, read-only refusal, limits and exact undo/redo; document behavior and report acceptance.
 
 Task commits: T4.1-T4.3 implementation, regressions and report introduction at
-`af6d28fdbf6afca809206e0298648a8c8d33b369`; development evidence is recorded with this tracker update.
+`af6d28fdbf6afca809206e0298648a8c8d33b369`; development evidence at
+`3c422f273ec11051ecbbc51301784c0fef01c2ae`.
 
 All four ordered development commands passed on that clean published HEAD:
 489 tests across four native targets, no failures or ignored cases, full

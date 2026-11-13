@@ -5,7 +5,7 @@ Delivery set: rev-markdown
 Plan: [Markdown Delivery](../../../plan/rev-markdown.md)
 Tracker: [Markdown Tracker](../../../tracker/rev-markdown.md)
 Branch: `feat/rev-markdown-04-tables`
-PR: pending
+PR: `#37`
 
 ## Purpose
 
@@ -38,7 +38,8 @@ insertion and deletion remain Slice 5.
 ## Implementation Notes
 
 Implementation and report introduction: `af6d28fdbf6afca809206e0298648a8c8d33b369`.
-Canonical PR: pending.
+Canonical PR: https://forge.adrianpk.com/rev/rev/pulls/37
+Development evidence commit: `3c422f273ec11051ecbbc51301784c0fef01c2ae`.
 
 The parser adapter records table and row source ranges alongside heading/list
 observations. Separator scanning operates only inside that admitted context and
