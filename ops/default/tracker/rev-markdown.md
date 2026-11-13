@@ -8,7 +8,7 @@ Approved: product owner, 2026-11-13; approved specification, slicing and establi
 Plan: [Markdown Delivery](../plan/rev-markdown.md)
 Spec: [Markdown Editing and Presentation](../spec/editor-markdown-mode.md)
 Model: [Markdown Policy and Actions](../spec/editor-markdown-mode-model.md)
-Active slice: Slice 1 - Recognition and colors
+Active slice: Slice 2 - Heading presentation
 Progress owner: native Looper checkpoint, canonical PR state and exact-candidate validation receipts
 Parser decision: owner accepted pulldown-cmark 0.13.6 subject to compatible licensing; exact package and minimal graph verified
 
@@ -25,7 +25,7 @@ Parser decision: owner accepted pulldown-cmark 0.13.6 subject to compatible lice
 
 ## Slice 1: Recognition and colors
 
-State: reviewing
+State: delivered
 Requirements: MD01, MD02 semantic colors, MD06
 Branch: `feat/rev-markdown-01-recognition`
 PR: [#34](https://forge.adrianpk.com/rev/rev/pulls/34)
@@ -42,12 +42,14 @@ T1.3 report and catalog/cell-decoder correction at `1541cc22aac2f6116ffbeaad73bd
 Development evidence: the exact combined command passed all 413 tests
 (205 command, 166 configuration, 12 Markdown and 30 syntax) with no ignored cases.
 Full first-party lint, the exact 691-command/314-setting documentation catalogs
-and whitespace checks pass. Worker handoff requires the controller receipt for
-the final clean published PR HEAD after these PR references.
+and whitespace checks pass. Controller receipt `HKRXV4E57IEJINKYEFTGERL7BN` passed all four ordered checks
+on clean published HEAD `7db1c13153289e71276544e3a32f829d01a6cdb3`.
+Canonical PR #34 merged at that exact commit; both dev refs match.
+Slice 1 of 6 completed; Slice 2 is active.
 
 ## Slice 2: Heading presentation
 
-State: pending
+State: active
 Requirements: MD02, MD05, heading-related MD01/MD06
 Branch: `feat/rev-markdown-02-headings`
 PR: pending

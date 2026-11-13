@@ -1,6 +1,6 @@
 # Slice 1: Recognition and colors
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-markdown
 Plan: [Markdown Delivery](../../../plan/rev-markdown.md)
 Tracker: [Markdown Tracker](../../../tracker/rev-markdown.md)
@@ -33,6 +33,8 @@ slice boundaries.
 Implementation commit: `98cda39921c31c00997b4400cc967ec9bad4abad` (T1.1-T1.2 and native regressions).
 Canonical PR: https://forge.adrianpk.com/rev/rev/pulls/34
 Report introduction: `1541cc22aac2f6116ffbeaad73bd3aa2bd9e741f`.
+Controller integration: PR #34 merged into dev at validated commit
+`7db1c13153289e71276544e3a32f829d01a6cdb3`.
 
 
 The private Markdown adapter retains original source byte ranges, heading levels,
@@ -79,6 +81,11 @@ exact upstream MIT notices; Rev remains GPL-3.0-only.
 - docs/reference/syntax.md, complete sample/catalogs and THIRD-PARTY-NOTICES.md.
 
 ## Validation
+
+Final clean published HEAD `7db1c13153289e71276544e3a32f829d01a6cdb3` passed
+controller receipt `HKRXV4E57IEJINKYEFTGERL7BN`, all four ordered checks,
+from 2026-11-13T16:21:58Z to 2026-11-13T16:37:48Z. All 413 tests passed
+without failures or ignored cases; full lint, documentation and whitespace passed.
 
 All required development commands below passed. The combined native command
 passed all 413 selected tests without failures or ignored cases. Acceptance
