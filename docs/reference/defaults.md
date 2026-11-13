@@ -295,7 +295,7 @@ Both use M-x or modal colon and leave this configuration unchanged.
 | `keys.macro_menu` | Map of chord sequences to native macro menu commands | Compiled map | Read-only ring component; all 29 entries are active in the sample, including native selection and recovery. |
 | `keys.git` | Map of chord sequences to admitted Git commands | Compiled map | One native Git interaction owner in both profiles; all 72 entries are active in the sample. |
 | `keys.bookmark_list` | Map of chord sequences to admitted bookmark-list commands | Compiled map | Read-only bookmark view; all 16 entries are active in the sample. Prompts retain their own input maps. |
-| `keys.tree` | Map of chord sequences to admitted tree commands | Compiled map | Tree focus; all 29 entries are active in the sample. |
+| `keys.tree` | Map of chord sequences to admitted tree commands | Compiled map | Tree focus; all 33 entries are active in the sample. |
 
 Only the fixed implemented [commands and context actions](bindings.md) are
 accepted as keymap values. No value unbinds a key or supplies code or consent.
