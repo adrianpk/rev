@@ -211,6 +211,7 @@ fn palette(palette: &PartialPalette) -> Result<(), Failure> {
         color(&format!("palette.{key}"), value.as_deref())?;
     }
     org_palette(&palette.org)?;
+    markdown_palette(&palette.markdown)?;
     gutter_palette(&palette.gutter)?;
     git_palette(&palette.git)?;
     tree_palette(&palette.tree_entries)?;
@@ -789,6 +790,20 @@ fn tree_palette(palette: &super::PartialTreePalette) -> Result<(), Failure> {
         ("symlink", &palette.symlink),
     ] {
         color(&format!("palette.tree_entries.{key}"), value.as_deref())?;
+    }
+    Ok(())
+}
+
+fn markdown_palette(palette: &super::PartialMarkdownPalette) -> Result<(), Failure> {
+    for (key, value) in [
+        ("emphasis", &palette.emphasis),
+        ("link", &palette.link),
+        ("code", &palette.code),
+        ("quote", &palette.quote),
+        ("list", &palette.list),
+        ("table", &palette.table),
+    ] {
+        color(&format!("palette.markdown.{key}"), value.as_deref())?;
     }
     Ok(())
 }

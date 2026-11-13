@@ -62,6 +62,7 @@ impl Session {
         }
         self.clock_recovery_pin = None;
         self.org.cancel();
+        self.markdown.cancel();
         self.agenda_query_plan = None;
         self.agenda_custom_plan = None;
         if matches!(

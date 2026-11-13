@@ -7,7 +7,7 @@ mod source;
 mod style;
 mod web;
 
-pub use style::Style;
+pub use style::{MarkdownRole, Style};
 
 use std::ops::Range;
 

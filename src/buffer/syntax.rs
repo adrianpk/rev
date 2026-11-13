@@ -46,7 +46,7 @@ impl Buffer {
         self.syntax_active
             && (self.grammar != Grammar::Plain || self.external_applied)
             && self.mode_choice.is_none()
-            && !self.is_org()
+            && !self.has_native_document_mode()
             && !self.is_readonly()
     }
     pub(crate) fn completion_snapshot(&mut self) -> Result<(ropey::Rope, Syntax), String> {
@@ -136,6 +136,9 @@ impl Buffer {
         if self.is_org() {
             return "Org";
         }
+        if self.is_markdown() {
+            return "Markdown";
+        }
         if self.is_transient() {
             return "Capture";
         }
@@ -163,10 +166,14 @@ impl Buffer {
     // Parser admission is derived metadata. Dropping it above the byte cutoff
     // removes stale styles; shrinking below the cutoff starts from current text.
     // Parse failure keeps active=true, retaining once-per-revision retry bounds.
+    fn has_native_document_mode(&self) -> bool {
+        self.is_org() || self.is_markdown()
+    }
+
     fn prepare_syntax(&mut self) -> bool {
         let admitted = self.syntax_policy.enabled
             && self.mode_choice.is_none()
-            && !self.is_org()
+            && !self.has_native_document_mode()
             && (self.grammar != Grammar::Plain || self.external.is_some())
             && (self.syntax_policy.max_bytes == 0
                 || self.len_bytes() <= self.syntax_policy.max_bytes);

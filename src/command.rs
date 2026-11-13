@@ -155,7 +155,7 @@ pub enum Command {
 }
 
 impl Command {
-    pub const ALL: [Self; 690] = [
+    pub const ALL: [Self; 691] = [
         Self::Plugin(PluginCommand::List),
         Self::Plugin(PluginCommand::Activate),
         Self::Plugin(PluginCommand::Deactivate),
@@ -785,6 +785,7 @@ impl Command {
         Self::Org(OrgCommand::LinkPreviewRefresh),
         Self::Org(OrgCommand::LinkPreviewRegion),
         Self::Mode(Mode::Org),
+        Self::Mode(Mode::Markdown),
         Self::Mode(Mode::Text),
         Self::Gutter(GutterCommand::Toggle),
         Self::Gutter(GutterCommand::CycleMode),

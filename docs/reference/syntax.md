@@ -87,7 +87,8 @@ its captures. Several accepted edits can accumulate before rendering. A later
 refresh reuses the tree only when its coordinates match the current revision;
 otherwise it starts from current source. Drawing refreshes at most once per
 rendered revision, outside atomic publication, from borrowed rope chunks.
-No complete document String is built for parsing.
+Tree-sitter parsing builds no complete document String. Native Markdown uses
+the bounded worker snapshot described below.
 
 An incomplete parse can still supply current captures. A canceled or failed
 parse discards the tree and parser continuation, keeps the accepted text/history
@@ -143,6 +144,44 @@ Colors use the same grapheme/tab/wide-cell projection, selection/search preceden
 and NO_COLOR fallback as Rust. NO_COLOR keeps original source and delimiters,
 selection reverse video and search underlining without RGB output. Task-state,
 tag and timestamp text retain their enclosing heading and planning roles.
+
+## Native Markdown source
+
+Files ending in `.md` or `.markdown` select native Markdown through the existing
+association resolver. User associations take precedence. `markdown-mode` also
+selects it explicitly; `text-mode` suspends it without changing text or history.
+`markdown.enabled = false` disables native entry and automatic activation.
+The status stays `Markdown` while analysis is pending, canceled or over a bound.
+Native Markdown works offline; Marksman and other language servers remain optional.
+
+CommonMark context and the GFM table extension provide source-backed recognition.
+Emphasis and strong emphasis, links and images, inline/fenced/indented code,
+quotes, lists and tables use the six `palette.markdown` colors in the
+[configuration catalog](defaults.md#markdown-semantic-colors). Nested inline
+colors override enclosing block colors. Literal code never recognizes nested
+Markdown markup. Headings retain their source prefixes and ordinary text color.
+There is no source decoration or structural editing command in this increment.
+
+A temporary session-owned worker takes one bounded contiguous source snapshot
+per admitted revision. The profile admits at most 8 MiB, 200,000 parser events
+and retained nodes, 256 structural levels and two seconds of cooperative work.
+A lower nonzero `syntax.max_bytes` wins. Cancellation is checked during snapshot
+copying, before/after parser construction and between events; parser-internal
+steps remain bounded by the admitted source. A limit or cancellation discards
+the entire observation. That revision is not retried on every draw.
+
+Results must match the current buffer, revision and mode generation. Edits,
+undo and reload invalidate old colors immediately; leaving the mode or hiding
+its buffer retires pending work. Split views reuse one observation. C-g cancels
+owned work. There is no permanent parser thread and no Markdown polling deadline
+when idle. `syntax.enabled = false` disables colors while retaining independent
+structural recognition and the Markdown mode.
+
+Source bytes, BOM/newlines, read-only state, points, marks, dirty state and undo
+history remain canonical. Shared grapheme projection, selection/search
+precedence and NO_COLOR behavior apply. The private parser adapter uses the
+approved default-off dependencies and retains their exact upstream
+[MIT notices](../../THIRD-PARTY-NOTICES.md).
 
 ## Library fold projection
 

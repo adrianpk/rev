@@ -226,6 +226,10 @@ show_hidden = true
 # Boolean; sort directories before leaves, then names by bytes.
 directories_first = true
 
+[markdown]
+# Native CommonMark and table syntax; markdown-mode selects it per buffer.
+enabled = true
+
 [org]
 # Native Org availability; M-x org-mode selects it explicitly per buffer.
 enabled = true
@@ -497,6 +501,15 @@ type = "#2ac3de"                # Types and constructors.
 function = "#7aa2f7"            # Functions, methods and macros.
 number = "#ff9e64"              # Constants, booleans and numeric literals.
 punctuation = "#89ddff"         # Grammar-captured punctuation and operators.
+
+[palette.markdown]
+# CommonMark semantic roles; inline objects override enclosing blocks.
+emphasis = "#9d7cd8"
+link = "#7aa2f7"
+code = "#9ece6a"
+quote = "#565f89"
+list = "#89ddff"
+table = "#89ddff"
 
 [palette.org]
 heading = "#7aa2f7" # Heading face 1; eight faces cycle independently of bullets.

@@ -41,6 +41,7 @@ impl Buffer {
         }
         if self.syntax_policy != settings.settings().syntax {
             self.org_attempt = None;
+            self.reset_markdown();
         }
         self.syntax_policy = settings.settings().syntax.clone();
         let external = settings.external(&language);

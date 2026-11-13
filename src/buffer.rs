@@ -3,6 +3,7 @@ pub mod edit;
 mod endings;
 pub(crate) mod events;
 mod lifecycle;
+mod markdown;
 mod mode;
 mod org;
 mod policy;
@@ -181,6 +182,7 @@ pub struct Buffer {
     org: Option<crate::org::Index>,
     mode_choice: Option<Mode>,
     org_active: bool,
+    markdown: markdown::State,
     // Startup projection policy, shared by all views of this buffer.
     pub(crate) org_indent: bool,
     org_indent_override: Option<bool>,
@@ -254,6 +256,7 @@ impl Buffer {
             org: None,
             mode_choice: None,
             org_active: false,
+            markdown: markdown::State::default(),
             org_indent: crate::config::Org::default().indent,
             org_indent_override: None,
             org_highlights: None,

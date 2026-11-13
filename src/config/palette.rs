@@ -43,6 +43,7 @@ pub struct Palette {
     pub error: Rgb,
     pub syntax: SyntaxPalette,
     pub org: OrgPalette,
+    pub markdown: MarkdownPalette,
     /// Number-field roles from the same immutable startup palette.
     pub gutter: GutterPalette,
     pub git: GitPalette,
@@ -72,6 +73,7 @@ impl Default for Palette {
             error: Rgb(0xdb, 0x4b, 0x4b),
             syntax: SyntaxPalette::default(),
             org: OrgPalette::default(),
+            markdown: MarkdownPalette::default(),
             gutter: GutterPalette::default(),
             git: GitPalette::default(),
         }
@@ -170,6 +172,7 @@ pub struct PartialPalette {
     pub error: Option<String>,
     pub syntax: PartialSyntaxPalette,
     pub org: PartialOrgPalette,
+    pub markdown: PartialMarkdownPalette,
     pub gutter: PartialGutterPalette,
     pub git: PartialGitPalette,
 }
@@ -392,4 +395,39 @@ pub struct PartialTreePalette {
     pub configuration: Option<String>,
     pub file: Option<String>,
     pub symlink: Option<String>,
+}
+
+/// Semantic Markdown colors, independent of Org customization.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct MarkdownPalette {
+    pub emphasis: Rgb,
+    pub link: Rgb,
+    pub code: Rgb,
+    pub quote: Rgb,
+    pub list: Rgb,
+    pub table: Rgb,
+}
+
+impl Default for MarkdownPalette {
+    fn default() -> Self {
+        Self {
+            emphasis: Rgb(0x9d, 0x7c, 0xd8),
+            link: Rgb(0x7a, 0xa2, 0xf7),
+            code: Rgb(0x9e, 0xce, 0x6a),
+            quote: Rgb(0x56, 0x5f, 0x89),
+            list: Rgb(0x89, 0xdd, 0xff),
+            table: Rgb(0x89, 0xdd, 0xff),
+        }
+    }
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Eq, Deserialize)]
+#[serde(default, deny_unknown_fields)]
+pub struct PartialMarkdownPalette {
+    pub emphasis: Option<String>,
+    pub link: Option<String>,
+    pub code: Option<String>,
+    pub quote: Option<String>,
+    pub list: Option<String>,
+    pub table: Option<String>,
 }

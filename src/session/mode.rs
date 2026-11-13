@@ -109,10 +109,10 @@ impl Session {
             .map_err(|error| error.to_string())
             .and_then(|buffer| buffer.select_mode(mode).map_err(|error| error.to_string()));
         match result {
-            Ok(()) => self.message(if mode == Mode::Org {
-                "Org mode"
-            } else {
-                "Text mode"
+            Ok(()) => self.message(match mode {
+                Mode::Org => "Org mode",
+                Mode::Markdown => "Markdown mode",
+                Mode::Text => "Text mode",
             }),
             Err(error) => self.error(&error),
         }

@@ -40,6 +40,7 @@ fn builtins() {
         ("main.toml", "toml"),
         ("Cargo.toml", "toml"),
         ("main.md", "markdown"),
+        ("main.markdown", "markdown"),
         ("main.sh", "shell"),
         ("Makefile", "make"),
         ("MAIN.RS", "plain"),

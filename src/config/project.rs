@@ -36,6 +36,7 @@ pub(super) fn settings(document: &Document) -> Settings {
     settings.terminal = document.terminal.project();
     settings.plugins = document.plugins.project();
     org(&mut settings.org, &document.org);
+    scalar(&mut settings.markdown.enabled, document.markdown.enabled);
     palette(&mut settings.palette, &document.palette);
     settings.language.clone_from(&document.language);
     settings.keys.clone_from(&document.keys);
@@ -205,6 +206,7 @@ fn palette(base: &mut Palette, partial: &PartialPalette) {
     color(&mut base.warning, &partial.warning);
     color(&mut base.error, &partial.error);
     org_palette(&mut base.org, &partial.org);
+    markdown_palette(&mut base.markdown, &partial.markdown);
     syntax_palette(&mut base.syntax, &partial.syntax);
     gutter_palette(&mut base.gutter, &partial.gutter);
     git_palette(&mut base.git, &partial.git);
@@ -501,4 +503,13 @@ fn tree_palette(base: &mut super::TreePalette, partial: &super::PartialTreePalet
     color(&mut base.configuration, &partial.configuration);
     color(&mut base.file, &partial.file);
     color(&mut base.symlink, &partial.symlink);
+}
+
+fn markdown_palette(base: &mut super::MarkdownPalette, partial: &super::PartialMarkdownPalette) {
+    color(&mut base.emphasis, &partial.emphasis);
+    color(&mut base.link, &partial.link);
+    color(&mut base.code, &partial.code);
+    color(&mut base.quote, &partial.quote);
+    color(&mut base.list, &partial.list);
+    color(&mut base.table, &partial.table);
 }

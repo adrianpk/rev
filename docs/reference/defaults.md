@@ -457,8 +457,9 @@ edit limits and finite lifecycle.
 | `tree.root` | String: "auto", "cwd" or "file-parent" | `"auto"` | Explicit directory targets win. Otherwise auto/file-parent follow the visiting file parent, falling back to launch cwd; cwd retains launch cwd. |
 | `tree.show_hidden` | Boolean | `true` | Session; admit dot-prefixed tree entries. This does not filter find-file candidates. |
 | `tree.directories_first` | Boolean | `true` | Session; tree directories sort before leaves, then by filename bytes. This does not change find-file ordering. |
-| `syntax.enabled` | Boolean | `true` | Session; enable derived syntax styling where a bundled grammar is selected. Text remains editable on fallback. |
-| `syntax.max_bytes` | Integer 0..=1073741824 | `0` | Session; UTF-8 byte cutoff. Zero means no configured cutoff; equality is admitted and a larger buffer uses plain presentation. |
+| `markdown.enabled` | Boolean | `true` | Startup; enable native Markdown recognition and explicit mode selection. Ordinary text and optional language servers remain available. |
+| `syntax.enabled` | Boolean | `true` | Session; enable derived colors in admitted syntax and native document modes. Text remains editable on fallback. |
+| `syntax.max_bytes` | Integer 0..=1073741824 | `0` | Session; UTF-8 byte cutoff. Zero means no configured cutoff; equality is admitted and larger buffers omit colors. Native modes retain their own finite observation bounds. |
 | `files.newline` | String: "lf" or "crlf" | `"lf"` | Creation default for new buffers only; existing separators and final-newline state are preserved. |
 | `files.bom` | Boolean | `false` | Creation default for one leading UTF-8 BOM; existing files retain their observed BOM state. |
 | `files.external_changes` | String: "reload" or "ask" | `"reload"` | Reload clean visiting buffers automatically, or retain text and notify under "ask". Both preserve unsaved text and its overwrite guard. |
@@ -678,3 +679,17 @@ implemented editing subset and each optional facility's boundaries.
 
 Use [Bindings](bindings.md), [Focused prompts](prompts.md),
 [Failure recovery](recovery.md) and [File tree](file-tree.md) for exact behavior.
+
+### Markdown semantic colors
+
+[Native Markdown syntax](syntax.md#native-markdown-source) uses these independent
+RGB roles. Inline objects override their enclosing quote, list or table.
+
+| Key | Type | Default | Effect |
+| --- | --- | --- | --- |
+| `palette.markdown.emphasis` | RGB hex string | `"#9d7cd8"` | Emphasis and strong emphasis. |
+| `palette.markdown.link` | RGB hex string | `"#7aa2f7"` | Links, reference links, autolinks and images. |
+| `palette.markdown.code` | RGB hex string | `"#9ece6a"` | Inline, fenced and indented literal code. |
+| `palette.markdown.quote` | RGB hex string | `"#565f89"` | Block quotes. |
+| `palette.markdown.list` | RGB hex string | `"#89ddff"` | Ordered and unordered lists, including continuations. |
+| `palette.markdown.table` | RGB hex string | `"#89ddff"` | GFM tables, including header and delimiter. |

@@ -2,7 +2,7 @@ use std::path::Path;
 
 use super::Snapshot;
 
-const BUILTINS: [(&str, &str); 28] = [
+const BUILTINS: [(&str, &str); 29] = [
     ("*.rs", "rust"),
     ("*.org", "org"),
     ("*.org_archive", "org"),
@@ -29,6 +29,7 @@ const BUILTINS: [(&str, &str); 28] = [
     ("*.toml", "toml"),
     ("Cargo.toml", "toml"),
     ("*.md", "markdown"),
+    ("*.markdown", "markdown"),
     ("*.sh", "shell"),
     ("Makefile", "make"),
 ];

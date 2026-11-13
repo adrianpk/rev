@@ -1,5 +1,7 @@
 #![forbid(unsafe_code)]
 
+mod markdown;
+
 pub mod ai;
 pub mod bookmark;
 pub mod buffer;

@@ -249,6 +249,7 @@ impl Session {
         self.installation.cancel();
         self.lsp.set_enabled(false);
         self.org.cancel();
+        self.markdown.cancel();
         self.end_timer_session();
         let destination = &mut replacement.session;
         destination.lsp.set_enabled(lsp_enabled);

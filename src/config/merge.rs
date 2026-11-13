@@ -41,6 +41,11 @@ impl Document {
         );
         merge.tree(&mut self.tree, &later.tree);
         merge.syntax(&mut self.syntax, &later.syntax);
+        merge.leaf(
+            &["markdown", "enabled"],
+            &mut self.markdown.enabled,
+            &later.markdown.enabled,
+        );
         merge.bookmarks(&mut self.bookmarks, &later.bookmarks);
         merge.completion(&mut self.completion, &later.completion);
         merge.lsp(&mut self.lsp, &later.lsp);
@@ -538,6 +543,7 @@ impl Merge {
         self.leaf(&["palette", "warning"], &mut base.warning, &later.warning);
         self.leaf(&["palette", "error"], &mut base.error, &later.error);
         self.org_palette(&mut base.org, &later.org);
+        self.markdown_palette(&mut base.markdown, &later.markdown);
         self.syntax_palette(&mut base.syntax, &later.syntax);
         self.gutter_palette(&mut base.gutter, &later.gutter);
         self.git_palette(&mut base.git, &later.git);
@@ -1249,6 +1255,45 @@ impl Merge {
             &["org", "headings", "cycle_bullets"],
             &mut base.cycle_bullets,
             &later.cycle_bullets,
+        );
+    }
+}
+
+impl Merge {
+    fn markdown_palette(
+        &mut self,
+        base: &mut super::PartialMarkdownPalette,
+        later: &super::PartialMarkdownPalette,
+    ) {
+        self.leaf(
+            &["palette", "markdown", "emphasis"],
+            &mut base.emphasis,
+            &later.emphasis,
+        );
+        self.leaf(
+            &["palette", "markdown", "link"],
+            &mut base.link,
+            &later.link,
+        );
+        self.leaf(
+            &["palette", "markdown", "code"],
+            &mut base.code,
+            &later.code,
+        );
+        self.leaf(
+            &["palette", "markdown", "quote"],
+            &mut base.quote,
+            &later.quote,
+        );
+        self.leaf(
+            &["palette", "markdown", "list"],
+            &mut base.list,
+            &later.list,
+        );
+        self.leaf(
+            &["palette", "markdown", "table"],
+            &mut base.table,
+            &later.table,
         );
     }
 }

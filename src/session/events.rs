@@ -112,6 +112,7 @@ impl Session {
             self.plugins_remaining(),
             self.pointer_remaining(now),
             self.org.remaining(now),
+            self.markdown.remaining(now),
             self.timer_remaining(now),
             self.agenda_action_remaining(),
             self.capture_remaining(),
@@ -318,6 +319,7 @@ impl Session {
                 self.expire_escape(now)
             },
             self.expire_org(now),
+            self.expire_markdown(now),
             self.expire_assets(),
             self.expire_lsp(),
             self.expire_reload(),

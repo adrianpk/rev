@@ -12,6 +12,7 @@ Every command below is also available as `M-x` followed by its exact name.
 
 | Keys | Command | Result |
 | --- | --- | --- |
+| M-x markdown-mode, :markdown-mode | `markdown-mode` | Select native Markdown for the current buffer. |
 | M-x plugin-list, :plugin-list | `plugin-list` | Inspect the passive experimental package inventory. |
 | M-x plugin-activate, :plugin-activate | `plugin-activate` | Select a package for activation; currently unavailable. |
 | M-x plugin-deactivate, :plugin-deactivate | `plugin-deactivate` | Inspect an inactive package without starting it. |
@@ -1139,7 +1140,12 @@ See [Org calendar defaults and availability](org/bindings.md#org-calendar-defaul
 
 ### Native mode selection
 
-See [Org native mode selection](org/bindings.md#native-mode-selection).
+Select native Markdown with M-x markdown-mode or the modal :markdown-mode
+selector. M-x text-mode suspends native Markdown. Automatic .md/.markdown
+recognition follows user association precedence; markdown.enabled controls
+availability. Mode changes preserve source, history, saved state and shared views.
+See [native Markdown syntax](syntax.md#native-markdown-source) and
+[Org native mode selection](org/bindings.md#native-mode-selection).
 
 ### Org date entry and calendar
 

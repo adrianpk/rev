@@ -44,6 +44,8 @@ pub(super) fn row(
     let bytes = coordinates.to_byte(first.source.start)?.0..coordinates.to_byte(last.source.end)?.0;
     let captures = if buffer.is_org() {
         buffer.org_captures(bytes)
+    } else if buffer.is_markdown() {
+        buffer.markdown_captures(bytes)
     } else {
         buffer.syntax().captures(buffer, bytes)
     };
@@ -127,6 +129,7 @@ fn append(result: &mut Vec<Paint>, paint: Paint) {
 pub(super) fn foreground(style: Style, palette: &Palette) -> Rgb {
     match style {
         Style::Org(role) => role.color(&palette.org),
+        Style::Markdown(role) => role.color(&palette.markdown),
         Style::Keyword => palette.syntax.keyword,
         Style::String => palette.syntax.string,
         Style::Comment => palette.syntax.comment,
@@ -146,5 +149,7 @@ impl super::Row {
 }
 
 fn colored(buffer: &Buffer) -> bool {
-    buffer.has_org_colors() || buffer.syntax().mode(buffer.stamp()) != "Text"
+    buffer.has_org_colors()
+        || buffer.has_markdown_colors()
+        || buffer.syntax().mode(buffer.stamp()) != "Text"
 }

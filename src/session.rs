@@ -50,6 +50,7 @@ mod feeds;
 mod previews;
 pub use feeds::FeedOutcome;
 mod macros;
+mod markdown;
 mod modal;
 mod mode;
 mod motion;
@@ -145,6 +146,7 @@ pub struct Session {
     bookmark_iteration: Option<bookmarks::Iteration>,
     buffers: Buffers,
     org: org::Work,
+    markdown: markdown::Work,
     capture: Option<capture::State>,
     block_request: Option<outline::Request>,
     source_edit: Option<source_edit::Draft>,
@@ -485,6 +487,7 @@ impl Session {
             bookmark_iteration: None,
             buffers,
             org: org::Work::default(),
+            markdown: markdown::Work::default(),
             capture: None,
             block_request: None,
             source_edit: None,
@@ -696,6 +699,7 @@ impl Session {
                 .refresh_syntax();
         }
         self.refresh_org();
+        self.refresh_markdown();
         self.advance_agenda_action();
         self.advance_capture();
         self.invalidate_search();

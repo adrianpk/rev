@@ -92,3 +92,5 @@ Copyright (C) 2026 Adrian PK.
 
 Licensed under the GNU General Public License, version 3 only
 (`GPL-3.0-only`). See [LICENSE](LICENSE).
+Native Markdown dependencies retain their upstream
+[third-party notices](THIRD-PARTY-NOTICES.md).

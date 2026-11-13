@@ -66,9 +66,9 @@ mod xdg;
 pub use diagnostic::{Diagnostic, Position};
 pub use load::{Source, Sources, load};
 pub use palette::{
-    GitPalette, GutterPalette, OrgPalette, Palette, PartialGitPalette, PartialGutterPalette,
-    PartialOrgPalette, PartialPalette, PartialSyntaxPalette, PartialTreePalette, Rgb,
-    SyntaxPalette, TreePalette,
+    GitPalette, GutterPalette, MarkdownPalette, OrgPalette, Palette, PartialGitPalette,
+    PartialGutterPalette, PartialMarkdownPalette, PartialOrgPalette, PartialPalette,
+    PartialSyntaxPalette, PartialTreePalette, Rgb, SyntaxPalette, TreePalette,
 };
 pub use parse::parse;
 pub use resolve::{Snapshot, resolve};
@@ -97,6 +97,7 @@ pub struct Settings {
     pub tree: Tree,
     pub syntax: Syntax,
     pub org: Org,
+    pub markdown: Markdown,
     pub files: Files,
     pub bookmarks: Bookmarks,
     pub completion: Completion,
@@ -132,6 +133,7 @@ pub struct Document {
     pub tree: PartialTree,
     pub syntax: PartialSyntax,
     pub org: PartialOrg,
+    pub markdown: PartialMarkdown,
     pub files: PartialFiles,
     pub bookmarks: PartialBookmarks,
     pub completion: PartialCompletion,
@@ -1266,4 +1268,22 @@ impl Default for Preview {
 pub struct PartialPreview {
     pub enabled: Option<bool>,
     pub max_bytes: Option<i64>,
+}
+
+/// Availability of native Markdown; explicit buffer mode choices remain local.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct Markdown {
+    pub enabled: bool,
+}
+
+impl Default for Markdown {
+    fn default() -> Self {
+        Self { enabled: true }
+    }
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Eq, Deserialize)]
+#[serde(default, deny_unknown_fields)]
+pub struct PartialMarkdown {
+    pub enabled: Option<bool>,
 }
