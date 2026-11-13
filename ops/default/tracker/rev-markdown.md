@@ -52,7 +52,7 @@ Slice 1 of 6 completed; Slice 2 is active.
 State: reviewing
 Requirements: MD02, MD05, heading-related MD01/MD06
 Branch: `feat/rev-markdown-02-headings`
-PR: pending
+PR: [#35](https://forge.adrianpk.com/rev/rev/pulls/35)
 Report: `ops/default/report/slices/rev-markdown/slice-2-headings.md`
 Validation: the exact ordered checks for Slice 2 in the plan and frozen local configuration
 
@@ -61,7 +61,8 @@ Validation: the exact ordered checks for Slice 2 in the plan and frozen local co
 - [x] T2.3: Cover real terminal cells, wide/combining source, clipped/wrapped prefixes, selection/search precedence, copy/save/history, Text-mode suspension and existing Org projection regressions. Complete references, catalogs and the slice report.
 
 Task commits: T2.1-T2.2 and native regressions/report introduction at
-`149ec09768b755353452faca071aaeea187a21f2`; T2.3 development evidence follows.
+`149ec09768b755353452faca071aaeea187a21f2`; T2.3 development evidence at
+`7f3eca78691db9f5dacdf0edd65fe8a55d5547a2`.
 
 The exact ordered development commands passed all 546 tests across seven native
 targets, with no failed or ignored cases. Full lint, 693-command/321-setting

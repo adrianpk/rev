@@ -5,7 +5,7 @@ Delivery set: rev-markdown
 Plan: [Markdown Delivery](../../../plan/rev-markdown.md)
 Tracker: [Markdown Tracker](../../../tracker/rev-markdown.md)
 Branch: `feat/rev-markdown-02-headings`
-PR: pending
+PR: `#35`
 
 ## Purpose
 
@@ -30,6 +30,8 @@ and independent view controls. List and table actions retain their later slices.
 ## Implementation Notes
 
 Implementation and report introduction: `149ec09768b755353452faca071aaeea187a21f2`.
+Canonical PR: https://forge.adrianpk.com/rev/rev/pulls/35
+Development evidence commit: `7f3eca78691db9f5dacdf0edd65fe8a55d5547a2`.
 
 The private adapter stores source byte prefixes only for admitted ATX headings.
 Setext titles that start with a literal hash cannot acquire a false ATX symbol.
