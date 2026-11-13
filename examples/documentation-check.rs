@@ -32,6 +32,7 @@ const GIT: &[&str] = &[
     "18-git-index-and-commit.md",
     "19-git-history-and-remotes.md",
 ];
+const MARKDOWN: &[&str] = &["23-markdown.md"];
 const ORG: &[&str] = &[
     "06-org-notes.md",
     "07-org-tasks-and-agenda.md",
@@ -56,7 +57,7 @@ fn main() -> Result<()> {
     check_navigation(root)?;
     catalogs::check(root)?;
     println!(
-        "Documentation passed: {count} reachable pages, {links} local links and anchors, independent editor, Git, Org and optional plugin learning paths."
+        "Documentation passed: {count} reachable pages, {links} local links and anchors, independent editor, Git, Markdown, Org and optional plugin learning paths."
     );
     Ok(())
 }
@@ -65,6 +66,7 @@ fn check_navigation(root: &Path) -> Result<()> {
     let guide = root.join("docs/tutorials/user-guide");
     check_path(&guide, "index.md", EDITOR)?;
     check_path(&guide, "git/index.md", GIT)?;
+    check_path(&guide, "markdown/index.md", MARKDOWN)?;
     check_path(&guide, "org/index.md", ORG)?;
     check_path(&guide, "plugins/index.md", PLUGINS)?;
     check_publication(root)?;
@@ -81,6 +83,7 @@ fn check_publication(root: &Path) -> Result<()> {
     let expected: Vec<_> = EDITOR
         .iter()
         .chain(GIT)
+        .chain(MARKDOWN)
         .chain(ORG)
         .chain(PLUGINS)
         .map(|chapter| format!("guide-{}", chapter.trim_end_matches(".md")))

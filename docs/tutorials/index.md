@@ -12,6 +12,11 @@ and settings belong in the [reference](../reference/index.md).
 The independent [Git path](user-guide/git/index.md) starts with a local repository,
 then reviews saved changes, selected commits and history.
 
+## Markdown
+
+The [Markdown path](user-guide/markdown/index.md) teaches offline native presentation,
+list continuation and GFM tables without depending on Org.
+
 ## Org mode
 
 The [Org mode guide](user-guide/org/index.md) starts directly with an Org file

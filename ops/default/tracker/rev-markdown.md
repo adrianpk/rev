@@ -161,8 +161,8 @@ PR: pending
 Report: `ops/default/report/slices/rev-markdown/slice-6-acceptance.md`
 Validation: the exact ordered checks for Slice 6 in the plan and frozen local configuration
 
-- [ ] T6.1: Add scripts/check-markdown.sh using existing owned native/PTY helpers and one finite fixture matrix. Verify actual cells, source/pretty views, both profiles, NO_COLOR, BOM/CRLF, Unicode, copy/save, list/table commands and terminal restoration with owned children and temporary roots.
-- [ ] T6.2: Complete the Markdown reference and User Guide lesson, exact command/configuration/binding catalogs, packaged sample, learning-path navigation, Spore projection and Unreleased. Keep canonical Markdown as the documentation source and retain all existing guide/reference assertions.
+- [x] T6.1: Add scripts/check-markdown.sh using existing owned native/PTY helpers and one finite fixture matrix. Verify actual cells, source/pretty views, both profiles, NO_COLOR, BOM/CRLF, Unicode, copy/save, list/table commands and terminal restoration with owned children and temporary roots.
+- [x] T6.2: Complete the Markdown reference and User Guide lesson, exact command/configuration/binding catalogs, packaged sample, learning-path navigation, Spore projection and Unreleased. Keep canonical Markdown as the documentation source and retain all existing guide/reference assertions.
 - [ ] T6.3: Record native/PTY evidence and complete the report. Prepare the clean published integrated candidate for the controller-owned full gate; after success close only configured Markdown artifacts and remove this set's clean inactive integrated worktrees.
 
 Task commits: pending.

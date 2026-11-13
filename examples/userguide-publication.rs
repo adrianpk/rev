@@ -8,6 +8,7 @@ use std::path::{Component, Path, PathBuf};
 
 type Result<T> = std::result::Result<T, Box<dyn Error>>;
 const GUIDE: &str = "tutorials/user-guide";
+const NOTICES: &str = "reference/third-party-notices.md";
 
 fn main() -> Result<()> {
     let destination = PathBuf::from(
@@ -18,6 +19,7 @@ fn main() -> Result<()> {
     let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("docs");
     let mut files = Vec::new();
     collect(&root, &root, &mut files)?;
+    files.push(PathBuf::from(NOTICES));
     files.sort();
     if std::env::args().nth(2).as_deref() == Some("--finish") {
         return finish(&root, &destination, &files);
@@ -44,7 +46,7 @@ fn finish(root: &Path, destination: &Path, files: &[PathBuf]) -> Result<()> {
 }
 
 fn finish_page(root: &Path, destination: &Path, source: &Path) -> Result<()> {
-    let input = fs::read_to_string(root.join(source))?;
+    let input = fs::read_to_string(source_path(root, source)?)?;
     let output = destination.join("public").join(output_path(source));
     write(
         &output,
@@ -73,7 +75,7 @@ fn project_page(
     source: &Path,
     fragments: &mut BTreeMap<PathBuf, String>,
 ) -> Result<()> {
-    let content = fs::read_to_string(root.join(source))?;
+    let content = fs::read_to_string(source_path(root, source)?)?;
     let title = content
         .lines()
         .find_map(|line| line.strip_prefix("# "))
@@ -93,6 +95,18 @@ fn copy_asset(root: &Path, destination: &Path, source: &Path) -> Result<()> {
     fs::create_dir_all(output.parent().ok_or("Asset has no parent")?)?;
     fs::copy(root.join(source), output)?;
     Ok(())
+}
+
+// The canonical parser notices live at the repository root. Project that one
+// named document without admitting arbitrary links outside documentation.
+fn source_path(root: &Path, source: &Path) -> Result<PathBuf> {
+    if source == Path::new(NOTICES) {
+        return Ok(root
+            .parent()
+            .ok_or("Documentation has no repository")?
+            .join("THIRD-PARTY-NOTICES.md"));
+    }
+    Ok(root.join(source))
 }
 
 fn collect(root: &Path, directory: &Path, files: &mut Vec<PathBuf>) -> Result<()> {
@@ -466,6 +480,9 @@ fn link(destination: &str, source: &Path) -> Result<String> {
 }
 
 fn resolved_path(destination: &str, source: &Path) -> Result<PathBuf> {
+    if source == Path::new("reference/syntax.md") && destination == "../../THIRD-PARTY-NOTICES.md" {
+        return Ok(PathBuf::from(NOTICES));
+    }
     let mut resolved = PathBuf::new();
     for component in source
         .parent()
@@ -680,6 +697,26 @@ mod tests {
                 "{source}: {target}"
             );
         }
+        Ok(())
+    }
+
+    /// The one repository notice remains readable in the publication while
+    /// unrelated repository files and deeper traversal remain inadmissible.
+    #[test]
+    fn repository_notices() -> Result<()> {
+        let source = Path::new("reference/syntax.md");
+        assert_eq!(
+            link("../../THIRD-PARTY-NOTICES.md", source)?,
+            "third-party-notices.html"
+        );
+        for target in ["../../Cargo.toml", "../../../THIRD-PARTY-NOTICES.md"] {
+            assert!(resolved_path(target, source).is_err(), "{target}");
+        }
+        let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("docs");
+        let content = fs::read_to_string(source_path(&root, Path::new(NOTICES))?)?;
+        let output = project(&content, Path::new(NOTICES), &mut BTreeMap::new())?;
+        assert!(output.contains("Copyright 2015 Google Inc. All rights reserved."));
+        assert!(output.contains("THE SOFTWARE IS PROVIDED \"AS IS\""));
         Ok(())
     }
 

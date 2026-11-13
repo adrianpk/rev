@@ -63,5 +63,6 @@ source/output to 8 MiB, total rows to 10,000, columns to 256, cells to 100,000
 and each cell to 4,096 displayed columns. Existing Markdown byte, event, depth
 and worker limits also apply; a lower bound wins.
 
-See [syntax and presentation](syntax.md#native-markdown-source),
+See [Native Markdown](markdown.md), [Edit Markdown](../tutorials/user-guide/23-markdown.md),
+[syntax and presentation](syntax.md#native-markdown-source),
 [bindings](bindings.md) and [command inventory](commands.md).

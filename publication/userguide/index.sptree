@@ -23,6 +23,10 @@
     @page[id = "guide-19-git-history-and-remotes"]
   }
 
+  @part[id = "Markdown", opening = "guide-markdown-index"]{
+    @page[id = "guide-23-markdown"]
+  }
+
   @part[id = "Org mode", opening = "guide-org-index"]{
     @page[id = "guide-06-org-notes"]
     @page[id = "guide-07-org-tasks-and-agenda"]

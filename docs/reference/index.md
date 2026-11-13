@@ -47,6 +47,11 @@ Use this section to look up exact behavior. For a guided start, read the
 
 - [Native Git](git.md): commands, contextual maps, startup preferences, bounds and truthful outcomes.
 
+## Markdown
+
+- [Native Markdown](markdown.md): recognition, exact heading/list presentation, source fidelity, commands, keys, settings and limits.
+- [Markdown tables](markdown-tables.md): GFM admission, creation, alignment, navigation and row/column operations.
+
 ## Org mode
 
 The [Org mode guide](../tutorials/user-guide/org/index.md) provides a separate

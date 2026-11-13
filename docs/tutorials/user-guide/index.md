@@ -33,6 +33,12 @@ The [Git learning path](git/index.md) uses a small local repository to teach
 saved changes, selected commits and history. It is independent of Org and the
 everyday path above.
 
+## Markdown
+
+The [Markdown path](markdown/index.md) teaches native heading and list presentation,
+source-preserving copy/save, list continuation and GFM table editing. It works
+offline in either interaction profile and is independent of Org.
+
 ## Org mode
 
 The [Org mode guide](org/index.md) has its own path for outlines, tasks,

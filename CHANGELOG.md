@@ -27,6 +27,9 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
   markdown-reset-presentation to restore its startup preference. Customize
   markdown.pretty and palette.markdown, select the mode with markdown-mode,
   return to ordinary editing with text-mode, or disable it with markdown.enabled.
+  Follow [Edit Markdown](docs/tutorials/user-guide/23-markdown.md) in the User Guide
+  for an offline note, list and table workflow in either interaction profile;
+  the [Markdown reference](docs/reference/markdown.md) lists exact controls and limits.
 
 - Org headings now use eight level-dependent Tokyo Night colors for their
   bullets and text, following Emacs' independent color and symbol cycles.

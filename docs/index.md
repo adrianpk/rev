@@ -18,6 +18,12 @@ selected commits and history independently. Use the [Git reference](reference/gi
 for exact controls and limits, or [Git ownership](explanation/git-ownership.md)
 for source, repository and process boundaries.
 
+## Markdown
+
+[Edit Markdown](tutorials/user-guide/23-markdown.md) introduces offline native
+presentation, lists and GFM tables. Use the [Markdown reference](reference/markdown.md)
+for exact source, command, key and startup contracts.
+
 ## Org mode
 
 The [Org mode guide](tutorials/user-guide/org/index.md) has an independent
