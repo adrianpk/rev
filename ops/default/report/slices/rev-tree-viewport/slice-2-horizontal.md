@@ -45,7 +45,8 @@ so measured and rendered row shapes agree. No dependency or stored format change
 Slice 1 is integrated through canonical PR #30. T2.1 and T2.2 share one cohesive
 runtime/test change; T2.3 completes executable acceptance, references, the User
 Guide Markdown/Spore projection and the single Unreleased viewport outcome.
-The source ticket retains its identity and moves to reviewing for joint delivery.
+The source ticket retained its identity through joint review and is now solved
+with resolution fixed after integrated acceptance.
 
 ## Contracts Added or Changed
 
@@ -72,7 +73,7 @@ Canonical PR #31 merged into dev at
 `4a4f89a0bdf8c276d7066413beccce2a474952e3`. Clean-HEAD slice receipt
 `6TH5M2YS454DBGIGDPRZSUDQ3V` passed all six ordered commands, including
 639 selected native tests with no failures or ignored cases. This is slice
-acceptance; the fresh integrated gate remains pending for the controller.
+acceptance; the completed integrated gate is recorded below.
 
 The exact clean-HEAD controller receipt after PR-reference commits owns the
 six ordered acceptance commands below. This report records implementation
@@ -116,6 +117,57 @@ ordered command evidence.
 
 ## Risks and Follow-ups
 
-The slice is integrated. The controller owns fresh integrated acceptance and
-final delivery-set closure. Physical font appearance retains the existing
-native-cell/PTY limit.
+Both slices and the delivery set are complete. Physical font appearance retains
+the existing native-cell/PTY evidence limit.
+
+## Delivery-set closure
+
+Delivery-set status: Completed
+Tested candidate: `1c98ee49bc6af413b99148f270d1395dc80f9512`.
+Controller gate receipt: `DYYC4ATKJZTUCR4UA2GE5UDS43`.
+Both canonical PRs are merged: [#30](https://forge.adrianpk.com/rev/rev/pulls/30)
+and [#31](https://forge.adrianpk.com/rev/rev/pulls/31).
+
+The controller passed the following unchanged combined command on the immutable
+clean integrated candidate:
+
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 make lint && env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test tree --test configuration --test commands --test pointer --test display --test contexts -- --test-threads=1 && env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 bash scripts/check-better-file-tree.sh && env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo run --locked --quiet -p rev --example documentation-check && env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 bash scripts/build-user-guide.sh && git diff --check`
+
+Full workspace formatting, strict Clippy and native source policy passed across
+1,842 first-party Rust files, 2 packages and all 73 Cargo roots. All 639 selected
+native tests passed, with zero failures and zero ignored cases:
+
+| Target | Passed | Test execution seconds |
+| --- | --- | --- |
+| commands | 205 | 763.71 |
+| configuration | 162 | 313.63 |
+| contexts | 63 | 80.30 |
+| display | 47 | 43.71 |
+| pointer | 69 | 92.70 |
+| tree | 93 | 66.06 |
+
+The six native targets report 1,360.11 seconds in total, excluding compilation
+and the remaining gate commands. Better File Tree passed every retained native,
+configured-geometry and monochrome case and both owned PTYs. Non-modal PTY
+execution measured 1,361 ms and 17,581 output bytes; modal measured 1,562 ms and
+17,745 bytes. Each reported zero idle CPU ticks over its 350-ms silence check;
+TTY restoration and unchanged disk/configuration checks passed. Original
+20-second invocations, eight-second PTY deadline, cases and resource/semantic
+assertions were retained. No owned test fixture or build remained active at closure.
+
+Catalogs passed with 690 command names and 300 configuration entries.
+Documentation passed with 106 reachable pages and 743 local links/anchors; the
+canonical Markdown-to-Spore User Guide built locally. The existing foreign
+crossterm warning remained nonblocking. Evidence establishes native terminal
+cells and the owned PTY journeys; physical font appearance retains its documented
+limit. Execution retained the approved same-UID namespace/PID1 reaper (UID 1000),
+single-job/no-incremental/no-debug settings and private targets. Exact runner and
+checksum details remain in external task-owned evidence.
+
+Reports remain delivered; specification, model, plan and tracker are Completed.
+The source ticket is solved with resolution fixed and real lifecycle/PR/commit
+evidence. Both owned slice worktrees were removed after integration; unrelated
+worktrees and caches are preserved. Documentation closure changes only the
+configured Markdown paths. Runtime, tests, guide inputs and command/configuration
+catalogs retain the tested bytes. The original gate receipt remains evidence for
+the tested candidate, with documentation closure recorded separately on dev.

@@ -1,6 +1,6 @@
 # Tree Viewport Delivery
 
-Status: Approved
+Status: Completed
 Date: 2026-11-12
 Delivery set: rev-tree-viewport
 Slice strategy: behavior-first
@@ -9,8 +9,8 @@ Planning baseline: `6746978285aa7cd5739b704cc0ab214e47e9050c`
 Specification: [File Tree Width and Horizontal Navigation](../spec/editor-tree-viewport.md)
 Model: [Tree Viewport Policy](../spec/editor-tree-viewport-model.md)
 Tracker: [Tree Viewport Tracker](../tracker/rev-tree-viewport.md)
-Ticket: [TKT-20261108175339](../ticket/reviewing/20261108175339-improve-file-tree-panel-width-and-horizontal-navigation.md)
-Active slice: None - both slices integrated; controller gate pending
+Ticket: [TKT-20261108175339](../ticket/solved/20261108175339-improve-file-tree-panel-width-and-horizontal-navigation.md)
+Active slice: None - both slices delivered; delivery set completed
 
 ## Outcome and strategy
 
@@ -134,3 +134,15 @@ plan and tracker Completed and reconcile Pending Editor Work. Closure changes
 only the configured exact Markdown paths, including both lifecycle ticket paths.
 No runtime, test, guide input, command catalog or configuration change follows
 the gate. Verify canonical PR state, clean synchronized dev and the final commit.
+
+## Completion evidence
+
+Both slices are delivered through merged canonical PRs #30 and #31. The
+controller passed the unchanged combined gate on `1c98ee49bc6af413b99148f270d1395dc80f9512`,
+receipt `DYYC4ATKJZTUCR4UA2GE5UDS43`. All 639 selected native tests passed
+without failures or ignored cases; lint, bounded native/PTY acceptance,
+documentation catalogs, User Guide publication and whitespace checks passed.
+The reports record the exact command and measured evidence. The source ticket
+is solved with resolution fixed. Closure changes only the configured Markdown
+paths; runtime, tests, command/configuration catalogs and guide inputs retain
+the tested bytes. Both owned slice worktrees were removed after integration.

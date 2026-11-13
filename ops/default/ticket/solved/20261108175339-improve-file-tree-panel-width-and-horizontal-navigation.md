@@ -1,7 +1,9 @@
 ---
 id: TKT-20261108175339
 title: Resize the file-tree panel and reveal long nested names
-status: reviewing
+status: solved
+resolution: fixed
+closed_at: 2026-11-13T00:15:01.784442Z
 kind: task
 severity: unclassified
 priority: unclassified
@@ -9,7 +11,7 @@ scope: ui
 tags: file-tree, panels, navigation
 source: chat
 reported_at: 2026-11-08T17:53:39Z
-commits: [77f96b3b69c959fdeff8f0f9590ac074d0c0a7c6, 75078243383df1e5e1eda9c84483b22f8a200325]
+commits: [77f96b3b69c959fdeff8f0f9590ac074d0c0a7c6, 75078243383df1e5e1eda9c84483b22f8a200325, 1c98ee49bc6af413b99148f270d1395dc80f9512]
 pr: https://forge.adrianpk.com/rev/rev/pulls/31
 branch: feat/rev-tree-viewport-02-horizontal
 reviewed_at: 2026-11-12T23:09:06.559297Z
@@ -261,7 +263,7 @@ defaults or implementation during capture.
 
 Product alignment is complete. On 2026-11-12 the owner authorized the
 specification and established implementation workflow. This ticket retains its
-identity and is reviewing the two-slice Tree Viewport delivery.
+identity and is solved with resolution fixed after the two-slice Tree Viewport delivery.
 
 - [Specification](../../spec/editor-tree-viewport.md)
 - [Model](../../spec/editor-tree-viewport-model.md)
@@ -274,5 +276,7 @@ the selected exact-candidate gate and documentation/ticket closure.
 Slice 1 is delivered through [PR #30](https://forge.adrianpk.com/rev/rev/pulls/30).
 Slice 2 T2.1-T2.3 delivers shared horizontal navigation, native routes and
 joint acceptance/documentation through [PR #31](https://forge.adrianpk.com/rev/rev/pulls/31).
-The implementation is reviewing; final integrated acceptance and ticket resolution
-remain controller-owned.
+The controller passed the unchanged integrated gate on `1c98ee49bc6af413b99148f270d1395dc80f9512`,
+receipt `DYYC4ATKJZTUCR4UA2GE5UDS43`. All 639 selected native tests, bounded
+native/PTY acceptance, complete documentation and User Guide checks passed.
+The delivery set and ticket are complete; tested runtime and guide inputs are preserved.

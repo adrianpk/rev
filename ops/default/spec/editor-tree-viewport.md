@@ -1,10 +1,10 @@
 # File Tree Width and Horizontal Navigation
 
-Status: Accepted
+Status: Completed
 Date: 2026-11-12
 Format: OpenSpec; workspace specification contract
 Inspection baseline: `6746978285aa7cd5739b704cc0ab214e47e9050c`
-Source: [TKT-20261108175339](../ticket/reviewing/20261108175339-improve-file-tree-panel-width-and-horizontal-navigation.md)
+Source: [TKT-20261108175339](../ticket/solved/20261108175339-improve-file-tree-panel-width-and-horizontal-navigation.md)
 Model: [Tree Viewport Policy](editor-tree-viewport-model.md)
 Plan: [Tree Viewport Delivery](../plan/rev-tree-viewport.md)
 Tracker: [Tree Viewport Tracker](../tracker/rev-tree-viewport.md)
@@ -200,3 +200,12 @@ This change owns the tree viewport. It does not introduce generic split resizing
 filesystem discovery from rendering or a persisted UI-session format. No product
 decisions remain open. Delivery status requires fresh controller-owned acceptance
 on the exact integrated candidate and reconciled source-ticket closure.
+
+## Completion evidence
+
+TVP01-TVP06 are delivered through merged canonical PRs #30 and #31. The
+controller passed the unchanged integrated gate at `1c98ee49bc6af413b99148f270d1395dc80f9512`,
+receipt `DYYC4ATKJZTUCR4UA2GE5UDS43`. The
+[delivery-set closure](../report/slices/rev-tree-viewport/slice-2-horizontal.md#delivery-set-closure)
+records the exact command, 639 passing native tests, executable/documentation
+acceptance and evidence limits. The source ticket is solved with resolution fixed.

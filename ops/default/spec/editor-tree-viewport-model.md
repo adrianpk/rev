@@ -1,9 +1,9 @@
 # Tree Viewport Policy
 
-Status: Accepted
+Status: Completed
 Date: 2026-11-12
 Specification: [File Tree Width and Horizontal Navigation](editor-tree-viewport.md)
-Source: [TKT-20261108175339](../ticket/reviewing/20261108175339-improve-file-tree-panel-width-and-horizontal-navigation.md)
+Source: [TKT-20261108175339](../ticket/solved/20261108175339-improve-file-tree-panel-width-and-horizontal-navigation.md)
 
 ## Configuration contract
 
@@ -67,3 +67,12 @@ alter history or substitute roots. Retain stale-hit rejection by row/path/root
 identity and native content bounds. Expected listing/configuration failures
 continue through existing owners. A hidden/unusable panel must not underflow
 offsets or discard the desired width needed when space returns.
+
+## Completion evidence
+
+TVP01-TVP06 are delivered through merged canonical PRs #30 and #31. The
+controller passed the unchanged integrated gate at `1c98ee49bc6af413b99148f270d1395dc80f9512`,
+receipt `DYYC4ATKJZTUCR4UA2GE5UDS43`. The
+[delivery-set closure](../report/slices/rev-tree-viewport/slice-2-horizontal.md#delivery-set-closure)
+records the exact command, 639 passing native tests, executable/documentation
+acceptance and evidence limits. The source ticket is solved with resolution fixed.

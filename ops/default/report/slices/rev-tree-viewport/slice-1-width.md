@@ -43,7 +43,8 @@ Legacy clipping/geometry fixtures explicitly select fixed width; their existing
 cell, source and pointer assertions remain intact. New transition cases cover
 automatic defaults, Unicode/control sanitization, offscreen/folded rows, explicit
 reset, minimum saturation, manual widths, missing cached paths and context changes.
-The source ticket records its real start and remains in_progress for both slices.
+The source ticket records its real start for both slices and is now solved with
+resolution fixed after integrated acceptance.
 
 ## Contracts Added or Changed
 
@@ -146,6 +147,18 @@ versioned artifacts. The existing foreign crossterm warning is unchanged.
 
 ## Risks and Follow-ups
 
-Horizontal panning and intentional arrow rebinding belong to Slice 2. Physical
-font appearance retains the existing native-cell/PTY evidence limit. The
-controller owns merge, integrated acceptance and delivery-set closure.
+Slice 2 delivered horizontal panning and intentional arrow rebinding through
+merged PR #31. Physical font appearance retains the existing native-cell/PTY
+evidence limit. The completed integrated gate is recorded below.
+
+## Delivery-set closure
+
+Both slices are integrated through canonical PRs #30 and #31. The controller
+passed the unchanged combined gate at `1c98ee49bc6af413b99148f270d1395dc80f9512`, receipt
+`DYYC4ATKJZTUCR4UA2GE5UDS43`: full lint, 639 native tests without failures or
+ignored cases, bounded native/PTY acceptance, complete catalogs, local User Guide
+build and whitespace checks. The
+[Slice 2 closure](slice-2-horizontal.md#delivery-set-closure) records the exact
+combined command, measured costs and evidence limits. Specification, model,
+plan and tracker are Completed; the source ticket is solved with resolution fixed.
+Closure preserves all tested runtime, test and guide inputs.
