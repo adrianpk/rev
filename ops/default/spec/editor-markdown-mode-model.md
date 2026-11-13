@@ -1,10 +1,10 @@
 # Markdown Policy and Actions
 
-Status: Prepared
+Status: Approved
 Date: 2026-11-13
 Specification: [Markdown Editing and Presentation](editor-markdown-mode.md)
 Plan: [Markdown Delivery](../plan/rev-markdown.md)
-Authority: derived delivery design under the approved Markdown scope; parser dependency pending confirmation
+Approved: product owner, 2026-11-13; Markdown scope and parser adoption subject to verified compatible licensing
 
 ## Owners and analysis
 
@@ -16,13 +16,24 @@ Keep parser types private and retain original source instead of decoded event
 text for edits. A pipe splitter or a Tree-sitter highlight capture alone cannot
 authorize a table mutation. Incomplete or stale evidence authorizes no edit.
 
-Proposed parser: `pulldown-cmark = { version = "=0.13.6", default-features = false }`.
+Selected parser: `pulldown-cmark = { version = "=0.13.6", default-features = false }`.
 Enable only `Options::ENABLE_TABLES`; do not enable HTML output, task lists,
-footnotes or unrelated extensions. Dependency approval is still required.
+footnotes or unrelated extensions. The accepted dependency uses MIT terms.
 Use a bounded worker snapshot; one bounded contiguous source copy per admitted
 revision is acceptable for this parser API. Check cancellation around parser
 construction and between event batches, discard late results and avoid reparsing
 on every draw. No native-library API or permanent parser thread is introduced.
+
+The inspected minimal graph adds only pulldown-cmark 0.13.6 (MIT) and unicase
+2.10.0 (MIT OR Apache-2.0; use MIT). Reuse the locked bitflags 2.13.2 and memchr
+2.8.3 already present. Preserve existing dependency versions and pin the two new
+packages in Cargo.lock. Retain the exact upstream MIT notices for the added
+packages in a shipped third-party notice document; keep Rev's GPL license intact.
+
+The owner prefers fewer dependencies and may replace this parser with an owned
+implementation later. Keep external parser types inside a private adapter;
+original source and editor-owned records remain authoritative. This establishes
+a replaceable boundary, not a plugin registry or a second implementation now.
 
 Keep heading/list/table recognition independent of syntax color enablement.
 Apply the existing configured syntax byte cutoff, with an initial native cap

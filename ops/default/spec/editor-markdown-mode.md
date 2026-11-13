@@ -10,7 +10,7 @@ Authorization: preparation, slice PRs and controller-owned integration through d
 Model: [Markdown Policy and Actions](editor-markdown-mode-model.md)
 Plan: [Markdown Delivery](../plan/rev-markdown.md)
 Tracker: [Markdown Tracker](../tracker/rev-markdown.md)
-Readiness: delivery preparation; new parser dependency requires explicit confirmation before startup
+Readiness: approved parser dependency verified; ready for autonomous delivery
 
 ## Purpose
 
@@ -225,7 +225,9 @@ escape presence. The acceptance receipt SHALL cover this compact matrix:
 ## Delivery decisions
 
 The linked model records the command, preference and ownership contract derived
-from this approved scope. The delivery plan proposes pinned `pulldown-cmark`
-0.13.6 with default features disabled and only the table parsing option enabled.
-Adding that dependency remains pending explicit confirmation under the global
-dependency rule; no crate has been introduced by delivery preparation.
+from this approved scope. The owner accepted `pulldown-cmark` 0.13.6 subject to
+license verification. Its MIT license and the selected transitive graph were
+verified compatible with Rev's GPL-3.0-only license. Default features remain
+disabled; only the table parsing option is enabled. Retain required notices.
+A private adapter preserves the option of a separately approved owned parser
+later; this delivery does not create that successor project.

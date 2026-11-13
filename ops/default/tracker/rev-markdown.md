@@ -10,7 +10,7 @@ Spec: [Markdown Editing and Presentation](../spec/editor-markdown-mode.md)
 Model: [Markdown Policy and Actions](../spec/editor-markdown-mode-model.md)
 Active slice: Slice 1 - Recognition and colors
 Progress owner: native Looper checkpoint, canonical PR state and exact-candidate validation receipts
-Startup prerequisite: explicit confirmation of proposed pulldown-cmark 0.13.6 dependency; not yet granted
+Parser decision: owner accepted pulldown-cmark 0.13.6 subject to compatible licensing; exact package and minimal graph verified
 
 ## Canonical slice map
 
@@ -32,7 +32,7 @@ PR: pending
 Report: `ops/default/report/slices/rev-markdown/slice-1-recognition.md`
 Validation: the exact ordered checks for Slice 1 in the plan and frozen local configuration
 
-- [ ] T1.1: Implement a private, source-range Markdown observation owner and revision-qualified worker integration; add the proposed pinned parser only after its explicit dependency approval. Preserve literal blocks, CommonMark context, bounded snapshots and cancellation admission.
+- [ ] T1.1: Implement a private, source-range Markdown observation owner and revision-qualified worker integration; add only the accepted pinned parser and its reviewed minimal transitive graph; retain their upstream notices. Preserve literal blocks, CommonMark context, bounded snapshots and cancellation admission.
 - [ ] T1.2: Add automatic .md/.markdown recognition, markdown-mode/Text-mode transitions, markdown.enabled and the six semantic palette leaves with full parsing, validation, merge/provenance, sample and configuration catalog coverage. Keep LSP optional and existing modes unaffected.
 - [ ] T1.3: Create tests/markdown.rs with named source/context/offline/invalidation cases, including native palette output and disabled coloring. Update affected references/Unreleased for the usable behavior and record the canonical report.
 
@@ -115,8 +115,8 @@ Task commits: pending.
 
 ## Integration and closure
 
-- [ ] Confirm the parser dependency decision and record it without changing the approved behavior.
-- [ ] Commit/push the accepted spec/model/plan/tracker and operational index on clean dev.
+- [x] Confirm the parser dependency decision and compatible MIT licensing without changing the approved behavior.
+- [x] Commit/push the approved scope, six-slice plan/tracker, model and index at 8767a298; record the subsequent dependency decision before startup.
 - [ ] Generate/register the final native configuration, pass preflight and start one detached Looper owner.
 - [ ] Integrate all six canonical PRs through controller-owned Rebase + Fast-forward into dev.
 - [ ] Remove each clean inactive integrated task worktree without force; preserve pre-existing worktrees and branches.
@@ -126,5 +126,5 @@ Task commits: pending.
 
 No runtime or validation outcome is claimed by preparation. The native
 configuration will pin the plan's slice check prefixes and unchanged Full gate
-before the first checkpoint. Scope approval does not authorize a new dependency
-or bypass the explicit startup prerequisite.
+before the first checkpoint. Only the explicitly accepted parser and its reviewed graph may be introduced;
+additional dependencies still require separate approval.

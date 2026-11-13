@@ -10,7 +10,7 @@ Spec: [Markdown Editing and Presentation](../spec/editor-markdown-mode.md)
 Model: [Markdown Policy and Actions](../spec/editor-markdown-mode-model.md)
 Tracker: [Markdown Tracker](../tracker/rev-markdown.md)
 Active slice: Slice 1 - Recognition and colors
-Readiness: preparation; parser dependency confirmation required before controller startup
+Readiness: parser dependency accepted after license verification; ready for native preflight/startup
 Full gate: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 make lint && env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test markdown --test syntax --test configuration --test commands --test display --test pointer --test org_headings --test org_indentation --test org_tables --test external_changes -- --test-threads=1 && env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test modal contexts:: -- --test-threads=1 && env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 bash scripts/check-markdown.sh && env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo run --locked --quiet -p rev --example documentation-check && env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 bash scripts/build-user-guide.sh && git diff --check`
 
 ## Outcome, strategy and authority
@@ -27,9 +27,9 @@ acceptance and documentation closure. Looper is the single execution owner.
 Slice PRs do not wait for separate maintainer merge prompts. Main integration,
 release, installed-binary changes and mirror publication are separate workflows.
 
-## Parser design review and startup prerequisite
+## Parser decision and licensing
 
-Propose exactly `pulldown-cmark = { version = "=0.13.6", default-features = false }`
+Use exactly `pulldown-cmark = { version = "=0.13.6", default-features = false }`
 with `Options::ENABLE_TABLES` only. Upstream provides CommonMark events and source
 ranges; keeping ranges permits source-backed edits without reconstructing text
 from decoded values. Default-off HTML/CLI features avoid an unused renderer and
@@ -44,11 +44,20 @@ captures. A handwritten CommonMark parser would add a larger correctness owner.
 References: [pulldown-cmark API](https://docs.rs/pulldown-cmark/0.13.6/pulldown_cmark/)
 and [Tree-sitter Markdown goals](https://github.com/tree-sitter-grammars/tree-sitter-markdown#goals).
 
-The scope is approved; this new crate is not yet explicitly authorized. Do not
-add it, start Slice 1 implementation or launch the controller until that single
-dependency decision is confirmed. Record the decision here and in the tracker,
-then commit/push preparation before init/preflight/start. No dependency is added
-by these documents. Other command/preference choices are recorded in the model.
+The owner accepted this dependency subject to appropriate licensing. Inspection
+of the checksum-verified 0.13.6 package confirmed MIT terms, compatible with Rev's
+GPL-3.0-only license. The minimal selected graph adds unicase 2.10.0 under its MIT
+option; bitflags 2.13.2 and memchr 2.8.3 already exist in the project lockfile.
+No optional HTML, getopts or serde feature is required. Preserve existing versions,
+lock the two additions and retain their exact upstream notices in a shipped
+third-party notice document. Do not change Rev's license.
+
+References: [upstream license](https://github.com/pulldown-cmark/pulldown-cmark/blob/main/LICENSE),
+[MIT terms](https://opensource.org/license/mit) and
+[GPL compatibility](https://www.gnu.org/licenses/license-list.html#Expat).
+Keep the parser private so a separately approved owned implementation can replace
+it without changes to source, painting or table-editing contracts. That future
+implementation is not another slice or successor run in this delivery.
 
 ## Worktree and execution hygiene
 
@@ -78,9 +87,9 @@ integrated the prior PR. Never interrupt a live process to enable removal.
 ## Slice 1: Recognition and colors
 
 Requirements: MD01, MD02 semantic colors, MD06.
-Dependency: approved preparation published and parser dependency explicitly confirmed.
+Dependency: approved preparation published and native preflight passed.
 
-- T1.1: Implement a private, source-range Markdown observation owner and revision-qualified worker integration; add the proposed pinned parser only after its explicit dependency approval. Preserve literal blocks, CommonMark context, bounded snapshots and cancellation admission.
+- T1.1: Implement a private, source-range Markdown observation owner and revision-qualified worker integration; add only the accepted pinned parser and its reviewed minimal transitive graph; retain their upstream notices. Preserve literal blocks, CommonMark context, bounded snapshots and cancellation admission.
 - T1.2: Add automatic .md/.markdown recognition, markdown-mode/Text-mode transitions, markdown.enabled and the six semantic palette leaves with full parsing, validation, merge/provenance, sample and configuration catalog coverage. Keep LSP optional and existing modes unaffected.
 - T1.3: Create tests/markdown.rs with named source/context/offline/invalidation cases, including native palette output and disabled coloring. Update affected references/Unreleased for the usable behavior and record the canonical report.
 
