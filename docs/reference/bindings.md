@@ -15,6 +15,11 @@ Every command below is also available as `M-x` followed by its exact name.
 | M-x markdown-mode, :markdown-mode | `markdown-mode` | Select native Markdown for the current buffer. |
 | M-x markdown-pretty-mode, :markdown-pretty-mode | `markdown-pretty-mode` | Toggle this view’s Markdown heading symbols without editing source. |
 | M-x markdown-reset-presentation, :markdown-reset-presentation | `markdown-reset-presentation` | Restore this view’s startup Markdown presentation. |
+| Markdown RET | `markdown-return` | Continue a list item or insert a newline. |
+| Markdown M-RET | `markdown-meta-return` | Insert a list sibling or a newline. |
+| Markdown M-Right | `markdown-indent-item` | Indent the item with children and continuations. |
+| Markdown M-Left | `markdown-outdent-item` | Outdent the item with children and continuations. |
+| M-x markdown-continue-item, :markdown-continue-item | `markdown-continue-item` | Continue an item or exit an empty list level. |
 | M-x plugin-list, :plugin-list | `plugin-list` | Inspect the passive experimental package inventory. |
 | M-x plugin-activate, :plugin-activate | `plugin-activate` | Select a package for activation; currently unavailable. |
 | M-x plugin-deactivate, :plugin-deactivate | `plugin-deactivate` | Inspect an inactive package without starting it. |
@@ -1436,3 +1441,12 @@ no force, implicit save, automatic process stop or rollback is supplied.
 | `PageDown` | `scroll-up-command` |
 | `M-<` | `beginning-of-buffer` |
 | `M->` | `end-of-buffer` |
+
+### Markdown list editing routes
+
+In native Markdown, keys.markdown overlays the current non-modal editor or modal
+Insert map. Explicit parent mappings retain priority over factory routes;
+explicit Markdown mappings then win. Normal/Visual, prompts, completion popups
+and cancellation retain their own input ownership. The named list commands use
+the same checked actions in both profiles. Read-only buffers refuse source edits.
+See [native list behavior](syntax.md#native-list-presentation-and-actions).

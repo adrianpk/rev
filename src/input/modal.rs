@@ -113,7 +113,7 @@ impl Input {
             return map;
         }
         if self.modal_editing() {
-            let local = self.workspace_org.map(super::OrgContext::keymap);
+            let local = self.editing_local_context();
             self.keymaps.vim_map(self.modal_context(), local)
         } else {
             self.keymaps.map(self.map_context())

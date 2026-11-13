@@ -168,3 +168,68 @@ fn source_preference() {
         Some(path.as_path())
     );
 }
+
+// Normalized local aliases retain include/root provenance and leave unrelated
+// inherited editing routes intact. Factory Return cannot displace a user remap.
+#[test]
+fn editing_keymap() {
+    use rev::command::Binding;
+    use rev::input::keymap::{Context, Sequence};
+
+    let fixture = Fixture::new();
+    let base = fixture.write(
+        "base.toml",
+        "keys.markdown.'ESC j'='markdown-continue-item'\nkeys.markdown.'M-k'='markdown-outdent-item'",
+    );
+    let root = fixture.write(
+        "config.toml",
+        "include=['base.toml']\nkeys.editor.'C-m'='newline'\nkeys.markdown.'M-j'='markdown-indent-item'",
+    );
+    let startup = prepare(&root);
+    assert!(startup.diagnostic.is_none(), "{:?}", startup.diagnostic);
+    assert_eq!(
+        startup.snapshot.origin(&["keys", "markdown", "M-k"]),
+        Some(base.as_path())
+    );
+    assert_eq!(
+        startup.snapshot.origin(&["keys", "markdown", "M-j"]),
+        Some(root.as_path())
+    );
+    assert_eq!(
+        startup.snapshot.origin(&["keys", "markdown", "ESC j"]),
+        None
+    );
+    let map = startup.snapshot.keymaps().map(Context::Markdown);
+    for (key, action) in [
+        ("M-j", "markdown-indent-item"),
+        ("M-k", "markdown-outdent-item"),
+        ("RET", "newline"),
+        ("C-x C-s", "save-buffer"),
+        ("M-RET", "markdown-meta-return"),
+    ] {
+        assert_eq!(
+            map.lookup(&Sequence::parse(key).unwrap()),
+            Binding::named(action),
+            "{key}"
+        );
+    }
+}
+
+// Bad local values, terminal aliases, cancellation and unavailable prompt
+// actions reject the whole candidate, including an otherwise valid mode change.
+#[test]
+fn editing_map_rejection() {
+    let fixture = Fixture::new();
+    for source in [
+        "keys.markdown.RET=1",
+        "keys.markdown.'C-g'='markdown-return'",
+        "keys.markdown.RET='markdown-absent'",
+        "keys.markdown.RET='newline'\nkeys.markdown.'C-m'='markdown-return'",
+        "keys.markdown.'M-j'='minibuffer-accept'",
+    ] {
+        let path = fixture.write("bad.toml", &format!("markdown.enabled=false\n{source}"));
+        let startup = prepare(&path);
+        assert!(startup.diagnostic.is_some(), "{source}");
+        assert_eq!(startup.snapshot.settings(), &Settings::default());
+    }
+}

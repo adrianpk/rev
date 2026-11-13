@@ -801,6 +801,7 @@ pub struct Keymaps {
     pub git_worktree: BTreeMap<String, String>,
     pub git_stash: BTreeMap<String, String>,
     pub git_conflict: BTreeMap<String, String>,
+    pub markdown: BTreeMap<String, String>,
     pub org: BTreeMap<String, String>,
     pub org_agenda: BTreeMap<String, String>,
     pub org_capture: BTreeMap<String, String>,
@@ -852,6 +853,7 @@ impl Keymaps {
     fn org_map(&self, context: crate::input::keymap::Context) -> &BTreeMap<String, String> {
         use crate::input::keymap::Context;
         match context {
+            Context::Markdown => &self.markdown,
             Context::Org => &self.org,
             Context::OrgAgenda => &self.org_agenda,
             Context::OrgCapture => &self.org_capture,
@@ -915,6 +917,7 @@ impl Keymaps {
     ) -> &mut BTreeMap<String, String> {
         use crate::input::keymap::Context;
         match context {
+            Context::Markdown => &mut self.markdown,
             Context::Org => &mut self.org,
             Context::OrgAgenda => &mut self.org_agenda,
             Context::OrgCapture => &mut self.org_capture,

@@ -1,6 +1,10 @@
 //! Native source observations. External parser types stay inside the adapter.
 
+mod item;
+mod lists;
 mod parse;
+pub(crate) use item::{Item, Marker};
+pub(crate) use lists::Edit;
 
 use std::ops::Range;
 
@@ -15,6 +19,7 @@ const MAX_DEPTH: usize = 256;
 pub(crate) struct Observation {
     pub(crate) stamp: Stamp,
     nodes: Vec<Node>,
+    items: Vec<Item>,
 }
 
 struct Node {
@@ -29,6 +34,7 @@ enum Kind {
     },
     List(usize),
     Literal,
+    LiteralBlock,
     Semantic(MarkdownRole),
 }
 
@@ -43,13 +49,17 @@ impl Kind {
                 assert!(depth <= MAX_DEPTH, "admitted Markdown list depth");
                 Some(MarkdownRole::List)
             }
-            Self::Literal => Some(MarkdownRole::Code),
+            Self::Literal | Self::LiteralBlock => Some(MarkdownRole::Code),
             Self::Semantic(role) => Some(role),
         }
     }
 }
 
 impl Observation {
+    pub(crate) fn items(&self) -> &[Item] {
+        &self.items
+    }
+
     pub(crate) fn heading_prefix(&self, line: Range<usize>) -> Option<(u8, Range<usize>)> {
         self.nodes.iter().find_map(|node| match &node.kind {
             Kind::Heading {
@@ -98,10 +108,11 @@ impl Work {
             }
             source.push_str(chunk);
         }
-        let nodes = parse::observe(&source, &cancel)?;
+        let (nodes, items) = parse::observe(&source, &cancel)?;
         Some(Observation {
             stamp: self.stamp,
             nodes,
+            items,
         })
     }
 }

@@ -42,6 +42,7 @@ pub enum Context {
     GitWorktree,
     GitStash,
     GitConflict,
+    Markdown,
     Org,
     OrgAgenda,
     OrgCapture,
@@ -50,7 +51,7 @@ pub enum Context {
 }
 
 impl Context {
-    pub const ALL: [Self; 27] = [
+    pub const ALL: [Self; 28] = [
         Self::VimNormal,
         Self::VimInsert,
         Self::VimReplace,
@@ -73,6 +74,7 @@ impl Context {
         Self::GitWorktree,
         Self::GitStash,
         Self::GitConflict,
+        Self::Markdown,
         Self::Org,
         Self::OrgAgenda,
         Self::OrgCapture,
@@ -122,6 +124,7 @@ impl Context {
 
     fn org_name(self) -> &'static str {
         match self {
+            Self::Markdown => "markdown",
             Self::Org => "org",
             Self::OrgAgenda => "org_agenda",
             Self::OrgCapture => "org_capture",
@@ -137,6 +140,7 @@ impl Context {
         match self {
             Self::MacroDefinition => defaults::macro_definition_complete(),
             Self::GitCommit => defaults::commit_complete(),
+            Self::Markdown => defaults::markdown_complete(),
             Self::Org => defaults::org_complete(),
             Self::OrgCalendar => defaults::calendar_complete(),
             Self::OrgCapture => defaults::capture_complete(),
@@ -173,6 +177,8 @@ pub struct Effective {
     git_worktree: Map,
     git_stash: Map,
     git_conflict: Map,
+    markdown: Map,
+    vim_markdown: Option<Map>,
     org: Map,
     org_agenda: Map,
     org_capture: Map,
@@ -221,6 +227,7 @@ impl Effective {
     }
     fn org_map(&self, context: Context) -> &Map {
         match context {
+            Context::Markdown => &self.markdown,
             Context::Org => &self.org,
             Context::OrgAgenda => &self.org_agenda,
             Context::OrgCapture => &self.org_capture,
@@ -273,6 +280,8 @@ pub(crate) fn compile_ai(
         vim: editing.vim,
         vim_org: editing.vim_org,
         completion,
+        markdown: editing.markdown,
+        vim_markdown: editing.vim_markdown,
         org: editing.org,
         org_capture: editing.org_capture,
         org_source_edit: editing.org_source_edit,
@@ -302,6 +311,8 @@ struct EditingMaps {
     editor: Map,
     minibuffer: Map,
     org_calendar: Map,
+    markdown: Map,
+    vim_markdown: Option<Map>,
     org: Map,
     org_capture: Map,
     org_source_edit: Map,
@@ -319,10 +330,14 @@ impl EditingMaps {
         let (org, org_capture, org_source_edit) = org_editing_maps(&editor, keys, commands)?;
         let vim = vim::maps(keys, commands)?;
         let vim_org = vim::org_maps(keys, &vim, profile, commands)?;
+        let markdown = Map::contextual(&editor, Context::Markdown, &keys.markdown, commands)?;
+        let vim_markdown = vim::markdown_map(keys, &vim, profile, commands)?;
         Ok(Self {
             editor,
             minibuffer,
             org_calendar,
+            markdown,
+            vim_markdown,
             org,
             org_capture,
             org_source_edit,

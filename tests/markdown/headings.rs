@@ -66,7 +66,7 @@ fn visual_profile() {
 fn admitted_prefixes() {
     for (name, source, row, expected, glyph) in [
         ("quote", "> ## Title\n", 0, ">  ○ Title", true),
-        ("list", "- ### Title\n", 0, "-   ✸ Title", true),
+        ("list", "- ### Title\n", 0, "•   ✸ Title", true),
         ("indent", "   ## Title ##\n", 0, "    ○ Title ##", true),
         ("empty", "######\n", 0, "     ▶", true),
         ("tab", "##\tTitle\n", 0, " ○", true),

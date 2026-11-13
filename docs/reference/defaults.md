@@ -282,6 +282,7 @@ selection/search precedence. Disabling syntax coloring leaves markers active.
 | `language` | Map of language IDs to partial tables | `{}` | IDs start with `[a-z]`, then contain only `[a-z0-9-]`; no grammar installation is implied. |
 | `files.associations` | Map of exact basenames or `*.suffix` to language IDs | `{}` | User rules override built-in recognition; see language rules below. |
 | `keys.completion` | Map of popup chord sequences to completion commands | Compiled map | Active cursor popup; all 7 entries are active in the sample. Escape is a reserved literal cancellation. |
+| `keys.markdown` | Map of chord sequences to existing editor commands | Compiled map | The complete sample spells all 4 entries. Non-modal editing and modal Insert in native Markdown inherit the editor/profile map; explicit parent mappings win over factory defaults, then explicit Markdown mappings override them. |
 | `keys.editor` | Map of chord sequences to existing editor command names | Compiled map | Non-modal editing focus; all 123 entries are active in the sample. |
 | `keys.vim_normal` | Map of chord sequences to canonical commands | Compiled map | modal Normal editing; state entry, navigation/counts/search, operators, transfer, jump history, Replace, dot repetition, colon commands and native pane controls. The sample declares all 181 entries. |
 | `keys.vim_insert` | Map of chord sequences to canonical commands | Compiled map | modal Insert editing; independent native factories and one-Normal-command C-o. The sample declares all 124 entries. |
@@ -457,7 +458,7 @@ edit limits and finite lifecycle.
 | `tree.root` | String: "auto", "cwd" or "file-parent" | `"auto"` | Explicit directory targets win. Otherwise auto/file-parent follow the visiting file parent, falling back to launch cwd; cwd retains launch cwd. |
 | `tree.show_hidden` | Boolean | `true` | Session; admit dot-prefixed tree entries. This does not filter find-file candidates. |
 | `tree.directories_first` | Boolean | `true` | Session; tree directories sort before leaves, then by filename bytes. This does not change find-file ordering. |
-| `markdown.pretty` | Boolean | `true` | Startup default for each view; markdown-pretty-mode toggles symbols and markdown-reset-presentation restores this value. Splits inherit the current choice, then change independently. |
+| `markdown.pretty` | Boolean | `true` | Startup default for each view’s heading and unordered list symbols; markdown-pretty-mode toggles symbols and markdown-reset-presentation restores this value. Splits inherit the current choice, then change independently. |
 | `markdown.enabled` | Boolean | `true` | Startup; enable native Markdown recognition and explicit mode selection. Ordinary text and optional language servers remain available. |
 | `syntax.enabled` | Boolean | `true` | Session; enable derived colors in admitted syntax and native document modes. Text remains editable on fallback. |
 | `syntax.max_bytes` | Integer 0..=1073741824 | `0` | Session; UTF-8 byte cutoff. Zero means no configured cutoff; equality is admitted and larger buffers omit colors. Native modes retain their own finite observation bounds. |

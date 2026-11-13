@@ -26,6 +26,7 @@ impl Session {
             self.input.set_tree_focus(false);
             self.input.set_bookmark_list(false);
             self.input.set_org_context(None);
+            self.input.set_markdown_context(false);
             self.input
                 .editing_owner(self.windows.selected_id(), self.view().point.stamp.buffer);
             return;
@@ -79,6 +80,9 @@ impl Session {
             self.query_agenda = None;
         }
         self.input.set_org_context(self.input_org_role());
+        self.input.set_markdown_context(
+            !self.terminals.focused && self.buffer().is_ok_and(|buffer| buffer.is_markdown()),
+        );
         self.refresh_plugin_keymaps();
     }
 

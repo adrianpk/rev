@@ -183,7 +183,34 @@ writing settings, changing point or adding history. Splits inherit the choice
 and then change independently. Buffer switches retain it; Text mode suspends it.
 Wrapping, horizontal clipping and pointer hits retain canonical source geometry.
 Selection precedes search, which precedes syntax; monochrome retains selection
-and search attributes. There are no list/table editing actions in this increment.
+and search attributes. Table editing retains its later delivery boundary.
+
+### Native list presentation and actions
+
+Unordered source bullets display as `•`, `◦`, `▪`, cycling by admitted nesting
+depth through both unordered and ordered containers. Ordered source numbers,
+indentation and continuation paragraphs stay literal. The same view-local pretty
+flag controls headings and lists; source view reveals their original markers.
+
+`markdown-continue-item`, and contextual Return/Meta-Return in a list, insert a
+sibling after the complete item subtree, preserving the bullet/delimiter style
+or incrementing its number. An empty item exits one level; at the outer level
+its marker is removed. Ordered counters retain digit padding and refuse overflow
+beyond CommonMark's nine-digit source limit.
+
+`markdown-indent-item` nests the item under its previous sibling.
+`markdown-outdent-item` moves it after the parent's remaining subtree, preserving
+children and continuation text instead of adopting later siblings. First-item
+indentation and outer-level outdent refuse without changing text. Source newline
+identity and the final newline remain intact. One explicit action creates one
+undo unit; retained source text keeps marks and points in other panes.
+
+The four factory keys are Return, Meta-Return, Meta-Right and Meta-Left, in
+non-modal editing and modal Insert. Explicit editor/profile remaps precede factory
+Markdown defaults; explicit keys.markdown entries then win. Normal/Visual states,
+completion and prompts retain their input ownership. Literal code gets ordinary
+Return/Meta-Return newlines. Named list edits require current admitted structure
+and refuse read-only, canceled, stale or over-limit observations atomically.
 
 A temporary session-owned worker takes one bounded contiguous source snapshot
 per admitted revision. The profile admits at most 8 MiB, 200,000 parser events

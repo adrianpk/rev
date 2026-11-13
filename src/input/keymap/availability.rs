@@ -54,6 +54,7 @@ impl Context {
                 | Self::MacroDefinition
                 | Self::GitCommit
                 | Self::Org
+                | Self::Markdown
                 | Self::OrgCapture
                 | Self::OrgSourceEdit
                 | Self::VimNormal

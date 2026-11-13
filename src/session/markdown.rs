@@ -137,12 +137,20 @@ impl Session {
         if !self.buffer().is_ok_and(|buffer| buffer.is_markdown()) {
             return self.message("Native Markdown mode is not active");
         }
+        if !matches!(
+            command,
+            crate::command::MarkdownCommand::Pretty
+                | crate::command::MarkdownCommand::ResetPresentation
+        ) {
+            return self.markdown_edit(command);
+        }
         let view = self.windows.selected_mut();
         match command {
             crate::command::MarkdownCommand::Pretty => view.toggle_markdown_presentation(),
             crate::command::MarkdownCommand::ResetPresentation => {
                 view.reset_markdown_presentation()
             }
+            _ => unreachable!("source commands have a separate plan owner"),
         }
         if view.pretty_markdown() && !self.markdown.job.is_active() {
             let buffer = view.point.stamp.buffer;
@@ -155,5 +163,75 @@ impl Session {
         } else {
             "Markdown: source"
         })
+    }
+}
+
+impl Session {
+    fn markdown_edit(&mut self, command: crate::command::MarkdownCommand) -> Action {
+        match self.markdown_plan(command) {
+            Ok(Some(plan)) => match self.publish_markdown(&plan) {
+                Ok(()) => self.message(""),
+                Err(error) => self.error(&error),
+            },
+            Ok(None)
+                if matches!(
+                    command,
+                    crate::command::MarkdownCommand::Return
+                        | crate::command::MarkdownCommand::MetaReturn
+                ) =>
+            {
+                self.edit_command(crate::command::Command::Newline)
+            }
+            Ok(None) => self.error("Point is not in a Markdown list item"),
+            Err(error) => self.error(&error),
+        }
+    }
+
+    fn markdown_plan(
+        &self,
+        command: crate::command::MarkdownCommand,
+    ) -> Result<Option<crate::markdown::Edit>, String> {
+        let buffer = self.buffer().map_err(|e| e.to_string())?;
+        self.view().cell(buffer).map_err(|e| e.to_string())?;
+        if buffer.is_readonly() {
+            return Err(crate::buffer::edit::Error::ReadOnly.to_string());
+        }
+        let Some(model) = buffer.markdown_observation() else {
+            return if matches!(
+                command,
+                crate::command::MarkdownCommand::Return
+                    | crate::command::MarkdownCommand::MetaReturn
+            ) {
+                Ok(None)
+            } else {
+                Err("Markdown structure is not current".into())
+            };
+        };
+        model.list_edit(buffer, command, self.view().point.position)
+    }
+
+    fn publish_markdown(&mut self, plan: &crate::markdown::Edit) -> Result<(), String> {
+        use crate::buffer::edit::Cursor;
+        let buffer = self
+            .buffers
+            .get_mut(self.windows.selected().point.stamp.buffer)
+            .map_err(|e| e.to_string())?;
+        let points = self.windows.points(buffer).map_err(|e| e.to_string())?;
+        let cursor = plan.cursor.map(|position| Cursor {
+            index: points.initiator,
+            position,
+        });
+        let mut prepared = buffer
+            .prepare_retained(&plan.edits, &points.values, cursor, &plan.retained)
+            .map_err(|e| e.to_string())?;
+        prepared
+            .retain_initiator(points.initiator)
+            .map_err(|e| e.to_string())?;
+        prepared.set_origin(self.windows.selected_id());
+        self.windows
+            .publish(buffer, prepared, points)
+            .map_err(|e| e.to_string())?;
+        self.windows.selected_mut().reset_navigation();
+        Ok(())
     }
 }

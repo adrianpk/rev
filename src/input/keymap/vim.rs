@@ -146,6 +146,25 @@ pub(super) fn org_maps(
     Ok(result)
 }
 
+pub(super) fn markdown_map(
+    keys: &Keymaps,
+    maps: &BTreeMap<Context, Map>,
+    profile: InteractionProfile,
+    commands: Option<&BTreeMap<String, crate::config::AiCommand>>,
+) -> Result<Option<Map>, Error> {
+    if profile != InteractionProfile::Modal {
+        return Ok(None);
+    }
+    let map = Map::contextual(
+        &maps[&Context::VimInsert],
+        Context::Markdown,
+        &keys.markdown,
+        commands,
+    )?;
+    recovery(&map, Context::Markdown)?;
+    Ok(Some(map))
+}
+
 fn recovery(map: &Map, context: Context) -> Result<(), Error> {
     // Empty maps reserve future states without advertising unsupported bindings.
     if !matches!(
@@ -157,6 +176,7 @@ fn recovery(map: &Map, context: Context) -> Result<(), Error> {
             | Context::VimVisualLine
             | Context::VimVisualBlock
             | Context::Org
+            | Context::Markdown
             | Context::OrgCapture
             | Context::OrgSourceEdit
     ) {
@@ -176,6 +196,12 @@ fn recovery(map: &Map, context: Context) -> Result<(), Error> {
 
 impl Effective {
     pub(crate) fn vim_map(&self, state: Context, local: Option<Context>) -> &Map {
+        if state == Context::VimInsert && local == Some(Context::Markdown) {
+            return self
+                .vim_markdown
+                .as_ref()
+                .unwrap_or_else(|| self.map(state));
+        }
         local
             .and_then(|local| self.vim_org.get(&(state, local)))
             .unwrap_or_else(|| self.map(state))

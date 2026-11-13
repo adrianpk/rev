@@ -764,6 +764,13 @@ bookmark = "#7aa2f7"            # Resolved logical-line bookmark marker.
 "C-x t d" = "tree-create-directory"
 
 # Org text roles inherit keys.editor; only local overrides belong in these maps.
+[keys.markdown]
+# Editing overlay; explicit parent mappings win over these factory routes.
+RET = "markdown-return"
+M-RET = "markdown-meta-return"
+M-Right = "markdown-indent-item"
+M-Left = "markdown-outdent-item"
+
 [keys.org]
 "C-c C-x C-a" = "org-archive-subtree"
 "C-c C-x a" = "org-toggle-archive-tag"

@@ -19,6 +19,7 @@ pub use modal::EditingState;
 pub use step_edit::MacroStep;
 mod names;
 pub(crate) use names::Names;
+mod markdown;
 mod org;
 mod palette;
 mod paste;
@@ -173,6 +174,7 @@ pub struct Input {
     workspace_git_conflict: bool,
     workspace_completion: bool,
     workspace_org: Option<OrgContext>,
+    workspace_markdown: bool,
     workspace_terminal: Option<hints::TerminalOwner>,
     meta_deadline: Option<Instant>,
     suppress_repeat: bool,

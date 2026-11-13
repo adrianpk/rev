@@ -78,7 +78,27 @@ impl Map {
         commands: Option<&BTreeMap<String, crate::config::AiCommand>>,
     ) -> Result<Self, Error> {
         let local = Self::compile(context, overrides, commands)?;
-        let mut map = parent.clone();
+        parent.merge_overlay(context, local)
+    }
+
+    pub(super) fn contextual(
+        parent: &Self,
+        context: Context,
+        overrides: &BTreeMap<String, String>,
+        commands: Option<&BTreeMap<String, crate::config::AiCommand>>,
+    ) -> Result<Self, Error> {
+        let mut local = Self::compile(context, overrides, commands)?;
+        local.entries.retain(|key, entry| {
+            entry.custom
+                || !parent.entries.iter().any(|(inherited, value)| {
+                    value.custom && super::contributions::overlaps(key, inherited)
+                })
+        });
+        parent.merge_overlay(context, local)
+    }
+
+    fn merge_overlay(&self, context: Context, local: Self) -> Result<Self, Error> {
+        let mut map = self.clone();
         map.entries.retain(|inherited, entry| {
             !local.entries.keys().any(|key| {
                 inherited.chords().starts_with(key.chords())

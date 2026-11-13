@@ -147,6 +147,7 @@ impl Input {
             workspace_git_conflict: self.workspace_git_conflict,
             workspace_completion: self.workspace_completion,
             workspace_org: self.workspace_org,
+            workspace_markdown: self.workspace_markdown,
             workspace_terminal: self.workspace_terminal,
             meta_deadline: None,
             suppress_repeat: false,

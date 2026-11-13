@@ -115,3 +115,32 @@ impl Buffer {
         observation.heading_prefix(start..end)
     }
 }
+
+impl Buffer {
+    pub(crate) fn markdown_observation(&self) -> Option<&Observation> {
+        if !self.markdown_admitted() {
+            return None;
+        }
+        self.markdown
+            .observation
+            .as_ref()
+            .filter(|value| value.stamp == self.stamp())
+    }
+
+    pub(crate) fn markdown_items(
+        &self,
+        row: usize,
+    ) -> impl Iterator<Item = &crate::markdown::Item> {
+        let line = (row < self.len_lines()).then(|| {
+            let start = self.text.line_to_byte(row);
+            start..start + self.text.line(row).len_bytes()
+        });
+        self.markdown_observation()
+            .into_iter()
+            .flat_map(|value| value.items())
+            .filter(move |item| {
+                line.as_ref()
+                    .is_some_and(|line| line.contains(&item.marker.start))
+            })
+    }
+}

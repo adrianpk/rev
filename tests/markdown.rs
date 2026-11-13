@@ -8,6 +8,10 @@ mod fixture;
 mod headings;
 #[path = "markdown/lifecycle.rs"]
 mod lifecycle;
+#[path = "markdown/list_controls.rs"]
+mod list_controls;
+#[path = "markdown/lists.rs"]
+mod lists;
 #[path = "markdown/palette.rs"]
 mod palette;
 #[path = "markdown/presentation.rs"]

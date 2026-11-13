@@ -3,6 +3,11 @@ use std::sync::LazyLock;
 
 use super::{Context, Sequence};
 
+pub(super) fn markdown_complete() -> &'static [(&'static str, &'static str)] {
+    static COMPLETE: LazyLock<Vec<(&str, &str)>> = LazyLock::new(|| complete(EDITOR, MARKDOWN));
+    &COMPLETE
+}
+
 pub(super) fn org_complete() -> &'static [(&'static str, &'static str)] {
     static COMPLETE: LazyLock<Vec<(&str, &str)>> = LazyLock::new(|| complete(EDITOR, ORG));
     &COMPLETE
@@ -86,6 +91,7 @@ pub(super) fn modal_bindings(context: Context) -> &'static [(&'static str, &'sta
 
 pub(super) fn org_bindings(context: Context) -> &'static [(&'static str, &'static str)] {
     match context {
+        Context::Markdown => MARKDOWN,
         Context::Org => ORG,
         Context::OrgAgenda => ORG_AGENDA,
         Context::OrgCapture => ORG_CAPTURE,
@@ -533,6 +539,13 @@ const TREE: &[(&str, &str)] = &[
 ];
 
 // Editing roles inherit the admitted editor map before these local entries.
+const MARKDOWN: &[(&str, &str)] = &[
+    ("RET", "markdown-return"),
+    ("M-RET", "markdown-meta-return"),
+    ("M-Right", "markdown-indent-item"),
+    ("M-Left", "markdown-outdent-item"),
+];
+
 const ORG: &[(&str, &str)] = &[
     ("C-c C-x C-a", "org-archive-subtree"),
     ("C-c C-x a", "org-toggle-archive-tag"),

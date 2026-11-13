@@ -2,11 +2,11 @@ use std::ops::Range;
 
 use pulldown_cmark::{Event, Options, Parser, Tag, TagEnd};
 
-use super::{Kind, MAX_DEPTH, MAX_EVENTS, Node};
+use super::{Item, Kind, MAX_DEPTH, MAX_EVENTS, Node};
 use crate::process::Cancellation;
 use crate::syntax::MarkdownRole;
 
-pub(super) fn observe(source: &str, cancel: &Cancellation) -> Option<Vec<Node>> {
+pub(super) fn observe(source: &str, cancel: &Cancellation) -> Option<(Vec<Node>, Vec<Item>)> {
     if cancel.is_cancelled() {
         return None;
     }
@@ -20,14 +20,16 @@ pub(super) fn observe(source: &str, cancel: &Cancellation) -> Option<Vec<Node>> 
             return None;
         }
     }
-    (!cancel.is_cancelled()).then_some(scan.nodes)
+    (!cancel.is_cancelled()).then_some((scan.nodes, scan.items))
 }
 
 #[derive(Default)]
 struct Scan {
     nodes: Vec<Node>,
     depth: usize,
-    lists: usize,
+    lists: Vec<usize>,
+    items: Vec<Item>,
+    open_items: Vec<usize>,
 }
 
 impl Scan {
@@ -37,18 +39,25 @@ impl Scan {
             Event::End(tag) => {
                 self.depth -= 1;
                 if *tag == TagEnd::List(false) || *tag == TagEnd::List(true) {
-                    self.lists -= 1;
+                    self.lists.pop();
+                }
+                if *tag == TagEnd::Item {
+                    self.open_items.pop();
                 }
                 true
             }
             Event::Code(_) => {
+                self.content();
                 self.nodes.push(Node {
                     bytes,
                     kind: Kind::Literal,
                 });
                 true
             }
-            _ => true,
+            _ => {
+                self.content();
+                true
+            }
         }
     }
 
@@ -57,21 +66,45 @@ impl Scan {
         if self.depth > MAX_DEPTH {
             return false;
         }
+        self.content();
         let kind = match tag {
             Tag::Heading { level, .. } => Some(Kind::Heading {
                 level: *level as u8,
                 prefix: heading_prefix(source, &bytes, *level as u8),
             }),
             Tag::List(_) => {
-                self.lists += 1;
-                Some(Kind::List(self.lists))
+                self.lists.push(bytes.start);
+                Some(Kind::List(self.lists.len()))
             }
-            Tag::CodeBlock(_) => Some(Kind::Literal),
+            Tag::Item => {
+                return self.item(source, bytes);
+            }
+            Tag::CodeBlock(_) => Some(Kind::LiteralBlock),
             _ => semantic(tag).map(Kind::Semantic),
         };
         if let Some(kind) = kind {
             self.nodes.push(Node { bytes, kind });
         }
+        true
+    }
+    fn content(&mut self) {
+        if let Some(index) = self.open_items.last() {
+            self.items[*index].nonempty = true;
+        }
+    }
+
+    fn item(&mut self, source: &str, bytes: Range<usize>) -> bool {
+        let Some(item) = Item::parse(source, bytes, self.lists.len()) else {
+            return false;
+        };
+        let mut item = item;
+        item.parent = self.open_items.last().copied();
+        item.group = *self
+            .lists
+            .last()
+            .expect("an admitted item belongs to a list");
+        self.open_items.push(self.items.len());
+        self.items.push(item);
         true
     }
 }

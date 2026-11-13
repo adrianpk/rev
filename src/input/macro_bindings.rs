@@ -115,7 +115,7 @@ impl Input {
             keys: Vec::new(),
             binding,
             context: self.map_context(),
-            local: self.workspace_org.map(super::OrgContext::keymap),
+            local: self.editing_local_context(),
             modal: self.modal_editing(),
             prompt: Prompt::new(
                 if binding {

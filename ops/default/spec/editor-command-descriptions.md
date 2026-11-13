@@ -138,9 +138,9 @@ do not maintain a separate description list in publication templates.
 - **WHEN** the native catalog guard runs
 - **THEN** it fails and identifies the missing command.
 
-Current catalog: 689 built-in names: 688 canonical commands and the `quit` alias.
+Current catalog: 694 built-in names: 693 canonical commands and the `quit` alias.
 The separate plugin metadata reference adds four native plugin commands, for
-693 registered command names overall.
+698 registered command names overall.
 The alias reuses the exit action's description and effective shortcut. Four Org
 visibility commands were added by the Org Initial Visibility delivery.
 `tree-up-directory` is added by File Tree Parent Navigation. Tree Viewport adds
@@ -929,8 +929,13 @@ Native mode selection follows the approved
 | Command | Description |
 | --- | --- |
 | `markdown-mode` | Select native Markdown for the current buffer. |
-| `markdown-pretty-mode` | Toggle this view's Markdown heading symbols without changing source. |
+| `markdown-pretty-mode` | Toggle this view's Markdown heading and list symbols without changing source. |
 | `markdown-reset-presentation` | Restore this view's startup Markdown presentation without writing settings. |
+| `markdown-continue-item` | Continue this Markdown item or exit one empty list level. |
+| `markdown-indent-item` | Indent this Markdown item with its children and continuation text. |
+| `markdown-outdent-item` | Outdent this Markdown item with its children and continuation text. |
+| `markdown-return` | Continue a Markdown list item or insert an ordinary newline. |
+| `markdown-meta-return` | Insert a Markdown list sibling or an ordinary newline. |
 
 ## Completed delivery evidence
 
