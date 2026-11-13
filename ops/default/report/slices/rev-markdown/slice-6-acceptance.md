@@ -1,11 +1,11 @@
 # Slice 6: Acceptance and guidance
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-markdown
 Plan: [Markdown Delivery](../../../plan/rev-markdown.md)
 Tracker: [Markdown Tracker](../../../tracker/rev-markdown.md)
 Branch: `feat/rev-markdown-06-acceptance`
-PR: `#39`
+PR: [#39](https://forge.adrianpk.com/rev/rev/pulls/39)
 
 ## Purpose
 
@@ -115,6 +115,24 @@ The generated lesson, Markdown index/reference and notices pages are present.
 An HTML text check confirms literal hashes, Unicode, escaped-pipe source and the
 original notice copyright/disclaimer survive rendering.
 
+Controller receipt `BXKF6CWP6GZZW46WS7CGUMQWWG` passed all six required checks
+in canonical order on clean published HEAD
+`9a9f96f439544292ccab7b0d080eec471c29870f`, from 2026-11-13T22:48:40Z to
+2026-11-13T23:09:22Z. Its 423 native tests passed without failures, ignored or
+filtered cases: commands 205/717.67 s, configuration 169/300.50 s and Markdown
+49/182.60 s, totaling 1,200.77 s. The complete receipt took 1,241.44 s.
+The joined check passed eight native cases and four Linux PTYs; each restored
+its terminal and passed the unchanged idle assertion. Full lint retained
+1,882 files, both packages and 75 roots; catalogs retained 707 commands and
+322 settings, and the guide rendered 111 pages.
+
+Canonical PR #39 merged through Rebase + Fast-forward into dev at that exact
+validated HEAD. Forgejo, fetched dev ancestry and Acta event
+`01M7BJTVFF7E7NAEZDSG4QGZQ8` confirm integration. Slice 6 of 6 is delivered.
+The task worktree was clean, unlocked, inactive and integrated before non-forced
+removal; only its classified generated target output was ignored. All slice
+branches and pre-existing worktrees remain.
+
 Required ordered commands:
 
 - `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 make lint`
@@ -130,6 +148,7 @@ Focused command:
 
 ## Risks and Follow-ups
 
-The controller owns Slice 6 integration, the frozen full delivery gate and final
-set closure. This worker does not claim integrated acceptance or close the
-specification, model, plan or tracker before that gate succeeds.
+All six slices are integrated. The controller owns the frozen full delivery
+gate and final set closure, which remain pending. Gate preparation changes only
+delivery records; the specification, model, plan and tracker are not marked
+Completed before the exact-candidate full gate succeeds.

@@ -8,7 +8,7 @@ Approved: product owner, 2026-11-13; approved specification, slicing and establi
 Plan: [Markdown Delivery](../plan/rev-markdown.md)
 Spec: [Markdown Editing and Presentation](../spec/editor-markdown-mode.md)
 Model: [Markdown Policy and Actions](../spec/editor-markdown-mode-model.md)
-Active slice: Slice 6 - Acceptance and guidance
+Active slice: None - all six slices integrated; controller-owned full gate pending
 Progress owner: native Looper checkpoint, canonical PR state and exact-candidate validation receipts
 Parser decision: owner accepted pulldown-cmark 0.13.6 subject to compatible licensing; exact package and minimal graph verified
 
@@ -154,10 +154,10 @@ Slice 5 of 6 completed; Slice 6 is active.
 
 ## Slice 6: Acceptance and guidance
 
-State: active
+State: delivered
 Requirements: Joint MD01-MD06 and the complete reproducibility matrix
 Branch: `feat/rev-markdown-06-acceptance`
-PR: `#39`
+PR: [#39](https://forge.adrianpk.com/rev/rev/pulls/39)
 Report: `ops/default/report/slices/rev-markdown/slice-6-acceptance.md`
 Validation: the exact ordered checks for Slice 6 in the plan and frozen local configuration
 
@@ -178,21 +178,41 @@ Full lint passes 1,882 Rust files and 75 roots with no diagnostics. Documentatio
 verifies 707 commands, 322 settings, 110 pages and 785 links/anchors; the local
 guide build renders 111 pages including canonical parser notices.
 
-T6.3 worker evidence is prepared. Its controller-owned integrated gate, artifact
-closure and final cleanup remain pending; this slice remains active for review.
+Controller receipt `BXKF6CWP6GZZW46WS7CGUMQWWG` passed all six ordered checks
+on clean published HEAD `9a9f96f439544292ccab7b0d080eec471c29870f`.
+All 423 native tests passed without failures, ignored or filtered cases in
+1,200.77 s; the joined check passed eight native cases and four Linux PTYs.
+Canonical PR #39 merged at that exact commit, verified against fetched dev and
+Acta. Slice 6 of 6 is delivered; no implementation slice remains active.
+
+T6.3 evidence, report and gate preparation are complete. Its checkbox remains
+open for the controller-owned integrated gate and post-gate artifact closure.
+The final clean inactive integrated task worktree has been removed without force;
+all pre-existing worktrees and slice branches remain.
 
 ## Integration and closure
 
 - [x] Confirm the parser dependency decision and compatible MIT licensing without changing the approved behavior.
 - [x] Commit/push the approved scope, six-slice plan/tracker, model and index at 8767a298; record the subsequent dependency decision before startup.
-- [ ] Generate/register the final native configuration, pass preflight and start one detached Looper owner.
-- [ ] Integrate all six canonical PRs through controller-owned Rebase + Fast-forward into dev.
-- [ ] Remove each clean inactive integrated task worktree without force; preserve pre-existing worktrees and branches.
+- [x] Generate/register the final native configuration, pass preflight and start one detached Looper owner.
+- [x] Integrate all six canonical PRs through controller-owned Rebase + Fast-forward into dev.
+- [x] Remove each clean inactive integrated task worktree without force; preserve pre-existing worktrees and branches.
 - [ ] Run the frozen Full gate on the exact clean integrated candidate and record its receipt and actual cost.
 - [ ] Close only configured Markdown paths, with reports delivered and spec/model/plan/tracker Completed.
 - [ ] Verify clean synchronized dev, unchanged tested runtime/guide inputs and final Acta/commit evidence.
 
-No runtime or validation outcome is claimed by preparation. The native
-configuration will pin the plan's slice check prefixes and unchanged Full gate
-before the first checkpoint. Only the explicitly accepted parser and its reviewed graph may be introduced;
+Acta records successful preflight and native controller startup on 2026-11-13
+at event `01M7AQHENN04XY7M1845JJYW2S`. Canonical Forgejo and Acta confirm all
+six Rebase + Fast-forward merges, PRs #34-#39, with each merged HEAD ancestral
+to fetched dev. All six slice reports are delivered; overall artifact status
+remains Approved until the frozen integrated gate succeeds.
+
+Full-gate prerequisites are available: the approved drivers and fixtures,
+locked Cargo graph, Rust toolchain, Linux PTY tools and Spore. Installed hooks
+remain unchanged; no native build or fixture is active in the primary checkout.
+Gate preparation changes only this plan, tracker and Slice 6 report. Runtime,
+tests, manifests, guide inputs and executable drivers retain the integrated
+implementation bytes. The controller owns the unchanged Full gate and final
+closure; this worker has not run the full gate.
+Only the explicitly accepted parser and its reviewed graph may be introduced;
 additional dependencies still require separate approval.

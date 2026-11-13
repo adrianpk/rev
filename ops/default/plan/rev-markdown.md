@@ -9,8 +9,8 @@ Planning baseline: `47c8b2210d8e043640f488e1024ea7c7a2389265`
 Spec: [Markdown Editing and Presentation](../spec/editor-markdown-mode.md)
 Model: [Markdown Policy and Actions](../spec/editor-markdown-mode-model.md)
 Tracker: [Markdown Tracker](../tracker/rev-markdown.md)
-Active slice: Slice 6 - Acceptance and guidance
-Readiness: parser dependency accepted after license verification; ready for native preflight/startup
+Active slice: None - all six slices integrated; controller-owned full gate pending
+Readiness: canonical PRs #34-#39 merged into dev; full-gate prerequisites verified
 Full gate: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 make lint && env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test markdown --test syntax --test configuration --test commands --test display --test pointer --test org_headings --test org_indentation --test org_tables --test external_changes -- --test-threads=1 && env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test modal contexts:: -- --test-threads=1 && env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 bash scripts/check-markdown.sh && env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo run --locked --quiet -p rev --example documentation-check && env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 bash scripts/build-user-guide.sh && git diff --check`
 
 ## Outcome, strategy and authority
@@ -185,6 +185,16 @@ Ordered slice checks:
 6. `git diff --check`
 
 ## Integrated gate and cost
+
+Gate preparation on 2026-11-14 verified all six canonical merges against fetched
+dev and Acta. The integrated implementation HEAD is
+`9a9f96f439544292ccab7b0d080eec471c29870f`; Slice 6 receipt
+`BXKF6CWP6GZZW46WS7CGUMQWWG` passed its six ordered checks on that exact HEAD.
+All slice reports are delivered. This set's clean inactive integrated worktrees
+are removed; its branches and all pre-existing worktrees remain. Required Rust,
+Linux PTY and Spore tools are available, and installed hooks remain unchanged.
+Only delivery records change during this preparation; the full gate and final
+artifact completion remain controller-owned and pending.
 
 Run the exact Full gate above once on the clean published candidate after all
 six PRs integrate. The strict lint command protects every owned workspace root;
