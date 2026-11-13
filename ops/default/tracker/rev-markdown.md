@@ -28,7 +28,7 @@ Parser decision: owner accepted pulldown-cmark 0.13.6 subject to compatible lice
 State: reviewing
 Requirements: MD01, MD02 semantic colors, MD06
 Branch: `feat/rev-markdown-01-recognition`
-PR: pending
+PR: [#34](https://forge.adrianpk.com/rev/rev/pulls/34)
 Report: `ops/default/report/slices/rev-markdown/slice-1-recognition.md`
 Validation: the exact ordered checks for Slice 1 in the plan and frozen local configuration
 
@@ -37,12 +37,13 @@ Validation: the exact ordered checks for Slice 1 in the plan and frozen local co
 - [x] T1.3: Create tests/markdown.rs with named source/context/offline/invalidation cases, including native palette output and disabled coloring. Update affected references/Unreleased for the usable behavior and record the canonical report.
 
 Task commits: T1.1-T1.2 and native regressions at `98cda39921c31c00997b4400cc967ec9bad4abad`;
-T1.3 report introduction is recorded with the PR references.
+T1.3 report and catalog/cell-decoder correction at `1541cc22aac2f6116ffbeaad73bd3aa2bd9e741f`.
 
-Development evidence: 205 command and 166 configuration tests passed; the
-corrected focused Markdown/syntax batch passed 12 and 30 tests. Full first-party
-lint and the exact 691-command/314-setting catalogs pass. The frozen combined
-batch and final clean PR HEAD receipt remain required before worker handoff.
+Development evidence: the exact combined command passed all 413 tests
+(205 command, 166 configuration, 12 Markdown and 30 syntax) with no ignored cases.
+Full first-party lint, the exact 691-command/314-setting documentation catalogs
+and whitespace checks pass. Worker handoff requires the controller receipt for
+the final clean published PR HEAD after these PR references.
 
 ## Slice 2: Heading presentation
 

@@ -5,7 +5,7 @@ Delivery set: rev-markdown
 Plan: [Markdown Delivery](../../../plan/rev-markdown.md)
 Tracker: [Markdown Tracker](../../../tracker/rev-markdown.md)
 Branch: `feat/rev-markdown-01-recognition`
-PR: pending
+PR: `#34`
 
 ## Purpose
 
@@ -31,6 +31,9 @@ slice boundaries.
 ## Implementation Notes
 
 Implementation commit: `98cda39921c31c00997b4400cc967ec9bad4abad` (T1.1-T1.2 and native regressions).
+Canonical PR: https://forge.adrianpk.com/rev/rev/pulls/34
+Report introduction: `1541cc22aac2f6116ffbeaad73bd3aa2bd9e741f`.
+
 
 The private Markdown adapter retains original source byte ranges, heading levels,
 logical list depth and literal/block ownership. External parser/event types stay
@@ -77,15 +80,22 @@ exact upstream MIT notices; Rev remains GPL-3.0-only.
 
 ## Validation
 
-All selected targets have passed during development. The exact combined batch
-and final controller receipt remain pending. The receipt must validate the clean
-PR HEAD after all PR-reference commits; focused results do not replace it or the
-later integrated full gate.
+All required development commands below passed. The combined native command
+passed all 413 selected tests without failures or ignored cases. Acceptance
+belongs to the controller receipt for the final clean PR HEAD, recorded after
+all PR-reference commits; the controller retains its exact ordered logs. These
+slice checks do not substitute for the later integrated full gate.
 
 - `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 make lint`
 - `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test markdown --test configuration --test syntax --test commands -- --test-threads=1`
 - `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo run --locked --quiet -p rev --example documentation-check`
 - `git diff --check`
+
+The successful combined development batch on the report-introduction candidate
+passed 205 command tests in 589.64 s, 166 configuration tests in 253.70 s,
+12 Markdown tests in 25.33 s and 30 syntax tests in 40.71 s. Documentation and
+whitespace checks then passed. The native targets took 909.38 s in total;
+the measured cost is not a timeout or a broader acceptance claim.
 
 Full first-party lint passed for 1,852 Rust files, two packages and all 74 Cargo
 roots. The installed immutable-index hook also passed the implementation commit.
