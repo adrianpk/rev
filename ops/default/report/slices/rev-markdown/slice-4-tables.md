@@ -1,6 +1,6 @@
 # Slice 4: Table creation and field editing
 
-Status: drafting
+Status: reviewing
 Delivery set: rev-markdown
 Plan: [Markdown Delivery](../../../plan/rev-markdown.md)
 Tracker: [Markdown Tracker](../../../tracker/rev-markdown.md)
@@ -36,6 +36,9 @@ insertion and deletion remain Slice 5.
   retain their priority.
 
 ## Implementation Notes
+
+Implementation and report introduction: `af6d28fdbf6afca809206e0298648a8c8d33b369`.
+Canonical PR: pending.
 
 The parser adapter records table and row source ranges alongside heading/list
 observations. Separator scanning operates only inside that admitted context and
@@ -78,14 +81,17 @@ configured syntax byte limit wins.
 
 ## Validation
 
-All eleven focused native table integration cases pass in 21.37 s. All four
-native table/input unit checks also pass. Full workspace lint passes all 1,875
-first-party Rust files, both packages and 74 Cargo roots, with zero blocking or
-deferred diagnostics. Exact documentation and whitespace checks pass. The ordered
-slice checks on a clean committed HEAD remain pending. Final worker
-acceptance requires one controller validation receipt on the exact clean pushed
-HEAD after PR-reference commits. The controller owns integration and the full
-six-slice delivery gate.
+All four required development commands passed in canonical order on clean
+published implementation HEAD `af6d28fdbf6afca809206e0298648a8c8d33b369`, from
+2026-11-13T20:00:17Z to 2026-11-13T20:19:18Z. All 489 tests across four native
+targets passed without failures or ignored cases. Full workspace lint passes all
+1,875 first-party Rust files, both packages and 74 Cargo roots, with zero blocking
+or deferred diagnostics. Documentation verifies 703 command names, 322 settings,
+107 reachable pages and 759 local links/anchors. Whitespace passes.
+
+Final worker acceptance requires one controller validation receipt on the exact
+clean pushed HEAD after PR-reference commits, without modifying that tested HEAD.
+The controller owns integration and the full six-slice delivery gate.
 
 Required ordered commands:
 
@@ -93,6 +99,24 @@ Required ordered commands:
 - `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test markdown --test configuration --test commands --test org_tables -- --test-threads=1`
 - `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo run --locked --quiet -p rev --example documentation-check`
 - `git diff --check`
+
+| Target | Passed | Seconds |
+| --- | --- | --- |
+| commands | 205 | 675.22 |
+| configuration | 169 | 282.27 |
+| markdown | 42 | 94.85 |
+| org_tables | 73 | 66.19 |
+
+The native targets took 1,118.53 s in total; their exact combined command took
+1,125.47 s including preparation. Ordered lint took 15.13 s and documentation
+0.60 s. This measured cost changes no command, timeout or acceptance condition.
+The installed immutable-index hook also passes complete workspace coverage.
+
+All eleven focused table integration cases passed in 21.37 s; four native
+unit checks passed in 1.86 s. Their exact development commands were:
+
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test markdown tables:: -- --test-threads=1`
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --lib markdown:: -- --test-threads=1`
 
 The initial focused run passed three of six cases; three expected-output failures
 came from one missing padding space in the Unicode fixture. The corrected fixture

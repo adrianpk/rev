@@ -106,11 +106,19 @@ PR: pending
 Report: `ops/default/report/slices/rev-markdown/slice-4-tables.md`
 Validation: the exact ordered checks for Slice 4 in the plan and frozen local configuration
 
-- [ ] T4.1: Observe GFM tables from admitted parser context with original source cell spans, delimiter alignments and the fixed finite table profile. Accept optional outer pipes and escaped pipes; refuse structured operations that would discard extra body cells or depend on stale/incomplete context.
-- [ ] T4.2: Implement explicit table creation, alignment, next/previous field and next-row actions, skipping delimiters and appending body rows when required. Preserve exact cell source, newline identity and existing canonical transaction authority; aligned navigation adds no history.
-- [ ] T4.3: Wire contextual table routes in both editing profiles and named selectors. Cover header-only tables, all alignments, literal code, ragged/invalid shapes, read-only refusal, limits and exact undo/redo; document behavior and report acceptance.
+- [x] T4.1: Observe GFM tables from admitted parser context with original source cell spans, delimiter alignments and the fixed finite table profile. Accept optional outer pipes and escaped pipes; refuse structured operations that would discard extra body cells or depend on stale/incomplete context.
+- [x] T4.2: Implement explicit table creation, alignment, next/previous field and next-row actions, skipping delimiters and appending body rows when required. Preserve exact cell source, newline identity and existing canonical transaction authority; aligned navigation adds no history.
+- [x] T4.3: Wire contextual table routes in both editing profiles and named selectors. Cover header-only tables, all alignments, literal code, ragged/invalid shapes, read-only refusal, limits and exact undo/redo; document behavior and report acceptance.
 
-Task commits: pending.
+Task commits: T4.1-T4.3 implementation, regressions and report introduction at
+`af6d28fdbf6afca809206e0298648a8c8d33b369`; development evidence is recorded with this tracker update.
+
+All four ordered development commands passed on that clean published HEAD:
+489 tests across four native targets, no failures or ignored cases, full
+first-party lint, 703-command/322-setting documentation and whitespace checks.
+Native targets took 1,118.53 s. Focused table/input checks add eleven integration
+cases and four unit cases. Final worker acceptance requires one exact clean
+published HEAD receipt after PR-reference commits; the controller owns integration.
 
 ## Slice 5: Table row and column operations
 
