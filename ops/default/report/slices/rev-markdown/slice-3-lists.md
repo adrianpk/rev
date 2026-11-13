@@ -1,6 +1,6 @@
 # Slice 3: List presentation and editing
 
-Status: drafting
+Status: reviewing
 Delivery set: rev-markdown
 Plan: [Markdown Delivery](../../../plan/rev-markdown.md)
 Tracker: [Markdown Tracker](../../../tracker/rev-markdown.md)
@@ -35,7 +35,7 @@ editing overlay in both supported profiles. Table actions retain Slices 4-5.
 
 ## Implementation Notes
 
-Implementation and report introduction: pending.
+Implementation and report introduction: `4251b929e6b4493a59a0e7146ffb82a5e1c7b38b`.
 Canonical PR: pending.
 
 The private parser adapter retains editor-owned item source spans, logical
@@ -82,16 +82,35 @@ adding an SDK/wire context or a session persistence record.
 
 ## Validation
 
-Required development checks are pending. Focused source/profile cases, exact
-command descriptions and documentation pass. Final evidence must be recorded against the
-clean published PR HEAD after all PR-reference commits through the controller's
-validate command. The controller owns integration and the full delivery-set gate.
+All five required development commands passed in canonical order on clean
+implementation HEAD `4251b929e6b4493a59a0e7146ffb82a5e1c7b38b`, from
+2026-11-13T18:42:28Z to 2026-11-13T19:01:07Z. All 542 tests across six native
+targets passed without failures or ignored cases. Full lint, exact command and
+configuration documentation and whitespace checks passed. Final worker acceptance
+requires the controller receipt on the clean published PR HEAD after all
+PR-reference commits, without modifying that tested HEAD. The controller owns
+integration and the full delivery-set gate.
 
 - `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 make lint`
 - `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test markdown --test configuration --test commands --test display --test pointer -- --test-threads=1`
 - `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test modal contexts:: -- --test-threads=1`
 - `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo run --locked --quiet -p rev --example documentation-check`
 - `git diff --check`
+
+| Target | Passed | Seconds |
+| --- | --- | --- |
+| commands | 205 | 624.36 |
+| configuration | 169 | 268.93 |
+| display | 47 | 35.12 |
+| markdown | 31 | 67.01 |
+| pointer | 69 | 70.93 |
+| modal contexts | 21 | 26.56 |
+
+The native targets took 1,092.91 s in total. Modal filtering retained the exact
+approved contexts:: selection. This measured cost changes no command, timeout or
+acceptance condition. Full workspace lint and the installed immutable-index hook
+pass all 1,867 first-party Rust files, both packages and 74 Cargo roots, with
+zero blocking or deferred diagnostics.
 
 Focused development established list continuation/exits, subtree moves, actual
 profile routes, read-only/cancellation refusal and inherited/local override

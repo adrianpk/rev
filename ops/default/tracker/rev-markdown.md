@@ -80,11 +80,18 @@ PR: pending
 Report: `ops/default/report/slices/rev-markdown/slice-3-lists.md`
 Validation: the exact ordered checks for Slice 3 in the plan and frozen local configuration
 
-- [ ] T3.1: Decorate unordered source markers by actual nesting depth using the approved three-marker cycle and the shared view pretty flag. Retain ordered source numbers, continuation paragraphs, indentation and literal-code ownership.
-- [ ] T3.2: Implement continue-item, empty-item level exit and checked indent/outdent with child/continuation retention, ordered increment and one-action undo. Introduce the Markdown editing keymap overlay and approved Return/Meta-Return dispatch without capturing modal Normal/Visual or completion-popup ownership.
-- [ ] T3.3: Deliver both-profile named commands, effective key hints, override inheritance, read-only/cancellation cases, Unicode and shared-point regressions. Update catalogs, list guidance, Unreleased and the canonical report.
+- [x] T3.1: Decorate unordered source markers by actual nesting depth using the approved three-marker cycle and the shared view pretty flag. Retain ordered source numbers, continuation paragraphs, indentation and literal-code ownership.
+- [x] T3.2: Implement continue-item, empty-item level exit and checked indent/outdent with child/continuation retention, ordered increment and one-action undo. Introduce the Markdown editing keymap overlay and approved Return/Meta-Return dispatch without capturing modal Normal/Visual or completion-popup ownership.
+- [x] T3.3: Deliver both-profile named commands, effective key hints, override inheritance, read-only/cancellation cases, Unicode and shared-point regressions. Update catalogs, list guidance, Unreleased and the canonical report.
 
-Task commits: pending.
+Task commits: T3.1-T3.3 implementation, regressions and report introduction at
+`4251b929e6b4493a59a0e7146ffb82a5e1c7b38b`.
+
+All five ordered development commands passed on that clean implementation HEAD:
+542 tests across six targets, no failed or ignored cases, full first-party lint,
+698-command/322-setting documentation and whitespace checks. Native targets took
+1,092.91 s. Final worker acceptance requires one exact clean published HEAD
+receipt after PR-reference commits; the controller owns integration.
 
 ## Slice 4: Table creation and field editing
 
