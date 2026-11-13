@@ -75,6 +75,12 @@ With the factory settings, the first two headings appear as `◉ Trip` and
 `  ○ Equipment`. The markers follow heading levels; the saved file still
 contains `* Trip` and `** Equipment`.
 
+The bullet and ordinary heading text share a color for each level. The first
+level is Tokyo Night blue and the second is purple. Deeper levels cycle eight
+colors independently of the six symbols; level 9 repeats the first color.
+See [heading colors](../../reference/org-mode.md#heading-colors) for the full
+sequence and palette preferences. Source presentation keeps these colors.
+
 Run `M-x org-pretty-headings-mode`. The feedback reads `Org headings: source`
 and the original stars appear. Run it again: `Org headings: pretty` restores
 the markers. In the modal profile, `:org-pretty-headings-mode` runs the same

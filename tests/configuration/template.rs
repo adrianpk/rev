@@ -59,7 +59,7 @@ fn explicit_defaults() {
             roles += 1;
         }
     }
-    assert_eq!(roles, 62);
+    assert_eq!(roles, 69);
     assert_eq!(palette["tree_entries"].as_table().unwrap().len(), 7);
     assert_eq!(raw["tree"]["decorated"].as_bool(), Some(true));
     assert_eq!(palette["gutter"]["bookmark"].as_str(), Some("#7aa2f7"));

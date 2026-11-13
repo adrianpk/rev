@@ -228,6 +228,13 @@ pub struct PartialGutterPalette {
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct OrgPalette {
     pub heading: Rgb,
+    pub heading_2: Rgb,
+    pub heading_3: Rgb,
+    pub heading_4: Rgb,
+    pub heading_5: Rgb,
+    pub heading_6: Rgb,
+    pub heading_7: Rgb,
+    pub heading_8: Rgb,
     pub keyword: Rgb,
     pub drawer: Rgb,
     pub property: Rgb,
@@ -258,6 +265,13 @@ impl Default for OrgPalette {
     fn default() -> Self {
         Self {
             heading: Rgb(0x7a, 0xa2, 0xf7),
+            heading_2: Rgb(0x9d, 0x7c, 0xd8),
+            heading_3: Rgb(0xc0, 0xca, 0xf5),
+            heading_4: Rgb(0x9b, 0xb9, 0xf9),
+            heading_5: Rgb(0xb5, 0x9c, 0xe1),
+            heading_6: Rgb(0xbc, 0xd0, 0xfb),
+            heading_7: Rgb(0xce, 0xbd, 0xeb),
+            heading_8: Rgb(0xe4, 0xec, 0xfd),
             keyword: Rgb(0x9d, 0x7c, 0xd8),
             drawer: Rgb(0x2a, 0xc3, 0xde),
             property: Rgb(0x2a, 0xc3, 0xde),
@@ -286,11 +300,35 @@ impl Default for OrgPalette {
     }
 }
 
+impl OrgPalette {
+    /// Heading faces cycle independently of the configured marker sequence.
+    pub(crate) fn heading_color(&self, level: usize) -> Rgb {
+        assert!(level > 0, "Org heading levels are positive");
+        [
+            self.heading,
+            self.heading_2,
+            self.heading_3,
+            self.heading_4,
+            self.heading_5,
+            self.heading_6,
+            self.heading_7,
+            self.heading_8,
+        ][(level - 1) % 8]
+    }
+}
+
 /// Optional RGB leaves follow ordinary validation, merge and provenance rules.
 #[derive(Clone, Debug, Default, PartialEq, Eq, Deserialize)]
 #[serde(default, deny_unknown_fields)]
 pub struct PartialOrgPalette {
     pub heading: Option<String>,
+    pub heading_2: Option<String>,
+    pub heading_3: Option<String>,
+    pub heading_4: Option<String>,
+    pub heading_5: Option<String>,
+    pub heading_6: Option<String>,
+    pub heading_7: Option<String>,
+    pub heading_8: Option<String>,
     pub keyword: Option<String>,
     pub drawer: Option<String>,
     pub property: Option<String>,

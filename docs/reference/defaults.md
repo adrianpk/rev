@@ -266,6 +266,13 @@ Use `org-pretty-headings-mode` to override only the active view's pretty flag;
 `org-reset-heading-presentation` returns to its immutable startup value.
 Both use M-x or modal colon and leave this configuration unchanged.
 
+Heading colors use an independent eight-face cycle in pretty and source
+presentation. `palette.org.heading` controls face 1; `palette.org.heading_2`
+through `palette.org.heading_8` control the remaining faces. Defaults follow
+Tokyo Night blue, purple and lighter variants; level 9 repeats face 1.
+See [heading colors](org-mode.md#heading-colors) for all RGB defaults and
+selection/search precedence. Disabling syntax coloring leaves markers active.
+
 ### Source metadata and maps
 
 | Key | Type and bounds | Default | Scope and effect |

@@ -1,5 +1,7 @@
 #![forbid(unsafe_code)]
 
+#[path = "org_headings/colors.rs"]
+mod colors;
 #[path = "org_headings/controls.rs"]
 mod controls;
 #[path = "org_headings/editing.rs"]
@@ -12,6 +14,8 @@ mod geometry;
 mod lifecycle;
 #[path = "org_headings/observations.rs"]
 mod observations;
+#[path = "support/surface.rs"]
+mod surface;
 
 use std::time::{Duration, Instant};
 

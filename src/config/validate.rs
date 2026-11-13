@@ -371,6 +371,13 @@ fn gutter_palette(palette: &PartialGutterPalette) -> Result<(), Failure> {
 fn org_palette(palette: &PartialOrgPalette) -> Result<(), Failure> {
     let colors = [
         ("heading", &palette.heading),
+        ("heading_2", &palette.heading_2),
+        ("heading_3", &palette.heading_3),
+        ("heading_4", &palette.heading_4),
+        ("heading_5", &palette.heading_5),
+        ("heading_6", &palette.heading_6),
+        ("heading_7", &palette.heading_7),
+        ("heading_8", &palette.heading_8),
         ("keyword", &palette.keyword),
         ("drawer", &palette.drawer),
         ("property", &palette.property),

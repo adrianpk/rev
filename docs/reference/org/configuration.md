@@ -95,10 +95,20 @@ See the [capability map](../org-controls.md) for the behavior each area controls
 ## Palette roles
 
 Each value is an RGB string in the shared [palette format](../defaults.md#palette-roles).
+Heading faces cycle every eight levels independently of the marker sequence;
+see [heading colors](../org-mode.md#heading-colors). Each face colors both its
+bullet and ordinary title text, with selection/search precedence unchanged.
 
 | Key | Type and bounds | Default | Scope and effect |
 | --- | --- | --- | --- |
-| `palette.org.heading` | RGB string | `"#7aa2f7"` | Heading lines. |
+| `palette.org.heading` | RGB string | `"#7aa2f7"` | Heading face 1: levels 1, 9, 17 and so on. |
+| `palette.org.heading_2` | RGB string | `"#9d7cd8"` | Heading face 2: levels 2, 10, 18 and so on. |
+| `palette.org.heading_3` | RGB string | `"#c0caf5"` | Heading face 3: levels 3, 11, 19 and so on. |
+| `palette.org.heading_4` | RGB string | `"#9bb9f9"` | Heading face 4: levels 4, 12, 20 and so on. |
+| `palette.org.heading_5` | RGB string | `"#b59ce1"` | Heading face 5: levels 5, 13, 21 and so on. |
+| `palette.org.heading_6` | RGB string | `"#bcd0fb"` | Heading face 6: levels 6, 14, 22 and so on. |
+| `palette.org.heading_7` | RGB string | `"#cebdeb"` | Heading face 7: levels 7, 15, 23 and so on. |
+| `palette.org.heading_8` | RGB string | `"#e4ecfd"` | Heading face 8: levels 8, 16, 24 and so on. |
 | `palette.org.keyword` | RGB string | `"#9d7cd8"` | Keywords and affiliated metadata. |
 | `palette.org.drawer` | RGB string | `"#2ac3de"` | Drawer boundaries. |
 | `palette.org.property` | RGB string | `"#2ac3de"` | Property entries. |

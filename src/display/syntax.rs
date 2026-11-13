@@ -13,6 +13,18 @@ use super::Error;
 pub struct Paint {
     pub columns: Range<u16>,
     pub style: Style,
+    heading_level: Option<usize>,
+}
+
+impl Paint {
+    pub(super) fn foreground(&self, palette: &Palette) -> Rgb {
+        match (self.style, self.heading_level) {
+            (Style::Org(crate::org::Role::Heading), Some(level)) => {
+                palette.org.heading_color(level)
+            }
+            _ => foreground(self.style, palette),
+        }
+    }
 }
 
 pub(super) fn row(
@@ -35,7 +47,13 @@ pub(super) fn row(
     } else {
         buffer.syntax().captures(buffer, bytes)
     };
-    paint(&coordinates, &visible, &captures, left)
+    paint(
+        &coordinates,
+        &visible,
+        &captures,
+        left,
+        buffer.org_heading_level(row),
+    )
 }
 
 fn visible<'a>(
@@ -64,6 +82,7 @@ fn paint(
     glyphs: &[Glyph<'_>],
     captures: &[Capture],
     left: usize,
+    heading_level: Option<usize>,
 ) -> Result<Vec<Paint>, Error> {
     let mut result: Vec<Paint> = Vec::new();
     for glyph in glyphs {
@@ -83,6 +102,7 @@ fn paint(
                 Paint {
                     columns,
                     style: capture.style,
+                    heading_level,
                 },
             );
         }
@@ -93,6 +113,7 @@ fn paint(
 fn append(result: &mut Vec<Paint>, paint: Paint) {
     if let Some(last) = result.last_mut()
         && last.style == paint.style
+        && last.heading_level == paint.heading_level
         && last.columns.end == paint.columns.start
     {
         last.columns.end = paint.columns.end;
@@ -117,14 +138,10 @@ pub(super) fn foreground(style: Style, palette: &Palette) -> Rgb {
 }
 
 impl super::Row {
-    pub(super) fn style(&self, column: usize) -> Option<Style> {
-        self.syntax
-            .iter()
-            .find(|paint| {
-                usize::from(paint.columns.start) <= column
-                    && column < usize::from(paint.columns.end)
-            })
-            .map(|paint| paint.style)
+    pub(super) fn style(&self, column: usize) -> Option<&Paint> {
+        self.syntax.iter().find(|paint| {
+            usize::from(paint.columns.start) <= column && column < usize::from(paint.columns.end)
+        })
     }
 }
 

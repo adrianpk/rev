@@ -9,6 +9,12 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 
 ### Added
 
+- Org headings now use eight level-dependent Tokyo Night colors for their
+  bullets and text, following Emacs' independent color and symbol cycles.
+  Deeper levels repeat the colors in both pretty and source presentation.
+  Configure each face through palette.org.heading and palette.org.heading_2
+  through palette.org.heading_8; source stars and editing positions stay intact.
+
 - The file tree now fits expanded names automatically without shrinking when
   you fold or navigate. Widen or narrow it by four columns with tree-local
   > / < or C-x t > / C-x t <, reset with C-x t =, and toggle fitting with

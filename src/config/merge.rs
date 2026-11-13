@@ -807,6 +807,41 @@ impl Merge {
 impl Merge {
     fn org_palette(&mut self, base: &mut PartialOrgPalette, later: &PartialOrgPalette) {
         self.leaf(
+            &["palette", "org", "heading_2"],
+            &mut base.heading_2,
+            &later.heading_2,
+        );
+        self.leaf(
+            &["palette", "org", "heading_3"],
+            &mut base.heading_3,
+            &later.heading_3,
+        );
+        self.leaf(
+            &["palette", "org", "heading_4"],
+            &mut base.heading_4,
+            &later.heading_4,
+        );
+        self.leaf(
+            &["palette", "org", "heading_5"],
+            &mut base.heading_5,
+            &later.heading_5,
+        );
+        self.leaf(
+            &["palette", "org", "heading_6"],
+            &mut base.heading_6,
+            &later.heading_6,
+        );
+        self.leaf(
+            &["palette", "org", "heading_7"],
+            &mut base.heading_7,
+            &later.heading_7,
+        );
+        self.leaf(
+            &["palette", "org", "heading_8"],
+            &mut base.heading_8,
+            &later.heading_8,
+        );
+        self.leaf(
             &["palette", "org", "heading"],
             &mut base.heading,
             &later.heading,

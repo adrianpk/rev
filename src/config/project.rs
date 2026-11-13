@@ -275,6 +275,13 @@ fn mouse(base: &mut Mouse, partial: &PartialMouse) {
 
 fn org_palette(base: &mut OrgPalette, partial: &PartialOrgPalette) {
     color(&mut base.heading, &partial.heading);
+    color(&mut base.heading_2, &partial.heading_2);
+    color(&mut base.heading_3, &partial.heading_3);
+    color(&mut base.heading_4, &partial.heading_4);
+    color(&mut base.heading_5, &partial.heading_5);
+    color(&mut base.heading_6, &partial.heading_6);
+    color(&mut base.heading_7, &partial.heading_7);
+    color(&mut base.heading_8, &partial.heading_8);
     color(&mut base.keyword, &partial.keyword);
     color(&mut base.drawer, &partial.drawer);
     color(&mut base.property, &partial.property);

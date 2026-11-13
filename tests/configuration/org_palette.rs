@@ -100,6 +100,63 @@ fn inherited(snapshot: &rev::config::Snapshot, changed: Role, source: &std::path
     );
 }
 
+// Heading faces use the existing include/override provenance contract, without
+// treating deeper faces as new syntax roles or replacing their siblings.
+#[test]
+fn heading_faces() {
+    let fixture = Fixture::new();
+    let keys = [
+        "heading",
+        "heading_2",
+        "heading_3",
+        "heading_4",
+        "heading_5",
+        "heading_6",
+        "heading_7",
+        "heading_8",
+    ];
+    let base = keys
+        .iter()
+        .map(|key| format!("palette.org.{key} = '#102030'\n"))
+        .collect::<String>();
+    let included = fixture.write("base.toml", &base);
+    for key in keys {
+        let root = fixture.write(
+            "config.toml",
+            &format!("include = ['base.toml']\npalette.org.{key} = '#012345'"),
+        );
+        let startup = prepare(&root);
+        assert!(
+            startup.diagnostic.is_none(),
+            "{key}: {:?}",
+            startup.diagnostic
+        );
+        let palette = &startup.snapshot.settings().palette.org;
+        let colors = [
+            palette.heading,
+            palette.heading_2,
+            palette.heading_3,
+            palette.heading_4,
+            palette.heading_5,
+            palette.heading_6,
+            palette.heading_7,
+            palette.heading_8,
+        ];
+        for (sibling, color) in keys.into_iter().zip(colors) {
+            let (expected, origin) = if sibling == key {
+                (Rgb(1, 35, 69), &root)
+            } else {
+                (Rgb(16, 32, 48), &included)
+            };
+            assert_eq!(color, expected, "{key}: {sibling}");
+            assert_eq!(
+                startup.snapshot.origin(&["palette", "org", sibling]),
+                Some(origin.as_path())
+            );
+        }
+    }
+}
+
 // Invalid RGB and unknown Org keys reject the complete candidate with a source
 // diagnostic, preserving the same whole-startup fallback as existing roles.
 #[test]
@@ -110,6 +167,13 @@ fn rejected_colors() {
         ("hex", "palette.org.code = '#12345g'"),
         ("wrong type", "palette.org.table = 3"),
         ("unknown", "palette.org.typo = '#123456'"),
+        ("face 2", "palette.org.heading_2 = '#123'"),
+        ("face 3", "palette.org.heading_3 = '#12345g'"),
+        ("face 4", "palette.org.heading_4 = 3"),
+        ("face 5", "palette.org.heading_5 = '#123'"),
+        ("face 6", "palette.org.heading_6 = '#12345g'"),
+        ("face 7", "palette.org.heading_7 = 3"),
+        ("face 8", "palette.org.heading_8 = '#123'"),
     ] {
         let startup = prepare(&fixture.write("config.toml", text));
         assert!(startup.diagnostic.is_some(), "{name}");

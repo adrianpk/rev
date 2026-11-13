@@ -499,7 +499,14 @@ number = "#ff9e64"              # Constants, booleans and numeric literals.
 punctuation = "#89ddff"         # Grammar-captured punctuation and operators.
 
 [palette.org]
-heading = "#7aa2f7" # Heading lines.
+heading = "#7aa2f7" # Heading face 1; eight faces cycle independently of bullets.
+heading_2 = "#9d7cd8" # Heading face 2.
+heading_3 = "#c0caf5" # Heading face 3.
+heading_4 = "#9bb9f9" # Heading face 4.
+heading_5 = "#b59ce1" # Heading face 5.
+heading_6 = "#bcd0fb" # Heading face 6.
+heading_7 = "#cebdeb" # Heading face 7.
+heading_8 = "#e4ecfd" # Heading face 8.
 keyword = "#9d7cd8" # Keywords and affiliated metadata.
 drawer = "#2ac3de" # Drawer boundaries.
 property = "#2ac3de" # Property entries.

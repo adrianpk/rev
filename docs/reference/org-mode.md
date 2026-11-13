@@ -40,6 +40,35 @@ wrapping stay source-backed; entering the prefix never reveals it automatically.
 See [startup preferences](defaults.md#org-heading-presentation) for markers,
 leading-star visibility, overflow and terminal font ownership.
 
+### Heading colors
+
+With syntax coloring enabled, the bullet and ordinary heading text share a
+level-dependent color in both pretty and source presentation. Eight faces cycle
+independently of the six default bullets: level 9 repeats face 1, while its
+bullet is the third symbol. Deeper nesting follows the same independent cycles.
+Inline objects retain their existing semantic colors; selection and search
+retain precedence over heading colors.
+
+The defaults follow Emacs Org's eight-face cycle and Doom's
+blue/purple/lightened-face treatment, adapted to Rev's Tokyo Night palette:
+
+| Face | Palette key | Default |
+| --- | --- | --- |
+| 1 | `palette.org.heading` | `#7aa2f7` |
+| 2 | `palette.org.heading_2` | `#9d7cd8` |
+| 3 | `palette.org.heading_3` | `#c0caf5` |
+| 4 | `palette.org.heading_4` | `#9bb9f9` |
+| 5 | `palette.org.heading_5` | `#b59ce1` |
+| 6 | `palette.org.heading_6` | `#bcd0fb` |
+| 7 | `palette.org.heading_7` | `#cebdeb` |
+| 8 | `palette.org.heading_8` | `#e4ecfd` |
+
+Each RGB leaf follows ordinary palette validation, includes and overrides.
+The existing `heading` key controls face 1; deeper faces have their own keys.
+Disabling pretty headings changes only symbols, while `syntax.enabled=false`
+disables heading colors. `NO_COLOR` keeps monochrome output. These choices do
+not modify source stars, indentation, cursor positions, selection or history.
+
 ## Visual indentation
 
 `org.indent` defaults to true. Level-N headings receive N-1 extra visual cells;
