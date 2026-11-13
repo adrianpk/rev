@@ -101,9 +101,15 @@ fn monochrome_output() {
     let mut output = Vec::new();
     frame.write(&mut output).unwrap();
     crossterm::style::force_color_output(true);
-    let output = String::from_utf8(output).unwrap();
-    assert!(!output.contains("[38;2;"));
-    assert!(!output.contains("[48;2;"));
-    assert!(output.contains("*word* and `code`"));
+    let ansi = std::str::from_utf8(&output).unwrap();
+    assert!(!ansi.contains("[38;2;"));
+    assert!(!ansi.contains("[48;2;"));
+    let cells = surface::decode(output);
+    let row: String = cells
+        .iter()
+        .filter(|((row, _), _)| *row == 0)
+        .map(|(_, cell)| cell.character)
+        .collect();
+    assert!(row.contains("*word* and `code`"));
     assert_eq!(text(session.buffer().unwrap()), "*word* and `code`\n");
 }

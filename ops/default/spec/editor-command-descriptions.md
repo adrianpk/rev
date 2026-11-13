@@ -138,9 +138,9 @@ do not maintain a separate description list in publication templates.
 - **WHEN** the native catalog guard runs
 - **THEN** it fails and identifies the missing command.
 
-Current catalog: 686 built-in names: 685 canonical commands and the `quit` alias.
+Current catalog: 687 built-in names: 686 canonical commands and the `quit` alias.
 The separate plugin metadata reference adds four native plugin commands, for
-690 registered command names overall.
+691 registered command names overall.
 The alias reuses the exit action's description and effective shortcut. Four Org
 visibility commands were added by the Org Initial Visibility delivery.
 `tree-up-directory` is added by File Tree Parent Navigation. Tree Viewport adds
@@ -920,6 +920,15 @@ commands enter this shared live catalog only when their native handlers arrive.
 | `kmacro-menu-refresh` | Refresh the macro menu. |
 | `kmacro-menu-quit` | Close the macro menu and restore its source view. |
 | `kmacro-menu-help` | Show the macro menu commands and bindings. |
+
+## Native Markdown description
+
+Native mode selection follows the approved
+[Markdown model](editor-markdown-mode-model.md).
+
+| Command | Description |
+| --- | --- |
+| `markdown-mode` | Select native Markdown for the current buffer. |
 
 ## Completed delivery evidence
 

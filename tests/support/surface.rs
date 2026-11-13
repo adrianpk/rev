@@ -29,7 +29,7 @@ pub fn draw_with_separator(
     decode(output)
 }
 
-fn decode(output: Vec<u8>) -> BTreeMap<(usize, usize), Cell> {
+pub fn decode(output: Vec<u8>) -> BTreeMap<(usize, usize), Cell> {
     let output = String::from_utf8(output).unwrap();
     let mut cells = BTreeMap::new();
     let mut state = Cell::default();
@@ -66,7 +66,15 @@ fn command(sequence: &str, point: &mut (usize, usize), state: &mut Cell) {
 fn sgr(parameters: &str, state: &mut Cell) {
     let codes: Vec<u16> = parameters
         .split(';')
-        .map(|part| part.parse().unwrap())
+        // Empty SGR parameters reset attributes; monochrome output retains
+        // these legal resets even when it suppresses RGB parameters.
+        .map(|part| {
+            if part.is_empty() {
+                0
+            } else {
+                part.parse().unwrap()
+            }
+        })
         .collect();
     let mut remaining = codes.as_slice();
     while let Some((&code, tail)) = remaining.split_first() {

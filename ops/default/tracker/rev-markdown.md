@@ -25,18 +25,24 @@ Parser decision: owner accepted pulldown-cmark 0.13.6 subject to compatible lice
 
 ## Slice 1: Recognition and colors
 
-State: pending
+State: reviewing
 Requirements: MD01, MD02 semantic colors, MD06
 Branch: `feat/rev-markdown-01-recognition`
 PR: pending
 Report: `ops/default/report/slices/rev-markdown/slice-1-recognition.md`
 Validation: the exact ordered checks for Slice 1 in the plan and frozen local configuration
 
-- [ ] T1.1: Implement a private, source-range Markdown observation owner and revision-qualified worker integration; add only the accepted pinned parser and its reviewed minimal transitive graph; retain their upstream notices. Preserve literal blocks, CommonMark context, bounded snapshots and cancellation admission.
-- [ ] T1.2: Add automatic .md/.markdown recognition, markdown-mode/Text-mode transitions, markdown.enabled and the six semantic palette leaves with full parsing, validation, merge/provenance, sample and configuration catalog coverage. Keep LSP optional and existing modes unaffected.
-- [ ] T1.3: Create tests/markdown.rs with named source/context/offline/invalidation cases, including native palette output and disabled coloring. Update affected references/Unreleased for the usable behavior and record the canonical report.
+- [x] T1.1: Implement a private, source-range Markdown observation owner and revision-qualified worker integration; add only the accepted pinned parser and its reviewed minimal transitive graph; retain their upstream notices. Preserve literal blocks, CommonMark context, bounded snapshots and cancellation admission.
+- [x] T1.2: Add automatic .md/.markdown recognition, markdown-mode/Text-mode transitions, markdown.enabled and the six semantic palette leaves with full parsing, validation, merge/provenance, sample and configuration catalog coverage. Keep LSP optional and existing modes unaffected.
+- [x] T1.3: Create tests/markdown.rs with named source/context/offline/invalidation cases, including native palette output and disabled coloring. Update affected references/Unreleased for the usable behavior and record the canonical report.
 
-Task commits: pending.
+Task commits: T1.1-T1.2 and native regressions at `98cda39921c31c00997b4400cc967ec9bad4abad`;
+T1.3 report introduction is recorded with the PR references.
+
+Development evidence: 205 command and 166 configuration tests passed; the
+corrected focused Markdown/syntax batch passed 12 and 30 tests. Full first-party
+lint and the exact 691-command/314-setting catalogs pass. The frozen combined
+batch and final clean PR HEAD receipt remain required before worker handoff.
 
 ## Slice 2: Heading presentation
 
