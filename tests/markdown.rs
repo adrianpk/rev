@@ -18,6 +18,8 @@ mod palette;
 mod presentation;
 #[path = "support/surface.rs"]
 mod surface;
+#[path = "markdown/table_structure.rs"]
+mod table_structure;
 #[path = "markdown/tables.rs"]
 mod tables;
 

@@ -17,7 +17,10 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
   with Meta-Right or Meta-Left. Ordered siblings advance their source number,
   and each list action has one undo step. Create GFM tables with explicit
   dimensions, align their source without losing cell markup, and navigate fields
-  while skipping delimiters or appending body rows. Customize routes through
+  while skipping delimiters or appending body rows. Insert or delete body rows
+  and whole columns while retaining the header, at least one column, cell source
+  and alignment. Each change has one undo step and keeps retained points in
+  other panes with their text. Customize routes through
   keys.markdown in ordinary editing and modal Insert; explicit editor/profile
   remaps keep priority.
   Use markdown-pretty-mode to reveal source prefixes in the current view and

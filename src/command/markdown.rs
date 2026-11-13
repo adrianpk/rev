@@ -11,6 +11,10 @@ pub enum MarkdownCommand {
     TableNextField,
     TablePreviousField,
     TableNextRow,
+    TableInsertRow,
+    TableDeleteRow,
+    TableInsertColumn,
+    TableDeleteColumn,
     Pretty,
     ResetPresentation,
 }
@@ -41,7 +45,9 @@ impl MarkdownCommand {
             Self::Return => {
                 "Move to the next Markdown table row, continue a list or insert a newline."
             }
-            Self::MetaReturn => "Insert a Markdown list sibling or an ordinary newline.",
+            Self::MetaReturn => {
+                "Insert a Markdown table body row below, a list sibling or an ordinary newline."
+            }
             Self::Pretty => {
                 "Toggle this view's Markdown heading and list symbols without changing source."
             }
@@ -59,6 +65,10 @@ impl MarkdownCommand {
             Self::TableNextField => "markdown-table-next-field",
             Self::TablePreviousField => "markdown-table-previous-field",
             Self::TableNextRow => "markdown-table-next-row",
+            Self::TableInsertRow => "markdown-table-insert-row",
+            Self::TableDeleteRow => "markdown-table-delete-row",
+            Self::TableInsertColumn => "markdown-table-insert-column",
+            Self::TableDeleteColumn => "markdown-table-delete-column",
             _ => unreachable!("table name dispatch"),
         }
     }
@@ -77,6 +87,16 @@ impl MarkdownCommand {
             }
             Self::TableNextRow => {
                 "Move to the same field in the next Markdown body row, appending when needed."
+            }
+            Self::TableInsertRow => {
+                "Insert a Markdown body row above this row, or first at a header."
+            }
+            Self::TableDeleteRow => {
+                "Delete this Markdown body row, retaining the header and delimiter."
+            }
+            Self::TableInsertColumn => "Insert a Markdown table column before this column.",
+            Self::TableDeleteColumn => {
+                "Delete this Markdown table column, retaining at least one column."
             }
             _ => unreachable!("table description dispatch"),
         }

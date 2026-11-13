@@ -206,6 +206,10 @@ fn editing_keymap() {
         ("RET", "newline"),
         ("C-x C-s", "save-buffer"),
         ("M-RET", "markdown-meta-return"),
+        ("M-S-Down", "markdown-table-insert-row"),
+        ("M-S-Up", "markdown-table-delete-row"),
+        ("M-S-Right", "markdown-table-insert-column"),
+        ("M-S-Left", "markdown-table-delete-column"),
     ] {
         assert_eq!(
             map.lookup(&Sequence::parse(key).unwrap()),

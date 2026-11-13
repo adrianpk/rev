@@ -10,17 +10,30 @@ impl Work {
         } else {
             self.position(&shape)
         };
-        let target = destination(command, origin, &shape);
+        let target = match structure::destination(command, origin, &mut shape, cancel)? {
+            Some(target) => target,
+            None => destination(command, origin, &shape),
+        };
         if target.0 == shape.rows.len() {
             append(&mut shape)?;
         }
-        let mut layout = self.layout(&shape, cancel)?;
-        if command == C::TableCreate {
-            layout.isolate(self);
-            self.admit_created(&layout, &shape, cancel)?;
-        }
+        let layout = self.action_layout(command, &shape, cancel)?;
         check(cancel)?;
         self.plan(layout, target)
+    }
+
+    fn action_layout(
+        &self,
+        command: C,
+        shape: &Shape,
+        cancel: &Cancellation,
+    ) -> Result<layout::Layout, String> {
+        let mut layout = self.layout(shape, cancel)?;
+        if command == C::TableCreate {
+            layout.isolate(self);
+            self.admit_created(&layout, shape, cancel)?;
+        }
+        Ok(layout)
     }
 
     fn position(&self, shape: &Shape) -> (usize, usize, usize) {

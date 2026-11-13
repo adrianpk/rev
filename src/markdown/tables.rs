@@ -4,6 +4,7 @@ mod action;
 mod create;
 mod layout;
 mod observe;
+mod structure;
 #[cfg(test)]
 mod tests;
 

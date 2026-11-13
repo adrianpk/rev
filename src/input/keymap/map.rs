@@ -115,6 +115,10 @@ impl Map {
                         crate::command::MarkdownCommand::TableAlign
                             | crate::command::MarkdownCommand::TableNextField
                             | crate::command::MarkdownCommand::TablePreviousField
+                            | crate::command::MarkdownCommand::TableInsertRow
+                            | crate::command::MarkdownCommand::TableDeleteRow
+                            | crate::command::MarkdownCommand::TableInsertColumn
+                            | crate::command::MarkdownCommand::TableDeleteColumn
                     ))
                 )
         });

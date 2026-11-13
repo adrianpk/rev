@@ -50,7 +50,31 @@ fn popup_and_hints() {
             Some("TAB"),
             "{profile}"
         );
+        for (command, hint) in [
+            (MarkdownCommand::TableInsertRow, "M-S-Down"),
+            (MarkdownCommand::TableDeleteRow, "M-S-Up"),
+            (MarkdownCommand::TableInsertColumn, "M-S-Right"),
+            (MarkdownCommand::TableDeleteColumn, "M-S-Left"),
+        ] {
+            assert_eq!(
+                input.palette().unwrap().hint(Command::Markdown(command)),
+                Some(hint),
+                "{profile}/{hint}"
+            );
+        }
         input.set_markdown_table(false);
+        for command in [
+            MarkdownCommand::TableInsertRow,
+            MarkdownCommand::TableDeleteRow,
+            MarkdownCommand::TableInsertColumn,
+            MarkdownCommand::TableDeleteColumn,
+        ] {
+            assert_eq!(
+                input.palette().unwrap().hint(Command::Markdown(command)),
+                None,
+                "{profile}/{command:?}"
+            );
+        }
         assert_eq!(
             input
                 .palette()

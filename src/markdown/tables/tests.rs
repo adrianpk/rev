@@ -88,6 +88,65 @@ fn output_bound() {
     assert!(canonical.history().is_empty());
 }
 
+// Structural growth obeys the existing row/column and output caps before a
+// canonical edit is published; cancellation also applies to structure plans.
+#[test]
+fn structure_bounds() {
+    let wide = format!("|{}\n|{}\n", "A|".repeat(256), "---|".repeat(256));
+    let tall = format!("|A|\n|---|\n{}", "|x|\n".repeat(9998));
+    for (name, source, command, limit, cancel) in [
+        (
+            "columns",
+            wide.as_str(),
+            C::TableInsertColumn,
+            usize::MAX,
+            Cancellation::default(),
+        ),
+        (
+            "rows",
+            tall.as_str(),
+            C::TableInsertRow,
+            usize::MAX,
+            Cancellation::default(),
+        ),
+        (
+            "output",
+            "|A|\n|---|\n|x|",
+            C::TableInsertColumn,
+            20,
+            Cancellation::default(),
+        ),
+        (
+            "canceled deletion",
+            "|A|B|\n|---|---|\n|x|y|",
+            C::TableDeleteColumn,
+            usize::MAX,
+            canceled(),
+        ),
+    ] {
+        let (buffers, id) = buffer(source);
+        let canonical = buffers.get(id).unwrap();
+        let model = super::super::Work::new(canonical.stamp(), Rope::from_str(source))
+            .run(&Cancellation::default())
+            .unwrap();
+        let point = Point {
+            stamp: canonical.stamp(),
+            position: Scalar(1),
+        };
+        let mut work = model.table_work(canonical, point).unwrap().unwrap();
+        work.limit = work.limit.min(limit);
+        assert!(work.run(command, &cancel).is_err(), "{name}");
+        assert_eq!(
+            canonical
+                .slice(&canonical.span(0..canonical.len_chars()).unwrap())
+                .unwrap(),
+            source,
+            "{name}"
+        );
+        assert!(canonical.history().is_empty(), "{name}");
+    }
+}
+
 fn canceled() -> Cancellation {
     let cancel = Cancellation::default();
     cancel.cancel();

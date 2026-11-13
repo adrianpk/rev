@@ -542,6 +542,10 @@ const TREE: &[(&str, &str)] = &[
 const MARKDOWN: &[(&str, &str)] = &[
     ("C-c |", "markdown-table-create"),
     ("C-c C-c", "markdown-table-align"),
+    ("M-S-Down", "markdown-table-insert-row"),
+    ("M-S-Up", "markdown-table-delete-row"),
+    ("M-S-Right", "markdown-table-insert-column"),
+    ("M-S-Left", "markdown-table-delete-column"),
     ("TAB", "markdown-table-next-field"),
     ("S-TAB", "markdown-table-previous-field"),
     ("RET", "markdown-return"),

@@ -63,13 +63,22 @@ impl Session {
         }
         if !matches!(
             command,
-            C::TableAlign | C::TableNextField | C::TablePreviousField | C::TableNextRow | C::Return
+            C::TableAlign
+                | C::TableNextField
+                | C::TablePreviousField
+                | C::TableNextRow
+                | C::TableInsertRow
+                | C::TableDeleteRow
+                | C::TableInsertColumn
+                | C::TableDeleteColumn
+                | C::Return
+                | C::MetaReturn
         ) {
             return None;
         }
         match self.markdown_table_work() {
             Ok(Some(work)) => Some(self.start_markdown_table(work, command)),
-            Ok(None) if command == C::Return => None,
+            Ok(None) if matches!(command, C::Return | C::MetaReturn) => None,
             Ok(None) => Some(self.error("Point is not in an admitted Markdown table")),
             Err(error) => Some(self.error(&error)),
         }

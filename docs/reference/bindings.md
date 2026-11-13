@@ -16,7 +16,7 @@ Every command below is also available as `M-x` followed by its exact name.
 | M-x markdown-pretty-mode, :markdown-pretty-mode | `markdown-pretty-mode` | Toggle this view’s Markdown heading symbols without editing source. |
 | M-x markdown-reset-presentation, :markdown-reset-presentation | `markdown-reset-presentation` | Restore this view’s startup Markdown presentation. |
 | Markdown RET | `markdown-return` | Move to the same field in the next table row, continue a list or insert a newline. |
-| Markdown M-RET | `markdown-meta-return` | Insert a list sibling or a newline. |
+| Markdown M-RET | `markdown-meta-return` | Insert a table body row below, a list sibling or a newline. |
 | Markdown M-Right | `markdown-indent-item` | Indent the item with children and continuations. |
 | Markdown M-Left | `markdown-outdent-item` | Outdent the item with children and continuations. |
 | M-x markdown-continue-item, :markdown-continue-item | `markdown-continue-item` | Continue an item or exit an empty list level. |
@@ -25,6 +25,10 @@ Every command below is also available as `M-x` followed by its exact name.
 | Markdown table TAB | `markdown-table-next-field` | Next field; append a body row at the final field. |
 | Markdown table S-TAB | `markdown-table-previous-field` | Previous field, skipping the delimiter. |
 | M-x markdown-table-next-row, :markdown-table-next-row | `markdown-table-next-row` | Same field in the next body row; append when needed. |
+| Markdown table M-S-Down | `markdown-table-insert-row` | Insert above this body row, or first at a header. |
+| Markdown table M-S-Up | `markdown-table-delete-row` | Delete this body row; protect header/delimiter. |
+| Markdown table M-S-Right | `markdown-table-insert-column` | Insert a column before the current one. |
+| Markdown table M-S-Left | `markdown-table-delete-column` | Delete this column; retain at least one. |
 | M-x plugin-list, :plugin-list | `plugin-list` | Inspect the passive experimental package inventory. |
 | M-x plugin-activate, :plugin-activate | `plugin-activate` | Select a package for activation; currently unavailable. |
 | M-x plugin-deactivate, :plugin-deactivate | `plugin-deactivate` | Inspect an inactive package without starting it. |
@@ -1458,4 +1462,7 @@ See [native list behavior](syntax.md#native-list-presentation-and-actions).
 
 Markdown table fields use TAB/S-TAB, RET moves to the same field in the next
 row, and C-c C-c aligns an admitted table. C-c followed by the vertical-bar
-key creates a table on a blank line. See [Markdown tables](markdown-tables.md).
+key creates a table on a blank line. M-S-Down/M-S-Up insert above/delete a body
+row; M-RET inserts below. M-S-Right/M-S-Left insert before/delete a column.
+These factory structure keys require current table context and retain modal
+Normal/Visual/Replace ownership. See [Markdown tables](markdown-tables.md).

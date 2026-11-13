@@ -7,12 +7,12 @@ use super::*;
 
 const ALIGNED: &str = "| Name | Value |\n| :--- | ----: |\n| 界é  |     7 |\n";
 
-fn action(session: &mut Session, command: C) {
+pub(super) fn action(session: &mut Session, command: C) {
     session.execute(Command::Markdown(command));
     settle(session);
 }
 
-fn key(code: KeyCode, modifiers: KeyModifiers) -> Event {
+pub(super) fn key(code: KeyCode, modifiers: KeyModifiers) -> Event {
     Event::Key(KeyEvent::new(code, modifiers))
 }
 

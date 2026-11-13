@@ -17,6 +17,10 @@ Markdown routes; explicit `keys.markdown` entries take priority over the parent.
 | Next field | `markdown-table-next-field` | `TAB` in a table |
 | Previous field | `markdown-table-previous-field` | `S-TAB` in a table |
 | Same field in next row | `markdown-table-next-row` | `RET` through `markdown-return` in a table |
+| Insert body row above | `markdown-table-insert-row` | `M-S-Down` in a table |
+| Delete body row | `markdown-table-delete-row` | `M-S-Up` in a table |
+| Insert column before | `markdown-table-insert-column` | `M-S-Right` in a table |
+| Delete column | `markdown-table-delete-column` | `M-S-Left` in a table |
 
 Create asks for explicit **columns x body rows**, for example `2x1`. `2x0`
 creates a header and delimiter without body rows. The blank line may have up to
@@ -36,6 +40,21 @@ the first header cell stays there. An already aligned move adds no history.
 Each source change, including alignment plus navigation, has one undo step.
 Retained source points in other panes follow their cells. Save retains the
 buffer's BOM, newline style and final-newline identity.
+
+Insert-row adds a blank row above the current body row, or the first body row
+when point is in the header. `M-RET` (`markdown-meta-return`) inserts below the
+current body row, or first at the header. Both refuse a delimiter-row target.
+Delete-row removes only a body row; the header and delimiter remain, including
+when the final body row is removed. Point moves to the next body row, the previous
+body row at EOF, or the header when no body remains, retaining its column.
+
+Insert-column adds a blank, unspecified-alignment column before the current one.
+Delete-column removes the current column and refuses to remove the final column.
+Both operate across the header, delimiter and every body row. Surviving columns
+retain their alignment metadata and original cell source. Point enters the new
+column, or the nearest surviving column after deletion; delimiter targets move
+to the header. Structural actions align padding and publish one undo unit with
+retained marks and points in other panes.
 
 Read-only buffers refuse table actions. Pending, canceled or stale observations
 cannot authorize them. `C-g` cancels an action before publication. Actions check
