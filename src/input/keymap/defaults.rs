@@ -540,6 +540,10 @@ const TREE: &[(&str, &str)] = &[
 
 // Editing roles inherit the admitted editor map before these local entries.
 const MARKDOWN: &[(&str, &str)] = &[
+    ("C-c |", "markdown-table-create"),
+    ("C-c C-c", "markdown-table-align"),
+    ("TAB", "markdown-table-next-field"),
+    ("S-TAB", "markdown-table-previous-field"),
     ("RET", "markdown-return"),
     ("M-RET", "markdown-meta-return"),
     ("M-Right", "markdown-indent-item"),

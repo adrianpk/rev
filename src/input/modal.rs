@@ -112,6 +112,11 @@ impl Input {
         if let Some(map) = self.plugin_active_map() {
             return map;
         }
+        if self.editing_local_context() == Some(super::keymap::Context::Markdown) {
+            return self
+                .keymaps
+                .markdown_map(self.map_context(), self.workspace_markdown_table);
+        }
         if self.modal_editing() {
             let local = self.editing_local_context();
             self.keymaps.vim_map(self.modal_context(), local)

@@ -15,11 +15,16 @@ Every command below is also available as `M-x` followed by its exact name.
 | M-x markdown-mode, :markdown-mode | `markdown-mode` | Select native Markdown for the current buffer. |
 | M-x markdown-pretty-mode, :markdown-pretty-mode | `markdown-pretty-mode` | Toggle this view’s Markdown heading symbols without editing source. |
 | M-x markdown-reset-presentation, :markdown-reset-presentation | `markdown-reset-presentation` | Restore this view’s startup Markdown presentation. |
-| Markdown RET | `markdown-return` | Continue a list item or insert a newline. |
+| Markdown RET | `markdown-return` | Move to the same field in the next table row, continue a list or insert a newline. |
 | Markdown M-RET | `markdown-meta-return` | Insert a list sibling or a newline. |
 | Markdown M-Right | `markdown-indent-item` | Indent the item with children and continuations. |
 | Markdown M-Left | `markdown-outdent-item` | Outdent the item with children and continuations. |
 | M-x markdown-continue-item, :markdown-continue-item | `markdown-continue-item` | Continue an item or exit an empty list level. |
+| Markdown C-c followed by vertical bar | `markdown-table-create` | Ask for explicit columns x body rows on a blank line. |
+| Markdown table C-c C-c | `markdown-table-align` | Align source padding, preserving cell source. |
+| Markdown table TAB | `markdown-table-next-field` | Next field; append a body row at the final field. |
+| Markdown table S-TAB | `markdown-table-previous-field` | Previous field, skipping the delimiter. |
+| M-x markdown-table-next-row, :markdown-table-next-row | `markdown-table-next-row` | Same field in the next body row; append when needed. |
 | M-x plugin-list, :plugin-list | `plugin-list` | Inspect the passive experimental package inventory. |
 | M-x plugin-activate, :plugin-activate | `plugin-activate` | Select a package for activation; currently unavailable. |
 | M-x plugin-deactivate, :plugin-deactivate | `plugin-deactivate` | Inspect an inactive package without starting it. |
@@ -1450,3 +1455,7 @@ explicit Markdown mappings then win. Normal/Visual, prompts, completion popups
 and cancellation retain their own input ownership. The named list commands use
 the same checked actions in both profiles. Read-only buffers refuse source edits.
 See [native list behavior](syntax.md#native-list-presentation-and-actions).
+
+Markdown table fields use TAB/S-TAB, RET moves to the same field in the next
+row, and C-c C-c aligns an admitted table. C-c followed by the vertical-bar
+key creates a table on a blank line. See [Markdown tables](markdown-tables.md).

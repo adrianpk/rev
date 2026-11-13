@@ -14,12 +14,14 @@ pub(crate) struct Keymaps {
     macros: BTreeMap<crate::input::keymap::Sequence, crate::command::Command>,
     org: bool,
     markdown: bool,
+    markdown_table: bool,
 }
 impl Input {
     pub(crate) fn plugin_keymaps(&mut self, values: Vec<Contribution>) {
         let org = self.workspace_org == Some(OrgContext::Editing);
         if self.plugin_keys.values == values
             && self.plugin_keys.markdown == self.workspace_markdown
+            && self.plugin_keys.markdown_table == self.workspace_markdown_table
             && self.plugin_keys.org == org
             && self.plugin_keys.macros == self.macro_bindings
         {
@@ -30,6 +32,7 @@ impl Input {
             macros: self.macro_bindings.clone(),
             org,
             markdown: self.workspace_markdown,
+            markdown_table: self.workspace_markdown_table,
             ..Keymaps::default()
         };
         if !keys.values.is_empty() {
@@ -88,11 +91,8 @@ impl Input {
         base.with_macros(&self.macro_bindings)
     }
     fn markdown_binding_native(&self, context: Context) -> &Map {
-        if context == Context::Editor {
-            self.keymaps.map(Context::Markdown)
-        } else {
-            self.keymaps.vim_map(context, Some(Context::Markdown))
-        }
+        self.keymaps
+            .markdown_map(context, self.workspace_markdown_table)
     }
     pub(crate) fn admit_plugin_binding(
         &self,

@@ -765,6 +765,10 @@ bookmark = "#7aa2f7"            # Resolved logical-line bookmark marker.
 
 # Org text roles inherit keys.editor; only local overrides belong in these maps.
 [keys.markdown]
+"C-c |" = "markdown-table-create"
+"C-c C-c" = "markdown-table-align"
+"TAB" = "markdown-table-next-field"
+"S-TAB" = "markdown-table-previous-field"
 # Editing overlay; explicit parent mappings win over these factory routes.
 RET = "markdown-return"
 M-RET = "markdown-meta-return"

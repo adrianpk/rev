@@ -1,3 +1,5 @@
+pub(super) mod tables;
+
 use std::time::{Duration, Instant};
 
 use crate::buffer::{BufferId, Stamp};
@@ -12,23 +14,32 @@ const POLL: Duration = Duration::from_millis(10);
 #[derive(Default)]
 pub(super) struct Work {
     job: crate::org::Job<Option<Observation>>,
+    table: tables::State,
     source: Option<(Stamp, u64)>,
     deadline: Option<Instant>,
 }
 
 impl Work {
     pub(super) fn remaining(&self, now: Instant) -> Option<Duration> {
-        self.deadline
-            .map(|value| value.saturating_duration_since(now))
+        [
+            self.deadline
+                .map(|value| value.saturating_duration_since(now)),
+            self.table.remaining(now),
+        ]
+        .into_iter()
+        .flatten()
+        .min()
     }
 
     pub(super) fn cancel(&self) {
         self.job.cancel();
+        self.table.cancel();
     }
 }
 
 impl Session {
     pub(super) fn refresh_markdown(&mut self) {
+        self.poll_markdown_table();
         self.poll_markdown();
         if self.markdown.job.is_active() {
             return;
@@ -111,6 +122,9 @@ impl Session {
     }
 
     pub(super) fn expire_markdown(&mut self, now: Instant) -> Action {
+        if self.poll_markdown_table() {
+            return Action::Redraw;
+        }
         if !self
             .markdown
             .deadline
@@ -168,6 +182,9 @@ impl Session {
 
 impl Session {
     fn markdown_edit(&mut self, command: crate::command::MarkdownCommand) -> Action {
+        if let Some(action) = self.markdown_table(command) {
+            return action;
+        }
         match self.markdown_plan(command) {
             Ok(Some(plan)) => match self.publish_markdown(&plan) {
                 Ok(()) => self.message(""),
@@ -212,6 +229,16 @@ impl Session {
 
     fn publish_markdown(&mut self, plan: &crate::markdown::Edit) -> Result<(), String> {
         use crate::buffer::edit::Cursor;
+        if plan.edits.is_empty() {
+            if let Some(position) = plan.cursor {
+                let point = crate::buffer::edit::Point {
+                    stamp: self.buffer().map_err(|e| e.to_string())?.stamp(),
+                    position,
+                };
+                self.place_point(point).map_err(|e| e.to_string())?;
+            }
+            return Ok(());
+        }
         let buffer = self
             .buffers
             .get_mut(self.windows.selected().point.stamp.buffer)

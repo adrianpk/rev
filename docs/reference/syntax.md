@@ -183,7 +183,7 @@ writing settings, changing point or adding history. Splits inherit the choice
 and then change independently. Buffer switches retain it; Text mode suspends it.
 Wrapping, horizontal clipping and pointer hits retain canonical source geometry.
 Selection precedes search, which precedes syntax; monochrome retains selection
-and search attributes. Table editing retains its later delivery boundary.
+and search attributes. Table fields use checked source editing; see [Markdown tables](markdown-tables.md).
 
 ### Native list presentation and actions
 

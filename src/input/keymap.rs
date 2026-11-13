@@ -178,6 +178,8 @@ pub struct Effective {
     git_stash: Map,
     git_conflict: Map,
     markdown: Map,
+    markdown_text: Map,
+    vim_markdown_text: Option<Map>,
     vim_markdown: Option<Map>,
     org: Map,
     org_agenda: Map,
@@ -193,6 +195,18 @@ impl Default for Effective {
 }
 
 impl Effective {
+    pub(crate) fn markdown_map(&self, context: Context, table: bool) -> &Map {
+        match (context, table) {
+            (Context::Editor | Context::Markdown, false) => &self.markdown_text,
+            (Context::Editor | Context::Markdown, true) => &self.markdown,
+            (Context::VimInsert, false) => self
+                .vim_markdown_text
+                .as_ref()
+                .unwrap_or_else(|| self.map(context)),
+            _ => self.vim_map(context, Some(Context::Markdown)),
+        }
+    }
+
     pub fn map(&self, context: Context) -> &Map {
         if let Some(map) = self.vim.get(&context) {
             return map;
@@ -281,6 +295,8 @@ pub(crate) fn compile_ai(
         vim_org: editing.vim_org,
         completion,
         markdown: editing.markdown,
+        markdown_text: editing.markdown_text,
+        vim_markdown_text: editing.vim_markdown_text,
         vim_markdown: editing.vim_markdown,
         org: editing.org,
         org_capture: editing.org_capture,
@@ -312,6 +328,8 @@ struct EditingMaps {
     minibuffer: Map,
     org_calendar: Map,
     markdown: Map,
+    markdown_text: Map,
+    vim_markdown_text: Option<Map>,
     vim_markdown: Option<Map>,
     org: Map,
     org_capture: Map,
@@ -331,12 +349,24 @@ impl EditingMaps {
         let vim = vim::maps(keys, commands)?;
         let vim_org = vim::org_maps(keys, &vim, profile, commands)?;
         let markdown = Map::contextual(&editor, Context::Markdown, &keys.markdown, commands)?;
+        let markdown_text = Map::markdown_text(&editor, &keys.markdown, commands)?;
+        let vim_markdown_text = if profile == crate::config::InteractionProfile::Modal {
+            Some(Map::markdown_text(
+                &vim[&Context::VimInsert],
+                &keys.markdown,
+                commands,
+            )?)
+        } else {
+            None
+        };
         let vim_markdown = vim::markdown_map(keys, &vim, profile, commands)?;
         Ok(Self {
             editor,
             minibuffer,
             org_calendar,
             markdown,
+            markdown_text,
+            vim_markdown_text,
             vim_markdown,
             org,
             org_capture,

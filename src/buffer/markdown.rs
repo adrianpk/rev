@@ -47,11 +47,16 @@ impl Buffer {
         self.markdown.generation
     }
 
+    pub(crate) fn markdown_byte_limit(&self) -> usize {
+        if self.syntax_policy.max_bytes == 0 {
+            MAX_BYTES
+        } else {
+            self.syntax_policy.max_bytes.min(MAX_BYTES)
+        }
+    }
+
     pub(crate) fn markdown_admitted(&self) -> bool {
-        self.is_markdown()
-            && self.len_bytes() <= MAX_BYTES
-            && (self.syntax_policy.max_bytes == 0
-                || self.len_bytes() <= self.syntax_policy.max_bytes)
+        self.is_markdown() && self.len_bytes() <= self.markdown_byte_limit()
     }
 
     pub(crate) fn request_markdown(&mut self) {

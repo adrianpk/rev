@@ -10,6 +10,7 @@ pub(super) struct Capture {
     context: MapContext,
     local: Option<MapContext>,
     modal: bool,
+    markdown_table: bool,
     pub prompt: Prompt,
     binding: bool,
 }
@@ -117,6 +118,7 @@ impl Input {
             context: self.map_context(),
             local: self.editing_local_context(),
             modal: self.modal_editing(),
+            markdown_table: self.workspace_markdown_table,
             prompt: Prompt::new(
                 if binding {
                     "Bind macro key: "
@@ -146,7 +148,10 @@ impl Input {
         if let Some(slot) = capture.reserved_slot(key) {
             sequence = slot;
         } else {
-            let map = if capture.modal {
+            let map = if capture.local == Some(super::keymap::Context::Markdown) {
+                self.keymaps
+                    .markdown_map(capture.context, capture.markdown_table)
+            } else if capture.modal {
                 self.keymaps.vim_map(capture.context, capture.local)
             } else {
                 self.keymaps.map(capture.context)

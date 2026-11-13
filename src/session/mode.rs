@@ -83,6 +83,7 @@ impl Session {
         self.input.set_markdown_context(
             !self.terminals.focused && self.buffer().is_ok_and(|buffer| buffer.is_markdown()),
         );
+        self.input.set_markdown_table(self.markdown_table_active());
         self.refresh_plugin_keymaps();
     }
 

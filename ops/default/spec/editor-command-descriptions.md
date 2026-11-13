@@ -138,9 +138,9 @@ do not maintain a separate description list in publication templates.
 - **WHEN** the native catalog guard runs
 - **THEN** it fails and identifies the missing command.
 
-Current catalog: 694 built-in names: 693 canonical commands and the `quit` alias.
+Current catalog: 699 built-in names: 698 canonical commands and the `quit` alias.
 The separate plugin metadata reference adds four native plugin commands, for
-698 registered command names overall.
+703 registered command names overall.
 The alias reuses the exit action's description and effective shortcut. Four Org
 visibility commands were added by the Org Initial Visibility delivery.
 `tree-up-directory` is added by File Tree Parent Navigation. Tree Viewport adds
@@ -931,10 +931,15 @@ Native mode selection follows the approved
 | `markdown-mode` | Select native Markdown for the current buffer. |
 | `markdown-pretty-mode` | Toggle this view's Markdown heading and list symbols without changing source. |
 | `markdown-reset-presentation` | Restore this view's startup Markdown presentation without writing settings. |
+| `markdown-table-align` | Align a Markdown table while preserving original cell source. |
+| `markdown-table-create` | Create a Markdown table with explicit column and body-row counts. |
+| `markdown-table-next-field` | Move to the next Markdown table field, appending a body row when needed. |
+| `markdown-table-next-row` | Move to the same field in the next Markdown body row, appending when needed. |
+| `markdown-table-previous-field` | Move to the previous Markdown table field, skipping the delimiter row. |
 | `markdown-continue-item` | Continue this Markdown item or exit one empty list level. |
 | `markdown-indent-item` | Indent this Markdown item with its children and continuation text. |
 | `markdown-outdent-item` | Outdent this Markdown item with its children and continuation text. |
-| `markdown-return` | Continue a Markdown list item or insert an ordinary newline. |
+| `markdown-return` | Move to the next Markdown table row, continue a list or insert a newline. |
 | `markdown-meta-return` | Insert a Markdown list sibling or an ordinary newline. |
 
 ## Completed delivery evidence

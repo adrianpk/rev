@@ -313,6 +313,7 @@ impl Pending {
                 | Self::Link(_)
                 | Self::Attachment
                 | Self::Document(_)
+                | Self::MarkdownTable(_)
                 | Self::Table(_)
                 | Self::TableFile(_)
                 | Self::Export(_)
@@ -334,6 +335,7 @@ impl Session {
     fn text_collection_argument(&mut self, pending: Pending, draft: &str) -> Action {
         match pending {
             Pending::SourceHeader(prompt) => self.source_header_argument(*prompt, draft),
+            Pending::MarkdownTable(origin) => self.markdown_table_argument(origin, draft),
             Pending::Table(request) => self.table_argument(*request, draft),
             Pending::TableFile(prompt) => self.table_file_argument(*prompt, draft),
             Pending::Document(prompt) => self.document_argument(*prompt, draft),

@@ -175,6 +175,7 @@ pub struct Input {
     workspace_completion: bool,
     workspace_org: Option<OrgContext>,
     workspace_markdown: bool,
+    workspace_markdown_table: bool,
     workspace_terminal: Option<hints::TerminalOwner>,
     meta_deadline: Option<Instant>,
     suppress_repeat: bool,

@@ -40,9 +40,35 @@ fn popup_and_hints() {
         );
         input.handle(key(KeyCode::Char('g'), KeyModifiers::CONTROL));
         input.set_markdown_context(true);
+        input.set_markdown_table(true);
+        input.commands().unwrap();
+        assert_eq!(
+            input
+                .palette()
+                .unwrap()
+                .hint(Command::Markdown(MarkdownCommand::TableNextField)),
+            Some("TAB"),
+            "{profile}"
+        );
+        input.set_markdown_table(false);
+        assert_eq!(
+            input
+                .palette()
+                .unwrap()
+                .hint(Command::Markdown(MarkdownCommand::TableNextField)),
+            None,
+            "{profile}"
+        );
+        input.handle(key(KeyCode::Char('g'), KeyModifiers::CONTROL));
+        input.set_markdown_table(true);
         input.set_completion(true);
         assert_eq!(
             input.handle(key(KeyCode::Enter, KeyModifiers::NONE)),
+            Outcome::Command(Command::Completion(CompletionCommand::Accept)),
+            "{profile}"
+        );
+        assert_eq!(
+            input.handle(key(KeyCode::Tab, KeyModifiers::NONE)),
             Outcome::Command(Command::Completion(CompletionCommand::Accept)),
             "{profile}"
         );

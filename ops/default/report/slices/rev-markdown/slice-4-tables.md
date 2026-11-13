@@ -1,0 +1,112 @@
+# Slice 4: Table creation and field editing
+
+Status: drafting
+Delivery set: rev-markdown
+Plan: [Markdown Delivery](../../../plan/rev-markdown.md)
+Tracker: [Markdown Tracker](../../../tracker/rev-markdown.md)
+Branch: `feat/rev-markdown-04-tables`
+PR: pending
+
+## Purpose
+
+Deliver T4.1-T4.3: parser-admitted GFM table source shapes, explicit creation,
+alignment and field/row navigation in both profiles. Explicit row/column
+insertion and deletion remain Slice 5.
+
+## Delivered Behavior
+
+- Recognize only tables admitted by the private GFM parser. Retain original cell
+  spans, container prefixes and delimiter alignment. Accept optional outer pipes,
+  short body rows, escaped pipes and inline markup. Refuse extra body cells that
+  GFM rendering would discard and mismatched header/delimiter context.
+- Create on a blank line from explicit columns x body rows, retaining a header
+  and delimiter even with zero body rows. Cancellation or invalid dimensions
+  leave source unchanged. New tables keep neighboring paragraphs separate, and
+  their prospective parser observation must admit the exact requested shape.
+- Align source padding and navigate fields while skipping delimiters. Next-field
+  at the final field and next-row at the last row append a body row; previous-field
+  at the first header field stays there. Already aligned movement has no history.
+- Preserve cell bytes, Unicode, BOM, CRLF and final-newline identity. One action
+  publishes one canonical undo unit. Retained source points in other panes follow
+  their cells and exact undo restores their original positions.
+- Expose all five table names in M-x and modal colon. Factory C-c then vertical
+  bar creates; C-c C-c aligns, TAB/S-TAB traverse and Return advances rows in a
+  current table. Factory table routes are restricted to non-modal editing and
+  modal Insert with admitted context; explicit parent/local remaps and completion
+  retain their priority.
+
+## Implementation Notes
+
+The parser adapter records table and row source ranges alongside heading/list
+observations. Separator scanning operates only inside that admitted context and
+retains original bytes rather than decoded inline event values. Parser types stay
+private, with no dependency, SDK/wire or persistence changes.
+
+A separate temporary table-action worker uses a bounded rope snapshot, source
+stamp, mode generation, originating view and point. Cancellation, stale source,
+read-only authority or an intervening prompt prevent publication. The existing
+canonical buffer/window owner validates edits, retained source and cursor targets.
+Table source rules and command enums remain separate from Org.
+
+The finite profile admits at most 8 MiB source/output, 10,000 total rows,
+256 columns, 100,000 cells and 4,096 displayed columns per cell. Existing source
+byte/event/depth and two-second cooperative worker bounds still apply. A lower
+configured syntax byte limit wins.
+
+## Contracts Added or Changed
+
+- markdown-table-create, markdown-table-align, markdown-table-next-field,
+  markdown-table-previous-field and markdown-table-next-row join the exact native
+  command catalog. markdown-return dispatches to table navigation before lists.
+- keys.markdown has eight factory entries. Context selection also feeds hints,
+  macro key capture and plugin priority without a new configuration or wire role.
+- The complete sample, command descriptions, binding inventory, table reference
+  and existing Markdown Unreleased entry describe the delivered behavior.
+
+## Files of Interest
+
+- src/markdown/parse.rs and src/markdown/tables/: GFM admission, source shapes,
+  bounded layouts, creation/navigation plans and original-source retention.
+- src/session/markdown/tables.rs and src/session/markdown.rs: prompt/action
+  lifecycle, cancellation and canonical publication.
+- src/input/markdown.rs, src/input/keymap/ and input hint/macro/plugin owners:
+  context-dependent factory defaults and inherited remap precedence.
+- tests/markdown/tables.rs and native table/input tests: source, transaction,
+  profile, cancellation, bounds and shared-point regressions.
+- docs/reference/markdown-tables.md and the existing command/configuration
+  inventories: concrete native table behavior and complete catalog coverage.
+
+## Validation
+
+All eleven focused native table integration cases pass in 21.37 s. All four
+native table/input unit checks also pass. Full workspace lint passes all 1,875
+first-party Rust files, both packages and 74 Cargo roots, with zero blocking or
+deferred diagnostics. Exact documentation and whitespace checks pass. The ordered
+slice checks on a clean committed HEAD remain pending. Final worker
+acceptance requires one controller validation receipt on the exact clean pushed
+HEAD after PR-reference commits. The controller owns integration and the full
+six-slice delivery gate.
+
+Required ordered commands:
+
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 make lint`
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test markdown --test configuration --test commands --test org_tables -- --test-threads=1`
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo run --locked --quiet -p rev --example documentation-check`
+- `git diff --check`
+
+The initial focused run passed three of six cases; three expected-output failures
+came from one missing padding space in the Unicode fixture. The corrected fixture
+accounts for the terminal width of its wide and combining source. The subsequent
+seven-case run passed without failed or ignored tests in 17.33 s. Initial native
+source checking identified two complexity violations, split into their table
+navigation and blank-line admission owners without exceptions or weaker limits. The complete lint pass also caught
+command-name/description match complexity and a nested profile fixture; their
+format-owned dispatch and fixture routing were split under the unchanged policy.
+Creation now isolates adjacent paragraphs and verifies the prospective GFM table
+shape, protecting unclosed literal blocks at EOF.
+
+## Risks and Follow-ups
+
+Explicit row/column structural actions remain Slice 5. Full PTY acceptance and
+User Guide delivery remain Slice 6. The existing foreign crossterm unused_parens
+warning is outside first-party source policy.

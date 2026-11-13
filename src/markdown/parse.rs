@@ -2,11 +2,18 @@ use std::ops::Range;
 
 use pulldown_cmark::{Event, Options, Parser, Tag, TagEnd};
 
+use super::tables::{Alignment, Table};
 use super::{Item, Kind, MAX_DEPTH, MAX_EVENTS, Node};
 use crate::process::Cancellation;
 use crate::syntax::MarkdownRole;
 
-pub(super) fn observe(source: &str, cancel: &Cancellation) -> Option<(Vec<Node>, Vec<Item>)> {
+pub(super) struct Parsed {
+    pub(super) nodes: Vec<Node>,
+    pub(super) items: Vec<Item>,
+    pub(super) tables: Vec<Table>,
+}
+
+pub(super) fn observe(source: &str, cancel: &Cancellation) -> Option<Parsed> {
     if cancel.is_cancelled() {
         return None;
     }
@@ -20,7 +27,11 @@ pub(super) fn observe(source: &str, cancel: &Cancellation) -> Option<(Vec<Node>,
             return None;
         }
     }
-    (!cancel.is_cancelled()).then_some((scan.nodes, scan.items))
+    (!cancel.is_cancelled()).then_some(Parsed {
+        nodes: scan.nodes,
+        items: scan.items,
+        tables: scan.tables,
+    })
 }
 
 #[derive(Default)]
@@ -30,6 +41,14 @@ struct Scan {
     lists: Vec<usize>,
     items: Vec<Item>,
     open_items: Vec<usize>,
+    tables: Vec<Table>,
+    table: Option<TableSource>,
+}
+
+struct TableSource {
+    bytes: Range<usize>,
+    rows: Vec<Range<usize>>,
+    alignments: Vec<Alignment>,
 }
 
 impl Scan {
@@ -38,6 +57,15 @@ impl Scan {
             Event::Start(tag) => self.start(tag, bytes, source),
             Event::End(tag) => {
                 self.depth -= 1;
+                if *tag == TagEnd::Table {
+                    let table = self.table.take().expect("admitted table source");
+                    self.tables.push(Table::observe(
+                        source,
+                        table.bytes,
+                        &table.rows,
+                        table.alignments,
+                    ));
+                }
                 if *tag == TagEnd::List(false) || *tag == TagEnd::List(true) {
                     self.lists.pop();
                 }
@@ -67,6 +95,7 @@ impl Scan {
             return false;
         }
         self.content();
+        self.table_source(tag, &bytes);
         let kind = match tag {
             Tag::Heading { level, .. } => Some(Kind::Heading {
                 level: *level as u8,
@@ -86,6 +115,33 @@ impl Scan {
             self.nodes.push(Node { bytes, kind });
         }
         true
+    }
+    fn table_source(&mut self, tag: &Tag<'_>, bytes: &Range<usize>) {
+        match tag {
+            Tag::Table(alignments) => {
+                self.table = Some(TableSource {
+                    bytes: bytes.clone(),
+                    rows: Vec::new(),
+                    alignments: alignments
+                        .iter()
+                        .map(|alignment| match alignment {
+                            pulldown_cmark::Alignment::None => Alignment::None,
+                            pulldown_cmark::Alignment::Left => Alignment::Left,
+                            pulldown_cmark::Alignment::Center => Alignment::Center,
+                            pulldown_cmark::Alignment::Right => Alignment::Right,
+                        })
+                        .collect(),
+                });
+            }
+            Tag::TableHead | Tag::TableRow => {
+                self.table
+                    .as_mut()
+                    .expect("parser row belongs to table")
+                    .rows
+                    .push(bytes.clone());
+            }
+            _ => {}
+        }
     }
     fn content(&mut self) {
         if let Some(index) = self.open_items.last() {

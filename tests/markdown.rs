@@ -18,6 +18,8 @@ mod palette;
 mod presentation;
 #[path = "support/surface.rs"]
 mod surface;
+#[path = "markdown/tables.rs"]
+mod tables;
 
 use std::time::{Duration, Instant};
 

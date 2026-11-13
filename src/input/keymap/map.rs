@@ -87,14 +87,38 @@ impl Map {
         overrides: &BTreeMap<String, String>,
         commands: Option<&BTreeMap<String, crate::config::AiCommand>>,
     ) -> Result<Self, Error> {
-        let mut local = Self::compile(context, overrides, commands)?;
+        let local = Self::compile(context, overrides, commands)?;
+        parent.merge_contextual(context, local)
+    }
+
+    fn merge_contextual(&self, context: Context, mut local: Self) -> Result<Self, Error> {
         local.entries.retain(|key, entry| {
             entry.custom
-                || !parent.entries.iter().any(|(inherited, value)| {
+                || !self.entries.iter().any(|(inherited, value)| {
                     value.custom && super::contributions::overlaps(key, inherited)
                 })
         });
-        parent.merge_overlay(context, local)
+        self.merge_overlay(context, local)
+    }
+
+    pub(super) fn markdown_text(
+        parent: &Self,
+        overrides: &BTreeMap<String, String>,
+        commands: Option<&BTreeMap<String, crate::config::AiCommand>>,
+    ) -> Result<Self, Error> {
+        let mut local = Self::compile(Context::Markdown, overrides, commands)?;
+        local.entries.retain(|_, entry| {
+            entry.custom
+                || !matches!(
+                    entry.target,
+                    Binding::Command(Command::Markdown(
+                        crate::command::MarkdownCommand::TableAlign
+                            | crate::command::MarkdownCommand::TableNextField
+                            | crate::command::MarkdownCommand::TablePreviousField
+                    ))
+                )
+        });
+        parent.merge_contextual(Context::Markdown, local)
     }
 
     fn merge_overlay(&self, context: Context, local: Self) -> Result<Self, Error> {

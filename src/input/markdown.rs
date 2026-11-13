@@ -17,6 +17,18 @@ impl Input {
         }
     }
 
+    /// Only a current parser observation activates factory field-navigation keys.
+    pub(crate) fn set_markdown_table(&mut self, active: bool) {
+        if self.workspace_markdown_table != active {
+            self.retire_command_hints();
+            self.clear_prefix();
+            self.workspace_markdown_table = active;
+            if !self.plugin_keys.values.is_empty() {
+                self.plugin_keymaps(self.plugin_keys.values.clone());
+            }
+        }
+    }
+
     pub(super) fn editing_local_context(&self) -> Option<Context> {
         self.workspace_org
             .map(super::OrgContext::keymap)

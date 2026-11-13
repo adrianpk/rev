@@ -68,7 +68,8 @@ impl Session {
         if matches!(
             self.pending,
             Some(
-                Pending::BookmarkReload(_)
+                Pending::MarkdownTable(_)
+                    | Pending::BookmarkReload(_)
                     | Pending::AgendaSources
                     | Pending::AgendaQuery(_)
                     | Pending::AgendaCustom(_)

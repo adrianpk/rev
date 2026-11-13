@@ -15,8 +15,11 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
   Nested unordered lists use depth-based bullets. Continue or leave an empty
   list item with Return or Meta-Return; indent or outdent its complete subtree
   with Meta-Right or Meta-Left. Ordered siblings advance their source number,
-  and each list action has one undo step. Customize routes through keys.markdown
-  in ordinary editing and modal Insert; explicit editor/profile remaps keep priority.
+  and each list action has one undo step. Create GFM tables with explicit
+  dimensions, align their source without losing cell markup, and navigate fields
+  while skipping delimiters or appending body rows. Customize routes through
+  keys.markdown in ordinary editing and modal Insert; explicit editor/profile
+  remaps keep priority.
   Use markdown-pretty-mode to reveal source prefixes in the current view and
   markdown-reset-presentation to restore its startup preference. Customize
   markdown.pretty and palette.markdown, select the mode with markdown-mode,

@@ -220,6 +220,7 @@ enum AfterSave {
 }
 
 enum Pending {
+    MarkdownTable(markdown::tables::Origin),
     Plugin(crate::command::PluginCommand),
     MacroStepKey,
     MacroMenuPrompt(Box<macros::menu::Prompt>),

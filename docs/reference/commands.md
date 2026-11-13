@@ -310,7 +310,7 @@ compiled M-x name once.
 | Kills and retained text | `kill-line`, `kill-word`, `backward-kill-word`, `kill-region`, `kill-ring-save`, `yank`, `yank-pop` |
 | Tree | `toggle-file-tree`, `focus-file-tree`, `tree-previous-line`, `tree-next-line`, `tree-expand`, `tree-collapse`, `tree-toggle-directory`, `tree-refresh`, `tree-up-directory`, `tree-widen`, `tree-narrow`, `tree-reset-width`, `tree-auto-width-mode`, `tree-scroll-left`, `tree-scroll-right`, `tree-open`, `tree-create-file`, `tree-create-directory`, `tree-rename`, `tree-delete` |
 | Mouse | `mouse-mode` |
-| Native Markdown | `markdown-mode`, `markdown-pretty-mode`, `markdown-reset-presentation`, `markdown-continue-item`, `markdown-indent-item`, `markdown-outdent-item`, `markdown-return`, `markdown-meta-return` |
+| Native Markdown | `markdown-mode`, `markdown-pretty-mode`, `markdown-reset-presentation`, `markdown-continue-item`, `markdown-indent-item`, `markdown-outdent-item`, `markdown-return`, `markdown-meta-return`, `markdown-table-create`, `markdown-table-align`, `markdown-table-next-field`, `markdown-table-previous-field`, `markdown-table-next-row` |
 | Modal state entry | `modal-enter-normal`, `modal-enter-insert`, `modal-enter-replace`, `modal-enter-insert-after`, `modal-enter-insert-line-first`, `modal-enter-insert-line-end`, `modal-open-line-below`, `modal-open-line-above`, `modal-enter-visual-character`, `modal-enter-visual-line`, `modal-enter-visual-block`, `modal-one-normal-command` |
 | Modal source navigation | `modal-forward-char`, `modal-backward-char`, `modal-next-line`, `modal-previous-line`, `modal-line-start`, `modal-line-first-text`, `modal-line-end`, `modal-buffer-end`, `modal-buffer-start`, `modal-repeat-find`, `modal-reverse-find`, `modal-next-paragraph`, `modal-previous-paragraph`, `modal-matching-delimiter`, `modal-page-forward` |
 | Modal local targets | `modal-page-backward`, `modal-half-page-forward`, `modal-half-page-backward`, `modal-screen-top`, `modal-screen-middle`, `modal-screen-bottom`, `modal-align-top`, `modal-align-middle`, `modal-align-bottom`, `modal-next-word-start`, `modal-previous-word-start` |
@@ -1685,3 +1685,5 @@ includes the binding; an unprefixed replacement announces removal of a previousl
 saved binding. Export inserts inert schema-1 TOML with normal source undo and no
 library write. Reload preserves unsaved local changes, and concurrent saves check
 the selected record revision while retaining unrelated records.
+
+See [Markdown table commands](markdown-tables.md) for source alignment, field navigation and explicit dimensions.

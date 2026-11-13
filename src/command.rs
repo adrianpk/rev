@@ -158,7 +158,7 @@ pub enum Command {
 }
 
 impl Command {
-    pub const ALL: [Self; 698] = [
+    pub const ALL: [Self; 703] = [
         Self::Plugin(PluginCommand::List),
         Self::Plugin(PluginCommand::Activate),
         Self::Plugin(PluginCommand::Deactivate),
@@ -794,6 +794,11 @@ impl Command {
         Self::Markdown(MarkdownCommand::OutdentItem),
         Self::Markdown(MarkdownCommand::Return),
         Self::Markdown(MarkdownCommand::MetaReturn),
+        Self::Markdown(MarkdownCommand::TableCreate),
+        Self::Markdown(MarkdownCommand::TableAlign),
+        Self::Markdown(MarkdownCommand::TableNextField),
+        Self::Markdown(MarkdownCommand::TablePreviousField),
+        Self::Markdown(MarkdownCommand::TableNextRow),
         Self::Markdown(MarkdownCommand::Pretty),
         Self::Markdown(MarkdownCommand::ResetPresentation),
         Self::Mode(Mode::Text),

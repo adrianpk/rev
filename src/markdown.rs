@@ -3,6 +3,7 @@
 mod item;
 mod lists;
 mod parse;
+pub(crate) mod tables;
 pub(crate) use item::{Item, Marker};
 pub(crate) use lists::Edit;
 
@@ -20,6 +21,7 @@ pub(crate) struct Observation {
     pub(crate) stamp: Stamp,
     nodes: Vec<Node>,
     items: Vec<Item>,
+    tables: Vec<tables::Table>,
 }
 
 struct Node {
@@ -108,11 +110,12 @@ impl Work {
             }
             source.push_str(chunk);
         }
-        let (nodes, items) = parse::observe(&source, &cancel)?;
+        let parsed = parse::observe(&source, &cancel)?;
         Some(Observation {
             stamp: self.stamp,
-            nodes,
-            items,
+            nodes: parsed.nodes,
+            items: parsed.items,
+            tables: parsed.tables,
         })
     }
 }

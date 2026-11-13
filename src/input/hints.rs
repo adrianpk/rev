@@ -148,6 +148,7 @@ impl Input {
             workspace_completion: self.workspace_completion,
             workspace_org: self.workspace_org,
             workspace_markdown: self.workspace_markdown,
+            workspace_markdown_table: self.workspace_markdown_table,
             workspace_terminal: self.workspace_terminal,
             meta_deadline: None,
             suppress_repeat: false,
