@@ -1,6 +1,6 @@
 # Slice 4: Table creation and field editing
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-markdown
 Plan: [Markdown Delivery](../../../plan/rev-markdown.md)
 Tracker: [Markdown Tracker](../../../tracker/rev-markdown.md)
@@ -90,9 +90,14 @@ targets passed without failures or ignored cases. Full workspace lint passes all
 or deferred diagnostics. Documentation verifies 703 command names, 322 settings,
 107 reachable pages and 759 local links/anchors. Whitespace passes.
 
-Final worker acceptance requires one controller validation receipt on the exact
-clean pushed HEAD after PR-reference commits, without modifying that tested HEAD.
-The controller owns integration and the full six-slice delivery gate.
+Controller receipt `5UQX7W25GO7JMHL5EK32MLWW4X` passed all four ordered checks
+on clean published HEAD `936472f74509f1f12848364dd22359219c9b2ba8`, from
+2026-11-13T20:20:59Z to 2026-11-13T20:41:23Z. All 489 native tests passed without
+failures or ignored cases in 1,208.38 s: commands 205/733.99 s, configuration
+169/298.60 s, Markdown 42/109.84 s and Org tables 73/65.95 s. Full lint, exact
+documentation and whitespace checks passed. Canonical PR #37 merged through
+Rebase + Fast-forward at that exact HEAD; fetched dev and primary dev match.
+Slice 4 of 6 completed. The controller owns the full six-slice delivery gate.
 
 Required ordered commands:
 
