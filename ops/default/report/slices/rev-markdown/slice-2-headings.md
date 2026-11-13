@@ -1,6 +1,6 @@
 # Slice 2: Heading presentation
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-markdown
 Plan: [Markdown Delivery](../../../plan/rev-markdown.md)
 Tracker: [Markdown Tracker](../../../tracker/rev-markdown.md)
@@ -31,6 +31,8 @@ and independent view controls. List and table actions retain their later slices.
 
 Implementation and report introduction: `149ec09768b755353452faca071aaeea187a21f2`.
 Canonical PR: https://forge.adrianpk.com/rev/rev/pulls/35
+Controller integration: PR #35 merged into dev at validated commit
+`1c931c00f4d50e35b4241e64a90f6fcbbb4fed5c`.
 Development evidence commit: `7f3eca78691db9f5dacdf0edd65fe8a55d5547a2`.
 
 The private adapter stores source byte prefixes only for admitted ATX headings.
@@ -73,6 +75,12 @@ bounds are unchanged.
 - docs/reference/syntax.md, complete sample/catalogs and CHANGELOG.md.
 
 ## Validation
+
+Final clean published HEAD `1c931c00f4d50e35b4241e64a90f6fcbbb4fed5c` passed
+controller receipt `N5LMVNFAZ2FFOYCZ2CKDLWX2OH`, all four ordered checks,
+from 2026-11-13T17:28:49Z to 2026-11-13T17:46:43Z. All 546 tests passed
+without failures or ignored cases; full lint, documentation and whitespace passed.
+The native targets took 1,058.51 s.
 
 All four required development commands passed in canonical order on clean
 implementation HEAD `149ec09768b755353452faca071aaeea187a21f2`. All 546 tests

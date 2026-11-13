@@ -8,7 +8,7 @@ Approved: product owner, 2026-11-13; approved specification, slicing and establi
 Plan: [Markdown Delivery](../plan/rev-markdown.md)
 Spec: [Markdown Editing and Presentation](../spec/editor-markdown-mode.md)
 Model: [Markdown Policy and Actions](../spec/editor-markdown-mode-model.md)
-Active slice: Slice 2 - Heading presentation
+Active slice: Slice 3 - List presentation and editing
 Progress owner: native Looper checkpoint, canonical PR state and exact-candidate validation receipts
 Parser decision: owner accepted pulldown-cmark 0.13.6 subject to compatible licensing; exact package and minimal graph verified
 
@@ -49,7 +49,7 @@ Slice 1 of 6 completed; Slice 2 is active.
 
 ## Slice 2: Heading presentation
 
-State: reviewing
+State: delivered
 Requirements: MD02, MD05, heading-related MD01/MD06
 Branch: `feat/rev-markdown-02-headings`
 PR: [#35](https://forge.adrianpk.com/rev/rev/pulls/35)
@@ -66,12 +66,14 @@ Task commits: T2.1-T2.2 and native regressions/report introduction at
 
 The exact ordered development commands passed all 546 tests across seven native
 targets, with no failed or ignored cases. Full lint, 693-command/321-setting
-documentation and whitespace checks passed. Final clean published PR HEAD
-validation remains required after the PR-reference commit.
+documentation and whitespace checks passed. Controller receipt `N5LMVNFAZ2FFOYCZ2CKDLWX2OH` passed all four ordered checks
+on clean published HEAD `1c931c00f4d50e35b4241e64a90f6fcbbb4fed5c`.
+Canonical PR #35 merged at that exact commit; both dev refs match.
+Slice 2 of 6 completed; Slice 3 is active.
 
 ## Slice 3: List presentation and editing
 
-State: pending
+State: active
 Requirements: MD03 and list-related MD05/MD06
 Branch: `feat/rev-markdown-03-lists`
 PR: pending
