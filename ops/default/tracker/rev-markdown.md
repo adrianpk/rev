@@ -8,7 +8,7 @@ Approved: product owner, 2026-11-13; approved specification, slicing and establi
 Plan: [Markdown Delivery](../plan/rev-markdown.md)
 Spec: [Markdown Editing and Presentation](../spec/editor-markdown-mode.md)
 Model: [Markdown Policy and Actions](../spec/editor-markdown-mode-model.md)
-Active slice: Slice 5 - Table row and column operations
+Active slice: Slice 6 - Acceptance and guidance
 Progress owner: native Looper checkpoint, canonical PR state and exact-candidate validation receipts
 Parser decision: owner accepted pulldown-cmark 0.13.6 subject to compatible licensing; exact package and minimal graph verified
 
@@ -126,7 +126,7 @@ commit; both dev refs match. Slice 4 of 6 completed; Slice 5 is active.
 
 ## Slice 5: Table row and column operations
 
-State: active
+State: delivered
 Requirements: MD04 structure, shared-point MD05 and MD06
 Branch: `feat/rev-markdown-05-table-structure`
 PR: [#38](https://forge.adrianpk.com/rev/rev/pulls/38)
@@ -146,12 +146,15 @@ All five ordered development commands passed on that clean published HEAD:
 first-party lint, 707-command/322-setting documentation and whitespace checks.
 Native targets took 1,295.24 s. Focused checks add eighteen Markdown table
 integration cases and five table unit cases, plus earlier input/hint coverage.
-Final worker acceptance requires one exact clean published HEAD receipt after
-PR-reference commits; the controller owns integration.
+Controller receipt `EI4MTPGDFAWA4AEMZXDN6X5MDU` passed all five ordered checks
+on clean published HEAD `d9b267d8ea15cd74de559c64df3ed43cbe013aee`.
+All 586 native tests passed without failures or ignored cases in 1,420.34 s.
+Canonical PR #38 merged at that exact commit; both dev refs match.
+Slice 5 of 6 completed; Slice 6 is active.
 
 ## Slice 6: Acceptance and guidance
 
-State: pending
+State: active
 Requirements: Joint MD01-MD06 and the complete reproducibility matrix
 Branch: `feat/rev-markdown-06-acceptance`
 PR: pending

@@ -1,6 +1,6 @@
 # Slice 5: Table row and column operations
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-markdown
 Plan: [Markdown Delivery](../../../plan/rev-markdown.md)
 Tracker: [Markdown Tracker](../../../tracker/rev-markdown.md)
@@ -97,9 +97,15 @@ documentation 0.59 s and whitespace 0.01 s. The immutable-index commit hook also
 passed complete workspace coverage. Actual cost changes no command, timeout,
 assertion or acceptance condition.
 
-Final worker acceptance requires one controller receipt on the exact clean
-published HEAD after PR-reference commits, with no later HEAD changes. Integration
-and the full six-slice delivery gate remain controller-owned.
+Controller receipt `EI4MTPGDFAWA4AEMZXDN6X5MDU` passed all five ordered checks
+on clean published HEAD `d9b267d8ea15cd74de559c64df3ed43cbe013aee`, from
+2026-11-13T21:34:48Z to 2026-11-13T21:58:45Z. All 586 native tests passed without
+failures or ignored cases in 1,420.34 s: commands 205/851.94 s, configuration
+169/277.67 s, Markdown 49/120.92 s, Org tables 73/66.73 s, pointer 69/75.21 s and
+modal contexts 21/27.87 s. Full lint, exact documentation and whitespace pass.
+Canonical PR #38 merged through Rebase + Fast-forward at that exact HEAD;
+fetched dev and primary dev match. Slice 5 of 6 completed. The controller owns
+the full six-slice delivery gate.
 
 Required ordered commands:
 
