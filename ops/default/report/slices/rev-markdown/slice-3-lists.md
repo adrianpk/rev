@@ -5,7 +5,7 @@ Delivery set: rev-markdown
 Plan: [Markdown Delivery](../../../plan/rev-markdown.md)
 Tracker: [Markdown Tracker](../../../tracker/rev-markdown.md)
 Branch: `feat/rev-markdown-03-lists`
-PR: pending
+PR: `#36`
 
 ## Purpose
 
@@ -36,7 +36,8 @@ editing overlay in both supported profiles. Table actions retain Slices 4-5.
 ## Implementation Notes
 
 Implementation and report introduction: `4251b929e6b4493a59a0e7146ffb82a5e1c7b38b`.
-Canonical PR: pending.
+Canonical PR: https://forge.adrianpk.com/rev/rev/pulls/36
+Development evidence commit: `83aa5658824d38e8e0650ed11a4b74e1e4fa8c25`.
 
 The private parser adapter retains editor-owned item source spans, logical
 parent/list identity, source marker form and continuation indentation alongside

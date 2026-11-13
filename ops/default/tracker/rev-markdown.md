@@ -76,7 +76,7 @@ Slice 2 of 6 completed; Slice 3 is active.
 State: active
 Requirements: MD03 and list-related MD05/MD06
 Branch: `feat/rev-markdown-03-lists`
-PR: pending
+PR: [#36](https://forge.adrianpk.com/rev/rev/pulls/36)
 Report: `ops/default/report/slices/rev-markdown/slice-3-lists.md`
 Validation: the exact ordered checks for Slice 3 in the plan and frozen local configuration
 
@@ -85,7 +85,8 @@ Validation: the exact ordered checks for Slice 3 in the plan and frozen local co
 - [x] T3.3: Deliver both-profile named commands, effective key hints, override inheritance, read-only/cancellation cases, Unicode and shared-point regressions. Update catalogs, list guidance, Unreleased and the canonical report.
 
 Task commits: T3.1-T3.3 implementation, regressions and report introduction at
-`4251b929e6b4493a59a0e7146ffb82a5e1c7b38b`.
+`4251b929e6b4493a59a0e7146ffb82a5e1c7b38b`; development evidence at
+`83aa5658824d38e8e0650ed11a4b74e1e4fa8c25`.
 
 All five ordered development commands passed on that clean implementation HEAD:
 542 tests across six targets, no failed or ignored cases, full first-party lint,
