@@ -1,8 +1,10 @@
 ---
 id: TKT-20261113130719
 title: Color Org headings by level
-status: reviewing
-reviewed_at: 2026-11-13T13:19:31Z
+status: solved
+resolution: fixed
+closed_at: 2026-11-13T13:41:46Z
+reviewed_at: 2026-11-13T13:40:14Z
 started_at: 2026-11-13T13:07:55Z
 branch: feat/ticket-20261113130719-org-heading-colors
 ready_at: 2026-11-13T13:07:55Z
@@ -14,7 +16,7 @@ tags: org-mode, colors, presentation
 source: chat
 reported_at: 2026-11-13T13:07:19Z
 pr: https://forge.adrianpk.com/rev/rev/pulls/33
-commits: [c61a88c51afebe1cce6e73a3ccb6e3236198644e]
+commits: [c61a88c51afebe1cce6e73a3ccb6e3236198644e, c7f1aa7ac6bd132cc4ffd0db9309f018eea41694]
 ---
 
 # Color Org headings by level
@@ -69,7 +71,14 @@ marker/face cycles, source presentation, wrapping, clipping, Unicode, custom
 palette overrides and selection/search precedence. Existing geometry/editing
 and non-Org syntax regressions remain included in the focused gate.
 
-## Review
+## Closure
 
-PR #33 targets dev and is awaiting maintainer review and merge. Implementation
-and native acceptance are recorded in commit `c61a88c51afebe1cce6e73a3ccb6e3236198644e`.
+The maintainer merged PR #33 into dev at
+`c7f1aa7ac6bd132cc4ffd0db9309f018eea41694`; the canonical forge and fetched
+integration ref confirm the merge. Implementation and native acceptance are
+recorded in `c61a88c51afebe1cce6e73a3ccb6e3236198644e`.
+
+The optimized installed executable also passed owned terminal checks for all
+eight heading colors, NO_COLOR output, unchanged source and terminal restoration.
+This ticket closure changes metadata only; accepted runtime and product
+documentation bytes remain unchanged.
