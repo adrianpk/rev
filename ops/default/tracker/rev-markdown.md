@@ -49,7 +49,7 @@ Slice 1 of 6 completed; Slice 2 is active.
 
 ## Slice 2: Heading presentation
 
-State: active
+State: reviewing
 Requirements: MD02, MD05, heading-related MD01/MD06
 Branch: `feat/rev-markdown-02-headings`
 PR: pending
@@ -58,9 +58,15 @@ Validation: the exact ordered checks for Slice 2 in the plan and frozen local co
 
 - [x] T2.1: Add the six heading palette leaves and markdown.pretty; project only admitted ATX source prefixes with the exact approved marker/color profile. Color Setext titles while retaining underlines; preserve literal source and canonical width/cursor mappings.
 - [x] T2.2: Implement markdown-pretty-mode and markdown-reset-presentation with view-local overrides, split inheritance, buffer switches, explicit source view and read-only presentation. Keep structural recognition independent of color policy.
-- [ ] T2.3: Cover real terminal cells, wide/combining source, clipped/wrapped prefixes, selection/search precedence, copy/save/history, Text-mode suspension and existing Org projection regressions. Complete references, catalogs and the slice report.
+- [x] T2.3: Cover real terminal cells, wide/combining source, clipped/wrapped prefixes, selection/search precedence, copy/save/history, Text-mode suspension and existing Org projection regressions. Complete references, catalogs and the slice report.
 
-Task commits: pending.
+Task commits: T2.1-T2.2 and native regressions/report introduction at
+`149ec09768b755353452faca071aaeea187a21f2`; T2.3 development evidence follows.
+
+The exact ordered development commands passed all 546 tests across seven native
+targets, with no failed or ignored cases. Full lint, 693-command/321-setting
+documentation and whitespace checks passed. Final clean published PR HEAD
+validation remains required after the PR-reference commit.
 
 ## Slice 3: List presentation and editing
 

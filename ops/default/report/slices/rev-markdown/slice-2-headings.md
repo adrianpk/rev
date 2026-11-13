@@ -1,6 +1,6 @@
 # Slice 2: Heading presentation
 
-Status: drafting
+Status: reviewing
 Delivery set: rev-markdown
 Plan: [Markdown Delivery](../../../plan/rev-markdown.md)
 Tracker: [Markdown Tracker](../../../tracker/rev-markdown.md)
@@ -28,6 +28,8 @@ and independent view controls. List and table actions retain their later slices.
   observations and symbols. Explicit re-enablement can retry canceled work.
 
 ## Implementation Notes
+
+Implementation and report introduction: `149ec09768b755353452faca071aaeea187a21f2`.
 
 The private adapter stores source byte prefixes only for admitted ATX headings.
 Setext titles that start with a literal hash cannot acquire a false ATX symbol.
@@ -70,14 +72,38 @@ bounds are unchanged.
 
 ## Validation
 
-Focused development passes the three heading cases, six presentation cases,
-exact command description guard and corrected complete context matrix. The
-updated overlapping search/selection plus copy/save case passes in 0.42 s.
-Full workspace lint passes all 1,857 first-party Rust files, both packages and
-74 Cargo roots, with no blocking or deferred diagnostics. Documentation passes
-693 commands, 321 settings, 106 reachable pages and 752 local links/anchors.
-The frozen combined native batch and final clean published HEAD receipt remain
-pending; the controller owns integration and the full delivery-set gate.
+All four required development commands passed in canonical order on clean
+implementation HEAD `149ec09768b755353452faca071aaeea187a21f2`. All 546 tests
+across seven native targets passed without failures or ignored cases. This is
+slice evidence; the controller owns integration and the full delivery-set gate.
+Final worker acceptance requires one controller receipt on the clean published
+PR HEAD after all PR-reference commits, without modifying that tested HEAD.
+
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 make lint`
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test markdown --test configuration --test commands --test display --test pointer --test org_headings --test org_indentation -- --test-threads=1`
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo run --locked --quiet -p rev --example documentation-check`
+- `git diff --check`
+
+| Target | Passed | Seconds |
+| --- | --- | --- |
+| commands | 205 | 603.80 |
+| configuration | 167 | 257.01 |
+| display | 47 | 35.10 |
+| markdown | 21 | 42.16 |
+| org_headings | 19 | 25.62 |
+| org_indentation | 18 | 20.38 |
+| pointer | 69 | 71.82 |
+
+The native targets took 1055.89 s in total.
+This measured cost does not change a timeout, command or acceptance condition.
+Full workspace lint and the installed immutable-index hook pass all 1,857
+first-party Rust files, both packages and 74 Cargo roots, with no blocking or
+deferred diagnostics. Documentation passes 693 commands, 321 settings,
+106 reachable pages and 752 local links/anchors; whitespace checks pass.
+
+Focused development also passed the three heading cases, six presentation
+cases, exact command description guard and corrected complete context matrix.
+The updated overlapping search/selection plus copy/save case passed in 0.42 s.
 
 Development corrections preserved the existing acceptance boundaries. The first
 compile found the fixed command-array count and a native-job method spelling;
