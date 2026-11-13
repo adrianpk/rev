@@ -159,8 +159,31 @@ Emphasis and strong emphasis, links and images, inline/fenced/indented code,
 quotes, lists and tables use the six `palette.markdown` colors in the
 [configuration catalog](defaults.md#markdown-semantic-colors). Nested inline
 colors override enclosing block colors. Literal code never recognizes nested
-Markdown markup. Headings retain their source prefixes and ordinary text color.
-There is no source decoration or structural editing command in this increment.
+Markdown markup. Six heading faces color ATX prefixes and ordinary title text;
+Setext titles use levels one and two and retain their literal underlines.
+
+With `markdown.pretty = true` (the default), admitted ATX prefix hashes display
+as spaces ending in one level symbol. Their source-cell width stays unchanged,
+including inside quotes and lists. Closing hashes stay literal. The profile is:
+
+| Level | Symbol | Default color |
+| --- | --- | --- |
+| 1 | ◉ | `#7aa2f7` |
+| 2 | ○ | `#9d7cd8` |
+| 3 | ✸ | `#c0caf5` |
+| 4 | ✿ | `#9bb9f9` |
+| 5 | ◆ | `#b59ce1` |
+| 6 | ▶ | `#bcd0fb` |
+
+Use `markdown-pretty-mode` to toggle the active view and
+`markdown-reset-presentation` to restore its immutable startup value. Source
+presentation restores the original hashes and keeps syntax colors. Both actions
+work in read-only Markdown buffers through M-x and modal colon selectors, without
+writing settings, changing point or adding history. Splits inherit the choice
+and then change independently. Buffer switches retain it; Text mode suspends it.
+Wrapping, horizontal clipping and pointer hits retain canonical source geometry.
+Selection precedes search, which precedes syntax; monochrome retains selection
+and search attributes. There are no list/table editing actions in this increment.
 
 A temporary session-owned worker takes one bounded contiguous source snapshot
 per admitted revision. The profile admits at most 8 MiB, 200,000 parser events

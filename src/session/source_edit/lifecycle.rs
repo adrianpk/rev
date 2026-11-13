@@ -112,6 +112,7 @@ fn protected(command: Command) -> bool {
             | Command::Split(_)
             | Command::Tree(_)
             | Command::Mode(_)
+            | Command::Markdown(_)
             | Command::Org(_)
     )
 }

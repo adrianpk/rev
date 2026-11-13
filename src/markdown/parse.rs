@@ -16,7 +16,7 @@ pub(super) fn observe(source: &str, cancel: &Cancellation) -> Option<Vec<Node>> 
     }
     let mut scan = Scan::default();
     for (count, (event, bytes)) in parser.into_offset_iter().enumerate() {
-        if count >= MAX_EVENTS || cancel.is_cancelled() || !scan.event(&event, bytes) {
+        if count >= MAX_EVENTS || cancel.is_cancelled() || !scan.event(&event, bytes, source) {
             return None;
         }
     }
@@ -31,9 +31,9 @@ struct Scan {
 }
 
 impl Scan {
-    fn event(&mut self, event: &Event<'_>, bytes: Range<usize>) -> bool {
+    fn event(&mut self, event: &Event<'_>, bytes: Range<usize>, source: &str) -> bool {
         match event {
-            Event::Start(tag) => self.start(tag, bytes),
+            Event::Start(tag) => self.start(tag, bytes, source),
             Event::End(tag) => {
                 self.depth -= 1;
                 if *tag == TagEnd::List(false) || *tag == TagEnd::List(true) {
@@ -52,13 +52,16 @@ impl Scan {
         }
     }
 
-    fn start(&mut self, tag: &Tag<'_>, bytes: Range<usize>) -> bool {
+    fn start(&mut self, tag: &Tag<'_>, bytes: Range<usize>, source: &str) -> bool {
         self.depth += 1;
         if self.depth > MAX_DEPTH {
             return false;
         }
         let kind = match tag {
-            Tag::Heading { level, .. } => Some(Kind::Heading(*level as u8)),
+            Tag::Heading { level, .. } => Some(Kind::Heading {
+                level: *level as u8,
+                prefix: heading_prefix(source, &bytes, *level as u8),
+            }),
             Tag::List(_) => {
                 self.lists += 1;
                 Some(Kind::List(self.lists))
@@ -81,4 +84,22 @@ fn semantic(tag: &Tag<'_>) -> Option<MarkdownRole> {
         Tag::Table(_) => Some(MarkdownRole::Table),
         _ => None,
     }
+}
+
+// Only a parser-admitted heading can supply a prefix. Setext starts at title
+// text; its underline never enters the substitution range.
+fn heading_prefix(source: &str, bytes: &Range<usize>, level: u8) -> Option<Range<usize>> {
+    let end = bytes.start.checked_add(usize::from(level))?;
+    if source
+        .as_bytes()
+        .get(end)
+        .is_some_and(|byte| !matches!(byte, b' ' | b'\t' | b'\r' | b'\n'))
+    {
+        return None;
+    }
+    let prefix = source.get(bytes.start..end)?;
+    prefix
+        .bytes()
+        .all(|byte| byte == b'#')
+        .then_some(bytes.start..end)
 }

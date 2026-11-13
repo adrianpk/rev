@@ -42,6 +42,11 @@ impl Document {
         merge.tree(&mut self.tree, &later.tree);
         merge.syntax(&mut self.syntax, &later.syntax);
         merge.leaf(
+            &["markdown", "pretty"],
+            &mut self.markdown.pretty,
+            &later.markdown.pretty,
+        );
+        merge.leaf(
             &["markdown", "enabled"],
             &mut self.markdown.enabled,
             &later.markdown.enabled,
@@ -1265,6 +1270,36 @@ impl Merge {
         base: &mut super::PartialMarkdownPalette,
         later: &super::PartialMarkdownPalette,
     ) {
+        self.leaf(
+            &["palette", "markdown", "heading"],
+            &mut base.heading,
+            &later.heading,
+        );
+        self.leaf(
+            &["palette", "markdown", "heading_2"],
+            &mut base.heading_2,
+            &later.heading_2,
+        );
+        self.leaf(
+            &["palette", "markdown", "heading_3"],
+            &mut base.heading_3,
+            &later.heading_3,
+        );
+        self.leaf(
+            &["palette", "markdown", "heading_4"],
+            &mut base.heading_4,
+            &later.heading_4,
+        );
+        self.leaf(
+            &["palette", "markdown", "heading_5"],
+            &mut base.heading_5,
+            &later.heading_5,
+        );
+        self.leaf(
+            &["palette", "markdown", "heading_6"],
+            &mut base.heading_6,
+            &later.heading_6,
+        );
         self.leaf(
             &["palette", "markdown", "emphasis"],
             &mut base.emphasis,

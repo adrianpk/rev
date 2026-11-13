@@ -56,8 +56,8 @@ PR: pending
 Report: `ops/default/report/slices/rev-markdown/slice-2-headings.md`
 Validation: the exact ordered checks for Slice 2 in the plan and frozen local configuration
 
-- [ ] T2.1: Add the six heading palette leaves and markdown.pretty; project only admitted ATX source prefixes with the exact approved marker/color profile. Color Setext titles while retaining underlines; preserve literal source and canonical width/cursor mappings.
-- [ ] T2.2: Implement markdown-pretty-mode and markdown-reset-presentation with view-local overrides, split inheritance, buffer switches, explicit source view and read-only presentation. Keep structural recognition independent of color policy.
+- [x] T2.1: Add the six heading palette leaves and markdown.pretty; project only admitted ATX source prefixes with the exact approved marker/color profile. Color Setext titles while retaining underlines; preserve literal source and canonical width/cursor mappings.
+- [x] T2.2: Implement markdown-pretty-mode and markdown-reset-presentation with view-local overrides, split inheritance, buffer switches, explicit source view and read-only presentation. Keep structural recognition independent of color policy.
 - [ ] T2.3: Cover real terminal cells, wide/combining source, clipped/wrapped prefixes, selection/search precedence, copy/save/history, Text-mode suspension and existing Org projection regressions. Complete references, catalogs and the slice report.
 
 Task commits: pending.

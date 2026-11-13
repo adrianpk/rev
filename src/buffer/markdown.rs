@@ -54,6 +54,12 @@ impl Buffer {
                 || self.len_bytes() <= self.syntax_policy.max_bytes)
     }
 
+    pub(crate) fn request_markdown(&mut self) {
+        if self.markdown.observation.is_none() {
+            self.markdown.attempt = None;
+        }
+    }
+
     pub(crate) fn markdown_work(&mut self) -> Option<Work> {
         if !self.markdown_admitted() || self.markdown.attempt == Some(self.stamp()) {
             return None;
@@ -89,5 +95,23 @@ impl Buffer {
             .observation
             .as_ref()
             .map_or_else(Vec::new, |value| value.captures(bytes))
+    }
+}
+
+impl Buffer {
+    pub(crate) fn markdown_heading_prefix(
+        &self,
+        row: usize,
+    ) -> Option<(u8, std::ops::Range<usize>)> {
+        if !self.markdown_admitted() || row >= self.len_lines() {
+            return None;
+        }
+        let observation = self.markdown.observation.as_ref()?;
+        if observation.stamp != self.stamp() {
+            return None;
+        }
+        let start = self.text.line_to_byte(row);
+        let end = start + self.text.line(row).len_bytes();
+        observation.heading_prefix(start..end)
     }
 }

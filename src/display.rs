@@ -11,6 +11,7 @@ pub(crate) mod git;
 mod gutter;
 mod habit;
 mod headings;
+mod markdown;
 mod native_completion;
 pub use agenda::AgendaDisplay;
 pub use habit::HabitDisplay;
@@ -349,8 +350,7 @@ impl Frame {
                 f.painted_width(content.width())
                     .saturating_sub(projection.margin)
             });
-            let mut text = document_text(buffer, &coordinates, fragment, projection)?;
-            headings::project(buffer, view, projection, painted, &mut text);
+            let text = document_text(buffer, &coordinates, fragment, projection, view)?;
             let projected = Row {
                 row,
                 text,
@@ -488,20 +488,28 @@ fn document_text(
     coordinates: &Coordinates<'_>,
     fragment: Option<&crate::view::Fragment>,
     projection: Projection,
+    view: &View,
 ) -> Result<String, Error> {
-    if let Some(fragment) = fragment {
-        return Ok(fragment.text.clone());
-    }
-    if projection.source.row < buffer.len_lines() {
+    let mut text = if let Some(fragment) = fragment {
+        fragment.text.clone()
+    } else if projection.source.row < buffer.len_lines() {
         let mut text = " ".repeat(usize::from(projection.margin));
         text.push_str(&clip::line(
             coordinates.glyphs_from_column(projection.source)?,
             projection.source.column,
             projection.width,
         )?);
-        return Ok(text);
-    }
-    Ok(" ".repeat(usize::from(projection.width + projection.margin)))
+        text
+    } else {
+        " ".repeat(usize::from(projection.width + projection.margin))
+    };
+    let painted = fragment.map_or(projection.width, |f| {
+        f.painted_width(projection.width + projection.margin)
+            .saturating_sub(projection.margin)
+    });
+    headings::project(buffer, view, projection, painted, &mut text);
+    markdown::project(buffer, view, projection, painted, &mut text)?;
+    Ok(text)
 }
 
 fn panel_fragments(

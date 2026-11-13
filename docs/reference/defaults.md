@@ -457,6 +457,7 @@ edit limits and finite lifecycle.
 | `tree.root` | String: "auto", "cwd" or "file-parent" | `"auto"` | Explicit directory targets win. Otherwise auto/file-parent follow the visiting file parent, falling back to launch cwd; cwd retains launch cwd. |
 | `tree.show_hidden` | Boolean | `true` | Session; admit dot-prefixed tree entries. This does not filter find-file candidates. |
 | `tree.directories_first` | Boolean | `true` | Session; tree directories sort before leaves, then by filename bytes. This does not change find-file ordering. |
+| `markdown.pretty` | Boolean | `true` | Startup default for each view; markdown-pretty-mode toggles symbols and markdown-reset-presentation restores this value. Splits inherit the current choice, then change independently. |
 | `markdown.enabled` | Boolean | `true` | Startup; enable native Markdown recognition and explicit mode selection. Ordinary text and optional language servers remain available. |
 | `syntax.enabled` | Boolean | `true` | Session; enable derived colors in admitted syntax and native document modes. Text remains editable on fallback. |
 | `syntax.max_bytes` | Integer 0..=1073741824 | `0` | Session; UTF-8 byte cutoff. Zero means no configured cutoff; equality is admitted and larger buffers omit colors. Native modes retain their own finite observation bounds. |
@@ -683,10 +684,17 @@ Use [Bindings](bindings.md), [Focused prompts](prompts.md),
 ### Markdown semantic colors
 
 [Native Markdown syntax](syntax.md#native-markdown-source) uses these independent
-RGB roles. Inline objects override their enclosing quote, list or table.
+RGB roles. Inline objects override their enclosing heading, quote, list or table.
+ATX heading symbols retain the source prefix width; Setext underlines stay literal.
 
 | Key | Type | Default | Effect |
 | --- | --- | --- | --- |
+| `palette.markdown.heading` | RGB hex string | `"#7aa2f7"` | Heading level 1, including its ATX symbol and ordinary title. |
+| `palette.markdown.heading_2` | RGB hex string | `"#9d7cd8"` | Heading level 2, including its ATX symbol and ordinary title. |
+| `palette.markdown.heading_3` | RGB hex string | `"#c0caf5"` | Heading level 3, including its ATX symbol and ordinary title. |
+| `palette.markdown.heading_4` | RGB hex string | `"#9bb9f9"` | Heading level 4, including its ATX symbol and ordinary title. |
+| `palette.markdown.heading_5` | RGB hex string | `"#b59ce1"` | Heading level 5, including its ATX symbol and ordinary title. |
+| `palette.markdown.heading_6` | RGB hex string | `"#bcd0fb"` | Heading level 6, including its ATX symbol and ordinary title. |
 | `palette.markdown.emphasis` | RGB hex string | `"#9d7cd8"` | Emphasis and strong emphasis. |
 | `palette.markdown.link` | RGB hex string | `"#7aa2f7"` | Links, reference links, autolinks and images. |
 | `palette.markdown.code` | RGB hex string | `"#9ece6a"` | Inline, fenced and indented literal code. |

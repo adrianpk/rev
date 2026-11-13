@@ -23,7 +23,10 @@ struct Node {
 }
 
 enum Kind {
-    Heading(u8),
+    Heading {
+        level: u8,
+        prefix: Option<Range<usize>>,
+    },
     List(usize),
     Literal,
     Semantic(MarkdownRole),
@@ -32,9 +35,9 @@ enum Kind {
 impl Kind {
     fn role(&self) -> Option<MarkdownRole> {
         match *self {
-            Self::Heading(level) => {
+            Self::Heading { level, .. } => {
                 assert!((1..=6).contains(&level), "admitted Markdown heading level");
-                None
+                Some(MarkdownRole::Heading(level))
             }
             Self::List(depth) => {
                 assert!(depth <= MAX_DEPTH, "admitted Markdown list depth");
@@ -47,6 +50,16 @@ impl Kind {
 }
 
 impl Observation {
+    pub(crate) fn heading_prefix(&self, line: Range<usize>) -> Option<(u8, Range<usize>)> {
+        self.nodes.iter().find_map(|node| match &node.kind {
+            Kind::Heading {
+                level,
+                prefix: Some(prefix),
+            } if line.contains(&prefix.start) => Some((*level, prefix.clone())),
+            _ => None,
+        })
+    }
+
     pub(crate) fn captures(&self, bytes: Range<usize>) -> Vec<Capture> {
         self.nodes
             .iter()

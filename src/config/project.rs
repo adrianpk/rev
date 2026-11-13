@@ -37,6 +37,7 @@ pub(super) fn settings(document: &Document) -> Settings {
     settings.plugins = document.plugins.project();
     org(&mut settings.org, &document.org);
     scalar(&mut settings.markdown.enabled, document.markdown.enabled);
+    scalar(&mut settings.markdown.pretty, document.markdown.pretty);
     palette(&mut settings.palette, &document.palette);
     settings.language.clone_from(&document.language);
     settings.keys.clone_from(&document.keys);
@@ -506,6 +507,13 @@ fn tree_palette(base: &mut super::TreePalette, partial: &super::PartialTreePalet
 }
 
 fn markdown_palette(base: &mut super::MarkdownPalette, partial: &super::PartialMarkdownPalette) {
+    color(&mut base.heading, &partial.heading);
+    color(&mut base.heading_2, &partial.heading_2);
+    color(&mut base.heading_3, &partial.heading_3);
+    color(&mut base.heading_4, &partial.heading_4);
+    color(&mut base.heading_5, &partial.heading_5);
+    color(&mut base.heading_6, &partial.heading_6);
+
     color(&mut base.emphasis, &partial.emphasis);
     color(&mut base.link, &partial.link);
     color(&mut base.code, &partial.code);

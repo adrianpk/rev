@@ -2,8 +2,14 @@ use rev::config::{MarkdownPalette, Rgb, Settings, prepare};
 
 use super::fixture::Fixture;
 
-fn colors(palette: &MarkdownPalette) -> [Rgb; 6] {
+fn colors(palette: &MarkdownPalette) -> [Rgb; 12] {
     [
+        palette.heading,
+        palette.heading_2,
+        palette.heading_3,
+        palette.heading_4,
+        palette.heading_5,
+        palette.heading_6,
         palette.emphasis,
         palette.link,
         palette.code,
@@ -13,7 +19,20 @@ fn colors(palette: &MarkdownPalette) -> [Rgb; 6] {
     ]
 }
 
-const KEYS: [&str; 6] = ["emphasis", "link", "code", "quote", "list", "table"];
+const KEYS: [&str; 12] = [
+    "heading",
+    "heading_2",
+    "heading_3",
+    "heading_4",
+    "heading_5",
+    "heading_6",
+    "emphasis",
+    "link",
+    "code",
+    "quote",
+    "list",
+    "table",
+];
 
 // Each leaf must merge independently, retain its include/root provenance and
 // leave unrelated Org/syntax colors unchanged, including equal factory RGBs.
@@ -22,9 +41,16 @@ fn leaf_inheritance() {
     let fixture = Fixture::new();
     let defaults = Settings::default();
     assert!(defaults.markdown.enabled);
+    assert!(defaults.markdown.pretty);
     assert_eq!(
         colors(&defaults.palette.markdown),
         [
+            Rgb(122, 162, 247),
+            Rgb(157, 124, 216),
+            Rgb(192, 202, 245),
+            Rgb(155, 185, 249),
+            Rgb(181, 156, 225),
+            Rgb(188, 208, 251),
             Rgb(157, 124, 216),
             Rgb(122, 162, 247),
             Rgb(158, 206, 106),
@@ -37,12 +63,15 @@ fn leaf_inheritance() {
         .iter()
         .map(|key| format!("palette.markdown.{key}='#102030'\n"))
         .collect::<String>();
-    let included = fixture.write("base.toml", &format!("markdown.enabled=false\n{base}"));
+    let included = fixture.write(
+        "base.toml",
+        &format!("markdown.enabled=false\nmarkdown.pretty=false\n{base}"),
+    );
     for (index, key) in KEYS.iter().enumerate() {
         let path = fixture.write(
             "config.toml",
             &format!(
-                "include=['base.toml']\nmarkdown.enabled=true\npalette.markdown.{key}='#012345'"
+                "include=['base.toml']\nmarkdown.pretty=true\nmarkdown.enabled=true\npalette.markdown.{key}='#012345'"
             ),
         );
         let startup = prepare(&path);
@@ -52,6 +81,11 @@ fn leaf_inheritance() {
             startup.diagnostic
         );
         assert!(startup.snapshot.settings().markdown.enabled);
+        assert!(startup.snapshot.settings().markdown.pretty);
+        assert_eq!(
+            startup.snapshot.origin(&["markdown", "pretty"]),
+            Some(path.as_path())
+        );
         assert_eq!(
             startup.snapshot.origin(&["markdown", "enabled"]),
             Some(path.as_path())
@@ -107,6 +141,7 @@ fn candidate_rejection() {
     }
     for source in [
         "markdown.enabled=1",
+        "markdown.pretty=1",
         "markdown.unknown=true",
         "palette.markdown.unknown='#012345'",
     ] {
@@ -114,4 +149,22 @@ fn candidate_rejection() {
         assert!(startup.diagnostic.is_some(), "{source}");
         assert_eq!(startup.snapshot.settings(), &Settings::default());
     }
+}
+
+// An explicit false root overrides a true include, retaining its own provenance.
+#[test]
+fn source_preference() {
+    let fixture = Fixture::new();
+    fixture.write("base.toml", "markdown.pretty=true");
+    let path = fixture.write(
+        "config.toml",
+        "include=['base.toml']\nmarkdown.pretty=false",
+    );
+    let startup = prepare(&path);
+    assert!(startup.diagnostic.is_none());
+    assert!(!startup.snapshot.settings().markdown.pretty);
+    assert_eq!(
+        startup.snapshot.origin(&["markdown", "pretty"]),
+        Some(path.as_path())
+    );
 }

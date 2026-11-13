@@ -13,6 +13,8 @@ Every command below is also available as `M-x` followed by its exact name.
 | Keys | Command | Result |
 | --- | --- | --- |
 | M-x markdown-mode, :markdown-mode | `markdown-mode` | Select native Markdown for the current buffer. |
+| M-x markdown-pretty-mode, :markdown-pretty-mode | `markdown-pretty-mode` | Toggle this view’s Markdown heading symbols without editing source. |
+| M-x markdown-reset-presentation, :markdown-reset-presentation | `markdown-reset-presentation` | Restore this view’s startup Markdown presentation. |
 | M-x plugin-list, :plugin-list | `plugin-list` | Inspect the passive experimental package inventory. |
 | M-x plugin-activate, :plugin-activate | `plugin-activate` | Select a package for activation; currently unavailable. |
 | M-x plugin-deactivate, :plugin-deactivate | `plugin-deactivate` | Inspect an inactive package without starting it. |
@@ -1144,6 +1146,11 @@ Select native Markdown with M-x markdown-mode or the modal :markdown-mode
 selector. M-x text-mode suspends native Markdown. Automatic .md/.markdown
 recognition follows user association precedence; markdown.enabled controls
 availability. Mode changes preserve source, history, saved state and shared views.
+Use markdown-pretty-mode to switch the active view between heading symbols and
+source prefixes; markdown-reset-presentation restores its markdown.pretty startup
+value. Both named actions work in read-only Markdown buffers. A split inherits
+the current choice, then changes independently. Buffer switches retain it, and
+Text mode suspends it. These controls preserve points and add no undo entry.
 See [native Markdown syntax](syntax.md#native-markdown-source) and
 [Org native mode selection](org/bindings.md#native-mode-selection).
 

@@ -2,6 +2,7 @@ mod fold;
 mod headings;
 mod hit;
 mod indentation;
+mod markdown;
 pub use fold::FoldError;
 pub(crate) use indentation::Projection;
 mod navigation;
@@ -125,6 +126,8 @@ pub struct View {
     pub preview: crate::org::preview::State,
     pub(crate) headings: std::sync::Arc<crate::config::Headings>,
     heading_pretty: Option<bool>,
+    markdown_startup: bool,
+    markdown_pretty: Option<bool>,
     /// Intended terminal-cell column, retained across vertical/page/recenter input.
     pub column: Option<usize>,
     pub top: usize,
@@ -172,6 +175,8 @@ impl View {
             preview: crate::org::preview::State::default(),
             headings: std::sync::Arc::new(crate::config::Headings::default()),
             heading_pretty: None,
+            markdown_startup: true,
+            markdown_pretty: None,
             column: None,
             top: 0,
             left: 0,
@@ -197,6 +202,7 @@ impl View {
         view.bookmark_markers = settings.settings().bookmarks.markers;
         view.preview.enabled = settings.settings().org.preview.enabled;
         view.headings = std::sync::Arc::new(settings.settings().org.headings.clone());
+        view.markdown_startup = settings.settings().markdown.pretty;
         view.reset_heading_layout();
         view
     }
@@ -209,6 +215,8 @@ impl View {
         let enabled = self.preview.enabled;
         let headings = std::sync::Arc::clone(&self.headings);
         let heading_pretty = self.heading_pretty;
+        let markdown_startup = self.markdown_startup;
+        let markdown_pretty = self.markdown_pretty;
         let jumps = std::mem::take(&mut self.jumps);
         *self = Self::new(buffer);
         self.jumps = jumps;
@@ -217,6 +225,8 @@ impl View {
         self.preview.enabled = enabled;
         self.headings = headings;
         self.heading_pretty = heading_pretty;
+        self.markdown_startup = markdown_startup;
+        self.markdown_pretty = markdown_pretty;
         self.reset_heading_layout();
     }
 

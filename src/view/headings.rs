@@ -25,6 +25,8 @@ impl View {
     pub(crate) fn retain_heading_presentation(&mut self, current: &Self) {
         self.headings = std::sync::Arc::clone(&current.headings);
         self.heading_pretty = current.heading_pretty;
+        self.markdown_startup = current.markdown_startup;
+        self.markdown_pretty = current.markdown_pretty;
         self.reset_heading_layout();
     }
 

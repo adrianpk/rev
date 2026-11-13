@@ -1274,11 +1274,15 @@ pub struct PartialPreview {
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct Markdown {
     pub enabled: bool,
+    pub pretty: bool,
 }
 
 impl Default for Markdown {
     fn default() -> Self {
-        Self { enabled: true }
+        Self {
+            enabled: true,
+            pretty: true,
+        }
     }
 }
 
@@ -1286,4 +1290,5 @@ impl Default for Markdown {
 #[serde(default, deny_unknown_fields)]
 pub struct PartialMarkdown {
     pub enabled: Option<bool>,
+    pub pretty: Option<bool>,
 }

@@ -13,6 +13,7 @@ pub struct Cell {
     pub background: Option<Rgb>,
     pub underline: bool,
     pub bold: bool,
+    pub reversed: bool,
 }
 
 pub fn draw(frame: &Frame) -> BTreeMap<(usize, usize), Cell> {
@@ -93,6 +94,8 @@ fn attribute(code: u16, state: &mut Cell) {
         22 => state.bold = false,
         4 => state.underline = true,
         24 => state.underline = false,
+        7 => state.reversed = true,
+        27 => state.reversed = false,
         39 => state.foreground = None,
         49 => state.background = None,
         other => panic!("unexpected SGR {other}"),

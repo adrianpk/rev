@@ -400,6 +400,13 @@ pub struct PartialTreePalette {
 /// Semantic Markdown colors, independent of Org customization.
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct MarkdownPalette {
+    pub heading: Rgb,
+    pub heading_2: Rgb,
+    pub heading_3: Rgb,
+    pub heading_4: Rgb,
+    pub heading_5: Rgb,
+    pub heading_6: Rgb,
+
     pub emphasis: Rgb,
     pub link: Rgb,
     pub code: Rgb,
@@ -408,9 +415,30 @@ pub struct MarkdownPalette {
     pub table: Rgb,
 }
 
+impl MarkdownPalette {
+    pub(crate) fn heading_color(&self, level: u8) -> Rgb {
+        match level {
+            1 => self.heading,
+            2 => self.heading_2,
+            3 => self.heading_3,
+            4 => self.heading_4,
+            5 => self.heading_5,
+            6 => self.heading_6,
+            _ => unreachable!("admitted Markdown heading level"),
+        }
+    }
+}
+
 impl Default for MarkdownPalette {
     fn default() -> Self {
         Self {
+            heading: Rgb(0x7a, 0xa2, 0xf7),
+            heading_2: Rgb(0x9d, 0x7c, 0xd8),
+            heading_3: Rgb(0xc0, 0xca, 0xf5),
+            heading_4: Rgb(0x9b, 0xb9, 0xf9),
+            heading_5: Rgb(0xb5, 0x9c, 0xe1),
+            heading_6: Rgb(0xbc, 0xd0, 0xfb),
+
             emphasis: Rgb(0x9d, 0x7c, 0xd8),
             link: Rgb(0x7a, 0xa2, 0xf7),
             code: Rgb(0x9e, 0xce, 0x6a),
@@ -424,6 +452,13 @@ impl Default for MarkdownPalette {
 #[derive(Clone, Debug, Default, PartialEq, Eq, Deserialize)]
 #[serde(default, deny_unknown_fields)]
 pub struct PartialMarkdownPalette {
+    pub heading: Option<String>,
+    pub heading_2: Option<String>,
+    pub heading_3: Option<String>,
+    pub heading_4: Option<String>,
+    pub heading_5: Option<String>,
+    pub heading_6: Option<String>,
+
     pub emphasis: Option<String>,
     pub link: Option<String>,
     pub code: Option<String>,

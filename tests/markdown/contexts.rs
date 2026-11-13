@@ -29,7 +29,13 @@ fn source_contexts() {
             Some(MarkdownRole::Emphasis),
         ),
         ("seven hashes", "####### word", 0, "word", None),
-        ("Setext", "word\n====", 0, "word", None),
+        (
+            "Setext",
+            "word\n====",
+            0,
+            "word",
+            Some(MarkdownRole::Heading(1)),
+        ),
         (
             "link",
             "[word](https://example.com)",
@@ -117,7 +123,21 @@ fn source_contexts() {
             "word",
             Some(MarkdownRole::Table),
         ),
-        ("invalid table", "word | value\n---", 0, "word", None),
+        // A failed table shape can still be a valid CommonMark Setext title.
+        (
+            "invalid table",
+            "word | value\n---",
+            0,
+            "word",
+            Some(MarkdownRole::Heading(2)),
+        ),
+        (
+            "invalid delimiters",
+            "word | value\n--- | x",
+            0,
+            "word",
+            None,
+        ),
         ("HTML literal", "<div>\n*word*\n</div>", 1, "word", None),
         ("extension off", "~~word~~", 0, "word", None),
     ];

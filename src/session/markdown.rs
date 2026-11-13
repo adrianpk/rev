@@ -125,3 +125,35 @@ impl Session {
         Action::Wait
     }
 }
+
+impl Session {
+    pub(super) fn markdown_command(
+        &mut self,
+        command: crate::command::MarkdownCommand,
+    ) -> super::Action {
+        if self.input.focus() != crate::input::Focus::Editing {
+            return self.message("a prompt owns input focus");
+        }
+        if !self.buffer().is_ok_and(|buffer| buffer.is_markdown()) {
+            return self.message("Native Markdown mode is not active");
+        }
+        let view = self.windows.selected_mut();
+        match command {
+            crate::command::MarkdownCommand::Pretty => view.toggle_markdown_presentation(),
+            crate::command::MarkdownCommand::ResetPresentation => {
+                view.reset_markdown_presentation()
+            }
+        }
+        if view.pretty_markdown() && !self.markdown.job.is_active() {
+            let buffer = view.point.stamp.buffer;
+            if let Ok(buffer) = self.buffers.get_mut(buffer) {
+                buffer.request_markdown();
+            }
+        }
+        self.message(if self.view().pretty_markdown() {
+            "Markdown: pretty"
+        } else {
+            "Markdown: source"
+        })
+    }
+}

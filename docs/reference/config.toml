@@ -229,6 +229,8 @@ directories_first = true
 [markdown]
 # Native CommonMark and table syntax; markdown-mode selects it per buffer.
 enabled = true
+# Initial view decoration; named controls toggle/reset without a TOML write.
+pretty = true
 
 [org]
 # Native Org availability; M-x org-mode selects it explicitly per buffer.
@@ -503,6 +505,12 @@ number = "#ff9e64"              # Constants, booleans and numeric literals.
 punctuation = "#89ddff"         # Grammar-captured punctuation and operators.
 
 [palette.markdown]
+heading = "#7aa2f7"
+heading_2 = "#9d7cd8"
+heading_3 = "#c0caf5"
+heading_4 = "#9bb9f9"
+heading_5 = "#b59ce1"
+heading_6 = "#bcd0fb"
 # CommonMark semantic roles; inline objects override enclosing blocks.
 emphasis = "#9d7cd8"
 link = "#7aa2f7"

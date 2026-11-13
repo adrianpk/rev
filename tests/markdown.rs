@@ -4,10 +4,14 @@
 mod contexts;
 #[path = "configuration/fixture.rs"]
 mod fixture;
+#[path = "markdown/headings.rs"]
+mod headings;
 #[path = "markdown/lifecycle.rs"]
 mod lifecycle;
 #[path = "markdown/palette.rs"]
 mod palette;
+#[path = "markdown/presentation.rs"]
+mod presentation;
 #[path = "support/surface.rs"]
 mod surface;
 

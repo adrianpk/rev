@@ -1151,11 +1151,18 @@ impl Session {
             Command::Tree(command) => self.tree_command(command),
             Command::Rectangle(command) => self.rectangle_command(command),
             Command::Region(command) => self.region_command(command),
+            _ => self.presentation_command(command),
+        }
+    }
+
+    fn presentation_command(&mut self, command: Command) -> Action {
+        match command {
             Command::Whitespace(command) => self.whitespace_command(command),
             Command::Gutter(command) => self.gutter_command(command),
             Command::MouseMode => self.toggle_mouse(),
             Command::VisualLineMode => self.toggle_wrap(),
             Command::Mode(mode) => self.select_mode(mode),
+            Command::Markdown(command) => self.markdown_command(command),
             Command::Org(command) => self.org_command(command),
             _ => self.dispatch(command),
         }

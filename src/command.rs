@@ -28,7 +28,9 @@ mod motion;
 pub mod navigation;
 pub use modal::ModalCommand;
 pub use navigation::Navigation;
+mod markdown;
 mod org;
+pub use markdown::MarkdownCommand;
 pub use org::OrgCommand;
 mod rectangle;
 mod region;
@@ -114,6 +116,7 @@ pub enum Command {
     VisualLineMode,
     Mode(Mode),
     Org(OrgCommand),
+    Markdown(MarkdownCommand),
     Gutter(GutterCommand),
     Whitespace(Whitespace),
     SaveBuffer,
@@ -155,7 +158,7 @@ pub enum Command {
 }
 
 impl Command {
-    pub const ALL: [Self; 691] = [
+    pub const ALL: [Self; 693] = [
         Self::Plugin(PluginCommand::List),
         Self::Plugin(PluginCommand::Activate),
         Self::Plugin(PluginCommand::Deactivate),
@@ -786,6 +789,8 @@ impl Command {
         Self::Org(OrgCommand::LinkPreviewRegion),
         Self::Mode(Mode::Org),
         Self::Mode(Mode::Markdown),
+        Self::Markdown(MarkdownCommand::Pretty),
+        Self::Markdown(MarkdownCommand::ResetPresentation),
         Self::Mode(Mode::Text),
         Self::Gutter(GutterCommand::Toggle),
         Self::Gutter(GutterCommand::CycleMode),
@@ -1263,6 +1268,7 @@ impl Command {
     fn edit_name(self) -> &'static str {
         match self {
             Self::Mode(mode) => mode.name(),
+            Self::Markdown(command) => command.name(),
             Self::Org(command) => command.name(),
             Self::Newline => "newline",
             Self::InsertTab => "insert-tab",
@@ -1275,6 +1281,7 @@ impl Command {
     fn edit_description(self) -> &'static str {
         match self {
             Self::Mode(mode) => mode.description(),
+            Self::Markdown(command) => command.description(),
             Self::Org(command) => command.description(),
             Self::Newline => "Insert the buffer's preferred line separator.",
             Self::InsertTab => "Insert indentation using the active tabs and spaces settings.",

@@ -10,9 +10,12 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 ### Added
 
 - Markdown files now open in native Markdown mode with offline colors for
-  emphasis, links, code, quotes, lists and tables. Use markdown-mode to select
-  it explicitly and text-mode to return to ordinary editing. Customize the six
-  palette.markdown colors or disable native mode with markdown.enabled.
+  headings, emphasis, links, code, quotes, lists and tables. Six heading levels
+  have distinct colors and symbols; Setext underlines retain their source form.
+  Use markdown-pretty-mode to reveal source prefixes in the current view and
+  markdown-reset-presentation to restore its startup preference. Customize
+  markdown.pretty and palette.markdown, select the mode with markdown-mode,
+  return to ordinary editing with text-mode, or disable it with markdown.enabled.
 
 - Org headings now use eight level-dependent Tokyo Night colors for their
   bullets and text, following Emacs' independent color and symbol cycles.

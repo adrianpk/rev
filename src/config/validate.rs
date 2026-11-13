@@ -796,6 +796,12 @@ fn tree_palette(palette: &super::PartialTreePalette) -> Result<(), Failure> {
 
 fn markdown_palette(palette: &super::PartialMarkdownPalette) -> Result<(), Failure> {
     for (key, value) in [
+        ("heading", &palette.heading),
+        ("heading_2", &palette.heading_2),
+        ("heading_3", &palette.heading_3),
+        ("heading_4", &palette.heading_4),
+        ("heading_5", &palette.heading_5),
+        ("heading_6", &palette.heading_6),
         ("emphasis", &palette.emphasis),
         ("link", &palette.link),
         ("code", &palette.code),

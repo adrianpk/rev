@@ -193,6 +193,7 @@ fn draft_protected(command: Command) -> bool {
             | Command::WriteFile
             | Command::FindFile
             | Command::Mode(_)
+            | Command::Markdown(_)
             | Command::Split(_)
             | Command::Tree(_)
             | Command::Org(_)
