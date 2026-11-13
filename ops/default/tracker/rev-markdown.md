@@ -165,7 +165,19 @@ Validation: the exact ordered checks for Slice 6 in the plan and frozen local co
 - [x] T6.2: Complete the Markdown reference and User Guide lesson, exact command/configuration/binding catalogs, packaged sample, learning-path navigation, Spore projection and Unreleased. Keep canonical Markdown as the documentation source and retain all existing guide/reference assertions.
 - [ ] T6.3: Record native/PTY evidence and complete the report. Prepare the clean published integrated candidate for the controller-owned full gate; after success close only configured Markdown artifacts and remove this set's clean inactive integrated worktrees.
 
-Task commits: pending.
+Task commits: implementation and report introduction
+`0426fa99039d1b095940c38e3b8f6ed6db02817a`; evidence and PR references pending.
+All six required development commands pass in canonical order on that clean
+published HEAD. Native targets pass 423 cases without failures, ignored or
+filtered cases: commands 205/672.54 s, configuration 169/318.13 s and Markdown
+49/120.62 s. Native targets total 1,111.29 s. The joined native/PTY check passes
+eight native cases and four PTYs in 6.08 s; every PTY restores its terminal.
+Full lint passes 1,882 Rust files and 75 roots with no diagnostics. Documentation
+verifies 707 commands, 322 settings, 110 pages and 785 links/anchors; the local
+guide build renders 111 pages including canonical parser notices.
+
+T6.3 worker evidence is prepared. Its controller-owned integrated gate, artifact
+closure and final cleanup remain pending; this slice remains active for review.
 
 ## Integration and closure
 

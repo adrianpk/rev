@@ -1,6 +1,6 @@
 # Slice 6: Acceptance and guidance
 
-Status: drafting
+Status: reviewing
 Delivery set: rev-markdown
 Plan: [Markdown Delivery](../../../plan/rev-markdown.md)
 Tracker: [Markdown Tracker](../../../tracker/rev-markdown.md)
@@ -28,6 +28,8 @@ controller-owned integrated delivery gate.
   packaged sample and guide/reference assertions.
 
 ## Implementation Notes
+
+Implementation and report introduction: `0426fa99039d1b095940c38e3b8f6ed6db02817a`.
 
 The acceptance crate uses one checked-in Markdown fixture, the existing bounded
 PTY owner and the existing frame-cell decoder. Each PTY keeps the existing
@@ -84,10 +86,32 @@ alignment; narrow modal save checks account for status filename truncation.
 The first guide build exposed the existing repository-root notices link; the
 explicit projection resolves it while retaining traversal rejection.
 
-The first full lint covers all 1,882 Rust files, both packages and 75 Cargo roots
-with zero blocking or deferred diagnostics. Focused source checks also pass
-the final acceptance, documentation and projection owners. Exact ordered
-clean-HEAD evidence and actual cost will be recorded before PR preparation.
+All six required development commands passed in canonical order on clean
+published HEAD `0426fa99039d1b095940c38e3b8f6ed6db02817a`, from
+2026-11-13T22:27:33Z to 2026-11-13T22:46:37Z. All 423 tests across three native
+targets passed without failures, ignored cases or filtered cases.
+
+| Target | Passed | Seconds |
+| --- | --- | --- |
+| commands | 205 | 672.54 |
+| configuration | 169 | 318.13 |
+| markdown | 49 | 120.62 |
+
+Native targets took 1,111.29 s; their command took 1,118.64 s including preparation.
+Full lint took 16.04 s, the joined acceptance check 6.08 s, documentation 0.55 s,
+the guide build 2.21 s and whitespace 0.02 s. Lint and the immutable-index commit
+hook cover all 1,882 Rust files, both packages and 75 Cargo roots with zero
+blocking or deferred diagnostics. Exact command, configuration, binding and
+packaged-default assertions retain 707 commands and 322 settings.
+
+The four required PTYs start in 96,894-122,892 microseconds, emit 46,431-79,509
+bytes and peak at 18,128-22,156 KiB RSS. Each passes the unchanged idle assertion
+with zero CPU ticks. These are observed costs, not performance guarantees.
+No command, timeout, bound or assertion was weakened for acceptance.
+
+The generated lesson, Markdown index/reference and notices pages are present.
+An HTML text check confirms literal hashes, Unicode, escaped-pipe source and the
+original notice copyright/disclaimer survive rendering.
 
 Required ordered commands:
 
@@ -97,6 +121,10 @@ Required ordered commands:
 - `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo run --locked --quiet -p rev --example documentation-check`
 - `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 bash scripts/build-user-guide.sh`
 - `git diff --check`
+
+Focused command:
+
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --example documentation-check --example userguide-publication -- --test-threads=1`
 
 ## Risks and Follow-ups
 
