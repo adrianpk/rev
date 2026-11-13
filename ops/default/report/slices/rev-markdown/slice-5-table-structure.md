@@ -1,6 +1,6 @@
 # Slice 5: Table row and column operations
 
-Status: drafting
+Status: reviewing
 Delivery set: rev-markdown
 Plan: [Markdown Delivery](../../../plan/rev-markdown.md)
 Tracker: [Markdown Tracker](../../../tracker/rev-markdown.md)
@@ -29,6 +29,8 @@ source geometry and contextual structural routes in both interaction profiles.
   modal Normal/Visual/Replace states and completion ownership.
 
 ## Implementation Notes
+
+Implementation and report introduction: `2636b40a7873391abbec3ba8d0e00de38b91ee06`.
 
 The private table structure owner changes admitted source-range shapes before
 using the existing bounded layout, retained-source and canonical publication
@@ -71,10 +73,31 @@ checks, including Org work limits, pass in 2.22 s. The combined command takes
 128.58 s including compilation. Earlier input/table unit checks pass five cases
 in 2.64 s, including contextual structural hints and completion precedence.
 
-Exact ordered development validation remains pending on a clean implementation
-HEAD. Slice 4's final native targets took 1,208.38 s. Slice 5 adds pointer and
-modal-context regressions plus structural cases; expect a longer batch. Actual
-cost changes no command, timeout, assertion or acceptance condition.
+All five required development commands passed in canonical order on clean
+published HEAD `2636b40a7873391abbec3ba8d0e00de38b91ee06`, from
+2026-11-13T21:11:10Z to 2026-11-13T21:33:12Z. All 586 tests across six native
+targets passed without failures or ignored cases. The modal command retains its
+exact contexts:: selection (103 unrelated cases filtered). Ordered full lint,
+documentation and whitespace checks pass.
+
+| Target | Passed | Seconds |
+| --- | --- | --- |
+| commands | 205 | 671.10 |
+| configuration | 169 | 315.71 |
+| markdown | 49 | 127.33 |
+| org_tables | 73 | 72.20 |
+| pointer | 69 | 75.87 |
+| modal contexts | 21 | 33.03 |
+
+Native targets took 1,295.24 s in total. The five-target command took 1,270.63 s
+including preparation; the modal command took 35.15 s. Ordered lint took 15.62 s,
+documentation 0.59 s and whitespace 0.01 s. The immutable-index commit hook also
+passed complete workspace coverage. Actual cost changes no command, timeout,
+assertion or acceptance condition.
+
+Final worker acceptance requires one controller receipt on the exact clean
+published HEAD after PR-reference commits, with no later HEAD changes. Integration
+and the full six-slice delivery gate remain controller-owned.
 
 Required ordered commands:
 

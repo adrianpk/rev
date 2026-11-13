@@ -133,11 +133,20 @@ PR: pending
 Report: `ops/default/report/slices/rev-markdown/slice-5-table-structure.md`
 Validation: the exact ordered checks for Slice 5 in the plan and frozen local configuration
 
-- [ ] T5.1: Implement body-row and whole-column insertion/deletion with the model-defined placement. Retain the header/delimiter, minimum one column, alignment metadata and all surviving cell text; reject unsupported targets before mutation.
-- [ ] T5.2: Map retained cell source, initiating point and other view marks/points through the existing transaction owner, including Unicode and escaped/code content. Keep read-only, stale revision, canceled work and failure paths atomic with one operation per undo unit.
-- [ ] T5.3: Finish structural commands/bindings and discoverability in both profiles; protect inherited remaps, modal state boundaries and Org table behavior. Record table geometry/fidelity regressions, documentation and the canonical report.
+- [x] T5.1: Implement body-row and whole-column insertion/deletion with the model-defined placement. Retain the header/delimiter, minimum one column, alignment metadata and all surviving cell text; reject unsupported targets before mutation.
+- [x] T5.2: Map retained cell source, initiating point and other view marks/points through the existing transaction owner, including Unicode and escaped/code content. Keep read-only, stale revision, canceled work and failure paths atomic with one operation per undo unit.
+- [x] T5.3: Finish structural commands/bindings and discoverability in both profiles; protect inherited remaps, modal state boundaries and Org table behavior. Record table geometry/fidelity regressions, documentation and the canonical report.
 
-Task commits: pending.
+Task commits: T5.1-T5.3 implementation, regressions and report introduction at
+`2636b40a7873391abbec3ba8d0e00de38b91ee06`.
+
+All five ordered development commands passed on that clean published HEAD:
+586 tests across six native targets, no failures or ignored cases, full
+first-party lint, 707-command/322-setting documentation and whitespace checks.
+Native targets took 1,295.24 s. Focused checks add eighteen Markdown table
+integration cases and five table unit cases, plus earlier input/hint coverage.
+Final worker acceptance requires one exact clean published HEAD receipt after
+PR-reference commits; the controller owns integration.
 
 ## Slice 6: Acceptance and guidance
 
