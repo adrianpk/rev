@@ -138,7 +138,12 @@ impl Session {
             "{operation}: {:?}? y=save, n=discard, C-g=cancel",
             buffer.name()
         );
-        if let Err(error) = self.input.decision("Save before quitting?") {
+        let decision = if quit.sources.goal == Goal::Exit {
+            self.input.save_decision("Save before quitting?")
+        } else {
+            self.input.decision("Save before quitting?")
+        };
+        if let Err(error) = decision {
             return self.error(&error.to_string());
         }
         self.echo_kind = crate::display::Message::Normal;

@@ -13,14 +13,21 @@ fn switch(session: &mut Session, name: &str) {
 fn quit_alias_decisions() {
     for profile in ["non-modal", "modal"] {
         for entry in ["quit", "save-buffers-kill-terminal", "C-x C-c"] {
-            for choice in ["clean", "save", "discard", "cancel"] {
-                check_quit_decision(profile, entry, choice);
+            for (choice, response) in [
+                ("clean", None),
+                ("save", Some('y')),
+                ("discard", Some('n')),
+                ("discard-alias", Some('d')),
+                ("discard-uppercase", Some('D')),
+                ("cancel", None),
+            ] {
+                check_quit_decision(profile, entry, choice, response);
             }
         }
     }
 }
 
-fn check_quit_decision(profile: &str, entry: &str, choice: &str) {
+fn check_quit_decision(profile: &str, entry: &str, choice: &str, response: Option<char>) {
     let fixture = Fixture::new();
     let settings = format!(
         "editor.interaction_profile='{profile}'\ntree.visible=false\ncompletion.automatic=false"
@@ -67,10 +74,10 @@ fn check_quit_decision(profile: &str, entry: &str, choice: &str) {
     } else {
         assert_eq!(action, Action::Redraw, "{profile}: {entry}: {choice}");
         assert!(session.echo().starts_with("Quit:"), "{}", session.echo());
-        match choice {
-            "save" => assert_eq!(answer(&mut session, 'y'), Action::Exit),
-            "discard" => assert_eq!(answer(&mut session, 'n'), Action::Exit),
-            _ => {
+        assert!(session.echo().ends_with("y=save, n=discard, C-g=cancel"));
+        match response {
+            Some(response) => assert_eq!(answer(&mut session, response), Action::Exit),
+            None => {
                 if profile == "modal" {
                     let now = std::time::Instant::now();
                     session.handle_at(press(KeyCode::Esc), now);
@@ -158,6 +165,12 @@ fn canceled_progress() {
 // Return, repeat and paste cannot silently answer a quit decision.
 #[test]
 fn decision_authority() {
+    for response in ['n', 'd', 'D'] {
+        check_decision_authority(response);
+    }
+}
+
+fn check_decision_authority(response: char) {
     use crossterm::event::{KeyEventKind, KeyEventState};
     let mut buffers = Buffers::new().unwrap();
     let first = buffers.initial();
@@ -169,22 +182,26 @@ fn decision_authority() {
     let question = session.echo().to_owned();
     for event in [
         press(KeyCode::Enter),
-        Event::Paste("n".into()),
+        Event::Paste(response.to_string()),
         Event::Key(KeyEvent {
-            code: KeyCode::Char('n'),
+            code: KeyCode::Char(response),
             modifiers: KeyModifiers::NONE,
             kind: KeyEventKind::Repeat,
             state: KeyEventState::NONE,
         }),
+        Event::Key(KeyEvent::new(
+            KeyCode::Char(response),
+            KeyModifiers::CONTROL,
+        )),
     ] {
         assert_ne!(session.handle(event), Action::Exit);
         assert!(session.echo().starts_with(&question));
         assert_eq!(text(&session), "first");
     }
-    answer(&mut session, 'n');
+    answer(&mut session, response);
     let second = session.echo().to_owned();
     let repeat = Event::Key(KeyEvent {
-        code: KeyCode::Char('n'),
+        code: KeyCode::Char(response),
         modifiers: KeyModifiers::NONE,
         kind: KeyEventKind::Repeat,
         state: KeyEventState::NONE,
@@ -260,6 +277,9 @@ fn declined_conflicts() {
             if canceling {
                 cancel(&mut session);
             } else {
+                let question = session.echo().to_owned();
+                assert_eq!(answer(&mut session, 'd'), Action::Redraw);
+                assert!(session.echo().starts_with(&question));
                 assert_eq!(answer(&mut session, 'n'), Action::Redraw);
             }
             assert_eq!(fs::read(&target).unwrap(), before);

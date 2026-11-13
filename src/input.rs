@@ -137,6 +137,7 @@ enum Context {
     MacroStep(String),
     MacroKey(macro_bindings::Capture),
     Decision(&'static str),
+    SaveDecision(&'static str),
     Inventory,
 }
 
@@ -235,6 +236,7 @@ impl Input {
             Context::Search(_) => Focus::Search,
             Context::Command(_) => Focus::Command,
             Context::Decision(_)
+            | Context::SaveDecision(_)
             | Context::ReplaceDecision
             | Context::MacroQuery
             | Context::MacroStep(_) => Focus::Decision,
@@ -276,7 +278,7 @@ impl Input {
             Context::MacroStep(label) => Some(label),
             Context::MacroQuery => Some(macros::QUESTION),
             Context::MacroKey(capture) => Some(capture.prompt.label()),
-            Context::Decision(label) => Some(label),
+            Context::Decision(label) | Context::SaveDecision(label) => Some(label),
             Context::Inventory => Some("Buffers: arrows move, Enter selects, C-g cancels"),
             _ => self.prompt().map(Prompt::label),
         }
@@ -294,6 +296,13 @@ impl Input {
         self.available()?;
         self.context = Context::Decision(label);
         self.clear_prefix();
+        Ok(())
+    }
+
+    /// A save-or-discard choice admits the implicit discard alias only here.
+    pub(crate) fn save_decision(&mut self, label: &'static str) -> Result<(), Error> {
+        self.decision(label)?;
+        self.context = Context::SaveDecision(label);
         Ok(())
     }
 
@@ -416,6 +425,7 @@ impl Input {
             Context::MacroStep(_) => step_edit::answer(key),
             Context::MacroQuery => macros::answer(key),
             Context::Decision(_) => decide(key),
+            Context::SaveDecision(_) => decide_save(key),
             Context::Inventory => inventory::handle(key),
             _ => self.chooser_key(key),
         }
@@ -480,6 +490,13 @@ fn decide(key: Key) -> Outcome {
         Some(KeyCode::Char('y' | 'Y')) => Outcome::Decision(true),
         Some(KeyCode::Char('n' | 'N')) => Outcome::Decision(false),
         _ => Outcome::Message("Answer y or n"),
+    }
+}
+
+fn decide_save(key: Key) -> Outcome {
+    match key.plain() {
+        Some(KeyCode::Char('d' | 'D')) => Outcome::Decision(false),
+        _ => decide(key),
     }
 }
 
