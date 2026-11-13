@@ -5,7 +5,7 @@ Delivery set: rev-markdown
 Plan: [Markdown Delivery](../../../plan/rev-markdown.md)
 Tracker: [Markdown Tracker](../../../tracker/rev-markdown.md)
 Branch: `feat/rev-markdown-05-table-structure`
-PR: pending
+PR: `#38`
 
 ## Purpose
 
@@ -31,6 +31,8 @@ source geometry and contextual structural routes in both interaction profiles.
 ## Implementation Notes
 
 Implementation and report introduction: `2636b40a7873391abbec3ba8d0e00de38b91ee06`.
+Canonical PR: https://forge.adrianpk.com/rev/rev/pulls/38
+Development evidence commit: `5a173e370a5329d30383b2eda5e751e534642354`.
 
 The private table structure owner changes admitted source-range shapes before
 using the existing bounded layout, retained-source and canonical publication

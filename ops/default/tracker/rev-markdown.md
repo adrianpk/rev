@@ -129,7 +129,7 @@ commit; both dev refs match. Slice 4 of 6 completed; Slice 5 is active.
 State: active
 Requirements: MD04 structure, shared-point MD05 and MD06
 Branch: `feat/rev-markdown-05-table-structure`
-PR: pending
+PR: [#38](https://forge.adrianpk.com/rev/rev/pulls/38)
 Report: `ops/default/report/slices/rev-markdown/slice-5-table-structure.md`
 Validation: the exact ordered checks for Slice 5 in the plan and frozen local configuration
 
@@ -138,7 +138,8 @@ Validation: the exact ordered checks for Slice 5 in the plan and frozen local co
 - [x] T5.3: Finish structural commands/bindings and discoverability in both profiles; protect inherited remaps, modal state boundaries and Org table behavior. Record table geometry/fidelity regressions, documentation and the canonical report.
 
 Task commits: T5.1-T5.3 implementation, regressions and report introduction at
-`2636b40a7873391abbec3ba8d0e00de38b91ee06`.
+`2636b40a7873391abbec3ba8d0e00de38b91ee06`; development evidence at
+`5a173e370a5329d30383b2eda5e751e534642354`.
 
 All five ordered development commands passed on that clean published HEAD:
 586 tests across six native targets, no failures or ignored cases, full
