@@ -13,7 +13,8 @@ scope: ui
 tags: org-mode, colors, presentation
 source: chat
 reported_at: 2026-11-13T13:07:19Z
-commits: []
+pr: https://forge.adrianpk.com/rev/rev/pulls/33
+commits: [c61a88c51afebe1cce6e73a3ccb6e3236198644e]
 ---
 
 # Color Org headings by level
@@ -60,9 +61,15 @@ The focused native gate passed 231 tests: configuration (164), Org headings
 - `cargo test --quiet --locked --offline --test org_headings --test org_indentation --test syntax --test configuration`
 - `cargo run --quiet --locked --offline --example documentation-check`: 106 reachable pages, 747 local links/anchors and 307 configuration entries.
 - `bash scripts/build-user-guide.sh`: strict link validation and rendered guide.
+- Exact staged commit gate: formatting, strict all-target/all-feature workspace Clippy and native source policy passed for all 1843 Rust files and 73 Cargo roots, with zero blocking diagnostics.
 
 Cargo checks use one build job, disabled incremental output and no dev/test
 debuginfo. New terminal-cell regressions cover 25 nesting levels, independent
 marker/face cycles, source presentation, wrapping, clipping, Unicode, custom
 palette overrides and selection/search precedence. Existing geometry/editing
 and non-Org syntax regressions remain included in the focused gate.
+
+## Review
+
+PR #33 targets dev and is awaiting maintainer review and merge. Implementation
+and native acceptance are recorded in commit `c61a88c51afebe1cce6e73a3ccb6e3236198644e`.
