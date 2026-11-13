@@ -1,6 +1,29 @@
 use std::path::Path;
 
-use rev::config::{default_template, parse};
+use rev::config::{Document, default_template, parse, startup_template};
+
+// First-start comments must leave every preference absent so new factory
+// defaults remain inherited. Uncommenting examples still uses the real parser.
+#[test]
+fn inherited_startup() {
+    let source = startup_template();
+    let path = Path::new("startup/config.toml");
+    assert_eq!(parse(path, source.as_bytes()).unwrap(), Document::default());
+    let enabled = source
+        .lines()
+        .filter_map(|line| line.strip_prefix("# "))
+        .filter(|line| line.starts_with('[') || line.contains(" = "))
+        .collect::<Vec<_>>()
+        .join("\n");
+    let fixture = super::fixture::Fixture::new();
+    let startup = rev::config::prepare(&fixture.write("config.toml", &enabled));
+    assert!(startup.diagnostic.is_none(), "{:?}", startup.diagnostic);
+    assert_eq!(
+        startup.snapshot.settings().editor,
+        rev::config::Editor::default()
+    );
+    assert_eq!(startup.snapshot.settings().keys.tree.len(), 4);
+}
 
 // The shipped bytes must remain complete UTF-8 TOML within the existing root
 // source limit, without runtime file lookup.

@@ -3,7 +3,7 @@ use super::*;
 use rev::config::Snapshot;
 
 // A missing implicit source is silent, even beside malformed project sources.
-// Startup creates the complete user root; editing leaves all other roots absent.
+// Startup creates the inherited user root; editing leaves all other roots absent.
 #[test]
 fn missing_source() {
     if isolated() {
@@ -26,7 +26,7 @@ fn missing_source() {
     child("startup::errors::missing_source", &fixture);
     assert_eq!(
         std::fs::read(fixture.0.join("user/rev/config.toml")).unwrap(),
-        rev::config::default_template().as_bytes()
+        rev::config::startup_template().as_bytes()
     );
     assert_eq!(
         std::fs::read_dir(fixture.0.join("user/rev"))

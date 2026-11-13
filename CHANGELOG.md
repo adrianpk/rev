@@ -14,9 +14,9 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
   > / < or C-x t > / C-x t <, reset with C-x t =, and toggle fitting with
   tree-auto-width-mode. Manual choices survive browsing and terminal resizing.
   Set tree.auto_width to false for a fixed startup preference; runtime controls
-  leave your configuration file unchanged. Pan all rows with Left/Right to reveal
+  leave your configuration file unchanged. Pan all rows with h/l or Left/Right to reveal
   long or deeply nested names at the width cap. C-f/C-b still expand/collapse
-  directories, and Enter opens files or toggles directories.
+  directories, Enter opens files or toggles directories, and j/k select rows.
 
 - Inspect explicitly configured experimental plugins and find their qualified
   commands in M-x and the modal selector without starting their programs.
@@ -122,6 +122,11 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
   modal colon with existing bindings unchanged.
 
 ### Fixed
+
+- New configuration files contain commented examples and inherit current
+  defaults after updates. Only explicitly enabled preferences stay fixed.
+  Existing files are preserved; comment or remove old explicit bindings to
+  adopt their current defaults.
 
 - Agenda source edits and saved-clock recovery keep their captured views stable
   while initial Org observation completes. Syntax coloring stays disabled when

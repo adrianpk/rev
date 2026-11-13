@@ -6,13 +6,13 @@ use std::path::Path;
 
 use crate::file::{Files, temporary::Temporary};
 
-use super::{Diagnostic, default_template};
+use super::{Diagnostic, startup_template};
 
 /// Inherit the native sync/cleanup boundaries; configuration never calls the
 /// document replacement operation. A link failure cannot replace its target.
 trait Output: crate::file::Output {
     fn template(&mut self, file: &mut File) -> io::Result<()> {
-        file.write_all(default_template().as_bytes())
+        file.write_all(startup_template().as_bytes())
     }
 
     fn link(&mut self, temporary: &Path, root: &Path) -> io::Result<()> {

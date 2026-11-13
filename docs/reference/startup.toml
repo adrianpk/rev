@@ -1,0 +1,28 @@
+# rev user configuration
+#
+# Omitted settings inherit the installed version's defaults, including updates.
+# Uncomment only the preferences you want to keep fixed across versions.
+# Settings load at startup; restart rev after saving changes.
+# The complete configuration reference lists all settings and bindings.
+
+# Indentation preferences:
+# [editor]
+# indent_style = "spaces"
+# indent_width = 4
+# tab_width = 4
+
+# File tree preferences:
+# [tree]
+# auto_width = true
+# width = 24
+# decorated = true
+
+# Tree navigation defaults, active only while the tree owns focus:
+# h/l and Left/Right pan horizontally; j/k and Down/Up select rows.
+# Enter opens a file or toggles a directory; C-f/C-b expand/collapse.
+# Uncomment a binding only when you want to override its inherited value.
+# [keys.tree]
+# "h" = "tree-scroll-left"
+# "j" = "tree-next-line"
+# "k" = "tree-previous-line"
+# "l" = "tree-scroll-right"

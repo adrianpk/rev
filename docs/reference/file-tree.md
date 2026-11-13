@@ -170,7 +170,7 @@ clicked cached selection. Selection-only reads no filesystem entries.
 
 ## Traversal and refresh
 
-Up/Down (or C-p/C-n) move through visible entries without wrapping. C-f
+Up/Down, k/j or C-p/C-n move through visible entries without wrapping. C-f
 expands a directory; C-b collapses an expanded directory
 or selects the visible parent. Enter or `M-x tree-open` toggles a directory or opens a file through the same
 canonical pipeline as `find-file`. Existing visits reuse their live buffers,
@@ -389,7 +389,7 @@ and
 the modal command selector. Runtime width and mode changes never rewrite TOML,
 change selection/root identity or modify source text, point, mark or history.
 
-With tree focus, Left/Right or `tree-scroll-left`/`tree-scroll-right` pan every
+With tree focus, h/l, Left/Right or `tree-scroll-left`/`tree-scroll-right` pan every
 row by one display column, including indentation, disclosure and icons. They
 never open or expand an entry. At the width cap, pan to reveal the end of a long
 or deeply nested name. One shared offset keeps rows aligned; partial wide glyphs

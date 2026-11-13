@@ -701,6 +701,10 @@ bookmark = "#7aa2f7"            # Resolved logical-line bookmark marker.
 "C-r" = "isearch-backward"
 
 [keys.tree]
+"h" = "tree-scroll-left"
+"j" = "tree-next-line"
+"k" = "tree-previous-line"
+"l" = "tree-scroll-right"
 ">" = "tree-widen"
 "<" = "tree-narrow"
 "^" = "tree-up-directory"

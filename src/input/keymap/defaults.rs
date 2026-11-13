@@ -497,6 +497,10 @@ const MINIBUFFER: &[(&str, &str)] = &[
 ];
 
 const TREE: &[(&str, &str)] = &[
+    ("h", "tree-scroll-left"),
+    ("j", "tree-next-line"),
+    ("k", "tree-previous-line"),
+    ("l", "tree-scroll-right"),
     (">", "tree-widen"),
     ("<", "tree-narrow"),
     ("^", "tree-up-directory"),

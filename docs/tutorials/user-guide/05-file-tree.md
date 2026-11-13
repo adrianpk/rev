@@ -96,7 +96,10 @@ Set `auto_width = true` for automatic fitting; `width` then sets its normal
 minimum. A narrow terminal temporarily clamps or hides the panel, and the
 chosen desired width returns when space is available again.
 
-When a name still extends beyond the width cap, use Left/Right in the tree to
+With tree focus, j/k select the next/previous row. These aliases work in both
+editing profiles and leave ordinary source input unchanged.
+
+When a name still extends beyond the width cap, use h/l or Left/Right in the tree to
 pan all rows one column at a time. The indentation and icons move with the names,
 so deep entries stay aligned. The arrows preserve selection and do not expand a
 directory; use C-f/C-b for expansion/collapse and Enter to open or toggle.

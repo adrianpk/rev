@@ -232,10 +232,10 @@ Every command below is also available as `M-x` followed by its exact name.
 | `C-x r y` | `yank-rectangle` | Insert retained rows with required padding. |
 | `C-x t t` | `toggle-file-tree` | Show or hide the left tree. |
 | `C-x t f` | `focus-file-tree` | Focus the visible tree. |
-| Up, `C-p` in tree | `tree-previous-line` | Select the preceding visible entry. |
-| Down, `C-n` in tree | `tree-next-line` | Select the next visible entry. |
-| Right in tree | `tree-scroll-right` | Pan all tree rows right by one column. |
-| Left in tree | `tree-scroll-left` | Pan all tree rows left by one column. |
+| Up, `C-p`, `k` in tree | `tree-previous-line` | Select the preceding visible entry. |
+| Down, `C-n`, `j` in tree | `tree-next-line` | Select the next visible entry. |
+| Right, `l` in tree | `tree-scroll-right` | Pan all tree rows right by one column. |
+| Left, `h` in tree | `tree-scroll-left` | Pan all tree rows left by one column. |
 | `C-f` in tree | `tree-expand` | Lazily expand a directory. |
 | `C-b` in tree | `tree-collapse` | Collapse or select the parent. |
 | `^` in tree | `tree-up-directory` | Show the parent directory of an unanchored file tree. |
@@ -771,6 +771,8 @@ See [macro editing](macro-editing.md) for role-qualified step choices.
 The [complete reference sample](config.toml) spells out every default target in
 all supported contexts, including local overlays and the state maps. Copy only desired overrides to preserve inherited stage
 distinctions; explicit mappings select their named action at the active owner.
+The automatically created user file contains commented examples rather than a
+copy of these active mappings, so new defaults remain inherited after updates.
 
 `keys.editor` belongs to non-modal editing. Modal editing resolves `keys.vim_normal` or
 `keys.vim_insert` or `keys.vim_replace` over independent native factories;

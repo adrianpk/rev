@@ -1,8 +1,8 @@
 use super::*;
 
-use rev::config::{default_template, prepare};
+use rev::config::{prepare, startup_template};
 
-// Only native session startup provisions. The resulting complete file is loaded
+// Only native session startup provisions. The resulting inherited file is loaded
 // through ordinary validation; repeated startup leaves its entry and bytes alone.
 #[test]
 fn first_start() {
@@ -19,7 +19,14 @@ fn first_start() {
         assert!(!root.exists());
         let mut session = launch(None);
         assert_eq!(session.echo(), STARTUP_HELP);
-        assert_eq!(std::fs::read(&root).unwrap(), default_template().as_bytes());
+        assert_eq!(std::fs::read(&root).unwrap(), startup_template().as_bytes());
+        let configured = prepare(&root);
+        assert!(configured.diagnostic.is_none());
+        assert_eq!(
+            configured.snapshot.settings(),
+            &rev::config::Settings::default()
+        );
+        assert_eq!(configured.snapshot.origin(&["keys", "tree", "Right"]), None);
         assert_eq!(
             session.buffer().unwrap().policy(),
             &prepare(&root).snapshot.settings().editor
@@ -44,7 +51,7 @@ fn first_start() {
             "user/rev/config.toml"
         };
         let root = fixture.0.join(relative);
-        assert_eq!(std::fs::read(&root).unwrap(), default_template().as_bytes());
+        assert_eq!(std::fs::read(&root).unwrap(), startup_template().as_bytes());
         assert_eq!(
             std::fs::read_dir(root.parent().unwrap()).unwrap().count(),
             1
@@ -200,7 +207,7 @@ fn concurrent_startup() {
         let session = launch(None);
         assert_eq!(session.echo(), STARTUP_HELP);
         let root = Roots::from_env().unwrap().config_file();
-        assert_eq!(std::fs::read(root).unwrap(), default_template().as_bytes());
+        assert_eq!(std::fs::read(root).unwrap(), startup_template().as_bytes());
         return;
     }
     let fixture = Fixture::new();
@@ -221,7 +228,7 @@ fn concurrent_startup() {
         success(&child.wait_with_output().unwrap());
     }
     let root = fixture.0.join("user/rev/config.toml");
-    assert_eq!(std::fs::read(&root).unwrap(), default_template().as_bytes());
+    assert_eq!(std::fs::read(&root).unwrap(), startup_template().as_bytes());
     assert_eq!(
         std::fs::read_dir(root.parent().unwrap()).unwrap().count(),
         1

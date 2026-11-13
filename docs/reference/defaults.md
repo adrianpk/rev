@@ -116,8 +116,11 @@ startup fields, live-session admission and the separate shell-filter settings.
 The [complete English reference sample](config.toml) contains every supported
 global default, all active RGB roles and the profile, state and local context maps. Its
 optional include, language and association examples are commented out. First
-startup installs these complete defaults; a customized file may retain only the
-overrides you need.
+startup installs the separate [commented startup examples](startup.toml), with no
+active overrides. Omitted settings and bindings inherit the installed version's
+defaults, including later updates. Uncomment only preferences you want to fix.
+Existing configuration files retain their exact contents; remove or comment an
+old explicit binding to inherit its current default again.
 
 The executable reads `$XDG_CONFIG_HOME/rev/config.toml` once before creating
 buffers or input owners. An unset, empty or relative `XDG_CONFIG_HOME` uses
@@ -125,7 +128,7 @@ buffers or input owners. An unset, empty or relative `XDG_CONFIG_HOME` uses
 Data, state and cache locations resolve independently through their XDG variables
 with HOME defaults `.local/share/rev`, `.local/state/rev` and `.cache/rev`.
 When no entry exists at the configuration path, normal editor startup creates
-only its missing parents and the complete packaged sample, then validates it
+only its missing parents and the packaged commented examples, then validates it
 through the ordinary loader. It does not need installed reference files or a
 checkout. Data, state and cache directories remain absent.
 

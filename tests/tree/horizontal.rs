@@ -78,8 +78,9 @@ fn shared_cells() {
     }
 }
 
-// Real arrows pan only in either profile. Directory operations, prefix cancel,
-// focus/visibility/vertical retention and dirty source identity remain separate.
+// Arrows and h/l pan in either profile; j/k retain ordinary row navigation.
+// Directory operations, prefix cancellation, focus/visibility/vertical retention
+// and dirty source identity remain separate.
 #[test]
 fn input_routes() {
     for profile in ["non-modal", "modal"] {
@@ -106,10 +107,18 @@ fn input_routes() {
         let window = s.windows().selected_id();
         choose(&mut s, folder.parent().unwrap().parent().unwrap());
         let count = s.tree().entries().len();
-        s.handle(key(KeyCode::Right));
-        assert_eq!(s.tree().horizontal_offset(), 1);
-        assert_eq!(s.tree().entries().len(), count);
-        assert!(!s.tree().selected().unwrap().expanded());
+        for (right, offset) in [(KeyCode::Right, 1), (KeyCode::Char('l'), 2)] {
+            s.handle(key(right));
+            assert_eq!(s.tree().horizontal_offset(), offset);
+            assert_eq!(s.tree().entries().len(), count);
+            assert!(!s.tree().selected().unwrap().expanded());
+        }
+        let selected = s.tree().selected().unwrap().path().to_path_buf();
+        s.handle(key(KeyCode::Char('j')));
+        assert_ne!(s.tree().selected().unwrap().path(), selected);
+        s.handle(key(KeyCode::Char('k')));
+        assert_eq!(s.tree().selected().unwrap().path(), selected);
+        assert_eq!(s.tree().horizontal_offset(), 2);
         s.handle(Event::Key(KeyEvent::new(
             KeyCode::Char('f'),
             KeyModifiers::CONTROL,
@@ -117,8 +126,10 @@ fn input_routes() {
         assert!(s.tree().selected().unwrap().expanded());
         s.handle(key(KeyCode::Enter));
         assert!(!s.tree().selected().unwrap().expanded());
-        s.handle(key(KeyCode::Left));
-        assert_eq!(s.tree().horizontal_offset(), 0);
+        for (left, offset) in [(KeyCode::Left, 1), (KeyCode::Char('h'), 0)] {
+            s.handle(key(left));
+            assert_eq!(s.tree().horizontal_offset(), offset);
+        }
         s.handle(Event::Key(KeyEvent::new(
             KeyCode::Char('f'),
             KeyModifiers::CONTROL,

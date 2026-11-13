@@ -6,13 +6,16 @@ shows display preferences you can change while editing.
 ## Change indentation
 
 Normal first startup creates `~/.config/rev/config.toml` if it is absent.
+It contains commented examples; settings and bindings inherit the installed
+version's defaults until you explicitly enable an override.
 Save your work and quit with `C-x C-c`. In the terminal, open the configuration:
 
 ```sh
 rev ~/.config/rev/config.toml
 ```
 
-Find the existing `[editor]` table and change its `indent_width` to `2`:
+Uncomment the `[editor]` heading and its `indent_width` example, then set it to
+`2`. If your file already has an active `[editor]` table, edit that table:
 
 ```toml
 [editor]
@@ -24,9 +27,16 @@ append. Save and quit, then open `notes.txt` again. At the start of a line,
 Tab now inserts two spaces with the default `indent_style = "spaces"`.
 Existing text is not converted.
 
+For later examples, add a table if it is absent or reuse its active heading.
+Uncomment only the settings you want to change; do not repeat an active table.
+
 Settings load at startup. Saving the configuration does not reload it into
 an already running session. If you set `XDG_CONFIG_HOME`, the file is
 `rev/config.toml` beneath that directory instead.
+
+Existing files are preserved across updates. Older generated files can contain
+explicit copies of former defaults. Comment or remove a setting or binding to
+inherit its current default again; keep deliberate customizations active.
 
 ## Choose how long lines display
 
@@ -65,7 +75,7 @@ Absolute    Relative
 Run `M-x gutter-set-line-numbers-absolute` to restore the default presentation.
 These commands affect this pane for the session. They do not write settings.
 
-For a persistent choice, change `mode` in the existing `[gutter]` table:
+For a persistent choice, add or update `mode` in the `[gutter]` table:
 
 ```toml
 [gutter]
@@ -78,7 +88,7 @@ Set a bookmark with `C-x r m`, type `checkpoint` and press Enter. Its source lin
 shows a blue square `■` before the left line number. Several names on that line
 share the same marker. Hiding line numbers keeps it visible.
 
-If your terminal uses a font with Nerd Fonts support, change the existing
+If your terminal uses a font with Nerd Fonts support, add or update the
 `[gutter]` table and restart to use the flat bookmark ``:
 
 ```toml

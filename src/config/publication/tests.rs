@@ -50,7 +50,7 @@ impl Output for Fault {
         checkpoint("write", self.step)?;
         file.set_len(0)?;
         std::io::Seek::rewind(file)?;
-        file.write_all(default_template().as_bytes())
+        file.write_all(startup_template().as_bytes())
     }
 
     fn link(&mut self, temporary: &Path, root: &Path) -> io::Result<()> {
@@ -86,7 +86,7 @@ fn publication_faults() {
             usize::from(published)
         );
         if published {
-            assert_eq!(fs::read(&root).unwrap(), default_template().as_bytes());
+            assert_eq!(fs::read(&root).unwrap(), startup_template().as_bytes());
         }
     }
 }
@@ -139,7 +139,7 @@ fn simultaneous_publishers() {
                 let root = &root;
                 scope.spawn(move || {
                     publish(root, &mut Race(barrier)).unwrap();
-                    assert_eq!(fs::read(root).unwrap(), default_template().as_bytes());
+                    assert_eq!(fs::read(root).unwrap(), startup_template().as_bytes());
                 })
             })
             .collect();
