@@ -1,6 +1,6 @@
 # Factory Shortcut Alignment Tracker
 
-Status: Slice 5 Agenda review active
+Status: Slice 6 Git implementation active
 Date: 2026-11-14
 Delivery set: rev-factory-shortcuts
 Slice strategy: layered
@@ -10,9 +10,9 @@ Execution authority: current slices 1-7 under accepted manifest and predecessor 
 Plan: [Factory Shortcut Alignment Delivery](../plan/rev-factory-shortcuts.md)
 Spec: [Factory Shortcut Alignment](../spec/editor-factory-shortcut-alignment.md)
 Follow-through: [Emacs Interaction Parity](../spec/editor-emacs-interaction-parity.md)
-Active slice: Slice 5, Agenda defaults
-Progress: 4/7 slices delivered; 15/21 tasks completed
-Readiness: Slice 5 local checks passed; PR #51 open; clean-HEAD controller receipt required for handoff
+Active slice: Slice 6, Git defaults
+Progress: 5/7 slices delivered; 15/21 tasks completed
+Readiness: Slice 5 integrated through PR #51; accepted Git implementation active
 
 ## Canonical slice map
 
@@ -33,7 +33,7 @@ Readiness: Slice 5 local checks passed; PR #51 open; clean-HEAD controller recei
 | Audit entry | Product-owner continuation accepted; publish the preparation before controller startup. | approved; preparation published at `2f5cfa485fb0169c0f4dcdea475a33eb4a80eabd` |
 | Core review | Slice 1 complete core/profile matrix with actual probe evidence and pending mode rows identified. | integrated through PR #47 at `c279fd03ccc383a9ae606665bf0cd7ae2cfccc49` |
 | Mapping freeze | Slice 2 complete matrix; D01-D03 settled; accepted exact mapping contract and reconciled spec/plan/tracker committed. | accepted and integrated through PR #48 |
-| Runtime entry | Slice 3 onward uses only the accepted manifest with unchanged identities/checks. | active Slice 5; predecessor integration verified |
+| Runtime entry | Slice 3 onward uses only the accepted manifest with unchanged identities/checks. | active Slice 6; predecessor integration verified |
 | Delivery closure | All accepted slices integrated; selected gate passes for the exact dev candidate; reports, guide and ticket reconciled. | pending |
 
 The accepted owner decision settles the exact retained proposal plus History
@@ -124,15 +124,15 @@ Completed local checks: `make lint`; `cargo test --locked --test commands factor
 
 ## Slice 5: Agenda defaults
 
-State: reviewing; accepted P08-P13 implemented; canonical PR #51 open
+State: delivered; PR #51 integrated into dev at `9ca41e679978354e095bd09bfe9983aa735e8d5e`
 Requirements: FSA03, FSA05-FSA09; P08 and accepted D01 manifest rows.
 Dependency: Slice 4 integrated; every implemented Agenda placement explicitly accepted.
 Branch: `feat/rev-factory-shortcuts-05-agenda`
 Expected PR title: `feat(org): align agenda shortcut families`
-PR: `#51` ([canonical PR](https://forge.adrianpk.com/rev/rev/pulls/51)); open against dev
+PR: `#51` ([canonical PR](https://forge.adrianpk.com/rev/rev/pulls/51)); merged into dev
 Report: `ops/default/report/slices/rev-factory-shortcuts/slice-5-agenda.md`
 Task commits: T5.1 `493deab7fff23a9d648b7ae5f83dae4aa1465153`; T5.2 `646ffd76c98efd0257e63a119bf162a8bee7e793`; T5.3/report introduction `4a112aa03fb29ece08edfe1daf3d35cbdb309066`; this record includes canonical PR references.
-Validation: all five required local commands PASS; 28 shared factory-shortcut, four Org-context and 11 configuration keymap tests. Four focused native Agenda controls and documentation validation PASS. Final clean-HEAD controller receipt follows canonical PR-reference commits.
+Validation: all five required local commands PASS; 28 shared factory-shortcut, four Org-context and 11 configuration keymap tests. Four focused native Agenda controls and documentation validation PASS. All five required commands and canonical PR validation passed at clean HEAD `9ca41e679978354e095bd09bfe9983aa735e8d5e` before integration.
 
 - [x] T5.1: Apply accepted P08-P13: daily d, tags v M, search v /, show-all habits v A, graph window v G and sort v S; remove their displaced single keys through the existing native owners. Preserve named access for displaced habit/view actions, current prompt ownership and all unselected defaults.
 - [x] T5.2: Extend the factory-shortcut suite with selected-row target identity, daily view versus habit-date behavior, each approved family relocation, named and overridden old access, cancellation, source immutability for view-only actions and protection against suffix keys granting consent.
@@ -142,7 +142,7 @@ Completed local checks: `make lint`; `cargo test --locked --test commands factor
 
 ## Slice 6: Git defaults
 
-State: authorized; predecessor integration required
+State: active; Slice 5 integration verified
 Requirements: FSA02, FSA03, FSA05, FSA07-FSA09; accepted D02 manifest rows.
 Dependency: Slice 5 integrated; a meaningful Git increment and its exact menu/direct-action boundary accepted at mapping freeze.
 Branch: `feat/rev-factory-shortcuts-06-git`

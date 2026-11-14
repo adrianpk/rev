@@ -1,11 +1,11 @@
 # Slice 5: Agenda Defaults
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-factory-shortcuts
 Plan: [Factory Shortcut Alignment Delivery](../../../plan/rev-factory-shortcuts.md)
 Tracker: [Factory Shortcut Alignment Tracker](../../../tracker/rev-factory-shortcuts.md)
 Branch: `feat/rev-factory-shortcuts-05-agenda`
-PR: `#51` ([canonical PR](https://forge.adrianpk.com/rev/rev/pulls/51)); open against dev
+PR: `#51` ([canonical PR](https://forge.adrianpk.com/rev/rev/pulls/51)); merged into dev at `9ca41e679978354e095bd09bfe9983aa735e8d5e`
 Report introduction: [immutable Slice 5 report](https://forge.adrianpk.com/rev/rev/src/commit/4a112aa03fb29ece08edfe1daf3d35cbdb309066/ops/default/report/slices/rev-factory-shortcuts/slice-5-agenda.md)
 
 ## Purpose
@@ -85,9 +85,10 @@ seconds in their focused warm run. Documentation validation took 29.73 seconds.
 These are observed costs. Checks retain one build job, disabled incremental
 output, no dev/test debuginfo and the injected single-thread test settings.
 
-The controller records all five exact commands once against the final clean
-HEAD after canonical PR references are committed. The integrated full gate
-and physical terminal acceptance remain with the controller and Slice 7.
+The controller recorded all five exact commands once against final clean HEAD
+`9ca41e679978354e095bd09bfe9983aa735e8d5e` after canonical PR references were
+committed; canonical PR validation also passed. The integrated full gate and
+physical terminal acceptance remain with the controller and Slice 7.
 
 ## Risks and Follow-ups
 
