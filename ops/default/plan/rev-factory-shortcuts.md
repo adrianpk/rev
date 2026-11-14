@@ -221,14 +221,14 @@ The proposed final gate, run once against the exact integrated candidate, is:
 5. `bash scripts/build-user-guide.sh`
 6. `git diff --check`
 
-The new focused script is planned output of T7.1; it is not available or passing
-at planning time. Its contract batches the new `commands::factory_shortcuts`
-cases, existing command keymap and Org-context routing cases, configuration
-keymap cases and modal keymap cases through their native test roots. It then
-builds the editor/acceptance example once and runs the native effect matrix and
-three representative PTYs. Extend selected prefix-argument regressions only
-where accepted keys affect argument dispatch. Reference/sample consistency is
-also covered by the existing documentation check.
+T7.1 implements the focused script with one `commands` batch selecting
+`factory_shortcuts`, `keymap`, `org_contexts` and `command_sequences`, followed
+by configuration and modal keymap cases through their existing native roots.
+It builds the editor/acceptance example once and runs an independent frozen-
+catalog/accepted-manifest comparison, native rendered hint-to-effect cases and
+three representative PTYs. Existing prefix-argument cases remain in the
+selected command-keymap batch. Reference/sample consistency is also covered
+by the existing documentation check. No frozen audit input is regenerated.
 
 Protection is limited to changed defaults and shared input/override/discovery
 contracts. Do not chain historical Git, Org, Markdown, modal, LSP or presentation

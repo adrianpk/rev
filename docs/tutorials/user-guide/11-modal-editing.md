@@ -35,6 +35,10 @@ setting also selects non-modal editing.
 transitions and source decisions. In Insert and Replace, `C-M-_` redoes an
 undone group; Normal keeps `C-r` for redo.
 
+The command list shows one effective shortcut. In Normal it can show `C-w =`
+for balancing while `C-x +` remains available. Explicit user assignments take
+precedence in their owning context.
+
 ## Enter text and return to Normal
 
 Press `i`, type the following lines, then press Escape:

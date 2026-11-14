@@ -11,7 +11,7 @@ Plan: [Factory Shortcut Alignment Delivery](../plan/rev-factory-shortcuts.md)
 Spec: [Factory Shortcut Alignment](../spec/editor-factory-shortcut-alignment.md)
 Follow-through: [Emacs Interaction Parity](../spec/editor-emacs-interaction-parity.md)
 Active slice: Slice 7, Terminal acceptance and guidance
-Progress: 6/7 slices delivered; 18/21 tasks completed
+Progress: 6/7 slices delivered; 20/21 tasks completed; T7.3 closure awaits the integrated gate
 Readiness: Slice 6 integrated through PR #52; accepted terminal acceptance active
 
 ## Canonical slice map
@@ -160,21 +160,21 @@ Completed local checks: `make lint`; `cargo test --locked --test commands factor
 
 ## Slice 7: Terminal acceptance and guidance
 
-State: active; Slice 6 integration verified
+State: reviewing; Slice 7 implementation and guidance preparation complete
 Requirements: FSA01-FSA10 together; accepted manifest and retained exceptions.
 Dependency: all accepted runtime slices integrated; manifest identity unchanged.
 Branch: `test/rev-factory-shortcuts-07-acceptance`
 Expected PR title: `test(input): verify factory shortcut compatibility`
 PR: pending
 Report: `ops/default/report/slices/rev-factory-shortcuts/slice-7-acceptance.md`
-Task commits: none
-Validation: not run; this record contains planned checks only.
+Task commits: T7.1 `d2c27b13a53b2ec822b23436e79534e1600da09e`; T7.2 `601a67ec41b5b05fec312c78fa73d11842b9ef85`; T7.3 reference/guide consistency, Spore projection and report preparation in this commit; post-gate closure remains controller-owned.
+Validation: all five required local commands PASS; 89 selected command tests, 11 configuration keymap tests, six modal keymap tests, independent complete-map comparison, four native hint variants and three Linux PTYs. Documentation and Spore projection PASS. Exact clean-HEAD controller evidence follows canonical PR references; no integrated full-gate result is claimed.
 
-- [ ] T7.1: Add a narrow `scripts/check-factory-shortcuts.sh` entrypoint and `examples/factory-shortcuts-acceptance.rs`, reusing existing owned native/surface/PTY infrastructure. Cross-check inventory coverage, accepted normalized routes, actual effects, overrides, profile/focus transitions and selector hints. Compare executable results with the separately accepted mapping contract; do not rewrite expectations from current defaults.
-- [ ] T7.2: Exercise bounded physical-input journeys in nonmodal and modal editing plus one local read-only Git journey. Cover representative Meta/control and multi-chord routes, prefix cancellation, editing/profile/language transitions and terminal restoration. Keep variants native, use finite observable conditions and clean only owned fixtures/processes. Verify expected source/history effects rather than treating a successful exit as compatibility.
+- [x] T7.1: Add a narrow `scripts/check-factory-shortcuts.sh` entrypoint and `examples/factory-shortcuts-acceptance.rs`, reusing existing owned native/surface/PTY infrastructure. Cross-check inventory coverage, accepted normalized routes, actual effects, overrides, profile/focus transitions and selector hints. Compare executable results with the separately accepted mapping contract; do not rewrite expectations from current defaults.
+- [x] T7.2: Exercise bounded physical-input journeys in nonmodal and modal editing plus one local read-only Git journey. Cover representative Meta/control and multi-chord routes, prefix cancellation, editing/profile/language transitions and terminal restoration. Keep variants native, use finite observable conditions and clean only owned fixtures/processes. Verify expected source/history effects rather than treating a successful exit as compatibility.
 - [ ] T7.3: Complete reference/guide consistency and Spore projection; produce the final slice report and prepare the exact integrated candidate for the selected delivery-set gate. Close the originating ticket and delivery metadata only after that gate passes. Record measured check costs and remove integrated inactive clean worktrees.
 
-Planned checks: `make lint`; `bash scripts/check-factory-shortcuts.sh`; `bash scripts/check-documentation.sh`; `bash scripts/build-user-guide.sh`; `git diff --check`. This prepares the slice; the integrated candidate still requires the final gate below.
+Completed local checks: `make lint`; `bash scripts/check-factory-shortcuts.sh`; `bash scripts/check-documentation.sh`; `bash scripts/build-user-guide.sh`; `git diff --check`. T7.3 preparation is complete; its originating-ticket / delivery-metadata closure remains pending the controller-owned integrated gate below.
 
 ## Decision log
 
@@ -190,7 +190,7 @@ and product acceptance in the mapping artifact and owning specification.
 
 ## Delivery-set gate
 
-State: not run. No delivery evidence, receipt or tested candidate exists.
+State: not run. Slice checks prepare the candidate; no integrated gate result or receipt exists.
 Environment: one Cargo job, incremental disabled, dev/test debuginfo disabled.
 
 Proposed canonical order:
@@ -202,10 +202,10 @@ Proposed canonical order:
 5. `bash scripts/build-user-guide.sh`
 6. `git diff --check`
 
-The factory-shortcut script is planned in T7.1. Its native/input/profile checks,
-three representative PTYs and cost selection are defined by the plan; freeze
-the final command list at mapping approval. Historical feature gates are not
-added implicitly. Failed checks retain their actual candidate and result.
+T7.1 implements the factory-shortcut script with the native/input/profile
+selection defined by the plan and three representative PTYs. The accepted
+command list and resource bounds remain unchanged. Historical feature gates
+are not added implicitly. Failed checks retain their actual candidate and result.
 
 ## Closure
 

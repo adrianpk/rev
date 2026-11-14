@@ -554,7 +554,7 @@ fn description_rows() {
                 if profile == "modal" {
                     Some("C-r")
                 } else {
-                    None
+                    Some("C-M-_")
                 },
                 Some("Reapply the next redo group."),
             ),
