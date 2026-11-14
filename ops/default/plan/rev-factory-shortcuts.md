@@ -11,8 +11,8 @@ Planning baseline: `197bf98be615ceca06a3bab0ef5cd24b3bee2ffb`
 Spec: [Factory Shortcut Alignment](../spec/editor-factory-shortcut-alignment.md)
 Follow-through: [Emacs Interaction Parity](../spec/editor-emacs-interaction-parity.md)
 Tracker: [Factory Shortcut Alignment Tracker](../tracker/rev-factory-shortcuts.md)
-Active slice: Slice 4, Org document defaults
-Readiness: Slice 4 runtime and focused checks passed; PR #50 open for controller handoff
+Active slice: Slice 5, Agenda defaults
+Readiness: Slice 4 integrated through PR #50; accepted Agenda implementation active
 Integration target: `dev`
 
 ## Outcome and strategy

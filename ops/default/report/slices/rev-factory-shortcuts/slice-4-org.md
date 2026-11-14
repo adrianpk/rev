@@ -1,11 +1,11 @@
 # Slice 4: Org Document Defaults
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-factory-shortcuts
 Plan: [Factory Shortcut Alignment Delivery](../../../plan/rev-factory-shortcuts.md)
 Tracker: [Factory Shortcut Alignment Tracker](../../../tracker/rev-factory-shortcuts.md)
 Branch: `feat/rev-factory-shortcuts-04-org`
-PR: `#50` ([canonical PR](https://forge.adrianpk.com/rev/rev/pulls/50)); open against dev
+PR: `#50` ([canonical PR](https://forge.adrianpk.com/rev/rev/pulls/50)); merged into dev at `f1f186918dc24d1478f92bf47ee55f6a9bd5dea9`
 Report introduction: [immutable Slice 4 report](https://forge.adrianpk.com/rev/rev/src/commit/316a5e569288aa3ee6625b03392b740a75449ef0/ops/default/report/slices/rev-factory-shortcuts/slice-4-org.md)
 
 ## Purpose
@@ -79,9 +79,10 @@ The new worktree compiled cold dependencies in 2m 57s. The raw required lint
 command took 122.68 seconds; native shortcut/context/configuration runs took
 75.88/2.16/14.96 seconds excluding compilation. Build settings remain one job,
 no incremental output and no dev/test debuginfo. Temporary fixtures use the
-existing owned lifecycle. The controller records the five exact commands once
-against the final clean HEAD after PR references are committed. The integrated
-full gate remains controller-owned.
+existing owned lifecycle. The controller recorded all five exact commands once
+against final clean HEAD `f1f186918dc24d1478f92bf47ee55f6a9bd5dea9` after PR references
+were committed; canonical PR validation also passed. The integrated full gate
+remains controller-owned.
 
 
 ## Risks and Follow-ups
