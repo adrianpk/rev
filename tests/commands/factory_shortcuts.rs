@@ -11,6 +11,8 @@ use super::config_fixture::Fixture;
 
 #[path = "factory_shortcuts/editing.rs"]
 mod editing;
+#[path = "factory_shortcuts/org.rs"]
+mod org;
 #[path = "factory_shortcuts/projects.rs"]
 mod projects;
 
