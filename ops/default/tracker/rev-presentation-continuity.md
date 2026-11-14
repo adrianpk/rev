@@ -50,17 +50,17 @@ Task commits: T2.1, T2.2 and T2.3 `d6d38d3fffc5701d1514f75f9a1c7ff5a96780f0` (co
 
 ## Slice 3: Markdown presentation continuity
 
-State: ready
+State: reviewing - implementation and local checks complete; canonical PR and exact clean-HEAD validation follow
 Requirements: PC01-PC03, PC05-PC11; reconciled MD06
 Branch: `fix/rev-presentation-continuity-03-markdown`
 PR: pending
 Report: `ops/default/report/slices/rev-presentation-continuity/slice-3-markdown.md`
-Validation: the exact ordered Slice 3 checks in the plan and frozen local configuration
-Task commits: pending
+Validation: ordered Slice 3 checks passed locally (lint, 55 Markdown tests and whitespace); focused buffer checks passed 24 cases. Final published clean-HEAD evidence belongs to the controller validator.
+Task commits: T3.1, T3.2 and T3.3 `e4a505671a434f9bdbe7a3d52a8d2d1013e519e0` (cohesive Markdown admission/display integration and native regressions).
 
-- [ ] T3.1: Retain admitted complete Markdown base data behind the private adapter. Implement conservative before/after same-line body and ATX-title guards with stable indentation and non-blankness; reject fences, definitions, structural and uncertain contexts. Validate accepted cases against full pulldown-cmark output without introducing another parser or dependency.
-- [ ] T3.2: Use the current facade for heading/list symbols, structural heading colors and checked capture mappings. Preserve width/indentation, active palette and view policy; dirty changed rows and uncertain lexical context conservatively. Keep list/table actions exact and cancellation literal.
-- [ ] T3.3: Extend the Markdown fixture suite with mandatory positive body/title carries, unchanged neighboring list markers, definitions and literal-code refusals, monochrome/disabled-color behavior and intermediate-frame/source-fidelity checks. Extend the existing concise changelog outcome to the delivered Markdown correction.
+- [x] T3.1: Retain admitted complete Markdown base data behind the private adapter. Implement conservative before/after same-line body and ATX-title guards with stable indentation and non-blankness; reject fences, definitions, structural and uncertain contexts. Validate accepted cases against full pulldown-cmark output without introducing another parser or dependency.
+- [x] T3.2: Use the current facade for heading/list symbols, structural heading colors and checked capture mappings. Preserve width/indentation, active palette and view policy; dirty changed rows and uncertain lexical context conservatively. Keep list/table actions exact and cancellation literal.
+- [x] T3.3: Extend the Markdown fixture suite with mandatory positive body/title carries, unchanged neighboring list markers, definitions and literal-code refusals, monochrome/disabled-color behavior and intermediate-frame/source-fidelity checks. Extend the existing concise changelog outcome to the delivered Markdown correction.
 
 ## Slice 4: Shared lifecycle and resource acceptance
 
