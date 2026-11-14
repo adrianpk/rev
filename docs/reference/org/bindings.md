@@ -107,9 +107,9 @@ source, agenda, calendar and draft actions require their stated owner.
 | C-c C-x h in Org | `org-habit-show-graph` | Open or refresh the native habit agenda for this buffer. |
 | K in habit agenda | `org-habit-toggle-habits` | Toggle habit graph visibility. |
 | C-u K in habit agenda | `org-habit-toggle-habits-only-for-today` | Toggle graphs only for today. |
-| A in habit agenda | `org-habit-toggle-show-all-today` | Include all habits on today's agenda. |
-| d in habit agenda | `org-habit-graph-date` | Select a view date without editing source. |
-| G in habit agenda | `org-habit-set-graph-window` | Set graph days and preferred column. |
+| v A in habit agenda | `org-habit-toggle-show-all-today` | Include all habits on today's agenda. |
+| M-x org-habit-graph-date | `org-habit-graph-date` | Select a view date without editing source. |
+| v G in habit agenda | `org-habit-set-graph-window` | Set graph days and preferred column. |
 | C-c C-x ; in Org | `org-timer-set-timer` | Enter an explicit countdown. |
 | C-c C-x . in Org | `org-timer` | Insert the current timer value. |
 | C-c C-x - in Org | `org-timer-item` | Insert or continue a timed description list. |
@@ -149,10 +149,10 @@ source, agenda, calendar and draft actions require their stated owner.
 | M-x org-toggle-checkbox-presence | `org-toggle-checkbox-presence` | Add or remove checkbox source explicitly. |
 | M-x text-mode | `text-mode` | Select ordinary text editing. |
 | v t in agenda / M-x org-todo-list | `org-todo-list` | Select unfinished tasks or explicit states. |
-| s in agenda / M-x org-search-view | `org-search-view` | Search entry text with phrases or signed terms. |
-| M in agenda / M-x org-tags-view | `org-tags-view` | Select Boolean tag/property matches. |
+| v / in agenda / M-x org-search-view | `org-search-view` | Search entry text with phrases or signed terms. |
+| v M in agenda / M-x org-tags-view | `org-tags-view` | Select Boolean tag/property matches. |
 | g in calendar/habit agenda | `org-agenda-redo` | Refresh current sources and captured time. |
-| v d in calendar agenda | `org-agenda-day-view` | Show one captured day. |
+| d / v d in calendar agenda | `org-agenda-day-view` | Show one captured day. |
 | v w in calendar agenda | `org-agenda-week-view` | Show one configured week. |
 | f / Right in calendar agenda | `org-agenda-later` | Move a span forward. |
 | b / Left in calendar agenda | `org-agenda-earlier` | Move a span backward. |
@@ -162,7 +162,7 @@ source, agenda, calendar and draft actions require their stated owner.
 | v v in agenda / M-x org-agenda-custom-view | `org-agenda-custom-view` | Select a typed configured block view by key. |
 | / in agenda | `org-agenda-filter` | Apply a native tag/property visibility filter. |
 | Pipe in agenda | `org-agenda-filter-remove-all` | Restore configured preset filters. |
-| S in agenda | `org-agenda-sort` | Set ordered native sort keys. |
+| v S in agenda | `org-agenda-sort` | Set ordered native sort keys. |
 | V in agenda | `org-agenda-columns` | Set observed property columns. |
 | v m in agenda | `org-agenda-month-view` | Show an aligned calendar month. |
 | v y in agenda | `org-agenda-year-view` | Show an aligned calendar year. |
@@ -231,11 +231,15 @@ role selection alone does not create an agenda or draft.
 
 ### Org agenda defaults and availability
 
+The native view family uses v M, v /, v A, v G and v S. M, s, A, G and S
+have no factory leaf. Habit-date selection remains available through
+`M-x org-habit-graph-date`. Explicit old user assignments remain valid.
+
 | Keys | Target | Behavior |
 | --- | --- | --- |
 | `v t` | `org-todo-list` | Select TODO states; empty means unfinished. |
-| `s` | `org-search-view` | Enter a text or Boolean search. |
-| `M` | `org-tags-view` | Enter a tag/property expression. |
+| `v /` | `org-search-view` | Enter a text or Boolean search. |
+| `v M` | `org-tags-view` | Enter a tag/property expression. |
 | `t` | `org-todo` | Change the checked source task state. |
 | `m` | `org-agenda-bulk-mark` | Mark entry and advance. |
 | `u` | `org-agenda-bulk-unmark` | Unmark entry. |
@@ -252,9 +256,8 @@ role selection alone does not create an agenda or draft.
 | `g` | `org-agenda-redo` | Explicitly refresh from current source and time. |
 | `K` | `org-habit-toggle-habits` | Toggle graph visibility. |
 | `C-u K` | `org-habit-toggle-habits-only-for-today` | Toggle today's agenda only. |
-| `A` | `org-habit-toggle-show-all-today` | Toggle all habits on today's agenda. |
-| `d` | `org-habit-graph-date` | Select a view date or today. |
-| `G` | `org-habit-set-graph-window` | Set preceding/following days and preferred column. |
+| `v A` | `org-habit-toggle-show-all-today` | Toggle all habits on today's agenda. |
+| `v G` | `org-habit-set-graph-window` | Set preceding/following days and preferred column. |
 | `Down` | `next-line` | Scroll the read-only habit rows forward. |
 | `Up` | `previous-line` | Scroll the read-only habit rows backward. |
 | `;` | `org-timer-set-timer` | Enter an explicit session countdown. |
@@ -262,12 +265,12 @@ role selection alone does not create an agenda or draft.
 | `,` | `org-priority` | Set the checked source heading priority. |
 | `C-g` / `q` | `keyboard-quit` | Cancel current input or return to canonical source. |
 | `M-x` | `execute-extended-command` | Enter the compiled command query. |
-| `v d` | `org-agenda-day-view` | Show one captured calendar day. |
+| `d`, `v d` | `org-agenda-day-view` | Show one captured calendar day. |
 | `v w` | `org-agenda-week-view` | Show the configured calendar week. |
 | `v v` | `org-agenda-custom-view` | Select a configured view key. |
 | `/` | `org-agenda-filter` | Apply a tag/property visibility filter. |
 | Pipe | `org-agenda-filter-remove-all` | Restore preset filters. |
-| `S` | `org-agenda-sort` | Select ordered sort keys. |
+| `v S` | `org-agenda-sort` | Select ordered sort keys. |
 | `V` | `org-agenda-columns` | Select property columns. |
 | `v m` | `org-agenda-month-view` | Show an aligned month. |
 | `v y` | `org-agenda-year-view` | Show an aligned year. |

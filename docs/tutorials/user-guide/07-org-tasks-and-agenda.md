@@ -74,9 +74,18 @@ Scheduled: TODO Check the route (tasks.org)
 `g` refreshes the agenda and `q` closes it.
 Move to an entry with Up/Down and press Enter to visit its source heading.
 
-Within an agenda, `s` opens a text search of its source entries. This differs
+Press `d` to show one calendar day; `v d` does the same. Use `v w` for the
+configured week. These view changes leave the task source unchanged.
+
+Within an agenda, `v /` opens a text search of its source entries. This differs
 from `C-s` in an editing buffer: the agenda does not provide incremental
-search over its displayed rows.
+search over its displayed rows. Use `v M` for tag/property matches and `v S`
+for native sort keys such as `title-up`.
+
+In the habit graph opened by `C-c C-x h`, use `v A` to include future habits
+on today's agenda and `v G` to choose graph days and column. To select a
+habit view date, use `M-x org-habit-graph-date`. Explicit old assignments in
+`keys.org_agenda` keep their meaning.
 
 If you already configured agenda sources, rev uses those instead of asking
 for `current`. The [agenda reference](../../reference/org-agenda.md) describes

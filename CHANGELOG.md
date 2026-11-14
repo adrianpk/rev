@@ -70,6 +70,13 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
   Open files, directories or saved contexts from the startup screen and return
   to the current editing context.
 
+### Changed
+
+- Agenda d now shows one calendar day. Use v M for tag/property matches, v /
+  for source search, v A for all habits today, v G for graph settings and v S
+  for sorting. Habit-date selection remains available by name; explicitly
+  configured shortcuts keep their meaning.
+
 ### Fixed
 
 - Org and Markdown headings keep their symbols and level colors during ordinary

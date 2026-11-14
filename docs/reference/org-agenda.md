@@ -1,7 +1,7 @@
 # Org agenda queries
 
 `M-x org-todo-list`, `M-x org-search-view` and `M-x org-tags-view` open native
-read-only query agendas. Within an agenda, use `v t`, `s` or `M` respectively.
+read-only query agendas. Within an agenda, use `v t`, `v /` or `v M` respectively.
 The query prompt accepts Enter and retains invalid drafts for correction;
 `C-g` cancels a draft without changing the current source or agenda.
 
@@ -19,6 +19,9 @@ disk observation. Enter checks the selected row before visiting canonical
 source. Changed buffer rows require `g` refresh. Disk return rereads bounded
 text and checks actual text equality and metadata; BOM and line endings survive
 normal file ingress. The agenda is derived data and has no document history.
+
+In a calendar agenda, `d` or `v d` selects one captured day; `v w` selects
+the configured week. These controls change the view without editing source.
 
 `g` refreshes current sources and captures time/zone once. `q` closes the agenda
 and restores its source view. M-x window commands can select an editable peer
@@ -143,7 +146,7 @@ and [sorting](https://orgmode.org/manual/Sorting-of-agenda-items.html).
 
 Use `M-x org-agenda-custom-view` and enter the configured key. Inside any native
 calendar/query agenda, `v v` selects another view; `/` accepts a tag/property
-filter, `|` restores preset filters, `S` accepts comma-separated sort keys and
+filter, `|` restores preset filters, `v S` accepts comma-separated sort keys and
 `V` accepts comma-separated column names. Empty sort/column entry restores
 native order/text presentation. `v m`, `v y`, and `v s` select month, year or an
 explicit span. The corresponding compiled commands appear in the command

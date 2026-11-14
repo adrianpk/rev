@@ -725,10 +725,11 @@ bounded graphs without creating an editable agenda document. `g` explicitly
 refreshes source and captured local date. A stale source label remains until
 refresh; repainting does not rerun graph analysis or read the clock.
 
-`K` toggles visibility; `C-u K` toggles today-only display; `A` includes all habits
-on today's agenda, including those not yet scheduled. `d` selects a view date
-(`YYYY-MM-DD` or `today`); graphs stay relative to the captured effective today.
-`G` accepts three unsigned integers: preceding days, following days and preferred
+`K` toggles visibility; `C-u K` toggles today-only display; `v A` includes all
+habits on today's agenda, including those not yet scheduled.
+`M-x org-habit-graph-date` selects a view date (`YYYY-MM-DD` or `today`); graphs
+stay relative to the captured effective today.
+`v G` accepts three unsigned integers: preceding days, following days and preferred
 column. Invalid entry preserves the current policy and allows correction; C-g
 cancels input. `q` or C-g returns from the agenda to the unchanged source view.
 Up/Down scroll graph rows. Text, paste, pointer and source-edit commands cannot

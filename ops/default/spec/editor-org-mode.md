@@ -777,14 +777,19 @@ In addition to the established bindings, add:
 | Org | C-c C-v j / C-c C-v C-j | Insert a checked Babel header argument; Control-J normalizes to Return. |
 | Org | C-c C-x g / C-c C-x G | Update feeds / visit selected feed target. |
 | Agenda | r / g / q / RET / TAB | Refresh current/all, return, switch source, visit source. |
-| Agenda | d / w / f / b / . | Day / week / next span / previous span / today. |
+| Agenda | d or v d / v w / f / b / . | Day / week / next span / previous span / today. |
+| Agenda | `v M`; `v /`; `v S` | Native tag/property match / source text search / sort. |
+| Habit agenda | v A / v G | Show all habits today / set graph days and column. |
+| Habit agenda | M-x org-habit-graph-date | Select a graph view date; retain explicit old user access. |
 | Agenda | t / e / K / ; | State / effort / habits / countdown. |
 | Agenda | C-c C-x C-i / C-c C-x C-o | Clock into/out of the checked source task. |
 | Capture or source edit | C-c C-c / C-c C-k | Finalize / abort the current checked draft. |
 
 The [accepted shortcut contract](../report/rev-factory-shortcuts/mapping-contract.md)
-supersedes only the selected effort, columns and Babel header rows above.
-C-c C-v h has no factory assignment; explicit old user mappings remain valid.
+supersedes only the selected effort, columns, Babel header and Agenda rows
+above. Agenda d now selects the daily calendar; M/s/A/G/S have no factory
+leaves, and the native v family retains their actions. C-c C-v h has no factory
+assignment; explicit old user mappings remain valid.
 The original completion and gate evidence above retains its historical scope.
 
 C-c C-c is precise-context dispatch, not an ancestor fallback. C-g always wins
