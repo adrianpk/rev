@@ -57,7 +57,7 @@ impl Session {
     pub(super) fn markdown_table(&mut self, command: C) -> Option<Action> {
         if command == C::TableCreate {
             return Some(match self.markdown_table_prompt() {
-                Ok(()) => self.message("Enter columns x body rows; C-g cancels"),
+                Ok(()) => self.message("Enter columns x body rows, e.g. 3x2; C-g cancels"),
                 Err(error) => self.error(&error),
             });
         }
@@ -113,7 +113,7 @@ impl Session {
             .ok_or("Markdown structure is not current")?
             .blank_table_line(buffer, origin.point)?;
         self.input
-            .argument("Markdown size (columns x body rows): ", "")
+            .argument("Markdown size (columns x body rows, e.g. 3x2): ", "")
             .map_err(|e| e.to_string())?;
         self.pending = Some(super::super::Pending::MarkdownTable(origin));
         Ok(())

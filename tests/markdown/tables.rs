@@ -129,13 +129,16 @@ fn field_navigation() {
 }
 
 // Explicit dimensions include a mandatory header/delimiter even with zero body
-// rows. Creation replaces only the blank line and preserves its ending policy.
+// rows. Both dimension separators retain source endings and one-step undo.
 #[test]
 fn explicit_creation() {
     for (source, draft, expected) in [
         ("", "2x0", "|     |     |\n| --- | --- |"),
+        ("", "2X0", "|     |     |\n| --- | --- |"),
+        ("", "2*0", "|     |     |\n| --- | --- |"),
         ("\r\n", "1x1", "|     |\r\n| --- |\r\n|     |\r\n"),
         ("  \n", "1 x 0", "  |     |\n  | --- |\n"),
+        ("  \n", "1 * 0", "  |     |\n  | --- |\n"),
     ] {
         let (_fixture, mut session) = at("", source, "");
         if !source.is_empty() {
@@ -281,7 +284,9 @@ fn table_fidelity() {
 // canonical edit invalidates the action's captured revision before publication.
 #[test]
 fn table_admission() {
-    for draft in ["", "0x1", "257x0", "1x9999", "256x400", "2x-1", "2x1x3"] {
+    for draft in [
+        "", "0x1", "257x0", "1x9999", "256x400", "2x-1", "2x1x3", "2*1*3", "2x1*3", "2*1x3",
+    ] {
         let (_fixture, mut session) = at("", "", "");
         action(&mut session, C::TableCreate);
         dimensions(&mut session, draft);

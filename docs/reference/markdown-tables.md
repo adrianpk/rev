@@ -23,8 +23,10 @@ Markdown routes; explicit `keys.markdown` entries take priority over the parent.
 | Delete column | `markdown-table-delete-column` | `M-S-Left` in a table |
 
 Create asks for explicit **columns x body rows**, for example `2x1`. `2x0`
-creates a header and delimiter without body rows. The blank line may have up to
-three leading spaces; creation refuses literal code and an active selection.
+creates a header and delimiter without body rows. Both `x` and `*` are accepted
+between dimensions; `2*1` creates the same table as `2x1`. The blank line may
+have up to three leading spaces; creation refuses literal code and an active
+selection.
 Creation isolates neighboring paragraphs and tables with blank lines and checks
 that the proposed source admits the requested table. Cancel the prompt with
 `C-g` to retain the source.

@@ -126,7 +126,7 @@ fn dimensions(draft: &str) -> Result<(usize, usize), String> {
     }
     let (columns, body) = draft
         .trim()
-        .split_once(['x', 'X'])
+        .split_once(['x', 'X', '*'])
         .ok_or("Enter explicit columns x body rows, for example 2x1")?;
     let columns = columns
         .trim()

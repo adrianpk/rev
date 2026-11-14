@@ -151,6 +151,9 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 
 ### Fixed
 
+- Markdown table creation accepts both `3x2` and `3*2` dimensions. The size
+  prompt uses `x` and includes an explicit example.
+
 - New configuration files contain commented examples and inherit current
   defaults after updates. Only explicitly enabled preferences stay fixed.
   Existing files are preserved; comment or remove old explicit bindings to
