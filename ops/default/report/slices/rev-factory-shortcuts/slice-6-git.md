@@ -1,11 +1,11 @@
 # Slice 6: Git Defaults
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-factory-shortcuts
 Plan: [Factory Shortcut Alignment Delivery](../../../plan/rev-factory-shortcuts.md)
 Tracker: [Factory Shortcut Alignment Tracker](../../../tracker/rev-factory-shortcuts.md)
 Branch: `feat/rev-factory-shortcuts-06-git`
-PR: `#52` ([canonical PR](https://forge.adrianpk.com/rev/rev/pulls/52)); open for review
+PR: `#52` ([canonical PR](https://forge.adrianpk.com/rev/rev/pulls/52)); merged into dev at `37d98aa6e3a8e091f56c69262fab4dce87e15918`
 Report introduction: [immutable Slice 6 report](https://forge.adrianpk.com/rev/rev/src/commit/465c097161a86c5919c49806d1b3fc1ab7e5f287/ops/default/report/slices/rev-factory-shortcuts/slice-6-git.md)
 
 ## Purpose
@@ -111,9 +111,11 @@ These are observed costs; each checkout retains its exclusive build/cache
 ownership, one Cargo job, disabled incremental output and no dev/test debuginfo.
 The injected tests retain their single-thread settings.
 
-The four exact commands are recorded through controller validation after the
-canonical PR references are committed. This report records local evidence;
-the integrated full gate and physical terminal acceptance remain outstanding.
+The controller recorded all four exact required commands at clean HEAD
+`37d98aa6e3a8e091f56c69262fab4dce87e15918` after canonical PR references were
+committed; canonical PR validation passed. PR #52 is integrated into dev at
+that same commit. The integrated full gate and physical terminal acceptance
+remain with the controller and Slice 7.
 
 ## Risks and Follow-ups
 

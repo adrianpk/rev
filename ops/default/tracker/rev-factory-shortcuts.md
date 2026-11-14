@@ -1,6 +1,6 @@
 # Factory Shortcut Alignment Tracker
 
-Status: Slice 6 Git review
+Status: Slice 7 terminal acceptance active
 Date: 2026-11-14
 Delivery set: rev-factory-shortcuts
 Slice strategy: layered
@@ -10,9 +10,9 @@ Execution authority: current slices 1-7 under accepted manifest and predecessor 
 Plan: [Factory Shortcut Alignment Delivery](../plan/rev-factory-shortcuts.md)
 Spec: [Factory Shortcut Alignment](../spec/editor-factory-shortcut-alignment.md)
 Follow-through: [Emacs Interaction Parity](../spec/editor-emacs-interaction-parity.md)
-Active slice: Slice 6, Git defaults
-Progress: 5/7 slices delivered; 18/21 tasks completed
-Readiness: Slice 6 PR #52 open; local checks passed; controller integration pending
+Active slice: Slice 7, Terminal acceptance and guidance
+Progress: 6/7 slices delivered; 18/21 tasks completed
+Readiness: Slice 6 integrated through PR #52; accepted terminal acceptance active
 
 ## Canonical slice map
 
@@ -33,7 +33,7 @@ Readiness: Slice 6 PR #52 open; local checks passed; controller integration pend
 | Audit entry | Product-owner continuation accepted; publish the preparation before controller startup. | approved; preparation published at `2f5cfa485fb0169c0f4dcdea475a33eb4a80eabd` |
 | Core review | Slice 1 complete core/profile matrix with actual probe evidence and pending mode rows identified. | integrated through PR #47 at `c279fd03ccc383a9ae606665bf0cd7ae2cfccc49` |
 | Mapping freeze | Slice 2 complete matrix; D01-D03 settled; accepted exact mapping contract and reconciled spec/plan/tracker committed. | accepted and integrated through PR #48 |
-| Runtime entry | Slice 3 onward uses only the accepted manifest with unchanged identities/checks. | active Slice 6; predecessor integration verified |
+| Runtime entry | Slice 3 onward uses only the accepted manifest with unchanged identities/checks. | active Slice 7; predecessor integration verified |
 | Delivery closure | All accepted slices integrated; selected gate passes for the exact dev candidate; reports, guide and ticket reconciled. | pending |
 
 The accepted owner decision settles the exact retained proposal plus History
@@ -142,15 +142,15 @@ Completed local checks: `make lint`; `cargo test --locked --test commands factor
 
 ## Slice 6: Git defaults
 
-State: reviewing; PR #52 open
+State: delivered; PR #52 integrated into dev at `37d98aa6e3a8e091f56c69262fab4dce87e15918`
 Requirements: FSA02, FSA03, FSA05, FSA07-FSA09; accepted D02 manifest rows.
 Dependency: Slice 5 integrated; a meaningful Git increment and its exact menu/direct-action boundary accepted at mapping freeze.
 Branch: `feat/rev-factory-shortcuts-06-git`
 Expected PR title: `feat(git): align reviewed shortcut families`
-PR: `#52` ([canonical PR](https://forge.adrianpk.com/rev/rev/pulls/52)); open for review
+PR: `#52` ([canonical PR](https://forge.adrianpk.com/rev/rev/pulls/52)); merged into dev
 Report: `ops/default/report/slices/rev-factory-shortcuts/slice-6-git.md`
 Task commits: T6.1 `3a1e010e9e61c4aa432824879472bdd446636256`; T6.2 `d0f8c3abd04b0300c0999a6d5f5955dbc7372293`; T6.3/report introduction `465c097161a86c5919c49806d1b3fc1ab7e5f287`; this record includes canonical PR references.
-Validation: all four required local commands PASS; 34 shared factory-shortcut and 11 configuration keymap tests. Documentation validation PASS. Final clean-HEAD evidence is recorded through controller validation after canonical PR references.
+Validation: all four required local commands PASS; 34 shared factory-shortcut and 11 configuration keymap tests. Documentation validation PASS. All four required commands and canonical PR validation passed at clean HEAD `37d98aa6e3a8e091f56c69262fab4dce87e15918` before integration.
 
 - [x] T6.1: Apply accepted P14-P19 and precise History amendment: History A cherry-pick; remove History P/F/f; add History c a amend, c f fixup and + paging; add Refs f/P for direct fetch/push, retaining existing Refs aliases. Update History panel guidance with the changed routes. Keep menu-versus-direct-action behavior explicit, operation-specific review/confirmation intact, selection/range identities stable and displaced native actions reachable through the accepted routes.
 - [x] T6.2: Add owned local-repository factory-shortcut regressions for every changed Git family, including A/c a/c f/+ History routing and selected identities, Refs f/P aliases, removed P/F/f leaves, complete/cancelled prefixes, native review, explicit old overrides and absence of unintended mutation. Do not use credentials, external remotes or broad transport journeys to establish key routing.
@@ -160,7 +160,7 @@ Completed local checks: `make lint`; `cargo test --locked --test commands factor
 
 ## Slice 7: Terminal acceptance and guidance
 
-State: authorized; predecessor integration required
+State: active; Slice 6 integration verified
 Requirements: FSA01-FSA10 together; accepted manifest and retained exceptions.
 Dependency: all accepted runtime slices integrated; manifest identity unchanged.
 Branch: `test/rev-factory-shortcuts-07-acceptance`
