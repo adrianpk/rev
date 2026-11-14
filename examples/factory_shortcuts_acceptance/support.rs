@@ -7,6 +7,8 @@ use rev::{
     view::{Size, View},
 };
 
+pub(crate) use crate::metrics::{cpu_ticks, peak_rss};
+
 pub(crate) type Result<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 pub(crate) const SIZE: Size = Size {
     width: 100,
