@@ -1,6 +1,6 @@
 # Slice 1: Contracts and checked carry
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-presentation-continuity
 Plan: `ops/default/plan/rev-presentation-continuity.md`
 Tracker: `ops/default/tracker/rev-presentation-continuity.md`
@@ -101,3 +101,11 @@ display/action observation without those owner guards. Common cancellation,
 mode/policy and geometry lifecycle acceptance remains in Slice 4; real terminal
 continuity and user guidance remain in Slice 5. The delivery-set gate is pending
 controller integration of all five slices.
+
+## Integration
+
+Canonical PR [#41](https://forge.adrianpk.com/rev/rev/pulls/41) was verified merged
+into dev at `354c3ebb12ba3459860c5e28c1ff34de3ea140f9`, the exact clean head that
+passed the four ordered controller checks. Its clean, inactive worktree was
+removed non-forcibly after generated-output classification. The branch remains.
+Slice 2 is active; the delivery-set gate remains pending.

@@ -7,7 +7,7 @@ Slice strategy: layered
 Approved: product owner, 2026-11-14; approved continuity specification and explicit clarification that approval continues the established plan, slicing and autonomous Looper workflow; this five-slice map is derived under that authority
 Plan: [Presentation Continuity Delivery](../plan/rev-presentation-continuity.md)
 Spec: [Org and Markdown Presentation Continuity](../spec/editor-presentation-continuity.md)
-Active slice: Slice 1 - Contracts and checked carry
+Active slice: Slice 2 - Org presentation continuity
 Progress owner: native Looper checkpoint, canonical PR state and exact-candidate validation receipts
 
 ## Canonical slice map
@@ -22,7 +22,7 @@ Progress owner: native Looper checkpoint, canonical PR state and exact-candidate
 
 ## Slice 1: Contracts and checked carry
 
-State: reviewing - implementation complete; canonical integration pending
+State: delivered - PR #41 integration verified at `354c3ebb12ba3459860c5e28c1ff34de3ea140f9`
 Requirements: PC02, PC03, PC06, PC07, PC11; OGP08, OIN05, MD06 contract reconciliation
 Branch: `refactor/rev-presentation-continuity-01-carry`
 PR: [#41](https://forge.adrianpk.com/rev/rev/pulls/41)
@@ -36,7 +36,7 @@ Task commits: T1.1 `5fa1b0b4ba100070957a28623f2d20fdf30d6123`; T1.2 and T1.3 `a1
 
 ## Slice 2: Org presentation continuity
 
-State: pending
+State: ready
 Requirements: PC01-PC04, PC06-PC11; reconciled OGP08 and OIN05
 Branch: `fix/rev-presentation-continuity-02-org`
 PR: pending
@@ -99,8 +99,9 @@ marking this set Completed. A slice count alone is not final acceptance.
 
 ## Worktree disposition
 
-Slice 1 uses its dedicated branch worktree. Retain it while the canonical PR is
-unmerged; controller-owned cleanup follows verified integration. Pre-existing
+Slice 1 worktree removed non-forcibly after verified integration, clean/unlocked
+state, no live process references and classification of its ignored Cargo target
+and private hook cache as generated output. Its branch is preserved. Pre-existing
 and unrelated worktrees remain untouched.
 
 ## Final closure
