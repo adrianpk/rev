@@ -1,7 +1,7 @@
 {
   "proposal": {
     "profiles": 2,
-    "base_context_edits": 46,
+    "base_context_edits": 49,
     "active_language_sessions": 21,
     "normalized_traces": [
       {
@@ -199,6 +199,27 @@
         "proposal": "P17",
         "normalized": "f",
         "target": null
+      },
+      {
+        "profile": "NonModal",
+        "context": "git_history",
+        "proposal": "P14.amend",
+        "normalized": "c a",
+        "target": "git-commit-amend"
+      },
+      {
+        "profile": "NonModal",
+        "context": "git_history",
+        "proposal": "P16.fixup",
+        "normalized": "c f",
+        "target": "git-commit-fixup"
+      },
+      {
+        "profile": "NonModal",
+        "context": "git_history",
+        "proposal": "P17.page",
+        "normalized": "+",
+        "target": "git-log-next-page"
       },
       {
         "profile": "NonModal",
@@ -521,6 +542,27 @@
         "proposal": "P17",
         "normalized": "f",
         "target": null
+      },
+      {
+        "profile": "Modal",
+        "context": "git_history",
+        "proposal": "P14.amend",
+        "normalized": "c a",
+        "target": "git-commit-amend"
+      },
+      {
+        "profile": "Modal",
+        "context": "git_history",
+        "proposal": "P16.fixup",
+        "normalized": "c f",
+        "target": "git-commit-fixup"
+      },
+      {
+        "profile": "Modal",
+        "context": "git_history",
+        "proposal": "P17.page",
+        "normalized": "+",
+        "target": "git-log-next-page"
       },
       {
         "profile": "Modal",

@@ -1,0 +1,310 @@
+{
+  "emacs_version": "31.1",
+  "org_version": "9.8.7",
+  "libraries": [
+    {
+      "library": "simple",
+      "source_file": "simple.el.gz",
+      "sha256": "d253b2e359365e1b4c31ee3016d2bbcba62f4c71aa97580cc7ed5d9a1223c307"
+    },
+    {
+      "library": "paragraphs",
+      "source_file": "paragraphs.el.gz",
+      "sha256": "ad2082e61559afb0b2248b2672a0969f6a3f65485e6a9e71024d6bca316d1794"
+    },
+    {
+      "library": "lisp",
+      "source_file": "lisp.el.gz",
+      "sha256": "2e38d93de64df9c4f334f51c0af3404e7d40ce52bc6899589cbf28984940a478"
+    },
+    {
+      "library": "org-src",
+      "source_file": "org-src.el.gz",
+      "sha256": "c4d452a7f82195e7de67059abc60a4de18a1342a92394e19092fe379b25f4278"
+    }
+  ],
+  "cases": [
+    {
+      "case": "whole_buffer",
+      "mode": "text-mode",
+      "keys": "C-x h",
+      "initial_text": "one\ntwo\n",
+      "initial_point": 2,
+      "prompt_depth": 0,
+      "result": {
+        "text": "one\ntwo\n",
+        "point": 0,
+        "mark": 8,
+        "region_active": true,
+        "modified": false,
+        "kill_ring": []
+      }
+    },
+    {
+      "case": "paragraph_mark",
+      "mode": "text-mode",
+      "keys": "M-h",
+      "initial_text": "one two\nline\n\nnext\n",
+      "initial_point": 4,
+      "prompt_depth": 0,
+      "result": {
+        "text": "one two\nline\n\nnext\n",
+        "point": 0,
+        "mark": 13,
+        "region_active": true,
+        "modified": false,
+        "kill_ring": []
+      }
+    },
+    {
+      "case": "open_line",
+      "mode": "text-mode",
+      "keys": "C-o",
+      "initial_text": "abcd",
+      "initial_point": 2,
+      "prompt_depth": 0,
+      "result": {
+        "text": "ab\ncd",
+        "point": 2,
+        "mark": null,
+        "region_active": false,
+        "modified": true,
+        "kill_ring": []
+      }
+    },
+    {
+      "case": "open_line_count",
+      "mode": "text-mode",
+      "keys": "C-u 2 C-o",
+      "initial_text": "abcd",
+      "initial_point": 2,
+      "prompt_depth": 0,
+      "result": {
+        "text": "ab\n\ncd",
+        "point": 2,
+        "mark": null,
+        "region_active": false,
+        "modified": true,
+        "kill_ring": []
+      }
+    },
+    {
+      "case": "join_previous",
+      "mode": "text-mode",
+      "keys": "M-^",
+      "initial_text": "prev\n  current\n  next",
+      "initial_point": 7,
+      "prompt_depth": 0,
+      "result": {
+        "text": "prev current\n  next",
+        "point": 4,
+        "mark": null,
+        "region_active": false,
+        "modified": true,
+        "kill_ring": []
+      }
+    },
+    {
+      "case": "join_following_prefix",
+      "mode": "text-mode",
+      "keys": "C-u M-^",
+      "initial_text": "prev\n  current\n  next",
+      "initial_point": 7,
+      "prompt_depth": 0,
+      "result": {
+        "text": "prev\n  current next",
+        "point": 14,
+        "mark": null,
+        "region_active": false,
+        "modified": true,
+        "kill_ring": []
+      }
+    },
+    {
+      "case": "paragraph_forward",
+      "mode": "text-mode",
+      "keys": "M-}",
+      "initial_text": "one\n\ntwo\n",
+      "initial_point": 0,
+      "prompt_depth": 0,
+      "result": {
+        "text": "one\n\ntwo\n",
+        "point": 4,
+        "mark": null,
+        "region_active": false,
+        "modified": false,
+        "kill_ring": []
+      }
+    },
+    {
+      "case": "paragraph_backward",
+      "mode": "text-mode",
+      "keys": "M-{",
+      "initial_text": "one\n\ntwo\n",
+      "initial_point": 7,
+      "prompt_depth": 0,
+      "result": {
+        "text": "one\n\ntwo\n",
+        "point": 4,
+        "mark": null,
+        "region_active": false,
+        "modified": false,
+        "kill_ring": []
+      }
+    },
+    {
+      "case": "sexp_forward",
+      "mode": "emacs-lisp-mode",
+      "keys": "C-M-f",
+      "initial_text": "(ab) tail",
+      "initial_point": 0,
+      "prompt_depth": 0,
+      "result": {
+        "text": "(ab) tail",
+        "point": 4,
+        "mark": null,
+        "region_active": false,
+        "modified": false,
+        "kill_ring": []
+      }
+    },
+    {
+      "case": "sexp_backward",
+      "mode": "emacs-lisp-mode",
+      "keys": "C-M-b",
+      "initial_text": "(ab) tail",
+      "initial_point": 4,
+      "prompt_depth": 0,
+      "result": {
+        "text": "(ab) tail",
+        "point": 0,
+        "mark": null,
+        "region_active": false,
+        "modified": false,
+        "kill_ring": []
+      }
+    },
+    {
+      "case": "region_indent",
+      "mode": "emacs-lisp-mode",
+      "keys": "C-x h C-M-\\",
+      "initial_text": "(progn\n(foo)\n(bar))\n",
+      "initial_point": 0,
+      "prompt_depth": 0,
+      "result": {
+        "text": "(progn\n  (foo)\n  (bar))\n",
+        "point": 0,
+        "mark": 24,
+        "region_active": false,
+        "modified": true,
+        "kill_ring": []
+      }
+    },
+    {
+      "case": "command_repeat",
+      "mode": "text-mode",
+      "keys": "C-d C-x z",
+      "initial_text": "abcd",
+      "initial_point": 0,
+      "prompt_depth": 0,
+      "result": {
+        "text": "cd",
+        "point": 0,
+        "mark": null,
+        "region_active": false,
+        "modified": true,
+        "kill_ring": []
+      }
+    },
+    {
+      "case": "copy_yank_workflow",
+      "mode": "text-mode",
+      "keys": "C-SPC M-f M-w C-g C-e C-y",
+      "initial_text": "alpha beta",
+      "initial_point": 0,
+      "prompt_depth": 0,
+      "result": {
+        "text": "alpha betaalpha",
+        "point": 15,
+        "mark": 10,
+        "region_active": false,
+        "modified": true,
+        "kill_ring": [
+          "alpha"
+        ]
+      }
+    },
+    {
+      "case": "kill_yank_workflow",
+      "mode": "text-mode",
+      "keys": "C-SPC M-f C-w C-e C-y",
+      "initial_text": "alpha beta",
+      "initial_point": 0,
+      "prompt_depth": 0,
+      "result": {
+        "text": " betaalpha",
+        "point": 10,
+        "mark": 5,
+        "region_active": false,
+        "modified": true,
+        "kill_ring": [
+          "alpha"
+        ]
+      }
+    },
+    {
+      "case": "counted_motion",
+      "mode": "text-mode",
+      "keys": "C-u 2 C-f",
+      "initial_text": "abcd",
+      "initial_point": 0,
+      "prompt_depth": 0,
+      "result": {
+        "text": "abcd",
+        "point": 2,
+        "mark": null,
+        "region_active": false,
+        "modified": false,
+        "kill_ring": []
+      }
+    },
+    {
+      "case": "named_motion",
+      "mode": "text-mode",
+      "keys": "M-x forward-char RET",
+      "initial_text": "abcd",
+      "initial_point": 0,
+      "prompt_depth": 0,
+      "result": {
+        "text": "abcd",
+        "point": 1,
+        "mark": null,
+        "region_active": false,
+        "modified": false,
+        "kill_ring": []
+      }
+    },
+    {
+      "case": "named_cancel",
+      "mode": "text-mode",
+      "keys": "M-x delete-char C-g",
+      "initial_text": "abcd",
+      "initial_point": 0,
+      "prompt_depth": 0,
+      "result": {
+        "text": "abcd",
+        "point": 0,
+        "mark": null,
+        "region_active": false,
+        "modified": false,
+        "kill_ring": []
+      }
+    }
+  ],
+  "source_edit_save": {
+    "draft_retained": true,
+    "parent_text": "#+begin_src text\n  xkept\n#+end_src\n",
+    "parent_modified": false,
+    "disk_text": "#+begin_src text\n  xkept\n#+end_src\n"
+  }
+}

@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "status": "proposed",
+  "status": "accepted",
   "source_tree": "442765af9faac4351c208b2bfc5ca02c1b896331",
   "changes": [
     {
@@ -362,7 +362,7 @@
       },
       "after": "git-cherry-pick",
       "inherited_contexts": [],
-      "reason": "Use the existing selected/ordered revision owner; displaced amend remains named.",
+      "reason": "Use the existing selected/ordered revision owner; displaced amend retains named and accepted History c a access.",
       "normalized": "A"
     },
     {
@@ -390,7 +390,7 @@
       },
       "after": null,
       "inherited_contexts": [],
-      "reason": "Fixup remains named; no native pull command or transient is invented.",
+      "reason": "Fixup retains named and accepted History c f access; no native pull command or transient is invented in this increment.",
       "normalized": "F"
     },
     {
@@ -404,7 +404,7 @@
       },
       "after": null,
       "inherited_contexts": [],
-      "reason": "History paging remains named; fetch requires a selected configured remote in Refs.",
+      "reason": "History paging retains named and accepted + access; fetch requires a selected configured remote in Refs.",
       "normalized": "f"
     },
     {
@@ -434,6 +434,54 @@
       "inherited_contexts": [],
       "reason": "Add the conventional push-family letter at its native Refs owner; retain p and M p.",
       "normalized": "P"
+    },
+    {
+      "id": "P14.amend",
+      "contexts": [
+        "git_history"
+      ],
+      "key": "c a",
+      "before": {
+        "git_history": null
+      },
+      "after": "git-commit-amend",
+      "inherited_contexts": [],
+      "reason": "Accepted product-decision patch preserves quick History access to the displaced native operation.",
+      "normalized": "c a"
+    },
+    {
+      "id": "P16.fixup",
+      "contexts": [
+        "git_history"
+      ],
+      "key": "c f",
+      "before": {
+        "git_history": null
+      },
+      "after": "git-commit-fixup",
+      "inherited_contexts": [],
+      "reason": "Accepted product-decision patch preserves quick History access to the displaced native operation.",
+      "normalized": "c f"
+    },
+    {
+      "id": "P17.page",
+      "contexts": [
+        "git_history"
+      ],
+      "key": "+",
+      "before": {
+        "git_history": null
+      },
+      "after": "git-log-next-page",
+      "inherited_contexts": [],
+      "reason": "Accepted product-decision patch preserves quick History access to the displaced native operation.",
+      "normalized": "+"
     }
-  ]
+  ],
+  "approval": {
+    "date": "2026-11-14",
+    "base_head": "a87929948c81ee33b5b7083719c277c21a35793a",
+    "base_sha256": "f532aaa2b7c7362174205d62626b3f440ac9527a8153963ce699edccfb327b3e",
+    "decision_sha256": "cc915b2d4af14a6ad0da34a517724e9664f59436b40d1004877e8a539af21939"
+  }
 }

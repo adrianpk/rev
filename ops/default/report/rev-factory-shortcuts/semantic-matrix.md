@@ -1,6 +1,6 @@
 # Factory Shortcut Semantic Matrix
 
-Status: All semantic rows reviewed; mapping proposal awaits owner decision
+Status: All semantic rows reviewed; exact amended mapping accepted, runtime pending
 Delivery set: rev-factory-shortcuts
 Core audit candidate: `2f5cfa485fb0169c0f4dcdea475a33eb4a80eabd`
 Mode audit baseline: `f9510fc851b8`; native source tree unchanged
@@ -55,11 +55,11 @@ discovery aid, not a parity certificate. The family decisions below include
 context, selection, argument, history and refusal boundaries; read them with
 the row. `keep` means retain the native operation and current route, including
 explicit exceptions. `named-only` means retain M-x access without inventing a
-factory key. `add` is a proposal awaiting mapping acceptance, not a delivered
-binding. `relocate` is also a proposed default change, retaining named and
-explicit user access. `adaptation required` rejects an approximate reference
+factory key. `add` and `relocate` describe accepted future default changes, not delivered
+bindings. Relocations retain the contract's named/quick routes and explicit
+user access. `adaptation required` rejects an approximate reference
 binding while retaining native controls. All mode rows now have a semantic
-disposition; D01-D03 acceptance of the proposed targets is still pending.
+disposition; D01-D03 and the exact History quick-access patch are accepted.
 
 ## Coverage ownership
 
@@ -72,8 +72,10 @@ Slice 1 reviewed 333 core/profile rows; Slice 2 completes 238 Org, 119 Git and
 17 Markdown rows. All 707 names and six prompt actions are retained. Core
 approximations, source-edit Save and partial heading checkbox behavior remain
 explicit behavior gaps; native Markdown/tree/Git conventions remain deliberate
-exceptions. The [mapping contract](mapping-contract.md) proposes every changed
-leaf; the matrix does not imply its approval.
+current conventions. The [mapping contract](mapping-contract.md) freezes every
+accepted changed leaf. D03 differences have requested functional ownership in
+[Emacs Interaction Parity](../../spec/editor-emacs-interaction-parity.md);
+classification is not permanent retention of arbitrary differences.
 
 | Context | Review owner and admission boundary |
 | --- | --- |
@@ -90,9 +92,9 @@ leaf; the matrix does not imply its approval.
 | `bookmark_list` | Slice 1: bookmark projection selection, flagged deletion and visit ownership. |
 | `macro_definition` | Slice 1: declarative definition editing, insertion and checked publication. |
 | `macro_menu` | Slice 1: stable ring identities, counters, marking, consent and return to source. |
-| `git` | Slice 2: status actions and menus; D02 proposed; acceptance pending. |
+| `git` | Slice 2: status actions and menus; D02 accepted; runtime pending. |
 | `git_commit` | Slice 2: inherited editor map plus commit-specific completion/abort. |
-| `git_history` | Slice 2: selected commit, paging and action/menu conflicts; D02 proposed; acceptance pending. |
+| `git_history` | Slice 2: selected commit, paging and action/menu conflicts; D02 accepted; runtime pending. |
 | `git_inspect` | Slice 2: selected patch and source/range ownership. |
 | `git_refs` | Slice 2: selected branch/tag and review/confirmation ownership. |
 | `git_sequence` | Slice 2: native operation progress, not a rebase todo editor. |
@@ -461,7 +463,7 @@ The full spelling/context list always remains available in catalog.json.
 | `git-branch-delete` | Confirm non-forced local deletion. (J03) | `D` (git_refs) | `magit-branch-delete`; family operation, no inferred missing capability | keep | Current exact Refs/branch/remote or marked source; explicit integration/transport review, cancel and bounded postconditions. J03/D02. See [mode review](mode-review.md). |
 | `git-log` | Open exact bounded ancestry; detached HEAD collects an explicit root. (J02) | `h` (git); `l l` (git) | `magit-log` / `l` | keep | Pinned revision, ordered sequence versus directed range and read-only historical source; native owner, review/cancel. J02/D02. See [mode review](mode-review.md). |
 | `git-show` | Inspect full revision metadata, changed paths and exact parent comparison. (J02) | `TAB` (git_history); `v` (git_inspect) | No same-name public reference operation; J02 native family comparison. | keep | Pinned revision, ordered sequence versus directed range and read-only historical source; native owner, review/cancel. J02/D02. See [mode review](mode-review.md). |
-| `git-log-next-page` | Continue exact ancestry from its pinned root. (J02) | `f` (git_history) | No same-name public reference operation; J02 native family comparison. | relocate P17: named-only | History f removed; paging stays pinned and named. Fetch cannot be admitted from History by alias alone. See [mode review](mode-review.md). |
+| `git-log-next-page` | Continue exact ancestry from its pinned root. (J02) | `f` (git_history) | No same-name public reference operation; J02 native family comparison. | relocate P17/P17.page: History +; retain named access | History f is removed; + preserves quick paging from its pinned ancestry. Fetch retains its Refs owner. See [mode review](mode-review.md). |
 | `git-show-range` | Compare the marked exact base and selected endpoint in their explicit order. (J02) | `RET` (git_history) | No same-name public reference operation; J02 native family comparison. | keep | Pinned revision, ordered sequence versus directed range and read-only historical source; native owner, review/cancel. J02/D02. See [mode review](mode-review.md). |
 | `git-bisect-start` | Review good and bad revisions and start a manual bisect. (J04) | `?` (git_sequence) | `magit-bisect-start`; family operation, no inferred missing capability | keep | Exact operation/conflict/revision owner and explicit verdict/mainline; no rebase-todo editor or suffix consent. J04. See [mode review](mode-review.md). |
 | `git-bisect-good` | Review the exact current candidate and record the user-supplied good verdict. (J04) | `G` (git_sequence) | `magit-bisect-good`; family operation, no inferred missing capability | keep | Exact operation/conflict/revision owner and explicit verdict/mainline; no rebase-todo editor or suffix consent. J04. See [mode review](mode-review.md). |
@@ -481,8 +483,8 @@ The full spelling/context list always remains available in catalog.json.
 | `git-reflog` | Inspect bounded exact HEAD reflog entries. (J02) | `l r` (git) | No same-name public reference operation; J02 native family comparison. | keep | Pinned revision, ordered sequence versus directed range and read-only historical source; native owner, review/cancel. J02/D02. See [mode review](mode-review.md). |
 | `git-blame` | Attribute the selected or visiting source at checked HEAD. (J02) | `B b` (git); `B B` (git) | `magit-blame`; family operation, no inferred missing capability | keep | Pinned revision, ordered sequence versus directed range and read-only historical source; native owner, review/cancel. J02/D02. See [mode review](mode-review.md). |
 | `git-commit` | Open native commit text directly; a subsequent c is literal message text. (J06) | `c` (git) | `magit-commit` / `c` | keep | Retained draft or selected owned process; menu/prompt first refusal, explicit submission/review and cancellation. J06. See [mode review](mode-review.md). |
-| `git-commit-amend` | Prepare exact observed HEAD composition, then explicitly review the replacement commit. (J06) | `A` (git_history) | `magit-commit-amend`; family operation, no inferred missing capability | relocate P14: named-only | History A becomes cherry-pick; named amend retains exact HEAD and explicit review. See [mode review](mode-review.md). |
-| `git-commit-fixup` | Resolve one exact target, compose its fixup body and review before submission. (J06) | `F` (git_history) | `magit-commit-fixup`; family operation, no inferred missing capability | relocate P16: named-only | History F removed; no native generic pull operation/menu exists. Named fixup retains exact target/review. See [mode review](mode-review.md). |
+| `git-commit-amend` | Prepare exact observed HEAD composition, then explicitly review the replacement commit. (J06) | `A` (git_history) | `magit-commit-amend`; family operation, no inferred missing capability | relocate P14/P14.amend: History c a; retain named access | History A becomes cherry-pick; c a preserves quick amend with exact HEAD and explicit review. See [mode review](mode-review.md). |
+| `git-commit-fixup` | Resolve one exact target, compose its fixup body and review before submission. (J06) | `F` (git_history) | `magit-commit-fixup`; family operation, no inferred missing capability | relocate P16/P16.fixup: History c f; retain named access | History F is removed; c f preserves quick fixup with exact target/review. Native generic pull remains absent from this increment. See [mode review](mode-review.md). |
 | `git-commit-submit` | Submit the active native composer; prepared arguments require checked review before execution. (J06) | `C-Enter` (git,GC,git_refs); `C-c C-c` (git,GC,git_refs) | No same-name public reference operation; J06 native family comparison. | keep | Retained draft or selected owned process; menu/prompt first refusal, explicit submission/review and cancellation. J06. See [mode review](mode-review.md). |
 | `git-commit-cancel` | Cancel before process start; retain commit/tag drafts and restore the source owner. (J06) | `C-c C-k` (GC) | No same-name public reference operation; J06 native family comparison. | keep | Retained draft or selected owned process; menu/prompt first refusal, explicit submission/review and cancellation. J06. See [mode review](mode-review.md). |
 | `git-quit` | Dismiss the innermost menu or return to the retained editing context; owned work continues. (J01) | `q` (git,git_history,git_inspect,git_refs,git_sequence,git_worktree,git_stash,git_conflict) | No same-name public reference operation; J01 native family comparison. | keep | Selected path/hunk/resource and native direct-action model; checked review/consent, stale refusal and retained source. J01. See [mode review](mode-review.md). |
@@ -966,7 +968,7 @@ The full spelling/context list always remains available in catalog.json.
 | `gutter-reset-numbering` | Restore this view's immutable startup policy. (G08) | — (named invocation) | Native auxiliary family; package-specific parity not claimed. | named-only | Native auxiliary owner; no compatible stock core package convention justifies a new key. |
 | `tabify` | Compress the marked whitespace at effective tab stops when shorter. (G02) | — (named invocation) | `tabify` / no stock global keyboard chord | named-only | Retain native coordinates, selection shape, count and read-only admission; no additional nonmodal chord. |
 | `untabify` | Expand marked literal tabs while preserving text columns. (G02) | — (named invocation) | `untabify` / no stock global keyboard chord | named-only | Retain native coordinates, selection shape, count and read-only admission; no additional nonmodal chord. |
-| `save-buffer` | Save to the current destination. (G01) | `C-x C-s` (N,I,R,VC,VL,VB,E,DEF,GC,MD,O,OC,OS) | `save-buffer` / `C-x C-s` | keep | Retain native prompts, source safety and cancellation; no broader reference feature claim. Source-edit/capture Save retains drafts; reference source-edit Save requires a separate behavior owner (H07/H10). |
+| `save-buffer` | Save to the current destination. (G01) | `C-x C-s` (N,I,R,VC,VL,VB,E,DEF,GC,MD,O,OC,OS) | `save-buffer` / `C-x C-s` | keep | Retain native prompts, source safety and cancellation; no broader reference feature claim. Source-edit/capture Save retains drafts; reference source-edit Save is requested functional work owned by EIP07 (H07/H10). |
 | `revert-buffer` | Reload a checked disk image; confirm before discarding unsaved text. (G01) | — (named invocation) | `revert-buffer` / no stock global keyboard chord | named-only | Retain native prompts, source safety and cancellation; no broader reference feature claim. |
 | `ai-explain` | Explain the selected text using the chosen AI context. (G08) | — (named invocation) | Native auxiliary family; package-specific parity not claimed. | named-only | Native auxiliary owner; no compatible stock core package convention justifies a new key. |
 | `ai-prompt` | Request an AI transformation of the selection or insertion at point. (G08) | — (named invocation) | Native auxiliary family; package-specific parity not claimed. | named-only | Native auxiliary owner; no compatible stock core package convention justifies a new key. |
@@ -1065,8 +1067,9 @@ identity and actual handler effects remain necessary evidence.
 Slice 2 completes all 374 mode rows in the [contextual review](mode-review.md),
 including indirect Org/Markdown helpers, every native Git panel, selected source
 targets, source-edit Save and active profile/language overlays. The exact
-[mapping proposal](mapping-contract.md) contains P01-P19 and the D01-D03
-alternatives, displaced access and selected legacy supersessions. It retains all
-seven slice identities and gate commands. Owner acceptance is still required
-before the Slice 2 PR; no mapping freeze, shipped binding, terminal acceptance
-or delivery-set closure is claimed.
+[accepted mapping](mapping-contract.md) contains P01-P19, three added History
+quick-access routes, displaced access and selected legacy supersessions. It
+retains all seven slice identities and gate commands. The owner accepted the
+exact base plus c a/c f/+; the contract now freezes 29 records / 49 edits. Runtime factories, terminal acceptance and delivery-set
+closure remain pending. Functional gaps have a separate core-first preparation
+specification; no extra acceptance stop is introduced for this precise patch.

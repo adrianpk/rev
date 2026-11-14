@@ -237,7 +237,7 @@ fn proposals(root: &Path) -> Value {
             }
         }
     }
-    json!({"profiles":2,"base_context_edits":46,"active_language_sessions":active_languages,"normalized_traces":traces,
+    json!({"profiles":2,"base_context_edits":49,"active_language_sessions":active_languages,"normalized_traces":traces,
         "removal_method":"Exact normalized leaf removal from compiled-map snapshots; no configuration unbinding sentinel.",
         "scope":"Admission and normalized prefix checks, not shipped factories or physical terminal effects."})
 }
@@ -369,13 +369,14 @@ def package_evidence(packages, name, filename):
 
 
 def check_proposal_documents(root, directory):
-    """Check complete proposal structure without claiming mapping approval."""
+    """Check the accepted manifest and document structure independently of delivery."""
     paths = [root / "ops/default/spec/editor-factory-shortcut-alignment.md",
              root / "ops/default/plan/rev-factory-shortcuts.md",
              root / "ops/default/tracker/rev-factory-shortcuts.md",
              root / "ops/default/report/slices/rev-factory-shortcuts/slice-2-mode-contract.md",
              directory / "semantic-matrix.md", directory / "mode-review.md",
-             directory / "mapping-contract.md"]
+             directory / "mapping-contract.md",
+             root / "ops/default/spec/editor-emacs-interaction-parity.md"]
     for path in paths:
         for target in re.findall(r"\[[^\]]+\]\(([^)]+)\)", path.read_text()):
             if "://" not in target:
@@ -392,8 +393,10 @@ def check_proposal_documents(root, directory):
     proposal_path = directory / "mapping-proposal.json"
     proposal = json.loads(proposal_path.read_text())
     assert proposal["source_tree"] == catalog["source_tree"]
-    assert len(proposal["changes"]) == 26
-    assert sum(len(change["contexts"]) for change in proposal["changes"]) == 46
+    assert proposal["status"] == "accepted"
+    assert proposal["approval"]["decision_sha256"] == "cc915b2d4af14a6ad0da34a517724e9664f59436b40d1004877e8a539af21939"
+    assert len(proposal["changes"]) == 29
+    assert sum(len(change["contexts"]) for change in proposal["changes"]) == 49
     assert all(change["after"] is None or change["after"] in names
                for change in proposal["changes"])
     digest = hashlib.sha256(proposal_path.read_bytes()).hexdigest()

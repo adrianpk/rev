@@ -1,39 +1,49 @@
 # Factory Shortcut Mapping Contract
 
-Status: Proposed; owner decision required before Slice 2 PR
+Status: Accepted; runtime delivery pending
+Approved: product owner, 2026-11-14; exact retained P01-P19 proposal plus History c a/c f/+ and core-first functional follow-through
 Date: 2026-11-14
 Delivery set: rev-factory-shortcuts
 Native source tree: `442765af9faac4351c208b2bfc5ca02c1b896331`
 Spec: [Factory Shortcut Alignment](../../spec/editor-factory-shortcut-alignment.md)
-Plan: [Approved delivery and decision checkpoint](../../plan/rev-factory-shortcuts.md)
+Plan: [Approved delivery](../../plan/rev-factory-shortcuts.md)
 Tracker: [Factory Shortcut Alignment Tracker](../../tracker/rev-factory-shortcuts.md)
 Evidence: [Complete semantic matrix](semantic-matrix.md), [contextual review](mode-review.md)
+Follow-through: [Core-first functional parity](../../spec/editor-emacs-interaction-parity.md)
 
-## Proposal identity and acceptance boundary
+## Accepted identity and decision evidence
 
-This is the complete proposed shortcut increment, not an accepted runtime
-manifest. [mapping-proposal.json](mapping-proposal.json) contains 26 change
-records covering 46 base-context edits. Each record states the exact current
-leaf, replacement or removal and inherited context footprint. The source tree
-and frozen 707-command catalog are unchanged. No command, configuration schema,
-unbinding sentinel, runtime adapter or personal setting is added by this audit.
+The owner accepted the exact retained proposal at
+`a87929948c81ee33b5b7083719c277c21a35793a`, base JSON SHA-256
+`f532aaa2b7c7362174205d62626b3f440ac9527a8153963ce699edccfb327b3e`,
+with precisely three additional History routes: c a amend, c f fixup and + paging.
+Accepted decision evidence SHA-256:
+`cc915b2d4af14a6ad0da34a517724e9664f59436b40d1004877e8a539af21939`.
 
-The proposal file's SHA-256 is `f532aaa2b7c7362174205d62626b3f440ac9527a8153963ce699edccfb327b3e`.
-Owner acceptance must identify this proposal and D01-D03, record the accepted
-choices in this contract and the specification, and reconcile the plan/tracker
-before adding the mapping approval stamp. Neither a successful probe nor audit
-execution authority supplies that acceptance. The approved plan requires a
-clean committed proposal branch and a controller decision before PR submission.
+[mapping-proposal.json](mapping-proposal.json) retains its established path and
+now holds the accepted manifest: 29 records and 49 base-context edits.
+Its SHA-256 is `e578368195b2e46acb0c7e7e1a8f3b289ddf0595667f64f890a8cb418d8dd6cf`.
+The original 707-command catalog and native source tree are unchanged. The
+owner authorizes the remaining current slices 3-7 and controller-owned dev
+integration with all seven identities, frozen checks, budgets, explicit user
+overrides and consent boundaries preserved. This precise revision requires no
+second acceptance stop. New behavior outside it still needs its own defined
+delivery scope; the worker does not expand an active slice.
+
+D01 placements are accepted. D02 is accepted with the quick-access patch below.
+D03 is accepted as an inventory of current differences, not their permanent
+retention. Missing functional behavior is requested work under the linked
+core-first preparation specification and subsequent delivery slicing. The
+current shortcut-only slices add no functional adapter or new menu behavior.
 
 ## Exact before/after map
 
-`absent` is no existing base-context leaf. `remove` means remove only the
-factory leaf; old explicit user assignments remain valid. Editing owners E/N/I/
-R/VC/VL/VB mean editor and the six named modal contexts in the JSON. Org, Agenda,
-History and Refs refer to their distinct configurable contexts, in both profile
-selections; projected roles retain input ownership over editing maps.
+`absent` means no existing base-context leaf. `remove` removes only the factory
+leaf; explicit old user assignments remain valid. E/N/I/R/VC/VL/VB name the
+editor and six modal base owners. Org, Agenda, History and Refs are distinct
+configurable contexts. Projection and prompt owners retain input precedence.
 
-| Record | Base contexts | Normalized sequence | Current factory target | Proposed target |
+| Record | Base contexts | Normalized sequence | Current factory target | Accepted target |
 | --- | --- | --- | --- | --- |
 | P01 | E/N/I/R/VC/VL/VB | `M-m` | absent | `modal-line-first-text` |
 | P02 | E/N/I/R/VC/VL/VB | `C-x +` | absent | `balance-windows` |
@@ -61,154 +71,130 @@ selections; projected roles retain input ownership over editing maps.
 | P17 | History | `f` | `git-log-next-page` | remove |
 | P18 | Refs | `f` | absent | `git-fetch` |
 | P19 | Refs | `P` | absent | `git-push` |
+| P14.amend | History | `c a` | absent | `git-commit-amend` |
+| P16.fixup | History | `c f` | absent | `git-commit-fixup` |
+| P17.page | History | `+` | absent | `git-log-next-page` |
 
-The JSON keeps the reference key spelling and its native normalized leaf.
-In particular, native C-j normalizes to RET: P07.C-j is the exact
-`C-c C-v RET` leaf, distinct from plain j. The existing factory has neither
-leaf; later tests must preserve these aliases and prefix cancellation.
+The JSON keeps reference spelling and native normalization. C-j normalizes to
+RET, so P07.C-j owns C-c C-v RET, distinct from plain j. Neither leaf exists in
+the current factory. Preserve those aliases and prefix cancellation in tests.
 
-P01/P02/P04 have seven explicit base owners; P03 has only E/I/R. Factory
-inheritance also reaches `macro_definition`, `git_commit`, `markdown`, `org`,
-`org_capture` and `org_source_edit` when their language/profile overlay admits
-it. Modal maps are independent owners: a user `keys.editor` override does not
-silently become a modal override. Normal/Visual redo controls, C-r backward
-search in editing, C-o state-specific controls, protected C-g and modal M-x
-remain intact. Prompt/completion/projection owners retain first refusal.
+P01/P02/P04 have seven explicit editing owners; P03 has only E/I/R. Factory
+inheritance reaches macro_definition, git_commit, markdown, org, org_capture
+and org_source_edit when the active language/profile admits it. Modal maps are
+independent owners: a keys.editor user override does not become a modal one.
+Keep Normal/Visual redo, nonmodal C-r search, state-specific C-o, protected C-g
+and modal M-x. Prompts/completion/projections retain first refusal.
 
-The native probe compiles additions/replacements for both profiles, checks
-all 28 compiled maps, and removes exact leaves only in private map snapshots
-for the conflict check. It records 92 normalized traces and 21 Text/Org/Markdown
-first-text sessions across nonmodal and all modal states. Snapshot removal is
-not a runtime unbinding implementation or an assertion that every changed key
-has executed. Later slices must change compiled factories and test actual
-key-to-effect routes, hints and explicit overrides.
+The native audit compiles additions/replacements for both profiles and checks
+all 28 maps. It verifies 98 normalized traces and 21 Text/Org/Markdown first-text
+sessions. Exact private snapshot removal checks retired leaves and prefix
+neighbors; it is not a configuration unbinding sentinel or runtime factory
+implementation. Runtime slices must test actual key-to-effect routes, selection,
+review, hints and explicit overrides, including all three added History routes.
 
-## D01: Agenda family decision
+## Accepted D01 Agenda placements
 
-Proposed choice: accept P08-P13. Daily view takes d while retaining v d. Move
-native tags/search/show-all-habits/graph-window/sort into v M, v /, v A, v G,
-v S. Preserve existing v t/d/w/v/m/y/s and K/C-u K. The namespace is explicitly
-native: reference v dispatch is not a universal suffix-equivalence contract.
+P08-P13 use daily d, retaining v d; tags v M; search v /; show-all-today habits
+v A; graph window v G; sort v S. Existing v t/d/w/v/m/y/s and K/C-u K remain.
+These are the accepted native routes for this increment. M/s/A/G/S no longer
+claim the reference moon/save-all/append/time-grid/sunrise effects. No missing
+reference operation is added merely to occupy a key. Graph-date remains named;
+the relocated actions retain names and explicit old user access.
 
-The reference's M/s/A/G/S invoke moon phases, save-all, append agenda, time grid
-and sunrise/sunset. Those operations are absent from the native catalog and
-are not introduced here. Retiring the conflicting single keys avoids claiming
-those effects. The moved native actions remain available by name; graph-date
-becomes named-only when d changes. The projection's selected qualified source
-continues to own task edits; view changes do not mutate its source.
+Agenda source actions continue to use the selected qualified source rather
+than incidental editor point. View changes do not mutate source or grant consent.
 
-Alternative: retain current native M/s/A/G/S as explicit exceptions while
-accepting only daily d. This reduces relocations but preserves the documented
-reference conflicts. It needs a different accepted manifest; the worker has
-not selected that alternative as a runtime decision.
+## Accepted D02 Git placements and quick access
 
-## D02: Git family decision
+P14-P19 put selected/ordered cherry-pick on History A, retire History P/F/f,
+and add direct Refs f/P fetch/push while retaining &/M f and p/M p. The precise
+owner amendment preserves quick displaced History access through c a amend,
+c f fixup and + paging. All names and explicit old overrides remain valid.
+History c becomes a complete prefix family; no bare c action is introduced there.
 
-Proposed choice: accept P14-P19. History A uses the existing selected/ordered
-cherry-pick owner. Remove History P/F/f rather than bind push/pull/fetch there:
-fetch/push require current Refs selection and review, and no native `git-pull`
-exists. In Refs, add f/P for direct fetch/push, retaining &/M f and p/M p.
-These are familiar family letters for bounded native direct actions, not Magit
-transient menus. No second suffix may provide review or transport consent.
+Current Status c continues opening literal commit text. Refs aliases retain
+native direct review rather than claiming Magit transient equivalence. Fetch
+requires a selected configured remote; push requires a current exact local
+branch or qualified source mark and upstream review. No generic native pull
+or History transport owner is added by a shortcut assignment.
 
-Keep the remaining Status, Refs, Sequence, Worktree, Stash, Conflict and Inspect
-panel model as explicit native conventions. Status c opens commit text directly;
-a second c is text. The native action view is not a Magit transient. Existing
-range order, ordered revision lists, stale-source refusal, merge/mainline
-review, transport scope, cancellation and postconditions remain authoritative.
+Other native panels, directed ranges, ordered revision lists, mainline review,
+stale-source refusal, process ownership and operation-specific confirmation
+remain intact in this increment. The follow-through specification requires
+proper stock prefix/menu/transport workflows later; these current differences
+are not declared permanently acceptable substitutes.
 
-Alternatives requiring an explicit decision:
+## Displaced and retained access
 
-- Retain all current Git defaults as intentional exceptions. This removes the
-  meaningful shortcut increment from provisional Slice 6; the owner/controller
-  must resolve the slice map/configuration identity before proceeding.
-- Specify reference-style transient menus and History transport selection.
-  This adds behavior beyond a shortcut reassignment and needs separate approved
-  scope. No such menus or adapters are included in this proposal.
-
-The proposed choice keeps all seven recorded slice identities, exact PR titles
-and selected gate commands. Slice 6 has four History edits and two Refs aliases,
-with regressions and the corresponding panel hint/reference updates. Its scope
-is concrete without changing the native Git operation owners.
-
-## Displaced access and retained exceptions
-
-| Displaced route | Remaining access under the proposed map |
+| Changed old route | Access under the accepted map |
 | --- | --- |
-| Org C-c C-x C-c clock report | `org-clock-report` by name; C-c C-x C-r remains radio-button behavior. |
-| Org C-c C-v h header insertion | j/C-j alternatives under the same prefix and named command; h stays unbound, without invented Babel help. |
-| Agenda d graph-date | `org-habit-graph-date` by name. |
-| Agenda M/s/A/G/S | `v M`, `v /`, `v A`, `v G`, `v S` respectively and the same named native commands. |
-| History A amend | `git-commit-amend` by name. |
-| History P cherry-pick | History A and `git-cherry-pick` by name. |
-| History F fixup | `git-commit-fixup` by name. |
-| History f paging | `git-log-next-page` by name. |
+| Org C-c C-x C-c clock report | org-clock-report by name; C-c C-x C-r remains radio-button behavior. |
+| Org C-c C-v h header insertion | j/C-j under the same prefix and named command; h stays unbound without invented help. |
+| Agenda d graph-date | org-habit-graph-date by name. |
+| Agenda M/s/A/G/S | v M, v /, v A, v G, v S respectively and the same named commands. |
+| History A amend | History c a and git-commit-amend by name. |
+| History P cherry-pick | History A and git-cherry-pick by name. |
+| History F fixup | History c f and git-commit-fixup by name. |
+| History f paging | History + and git-log-next-page by name. |
 
-All explicit old user assignments remain valid in their original owning maps.
-Defaults are inherited when omitted; the upgrade never writes personal maps.
-No unbinding sentinel is added to the configuration contract.
+Omitted settings inherit compiled defaults; explicit old assignments retain
+normalized replacement and original context/profile ownership. No upgrade
+rewrites personal maps or changes the configuration format.
 
-D03 proposed classification is complete, with these boundaries retained:
+## Accepted D03 findings and functional follow-through
 
-- M-S-RET inserts a native checkbox list item but refuses a heading; reference
-  heading TODO insertion requires separate behavior before full equivalence.
-- Source-edit Save retains the draft and refuses publication. Source-edit exit
-  publishes back to the unsaved Org buffer and closes the draft; it is not a
-  replacement for reference source-edit Save. A matching save owner needs a
-  separate behavior contract. Capture Save also retains its transient draft.
-- Markdown RET continues native lists and reaches table-row movement (which can
-  align source), whereas the observed package list RET inserts a plain newline.
-  Preserve the approved Org-like table convention and indirect helpers.
-- The file tree retains C-x t and current panning/selection conventions. Native
-  Calendar remains a compact date/time picker, not the full reference Calendar.
-- Nine core approximations remain rejected as recorded in the matrix. Native
-  Git direct action, bounded export/Babel execution, read-only property columns
-  and registered Project restoration retain their explicit feature limits.
-- Named operations without an appropriate key remain named-only. Attachment,
-  Org structural/table and process dispatchers are recorded as indirect access
-  only in their admitted context; no arbitrary key fills a raw catalog gap.
+The matrix remains a source-verified inventory. Its adaptation-required rows
+are requested functional work, with whole-buffer/paragraph marking, open-line,
+preceding-line join, paragraph/sexp endpoints, region indentation, command repeat
+and complete editing/selection/kill-yank/history/prefix/M-x workflows first.
+The existing fragment-filtering ticket is reused, without a duplicate ticket.
 
-Accepting D03 accepts these classifications and exclusions. It does not
-commission the missing behavior or silently expand the runtime slices.
+Related Org TODO-heading/list dispatch and source-edit save/publication follow
+core parity, then Git prefix/menu/transport differences. The new specification
+records actual stock source/disk/history boundaries, paired reference effects,
+acceptance requirements and ordered subsequent delivery preparation. It preserves
+native document syntax, explicit overrides, consent, bounded work and ownership.
+
+Current native Markdown/table/tree/calendar and bounded projection/execution
+conventions remain unchanged during the shortcut-only increment. Their recorded
+differences are not permission to keep arbitrary shared-capability divergence
+forever. Stock context and complete observable workflow decide functional parity.
+Same-terminal Emacs evidence is required where input normalization is relevant;
+a generic terminal limitation cannot excuse an avoidable core difference.
 
 ## Selected legacy supersessions
 
-Only after owner acceptance and runtime delivery, reconcile these current
-contract rows. Keep historical reports and validation evidence unchanged.
+Reconcile these specific rows during the corresponding accepted runtime slice,
+without rewriting historical reports or validation receipts.
 
-| Legacy contract | Exact selected change |
+| Legacy owner | Exact selected delta |
 | --- | --- |
-| [Org Familiar interaction](../../spec/editor-org-mode.md) | Preserve partial M-S-RET; add effort; replace the document clock-report key with read-only columns; move header insertion from h to j/C-j. Reconcile the affected Agenda d/M/s/A/G/S rows through the accepted native v family. |
-| [Git Binding review matrix](../../spec/editor-git-integration.md) | History f paging, A amend, F fixup and P cherry-pick are superseded only by P14-P17; record named displaced access and A cherry-pick. Add Refs f/P as direct aliases with explicit transient difference. |
-| [Markdown](../../spec/editor-markdown-mode.md) and tree contracts | No supersession: retain native table and tree conventions. |
-| [Bindings](../../../../docs/reference/bindings.md), [configuration reference](../../../../docs/reference/config.toml), current guide | Update changed keys, exhaustive defaults and History panel guidance in their runtime slice; selector hints continue to derive from effective maps. |
+| [Org Familiar interaction](../../spec/editor-org-mode.md) | Add effort; replace document clock-report key with read-only columns; move Babel h to j/C-j; apply accepted Agenda d/M/s/A/G/S changes. Current partial heading M-S-RET remains observed until its functional owner implements EIP07. |
+| [Git Binding review matrix](../../spec/editor-git-integration.md) | Replace History A/P/F/f as P14-P17 define; retain amend/fixup/paging at c a/c f/+ and by name; add direct Refs f/P aliases. Update History panel guidance. Current Status c behavior remains for this increment, with EIP08 owning subsequent parity. |
+| [Markdown](../../spec/editor-markdown-mode.md), tree and calendar | No current shortcut supersession; retain current point/focus conventions and carry functional differences to the parity specification. |
+| [Bindings](../../../../docs/reference/bindings.md), [configuration](../../../../docs/reference/config.toml) and guide | Update exact changed factories, normalized hints and quick-access guidance in their runtime slices. |
 
-## Remaining delivery and validation cost
+## Delivery selection and cost
 
-Slice 3 implements P01-P04; Slice 4 implements P05-P07; Slice 5 implements
-P08-P13; Slice 6 implements P14-P19. Slice 7 verifies their accepted effective
-maps, command effects and representative physical input. Every identity and
-exact check in the approved slice map remains unchanged by this proposal.
+Slice 3 implements P01-P04; Slice 4 P05-P07; Slice 5 P08-P13; Slice 6 P14-P19
+plus c a/c f/+; Slice 7 performs the selected terminal acceptance and guidance.
+All seven branches, titles, reports, exact selected commands and gate order
+remain unchanged. The controller owns integration, final full-gate execution
+and successor startup. Functional additions have a separate core-first delivery
+preparation and do not silently enter these shortcut-only slices.
 
-Use one Cargo job, incremental output disabled and dev/test debuginfo disabled.
-Native variants share the owned build/fixture batch; three selected PTYs remain
-representative. No historical full feature gate is added. The exact final
-selection stays make lint, make test-hooks, check-factory-shortcuts,
-check-documentation, build-user-guide, then git diff --check as written in the
-plan. The new factory script remains planned output of T7.1.
+Use one Cargo job, disabled incremental output and no dev/test debuginfo.
+The final selected gate remains make lint, make test-hooks,
+check-factory-shortcuts, check-documentation, build-user-guide, git diff --check
+as exactly written in the plan. T7.1 produces the focused factory script; no
+historical full feature gate is added. Variants share an owned build/fixture
+batch and three representative PTYs.
 
-The [previous bounded acceptance report](../slices/rev-presentation-continuity/slice-5-acceptance.md)
+The [prior acceptance report](../slices/rev-presentation-continuity/slice-5-acceptance.md)
 records warm Cargo checks below one second, a cold private check of 1m31s,
-a release relink of 38.95s and an observed release acceptance build of 5m42s.
-It records 12 PTYs totaling 20.155s, native Org 13.504s and Markdown 6.335s.
-These are separate measurements, not a reconstructed total or this candidate's
-time. For the smaller selected gate, budget approximately 3-8 minutes with
-compatible warm build outputs and 10-20 minutes when compilation is cold.
-This is an estimate dominated by build/lint, not a timeout change or guarantee.
-T7.3 must record actual phase durations and cache conditions; no assertion,
-resource limit or frozen command is weakened to meet the estimate.
-
-The Slice 2 owner checkpoint precedes the required approval-dependent clean-HEAD
-validation. Before that checkpoint, focused native/reference and structural
-proposal checks are evidence only. No PR, runtime acceptance, delivery-set gate
-or mapping approval is claimed by this document.
+38.95s release relink, a 5m42s release acceptance build and 12 PTYs totaling
+20.155s. These separate measurements support an estimated 3-8 minutes warm or
+10-20 minutes cold for the selected gate; they are not candidate totals or
+changed timeouts. T7.3 records actual phases/cache conditions. No coverage,
+resource bound or frozen assertion is weakened to meet an estimate.

@@ -5,148 +5,149 @@ Delivery set: rev-factory-shortcuts
 Plan: [Factory Shortcut Alignment Delivery](../../../plan/rev-factory-shortcuts.md)
 Tracker: [Factory Shortcut Alignment Tracker](../../../tracker/rev-factory-shortcuts.md)
 Branch: `docs/rev-factory-shortcuts-02-mode-contract`
-PR: pending; approved owner decision checkpoint precedes submission
-Report introduction: [immutable proposal report](https://forge.adrianpk.com/rev/rev/src/commit/da5056f6e6feebc52d9114f88036097ea8e132a7/ops/default/report/slices/rev-factory-shortcuts/slice-2-mode-contract.md)
+PR: pending
+Report introduction: [immutable Slice 2 report](https://forge.adrianpk.com/rev/rev/src/commit/da5056f6e6feebc52d9114f88036097ea8e132a7/ops/default/report/slices/rev-factory-shortcuts/slice-2-mode-contract.md)
 
 ## Purpose
 
-Complete the contextual semantic audit and publish an exact, reviewable mapping
-proposal for D01-D03 without changing runtime defaults or selecting product
-decisions on the owner's behalf.
+Complete the contextual audit, record the precise accepted mapping amendment
+and prepare the requested core-first functional parity requirements without
+changing current runtime defaults or delivery identities.
 
 ## Delivered Behavior
 
-The [matrix](../../rev-factory-shortcuts/semantic-matrix.md) now assigns an
-evidence-backed semantic disposition to every frozen public command: 333 core/
-profile rows, 238 Org, 119 Git and 17 Markdown names, plus six prompt actions.
-The 707-command, 2,349-entry, 28-context catalog and native source tree remain
-unchanged. This is completed audit work; the slice is awaiting the mapping
-decision and is not delivered or eligible for a runtime successor.
+The [semantic matrix](../../rev-factory-shortcuts/semantic-matrix.md) reviews
+all 707 frozen commands and six prompt actions: 333 core/profile, 238 Org,
+119 Git and 17 Markdown names. The raw 2,349-entry, 28-context catalog and
+native source tree remain unchanged.
 
 The [mapping contract](../../rev-factory-shortcuts/mapping-contract.md) and
-[proposal JSON](../../rev-factory-shortcuts/mapping-proposal.json) specify
-26 records and 46 base-context edits. P01-P08 retain the reviewed core/Org
-proposals. P09-P13 move conflicting Agenda controls into a native v family.
-P14-P19 move History cherry-pick to A, remove misleading History P/F/f defaults
-and add direct Refs f/P aliases while preserving existing Refs aliases.
-Named access and explicit old overrides remain available for displaced actions.
+[accepted JSON](../../rev-factory-shortcuts/mapping-proposal.json) freeze
+29 records covering 49 base-context edits. D01 uses the native Agenda v family;
+D02 puts cherry-pick on History A, retires old P/F/f, adds Refs f/P, and preserves
+quick History amend/fixup/paging at c a/c f/+. Named and explicit old user
+assignments remain valid. Current Status c composition is retained for this
+shortcut increment. Exact selected legacy supersessions are recorded.
 
-D01/D02 alternatives, exact legacy supersessions and intentional differences
-are explicit. The proposed choice preserves all seven recorded slice identities,
-PR titles and exact gate commands. Accepting a different Git choice may require
-an explicit controller/configuration decision; the worker has not changed it.
+The [functional parity specification](../../../spec/editor-emacs-interaction-parity.md)
+records concrete requested gaps, verified stock effects, native owners and six
+ordered subsequent preparation increments. Core marking/open-line/join,
+paragraph/sexp navigation, indentation/repetition and complete shared workflows
+precede related Org and Git extensions. It reuses the existing fragment-filtering
+ticket. D03 findings are current observations, not permanent arbitrary exceptions.
+The current seven shortcut identities and frozen gate remain unchanged.
 
 ## Implementation Notes
 
-T2.1 finishes the mode review against native source tree
-`442765af9faac4351c208b2bfc5ca02c1b896331` at the Slice 1 closure baseline.
-The [contextual review](../../rev-factory-shortcuts/mode-review.md) links native
-operation owners and records point/profile/projection boundaries. Per-command
-rows distinguish direct routes, dispatcher access, aliases and named-only
-operations. It does not infer reachability from raw target counts.
-
-Reference extraction uses GNU Emacs 31.1, Org 9.8.7, Markdown mode 2.8-alpha at
+T2.1 links each mode family to its native source owner, point/profile boundary,
+direct/indirect route and semantic disposition. The source tree remains
+`442765af9faac4351c208b2bfc5ca02c1b896331`. Reference extraction uses isolated
+GNU Emacs 31.1 / Org 9.8.7, Markdown mode 2.8-alpha at
 `f8d1be7cd5dfd64c0e4f88c29a3f84408cde0b47` and Magit 4.5.0 at
-`c800f79c2061621fde847f6a53129eca0e8da728`. It runs isolated `-Q` package maps,
-records 374 command-family queries and 1,080 contextual lookups, and retains
-package source hashes. Absent functions, static prefixes and internal
-reference dispatchers are supporting observations rather than parity claims.
+`c800f79c2061621fde847f6a53129eca0e8da728`, recording package hashes,
+374 command-family queries and 1,080 contextual routes. Static absent functions
+or internal reference prefixes are supporting observations, not parity claims.
 
-Owned native probes compile the current library in this worktree using
-read-only prebuilt dependencies. They verify:
+Owned current-source native probes verify:
 
-- All 46 proposed base-context edits under both profiles: 92 normalized traces,
-  prefix neighbors and protected C-g across all 28 compiled maps. Removals are
-  exact private snapshot leaf removals; no configuration unbinding mechanism
-  or shipped factory change is implied.
-- M-m input dispatch in Text, Org and Markdown across nonmodal and six modal
-  states: 21 sessions retain source and editing state.
-- Declared effort cycling creates one history group; property columns retain
-  source text/stamp/history. Checkbox insertion succeeds at a list and refuses
-  a heading, unlike the reference heading TODO branch.
-- Babel header cancellation retains source; acceptance edits the opening line.
-  Source-edit Save retains its draft; abort restores unchanged Org source.
+- All 49 accepted base-context edits in both profiles: 98 normalized traces,
+  prefix neighbors and protected C-g across 28 compiled maps. Removed leaves
+  are checked in private snapshots; no configuration unbinding sentinel or
+  shipped factory implementation is implied.
+- First-text dispatch in Text, Org and Markdown across nonmodal and six modal
+  states: 21 sessions retain source and state. Native C-j normalizes to RET,
+  explicitly recorded for the accepted Babel header alias.
+- Declared effort cycling in one edit group; read-only property columns with
+  unchanged source stamp/text/history; list checkbox insertion and heading
+  refusal; Babel header insertion/cancellation; retained source-edit Save draft
+  and abort to unchanged Org source.
 - Markdown plain/list/M-RET/table Return branches, including indirect helper
-  equivalence and source alignment before table-row movement. Observed package
-  list Return differs intentionally from the native list convention.
-- Daily Agenda projection is view-only. After explicitly selecting the fixture
-  date, changing the selected second entry's effort leaves the first unchanged.
-  Native daily view uses the current range start, not an assumed today anchor.
-- Calendar next-day selection from a captured instant commits the selected
-  date, while cancellation retains source/history. Capture Save retains its
-  draft; abort restores origin without creating its target file.
-- History fetch/push and Refs fetch without a selected configured remote refuse.
-  The owned local Git repository's HEAD, saved state and index remain unchanged;
-  no transport starts.
+  agreement and table alignment before row movement. Daily Agenda projection
+  is view-only; selected second-entry effort changes leave the first unchanged.
+  Its date is explicit because native daily view uses the current range start.
+- Captured calendar next-day selection and cancelled source/history retention;
+  capture Save retaining its draft and abort creating no target file.
+- History transport refusal and Refs fetch refusal without a selected configured
+  remote. Owned Git HEAD, saved state and index remain unchanged; no transport
+  starts. Runtime Slice 6 owns actual A/c a/c f/+/Refs input-to-effect acceptance.
 
-T2.2 presents the exact proposal and concrete decision alternatives. D03
-records missing heading/source-save behavior separately from retained native
-Markdown/tree/calendar/Git conventions; it commissions none of that behavior.
-T2.3 reconciles the later runtime tasks, unchanged gate selection and estimated
-build/check costs. Both tasks remain incomplete until owner acceptance and
-approval evidence are committed.
+T2.2 records the owner decision for exact retained head
+`a87929948c81ee33b5b7083719c277c21a35793a`, base JSON SHA-256
+`f532aaa2b7c7362174205d62626b3f440ac9527a8153963ce699edccfb327b3e`,
+plus the three precise History additions. Decision evidence SHA-256 is
+`cc915b2d4af14a6ad0da34a517724e9664f59436b40d1004877e8a539af21939`.
+The reconciled accepted manifest SHA-256 is
+`e578368195b2e46acb0c7e7e1a8f3b289ddf0595667f64f890a8cb418d8dd6cf`.
+The precise amendment requires no additional acceptance stop.
+
+T2.3 reconciles the specification, contract, runtime tasks and unchanged checks.
+The additional stock reference runner reproduces 17 complete key workflows and
+source-file hashes. Its owned Org draft Save writes both parent and disk while
+retaining the draft, confirming the behavior gap. Batch quit separates input
+bursts because a quit ends its keyboard macro; this is not physical terminal
+acceptance. The new specification explicitly requires same-terminal stock Emacs
+where input is relevant and native consent/source/disk/history guarantees.
 
 ## Contracts Added or Changed
 
-FSA01/FSA02/FSA05-FSA07/FSA09 gain complete contextual audit evidence and an
-exact proposed mapping boundary. The owning shortcut specification stays Draft;
-no approval stamp is added to the mapping contract. Runtime source, factory
-maps, personal configuration, durable models, resource limits, frozen commands
-and historical delivery evidence are unchanged.
+FSA01/FSA02/FSA05-FSA09 gain completed contextual evidence and the accepted exact
+mapping boundary. The shortcut specification is accepted; later current slices
+3-7 and controller-owned dev integration are authorized in predecessor order.
+The new EIP01-EIP09 specification prepares separately sliced functional work,
+without adding those behaviors to the current shortcut-only slices.
 
-Selected supersessions of Org Familiar interaction and Git Binding review
-matrix rows are identified for the corresponding runtime slices after
-acceptance. Native Git transient differences and named displaced commands are
-part of that proposal, rather than undocumented exceptions.
+Runtime code, factory maps, personal configuration, persistence models,
+resource limits, gate commands and historical delivery receipts are unchanged.
+Current native conventions remain scoped to this increment rather than being
+presented as permanent parity exceptions.
 
 ## Files of Interest
 
-- [Contextual review](../../rev-factory-shortcuts/mode-review.md): native owners,
-  family decisions, indirect access and actual behavior boundaries.
+- [Contextual review](../../rev-factory-shortcuts/mode-review.md) and
+  [matrix](../../rev-factory-shortcuts/semantic-matrix.md): source owners,
+  complete dispositions, indirect routes and current behavior boundaries.
 - [Mapping contract](../../rev-factory-shortcuts/mapping-contract.md) and
-  [proposal](../../rev-factory-shortcuts/mapping-proposal.json): exact changes,
-  D01-D03 alternatives, displaced access and legacy supersessions.
-- [Mode audit runner](../../rev-factory-shortcuts/mode-audit.py),
+  [manifest](../../rev-factory-shortcuts/mapping-proposal.json): accepted
+  provenance, every before/after leaf, displaced quick access and supersessions.
+- [Mode runner](../../rev-factory-shortcuts/mode-audit.py),
   [mode reference](../../rev-factory-shortcuts/reference-modes.json) and
-  [asserted native results](../../rev-factory-shortcuts/mode-probe-results.json):
-  reproducible isolated effects, normalized routes and reference identities.
-- [Semantic matrix](../../rev-factory-shortcuts/semantic-matrix.md): all 707
-  command identities, six actions and 28 contexts with completed dispositions.
+  [native results](../../rev-factory-shortcuts/mode-probe-results.json):
+  reproducible isolated effects and normalized routes.
+- [Functional specification](../../../spec/editor-emacs-interaction-parity.md),
+  [stock runner](../../rev-factory-shortcuts/parity-reference.py) and
+  [stock effects](../../rev-factory-shortcuts/parity-reference.json):
+  source-verified core-first follow-through and subsequent delivery preparation.
 
 ## Validation
 
-Pre-decision focused checks:
+- Injected frozen coverage/document-consistency command: PASS locally (`Audit coverage and document consistency passed`). Exact command SHA-256: `7128831d1550a0dbb86dcfdbca219a9c1cb43581b174634262aba8cdee9337d5`. Its exact text is retained in the canonical PR and controller receipt; its identifier expression would match the report itself if duplicated here.
+- `python3 ops/default/report/rev-factory-shortcuts/mode-audit.py --package-dir "$REV_AUDIT_PACKAGES" --dependency-dir "$REV_AUDIT_DEPS"`: PASS; all 98 normalized traces, 21 language/profile sessions and owned mode effects reproduce with accepted provenance, hash/coverage and local-link checks.
+- `python3 ops/default/report/rev-factory-shortcuts/parity-reference.py`: PASS; 17 stock key workflows, retained source draft with saved parent/disk, and reference source hashes reproduce.
+- `python3 ops/default/report/rev-factory-shortcuts/audit.py --dependency-dir "$REV_AUDIT_DEPS"`: PASS; unchanged frozen core/catalog evidence, including 56 first-text sessions, reproduces.
+- `git diff --check`: PASS.
 
-- `python3 ops/default/report/rev-factory-shortcuts/mode-audit.py --package-dir "$REV_AUDIT_PACKAGES" --dependency-dir "$REV_AUDIT_DEPS"`: PASS. Variables select installed isolated reference package sources and compatible prebuilt dependencies; the runner owns all editor library output, sessions and Git fixtures. It also checks proposal hashes, unique matrix coverage and local document references without asserting owner approval.
-- `python3 ops/default/report/rev-factory-shortcuts/audit.py --dependency-dir "$REV_AUDIT_DEPS"`: PASS; frozen core/catalog evidence reproduces with unchanged native source and defaults.
-- `git diff --check`: PASS for the proposal candidate.
+The environment variables identify installed isolated reference packages and
+compatible read-only prebuilt dependencies. Current editor library output stays
+in the owned worktree; temporary sessions and local Git/source fixtures are
+removed on exit. Compile timeout remains 180 seconds, native probe process
+120 seconds, reference processes 60 seconds and observation settle five seconds.
+No limit or assertion is reduced. Final exact clean-HEAD controller validation
+follows the PR-reference commit; its receipt owns the final candidate evidence.
 
-The measured focused mode comparison took 10.414 seconds with the owned library
-cache warm. This measures the audit command, not the planned final gate.
-
-The injected approval-dependent coverage command and exact clean-HEAD
-controller receipt are pending. Their required order and assertions are
-unchanged. The contract intentionally has no mapping approval stamp before the
-owner decision, so this report does not claim that required gate passed.
-
-The private native compile timeout is 180 seconds, probe process timeout
-120 seconds, isolated reference timeout 60 seconds and native observation
-settle deadline five seconds. No limit was raised. These are audit probes,
-not physical terminal acceptance, broad Cargo checks, changing Git journeys or
-the integrated delivery-set gate. Fixtures are removed by the runner on exit.
+These are documentation audit and preparation checks. Broad Cargo gates,
+physical terminal parity, changing Git journeys and the integrated full gate
+are not claimed. The controller owns final full-gate execution after the
+current runtime slices, integration and successor startup.
 
 ## Risks and Follow-ups
 
-The [approved plan's Controller decision checkpoint](../../../plan/rev-factory-shortcuts.md)
-requires this clean committed proposal before a Slice 2 PR. Obtain explicit
-D01-D03 acceptance through that checkpoint, record the accepted proposal,
-reconcile approval metadata and run the unchanged configured commands against
-the exact clean HEAD. Only then prepare the canonical Slice 2 PR and its
-immutable report-introduction link. Runtime Slice 3 remains ineligible.
+Current runtime slices must test every accepted factory route and removed leaf,
+including History c a/c f/+, with selected source identity, retained names,
+explicit old overrides, prefix cancellation, hints, undo/count and consent.
+Slice 7 owns selected PTYs and guidance. The gate estimate remains 3-8 minutes
+warm or 10-20 minutes cold, with actual phase/cache costs recorded at acceptance.
 
-Later slices must verify changed factory input-to-effect behavior, removed
-leaves, named displaced access, overrides, prefix cancellation, effective hints,
-selected source identity, undo/count and consent. Slice 7 owns the selected PTYs
-and exact integrated gate. The contract estimates 3-8 minutes warm or 10-20
-minutes cold from separately measured prior checks; actual gate phase costs
-remain to be measured. No delivery or behavioral acceptance is claimed here.
+Functional parity is requested implementation work with discoverable requirements
+and ordered preparation in EIP01-EIP09. Its formal subsequent slicing and check
+selection precede functional additions; no competing controller starts and
+unspecified behavior does not enter the current shortcut-only delivery.

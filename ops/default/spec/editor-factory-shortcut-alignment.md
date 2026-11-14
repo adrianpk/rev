@@ -1,11 +1,11 @@
 # Factory Shortcut Alignment
 
-Status: Draft
+Status: Accepted; shortcut runtime delivery pending
 Date: 2026-11-14
-Approved scope: product owner, 2026-11-14; semantic audit slices 1-2 and preparation publication; target mappings and runtime delivery remain subject to the documented decision checkpoint
+Approved scope: product owner, 2026-11-14; exact retained P01-P19 proposal plus History c a/c f/+; current slices 3-7 and controller-owned dev integration authorized
 Format: OpenSpec capability additions; workspace specification contract
 Inspection baseline: `197bf98be615ceca06a3bab0ef5cd24b3bee2ffb`
-Readiness: all semantic rows reviewed; exact mapping proposal published for D01-D03 acceptance before the Slice 2 PR and runtime freeze
+Readiness: all semantic rows reviewed; D01-D03 accepted with precise amendment; reconcile and validate Slice 2 before its PR
 Source: [Factory shortcut review](../ticket/open/20261114010916-clarify-custom-bindings-for-unbound-commands.md)
 Baselines: [Configuration](editor-configuration.md), CFG12-CFG14 and CFG20-CFG24; [Configuration Bootstrap](editor-configuration-bootstrap.md); [Interaction](editor-interaction.md), UI02; [Modal Editing](editor-modal-editing.md); [Prefix Arguments](editor-prefix-arguments.md)
 Mode contracts: [Org](editor-org-mode.md), Familiar interaction; [Markdown](editor-markdown-mode.md); [Git](editor-git-integration.md), Binding review matrix; [Projects and Workspaces](editor-projects-workspaces.md)
@@ -13,6 +13,8 @@ Discovery: [Command Keybinding Hints](editor-command-keybinding-hints.md)
 Current reference: [Bindings](../../../docs/reference/bindings.md), [Commands](../../../docs/reference/commands.md), [Configuration](../../../docs/reference/config.toml)
 Plan: [Factory Shortcut Alignment Delivery](../plan/rev-factory-shortcuts.md)
 Tracker: [Factory Shortcut Alignment Tracker](../tracker/rev-factory-shortcuts.md)
+Functional follow-through: [Emacs Interaction Parity](editor-emacs-interaction-parity.md)
+Decision evidence SHA-256: `cc915b2d4af14a6ad0da34a517724e9664f59436b40d1004877e8a539af21939`
 
 ## Purpose
 
@@ -47,20 +49,22 @@ reviews all 707 command rows and six prompt actions: 333 core/profile rows plus
 unchanged. [Contextual evidence](../report/rev-factory-shortcuts/mode-review.md)
 records operation owners, package revisions, indirect branches and deliberate
 differences. The [exact mapping proposal](../report/rev-factory-shortcuts/mapping-contract.md)
-is complete and still requires owner acceptance; successful audit probes do
-not supply mapping or runtime approval.
+records the accepted base proposal and exact History amendment: 29 records
+and 49 base-context edits. Approval comes from the product decision, while
+successful audit probes remain separate from runtime acceptance.
 
 Static lookup is supporting evidence only. A missing binding, a prefix result,
 a wrapper name or a dispatcher that reads its next key inside a function does
 not establish a missing capability. Actual behavior and point context decide.
 
-## Proposed mapping targets
+## Accepted mapping targets
 
-These are concrete proposals for review. Draft status does not authorize
-runtime changes. Accepted entries will become the implementation's mapping
-contract together with the completed semantic review.
+The owner accepted the exact proposal at a87929948c81ee33b5b7083719c277c21a35793a,
+base JSON SHA-256 f532aaa2b7c7362174205d62626b3f440ac9527a8153963ce699edccfb327b3e,
+with History c a/c f/+ added. The mapping contract records the reconciled
+accepted digest; no second acceptance stop is required for this precise patch.
 
-| ID | Native operation | Proposed factory sequence | Context and profile policy |
+| ID | Native operation | Accepted factory sequence | Context and profile policy |
 | --- | --- | --- | --- |
 | P01 | `modal-line-first-text` | `M-m` | Nonmodal editor and all six modal editing states, including inherited editing contexts. Move point without changing interaction state. |
 | P02 | `balance-windows` | `C-x +` | Nonmodal editor and all six modal editing states through the common `C-x` family; existing focus admission remains authoritative. |
@@ -75,16 +79,20 @@ contract together with the completed semantic review.
 | P11 | `org-habit-toggle-show-all-today` | `v A`, remove `A` | Agenda native habit view; no append-agenda approximation. |
 | P12 | `org-habit-set-graph-window` | `v G`, remove `G` | Agenda native graph-window prompt; no time-grid approximation. |
 | P13 | `org-agenda-sort` | `v S`, remove `S` | Agenda native sort; no sunrise/sunset approximation. |
-| P14 | `git-cherry-pick` | History `A` replaces amend | Existing selected/ordered revision owner; amend becomes named-only. |
+| P14 | `git-cherry-pick` | History `A` replaces amend | Existing selected/ordered revision owner; amend retains History c a and named access. |
 | P15 | `git-cherry-pick` old alias | Remove History `P` | Retain `A` and named invocation; no History push owner/menu is invented. |
-| P16 | `git-commit-fixup` old key | Remove History `F` | Fixup remains named; native generic pull is absent. |
-| P17 | `git-log-next-page` old key | Remove History `f` | Paging remains named; fetch needs a configured remote in Refs. |
+| P16 | `git-commit-fixup` old key | Remove History `F` | Fixup retains History c f and named access; native generic pull is absent. |
+| P17 | `git-log-next-page` old key | Remove History `f` | Paging retains History + and named access; fetch needs a configured remote in Refs. |
 | P18 | `git-fetch` | Refs `f`, retain `&` / `M f` | Native direct operation with current selected remote and review, not a transient menu. |
 | P19 | `git-push` | Refs `P`, retain `p` / `M p` | Exact local branch or qualified mark and upstream review; no History transport alias. |
 
+| P14.amend | `git-commit-amend` | History `c a` | Exact accepted quick-access amendment; retain selected HEAD and review owner. |
+| P16.fixup | `git-commit-fixup` | History `c f` | Exact accepted quick-access amendment; retain target and review owner. |
+| P17.page | `git-log-next-page` | History `+` | Exact accepted quick-access amendment; retain pinned ancestry and page owner. |
+
 P01 deliberately reuses an existing native identity with a different name from
 the reference's `back-to-indentation`. P04 is an analogous project-switch
-workflow, not a claim that Rev implements the reference's project action menu.
+workflow, not a claim that Rev implements the reference's project action menu in this increment.
 P06 exposes Rev's existing read-only property-column projection; it does not
 introduce editable inline columns.
 
@@ -105,40 +113,36 @@ a recorded disposition even when the result is to preserve current defaults.
 | Area | Observed distinction | Required disposition |
 | --- | --- | --- |
 | Existing editor families | File/save/exit, point/mark, motion, search, replacement and pane controls already use familiar families. | Preserve assignments that satisfy the operation contract; do not rebind merely to increase coverage. |
-| Org Agenda | `M`, `s`, `A`, `G`, `S` invoke tag/search/habit/sort actions where the reference uses moon phases, save-all, append agenda, time grid and sunrise/sunset. | Decide the final placement of native view and habit controls as a family. P08 specifies the separate daily-view correction. |
-| Git History | `P`, `A`, `F`, `f` currently mean cherry-pick, amend, fixup and next page; the reference uses push, cherry-pick, pull and fetch families. | Review native menus, direct actions and prefixes together. Identify explicit exceptions or approved replacements, including how displaced actions remain reachable. |
+| Org Agenda | `M`, `s`, `A`, `G`, `S` invoke tag/search/habit/sort actions where the reference uses moon phases, save-all, append agenda, time grid and sunrise/sunset. | Apply accepted P08-P13 native placements and retained access; no missing reference operation is invented. |
+| Git History | `P`, `A`, `F`, `f` currently mean cherry-pick, amend, fixup and next page; the reference uses push, cherry-pick, pull and fetch families. | Apply accepted A/c a/c f/+ and retired P/F/f; retain Refs owners, and carry complete menu/transport parity to EIP08. |
 | Git baseline | The completed Git specification explicitly assigns `f`, `A`, `F` and `P` to the current native actions. | Any accepted replacement must explicitly supersede the affected rows. A differing reference map does not by itself repeal an approved native contract. |
 | File tree | `C-x t` is an established native tree namespace; the reference uses it for tabs. | Preserve this namespace and the approved horizontal panning/selection defaults. Do not substitute a different tree or tab interaction model. |
 | Markdown | Native tables deliberately follow the existing Org-like table family. | Preserve that convention; inspect plain text, lists and tables separately before proposing additional keys. |
 | Indirect operations | Return dispatchers expose Markdown continuation and table-row movement; Org dispatchers select contextual actions. | Record their actual keyboard routes. Do not count them as missing merely because a helper name has no direct map entry. |
-| Related modal primitives | Join direction, paragraph boundaries, paired delimiters, indentation and repeat scope differ from superficially similar reference operations. | Leave misleading reference chords unassigned to those primitives. Any semantic adapter needs an explicit behavior contract before inclusion. |
+| Related primitives | Join direction, paragraph boundaries, paired delimiters, indentation and repeat scope differ from superficially similar reference operations. | Do not substitute those primitives in this increment. EIP02-EIP05 require the missing behavior through appropriate owners in the subsequent core-first delivery. |
 | Named-only operations | Some reference operations have no stock global key, and some Rev functions have no corresponding reference family. | Retain named invocation unless a specific convention and context justify a factory key. |
 
-Decision checkpoint (proposal complete; acceptance pending):
+Accepted decisions:
 
-1. **D01 Agenda family:** proposed P08-P13 use daily d and a native v family,
-   preserving named access and unselected defaults. The contract also presents
-   retaining the conflicting native keys as explicit exceptions. The owner must
-   choose; no unsupported reference operation is introduced.
-2. **D02 Git family:** proposed P14-P19 remove misleading History transport
-   letters, put cherry-pick on A, and add Refs direct fetch/push aliases. Other
-   native panels/transients remain deliberate conventions. Retaining every
-   existing Git key would require explicit resolution of provisional Slice 6;
-   adding full transient behavior would require new approved scope.
-3. **D03 Semantic classification:** all rows now have a disposition. Accept the
-   retained Markdown/tree/native-panel conventions and explicit behavior gaps:
-   heading M-S-RET, source-edit Save and the core rejected approximations.
-   Native calendar, read-only columns and bounded Babel/export features retain
-   their documented limits. Indirect Org/Markdown/process routes are recorded
-   rather than treated as missing keys. These exclusions do not commission
-   new runtime behavior.
+1. **D01 Agenda family:** accept P08-P13 daily d and native v M / v / / v A /
+   v G / v S, retaining existing unselected defaults, names and explicit overrides.
+2. **D02 Git family:** accept History A cherry-pick, removal of old P/F/f,
+   Refs f/P aliases and current Status c behavior for this increment. Add exact
+   quick History c a amend, c f fixup and + paging routes. All seven delivery
+   identities and selected check commands remain unchanged.
+3. **D03 Semantic classification and follow-through:** accept all reviewed
+   current differences as observations, not permanent exceptions. Shared
+   capabilities must follow stock complete workflows. The linked functional
+   parity specification prioritizes the audited core gaps and existing fragment
+   ticket before related Org and Git extensions, with separate subsequent
+   slicing and native ownership. Do not hide those additions inside the current
+   shortcut-only slices.
 
-The specification remains Draft until the owner accepts these decisions and
-this exact proposal through the approved controller checkpoint. The contract
-identifies each selected supersession of Org Familiar interaction and Git
-Binding review matrix rows. Current defaults, legacy contracts and runtime
-source are unchanged during the audit. No worker may infer approval from
-complete coverage or successful parsing.
+The accepted decision SHA-256 is recorded above. The contract identifies exact
+legacy supersessions for runtime delivery and preserves consent, user overrides,
+resource limits and source/disk/history guarantees. The current branch changes
+only audit/contract/preparation artifacts. The controller owns current dev
+integration, final full-gate execution and successor startup.
 
 ## ADDED Requirements
 
@@ -307,7 +311,7 @@ conflict.
 Existing Markdown Return and table/list conventions SHALL remain intact.
 Org `M-S-RET` SHALL NOT be described as full TODO-heading parity merely because
 its checkbox-list branch matches the reference. Supporting a missing heading
-branch would require an explicitly added behavior requirement.
+branch is requested by EIP07 in the separate functional parity specification.
 
 #### Scenario: Continue a Markdown list through Return
 
@@ -355,6 +359,9 @@ Accepted sequences SHALL pass parsing, normalized alias/prefix validation and
 actual terminal input checks. Keys that collapse to another operation in the
 terminal protocol SHALL NOT be advertised as distinct factory controls.
 Profile and mode overlays SHALL remain valid after normalized aliases merge.
+Where relevant, stock Emacs in the same terminal SHALL verify emitted input
+and effects before a limitation is attributed to the terminal; an avoidable
+native normalization difference SHALL NOT be treated as a terminal excuse.
 
 #### Scenario: Do not turn Backspace into redo
 
@@ -407,23 +414,25 @@ SHALL be reported separately from runtime acceptance.
 
 ## Implementation readiness and acceptance
 
-The specification is ready for implementation planning when D01-D03 are
-resolved, proposed targets are accepted or explicitly revised, and all mapped
-exceptions have a recorded rationale. The final manifest must distinguish
-direct additions, relocations, retained aliases, indirect access and named-only
-operations. Discovery of a missing behavior must not silently expand a
-shortcut-only delivery into a new editing feature or Git menu redesign.
+D01-D03 are accepted with the precise History amendment. The accepted manifest
+separates additions, removals, retained aliases, indirect access and named-only
+operations. Runtime slices 3-7 are authorized after predecessor integration,
+under their unchanged identities/checks. Required Slice 2 validation and PR
+references must be complete before controller handoff. Functional follow-through
+has concrete requirements and ordered subsequent slicing in its owning
+specification; it is not an indefinite exception or an implicit expansion of
+this shortcut-only delivery.
 
 Implementation acceptance requires:
 
 - The complete native inventory is reconciled with the reviewed operation
   matrix; every family and context has an explicit disposition.
-- Accepted P01-P08 and any additional accepted rows pass dispatch and effect
+- Accepted P01-P19 and the three History quick-access rows pass dispatch and effect
   checks in their declared states, including physical terminal input.
 - Existing custom configuration bytes remain untouched; explicit overrides,
   failure recovery, source safety and named command access remain intact.
-- Intentional tree/Markdown conventions and existing unaffected defaults are
-  preserved; selected legacy tables and product guidance match delivered maps.
+- Current tree/Markdown conventions and unaffected defaults are preserved in
+  this increment; selected legacy tables and product guidance match delivered maps.
 - Required repository checks and family-specific acceptance pass against the
   exact candidate, without weakening gates or presenting specification prose
   as test evidence.

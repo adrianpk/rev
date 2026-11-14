@@ -1,17 +1,18 @@
 # Factory Shortcut Alignment Delivery
 
-Status: Approved for audit
+Status: Approved for current seven-slice delivery
 Date: 2026-11-14
 Delivery set: rev-factory-shortcuts
 Slice strategy: layered
 Planning authority: product-owner request for slicing, 2026-11-14
-Approved: product owner, 2026-11-14; prepare, commit and push the delivery records, execute audit slices 1-2 through autonomous Looper PR integration into dev, and retain the explicit mapping decision checkpoint before runtime changes
-Execution authority: audit slices 1-2; runtime slices remain gated by accepted mapping decisions
+Approved: product owner, 2026-11-14; retained P01-P19 proposal plus exact History c a/c f/+; current slices 3-7 and controller-owned dev integration authorized; core-first functional follow-through preparation requested
+Execution authority: current slices 1-7 under accepted manifest and predecessor order; functional additions require separate subsequent slicing
 Planning baseline: `197bf98be615ceca06a3bab0ef5cd24b3bee2ffb`
 Spec: [Factory Shortcut Alignment](../spec/editor-factory-shortcut-alignment.md)
+Follow-through: [Emacs Interaction Parity](../spec/editor-emacs-interaction-parity.md)
 Tracker: [Factory Shortcut Alignment Tracker](../tracker/rev-factory-shortcuts.md)
 Active slice: Slice 2, Mode mapping contract
-Readiness: Slice 1 integrated; Slice 2 proposal complete; D01-D03 owner decision required before PR submission
+Readiness: exact amended mapping accepted; Slice 2 validation and PR preparation active; runtime starts after predecessor integration
 Integration target: `dev`
 
 ## Outcome and strategy
@@ -23,8 +24,8 @@ canonical command identities and current focus/profile ownership.
 The layered strategy puts two reviewable contract increments before four
 behavior increments and terminal acceptance. This ordering is necessary because
 the complete catalog and semantic review expose explicit Agenda/Git choices
-that still require acceptance. A name-only comparison is insufficient to freeze
-a safe replacement map.
+now settled by the exact retained proposal and History amendment. A name-only
+comparison remains insufficient to freeze a safe replacement map.
 
 The initial P01-P08 proposals are not the full review boundary. Every command
 and configurable input action must receive an evidence-backed disposition.
@@ -37,7 +38,7 @@ an approximate binding or an undeclared adapter.
 1. **Preparation:** review and commit the specification's audit scope, this
    plan and the matching tracker before any formal slice branch is created.
    The continuation approves preparation publication and audit execution.
-   Runtime approval remains subject to the mapping checkpoint below.
+   The later mapping checkpoint is now satisfied by the recorded owner decision.
 2. **Contract slices:** Slice 1 and Slice 2 may run only under approved audit
    authority. They change review artifacts, not factory defaults. Record any
    remaining product decision and return its concrete alternatives for review.
@@ -51,14 +52,18 @@ an approximate binding or an undeclared adapter.
    An execution owner must not spend retries trying to resolve a product choice.
 5. **Integration:** one branch and one PR to `dev` per approved slice. Each
    slice starts only after the preceding slice is integrated and closed.
-   The approved continuation delegates controller-owned Rebase + Fast-forward
-   integration of the two audit PRs into dev. It does not approve unresolved
-   runtime mappings or delegate product decisions.
+   The accepted continuation delegates controller-owned Rebase + Fast-forward
+   integration of current slices 2-7 into dev. The worker does not merge, run
+   the final full gate, start successors or select new product decisions.
 
-Slice 6 is provisional until D02 is settled. If the accepted Git contract has
-no meaningful implementation or regression increment, remove that slice and
-renumber the remaining map before approval; do not create an empty feature PR.
-The proposed count is not a requirement to manufacture seven changes.
+The accepted Git increment includes History A/c a/c f/+, removal of old P/F/f
+and direct Refs f/P aliases. Slice 6 is meaningful and retains its recorded
+identity; all seven slices and exact check commands remain unchanged.
+
+The [functional parity specification](../spec/editor-emacs-interaction-parity.md)
+prepares the separately requested core-first behavior work, then Org/Git
+extensions, with native ownership and ordered subsequent increments. It is not
+an addition to this shortcut-only delivery or authority to start another run.
 
 ## Prerequisites and inspection outputs
 
@@ -67,8 +72,8 @@ The proposed count is not a requirement to manufacture seven changes.
 | Native catalog and 28 context maps | Re-extracted at the Slice 1 audit candidate; 707 commands and 2,349 inherited entries retained | Preserve the frozen catalog and source identity through mode review. |
 | Compiled defaults, overrides, selector hints and native operations | Existing implementation | Preserve their owning contracts; assess actual dispatch rather than descriptions alone. |
 | Core and profile semantic coverage | 333 core/profile rows reviewed; four proposals and nine rejected approximations recorded | Slice 1 integrated; preserve explicit mode and runtime validation boundaries. |
-| Org, Markdown, Agenda and Git coverage | 374 mode rows reviewed with native/reference evidence | Obtain acceptance of D01-D03 and explicit exceptions. |
-| Specification and mapping proposal | Complete draft; 26 records / 46 base-context edits | Accept the exact contract before the Slice 2 PR or runtime changes. |
+| Org, Markdown, Agenda and Git coverage | 374 mode rows reviewed; D01/D02 and D03 findings accepted | Preserve current shortcut scope and separately requested functional follow-through. |
+| Specification and exact manifest | Accepted precise amendment; 29 records / 49 base-context edits | Commit reconciliation and validate Slice 2 before PR; runtime follows predecessor integration. |
 | Plan, tracker and controller authority | Approved audit preparation and Slice 1 integrated; Slice 2 active | Preserve controller-owned integration and the mapping checkpoint before runtime work. |
 
 The [semantic matrix](../report/rev-factory-shortcuts/semantic-matrix.md) now
@@ -76,9 +81,9 @@ reviews all 707 names and six prompt actions across 28 contexts. Slice 1's
 333 core/profile rows and Slice 2's 374 mode rows retain the frozen source and
 catalog. The [contextual review](../report/rev-factory-shortcuts/mode-review.md)
 and [mapping contract](../report/rev-factory-shortcuts/mapping-contract.md)
-record complete semantic dispositions and proposed P01-P19 changes. The
-proposal is not an accepted runtime manifest. Its D01-D03 owner checkpoint
-remains before Slice 2 PR submission.
+record complete dispositions and accepted P01-P19 plus History c a/c f/+ at
+its original JSON path. D01-D03 acceptance is recorded; required validation
+and the Slice 2 PR remain before runtime predecessor integration.
 The catalog stores the native commands and context bindings; every command
 gets a matrix row beginning with its backticked canonical name. Preserve
 coverage identifiers even when aliases share an operation. No local paths or
@@ -95,22 +100,21 @@ output without an approved correction.
 
 ## Controller decision checkpoint
 
-Use one registered run with the seven recorded identities and frozen commands.
-The initial execution grant covers Slice 1 and Slice 2 audit work only. Before
-submitting the Slice 2 PR, publish the complete proposal in a clean committed
-slice branch and return `recovery_requested` with recovery kind `decision`.
-Include all worker-schema fields, zero incident/action IDs, an empty probe and
-validation ID, the observed candidate head, and the exact proposal paths.
-Do not return `pr_ready`, mark mapping approval complete or enter Slice 3 until
-the owner accepts D01-D03 and the exact proposal through the controller's
-ordinary decision mechanism. Keep the same run, conversation and budgets.
+The owner accepted retained proposal `a87929948c81ee33b5b7083719c277c21a35793a`
+with base JSON digest `f532aaa2b7c7362174205d62626b3f440ac9527a8153963ce699edccfb327b3e`
+plus exact History c a/c f/+ assignments. Decision evidence SHA-256:
+`cc915b2d4af14a6ad0da34a517724e9664f59436b40d1004877e8a539af21939`.
+The accepted mapping contract records the reconciled manifest digest and all
+before/after entries. D01 placements are accepted; D02 includes quick displaced
+access; D03 identifies requested functional follow-through rather than permanent
+arbitrary differences. The precise amendment needs no second acceptance stop.
 
-The decision payload must summarize the proposed Agenda/Git placements,
-intentional exceptions and any required adjustment to later slice scope. If
-acceptance would change a frozen slice identity or gate command, return that
-configuration issue for explicit resolution; never rewrite an active config.
-Controller defaults remain 200 worker turns and five stalled turns. No extra
-recovery, repair, budget or product-decision grant is implied.
+Use the same run, seven identities, frozen checks, conversation and consumed
+budgets. Controller defaults remain 200 worker turns and five stalled turns.
+Current slices 3-7 and dev integration are authorized under predecessor order,
+consent, overrides and resource bounds. No worker creates grants or changes
+active configuration. Functional additions are separately sliced before their
+implementation, with no competing controller startup from this preparation.
 
 ## Canonical slice map
 
@@ -142,7 +146,7 @@ Dependency: Slice 1 integrated; mode reference sources and native fixtures avail
 
 - T2.1: Complete semantic review of Org headings/lists/tables/source blocks, Agenda/capture/calendar/source editing, Markdown plain/list/table dispatch and every native Git panel/menu. Compare active contexts and effects, including source targets behind projections; finish all pending matrix rows and evidence-backed named-only or adaptation dispositions.
 - T2.2: Present and settle D01 Agenda placements and D02 Git family decisions, including P06-P08 and displaced command access. Produce the exact before/after mapping contract, preserve explicit tree/Markdown conventions and identify each selected supersession of legacy tables. Keep unresolved product choices visible and obtain their acceptance before closing the mapping freeze.
-- T2.3: Reconcile the specification, mapping contract, remaining slice tasks, coverage/check selection and expected cost. Remove an empty provisional Git slice if appropriate through a reviewed map revision. Record approval evidence and the slice report; keep runtime defaults unchanged. Runtime slices remain ineligible until accepted artifacts are committed.
+- T2.3: Reconcile the specification, mapping contract, remaining slice tasks, coverage/check selection and expected cost. Remove an empty provisional Git slice if appropriate through a reviewed map revision. Record the accepted precise amendment, slice report and source-verified core-first functional parity specification with subsequent slicing preparation; keep current runtime defaults unchanged. Runtime slices require committed accepted artifacts and predecessor integration.
 
 Checks: complete catalog/context coverage; no unresolved entry in the accepted implementation manifest; normalized sequence/prefix/conflict probes for both profiles; baseline/reference and document consistency; `git diff --check`. Do not label probes as terminal or full behavioral acceptance.
 
@@ -173,7 +177,7 @@ Checks: `make lint`; `cargo test --locked --test commands factory_shortcuts -- -
 Requirements: FSA03, FSA05-FSA09; P08 and accepted D01 manifest rows.
 Dependency: Slice 4 integrated; every implemented Agenda placement explicitly accepted.
 
-- T5.1: Apply proposed P08-P13 only after acceptance: daily d, tags v M, search v /, show-all habits v A, graph window v G and sort v S; remove their displaced single keys through the existing native owners. Preserve named access for displaced habit/view actions, current prompt ownership and all unselected defaults.
+- T5.1: Apply accepted P08-P13: daily d, tags v M, search v /, show-all habits v A, graph window v G and sort v S; remove their displaced single keys through the existing native owners. Preserve named access for displaced habit/view actions, current prompt ownership and all unselected defaults.
 - T5.2: Extend the factory-shortcut suite with selected-row target identity, daily view versus habit-date behavior, each approved family relocation, named and overridden old access, cancellation, source immutability for view-only actions and protection against suffix keys granting consent.
 - T5.3: Reconcile the selected Agenda reference/specification rows and task/agenda guide text; record concise user-visible changes and the slice report. Do not add missing reference features to occupy keys.
 
@@ -184,8 +188,8 @@ Checks: `make lint`; `cargo test --locked --test commands factory_shortcuts -- -
 Requirements: FSA02, FSA03, FSA05, FSA07-FSA09; accepted D02 manifest rows.
 Dependency: Slice 5 integrated; a meaningful Git increment and its exact menu/direct-action boundary accepted at mapping freeze.
 
-- T6.1: Apply proposed P14-P19 only after acceptance: History A cherry-pick; remove History P/F/f; add Refs f/P for direct fetch/push, retaining existing Refs aliases. Update History panel guidance with the changed routes. Keep menu-versus-direct-action behavior explicit, operation-specific review/confirmation intact, selection/range identities stable and displaced native actions reachable through the accepted routes.
-- T6.2: Add owned local-repository factory-shortcut regressions for every changed Git family, including history selection, complete prefixes, cancelled menus and commands, explicit overrides and absence of unintended mutation. Do not use credentials, external remotes or broad transport journeys to establish key routing.
+- T6.1: Apply accepted P14-P19 and precise History amendment: History A cherry-pick; remove History P/F/f; add History c a amend, c f fixup and + paging; add Refs f/P for direct fetch/push, retaining existing Refs aliases. Update History panel guidance with the changed routes. Keep menu-versus-direct-action behavior explicit, operation-specific review/confirmation intact, selection/range identities stable and displaced native actions reachable through the accepted routes.
+- T6.2: Add owned local-repository factory-shortcut regressions for every changed Git family, including A/c a/c f/+ History routing and selected identities, Refs f/P aliases, removed P/F/f leaves, complete/cancelled prefixes, native review, explicit old overrides and absence of unintended mutation. Do not use credentials, external remotes or broad transport journeys to establish key routing.
 - T6.3: Reconcile the exact superseded Binding review matrix rows, current binding reference and Git guide, preserving historical validation. Record delivered behavior and the canonical slice report; do not present intentional retained exceptions as missing implementations.
 
 Checks: `make lint`; `cargo test --locked --test commands factory_shortcuts -- --test-threads=1`; `cargo test --locked --test configuration keymaps -- --test-threads=1`; `git diff --check`. Add a narrow existing Git regression only if the accepted implementation changes its owner beyond input routing; record that selection before execution.

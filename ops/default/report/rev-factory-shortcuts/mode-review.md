@@ -1,6 +1,6 @@
 # Contextual Shortcut Review
 
-Status: Semantic review complete; mapping proposal awaits owner decision
+Status: Semantic review complete; exact amended mapping accepted, runtime pending
 Date: 2026-11-14
 Mode audit candidate: `f9510fc851b8` (documentation closure after Slice 1)
 Native source tree: `442765af9faac4351c208b2bfc5ca02c1b896331`
@@ -34,8 +34,8 @@ shortcut. The family decisions below use the native handler and source target.
 retain native effects, normalized proposals and explicit limits. All fixtures,
 drafts and the local repository belong to the probe. No external transport,
 personal catalog, publication or source runner is used. Input events are native
-events, not physical terminal delivery. The ordinary exact-HEAD gate remains
-approval-dependent and is not replaced by this evidence.
+events, not physical terminal delivery. The ordinary exact-HEAD validation is separate from this evidence. Product
+approval is recorded in the contract; runtime acceptance remains pending.
 
 ## Org families
 
@@ -144,7 +144,7 @@ versus view-only effects, retained timer state and unchanged habit source.
 
 ### H06: Agenda views, queries, filters, columns and bulk actions
 
-P08 proposes d for the existing daily view and retains v d. D01 proposes
+P08 proposes d for the existing daily view and retains v d. Accepted D01 uses
 v M for tag view, v / for search, v A for show-all-today habits, v G for graph
 window and v S for sort. Existing v t/d/w/v/m/y/s remain native view/span routes.
 This is an explicit native namespace, not a claim that all reference v suffixes
@@ -327,9 +327,9 @@ Owners: [Git dispatch](../../../../src/session/git/commands.rs),
 
 ### J02: History, revision/range detail, reflog and blame
 
-D02 proposes History A for the existing selected/ordered cherry-pick owner,
-removes its old P alias, and removes F fixup and f paging. Amend, fixup and next
-page stay named. The reference P/F/f families require push/pull/fetch transients
+Accepted D02 uses History A for the existing selected/ordered cherry-pick owner,
+removes its old P alias, and removes F fixup and f paging. The precise owner
+amendment adds c a amend, c f fixup and + next page, retaining named access. The reference P/F/f families require push/pull/fetch transients
 which History cannot supply through existing native operation owners. Leaving
 them unbound avoids substituting an unrelated edit or a guaranteed refusal.
 Explicit old user assignments remain valid under current override rules.
@@ -344,11 +344,11 @@ Owners: [history](../../../../src/session/git/history.rs),
 [revision detail](../../../../src/session/git/history/inspection.rs).
 Evidence: native History fetch/push refusals; no remote or mutation journey is
 claimed. Runtime Slice 6 must update panel guidance and verify A's exact target,
-removed defaults, named displaced access and retained explicit overrides.
+all c a/c f/+ routes, removed defaults, names and retained explicit overrides.
 
 ### J03: Refs, branches, tags, fetch, push and integration
 
-D02 proposes f for fetch and P for push in Refs only, retaining &/M f and p/M p.
+Accepted D02 adds f for fetch and P for push in Refs only, retaining &/M f and p/M p.
 These are familiar family letters for native direct operations, not transient
 menu parity. Fetch requires a selected configured remote; push requires an
 exact local branch or qualified push mark and upstream review. Neither can be
@@ -423,11 +423,17 @@ or an implicit shell. The audit runs none of these changing workflows.
 Owners: [native family review](../../../../src/session/git/families.rs),
 [public command contracts](../../../../src/command/git.rs).
 
-## Decision handoff
+## Accepted decision and follow-through
 
-Every operation has a semantic disposition; the mapping proposal is still
-unapproved. D01/D02 present concrete placements and alternatives in the mapping
-contract. D03 records deliberate Markdown/tree/UI conventions, missing behavior
-that a shortcut cannot repair, and all core/mode coverage. No approval line is
-written and no runtime slice becomes eligible until the owner accepts the exact
-proposal through the controller's ordinary decision checkpoint.
+Every operation has a semantic disposition. The owner accepted the exact base
+proposal with three additional History routes: c a/c f/+. The mapping contract
+records accepted provenance, digest and all 49 base-context edits. D01 is settled;
+D02 includes quick displaced access and the current direct-action scope.
+D03 remains an inventory of current differences, not permission to keep arbitrary
+shared-capability divergence permanently.
+
+[Emacs Interaction Parity](../../spec/editor-emacs-interaction-parity.md)
+records the requested core-first functional requirements, stock source/effect
+evidence, related Org/Git work and subsequent slicing preparation. Current
+shortcut slices keep their seven identities, frozen checks, consent and overrides.
+No additional acceptance stop is needed for the precise accepted revision.
