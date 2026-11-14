@@ -13,6 +13,8 @@ use super::config_fixture::Fixture;
 mod agenda;
 #[path = "factory_shortcuts/editing.rs"]
 mod editing;
+#[path = "factory_shortcuts/git.rs"]
+mod git;
 #[path = "factory_shortcuts/org.rs"]
 mod org;
 #[path = "factory_shortcuts/projects.rs"]

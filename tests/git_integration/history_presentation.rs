@@ -74,7 +74,7 @@ fn native_history() {
     }
 }
 
-// History F captures its selected full target without a text prompt; A keeps
+// History c f captures its selected full target without a text prompt; c a keeps
 // amend bound to checked HEAD. Both use the existing explicit review owner.
 #[test]
 fn contextual_composition() {
@@ -93,7 +93,8 @@ fn contextual_composition() {
     plain(editor, 'h');
     wait(editor, |s| s.echo().contains("Git history inspected"));
     plain(editor, 'n');
-    plain(editor, 'F');
+    plain(editor, 'c');
+    plain(editor, 'f');
     wait(editor, |s| s.echo().contains("Fixup exact target"));
     assert!(!editor.git_visible(), "{}", editor.echo());
     assert!(text(editor).starts_with("fixup! Fixture"));
@@ -104,7 +105,8 @@ fn contextual_composition() {
     wait(editor, |s| s.echo().contains("Commit created and verified"));
     editor.execute(Command::Git(GitCommand::Log));
     wait(editor, |s| s.echo().contains("Git history inspected"));
-    plain(editor, 'A');
+    plain(editor, 'c');
+    plain(editor, 'a');
     wait(editor, |s| s.echo().contains("Amend exact HEAD"));
     assert!(!editor.git_visible());
     key(editor, KeyCode::Char('g'), KeyModifiers::CONTROL);
@@ -113,7 +115,8 @@ fn contextual_composition() {
     repository.commit();
     plain(editor, 'g');
     wait(editor, |s| s.echo().contains("History inspection failed"));
-    plain(editor, 'F');
+    plain(editor, 'c');
+    plain(editor, 'f');
     assert!(editor.git_visible(), "{}", editor.echo());
     assert!(
         editor.echo().contains("Select an exact History revision"),

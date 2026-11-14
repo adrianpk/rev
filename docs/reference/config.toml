@@ -2081,10 +2081,11 @@ max_result_bytes = 262144
 "PageDown" = "scroll-up-command"
 "M-<" = "beginning-of-buffer"
 "M->" = "end-of-buffer"
-# Exact read-only repository inspection in both profiles."c a" = "git-commit-amend"
+"c a" = "git-commit-amend"
 "c f" = "git-commit-fixup"
 "+" = "git-log-next-page"
 
+# Exact read-only repository inspection in both profiles.
 [keys.git_inspect]
 "!" = "git-run-command"
 "C-x g" = "git-status"
@@ -2160,10 +2161,10 @@ max_result_bytes = 262144
 "PageDown" = "scroll-up-command"
 "M-<" = "beginning-of-buffer"
 "M->" = "end-of-buffer"
-
-# Independent Git-owned sequence observation in both profiles."f" = "git-fetch"
+"f" = "git-fetch"
 "P" = "git-push"
 
+# Independent Git-owned sequence observation in both profiles.
 [keys.git_sequence]
 "!" = "git-run-command"
 "RET" = "git-conflict-visit"

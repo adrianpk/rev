@@ -31,7 +31,7 @@ fn native_order() {
         plain(editor, 'a');
         plain(editor, '*');
         let trigger = if kind == ApplyKind::CherryPick {
-            'P'
+            'A'
         } else {
             'V'
         };
@@ -91,7 +91,7 @@ fn native_mainline() {
     }
     editor.execute(Command::Git(GitCommand::Log));
     wait(editor, |s| s.echo().contains("Git history inspected"));
-    plain(editor, 'P');
+    plain(editor, 'A');
     assert!(
         editor.echo().contains("Choose an explicit merge parent"),
         "{}",
@@ -160,7 +160,7 @@ fn native_controls() {
         plain(
             editor,
             if kind == ApplyKind::CherryPick {
-                'P'
+                'A'
             } else {
                 'V'
             },
