@@ -1,0 +1,84 @@
+{
+  "first_text": {
+    "cases": [
+      {
+        "case": "spaces",
+        "offset": 4
+      },
+      {
+        "case": "tab",
+        "offset": 1
+      },
+      {
+        "case": "mixed",
+        "offset": 3
+      },
+      {
+        "case": "blank",
+        "offset": 3
+      },
+      {
+        "case": "empty",
+        "offset": 0
+      },
+      {
+        "case": "unicode-space",
+        "offset": 1
+      },
+      {
+        "case": "wide",
+        "offset": 2
+      },
+      {
+        "case": "combining",
+        "offset": 2
+      }
+    ],
+    "sessions": 56,
+    "count": 4,
+    "unchanged": [
+      "source",
+      "stamp",
+      "history",
+      "editing-state",
+      "mark",
+      "selection-shape"
+    ]
+  },
+  "mappings": {
+    "profiles": 2,
+    "editing_maps": 7,
+    "protected_keys": [
+      "C-g",
+      "modal M-x"
+    ],
+    "aliases": [
+      "C-? = Backspace",
+      "C-i = TAB"
+    ],
+    "editor_override_isolated": true
+  },
+  "effects": {
+    "join": {
+      "text": "prev\n  current next",
+      "point": 14
+    },
+    "join_undo_redo": true,
+    "paragraph_offset": 4,
+    "paragraph_rule_offset": 19,
+    "matching_pair_offset": 3,
+    "pane_widths_before": [
+      8,
+      20,
+      70
+    ],
+    "pane_widths_after": [
+      32,
+      33,
+      33
+    ],
+    "balance_prompt_rejected": true,
+    "project_without_storage": "Context storage is not configured by this session's host",
+    "project_source_retained": true
+  }
+}

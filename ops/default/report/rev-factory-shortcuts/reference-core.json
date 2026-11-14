@@ -1,0 +1,4701 @@
+{
+  "emacs_version": "31.1",
+  "org_version": "9.8.7",
+  "commands": [
+    {
+      "name": "plugin-list",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "plugin-activate",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "plugin-deactivate",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "plugin-restart",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "kmacro-start-macro-or-insert-counter",
+      "interactive": true,
+      "bindings": [
+        "<f3>"
+      ],
+      "summary": "Record subsequent keyboard input, defining a keyboard macro."
+    },
+    {
+      "name": "kmacro-start-macro",
+      "interactive": true,
+      "bindings": [
+        "C-x (",
+        "C-x C-k C-s",
+        "C-x C-k s"
+      ],
+      "summary": "Record subsequent keyboard input, defining a keyboard macro."
+    },
+    {
+      "name": "kmacro-end-macro",
+      "interactive": true,
+      "bindings": [
+        "C-x )"
+      ],
+      "summary": "Finish defining a keyboard macro."
+    },
+    {
+      "name": "kmacro-end-or-call-macro",
+      "interactive": true,
+      "bindings": [
+        "<f4>"
+      ],
+      "summary": "End kbd macro if currently being defined; else call last kbd macro."
+    },
+    {
+      "name": "kmacro-end-and-call-macro",
+      "interactive": true,
+      "bindings": [
+        "S-<mouse-3>",
+        "C-x e"
+      ],
+      "summary": "Call last keyboard macro, ending it first if currently being defined."
+    },
+    {
+      "name": "kmacro-end-or-call-macro-repeat",
+      "interactive": true,
+      "bindings": [
+        "C-x C-k C-k"
+      ],
+      "summary": "As `kmacro-end-or-call-macro' but allow repeat without repeating prefix."
+    },
+    {
+      "name": "kmacro-call-ring-2nd-repeat",
+      "interactive": true,
+      "bindings": [
+        "C-x C-k C-l"
+      ],
+      "summary": "Execute second keyboard macro in macro ring."
+    },
+    {
+      "name": "kmacro-cycle-ring-next",
+      "interactive": true,
+      "bindings": [
+        "C-x C-k C-n"
+      ],
+      "summary": "Move to next keyboard macro in keyboard macro ring."
+    },
+    {
+      "name": "kmacro-cycle-ring-previous",
+      "interactive": true,
+      "bindings": [
+        "C-x C-k C-p"
+      ],
+      "summary": "Move to previous keyboard macro in keyboard macro ring."
+    },
+    {
+      "name": "kmacro-delete-ring-head",
+      "interactive": true,
+      "bindings": [
+        "C-x C-k C-d"
+      ],
+      "summary": "Delete current macro from keyboard macro ring."
+    },
+    {
+      "name": "kmacro-swap-ring",
+      "interactive": true,
+      "bindings": [
+        "C-x C-k C-t"
+      ],
+      "summary": "Swap first two elements on keyboard macro ring."
+    },
+    {
+      "name": "kmacro-redisplay",
+      "interactive": true,
+      "bindings": [
+        "C-x C-k d"
+      ],
+      "summary": "Force redisplay during keyboard macro execution."
+    },
+    {
+      "name": "kmacro-insert-counter",
+      "interactive": true,
+      "bindings": [
+        "C-x C-k TAB"
+      ],
+      "summary": "Insert current value of `kmacro-counter', then increment it by ARG."
+    },
+    {
+      "name": "kmacro-set-counter",
+      "interactive": true,
+      "bindings": [
+        "C-x C-k C-c"
+      ],
+      "summary": "Set the value of `kmacro-counter' to ARG, or prompt for value if no argument."
+    },
+    {
+      "name": "kmacro-add-counter",
+      "interactive": true,
+      "bindings": [
+        "C-x C-k C-a"
+      ],
+      "summary": "Add the value of numeric prefix arg (prompt if missing) to `kmacro-counter'."
+    },
+    {
+      "name": "kmacro-set-format",
+      "interactive": true,
+      "bindings": [
+        "C-x C-k C-f"
+      ],
+      "summary": "Set the format of `kmacro-counter' to FORMAT."
+    },
+    {
+      "name": "apply-macro-to-region-lines",
+      "interactive": true,
+      "bindings": [
+        "C-x C-k r"
+      ],
+      "summary": "Apply last keyboard macro to all lines in the region."
+    },
+    {
+      "name": "kbd-macro-query",
+      "interactive": true,
+      "bindings": [
+        "C-x q",
+        "C-x C-k q"
+      ],
+      "summary": "Query user during kbd macro execution."
+    },
+    {
+      "name": "exit-recursive-edit",
+      "interactive": true,
+      "bindings": [
+        "C-M-c"
+      ],
+      "summary": "Exit from the innermost recursive edit or minibuffer."
+    },
+    {
+      "name": "abort-recursive-edit",
+      "interactive": true,
+      "bindings": [
+        "C-]"
+      ],
+      "summary": "Abort the command that requested this recursive edit or minibuffer input."
+    },
+    {
+      "name": "kmacro-name-last-macro",
+      "interactive": true,
+      "bindings": [
+        "C-x C-k n"
+      ],
+      "summary": "Assign a name to the last keyboard macro defined."
+    },
+    {
+      "name": "kmacro-bind-to-key",
+      "interactive": true,
+      "bindings": [
+        "C-x C-k b"
+      ],
+      "summary": "When not defining or executing a macro, offer to bind last macro to a key."
+    },
+    {
+      "name": "kmacro-save",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "kmacro-load",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "kmacro-delete",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "insert-kbd-macro",
+      "interactive": true,
+      "bindings": [],
+      "summary": "Insert in buffer the definition of kbd macro MACRONAME, as Lisp code."
+    },
+    {
+      "name": "kmacro-edit-macro",
+      "interactive": true,
+      "bindings": [
+        "C-x C-k RET"
+      ],
+      "summary": "As edit last keyboard macro, but without kmacro-repeat property."
+    },
+    {
+      "name": "kmacro-edit-macro-repeat",
+      "interactive": true,
+      "bindings": [
+        "C-x C-k C-e"
+      ],
+      "summary": "Edit last keyboard macro."
+    },
+    {
+      "name": "edit-kbd-macro",
+      "interactive": true,
+      "bindings": [
+        "C-x C-k e"
+      ],
+      "summary": "Edit a keyboard macro."
+    },
+    {
+      "name": "kmacro-edit-lossage",
+      "interactive": true,
+      "bindings": [
+        "C-x C-k l"
+      ],
+      "summary": "Edit most recent 300 keystrokes as a keyboard macro."
+    },
+    {
+      "name": "kmacro-step-edit-macro",
+      "interactive": true,
+      "bindings": [
+        "C-x C-k SPC"
+      ],
+      "summary": "Step edit and execute last keyboard macro."
+    },
+    {
+      "name": "list-keyboard-macros",
+      "interactive": true,
+      "bindings": [],
+      "summary": "List the keyboard macros."
+    },
+    {
+      "name": "edmacro-finish-edit",
+      "interactive": true,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "edmacro-insert-key",
+      "interactive": true,
+      "bindings": [],
+      "summary": "Insert the written name of a KEY in the buffer."
+    },
+    {
+      "name": "edmacro-set-macro-to-region-lines",
+      "interactive": true,
+      "bindings": [],
+      "summary": "Set the macro text to lines of text in the buffer between BEG and END."
+    },
+    {
+      "name": "kmacro-menu-edit-position",
+      "interactive": true,
+      "bindings": [],
+      "summary": "Move the keyboard macro at point to a new position."
+    },
+    {
+      "name": "kmacro-menu-transpose",
+      "interactive": true,
+      "bindings": [],
+      "summary": "Swap the keyboard macro at point with the one above, then move to the next line."
+    },
+    {
+      "name": "kmacro-menu-edit-counter",
+      "interactive": true,
+      "bindings": [],
+      "summary": "Edit the counter of the keyboard macro at point."
+    },
+    {
+      "name": "kmacro-menu-edit-format",
+      "interactive": true,
+      "bindings": [],
+      "summary": "Edit the counter format of the keyboard macro at point."
+    },
+    {
+      "name": "kmacro-menu-edit-keys",
+      "interactive": true,
+      "bindings": [],
+      "summary": "Edit the keys of the keyboard macro at point via `edmacro-mode'."
+    },
+    {
+      "name": "kmacro-menu-edit-column",
+      "interactive": true,
+      "bindings": [],
+      "summary": "Edit the value in the current column of the keyboard macro at point."
+    },
+    {
+      "name": "kmacro-menu-flag-for-deletion",
+      "interactive": true,
+      "bindings": [],
+      "summary": "Flag macros in the region or on the current line."
+    },
+    {
+      "name": "kmacro-menu-do-flagged-delete",
+      "interactive": true,
+      "bindings": [],
+      "summary": "Delete keyboard macros flagged via `kmacro-menu-flag-for-deletion'."
+    },
+    {
+      "name": "kmacro-menu-mark",
+      "interactive": true,
+      "bindings": [],
+      "summary": "Mark macros in the region or on the current line."
+    },
+    {
+      "name": "kmacro-menu-do-copy",
+      "interactive": true,
+      "bindings": [],
+      "summary": "Duplicate macros in the region, those with markers, or the one at point."
+    },
+    {
+      "name": "kmacro-menu-do-delete",
+      "interactive": true,
+      "bindings": [],
+      "summary": "Delete macros in the region, those with markers, or the one at point."
+    },
+    {
+      "name": "kmacro-menu-unmark",
+      "interactive": true,
+      "bindings": [],
+      "summary": "Unmark and unflag macros in the region or on the current line."
+    },
+    {
+      "name": "kmacro-menu-unmark-backward",
+      "interactive": true,
+      "bindings": [],
+      "summary": "Like `kmacro-menu-unmark', but move backwards instead of forwards."
+    },
+    {
+      "name": "kmacro-menu-unmark-all",
+      "interactive": true,
+      "bindings": [],
+      "summary": "Unmark and unflag all listed keyboard macros."
+    },
+    {
+      "name": "kmacro-menu-refresh",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "kmacro-menu-quit",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "kmacro-menu-help",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "prefix-argument",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "universal-argument",
+      "interactive": true,
+      "bindings": [
+        "C-u"
+      ],
+      "summary": "Begin a numeric argument for the following command."
+    },
+    {
+      "name": "digit-argument",
+      "interactive": true,
+      "bindings": [
+        "C-9",
+        "C-8",
+        "C-7",
+        "C-6",
+        "C-5",
+        "C-4",
+        "C-3",
+        "C-2",
+        "C-1",
+        "C-0",
+        "ESC 0..9",
+        "C-M-9",
+        "C-M-8",
+        "C-M-7",
+        "C-M-6",
+        "C-M-5",
+        "C-M-4",
+        "C-M-3",
+        "C-M-2",
+        "C-M-1",
+        "C-M-0"
+      ],
+      "summary": "Part of the numeric argument for the next command."
+    },
+    {
+      "name": "negative-argument",
+      "interactive": true,
+      "bindings": [
+        "C--",
+        "M--",
+        "C-M--"
+      ],
+      "summary": "Begin a negative numeric argument for the next command."
+    },
+    {
+      "name": "git-clone",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "git-clone-shallow",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "git-clone-bare",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "git-clone-mirror",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "git-init",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "git-ignore",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "git-ignore-exclude",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "git-submodule-add",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "git-submodule-list",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "git-submodule-update",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "git-submodule-sync",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "git-submodule-deinit",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "git-subtree-add",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "git-subtree-merge",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "git-subtree-pull",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "git-subtree-push",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "git-subtree-split",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "git-notes-add",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "git-notes-remove",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "git-notes-prune",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "git-sparse-checkout-enable",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "git-sparse-checkout-disable",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "git-sparse-checkout-reapply",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "git-sparse-checkout-set",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "git-sparse-checkout-add",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "git-format-patch",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "git-save-diff",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "git-request-pull",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "git-apply-patch",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "git-apply-mailbox",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "git-run-command",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "git-run-shell-command",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "git-worktree-list",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "git-worktree-create",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "git-worktree-visit",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "git-worktree-lock",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "git-worktree-unlock",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "git-worktree-prune",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "git-worktree-remove",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "git-stash-list",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "git-stash-create",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "git-stash-show",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "git-stash-apply",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "git-stash-pop",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "git-stash-branch",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "git-stash-drop",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "git-status",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "git-refs",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "git-merge",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "git-merge-fast-forward",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "git-merge-no-fast-forward",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "git-rebase",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "git-operation-status",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "git-conflicts",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "git-conflict-visit",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "git-conflict-explain",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "git-conflict-use-base",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "git-conflict-use-current",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "git-conflict-use-applied",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "git-conflict-delete",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "git-conflict-stage",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "git-merge-continue",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "git-merge-abort",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "git-rebase-autosquash",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "git-rebase-continue",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "git-rebase-skip",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "git-rebase-abort",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "git-operation-continue",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "git-operation-skip",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "git-operation-abort",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "git-fetch",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "git-push",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "git-tag-create",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "git-tag-delete",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "git-branch-create",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "git-branch-switch",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "git-branch-rename",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "git-branch-delete",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "git-log",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "git-show",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "git-log-next-page",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "git-show-range",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "git-bisect-start",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "git-bisect-good",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "git-bisect-bad",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "git-bisect-skip",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "git-bisect-reset",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "git-cherry-pick",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "git-cherry-pick-continue",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "git-cherry-pick-skip",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "git-cherry-pick-abort",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "git-revert-continue",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "git-revert-skip",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "git-revert-abort",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "git-revert",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "git-sequence-mark",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "git-sequence-unmark",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "git-reflog",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "git-blame",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "git-commit",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "git-commit-amend",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "git-commit-fixup",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "git-commit-submit",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "git-commit-cancel",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "git-quit",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "git-refresh",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "git-toggle-section",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "git-diff",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "git-visit-file",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "git-discard",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "git-mark",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "git-unmark",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "git-unmark-all",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "git-stage",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "git-unstage",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "git-dispatch",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "git-processes",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "git-process-show",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "git-process-cancel",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "terminal-next-prompt",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "terminal-previous-prompt",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "terminal-next-error",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "terminal-open-link",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "terminal-yank",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "terminal-yank-pop",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "terminal-clear",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "terminal-clear-scrollback",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "terminal-beginning-of-line",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "terminal-end-of-line",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "terminal-reset-cursor-point",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "terminal-undo",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "terminal-send-return",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "terminal-send-tab",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "terminal-send-escape",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "terminal-send-backspace",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "terminal-send-delete",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "terminal-send-up",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "terminal-send-down",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "terminal-send-left",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "terminal-send-right",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "terminal-send-prior",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "terminal-send-next",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "terminal-send-space",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "terminal-copy-mode",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "terminal-copy-mode-done",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "terminal-send-next-key",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "terminal-open",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "terminal-toggle",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "terminal-new-buffer",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "terminal-move-to-buffer",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "terminal-move-to-panel",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "terminal-new",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "terminal-list",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "terminal-rename",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "terminal-open-here",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "terminal-open-other-pane",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "modal-forward-char",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "modal-backward-char",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "modal-next-line",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "modal-previous-line",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "modal-line-start",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "modal-line-first-text",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "modal-line-end",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "modal-next-word-start",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "modal-previous-word-start",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "modal-next-word-end",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "modal-next-big-word-start",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "modal-previous-big-word-start",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "modal-next-big-word-end",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "modal-previous-word-end",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "modal-previous-big-word-end",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "modal-buffer-end",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "modal-buffer-start",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "modal-find-forward",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "modal-find-backward",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "modal-till-forward",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "modal-till-backward",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "modal-repeat-find",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "modal-reverse-find",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "modal-next-paragraph",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "modal-previous-paragraph",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "modal-matching-delimiter",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "modal-page-forward",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "modal-page-backward",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "modal-half-page-forward",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "modal-half-page-backward",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "modal-screen-top",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "modal-screen-middle",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "modal-screen-bottom",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "modal-align-top",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "modal-align-middle",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "modal-align-bottom",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "modal-search-forward",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "modal-search-backward",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "modal-search-repeat",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "modal-search-reverse",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "modal-search-word-forward",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "modal-search-word-backward",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "modal-delete",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "modal-change",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "modal-copy",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "modal-indent",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "modal-outdent",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "modal-delete-line-end",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "modal-change-line-end",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "modal-copy-line-end",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "modal-delete-forward",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "modal-delete-backward",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "modal-replace-character",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "modal-paste-after",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "modal-paste-before",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "modal-join-lines",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "modal-select-inner-object",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "modal-select-around-object",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "modal-enter-normal",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "modal-enter-insert",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "modal-enter-insert-after",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "modal-enter-insert-line-first",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "modal-enter-insert-line-end",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "modal-open-line-below",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "modal-open-line-above",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "modal-enter-visual-character",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "modal-enter-visual-line",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "modal-enter-visual-block",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "modal-one-normal-command",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "modal-enter-replace",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "modal-repeat-last-change",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "modal-jump-backward",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "modal-jump-forward",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "lsp-mode",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "lsp-status",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "lsp-connect",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "lsp-disconnect",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "lsp-restart",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "lsp-setup",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "lsp-reload-settings",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "lsp-servers",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "lsp-select-server",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "lsp-install-server",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "lsp-update-server",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "lsp-remove-server",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "lsp-cancel-installation",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "completion-at-point",
+      "interactive": true,
+      "bindings": [],
+      "summary": "Perform completion on the text around point."
+    },
+    {
+      "name": "completion-mode",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "completion-auto-mode",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "completion-next",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "completion-previous",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "completion-accept",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "completion-cancel",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "bookmark-set",
+      "interactive": true,
+      "bindings": [
+        "C-x r m",
+        "<menu-bar> <edit> <bookmark> <set>"
+      ],
+      "summary": "Set a bookmark named NAME at the current location."
+    },
+    {
+      "name": "bookmark-set-no-overwrite",
+      "interactive": true,
+      "bindings": [
+        "C-x r M"
+      ],
+      "summary": "Set a bookmark named NAME at the current location."
+    },
+    {
+      "name": "bookmark-jump",
+      "interactive": true,
+      "bindings": [
+        "C-x r b",
+        "<menu-bar> <edit> <bookmark> <jump>"
+      ],
+      "summary": "Jump to bookmark BOOKMARK (a point in some file)."
+    },
+    {
+      "name": "bookmark-delete",
+      "interactive": true,
+      "bindings": [
+        "<menu-bar> <edit> <bookmark> <delete>"
+      ],
+      "summary": "Delete BOOKMARK-NAME from the bookmark list."
+    },
+    {
+      "name": "bookmark-save",
+      "interactive": true,
+      "bindings": [
+        "<menu-bar> <edit> <bookmark> <save>"
+      ],
+      "summary": "Save currently defined bookmarks in FILE."
+    },
+    {
+      "name": "bookmark-reload",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "list-bookmarks",
+      "interactive": true,
+      "bindings": [],
+      "summary": "Display a list of existing bookmarks."
+    },
+    {
+      "name": "bookmark-next",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "bookmark-previous",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "bookmark-markers-mode",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "bookmark-bmenu-delete",
+      "interactive": true,
+      "bindings": [],
+      "summary": "Mark bookmark on this line to be deleted."
+    },
+    {
+      "name": "bookmark-bmenu-unmark",
+      "interactive": true,
+      "bindings": [],
+      "summary": "Cancel all requested operations on bookmark on this line and move down."
+    },
+    {
+      "name": "bookmark-bmenu-execute-deletions",
+      "interactive": true,
+      "bindings": [],
+      "summary": "Delete bookmarks flagged `D'."
+    },
+    {
+      "name": "bookmark-bmenu-this-window",
+      "interactive": true,
+      "bindings": [],
+      "summary": "Select this line's bookmark in this window."
+    },
+    {
+      "name": "rectangle-mark-mode",
+      "interactive": true,
+      "bindings": [
+        "C-x SPC"
+      ],
+      "summary": "Toggle the region as rectangular."
+    },
+    {
+      "name": "copy-rectangle-as-kill",
+      "interactive": true,
+      "bindings": [
+        "C-x r M-w"
+      ],
+      "summary": "Copy the region-rectangle and save it as the last killed one."
+    },
+    {
+      "name": "kill-rectangle",
+      "interactive": true,
+      "bindings": [
+        "C-x r k"
+      ],
+      "summary": "Delete the region-rectangle and save it as the last killed one."
+    },
+    {
+      "name": "yank-rectangle",
+      "interactive": true,
+      "bindings": [
+        "C-x r y"
+      ],
+      "summary": "Yank the last killed rectangle with upper left corner at point."
+    },
+    {
+      "name": "tree-delete",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "tree-rename",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "tree-open",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "tree-create-file",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "tree-create-directory",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "toggle-file-tree",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "focus-file-tree",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "tree-previous-line",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "tree-next-line",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "tree-expand",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "tree-collapse",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "tree-toggle-directory",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "tree-refresh",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "tree-up-directory",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "tree-widen",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "tree-narrow",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "tree-reset-width",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "tree-auto-width-mode",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "tree-scroll-left",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "tree-scroll-right",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "query-replace",
+      "interactive": true,
+      "bindings": [
+        "M-%",
+        "<menu-bar> <edit> <replace> <query-replace>"
+      ],
+      "summary": "Replace some occurrences of FROM-STRING with TO-STRING."
+    },
+    {
+      "name": "isearch-forward",
+      "interactive": true,
+      "bindings": [
+        "C-s",
+        "<menu-bar> <edit> <i-search> <isearch-forward>"
+      ],
+      "summary": "Do incremental search forward."
+    },
+    {
+      "name": "isearch-backward",
+      "interactive": true,
+      "bindings": [
+        "C-r",
+        "<menu-bar> <edit> <i-search> <isearch-backward>"
+      ],
+      "summary": "Do incremental search backward."
+    },
+    {
+      "name": "execute-extended-command",
+      "interactive": true,
+      "bindings": [
+        "<execute>",
+        "<menu>",
+        "M-x",
+        "<menu-bar> <edit> <execute-extended-command>"
+      ],
+      "summary": "Read a command name, then read the arguments and call the command."
+    },
+    {
+      "name": "save-buffers-kill-terminal",
+      "interactive": true,
+      "bindings": [
+        "C-x C-c",
+        "<menu-bar> <file> <exit-emacs>"
+      ],
+      "summary": "Offer to save each buffer, then kill the current connection."
+    },
+    {
+      "name": "quit",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "find-file",
+      "interactive": true,
+      "bindings": [
+        "<open>",
+        "C-x C-f",
+        "<menu-bar> <file> <new-file>"
+      ],
+      "summary": "Edit file FILENAME."
+    },
+    {
+      "name": "generate-new-buffer",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "open-directory",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "context-close",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "dashboard-open",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "project-create",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "project-promote",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "project-switch-project",
+      "interactive": true,
+      "bindings": [
+        "C-x p p",
+        "<menu-bar> <tools> <project> <project-switch-project>"
+      ],
+      "summary": "\"Switch\" to another project by running an Emacs command."
+    },
+    {
+      "name": "project-list",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "workspace-create",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "workspace-open",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "workspace-list",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "workspace-add-directory",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "workspace-add-project",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "workspace-remove-root",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "project-rename",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "project-forget",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "project-set-root",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "project-promote-to-workspace",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "project-duplicate-as-workspace",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "workspace-rename",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "workspace-forget",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "workspace-set-root-path",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "goto-line",
+      "interactive": true,
+      "bindings": [
+        "M-g g",
+        "M-g M-g",
+        "<menu-bar> <edit> <goto> <go-to-line>"
+      ],
+      "summary": "Go to LINE, counting from line 1 at beginning of buffer."
+    },
+    {
+      "name": "mouse-mode",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "visual-line-mode",
+      "interactive": true,
+      "bindings": [],
+      "summary": "Toggle visual line based editing (Visual Line mode) in the current buffer."
+    },
+    {
+      "name": "org-pretty-headings-mode",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "org-reset-heading-presentation",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "org-indent-mode",
+      "interactive": true,
+      "bindings": [],
+      "summary": "When active, indent text according to outline structure."
+    },
+    {
+      "name": "org-indent-enable",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "org-indent-disable",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "org-cycle",
+      "interactive": true,
+      "bindings": [],
+      "summary": "TAB-action and visibility cycling for Org mode."
+    },
+    {
+      "name": "org-shifttab",
+      "interactive": true,
+      "bindings": [],
+      "summary": "Global visibility cycling or move to previous table field."
+    },
+    {
+      "name": "org-overview",
+      "interactive": true,
+      "bindings": [],
+      "summary": "Switch to overview mode, showing only top-level headlines."
+    },
+    {
+      "name": "org-content",
+      "interactive": true,
+      "bindings": [],
+      "summary": "Show all headlines in the buffer, like a table of contents."
+    },
+    {
+      "name": "org-show-all",
+      "interactive": true,
+      "bindings": [],
+      "summary": "Show all contents in the visible part of the buffer."
+    },
+    {
+      "name": "org-hide-subtree",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "org-show-children",
+      "interactive": true,
+      "bindings": [],
+      "summary": "Show all direct subheadings of this heading."
+    },
+    {
+      "name": "org-show-subtree",
+      "interactive": true,
+      "bindings": [],
+      "summary": "Show everything after this heading at deeper levels."
+    },
+    {
+      "name": "org-hide-drawer",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "org-show-drawer",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "org-toggle-drawer",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "org-hide-all-drawers",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "org-show-all-drawers",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "org-toggle-all-drawers",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "org-cycle-set-startup-visibility",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "org-insert-heading",
+      "interactive": true,
+      "bindings": [],
+      "summary": "Insert a new heading or an item with the same depth at point."
+    },
+    {
+      "name": "org-next-visible-heading",
+      "interactive": true,
+      "bindings": [],
+      "summary": "Move to the next visible heading line."
+    },
+    {
+      "name": "org-previous-visible-heading",
+      "interactive": true,
+      "bindings": [],
+      "summary": "Move to the previous visible heading."
+    },
+    {
+      "name": "org-forward-heading-same-level",
+      "interactive": true,
+      "bindings": [],
+      "summary": "Move forward to the ARG'th subheading at same level as this one."
+    },
+    {
+      "name": "org-backward-heading-same-level",
+      "interactive": true,
+      "bindings": [],
+      "summary": "Move backward to the ARG'th subheading at same level as this one."
+    },
+    {
+      "name": "org-up-heading-safe",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "org-meta-return",
+      "interactive": true,
+      "bindings": [],
+      "summary": "Insert a new heading or wrap a region in a table."
+    },
+    {
+      "name": "org-promote-subtree",
+      "interactive": true,
+      "bindings": [],
+      "summary": "Promote the entire subtree."
+    },
+    {
+      "name": "org-demote-subtree",
+      "interactive": true,
+      "bindings": [],
+      "summary": "Demote the entire subtree."
+    },
+    {
+      "name": "org-move-subtree-up",
+      "interactive": true,
+      "bindings": [],
+      "summary": "Move the current subtree up past ARG headlines of the same level."
+    },
+    {
+      "name": "org-move-subtree-down",
+      "interactive": true,
+      "bindings": [],
+      "summary": "Move the current subtree down past ARG headlines of the same level."
+    },
+    {
+      "name": "org-metaleft",
+      "interactive": true,
+      "bindings": [],
+      "summary": "Promote heading, list item at point or move table column left."
+    },
+    {
+      "name": "org-metaright",
+      "interactive": true,
+      "bindings": [],
+      "summary": "Demote heading, list item at point or move table column right."
+    },
+    {
+      "name": "org-metaup",
+      "interactive": true,
+      "bindings": [],
+      "summary": "Move subtree up or move table row up."
+    },
+    {
+      "name": "org-metadown",
+      "interactive": true,
+      "bindings": [],
+      "summary": "Move subtree down or move table row down."
+    },
+    {
+      "name": "org-insert-item",
+      "interactive": true,
+      "bindings": [],
+      "summary": "Insert a new item at the current level."
+    },
+    {
+      "name": "org-indent-item",
+      "interactive": true,
+      "bindings": [],
+      "summary": "Indent a local list item, but not its children."
+    },
+    {
+      "name": "org-outdent-item",
+      "interactive": true,
+      "bindings": [],
+      "summary": "Outdent a local list item, but not its children."
+    },
+    {
+      "name": "org-indent-item-tree",
+      "interactive": true,
+      "bindings": [],
+      "summary": "Indent a local list item including its children."
+    },
+    {
+      "name": "org-outdent-item-tree",
+      "interactive": true,
+      "bindings": [],
+      "summary": "Outdent a local list item including its children."
+    },
+    {
+      "name": "org-move-item-up",
+      "interactive": true,
+      "bindings": [],
+      "summary": "Move the item at point up, i.e. swap with previous item."
+    },
+    {
+      "name": "org-move-item-down",
+      "interactive": true,
+      "bindings": [],
+      "summary": "Move the item at point down, i.e. swap with following item."
+    },
+    {
+      "name": "org-renumber-list",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "org-ctrl-c-ctrl-c",
+      "interactive": true,
+      "bindings": [],
+      "summary": "Set tags in headline, or update according to changed information at point."
+    },
+    {
+      "name": "org-toggle-checkbox",
+      "interactive": true,
+      "bindings": [],
+      "summary": "Toggle the checkbox in the current line."
+    },
+    {
+      "name": "org-toggle-radio-button",
+      "interactive": true,
+      "bindings": [],
+      "summary": "Toggle off all checkboxes and toggle on the one at point."
+    },
+    {
+      "name": "org-toggle-checkbox-presence",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "org-update-statistics-cookies",
+      "interactive": true,
+      "bindings": [],
+      "summary": "Update the statistics cookie, either from TODO or from checkboxes."
+    },
+    {
+      "name": "org-insert-item-checkbox",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "org-set-property",
+      "interactive": true,
+      "bindings": [],
+      "summary": "In the current entry, set PROPERTY to VALUE."
+    },
+    {
+      "name": "org-delete-property",
+      "interactive": true,
+      "bindings": [],
+      "summary": "In the current entry, delete PROPERTY."
+    },
+    {
+      "name": "org-inspect-property",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "org-edit-property-owner",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "org-set-tags-command",
+      "interactive": true,
+      "bindings": [],
+      "summary": "Set the tags for the current visible entry."
+    },
+    {
+      "name": "org-remove-tag",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "org-inspect-tags",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "org-match-tags",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "org-todo",
+      "interactive": true,
+      "bindings": [],
+      "summary": "Change the TODO state of an item."
+    },
+    {
+      "name": "org-todo-next",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "org-todo-previous",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "org-todo-set",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "org-inspect-todo",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "org-priority",
+      "interactive": true,
+      "bindings": [],
+      "summary": "Change the priority of an item."
+    },
+    {
+      "name": "org-priority-up",
+      "interactive": true,
+      "bindings": [],
+      "summary": "Increase the priority of the current item."
+    },
+    {
+      "name": "org-priority-down",
+      "interactive": true,
+      "bindings": [],
+      "summary": "Decrease the priority of the current item."
+    },
+    {
+      "name": "org-inspect-priority",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "org-set-effort",
+      "interactive": true,
+      "bindings": [],
+      "summary": "Set the effort property of the current entry."
+    },
+    {
+      "name": "org-inc-effort",
+      "interactive": true,
+      "bindings": [],
+      "summary": "Increment the value of the effort property in the current entry."
+    },
+    {
+      "name": "org-inspect-effort",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "org-timestamp",
+      "interactive": true,
+      "bindings": [],
+      "summary": "Prompt for a date/time and insert a time stamp."
+    },
+    {
+      "name": "org-timestamp-inactive",
+      "interactive": true,
+      "bindings": [],
+      "summary": "Insert an inactive time stamp."
+    },
+    {
+      "name": "org-schedule",
+      "interactive": true,
+      "bindings": [],
+      "summary": "Insert a \"SCHEDULED:\" string with a timestamp to schedule an item."
+    },
+    {
+      "name": "org-deadline",
+      "interactive": true,
+      "bindings": [],
+      "summary": "Insert a \"DEADLINE:\" string with a timestamp to make a deadline."
+    },
+    {
+      "name": "org-goto-calendar",
+      "interactive": true,
+      "bindings": [],
+      "summary": "Go to the Emacs calendar at the current date."
+    },
+    {
+      "name": "org-date-from-calendar",
+      "interactive": true,
+      "bindings": [],
+      "summary": "Insert time stamp corresponding to cursor date in *Calendar* buffer."
+    },
+    {
+      "name": "org-calendar-forward-day",
+      "interactive": true,
+      "bindings": [],
+      "summary": "Move the cursor forward by one day."
+    },
+    {
+      "name": "org-calendar-backward-day",
+      "interactive": true,
+      "bindings": [],
+      "summary": "Move the cursor backward by one day."
+    },
+    {
+      "name": "org-calendar-forward-week",
+      "interactive": true,
+      "bindings": [],
+      "summary": "Move the cursor forward by one week."
+    },
+    {
+      "name": "org-calendar-backward-week",
+      "interactive": true,
+      "bindings": [],
+      "summary": "Move the cursor backward by one week."
+    },
+    {
+      "name": "org-calendar-forward-month",
+      "interactive": true,
+      "bindings": [],
+      "summary": "Move the cursor forward by one month."
+    },
+    {
+      "name": "org-calendar-backward-month",
+      "interactive": true,
+      "bindings": [],
+      "summary": "Move the cursor backward by one month."
+    },
+    {
+      "name": "org-calendar-forward-year",
+      "interactive": true,
+      "bindings": [],
+      "summary": "Move the cursor forward by one year."
+    },
+    {
+      "name": "org-calendar-backward-year",
+      "interactive": true,
+      "bindings": [],
+      "summary": "Move the cursor backward by one year."
+    },
+    {
+      "name": "org-calendar-scroll-three-months-left",
+      "interactive": true,
+      "bindings": [],
+      "summary": "Scroll the displayed calendar left by three months."
+    },
+    {
+      "name": "org-calendar-scroll-three-months-right",
+      "interactive": true,
+      "bindings": [],
+      "summary": "Scroll the displayed calendar right by three months."
+    },
+    {
+      "name": "org-calendar-goto-today",
+      "interactive": true,
+      "bindings": [],
+      "summary": "Reposition the calendar window so the current date is visible."
+    },
+    {
+      "name": "org-calendar-select",
+      "interactive": true,
+      "bindings": [],
+      "summary": "Return to `org-read-date' with the date currently selected."
+    },
+    {
+      "name": "org-timestamp-up",
+      "interactive": true,
+      "bindings": [],
+      "summary": "Increase the date item at the cursor by one."
+    },
+    {
+      "name": "org-timestamp-down",
+      "interactive": true,
+      "bindings": [],
+      "summary": "Decrease the date item at the cursor by one."
+    },
+    {
+      "name": "org-timestamp-up-day",
+      "interactive": true,
+      "bindings": [],
+      "summary": "Increase the date in the time stamp by one day."
+    },
+    {
+      "name": "org-timestamp-down-day",
+      "interactive": true,
+      "bindings": [],
+      "summary": "Decrease the date in the time stamp by one day."
+    },
+    {
+      "name": "org-shiftup",
+      "interactive": true,
+      "bindings": [],
+      "summary": "Act on current element according to context."
+    },
+    {
+      "name": "org-shiftdown",
+      "interactive": true,
+      "bindings": [],
+      "summary": "Act on current element according to context."
+    },
+    {
+      "name": "org-shiftleft",
+      "interactive": true,
+      "bindings": [],
+      "summary": "Act on current element according to context."
+    },
+    {
+      "name": "org-shiftright",
+      "interactive": true,
+      "bindings": [],
+      "summary": "Act on the current element according to context."
+    },
+    {
+      "name": "org-clock-in",
+      "interactive": true,
+      "bindings": [],
+      "summary": "Start the clock on the current item."
+    },
+    {
+      "name": "org-clock-out",
+      "interactive": true,
+      "bindings": [],
+      "summary": "Stop the currently running clock."
+    },
+    {
+      "name": "org-clock-cancel",
+      "interactive": true,
+      "bindings": [],
+      "summary": "Cancel the running clock by removing the start timestamp."
+    },
+    {
+      "name": "org-clock-goto",
+      "interactive": true,
+      "bindings": [],
+      "summary": "Go to the currently clocked-in entry, or to the most recently clocked one."
+    },
+    {
+      "name": "org-resolve-clocks",
+      "interactive": true,
+      "bindings": [],
+      "summary": "Resolve all currently open Org clocks."
+    },
+    {
+      "name": "org-clock-in-last",
+      "interactive": true,
+      "bindings": [],
+      "summary": "Clock in the last closed clocked item."
+    },
+    {
+      "name": "org-clock-display",
+      "interactive": true,
+      "bindings": [],
+      "summary": "Show subtree times in the entire buffer."
+    },
+    {
+      "name": "org-clock-report",
+      "interactive": true,
+      "bindings": [],
+      "summary": "Update or create a table containing a report about clocked time."
+    },
+    {
+      "name": "org-dblock-update",
+      "interactive": true,
+      "bindings": [],
+      "summary": "User command for updating dynamic blocks."
+    },
+    {
+      "name": "org-timer-start",
+      "interactive": true,
+      "bindings": [],
+      "summary": "Set the starting time for the relative timer to now."
+    },
+    {
+      "name": "org-timer-set-timer",
+      "interactive": true,
+      "bindings": [],
+      "summary": "Prompt for a duration in minutes or hh:mm:ss and set a timer."
+    },
+    {
+      "name": "org-timer",
+      "interactive": true,
+      "bindings": [],
+      "summary": "Insert a H:MM:SS string from the timer into the buffer."
+    },
+    {
+      "name": "org-timer-item",
+      "interactive": true,
+      "bindings": [],
+      "summary": "Insert a description-type item with the current timer value."
+    },
+    {
+      "name": "org-timer-pause-or-continue",
+      "interactive": true,
+      "bindings": [],
+      "summary": "Pause or continue the relative or countdown timer."
+    },
+    {
+      "name": "org-timer-stop",
+      "interactive": true,
+      "bindings": [],
+      "summary": "Stop the relative or countdown timer."
+    },
+    {
+      "name": "org-timer-show-remaining-time",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "org-habit-show-graph",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "org-habit-toggle-habits",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "org-habit-toggle-habits-only-for-today",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "org-habit-toggle-show-all-today",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "org-habit-graph-date",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "org-habit-set-graph-window",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "org-agenda",
+      "interactive": true,
+      "bindings": [],
+      "summary": "Dispatch agenda commands to collect entries to the agenda buffer."
+    },
+    {
+      "name": "org-agenda-day-view",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "org-agenda-week-view",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "org-agenda-later",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "org-agenda-earlier",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "org-agenda-goto-today",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "org-agenda-redo",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "org-agenda-switch-to",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "org-agenda-goto-date",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "org-todo-list",
+      "interactive": true,
+      "bindings": [],
+      "summary": "Show all (not done) TODO entries from all agenda files in a single list."
+    },
+    {
+      "name": "org-search-view",
+      "interactive": true,
+      "bindings": [],
+      "summary": "Show all entries that contain a phrase or words or regular expressions."
+    },
+    {
+      "name": "org-tags-view",
+      "interactive": true,
+      "bindings": [],
+      "summary": "Show all headlines for all `org-agenda-files' matching a TAGS criterion."
+    },
+    {
+      "name": "org-agenda-custom-view",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "org-agenda-filter",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "org-agenda-filter-remove-all",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "org-agenda-sort",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "org-agenda-columns",
+      "interactive": true,
+      "bindings": [],
+      "summary": "Turn on or update column view in the agenda."
+    },
+    {
+      "name": "org-agenda-month-view",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "org-agenda-year-view",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "org-agenda-span",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "org-agenda-bulk-mark",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "org-agenda-bulk-unmark",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "org-agenda-bulk-mark-all",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "org-agenda-bulk-unmark-all",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "org-agenda-bulk-action",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "org-agenda-action-results",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "org-agenda-undo",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "org-capture",
+      "interactive": true,
+      "bindings": [],
+      "summary": "Capture something."
+    },
+    {
+      "name": "org-capture-kill",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "org-capture-finalize",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "org-refile",
+      "interactive": true,
+      "bindings": [],
+      "summary": "Move the entry or entries at point to another heading."
+    },
+    {
+      "name": "org-refile-copy",
+      "interactive": true,
+      "bindings": [],
+      "summary": "Like `org-refile', but preserve the refiled subtree."
+    },
+    {
+      "name": "org-refile-results",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "org-archive-subtree",
+      "interactive": true,
+      "bindings": [],
+      "summary": "Move the current subtree to the archive."
+    },
+    {
+      "name": "org-toggle-archive-tag",
+      "interactive": true,
+      "bindings": [],
+      "summary": "Toggle the archive tag for the current headline."
+    },
+    {
+      "name": "org-archive-to-archive-sibling",
+      "interactive": true,
+      "bindings": [],
+      "summary": "Archive the current heading by moving it under the archive sibling."
+    },
+    {
+      "name": "org-archive-results",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "org-store-link",
+      "interactive": true,
+      "bindings": [],
+      "summary": "Store a link to the current location."
+    },
+    {
+      "name": "org-insert-link",
+      "interactive": true,
+      "bindings": [],
+      "summary": "Insert a link.  At the prompt, enter the link."
+    },
+    {
+      "name": "org-open-at-point",
+      "interactive": true,
+      "bindings": [],
+      "summary": "Open thing at point."
+    },
+    {
+      "name": "org-mark-ring-goto",
+      "interactive": true,
+      "bindings": [],
+      "summary": "Jump to the previous position in the mark ring."
+    },
+    {
+      "name": "org-mark-ring-push",
+      "interactive": true,
+      "bindings": [],
+      "summary": "Put the current position into the mark ring and rotate it."
+    },
+    {
+      "name": "org-next-link",
+      "interactive": true,
+      "bindings": [],
+      "summary": "Move forward to the next link."
+    },
+    {
+      "name": "org-previous-link",
+      "interactive": true,
+      "bindings": [],
+      "summary": "Move backward to the previous link."
+    },
+    {
+      "name": "org-attach",
+      "interactive": true,
+      "bindings": [],
+      "summary": "The dispatcher for attachment commands."
+    },
+    {
+      "name": "org-attach-attach",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "org-attach-copy",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "org-attach-move",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "org-attach-link",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "org-attach-open",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "org-attach-open-in-emacs",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "org-attach-reveal-in-emacs",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "org-attach-set-directory",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "org-attach-results",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "org-footnote-action",
+      "interactive": true,
+      "bindings": [],
+      "summary": "Do the right thing for footnotes."
+    },
+    {
+      "name": "org-footnote-new",
+      "interactive": true,
+      "bindings": [],
+      "summary": "Insert a new footnote."
+    },
+    {
+      "name": "org-footnote-renumber",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "org-emphasize",
+      "interactive": true,
+      "bindings": [],
+      "summary": "Insert or change an emphasis, i.e. a font like bold or italic."
+    },
+    {
+      "name": "org-insert-entity",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "org-edit-affiliated-keyword",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "org-table-create",
+      "interactive": true,
+      "bindings": [],
+      "summary": "Query for a size and insert a table skeleton."
+    },
+    {
+      "name": "org-table-align",
+      "interactive": true,
+      "bindings": [],
+      "summary": "Align the table at point by aligning all vertical bars."
+    },
+    {
+      "name": "org-table-next-field",
+      "interactive": true,
+      "bindings": [],
+      "summary": "Go to the next field in the current table, creating new lines as needed."
+    },
+    {
+      "name": "org-table-previous-field",
+      "interactive": true,
+      "bindings": [],
+      "summary": "Go to the previous field in the table."
+    },
+    {
+      "name": "org-table-next-row",
+      "interactive": true,
+      "bindings": [],
+      "summary": "Go to the next row (same column) in the current table."
+    },
+    {
+      "name": "org-table-beginning-of-field",
+      "interactive": true,
+      "bindings": [],
+      "summary": "Move to the beginning of the current table field."
+    },
+    {
+      "name": "org-table-end-of-field",
+      "interactive": true,
+      "bindings": [],
+      "summary": "Move to the end of the current table field."
+    },
+    {
+      "name": "org-table-insert-row",
+      "interactive": true,
+      "bindings": [],
+      "summary": "Insert a new row above the current line into the table."
+    },
+    {
+      "name": "org-table-insert-hline",
+      "interactive": true,
+      "bindings": [],
+      "summary": "Insert a horizontal-line below the current line into the table."
+    },
+    {
+      "name": "org-return",
+      "interactive": true,
+      "bindings": [],
+      "summary": "Goto next table row or insert a newline."
+    },
+    {
+      "name": "org-table-kill-row",
+      "interactive": true,
+      "bindings": [],
+      "summary": "Delete the current row or horizontal line from the table."
+    },
+    {
+      "name": "org-table-move-row-up",
+      "interactive": true,
+      "bindings": [],
+      "summary": "Move table row up."
+    },
+    {
+      "name": "org-table-move-row-down",
+      "interactive": true,
+      "bindings": [],
+      "summary": "Move table row down."
+    },
+    {
+      "name": "org-table-insert-column",
+      "interactive": true,
+      "bindings": [],
+      "summary": "Insert a new column into the table."
+    },
+    {
+      "name": "org-table-delete-column",
+      "interactive": true,
+      "bindings": [],
+      "summary": "Delete a column from the table."
+    },
+    {
+      "name": "org-table-move-column-left",
+      "interactive": true,
+      "bindings": [],
+      "summary": "Move column to the left."
+    },
+    {
+      "name": "org-table-move-column-right",
+      "interactive": true,
+      "bindings": [],
+      "summary": "Move column to the right."
+    },
+    {
+      "name": "org-table-sort-lines",
+      "interactive": true,
+      "bindings": [],
+      "summary": "Sort table lines according to the column at point."
+    },
+    {
+      "name": "org-list-to-table",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "org-table-to-list",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "org-table-recalculate",
+      "interactive": true,
+      "bindings": [],
+      "summary": "Recalculate the current table line by applying all stored formulas."
+    },
+    {
+      "name": "org-table-recalculate-cell",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "org-table-recalculate-column",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "org-table-import",
+      "interactive": true,
+      "bindings": [],
+      "summary": "Import FILE as a table."
+    },
+    {
+      "name": "org-table-export",
+      "interactive": true,
+      "bindings": [],
+      "summary": "Export table to a file, with configurable format."
+    },
+    {
+      "name": "org-columns",
+      "interactive": true,
+      "bindings": [],
+      "summary": "Turn on column view on an Org mode file."
+    },
+    {
+      "name": "org-columns-insert-dblock",
+      "interactive": true,
+      "bindings": [],
+      "summary": "Create a dynamic block capturing a column view table."
+    },
+    {
+      "name": "org-export-to-text",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "org-export-to-unicode",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "org-export-to-markdown",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "org-export-to-org",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "org-export-to-html",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "org-export-to-latex",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "org-export-to-beamer",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "org-export-to-latex-pdf",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "org-export-to-beamer-pdf",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "org-export-to-odt",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "org-export-to-texinfo",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "org-export-to-man",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "org-export-to-icalendar",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "org-publish",
+      "interactive": true,
+      "bindings": [],
+      "summary": "Publish PROJECT."
+    },
+    {
+      "name": "org-publish-results",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "org-edit-special",
+      "interactive": true,
+      "bindings": [],
+      "summary": "Call a special editor for the element at point."
+    },
+    {
+      "name": "org-edit-src-exit",
+      "interactive": true,
+      "bindings": [],
+      "summary": "Kill current sub-editing buffer and return to source buffer."
+    },
+    {
+      "name": "org-edit-src-abort",
+      "interactive": true,
+      "bindings": [],
+      "summary": "Abort editing of the src code and return to the Org buffer."
+    },
+    {
+      "name": "org-babel-view-src-block-info",
+      "interactive": true,
+      "bindings": [],
+      "summary": "Display information on the current source block."
+    },
+    {
+      "name": "org-babel-insert-header-arg",
+      "interactive": true,
+      "bindings": [],
+      "summary": "Insert a header argument and its value."
+    },
+    {
+      "name": "org-babel-tangle",
+      "interactive": true,
+      "bindings": [],
+      "summary": "Write code blocks to source-specific files."
+    },
+    {
+      "name": "org-babel-tangle-single-block",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "org-babel-tangle-results",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "org-babel-execute-src-block",
+      "interactive": true,
+      "bindings": [],
+      "summary": "Execute the current source code block and return the result."
+    },
+    {
+      "name": "org-babel-execution-results",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "org-feed-update-all",
+      "interactive": true,
+      "bindings": [],
+      "summary": "Get inbox items from all feeds in `org-feed-alist'."
+    },
+    {
+      "name": "org-feed-update",
+      "interactive": true,
+      "bindings": [],
+      "summary": "Get inbox items from FEED."
+    },
+    {
+      "name": "org-feed-goto-inbox",
+      "interactive": true,
+      "bindings": [],
+      "summary": "Go to the inbox that captures the feed named FEED."
+    },
+    {
+      "name": "org-feed-results",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "org-link-preview",
+      "interactive": true,
+      "bindings": [],
+      "summary": "Toggle display of link previews in the buffer."
+    },
+    {
+      "name": "org-link-preview-clear",
+      "interactive": true,
+      "bindings": [],
+      "summary": "Clear link previews in region BEG to END."
+    },
+    {
+      "name": "org-link-preview-refresh",
+      "interactive": true,
+      "bindings": [],
+      "summary": "Assure display of link previews in buffer and refresh them."
+    },
+    {
+      "name": "org-link-preview-region",
+      "interactive": true,
+      "bindings": [],
+      "summary": "Display link previews."
+    },
+    {
+      "name": "org-mode",
+      "interactive": true,
+      "bindings": [],
+      "summary": "Outline-based notes management and organizer, alias"
+    },
+    {
+      "name": "markdown-mode",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "markdown-continue-item",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "markdown-indent-item",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "markdown-outdent-item",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "markdown-return",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "markdown-meta-return",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "markdown-table-create",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "markdown-table-align",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "markdown-table-next-field",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "markdown-table-previous-field",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "markdown-table-next-row",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "markdown-table-insert-row",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "markdown-table-delete-row",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "markdown-table-insert-column",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "markdown-table-delete-column",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "markdown-pretty-mode",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "markdown-reset-presentation",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "text-mode",
+      "interactive": true,
+      "bindings": [],
+      "summary": "Major mode for editing text written for humans to read."
+    },
+    {
+      "name": "gutter-toggle-line-numbers",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "gutter-cycle-line-number-mode",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "gutter-set-line-numbers-absolute",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "gutter-set-line-numbers-relative",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "gutter-cycle-current-line",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "gutter-toggle-line-number-side",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "gutter-inspect-numbering",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "gutter-reset-numbering",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "tabify",
+      "interactive": true,
+      "bindings": [],
+      "summary": "Convert multiple spaces in region to tabs when possible."
+    },
+    {
+      "name": "untabify",
+      "interactive": true,
+      "bindings": [],
+      "summary": "Convert all tabs in region to multiple spaces, preserving columns."
+    },
+    {
+      "name": "save-buffer",
+      "interactive": true,
+      "bindings": [
+        "C-x C-s",
+        "<menu-bar> <file> <save-buffer>"
+      ],
+      "summary": "Save current buffer in visited file if modified."
+    },
+    {
+      "name": "revert-buffer",
+      "interactive": true,
+      "bindings": [
+        "<menu-bar> <file> <revert-buffer>"
+      ],
+      "summary": "Replace current buffer text with the text of the visited file on disk."
+    },
+    {
+      "name": "ai-explain",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "ai-prompt",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "ai-implement",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "ai-apply-result",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "ai-discard-result",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "ai-set-directory",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "ai-select-model",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "ai-reset-session",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "ai-disconnect",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "ai-cancel",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "ai-save-command",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "shell-command",
+      "interactive": true,
+      "bindings": [
+        "M-!",
+        "<menu-bar> <tools> <shell-commands> <shell>"
+      ],
+      "summary": "Execute string COMMAND in inferior shell; display output, if any."
+    },
+    {
+      "name": "shell-command-on-region",
+      "interactive": true,
+      "bindings": [
+        "M-|",
+        "<menu-bar> <tools> <shell-commands> <shell-on-region>"
+      ],
+      "summary": "Execute string COMMAND in inferior shell with region as input."
+    },
+    {
+      "name": "shell-filter-region",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "shell-command-insert",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "shell-command-cancel",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "shell-command-output",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "write-file",
+      "interactive": true,
+      "bindings": [
+        "C-x C-w",
+        "<menu-bar> <file> <write-file>"
+      ],
+      "summary": "Write current buffer into file FILENAME."
+    },
+    {
+      "name": "keyboard-quit",
+      "interactive": true,
+      "bindings": [
+        "C-g"
+      ],
+      "summary": "Signal a `quit' condition."
+    },
+    {
+      "name": "newline",
+      "interactive": true,
+      "bindings": [
+        "RET"
+      ],
+      "summary": "Insert a newline, and move to left margin of the new line."
+    },
+    {
+      "name": "insert-tab",
+      "interactive": false,
+      "bindings": [],
+      "summary": ""
+    },
+    {
+      "name": "backward-delete-char",
+      "interactive": true,
+      "bindings": [],
+      "summary": "Delete the previous N characters (following if N is negative)."
+    },
+    {
+      "name": "delete-char",
+      "interactive": true,
+      "bindings": [
+        "C-d"
+      ],
+      "summary": "Delete the following N characters (previous if N is negative)."
+    },
+    {
+      "name": "forward-char",
+      "interactive": true,
+      "bindings": [
+        "C-f"
+      ],
+      "summary": "Move point N characters forward (backward if N is negative)."
+    },
+    {
+      "name": "backward-char",
+      "interactive": true,
+      "bindings": [
+        "C-b"
+      ],
+      "summary": "Move point N characters backward (forward if N is negative)."
+    },
+    {
+      "name": "move-beginning-of-line",
+      "interactive": true,
+      "bindings": [
+        "C-a",
+        "<home>"
+      ],
+      "summary": "Move point to visible beginning of current logical line."
+    },
+    {
+      "name": "move-end-of-line",
+      "interactive": true,
+      "bindings": [
+        "C-e",
+        "<end>"
+      ],
+      "summary": "Move point to end of current line as displayed."
+    },
+    {
+      "name": "beginning-of-buffer",
+      "interactive": true,
+      "bindings": [
+        "<begin>",
+        "C-<home>",
+        "M-<",
+        "<menu-bar> <edit> <goto> <beg-of-buf>"
+      ],
+      "summary": "Move point to the beginning of the buffer."
+    },
+    {
+      "name": "end-of-buffer",
+      "interactive": true,
+      "bindings": [
+        "C-<end>",
+        "M->",
+        "<menu-bar> <edit> <goto> <end-of-buf>"
+      ],
+      "summary": "Move point to the end of the buffer."
+    },
+    {
+      "name": "forward-word",
+      "interactive": true,
+      "bindings": [
+        "M-f",
+        "ESC <right>"
+      ],
+      "summary": "Move point forward ARG words (backward if ARG is negative)."
+    },
+    {
+      "name": "backward-word",
+      "interactive": true,
+      "bindings": [
+        "M-b",
+        "ESC <left>"
+      ],
+      "summary": "Move backward until encountering the beginning of a word."
+    },
+    {
+      "name": "next-line",
+      "interactive": true,
+      "bindings": [
+        "C-n",
+        "<down>"
+      ],
+      "summary": "Move cursor vertically down ARG lines."
+    },
+    {
+      "name": "previous-line",
+      "interactive": true,
+      "bindings": [
+        "C-p",
+        "<up>"
+      ],
+      "summary": "Move cursor vertically up ARG lines."
+    },
+    {
+      "name": "scroll-up-command",
+      "interactive": true,
+      "bindings": [
+        "C-v",
+        "<next>"
+      ],
+      "summary": "Scroll text of selected window upward ARG lines; or near full screen if no ARG."
+    },
+    {
+      "name": "scroll-down-command",
+      "interactive": true,
+      "bindings": [
+        "<prior>",
+        "M-v"
+      ],
+      "summary": "Scroll text of selected window down ARG lines; or near full screen if no ARG."
+    },
+    {
+      "name": "recenter-top-bottom",
+      "interactive": true,
+      "bindings": [
+        "C-l"
+      ],
+      "summary": "Scroll the window so that current line is in the middle of the window."
+    },
+    {
+      "name": "undo",
+      "interactive": true,
+      "bindings": [
+        "C-_",
+        "<undo>",
+        "C-/",
+        "C-x u",
+        "<menu-bar> <edit> <undo>"
+      ],
+      "summary": "Undo some previous changes."
+    },
+    {
+      "name": "undo-redo",
+      "interactive": true,
+      "bindings": [
+        "C-?",
+        "C-M-_",
+        "<menu-bar> <edit> <undo-redo>"
+      ],
+      "summary": "Undo the last ARG undos, i.e., redo the last ARG changes."
+    },
+    {
+      "name": "switch-to-buffer",
+      "interactive": true,
+      "bindings": [
+        "C-x b",
+        "<menu-bar> <buffer> <select-named-buffer>"
+      ],
+      "summary": "Display buffer BUFFER-OR-NAME in the selected window."
+    },
+    {
+      "name": "list-buffers",
+      "interactive": true,
+      "bindings": [
+        "C-x C-b",
+        "<menu-bar> <buffer> <list-all-buffers>"
+      ],
+      "summary": "Display a list of existing buffers."
+    },
+    {
+      "name": "kill-buffer",
+      "interactive": true,
+      "bindings": [
+        "C-x k"
+      ],
+      "summary": "Kill the buffer specified by BUFFER-OR-NAME."
+    },
+    {
+      "name": "split-window-below",
+      "interactive": true,
+      "bindings": [
+        "C-x 2",
+        "<menu-bar> <file> <new-window-below>"
+      ],
+      "summary": "Split WINDOW-TO-SPLIT into two windows, one above the other."
+    },
+    {
+      "name": "split-window-right",
+      "interactive": true,
+      "bindings": [
+        "C-x 3",
+        "<menu-bar> <file> <new-window-on-right>"
+      ],
+      "summary": "Split WINDOW-TO-SPLIT into two side-by-side windows."
+    },
+    {
+      "name": "delete-window",
+      "interactive": true,
+      "bindings": [
+        "C-x 0"
+      ],
+      "summary": "Delete specified WINDOW."
+    },
+    {
+      "name": "delete-other-windows",
+      "interactive": true,
+      "bindings": [
+        "C-x 1",
+        "<menu-bar> <file> <one-window>"
+      ],
+      "summary": "Make WINDOW fill its frame."
+    },
+    {
+      "name": "other-window",
+      "interactive": true,
+      "bindings": [
+        "C-x o"
+      ],
+      "summary": "Select another window in cyclic ordering of windows."
+    },
+    {
+      "name": "windmove-left",
+      "interactive": true,
+      "bindings": [],
+      "summary": "Select the window to the left of the current one."
+    },
+    {
+      "name": "windmove-down",
+      "interactive": true,
+      "bindings": [],
+      "summary": "Select the window below the current one."
+    },
+    {
+      "name": "windmove-up",
+      "interactive": true,
+      "bindings": [],
+      "summary": "Select the window above the current one."
+    },
+    {
+      "name": "windmove-right",
+      "interactive": true,
+      "bindings": [],
+      "summary": "Select the window to the right of the current one."
+    },
+    {
+      "name": "balance-windows",
+      "interactive": true,
+      "bindings": [
+        "C-x +"
+      ],
+      "summary": "Balance the sizes of windows shown on the selected frame."
+    },
+    {
+      "name": "set-mark-command",
+      "interactive": true,
+      "bindings": [
+        "C-@",
+        "C-SPC"
+      ],
+      "summary": "Set the mark where point is, and activate it; or jump to the mark."
+    },
+    {
+      "name": "exchange-point-and-mark",
+      "interactive": true,
+      "bindings": [
+        "C-x C-x"
+      ],
+      "summary": "Put the mark where point is now, and point where the mark is now."
+    },
+    {
+      "name": "kill-line",
+      "interactive": true,
+      "bindings": [
+        "C-k",
+        "<deleteline>"
+      ],
+      "summary": "Kill the rest of the current line; if no nonblanks there, kill thru newline."
+    },
+    {
+      "name": "kill-word",
+      "interactive": true,
+      "bindings": [
+        "C-<delete>",
+        "M-d"
+      ],
+      "summary": "Kill characters forward until encountering the end of a word."
+    },
+    {
+      "name": "backward-kill-word",
+      "interactive": true,
+      "bindings": [
+        "C-<backspace>",
+        "M-DEL"
+      ],
+      "summary": "Kill characters backward until encountering the beginning of a word."
+    },
+    {
+      "name": "kill-region",
+      "interactive": true,
+      "bindings": [
+        "C-w",
+        "S-<delete>",
+        "<cut>",
+        "<menu-bar> <edit> <cut>"
+      ],
+      "summary": "Kill (\"cut\") text between point and mark."
+    },
+    {
+      "name": "kill-ring-save",
+      "interactive": true,
+      "bindings": [
+        "<copy>",
+        "C-<insertchar>",
+        "C-<insert>",
+        "M-w",
+        "<menu-bar> <edit> <copy>"
+      ],
+      "summary": "Save the region as if killed, but don't kill it."
+    },
+    {
+      "name": "yank",
+      "interactive": true,
+      "bindings": [
+        "C-y",
+        "<paste>",
+        "S-<insertchar>",
+        "S-<insert>",
+        "<menu-bar> <edit> <paste>"
+      ],
+      "summary": "Reinsert (\"paste\") the last stretch of killed text."
+    },
+    {
+      "name": "yank-pop",
+      "interactive": true,
+      "bindings": [
+        "M-y"
+      ],
+      "summary": "Replace just-yanked stretch of killed text with a different stretch."
+    },
+    {
+      "name": "back-to-indentation",
+      "interactive": true,
+      "bindings": [
+        "M-m"
+      ],
+      "summary": "Move point to the first non-whitespace character on this line."
+    },
+    {
+      "name": "delete-indentation",
+      "interactive": true,
+      "bindings": [
+        "M-^"
+      ],
+      "summary": "Join this line to previous and fix up whitespace at join."
+    },
+    {
+      "name": "forward-paragraph",
+      "interactive": true,
+      "bindings": [
+        "C-<down>",
+        "M-}"
+      ],
+      "summary": "Move forward to end of paragraph."
+    },
+    {
+      "name": "backward-paragraph",
+      "interactive": true,
+      "bindings": [
+        "C-<up>",
+        "M-{"
+      ],
+      "summary": "Move backward to start of paragraph."
+    },
+    {
+      "name": "forward-sexp",
+      "interactive": true,
+      "bindings": [
+        "C-M-<right>",
+        "C-M-f",
+        "ESC C-<right>"
+      ],
+      "summary": "Move forward across one balanced expression (sexp)."
+    },
+    {
+      "name": "backward-sexp",
+      "interactive": true,
+      "bindings": [
+        "C-M-<left>",
+        "C-M-b",
+        "ESC C-<left>"
+      ],
+      "summary": "Move backward across one balanced expression (sexp)."
+    },
+    {
+      "name": "indent-region",
+      "interactive": true,
+      "bindings": [
+        "C-M-\\"
+      ],
+      "summary": "Indent each nonblank line in the region."
+    },
+    {
+      "name": "repeat",
+      "interactive": true,
+      "bindings": [
+        "C-x z"
+      ],
+      "summary": "Repeat most recently executed command."
+    },
+    {
+      "name": "open-line",
+      "interactive": true,
+      "bindings": [
+        "C-o",
+        "<insertline>"
+      ],
+      "summary": "Insert a newline and leave point before it."
+    },
+    {
+      "name": "bookmark-bmenu-list",
+      "interactive": true,
+      "bindings": [
+        "C-x r l",
+        "<menu-bar> <edit> <bookmark> <edit>"
+      ],
+      "summary": "Display a list of existing bookmarks."
+    },
+    {
+      "name": "complete-symbol",
+      "interactive": true,
+      "bindings": [
+        "C-M-i"
+      ],
+      "summary": "Perform completion on the text around point."
+    },
+    {
+      "name": "mark-whole-buffer",
+      "interactive": true,
+      "bindings": [
+        "C-x h",
+        "<menu-bar> <edit> <mark-whole-buffer>"
+      ],
+      "summary": "Put point at beginning and mark at end of buffer."
+    },
+    {
+      "name": "mark-paragraph",
+      "interactive": true,
+      "bindings": [
+        "M-h"
+      ],
+      "summary": "Put point at beginning of this paragraph, mark at end."
+    }
+  ],
+  "first_text": [
+    {
+      "case": "spaces",
+      "offset": 4
+    },
+    {
+      "case": "tab",
+      "offset": 1
+    },
+    {
+      "case": "mixed",
+      "offset": 3
+    },
+    {
+      "case": "blank",
+      "offset": 3
+    },
+    {
+      "case": "empty",
+      "offset": 0
+    },
+    {
+      "case": "unicode-space",
+      "offset": 1
+    },
+    {
+      "case": "wide",
+      "offset": 2
+    },
+    {
+      "case": "combining",
+      "offset": 2
+    }
+  ],
+  "join": {
+    "text": "prev current\n  next",
+    "point": 4
+  },
+  "paragraph": {
+    "text": "one\n \t\ntwo",
+    "point": 4
+  },
+  "paragraph_rule": 4,
+  "sexp": {
+    "text": "(ab)",
+    "point": 4
+  },
+  "macro_menu": [
+    {
+      "key": "e",
+      "command": "kmacro-menu-edit-keys"
+    },
+    {
+      "key": "d",
+      "command": "kmacro-menu-flag-for-deletion"
+    },
+    {
+      "key": "x",
+      "command": "kmacro-menu-do-flagged-delete"
+    },
+    {
+      "key": "m",
+      "command": "kmacro-menu-mark"
+    },
+    {
+      "key": "u",
+      "command": "kmacro-menu-unmark"
+    },
+    {
+      "key": "q",
+      "command": "quit-window"
+    },
+    {
+      "key": "g",
+      "command": "revert-buffer"
+    },
+    {
+      "key": "?",
+      "command": "describe-mode"
+    }
+  ]
+}
