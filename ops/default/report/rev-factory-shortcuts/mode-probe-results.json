@@ -1,0 +1,718 @@
+{
+  "proposal": {
+    "profiles": 2,
+    "base_context_edits": 46,
+    "active_language_sessions": 21,
+    "normalized_traces": [
+      {
+        "profile": "NonModal",
+        "context": "vim_normal",
+        "proposal": "P01",
+        "normalized": "M-m",
+        "target": "modal-line-first-text"
+      },
+      {
+        "profile": "NonModal",
+        "context": "vim_normal",
+        "proposal": "P02",
+        "normalized": "C-x +",
+        "target": "balance-windows"
+      },
+      {
+        "profile": "NonModal",
+        "context": "vim_normal",
+        "proposal": "P04",
+        "normalized": "C-x p p",
+        "target": "project-switch-project"
+      },
+      {
+        "profile": "NonModal",
+        "context": "vim_insert",
+        "proposal": "P01",
+        "normalized": "M-m",
+        "target": "modal-line-first-text"
+      },
+      {
+        "profile": "NonModal",
+        "context": "vim_insert",
+        "proposal": "P02",
+        "normalized": "C-x +",
+        "target": "balance-windows"
+      },
+      {
+        "profile": "NonModal",
+        "context": "vim_insert",
+        "proposal": "P03",
+        "normalized": "C-M-_",
+        "target": "undo-redo"
+      },
+      {
+        "profile": "NonModal",
+        "context": "vim_insert",
+        "proposal": "P04",
+        "normalized": "C-x p p",
+        "target": "project-switch-project"
+      },
+      {
+        "profile": "NonModal",
+        "context": "vim_replace",
+        "proposal": "P01",
+        "normalized": "M-m",
+        "target": "modal-line-first-text"
+      },
+      {
+        "profile": "NonModal",
+        "context": "vim_replace",
+        "proposal": "P02",
+        "normalized": "C-x +",
+        "target": "balance-windows"
+      },
+      {
+        "profile": "NonModal",
+        "context": "vim_replace",
+        "proposal": "P03",
+        "normalized": "C-M-_",
+        "target": "undo-redo"
+      },
+      {
+        "profile": "NonModal",
+        "context": "vim_replace",
+        "proposal": "P04",
+        "normalized": "C-x p p",
+        "target": "project-switch-project"
+      },
+      {
+        "profile": "NonModal",
+        "context": "vim_visual_character",
+        "proposal": "P01",
+        "normalized": "M-m",
+        "target": "modal-line-first-text"
+      },
+      {
+        "profile": "NonModal",
+        "context": "vim_visual_character",
+        "proposal": "P02",
+        "normalized": "C-x +",
+        "target": "balance-windows"
+      },
+      {
+        "profile": "NonModal",
+        "context": "vim_visual_character",
+        "proposal": "P04",
+        "normalized": "C-x p p",
+        "target": "project-switch-project"
+      },
+      {
+        "profile": "NonModal",
+        "context": "vim_visual_line",
+        "proposal": "P01",
+        "normalized": "M-m",
+        "target": "modal-line-first-text"
+      },
+      {
+        "profile": "NonModal",
+        "context": "vim_visual_line",
+        "proposal": "P02",
+        "normalized": "C-x +",
+        "target": "balance-windows"
+      },
+      {
+        "profile": "NonModal",
+        "context": "vim_visual_line",
+        "proposal": "P04",
+        "normalized": "C-x p p",
+        "target": "project-switch-project"
+      },
+      {
+        "profile": "NonModal",
+        "context": "vim_visual_block",
+        "proposal": "P01",
+        "normalized": "M-m",
+        "target": "modal-line-first-text"
+      },
+      {
+        "profile": "NonModal",
+        "context": "vim_visual_block",
+        "proposal": "P02",
+        "normalized": "C-x +",
+        "target": "balance-windows"
+      },
+      {
+        "profile": "NonModal",
+        "context": "vim_visual_block",
+        "proposal": "P04",
+        "normalized": "C-x p p",
+        "target": "project-switch-project"
+      },
+      {
+        "profile": "NonModal",
+        "context": "editor",
+        "proposal": "P01",
+        "normalized": "M-m",
+        "target": "modal-line-first-text"
+      },
+      {
+        "profile": "NonModal",
+        "context": "editor",
+        "proposal": "P02",
+        "normalized": "C-x +",
+        "target": "balance-windows"
+      },
+      {
+        "profile": "NonModal",
+        "context": "editor",
+        "proposal": "P03",
+        "normalized": "C-M-_",
+        "target": "undo-redo"
+      },
+      {
+        "profile": "NonModal",
+        "context": "editor",
+        "proposal": "P04",
+        "normalized": "C-x p p",
+        "target": "project-switch-project"
+      },
+      {
+        "profile": "NonModal",
+        "context": "git_history",
+        "proposal": "P14",
+        "normalized": "A",
+        "target": "git-cherry-pick"
+      },
+      {
+        "profile": "NonModal",
+        "context": "git_history",
+        "proposal": "P15",
+        "normalized": "P",
+        "target": null
+      },
+      {
+        "profile": "NonModal",
+        "context": "git_history",
+        "proposal": "P16",
+        "normalized": "F",
+        "target": null
+      },
+      {
+        "profile": "NonModal",
+        "context": "git_history",
+        "proposal": "P17",
+        "normalized": "f",
+        "target": null
+      },
+      {
+        "profile": "NonModal",
+        "context": "git_refs",
+        "proposal": "P18",
+        "normalized": "f",
+        "target": "git-fetch"
+      },
+      {
+        "profile": "NonModal",
+        "context": "git_refs",
+        "proposal": "P19",
+        "normalized": "P",
+        "target": "git-push"
+      },
+      {
+        "profile": "NonModal",
+        "context": "org",
+        "proposal": "P05",
+        "normalized": "C-c C-x E",
+        "target": "org-inc-effort"
+      },
+      {
+        "profile": "NonModal",
+        "context": "org",
+        "proposal": "P06",
+        "normalized": "C-c C-x C-c",
+        "target": "org-columns"
+      },
+      {
+        "profile": "NonModal",
+        "context": "org",
+        "proposal": "P07.j",
+        "normalized": "C-c C-v j",
+        "target": "org-babel-insert-header-arg"
+      },
+      {
+        "profile": "NonModal",
+        "context": "org",
+        "proposal": "P07.C-j",
+        "normalized": "C-c C-v RET",
+        "target": "org-babel-insert-header-arg"
+      },
+      {
+        "profile": "NonModal",
+        "context": "org",
+        "proposal": "P07.h",
+        "normalized": "C-c C-v h",
+        "target": null
+      },
+      {
+        "profile": "NonModal",
+        "context": "org_agenda",
+        "proposal": "P08",
+        "normalized": "d",
+        "target": "org-agenda-day-view"
+      },
+      {
+        "profile": "NonModal",
+        "context": "org_agenda",
+        "proposal": "P09.old",
+        "normalized": "M",
+        "target": null
+      },
+      {
+        "profile": "NonModal",
+        "context": "org_agenda",
+        "proposal": "P09.new",
+        "normalized": "v M",
+        "target": "org-tags-view"
+      },
+      {
+        "profile": "NonModal",
+        "context": "org_agenda",
+        "proposal": "P10.old",
+        "normalized": "s",
+        "target": null
+      },
+      {
+        "profile": "NonModal",
+        "context": "org_agenda",
+        "proposal": "P10.new",
+        "normalized": "v /",
+        "target": "org-search-view"
+      },
+      {
+        "profile": "NonModal",
+        "context": "org_agenda",
+        "proposal": "P11.old",
+        "normalized": "A",
+        "target": null
+      },
+      {
+        "profile": "NonModal",
+        "context": "org_agenda",
+        "proposal": "P11.new",
+        "normalized": "v A",
+        "target": "org-habit-toggle-show-all-today"
+      },
+      {
+        "profile": "NonModal",
+        "context": "org_agenda",
+        "proposal": "P12.old",
+        "normalized": "G",
+        "target": null
+      },
+      {
+        "profile": "NonModal",
+        "context": "org_agenda",
+        "proposal": "P12.new",
+        "normalized": "v G",
+        "target": "org-habit-set-graph-window"
+      },
+      {
+        "profile": "NonModal",
+        "context": "org_agenda",
+        "proposal": "P13.old",
+        "normalized": "S",
+        "target": null
+      },
+      {
+        "profile": "NonModal",
+        "context": "org_agenda",
+        "proposal": "P13.new",
+        "normalized": "v S",
+        "target": "org-agenda-sort"
+      },
+      {
+        "profile": "Modal",
+        "context": "vim_normal",
+        "proposal": "P01",
+        "normalized": "M-m",
+        "target": "modal-line-first-text"
+      },
+      {
+        "profile": "Modal",
+        "context": "vim_normal",
+        "proposal": "P02",
+        "normalized": "C-x +",
+        "target": "balance-windows"
+      },
+      {
+        "profile": "Modal",
+        "context": "vim_normal",
+        "proposal": "P04",
+        "normalized": "C-x p p",
+        "target": "project-switch-project"
+      },
+      {
+        "profile": "Modal",
+        "context": "vim_insert",
+        "proposal": "P01",
+        "normalized": "M-m",
+        "target": "modal-line-first-text"
+      },
+      {
+        "profile": "Modal",
+        "context": "vim_insert",
+        "proposal": "P02",
+        "normalized": "C-x +",
+        "target": "balance-windows"
+      },
+      {
+        "profile": "Modal",
+        "context": "vim_insert",
+        "proposal": "P03",
+        "normalized": "C-M-_",
+        "target": "undo-redo"
+      },
+      {
+        "profile": "Modal",
+        "context": "vim_insert",
+        "proposal": "P04",
+        "normalized": "C-x p p",
+        "target": "project-switch-project"
+      },
+      {
+        "profile": "Modal",
+        "context": "vim_replace",
+        "proposal": "P01",
+        "normalized": "M-m",
+        "target": "modal-line-first-text"
+      },
+      {
+        "profile": "Modal",
+        "context": "vim_replace",
+        "proposal": "P02",
+        "normalized": "C-x +",
+        "target": "balance-windows"
+      },
+      {
+        "profile": "Modal",
+        "context": "vim_replace",
+        "proposal": "P03",
+        "normalized": "C-M-_",
+        "target": "undo-redo"
+      },
+      {
+        "profile": "Modal",
+        "context": "vim_replace",
+        "proposal": "P04",
+        "normalized": "C-x p p",
+        "target": "project-switch-project"
+      },
+      {
+        "profile": "Modal",
+        "context": "vim_visual_character",
+        "proposal": "P01",
+        "normalized": "M-m",
+        "target": "modal-line-first-text"
+      },
+      {
+        "profile": "Modal",
+        "context": "vim_visual_character",
+        "proposal": "P02",
+        "normalized": "C-x +",
+        "target": "balance-windows"
+      },
+      {
+        "profile": "Modal",
+        "context": "vim_visual_character",
+        "proposal": "P04",
+        "normalized": "C-x p p",
+        "target": "project-switch-project"
+      },
+      {
+        "profile": "Modal",
+        "context": "vim_visual_line",
+        "proposal": "P01",
+        "normalized": "M-m",
+        "target": "modal-line-first-text"
+      },
+      {
+        "profile": "Modal",
+        "context": "vim_visual_line",
+        "proposal": "P02",
+        "normalized": "C-x +",
+        "target": "balance-windows"
+      },
+      {
+        "profile": "Modal",
+        "context": "vim_visual_line",
+        "proposal": "P04",
+        "normalized": "C-x p p",
+        "target": "project-switch-project"
+      },
+      {
+        "profile": "Modal",
+        "context": "vim_visual_block",
+        "proposal": "P01",
+        "normalized": "M-m",
+        "target": "modal-line-first-text"
+      },
+      {
+        "profile": "Modal",
+        "context": "vim_visual_block",
+        "proposal": "P02",
+        "normalized": "C-x +",
+        "target": "balance-windows"
+      },
+      {
+        "profile": "Modal",
+        "context": "vim_visual_block",
+        "proposal": "P04",
+        "normalized": "C-x p p",
+        "target": "project-switch-project"
+      },
+      {
+        "profile": "Modal",
+        "context": "editor",
+        "proposal": "P01",
+        "normalized": "M-m",
+        "target": "modal-line-first-text"
+      },
+      {
+        "profile": "Modal",
+        "context": "editor",
+        "proposal": "P02",
+        "normalized": "C-x +",
+        "target": "balance-windows"
+      },
+      {
+        "profile": "Modal",
+        "context": "editor",
+        "proposal": "P03",
+        "normalized": "C-M-_",
+        "target": "undo-redo"
+      },
+      {
+        "profile": "Modal",
+        "context": "editor",
+        "proposal": "P04",
+        "normalized": "C-x p p",
+        "target": "project-switch-project"
+      },
+      {
+        "profile": "Modal",
+        "context": "git_history",
+        "proposal": "P14",
+        "normalized": "A",
+        "target": "git-cherry-pick"
+      },
+      {
+        "profile": "Modal",
+        "context": "git_history",
+        "proposal": "P15",
+        "normalized": "P",
+        "target": null
+      },
+      {
+        "profile": "Modal",
+        "context": "git_history",
+        "proposal": "P16",
+        "normalized": "F",
+        "target": null
+      },
+      {
+        "profile": "Modal",
+        "context": "git_history",
+        "proposal": "P17",
+        "normalized": "f",
+        "target": null
+      },
+      {
+        "profile": "Modal",
+        "context": "git_refs",
+        "proposal": "P18",
+        "normalized": "f",
+        "target": "git-fetch"
+      },
+      {
+        "profile": "Modal",
+        "context": "git_refs",
+        "proposal": "P19",
+        "normalized": "P",
+        "target": "git-push"
+      },
+      {
+        "profile": "Modal",
+        "context": "org",
+        "proposal": "P05",
+        "normalized": "C-c C-x E",
+        "target": "org-inc-effort"
+      },
+      {
+        "profile": "Modal",
+        "context": "org",
+        "proposal": "P06",
+        "normalized": "C-c C-x C-c",
+        "target": "org-columns"
+      },
+      {
+        "profile": "Modal",
+        "context": "org",
+        "proposal": "P07.j",
+        "normalized": "C-c C-v j",
+        "target": "org-babel-insert-header-arg"
+      },
+      {
+        "profile": "Modal",
+        "context": "org",
+        "proposal": "P07.C-j",
+        "normalized": "C-c C-v RET",
+        "target": "org-babel-insert-header-arg"
+      },
+      {
+        "profile": "Modal",
+        "context": "org",
+        "proposal": "P07.h",
+        "normalized": "C-c C-v h",
+        "target": null
+      },
+      {
+        "profile": "Modal",
+        "context": "org_agenda",
+        "proposal": "P08",
+        "normalized": "d",
+        "target": "org-agenda-day-view"
+      },
+      {
+        "profile": "Modal",
+        "context": "org_agenda",
+        "proposal": "P09.old",
+        "normalized": "M",
+        "target": null
+      },
+      {
+        "profile": "Modal",
+        "context": "org_agenda",
+        "proposal": "P09.new",
+        "normalized": "v M",
+        "target": "org-tags-view"
+      },
+      {
+        "profile": "Modal",
+        "context": "org_agenda",
+        "proposal": "P10.old",
+        "normalized": "s",
+        "target": null
+      },
+      {
+        "profile": "Modal",
+        "context": "org_agenda",
+        "proposal": "P10.new",
+        "normalized": "v /",
+        "target": "org-search-view"
+      },
+      {
+        "profile": "Modal",
+        "context": "org_agenda",
+        "proposal": "P11.old",
+        "normalized": "A",
+        "target": null
+      },
+      {
+        "profile": "Modal",
+        "context": "org_agenda",
+        "proposal": "P11.new",
+        "normalized": "v A",
+        "target": "org-habit-toggle-show-all-today"
+      },
+      {
+        "profile": "Modal",
+        "context": "org_agenda",
+        "proposal": "P12.old",
+        "normalized": "G",
+        "target": null
+      },
+      {
+        "profile": "Modal",
+        "context": "org_agenda",
+        "proposal": "P12.new",
+        "normalized": "v G",
+        "target": "org-habit-set-graph-window"
+      },
+      {
+        "profile": "Modal",
+        "context": "org_agenda",
+        "proposal": "P13.old",
+        "normalized": "S",
+        "target": null
+      },
+      {
+        "profile": "Modal",
+        "context": "org_agenda",
+        "proposal": "P13.new",
+        "normalized": "v S",
+        "target": "org-agenda-sort"
+      }
+    ],
+    "removal_method": "Exact normalized leaf removal from compiled-map snapshots; no configuration unbinding sentinel.",
+    "scope": "Admission and normalized prefix checks, not shipped factories or physical terminal effects."
+  },
+  "org": {
+    "effort_cycled": true,
+    "effort_one_group": true,
+    "checkbox_list": "- item\n- [ ] \n",
+    "checkbox_heading_unchanged": true,
+    "checkbox_heading_message": "No editable Org list item here",
+    "columns_source_unchanged": true
+  },
+  "source_edit": {
+    "header_cancel_unchanged": true,
+    "header_inserted": true,
+    "source_save_message": "Source draft retained; return with C-c ' or abort with C-c C-k",
+    "source_save_retains_draft": true,
+    "source_abort_unchanged": true
+  },
+  "markdown": [
+    {
+      "context": "plain",
+      "key": "RET",
+      "text": "plain\n",
+      "point": 6
+    },
+    {
+      "context": "list",
+      "key": "RET",
+      "text": "- item\n- \n",
+      "point": 9
+    },
+    {
+      "context": "list-meta",
+      "key": "M-RET",
+      "text": "- item\n- \n",
+      "point": 9
+    },
+    {
+      "context": "table",
+      "key": "RET",
+      "text": "| A   | B   |\n| --- | --- |\n| c   | d   |\n",
+      "point": 30
+    }
+  ],
+  "agenda": {
+    "day_key_view_only": true,
+    "selected_action_target": "Second",
+    "first_entry_unchanged": true,
+    "selected_effort_changed": true,
+    "source_actions": 1
+  },
+  "calendar_capture": {
+    "calendar_shifted_selection_committed": true,
+    "calendar_cancel_source_unchanged": true,
+    "capture_save_retains_draft": true,
+    "capture_abort_restores_source": true,
+    "capture_destination_created": false
+  },
+  "git": {
+    "history_fetch_refused": "Open current Refs and select a configured remote before fetch",
+    "history_push_refused": "Select a current local branch or mark a push source in Refs",
+    "refs_without_remote_refused": "Select one exact configured remote row before fetch",
+    "source_unchanged": true,
+    "transport_started": false,
+    "head_saved_state_index_unchanged": true
+  }
+}

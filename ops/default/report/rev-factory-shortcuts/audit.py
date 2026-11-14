@@ -265,7 +265,7 @@ def run(arguments, **kwargs):
     return result.stdout
 
 
-def compile_native(root, dependencies, temporary):
+def compile_native(root, dependencies, temporary, probe_source=NATIVE):
     manifest = tomllib.loads((root / "Cargo.toml").read_text())
     external = []
     for dependency in manifest["dependencies"]:
@@ -296,7 +296,7 @@ def compile_native(root, dependencies, temporary):
                       "-o", str(library)] + external, env=environment, timeout=180)
         marker.write_text(identity.hexdigest())
     source = temporary / "probe.rs"
-    source.write_text(NATIVE)
+    source.write_text(probe_source)
     executable = temporary / "probe"
     run(common + [str(source), "--extern", f"rev={library}", "-o", str(executable)] + external,
         timeout=180)

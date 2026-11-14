@@ -1,6 +1,6 @@
 # Factory Shortcut Alignment Tracker
 
-Status: Slice 2 audit active
+Status: Slice 2 proposal awaiting owner decision
 Date: 2026-11-14
 Delivery set: rev-factory-shortcuts
 Slice strategy: layered
@@ -10,8 +10,8 @@ Execution authority: audit slices 1-2; mapping decision checkpoint before runtim
 Plan: [Factory Shortcut Alignment Delivery](../plan/rev-factory-shortcuts.md)
 Spec: [Factory Shortcut Alignment](../spec/editor-factory-shortcut-alignment.md)
 Active slice: Slice 2, Mode mapping contract
-Progress: 1/7 slices delivered; 3/21 tasks completed
-Readiness: Slice 1 integrated; Slice 2 audit active; final mapping and runtime approval remain pending
+Progress: 1/7 slices delivered; 4/21 tasks completed
+Readiness: complete Slice 2 proposal; D01-D03 acceptance required before PR submission and runtime freeze
 
 ## Canonical slice map
 
@@ -62,7 +62,7 @@ Completed focused checks: coverage reconciliation against the live catalog; sour
 
 ## Slice 2: Mode mapping contract
 
-State: ready; Slice 1 integrated; mapping decision checkpoint remains
+State: proposal prepared; owner decision required before PR submission
 Requirements: FSA01, FSA02, FSA05, FSA06, FSA07, FSA09; D01-D03.
 Dependency: Slice 1 integrated; mode reference sources and native fixtures available.
 Branch: `docs/rev-factory-shortcuts-02-mode-contract`
@@ -70,13 +70,18 @@ Expected PR title: `docs(input): specify contextual shortcut mappings`
 PR: pending
 Report: `ops/default/report/slices/rev-factory-shortcuts/slice-2-mode-contract.md`
 Task commits: none
-Validation: not run; this record contains planned checks only.
+Validation: focused native/reference comparison, 92 normalized checks and 21 active language/profile sessions PASS; proposal structural checks PASS. Configured approval-dependent clean-HEAD validation awaits owner acceptance; no delivery gate ran.
 
-- [ ] T2.1: Complete semantic review of Org headings/lists/tables/source blocks, Agenda/capture/calendar/source editing, Markdown plain/list/table dispatch and every native Git panel/menu. Compare active contexts and effects, including source targets behind projections; finish all pending matrix rows and evidence-backed named-only or adaptation dispositions.
+- [x] T2.1: Complete semantic review of Org headings/lists/tables/source blocks, Agenda/capture/calendar/source editing, Markdown plain/list/table dispatch and every native Git panel/menu. Compare active contexts and effects, including source targets behind projections; finish all pending matrix rows and evidence-backed named-only or adaptation dispositions.
 - [ ] T2.2: Present and settle D01 Agenda placements and D02 Git family decisions, including P06-P08 and displaced command access. Produce the exact before/after mapping contract, preserve explicit tree/Markdown conventions and identify each selected supersession of legacy tables. Keep unresolved product choices visible and obtain their acceptance before closing the mapping freeze.
 - [ ] T2.3: Reconcile the specification, mapping contract, remaining slice tasks, coverage/check selection and expected cost. Remove an empty provisional Git slice if appropriate through a reviewed map revision. Record approval evidence and the slice report; keep runtime defaults unchanged. Runtime slices remain ineligible until accepted artifacts are committed.
 
-Planned checks: complete catalog/context coverage; no unresolved entry in the accepted implementation manifest; normalized sequence/prefix/conflict probes for both profiles; baseline/reference and document consistency; `git diff --check`. Do not label probes as terminal or full behavioral acceptance.
+Completed focused checks: catalog/context coverage, normalized sequence/prefix checks for both profiles, native/reference effects, baseline/document consistency and `git diff --check`. Required approval-dependent clean-HEAD validation remains pending; focused probes are not terminal or full behavioral acceptance.
+
+T2.2 has a complete exact proposal and concrete D01/D02 alternatives; acceptance
+is pending. T2.3 has reconciled P01-P19 runtime tasks, unchanged identities/gates
+and the measured-cost estimate in the mapping contract; its approval record and
+PR remain pending. The report is the decision handoff, not Slice 2 delivery.
 
 ## Slice 3: Editor defaults
 
@@ -126,7 +131,7 @@ Report: `ops/default/report/slices/rev-factory-shortcuts/slice-5-agenda.md`
 Task commits: none
 Validation: not run; this record contains planned checks only.
 
-- [ ] T5.1: Apply the accepted Agenda family assignments and daily-view alias through the selected projection's existing native source owner. Preserve named access for displaced habit/view actions, current prompt ownership and all unselected defaults.
+- [ ] T5.1: Apply proposed P08-P13 only after acceptance: daily d, tags v M, search v /, show-all habits v A, graph window v G and sort v S; remove their displaced single keys through the existing native owners. Preserve named access for displaced habit/view actions, current prompt ownership and all unselected defaults.
 - [ ] T5.2: Extend the factory-shortcut suite with selected-row target identity, daily view versus habit-date behavior, each approved family relocation, named and overridden old access, cancellation, source immutability for view-only actions and protection against suffix keys granting consent.
 - [ ] T5.3: Reconcile the selected Agenda reference/specification rows and task/agenda guide text; record concise user-visible changes and the slice report. Do not add missing reference features to occupy keys.
 
@@ -144,7 +149,7 @@ Report: `ops/default/report/slices/rev-factory-shortcuts/slice-6-git.md`
 Task commits: none
 Validation: not run; this record contains planned checks only.
 
-- [ ] T6.1: Apply only approved Git context/family replacements or aliases. Keep menu-versus-direct-action behavior explicit, operation-specific review/confirmation intact, selection/range identities stable and displaced native actions reachable through the accepted routes.
+- [ ] T6.1: Apply proposed P14-P19 only after acceptance: History A cherry-pick; remove History P/F/f; add Refs f/P for direct fetch/push, retaining existing Refs aliases. Update History panel guidance with the changed routes. Keep menu-versus-direct-action behavior explicit, operation-specific review/confirmation intact, selection/range identities stable and displaced native actions reachable through the accepted routes.
 - [ ] T6.2: Add owned local-repository factory-shortcut regressions for every changed Git family, including history selection, complete prefixes, cancelled menus and commands, explicit overrides and absence of unintended mutation. Do not use credentials, external remotes or broad transport journeys to establish key routing.
 - [ ] T6.3: Reconcile the exact superseded Binding review matrix rows, current binding reference and Git guide, preserving historical validation. Record delivered behavior and the canonical slice report; do not present intentional retained exceptions as missing implementations.
 
@@ -172,9 +177,9 @@ Planned checks: `make lint`; `bash scripts/check-factory-shortcuts.sh`; `bash sc
 
 | Decision | Scope | State |
 | --- | --- | --- |
-| D01 | Final Agenda view/habit family assignments beyond the concrete daily-view proposal. | open |
-| D02 | Git direct-action/menu exceptions, selected replacements, displaced access and any explicit legacy-table supersession. | open |
-| D03 | Core/profile and macro review recorded in Slice 1; calendar/source save, Markdown contexts and active language/modal overlays remain for Slice 2 and mapping approval. | open |
+| D01 | P08-P13 daily `d` and native `v M`, `v /`, `v A`, `v G`, `v S`; retaining current keys is an explicit alternative. | proposal complete; owner acceptance pending |
+| D02 | P14-P19 History A, remove P/F/f; Refs f/P aliases, native direct-action exceptions and exact legacy supersessions. | proposal complete; owner acceptance pending |
+| D03 | All 707 rows and six actions reviewed; source Save/heading gaps, indirect routes and deliberate native conventions recorded. | classification complete; owner acceptance pending |
 
 Do not mark a decision settled from successful parsing, a same-name match or
 the existence of a current factory key. Record the reviewed operation contract

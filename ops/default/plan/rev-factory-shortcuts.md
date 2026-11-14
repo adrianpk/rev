@@ -11,7 +11,7 @@ Planning baseline: `197bf98be615ceca06a3bab0ef5cd24b3bee2ffb`
 Spec: [Factory Shortcut Alignment](../spec/editor-factory-shortcut-alignment.md)
 Tracker: [Factory Shortcut Alignment Tracker](../tracker/rev-factory-shortcuts.md)
 Active slice: Slice 2, Mode mapping contract
-Readiness: Slice 1 integrated; Slice 2 audit active; mapping freeze and runtime acceptance remain pending
+Readiness: Slice 1 integrated; Slice 2 proposal complete; D01-D03 owner decision required before PR submission
 Integration target: `dev`
 
 ## Outcome and strategy
@@ -22,9 +22,9 @@ canonical command identities and current focus/profile ownership.
 
 The layered strategy puts two reviewable contract increments before four
 behavior increments and terminal acceptance. This ordering is necessary because
-the complete catalog inventory is available but the semantic review and
-Agenda/Git decisions are incomplete. A name-only comparison is insufficient to
-freeze a safe replacement map.
+the complete catalog and semantic review expose explicit Agenda/Git choices
+that still require acceptance. A name-only comparison is insufficient to freeze
+a safe replacement map.
 
 The initial P01-P08 proposals are not the full review boundary. Every command
 and configurable input action must receive an evidence-backed disposition.
@@ -67,17 +67,18 @@ The proposed count is not a requirement to manufacture seven changes.
 | Native catalog and 28 context maps | Re-extracted at the Slice 1 audit candidate; 707 commands and 2,349 inherited entries retained | Preserve the frozen catalog and source identity through mode review. |
 | Compiled defaults, overrides, selector hints and native operations | Existing implementation | Preserve their owning contracts; assess actual dispatch rather than descriptions alone. |
 | Core and profile semantic coverage | 333 core/profile rows reviewed; four proposals and nine rejected approximations recorded | Slice 1 integrated; preserve explicit mode and runtime validation boundaries. |
-| Org, Markdown, Agenda and Git coverage | Partial | Complete Slice 2, including D01-D03 and approved exceptions. |
-| Specification and final mapping manifest | Draft / not yet produced | Accept before changing runtime defaults. |
+| Org, Markdown, Agenda and Git coverage | 374 mode rows reviewed with native/reference evidence | Obtain acceptance of D01-D03 and explicit exceptions. |
+| Specification and mapping proposal | Complete draft; 26 records / 46 base-context edits | Accept the exact contract before the Slice 2 PR or runtime changes. |
 | Plan, tracker and controller authority | Approved audit preparation and Slice 1 integrated; Slice 2 active | Preserve controller-owned integration and the mapping checkpoint before runtime work. |
 
-Slice 1 has introduced the [semantic matrix](../report/rev-factory-shortcuts/semantic-matrix.md)
-and its sanitized native catalog with 333 reviewed core/profile rows and 374
-mode-owned rows pending Slice 2.
-Slice 2 completes it and produces
-`ops/default/report/rev-factory-shortcuts/mapping-contract.md`.
-The Slice 1 matrix and catalog are review evidence, not accepted runtime
-mappings or editor data. The Slice 2 mapping contract remains planned.
+The [semantic matrix](../report/rev-factory-shortcuts/semantic-matrix.md) now
+reviews all 707 names and six prompt actions across 28 contexts. Slice 1's
+333 core/profile rows and Slice 2's 374 mode rows retain the frozen source and
+catalog. The [contextual review](../report/rev-factory-shortcuts/mode-review.md)
+and [mapping contract](../report/rev-factory-shortcuts/mapping-contract.md)
+record complete semantic dispositions and proposed P01-P19 changes. The
+proposal is not an accepted runtime manifest. Its D01-D03 owner checkpoint
+remains before Slice 2 PR submission.
 The catalog stores the native commands and context bindings; every command
 gets a matrix row beginning with its backticked canonical name. Preserve
 coverage identifiers even when aliases share an operation. No local paths or
@@ -172,7 +173,7 @@ Checks: `make lint`; `cargo test --locked --test commands factory_shortcuts -- -
 Requirements: FSA03, FSA05-FSA09; P08 and accepted D01 manifest rows.
 Dependency: Slice 4 integrated; every implemented Agenda placement explicitly accepted.
 
-- T5.1: Apply the accepted Agenda family assignments and daily-view alias through the selected projection's existing native source owner. Preserve named access for displaced habit/view actions, current prompt ownership and all unselected defaults.
+- T5.1: Apply proposed P08-P13 only after acceptance: daily d, tags v M, search v /, show-all habits v A, graph window v G and sort v S; remove their displaced single keys through the existing native owners. Preserve named access for displaced habit/view actions, current prompt ownership and all unselected defaults.
 - T5.2: Extend the factory-shortcut suite with selected-row target identity, daily view versus habit-date behavior, each approved family relocation, named and overridden old access, cancellation, source immutability for view-only actions and protection against suffix keys granting consent.
 - T5.3: Reconcile the selected Agenda reference/specification rows and task/agenda guide text; record concise user-visible changes and the slice report. Do not add missing reference features to occupy keys.
 
@@ -183,7 +184,7 @@ Checks: `make lint`; `cargo test --locked --test commands factory_shortcuts -- -
 Requirements: FSA02, FSA03, FSA05, FSA07-FSA09; accepted D02 manifest rows.
 Dependency: Slice 5 integrated; a meaningful Git increment and its exact menu/direct-action boundary accepted at mapping freeze.
 
-- T6.1: Apply only approved Git context/family replacements or aliases. Keep menu-versus-direct-action behavior explicit, operation-specific review/confirmation intact, selection/range identities stable and displaced native actions reachable through the accepted routes.
+- T6.1: Apply proposed P14-P19 only after acceptance: History A cherry-pick; remove History P/F/f; add Refs f/P for direct fetch/push, retaining existing Refs aliases. Update History panel guidance with the changed routes. Keep menu-versus-direct-action behavior explicit, operation-specific review/confirmation intact, selection/range identities stable and displaced native actions reachable through the accepted routes.
 - T6.2: Add owned local-repository factory-shortcut regressions for every changed Git family, including history selection, complete prefixes, cancelled menus and commands, explicit overrides and absence of unintended mutation. Do not use credentials, external remotes or broad transport journeys to establish key routing.
 - T6.3: Reconcile the exact superseded Binding review matrix rows, current binding reference and Git guide, preserving historical validation. Record delivered behavior and the canonical slice report; do not present intentional retained exceptions as missing implementations.
 
@@ -232,11 +233,14 @@ No baseline gate is run as part of this planning request.
 
 Compilation and all-target lint are the significant costs. Native variants
 share a build/fixture batch; physical journeys are deliberately representative.
-The warm acceptance work should fit within minutes rather than historical
-hours-long gates, but no measured runtime is claimed yet. At mapping freeze,
-review existing timings and record a concrete cost estimate for the final
-selection. T7.3 records actual per-phase durations and cold/warm conditions;
-timing targets do not authorize deleting coverage or weakening assertions.
+The [mapping contract](../report/rev-factory-shortcuts/mapping-contract.md)
+compares existing measured build/check costs and estimates 3-8 minutes for the
+selected gate with compatible warm outputs, or 10-20 minutes when compilation
+is cold. These are estimates, not measured candidate totals or timeout changes.
+The proposal keeps all seven slice identities and exact gate commands; native
+variants share one build/fixture batch and only three representative PTYs run.
+T7.3 records actual per-phase durations and cache conditions; timing estimates
+do not authorize deleting coverage or weakening assertions.
 
 On a failure, reproduce and verify the correction at the narrowest affected
 owner. Follow the repository/controller exact-candidate repair contract; do not
@@ -258,4 +262,5 @@ Keep one PR and one canonical report per accepted slice, with exact task/commit
 and validation evidence. Apply the established Summary/Changes/Validation PR
 structure and immutable report link. Delivery closure requires the accepted
 manifest, complete matrix, current documentation and a passing gate for the
-exact `dev` candidate. This draft claims none of those execution results.
+exact `dev` candidate. The complete audit proposal claims none of those runtime
+or delivery-set results.

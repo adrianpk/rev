@@ -1,0 +1,439 @@
+{
+  "schema_version": 1,
+  "status": "proposed",
+  "source_tree": "442765af9faac4351c208b2bfc5ca02c1b896331",
+  "changes": [
+    {
+      "id": "P01",
+      "contexts": [
+        "editor",
+        "vim_normal",
+        "vim_insert",
+        "vim_replace",
+        "vim_visual_character",
+        "vim_visual_line",
+        "vim_visual_block"
+      ],
+      "key": "M-m",
+      "before": {
+        "editor": null,
+        "vim_normal": null,
+        "vim_insert": null,
+        "vim_replace": null,
+        "vim_visual_character": null,
+        "vim_visual_line": null,
+        "vim_visual_block": null
+      },
+      "after": "modal-line-first-text",
+      "inherited_contexts": [
+        "macro_definition",
+        "git_commit",
+        "markdown",
+        "org",
+        "org_capture",
+        "org_source_edit"
+      ],
+      "reason": "Retain the reviewed native operation and profile-specific admission.",
+      "normalized": "M-m"
+    },
+    {
+      "id": "P02",
+      "contexts": [
+        "editor",
+        "vim_normal",
+        "vim_insert",
+        "vim_replace",
+        "vim_visual_character",
+        "vim_visual_line",
+        "vim_visual_block"
+      ],
+      "key": "C-x +",
+      "before": {
+        "editor": null,
+        "vim_normal": null,
+        "vim_insert": null,
+        "vim_replace": null,
+        "vim_visual_character": null,
+        "vim_visual_line": null,
+        "vim_visual_block": null
+      },
+      "after": "balance-windows",
+      "inherited_contexts": [
+        "macro_definition",
+        "git_commit",
+        "markdown",
+        "org",
+        "org_capture",
+        "org_source_edit"
+      ],
+      "reason": "Retain the reviewed native operation and profile-specific admission.",
+      "normalized": "C-x +"
+    },
+    {
+      "id": "P03",
+      "contexts": [
+        "editor",
+        "vim_insert",
+        "vim_replace"
+      ],
+      "key": "C-M-_",
+      "before": {
+        "editor": null,
+        "vim_insert": null,
+        "vim_replace": null
+      },
+      "after": "undo-redo",
+      "inherited_contexts": [
+        "macro_definition",
+        "git_commit",
+        "markdown",
+        "org",
+        "org_capture",
+        "org_source_edit"
+      ],
+      "reason": "Retain the reviewed native operation and profile-specific admission.",
+      "normalized": "C-M-_"
+    },
+    {
+      "id": "P04",
+      "contexts": [
+        "editor",
+        "vim_normal",
+        "vim_insert",
+        "vim_replace",
+        "vim_visual_character",
+        "vim_visual_line",
+        "vim_visual_block"
+      ],
+      "key": "C-x p p",
+      "before": {
+        "editor": null,
+        "vim_normal": null,
+        "vim_insert": null,
+        "vim_replace": null,
+        "vim_visual_character": null,
+        "vim_visual_line": null,
+        "vim_visual_block": null
+      },
+      "after": "project-switch-project",
+      "inherited_contexts": [
+        "macro_definition",
+        "git_commit",
+        "markdown",
+        "org",
+        "org_capture",
+        "org_source_edit"
+      ],
+      "reason": "Retain the reviewed native operation and profile-specific admission.",
+      "normalized": "C-x p p"
+    },
+    {
+      "id": "P05",
+      "contexts": [
+        "org"
+      ],
+      "key": "C-c C-x E",
+      "before": {
+        "org": null
+      },
+      "after": "org-inc-effort",
+      "inherited_contexts": [],
+      "reason": "Cycle declared native EFFORT_ALL choices.",
+      "normalized": "C-c C-x E"
+    },
+    {
+      "id": "P06",
+      "contexts": [
+        "org"
+      ],
+      "key": "C-c C-x C-c",
+      "before": {
+        "org": "org-clock-report"
+      },
+      "after": "org-columns",
+      "inherited_contexts": [],
+      "reason": "Replace clocktable editing with a read-only native property-column projection; clock reports remain named.",
+      "normalized": "C-c C-x C-c"
+    },
+    {
+      "id": "P07.j",
+      "contexts": [
+        "org"
+      ],
+      "key": "C-c C-v j",
+      "before": {
+        "org": null
+      },
+      "after": "org-babel-insert-header-arg",
+      "inherited_contexts": [],
+      "reason": "Use the reference header-argument insertion family.",
+      "normalized": "C-c C-v j"
+    },
+    {
+      "id": "P07.C-j",
+      "contexts": [
+        "org"
+      ],
+      "key": "C-c C-v C-j",
+      "before": {
+        "org": null
+      },
+      "after": "org-babel-insert-header-arg",
+      "inherited_contexts": [],
+      "reason": "Retain the second reference header-argument spelling.",
+      "normalized": "C-c C-v RET"
+    },
+    {
+      "id": "P07.h",
+      "contexts": [
+        "org"
+      ],
+      "key": "C-c C-v h",
+      "before": {
+        "org": "org-babel-insert-header-arg"
+      },
+      "after": null,
+      "inherited_contexts": [],
+      "reason": "Retire the misleading help chord; no unsupported help command is introduced.",
+      "normalized": "C-c C-v h"
+    },
+    {
+      "id": "P08",
+      "contexts": [
+        "org_agenda"
+      ],
+      "key": "d",
+      "before": {
+        "org_agenda": "org-habit-graph-date"
+      },
+      "after": "org-agenda-day-view",
+      "inherited_contexts": [],
+      "reason": "Retain existing v d alias; graph-date remains named.",
+      "normalized": "d"
+    },
+    {
+      "id": "P09.old",
+      "contexts": [
+        "org_agenda"
+      ],
+      "key": "M",
+      "before": {
+        "org_agenda": "org-tags-view"
+      },
+      "after": null,
+      "inherited_contexts": [],
+      "reason": "Retire the reference-key conflict; preserve named access and the proposed native view-family route.",
+      "normalized": "M"
+    },
+    {
+      "id": "P09.new",
+      "contexts": [
+        "org_agenda"
+      ],
+      "key": "v M",
+      "before": {
+        "org_agenda": null
+      },
+      "after": "org-tags-view",
+      "inherited_contexts": [],
+      "reason": "Relocate to the explicitly native view family; no unsupported reference operation is claimed.",
+      "normalized": "v M"
+    },
+    {
+      "id": "P10.old",
+      "contexts": [
+        "org_agenda"
+      ],
+      "key": "s",
+      "before": {
+        "org_agenda": "org-search-view"
+      },
+      "after": null,
+      "inherited_contexts": [],
+      "reason": "Retire the reference-key conflict; preserve named access and the proposed native view-family route.",
+      "normalized": "s"
+    },
+    {
+      "id": "P10.new",
+      "contexts": [
+        "org_agenda"
+      ],
+      "key": "v /",
+      "before": {
+        "org_agenda": null
+      },
+      "after": "org-search-view",
+      "inherited_contexts": [],
+      "reason": "Relocate to the explicitly native view family; no unsupported reference operation is claimed.",
+      "normalized": "v /"
+    },
+    {
+      "id": "P11.old",
+      "contexts": [
+        "org_agenda"
+      ],
+      "key": "A",
+      "before": {
+        "org_agenda": "org-habit-toggle-show-all-today"
+      },
+      "after": null,
+      "inherited_contexts": [],
+      "reason": "Retire the reference-key conflict; preserve named access and the proposed native view-family route.",
+      "normalized": "A"
+    },
+    {
+      "id": "P11.new",
+      "contexts": [
+        "org_agenda"
+      ],
+      "key": "v A",
+      "before": {
+        "org_agenda": null
+      },
+      "after": "org-habit-toggle-show-all-today",
+      "inherited_contexts": [],
+      "reason": "Relocate to the explicitly native view family; no unsupported reference operation is claimed.",
+      "normalized": "v A"
+    },
+    {
+      "id": "P12.old",
+      "contexts": [
+        "org_agenda"
+      ],
+      "key": "G",
+      "before": {
+        "org_agenda": "org-habit-set-graph-window"
+      },
+      "after": null,
+      "inherited_contexts": [],
+      "reason": "Retire the reference-key conflict; preserve named access and the proposed native view-family route.",
+      "normalized": "G"
+    },
+    {
+      "id": "P12.new",
+      "contexts": [
+        "org_agenda"
+      ],
+      "key": "v G",
+      "before": {
+        "org_agenda": null
+      },
+      "after": "org-habit-set-graph-window",
+      "inherited_contexts": [],
+      "reason": "Relocate to the explicitly native view family; no unsupported reference operation is claimed.",
+      "normalized": "v G"
+    },
+    {
+      "id": "P13.old",
+      "contexts": [
+        "org_agenda"
+      ],
+      "key": "S",
+      "before": {
+        "org_agenda": "org-agenda-sort"
+      },
+      "after": null,
+      "inherited_contexts": [],
+      "reason": "Retire the reference-key conflict; preserve named access and the proposed native view-family route.",
+      "normalized": "S"
+    },
+    {
+      "id": "P13.new",
+      "contexts": [
+        "org_agenda"
+      ],
+      "key": "v S",
+      "before": {
+        "org_agenda": null
+      },
+      "after": "org-agenda-sort",
+      "inherited_contexts": [],
+      "reason": "Relocate to the explicitly native view family; no unsupported reference operation is claimed.",
+      "normalized": "v S"
+    },
+    {
+      "id": "P14",
+      "contexts": [
+        "git_history"
+      ],
+      "key": "A",
+      "before": {
+        "git_history": "git-commit-amend"
+      },
+      "after": "git-cherry-pick",
+      "inherited_contexts": [],
+      "reason": "Use the existing selected/ordered revision owner; displaced amend remains named.",
+      "normalized": "A"
+    },
+    {
+      "id": "P15",
+      "contexts": [
+        "git_history"
+      ],
+      "key": "P",
+      "before": {
+        "git_history": "git-cherry-pick"
+      },
+      "after": null,
+      "inherited_contexts": [],
+      "reason": "Move cherry-pick to A; History has no valid native push owner and no push menu is invented.",
+      "normalized": "P"
+    },
+    {
+      "id": "P16",
+      "contexts": [
+        "git_history"
+      ],
+      "key": "F",
+      "before": {
+        "git_history": "git-commit-fixup"
+      },
+      "after": null,
+      "inherited_contexts": [],
+      "reason": "Fixup remains named; no native pull command or transient is invented.",
+      "normalized": "F"
+    },
+    {
+      "id": "P17",
+      "contexts": [
+        "git_history"
+      ],
+      "key": "f",
+      "before": {
+        "git_history": "git-log-next-page"
+      },
+      "after": null,
+      "inherited_contexts": [],
+      "reason": "History paging remains named; fetch requires a selected configured remote in Refs.",
+      "normalized": "f"
+    },
+    {
+      "id": "P18",
+      "contexts": [
+        "git_refs"
+      ],
+      "key": "f",
+      "before": {
+        "git_refs": null
+      },
+      "after": "git-fetch",
+      "inherited_contexts": [],
+      "reason": "Add the conventional fetch-family letter at its native Refs owner; retain & and M f.",
+      "normalized": "f"
+    },
+    {
+      "id": "P19",
+      "contexts": [
+        "git_refs"
+      ],
+      "key": "P",
+      "before": {
+        "git_refs": null
+      },
+      "after": "git-push",
+      "inherited_contexts": [],
+      "reason": "Add the conventional push-family letter at its native Refs owner; retain p and M p.",
+      "normalized": "P"
+    }
+  ]
+}

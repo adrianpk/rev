@@ -5,7 +5,7 @@ Date: 2026-11-14
 Approved scope: product owner, 2026-11-14; semantic audit slices 1-2 and preparation publication; target mappings and runtime delivery remain subject to the documented decision checkpoint
 Format: OpenSpec capability additions; workspace specification contract
 Inspection baseline: `197bf98be615ceca06a3bab0ef5cd24b3bee2ffb`
-Readiness: semantic audit approved; complete dispositions and accepted Agenda/Git decisions are required before runtime implementation scope can be frozen
+Readiness: all semantic rows reviewed; exact mapping proposal published for D01-D03 acceptance before the Slice 2 PR and runtime freeze
 Source: [Factory shortcut review](../ticket/open/20261114010916-clarify-custom-bindings-for-unbound-commands.md)
 Baselines: [Configuration](editor-configuration.md), CFG12-CFG14 and CFG20-CFG24; [Configuration Bootstrap](editor-configuration-bootstrap.md); [Interaction](editor-interaction.md), UI02; [Modal Editing](editor-modal-editing.md); [Prefix Arguments](editor-prefix-arguments.md)
 Mode contracts: [Org](editor-org-mode.md), Familiar interaction; [Markdown](editor-markdown-mode.md); [Git](editor-git-integration.md), Binding review matrix; [Projects and Workspaces](editor-projects-workspaces.md)
@@ -41,16 +41,14 @@ catalog names, 462 occur in factory entries; six additional targets are
 minibuffer actions. These counts describe the inspection baseline, not required
 future catalog sizes or the number of keyboard-accessible operations.
 
-The [Slice 1 matrix](../report/rev-factory-shortcuts/semantic-matrix.md) reviews
-333 core/profile command rows and six prompt actions at the audit candidate;
-374 mode-owned rows remain explicitly pending Slice 2. The catalog was
-re-extracted without changing the inspection counts. Mapping decisions and
-runtime acceptance remain pending.
-
-The initial inventory is complete, but overall semantic coverage is partial. Five
-candidate additions compiled in isolated configuration probes. First-text
-navigation matched the reference in eight coordinate cases. Those findings do
-not establish all active dispatch paths or physical terminal input behavior.
+The [semantic matrix](../report/rev-factory-shortcuts/semantic-matrix.md) now
+reviews all 707 command rows and six prompt actions: 333 core/profile rows plus
+238 Org, 119 Git and 17 Markdown names. The source tree and raw catalog remain
+unchanged. [Contextual evidence](../report/rev-factory-shortcuts/mode-review.md)
+records operation owners, package revisions, indirect branches and deliberate
+differences. The [exact mapping proposal](../report/rev-factory-shortcuts/mapping-contract.md)
+is complete and still requires owner acceptance; successful audit probes do
+not supply mapping or runtime approval.
 
 Static lookup is supporting evidence only. A missing binding, a prefix result,
 a wrapper name or a dispatcher that reads its next key inside a function does
@@ -71,13 +69,27 @@ contract together with the completed semantic review.
 | P05 | `org-inc-effort` | `C-c C-x E` | Active Org editing contexts; use the existing heading/property admission and effort workflow. |
 | P06 | `org-columns` | `C-c C-x C-c` | Org. Replace the current factory clock-report assignment with the property-column operation. Retain `org-clock-report` through named invocation. |
 | P07 | `org-babel-insert-header-arg` | `C-c C-v j` and `C-c C-v C-j` | Org source-block context. Remove its factory `C-c C-v h` assignment; that reference chord belongs to Babel help. Do not introduce an unsupported help command. |
-| P08 | `org-agenda-day-view` | `d`, retaining `v d` | Agenda. Replace the current `d` habit-graph-date assignment. Preserve access to `org-habit-graph-date` through named invocation while the remaining Agenda family is reviewed. |
+| P08 | `org-agenda-day-view` | `d`, retaining `v d` | Agenda. Replace the current `d` habit-graph-date assignment. Preserve `org-habit-graph-date` by name; P09-P13 specify the remaining proposed Agenda family. |
+| P09 | `org-tags-view` | `v M`, remove `M` | Agenda native view family; preserve named access without claiming moon phases. |
+| P10 | `org-search-view` | `v /`, remove `s` | Agenda; existing `v s` remains span, and save-all is not implemented. |
+| P11 | `org-habit-toggle-show-all-today` | `v A`, remove `A` | Agenda native habit view; no append-agenda approximation. |
+| P12 | `org-habit-set-graph-window` | `v G`, remove `G` | Agenda native graph-window prompt; no time-grid approximation. |
+| P13 | `org-agenda-sort` | `v S`, remove `S` | Agenda native sort; no sunrise/sunset approximation. |
+| P14 | `git-cherry-pick` | History `A` replaces amend | Existing selected/ordered revision owner; amend becomes named-only. |
+| P15 | `git-cherry-pick` old alias | Remove History `P` | Retain `A` and named invocation; no History push owner/menu is invented. |
+| P16 | `git-commit-fixup` old key | Remove History `F` | Fixup remains named; native generic pull is absent. |
+| P17 | `git-log-next-page` old key | Remove History `f` | Paging remains named; fetch needs a configured remote in Refs. |
+| P18 | `git-fetch` | Refs `f`, retain `&` / `M f` | Native direct operation with current selected remote and review, not a transient menu. |
+| P19 | `git-push` | Refs `P`, retain `p` / `M p` | Exact local branch or qualified mark and upstream review; no History transport alias. |
 
 P01 deliberately reuses an existing native identity with a different name from
 the reference's `back-to-indentation`. P04 is an analogous project-switch
 workflow, not a claim that Rev implements the reference's project action menu.
 P06 exposes Rev's existing read-only property-column projection; it does not
 introduce editable inline columns.
+
+The native normalizer aliases C-j to RET, so the second P07 spelling owns the
+normalized C-c C-v RET leaf. The contract records both forms explicitly.
 
 P06 does not relocate clock reports onto `C-c C-x C-r`: that chord already
 controls radio-button behavior. Users may explicitly retain old assignments in
@@ -102,23 +114,31 @@ a recorded disposition even when the result is to preserve current defaults.
 | Related modal primitives | Join direction, paragraph boundaries, paired delimiters, indentation and repeat scope differ from superficially similar reference operations. | Leave misleading reference chords unassigned to those primitives. Any semantic adapter needs an explicit behavior contract before inclusion. |
 | Named-only operations | Some reference operations have no stock global key, and some Rev functions have no corresponding reference family. | Retain named invocation unless a specific convention and context justify a factory key. |
 
-Open decisions:
+Decision checkpoint (proposal complete; acceptance pending):
 
-1. **D01 Agenda family:** choose the final native view/habit placements for the
-   conflicting keys above. Do not invent unsupported reference operations to
-   occupy those keys.
-2. **D02 Git family:** choose which native direct-action conventions remain
-   deliberate exceptions and which reference menu/prefix families should be
-   adopted. New menu behavior, if needed, must be specified before freezing it
-   into implementation scope.
-3. **D03 Remaining semantic coverage:** complete the per-operation review for
-   macro menus, calendar/source-edit behavior, native Git panels, package-local
-   Markdown contexts and modal overlays. Any newly discovered reassignment
-   becomes an explicit target row or a recorded exception before implementation.
+1. **D01 Agenda family:** proposed P08-P13 use daily d and a native v family,
+   preserving named access and unselected defaults. The contract also presents
+   retaining the conflicting native keys as explicit exceptions. The owner must
+   choose; no unsupported reference operation is introduced.
+2. **D02 Git family:** proposed P14-P19 remove misleading History transport
+   letters, put cherry-pick on A, and add Refs direct fetch/push aliases. Other
+   native panels/transients remain deliberate conventions. Retaining every
+   existing Git key would require explicit resolution of provisional Slice 6;
+   adding full transient behavior would require new approved scope.
+3. **D03 Semantic classification:** all rows now have a disposition. Accept the
+   retained Markdown/tree/native-panel conventions and explicit behavior gaps:
+   heading M-S-RET, source-edit Save and the core rejected approximations.
+   Native calendar, read-only columns and bounded Babel/export features retain
+   their documented limits. Indirect Org/Markdown/process routes are recorded
+   rather than treated as missing keys. These exclusions do not commission
+   new runtime behavior.
 
-These are unresolved specification inputs, not permission for an implementation
-worker to choose arbitrary keys. The specification remains Draft until its
-important mapping decisions and boundaries are sufficiently settled.
+The specification remains Draft until the owner accepts these decisions and
+this exact proposal through the approved controller checkpoint. The contract
+identifies each selected supersession of Org Familiar interaction and Git
+Binding review matrix rows. Current defaults, legacy contracts and runtime
+source are unchanged during the audit. No worker may infer approval from
+complete coverage or successful parsing.
 
 ## ADDED Requirements
 
