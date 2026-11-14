@@ -8,6 +8,7 @@ use crate::{bookmark::Anchor, coordinates::Scalar, location::Snapshot};
 use ropey::Rope;
 
 pub(super) struct Publication {
+    presentation: Option<super::super::presentation::Mapping>,
     before: Stamp,
     after: Stamp,
     state: State,
@@ -49,6 +50,7 @@ impl Publication {
             .map(|_| Published::capture(&buffer.text, &prepared.text, &prepared.record));
         let record = prepared.record;
         let publication = Self {
+            presentation: prepared.presentation,
             before: record.before,
             after: record.after,
             state: record.after_state,
@@ -84,6 +86,7 @@ impl Buffer {
             .edit(publication.before, publication.after, &publication.syntax);
         self.edit_org(publication.before, publication.after, &publication.syntax);
         self.markdown.observation = None;
+        self.presentation = publication.presentation;
         self.coordinates
             .lock()
             .expect("coordinate cache poisoned")

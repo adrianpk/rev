@@ -7,6 +7,7 @@ mod markdown;
 mod mode;
 mod org;
 mod policy;
+mod presentation;
 mod region;
 pub mod reload;
 pub use region::Visual;
@@ -183,6 +184,8 @@ pub struct Buffer {
     mode_choice: Option<Mode>,
     org_active: bool,
     markdown: markdown::State,
+    // Shape-checked mapping only; format/display admission is a later layer.
+    presentation: Option<presentation::Mapping>,
     // Startup projection policy, shared by all views of this buffer.
     pub(crate) org_indent: bool,
     org_indent_override: Option<bool>,
@@ -257,6 +260,7 @@ impl Buffer {
             mode_choice: None,
             org_active: false,
             markdown: markdown::State::default(),
+            presentation: None,
             org_indent: crate::config::Org::default().indent,
             org_indent_override: None,
             org_highlights: None,

@@ -200,6 +200,7 @@ impl Transaction {
 /// A private copy-on-write candidate; dropping it cancels without publication.
 /// Publication rechecks the live revision, read-only state, points, and mark.
 pub struct Prepared {
+    presentation: Option<super::presentation::Mapping>,
     macro_lines: Vec<macro_lines::Mapped>,
     syntax: Vec<tree_sitter::InputEdit>,
     text: Rope,
@@ -287,6 +288,9 @@ impl Buffer {
         );
         mapping::set_cursor(&mut prepared.record, cursor, &coordinates)?;
         prepared.next_state = next_state;
+        if prepared.record.permutation.is_none() {
+            prepared.presentation = self.prepare_presentation(&prepared.text, &prepared.record);
+        }
         Ok(prepared)
     }
 
@@ -351,6 +355,7 @@ impl Buffer {
         let syntax = syntax::edits(&self.text, &record.changes)?;
         let macro_lines = macro_lines::prepare(self, &record, &coordinates)?;
         Ok(Prepared {
+            presentation: None,
             macro_lines,
             syntax,
             text,
