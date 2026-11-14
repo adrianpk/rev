@@ -99,6 +99,18 @@ The terminal chooses fonts and ligatures. If a marker is unavailable, switch
 to source presentation or choose simpler one-cell symbols in the
 [heading preferences](../../reference/defaults.md#org-heading-presentation).
 
+## Keep the outline steady while typing
+
+Add a few words inside an ordinary body line, then at the end of a heading title.
+The heading markers, their level colors and body alignment stay steady while
+analysis catches up. The edited text appears immediately. Inline emphasis or
+link colors may briefly use the ordinary text color.
+
+Changing the star prefix, its separator or a block boundary can show literal
+source until analysis finishes. C-g cancels pending presentation and leaves a
+readable source view. Toggle `org-pretty-headings-mode` off and on to request it
+again. Copying and saving still use the original stars and your current text.
+
 ## Fold an outline
 
 Move to the `Trip` heading and press Tab. Its body and child headings fold

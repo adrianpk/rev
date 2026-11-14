@@ -49,6 +49,20 @@ Select and copy a heading using the controls from [Move and Edit Text](02-edit-t
 Pasting it includes its original hashes. Undo that paste. Saving and reopening
 also retains source markers, including the backslash in `a\|b`.
 
+## Type beneath a heading
+
+Add an ordinary paragraph below `Observations`, then type several characters in
+that paragraph and at the end of the heading title. Its symbol, title position
+and level color stay steady while analysis catches up. Neighboring list symbols
+also stay visible. The new source text appears immediately; uncertain inline
+colors may temporarily use the ordinary text color.
+
+Editing hashes or their separator, fences, definitions or indentation can show
+literal source until analysis finishes. C-g cancels pending presentation. Toggle
+`markdown-pretty-mode` off and on to request current analysis again. List and
+table commands still wait for exact structure; visible symbols do not authorize
+an edit to stale structure. Undo your practice typing before the next exercise.
+
 ## Continue and move an item
 
 Put point anywhere in `Second sample` and press Return. A new sibling appears

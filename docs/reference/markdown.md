@@ -41,6 +41,25 @@ and commands. `NO_COLOR` retains visible symbols, reverse selection and underlin
 search cues. Wide and combining characters use the same source coordinates in
 pretty/source views, wrapping and horizontal clipping.
 
+## Typing while analysis is pending
+
+Verified heading symbols, structural heading colors and neighboring list markers
+remain visible through admitted same-line paragraph and ATX-title edits. An ATX
+title must retain its recognized prefix and separator; paragraph indentation and
+nonblankness must stay unchanged. Setext titles, list/quote body contexts, code,
+fences, HTML, definitions and uncertain syntax conservatively fall back to source.
+
+The current edited text appears immediately. Uncertain inline colors are dropped
+across their context until exact analysis returns. Carry uses the active palette
+and respects pretty/source choices, disabled colors and NO_COLOR. It supplies no
+list or table action authority; those commands require exact current structure.
+
+Eight changed rows and a charged 32 KiB admission inspection per edit bound this
+presentation. A ninth row, exhausted budget, cancellation, incomplete analysis,
+undo/redo, reload, close or relevant mode/policy change retires it. C-g leaves
+literal presentation; re-enabling `markdown-pretty-mode` requests current analysis.
+Copy, save, source positions, modification state and undo remain canonical.
+
 ## Lists and contextual editing
 
 Use exact names through `M-x`, or `:` in modal Normal. Factory contextual keys

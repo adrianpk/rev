@@ -220,9 +220,13 @@ copying, before/after parser construction and between events; parser-internal
 steps remain bounded by the admitted source. A limit or cancellation discards
 the entire observation. That revision is not retried on every draw.
 
-Results must match the current buffer, revision and mode generation. Edits,
-undo and reload invalidate old colors immediately; leaving the mode or hiding
-its buffer retires pending work. Split views reuse one observation. C-g cancels
+Results must match the current buffer, revision and mode generation. Edits
+immediately discard uncertain old lexical colors. Verified structural heading
+faces and symbols can continue through bounded same-line body/ATX-title edits;
+this display-only carry never supplies list/table action authority. Undo, reload,
+cancellation, limits and relevant policy/mode changes retire carry; leaving the
+mode or hiding its buffer retires pending work. See the [typing contract](markdown.md#typing-while-analysis-is-pending)
+for admission and literal fallback. Split views reuse one observation. C-g cancels
 owned work. There is no permanent parser thread and no Markdown polling deadline
 when idle. `syntax.enabled = false` disables colors while retaining independent
 structural recognition and the Markdown mode.

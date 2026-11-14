@@ -182,6 +182,21 @@ Edits, undo and redo release obsolete visibility choices in affected views.
 
 ## Pending observations
 
+Ordinary same-line body edits and title edits after an unchanged recognized
+star prefix retain verified heading symbols, level colors and visual indentation
+while exact analysis is pending. Pretty choices stay view-local and indentation
+stays buffer-local. Changed source appears immediately. Uncertain inline colors
+use the default foreground until analysis catches up; heading faces remain
+structural and use the active palette.
+
+Carry is display-only. Prefix/separator changes, block or drawer boundaries,
+multiline transactions and uncertain edits fall back to readable source. It is
+bounded to eight changed rows and a charged 32 KiB admission inspection per edit;
+a ninth row or exhausted budget retires it. Cancellation, incomplete analysis,
+undo/redo, reload, close and relevant mode/policy changes also retire carry.
+C-g removes pending carry; explicitly re-enable the presentation control to
+request analysis again. Source copying, saved bytes and history stay canonical.
+
 A command can briefly report a pending structural observation; editing remains
 available. C-g cancels its owned request. Moving to another view, changing source
 or opening another interaction prevents that request from folding a later state.

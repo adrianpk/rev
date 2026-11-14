@@ -78,17 +78,17 @@ Task commits: T4.1, T4.2 and T4.3 `7f1f834fe8de4dde5c650039e3eafeece338430f` (co
 
 ## Slice 5: Terminal acceptance and guidance
 
-State: implementing - terminal acceptance and guidance slice active
+State: reviewing - local checks passed; canonical PR and controller validation pending
 Requirements: PC01-PC12; joint terminal acceptance and delivery closure
 Branch: `test/rev-presentation-continuity-05-acceptance`
 PR: pending
 Report: `ops/default/report/slices/rev-presentation-continuity/slice-5-acceptance.md`
-Validation: the exact ordered Slice 5 checks in the plan and frozen local configuration
-Task commits: pending
+Validation: ordered Slice 5 checks passed locally (lint; 156 native bursts, four source-fidelity cases, 10 refusals and 12 PTY journeys; documentation; derived guide; whitespace). Final published clean-HEAD evidence belongs to the controller validator.
+Task commits: T5.1 and T5.2 `466b28d70c8e7fb906f087d4523c4fd14ed11936`, with counted-publication assertions `1c37488abab754ca9fabf977e5ff161dfe16f527`; T5.3 is introduced with this report and guide update, with its immutable reference to follow the PR metadata commit.
 
-- [ ] T5.1: Add scripts/check-presentation-continuity.sh as a narrow entrypoint over the existing native/PTY fixture, terminal ownership and cell-decoder infrastructure. Extend the existing Org/Markdown acceptance owners rather than building a new framework. Verify both formats and both input profiles with all intermediate states, real worker completion, colors/source controls, cleanup and exact source preservation.
-- [ ] T5.2: Run minimal, approximately 50 KB and 500 KB body/title cases, bounded heading-density cases and at least five keys within 180 ms on one/two rows. Record whether work actually remained pending, every observed marker/title-column/foreground state, accepted/rejected counts and measurement limits. Keep graphical claims separate from emitted-terminal evidence.
-- [ ] T5.3: Update the existing Org/Markdown reference and User Guide text, derive the Spore guide, preserve a concise changelog outcome and complete the slice report. Leave final set completion pending the controller's exact integrated full gate; afterward close only authorized Markdown artifacts and remove this set's integrated inactive clean worktrees.
+- [x] T5.1: Add scripts/check-presentation-continuity.sh as a narrow entrypoint over the existing native/PTY fixture, terminal ownership and cell-decoder infrastructure. Extend the existing Org/Markdown acceptance owners rather than building a new framework. Verify both formats and both input profiles with all intermediate states, real worker completion, colors/source controls, cleanup and exact source preservation.
+- [x] T5.2: Run minimal, approximately 50 KB and 500 KB body/title cases, bounded heading-density cases and at least five keys within 180 ms on one/two rows. Record whether work actually remained pending, every observed marker/title-column/foreground state, accepted/rejected counts and measurement limits. Keep graphical claims separate from emitted-terminal evidence.
+- [x] T5.3: Update the existing Org/Markdown reference and User Guide text, derive the Spore guide, preserve a concise changelog outcome and complete the slice report. Leave final set completion pending the controller's exact integrated full gate; afterward close only authorized Markdown artifacts and remove this set's integrated inactive clean worktrees.
 
 ## Delivery-set gate
 
@@ -109,6 +109,6 @@ and unrelated worktrees remain untouched.
 
 Pending the integrated gate, delivered reports, all fifteen tasks closed,
 consistent Markdown artifacts and clean synchronized dev. Slice 1 supplies the
-internal mapping foundation; Slice 2 delivers Org admission/display. Slice 3 delivers Markdown admission/display. Slice 4 delivers shared lifecycle/resource acceptance. Terminal acceptance
-and guidance remain pending in Slice 5; no final
+internal mapping foundation; Slice 2 delivers Org admission/display. Slice 3 delivers Markdown admission/display. Slice 4 delivers shared lifecycle/resource acceptance. Slice 5 terminal acceptance and guidance are prepared; integration and
+the exact delivery-set gate remain pending; no final
 delivery-set acceptance, release or installation is claimed.
