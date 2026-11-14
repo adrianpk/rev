@@ -49,9 +49,9 @@ Requirements: FSA01, FSA02, FSA03, FSA07, FSA08; core portion of D03.
 Dependency: approved and committed audit preparation; no runtime authorization is required by this slice's scope.
 Branch: `docs/rev-factory-shortcuts-01-core-audit`
 Expected PR title: `docs(input): audit core shortcut equivalence`
-PR: pending
+PR: `#47` ([canonical PR](https://forge.adrianpk.com/rev/rev/pulls/47)); open against `dev`
 Report: `ops/default/report/slices/rev-factory-shortcuts/slice-1-core-audit.md`
-Task commits: T1.1 `45d247e0a46893f81888fd09cbfac684d5aab743`; T1.2 `efa39f79a55d5a609781744a6ae8ae71f9d396f0`; T1.3 report-introduction commit recorded at PR handoff.
+Task commits: T1.1 `45d247e0a46893f81888fd09cbfac684d5aab743`; T1.2 `efa39f79a55d5a609781744a6ae8ae71f9d396f0`; T1.3/report introduction `13366e525c7e3703ccea1b48bb70b9aeccc244a2`.
 Validation: live source-compiled native/reference audit and configured coverage/document consistency check PASS; `git diff --check` PASS. The exact clean-HEAD controller receipt is required before handoff.
 
 - [x] T1.1: Re-extract the complete public command/action inventory and context maps at the actual candidate. Persist sanitized catalog.json beside the semantic matrix and record explicit coverage ownership; distinguish duplicate inherited entries, aliases and indirect dispatcher access. Preserve reproducible inspection commands and version evidence without personal configuration or machine identifiers.

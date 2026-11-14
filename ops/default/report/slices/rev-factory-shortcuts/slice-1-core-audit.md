@@ -5,7 +5,7 @@ Delivery set: rev-factory-shortcuts
 Plan: [Factory Shortcut Alignment Delivery](../../../plan/rev-factory-shortcuts.md)
 Tracker: [Factory Shortcut Alignment Tracker](../../../tracker/rev-factory-shortcuts.md)
 Branch: `docs/rev-factory-shortcuts-01-core-audit`
-PR: pending
+PR: `#47` ([canonical PR](https://forge.adrianpk.com/rev/rev/pulls/47))
 
 ## Purpose
 
