@@ -79,7 +79,7 @@ D03 coverage remain pending.
 ## Validation
 
 - `python3 ops/default/report/rev-factory-shortcuts/audit.py --dependency-dir "$REV_AUDIT_DEPS"`: PASS. The variable identifies compatible prebuilt Cargo dependencies; the runner owns its library output and temporary sessions. Evidence comparison writes no tracked output.
-- Configured frozen audit coverage/document consistency command: PASS (`Audit coverage and document consistency passed`). Command SHA-256: `5c40216039e02d8a5e6a1240758584206f36865d452430b0234e034331329cb9`. Its exact text belongs to the controller receipt and PR validation list; duplicating its identifier-scan expression here would match the report itself.
+- Configured frozen audit coverage/document consistency command: PASS (`Audit coverage and document consistency passed`). Corrected command SHA-256: `7b5e753f6c395dcc4329adca0137602e45bb40cbab593af3a9436970bc160ff7`. The injected correction uses hexadecimal regex escapes so the exact command fits the PR's single-backtick grammar; assertions and ordering remain unchanged. Its exact text belongs to the controller receipt and PR validation list; duplicating its identifier-scan expression here would match the report itself.
 - `git diff --check`: PASS; rerun for the final candidate.
 
 These are focused audit checks. No full Cargo suite, delivery-set gate,
