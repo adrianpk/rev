@@ -22,17 +22,17 @@ Progress owner: native Looper checkpoint, canonical PR state and exact-candidate
 
 ## Slice 1: Contracts and checked carry
 
-State: ready
+State: reviewing - implementation complete; canonical integration pending
 Requirements: PC02, PC03, PC06, PC07, PC11; OGP08, OIN05, MD06 contract reconciliation
 Branch: `refactor/rev-presentation-continuity-01-carry`
 PR: pending
 Report: `ops/default/report/slices/rev-presentation-continuity/slice-1-carry.md`
-Validation: the exact ordered Slice 1 checks in the plan and frozen local configuration
-Task commits: pending
+Validation: ordered Slice 1 checks passed locally (lint, 18 buffer tests, 144 core/coordinate/editing tests and whitespace). Final published clean-HEAD evidence belongs to the controller validator.
+Task commits: T1.1 `5fa1b0b4ba100070957a28623f2d20fdf30d6123`; T1.2 and T1.3 `a18ca3a8827dcacc1315f4337ad581bdd57ac47f` (cohesive mapping/publication layer and regressions).
 
-- [ ] T1.1: Reconcile the approved OGP08, OIN05 and MD06 deltas and the six named model clauses before runtime work. Preserve every inherited scenario, completed status and historical receipt; identify the new continuity scope and its separate pending delivery.
-- [ ] T1.2: Prepare a private bounded carry transition from the canonical single-change before/after ropes, with exact/base/current identity, at most eight rows, a charged 32 KiB scan budget, checked row/byte deltas and infallible reserved installation. Retain existing owner data rather than cloning whole observations or introducing a second index.
-- [ ] T1.3: Add passing parameterized mapping/publication regressions under the buffer unit-test namespace for repeated same-row and two-row edits, multibyte source, rejected shapes, overflow and budget exhaustion. Keep existing literal behavior until each format's display integration is delivered; report this internal layer without a changelog entry.
+- [x] T1.1: Reconcile the approved OGP08, OIN05 and MD06 deltas and the six named model clauses before runtime work. Preserve every inherited scenario, completed status and historical receipt; identify the new continuity scope and its separate pending delivery.
+- [x] T1.2: Prepare a private bounded carry transition from the canonical single-change before/after ropes, with exact/base/current identity, at most eight rows, a charged 32 KiB scan budget, checked row/byte deltas and infallible reserved installation. Retain existing owner data rather than cloning whole observations or introducing a second index.
+- [x] T1.3: Add passing parameterized mapping/publication regressions under the buffer unit-test namespace for repeated same-row and two-row edits, multibyte source, rejected shapes, overflow and budget exhaustion. Keep existing literal behavior until each format's display integration is delivered; report this internal layer without a changelog entry.
 
 ## Slice 2: Org presentation continuity
 
@@ -99,13 +99,14 @@ marking this set Completed. A slice count alone is not final acceptance.
 
 ## Worktree disposition
 
-No delivery worktree has been created during preparation. At each integration,
-record this set's worktree cleanup or the concrete preservation reason. Keep
-pre-existing and unrelated worktrees intact.
+Slice 1 uses its dedicated branch worktree. Retain it while the canonical PR is
+unmerged; controller-owned cleanup follows verified integration. Pre-existing
+and unrelated worktrees remain untouched.
 
 ## Final closure
 
 Pending the integrated gate, delivered reports, all fifteen tasks closed,
-consistent Markdown artifacts and clean synchronized dev. No implementation,
-passing corrected-runtime claim, release or installation is implied by this
-approved preparation.
+consistent Markdown artifacts and clean synchronized dev. Slice 1 supplies the
+internal mapping foundation for review. Format admission/display, shared lifecycle
+and terminal acceptance remain pending in Slices 2-5; no corrected-runtime
+acceptance, release or installation is claimed.
