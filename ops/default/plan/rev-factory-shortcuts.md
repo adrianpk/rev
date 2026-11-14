@@ -12,7 +12,7 @@ Spec: [Factory Shortcut Alignment](../spec/editor-factory-shortcut-alignment.md)
 Follow-through: [Emacs Interaction Parity](../spec/editor-emacs-interaction-parity.md)
 Tracker: [Factory Shortcut Alignment Tracker](../tracker/rev-factory-shortcuts.md)
 Active slice: Slice 7, Terminal acceptance and guidance
-Readiness: Slice 6 integrated through PR #52; accepted terminal acceptance active
+Readiness: Slice 7 prepared in PR #53; controller-owned integration and full gate pending
 Integration target: `dev`
 
 ## Outcome and strategy

@@ -1,6 +1,6 @@
 # Factory Shortcut Alignment Tracker
 
-Status: Slice 7 terminal acceptance active
+Status: Slice 7 terminal acceptance reviewing
 Date: 2026-11-14
 Delivery set: rev-factory-shortcuts
 Slice strategy: layered
@@ -12,7 +12,7 @@ Spec: [Factory Shortcut Alignment](../spec/editor-factory-shortcut-alignment.md)
 Follow-through: [Emacs Interaction Parity](../spec/editor-emacs-interaction-parity.md)
 Active slice: Slice 7, Terminal acceptance and guidance
 Progress: 6/7 slices delivered; 20/21 tasks completed; T7.3 closure awaits the integrated gate
-Readiness: Slice 6 integrated through PR #52; accepted terminal acceptance active
+Readiness: Slice 7 prepared in PR #53; controller-owned integration and full gate pending
 
 ## Canonical slice map
 
@@ -165,9 +165,9 @@ Requirements: FSA01-FSA10 together; accepted manifest and retained exceptions.
 Dependency: all accepted runtime slices integrated; manifest identity unchanged.
 Branch: `test/rev-factory-shortcuts-07-acceptance`
 Expected PR title: `test(input): verify factory shortcut compatibility`
-PR: pending
+PR: `#53` ([canonical PR](https://forge.adrianpk.com/rev/rev/pulls/53)); open against dev
 Report: `ops/default/report/slices/rev-factory-shortcuts/slice-7-acceptance.md`
-Task commits: T7.1 `d2c27b13a53b2ec822b23436e79534e1600da09e`; T7.2 `601a67ec41b5b05fec312c78fa73d11842b9ef85`; T7.3 reference/guide consistency, Spore projection and report preparation in this commit; post-gate closure remains controller-owned.
+Task commits: T7.1 `d2c27b13a53b2ec822b23436e79534e1600da09e`; T7.2 `601a67ec41b5b05fec312c78fa73d11842b9ef85`; T7.3 reference/guide consistency, Spore projection and report introduction `6f38eeb9417fb7719952acd0700dd11e941366da`; post-gate closure remains controller-owned.
 Validation: all five required local commands PASS; 89 selected command tests, 11 configuration keymap tests, six modal keymap tests, independent complete-map comparison, four native hint variants and three Linux PTYs. Documentation and Spore projection PASS. Exact clean-HEAD controller evidence follows canonical PR references; no integrated full-gate result is claimed.
 
 - [x] T7.1: Add a narrow `scripts/check-factory-shortcuts.sh` entrypoint and `examples/factory-shortcuts-acceptance.rs`, reusing existing owned native/surface/PTY infrastructure. Cross-check inventory coverage, accepted normalized routes, actual effects, overrides, profile/focus transitions and selector hints. Compare executable results with the separately accepted mapping contract; do not rewrite expectations from current defaults.

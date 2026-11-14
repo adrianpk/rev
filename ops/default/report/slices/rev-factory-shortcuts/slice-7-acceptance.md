@@ -5,7 +5,8 @@ Delivery set: rev-factory-shortcuts
 Plan: [Factory Shortcut Alignment Delivery](../../../plan/rev-factory-shortcuts.md)
 Tracker: [Factory Shortcut Alignment Tracker](../../../tracker/rev-factory-shortcuts.md)
 Branch: `test/rev-factory-shortcuts-07-acceptance`
-PR: pending
+PR: `#53` ([canonical PR](https://forge.adrianpk.com/rev/rev/pulls/53)); open against dev
+Report introduction: [immutable Slice 7 report](https://forge.adrianpk.com/rev/rev/src/commit/6f38eeb9417fb7719952acd0700dd11e941366da/ops/default/report/slices/rev-factory-shortcuts/slice-7-acceptance.md)
 
 ## Purpose
 
@@ -91,7 +92,7 @@ Focused `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMEN
 Measured local costs, with the ordinary build target warm after implementation:
 lint 23.08 seconds; factory acceptance 297.81; documentation 25.81; guide 5.24;
 diff check 0.04 (351.98 seconds total). The initial expanded all-target lint
-took 206.06 seconds. Successful staged T7.1/T7.2 hooks took 6.84/135.20 seconds;
+took 206.06 seconds. Successful staged T7.1/T7.2/T7.3 hooks took 6.84/135.20/72.86 seconds;
 their export caches remain separate from the ordinary target. All Cargo work
 retains one job, disabled incremental output and no dev/test debuginfo.
 
@@ -104,7 +105,8 @@ Final exact clean-HEAD evidence is recorded through controller validation after
 canonical PR-reference commits. These local results do not claim the integrated
 full gate.
 
-The first selected command batch passed 88 cases and failed one stale nonmodal
+The first selected command batch at T7.2 commit
+`601a67ec41b5b05fec312c78fa73d11842b9ef85` passed 88 cases and failed one stale nonmodal
 redo-hint expectation. The accepted P03 literal corrects that expectation;
 the focused description-row regression passes. Earlier implementation probes
 corrected a right-aligned mode observation and split terminal workflow phases
