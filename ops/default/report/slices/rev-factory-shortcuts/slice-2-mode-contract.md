@@ -1,11 +1,11 @@
 # Slice 2: Mode Mapping Contract
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-factory-shortcuts
 Plan: [Factory Shortcut Alignment Delivery](../../../plan/rev-factory-shortcuts.md)
 Tracker: [Factory Shortcut Alignment Tracker](../../../tracker/rev-factory-shortcuts.md)
 Branch: `docs/rev-factory-shortcuts-02-mode-contract`
-PR: `#48` ([canonical PR](https://forge.adrianpk.com/rev/rev/pulls/48))
+PR: `#48` ([canonical PR](https://forge.adrianpk.com/rev/rev/pulls/48)); merged into dev
 Report introduction: [immutable Slice 2 report](https://forge.adrianpk.com/rev/rev/src/commit/da5056f6e6feebc52d9114f88036097ea8e132a7/ops/default/report/slices/rev-factory-shortcuts/slice-2-mode-contract.md)
 
 ## Purpose
@@ -131,8 +131,9 @@ compatible read-only prebuilt dependencies. Current editor library output stays
 in the owned worktree; temporary sessions and local Git/source fixtures are
 removed on exit. Compile timeout remains 180 seconds, native probe process
 120 seconds, reference processes 60 seconds and observation settle five seconds.
-No limit or assertion is reduced. Final exact clean-HEAD controller validation
-follows the PR-reference commit; its receipt owns the final candidate evidence.
+No limit or assertion is reduced. Both frozen commands passed through controller
+validation at clean HEAD `2ae7f75ff1a067a8b553dfc665b6022b66610e57` before
+PR #48 was integrated into dev at that exact commit.
 
 These are documentation audit and preparation checks. Broad Cargo gates,
 physical terminal parity, changing Git journeys and the integrated full gate

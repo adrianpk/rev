@@ -1,6 +1,6 @@
 # Factory Shortcut Alignment Tracker
 
-Status: Slice 2 accepted manifest under review
+Status: Slice 3 editor implementation active
 Date: 2026-11-14
 Delivery set: rev-factory-shortcuts
 Slice strategy: layered
@@ -10,9 +10,9 @@ Execution authority: current slices 1-7 under accepted manifest and predecessor 
 Plan: [Factory Shortcut Alignment Delivery](../plan/rev-factory-shortcuts.md)
 Spec: [Factory Shortcut Alignment](../spec/editor-factory-shortcut-alignment.md)
 Follow-through: [Emacs Interaction Parity](../spec/editor-emacs-interaction-parity.md)
-Active slice: Slice 2, Mode mapping contract
-Progress: 1/7 slices delivered; 6/21 tasks completed
-Readiness: exact amended mapping accepted; canonical Slice 2 PR #48 under review; current runtime starts after predecessor integration
+Active slice: Slice 3, Editor defaults
+Progress: 2/7 slices delivered; 6/21 tasks completed
+Readiness: Slice 2 integrated; exact manifest accepted; Slice 3 runtime implementation active
 
 ## Canonical slice map
 
@@ -32,8 +32,8 @@ Readiness: exact amended mapping accepted; canonical Slice 2 PR #48 under review
 | --- | --- | --- |
 | Audit entry | Product-owner continuation accepted; publish the preparation before controller startup. | approved; preparation published at `2f5cfa485fb0169c0f4dcdea475a33eb4a80eabd` |
 | Core review | Slice 1 complete core/profile matrix with actual probe evidence and pending mode rows identified. | integrated through PR #47 at `c279fd03ccc383a9ae606665bf0cd7ae2cfccc49` |
-| Mapping freeze | Slice 2 complete matrix; D01-D03 settled; accepted exact mapping contract and reconciled spec/plan/tracker committed. | accepted; exact amended contract recorded; current branch reconciliation |
-| Runtime entry | Slice 3 onward uses only the accepted manifest with unchanged identities/checks. | authorized after Slice 2 integration; not started |
+| Mapping freeze | Slice 2 complete matrix; D01-D03 settled; accepted exact mapping contract and reconciled spec/plan/tracker committed. | accepted and integrated through PR #48 |
+| Runtime entry | Slice 3 onward uses only the accepted manifest with unchanged identities/checks. | active Slice 3; predecessor integration verified |
 | Delivery closure | All accepted slices integrated; selected gate passes for the exact dev candidate; reports, guide and ticket reconciled. | pending |
 
 The accepted owner decision settles the exact retained proposal plus History
@@ -64,15 +64,15 @@ Completed focused checks: coverage reconciliation against the live catalog; sour
 
 ## Slice 2: Mode mapping contract
 
-State: reviewing; exact amended manifest accepted; validation and PR preparation active
+State: delivered; PR #48 integrated into dev at `2ae7f75ff1a067a8b553dfc665b6022b66610e57`
 Requirements: FSA01, FSA02, FSA05, FSA06, FSA07, FSA09; D01-D03.
 Dependency: Slice 1 integrated; mode reference sources and native fixtures available.
 Branch: `docs/rev-factory-shortcuts-02-mode-contract`
 Expected PR title: `docs(input): specify contextual shortcut mappings`
-PR: `#48` ([canonical PR](https://forge.adrianpk.com/rev/rev/pulls/48))
+PR: `#48` ([canonical PR](https://forge.adrianpk.com/rev/rev/pulls/48)); merged into dev
 Report: `ops/default/report/slices/rev-factory-shortcuts/slice-2-mode-contract.md`
 Task commits: T2.1/report introduction `da5056f6e6feebc52d9114f88036097ea8e132a7`; accepted T2.2/T2.3 reconciliation and functional preparation `2fbc7ca375b666f7c4670bdef64d68f5b130af46`; this record includes canonical PR references.
-Validation: focused native/reference comparison, 98 normalized checks and 21 active language/profile sessions PASS; proposal structural checks PASS. Configured clean-HEAD validation follows the PR-reference commit; no delivery gate ran.
+Validation: focused native/reference comparison, 98 normalized checks and 21 active language/profile sessions PASS; proposal structural checks PASS. Both frozen commands passed through controller validation at `2ae7f75ff1a067a8b553dfc665b6022b66610e57` before integration; no delivery-set gate ran.
 
 - [x] T2.1: Complete semantic review of Org headings/lists/tables/source blocks, Agenda/capture/calendar/source editing, Markdown plain/list/table dispatch and every native Git panel/menu. Compare active contexts and effects, including source targets behind projections; finish all pending matrix rows and evidence-backed named-only or adaptation dispositions.
 - [x] T2.2: Present and settle D01 Agenda placements and D02 Git family decisions, including P06-P08 and displaced command access. Produce the exact before/after mapping contract, preserve explicit tree/Markdown conventions and identify each selected supersession of legacy tables. Keep unresolved product choices visible and obtain their acceptance before closing the mapping freeze.
@@ -88,7 +88,7 @@ unchanged. Canonical PR #48 and its immutable report link are recorded; the fina
 
 ## Slice 3: Editor defaults
 
-State: authorized; predecessor integration required
+State: ready; Slice 2 integrated; accepted manifest governs implementation
 Requirements: FSA03, FSA04, FSA07-FSA09; P01-P04 and accepted core manifest rows.
 Dependency: Slice 2 integrated and mapping freeze accepted/committed.
 Branch: `feat/rev-factory-shortcuts-03-editor`
