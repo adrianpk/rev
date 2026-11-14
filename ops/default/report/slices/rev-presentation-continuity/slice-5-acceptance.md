@@ -1,6 +1,6 @@
 # Slice 5: Terminal acceptance and guidance
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-presentation-continuity
 Plan: `ops/default/plan/rev-presentation-continuity.md`
 Tracker: `ops/default/tracker/rev-presentation-continuity.md`
@@ -177,9 +177,11 @@ Insert-mode arrow motions now exercise two-row typing without injecting cancel.
 Every completed edit update still must pass the strict marker/title/color checks.
 No product runtime change was required.
 
-Exact final clean-HEAD evidence belongs to the controller validator after the
-report/PR-reference commits and push. Fixtures released only their owned editor
-children; generated targets and hook caches remain exclusive to this worktree.
+The pinned validator recorded all five ordered commands passing on clean
+published `2b5cde6c52878f09fe00c059b2e84c9b836e12be`, after the report/PR-reference
+commits and push. The canonical PR check also passed. Fixtures released only
+their owned editor children; generated targets and hook caches stayed exclusive
+to their worktree. This slice evidence does not replace the integrated full gate.
 
 ## Risks and Follow-ups
 
@@ -189,7 +191,24 @@ per-key processing latency guarantee. Completed-frame boundaries are the writer'
 hide/show protocol; intermediate GPU painting within one frame is outside this
 fixture. No worker CPU-pending claim is inferred from fast input or a quiet frame.
 
-The controller must integrate Slice 5 and run its exact full gate on clean
-published dev before closing the delivery set. Final Markdown closure and removal
-of this set's integrated inactive clean worktree remain conditional on that gate.
+The controller must run its exact full gate on clean published dev before
+closing the delivery set. Final Markdown acceptance records remain conditional
+on that gate. Worktree disposition is recorded below.
 No main promotion, release, tag, installation or mirror/site publication is claimed.
+
+## Integration
+
+Canonical PR [#45](https://forge.adrianpk.com/rev/rev/pulls/45) is merged into
+`dev` at `2b5cde6c52878f09fe00c059b2e84c9b836e12be`, verified against Forgejo,
+Acta and synchronized Git refs. All five slice reports are delivered; the set
+remains Approved pending the controller's exact integrated full gate.
+
+The owned worktree was clean, unlocked and inactive, with only generated Cargo
+output ignored and a private generated hook cache. Its HEAD was an ancestor
+of fetched dev and origin/dev. Non-forced Git worktree removal completed;
+the branch and all unrelated worktrees remain preserved.
+
+Gate preparation verified tool availability, tracked inputs, shell syntax and
+the primary checkout's exclusive Cargo target. Installed hooks and the approved
+gate remain unchanged. No build, native/PTY suite, guide producer or full gate
+was executed during preparation.
