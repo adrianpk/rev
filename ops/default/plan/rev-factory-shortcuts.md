@@ -12,7 +12,7 @@ Spec: [Factory Shortcut Alignment](../spec/editor-factory-shortcut-alignment.md)
 Follow-through: [Emacs Interaction Parity](../spec/editor-emacs-interaction-parity.md)
 Tracker: [Factory Shortcut Alignment Tracker](../tracker/rev-factory-shortcuts.md)
 Active slice: Slice 6, Git defaults
-Readiness: Slice 5 integrated through PR #51; accepted Git implementation active
+Readiness: Slice 6 local checks passed; canonical PR preparation
 Integration target: `dev`
 
 ## Outcome and strategy

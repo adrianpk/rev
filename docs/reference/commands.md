@@ -1089,7 +1089,7 @@ HEAD and index remain unchanged. An annotated tag retains its distinct tag
 object and target instead of treating both as a commit ID.
 
 h or l l in Status opens History. `keys.git_history` keeps navigation separate
-from Status in both profiles. Tab inspects the exact selected revision; f admits
+from Status in both profiles. Tab inspects the exact selected revision; + admits
 one more finite ancestry page. g verifies current HEAD and preserves the pinned
 root, admitted pages and compatible selection; a changed HEAD requires Status
 refresh and explicit History reentry. Missing objects and page limits are explicit.
@@ -1097,7 +1097,7 @@ Revision detail includes full parent IDs, raw commit metadata, exact old/new
 changed paths and a bounded read-only patch. Invoke `git-show` in detail to
 compare another listed full parent ID. Return on a parent compares it; Return
 on a changed path opens its immutable historical bytes. Deleted paths use
-the comparison's old object. q returns to History, then Status. A/F in
+the comparison's old object. q returns to History, then Status. c a/c f in
 History prepares amend of checked HEAD or fixup of the selected full revision;
 existing explicit commit review remains required. Inspection never checks out
 historical files or replaces current source text.

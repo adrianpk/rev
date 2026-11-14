@@ -105,7 +105,7 @@ Every command below is also available as `M-x` followed by its exact name.
 | `M-x shell-command-cancel`, `:shell-command-cancel` | `shell-command-cancel` | Cancel the owned invocation; originating editing C-g also cancels after inner input owners. |
 | `M-x shell-command-output`, `:shell-command-output` | `shell-command-output` | Visit the last retained read-only plain-text result or diagnostics. |
 | Return in History | `git-show-range` | Compare the marked exact base and selected endpoint in their explicit order. |
-| `P` in History | `git-cherry-pick` | Review exact ordered revisions and explicit merge mainlines before applying them. |
+| `A` in History | `git-cherry-pick` | Review exact ordered revisions and explicit merge mainlines before applying them. |
 | `V` in History | `git-revert` | Review exact ordered revisions and explicit merge mainlines before reverting them. |
 | `a` in History | `git-sequence-mark` | Append an exact ordered revision without changing the range base. |
 | `U` in History | `git-sequence-unmark` | Remove an ordered revision, retaining remaining order and the base. |
@@ -113,9 +113,9 @@ Every command below is also available as `M-x` followed by its exact name.
 | `B b`, `B B` in Status | `git-blame` | Attribute the selected or visiting source at checked HEAD. |
 | `h`, `l l` in Status | `git-log` | Open exact bounded ancestry; detached HEAD collects an explicit root. |
 | Tab in History; `M-x git-show`, `:git-show` | `git-show` | Inspect full revision metadata, changed paths and exact parent comparison. |
-| `f` in History | `git-log-next-page` | Continue exact ancestry from its pinned root. |
-| `M-x git-commit-amend` | `git-commit-amend` | Prepare exact observed HEAD composition, then explicitly review the replacement commit. |
-| `M-x git-commit-fixup` | `git-commit-fixup` | Resolve one exact target, compose its fixup body and review before submission. |
+| `+` in History | `git-log-next-page` | Continue exact ancestry from its pinned root. |
+| `c a` in History; `M-x git-commit-amend` | `git-commit-amend` | Prepare exact observed HEAD composition, then explicitly review the replacement commit. |
+| `c f` in History; `M-x git-commit-fixup` | `git-commit-fixup` | Resolve one exact target, compose its fixup body and review before submission. |
 | `c` in Git Status | `git-commit` | Open native commit text directly; a subsequent c is literal message text. |
 | `C-Enter`, `C-c C-c` in composer | `git-commit-submit` | Submit the active native composer; prepared arguments require checked review before execution. |
 | `C-g`, `C-c C-k` in composer | `git-commit-cancel` | Cancel before process start; retain commit/tag drafts and restore the source owner. |
@@ -702,8 +702,8 @@ For live terminal key ownership and copy controls, see the
 | Named command | `git-conflicts` | Inspect actual Git sequence state and exact selectable conflict paths. |
 | Return in Operation or Conflict | `git-conflict-visit` | Inspect selected stages, then visit the canonical editable result. |
 | Named command | `git-operation-status` | Inspect actual Git-owned sequence state and conflicts. |
-| `p`, `M p` in Refs | `git-push` | Review one exact source branch and its configured upstream destination before publication. |
-| `&`, `M f` in Refs | `git-fetch` | Fetch the selected configured remote without integration. |
+| `P`, `p`, `M p` in Refs | `git-push` | Review one exact source branch and its configured upstream destination before publication. |
+| `f`, `&`, `M f` in Refs | `git-fetch` | Fetch the selected configured remote without integration. |
 | `b`, `y` in Status; `M b` in Refs | `git-refs` | Inspect exact native repository refs. |
 | `n` in Refs | `git-branch-create` | Confirm a new local branch at the selected full commit. |
 | `S` in Refs | `git-branch-switch` | Confirm a checked clean local branch switch. |
@@ -1002,7 +1002,10 @@ buffers and filesystem publication.
 
 ### Git history defaults and availability
 
-`keys.git_history` owns History input in both profiles.
+`keys.git_history` owns History input in both profiles. A reviews cherry-pick;
+c a and c f prepare amend and fixup; + requests the next ancestry page.
+Bare c has no action. P, F and f have no factory leaves. Canonical names and
+explicit old user assignments remain available.
 Prompts still use `keys.minibuffer`. Pointer selection requires the currently
 painted observation and viewport. q returns from revision detail to History,
 then Status, preserving selection and source ownership.
@@ -1010,7 +1013,7 @@ then Status, preserving selection and source ownership.
 | Keys | Target |
 | --- | --- |
 | `!` | `git-run-command` |
-| `P` | `git-cherry-pick` |
+| `A` | `git-cherry-pick` |
 | `V` | `git-revert` |
 | `C-x g` | `git-status` |
 | `q` | `git-quit` |
@@ -1019,8 +1022,8 @@ then Status, preserving selection and source ownership.
 | Return | `git-show-range` |
 | `*` | `git-mark` |
 | `a`, `U` | `git-sequence-mark`, `git-sequence-unmark` |
-| `f` | `git-log-next-page` |
-| `A`, `F` | `git-commit-amend`, `git-commit-fixup` |
+| `+` | `git-log-next-page` |
+| `c a`, `c f` | `git-commit-amend`, `git-commit-fixup` |
 | `$` | `git-processes` |
 | `M-x`, `:` | `execute-extended-command` |
 | `C-g` | `keyboard-quit` |
@@ -1233,8 +1236,10 @@ aliases below.
 | `r r` | `git-rebase` |
 | `*` | `git-mark` |
 | `-` | `git-unmark` |
+| `P` | `git-push` |
 | `p` | `git-push` |
 | `M p` | `git-push` |
+| `f` | `git-fetch` |
 | `&` | `git-fetch` |
 | `M b` | `git-refs` |
 | `M f` | `git-fetch` |

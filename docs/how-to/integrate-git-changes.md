@@ -7,7 +7,7 @@ before using the native transport actions.
 ## Fetch, then choose an integration policy
 
 1. Open Status with `C-x g`, then b / `git-refs`.
-2. Select a configured remote row and press `&` / `git-fetch`. Inspect the result in `$` / `git-processes` and refreshed tracking refs.
+2. Select a configured remote row and press `f` / `git-fetch` (`&` and `M f` remain aliases). Inspect the result in `$` / `git-processes` and refreshed tracking refs.
 3. Select the exact commit-bearing ref to integrate. Choose `=` / `git-merge-fast-forward` for fast-forward only, i / `git-merge` to allow a merge, or I / `git-merge-no-fast-forward` to require a merge commit when there is work.
 4. Review full source/current identities and policy. Accept with y, `C-Enter` or `C-c C-c`; cancel with n / `C-g`. Return does not accept.
 
@@ -42,7 +42,7 @@ does not abort Git-owned sequence state.
 ## Apply an ordered set or investigate a regression
 
 In History, a / `git-sequence-mark` appends an exact revision to an ordered
-cherry-pick/revert set; U removes a mark. P / `git-cherry-pick` and V /
+cherry-pick/revert set; U removes a mark. A / `git-cherry-pick` and V /
 `git-revert` review the complete order and required merge-parent choices before
 execution. Completed prefixes and conflict stops remain actual repository state.
 These marks are distinct from the `*` range base and Status marks.
@@ -55,7 +55,7 @@ candidates may leave an ambiguous result.
 
 ## Push one reviewed branch
 
-In Refs select one local branch and press p / `git-push`. Alternatively mark
+In Refs select one local branch and press P / `git-push` (p and `M p` remain aliases). Alternatively mark
 one local branch with `*`, then navigate to its configured remote and invoke
 `git-push`; `-` clears that separate source mark. Preparation requires a
 consistent configured upstream. The review identifies the full source ref and

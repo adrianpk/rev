@@ -72,6 +72,11 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 
 ### Changed
 
+- Git History uses A to review cherry-pick, c a for amend, c f for fixup and +
+  for more ancestry. Refs adds f for direct fetch and P for reviewed push. Old
+  History P/F/f defaults are removed; named commands and custom shortcuts
+  remain available.
+
 - Agenda d now shows one calendar day. Use v M for tag/property matches, v /
   for source search, v A for all habits today, v G for graph settings and v S
   for sorting. Habit-date selection remains available by name; explicitly

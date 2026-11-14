@@ -1,6 +1,6 @@
 # Factory Shortcut Alignment Tracker
 
-Status: Slice 6 Git implementation active
+Status: Slice 6 Git review preparation
 Date: 2026-11-14
 Delivery set: rev-factory-shortcuts
 Slice strategy: layered
@@ -11,8 +11,8 @@ Plan: [Factory Shortcut Alignment Delivery](../plan/rev-factory-shortcuts.md)
 Spec: [Factory Shortcut Alignment](../spec/editor-factory-shortcut-alignment.md)
 Follow-through: [Emacs Interaction Parity](../spec/editor-emacs-interaction-parity.md)
 Active slice: Slice 6, Git defaults
-Progress: 5/7 slices delivered; 15/21 tasks completed
-Readiness: Slice 5 integrated through PR #51; accepted Git implementation active
+Progress: 5/7 slices delivered; 18/21 tasks completed
+Readiness: Slice 6 local checks passed; canonical PR preparation
 
 ## Canonical slice map
 
@@ -142,21 +142,21 @@ Completed local checks: `make lint`; `cargo test --locked --test commands factor
 
 ## Slice 6: Git defaults
 
-State: active; Slice 5 integration verified
+State: reviewing; implementation complete
 Requirements: FSA02, FSA03, FSA05, FSA07-FSA09; accepted D02 manifest rows.
 Dependency: Slice 5 integrated; a meaningful Git increment and its exact menu/direct-action boundary accepted at mapping freeze.
 Branch: `feat/rev-factory-shortcuts-06-git`
 Expected PR title: `feat(git): align reviewed shortcut families`
 PR: pending
 Report: `ops/default/report/slices/rev-factory-shortcuts/slice-6-git.md`
-Task commits: none
-Validation: not run; this record contains planned checks only.
+Task commits: T6.1 `3a1e010e9e61c4aa432824879472bdd446636256`; T6.2 `d0f8c3abd04b0300c0999a6d5f5955dbc7372293`; T6.3/report introduction pending this documentation commit.
+Validation: all four required local commands PASS; 34 shared factory-shortcut and 11 configuration keymap tests. Documentation validation PASS. Final clean-HEAD evidence follows canonical PR references.
 
-- [ ] T6.1: Apply accepted P14-P19 and precise History amendment: History A cherry-pick; remove History P/F/f; add History c a amend, c f fixup and + paging; add Refs f/P for direct fetch/push, retaining existing Refs aliases. Update History panel guidance with the changed routes. Keep menu-versus-direct-action behavior explicit, operation-specific review/confirmation intact, selection/range identities stable and displaced native actions reachable through the accepted routes.
-- [ ] T6.2: Add owned local-repository factory-shortcut regressions for every changed Git family, including A/c a/c f/+ History routing and selected identities, Refs f/P aliases, removed P/F/f leaves, complete/cancelled prefixes, native review, explicit old overrides and absence of unintended mutation. Do not use credentials, external remotes or broad transport journeys to establish key routing.
-- [ ] T6.3: Reconcile the exact superseded Binding review matrix rows, current binding reference and Git guide, preserving historical validation. Record delivered behavior and the canonical slice report; do not present intentional retained exceptions as missing implementations.
+- [x] T6.1: Apply accepted P14-P19 and precise History amendment: History A cherry-pick; remove History P/F/f; add History c a amend, c f fixup and + paging; add Refs f/P for direct fetch/push, retaining existing Refs aliases. Update History panel guidance with the changed routes. Keep menu-versus-direct-action behavior explicit, operation-specific review/confirmation intact, selection/range identities stable and displaced native actions reachable through the accepted routes.
+- [x] T6.2: Add owned local-repository factory-shortcut regressions for every changed Git family, including A/c a/c f/+ History routing and selected identities, Refs f/P aliases, removed P/F/f leaves, complete/cancelled prefixes, native review, explicit old overrides and absence of unintended mutation. Do not use credentials, external remotes or broad transport journeys to establish key routing.
+- [x] T6.3: Reconcile the exact superseded Binding review matrix rows, current binding reference and Git guide, preserving historical validation. Record delivered behavior and the canonical slice report; do not present intentional retained exceptions as missing implementations.
 
-Planned checks: `make lint`; `cargo test --locked --test commands factory_shortcuts -- --test-threads=1`; `cargo test --locked --test configuration keymaps -- --test-threads=1`; `git diff --check`. Add a narrow existing Git regression only if the accepted implementation changes its owner beyond input routing; record that selection before execution.
+Completed local checks: `make lint`; `cargo test --locked --test commands factory_shortcuts -- --test-threads=1`; `cargo test --locked --test configuration keymaps -- --test-threads=1`; `git diff --check`. Add a narrow existing Git regression only if the accepted implementation changes its owner beyond input routing; record that selection before execution.
 
 ## Slice 7: Terminal acceptance and guidance
 

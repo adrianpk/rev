@@ -767,22 +767,29 @@ every binding; a key is never reassigned merely because another view uses it.
 
 #### History and Refs
 
+The [accepted shortcut contract](../report/rev-factory-shortcuts/mapping-contract.md)
+supersedes the selected History A/P/F/f and Refs fetch/push rows below with
+A cherry-pick, c a amend, c f fixup, + paging and Refs f/P aliases. History c
+is prefix-only; Status c still opens literal composition. Canonical names,
+explicit old user assignments and native review/consent remain valid. Original
+completion and gate metadata retain their historical scope.
+
 | Context | Operation / native command | Sequence | Behavior or review note |
 | --- | --- | --- | --- |
 | History | Inspect revision / git-show | Tab | Read exact metadata, parents, changed paths and bounded diff. |
 | History | Set range base / git-mark | * | Retain one exact compatible range base. |
 | History | Inspect range / git-show-range | Return | Use the marked base and selected endpoint in their explicit order. |
-| History | Next page / git-log-next-page | f | Page history; this key does not fetch a remote in History. |
-| History | Amend / git-commit-amend | A | Compose against the exact observed HEAD, then require its review. |
-| History | Fixup / git-commit-fixup | F | Use the selected exact revision; no implicit autosquash. |
+| History | Next page / git-log-next-page | + | Page finite ancestry from the pinned root; f has no factory leaf in History. |
+| History | Amend / git-commit-amend | c a | Compose against the exact observed HEAD, then require its review. |
+| History | Fixup / git-commit-fixup | c f | Use the selected exact revision; no implicit autosquash. |
 | History | Append/remove ordered revision / git-sequence-mark, git-sequence-unmark | a / U | Keep cherry-pick/revert order distinct from range selection. |
-| History | Cherry-pick/revert / git-cherry-pick, git-revert | P / V | Prepare the ordered set and any required mainline choices. |
+| History | Cherry-pick/revert / git-cherry-pick, git-revert | A / V | Prepare the ordered set and any required mainline choices. |
 | History and revision detail | Return / git-quit | q | Detail/range returns to History; History returns to Status. |
 | Refs | Create/switch/rename/delete branch | n / S / R / D | Use the exact selected ref and normal checked confirmation. |
 | Refs | Create/delete tag / git-tag-create, git-tag-delete | t / T | t and both creation kinds are confirmed: lightweight by default, annotated by explicit selection. T retains exact local deletion. |
 | Refs | Mark/clear push source / git-mark, git-unmark | * / - | Retain one exact source branch. |
-| Refs | Fetch / git-fetch | & | Select the configured remote; do not integrate the result. |
-| Refs | Push / git-push | p | Confirmed policy: one branch to its upstream after source/remote/destination review; key is approved in this matrix. |
+| Refs | Fetch / git-fetch | f / & / M f | Select the configured remote; do not integrate the result. |
+| Refs | Push / git-push | P / p / M p | Confirmed policy: one branch to its upstream after source/remote/destination review; key is approved in this matrix. |
 | Refs | Fast-forward-only / merge-allowed / merge-required | = / i / I | Invoke git-merge-fast-forward, git-merge or git-merge-no-fast-forward. |
 | Refs | Rebase / git-rebase | e | Prepare an explicit selected base. |
 | Refs | Autosquash / git-rebase-autosquash | E or r a | Review the finite sequence; never execute arbitrary todo commands. |
@@ -868,9 +875,10 @@ through to another operation. A source/composer character never starts a menu.
   taking h away from the reviewed baseline.
 - b remains direct Refs. The approved y alias adds ref inspection without
   changing b into a branch-command menu. Branch actions remain explicit in Refs.
-- f is History paging, while p is push in Refs and pop in Stash. These keys
-  cannot also mean fetch or previous-item in those same contexts. Up/Down and
-  C-p/C-n remain available; p/n aliases are limited to nonconflicting contexts.
+- + pages History; f fetches in Refs. P/p push in Refs, while p pops in Stash.
+  These context-specific actions retain their native direct/review boundaries.
+  Up/Down and C-p/C-n remain available; p/n navigation aliases are limited to
+  nonconflicting contexts.
 - The same capital key may have a different role in Status, History or Sequence
   only when those distinct contexts already define it. Native menus and the
   reference must show the active context and complete sequence.

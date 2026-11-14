@@ -13,8 +13,15 @@ read-only; the current file still contains `gold`.
 Return to History with q. Mark an older revision with `*`, select a newer
 revision and press Return to inspect their ordered range. These range marks
 are separate from Status stage marks and History's ordered cherry-pick/revert
-marks. Use f to request another finite ancestry page when one is available;
+marks. Use + to request another finite ancestry page when one is available;
 there is no background history walk.
+
+History uses A to review cherry-pick, `c a` to prepare amend against checked
+HEAD and `c f` to prepare fixup for the selected exact revision. Bare c starts
+a prefix in History. In Status, c still opens a message composer directly.
+These operations retain their explicit native reviews; `C-g` cancels before
+execution and retains a commit draft. P, F and f have no History factory
+assignments; explicit old user assignments remain valid.
 
 ## Create a local tag
 
@@ -32,10 +39,11 @@ actual failure; change that policy explicitly if appropriate to your repository.
 ## Choose transport separately
 
 This practice repository has no remote. In a repository with a configured
-remote, select its remote row in Refs and use `&` / `git-fetch`. Fetch updates
+remote, select its remote row in Refs and use f / `git-fetch`. Existing `&` and `M f` aliases remain. Fetch updates
 tracking observations. It does not merge, rebase or choose a pull policy.
 
-Inspect the refreshed refs before choosing an explicit merge or rebase. Push
+Inspect the refreshed refs before choosing an explicit merge or rebase.
+P / `git-push` in Refs retains p and `M p` aliases. Push
 requires one local branch with a consistent configured upstream and a review
 of its full source object, remote and destination branch. It does not silently
 publish local tags. The [integration task guide](../../how-to/integrate-git-changes.md)

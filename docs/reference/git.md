@@ -17,8 +17,8 @@ unborn, detached and unavailable states are explicit.
 | --- | --- | --- |
 | Status | g refresh, Tab expand, Return visit, s/u stage/unstage, k discard, */-/0 marks, c compose, h History, b Refs, $ Processes, ? actions, q return | [Status keys](bindings.md#git-defaults-and-availability) |
 | Composer | Ordinary text; C-Enter or C-c C-c submit; C-g or C-c C-k cancel | [Composer keys](bindings.md#git-commit-defaults-and-availability) |
-| History | Tab revision, * range base, Return range, f next page, A amend, F fixup, a/U ordered marks, P/V cherry-pick/revert | [History keys](bindings.md#git-history-defaults-and-availability) |
-| Refs | n/S/R/D branch create/switch/rename/delete, t/T local tag create/delete, & fetch, p push, =/i/I merge policies, e rebase | [Refs keys](bindings.md#git-refs-defaults-and-availability) |
+| History | Tab revision, * range base, Return range, + next page, c a amend, c f fixup, a/U ordered marks, A/V cherry-pick/revert | [History keys](bindings.md#git-history-defaults-and-availability) |
+| Refs | n/S/R/D branch create/switch/rename/delete, t/T local tag create/delete, f/&/M f fetch, P/p/M p push, =/i/I merge policies, e rebase | [Refs keys](bindings.md#git-refs-defaults-and-availability) |
 | Operation / Conflict | Inspect actual sequence; Return visit conflict/result; 1/2/3 complete side, K delete, x stage | [Sequence keys](bindings.md#git-sequence-defaults-and-availability), [conflict keys](bindings.md#git-conflict-defaults-and-availability) |
 | Stash / Worktree | Exact object/path selection with separately reviewed actions | [Stash keys](bindings.md#git-stash-defaults-and-availability), [worktree keys](bindings.md#git-worktree-defaults-and-availability) |
 

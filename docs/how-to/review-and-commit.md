@@ -30,8 +30,9 @@ Return inserts a newline. `C-g` or `C-c C-k` cancels before execution and retain
 the draft for this session. Check History and Processes after completion;
 source saving, staging and committing remain separate actions.
 
-For amend, open History, select the observed HEAD and press A /
-`git-commit-amend`. For a fixup, select the exact target revision and press F /
+For amend, open History and press `c a` / `git-commit-amend` to compose
+against checked HEAD, regardless of the selected row. For a fixup, select
+the exact target revision and press `c f` /
 `git-commit-fixup`. Their first explicit composer submission prepares a review;
 a second explicit submission accepts it. Cancel a review with q / `C-g`.
 Amend changes the checked HEAD; fixup creates a new commit and does not run
