@@ -1,11 +1,14 @@
 # Org property columns
 
-`M-x org-columns` opens a read-only property projection for the current subtree,
-or the whole file when point precedes its first heading. Enter visits the exact
+`C-c C-x C-c` in Org, or `M-x org-columns`, opens a read-only property projection
+for the current subtree, or the whole file when point precedes its first heading.
+Enter visits the exact
 canonical heading; `g` refreshes from current source and `q` closes the projection.
 Opening, closing and refreshing columns do not write properties or add history.
 The view uses unsaved canonical text, retains source revision/heading provenance,
 and marks incomplete clock evidence. It does not select additional agenda files.
+Use `M-x org-clock-report` to insert or update a clocktable; `C-c C-x C-r`
+retains its radio-checkbox action.
 
 Use an inherited heading `COLUMNS` property or a top-level file declaration:
 

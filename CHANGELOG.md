@@ -9,6 +9,10 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 
 ### Added
 
+- Cycle declared Org effort choices with C-c C-x E, inspect property columns
+  with C-c C-x C-c, and add checked Babel header arguments with C-c C-v j or
+  C-c C-v C-j, replacing C-c C-v h. Clock reports remain available by name.
+
 - Reach the first text on a line with M-m, balance panes with C-x +, redo with
   C-M-_ in non-modal, Insert and Replace editing, and switch registered Projects
   with C-x p p. Existing state-specific search and redo shortcuts remain available.

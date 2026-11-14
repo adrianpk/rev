@@ -29,10 +29,14 @@ escape is removed on entry. Editing does not run code or save files.
 ## Names and headers
 
 `C-c C-v I` (`org-babel-view-src-block-info`) inspects language, optional name,
-and effective raw header data. `C-c C-v h` (`org-babel-insert-header-arg`) prompts
-for one `:key value` argument and appends it to the opening line. Header edits use
+and effective raw header data. `C-c C-v j` or `C-c C-v C-j`
+(`org-babel-insert-header-arg`) prompts for one `:key value` argument and appends
+it to the opening line. Header edits use
 ordinary source undo. Empty-language blocks can be edited as text; declare a
 language before adding switches or header arguments.
+Control-J and terminal Return normalize to the same final chord. C-g cancels
+header entry without an edit. The old h factory binding is removed; explicit
+user assignments remain valid. No Babel help command is assigned to h.
 
 Resolution applies built-in defaults, file `header-args` and language-specific
 `header-args:<language>` properties, ancestor drawers from outer to inner, then

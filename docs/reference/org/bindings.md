@@ -68,7 +68,7 @@ source, agenda, calendar and draft actions require their stated owner.
 | `S-Down` in Org | `org-shiftdown` | Decrease the timestamp field at point, or cycle heading priority. |
 | `M-x org-inspect-priority` | `org-inspect-priority` | Show explicit or implicit default priority. |
 | `C-c C-x e` in Org, `e` in agenda role | `org-set-effort` | Store a validated Org duration in local EFFORT. |
-| `M-x org-inc-effort` | `org-inc-effort` | Cycle declared EFFORT_ALL choices. |
+| `C-c C-x E` in Org | `org-inc-effort` | Cycle declared EFFORT_ALL choices. |
 | `M-x org-inspect-effort` | `org-inspect-effort` | Show original effort spelling and elapsed minutes. |
 | `C-c C-t` in Org | `org-todo` | Cycle task state or select an annotated fast key. |
 | `M-x org-todo-next` | `org-todo-next` | Next state in the current sequence, including unmarked. |
@@ -101,7 +101,7 @@ source, agenda, calendar and draft actions require their stated owner.
 | M-S-Right in Org | `org-indent-item-tree` | Indent the whole item and its nested source. |
 | M-S-RET in Org | `org-insert-item-checkbox` | Insert a new unchecked list item. |
 | C-c C-x C-d in Org | `org-clock-display` | Compare task/subtree/file clock totals and effort. |
-| C-c C-x C-c in Org | `org-clock-report` | Insert or explicitly update a clocktable. |
+| M-x org-clock-report | `org-clock-report` | Insert or explicitly update a clocktable. |
 | C-c C-x C-u in Org | `org-dblock-update` | Refresh a recognized clocktable or columnview body. |
 | C-c C-x 0 in Org | `org-timer-start` | Start or reset the relative timer. |
 | C-c C-x h in Org | `org-habit-show-graph` | Open or refresh the native habit agenda for this buffer. |
@@ -192,7 +192,7 @@ source, agenda, calendar and draft actions require their stated owner.
 | C-c ' / C-c C-c / C-c C-k in source draft | `org-edit-src-exit`, `org-edit-src-abort` | Return the checked source draft or discard it. |
 | C-c ' | `org-edit-special` | Edit the selected source block in a retained draft. |
 | C-c C-v I | `org-babel-view-src-block-info` | Inspect declared language, name and effective header data. |
-| C-c C-v h | `org-babel-insert-header-arg` | Insert one checked header argument on the opening line. |
+| C-c C-v j / C-c C-v C-j (RET) | `org-babel-insert-header-arg` | Insert one checked header argument on the opening line. |
 | C-c C-v e / C-c C-c on a source block | `org-babel-execute-src-block` | Select a configured runner and explicitly confirm a bounded source job. |
 | C-c C-x C-v | `org-link-preview` | Explicitly preview the local image at point, in a region or in the current section. |
 | C-c C-x C-M-v | `org-link-preview-refresh` | Refresh bounded local previews in the current view. |
@@ -208,7 +208,8 @@ source, agenda, calendar and draft actions require their stated owner.
 | M-x | `org-babel-tangle-results` | Inspect the actual outcome of each file from the last tangling operation. |
 | M-x | `org-publish`, `org-publish-results` | Publish a configured document project and inspect retained per-file outcomes. |
 | M-x | `org-export-to-text`, `org-export-to-unicode`, `org-export-to-markdown`, `org-export-to-org`, `org-export-to-html`, `org-export-to-latex`, `org-export-to-beamer`, `org-export-to-latex-pdf`, `org-export-to-beamer-pdf`, `org-export-to-odt`, `org-export-to-texinfo`, `org-export-to-man`, `org-export-to-icalendar` | Export a checked buffer, subtree or region to an explicit local file; confirm observed replacements. |
-| M-x | `org-columns`, `org-columns-insert-dblock` | Inspect source property columns or explicitly insert/update their native report. |
+| C-c C-x C-c in Org | `org-columns` | Inspect read-only source property columns without inserting a clocktable. |
+| M-x | `org-columns-insert-dblock` | Explicitly insert/update the native property-column report. |
 
 ## Configuration keymap contracts
 

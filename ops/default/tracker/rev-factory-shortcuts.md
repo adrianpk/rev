@@ -1,6 +1,6 @@
 # Factory Shortcut Alignment Tracker
 
-Status: Slice 4 Org document implementation active
+Status: Slice 4 Org document review active
 Date: 2026-11-14
 Delivery set: rev-factory-shortcuts
 Slice strategy: layered
@@ -11,8 +11,8 @@ Plan: [Factory Shortcut Alignment Delivery](../plan/rev-factory-shortcuts.md)
 Spec: [Factory Shortcut Alignment](../spec/editor-factory-shortcut-alignment.md)
 Follow-through: [Emacs Interaction Parity](../spec/editor-emacs-interaction-parity.md)
 Active slice: Slice 4, Org document defaults
-Progress: 3/7 slices delivered; 9/21 tasks completed
-Readiness: Slice 3 integrated; accepted P05-P07 mappings govern Slice 4 implementation
+Progress: 3/7 slices delivered; 12/21 tasks completed
+Readiness: Slice 4 local checks passed; canonical PR handoff in progress
 
 ## Canonical slice map
 
@@ -106,21 +106,21 @@ Completed local checks: `make lint`; `cargo test --locked --test commands factor
 
 ## Slice 4: Org document defaults
 
-State: ready; Slice 3 integrated; accepted manifest governs implementation
+State: reviewing; P05-P07 implemented; canonical PR pending
 Requirements: FSA03-FSA09; P05-P07 and accepted Org document manifest rows.
 Dependency: Slice 3 integrated; Org replacement rows accepted.
 Branch: `feat/rev-factory-shortcuts-04-org`
 Expected PR title: `feat(org): align document factory shortcuts`
 PR: pending
 Report: `ops/default/report/slices/rev-factory-shortcuts/slice-4-org.md`
-Task commits: none
-Validation: not run; this record contains planned checks only.
+Task commits: T4.1 `2c79884984b64f3594bda3cd05ceb76f03d9b417`; T4.2 `cc39590b0d4b6513a809eda79c05e7ee96c5c927`; T4.3/report introduction follows with the canonical PR reference.
+Validation: all five required local commands PASS; 20 shared factory-shortcut, four Org-context and 11 configuration keymap tests; documentation check PASS. Final clean-HEAD controller receipt follows the PR-reference commit.
 
-- [ ] T4.1: Apply accepted effort, property-column and Babel header-argument factory assignments through native owners. Retain named clock reports, explicit old user assignments and unaffected aliases. Preserve unsupported-help and radio-button boundaries rather than reusing their familiar chords.
-- [ ] T4.2: Extend the shared factory-shortcut regressions with Org source-context effects: effort choices/errors, read-only column projection without a clocktable edit, header insertion/cancellation and undo, inherited profile maps and retained explicit overrides. Guard existing list/heading/table dispatch and partial M-S-RET equivalence.
-- [ ] T4.3: Reconcile only selected Org contract rows, binding/configuration references and relevant guide text. Preserve historical delivery evidence, use a concise changelog outcome for the delivered behavior and produce the slice report.
+- [x] T4.1: Apply accepted effort, property-column and Babel header-argument factory assignments through native owners. Retain named clock reports, explicit old user assignments and unaffected aliases. Preserve unsupported-help and radio-button boundaries rather than reusing their familiar chords.
+- [x] T4.2: Extend the shared factory-shortcut regressions with Org source-context effects: effort choices/errors, read-only column projection without a clocktable edit, header insertion/cancellation and undo, inherited profile maps and retained explicit overrides. Guard existing list/heading/table dispatch and partial M-S-RET equivalence.
+- [x] T4.3: Reconcile only selected Org contract rows, binding/configuration references and relevant guide text. Preserve historical delivery evidence, use a concise changelog outcome for the delivered behavior and produce the slice report.
 
-Planned checks: `make lint`; `cargo test --locked --test commands factory_shortcuts -- --test-threads=1`; `cargo test --locked --test commands org_contexts -- --test-threads=1`; `cargo test --locked --test configuration keymaps -- --test-threads=1`; `git diff --check`.
+Completed local checks: `make lint`; `cargo test --locked --test commands factory_shortcuts -- --test-threads=1`; `cargo test --locked --test commands org_contexts -- --test-threads=1`; `cargo test --locked --test configuration keymaps -- --test-threads=1`; `git diff --check`.
 
 ## Slice 5: Agenda defaults
 

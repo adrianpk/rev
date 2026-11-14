@@ -30,5 +30,9 @@ put the cursor inside it and press `C-c '` — Control-c, then the apostrophe ke
 `C-c C-c` returns the edited body to the Org document; `C-c C-k` discards that draft.
 Save and tangle again when you want to update `hello.rs`.
 
+On the block in the Org source, use `C-c C-v j` or `C-c C-v C-j` to append a
+checked header argument such as `:exports code`. Control-J can also arrive as
+Return. C-g cancels the prompt; accepting a header edit creates one undo step.
+
 See [Org source blocks](../reference/org-source-blocks.md) for multiple blocks,
 shared fragments, output paths and separately configured execution.

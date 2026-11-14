@@ -36,6 +36,23 @@ For example, with October 30, 2026 as today, the scheduled entry reads:
 SCHEDULED: <2026-10-30 Fri>
 ```
 
+## Record effort and inspect properties
+
+Add this declaration above the first heading:
+
+```org
+#+PROPERTY: EFFORT_ALL 0:10 0:30 1h
+```
+
+On `Check the route`, press `C-c C-x E`. The task gains an EFFORT property of
+`0:10`. Press it again to choose `0:30`; later presses cycle the declared
+choices. Each change is one undo step. A missing or invalid declaration reports
+the problem and keeps the source unchanged.
+
+Press `C-c C-x C-c` to inspect the task's property columns, then `q` to close
+the view. Opening columns leaves the source and undo history unchanged.
+`M-x org-clock-report` remains available for a clocktable. Save the document.
+
 ## Find it in the agenda
 
 Press `C-c a`. With the default settings, rev asks for an agenda source.

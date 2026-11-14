@@ -766,19 +766,26 @@ In addition to the established bindings, add:
 | Context | Keys | Native action |
 | --- | --- | --- |
 | Org | C-c C-x C-i / C-c C-x C-o / C-c C-x C-q | Clock in / out / cancel. |
-| Org | C-c C-x e / C-c C-x C-e | Set effort / modify the active task estimate. |
+| Org | C-c C-x e / C-c C-x E | Set effort / cycle the declared EFFORT_ALL choices. |
+| Org | C-c C-x C-c | Open read-only property columns; clock reports retain named access. |
 | Org | C-c C-x 0 / C-c C-x ; | Relative timer / countdown. |
 | Org | C-c C-x . / C-c C-x - | Insert relative time / timed list item. |
 | Org | C-c C-x , / C-c C-x _ | Pause/continue / stop timer. |
 | Org | C-c C-e / C-c C-a | Export / attachment dispatcher. |
 | Org | C-c C-l / C-c C-o / C-c C-x f | Insert link / follow / footnote action. |
 | Org | C-c C-v t / C-c C-v e / C-c ' | Tangle / execute selected block / special edit. |
+| Org | C-c C-v j / C-c C-v C-j | Insert a checked Babel header argument; Control-J normalizes to Return. |
 | Org | C-c C-x g / C-c C-x G | Update feeds / visit selected feed target. |
 | Agenda | r / g / q / RET / TAB | Refresh current/all, return, switch source, visit source. |
 | Agenda | d / w / f / b / . | Day / week / next span / previous span / today. |
 | Agenda | t / e / K / ; | State / effort / habits / countdown. |
 | Agenda | C-c C-x C-i / C-c C-x C-o | Clock into/out of the checked source task. |
 | Capture or source edit | C-c C-c / C-c C-k | Finalize / abort the current checked draft. |
+
+The [accepted shortcut contract](../report/rev-factory-shortcuts/mapping-contract.md)
+supersedes only the selected effort, columns and Babel header rows above.
+C-c C-v h has no factory assignment; explicit old user mappings remain valid.
+The original completion and gate evidence above retains its historical scope.
 
 C-c C-c is precise-context dispatch, not an ancestor fallback. C-g always wins
 in transient interaction. C-c C-x C-r is Org's radio-checkbox action in the
