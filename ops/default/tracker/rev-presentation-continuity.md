@@ -78,13 +78,13 @@ Task commits: T4.1, T4.2 and T4.3 `7f1f834fe8de4dde5c650039e3eafeece338430f` (co
 
 ## Slice 5: Terminal acceptance and guidance
 
-State: reviewing - local checks passed; canonical PR and controller validation pending
+State: reviewing - local checks passed; canonical PR #45 open; controller validation pending
 Requirements: PC01-PC12; joint terminal acceptance and delivery closure
 Branch: `test/rev-presentation-continuity-05-acceptance`
-PR: pending
+PR: [#45](https://forge.adrianpk.com/rev/rev/pulls/45)
 Report: `ops/default/report/slices/rev-presentation-continuity/slice-5-acceptance.md`
 Validation: ordered Slice 5 checks passed locally (lint; 156 native bursts, four source-fidelity cases, 10 refusals and 12 PTY journeys; documentation; derived guide; whitespace). Final published clean-HEAD evidence belongs to the controller validator.
-Task commits: T5.1 and T5.2 `466b28d70c8e7fb906f087d4523c4fd14ed11936`, with counted-publication assertions `1c37488abab754ca9fabf977e5ff161dfe16f527`; T5.3 is introduced with this report and guide update, with its immutable reference to follow the PR metadata commit.
+Task commits: T5.1 and T5.2 `466b28d70c8e7fb906f087d4523c4fd14ed11936`, with counted-publication assertions `1c37488abab754ca9fabf977e5ff161dfe16f527`; T5.3 `15faffec18031d71ff6be352e524b683ec336fa9` introduces the report and guide update.
 
 - [x] T5.1: Add scripts/check-presentation-continuity.sh as a narrow entrypoint over the existing native/PTY fixture, terminal ownership and cell-decoder infrastructure. Extend the existing Org/Markdown acceptance owners rather than building a new framework. Verify both formats and both input profiles with all intermediate states, real worker completion, colors/source controls, cleanup and exact source preservation.
 - [x] T5.2: Run minimal, approximately 50 KB and 500 KB body/title cases, bounded heading-density cases and at least five keys within 180 ms on one/two rows. Record whether work actually remained pending, every observed marker/title-column/foreground state, accepted/rejected counts and measurement limits. Keep graphical claims separate from emitted-terminal evidence.

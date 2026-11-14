@@ -5,7 +5,7 @@ Delivery set: rev-presentation-continuity
 Plan: `ops/default/plan/rev-presentation-continuity.md`
 Tracker: `ops/default/tracker/rev-presentation-continuity.md`
 Branch: `test/rev-presentation-continuity-05-acceptance`
-PR: pending
+PR: [#45](https://forge.adrianpk.com/rev/rev/pulls/45)
 
 ## Purpose
 
@@ -46,7 +46,8 @@ No claim of continuing worker CPU execution is inferred from owned publication.
 
 T5.1 and T5.2 are delivered by `466b28d70c8e7fb906f087d4523c4fd14ed11936`, with per-key revision/byte
 assertions in `1c37488abab754ca9fabf977e5ff161dfe16f527`. T5.3 updates the five existing reference/lesson
-pages and introduces this report; its commit reference follows the canonical PR.
+pages and introduces this report in `15faffec18031d71ff6be352e524b683ec336fa9`.
+Canonical PR #45 retains that immutable report-introduction link.
 
 ## Admission, Source and Resources
 
