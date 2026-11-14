@@ -120,8 +120,9 @@ and hook caches remain exclusive to this worktree.
 
 ## Risks and Follow-ups
 
-Shared lifecycle/resource acceptance remains Slice 4; terminal acceptance and
-user guidance remain Slice 5.
+Shared lifecycle/resource acceptance is delivered in Slice 4; terminal acceptance
+and user guidance are delivered in Slice 5. Their joined acceptance is recorded
+in [Slice 5 closure](slice-5-acceptance.md#delivery-set-closure).
 
 ## Integration
 
@@ -129,5 +130,9 @@ Canonical PR [#43](https://forge.adrianpk.com/rev/rev/pulls/43) is merged into
 `dev` at `b87c7af693f8540715619be6553ab062b19d3675`, verified against the forge
 and synchronized primary checkout. The owned worktree was clean, unlocked and
 inactive, with only generated Cargo output ignored; it was removed through
-non-forced Git worktree removal. Its branch is preserved. Shared lifecycle and
-resource acceptance continues in Slice 4; final delivery acceptance stays pending.
+non-forced Git worktree removal. Its branch is preserved. All five slices are
+now integrated; the unchanged controller full gate passed at
+`5e0d303f2ae17b9cb39b2c0b327a0c9a41d48a20`, receipt
+`PE233XZSTO5GBQ3TC4ZRBN4LWH`.
+[Slice 5 closure](slice-5-acceptance.md#delivery-set-closure) records final acceptance
+without extending this slice's original evidence.

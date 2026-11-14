@@ -16,7 +16,7 @@ Readiness: delivered through three canonical slices; controller full gate passed
 Plan: [Heading Presentation Delivery](../plan/rev-org-headings.md)
 Tracker: [Heading Presentation Tracker](../tracker/rev-org-headings.md)
 
-Continuity contract: [Org and Markdown Presentation Continuity](editor-presentation-continuity.md); separately approved delivery pending in [Presentation Continuity Tracker](../tracker/rev-presentation-continuity.md). Historical completion and receipts below do not cover this correction.
+Continuity contract: [Org and Markdown Presentation Continuity](editor-presentation-continuity.md); separate delivery Completed in [Presentation Continuity Tracker](../tracker/rev-presentation-continuity.md). [Continuity closure](../report/slices/rev-presentation-continuity/slice-5-acceptance.md#delivery-set-closure) records its successful exact-candidate controller gate. Historical completion and receipts below retain their original scope.
 
 ## Purpose
 

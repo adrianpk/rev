@@ -11,7 +11,7 @@ PR: [#45](https://forge.adrianpk.com/rev/rev/pulls/45)
 
 Verify PC01-PC12 through continuous native and emitted-terminal Org/Markdown
 frames, preserve source authority and document bounded carry and literal fallback.
-The controller retains integration and final delivery-set acceptance.
+Controller integration and final delivery-set acceptance are recorded below.
 
 ## Delivered Behavior
 
@@ -181,7 +181,7 @@ The pinned validator recorded all five ordered commands passing on clean
 published `2b5cde6c52878f09fe00c059b2e84c9b836e12be`, after the report/PR-reference
 commits and push. The canonical PR check also passed. Fixtures released only
 their owned editor children; generated targets and hook caches stayed exclusive
-to their worktree. This slice evidence does not replace the integrated full gate.
+to their worktree. The separate integrated full-gate evidence is recorded below.
 
 ## Risks and Follow-ups
 
@@ -191,9 +191,9 @@ per-key processing latency guarantee. Completed-frame boundaries are the writer'
 hide/show protocol; intermediate GPU painting within one frame is outside this
 fixture. No worker CPU-pending claim is inferred from fast input or a quiet frame.
 
-The controller must run its exact full gate on clean published dev before
-closing the delivery set. Final Markdown acceptance records remain conditional
-on that gate. Worktree disposition is recorded below.
+The controller's exact full gate passed before documentation closure.
+Its candidate, command and evidence limits are recorded below, together with
+worktree disposition.
 No main promotion, release, tag, installation or mirror/site publication is claimed.
 
 ## Integration
@@ -201,7 +201,7 @@ No main promotion, release, tag, installation or mirror/site publication is clai
 Canonical PR [#45](https://forge.adrianpk.com/rev/rev/pulls/45) is merged into
 `dev` at `2b5cde6c52878f09fe00c059b2e84c9b836e12be`, verified against Forgejo,
 Acta and synchronized Git refs. All five slice reports are delivered; the set
-remains Approved pending the controller's exact integrated full gate.
+is Completed after the controller's exact integrated full gate passed.
 
 The owned worktree was clean, unlocked and inactive, with only generated Cargo
 output ignored and a private generated hook cache. Its HEAD was an ancestor
@@ -212,3 +212,60 @@ Gate preparation verified tool availability, tracked inputs, shell syntax and
 the primary checkout's exclusive Cargo target. Installed hooks and the approved
 gate remain unchanged. No build, native/PTY suite, guide producer or full gate
 was executed during preparation.
+
+## Delivery-set closure
+
+Completed: 2026-11-14. All five canonical PRs #41-#45 are integrated and all
+fifteen tasks are closed. The unchanged controller-owned full gate passed on
+clean published candidate `5e0d303f2ae17b9cb39b2c0b327a0c9a41d48a20`, receipt
+`PE233XZSTO5GBQ3TC4ZRBN4LWH`. The controller check record and matching log retain
+that exact candidate and the following single ordered combined command:
+
+`env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 make lint && env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --lib buffer:: -- --test-threads=1 && env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --lib view::indentation:: -- --test-threads=1 && env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test org_headings --test org_indentation --test markdown --test wrapping --test pointer --test display --test core --test coordinates --test editing --test windows -- --test-threads=1 && env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 bash scripts/check-presentation-continuity.sh && env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo run --locked --quiet -p rev --example documentation-check && env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 bash scripts/build-user-guide.sh && git diff --check`
+
+All eight steps passed. Lint covers 1,902 first-party Rust files, two packages
+and 75 Cargo roots with zero blocking or deferred diagnostics. Native results
+are 29 buffer tests, seven indentation tests and 434 tests across coordinates,
+core, display, editing, Markdown, Org headings/indentation, pointer, windows and
+wrapping: 470 selected tests, plus the one completed-frame observer regression.
+No selected case failed or was ignored.
+
+The narrow acceptance command passed all 156 native five-key bursts (780 ASCII
+publications), four Unicode source-fidelity cases and ten refusals. Both formats
+and both profiles cover the documented policies, larger inputs and heading
+densities. Native five-key observations took 4,922-9,456 microseconds each;
+the Org and Markdown matrices took 14.195 and 6.386 seconds. There were 144
+bursts with owned publication held and 12 unrequested Org bursts, all followed
+by exact replacement under the original policy. These observations do not
+establish continuous worker CPU execution.
+
+The 12 Linux PTY journeys passed 24 bursts and 48 emitted updates, with all
+observed marker/title-column/foreground assertions, exact undo/save and owned
+cleanup. Enqueue measurements were 2-5 microseconds per five-key batch, not
+per-key processing latency. Journeys took 1.626-1.744 seconds each, 20.185 seconds
+combined; output ranged 50,992-68,595 bytes. All remained within the unchanged
+eight-second/1 MiB limits. Idle silence and TTY restoration passed. No owned
+gate fixture or build remained active at closure; no process was stopped.
+
+Documentation passed 110 reachable pages and 780 local links/anchors; the live
+catalog check also passed 707 commands per combined inventory and 322 settings.
+The guide producer projected 111 Markdown pages, passed strict Spore link
+checks/rendering and derived the local guide and downloads. No site was
+published. Logged build costs were 1 minute 9 seconds for lint Cargo checking,
+49.58 seconds for library-test preparation, 12.07 seconds for integration-test
+preparation and 5 minutes 42 seconds for the release acceptance build. These
+are individual runner observations, not a reconstructed total gate duration.
+The existing vendored crossterm unused-parentheses warning stayed nonblocking.
+
+The continuity specification, plan and tracker are Completed; the ops index
+records this completed delivery. The six directly reconciled baseline/model
+references point to this separate
+receipt while preserving historical completed evidence. All five reports are
+delivered, all five owned integrated worktrees were removed non-forcibly and
+their branches remain. Unrelated worktrees and data are preserved.
+
+Documentation closure changes only the configured Markdown paths. Runtime,
+fixtures, guide sources, gate commands and assertions remain byte-identical to
+the tested candidate. Native and emitted-terminal acceptance makes no font,
+ligature, compositor or graphical claim. No main promotion, release, tag,
+installation, mirror/site publication or successor startup is included.

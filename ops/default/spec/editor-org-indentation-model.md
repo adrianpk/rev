@@ -7,7 +7,7 @@ Approved: product owner, 2026-11-05; paired specification approval and explicit 
 Specification: [Org Visual Indentation](editor-org-indentation.md)
 Existing owners: [Heading Presentation Model](editor-org-heading-presentation-model.md), [Soft Wrap Model](editor-soft-wrap-model.md), [Configuration Model](editor-configuration-model.md), [Org Mode Model](editor-org-mode-model.md)
 
-Continuity contract: [Org and Markdown Presentation Continuity](editor-presentation-continuity.md); separate delivery pending. Historical completed evidence does not test this correction.
+Continuity contract: [Org and Markdown Presentation Continuity](editor-presentation-continuity.md); separate delivery Completed. [Continuity closure](../report/slices/rev-presentation-continuity/slice-5-acceptance.md#delivery-set-closure) records its successful exact-candidate controller gate. Historical completed evidence retains its original scope.
 
 ## State ownership
 

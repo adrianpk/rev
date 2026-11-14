@@ -9,7 +9,7 @@ Approved: product owner, 2026-11-03; paired heading-presentation specification a
 Specification: [Org Heading Presentation](editor-org-heading-presentation.md)
 Existing owners: [Org Mode Model](editor-org-mode-model.md), [Editor Model](rev-editor-model.md), [Configuration Model](editor-configuration-model.md)
 
-Continuity contract: [Org and Markdown Presentation Continuity](editor-presentation-continuity.md); separate delivery pending. Historical completed evidence does not test this correction.
+Continuity contract: [Org and Markdown Presentation Continuity](editor-presentation-continuity.md); separate delivery Completed. [Continuity closure](../report/slices/rev-presentation-continuity/slice-5-acceptance.md#delivery-set-closure) records its successful exact-candidate controller gate. Historical completed evidence retains its original scope.
 
 ## Ownership
 

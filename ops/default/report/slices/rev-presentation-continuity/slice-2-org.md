@@ -107,8 +107,9 @@ dedicated checkout.
 
 ## Risks and Follow-ups
 
-Shared lifecycle/resource acceptance remains Slice 4; terminal acceptance and
-user guidance remain Slice 5.
+Shared lifecycle/resource acceptance is delivered in Slice 4; terminal acceptance
+and user guidance are delivered in Slice 5. Their joined acceptance is recorded
+in [Slice 5 closure](slice-5-acceptance.md#delivery-set-closure).
 
 ## Integration
 
@@ -116,5 +117,8 @@ Canonical PR [#42](https://forge.adrianpk.com/rev/rev/pulls/42) was verified mer
 into dev at `2845d1c9e69db465962e863bd10639127e80e5b0`, the exact published clean
 head that passed all four controller validation commands and canonical PR checks.
 The clean, inactive worktree was removed non-forcibly after generated-output
-classification. Its branch remains. Slice 3 is active; the delivery-set gate
-remains pending.
+classification. Its branch remains. All five slices are now integrated; the
+unchanged controller full gate passed at `5e0d303f2ae17b9cb39b2c0b327a0c9a41d48a20`,
+receipt `PE233XZSTO5GBQ3TC4ZRBN4LWH`.
+[Slice 5 closure](slice-5-acceptance.md#delivery-set-closure) records final acceptance
+without extending this slice's original evidence.

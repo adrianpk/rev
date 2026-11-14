@@ -95,12 +95,12 @@ was run in this slice. Native tests use their existing owned fixtures.
 
 ## Risks and Follow-ups
 
-Org and Markdown admission/display integrations belong to Slices 2 and 3.
+Org and Markdown admission/display integrations are delivered in Slices 2 and 3.
 The source-shape mapping does not prove format structure and must not become a
 display/action observation without those owner guards. Common cancellation,
-mode/policy and geometry lifecycle acceptance remains in Slice 4; real terminal
-continuity and user guidance remain in Slice 5. The delivery-set gate is pending
-controller integration of all five slices.
+mode/policy and geometry lifecycle acceptance is delivered in Slice 4; real
+terminal continuity and user guidance are delivered in Slice 5. The integrated
+gate and its limits are recorded in [Slice 5 closure](slice-5-acceptance.md#delivery-set-closure).
 
 ## Integration
 
@@ -108,4 +108,7 @@ Canonical PR [#41](https://forge.adrianpk.com/rev/rev/pulls/41) was verified mer
 into dev at `354c3ebb12ba3459860c5e28c1ff34de3ea140f9`, the exact clean head that
 passed the four ordered controller checks. Its clean, inactive worktree was
 removed non-forcibly after generated-output classification. The branch remains.
-Slice 2 is active; the delivery-set gate remains pending.
+All five slices are now integrated. The unchanged controller full gate passed
+at `5e0d303f2ae17b9cb39b2c0b327a0c9a41d48a20`, receipt
+`PE233XZSTO5GBQ3TC4ZRBN4LWH`; [Slice 5 closure](slice-5-acceptance.md#delivery-set-closure)
+records final acceptance without extending this slice's original evidence.

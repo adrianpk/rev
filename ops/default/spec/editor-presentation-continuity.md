@@ -1,11 +1,12 @@
 # Org and Markdown Presentation Continuity
 
-Status: Approved
+Status: Completed
+Completed: 2026-11-14
 Date: 2026-11-14
 Approved: product owner, 2026-11-14; specification, defined correction scope and established autonomous plan/slicing/Looper workflow
 Format: OpenSpec change specification; workspace specification contract
 Inspection baseline: `5e21c0bb73f21afddf6fcd73be9c5a30a139673e`
-Readiness: approved five-slice delivery; controller startup follows preparation publication and preflight
+Readiness: five canonical slices delivered; unchanged controller-owned full gate passed at `5e0d303f2ae17b9cb39b2c0b327a0c9a41d48a20`, receipt `PE233XZSTO5GBQ3TC4ZRBN4LWH`
 Plan: [Presentation Continuity Delivery](../plan/rev-presentation-continuity.md)
 Tracker: [Presentation Continuity Tracker](../tracker/rev-presentation-continuity.md)
 Baselines: [Org Heading Presentation](editor-org-heading-presentation.md), [Org Visual Indentation](editor-org-indentation.md), [Markdown Editing and Presentation](editor-markdown-mode.md)
@@ -663,3 +664,19 @@ Specification approval is not a delivery receipt. Findings from the
 existing runtime establish the defect; they do not validate the correction.
 References, user documentation and a concise Unreleased entry are updated only
 when the corrected behavior has been delivered under its approved workflow.
+
+## Delivery acceptance
+
+PC01-PC12 are delivered through the five canonical slices and PRs #41-#45.
+The controller's unchanged integrated gate passed on clean published
+`5e0d303f2ae17b9cb39b2c0b327a0c9a41d48a20`, receipt
+`PE233XZSTO5GBQ3TC4ZRBN4LWH`. All fifteen tasks and five reports are closed;
+the directly reconciled baseline/model clauses retain their inherited scenarios
+and historical completion records.
+
+[Slice 5 closure](../report/slices/rev-presentation-continuity/slice-5-acceptance.md#delivery-set-closure)
+records the exact command, 470 selected native tests, the frame-observer test,
+native/PTY matrix, source/resource limits and documentation results. Acceptance
+covers native frames and emitted Linux terminal cells; it makes no graphical
+font, ligature or compositor claim. Closure changes only configured Markdown,
+preserving the tested runtime, fixtures and every required assertion.

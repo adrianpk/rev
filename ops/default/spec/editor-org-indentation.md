@@ -11,7 +11,7 @@ Plan: [Org Indentation Delivery](../plan/rev-org-indentation.md)
 Tracker: [Org Indentation Tracker](../tracker/rev-org-indentation.md)
 Related owners: [Heading Presentation](editor-org-heading-presentation.md), [Soft Wrapping](editor-soft-wrap.md), [Org Mode](editor-org-mode.md), [Configuration](editor-configuration.md)
 
-Continuity contract: [Org and Markdown Presentation Continuity](editor-presentation-continuity.md); separately approved delivery pending in [Presentation Continuity Tracker](../tracker/rev-presentation-continuity.md). Historical completion and receipts below do not cover this correction.
+Continuity contract: [Org and Markdown Presentation Continuity](editor-presentation-continuity.md); separate delivery Completed in [Presentation Continuity Tracker](../tracker/rev-presentation-continuity.md). [Continuity closure](../report/slices/rev-presentation-continuity/slice-5-acceptance.md#delivery-set-closure) records its successful exact-candidate controller gate. Historical completion and receipts below retain their original scope.
 
 ## Purpose
 

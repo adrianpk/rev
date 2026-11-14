@@ -1,6 +1,7 @@
 # Presentation Continuity Delivery
 
-Status: Approved
+Status: Completed
+Completed: 2026-11-14
 Date: 2026-11-14
 Delivery set: rev-presentation-continuity
 Slice strategy: layered
@@ -8,8 +9,8 @@ Approved: product owner, 2026-11-14; approved continuity specification and expli
 Planning baseline: `5e21c0bb73f21afddf6fcd73be9c5a30a139673e`
 Spec: [Org and Markdown Presentation Continuity](../spec/editor-presentation-continuity.md)
 Tracker: [Presentation Continuity Tracker](../tracker/rev-presentation-continuity.md)
-Active slice: none - all five slices integrated; delivery-set gate pending
-Readiness: delivered slice entries closed; ready for the controller-owned full gate on clean published dev
+Active slice: none - all five slices delivered; delivery set closed
+Readiness: unchanged controller-owned full gate passed at `5e0d303f2ae17b9cb39b2c0b327a0c9a41d48a20`, receipt `PE233XZSTO5GBQ3TC4ZRBN4LWH`
 Full gate: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 make lint && env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --lib buffer:: -- --test-threads=1 && env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --lib view::indentation:: -- --test-threads=1 && env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test org_headings --test org_indentation --test markdown --test wrapping --test pointer --test display --test core --test coordinates --test editing --test windows -- --test-threads=1 && env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 bash scripts/check-presentation-continuity.sh && env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo run --locked --quiet -p rev --example documentation-check && env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 bash scripts/build-user-guide.sh && git diff --check`
 
 ## Outcome, strategy and authority
@@ -195,3 +196,19 @@ guide/changelog/runtime edits must precede the tested candidate. Do not loosen
 a frozen gate, reset a checkpoint or silently grant repair budgets after a
 failure. Use the installed controller's retained stop and supported recovery
 path within actual authority. No successor delivery is queued.
+
+## Delivery-set closure
+
+All five canonical slices through PRs #41-#45 are integrated and all fifteen
+tasks are closed. The controller's unchanged full gate passed on clean published
+`5e0d303f2ae17b9cb39b2c0b327a0c9a41d48a20`, receipt
+`PE233XZSTO5GBQ3TC4ZRBN4LWH`: 470 selected native tests, one completed-frame
+observer test, 156 native bursts and 12 Linux PTY journeys, followed by the
+documentation, Spore guide and whitespace checks.
+
+[Slice 5 closure](../report/slices/rev-presentation-continuity/slice-5-acceptance.md#delivery-set-closure)
+records the exact combined command, measured costs and evidence limits. All five
+reports are delivered and the set's integrated inactive worktrees were removed
+non-forcibly with their branches preserved. Closure changes only authorized
+Markdown; tested runtime, fixtures, guide sources and gate assertions remain
+unchanged. No successor, main promotion, release or publication is part of closure.

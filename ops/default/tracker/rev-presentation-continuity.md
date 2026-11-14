@@ -1,13 +1,14 @@
 # Presentation Continuity Tracker
 
-Status: Approved
+Status: Completed
+Completed: 2026-11-14
 Date: 2026-11-14
 Delivery set: rev-presentation-continuity
 Slice strategy: layered
 Approved: product owner, 2026-11-14; approved continuity specification and explicit clarification that approval continues the established plan, slicing and autonomous Looper workflow; this five-slice map is derived under that authority
 Plan: [Presentation Continuity Delivery](../plan/rev-presentation-continuity.md)
 Spec: [Org and Markdown Presentation Continuity](../spec/editor-presentation-continuity.md)
-Active slice: none - all five slices integrated; delivery-set gate pending
+Active slice: none - all five slices delivered; delivery set closed
 Progress owner: native Looper checkpoint, canonical PR state and exact-candidate validation receipts
 
 ## Canonical slice map
@@ -83,7 +84,7 @@ Requirements: PC01-PC12; joint terminal acceptance and delivery closure
 Branch: `test/rev-presentation-continuity-05-acceptance`
 PR: [#45](https://forge.adrianpk.com/rev/rev/pulls/45)
 Report: `ops/default/report/slices/rev-presentation-continuity/slice-5-acceptance.md`
-Validation: the pinned validator recorded all five ordered Slice 5 checks passing on clean published `2b5cde6c52878f09fe00c059b2e84c9b836e12be` (lint; 156 native bursts, four source-fidelity cases, 10 refusals and 12 PTY journeys; documentation; derived guide; whitespace). This is slice evidence; the integrated full gate remains pending.
+Validation: the pinned validator recorded all five ordered Slice 5 checks passing on clean published `2b5cde6c52878f09fe00c059b2e84c9b836e12be` (lint; 156 native bursts, four source-fidelity cases, 10 refusals and 12 PTY journeys; documentation; derived guide; whitespace). The separate integrated full-gate evidence is recorded below.
 Task commits: T5.1 and T5.2 `466b28d70c8e7fb906f087d4523c4fd14ed11936`, with counted-publication assertions `1c37488abab754ca9fabf977e5ff161dfe16f527`; T5.3 `15faffec18031d71ff6be352e524b683ec336fa9` introduces the report and guide update.
 
 - [x] T5.1: Add scripts/check-presentation-continuity.sh as a narrow entrypoint over the existing native/PTY fixture, terminal ownership and cell-decoder infrastructure. Extend the existing Org/Markdown acceptance owners rather than building a new framework. Verify both formats and both input profiles with all intermediate states, real worker completion, colors/source controls, cleanup and exact source preservation.
@@ -92,18 +93,26 @@ Task commits: T5.1 and T5.2 `466b28d70c8e7fb906f087d4523c4fd14ed11936`, with cou
 
 ## Delivery-set gate
 
-State: ready for controller execution - all five canonical PRs are integrated;
-the integrated full gate has not run.
-Run the exact full gate recorded in the plan through the controller on clean
-published primary dev. Record its candidate, receipt and actual results before
-marking this set Completed. A slice count alone is not final acceptance.
+State: passed - the controller ran the exact full gate recorded in the plan on
+clean published `5e0d303f2ae17b9cb39b2c0b327a0c9a41d48a20`, receipt
+`PE233XZSTO5GBQ3TC4ZRBN4LWH`, after all five canonical PRs integrated.
+
+All eight ordered steps passed: lint; 29 buffer and seven indentation tests;
+434 tests across the ten integration targets; the completed-frame observer,
+156 native bursts, four source-fidelity cases, ten refusals and 12 Linux PTYs;
+110 reachable documentation pages and 780 local links/anchors; 111 projected
+Spore pages with strict checks, rendering and local guide derivation; whitespace.
+The total is 470 selected native tests plus the one observer regression.
+[Slice 5 closure](../report/slices/rev-presentation-continuity/slice-5-acceptance.md#delivery-set-closure)
+retains the exact combined command, execution costs and limits. No assertion,
+command, timeout or acceptance condition changed.
 
 Preparation verified the Rust/Cargo, rustfmt, Clippy, util-linux PTY and Spore
 tools, required shell utilities, tracked script/guide inputs and shell syntax.
 Cargo resolves the primary checkout's exclusive target; installed hooks remain
-unchanged. No active primary build or fixture was observed. Preparation runs no
-build, behavior suite, guide producer or full gate; the eight ordered gate steps
-and acceptance conditions remain unchanged.
+unchanged. No active primary build or fixture was observed. Preparation ran no
+build, behavior suite, guide producer or full gate; the controller subsequently
+ran the unchanged eight-step gate. No owned fixture remains active at closure.
 
 ## Worktree disposition
 
@@ -115,10 +124,14 @@ and unrelated worktrees remain untouched.
 
 ## Final closure
 
-All five reports are delivered and all fifteen tasks are closed. Final closure
-remains pending the controller's exact integrated gate and resulting Markdown
-acceptance records. Slice 1 supplies the internal mapping foundation; Slice 2
-delivers Org admission/display. Slice 3 delivers Markdown admission/display.
-Slice 4 delivers shared lifecycle/resource acceptance. Slice 5 terminal
-acceptance and guidance are integrated. The exact delivery-set gate remains
-pending; no final delivery-set acceptance, release or installation is claimed.
+Completed after all five canonical PRs integrated and the unchanged exact-candidate
+controller gate passed. All five reports are delivered and all fifteen tasks are
+closed. The continuity specification, this tracker, plan, ops index and directly
+reconciled baseline/model references record the completed PC01-PC12 delivery.
+Historical baseline receipts retain their original scope.
+
+Closure changes only the configured Markdown paths; runtime, fixture, guide and
+validation source bytes remain identical to the tested candidate. The primary
+checkout stays on dev; all five slice branches and unrelated worktrees are
+preserved. No main promotion, release, installation or mirror/site publication
+is claimed, and no successor delivery is started.

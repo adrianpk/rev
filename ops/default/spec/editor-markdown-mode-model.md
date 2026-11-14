@@ -6,7 +6,7 @@ Specification: [Markdown Editing and Presentation](editor-markdown-mode.md)
 Plan: [Markdown Delivery](../plan/rev-markdown.md)
 Approved: product owner, 2026-11-13; Markdown scope and parser adoption subject to verified compatible licensing
 
-Continuity contract: [Org and Markdown Presentation Continuity](editor-presentation-continuity.md); separate delivery pending. Historical completed evidence does not test this correction.
+Continuity contract: [Org and Markdown Presentation Continuity](editor-presentation-continuity.md); separate delivery Completed. [Continuity closure](../report/slices/rev-presentation-continuity/slice-5-acceptance.md#delivery-set-closure) records its successful exact-candidate controller gate. Historical completed evidence retains its original scope.
 
 ## Owners and analysis
 
