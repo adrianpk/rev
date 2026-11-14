@@ -1,6 +1,7 @@
 # Factory Shortcut Mapping Contract
 
-Status: Accepted; runtime delivery pending
+Status: Completed
+Completed: 2026-11-15
 Approved: product owner, 2026-11-14; exact retained P01-P19 proposal plus History c a/c f/+ and core-first functional follow-through
 Date: 2026-11-14
 Delivery set: rev-factory-shortcuts
@@ -10,6 +11,16 @@ Plan: [Approved delivery](../../plan/rev-factory-shortcuts.md)
 Tracker: [Factory Shortcut Alignment Tracker](../../tracker/rev-factory-shortcuts.md)
 Evidence: [Complete semantic matrix](semantic-matrix.md), [contextual review](mode-review.md)
 Follow-through: [Core-first functional parity](../../spec/editor-emacs-interaction-parity.md)
+
+## Delivery evidence
+
+The accepted map is delivered through canonical PRs #47-#53 and verified by
+the controller full gate at `72b8d40d816ee1cf2eb1aec333658fcb6a9c503e`.
+All 29 accepted records / 49 base-context edits, inherited and retired leaves,
+707 commands, six actions and 28 maps pass independent comparison in both
+profiles. The [completed tracker](../../tracker/rev-factory-shortcuts.md)
+records the exact command and immutable evidence identity. The approved JSON
+and its digest below are unchanged; this closure updates delivery metadata.
 
 ## Accepted identity and decision evidence
 

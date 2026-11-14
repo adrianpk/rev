@@ -1,6 +1,7 @@
 # Factory Shortcut Semantic Matrix
 
-Status: All semantic rows reviewed; exact amended mapping accepted, runtime pending
+Status: Completed
+Completed: 2026-11-15
 Delivery set: rev-factory-shortcuts
 Core audit candidate: `2f5cfa485fb0169c0f4dcdea475a33eb4a80eabd`
 Mode audit baseline: `f9510fc851b8`; native source tree unchanged
@@ -8,6 +9,13 @@ Date: 2026-11-14
 Plan: [Factory Shortcut Alignment Delivery](../../plan/rev-factory-shortcuts.md)
 Spec: [Factory Shortcut Alignment](../../spec/editor-factory-shortcut-alignment.md)
 Tracker: [Factory Shortcut Alignment Tracker](../../tracker/rev-factory-shortcuts.md)
+
+Runtime acceptance: the controller full gate passed at
+`72b8d40d816ee1cf2eb1aec333658fcb6a9c503e` after PRs #47-#53 integrated.
+The [completed tracker](../../tracker/rev-factory-shortcuts.md) records the
+exact command and evidence. All audited row identities, counts, dispositions
+and baseline routes below are preserved; accepted runtime edits are verified
+against the unchanged manifest.
 
 ## Evidence and interpretation
 
@@ -55,8 +63,9 @@ discovery aid, not a parity certificate. The family decisions below include
 context, selection, argument, history and refusal boundaries; read them with
 the row. `keep` means retain the native operation and current route, including
 explicit exceptions. `named-only` means retain M-x access without inventing a
-factory key. `add` and `relocate` describe accepted future default changes, not delivered
-bindings. Relocations retain the contract's named/quick routes and explicit
+factory key. `add` and `relocate` describe the changes accepted at mapping
+freeze; their runtime delivery is now verified by the evidence above. Row
+routes retain the original audit baseline. Relocations retain the contract's named/quick routes and explicit
 user access. `adaptation required` rejects an approximate reference
 binding while retaining native controls. All mode rows now have a semantic
 disposition; D01-D03 and the exact History quick-access patch are accepted.

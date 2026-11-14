@@ -1,11 +1,12 @@
 # Factory Shortcut Alignment
 
-Status: Accepted; shortcut runtime delivery pending
+Status: Completed
+Completed: 2026-11-15
 Date: 2026-11-14
 Approved scope: product owner, 2026-11-14; exact retained P01-P19 proposal plus History c a/c f/+; current slices 3-7 and controller-owned dev integration authorized
 Format: OpenSpec capability additions; workspace specification contract
 Inspection baseline: `197bf98be615ceca06a3bab0ef5cd24b3bee2ffb`
-Readiness: all semantic rows reviewed; D01-D03 accepted with precise amendment; reconcile and validate Slice 2 before its PR
+Readiness: FSA01-FSA10 delivered through seven integrated slices; controller full gate PASS at `72b8d40d816ee1cf2eb1aec333658fcb6a9c503e`
 Source: [Factory shortcut review](../ticket/open/20261114010916-clarify-custom-bindings-for-unbound-commands.md)
 Baselines: [Configuration](editor-configuration.md), CFG12-CFG14 and CFG20-CFG24; [Configuration Bootstrap](editor-configuration-bootstrap.md); [Interaction](editor-interaction.md), UI02; [Modal Editing](editor-modal-editing.md); [Prefix Arguments](editor-prefix-arguments.md)
 Mode contracts: [Org](editor-org-mode.md), Familiar interaction; [Markdown](editor-markdown-mode.md); [Git](editor-git-integration.md), Binding review matrix; [Projects and Workspaces](editor-projects-workspaces.md)
@@ -436,6 +437,18 @@ Implementation acceptance requires:
 - Required repository checks and family-specific acceptance pass against the
   exact candidate, without weakening gates or presenting specification prose
   as test evidence.
+
+## Delivery acceptance
+
+The accepted 29-record / 49-base-edit manifest is delivered through canonical
+PRs #47-#53. The controller's unchanged full gate passed at
+`72b8d40d816ee1cf2eb1aec333658fcb6a9c503e`, including independent catalog/map
+comparison, native source-effect and override regressions, three Linux PTYs,
+real hook acceptance, current references and Spore guide projection. The
+[completed tracker](../tracker/rev-factory-shortcuts.md) records the exact
+command and evidence identity; all 21 tasks and the originating ticket are
+closed. Historical inspection counts and FSA01-FSA10 assertions remain intact.
+Functional-parity additions remain owned by their separate specification.
 
 ## Inspection sources
 

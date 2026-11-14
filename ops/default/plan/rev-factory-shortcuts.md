@@ -1,6 +1,7 @@
 # Factory Shortcut Alignment Delivery
 
-Status: All seven slices integrated; selected full gate pending
+Status: Completed
+Completed: 2026-11-15
 Date: 2026-11-14
 Delivery set: rev-factory-shortcuts
 Slice strategy: layered
@@ -12,7 +13,7 @@ Spec: [Factory Shortcut Alignment](../spec/editor-factory-shortcut-alignment.md)
 Follow-through: [Emacs Interaction Parity](../spec/editor-emacs-interaction-parity.md)
 Tracker: [Factory Shortcut Alignment Tracker](../tracker/rev-factory-shortcuts.md)
 Active slice: None; all seven slices integrated
-Readiness: PRs #47-#53 integrated into dev; full-gate prerequisites prepared; controller-owned gate pending after `979ba5ebb64310d0a1d1e3801d53689fdf525cec`
+Readiness: all seven slices integrated; controller full gate PASS at `72b8d40d816ee1cf2eb1aec333658fcb6a9c503e`; documentation closure complete
 Integration target: `dev`
 
 ## Outcome and strategy
@@ -212,7 +213,7 @@ for runtime checks. Set `CARGO_BUILD_JOBS=1`, `CARGO_INCREMENTAL=0`,
 `CARGO_PROFILE_DEV_DEBUG=0` and `CARGO_PROFILE_TEST_DEBUG=0` in the check
 environment. Each checkout owns its default Cargo target and hook cache.
 
-The proposed final gate, run once against the exact integrated candidate, is:
+The selected full gate, executed by the controller against the immutable integrated candidate, is:
 
 1. `make lint`
 2. `make test-hooks`
@@ -268,3 +269,15 @@ structure and immutable report link. Delivery closure requires the accepted
 manifest, complete matrix, current documentation and a passing gate for the
 exact `dev` candidate. The complete audit proposal claims none of those runtime
 or delivery-set results.
+
+## Delivery closure
+
+All seven slices are integrated through canonical PRs #47-#53; all 21 tasks
+are complete. The controller's unchanged full gate passed at
+`72b8d40d816ee1cf2eb1aec333658fcb6a9c503e`. The originating
+[ticket](../ticket/open/20261114010916-clarify-custom-bindings-for-unbound-commands.md)
+is solved at its configured closure path. The tracker records the exact
+successful command and evidence identity. This closure changes only approved
+operational documents; the tested implementation and frozen manifest remain
+unchanged. Delivery worktrees are removed; unrelated worktrees are preserved.
+The separately prepared functional-parity specification retains its own scope.

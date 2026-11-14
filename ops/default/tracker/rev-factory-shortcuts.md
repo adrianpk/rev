@@ -1,6 +1,7 @@
 # Factory Shortcut Alignment Tracker
 
-Status: All seven slices integrated; selected full gate pending
+Status: Completed
+Completed: 2026-11-15
 Date: 2026-11-14
 Delivery set: rev-factory-shortcuts
 Slice strategy: layered
@@ -11,8 +12,8 @@ Plan: [Factory Shortcut Alignment Delivery](../plan/rev-factory-shortcuts.md)
 Spec: [Factory Shortcut Alignment](../spec/editor-factory-shortcut-alignment.md)
 Follow-through: [Emacs Interaction Parity](../spec/editor-emacs-interaction-parity.md)
 Active slice: None; all seven slices integrated
-Progress: 7/7 slices delivered; 20/21 tasks completed; T7.3 post-gate closure remains pending
-Readiness: PRs #47-#53 integrated into dev; full-gate prerequisites prepared; controller-owned gate pending
+Progress: 7/7 slices delivered; 21/21 tasks completed
+Readiness: all seven slices integrated; controller full gate PASS at `72b8d40d816ee1cf2eb1aec333658fcb6a9c503e`; documentation closure complete
 
 ## Canonical slice map
 
@@ -34,7 +35,7 @@ Readiness: PRs #47-#53 integrated into dev; full-gate prerequisites prepared; co
 | Core review | Slice 1 complete core/profile matrix with actual probe evidence and pending mode rows identified. | integrated through PR #47 at `c279fd03ccc383a9ae606665bf0cd7ae2cfccc49` |
 | Mapping freeze | Slice 2 complete matrix; D01-D03 settled; accepted exact mapping contract and reconciled spec/plan/tracker committed. | accepted and integrated through PR #48 |
 | Runtime entry | Slice 3 onward uses only the accepted manifest with unchanged identities/checks. | all seven slices integrated; exact accepted manifest preserved |
-| Delivery closure | All accepted slices integrated; selected gate passes for the exact dev candidate; reports, guide and ticket reconciled. | pending |
+| Delivery closure | All accepted slices integrated; selected gate passes for the exact dev candidate; reports, guide and ticket reconciled. | completed; full gate PASS at `72b8d40d816ee1cf2eb1aec333658fcb6a9c503e` |
 
 The accepted owner decision settles the exact retained proposal plus History
 c a/c f/+ (decision SHA-256 `cc915b2d4af14a6ad0da34a517724e9664f59436b40d1004877e8a539af21939`).
@@ -167,14 +168,14 @@ Branch: `test/rev-factory-shortcuts-07-acceptance`
 Expected PR title: `test(input): verify factory shortcut compatibility`
 PR: `#53` ([canonical PR](https://forge.adrianpk.com/rev/rev/pulls/53)); merged into dev
 Report: `ops/default/report/slices/rev-factory-shortcuts/slice-7-acceptance.md`
-Task commits: T7.1 `d2c27b13a53b2ec822b23436e79534e1600da09e`; T7.2 `601a67ec41b5b05fec312c78fa73d11842b9ef85`; T7.3 reference/guide consistency, Spore projection and report introduction `6f38eeb9417fb7719952acd0700dd11e941366da`; post-gate closure remains controller-owned.
-Validation: all five required local commands PASS; 89 selected command tests, 11 configuration keymap tests, six modal keymap tests, independent complete-map comparison, four native hint variants and three Linux PTYs. Documentation and Spore projection PASS. All five required commands and canonical PR validation passed at clean HEAD `979ba5ebb64310d0a1d1e3801d53689fdf525cec` after PR references, before integration. The controller receipt took 286.73 seconds; no integrated full-gate result is claimed.
+Task commits: T7.1 `d2c27b13a53b2ec822b23436e79534e1600da09e`; T7.2 `601a67ec41b5b05fec312c78fa73d11842b9ef85`; T7.3 reference/guide consistency, Spore projection and report introduction `6f38eeb9417fb7719952acd0700dd11e941366da`; post-gate documentation and ticket closure completed on dev.
+Validation: all five required local commands PASS; 89 selected command tests, 11 configuration keymap tests, six modal keymap tests, independent complete-map comparison, four native hint variants and three Linux PTYs. Documentation and Spore projection PASS. All five required commands and canonical PR validation passed at clean HEAD `979ba5ebb64310d0a1d1e3801d53689fdf525cec` after PR references, before integration. The slice receipt took 286.73 seconds. The later controller full gate passed at `72b8d40d816ee1cf2eb1aec333658fcb6a9c503e`; its separate evidence is recorded below.
 
 - [x] T7.1: Add a narrow `scripts/check-factory-shortcuts.sh` entrypoint and `examples/factory-shortcuts-acceptance.rs`, reusing existing owned native/surface/PTY infrastructure. Cross-check inventory coverage, accepted normalized routes, actual effects, overrides, profile/focus transitions and selector hints. Compare executable results with the separately accepted mapping contract; do not rewrite expectations from current defaults.
 - [x] T7.2: Exercise bounded physical-input journeys in nonmodal and modal editing plus one local read-only Git journey. Cover representative Meta/control and multi-chord routes, prefix cancellation, editing/profile/language transitions and terminal restoration. Keep variants native, use finite observable conditions and clean only owned fixtures/processes. Verify expected source/history effects rather than treating a successful exit as compatibility.
-- [ ] T7.3: Complete reference/guide consistency and Spore projection; produce the final slice report and prepare the exact integrated candidate for the selected delivery-set gate. Close the originating ticket and delivery metadata only after that gate passes. Record measured check costs and remove integrated inactive clean worktrees.
+- [x] T7.3: Complete reference/guide consistency and Spore projection; produce the final slice report and prepare the exact integrated candidate for the selected delivery-set gate. Close the originating ticket and delivery metadata only after that gate passes. Record measured check costs and remove integrated inactive clean worktrees.
 
-Completed local checks: `make lint`; `bash scripts/check-factory-shortcuts.sh`; `bash scripts/check-documentation.sh`; `bash scripts/build-user-guide.sh`; `git diff --check`. T7.3 reference/guide, report, cost and worktree preparation is complete. Its originating-ticket / delivery-metadata closure remains pending the controller-owned integrated gate below.
+Completed local checks: `make lint`; `bash scripts/check-factory-shortcuts.sh`; `bash scripts/check-documentation.sh`; `bash scripts/build-user-guide.sh`; `git diff --check`. T7.3 reference/guide, report, cost, worktree, originating-ticket and delivery-metadata closure is complete after the successful controller-owned integrated gate below.
 
 ## Decision log
 
@@ -190,7 +191,7 @@ and product acceptance in the mapping artifact and owning specification.
 
 ## Delivery-set gate
 
-State: not run. Slice checks prepare the candidate; no integrated gate result or receipt exists.
+State: PASS; controller-owned execution at immutable candidate `72b8d40d816ee1cf2eb1aec333658fcb6a9c503e`.
 Environment: one Cargo job, incremental disabled, dev/test debuginfo disabled.
 
 Preparation: canonical PRs #47-#53 are merged into dev and all seven reports
@@ -202,7 +203,7 @@ The integrated Slice 7 worktree was clean, unlocked and inactive, then removed
 without force; its branch and unrelated worktrees are preserved. Existing hooks
 remain unchanged. No full-gate batch was executed during preparation.
 
-Proposed canonical order:
+Executed canonical order:
 
 1. `make lint`
 2. `make test-hooks`
@@ -210,6 +211,25 @@ Proposed canonical order:
 4. `bash scripts/check-documentation.sh`
 5. `bash scripts/build-user-guide.sh`
 6. `git diff --check`
+
+Exact successful controller command:
+
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 bash -c 'set -euo pipefail; make lint; make test-hooks; bash scripts/check-factory-shortcuts.sh; bash scripts/check-documentation.sh; bash scripts/build-user-guide.sh; git diff --check'`: PASS.
+
+Evidence log: `72b8d40d816ee1cf2eb1aec333658fcb6a9c503e.KNZHGNH5JIZCTDDOTFIVDFJ2PT.log`.
+Log SHA-256: `5e2d7927bb242e0a5bdc94a2828e92acc88d41c5594ae6074e5b335c1e7a4d2b`.
+The controller receipt is keyed by the tested candidate above. The later
+closure commit changes only configured documentation paths and does not
+replace or relabel that candidate's evidence.
+
+Results: full-workspace lint and real hook acceptance PASS; 89 selected command
+tests, 11 configuration keymap tests and six modal keymap tests PASS; independent
+707-command / six-action / 28-map comparison, four native hint variants and
+three bounded Linux PTYs PASS. Documentation covers 110 pages, 780 local
+links/anchors, 707 names, 322 configuration entries and 10/12 reference tests.
+Spore projects 111 Markdown pages and completes strict checks, rendering and
+download finalization. Owned fixtures completed their cleanup; no process stop
+was required during closure.
 
 T7.1 implements the factory-shortcut script with the native/input/profile
 selection defined by the plan and three representative PTYs. The accepted
@@ -220,6 +240,6 @@ are not added implicitly. Failed checks retain their actual candidate and result
 
 - [x] Every native operation/action has a disposition and accepted mapping changes match the frozen contract.
 - [x] Every accepted slice has its task commits, integrated PR and canonical report with actual validation.
-- [ ] The selected integrated gate passes against the exact dev candidate.
-- [ ] Binding/configuration references, guide projection and originating ticket reflect delivered behavior.
+- [x] The selected integrated gate passes against the exact dev candidate.
+- [x] Binding/configuration references, guide projection and originating ticket reflect delivered behavior.
 - [x] Integrated inactive clean worktrees are removed non-forcibly; unrelated or active work remains untouched.

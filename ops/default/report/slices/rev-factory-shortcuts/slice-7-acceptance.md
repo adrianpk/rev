@@ -105,7 +105,9 @@ The controller recorded all five exact required commands at clean HEAD
 `979ba5ebb64310d0a1d1e3801d53689fdf525cec` after canonical PR references, in 286.73 seconds.
 Canonical PR validation passed; PR #53 is integrated into dev at that same
 commit. This evidence belongs to the slice candidate, not the later preparation
-commit. The unchanged integrated full gate remains controller-owned and pending.
+commit. The later controller-owned integrated full gate passed at
+`72b8d40d816ee1cf2eb1aec333658fcb6a9c503e`; its exact command and evidence
+are recorded in the completed tracker.
 
 The first selected command batch at T7.2 commit
 `601a67ec41b5b05fec312c78fa73d11842b9ef85` passed 88 cases and failed one stale nonmodal
@@ -117,12 +119,21 @@ nesting depth; the retained failed tree is
 `cb75d0dcc68e9537e3ae83dd44ab3da166c56132`. Table-driven profile expectations
 corrected it. Assertions, resource limits and policy thresholds were preserved.
 
+Controller full-gate command at `72b8d40d816ee1cf2eb1aec333658fcb6a9c503e`:
+
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 bash -c 'set -euo pipefail; make lint; make test-hooks; bash scripts/check-factory-shortcuts.sh; bash scripts/check-documentation.sh; bash scripts/build-user-guide.sh; git diff --check'`: PASS.
+
+The gate repeats the accepted-map, native-effect and three physical journeys,
+along with workspace lint, real hook acceptance, documentation and guide
+projection. Source, resource limits, assertions and frozen manifest identity
+are unchanged. The full-gate log SHA-256 is
+`5e2d7927bb242e0a5bdc94a2828e92acc88d41c5594ae6074e5b335c1e7a4d2b`.
+
 ## Risks and Follow-ups
 
 Physical acceptance uses the existing Linux PTY driver. Graphical terminals and
 other platforms are outside these representative journeys. The controller
-owns the unchanged full gate and subsequent originating-ticket /
-delivery-metadata closure. T7.3 records completed preparation separately from
-that pending closure. After verified integration, the clean, unlocked and
+completed the unchanged full gate; originating-ticket and delivery-metadata
+closure are now complete under T7.3. After verified integration, the clean, unlocked and
 inactive Slice 7 worktree was removed without force; its branch and unrelated
 worktrees remain intact.
