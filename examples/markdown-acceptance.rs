@@ -1,5 +1,8 @@
 #![forbid(unsafe_code)]
 
+#[path = "org_heading_acceptance/continuity.rs"]
+mod continuity;
+
 #[path = "markdown_acceptance/edits.rs"]
 mod edits;
 #[path = "markdown_acceptance/native.rs"]
@@ -18,6 +21,9 @@ use support::Result;
 
 fn main() -> Result<()> {
     let args: Vec<_> = std::env::args_os().skip(1).map(PathBuf::from).collect();
+    if let Some(result) = continuity::requested(&args, continuity::Format::Markdown) {
+        return result;
+    }
     match args.first().and_then(|arg| arg.to_str()) {
         Some("--native") if args.len() == 2 => native::run(&args[1]),
         Some("--pty") if args.len() == 4 => pty::run(&args[1], &args[2], &args[3]),

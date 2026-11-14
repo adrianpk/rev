@@ -20,6 +20,7 @@ pub(crate) struct Terminal {
     output: String,
     undecoded: Vec<u8>,
     bytes: usize,
+    observed: usize,
     deadline: Instant,
     editor: String,
     dimensions: Option<(usize, usize)>,
@@ -80,6 +81,7 @@ impl Terminal {
             output: String::new(),
             undecoded: Vec::new(),
             bytes: 0,
+            observed: 0,
             deadline: Instant::now() + Duration::from_secs(8),
             editor: String::new(),
             dimensions: None,
@@ -135,23 +137,39 @@ impl Terminal {
     }
 
     pub(crate) fn frame(&mut self, predicate: impl Fn(&str) -> bool) -> Result<String> {
-        let dimensions = self.dimensions;
-        if let Err(error) = self.wait(|output| frame(output, dimensions).is_some_and(&predicate)) {
-            return Err(format!(
-                "PTY frame failed: {error}; bytes={} geometry={dimensions:?}; complete={} visible={}",
-                self.bytes,
-                frame(&self.output, dimensions).is_some(),
-                diagnostic(&self.output, dimensions)
-            )
-            .into());
+        self.updates(predicate, |_| {})
+    }
+
+    // Observe every completed writer frame, including earlier updates in the
+    // same read chunk. Selecting only rfind(HIDE) can hide transient fallback.
+    pub(crate) fn updates(
+        &mut self,
+        predicate: impl Fn(&str) -> bool,
+        mut observe: impl FnMut(&str),
+    ) -> Result<String> {
+        loop {
+            completed(&self.output, &mut self.observed, &mut observe);
+            if let Some(frame) =
+                frame(&self.output, self.dimensions).filter(|frame| predicate(frame))
+            {
+                return Ok(frame.to_owned());
+            }
+            let received = self.output.len();
+            if let Err(error) = self.wait(|output| output.len() > received) {
+                return Err(format!(
+                    "PTY frame failed: {error}; bytes={} geometry={:?}; visible={}",
+                    self.bytes,
+                    self.dimensions,
+                    diagnostic(&self.output, self.dimensions)
+                )
+                .into());
+            }
         }
-        Ok(frame(&self.output, dimensions)
-            .ok_or("missing completed frame")?
-            .to_owned())
     }
 
     pub(crate) fn send(&mut self, input: &[u8]) -> Result<()> {
         self.output.clear();
+        self.observed = 0;
         self.input
             .as_mut()
             .ok_or("closed PTY input")?
@@ -186,8 +204,13 @@ impl Terminal {
     // still consumes the same stream cap; a busy renderer cannot pass either
     // this bounded 350-ms quiet barrier or the subsequent 350-ms silence assertion.
     fn settle_output(&mut self) -> Result<()> {
+        self.settle_updates(|_| {})
+    }
+
+    pub(crate) fn settle_updates(&mut self, mut observe: impl FnMut(&str)) -> Result<()> {
         let deadline = self.deadline.min(Instant::now() + Duration::from_secs(2));
         loop {
+            completed(&self.output, &mut self.observed, &mut observe);
             let remaining = deadline.saturating_duration_since(Instant::now());
             if remaining < Duration::from_millis(350) {
                 return Err("PTY did not become quiescent".into());
@@ -348,4 +371,75 @@ fn diagnostic(output: &str, dimensions: Option<(usize, usize)>) -> String {
         .chars()
         .take(4500)
         .collect()
+}
+
+// Writer frames are complete only through their Show footer. A partial UTF-8
+// chunk or split footer remains queued for the next bounded stream read.
+fn completed(output: &str, cursor: &mut usize, observe: &mut impl FnMut(&str)) {
+    while let Some(start) = output[*cursor..].find(HIDE) {
+        let start = *cursor + start;
+        let Some(end) = output[start..].find(SHOW) else {
+            *cursor = start;
+            return;
+        };
+        let end = start + end + SHOW.len();
+        observe(&output[start..end]);
+        *cursor = end;
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    // A literal frame followed by exact decoration in one read must expose
+    // both states. A split Show footer stays incomplete until its bytes arrive.
+    #[test]
+    fn every_completed_update() {
+        use rev::buffer::{Buffers, Mode};
+        use rev::display::{Frame, Size};
+        use rev::view::View;
+        let mut buffers = Buffers::new().unwrap();
+        let id = buffers.create("** Child 界\n").unwrap();
+        let buffer = buffers.get_mut(id).unwrap();
+        buffer.select_mode(Mode::Org).unwrap();
+        let view = View::new(buffer);
+        let size = Size {
+            width: 40,
+            height: 6,
+        };
+        let mut literal = Vec::new();
+        Frame::project(buffer, &view, size, "")
+            .unwrap()
+            .write(&mut literal)
+            .unwrap();
+        let coloring = rev::org::ColorScan::new(buffer, rev::org::Limits::default())
+            .unwrap()
+            .run(&rev::org::Cancellation::default());
+        buffer.install_org_coloring(coloring).unwrap();
+        let mut exact = Vec::new();
+        Frame::project(buffer, &view, size, "")
+            .unwrap()
+            .write(&mut exact)
+            .unwrap();
+        let literal = String::from_utf8(literal).unwrap();
+        let exact = String::from_utf8(exact).unwrap();
+        let split = literal.rfind(SHOW).unwrap() + 2;
+        let mut output = literal[..split].to_owned();
+        let mut cursor = 0;
+        let mut seen = Vec::new();
+        completed(&output, &mut cursor, &mut |frame| {
+            seen.push(frame.to_owned())
+        });
+        assert!(seen.is_empty());
+        output.push_str(&literal[split..]);
+        output.push_str(&exact);
+        completed(&output, &mut cursor, &mut |frame| {
+            seen.push(frame.to_owned())
+        });
+        assert_eq!(seen, [literal, exact]);
+        completed(&output, &mut cursor, &mut |_| {
+            panic!("completed frames were replayed")
+        });
+    }
 }

@@ -1,5 +1,10 @@
 #![forbid(unsafe_code)]
 
+#[path = "org_heading_acceptance/continuity.rs"]
+mod continuity;
+#[path = "../tests/support/surface.rs"]
+mod surface;
+
 #[path = "org_heading_acceptance/native.rs"]
 mod native;
 #[path = "org_heading_acceptance/pty.rs"]
@@ -16,6 +21,9 @@ use support::Result;
 
 fn main() -> Result<()> {
     let args: Vec<_> = std::env::args_os().skip(1).map(PathBuf::from).collect();
+    if let Some(result) = continuity::requested(&args, continuity::Format::Org) {
+        return result;
+    }
     match args.first().and_then(|arg| arg.to_str()) {
         Some("--native") => native::run(args.get(1).ok_or("missing fixture")?),
         Some("--resources") => resources::run(args.get(1).ok_or("missing fixture")?),
