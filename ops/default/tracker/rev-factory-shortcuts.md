@@ -1,6 +1,6 @@
 # Factory Shortcut Alignment Tracker
 
-Status: Ready for audit
+Status: Slice 1 in review
 Date: 2026-11-14
 Delivery set: rev-factory-shortcuts
 Slice strategy: layered
@@ -10,7 +10,7 @@ Execution authority: audit slices 1-2; mapping decision checkpoint before runtim
 Plan: [Factory Shortcut Alignment Delivery](../plan/rev-factory-shortcuts.md)
 Spec: [Factory Shortcut Alignment](../spec/editor-factory-shortcut-alignment.md)
 Active slice: Slice 1, Core and profile audit
-Progress: 0/7 slices delivered; 0/21 tasks completed
+Progress: 0/7 slices delivered; 3/21 tasks completed in the Slice 1 review branch
 Readiness: audit execution approved; final mapping and runtime approval remain pending
 
 ## Canonical slice map
@@ -29,8 +29,8 @@ Readiness: audit execution approved; final mapping and runtime approval remain p
 
 | Gate | Required evidence | State |
 | --- | --- | --- |
-| Audit entry | Product-owner continuation accepted; publish the preparation before controller startup. | approved; commit/push pending |
-| Core review | Slice 1 complete core/profile matrix with actual probe evidence and pending mode rows identified. | pending |
+| Audit entry | Product-owner continuation accepted; publish the preparation before controller startup. | approved; preparation published at `2f5cfa485fb0169c0f4dcdea475a33eb4a80eabd` |
+| Core review | Slice 1 complete core/profile matrix with actual probe evidence and pending mode rows identified. | complete in review branch; integration pending |
 | Mapping freeze | Slice 2 complete matrix; D01-D03 settled; accepted exact mapping contract and reconciled spec/plan/tracker committed. | pending |
 | Runtime entry | Slice 3 onward uses only that accepted manifest; concrete task and validation selection contains no placeholders. | pending |
 | Delivery closure | All accepted slices integrated; selected gate passes for the exact dev candidate; reports, guide and ticket reconciled. | pending |
@@ -44,21 +44,21 @@ preserve the same checkpoint and consumed budgets.
 
 ## Slice 1: Core and profile audit
 
-State: ready; approved audit scope
+State: reviewing; implementation complete, controller integration pending
 Requirements: FSA01, FSA02, FSA03, FSA07, FSA08; core portion of D03.
 Dependency: approved and committed audit preparation; no runtime authorization is required by this slice's scope.
 Branch: `docs/rev-factory-shortcuts-01-core-audit`
 Expected PR title: `docs(input): audit core shortcut equivalence`
 PR: pending
 Report: `ops/default/report/slices/rev-factory-shortcuts/slice-1-core-audit.md`
-Task commits: none
-Validation: not run; this record contains planned checks only.
+Task commits: T1.1 `45d247e0a46893f81888fd09cbfac684d5aab743`; T1.2 `efa39f79a55d5a609781744a6ae8ae71f9d396f0`; T1.3 report-introduction commit recorded at PR handoff.
+Validation: live source-compiled native/reference audit and configured coverage/document consistency check PASS; `git diff --check` PASS. The exact clean-HEAD controller receipt is required before handoff.
 
-- [ ] T1.1: Re-extract the complete public command/action inventory and context maps at the actual candidate. Persist sanitized catalog.json beside the semantic matrix and record explicit coverage ownership; distinguish duplicate inherited entries, aliases and indirect dispatcher access. Preserve reproducible inspection commands and version evidence without personal configuration or machine identifiers.
-- [ ] T1.2: Review core editing, navigation, selection, arguments/history, panes, projects, prompts/completion, tree/bookmarks, macros, terminal controls and other native command families, including six modal states. Compare operations under different names and reject misleading approximations. Record each operation's disposition and references; mark mode-owned rows pending Slice 2 rather than claiming global completion.
-- [ ] T1.3: Reproduce high-value effects and boundaries for P01-P04 and related primitives with owned native/reference probes. Verify first-text placement, join direction, paragraph/delimiter differences, profile separation, protected keys and terminal aliases. Produce the slice report; retain factory and personal configuration bytes unchanged.
+- [x] T1.1: Re-extract the complete public command/action inventory and context maps at the actual candidate. Persist sanitized catalog.json beside the semantic matrix and record explicit coverage ownership; distinguish duplicate inherited entries, aliases and indirect dispatcher access. Preserve reproducible inspection commands and version evidence without personal configuration or machine identifiers.
+- [x] T1.2: Review core editing, navigation, selection, arguments/history, panes, projects, prompts/completion, tree/bookmarks, macros, terminal controls and other native command families, including six modal states. Compare operations under different names and reject misleading approximations. Record each operation's disposition and references; mark mode-owned rows pending Slice 2 rather than claiming global completion.
+- [x] T1.3: Reproduce high-value effects and boundaries for P01-P04 and related primitives with owned native/reference probes. Verify first-text placement, join direction, paragraph/delimiter differences, profile separation, protected keys and terminal aliases. Produce the slice report; retain factory and personal configuration bytes unchanged.
 
-Planned checks: coverage reconciliation against the live catalog; source/reference evidence review; owned behavioral probes with exact commands and limits; local-link/identifier checks; `git diff --check`. No broad Cargo or historical feature gate is required for documentation-only audit outputs.
+Completed focused checks: coverage reconciliation against the live catalog; source/reference evidence review; owned behavioral probes with exact commands and limits; local-link/identifier checks; `git diff --check`. No broad Cargo or historical feature gate is required for documentation-only audit outputs.
 
 ## Slice 2: Mode mapping contract
 
@@ -174,7 +174,7 @@ Planned checks: `make lint`; `bash scripts/check-factory-shortcuts.sh`; `bash sc
 | --- | --- | --- |
 | D01 | Final Agenda view/habit family assignments beyond the concrete daily-view proposal. | open |
 | D02 | Git direct-action/menu exceptions, selected replacements, displaced access and any explicit legacy-table supersession. | open |
-| D03 | Complete remaining semantic coverage, including macros, calendar/source save, Markdown contexts and modal overlays. | open |
+| D03 | Core/profile and macro review recorded in Slice 1; calendar/source save, Markdown contexts and active language/modal overlays remain for Slice 2 and mapping approval. | open |
 
 Do not mark a decision settled from successful parsing, a same-name match or
 the existence of a current factory key. Record the reviewed operation contract

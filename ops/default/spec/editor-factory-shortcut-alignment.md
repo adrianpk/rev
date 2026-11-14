@@ -41,7 +41,13 @@ catalog names, 462 occur in factory entries; six additional targets are
 minibuffer actions. These counts describe the inspection baseline, not required
 future catalog sizes or the number of keyboard-accessible operations.
 
-The initial inventory is complete, but semantic coverage is partial. Five
+The [Slice 1 matrix](../report/rev-factory-shortcuts/semantic-matrix.md) reviews
+333 core/profile command rows and six prompt actions at the audit candidate;
+374 mode-owned rows remain explicitly pending Slice 2. The catalog was
+re-extracted without changing the inspection counts. Mapping decisions and
+runtime acceptance remain pending.
+
+The initial inventory is complete, but overall semantic coverage is partial. Five
 candidate additions compiled in isolated configuration probes. First-text
 navigation matched the reference in eight coordinate cases. Those findings do
 not establish all active dispatch paths or physical terminal input behavior.
