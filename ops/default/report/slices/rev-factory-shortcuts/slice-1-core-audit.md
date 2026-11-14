@@ -1,6 +1,6 @@
 # Slice 1: Core and Profile Audit
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-factory-shortcuts
 Plan: [Factory Shortcut Alignment Delivery](../../../plan/rev-factory-shortcuts.md)
 Tracker: [Factory Shortcut Alignment Tracker](../../../tracker/rev-factory-shortcuts.md)
@@ -84,8 +84,9 @@ D03 coverage remain pending.
 
 These are focused audit checks. No full Cargo suite, delivery-set gate,
 registered-project restore journey or physical terminal acceptance ran.
-The final clean slice HEAD still requires the controller's exact-command
-validation receipt before handoff. No owned fixture or probe process remains.
+The controller validated clean HEAD `c279fd03ccc383a9ae606665bf0cd7ae2cfccc49`
+with both required commands before PR #47 was integrated into `dev` at that
+exact commit. No owned fixture or probe process remains.
 
 ## Risks and Follow-ups
 

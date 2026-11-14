@@ -10,8 +10,8 @@ Execution authority: audit slices 1-2; runtime slices remain gated by accepted m
 Planning baseline: `197bf98be615ceca06a3bab0ef5cd24b3bee2ffb`
 Spec: [Factory Shortcut Alignment](../spec/editor-factory-shortcut-alignment.md)
 Tracker: [Factory Shortcut Alignment Tracker](../tracker/rev-factory-shortcuts.md)
-Active slice: Slice 1, Core and profile audit
-Readiness: Slice 1 core/profile review complete in its review branch; integration, mapping freeze and runtime acceptance remain pending
+Active slice: Slice 2, Mode mapping contract
+Readiness: Slice 1 integrated; Slice 2 audit active; mapping freeze and runtime acceptance remain pending
 Integration target: `dev`
 
 ## Outcome and strategy
@@ -66,10 +66,10 @@ The proposed count is not a requirement to manufacture seven changes.
 | --- | --- | --- |
 | Native catalog and 28 context maps | Re-extracted at the Slice 1 audit candidate; 707 commands and 2,349 inherited entries retained | Preserve the frozen catalog and source identity through mode review. |
 | Compiled defaults, overrides, selector hints and native operations | Existing implementation | Preserve their owning contracts; assess actual dispatch rather than descriptions alone. |
-| Core and profile semantic coverage | 333 core/profile rows reviewed; four proposals and nine rejected approximations recorded | Integrate Slice 1; preserve explicit mode and runtime validation boundaries. |
+| Core and profile semantic coverage | 333 core/profile rows reviewed; four proposals and nine rejected approximations recorded | Slice 1 integrated; preserve explicit mode and runtime validation boundaries. |
 | Org, Markdown, Agenda and Git coverage | Partial | Complete Slice 2, including D01-D03 and approved exceptions. |
 | Specification and final mapping manifest | Draft / not yet produced | Accept before changing runtime defaults. |
-| Plan, tracker and controller authority | Approved audit preparation published; Slice 1 in review | Preserve controller-owned integration and the mapping checkpoint before runtime work. |
+| Plan, tracker and controller authority | Approved audit preparation and Slice 1 integrated; Slice 2 active | Preserve controller-owned integration and the mapping checkpoint before runtime work. |
 
 Slice 1 has introduced the [semantic matrix](../report/rev-factory-shortcuts/semantic-matrix.md)
 and its sanitized native catalog with 333 reviewed core/profile rows and 374

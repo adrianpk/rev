@@ -1,6 +1,6 @@
 # Factory Shortcut Alignment Tracker
 
-Status: Slice 1 in review
+Status: Slice 2 audit active
 Date: 2026-11-14
 Delivery set: rev-factory-shortcuts
 Slice strategy: layered
@@ -9,9 +9,9 @@ Approved: product owner, 2026-11-14; prepare, commit and push the delivery recor
 Execution authority: audit slices 1-2; mapping decision checkpoint before runtime changes
 Plan: [Factory Shortcut Alignment Delivery](../plan/rev-factory-shortcuts.md)
 Spec: [Factory Shortcut Alignment](../spec/editor-factory-shortcut-alignment.md)
-Active slice: Slice 1, Core and profile audit
-Progress: 0/7 slices delivered; 3/21 tasks completed in the Slice 1 review branch
-Readiness: audit execution approved; final mapping and runtime approval remain pending
+Active slice: Slice 2, Mode mapping contract
+Progress: 1/7 slices delivered; 3/21 tasks completed
+Readiness: Slice 1 integrated; Slice 2 audit active; final mapping and runtime approval remain pending
 
 ## Canonical slice map
 
@@ -30,7 +30,7 @@ Readiness: audit execution approved; final mapping and runtime approval remain p
 | Gate | Required evidence | State |
 | --- | --- | --- |
 | Audit entry | Product-owner continuation accepted; publish the preparation before controller startup. | approved; preparation published at `2f5cfa485fb0169c0f4dcdea475a33eb4a80eabd` |
-| Core review | Slice 1 complete core/profile matrix with actual probe evidence and pending mode rows identified. | complete in review branch; integration pending |
+| Core review | Slice 1 complete core/profile matrix with actual probe evidence and pending mode rows identified. | integrated through PR #47 at `c279fd03ccc383a9ae606665bf0cd7ae2cfccc49` |
 | Mapping freeze | Slice 2 complete matrix; D01-D03 settled; accepted exact mapping contract and reconciled spec/plan/tracker committed. | pending |
 | Runtime entry | Slice 3 onward uses only that accepted manifest; concrete task and validation selection contains no placeholders. | pending |
 | Delivery closure | All accepted slices integrated; selected gate passes for the exact dev candidate; reports, guide and ticket reconciled. | pending |
@@ -44,15 +44,15 @@ preserve the same checkpoint and consumed budgets.
 
 ## Slice 1: Core and profile audit
 
-State: reviewing; implementation complete, controller integration pending
+State: delivered; PR #47 integrated into dev at `c279fd03ccc383a9ae606665bf0cd7ae2cfccc49`
 Requirements: FSA01, FSA02, FSA03, FSA07, FSA08; core portion of D03.
 Dependency: approved and committed audit preparation; no runtime authorization is required by this slice's scope.
 Branch: `docs/rev-factory-shortcuts-01-core-audit`
 Expected PR title: `docs(input): audit core shortcut equivalence`
-PR: `#47` ([canonical PR](https://forge.adrianpk.com/rev/rev/pulls/47)); open against `dev`
+PR: `#47` ([canonical PR](https://forge.adrianpk.com/rev/rev/pulls/47)); merged into `dev`
 Report: `ops/default/report/slices/rev-factory-shortcuts/slice-1-core-audit.md`
 Task commits: T1.1 `45d247e0a46893f81888fd09cbfac684d5aab743`; T1.2 `efa39f79a55d5a609781744a6ae8ae71f9d396f0`; T1.3/report introduction `13366e525c7e3703ccea1b48bb70b9aeccc244a2`.
-Validation: live source-compiled native/reference audit and configured coverage/document consistency check PASS; `git diff --check` PASS. The exact clean-HEAD controller receipt is required before handoff.
+Validation: live source-compiled native/reference audit and configured coverage/document consistency check PASS; `git diff --check` PASS. The exact clean-HEAD controller receipt passed for the merged candidate `c279fd03ccc383a9ae606665bf0cd7ae2cfccc49`.
 
 - [x] T1.1: Re-extract the complete public command/action inventory and context maps at the actual candidate. Persist sanitized catalog.json beside the semantic matrix and record explicit coverage ownership; distinguish duplicate inherited entries, aliases and indirect dispatcher access. Preserve reproducible inspection commands and version evidence without personal configuration or machine identifiers.
 - [x] T1.2: Review core editing, navigation, selection, arguments/history, panes, projects, prompts/completion, tree/bookmarks, macros, terminal controls and other native command families, including six modal states. Compare operations under different names and reject misleading approximations. Record each operation's disposition and references; mark mode-owned rows pending Slice 2 rather than claiming global completion.
@@ -62,7 +62,7 @@ Completed focused checks: coverage reconciliation against the live catalog; sour
 
 ## Slice 2: Mode mapping contract
 
-State: planned; Slice 1 dependency and mapping decision checkpoint
+State: ready; Slice 1 integrated; mapping decision checkpoint remains
 Requirements: FSA01, FSA02, FSA05, FSA06, FSA07, FSA09; D01-D03.
 Dependency: Slice 1 integrated; mode reference sources and native fixtures available.
 Branch: `docs/rev-factory-shortcuts-02-mode-contract`
