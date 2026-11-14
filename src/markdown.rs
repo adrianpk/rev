@@ -3,6 +3,8 @@
 mod item;
 mod lists;
 mod parse;
+mod presentation;
+pub(crate) use presentation::{DisplayItem, PresentationEdit};
 pub(crate) mod tables;
 pub(crate) use item::{Item, Marker};
 pub(crate) use lists::Edit;
@@ -30,6 +32,8 @@ struct Node {
 }
 
 enum Kind {
+    Paragraph,
+    Opaque,
     Heading {
         level: u8,
         prefix: Option<Range<usize>>,
@@ -43,6 +47,7 @@ enum Kind {
 impl Kind {
     fn role(&self) -> Option<MarkdownRole> {
         match *self {
+            Self::Paragraph | Self::Opaque => None,
             Self::Heading { level, .. } => {
                 assert!((1..=6).contains(&level), "admitted Markdown heading level");
                 Some(MarkdownRole::Heading(level))

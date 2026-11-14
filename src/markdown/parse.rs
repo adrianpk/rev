@@ -21,9 +21,13 @@ pub(super) fn observe(source: &str, cancel: &Cancellation) -> Option<Parsed> {
     if cancel.is_cancelled() {
         return None;
     }
-    let mut scan = Scan::default();
+    let mut scan = Scan {
+        nodes: definitions(&parser, cancel)?,
+        ..Scan::default()
+    };
+    let allowance = MAX_EVENTS - scan.nodes.len();
     for (count, (event, bytes)) in parser.into_offset_iter().enumerate() {
-        if count >= MAX_EVENTS || cancel.is_cancelled() || !scan.event(&event, bytes, source) {
+        if count >= allowance || cancel.is_cancelled() || !scan.event(&event, bytes, source) {
             return None;
         }
     }
@@ -32,6 +36,22 @@ pub(super) fn observe(source: &str, cancel: &Cancellation) -> Option<Parsed> {
         items: scan.items,
         tables: scan.tables,
     })
+}
+
+// Definitions have no ordinary events. Keep their parser-owned spans in the
+// same bounded node store so continuation lines cannot masquerade as body text.
+fn definitions(parser: &Parser<'_>, cancel: &Cancellation) -> Option<Vec<Node>> {
+    let mut nodes = Vec::new();
+    for (_, definition) in parser.reference_definitions().iter() {
+        if nodes.len() >= MAX_EVENTS || cancel.is_cancelled() {
+            return None;
+        }
+        nodes.push(Node {
+            bytes: definition.span.clone(),
+            kind: Kind::Opaque,
+        });
+    }
+    Some(nodes)
 }
 
 #[derive(Default)]
@@ -82,6 +102,14 @@ impl Scan {
                 });
                 true
             }
+            Event::Html(_) | Event::InlineHtml(_) => {
+                self.content();
+                self.nodes.push(Node {
+                    bytes,
+                    kind: Kind::Opaque,
+                });
+                true
+            }
             _ => {
                 self.content();
                 true
@@ -97,6 +125,8 @@ impl Scan {
         self.content();
         self.table_source(tag, &bytes);
         let kind = match tag {
+            Tag::Paragraph => Some(Kind::Paragraph),
+            Tag::HtmlBlock => Some(Kind::Opaque),
             Tag::Heading { level, .. } => Some(Kind::Heading {
                 level: *level as u8,
                 prefix: heading_prefix(source, &bytes, *level as u8),

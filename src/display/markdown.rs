@@ -17,15 +17,15 @@ pub(super) fn project(
         return Ok(());
     }
     heading(buffer, projection, width, text)?;
-    for item in buffer.markdown_items(projection.source.row) {
-        if let crate::markdown::Marker::Bullet(source) = item.form {
+    for item in buffer.markdown_display_items(projection.source.row) {
+        if let Some(source) = item.bullet {
             substitute(
                 buffer,
                 projection,
                 width,
                 text,
                 &Decoration {
-                    bytes: item.marker.clone(),
+                    bytes: item.marker,
                     source,
                     glyph: ["•", "◦", "▪"][(item.depth - 1) % 3],
                 },

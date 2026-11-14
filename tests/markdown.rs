@@ -2,6 +2,8 @@
 
 #[path = "markdown/contexts.rs"]
 mod contexts;
+#[path = "markdown/continuity.rs"]
+mod continuity;
 #[path = "configuration/fixture.rs"]
 mod fixture;
 #[path = "markdown/headings.rs"]

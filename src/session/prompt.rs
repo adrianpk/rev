@@ -62,6 +62,7 @@ impl Session {
         }
         self.clock_recovery_pin = None;
         self.buffers.retire_org_presentations();
+        self.buffers.retire_markdown_presentations();
         self.org.cancel();
         self.markdown.cancel();
         self.agenda_query_plan = None;

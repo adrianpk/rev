@@ -1,4 +1,6 @@
-use super::{Buffer, Stamp};
+mod display;
+
+use super::{Buffer, Buffers, Stamp};
 use crate::markdown::{MAX_BYTES, Observation, Work};
 
 pub(super) struct State {
@@ -34,6 +36,7 @@ impl Buffer {
     }
 
     pub(super) fn reset_markdown(&mut self) {
+        self.presentation = None;
         self.markdown.observation = None;
         self.markdown.attempt = None;
         self.markdown.generation = self
@@ -60,7 +63,7 @@ impl Buffer {
     }
 
     pub(crate) fn request_markdown(&mut self) {
-        if self.markdown.observation.is_none() {
+        if self.markdown_observation().is_none() {
             self.markdown.attempt = None;
         }
     }
@@ -75,18 +78,14 @@ impl Buffer {
 
     pub(crate) fn install_markdown(&mut self, observation: Observation) {
         if self.markdown_admitted() && observation.stamp == self.stamp() {
+            self.presentation = None;
             self.markdown.observation = Some(observation);
+            self.markdown.attempt = Some(self.stamp());
         }
     }
 
     pub(crate) fn has_markdown_colors(&self) -> bool {
-        self.markdown_admitted()
-            && self.syntax_policy.enabled
-            && self
-                .markdown
-                .observation
-                .as_ref()
-                .is_some_and(|value| value.stamp == self.stamp())
+        self.markdown_admitted() && self.syntax_policy.enabled && self.has_markdown_display()
     }
 
     pub(crate) fn markdown_captures(
@@ -96,28 +95,13 @@ impl Buffer {
         if !self.has_markdown_colors() {
             return Vec::new();
         }
-        self.markdown
-            .observation
-            .as_ref()
-            .map_or_else(Vec::new, |value| value.captures(bytes))
-    }
-}
-
-impl Buffer {
-    pub(crate) fn markdown_heading_prefix(
-        &self,
-        row: usize,
-    ) -> Option<(u8, std::ops::Range<usize>)> {
-        if !self.markdown_admitted() || row >= self.len_lines() {
-            return None;
+        if let Some(observation) = self.markdown_observation() {
+            observation.captures(bytes)
+        } else {
+            // No inline context is re-proven by structural carry. Suppress all
+            // old lexical captures, including cross-row parts, until exact.
+            self.markdown_structural_captures(bytes)
         }
-        let observation = self.markdown.observation.as_ref()?;
-        if observation.stamp != self.stamp() {
-            return None;
-        }
-        let start = self.text.line_to_byte(row);
-        let end = start + self.text.line(row).len_bytes();
-        observation.heading_prefix(start..end)
     }
 }
 
@@ -132,20 +116,25 @@ impl Buffer {
             .filter(|value| value.stamp == self.stamp())
     }
 
-    pub(crate) fn markdown_items(
-        &self,
-        row: usize,
-    ) -> impl Iterator<Item = &crate::markdown::Item> {
-        let line = (row < self.len_lines()).then(|| {
-            let start = self.text.line_to_byte(row);
-            start..start + self.text.line(row).len_bytes()
-        });
-        self.markdown_observation()
-            .into_iter()
-            .flat_map(|value| value.items())
-            .filter(move |item| {
-                line.as_ref()
-                    .is_some_and(|line| line.contains(&item.marker.start))
-            })
+    pub(crate) fn retire_markdown_presentation(&mut self) {
+        self.markdown.observation = None;
+        self.presentation = None;
+        // Preserve a newer explicit retry request while an old canceled worker
+        // is being reaped. The work owner already recorded its own attempt.
+    }
+}
+
+impl Buffers {
+    pub(crate) fn retire_markdown_presentations(&mut self) {
+        for buffer in self
+            .entries
+            .values_mut()
+            .filter(|buffer| buffer.is_markdown())
+        {
+            if buffer.presentation.is_some() {
+                buffer.retire_markdown_presentation();
+                buffer.markdown.attempt = Some(buffer.stamp());
+            }
+        }
     }
 }

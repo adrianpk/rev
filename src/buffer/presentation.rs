@@ -3,6 +3,8 @@
 
 mod inspection;
 #[cfg(test)]
+mod markdown_tests;
+#[cfg(test)]
 mod org_tests;
 #[cfg(test)]
 mod tests;
@@ -125,6 +127,17 @@ impl Mapping {
             .try_fold(0isize, |sum, row| sum.checked_add(row.delta))?;
         base.checked_add_signed(delta)
     }
+
+    pub(super) fn base_line(
+        &self,
+        row: usize,
+        current: std::ops::Range<usize>,
+    ) -> Option<std::ops::Range<usize>> {
+        Some(
+            self.base_byte(row, current.start)?
+                ..self.base_byte(row.checked_add(1)?, current.end)?,
+        )
+    }
 }
 
 impl Buffer {
@@ -143,6 +156,8 @@ impl Buffer {
         let mapping = mapping.prepare(&self.text, text, record, &mut remaining)?;
         if self.is_org() {
             self.admit_org_presentation(&mapping, text, record, &mut remaining)?;
+        } else if self.is_markdown() {
+            self.admit_markdown_presentation(&mapping, text, record, &mut remaining)?;
         }
         Some(mapping)
     }
@@ -177,6 +192,34 @@ impl Buffer {
             outline.indentation_at(0)?;
             return Some(outline.stamp);
         }
-        self.markdown_observation().map(|value| value.stamp)
+        self.markdown
+            .observation
+            .as_ref()
+            .filter(|_| self.markdown_admitted())
+            .map(|value| value.stamp)
+    }
+
+    fn admit_markdown_presentation(
+        &self,
+        mapping: &Mapping,
+        text: &Rope,
+        record: &Transaction,
+        remaining: &mut usize,
+    ) -> Option<()> {
+        let observation = self.markdown.observation.as_ref()?;
+        (text.len_bytes() <= self.markdown_byte_limit()).then_some(())?;
+        let change = record.changes().first()?;
+        let row = self.text.try_char_to_line(change.before().start).ok()?;
+        let start = self.text.try_line_to_byte(row).ok()?;
+        let edit = crate::markdown::PresentationEdit {
+            line: mapping.base_line(row, start..start.checked_add(text.line(row).len_bytes())?)?,
+            before: self.text.line(row),
+            after: text.line(row),
+            changed: self
+                .text
+                .char_to_byte(change.before().start)
+                .checked_sub(start)?,
+        };
+        observation.admit_presentation(&edit, remaining)
     }
 }

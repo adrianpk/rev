@@ -112,11 +112,12 @@ impl Session {
         };
         self.markdown.source = None;
         self.markdown.deadline = None;
-        if live
-            && let Ok((_, Some(observation))) = result
-            && let Ok(buffer) = self.buffers.get_mut(source.0.buffer)
-        {
-            buffer.install_markdown(observation);
+        if live && let Ok(buffer) = self.buffers.get_mut(source.0.buffer) {
+            if let Ok((_, Some(observation))) = result {
+                buffer.install_markdown(observation);
+            } else {
+                buffer.retire_markdown_presentation();
+            }
         }
         true
     }
@@ -166,7 +167,7 @@ impl Session {
             }
             _ => unreachable!("source commands have a separate plan owner"),
         }
-        if view.pretty_markdown() && !self.markdown.job.is_active() {
+        if view.pretty_markdown() {
             let buffer = view.point.stamp.buffer;
             if let Ok(buffer) = self.buffers.get_mut(buffer) {
                 buffer.request_markdown();

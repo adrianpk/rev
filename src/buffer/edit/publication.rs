@@ -85,7 +85,9 @@ impl Buffer {
         self.syntax
             .edit(publication.before, publication.after, &publication.syntax);
         self.edit_org(publication.before, publication.after, &publication.syntax);
-        self.markdown.observation = None;
+        if publication.presentation.is_none() {
+            self.markdown.observation = None;
+        }
         self.presentation = publication.presentation;
         self.coordinates
             .lock()
