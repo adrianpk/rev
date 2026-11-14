@@ -1,11 +1,11 @@
 # Slice 3: Editor Defaults
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-factory-shortcuts
 Plan: [Factory Shortcut Alignment Delivery](../../../plan/rev-factory-shortcuts.md)
 Tracker: [Factory Shortcut Alignment Tracker](../../../tracker/rev-factory-shortcuts.md)
 Branch: `feat/rev-factory-shortcuts-03-editor`
-PR: `#49` ([canonical PR](https://forge.adrianpk.com/rev/rev/pulls/49)); open against dev
+PR: `#49` ([canonical PR](https://forge.adrianpk.com/rev/rev/pulls/49)); merged into dev
 Report introduction: [immutable Slice 3 report](https://forge.adrianpk.com/rev/rev/src/commit/756ec6b1e5c497c996e89eb7273d5e4a3ec4b4e0/ops/default/report/slices/rev-factory-shortcuts/slice-3-editor.md)
 
 ## Purpose
@@ -74,10 +74,10 @@ reused for first-text cases without reducing coverage or assertions. Temporary
 source/catalog fixtures are owned and removed through their existing fixture
 lifecycle. Project observation retains its five-second deadline.
 
-Local checks passed before PR creation. The canonical PR records the five exact
-commands once in the injected order. Clean-HEAD evidence is recorded through
-controller validation after the PR-reference commit; this report does not replace
-that receipt. No delivery-set gate has run for this slice.
+All five exact commands passed through controller validation at clean HEAD
+`c1c0aeaf217f63beb64bd25733efe661c09d2c4e` after the PR-reference commit.
+Canonical PR validation passed before PR #49 was integrated into dev at that
+exact commit. No delivery-set gate ran for this slice.
 
 
 ## Risks and Follow-ups

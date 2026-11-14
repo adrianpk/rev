@@ -1,6 +1,6 @@
 # Factory Shortcut Alignment Tracker
 
-Status: Slice 3 editor review active
+Status: Slice 4 Org document implementation active
 Date: 2026-11-14
 Delivery set: rev-factory-shortcuts
 Slice strategy: layered
@@ -10,9 +10,9 @@ Execution authority: current slices 1-7 under accepted manifest and predecessor 
 Plan: [Factory Shortcut Alignment Delivery](../plan/rev-factory-shortcuts.md)
 Spec: [Factory Shortcut Alignment](../spec/editor-factory-shortcut-alignment.md)
 Follow-through: [Emacs Interaction Parity](../spec/editor-emacs-interaction-parity.md)
-Active slice: Slice 3, Editor defaults
-Progress: 2/7 slices delivered; 9/21 tasks completed
-Readiness: Slice 3 local checks passed; PR #49 open; clean-HEAD controller receipt required for handoff
+Active slice: Slice 4, Org document defaults
+Progress: 3/7 slices delivered; 9/21 tasks completed
+Readiness: Slice 3 integrated; accepted P05-P07 mappings govern Slice 4 implementation
 
 ## Canonical slice map
 
@@ -88,15 +88,15 @@ unchanged. Canonical PR #48 and its immutable report link are recorded; the fina
 
 ## Slice 3: Editor defaults
 
-State: reviewing; P01-P04 implemented; canonical PR #49 open
+State: delivered; PR #49 integrated into dev at `c1c0aeaf217f63beb64bd25733efe661c09d2c4e`
 Requirements: FSA03, FSA04, FSA07-FSA09; P01-P04 and accepted core manifest rows.
 Dependency: Slice 2 integrated and mapping freeze accepted/committed.
 Branch: `feat/rev-factory-shortcuts-03-editor`
 Expected PR title: `feat(input): align core factory shortcuts`
-PR: `#49` ([canonical PR](https://forge.adrianpk.com/rev/rev/pulls/49)); open against dev
+PR: `#49` ([canonical PR](https://forge.adrianpk.com/rev/rev/pulls/49)); merged into dev
 Report: `ops/default/report/slices/rev-factory-shortcuts/slice-3-editor.md`
 Task commits: T3.1 `94a1f69eae233e28308d158bb273947001c7ba61`; T3.2 `aad088fea37eaa2cefa79a2ae9b119b47253ce4c`; T3.3/report introduction `756ec6b1e5c497c996e89eb7273d5e4a3ec4b4e0`; this record includes canonical PR references.
-Validation: all five required local commands PASS; 10 factory-shortcut, 11 configuration keymap and six modal keymap tests; documentation check PASS. Final clean-HEAD controller receipt follows the PR-reference commit.
+Validation: all five required local commands PASS; 10 factory-shortcut, 11 configuration keymap and six modal keymap tests; documentation check PASS. All five required commands and canonical PR validation passed at clean HEAD `c1c0aeaf217f63beb64bd25733efe661c09d2c4e` before integration.
 
 - [x] T3.1: Apply only accepted editor/profile factory assignments for first text, pane balance, redo and registered Project switching. Preserve canonical handlers, context transitions, modal state and existing search/operator keys. Keep factories and the exhaustive configuration reference consistent.
 - [x] T3.2: Extend existing command/keymap tests with a cohesive `factory_shortcuts` module for actual input-to-effect regressions. Cover Unicode/blank lines, selection/count policy, redo groups, pane focus, cancelled Project restoration, overrides, local overlays and all affected modal states; avoid a second handwritten production binding catalog.
@@ -106,7 +106,7 @@ Completed local checks: `make lint`; `cargo test --locked --test commands factor
 
 ## Slice 4: Org document defaults
 
-State: authorized; predecessor integration required
+State: ready; Slice 3 integrated; accepted manifest governs implementation
 Requirements: FSA03-FSA09; P05-P07 and accepted Org document manifest rows.
 Dependency: Slice 3 integrated; Org replacement rows accepted.
 Branch: `feat/rev-factory-shortcuts-04-org`
