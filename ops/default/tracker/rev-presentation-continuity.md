@@ -25,7 +25,7 @@ Progress owner: native Looper checkpoint, canonical PR state and exact-candidate
 State: reviewing - implementation complete; canonical integration pending
 Requirements: PC02, PC03, PC06, PC07, PC11; OGP08, OIN05, MD06 contract reconciliation
 Branch: `refactor/rev-presentation-continuity-01-carry`
-PR: pending
+PR: [#41](https://forge.adrianpk.com/rev/rev/pulls/41)
 Report: `ops/default/report/slices/rev-presentation-continuity/slice-1-carry.md`
 Validation: ordered Slice 1 checks passed locally (lint, 18 buffer tests, 144 core/coordinate/editing tests and whitespace). Final published clean-HEAD evidence belongs to the controller validator.
 Task commits: T1.1 `5fa1b0b4ba100070957a28623f2d20fdf30d6123`; T1.2 and T1.3 `a18ca3a8827dcacc1315f4337ad581bdd57ac47f` (cohesive mapping/publication layer and regressions).

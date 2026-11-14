@@ -5,7 +5,7 @@ Delivery set: rev-presentation-continuity
 Plan: `ops/default/plan/rev-presentation-continuity.md`
 Tracker: `ops/default/tracker/rev-presentation-continuity.md`
 Branch: `refactor/rev-presentation-continuity-01-carry`
-PR: pending
+PR: `#41`
 
 ## Purpose
 
