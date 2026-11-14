@@ -64,17 +64,17 @@ Task commits: T3.1, T3.2 and T3.3 `e4a505671a434f9bdbe7a3d52a8d2d1013e519e0` (co
 
 ## Slice 4: Shared lifecycle and resource acceptance
 
-State: implementing - dedicated lifecycle/resource acceptance slice active
+State: reviewing - local checks passed; canonical PR and controller validation pending
 Requirements: PC02, PC03, PC06-PC12; cross-format integration
 Branch: `test/rev-presentation-continuity-04-lifecycle`
 PR: pending
 Report: `ops/default/report/slices/rev-presentation-continuity/slice-4-lifecycle.md`
-Validation: the exact ordered Slice 4 checks in the plan and frozen local configuration
-Task commits: pending
+Validation: ordered Slice 4 checks passed locally (lint, 29 buffer tests, 23 selected continuity integration tests and whitespace); four native lifecycle/cache cases and one existing Rust source-revision case also passed. Final published clean-HEAD evidence belongs to the controller validator.
+Task commits: T4.1, T4.2 and T4.3 `7f1f834fe8de4dde5c650039e3eafeece338430f` (cohesive shared lifecycle, geometry, authority and resource regressions).
 
-- [ ] T4.1: Complete and verify common retirement rules for cancellation, incomplete/limited results, rejected publication, ninth row, reload, undo/redo, buffer close and relevant mode/policy changes. Preserve exact worker/generation checks and current fold-clearing behavior.
-- [ ] T4.2: Add focused continuity cases in existing geometry/view owners for independent panes, policy transitions, wrapped and horizontally clipped projections, pointer/selection correspondence and equal/different exact replacements. Keep source stamps and unchanged-prefix cache reuse; record actual cache/mapping bounds and no additional timers/workers.
-- [ ] T4.3: Exercise repeated and two-row pending edits, lexical-context uncertainty beyond viewport edges, resource ceilings and native action-authority refusal. Report accepted/rejected admission counts with positive examples. Any runtime refinements are confined to the approved continuity contracts.
+- [x] T4.1: Complete and verify common retirement rules for cancellation, incomplete/limited results, rejected publication, ninth row, reload, undo/redo, buffer close and relevant mode/policy changes. Preserve exact worker/generation checks and current fold-clearing behavior.
+- [x] T4.2: Add focused continuity cases in existing geometry/view owners for independent panes, policy transitions, wrapped and horizontally clipped projections, pointer/selection correspondence and equal/different exact replacements. Keep source stamps and unchanged-prefix cache reuse; record actual cache/mapping bounds and no additional timers/workers.
+- [x] T4.3: Exercise repeated and two-row pending edits, lexical-context uncertainty beyond viewport edges, resource ceilings and native action-authority refusal. Report accepted/rejected admission counts with positive examples. Any runtime refinements are confined to the approved continuity contracts.
 
 ## Slice 5: Terminal acceptance and guidance
 
