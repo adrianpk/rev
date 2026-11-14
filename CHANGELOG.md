@@ -9,163 +9,70 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 
 ### Added
 
-- Markdown files now open in native Markdown mode with offline colors for
-  headings, emphasis, links, code, quotes, lists and tables. Six heading levels
-  have distinct colors and symbols; Setext underlines retain their source form.
-  Nested unordered lists use depth-based bullets. Continue or leave an empty
-  list item with Return or Meta-Return; indent or outdent its complete subtree
-  with Meta-Right or Meta-Left. Ordered siblings advance their source number,
-  and each list action has one undo step. Create GFM tables with explicit
-  dimensions, align their source without losing cell markup, and navigate fields
-  while skipping delimiters or appending body rows. Insert or delete body rows
-  and whole columns while retaining the header, at least one column, cell source
-  and alignment. Each change has one undo step and keeps retained points in
-  other panes with their text. Customize routes through
-  keys.markdown in ordinary editing and modal Insert; explicit editor/profile
-  remaps keep priority.
-  Use markdown-pretty-mode to reveal source prefixes in the current view and
-  markdown-reset-presentation to restore its startup preference. Customize
-  markdown.pretty and palette.markdown, select the mode with markdown-mode,
-  return to ordinary editing with text-mode, or disable it with markdown.enabled.
-  Follow [Edit Markdown](docs/tutorials/user-guide/23-markdown.md) in the User Guide
-  for an offline note, list and table workflow in either interaction profile;
-  the [Markdown reference](docs/reference/markdown.md) lists exact controls and limits.
+- Edit Markdown natively with colors and level-dependent heading and list
+  symbols. Continue or indent lists, create and align tables, navigate fields,
+  and add or remove rows and columns. Switch between source and pretty views
+  while preserving the original document markers.
 
-- Org headings now use eight level-dependent Tokyo Night colors for their
-  bullets and text, following Emacs' independent color and symbol cycles.
-  Deeper levels repeat the colors in both pretty and source presentation.
-  Configure each face through palette.org.heading and palette.org.heading_2
-  through palette.org.heading_8; source stars and editing positions stay intact.
+- Org headings use eight configurable palette colors for bullets and text.
+  Deeper levels repeat the colors, which remain visible in both pretty and
+  source views.
 
-- The file tree now fits expanded names automatically without shrinking when
-  you fold or navigate. Widen or narrow it by four columns with tree-local
-  > / < or C-x t > / C-x t <, reset with C-x t =, and toggle fitting with
-  tree-auto-width-mode. Manual choices survive browsing and terminal resizing.
-  Set tree.auto_width to false for a fixed startup preference; runtime controls
-  leave your configuration file unchanged. Pan all rows with h/l or Left/Right to reveal
-  long or deeply nested names at the width cap. C-f/C-b still expand/collapse
-  directories, Enter opens files or toggles directories, and j/k select rows.
+- The file tree fits expanded names automatically and supports manual resizing
+  and horizontal panning for long paths. Folding a directory keeps the chosen
+  width, and manual adjustments survive navigation and terminal resizing.
 
-- Inspect explicitly configured experimental plugins and find their qualified
-  commands in M-x and the modal selector without starting their programs.
-  Run trusted local packages on command use, selected startup or declared native
-  triggers, then inspect, cancel, deactivate or restart their owned processes
-  while continuing to edit. Packages can read hidden and unsaved text, open
-  files, create ordinary result buffers and display them in native panes.
-  Result text survives package deactivation. Packages can change several buffers
-  in one checked batch; an invalid or stale target refuses the whole change.
-  Undo and redo remain local to each buffer. Packages can invoke declared
-  commands and captured native text motions, explicitly save checked source
-  revisions and close clean buffers. Changed files and modified closes retain
-  native conflict and consent rules. Packages can contribute global or
-  buffer-local shortcuts in either profile, with explicit user precedence and
-  inspectable conflicts. Forward a declared integer prefix once and record
-  qualified plugin calls in keyboard macros. Replay waits for each callback and
-  supports cancellation; generated edits are not recorded twice. Explicit saves
-  containing plugin calls use macro-library schema 2 and preserve older records.
-  Packages can subscribe to committed buffer changes and lifecycle events.
-  Slow consumers receive an explicit resnapshot request, and event-driven edit
-  chains have a finite depth across packages. Packages can keep versioned JSON
-  state across restarts and editor instances; conflicting updates refuse instead
-  of overwriting another instance's changes. Native prompts and recovery keys
-  retain control. Start with the separate optional
-  [plugin lesson](docs/tutorials/user-guide/plugins/index.md); authors can build
-  the working Rust example and look up the complete wire and error contracts.
+- Use experimental plugins to add commands and shortcuts, access buffers and
+  panes, and apply checked multi-buffer edits. Packages can receive lifecycle
+  events and retain state across editor starts. Inspect, cancel, deactivate or
+  restart their processes while continuing to edit.
 
-- Record native editing with F3 and finish with F4, then replay the last keyboard
-  macro with F4 or C-x e. Positive prefix arguments repeat the recording;
-  each replay iteration has its own undo unit. C-g stops playback while keeping
-  edits already made. Recording controls also work in the modal profile, with
-  checked entry states and bounded cooperative playback. M-x and modal colon
-  recordings retain accepted commands and prompt values, including file/buffer
-  selection, goto, searches and replacement. Manual completion replays checked
-  literal text without a provider; save and replacement decisions require fresh
-  answers during playback. Keep several recordings in a shared bounded ring,
-  cycle or swap them, append input and repeat with temporary keys. Insert checked
-  integer counters with per-macro formats. Zero or negative replay counts run
-  until a native stop, cancellation or the finite budget. Add C-x q queries to
-  continue, skip or stop replay, or pause for manual editing and resume with C-M-c.
-  Apply a recording to original logical lines in a region; inserted lines add
-  no targets and deleted lines are skipped. Name independent session snapshots
-  as M-x or colon commands, bind them to source keys and reuse them from other
-  recordings without changing their native undo or execution limits. Explicitly
-  save named definitions as private TOML, reload them without execution, delete
-  saved records or insert inert TOML into source. Include bindings only with a
-  prefix; reload preserves unsaved changes and saves detect concurrent conflicts.
-  Edit checked TOML drafts, build a macro from recent recordable input, or execute
-  and change a definition one step at a time. Manage ring properties, marks,
-  copies and checked deletion in a read-only menu; edits stay in the session
-  until explicitly saved. Query and step questions show their native answer
-  choices. Follow the [keyboard macro lesson](docs/tutorials/user-guide/21-keyboard-macros.md)
-  and task guides for recording, counted/region replay and explicit saving.
+- Record and replay keyboard macros in either editing profile, with counts,
+  counters, region replay, interactive pauses and step editing. Keep multiple
+  recordings, append input, and name or bind definitions for reuse. Edit, save
+  and reload named macros, or manage recordings through the macro menu.
 
-- Supply counts with `C-u`, Meta digits or a negative prefix to move by
-  characters, words or ordinary rows, insert repeated text, delete or kill a
-  combined span, select/rotate a yank, or undo/redo existing history groups.
-  Counted edits stay in one undo step. Set line/buffer positions, scroll by
-  rows, choose a recenter offset or move through loaded tree rows. Arguments
-  pass through M-x, including the existing shell insertion/filter variants;
-  `C-g` cancels pending work, retaining history groups already replayed.
-  Follow the [prefix argument guide](docs/how-to/use-prefix-arguments.md) for
-  counted movement, insertion, yank selection and history tasks.
+- Supply prefix arguments to repeat movement, editing, history and scrolling,
+  or pass a count through M-x. Counted edits stay in one undo step, and
+  cancellation retains work already completed.
 
-- Press `^` or activate the `..` row in an automatic file tree to browse its
-  parent while keeping the directory just left selected and visible.
-  `tree-up-directory` works in both
-  profiles; explicitly opened directories, Projects, Workspaces and configured
-  cwd roots stay fixed. Your editing context, unsaved text and split panes stay
-  intact, and later file visits retain automatic parent following.
+- Browse parent directories in an automatic file tree while retaining selection,
+  unsaved text and split panes. Explicit directory, Project and Workspace roots
+  stay fixed, and later file visits retain automatic parent following.
 
-- Run `quit` from M-x or modal colon as a shorter name for the existing guarded
-  exit. Complete `qui` with Tab; saving, discarding, cancellation and active-process
-  decisions stay the same as with `C-x C-c`.
+- Run `quit` from M-x or modal colon as a shorter name for the guarded exit.
+  Saving, discarding, cancellation and active-process decisions keep their
+  existing behavior.
 
-- Choose how new Org views open with `org.startup_folded` or document STARTUP
-  metadata. Keep ordinary text visible with drawers hidden using `showall`,
-  choose heading-only states, or retain the fully visible `showeverything`
-  default. Hide, show or toggle all drawers in the selected pane, and restore
-  its startup policy explicitly without changing source or other panes.
+- Configure how Org views open, including heading-only outlines or text with
+  drawers hidden. Show, hide or toggle drawers in the selected pane and restore
+  its startup policy without changing source or other views.
 
-- File-tree selection stays visible after opening a file. By default, the tree
-  follows the active editing file across buffers and panes, scrolling loaded
-  matches into view while preserving collapsed folders and chosen roots.
-  Set `tree.follow_active_buffer = false` to retain manual selection instead.
-- Every built-in command shows a concise description in M-x and modal colon
-  lists, including commands without shortcuts and context-specific actions.
-  Descriptions clip to the available width; Tab still completes only the name.
-- [Work with files, Projects and Workspaces](docs/tutorials/user-guide/20-projects-and-workspaces.md).
-  Start `rev` with four native opening actions, or pass a file/directory directly.
-  Open… accepts either a file or a directory through the same path selector.
-  Keep ordinary directory work temporary, promote it to a named Project while
-  retaining live edits, or collect independent roots in a Workspace. Return by
-  name to restore files, loose files and source positions after normal
-  save/discard/cancel decisions. Missing files and roots retain their metadata.
-  Rename or forget registrations without deleting sources, reconnect moved roots,
-  and convert or duplicate Projects as independent Workspace sessions. Root
-  removal resolves only files losing coverage. `dashboard-open` retains current
-  work behind the startup screen; `context-close` resolves it and returns there.
-  The screen uses a compact logo, shares the text-buffer background, blends the
-  logo's dark edges into it and separates the logo from its menu with more space. It fits small
-  and color-free terminals. Context commands use M-x or
-  modal colon with existing bindings unchanged.
+- File-tree selection remains visible after opening a file and follows the
+  active editing file across buffers and panes. Collapsed folders and chosen
+  roots stay intact; manual selection remains available through configuration.
+
+- Built-in commands show descriptions in M-x and modal command lists, including
+  commands without shortcuts and context-specific actions. Names remain
+  available for completion and invocation.
+
+- Work with named Projects and multi-root Workspaces, retaining independent file
+  sessions and source positions. Rename, forget or relocate registrations, and
+  convert or duplicate Projects as Workspaces without deleting source files.
+  Open files, directories or saved contexts from the startup screen and return
+  to the current editing context.
 
 ### Fixed
 
-- Markdown table creation accepts both `3x2` and `3*2` dimensions. The size
-  prompt uses `x` and includes an explicit example.
+- New configuration files use commented examples and inherit updated defaults.
+  Existing configurations and explicitly chosen preferences remain intact.
 
-- New configuration files contain commented examples and inherit current
-  defaults after updates. Only explicitly enabled preferences stay fixed.
-  Existing files are preserved; comment or remove old explicit bindings to
-  adopt their current defaults.
+- Agenda edits and saved-clock recovery keep views stable during Org analysis.
+  Syntax coloring stays disabled when configured, including in folded views.
 
-- Agenda source edits and saved-clock recovery keep their captured views stable
-  while initial Org observation completes. Syntax coloring stays disabled when
-  configured, including when folding still needs structural observation.
+- Enter runs the highlighted command even with an empty query. Repeat the last
+  named command without completing its name first.
 
-- Enter runs the highlighted command in M-x and modal colon even when the query
-  is empty. Repeat the latest named command directly without completing its name
-  with Tab first.
 
 ## 0.6.0 - 2026-11-06
 
