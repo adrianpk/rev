@@ -69,7 +69,7 @@ Branch: `docs/rev-factory-shortcuts-02-mode-contract`
 Expected PR title: `docs(input): specify contextual shortcut mappings`
 PR: pending
 Report: `ops/default/report/slices/rev-factory-shortcuts/slice-2-mode-contract.md`
-Task commits: none
+Task commits: T2.1 and complete T2.2/T2.3 proposal introduced at `da5056f6e6feebc52d9114f88036097ea8e132a7`; decision acceptance and PR-reference commits pending.
 Validation: focused native/reference comparison, 92 normalized checks and 21 active language/profile sessions PASS; proposal structural checks PASS. Configured approval-dependent clean-HEAD validation awaits owner acceptance; no delivery gate ran.
 
 - [x] T2.1: Complete semantic review of Org headings/lists/tables/source blocks, Agenda/capture/calendar/source editing, Markdown plain/list/table dispatch and every native Git panel/menu. Compare active contexts and effects, including source targets behind projections; finish all pending matrix rows and evidence-backed named-only or adaptation dispositions.

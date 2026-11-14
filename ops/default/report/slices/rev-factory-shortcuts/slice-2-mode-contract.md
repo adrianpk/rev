@@ -6,6 +6,7 @@ Plan: [Factory Shortcut Alignment Delivery](../../../plan/rev-factory-shortcuts.
 Tracker: [Factory Shortcut Alignment Tracker](../../../tracker/rev-factory-shortcuts.md)
 Branch: `docs/rev-factory-shortcuts-02-mode-contract`
 PR: pending; approved owner decision checkpoint precedes submission
+Report introduction: [immutable proposal report](https://forge.adrianpk.com/rev/rev/src/commit/da5056f6e6feebc52d9114f88036097ea8e132a7/ops/default/report/slices/rev-factory-shortcuts/slice-2-mode-contract.md)
 
 ## Purpose
 
