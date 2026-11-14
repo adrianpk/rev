@@ -12,7 +12,7 @@ Spec: [Factory Shortcut Alignment](../spec/editor-factory-shortcut-alignment.md)
 Follow-through: [Emacs Interaction Parity](../spec/editor-emacs-interaction-parity.md)
 Active slice: Slice 5, Agenda defaults
 Progress: 4/7 slices delivered; 15/21 tasks completed
-Readiness: Slice 5 local checks passed; canonical PR preparation active
+Readiness: Slice 5 local checks passed; PR #51 open; clean-HEAD controller receipt required for handoff
 
 ## Canonical slice map
 
@@ -124,14 +124,14 @@ Completed local checks: `make lint`; `cargo test --locked --test commands factor
 
 ## Slice 5: Agenda defaults
 
-State: reviewing; accepted P08-P13 implemented; canonical PR pending
+State: reviewing; accepted P08-P13 implemented; canonical PR #51 open
 Requirements: FSA03, FSA05-FSA09; P08 and accepted D01 manifest rows.
 Dependency: Slice 4 integrated; every implemented Agenda placement explicitly accepted.
 Branch: `feat/rev-factory-shortcuts-05-agenda`
 Expected PR title: `feat(org): align agenda shortcut families`
-PR: pending
+PR: `#51` ([canonical PR](https://forge.adrianpk.com/rev/rev/pulls/51)); open against dev
 Report: `ops/default/report/slices/rev-factory-shortcuts/slice-5-agenda.md`
-Task commits: T5.1 `493deab7fff23a9d648b7ae5f83dae4aa1465153`; T5.2 `646ffd76c98efd0257e63a119bf162a8bee7e793`; T5.3/report introduction is this documentation change.
+Task commits: T5.1 `493deab7fff23a9d648b7ae5f83dae4aa1465153`; T5.2 `646ffd76c98efd0257e63a119bf162a8bee7e793`; T5.3/report introduction `4a112aa03fb29ece08edfe1daf3d35cbdb309066`; this record includes canonical PR references.
 Validation: all five required local commands PASS; 28 shared factory-shortcut, four Org-context and 11 configuration keymap tests. Four focused native Agenda controls and documentation validation PASS. Final clean-HEAD controller receipt follows canonical PR-reference commits.
 
 - [x] T5.1: Apply accepted P08-P13: daily d, tags v M, search v /, show-all habits v A, graph window v G and sort v S; remove their displaced single keys through the existing native owners. Preserve named access for displaced habit/view actions, current prompt ownership and all unselected defaults.
