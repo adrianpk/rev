@@ -1,6 +1,6 @@
 # Slice 3: Markdown presentation continuity
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-presentation-continuity
 Plan: `ops/default/plan/rev-presentation-continuity.md`
 Tracker: `ops/default/tracker/rev-presentation-continuity.md`
@@ -122,3 +122,12 @@ and hook caches remain exclusive to this worktree.
 
 Shared lifecycle/resource acceptance remains Slice 4; terminal acceptance and
 user guidance remain Slice 5.
+
+## Integration
+
+Canonical PR [#43](https://forge.adrianpk.com/rev/rev/pulls/43) is merged into
+`dev` at `b87c7af693f8540715619be6553ab062b19d3675`, verified against the forge
+and synchronized primary checkout. The owned worktree was clean, unlocked and
+inactive, with only generated Cargo output ignored; it was removed through
+non-forced Git worktree removal. Its branch is preserved. Shared lifecycle and
+resource acceptance continues in Slice 4; final delivery acceptance stays pending.
