@@ -12,7 +12,7 @@ Spec: [Factory Shortcut Alignment](../spec/editor-factory-shortcut-alignment.md)
 Follow-through: [Emacs Interaction Parity](../spec/editor-emacs-interaction-parity.md)
 Active slice: Slice 4, Org document defaults
 Progress: 3/7 slices delivered; 12/21 tasks completed
-Readiness: Slice 4 local checks passed; canonical PR handoff in progress
+Readiness: Slice 4 local checks passed; PR #50 open; clean-HEAD controller receipt required for handoff
 
 ## Canonical slice map
 
@@ -106,14 +106,14 @@ Completed local checks: `make lint`; `cargo test --locked --test commands factor
 
 ## Slice 4: Org document defaults
 
-State: reviewing; P05-P07 implemented; canonical PR pending
+State: reviewing; P05-P07 implemented; canonical PR #50 open
 Requirements: FSA03-FSA09; P05-P07 and accepted Org document manifest rows.
 Dependency: Slice 3 integrated; Org replacement rows accepted.
 Branch: `feat/rev-factory-shortcuts-04-org`
 Expected PR title: `feat(org): align document factory shortcuts`
-PR: pending
+PR: `#50` ([canonical PR](https://forge.adrianpk.com/rev/rev/pulls/50)); open against dev
 Report: `ops/default/report/slices/rev-factory-shortcuts/slice-4-org.md`
-Task commits: T4.1 `2c79884984b64f3594bda3cd05ceb76f03d9b417`; T4.2 `cc39590b0d4b6513a809eda79c05e7ee96c5c927`; T4.3/report introduction follows with the canonical PR reference.
+Task commits: T4.1 `2c79884984b64f3594bda3cd05ceb76f03d9b417`; T4.2 `cc39590b0d4b6513a809eda79c05e7ee96c5c927`; T4.3/report introduction `316a5e569288aa3ee6625b03392b740a75449ef0`; this record includes canonical PR references.
 Validation: all five required local commands PASS; 20 shared factory-shortcut, four Org-context and 11 configuration keymap tests; documentation check PASS. Final clean-HEAD controller receipt follows the PR-reference commit.
 
 - [x] T4.1: Apply accepted effort, property-column and Babel header-argument factory assignments through native owners. Retain named clock reports, explicit old user assignments and unaffected aliases. Preserve unsupported-help and radio-button boundaries rather than reusing their familiar chords.

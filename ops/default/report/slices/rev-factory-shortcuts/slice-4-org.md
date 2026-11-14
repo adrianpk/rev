@@ -5,7 +5,8 @@ Delivery set: rev-factory-shortcuts
 Plan: [Factory Shortcut Alignment Delivery](../../../plan/rev-factory-shortcuts.md)
 Tracker: [Factory Shortcut Alignment Tracker](../../../tracker/rev-factory-shortcuts.md)
 Branch: `feat/rev-factory-shortcuts-04-org`
-PR: pending
+PR: `#50` ([canonical PR](https://forge.adrianpk.com/rev/rev/pulls/50)); open against dev
+Report introduction: [immutable Slice 4 report](https://forge.adrianpk.com/rev/rev/src/commit/316a5e569288aa3ee6625b03392b740a75449ef0/ops/default/report/slices/rev-factory-shortcuts/slice-4-org.md)
 
 ## Purpose
 
