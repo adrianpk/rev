@@ -64,10 +64,10 @@ Task commits: T3.1, T3.2 and T3.3 `e4a505671a434f9bdbe7a3d52a8d2d1013e519e0` (co
 
 ## Slice 4: Shared lifecycle and resource acceptance
 
-State: reviewing - local checks passed; canonical PR and controller validation pending
+State: reviewing - canonical PR #44 open; controller validation and integration pending
 Requirements: PC02, PC03, PC06-PC12; cross-format integration
 Branch: `test/rev-presentation-continuity-04-lifecycle`
-PR: pending
+PR: [#44](https://forge.adrianpk.com/rev/rev/pulls/44)
 Report: `ops/default/report/slices/rev-presentation-continuity/slice-4-lifecycle.md`
 Validation: ordered Slice 4 checks passed locally (lint, 29 buffer tests, 23 selected continuity integration tests and whitespace); four native lifecycle/cache cases and one existing Rust source-revision case also passed. Final published clean-HEAD evidence belongs to the controller validator.
 Task commits: T4.1, T4.2 and T4.3 `7f1f834fe8de4dde5c650039e3eafeece338430f` (cohesive shared lifecycle, geometry, authority and resource regressions).
