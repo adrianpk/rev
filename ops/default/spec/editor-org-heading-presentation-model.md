@@ -9,6 +9,8 @@ Approved: product owner, 2026-11-03; paired heading-presentation specification a
 Specification: [Org Heading Presentation](editor-org-heading-presentation.md)
 Existing owners: [Org Mode Model](editor-org-mode-model.md), [Editor Model](rev-editor-model.md), [Configuration Model](editor-configuration-model.md)
 
+Continuity contract: [Org and Markdown Presentation Continuity](editor-presentation-continuity.md); separate delivery pending. Historical completed evidence does not test this correction.
+
 ## Ownership
 
 Canonical Org source owns heading level and content. Native recognition owns
@@ -99,8 +101,11 @@ Point entering the prefix does not reveal it. Copy, save, undo and AI acceptance
 continue to use canonical text. Source view reveals all stars without changing
 source point, even when the heading's screen geometry changes.
 
-Only current recognized heading spans can be projected. Literal block text,
-list items and unverified/incomplete observations retain source rendering.
+Heading projection requires exact recognized spans or a current proven carry
+under [PC01-PC12](editor-presentation-continuity.md). Retain base/current
+provenance separately from geometry identity and preserve current source
+mappings. Literal block text, list items and unverified/incomplete observations
+retain source rendering; retired carry uses the same fallback.
 Coloring disabled does not disable structural admission for enabled heading
 presentation. Use the existing Org observation worker and its finite bounds;
 cache viewport projection through the existing owner and retain no second

@@ -12,6 +12,8 @@ Plan: [Markdown Delivery](../plan/rev-markdown.md)
 Tracker: [Markdown Tracker](../tracker/rev-markdown.md)
 Readiness: Completed after six merged slices and the unchanged controller-owned full gate
 
+Continuity contract: [Org and Markdown Presentation Continuity](editor-presentation-continuity.md); separately approved delivery pending in [Presentation Continuity Tracker](../tracker/rev-presentation-continuity.md). Historical completion and receipts below do not cover this correction.
+
 ## Purpose
 
 Provide native Markdown headings, list presentation, syntax colors and practical
@@ -156,10 +158,16 @@ read-only authority. Both interaction profiles SHALL expose the same named actio
 Observation SHALL respect configured syntax byte limits, finite work budgets,
 cancellation and revision checks. Pending, canceled or stale observations SHALL
 never authorize structural edits; ordinary source editing SHALL remain available.
-Retain the existing Org table bounds for the initial Markdown table profile:
-8 MiB source/output, 10,000 rows, 256 columns, 100,000 cells and 4,096 displayed
-columns per cell. Native Markdown SHALL work offline without an LSP. Existing
-Org behavior, other language highlighting and configured LSP behavior SHALL remain intact.
+A proven display-only carry under PC01–PC12 SHALL preserve admitted heading/list
+presentation and heading faces during ordinary pending work. Cancellation,
+incomplete results, rejected carry and unavailable evidence SHALL retain literal
+fallback. Pulldown-cmark SHALL remain the format authority behind its adapter.
+
+Retain existing table bounds: 8 MiB source/output, 10,000 rows, 256 columns,
+100,000 cells and 4,096 displayed columns per cell. Native Markdown SHALL work
+offline without an LSP. Existing Org behavior, other language highlighting and
+configured LSP behavior SHALL remain intact outside the specified continuity
+change. No command or persistent preference contract is added.
 
 #### Scenario: Retire stale structural work
 
@@ -167,6 +175,13 @@ Org behavior, other language highlighting and configured LSP behavior SHALL rema
 - **WHEN** source changes, cancellation occurs, or a table bound is exceeded
 - **THEN** the action publishes no partial edit or stale cursor destination
 - **AND** ordinary text editing and other buffers remain usable.
+
+#### Scenario: Keep a Markdown heading decorated during body typing
+
+- **GIVEN** complete Markdown analysis and enabled pretty presentation/colors
+- **WHEN** an admitted body edit advances the source revision
+- **THEN** unaffected heading symbols and level colors remain continuous
+- **AND** a carried list/table observation supplies no authority for a source action.
 
 ## Reproducible acceptance
 

@@ -6,6 +6,8 @@ Specification: [Markdown Editing and Presentation](editor-markdown-mode.md)
 Plan: [Markdown Delivery](../plan/rev-markdown.md)
 Approved: product owner, 2026-11-13; Markdown scope and parser adoption subject to verified compatible licensing
 
+Continuity contract: [Org and Markdown Presentation Continuity](editor-presentation-continuity.md); separate delivery pending. Historical completed evidence does not test this correction.
+
 ## Owners and analysis
 
 The canonical buffer owns bytes, revision, marks, transactions and history.
@@ -14,7 +16,13 @@ mappings. Store observations qualified by buffer and revision, with source byte
 ranges, heading level, list depth, literal ownership and table/cell boundaries.
 Keep parser types private and retain original source instead of decoded event
 text for edits. A pipe splitter or a Tree-sitter highlight capture alone cannot
-authorize a table mutation. Incomplete or stale evidence authorizes no edit.
+authorize a table mutation. Incomplete or stale evidence authorizes no edit. Exact action evidence remains
+separate from carried display data under
+[PC01-PC12](editor-presentation-continuity.md): retain one complete base in this
+owner, base/current stamps and at most eight dirty rows with checked cumulative
+byte deltas. Same-line row mapping adjusts current bytes before querying base
+data; it grants no action authority. Prepare admission from canonical before/after
+ropes within a charged 32 KiB budget and install only reserved state.
 
 Selected parser: `pulldown-cmark = { version = "=0.13.6", default-features = false }`.
 Enable only `Options::ENABLE_TABLES`; do not enable HTML output, task lists,
@@ -59,7 +67,11 @@ six exact colors in the specification. Other defaults are respectively
 Emphasis includes strong emphasis. Inline semantic colors precede enclosing
 heading/table colors. Selection and search retain their existing precedence.
 Semantic palette leaves arrive in Slice 1; heading leaves arrive in Slice 2.
-There is no reference to user-customized Org colors in Markdown policy.
+There is no reference to user-customized Org colors in Markdown policy. Exact
+and current carried heading roles use the active Markdown palette with the
+existing syntax/byte/NO_COLOR and overlay precedence. Dirty title text retains
+its structural heading face; uncertain lexical captures are suppressed.
+Carry adds no preference, marker sequence or view-policy override.
 
 The pretty override belongs to a view: splits inherit its effective value,
 then change independently; reset restores the startup value without TOML writes.
@@ -107,6 +119,11 @@ Keep Markdown parsing, list actions and table actions separate from Org syntax,
 formula rules and command enums. Extract a shared pure helper only for a concrete
 common contract and cover the affected Org path in focused regressions.
 No new workspace/session persistence record or SDK/wire protocol is introduced.
+Action plans remain exact even while a carried display is visible. Continuity
+validation checks before/after admission and mapped bytes against fresh full
+analysis, intermediate frames with positive body/title carries, source fidelity,
+finite resource bounds and cancellation/retirement; settled output alone is
+insufficient under [PC01-PC12](editor-presentation-continuity.md).
 
 ## Delivery-set closure
 

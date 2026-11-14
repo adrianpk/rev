@@ -11,6 +11,8 @@ Plan: [Org Indentation Delivery](../plan/rev-org-indentation.md)
 Tracker: [Org Indentation Tracker](../tracker/rev-org-indentation.md)
 Related owners: [Heading Presentation](editor-org-heading-presentation.md), [Soft Wrapping](editor-soft-wrap.md), [Org Mode](editor-org-mode.md), [Configuration](editor-configuration.md)
 
+Continuity contract: [Org and Markdown Presentation Continuity](editor-presentation-continuity.md); separately approved delivery pending in [Presentation Continuity Tracker](../tracker/rev-presentation-continuity.md). Historical completion and receipts below do not cover this correction.
+
 ## Purpose
 
 Align Org body text with its enclosing heading through visual indentation.
@@ -169,15 +171,16 @@ preferences. Disabling Org SHALL suspend indentation without losing its choice.
 
 Projection SHALL reuse native Org observations and bounded layout work. A frame
 SHALL not scan an entire document, allocate padding proportional to unchecked
-heading depth or schedule a new idle poller. Missing/stale structural evidence
-SHALL use coherent literal presentation until current observations are ready;
-stale margins and current text SHALL not be combined. Existing cache and work
-ceilings SHALL remain enforced, including under repeated toggles and resize.
+heading depth or schedule a new idle poller. A proven current carry under
+PC01–PC12 SHALL preserve admitted margins while exact evidence is pending.
+Otherwise missing/stale evidence SHALL use coherent literal presentation;
+unmapped old margins and current text SHALL never be combined. Existing cache
+and work ceilings SHALL remain enforced under editing, toggles and resize.
 
 Delivery SHALL verify native geometry, one representative real-terminal journey
 in each interaction profile and resource bounds. The Markdown Org guide SHALL
-show the two presentations and commands; its Spore build SHALL derive from
-that content. References and Unreleased SHALL describe only delivered behavior.
+show the two presentations and commands; its Spore build SHALL derive from that
+content. References and Unreleased SHALL describe only delivered behavior.
 
 #### Scenario: Deep outline in a small pane
 
@@ -185,6 +188,13 @@ that content. References and Unreleased SHALL describe only delivered behavior.
 - **WHEN** indentation, resize and navigation are exercised repeatedly
 - **THEN** layout remains finite, preserves source and permits forward progress
 - **AND** cache retention and per-pass work remain within existing bounds.
+
+#### Scenario: Preserve margins during admitted body typing
+
+- **GIVEN** indentation enabled and current carried presentation
+- **WHEN** body text changes without changing heading ownership
+- **THEN** unaffected structural margins do not collapse before exact analysis finishes
+- **AND** every displayed margin has a checked mapping to the current source.
 
 ## Scope and baseline reconciliation
 

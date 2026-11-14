@@ -16,6 +16,8 @@ Readiness: delivered through three canonical slices; controller full gate passed
 Plan: [Heading Presentation Delivery](../plan/rev-org-headings.md)
 Tracker: [Heading Presentation Tracker](../tracker/rev-org-headings.md)
 
+Continuity contract: [Org and Markdown Presentation Continuity](editor-presentation-continuity.md); separately approved delivery pending in [Presentation Continuity Tracker](../tracker/rev-presentation-continuity.md). Historical completion and receipts below do not cover this correction.
+
 ## Purpose
 
 Present Org heading stars as configurable level-specific bullets while keeping
@@ -263,19 +265,22 @@ font ligatures. Compatibility checks SHALL preserve original text and positions.
 Decoration SHALL reuse native Org recognition and visible projection, with
 revision/settings invalidation and bounded retained state. It SHALL not add
 an idle scan, whole-project redraw loop or another Org parser. Acceptance SHALL
-cover the reference markers, configuration, literal contexts, source fidelity,
+cover reference markers, configuration, literal contexts, source fidelity,
 Unicode/cell geometry, source/pretty switching and real terminal interaction.
-If native structural observation is incomplete, stale or unavailable, undecided
-prefixes SHALL remain readable source until current evidence is available.
-Turning syntax coloring off SHALL not disable heading recognition or make
-unverified star-like text eligible for decoration. Respect `org.enabled` and
-the existing Org observation, cancellation and work limits. Retain one bounded
-startup marker list and viewport-derived projection rather than another
-per-line or whole-document decoration store. Acceptance SHALL include both
+
+An exact observation or a current, proven display carry under PC01–PC12 SHALL
+admit heading presentation. Missing, incomplete, canceled or unmapped evidence
+SHALL leave undecided prefixes as readable source. The old observation alone
+SHALL not authorize structural actions. Disabling syntax coloring SHALL not
+disable independent heading recognition or admit unverified star-like text.
+Respect `org.enabled` and existing analysis, cancellation and work limits.
+
+Retain the bounded startup marker list and viewport-derived projection, with
+only the bounded carry facade over existing owner data. No second per-line or
+whole-document decoration store SHALL be added. Acceptance SHALL include both
 editing profiles, splits, reload, soft wrap, disabled coloring, literal contexts
-and read-only Org result buffers.
-Completed Org delivery records SHALL remain historical evidence; this contract
-SHALL NOT be presented as delivered heading decoration.
+and read-only Org result buffers. Completed Org delivery records SHALL remain
+historical evidence and SHALL not be relabeled as continuity acceptance.
 
 #### Scenario: Refresh after a local heading change
 
@@ -283,6 +288,13 @@ SHALL NOT be presented as delivered heading decoration.
 - **WHEN** one heading changes level
 - **THEN** current decoration updates through the admitted recognition/projection owners
 - **AND** source is not reparsed or scanned as an unrelated project-wide operation.
+
+#### Scenario: Retain a proven heading presentation while pending
+
+- **GIVEN** a complete outline and an admitted same-line body edit
+- **WHEN** exact analysis of the new revision is pending
+- **THEN** the bounded current facade retains unchanged heading presentation
+- **AND** structural commands still require current exact evidence.
 
 ## Acceptance fixtures and planning boundary
 

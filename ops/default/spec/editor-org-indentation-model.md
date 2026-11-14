@@ -7,6 +7,8 @@ Approved: product owner, 2026-11-05; paired specification approval and explicit 
 Specification: [Org Visual Indentation](editor-org-indentation.md)
 Existing owners: [Heading Presentation Model](editor-org-heading-presentation-model.md), [Soft Wrap Model](editor-soft-wrap-model.md), [Configuration Model](editor-configuration-model.md), [Org Mode Model](editor-org-mode-model.md)
 
+Continuity contract: [Org and Markdown Presentation Continuity](editor-presentation-continuity.md); separate delivery pending. Historical completed evidence does not test this correction.
+
 ## State ownership
 
 | Record | Owner and contract |
@@ -14,7 +16,7 @@ Existing owners: [Heading Presentation Model](editor-org-heading-presentation-mo
 | `org.indent` | Existing immutable startup snapshot; boolean, default `true`. Omitted values inherit; explicit values follow existing include/override provenance. Invalid types reject the whole candidate through existing handling. |
 | Runtime override | One `Option<bool>` equivalent per live buffer; `None` inherits startup. Toggle and explicit enable/disable record a value. It is not persisted or added to edit history. |
 | Effective policy | Existing buffer Org enablement and the startup/override value. A non-Org buffer does not project indentation. Disabling Org suspends this policy without deleting the override. |
-| Structural line observation | Native current buffer/revision and enclosing heading level, with literal-block ownership respected. Preamble level is zero. No second Org parser or independently maintained outline. |
+| Structural line observation | Existing native observation owner retains exact evidence or one complete display base with bounded transient carry under [PC01-PC12](editor-presentation-continuity.md). Base/current stamps, at most eight dirty rows and checked byte deltas preserve literal ownership and row identity. Preamble level is zero. No second Org parser or independently maintained outline. |
 | Projected fragment | Checked source span, structural margin, concealed prefix, continuation affinity and source/cell mapping at one text width. Virtual cells have no independent source scalar. |
 | Layout identity | Existing buffer/revision, width, tabs, folds and observations extended by effective indentation and view-local pretty/hiding policies. Level changes and presentation toggles retire affected derived observations. |
 
@@ -87,8 +89,13 @@ Do not construct an N-level padding string before clamping it to W. No extra
 idle deadline, worker, external process or dependency is required.
 
 Invalidate or reobserve on source revision, structural coverage, fold, geometry
-or effective-policy changes. Render literal rows coherently while structural
-evidence is pending. Undo, reload and mode suspension preserve runtime policy;
+or effective-policy changes. A current proven carry under
+[PC01-PC12](editor-presentation-continuity.md) preserves admitted margins while
+exact evidence is pending. Keep source stamps and geometry identity separate
+from exact/carried provenance; retire mappings on rejection or cancellation and
+render literal rows coherently whenever carry is unavailable. Admission uses
+at most 32 KiB of charged source inspection per publication; mapping retains
+at most eight rows without another document copy. Undo, reload and mode suspension preserve runtime policy;
 buffer close retires it. Reports must record actual native/resource/PTY evidence
 and distinguish it from the specification's required behavior.
 
