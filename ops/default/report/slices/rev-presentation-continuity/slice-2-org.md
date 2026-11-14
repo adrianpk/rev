@@ -1,6 +1,6 @@
 # Slice 2: Org presentation continuity
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-presentation-continuity
 Plan: `ops/default/plan/rev-presentation-continuity.md`
 Tracker: `ops/default/tracker/rev-presentation-continuity.md`
@@ -109,3 +109,12 @@ dedicated checkout.
 
 Shared lifecycle/resource acceptance remains Slice 4; terminal acceptance and
 user guidance remain Slice 5.
+
+## Integration
+
+Canonical PR [#42](https://forge.adrianpk.com/rev/rev/pulls/42) was verified merged
+into dev at `2845d1c9e69db465962e863bd10639127e80e5b0`, the exact published clean
+head that passed all four controller validation commands and canonical PR checks.
+The clean, inactive worktree was removed non-forcibly after generated-output
+classification. Its branch remains. Slice 3 is active; the delivery-set gate
+remains pending.

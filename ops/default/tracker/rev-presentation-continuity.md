@@ -7,7 +7,7 @@ Slice strategy: layered
 Approved: product owner, 2026-11-14; approved continuity specification and explicit clarification that approval continues the established plan, slicing and autonomous Looper workflow; this five-slice map is derived under that authority
 Plan: [Presentation Continuity Delivery](../plan/rev-presentation-continuity.md)
 Spec: [Org and Markdown Presentation Continuity](../spec/editor-presentation-continuity.md)
-Active slice: Slice 2 - Org presentation continuity
+Active slice: Slice 3 - Markdown presentation continuity
 Progress owner: native Looper checkpoint, canonical PR state and exact-candidate validation receipts
 
 ## Canonical slice map
@@ -36,7 +36,7 @@ Task commits: T1.1 `5fa1b0b4ba100070957a28623f2d20fdf30d6123`; T1.2 and T1.3 `a1
 
 ## Slice 2: Org presentation continuity
 
-State: reviewing - canonical PR #42 open; controller validation and integration pending
+State: delivered - PR #42 integration verified at `2845d1c9e69db465962e863bd10639127e80e5b0`
 Requirements: PC01-PC04, PC06-PC11; reconciled OGP08 and OIN05
 Branch: `fix/rev-presentation-continuity-02-org`
 PR: [#42](https://forge.adrianpk.com/rev/rev/pulls/42)
@@ -50,7 +50,7 @@ Task commits: T2.1, T2.2 and T2.3 `d6d38d3fffc5701d1514f75f9a1c7ff5a96780f0` (co
 
 ## Slice 3: Markdown presentation continuity
 
-State: pending
+State: ready
 Requirements: PC01-PC03, PC05-PC11; reconciled MD06
 Branch: `fix/rev-presentation-continuity-03-markdown`
 PR: pending
@@ -101,13 +101,14 @@ marking this set Completed. A slice count alone is not final acceptance.
 
 Slice 1 worktree removed non-forcibly after verified integration, clean/unlocked
 state, no live process references and classification of its ignored Cargo target
-and private hook cache as generated output. Its branch is preserved. Pre-existing
+and private hook cache as generated output. Slice 2 was removed under the same
+checks after PR #42 integration. Both branches are preserved. Pre-existing
 and unrelated worktrees remain untouched.
 
 ## Final closure
 
 Pending the integrated gate, delivered reports, all fifteen tasks closed,
 consistent Markdown artifacts and clean synchronized dev. Slice 1 supplies the
-internal mapping foundation for review. Format admission/display, shared lifecycle
-and terminal acceptance remain pending in Slices 2-5; no corrected-runtime
-acceptance, release or installation is claimed.
+internal mapping foundation; Slice 2 delivers Org admission/display. Markdown,
+shared lifecycle and terminal acceptance remain pending in Slices 3-5; no final
+delivery-set acceptance, release or installation is claimed.
