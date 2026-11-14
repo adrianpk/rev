@@ -5,7 +5,8 @@ Delivery set: rev-factory-shortcuts
 Plan: [Factory Shortcut Alignment Delivery](../../../plan/rev-factory-shortcuts.md)
 Tracker: [Factory Shortcut Alignment Tracker](../../../tracker/rev-factory-shortcuts.md)
 Branch: `feat/rev-factory-shortcuts-06-git`
-PR: pending
+PR: `#52` ([canonical PR](https://forge.adrianpk.com/rev/rev/pulls/52)); open for review
+Report introduction: [immutable Slice 6 report](https://forge.adrianpk.com/rev/rev/src/commit/465c097161a86c5919c49806d1b3fc1ab7e5f287/ops/default/report/slices/rev-factory-shortcuts/slice-6-git.md)
 
 ## Purpose
 

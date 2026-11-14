@@ -1,6 +1,6 @@
 # Factory Shortcut Alignment Tracker
 
-Status: Slice 6 Git review preparation
+Status: Slice 6 Git review
 Date: 2026-11-14
 Delivery set: rev-factory-shortcuts
 Slice strategy: layered
@@ -12,7 +12,7 @@ Spec: [Factory Shortcut Alignment](../spec/editor-factory-shortcut-alignment.md)
 Follow-through: [Emacs Interaction Parity](../spec/editor-emacs-interaction-parity.md)
 Active slice: Slice 6, Git defaults
 Progress: 5/7 slices delivered; 18/21 tasks completed
-Readiness: Slice 6 local checks passed; canonical PR preparation
+Readiness: Slice 6 PR #52 open; local checks passed; controller integration pending
 
 ## Canonical slice map
 
@@ -142,15 +142,15 @@ Completed local checks: `make lint`; `cargo test --locked --test commands factor
 
 ## Slice 6: Git defaults
 
-State: reviewing; implementation complete
+State: reviewing; PR #52 open
 Requirements: FSA02, FSA03, FSA05, FSA07-FSA09; accepted D02 manifest rows.
 Dependency: Slice 5 integrated; a meaningful Git increment and its exact menu/direct-action boundary accepted at mapping freeze.
 Branch: `feat/rev-factory-shortcuts-06-git`
 Expected PR title: `feat(git): align reviewed shortcut families`
-PR: pending
+PR: `#52` ([canonical PR](https://forge.adrianpk.com/rev/rev/pulls/52)); open for review
 Report: `ops/default/report/slices/rev-factory-shortcuts/slice-6-git.md`
-Task commits: T6.1 `3a1e010e9e61c4aa432824879472bdd446636256`; T6.2 `d0f8c3abd04b0300c0999a6d5f5955dbc7372293`; T6.3/report introduction pending this documentation commit.
-Validation: all four required local commands PASS; 34 shared factory-shortcut and 11 configuration keymap tests. Documentation validation PASS. Final clean-HEAD evidence follows canonical PR references.
+Task commits: T6.1 `3a1e010e9e61c4aa432824879472bdd446636256`; T6.2 `d0f8c3abd04b0300c0999a6d5f5955dbc7372293`; T6.3/report introduction `465c097161a86c5919c49806d1b3fc1ab7e5f287`; this record includes canonical PR references.
+Validation: all four required local commands PASS; 34 shared factory-shortcut and 11 configuration keymap tests. Documentation validation PASS. Final clean-HEAD evidence is recorded through controller validation after canonical PR references.
 
 - [x] T6.1: Apply accepted P14-P19 and precise History amendment: History A cherry-pick; remove History P/F/f; add History c a amend, c f fixup and + paging; add Refs f/P for direct fetch/push, retaining existing Refs aliases. Update History panel guidance with the changed routes. Keep menu-versus-direct-action behavior explicit, operation-specific review/confirmation intact, selection/range identities stable and displaced native actions reachable through the accepted routes.
 - [x] T6.2: Add owned local-repository factory-shortcut regressions for every changed Git family, including A/c a/c f/+ History routing and selected identities, Refs f/P aliases, removed P/F/f leaves, complete/cancelled prefixes, native review, explicit old overrides and absence of unintended mutation. Do not use credentials, external remotes or broad transport journeys to establish key routing.
