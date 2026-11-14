@@ -6,11 +6,11 @@ use std::time::{Duration, Instant};
 #[path = "org/guards.rs"]
 mod guards;
 
-fn profiles() -> [Snapshot; 2] {
+pub(super) fn profiles() -> [Snapshot; 2] {
     [settings(""), settings(profile(Some(ModalCommand::Normal)))]
 }
 
-fn org_editor(
+pub(super) fn org_editor(
     snapshot: &Snapshot,
     source: &str,
     point: usize,
@@ -27,7 +27,7 @@ fn org_editor(
     (fixture, session)
 }
 
-fn settle(session: &mut Session) {
+pub(super) fn settle(session: &mut Session) {
     let deadline = Instant::now() + Duration::from_secs(5);
     loop {
         session.frame().unwrap();
@@ -44,7 +44,7 @@ fn settle(session: &mut Session) {
     }
 }
 
-fn prompt(session: &mut Session, label: &str) -> bool {
+pub(super) fn prompt(session: &mut Session, label: &str) -> bool {
     session
         .frame()
         .unwrap()
@@ -53,7 +53,7 @@ fn prompt(session: &mut Session, label: &str) -> bool {
         .any(|row| row.text().contains(label))
 }
 
-fn named(session: &mut Session, command: &str) {
+pub(super) fn named(session: &mut Session, command: &str) {
     keys(session, "M-x");
     session.handle(Event::Paste(command.into()));
     keys(session, "RET");

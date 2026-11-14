@@ -47,6 +47,7 @@ fn custom_native_controls() {
     s.handle(key(KeyCode::Char('|')));
     settle(&mut s);
     assert_eq!(s.query_agenda().unwrap().rows.len(), 2);
+    s.handle(key(KeyCode::Char('v')));
     s.handle(key(KeyCode::Char('S')));
     argument(&mut s, "title-up");
     settle(&mut s);

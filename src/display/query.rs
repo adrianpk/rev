@@ -75,7 +75,7 @@ fn query_line(display: &QueryDisplay<'_>, index: usize) -> String {
 fn query_description(result: &QueryResult) -> String {
     match &result.view {
         Some(view) => format!(
-            "Blocks: {}; / filter; | reset; S sort; V columns; g refresh",
+            "Blocks: {}; / filter; | reset; v S sort; V columns; g refresh",
             view.blocks
                 .iter()
                 .enumerate()

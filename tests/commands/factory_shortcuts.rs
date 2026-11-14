@@ -9,6 +9,8 @@ use rev::view::{Size, View};
 
 use super::config_fixture::Fixture;
 
+#[path = "factory_shortcuts/agenda.rs"]
+mod agenda;
 #[path = "factory_shortcuts/editing.rs"]
 mod editing;
 #[path = "factory_shortcuts/org.rs"]

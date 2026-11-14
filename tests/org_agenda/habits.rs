@@ -31,6 +31,7 @@ fn habit_agenda_controls() {
     assert!(visible(&mut s, "Habit agenda 2024-03-01"), "{}", s.echo());
     assert!(visible(&mut s, "Due habit"));
     assert!(!visible(&mut s, "Future habit"));
+    s.handle(key(KeyCode::Char('v')));
     s.handle(key(KeyCode::Char('A')));
     assert!(visible(&mut s, "Future habit"));
     s.handle(key(KeyCode::Char('K')));
