@@ -12,7 +12,7 @@ Spec: [Factory Shortcut Alignment](../spec/editor-factory-shortcut-alignment.md)
 Follow-through: [Emacs Interaction Parity](../spec/editor-emacs-interaction-parity.md)
 Tracker: [Factory Shortcut Alignment Tracker](../tracker/rev-factory-shortcuts.md)
 Active slice: Slice 3, Editor defaults
-Readiness: Slice 3 runtime and focused checks passed; canonical PR handoff in progress
+Readiness: Slice 3 runtime and focused checks passed; PR #49 open for controller handoff
 Integration target: `dev`
 
 ## Outcome and strategy
