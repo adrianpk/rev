@@ -36,17 +36,17 @@ Task commits: T1.1 `5fa1b0b4ba100070957a28623f2d20fdf30d6123`; T1.2 and T1.3 `a1
 
 ## Slice 2: Org presentation continuity
 
-State: ready
+State: reviewing - implementation and local checks complete; canonical PR and exact clean-HEAD validation follow
 Requirements: PC01-PC04, PC06-PC11; reconciled OGP08 and OIN05
 Branch: `fix/rev-presentation-continuity-02-org`
 PR: pending
 Report: `ops/default/report/slices/rev-presentation-continuity/slice-2-org.md`
-Validation: the exact ordered Slice 2 checks in the plan and frozen local configuration
-Task commits: pending
+Validation: ordered Slice 2 checks passed locally (lint, seven geometry tests, 25 heading tests, 18 indentation tests and whitespace); focused buffer checks passed all 21 cases. Final published clean-HEAD evidence belongs to the controller validator.
+Task commits: T2.1, T2.2 and T2.3 `d6d38d3fffc5701d1514f75f9a1c7ff5a96780f0` (cohesive Org admission/display integration and native regressions).
 
-- [ ] T2.1: Reuse the Org owner's actual bounded classifier for before/after body admission and recognized-prefix title admission. Preserve ASCII-space recognition and literal ownership; reject boundary/definition changes and unknown cases, with full-analysis comparison and mandatory positive carries.
-- [ ] T2.2: Integrate the current facade with Org indentation, concealment, marker rendering and palette-derived structural heading faces. Keep exact structural APIs unchanged, current source/hit mappings coherent and geometry identity stable through a proven carry and equal exact replacement.
-- [ ] T2.3: Extend Org heading/indentation fixtures with all four policy combinations and intermediate-frame continuity assertions, title/body changes, disabled colors, cancellation, stale-hit retirement, Unicode and source fidelity. Preserve existing lifecycle-test intent and add one concise release-worthy changelog outcome when the Org correction is usable.
+- [x] T2.1: Reuse the Org owner's actual bounded classifier for before/after body admission and recognized-prefix title admission. Preserve ASCII-space recognition and literal ownership; reject boundary/definition changes and unknown cases, with full-analysis comparison and mandatory positive carries.
+- [x] T2.2: Integrate the current facade with Org indentation, concealment, marker rendering and palette-derived structural heading faces. Keep exact structural APIs unchanged, current source/hit mappings coherent and geometry identity stable through a proven carry and equal exact replacement.
+- [x] T2.3: Extend Org heading/indentation fixtures with all four policy combinations and intermediate-frame continuity assertions, title/body changes, disabled colors, cancellation, stale-hit retirement, Unicode and source fidelity. Preserve existing lifecycle-test intent and add one concise release-worthy changelog outcome when the Org correction is usable.
 
 ## Slice 3: Markdown presentation continuity
 
