@@ -12,7 +12,7 @@ Spec: [Factory Shortcut Alignment](../spec/editor-factory-shortcut-alignment.md)
 Follow-through: [Emacs Interaction Parity](../spec/editor-emacs-interaction-parity.md)
 Tracker: [Factory Shortcut Alignment Tracker](../tracker/rev-factory-shortcuts.md)
 Active slice: Slice 2, Mode mapping contract
-Readiness: exact amended mapping accepted; Slice 2 validation and PR preparation active; runtime starts after predecessor integration
+Readiness: exact amended mapping accepted; Slice 2 canonical PR under review; runtime starts after predecessor integration
 Integration target: `dev`
 
 ## Outcome and strategy

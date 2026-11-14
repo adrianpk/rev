@@ -12,7 +12,7 @@ Spec: [Factory Shortcut Alignment](../spec/editor-factory-shortcut-alignment.md)
 Follow-through: [Emacs Interaction Parity](../spec/editor-emacs-interaction-parity.md)
 Active slice: Slice 2, Mode mapping contract
 Progress: 1/7 slices delivered; 6/21 tasks completed
-Readiness: exact amended mapping accepted; current runtime slices authorized after Slice 2 integration; checks and PR pending
+Readiness: exact amended mapping accepted; canonical Slice 2 PR #48 under review; current runtime starts after predecessor integration
 
 ## Canonical slice map
 
@@ -69,22 +69,22 @@ Requirements: FSA01, FSA02, FSA05, FSA06, FSA07, FSA09; D01-D03.
 Dependency: Slice 1 integrated; mode reference sources and native fixtures available.
 Branch: `docs/rev-factory-shortcuts-02-mode-contract`
 Expected PR title: `docs(input): specify contextual shortcut mappings`
-PR: pending
+PR: `#48` ([canonical PR](https://forge.adrianpk.com/rev/rev/pulls/48))
 Report: `ops/default/report/slices/rev-factory-shortcuts/slice-2-mode-contract.md`
-Task commits: T2.1 and complete T2.2/T2.3 proposal introduced at `da5056f6e6feebc52d9114f88036097ea8e132a7`; decision acceptance and PR-reference commits pending.
+Task commits: T2.1/report introduction `da5056f6e6feebc52d9114f88036097ea8e132a7`; accepted T2.2/T2.3 reconciliation and functional preparation `2fbc7ca375b666f7c4670bdef64d68f5b130af46`; this record includes canonical PR references.
 Validation: focused native/reference comparison, 98 normalized checks and 21 active language/profile sessions PASS; proposal structural checks PASS. Configured clean-HEAD validation follows the PR-reference commit; no delivery gate ran.
 
 - [x] T2.1: Complete semantic review of Org headings/lists/tables/source blocks, Agenda/capture/calendar/source editing, Markdown plain/list/table dispatch and every native Git panel/menu. Compare active contexts and effects, including source targets behind projections; finish all pending matrix rows and evidence-backed named-only or adaptation dispositions.
 - [x] T2.2: Present and settle D01 Agenda placements and D02 Git family decisions, including P06-P08 and displaced command access. Produce the exact before/after mapping contract, preserve explicit tree/Markdown conventions and identify each selected supersession of legacy tables. Keep unresolved product choices visible and obtain their acceptance before closing the mapping freeze.
 - [x] T2.3: Reconcile the specification, mapping contract, remaining slice tasks, coverage/check selection and expected cost. Remove an empty provisional Git slice if appropriate through a reviewed map revision. Record the accepted precise amendment, slice report and source-verified core-first functional parity specification with subsequent slicing preparation; keep current runtime defaults unchanged. Runtime slices require committed accepted artifacts and predecessor integration.
 
-Completed focused checks: catalog/context coverage, normalized sequence/prefix checks for both profiles, native/reference effects, baseline/document consistency and `git diff --check`. Required final clean-HEAD validation remains pending; focused probes are not terminal or full behavioral acceptance.
+Completed focused checks: catalog/context coverage, normalized sequence/prefix checks for both profiles, native/reference effects, baseline/document consistency and `git diff --check`. The controller receipt records final clean-HEAD validation after the PR-reference commit; focused probes are not terminal or full behavioral acceptance.
 
 T2.2 records accepted D01/D02 plus the precise c a/c f/+ amendment. T2.3
 reconciles the 29-record/49-edit manifest, specification, runtime tasks, unchanged
 identities/gates and cost estimate, and prepares the requested source-verified
 functional parity requirements and subsequent slicing. Runtime behavior remains
-unchanged. PR references and final clean-HEAD evidence complete Slice 2 handoff.
+unchanged. Canonical PR #48 and its immutable report link are recorded; the final controller receipt owns exact clean-HEAD handoff evidence.
 
 ## Slice 3: Editor defaults
 
