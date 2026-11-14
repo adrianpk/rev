@@ -116,7 +116,17 @@ fn insert(editor: &mut Session, case: Case, pattern: Pattern, key: usize) -> Res
     if key > 0 && matches!(pattern, Pattern::TwoRows) {
         place(editor, pattern.row(key));
     }
+    let before = {
+        let buffer = editor.buffer()?;
+        (buffer.stamp(), buffer.len_bytes())
+    };
     editor.insert('z');
+    let buffer = editor.buffer()?;
+    assert_eq!(
+        buffer.stamp().revision,
+        before.0.revision.checked_add(1).unwrap()
+    );
+    assert_eq!(buffer.len_bytes(), before.1.checked_add(1).unwrap());
     if key == 0 {
         editor.frame()?;
         assert_eq!(
