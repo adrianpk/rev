@@ -233,19 +233,16 @@ pub(super) const EDITOR: &[(&str, &str)] = &[
 
 pub(super) const GIT_HISTORY: &[(&str, &str)] = &[
     ("!", "git-run-command"),
-    ("P", "git-cherry-pick"),
     ("V", "git-revert"),
     ("C-x g", "git-status"),
     ("q", "git-quit"),
     ("g", "git-refresh"),
     ("TAB", "git-show"),
     ("RET", "git-show-range"),
-    ("f", "git-log-next-page"),
     ("*", "git-mark"),
     ("a", "git-sequence-mark"),
     ("U", "git-sequence-unmark"),
-    ("A", "git-commit-amend"),
-    ("F", "git-commit-fixup"),
+    ("A", "git-cherry-pick"),
     ("$", "git-processes"),
     ("M-x", "execute-extended-command"),
     (":", "execute-extended-command"),
@@ -261,6 +258,9 @@ pub(super) const GIT_HISTORY: &[(&str, &str)] = &[
     ("PageDown", "scroll-up-command"),
     ("M-<", "beginning-of-buffer"),
     ("M->", "end-of-buffer"),
+    ("c a", "git-commit-amend"),
+    ("c f", "git-commit-fixup"),
+    ("+", "git-log-next-page"),
 ];
 
 const GIT_REFS: &[(&str, &str)] = &[
@@ -313,6 +313,8 @@ const GIT_REFS: &[(&str, &str)] = &[
     ("PageDown", "scroll-up-command"),
     ("M-<", "beginning-of-buffer"),
     ("M->", "end-of-buffer"),
+    ("f", "git-fetch"),
+    ("P", "git-push"),
 ];
 
 const GIT_INSPECT: &[(&str, &str)] = &[

@@ -142,7 +142,7 @@ impl Work {
     fn detail_title(&self) -> &'static str {
         match self.page {
             Page::History => {
-                " Git History  Tab revision  * base  Return range  a/U ordered marks  f next page  q Status"
+                " Git History  A cherry-pick  c a amend  c f fixup  + page  Tab revision  * base  Return range  a/U marks  q Status"
             }
             Page::Revision => {
                 " Git Revision  Return parent/file  v parent review  g refresh  q return"

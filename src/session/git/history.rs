@@ -76,7 +76,7 @@ impl Work {
                 if history.page_limit {
                     "PAGE LIMIT reached"
                 } else if history.more {
-                    "more ancestry: f"
+                    "more ancestry: +"
                 } else {
                     "complete ancestry"
                 }
