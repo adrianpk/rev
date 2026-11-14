@@ -1,6 +1,6 @@
 # Slice 4: Shared lifecycle and resource acceptance
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-presentation-continuity
 Plan: `ops/default/plan/rev-presentation-continuity.md`
 Tracker: `ops/default/tracker/rev-presentation-continuity.md`
@@ -111,3 +111,12 @@ replacement analysis, and also exercises real owned cancellation/retry and poll
 publication. It does not claim sustained real-terminal input timing or graphical
 acceptance. Slice 5 owns the PTY matrix, larger-file input observations and guide
 updates. The controller owns integration and the exact delivery-set gate.
+
+## Integration
+
+Canonical PR [#44](https://forge.adrianpk.com/rev/rev/pulls/44) is merged into
+`dev` at `aa0e74fa4d43798f79056ecfcb567eebce5a43f6`, verified against the forge
+and synchronized primary checkout. The owned worktree was clean, unlocked and
+inactive, with only generated Cargo output ignored; it was removed through
+non-forced Git worktree removal. Its branch is preserved. Terminal acceptance
+and guidance continue in Slice 5; final delivery acceptance stays pending.
