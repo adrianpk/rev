@@ -166,3 +166,51 @@ fn no_color_source() {
     assert!(output.contains("\x1b[4m"));
     assert!(!output.contains("38;2;") && !output.contains("48;2;"));
 }
+
+// A carried heading keeps its semantic face, while native selection foreground
+// wins on current Unicode source cells after the same-line publication.
+#[test]
+fn continuity_selection_face() {
+    use rev::buffer::edit::Replacement;
+    let (mut buffers, id) = prepared("* Heading 界\nordinary body\n");
+    let buffer = buffers.get_mut(id).unwrap();
+    let edit = Replacement {
+        source: buffer.span(5..5).unwrap(),
+        text: "界".into(),
+    };
+    let prepared = buffer.prepare(&[edit], &[], None).unwrap();
+    buffer.publish(prepared, &mut []).unwrap();
+    buffer
+        .activate_mark(Point {
+            stamp: buffer.stamp(),
+            position: Scalar(2),
+        })
+        .unwrap();
+    let mut view = View::new(buffer);
+    view.bookmark_markers = false;
+    view.point.position = Scalar(7);
+    let frame = Frame::project(
+        buffer,
+        &view,
+        Size {
+            width: 40,
+            height: 6,
+        },
+        "",
+    )
+    .unwrap();
+    assert!(frame.rows()[0].text().contains('◉'));
+    let selected = frame.rows()[0].selection().unwrap();
+    let cells = surface::draw(&frame);
+    let palette = rev::config::Palette::default();
+    let painted: Vec<_> = cells
+        .range((0, usize::from(selected.start))..(0, usize::from(selected.end)))
+        .collect();
+    assert!(painted.len() >= 2);
+    for (_, cell) in painted {
+        assert_eq!(cell.foreground, Some(palette.selection_text));
+        assert_eq!(cell.background, Some(palette.selection));
+    }
+    assert_eq!(cells[&(0, 6)].foreground, Some(palette.org.heading));
+    assert_eq!(buffer.history().len(), 1);
+}

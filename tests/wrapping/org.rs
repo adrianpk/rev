@@ -249,3 +249,46 @@ fn override_lifetime() {
         assert_eq!(std::fs::read_to_string(config).unwrap(), config_text);
     }
 }
+
+// Carried indentation participates in ordinary narrow reflow at every width.
+// Continuations cover current Unicode source once, with no display-only scalars.
+#[test]
+fn continuity_reflow() {
+    let source = "** Heading\nordinary words with 界e\u{301} and more words\n";
+    let (_fixture, mut session) = editor(source, 30, 16);
+    settle(&mut session);
+    let at = source.find("words").unwrap();
+    session.replace(at..at, "界").unwrap();
+    let buffer = session.buffer().unwrap();
+    let frame = rev::display::Frame::project(
+        buffer,
+        session.view(),
+        rev::display::Size {
+            width: 30,
+            height: 16,
+        },
+        "",
+    )
+    .unwrap();
+    assert!(frame.rows()[0].text().contains('○'));
+    let mut view = session.view().clone();
+    view.bookmark_markers = false;
+    view.gutter.apply(rev::gutter::Change::Visible(false));
+    for width in [1, 2, 6, 12, 30] {
+        let fragments = view.wrapped_rows(buffer, width, 200).unwrap();
+        let mut last = rev::coordinates::Scalar(0);
+        for fragment in fragments {
+            assert_eq!(fragment.stamp, buffer.stamp());
+            assert!(fragment.source.start >= last);
+            assert!(fragment.margin <= width.saturating_sub(2));
+            assert_eq!(
+                unicode_width::UnicodeWidthStr::width(fragment.text.as_str()),
+                usize::from(width)
+            );
+            last = fragment.source.end;
+        }
+        assert_eq!(last.0, buffer.len_chars());
+    }
+    assert_eq!(text(&session), source.replacen("words", "界words", 1));
+    assert_eq!(buffer.history().len(), 1);
+}

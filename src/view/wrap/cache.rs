@@ -273,6 +273,110 @@ mod tests {
     use crate::buffer::Buffers;
     use crate::view::View;
 
+    // Both format owners preserve unaffected prefix entries when a carry is
+    // replaced by equal exact evidence. Structural edits still retire old hits.
+    #[test]
+    fn continuity_replacement() {
+        use crate::buffer::{Mode, edit::Replacement};
+        for mode in [Mode::Org, Mode::Markdown] {
+            let mut buffers = Buffers::new().unwrap();
+            let marker = if mode == Mode::Org { "**" } else { "##" };
+            let source = format!("{marker} Root\nprefix body\n\n{marker} Child\nchild body\n");
+            let id = buffers.create(&source).unwrap();
+            let buffer = buffers.get_mut(id).unwrap();
+            buffer.select_mode(mode).unwrap();
+            complete(buffer);
+            let mut view = View::new(buffer);
+            let old = view.wrapped_rows(buffer, 30, 20).unwrap()[0].clone();
+            let at = source.find("child body").unwrap() + 5;
+            let replacement = Replacement {
+                source: buffer.span(at..at).unwrap(),
+                text: "界".into(),
+            };
+            let mut points = [view.point];
+            let prepared = buffer.prepare(&[replacement], &points, None).unwrap();
+            buffer.publish(prepared, &mut points).unwrap();
+            view.point = points[0];
+            assert!(old.hit(buffer, 30, 0).is_err());
+            let prefix = view.wrap_cache.retained(buffer, 30);
+            assert!(prefix.0 > 0, "{mode:?}");
+            let carried = view.wrapped_rows(buffer, 30, 20).unwrap();
+            let populated = view.wrap_cache.retained(buffer, 30);
+            complete(buffer);
+            assert_eq!(view.wrap_cache.retained(buffer, 30), populated, "{mode:?}");
+            assert_eq!(view.wrapped_rows(buffer, 30, 20).unwrap(), carried);
+            let replacement = Replacement {
+                source: buffer.span(0..1).unwrap(),
+                text: String::new(),
+            };
+            let prepared = buffer.prepare(&[replacement], &points, None).unwrap();
+            buffer.publish(prepared, &mut points).unwrap();
+            view.point = points[0];
+            assert!(carried[0].hit(buffer, 30, 0).is_err());
+            complete(buffer);
+            assert_eq!(view.wrap_cache.retained(buffer, 30).0, 0);
+            let changed = view.wrapped_rows(buffer, 30, 20).unwrap();
+            assert_ne!(changed[0].text, carried[0].text);
+            println!(
+                "Cache continuity {mode:?}: unchanged_prefix={}, equal_exact_retained={}",
+                prefix.0, populated.0
+            );
+        }
+    }
+
+    fn complete(buffer: &mut crate::buffer::Buffer) {
+        if buffer.is_org() {
+            let coloring = crate::org::ColorScan::new(buffer, crate::org::Limits::default())
+                .unwrap()
+                .run(&crate::org::Cancellation::default());
+            buffer.install_org_coloring(coloring).unwrap();
+        } else {
+            buffer.request_markdown();
+            let work = buffer.markdown_work().unwrap();
+            buffer.install_markdown(work.run(&crate::process::Cancellation::default()).unwrap());
+        }
+    }
+
+    // A live carried outline exercises both actual eviction paths. Repeated
+    // edits/reflows keep fixed cache caps and account for virtual padding bytes.
+    #[test]
+    fn continuity_retention() {
+        use crate::buffer::{Mode, edit::Replacement};
+        let mut buffers = Buffers::new().unwrap();
+        let source = format!("** H\n{}", "ordinary body\n".repeat(9000));
+        let id = buffers.create(&source).unwrap();
+        let buffer = buffers.get_mut(id).unwrap();
+        buffer.select_mode(Mode::Org).unwrap();
+        complete(buffer);
+        let mut view = View::new(buffer);
+        let mut peaks = (0, 0);
+        for step in 0..4 {
+            let at = source.find("ordinary").unwrap() + 4 + step;
+            let replacement = Replacement {
+                source: buffer.span(at..at).unwrap(),
+                text: "x".into(),
+            };
+            let mut points = [view.point];
+            let prepared = buffer.prepare(&[replacement], &points, None).unwrap();
+            buffer.publish(prepared, &mut points).unwrap();
+            view.point = points[0];
+            assert!(buffer.org_outline().is_none());
+            assert_eq!(buffer.org_heading_level(0), Some(2));
+            for width in [1, 512] {
+                view.wrapped_rows(buffer, width, 14000).unwrap();
+                let retained = view.wrap_cache.retained(buffer, width);
+                assert!(retained.0 <= LIMIT && retained.1 <= TEXT_BYTES);
+                peaks.0 = peaks.0.max(retained.0);
+                peaks.1 = peaks.1.max(retained.1);
+            }
+        }
+        assert_eq!(peaks, (LIMIT, TEXT_BYTES));
+        println!(
+            "Carried cache: edits=4, widths=1/512, peak_fragments={}, peak_text_bytes={}",
+            peaks.0, peaks.1
+        );
+    }
+
     // Eviction above the cap loses no source and a later revisit recomputes it.
     // A new split owns independent observations; candidate snapshots retain the
     // same semantic view even when shared derived entries change.

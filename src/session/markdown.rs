@@ -1,3 +1,5 @@
+#[cfg(test)]
+mod continuity;
 pub(super) mod tables;
 
 use std::time::{Duration, Instant};

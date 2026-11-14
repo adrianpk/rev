@@ -237,3 +237,46 @@ fn continuity_source() {
     assert_eq!(text(buffer), source);
     assert!(!frame(buffer, &view).rows()[2].text().contains('○'));
 }
+
+// A delimiter outside either viewport edge can affect a visible cross-row
+// capture. Carry drops the whole uncertain lexical context, including that row.
+#[test]
+fn continuity_viewport_context() {
+    let source = "** Root\nordinary *open\ncontinued* tail\n*** Deep\nbody\n";
+    for (top, needle) in [(2, "*open"), (1, "* tail")] {
+        let (_f, mut buffers, mut view) = setup_source("org.indent=true", source);
+        view.top = top;
+        let buffer = buffers.get_mut(view.point.stamp.buffer).unwrap();
+        let size = Size {
+            width: 40,
+            height: 3,
+        };
+        let before = Frame::project(buffer, &view, size, "").unwrap();
+        assert!(
+            before.rows()[0]
+                .syntax()
+                .iter()
+                .any(|paint| paint.style == Style::Org(rev::org::Role::Emphasis))
+        );
+        let at = source.find(needle).unwrap();
+        let edit = rev::buffer::edit::Replacement {
+            source: buffer.span(at..at + 1).unwrap(),
+            text: String::new(),
+        };
+        let mut points = [view.point];
+        let prepared = buffer.prepare(&[edit], &points, None).unwrap();
+        buffer.publish(prepared, &mut points).unwrap();
+        view.point = points[0];
+        let current = Frame::project(buffer, &view, size, "").unwrap();
+        assert!(current.rows()[0].syntax().is_empty());
+        let mut full = view.clone();
+        full.top = 0;
+        assert!(frame(buffer, &full).rows()[3].text().contains('✸'));
+        observe(buffer, Limits::default());
+        assert!(
+            Frame::project(buffer, &view, size, "").unwrap().rows()[0]
+                .syntax()
+                .is_empty()
+        );
+    }
+}

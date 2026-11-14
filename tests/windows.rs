@@ -1,5 +1,8 @@
 #![forbid(unsafe_code)]
 
+#[path = "windows/continuity.rs"]
+mod continuity;
+
 #[path = "configuration/fixture.rs"]
 mod config_fixture;
 #[path = "windows/policy.rs"]

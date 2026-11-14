@@ -504,3 +504,46 @@ fn gutter_and_bookmark_identity() {
         Scalar(5)
     );
 }
+
+// Source publication clears an existing fold even when display geometry carries.
+// A new fold request waits for exact native authority and never uses old spans.
+#[test]
+fn continuity_fold_authority() {
+    let source = "** H\nordinary body\n* Peer\nother\n";
+    let (_fixture, mut session) = editor("", source, 60, 14);
+    session.execute(Command::Org(OrgCommand::HideSubtree));
+    settle(&mut session);
+    assert!(
+        session.view().visible_lines(session.buffer().unwrap())
+            < session.buffer().unwrap().len_lines()
+    );
+    let at = source.find("body").unwrap();
+    session.replace(at..at, "界").unwrap();
+    assert_eq!(
+        session.view().visible_lines(session.buffer().unwrap()),
+        session.buffer().unwrap().len_lines()
+    );
+    let frame = Frame::project(
+        session.buffer().unwrap(),
+        session.view(),
+        Size {
+            width: 60,
+            height: 14,
+        },
+        "",
+    )
+    .unwrap();
+    assert!(frame.rows()[0].text().contains('○'));
+    session.execute(Command::Org(OrgCommand::HideSubtree));
+    assert_eq!(
+        session.view().visible_lines(session.buffer().unwrap()),
+        session.buffer().unwrap().len_lines()
+    );
+    settle(&mut session);
+    assert!(
+        session.view().visible_lines(session.buffer().unwrap())
+            < session.buffer().unwrap().len_lines()
+    );
+    assert_eq!(self::source(&session), source.replacen("body", "界body", 1));
+    assert_eq!(session.buffer().unwrap().history().len(), 1);
+}

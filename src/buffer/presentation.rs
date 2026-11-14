@@ -3,6 +3,8 @@
 
 mod inspection;
 #[cfg(test)]
+mod lifecycle_tests;
+#[cfg(test)]
 mod markdown_tests;
 #[cfg(test)]
 mod org_tests;

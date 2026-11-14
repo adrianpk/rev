@@ -1,5 +1,8 @@
 #![forbid(unsafe_code)]
 
+#[path = "pointer/continuity.rs"]
+mod continuity;
+
 use crossterm::event::{Event, KeyModifiers, MouseButton, MouseEvent, MouseEventKind};
 use rev::input::{Input, Outcome};
 use rev::pointer::{Event as PointerEvent, Kind};

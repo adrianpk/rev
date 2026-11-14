@@ -236,3 +236,41 @@ fn continuity_refusals() {
         assert_eq!(session.buffer().unwrap().history().len(), 1, "{name}");
     }
 }
+
+// An offscreen opening/closing delimiter invalidates visible cross-line inline
+// paint as a whole, while unrelated structural headings remain carried.
+#[test]
+fn continuity_viewport_context() {
+    let source = "## Root\nordinary *open\ncontinued* tail\n\n### Deep\nbody\n";
+    for (top, needle) in [(2, "*open"), (1, "* tail")] {
+        let (_fixture, mut session) = editor("", "notes.md", source);
+        settle(&mut session);
+        let mut view = session.view().clone();
+        view.top = top;
+        let size = Size {
+            width: 40,
+            height: 3,
+        };
+        let before = Frame::project(session.buffer().unwrap(), &view, size, "").unwrap();
+        assert!(
+            before.rows()[0]
+                .syntax()
+                .iter()
+                .any(|paint| paint.style == Style::Markdown(MarkdownRole::Emphasis))
+        );
+        let at = source.find(needle).unwrap();
+        session.replace(at..at + 1, "").unwrap();
+        view.point.stamp = session.buffer().unwrap().stamp();
+        let current = Frame::project(session.buffer().unwrap(), &view, size, "").unwrap();
+        assert!(current.rows()[0].syntax().is_empty());
+        assert!(pending(&session).rows()[4].text().contains('✸'));
+        settle(&mut session);
+        assert!(
+            Frame::project(session.buffer().unwrap(), &view, size, "")
+                .unwrap()
+                .rows()[0]
+                .syntax()
+                .is_empty()
+        );
+    }
+}

@@ -159,3 +159,26 @@ fn continuity_cancel() {
     settle(&mut session);
     assert!(body(&session.frame().unwrap(), 0).starts_with("○ zHeading"));
 }
+
+// A current carry can be canceled while the real observation slot is owned.
+// Re-enablement before reaping queues a retry through that same slot.
+#[test]
+fn continuity_owned_retry() {
+    let (_fixture, mut session) = editor("syntax.enabled=false", "** Heading\nbody\n");
+    settle(&mut session);
+    for _ in 0..3 {
+        session.execute(Command::Motion(Motion::ForwardChar));
+    }
+    session.insert('z');
+    session.frame().unwrap();
+    assert!(session.remaining_input(Instant::now()).is_some());
+    session.execute(Command::KeyboardQuit);
+    let frame = Frame::project(session.buffer().unwrap(), session.view(), SIZE, "").unwrap();
+    assert!(!frame.rows()[0].text().contains('○'));
+    toggle(&mut session);
+    toggle(&mut session);
+    settle(&mut session);
+    assert!(body(&session.frame().unwrap(), 0).starts_with("○ zHeading"));
+    assert_eq!(session.buffer().unwrap().history().len(), 1);
+    assert_eq!(session.remaining_input(Instant::now()), None);
+}
