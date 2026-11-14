@@ -228,11 +228,12 @@ and context-local actions. Aliases share their canonical action's description.
 User-defined AI commands can omit description metadata; that field stays blank
 without a placeholder. Their saved instructions never become selector text.
 
-The visible candidate block determines shared column starts. Descriptions clip
-at complete terminal cells and disappear when their column cannot fit. Narrow
-rows can retain a complete shortcut immediately after their name; if name, gap
-and bracketed shortcut cannot fit, the hint disappears as a whole. Growing the
-terminal restores annotations when they fit. Selection covers the entire row;
+Column widths come from the complete command catalog and effective shortcuts
+when the selector opens, including registered commands. Filtering and scrolling
+keep the same column starts. Descriptions use the remaining width. A narrow
+panel compresses the fields and clips names, shortcuts and descriptions at
+terminal-cell boundaries. Resizing restores complete text when it fits.
+Selection covers the entire row;
 unselected command names use the function accent, `palette.syntax.function`,
 while shortcuts and descriptions use `palette.status_text` on the normal
 background. The selected row keeps `palette.selection_text` and `palette.selection`

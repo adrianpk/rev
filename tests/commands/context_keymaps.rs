@@ -357,6 +357,7 @@ fn context_hints() {
     let (_fixture, mut session) = tree_editor(
         "[keys.editor]\n'M-j'='newline'\n[keys.tree]\n'M-j'='tree-refresh'\n'M-a'='newline'\n'M-b'='forward-char'",
     );
+    session.handle(Event::Resize(160, 24));
     session.execute(Command::ExecuteExtended);
     session.handle(Event::Paste("newline".into()));
     assert!(
@@ -490,6 +491,7 @@ fn horizontal_hint(profile: &str, remapped: bool) {
     let (_fixture, mut session) = tree_editor(&format!(
         "editor.interaction_profile='{profile}'\n{mapping}"
     ));
+    session.handle(Event::Resize(160, 24));
     let stamp = session.buffer().unwrap().stamp();
     let selected = session.tree().selected().unwrap().path().to_owned();
     session.handle(meta('x'));

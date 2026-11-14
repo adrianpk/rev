@@ -81,8 +81,8 @@ fn ranked_resize() {
     assert_eq!(editor.buffer().unwrap().stamp(), stamp);
 }
 
-// Complete Unicode shortcuts appear only after a full name and two cells;
-// shrinking and restoring the frame never edits the query or clips a hint.
+// Resizing clips fields independently at terminal-cell boundaries. Restoring
+// space recovers complete annotations without changing the query or identity.
 #[test]
 fn hint_geometry() {
     use rev::buffer::Buffers;
@@ -108,21 +108,21 @@ fn hint_geometry() {
     editor.execute(Command::ExecuteExtended);
     editor.handle(Event::Paste("save-buffer".into()));
     let stamp = editor.buffer().unwrap().stamp();
-    for (case, width, visible) in [
-        ("wide", 80, true),
-        ("exact", 19, true),
-        ("one short", 18, false),
-        ("name only", 11, false),
-        ("clipped", 8, false),
-        ("zero", 0, false),
-        ("restored", 80, true),
+    for (case, width) in [
+        ("wide", 80),
+        ("compressed", 19),
+        ("narrower", 18),
+        ("small", 11),
+        ("clipped", 8),
+        ("zero", 0),
+        ("restored", 80),
     ] {
         editor.handle(Event::Resize(width, 24));
         let frame = editor.frame().unwrap();
         for row in frame.rows() {
             assert_eq!(row.text().width(), usize::from(width), "{case}");
         }
-        check_completion_hint(&frame, case, width, visible);
+        check_completion_hint(&frame, case, width);
         assert_eq!(editor.buffer().unwrap().stamp(), stamp, "{case}");
     }
     key(&mut editor, KeyCode::Tab);
@@ -148,41 +148,101 @@ fn hint_geometry() {
     assert_eq!(names(&mut editor)[0], "save-buffer");
 }
 
-fn check_completion_hint(frame: &rev::display::Frame, case: &str, width: u16, visible: bool) {
-    if width >= 8 {
-        let row = frame
+fn check_completion_hint(frame: &rev::display::Frame, case: &str, width: u16) {
+    if width < 8 {
+        return;
+    }
+    let row = frame
+        .rows()
+        .iter()
+        .find(|row| row.band() == Band::Completion)
+        .unwrap();
+    if width == 80 {
+        assert!(row.text().starts_with("save-buffer  "), "{case}");
+        assert!(row.text().contains("[M-界]"), "{case}: {:?}", row.text());
+        assert!(row.text().contains("Save to"), "{case}");
+    } else {
+        assert!(!row.text().contains("save-buffer"), "{case}");
+    }
+}
+
+// Filtering and scrolling reuse the complete catalog's column geometry. A
+// shortened candidate set cannot pull shortcuts or descriptions to the left.
+#[test]
+fn stable_columns() {
+    let fixture = super::config_fixture::Fixture::new();
+    let config = format!(
+        "minibuffer.candidate_limit=2\n[keys.editor]\n'M-j a b c d e f g'='mouse-mode'\n[ai.commands.{}]\nprompt='Review text.'\ninput='buffer'\ncontext='input'\noutput='explanation'",
+        "r".repeat(64)
+    );
+    let startup = rev::config::prepare(&fixture.write("config.toml", &config));
+    assert!(startup.diagnostic.is_none(), "{:?}", startup.diagnostic);
+    let buffers = rev::buffer::Buffers::with_settings(startup.snapshot).unwrap();
+    let view = rev::view::View::new(buffers.get(buffers.initial()).unwrap());
+    let mut editor = Session::new(
+        buffers,
+        view,
+        Size {
+            width: 160,
+            height: 24,
+        },
+    )
+    .unwrap();
+    editor.execute(Command::ExecuteExtended);
+    editor.handle(Event::Paste("save".into()));
+    let expected = annotation_columns(&editor.frame().unwrap());
+    assert_eq!(
+        expected.0, 69,
+        "registered names contribute their full width"
+    );
+    for _ in 0..2 {
+        key(&mut editor, KeyCode::Down);
+    }
+    assert_eq!(annotation_columns(&editor.frame().unwrap()), expected);
+    let mut previous = "save";
+    for query in ["save-buffer", "balance-windows", "save"] {
+        replace_query(&mut editor, previous, query);
+        assert_eq!(annotation_columns(&editor.frame().unwrap()), expected);
+        previous = query;
+    }
+    editor.handle(Event::Resize(80, 24));
+    let resized = annotation_columns(&editor.frame().unwrap());
+    replace_query(&mut editor, previous, "balance-windows");
+    assert_eq!(annotation_columns(&editor.frame().unwrap()), resized);
+}
+
+fn replace_query(editor: &mut Session, previous: &str, query: &str) {
+    for _ in previous.chars() {
+        key(editor, KeyCode::Backspace);
+    }
+    editor.handle(Event::Paste(query.into()));
+}
+
+#[track_caller]
+fn annotation_columns(frame: &rev::display::Frame) -> (usize, usize) {
+    let positions: std::collections::BTreeSet<_> = frame
+        .rows()
+        .iter()
+        .filter(|row| row.band() == Band::Completion)
+        .filter_map(|row| {
+            let start = row.text().find('[')?;
+            let end = row.text().find(']')? + 1;
+            let description = row.text()[end..].trim_start();
+            (!description.is_empty()).then(|| (start, row.text().find(description).unwrap()))
+        })
+        .collect();
+    assert_eq!(
+        positions.len(),
+        1,
+        "{positions:?}: {:?}",
+        frame
             .rows()
             .iter()
-            .find(|row| row.band() == Band::Completion)
-            .unwrap();
-        assert_eq!(
-            row.text().contains("M-界"),
-            visible,
-            "{case}: {:?}",
-            row.text()
-        );
-        if visible {
-            assert!(row.text().starts_with("save-buffer  "), "{case}");
-            if width == 80 {
-                assert!(
-                    row.text()
-                        .trim_end()
-                        .ends_with("Save to the current destination."),
-                    "{case}"
-                );
-            } else {
-                assert!(row.text().trim_end().ends_with("[M-界]"), "{case}");
-            }
-            if width == 80 {
-                assert!(
-                    row.text().find("M-界").unwrap() < 40,
-                    "{case}: distant hint"
-                );
-            }
-        } else {
-            assert!(!row.text().contains("M-"), "{case}");
-        }
-    }
+            .filter(|row| row.band() == Band::Completion)
+            .map(|row| row.text())
+            .collect::<Vec<_>>()
+    );
+    *positions.first().unwrap()
 }
 
 // The actual frame writer uses status_text for unselected secondary cells and
@@ -212,7 +272,7 @@ fn hint_colors() {
             .text()
             .find(if selected { "Exit rev" } else { "Save to" })
             .unwrap();
-        assert!(hint_column < 40, "shortcut must stay near its command");
+        assert_eq!(hint_column, 40, "shortcut follows the catalog name field");
         assert!(
             !row.text().contains('—'),
             "descriptions need no placeholder"

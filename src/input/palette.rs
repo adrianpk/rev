@@ -1,8 +1,10 @@
+mod candidates;
 mod history;
 
 use std::collections::{BTreeMap, VecDeque};
 
 use crossterm::event::KeyCode;
+use unicode_width::UnicodeWidthStr;
 
 use crate::command::Command;
 
@@ -26,6 +28,32 @@ pub struct Palette {
     descriptions: BTreeMap<String, String>,
     usage: crate::command::usage::Usage,
     hints: BTreeMap<String, String>,
+    candidates: Vec<Command>,
+    widths: AnnotationWidths,
+}
+
+#[derive(Clone, Copy, Debug)]
+pub(crate) struct AnnotationWidths {
+    pub name: usize,
+    pub shortcut: usize,
+}
+
+impl AnnotationWidths {
+    fn new(commands: &[Command], hints: &BTreeMap<String, String>) -> Self {
+        Self {
+            name: Command::ALL
+                .into_iter()
+                .chain(commands.iter().copied())
+                .map(|command| command.name().width())
+                .max()
+                .unwrap_or(0),
+            shortcut: hints
+                .values()
+                .map(|hint| hint.width() + 2)
+                .max()
+                .unwrap_or(0),
+        }
+    }
 }
 
 impl Palette {
@@ -36,7 +64,8 @@ impl Palette {
         hints: BTreeMap<String, String>,
         descriptions: BTreeMap<String, String>,
     ) -> Result<Self, Error> {
-        Ok(Self {
+        let widths = AnnotationWidths::new(ai_commands, &hints);
+        let mut palette = Self {
             prompt: Prompt::new("M-x ", "", policy.input_limit)?,
             query: None,
             selected: 0,
@@ -49,7 +78,11 @@ impl Palette {
             usage: usage.clone(),
             hints,
             descriptions,
-        })
+            candidates: Vec::new(),
+            widths,
+        };
+        palette.refresh_candidates();
+        Ok(palette)
     }
 
     pub fn prompt(&self) -> &Prompt {
@@ -76,39 +109,20 @@ impl Palette {
         self.hints.clear();
     }
 
+    /// Catalog-wide terminal widths stay fixed for the lifetime of this selector.
+    pub(crate) fn annotation_widths(&self) -> AnnotationWidths {
+        self.widths
+    }
+
     pub fn candidates(&self) -> Vec<Command> {
-        let query = self.query.as_deref().unwrap_or(self.prompt.text());
-        let mut candidates: Vec<_> = Command::ALL
-            .into_iter()
-            .chain(self.ai_commands.iter().copied())
-            .filter(|command| command.name().contains(query))
-            .collect();
-        if self.policy.r#match == crate::config::Match::Prefix {
-            candidates.retain(|command| command.name().starts_with(query));
-        }
-        let rank = |command: &Command| {
-            if command.name() == query {
-                0
-            } else if self.policy.r#match == crate::config::Match::PrefixThenSubstring
-                && !command.name().starts_with(query)
-            {
-                2
-            } else {
-                1
-            }
-        };
-        candidates.sort_by_key(rank);
-        for group in candidates.chunk_by_mut(|a, b| rank(a) == rank(b)) {
-            self.usage.rank(group);
-        }
-        candidates
+        self.candidates.clone()
     }
 
     /// Candidate rows only; the query has its own reserved row. Even an empty
     /// result requests one row so the empty state has an explicit surface.
     pub fn requested_rows(&self) -> u16 {
         let rows = self
-            .candidates()
+            .candidates
             .len()
             .max(1)
             .min(self.policy.candidate_limit);
@@ -116,7 +130,7 @@ impl Palette {
     }
 
     pub fn selected(&self) -> Option<usize> {
-        (self.selected < self.candidates().len()).then_some(self.selected)
+        (self.selected < self.candidates.len()).then_some(self.selected)
     }
 
     pub fn top(&self) -> usize {
@@ -135,7 +149,7 @@ impl Palette {
         } else if self.selected >= self.top + rows {
             self.top = self.selected + 1 - rows;
         }
-        self.top = self.top.min(self.candidates().len().saturating_sub(rows));
+        self.top = self.top.min(self.candidates.len().saturating_sub(rows));
     }
 
     fn handle(&mut self, key: Key, history: &VecDeque<Command>) -> Outcome {
@@ -150,7 +164,7 @@ impl Palette {
     }
 
     fn navigate(&mut self, previous: bool) -> Outcome {
-        let count = self.candidates().len();
+        let count = self.candidates.len();
         if count == 0 {
             return Outcome::Message("No matching command");
         }
@@ -185,20 +199,21 @@ impl Palette {
             self.chosen = false;
             self.top = 0;
             self.history = None;
+            self.refresh_candidates();
         }
         outcome
     }
 
     fn complete(&mut self) -> Outcome {
-        let candidates = self.candidates();
-        if candidates.is_empty() {
+        if self.candidates.is_empty() {
             return Outcome::Message("No matching command");
         }
         let query = self
             .query
             .clone()
             .unwrap_or_else(|| self.prompt.text().to_owned());
-        let outcome = self.set_text(candidates[self.selected].name());
+        let command = self.candidates[self.selected];
+        let outcome = self.set_text(command.name());
         if outcome == Outcome::Changed {
             self.query = Some(query);
         }
@@ -207,14 +222,14 @@ impl Palette {
 
     fn accept(&self) -> Outcome {
         if self.chosen {
-            return Outcome::Command(self.candidates()[self.selected]);
+            return Outcome::Command(self.candidates[self.selected]);
         }
         let command = self
-            .candidates()
+            .candidates
             .iter()
             .find(|command| command.name() == self.prompt.text())
             .copied()
-            .or_else(|| self.candidates().first().copied());
+            .or_else(|| self.candidates.first().copied());
         match command {
             Some(command) => Outcome::Command(command),
             None if self.prompt.text().is_empty() => Outcome::Message("No command entered"),

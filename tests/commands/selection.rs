@@ -45,6 +45,37 @@ fn candidate_keys() {
     }
 }
 
+// A held navigation burst keeps exact order and count. Release and idle
+// expiry add no movement; a new query and cancellation remain immediately valid.
+#[test]
+fn navigation_burst() {
+    use crossterm::event::KeyEventKind::{Release, Repeat};
+    use std::time::{Duration, Instant};
+    for event in [key(KeyCode::Down), control('n')] {
+        let mut input = query("");
+        let candidates = input.palette().unwrap().candidates();
+        input.handle(event.clone());
+        for _ in 0..120 {
+            input.handle(super::phase(event.clone(), Repeat));
+        }
+        assert_eq!(input.palette().unwrap().selected(), Some(121));
+        assert_eq!(input.palette().unwrap().candidates(), candidates);
+        input.handle(super::phase(event, Release));
+        input.expire(Instant::now() + Duration::from_secs(1));
+        assert_eq!(input.palette().unwrap().selected(), Some(121));
+        input.handle(Event::Paste("save-buffer".into()));
+        assert_eq!(input.palette().unwrap().selected(), Some(0));
+        assert_eq!(
+            input.palette().unwrap().candidates()[0],
+            Command::SaveBuffer
+        );
+        input.handle(key(KeyCode::Tab));
+        assert_eq!(input.prompt().unwrap().text(), "save-buffer");
+        input.handle(control('g'));
+        assert_eq!(input.focus(), Focus::Editing);
+    }
+}
+
 // Return accepts the default highlight with an empty query. Explicit navigation
 // overrides an exact draft, while a freely typed exact name keeps its identity.
 #[test]

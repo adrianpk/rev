@@ -100,13 +100,8 @@ impl Frame {
     fn command_rows(&mut self, palette: &Palette, panel: Panel) -> Result<(), Error> {
         let candidates = palette.candidates();
         let content = panel.content();
-        let columns = command_columns(
-            candidates
-                .iter()
-                .skip(palette.top())
-                .take(usize::from(content.height()))
-                .map(|command| (command.name(), palette.hint(*command))),
-        )?;
+        let widths = palette.annotation_widths();
+        let columns = CommandColumns::new(widths.name, widths.shortcut, content.width());
         for row in 0..content.height() {
             let index = palette.top() + usize::from(row);
             let command = candidates.get(index);
@@ -137,26 +132,32 @@ impl Frame {
 
 #[derive(Clone, Copy)]
 struct CommandColumns {
-    shortcut: usize,
-    description: usize,
+    name: u16,
+    shortcut: u16,
+    description: u16,
 }
 
-fn command_columns<'a>(
-    rows: impl Iterator<Item = (&'a str, Option<&'a str>)>,
-) -> Result<CommandColumns, Error> {
-    let mut name_width = 0;
-    let mut shortcut_width = 0;
-    for (name, hint) in rows {
-        name_width = name_width.max(cells(name)?);
-        if let Some(hint) = hint {
-            shortcut_width = shortcut_width.max(cells(hint)? + 2);
+impl CommandColumns {
+    fn new(name: usize, shortcut: usize, width: u16) -> Self {
+        let width = usize::from(width);
+        let fields = width.saturating_sub(4);
+        let (name, shortcut) = if name + shortcut <= fields {
+            (name, shortcut)
+        } else {
+            // Compressed panels retain room for all three fields. The catalog
+            // ratio determines annotation widths, never the visible candidates.
+            let annotations = fields - fields / 4;
+            let name = annotations * name / (name + shortcut).max(1);
+            (name, annotations - name)
+        };
+        Self {
+            name: u16::try_from(if width <= 4 { width } else { name })
+                .expect("name field is bounded by panel width"),
+            shortcut: u16::try_from(shortcut).expect("shortcut field is bounded by panel width"),
+            description: u16::try_from(fields - name - shortcut)
+                .expect("description field is bounded by panel width"),
         }
     }
-    let shortcut = name_width + 2;
-    Ok(CommandColumns {
-        shortcut,
-        description: shortcut + shortcut_width + 2,
-    })
 }
 
 #[derive(Clone, Copy)]
@@ -178,73 +179,53 @@ fn command_row(
         hint,
         description,
     } = annotation;
-    let mut source = candidate_row(panel, row, label, selected)?;
-    let width = usize::from(panel.content().width());
-    let name_cells = cells(label)?;
-    source.faces.push(super::style::Face {
-        columns: panel.content().column()
-            ..panel.content().column()
-                + u16::try_from(name_cells.min(width))
-                    .expect("name cells are clipped to panel width"),
-        tone: Tone::CommandName,
-    });
-    let mut text = label.to_owned();
-    let mut end = name_cells;
-    if let Some(hint) = hint {
-        end = columns.shortcut(&mut source, panel, &mut text, hint)?;
+    let mut source = candidate_row(panel, row, "", selected)?;
+    source.text.clear();
+    let hint = hint.map(|hint| format!("[{hint}]"));
+    let fields = [
+        (label, columns.name, Tone::CommandName),
+        (
+            hint.as_deref().unwrap_or(""),
+            columns.shortcut,
+            Tone::Secondary,
+        ),
+        (
+            description.unwrap_or(""),
+            columns.description,
+            Tone::Secondary,
+        ),
+    ];
+    for (index, (value, width, tone)) in fields.into_iter().enumerate() {
+        if index > 0 {
+            source.text.push_str("  ");
+        }
+        command_field(&mut source, panel, value, width, tone)?;
     }
-    if let Some(description) = description.filter(|value| !value.trim().is_empty())
-        && columns.description < width
-        && columns.description >= end + 2
-    {
-        text.extend(std::iter::repeat_n(' ', columns.description - end));
-        text.push_str(description);
-        source.faces.push(super::style::Face {
-            columns: panel.content().column()
-                + u16::try_from(columns.description).expect("description starts inside panel width")
-                ..panel.content().column() + panel.content().width(),
-            tone: Tone::Secondary,
-        });
-    }
-    source.text = clip::line(Glyphs::for_text(&text)?, 0, panel.content().width())?;
+    source.text = clip::line(Glyphs::for_text(&source.text)?, 0, panel.content().width())?;
     Ok(source)
 }
 
-impl CommandColumns {
-    fn shortcut(
-        self,
-        source: &mut Row,
-        panel: Panel,
-        text: &mut String,
-        hint: &str,
-    ) -> Result<usize, Error> {
-        let width = usize::from(panel.content().width());
-        let name_cells = cells(text)?;
-        let mut end = name_cells;
-        let hint_cells = cells(hint)? + 2;
-        // Keep a complete adjacent hint in narrow geometry even if another
-        // visible candidate makes the shared name column too wide.
-        let column = if self.shortcut + hint_cells <= width {
-            self.shortcut
-        } else {
-            name_cells + 2
-        };
-        if column + hint_cells <= width {
-            text.extend(std::iter::repeat_n(' ', column - name_cells));
-            text.push('[');
-            text.push_str(hint);
-            text.push(']');
-            end = column + hint_cells;
-            source.faces.push(super::style::Face {
-                columns: panel.content().column()
-                    + u16::try_from(column).expect("shortcut starts inside panel width")
-                    ..panel.content().column()
-                        + u16::try_from(end).expect("shortcut ends inside panel width"),
-                tone: Tone::Secondary,
-            });
-        }
-        Ok(end)
+fn command_field(
+    source: &mut Row,
+    panel: Panel,
+    value: &str,
+    width: u16,
+    tone: Tone,
+) -> Result<(), Error> {
+    let start = cells(&source.text)?;
+    source
+        .text
+        .push_str(&clip::line(Glyphs::for_text(value)?, 0, width)?);
+    if !value.is_empty() && width > 0 {
+        let column = usize::from(panel.content().column()) + start;
+        source.faces.push(super::style::Face {
+            columns: u16::try_from(column).expect("field starts inside panel width")
+                ..u16::try_from(column + usize::from(width))
+                    .expect("field ends inside panel width"),
+            tone,
+        });
     }
+    Ok(())
 }
 
 fn cells(text: &str) -> Result<usize, Error> {
@@ -271,11 +252,10 @@ mod tests {
     use super::*;
     use crate::window::Area;
 
-    // Real metadata and absent metadata share one layout. Narrow output loses
-    // description cells before a complete shortcut; no missing-text marker is added.
+    // Optional fields keep their columns, and compressed geometry clips each
+    // field independently instead of moving a hint next to a shorter name.
     #[test]
     fn command_annotations() {
-        let columns = command_columns([("save-buffer", Some("C-x C-s"))].into_iter()).unwrap();
         for (case, width, description, expected) in [
             (
                 "summary",
@@ -291,9 +271,10 @@ mod tests {
                 Some("abcd"),
                 "save-buffer  [C-x C-s]  abc",
             ),
-            ("exact shortcut", 22, Some("abcd"), "save-buffer  [C-x C-s]"),
-            ("no shortcut room", 21, Some("abcd"), "save-buffer"),
+            ("compressed", 22, Some("abcd"), "save-bu  [C-x C-  abcd"),
+            ("narrower", 21, Some("abcd"), "save-bu  [C-x C  abcd"),
         ] {
+            let columns = CommandColumns::new(11, 9, width);
             let panel = Panel::new(Area::new(7, 3, width, 1).unwrap(), false, false);
             let row = command_row(
                 panel,
@@ -315,7 +296,7 @@ mod tests {
     // full row even when an annotation has a secondary foreground role.
     #[test]
     fn description_cells() {
-        let columns = command_columns([("x", None)].into_iter()).unwrap();
+        let columns = CommandColumns::new(1, 0, 8);
         let panel = Panel::new(Area::new(7, 3, 8, 1).unwrap(), false, true);
         let palette = crate::config::Palette {
             syntax: crate::config::SyntaxPalette {
@@ -367,6 +348,29 @@ mod tests {
             palette.status_text
         } else {
             palette.foreground
+        }
+    }
+
+    // Field boundaries never split a wide or combining cluster. Clipping one
+    // field cannot push the following field to a different column.
+    #[test]
+    fn clipped_clusters() {
+        for (width, expected) in [(12, "界  [M-   界"), (16, "界e\u{301}  [M-界]  界e\u{301}")]
+        {
+            let panel = Panel::new(Area::new(0, 0, width, 1).unwrap(), false, false);
+            let row = command_row(
+                panel,
+                0,
+                Annotation {
+                    label: "界e\u{301}",
+                    hint: Some("M-界"),
+                    description: Some("界e\u{301}"),
+                },
+                CommandColumns::new(3, 6, width),
+                false,
+            )
+            .unwrap();
+            assert_eq!(row.text.trim_end(), expected, "width {width}");
         }
     }
 }

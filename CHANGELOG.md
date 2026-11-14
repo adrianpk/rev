@@ -84,6 +84,10 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 
 ### Fixed
 
+- M-x keeps name, shortcut and description columns stable while filtering or
+  scrolling. Narrow panels clip each field, and held navigation responds
+  without a lingering backlog.
+
 - Org and Markdown headings keep their symbols and level colors during ordinary
   body and title edits. Org indentation also stays stable.
 

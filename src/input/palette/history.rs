@@ -45,6 +45,7 @@ impl Palette {
             self.selected = 0;
             self.chosen = false;
             self.top = 0;
+            self.refresh_candidates();
         }
         outcome
     }

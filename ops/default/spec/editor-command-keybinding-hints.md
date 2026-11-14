@@ -12,7 +12,7 @@ Baselines: [Editor Interaction](editor-interaction.md), UI02; [Command Recency a
 Current reference: [Commands](../../../docs/reference/commands.md), [Bindings](../../../docs/reference/bindings.md), [Focused Prompts](../../../docs/reference/prompts.md)
 Plan: [Command Keybinding Hints Delivery](../plan/rev-command-keybinding-hints.md)
 Tracker: [Command Keybinding Hints Tracker](../tracker/rev-command-keybinding-hints.md)
-Presentation revision: owner-approved direct-dev correction on 2026-11-06; the candidate/receipt above describe the original two-slice delivery
+Presentation revision: owner-approved direct-dev corrections on 2026-11-06 and 2026-11-15; the candidate/receipt above describe the original two-slice delivery
 Description authoring: [TKT-20261106202027](../ticket/solved/20261106202027-complete-command-catalog-descriptions.md) and [Command Descriptions](editor-command-descriptions.md), Completed separately from the delivered layout through PR #307
 
 ## Purpose
@@ -50,10 +50,12 @@ The existing command-usage model remains unchanged.
 
 ## Presentation
 
-Keep command names at their current left edge. Use three fields: name, nearby
-left-aligned shortcut and optional description. Derive shared column starts
-from the visible candidate block, not from the panel's right edge. Separate
-fields by at least two blank cells. With factory non-modal bindings:
+Keep command names at their current left edge. Use three fields: name,
+left-aligned shortcut and optional description. Prepare maximum name and
+bracketed-shortcut terminal widths from the complete admitted catalog when
+the selector opens, including registered commands. Filtering and scrolling
+retain those column starts. Separate fields by two blank cells. With factory
+non-modal bindings, an individual row contains:
 
 ```text
 save-buffer  [C-x C-s]
@@ -72,12 +74,14 @@ of the canonical formatted sequence. This is the deterministic selection policy,
 not a new configurable preference. One displayed hint does not remove other
 valid bindings.
 
-Command-name readability has priority. Clip descriptions at terminal-cell
-boundaries and omit them when their column cannot fit. In narrow geometry,
-retain a complete bracketed shortcut immediately after its own name when the
-shared column cannot fit it. If the complete name, gap and bracketed hint still
-cannot fit, omit the hint and retain ordinary name clipping. Never wrap a
-candidate or truncate a shortcut into a different-looking sequence.
+Give names and shortcuts their prepared widths, then use the remaining panel
+width for descriptions. When those annotation widths and separators cannot
+fit, reserve one quarter of the available field cells for descriptions and
+split the rest between name and shortcut in their catalog-width ratio. All
+three fields may truncate independently at terminal-cell boundaries; a partial
+wide grapheme becomes blank cells. At four cells or fewer, show the clipped
+name alone. Never move a shortcut beside a shorter individual name or wrap a
+candidate. Resizing may recompute this layout; filtering and scrolling may not.
 
 Use existing palette roles: `palette.syntax.function` for unselected command
 names, `palette.status_text` for shortcuts and descriptions, and existing
@@ -183,10 +187,10 @@ Visual-selection ownership and argument prompts SHALL remain unchanged.
 
 Each candidate SHALL retain one row within the existing candidate panel and
 `minibuffer.candidate_limit`. Name, shortcut and description SHALL use shared
-nearby columns, terminal-cell geometry and existing palette/selection ownership.
-The shortcut SHALL be bracketed and left-aligned near its name rather than
-attached to the panel's right edge. It is shown only when its complete sequence
-fits under the presentation policy.
+catalog-wide columns, terminal-cell geometry and existing palette/selection
+ownership. The shortcut SHALL use bracketed notation and a fixed left edge
+for the open selector and panel width. Each field SHALL clip independently
+under the presentation policy, including names and shortcuts.
 
 Narrow or zero geometry SHALL preserve query, command identity and cancellation.
 Growing the terminal SHALL restore complete hints when they fit, without
@@ -194,12 +198,20 @@ changing ranking or dispatch. Where existing pointer selection supports a
 candidate row, the hint field SHALL refer to that same row identity rather
 than execute the displayed shortcut as a separate action.
 
-#### Scenario: Hint does not fit
+#### Scenario: Compressed fields
 
-- **GIVEN** a bound command and a candidate area too narrow for both fields
+- **GIVEN** a bound command and a candidate area too narrow for all full fields
 - **WHEN** the row is painted
-- **THEN** the complete hint is omitted and the name uses existing clipping
+- **THEN** each field clips within its allocated terminal cells
+- **AND** all rows retain the same field starts at that width
 - **AND** the candidate remains selectable and invocable.
+
+#### Scenario: Stable columns during navigation
+
+- **GIVEN** an open selector with prepared catalog-wide field widths
+- **WHEN** filtering or scrolling changes the visible candidates
+- **THEN** shortcut and description column starts remain unchanged
+- **AND** only a panel resize may change the allocated widths.
 
 #### Scenario: Selection without color
 
@@ -213,8 +225,10 @@ than execute the displayed shortcut as a separate action.
 Discovery SHALL inspect only finite admitted maps and their existing normalized
 sequences, whose current bound is eight chords. It SHALL NOT enumerate arbitrary
 key combinations, numeric arguments or possible editor interactions. Prepare
-hints once for the captured selector context and reuse them during filtering
-and painting. Rendering SHALL perform no filesystem reads or command execution.
+hints and annotation widths once for the captured selector context and reuse
+them during filtering and painting. Matching and usage ranking SHALL be
+recomputed only when the effective query changes; navigation, selection and
+painting SHALL reuse the current candidate snapshot. Rendering SHALL perform no filesystem reads or command execution.
 
 Effective keymap resolution remains the authority; implementation may expose
 read-only introspection from that owner, but SHALL NOT maintain a parallel table
