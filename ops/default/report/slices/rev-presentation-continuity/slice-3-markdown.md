@@ -5,7 +5,7 @@ Delivery set: rev-presentation-continuity
 Plan: `ops/default/plan/rev-presentation-continuity.md`
 Tracker: `ops/default/tracker/rev-presentation-continuity.md`
 Branch: `fix/rev-presentation-continuity-03-markdown`
-PR: pending
+PR: `#43`
 
 ## Purpose
 

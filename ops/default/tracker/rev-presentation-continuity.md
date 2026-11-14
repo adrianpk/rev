@@ -50,10 +50,10 @@ Task commits: T2.1, T2.2 and T2.3 `d6d38d3fffc5701d1514f75f9a1c7ff5a96780f0` (co
 
 ## Slice 3: Markdown presentation continuity
 
-State: reviewing - implementation and local checks complete; canonical PR and exact clean-HEAD validation follow
+State: reviewing - canonical PR #43 open; controller validation and integration pending
 Requirements: PC01-PC03, PC05-PC11; reconciled MD06
 Branch: `fix/rev-presentation-continuity-03-markdown`
-PR: pending
+PR: [#43](https://forge.adrianpk.com/rev/rev/pulls/43)
 Report: `ops/default/report/slices/rev-presentation-continuity/slice-3-markdown.md`
 Validation: ordered Slice 3 checks passed locally (lint, 55 Markdown tests and whitespace); focused buffer checks passed 24 cases. Final published clean-HEAD evidence belongs to the controller validator.
 Task commits: T3.1, T3.2 and T3.3 `e4a505671a434f9bdbe7a3d52a8d2d1013e519e0` (cohesive Markdown admission/display integration and native regressions).
