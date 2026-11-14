@@ -51,7 +51,7 @@ impl Session {
         self.habit_agenda = None;
         self.sync_input_context();
         self.message(
-            "Query agenda: t task; m mark; B bulk; v t TODO; s search; M match; g refresh; q close",
+            "Query agenda: t task; m mark; B bulk; v t TODO; v / search; v M match; g refresh; q close",
         );
     }
     pub(super) fn prompt_agenda_query(&mut self, command: C, draft: &str) -> Action {

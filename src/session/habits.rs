@@ -57,7 +57,7 @@ impl Session {
         self.query_agenda = None;
         self.habit_agenda = Some(state);
         self.sync_input_context();
-        self.message("Habit agenda: K visibility; A all today; C-u K today-only; d date; G graph; g refresh; C-g source");
+        self.message("Habit agenda: K visibility; v A all today; C-u K today-only; M-x org-habit-graph-date; v G graph; g refresh; C-g source");
     }
     pub(super) fn habit_paste(&mut self, text: &str) -> Action {
         if (self.habit_agenda.is_some() || self.agenda_active())
