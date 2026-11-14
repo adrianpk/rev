@@ -36,10 +36,10 @@ Task commits: T1.1 `5fa1b0b4ba100070957a28623f2d20fdf30d6123`; T1.2 and T1.3 `a1
 
 ## Slice 2: Org presentation continuity
 
-State: reviewing - implementation and local checks complete; canonical PR and exact clean-HEAD validation follow
+State: reviewing - canonical PR #42 open; controller validation and integration pending
 Requirements: PC01-PC04, PC06-PC11; reconciled OGP08 and OIN05
 Branch: `fix/rev-presentation-continuity-02-org`
-PR: pending
+PR: [#42](https://forge.adrianpk.com/rev/rev/pulls/42)
 Report: `ops/default/report/slices/rev-presentation-continuity/slice-2-org.md`
 Validation: ordered Slice 2 checks passed locally (lint, seven geometry tests, 25 heading tests, 18 indentation tests and whitespace); focused buffer checks passed all 21 cases. Final published clean-HEAD evidence belongs to the controller validator.
 Task commits: T2.1, T2.2 and T2.3 `d6d38d3fffc5701d1514f75f9a1c7ff5a96780f0` (cohesive Org admission/display integration and native regressions).
