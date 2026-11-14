@@ -9,6 +9,8 @@ mod config_fixture;
 mod context_keymaps;
 #[path = "commands/editor_keymaps.rs"]
 mod editor_keymaps;
+#[path = "commands/factory_shortcuts.rs"]
+mod factory_shortcuts;
 #[path = "commands/indent.rs"]
 mod indent;
 #[path = "commands/keymap.rs"]
