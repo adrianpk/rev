@@ -1,6 +1,6 @@
 # Markdown Tracker
 
-Status: Approved
+Status: Completed
 Date: 2026-11-13
 Delivery set: rev-markdown
 Slice strategy: behavior-first
@@ -8,7 +8,7 @@ Approved: product owner, 2026-11-13; approved specification, slicing and establi
 Plan: [Markdown Delivery](../plan/rev-markdown.md)
 Spec: [Markdown Editing and Presentation](../spec/editor-markdown-mode.md)
 Model: [Markdown Policy and Actions](../spec/editor-markdown-mode-model.md)
-Active slice: None - all six slices integrated; controller-owned full gate pending
+Active slice: None - all six slices delivered; full gate passed
 Progress owner: native Looper checkpoint, canonical PR state and exact-candidate validation receipts
 Parser decision: owner accepted pulldown-cmark 0.13.6 subject to compatible licensing; exact package and minimal graph verified
 
@@ -163,7 +163,7 @@ Validation: the exact ordered checks for Slice 6 in the plan and frozen local co
 
 - [x] T6.1: Add scripts/check-markdown.sh using existing owned native/PTY helpers and one finite fixture matrix. Verify actual cells, source/pretty views, both profiles, NO_COLOR, BOM/CRLF, Unicode, copy/save, list/table commands and terminal restoration with owned children and temporary roots.
 - [x] T6.2: Complete the Markdown reference and User Guide lesson, exact command/configuration/binding catalogs, packaged sample, learning-path navigation, Spore projection and Unreleased. Keep canonical Markdown as the documentation source and retain all existing guide/reference assertions.
-- [ ] T6.3: Record native/PTY evidence and complete the report. Prepare the clean published integrated candidate for the controller-owned full gate; after success close only configured Markdown artifacts and remove this set's clean inactive integrated worktrees.
+- [x] T6.3: Record native/PTY evidence and complete the report. Prepare the clean published integrated candidate for the controller-owned full gate; after success close only configured Markdown artifacts and remove this set's clean inactive integrated worktrees.
 
 Task commits: implementation and report introduction
 `0426fa99039d1b095940c38e3b8f6ed6db02817a`; development evidence
@@ -185,8 +185,8 @@ All 423 native tests passed without failures, ignored or filtered cases in
 Canonical PR #39 merged at that exact commit, verified against fetched dev and
 Acta. Slice 6 of 6 is delivered; no implementation slice remains active.
 
-T6.3 evidence, report and gate preparation are complete. Its checkbox remains
-open for the controller-owned integrated gate and post-gate artifact closure.
+T6.3 evidence, report, gate preparation, successful controller-owned integrated
+gate and post-gate artifact closure are complete.
 The final clean inactive integrated task worktree has been removed without force;
 all pre-existing worktrees and slice branches remain.
 
@@ -197,22 +197,53 @@ all pre-existing worktrees and slice branches remain.
 - [x] Generate/register the final native configuration, pass preflight and start one detached Looper owner.
 - [x] Integrate all six canonical PRs through controller-owned Rebase + Fast-forward into dev.
 - [x] Remove each clean inactive integrated task worktree without force; preserve pre-existing worktrees and branches.
-- [ ] Run the frozen Full gate on the exact clean integrated candidate and record its receipt and actual cost.
-- [ ] Close only configured Markdown paths, with reports delivered and spec/model/plan/tracker Completed.
-- [ ] Verify clean synchronized dev, unchanged tested runtime/guide inputs and final Acta/commit evidence.
+- [x] Run the frozen Full gate on the exact clean integrated candidate and record its receipt and actual cost.
+- [x] Close only configured Markdown paths, with reports delivered and spec/model/plan/tracker Completed.
+- [x] Verify clean synchronized dev, unchanged tested runtime/guide inputs and final Acta/commit evidence.
 
 Acta records successful preflight and native controller startup on 2026-11-13
 at event `01M7AQHENN04XY7M1845JJYW2S`. Canonical Forgejo and Acta confirm all
 six Rebase + Fast-forward merges, PRs #34-#39, with each merged HEAD ancestral
-to fetched dev. All six slice reports are delivered; overall artifact status
-remains Approved until the frozen integrated gate succeeds.
+to fetched dev. All six slice reports are delivered; specification, model, plan
+and tracker are Completed after the frozen integrated gate succeeded.
 
 Full-gate prerequisites are available: the approved drivers and fixtures,
 locked Cargo graph, Rust toolchain, Linux PTY tools and Spore. Installed hooks
 remain unchanged; no native build or fixture is active in the primary checkout.
-Gate preparation changes only this plan, tracker and Slice 6 report. Runtime,
-tests, manifests, guide inputs and executable drivers retain the integrated
-implementation bytes. The controller owns the unchanged Full gate and final
-closure; this worker has not run the full gate.
+Gate preparation changed only this plan, tracker and Slice 6 report. Runtime,
+tests, manifests, guide inputs and executable drivers retain the tested
+implementation bytes. The controller executed the unchanged Full gate;
+documentation closure follows its successful receipt.
 Only the explicitly accepted parser and its reviewed graph may be introduced;
 additional dependencies still require separate approval.
+
+## Final gate and closure
+
+Completed on 2026-11-14. Tested candidate:
+`4a01a05ee0ee02b0ec02aed1beac0cdc19c59664`.
+Successful controller receipt: `X5PEQCHM7HGP4DHHSW4ZJ7I53J`.
+The [Slice 6 closure](../report/slices/rev-markdown/slice-6-acceptance.md#delivery-set-closure)
+records the exact unchanged combined command and full measured evidence.
+
+All 721 selected native tests passed with zero failures or ignored cases:
+700 across the ten full targets and 21 modal contexts cases. The modal command
+retained its approved contexts:: filter, leaving 103 other modal cases filtered.
+Eight joined native Markdown cases and four Linux PTYs passed, including
+terminal restoration, exact source saves and zero idle CPU ticks. Full lint
+covered 1,882 files, both packages and 75 Cargo roots. Catalogs retained 707
+commands and 322 settings; documentation checked 110 pages and 785 links/anchors,
+and the local User Guide rendered 111 pages.
+
+The receipt ran from 2026-11-13T23:17:51Z to 2026-11-14T00:00:02Z, taking
+2,531.17 s including compilation and all commands. The native targets reported
+1,791.85 s. These are observed costs, not revised deadlines or guarantees.
+No command, case, timeout, resource bound or assertion changed for acceptance.
+
+All 18 tasks and integration/closure checks are complete. Canonical PRs #34-#39
+are merged. Owned fixtures finished and were reaped; no active owned build or
+test fixture remains. All integrated task worktrees are removed, preserving
+the six slice branches, unrelated worktrees and their private caches.
+Only the eleven configured closure Markdown paths differ from the tested
+candidate. Documentation closure is committed, recorded in Acta and pushed
+on clean synchronized dev; the original gate receipt remains tied to its
+immutable tested candidate.

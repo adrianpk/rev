@@ -1,6 +1,6 @@
 # Markdown Editing and Presentation
 
-Status: Approved
+Status: Completed
 Date: 2026-11-13
 Approved: product owner, 2026-11-13; specification, slicing and the established autonomous Looper workflow
 Format: OpenSpec capability addition
@@ -10,7 +10,7 @@ Authorization: preparation, slice PRs and controller-owned integration through d
 Model: [Markdown Policy and Actions](editor-markdown-mode-model.md)
 Plan: [Markdown Delivery](../plan/rev-markdown.md)
 Tracker: [Markdown Tracker](../tracker/rev-markdown.md)
-Readiness: approved parser dependency verified; ready for autonomous delivery
+Readiness: Completed after six merged slices and the unchanged controller-owned full gate
 
 ## Purpose
 
@@ -231,3 +231,15 @@ verified compatible with Rev's GPL-3.0-only license. Default features remain
 disabled; only the table parsing option is enabled. Retain required notices.
 A private adapter preserves the option of a separately approved owned parser
 later; this delivery does not create that successor project.
+
+## Delivery-set closure
+
+MD01-MD06 are delivered through canonical PRs #34-#39. The unchanged controller
+gate passed on clean published candidate
+`4a01a05ee0ee02b0ec02aed1beac0cdc19c59664`, receipt
+`X5PEQCHM7HGP4DHHSW4ZJ7I53J`, on 2026-11-14. The
+[Slice 6 closure](../report/slices/rev-markdown/slice-6-acceptance.md#delivery-set-closure)
+records the exact command, 721 selected native tests, joined native/PTY
+acceptance, documentation, actual costs and evidence limits. The model, plan
+and tracker are Completed; all reports remain delivered. Approved requirements,
+scenarios, finite bounds and tested implementation bytes are unchanged.

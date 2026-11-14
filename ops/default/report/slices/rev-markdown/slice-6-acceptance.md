@@ -148,7 +148,81 @@ Focused command:
 
 ## Risks and Follow-ups
 
-All six slices are integrated. The controller owns the frozen full delivery
-gate and final set closure, which remain pending. Gate preparation changes only
-delivery records; the specification, model, plan and tracker are not marked
-Completed before the exact-candidate full gate succeeds.
+All six slices are integrated and the controller passed the frozen full delivery
+gate. The specification, model, plan and tracker are Completed. Physical font
+coverage remains terminal-owned. The existing foreign crossterm unused_parens
+warning remains nonblocking and outside first-party source policy.
+
+## Delivery-set closure
+
+Delivery-set status: Completed
+Completed: 2026-11-14
+Tested candidate: `4a01a05ee0ee02b0ec02aed1beac0cdc19c59664`.
+Controller gate receipt: `X5PEQCHM7HGP4DHHSW4ZJ7I53J`.
+All canonical PRs are merged: [#34](https://forge.adrianpk.com/rev/rev/pulls/34),
+[#35](https://forge.adrianpk.com/rev/rev/pulls/35),
+[#36](https://forge.adrianpk.com/rev/rev/pulls/36),
+[#37](https://forge.adrianpk.com/rev/rev/pulls/37),
+[#38](https://forge.adrianpk.com/rev/rev/pulls/38) and
+[#39](https://forge.adrianpk.com/rev/rev/pulls/39).
+
+The controller passed the exact unchanged combined command on the immutable
+clean published candidate:
+
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 make lint && env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test markdown --test syntax --test configuration --test commands --test display --test pointer --test org_headings --test org_indentation --test org_tables --test external_changes -- --test-threads=1 && env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test modal contexts:: -- --test-threads=1 && env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 bash scripts/check-markdown.sh && env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo run --locked --quiet -p rev --example documentation-check && env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 bash scripts/build-user-guide.sh && git diff --check`
+
+The successful receipt ran from 2026-11-13T23:17:51Z to
+2026-11-14T00:00:02Z, taking 2,531.17 s including compilation and all commands.
+Full workspace formatting, strict Clippy and native source policy passed across
+1,882 first-party Rust files, both packages and all 75 Cargo roots, with zero
+blocking or deferred diagnostics. All 721 selected native tests passed with
+zero failures and zero ignored cases:
+
+| Target | Passed | Test execution seconds |
+| --- | --- | --- |
+| commands | 205 | 925.50 |
+| configuration | 169 | 336.06 |
+| display | 47 | 45.07 |
+| external_changes | 21 | 22.35 |
+| markdown | 49 | 153.32 |
+| org_headings | 19 | 33.10 |
+| org_indentation | 18 | 26.63 |
+| org_tables | 73 | 75.50 |
+| pointer | 69 | 88.65 |
+| syntax | 30 | 48.65 |
+| modal contexts:: | 21 | 37.02 |
+
+The ten complete targets passed 700 tests with zero filtered cases. The modal
+command passed all 21 selected contexts:: cases and filtered 103 other modal
+cases, exactly as approved. Native target execution totaled 1,791.85 s,
+excluding compilation and the other gate work. No command, case, timeout,
+resource bound or assertion was weakened for acceptance.
+
+The joined acceptance driver passed all eight native cases and four Linux PTY
+journeys across both profiles, both color policies and LF/BOM+CRLF sources.
+It checked actual terminal cells, source/pretty views, six heading levels,
+Setext, nested lists, literal code, Unicode hit maps, independent panes,
+copy/save fidelity, contextual Return, list/table transactions and undo/redo.
+Each PTY changed 80x24 to 32x12, restored terminal attributes, screen, cursor and
+bracketed paste, and passed its 350-ms idle-silence check with zero CPU ticks.
+Startup measured 109,572-177,123 microseconds, output 46,431-79,509 bytes and
+peak RSS 18,568-21,984 KiB. Existing eight-second/one-MiB PTY limits and bounded
+owned-child reaping remain intact. No owned test fixture or native build remains
+active. These observations are measured costs, not performance guarantees;
+physical font appearance retains its terminal-owned limit.
+
+Exact catalogs passed 707 command names and 322 configuration entries against
+compiled behavior and packaged defaults. Documentation checked 110 reachable
+canonical pages and 785 local links/anchors. The canonical Markdown-to-Spore
+User Guide passed strict links and rendered 111 pages, including parser notices.
+The existing foreign crossterm unused_parens warning remained nonblocking.
+
+All reports remain delivered. The specification, model, plan and tracker are
+Completed, all 18 tasks are closed and the native Markdown operational-index
+row is reconciled. All six integrated task worktrees were removed only after
+ancestry, cleanliness and inactivity checks; slice branches, unrelated worktrees
+and their private caches remain. Only the eleven configured closure Markdown
+paths differ from the tested candidate. Runtime, tests, manifests, guide inputs,
+executable drivers and every required assertion retain tested bytes. The original
+receipt remains tied to the immutable candidate; final documentation closure
+is committed, recorded in Acta and pushed separately on clean synchronized dev.

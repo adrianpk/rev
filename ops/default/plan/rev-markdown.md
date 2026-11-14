@@ -1,6 +1,6 @@
 # Markdown Delivery
 
-Status: Approved
+Status: Completed
 Date: 2026-11-13
 Delivery set: rev-markdown
 Slice strategy: behavior-first
@@ -9,8 +9,8 @@ Planning baseline: `47c8b2210d8e043640f488e1024ea7c7a2389265`
 Spec: [Markdown Editing and Presentation](../spec/editor-markdown-mode.md)
 Model: [Markdown Policy and Actions](../spec/editor-markdown-mode-model.md)
 Tracker: [Markdown Tracker](../tracker/rev-markdown.md)
-Active slice: None - all six slices integrated; controller-owned full gate pending
-Readiness: canonical PRs #34-#39 merged into dev; full-gate prerequisites verified
+Active slice: None - all six slices delivered; full gate passed
+Readiness: Completed after canonical PRs #34-#39 and the unchanged controller-owned full gate
 Full gate: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 make lint && env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test markdown --test syntax --test configuration --test commands --test display --test pointer --test org_headings --test org_indentation --test org_tables --test external_changes -- --test-threads=1 && env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test modal contexts:: -- --test-threads=1 && env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 bash scripts/check-markdown.sh && env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo run --locked --quiet -p rev --example documentation-check && env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 bash scripts/build-user-guide.sh && git diff --check`
 
 ## Outcome, strategy and authority
@@ -193,8 +193,8 @@ dev and Acta. The integrated implementation HEAD is
 All slice reports are delivered. This set's clean inactive integrated worktrees
 are removed; its branches and all pre-existing worktrees remain. Required Rust,
 Linux PTY and Spore tools are available, and installed hooks remain unchanged.
-Only delivery records change during this preparation; the full gate and final
-artifact completion remain controller-owned and pending.
+Only delivery records changed during preparation. The controller subsequently
+passed the unchanged full gate, as recorded in the closure evidence below.
 
 Run the exact Full gate above once on the clean published candidate after all
 six PRs integrate. The strict lint command protects every owned workspace root;
@@ -226,3 +226,19 @@ Closure may change only the configured exact Markdown artifacts: these four
 spec/model/plan/tracker documents, the operational index and six slice reports.
 Runtime, tests, manifests, guide inputs and executable drivers retain tested bytes.
 Verify clean synchronized dev and record the final closure commit and Acta event.
+
+Completed on 2026-11-14 after the unchanged controller-owned full gate passed
+on clean published candidate `4a01a05ee0ee02b0ec02aed1beac0cdc19c59664`,
+receipt `X5PEQCHM7HGP4DHHSW4ZJ7I53J`. The gate passed 721 selected native
+tests, eight joined Markdown native cases, four Linux PTYs, full workspace lint,
+exact catalogs, documentation and the local User Guide build. Total measured
+gate time was 2,531.17 s, including compilation and all commands; native targets
+reported 1,791.85 s. The [Slice 6 closure](../report/slices/rev-markdown/slice-6-acceptance.md#delivery-set-closure)
+records the exact command, target counts, timings and evidence limits.
+
+All six reports are delivered; specification, model, plan and tracker are
+Completed, and the native Markdown index row is reconciled. All task worktrees
+were removed after verified integration and inactivity; branches and unrelated
+worktrees remain. No owned fixture remains active. Only the eleven configured
+closure Markdown paths differ from the tested candidate; runtime, tests,
+manifests, guide inputs and executable drivers retain tested bytes.

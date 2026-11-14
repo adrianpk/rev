@@ -5,7 +5,7 @@ Delivery set: rev-markdown
 Plan: [Markdown Delivery](../../../plan/rev-markdown.md)
 Tracker: [Markdown Tracker](../../../tracker/rev-markdown.md)
 Branch: `feat/rev-markdown-05-table-structure`
-PR: `#38`
+PR: [#38](https://forge.adrianpk.com/rev/rev/pulls/38)
 
 ## Purpose
 
@@ -128,6 +128,18 @@ mapping structural dispatch results resolved both under the unchanged maximum 10
 
 ## Risks and Follow-ups
 
-Full PTY acceptance and User Guide delivery remain Slice 6. The controller owns
-integration and the full six-slice delivery gate. Existing finite source/output,
+Slice 6 delivers joined native/PTY acceptance and the User Guide. The controller
+passed the full six-slice delivery gate. Existing finite source/output,
 row/column/cell/width, parser and worker bounds remain unchanged.
+
+## Delivery-set closure
+
+The unchanged controller-owned full gate passed on 2026-11-14 at clean published
+candidate `4a01a05ee0ee02b0ec02aed1beac0cdc19c59664`, receipt
+`X5PEQCHM7HGP4DHHSW4ZJ7I53J`. All six canonical PRs #34-#39 are merged;
+this report remains delivered. The
+[Slice 6 closure](slice-6-acceptance.md#delivery-set-closure) records the exact
+command, 721 selected native tests, joined native/PTY acceptance, documentation,
+measured costs and evidence limits. Specification, model, plan and tracker are
+Completed. Only the configured closure Markdown paths differ from the tested
+candidate; all tested implementation and guide inputs retain their bytes.

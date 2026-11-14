@@ -1,6 +1,6 @@
 # Markdown Policy and Actions
 
-Status: Approved
+Status: Completed
 Date: 2026-11-13
 Specification: [Markdown Editing and Presentation](editor-markdown-mode.md)
 Plan: [Markdown Delivery](../plan/rev-markdown.md)
@@ -107,3 +107,14 @@ Keep Markdown parsing, list actions and table actions separate from Org syntax,
 formula rules and command enums. Extract a shared pure helper only for a concrete
 common contract and cover the affected Org path in focused regressions.
 No new workspace/session persistence record or SDK/wire protocol is introduced.
+
+## Delivery-set closure
+
+Completed with the specification, plan and tracker on 2026-11-14 after all six
+canonical PRs #34-#39 integrated. The unchanged controller gate passed on
+candidate `4a01a05ee0ee02b0ec02aed1beac0cdc19c59664`, receipt
+`X5PEQCHM7HGP4DHHSW4ZJ7I53J`. The
+[Slice 6 closure](../report/slices/rev-markdown/slice-6-acceptance.md#delivery-set-closure)
+records exact acceptance, measured costs and evidence limits. The approved
+ownership, preference, action, transaction and validation contracts above
+retain their tested behavior and bounds.

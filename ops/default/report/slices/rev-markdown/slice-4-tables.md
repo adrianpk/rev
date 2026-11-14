@@ -5,7 +5,7 @@ Delivery set: rev-markdown
 Plan: [Markdown Delivery](../../../plan/rev-markdown.md)
 Tracker: [Markdown Tracker](../../../tracker/rev-markdown.md)
 Branch: `feat/rev-markdown-04-tables`
-PR: `#37`
+PR: [#37](https://forge.adrianpk.com/rev/rev/pulls/37)
 
 ## Purpose
 
@@ -137,6 +137,18 @@ shape, protecting unclosed literal blocks at EOF.
 
 ## Risks and Follow-ups
 
-Explicit row/column structural actions remain Slice 5. Full PTY acceptance and
-User Guide delivery remain Slice 6. The existing foreign crossterm unused_parens
-warning is outside first-party source policy.
+Slice 5 delivers explicit row/column structural actions; Slice 6 delivers joined
+native/PTY acceptance and the User Guide. The existing foreign crossterm
+unused_parens warning is outside first-party source policy.
+
+## Delivery-set closure
+
+The unchanged controller-owned full gate passed on 2026-11-14 at clean published
+candidate `4a01a05ee0ee02b0ec02aed1beac0cdc19c59664`, receipt
+`X5PEQCHM7HGP4DHHSW4ZJ7I53J`. All six canonical PRs #34-#39 are merged;
+this report remains delivered. The
+[Slice 6 closure](slice-6-acceptance.md#delivery-set-closure) records the exact
+command, 721 selected native tests, joined native/PTY acceptance, documentation,
+measured costs and evidence limits. Specification, model, plan and tracker are
+Completed. Only the configured closure Markdown paths differ from the tested
+candidate; all tested implementation and guide inputs retain their bytes.
