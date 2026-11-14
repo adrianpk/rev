@@ -1,11 +1,11 @@
 # Slice 7: Terminal Acceptance and Guidance
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-factory-shortcuts
 Plan: [Factory Shortcut Alignment Delivery](../../../plan/rev-factory-shortcuts.md)
 Tracker: [Factory Shortcut Alignment Tracker](../../../tracker/rev-factory-shortcuts.md)
 Branch: `test/rev-factory-shortcuts-07-acceptance`
-PR: `#53` ([canonical PR](https://forge.adrianpk.com/rev/rev/pulls/53)); open against dev
+PR: `#53` ([canonical PR](https://forge.adrianpk.com/rev/rev/pulls/53)); merged into dev at `979ba5ebb64310d0a1d1e3801d53689fdf525cec`
 Report introduction: [immutable Slice 7 report](https://forge.adrianpk.com/rev/rev/src/commit/6f38eeb9417fb7719952acd0700dd11e941366da/ops/default/report/slices/rev-factory-shortcuts/slice-7-acceptance.md)
 
 ## Purpose
@@ -101,9 +101,11 @@ The complete script's physical journeys took 1,857/2,094/2,511 ms and emitted
 observation used zero CPU ticks over 350 ms; peak RSS was 37,824/41,108/36,976 kB.
 The native process used one thread. All outputs remain below the existing cap.
 
-Final exact clean-HEAD evidence is recorded through controller validation after
-canonical PR-reference commits. These local results do not claim the integrated
-full gate.
+The controller recorded all five exact required commands at clean HEAD
+`979ba5ebb64310d0a1d1e3801d53689fdf525cec` after canonical PR references, in 286.73 seconds.
+Canonical PR validation passed; PR #53 is integrated into dev at that same
+commit. This evidence belongs to the slice candidate, not the later preparation
+commit. The unchanged integrated full gate remains controller-owned and pending.
 
 The first selected command batch at T7.2 commit
 `601a67ec41b5b05fec312c78fa73d11842b9ef85` passed 88 cases and failed one stale nonmodal
@@ -119,6 +121,8 @@ corrected it. Assertions, resource limits and policy thresholds were preserved.
 
 Physical acceptance uses the existing Linux PTY driver. Graphical terminals and
 other platforms are outside these representative journeys. The controller
-owns integration, the unchanged full gate and subsequent originating-ticket /
+owns the unchanged full gate and subsequent originating-ticket /
 delivery-metadata closure. T7.3 records completed preparation separately from
-that pending closure; this worktree remains owned and active until integration.
+that pending closure. After verified integration, the clean, unlocked and
+inactive Slice 7 worktree was removed without force; its branch and unrelated
+worktrees remain intact.

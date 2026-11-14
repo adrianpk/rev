@@ -1,6 +1,6 @@
 # Factory Shortcut Alignment Delivery
 
-Status: Approved for current seven-slice delivery
+Status: All seven slices integrated; selected full gate pending
 Date: 2026-11-14
 Delivery set: rev-factory-shortcuts
 Slice strategy: layered
@@ -11,8 +11,8 @@ Planning baseline: `197bf98be615ceca06a3bab0ef5cd24b3bee2ffb`
 Spec: [Factory Shortcut Alignment](../spec/editor-factory-shortcut-alignment.md)
 Follow-through: [Emacs Interaction Parity](../spec/editor-emacs-interaction-parity.md)
 Tracker: [Factory Shortcut Alignment Tracker](../tracker/rev-factory-shortcuts.md)
-Active slice: Slice 7, Terminal acceptance and guidance
-Readiness: Slice 7 prepared in PR #53; controller-owned integration and full gate pending
+Active slice: None; all seven slices integrated
+Readiness: PRs #47-#53 integrated into dev; full-gate prerequisites prepared; controller-owned gate pending after `979ba5ebb64310d0a1d1e3801d53689fdf525cec`
 Integration target: `dev`
 
 ## Outcome and strategy

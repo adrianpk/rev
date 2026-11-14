@@ -1,6 +1,6 @@
 # Factory Shortcut Alignment Tracker
 
-Status: Slice 7 terminal acceptance reviewing
+Status: All seven slices integrated; selected full gate pending
 Date: 2026-11-14
 Delivery set: rev-factory-shortcuts
 Slice strategy: layered
@@ -10,9 +10,9 @@ Execution authority: current slices 1-7 under accepted manifest and predecessor 
 Plan: [Factory Shortcut Alignment Delivery](../plan/rev-factory-shortcuts.md)
 Spec: [Factory Shortcut Alignment](../spec/editor-factory-shortcut-alignment.md)
 Follow-through: [Emacs Interaction Parity](../spec/editor-emacs-interaction-parity.md)
-Active slice: Slice 7, Terminal acceptance and guidance
-Progress: 6/7 slices delivered; 20/21 tasks completed; T7.3 closure awaits the integrated gate
-Readiness: Slice 7 prepared in PR #53; controller-owned integration and full gate pending
+Active slice: None; all seven slices integrated
+Progress: 7/7 slices delivered; 20/21 tasks completed; T7.3 post-gate closure remains pending
+Readiness: PRs #47-#53 integrated into dev; full-gate prerequisites prepared; controller-owned gate pending
 
 ## Canonical slice map
 
@@ -33,7 +33,7 @@ Readiness: Slice 7 prepared in PR #53; controller-owned integration and full gat
 | Audit entry | Product-owner continuation accepted; publish the preparation before controller startup. | approved; preparation published at `2f5cfa485fb0169c0f4dcdea475a33eb4a80eabd` |
 | Core review | Slice 1 complete core/profile matrix with actual probe evidence and pending mode rows identified. | integrated through PR #47 at `c279fd03ccc383a9ae606665bf0cd7ae2cfccc49` |
 | Mapping freeze | Slice 2 complete matrix; D01-D03 settled; accepted exact mapping contract and reconciled spec/plan/tracker committed. | accepted and integrated through PR #48 |
-| Runtime entry | Slice 3 onward uses only the accepted manifest with unchanged identities/checks. | active Slice 7; predecessor integration verified |
+| Runtime entry | Slice 3 onward uses only the accepted manifest with unchanged identities/checks. | all seven slices integrated; exact accepted manifest preserved |
 | Delivery closure | All accepted slices integrated; selected gate passes for the exact dev candidate; reports, guide and ticket reconciled. | pending |
 
 The accepted owner decision settles the exact retained proposal plus History
@@ -160,21 +160,21 @@ Completed local checks: `make lint`; `cargo test --locked --test commands factor
 
 ## Slice 7: Terminal acceptance and guidance
 
-State: reviewing; Slice 7 implementation and guidance preparation complete
+State: delivered; PR #53 integrated into dev at `979ba5ebb64310d0a1d1e3801d53689fdf525cec`
 Requirements: FSA01-FSA10 together; accepted manifest and retained exceptions.
 Dependency: all accepted runtime slices integrated; manifest identity unchanged.
 Branch: `test/rev-factory-shortcuts-07-acceptance`
 Expected PR title: `test(input): verify factory shortcut compatibility`
-PR: `#53` ([canonical PR](https://forge.adrianpk.com/rev/rev/pulls/53)); open against dev
+PR: `#53` ([canonical PR](https://forge.adrianpk.com/rev/rev/pulls/53)); merged into dev
 Report: `ops/default/report/slices/rev-factory-shortcuts/slice-7-acceptance.md`
 Task commits: T7.1 `d2c27b13a53b2ec822b23436e79534e1600da09e`; T7.2 `601a67ec41b5b05fec312c78fa73d11842b9ef85`; T7.3 reference/guide consistency, Spore projection and report introduction `6f38eeb9417fb7719952acd0700dd11e941366da`; post-gate closure remains controller-owned.
-Validation: all five required local commands PASS; 89 selected command tests, 11 configuration keymap tests, six modal keymap tests, independent complete-map comparison, four native hint variants and three Linux PTYs. Documentation and Spore projection PASS. Exact clean-HEAD controller evidence follows canonical PR references; no integrated full-gate result is claimed.
+Validation: all five required local commands PASS; 89 selected command tests, 11 configuration keymap tests, six modal keymap tests, independent complete-map comparison, four native hint variants and three Linux PTYs. Documentation and Spore projection PASS. All five required commands and canonical PR validation passed at clean HEAD `979ba5ebb64310d0a1d1e3801d53689fdf525cec` after PR references, before integration. The controller receipt took 286.73 seconds; no integrated full-gate result is claimed.
 
 - [x] T7.1: Add a narrow `scripts/check-factory-shortcuts.sh` entrypoint and `examples/factory-shortcuts-acceptance.rs`, reusing existing owned native/surface/PTY infrastructure. Cross-check inventory coverage, accepted normalized routes, actual effects, overrides, profile/focus transitions and selector hints. Compare executable results with the separately accepted mapping contract; do not rewrite expectations from current defaults.
 - [x] T7.2: Exercise bounded physical-input journeys in nonmodal and modal editing plus one local read-only Git journey. Cover representative Meta/control and multi-chord routes, prefix cancellation, editing/profile/language transitions and terminal restoration. Keep variants native, use finite observable conditions and clean only owned fixtures/processes. Verify expected source/history effects rather than treating a successful exit as compatibility.
 - [ ] T7.3: Complete reference/guide consistency and Spore projection; produce the final slice report and prepare the exact integrated candidate for the selected delivery-set gate. Close the originating ticket and delivery metadata only after that gate passes. Record measured check costs and remove integrated inactive clean worktrees.
 
-Completed local checks: `make lint`; `bash scripts/check-factory-shortcuts.sh`; `bash scripts/check-documentation.sh`; `bash scripts/build-user-guide.sh`; `git diff --check`. T7.3 preparation is complete; its originating-ticket / delivery-metadata closure remains pending the controller-owned integrated gate below.
+Completed local checks: `make lint`; `bash scripts/check-factory-shortcuts.sh`; `bash scripts/check-documentation.sh`; `bash scripts/build-user-guide.sh`; `git diff --check`. T7.3 reference/guide, report, cost and worktree preparation is complete. Its originating-ticket / delivery-metadata closure remains pending the controller-owned integrated gate below.
 
 ## Decision log
 
@@ -193,6 +193,15 @@ and product acceptance in the mapping artifact and owning specification.
 State: not run. Slice checks prepare the candidate; no integrated gate result or receipt exists.
 Environment: one Cargo job, incremental disabled, dev/test debuginfo disabled.
 
+Preparation: canonical PRs #47-#53 are merged into dev and all seven reports
+are delivered. Required executables and Rust formatter/Clippy are available;
+the five shell entrypoints pass `bash -n`. Locked offline Cargo metadata
+confirms two workspace packages and the primary checkout's own target. Frozen
+catalog/manifest identities and all selected gate commands remain unchanged.
+The integrated Slice 7 worktree was clean, unlocked and inactive, then removed
+without force; its branch and unrelated worktrees are preserved. Existing hooks
+remain unchanged. No full-gate batch was executed during preparation.
+
 Proposed canonical order:
 
 1. `make lint`
@@ -209,8 +218,8 @@ are not added implicitly. Failed checks retain their actual candidate and result
 
 ## Closure
 
-- [ ] Every native operation/action has a disposition and accepted mapping changes match the frozen contract.
-- [ ] Every accepted slice has its task commits, integrated PR and canonical report with actual validation.
+- [x] Every native operation/action has a disposition and accepted mapping changes match the frozen contract.
+- [x] Every accepted slice has its task commits, integrated PR and canonical report with actual validation.
 - [ ] The selected integrated gate passes against the exact dev candidate.
 - [ ] Binding/configuration references, guide projection and originating ticket reflect delivered behavior.
-- [ ] Integrated inactive clean worktrees are removed non-forcibly; unrelated or active work remains untouched.
+- [x] Integrated inactive clean worktrees are removed non-forcibly; unrelated or active work remains untouched.
