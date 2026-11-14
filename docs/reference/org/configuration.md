@@ -141,7 +141,7 @@ and the shared sequence validation rules.
 
 | Key | Type and bounds | Default | Scope and effect |
 | --- | --- | --- | --- |
-| `keys.org` | Map of chord sequences to existing editor command names | Compiled map | Org editing role inherits keys.editor; all 81 entries in its local map are active in the sample. |
+| `keys.org` | Map of chord sequences to existing editor command names | Compiled map | Org editing role inherits keys.editor; all 83 entries in its local map are active in the sample. |
 | `keys.org_capture` | Map of chord sequences to existing editor command names | Compiled map | Capture editing role inherits keys.editor; all 2 entries in its local map are active in the sample. |
 | `keys.org_source_edit` | Map of chord sequences to existing editor command names | Compiled map | Special-edit role inherits keys.editor; all 3 entries in its local map are active in the sample. |
 | `keys.org_agenda` | Map of chord sequences to admitted navigation, query and estimate commands | Compiled map | Agenda role consumes unbound text; all 47 entries are active in the sample. |
