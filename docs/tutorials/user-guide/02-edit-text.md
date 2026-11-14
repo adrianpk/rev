@@ -9,6 +9,10 @@ Use the arrow keys to move through the text. `C-a` moves to the beginning of
 the current visual row; `C-e` moves to its end. Long source lines wrap at word
 boundaries to fit the pane. Up/Down and `C-n`/`C-p` follow those visible rows.
 
+Use `M-m` to reach the first non-whitespace character of the current logical
+line. It skips spaces and tabs without changing text or an active selection.
+On a blank line it moves to the end; a count does not select another line.
+
 Try `C-u 5 C-n` to request five ordinary rows. In this short note, movement
 stops at the end; a wrapped continuation also counts as a row. `C-u` starts an
 argument, `5` chooses the distance and `C-n` consumes it once. The echo area
@@ -52,6 +56,8 @@ clipboard. To move a selected region instead of copying it, use `C-w`, then
 
 Press `C-x u`. The inserted copy disappears; the new line you created before
 it remains. Each accepted paste is one undo step.
+Press `C-M-_` to redo the copy, then `C-x u` to undo it again. A count such as
+`C-u 2 C-M-_` reapplies two available redo groups. `C-r` still searches backward.
 
 Try `C-u 3 !` to insert `!!!`. One `C-x u` removes all three characters:
 a counted insertion is one undo step. The argument has already been consumed,

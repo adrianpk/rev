@@ -9,6 +9,10 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 
 ### Added
 
+- Reach the first text on a line with M-m, balance panes with C-x +, redo with
+  C-M-_ in non-modal, Insert and Replace editing, and switch registered Projects
+  with C-x p p. Existing state-specific search and redo shortcuts remain available.
+
 - Edit Markdown natively with colors and level-dependent heading and list
   symbols. Continue or indent lists, create and align tables, navigate fields,
   and add or remove rows and columns. Switch between source and pretty views

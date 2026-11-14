@@ -29,6 +29,12 @@ Changing the file does not switch a running editor. To return to non-modal
 editing, set `interaction_profile = "non-modal"`, save and restart. Omitting the
 setting also selects non-modal editing.
 
+`M-m` moves to the first text on the logical line, `C-x +` balances panes and
+`C-x p p` opens the registered Project picker in every modal state. `M-m` and
+`C-x +` retain the current state. Project switching keeps its ordinary context
+transitions and source decisions. In Insert and Replace, `C-M-_` redoes an
+undone group; Normal keeps `C-r` for redo.
+
 ## Enter text and return to Normal
 
 Press `i`, type the following lines, then press Escape:

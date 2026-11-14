@@ -66,7 +66,7 @@ Every command below is also available as `M-x` followed by its exact name.
 | `M-x open-directory`, `:open-directory` | `open-directory` | Choose an existing directory and replace the context after source decisions and owned cleanup. |
 | `M-x project-create`, `:project-create` | `project-create` | Choose a directory, name it and open the registered Project. |
 | `M-x project-promote`, `:project-promote` | `project-promote` | Register the temporary directory while retaining live work. |
-| `M-x project-switch-project`, `:project-switch-project` | `project-switch-project` | Restore a Project selected by name/path. |
+| `C-x p p`, `M-x project-switch-project`, `:project-switch-project` | `project-switch-project` | Restore a Project selected by name/path. |
 | `M-x project-list`, `:project-list` | `project-list` | Open the same Project picker. |
 | `M-x workspace-create`, `:workspace-create` | `workspace-create` | Name and open an empty Workspace. |
 | `M-x workspace-open`, `:workspace-open` | `workspace-open` | Restore a Workspace selected by name/path. |
@@ -184,7 +184,7 @@ Every command below is also available as `M-x` followed by its exact name.
 | `M-x windmove-down` | `windmove-down` | Focus the nearest overlapping pane below. |
 | `M-x windmove-up` | `windmove-up` | Focus the nearest overlapping pane above. |
 | `M-x windmove-right` | `windmove-right` | Focus the nearest overlapping pane to the right. |
-| `M-x balance-windows` | `balance-windows` | Equalize existing pane divisions, preserving focus and startup split policy. |
+| `C-x +` | `balance-windows` | Equalize existing pane divisions, preserving focus and startup split policy. |
 | Return | `newline` | Insert the buffer's preferred line separator. |
 | Tab | `insert-tab` | Insert indentation; default spaces advance to the next four-column stop. |
 | Backspace | `backward-delete-char` | Delete the preceding grapheme. |
@@ -204,7 +204,7 @@ Every command below is also available as `M-x` followed by its exact name.
 | Page Up, `M-v` | `scroll-down-command` | Move back one page. |
 | `C-l` | `recenter-top-bottom` | Cycle point's line through center/top/bottom. |
 | `C-x u`, reported `C-/` or `C-_` | `undo` | Undo a buffer-local group. |
-| `M-x undo-redo` | `undo-redo` | Reapply the next redo group. |
+| `C-M-_` in non-modal, Insert and Replace | `undo-redo` | Reapply the next redo group; a count selects multiple groups. |
 | `M-x tabify` | `tabify` | Compress the marked whitespace at effective tab stops when shorter. |
 | `M-x untabify` | `untabify` | Expand marked literal tabs while preserving text columns. |
 | `M-x mouse-mode` | `mouse-mode` | Toggle native pointer support for this session without writing settings. |
@@ -408,7 +408,7 @@ their existing visual-line and native word behavior.
 | `j`, `Down` | `modal-next-line` | Next logical line; retain desired terminal-cell column and skip hidden Org bodies. |
 | `k`, `Up` | `modal-previous-line` | Previous logical line; retain desired terminal-cell column and skip hidden Org bodies. |
 | `0` | `modal-line-start` | Logical line start. |
-| `^` | `modal-line-first-text` | First non-whitespace grapheme of the logical line. |
+| `^` in Normal/Visual, `M-m` in either profile | `modal-line-first-text` | First non-whitespace scalar on the logical line; blank lines use their end. Retain selection and editing state; ignore counts. |
 | `$` | `modal-line-end` | Logical content-end boundary before LF/CRLF. A count selects the corresponding following logical line. |
 | `w` | `modal-next-word-start` | Start of the next word or punctuation run, skipping whitespace. |
 | `b` | `modal-previous-word-start` | Previous Unicode word start, skipping punctuation. |

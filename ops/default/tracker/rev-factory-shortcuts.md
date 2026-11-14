@@ -1,6 +1,6 @@
 # Factory Shortcut Alignment Tracker
 
-Status: Slice 3 editor implementation active
+Status: Slice 3 editor review active
 Date: 2026-11-14
 Delivery set: rev-factory-shortcuts
 Slice strategy: layered
@@ -11,8 +11,8 @@ Plan: [Factory Shortcut Alignment Delivery](../plan/rev-factory-shortcuts.md)
 Spec: [Factory Shortcut Alignment](../spec/editor-factory-shortcut-alignment.md)
 Follow-through: [Emacs Interaction Parity](../spec/editor-emacs-interaction-parity.md)
 Active slice: Slice 3, Editor defaults
-Progress: 2/7 slices delivered; 6/21 tasks completed
-Readiness: Slice 2 integrated; exact manifest accepted; Slice 3 runtime implementation active
+Progress: 2/7 slices delivered; 9/21 tasks completed
+Readiness: Slice 3 local checks passed; canonical PR handoff in progress
 
 ## Canonical slice map
 
@@ -88,21 +88,21 @@ unchanged. Canonical PR #48 and its immutable report link are recorded; the fina
 
 ## Slice 3: Editor defaults
 
-State: ready; Slice 2 integrated; accepted manifest governs implementation
+State: reviewing; P01-P04 implemented; canonical PR pending
 Requirements: FSA03, FSA04, FSA07-FSA09; P01-P04 and accepted core manifest rows.
 Dependency: Slice 2 integrated and mapping freeze accepted/committed.
 Branch: `feat/rev-factory-shortcuts-03-editor`
 Expected PR title: `feat(input): align core factory shortcuts`
 PR: pending
 Report: `ops/default/report/slices/rev-factory-shortcuts/slice-3-editor.md`
-Task commits: none
-Validation: not run; this record contains planned checks only.
+Task commits: T3.1 `94a1f69eae233e28308d158bb273947001c7ba61`; T3.2 `aad088fea37eaa2cefa79a2ae9b119b47253ce4c`; T3.3/report introduction follows with the canonical PR reference.
+Validation: all five required local commands PASS; 10 factory-shortcut, 11 configuration keymap and six modal keymap tests; documentation check PASS. Final clean-HEAD controller receipt follows the PR-reference commit.
 
-- [ ] T3.1: Apply only accepted editor/profile factory assignments for first text, pane balance, redo and registered Project switching. Preserve canonical handlers, context transitions, modal state and existing search/operator keys. Keep factories and the exhaustive configuration reference consistent.
-- [ ] T3.2: Extend existing command/keymap tests with a cohesive `factory_shortcuts` module for actual input-to-effect regressions. Cover Unicode/blank lines, selection/count policy, redo groups, pane focus, cancelled Project restoration, overrides, local overlays and all affected modal states; avoid a second handwritten production binding catalog.
-- [ ] T3.3: Update the affected binding reference and core User Guide guidance; use the changelog-normalize skill for one concise user-facing outcome when behavior is usable. Run the core slice checks and record the canonical report and task evidence.
+- [x] T3.1: Apply only accepted editor/profile factory assignments for first text, pane balance, redo and registered Project switching. Preserve canonical handlers, context transitions, modal state and existing search/operator keys. Keep factories and the exhaustive configuration reference consistent.
+- [x] T3.2: Extend existing command/keymap tests with a cohesive `factory_shortcuts` module for actual input-to-effect regressions. Cover Unicode/blank lines, selection/count policy, redo groups, pane focus, cancelled Project restoration, overrides, local overlays and all affected modal states; avoid a second handwritten production binding catalog.
+- [x] T3.3: Update the affected binding reference and core User Guide guidance; use the changelog-normalize skill for one concise user-facing outcome when behavior is usable. Run the core slice checks and record the canonical report and task evidence.
 
-Planned checks: `make lint`; `cargo test --locked --test commands factory_shortcuts -- --test-threads=1`; `cargo test --locked --test configuration keymaps -- --test-threads=1`; `cargo test --locked --test modal keymaps -- --test-threads=1`; `git diff --check`.
+Completed local checks: `make lint`; `cargo test --locked --test commands factory_shortcuts -- --test-threads=1`; `cargo test --locked --test configuration keymaps -- --test-threads=1`; `cargo test --locked --test modal keymaps -- --test-threads=1`; `git diff --check`.
 
 ## Slice 4: Org document defaults
 

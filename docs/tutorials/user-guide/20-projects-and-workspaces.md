@@ -49,7 +49,10 @@ parent directory, or `rev .` from inside `notes`.
 4. Choose Open Project, type `Practice Notes`, use Tab to fill the selected
    label and Enter to open it. `notes.txt` returns at its saved source position.
 
-The same picker is available through `project-switch-project` or `project-list`.
+Press `C-x p p` from editing to open the same registered Project picker in
+either profile. `C-g` cancels it without restoring files or discarding changes;
+selecting another Project still asks how to handle unsaved text. Named
+`project-switch-project` and `project-list` also open it.
 Selecting the active Project simply returns to its current work. Leaving it or
 quitting cleanly captures its ordered file buffers, active file and positions.
 Unnamed contents and undo history do not become saved session text.

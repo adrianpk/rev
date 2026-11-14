@@ -37,6 +37,9 @@ Bring a pencil.        │
 Edits belong to the buffer. If both panes show the same buffer, a change in
 one appears in the other, while each pane keeps its own cursor and scroll.
 
+Press `C-x +` to balance the existing panes. It keeps the selected pane and
+each cursor in place. Your configured split ratio still applies to new splits.
+
 ## Return to one pane
 
 Press `C-x 1` to keep the selected pane. Both buffers remain open.
