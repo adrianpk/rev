@@ -18,7 +18,7 @@ struct Identity {
     tab: usize,
     wrap: bool,
     indent: bool,
-    outline_ready: bool,
+    outline: Option<u64>,
 }
 
 #[derive(Default)]
@@ -61,6 +61,11 @@ impl PartialEq for Cache {
 impl Eq for Cache {}
 
 impl Cache {
+    #[cfg(test)]
+    pub(in crate::view) fn retained(&self, buffer: &Buffer, width: u16) -> (usize, usize) {
+        let entries = self.observe(buffer, width);
+        (entries.fragments.len(), entries.bytes)
+    }
     pub(in crate::view) fn headings(compact: bool) -> Self {
         Self(Arc::default(), compact)
     }
@@ -112,8 +117,9 @@ impl Cache {
             tab: buffer.policy().tab_width,
             wrap: buffer.soft_wrap(),
             indent: buffer.org_indentation(),
-            outline_ready: (buffer.org_indentation() || self.1)
-                && buffer.org_line_indentation(0).is_some(),
+            outline: (buffer.org_indentation() || self.1)
+                .then(|| buffer.org_geometry())
+                .flatten(),
         };
         let mut entries = self.0.lock().expect("fragment cache poisoned");
         if entries.identity != Some(identity) {

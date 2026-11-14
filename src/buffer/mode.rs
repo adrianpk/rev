@@ -86,6 +86,9 @@ impl Buffer {
     }
 
     fn activate_org(&mut self, active: bool) {
+        if self.org_active != active {
+            self.presentation = None;
+        }
         self.org_active = active;
         if !active {
             self.org = None;

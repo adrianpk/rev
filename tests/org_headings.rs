@@ -2,6 +2,8 @@
 
 #[path = "org_headings/colors.rs"]
 mod colors;
+#[path = "org_headings/continuity.rs"]
+mod continuity;
 #[path = "org_headings/controls.rs"]
 mod controls;
 #[path = "org_headings/editing.rs"]

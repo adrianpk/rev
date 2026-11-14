@@ -64,6 +64,9 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 
 ### Fixed
 
+- Org headings keep their symbols, indentation and level colors during ordinary
+  body and title edits.
+
 - New configuration files use commented examples and inherit updated defaults.
   Existing configurations and explicitly chosen preferences remain intact.
 

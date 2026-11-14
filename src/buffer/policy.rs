@@ -40,6 +40,7 @@ impl Buffer {
                 self.history_policy.payload_target_bytes.min(131072);
         }
         if self.syntax_policy != settings.settings().syntax {
+            self.presentation = None;
             self.org_attempt = None;
             self.reset_markdown();
         }

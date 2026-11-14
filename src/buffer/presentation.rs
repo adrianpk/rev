@@ -1,8 +1,9 @@
-//! Checked mapping foundation for display carry. This layer proves only source
-//! shape and coordinates; format owners must still admit structure before any
-//! display consumer can use it. Exact action observations remain unchanged.
+//! Checked display mapping. Source shape, bounded inspection and format-owned
+//! admission finish before canonical installation. Action observations stay exact.
 
 mod inspection;
+#[cfg(test)]
+mod org_tests;
 #[cfg(test)]
 mod tests;
 
@@ -17,8 +18,8 @@ const SCAN_BYTES: usize = 32 * 1024;
 /// Every recorded row is entirely lexically dirty, including zero-net edits.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub(super) struct Mapping {
-    base: Stamp,
-    current: Stamp,
+    pub(super) base: Stamp,
+    pub(super) current: Stamp,
     base_bytes: usize,
     bytes: usize,
     rows: [Option<Row>; ROW_LIMIT],
@@ -42,11 +43,17 @@ impl Mapping {
         }
     }
 
-    fn prepare(self, before: &Rope, after: &Rope, record: &Transaction) -> Option<Self> {
+    fn prepare(
+        self,
+        before: &Rope,
+        after: &Rope,
+        record: &Transaction,
+        remaining: &mut usize,
+    ) -> Option<Self> {
         if self.current != record.before || self.bytes != before.len_bytes() {
             return None;
         }
-        let mutation = Mutation::inspect(before, after, record)?;
+        let mutation = Mutation::inspect(before, after, record, remaining)?;
         self.advance(&mutation, record.after)
     }
 
@@ -84,7 +91,7 @@ impl Mapping {
 
     /// Line starts map through strictly preceding rows. Bytes within a dirty
     /// row are deliberately not claimed by this mapping.
-    fn base_byte(&self, row: usize, current: usize) -> Option<usize> {
+    pub(super) fn base_byte(&self, row: usize, current: usize) -> Option<usize> {
         current.checked_add_signed(self.delta_before(row)?.checked_neg()?)
     }
 
@@ -108,6 +115,16 @@ impl Mapping {
             .filter(|item| item.index < row)
             .try_fold(0isize, |sum, item| sum.checked_add(item.delta))
     }
+
+    pub(super) fn current_position(&self, base: usize) -> Option<usize> {
+        let delta = self
+            .rows
+            .iter()
+            .flatten()
+            .filter(|row| row.base_start < base)
+            .try_fold(0isize, |sum, row| sum.checked_add(row.delta))?;
+        base.checked_add_signed(delta)
+    }
 }
 
 impl Buffer {
@@ -122,7 +139,36 @@ impl Buffer {
         } else {
             self.presentation.filter(|mapping| mapping.base == base)?
         };
-        mapping.prepare(&self.text, text, record)
+        let mut remaining = SCAN_BYTES;
+        let mapping = mapping.prepare(&self.text, text, record, &mut remaining)?;
+        if self.is_org() {
+            self.admit_org_presentation(&mapping, text, record, &mut remaining)?;
+        }
+        Some(mapping)
+    }
+
+    fn admit_org_presentation(
+        &self,
+        mapping: &Mapping,
+        text: &Rope,
+        record: &Transaction,
+        remaining: &mut usize,
+    ) -> Option<()> {
+        let outline = self.org_outline.as_ref()?;
+        outline.presentation_limit(text.len_bytes())?;
+        let change = record.changes().first()?;
+        let row = self.text.try_char_to_line(change.before().start).ok()?;
+        let start = self.text.try_line_to_byte(row).ok()?;
+        let edit = crate::org::PresentationEdit {
+            at: mapping.base_byte(row, start)?,
+            before: self.text.line(row),
+            after: text.line(row),
+            changed: self
+                .text
+                .char_to_byte(change.before().start)
+                .checked_sub(start)?,
+        };
+        outline.admit_presentation(&edit, remaining)
     }
 
     fn presentation_base(&self) -> Option<Stamp> {

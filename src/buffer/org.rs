@@ -1,4 +1,6 @@
-use super::{Buffer, Error, Stamp};
+mod display;
+
+use super::{Buffer, Buffers, Error, Stamp};
 use crate::org::Index;
 
 impl Buffer {
@@ -18,13 +20,13 @@ impl Buffer {
 
     /// No source scan: the existing native outline owns complete evidence.
     pub(crate) fn org_line_indentation(&self, row: usize) -> Option<crate::org::Indentation> {
-        self.org_outline()?
-            .indentation_at(self.text.try_line_to_byte(row).ok()?)
+        self.org_display()?
+            .indentation(row, self.text.try_line_to_byte(row).ok()?)
     }
 
     pub(crate) fn org_heading_level(&self, row: usize) -> Option<usize> {
-        let outline = self.org_outline()?;
-        outline.heading_level_at(self.text.try_line_to_byte(row).ok()?)
+        self.org_display()?
+            .heading(row, self.text.try_line_to_byte(row).ok()?)
     }
 
     /// Optional derived state: ordinary buffers never start analysis implicitly.
@@ -56,6 +58,16 @@ impl Buffer {
     }
 }
 
+impl Buffers {
+    pub(crate) fn retire_org_presentations(&mut self) {
+        for buffer in self.entries.values_mut().filter(|buffer| buffer.is_org()) {
+            if buffer.presentation.take().is_some() {
+                buffer.org_attempt = Some(buffer.stamp());
+            }
+        }
+    }
+}
+
 impl Buffer {
     /// Derived styles are available only when syntax policy admits coloring.
     pub fn org_highlights(&self) -> Option<&crate::org::Highlights> {
@@ -68,6 +80,9 @@ impl Buffer {
         if !self.org_colors_admitted() {
             return Vec::new();
         }
+        if self.org_outline().is_none() {
+            return self.org_structural_capture(bytes);
+        }
         self.org_highlights
             .as_ref()
             .map_or_else(Vec::new, |colors| colors.captures(self, bytes))
@@ -77,6 +92,16 @@ impl Buffer {
         let (index, highlights, outline) = coloring.into_parts();
         index.check(self)?;
         highlights.check(self)?;
+        if !self
+            .org_display()
+            .is_some_and(|display| display.same_geometry(&outline))
+        {
+            self.org_geometry = self
+                .org_geometry
+                .checked_add(1)
+                .expect("Org geometry identity exhausted");
+        }
+        self.presentation = None;
         self.org = Some(index);
         self.org_outline = Some(outline);
         self.org_attempt = Some(highlights.stamp());
@@ -93,10 +118,11 @@ impl Buffer {
 
     pub(crate) fn has_org_colors(&self) -> bool {
         self.org_colors_admitted()
-            && self
-                .org_highlights
-                .as_ref()
-                .is_some_and(|colors| colors.stamp() == self.stamp())
+            && (self.org_display().is_some()
+                || self
+                    .org_highlights
+                    .as_ref()
+                    .is_some_and(|colors| colors.stamp() == self.stamp()))
     }
 
     pub(crate) fn needs_org_colors(&self) -> bool {
@@ -117,6 +143,35 @@ impl Buffer {
 
     pub(crate) fn attempted_org_colors(&mut self) {
         self.org_attempt = Some(self.stamp());
+    }
+}
+
+impl Buffer {
+    fn org_structural_capture(
+        &self,
+        mut bytes: std::ops::Range<usize>,
+    ) -> Vec<crate::syntax::Capture> {
+        let Ok(row) = self.text.try_byte_to_line(bytes.start) else {
+            return Vec::new();
+        };
+        if self.org_heading_level(row).is_none() || bytes.end > self.len_bytes() {
+            return Vec::new();
+        }
+        bytes.end = bytes.end.min(
+            self.text
+                .try_line_to_byte(row + 1)
+                .unwrap_or(self.len_bytes()),
+        );
+        if bytes.is_empty() {
+            return Vec::new();
+        }
+        // Base lexical contexts are not re-proven by structural admission.
+        // Suppress them as a whole, including cross-row captures, until exact
+        // analysis replaces the carry. Heading faces use current source bytes.
+        vec![crate::syntax::Capture {
+            bytes,
+            style: crate::syntax::Style::Org(crate::org::Role::Heading),
+        }]
     }
 }
 

@@ -152,6 +152,49 @@ mod tests {
         id
     }
 
+    // Carry and an equal exact replacement share geometry, retaining the
+    // unchanged source prefix. Old source stamps still reject pointer hits.
+    #[test]
+    fn carry_geometry() {
+        let mut buffers = Buffers::new().unwrap();
+        let id = create(
+            &mut buffers,
+            "* Root\nroot body\n** Child\nchild body\n*** Deep\n",
+        );
+        let buffer = buffers.get_mut(id).unwrap();
+        let mut view = View::new(buffer);
+        let old = view.wrapped_rows(buffer, 40, 20).unwrap()[0].clone();
+        let token = buffer.org_geometry().unwrap();
+        let start = Coordinates::new(buffer)
+            .unwrap()
+            .from_cell(Cell { row: 3, column: 4 })
+            .unwrap()
+            .0;
+        let edit = Replacement {
+            source: buffer.span(start..start).unwrap(),
+            text: "界".into(),
+        };
+        let mut points = [view.point];
+        let prepared = buffer.prepare(&[edit], &points, None).unwrap();
+        buffer.publish(prepared, &mut points).unwrap();
+        view.point = points[0];
+        assert!(buffer.org_outline().is_none());
+        assert_eq!(buffer.org_geometry(), Some(token));
+        assert!(old.hit(buffer, 40, 0).is_err());
+        let retained = view.wrap_cache.retained(buffer, 40);
+        assert!(retained.0 > 0);
+        assert_eq!(view.wrapped_rows(buffer, 40, 20).unwrap()[3].margin, 4);
+        let populated = view.wrap_cache.retained(buffer, 40);
+        observe(buffer, Limits::default());
+        assert_eq!(buffer.org_geometry(), Some(token));
+        assert_eq!(view.wrap_cache.retained(buffer, 40), populated);
+        assert!(
+            view.wrapped_rows(buffer, 40, 20).unwrap()[0]
+                .hit(buffer, 40, 0)
+                .is_ok()
+        );
+    }
+
     // Native ownership follows the latest heading, including blanks and a
     // shallower return. Only comma-escaped headings retain literal ownership.
     #[test]

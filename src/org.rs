@@ -34,6 +34,7 @@ pub use structure::{BlockKind, Structure, StructureKind, StructureNode, Structur
 pub use color::{ColorScan, Coloring, Highlights, Role};
 
 mod visibility;
+pub(crate) use visibility::PresentationEdit;
 pub(crate) use visibility::{Indentation, Insertion, Outline, SubtreeEdit, TaskChange, Visibility};
 
 pub(crate) mod timestamp;

@@ -133,3 +133,29 @@ fn cancelled_observation() {
     assert!(session.buffer().unwrap().history().is_empty());
     assert_eq!(session.remaining_input(Instant::now()), None);
 }
+
+// Explicit quit retires a carried heading even before a replacement worker is
+// launched. It keeps the typed source/history and admits no automatic retry.
+#[test]
+fn continuity_cancel() {
+    let (_fixture, mut session) = editor("", "** Heading\nbody\n");
+    settle(&mut session);
+    session.execute(Command::Motion(Motion::BufferStart));
+    for _ in 0..3 {
+        session.execute(Command::Motion(Motion::ForwardChar));
+    }
+    session.insert('z');
+    let current = Frame::project(session.buffer().unwrap(), session.view(), SIZE, "").unwrap();
+    assert!(body(&current, 0).starts_with("○ zHeading"));
+    session.execute(Command::KeyboardQuit);
+    let cancelled = session.frame().unwrap();
+    assert!(body(&cancelled, 0).starts_with("** zHeading"));
+    assert!(cancelled.rows()[0].syntax().is_empty());
+    assert_eq!(session.remaining_input(Instant::now()), None);
+    assert_eq!(text(session.buffer().unwrap()), "** zHeading\nbody\n");
+    assert_eq!(session.buffer().unwrap().history().len(), 1);
+    toggle(&mut session);
+    toggle(&mut session);
+    settle(&mut session);
+    assert!(body(&session.frame().unwrap(), 0).starts_with("○ zHeading"));
+}

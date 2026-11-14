@@ -1,4 +1,6 @@
 mod blocks;
+mod presentation;
+pub(in crate::org) use presentation::{HeadingPrefix, LinePresentation, presentation_line};
 mod elements;
 pub(in crate::org) mod entry;
 mod lists;
@@ -202,6 +204,7 @@ pub(in crate::org) fn observe(
     let mut work = Work {
         cancellation,
         yielded: Instant::now(),
+        remaining: None,
     };
     let mut result = Document {
         coverage: Coverage::Complete,
@@ -228,10 +231,19 @@ type Parsed<T> = Result<T, Stop>;
 struct Work<'a> {
     cancellation: &'a Cancellation,
     yielded: Instant,
+    remaining: Option<&'a mut usize>,
 }
 
 impl Work<'_> {
     fn tick(&mut self) -> Parsed<()> {
+        if let Some(remaining) = &mut self.remaining {
+            // A scalar read costs at most four source bytes. Admission does
+            // not yield or wait; the shared finite allowance is its deadline.
+            **remaining = remaining
+                .checked_sub(4)
+                .ok_or(Stop(Coverage::Incomplete(Limit::AnalysisBytes)))?;
+            return Ok(());
+        }
         if self.cancellation.is_cancelled() {
             return Err(Stop(Coverage::Cancelled));
         }

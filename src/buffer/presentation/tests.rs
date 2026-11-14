@@ -3,14 +3,14 @@ use crate::buffer::{Mode, edit::Replacement};
 use crate::org::{Cancellation, ColorScan, Limits};
 use std::ops::Range;
 
-fn observed(source: &str) -> Buffer {
+pub(super) fn observed(source: &str) -> Buffer {
     let mut buffer = Buffer::from_rope(Rope::from_str(source)).unwrap();
     buffer.select_mode(Mode::Org).unwrap();
     analyze(&mut buffer);
     buffer
 }
 
-fn analyze(buffer: &mut Buffer) {
+pub(super) fn analyze(buffer: &mut Buffer) {
     let coloring = ColorScan::new(buffer, Limits::default())
         .unwrap()
         .run(&Cancellation::default());
@@ -24,7 +24,7 @@ fn replacement(buffer: &Buffer, range: Range<usize>, text: &str) -> Replacement 
     }
 }
 
-fn edit(buffer: &mut Buffer, range: Range<usize>, text: &str) {
+pub(super) fn edit(buffer: &mut Buffer, range: Range<usize>, text: &str) {
     let edit = replacement(buffer, range, text);
     let prepared = buffer.prepare(&[edit], &[], None).unwrap();
     buffer.publish(prepared, &mut []).unwrap();
@@ -152,8 +152,17 @@ fn scan_ceiling() {
         ("short line", 1, "x", true),
     ] {
         let mut buffer = observed(&format!("* Root\n{}\n", "a".repeat(length)));
+        let before = buffer.text.clone();
+        let stamp = buffer.stamp();
         edit(&mut buffer, 7..7, inserted);
-        assert_eq!(buffer.presentation.is_some(), admitted, "{name}");
+        let mut remaining = SCAN_BYTES;
+        let shape = Mapping::exact(stamp, before.len_bytes()).prepare(
+            &before,
+            &buffer.text,
+            buffer.history().back().unwrap(),
+            &mut remaining,
+        );
+        assert_eq!(shape.is_some(), admitted, "{name}");
     }
     let mut buffer = observed("* Root\na\n");
     edit(&mut buffer, 7..7, &"x".repeat(SCAN_BYTES + 1));

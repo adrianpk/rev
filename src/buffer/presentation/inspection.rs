@@ -1,4 +1,4 @@
-use super::{SCAN_BYTES, Transaction};
+use super::Transaction;
 use crate::buffer::edit::Change;
 use ropey::{Rope, RopeSlice};
 
@@ -8,13 +8,13 @@ pub(super) struct Mutation {
     pub(super) delta: isize,
 }
 
-struct Budget {
-    remaining: usize,
+struct Budget<'a> {
+    remaining: &'a mut usize,
 }
 
-impl Budget {
+impl Budget<'_> {
     fn charge(&mut self, bytes: usize) -> Option<()> {
-        self.remaining = self.remaining.checked_sub(bytes)?;
+        *self.remaining = self.remaining.checked_sub(bytes)?;
         Some(())
     }
 
@@ -45,16 +45,19 @@ impl Budget {
 }
 
 impl Mutation {
-    pub(super) fn inspect(before: &Rope, after: &Rope, record: &Transaction) -> Option<Self> {
+    pub(super) fn inspect(
+        before: &Rope,
+        after: &Rope,
+        record: &Transaction,
+        remaining: &mut usize,
+    ) -> Option<Self> {
         let [change] = record.changes() else {
             return None;
         };
         if before.len_lines() != after.len_lines() {
             return None;
         }
-        let mut budget = Budget {
-            remaining: SCAN_BYTES,
-        };
+        let mut budget = Budget { remaining };
         let row = budget.same_line(before, after, change)?;
         let delta = isize::try_from(change.inserted().len_bytes())
             .ok()?

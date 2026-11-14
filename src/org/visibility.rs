@@ -3,6 +3,8 @@ mod archive;
 mod insertion;
 pub(crate) use tags::{ClockInsertion, ClockObservation};
 mod model;
+mod presentation;
+pub(crate) use presentation::PresentationEdit;
 mod navigation;
 mod startup;
 mod state;
