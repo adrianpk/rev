@@ -1,0 +1,201 @@
+{
+  "status": "approved independent native expectations",
+  "source_revision": "0a05c82da5babc23f2fcd58176e35b99823b6c3a",
+  "coordinate_unit": "zero-based Unicode scalar; published point must be a native grapheme boundary",
+  "cases": [
+    {
+      "case": "opening_endpoint",
+      "profile": "plain",
+      "initial": "(ab)",
+      "point_before": 0,
+      "target": 3,
+      "result": "confirmed",
+      "source_unchanged": true,
+      "undo_items_added": 0
+    },
+    {
+      "case": "closing_endpoint",
+      "profile": "plain",
+      "initial": "(ab)",
+      "point_before": 3,
+      "target": 0,
+      "result": "confirmed",
+      "source_unchanged": true,
+      "undo_items_added": 0
+    },
+    {
+      "case": "immediately_after_opening",
+      "profile": "plain",
+      "initial": "(ab)",
+      "point_before": 1,
+      "target": 3,
+      "result": "confirmed",
+      "source_unchanged": true,
+      "undo_items_added": 0
+    },
+    {
+      "case": "immediately_after_closing",
+      "profile": "plain",
+      "initial": "(ab)",
+      "point_before": 4,
+      "target": 0,
+      "result": "confirmed",
+      "source_unchanged": true,
+      "undo_items_added": 0
+    },
+    {
+      "case": "at_point_precedes_previous",
+      "profile": "plain",
+      "initial": "()[]",
+      "point_before": 2,
+      "target": 3,
+      "result": "confirmed",
+      "source_unchanged": true,
+      "undo_items_added": 0
+    },
+    {
+      "case": "not_a_delimiter",
+      "profile": "plain",
+      "initial": "(ab)",
+      "point_before": 2,
+      "target": 2,
+      "result": "refused",
+      "source_unchanged": true,
+      "undo_items_added": 0
+    },
+    {
+      "case": "no_later_line_search",
+      "profile": "plain",
+      "initial": "hello (a)",
+      "point_before": 0,
+      "target": 0,
+      "result": "refused",
+      "source_unchanged": true,
+      "undo_items_added": 0
+    },
+    {
+      "case": "typed_mismatch",
+      "profile": "c",
+      "initial": "[a)",
+      "point_before": 0,
+      "target": 0,
+      "result": "refused",
+      "source_unchanged": true,
+      "undo_items_added": 0
+    },
+    {
+      "case": "multiline",
+      "profile": "plain",
+      "initial": "(a\n b)",
+      "point_before": 0,
+      "target": 5,
+      "result": "confirmed",
+      "source_unchanged": true,
+      "undo_items_added": 0
+    },
+    {
+      "case": "unicode_scalars",
+      "profile": "plain",
+      "initial": "(界)",
+      "point_before": 0,
+      "target": 2,
+      "result": "confirmed",
+      "source_unchanged": true,
+      "undo_items_added": 0
+    },
+    {
+      "case": "crlf",
+      "profile": "plain",
+      "initial": "(a\r\nb)",
+      "point_before": 0,
+      "target": 5,
+      "result": "confirmed",
+      "source_unchanged": true,
+      "undo_items_added": 0
+    },
+    {
+      "case": "double_string",
+      "profile": "c",
+      "initial": "\"ab\"",
+      "point_before": 0,
+      "target": 3,
+      "result": "confirmed",
+      "source_unchanged": true,
+      "undo_items_added": 0
+    },
+    {
+      "case": "inside_comment",
+      "profile": "c",
+      "initial": "/*(a)*/",
+      "point_before": 2,
+      "target": 2,
+      "result": "refused",
+      "source_unchanged": true,
+      "undo_items_added": 0
+    },
+    {
+      "case": "angles_literal",
+      "profile": "plain",
+      "initial": "<a>",
+      "point_before": 0,
+      "target": 0,
+      "result": "refused",
+      "source_unchanged": true,
+      "undo_items_added": 0
+    },
+    {
+      "case": "read_only",
+      "profile": "plain",
+      "initial": "(ab)",
+      "point_before": 0,
+      "target": 3,
+      "result": "confirmed",
+      "source_unchanged": true,
+      "undo_items_added": 0,
+      "read_only": true
+    },
+    {
+      "case": "editing_disabled",
+      "profile": "plain",
+      "initial": "(ab)",
+      "point_before": 0,
+      "target": 3,
+      "result": "confirmed",
+      "source_unchanged": true,
+      "undo_items_added": 0,
+      "pairs_enabled": false
+    },
+    {
+      "case": "quote_editing_disabled",
+      "profile": "c",
+      "initial": "\"ab\"",
+      "point_before": 0,
+      "target": 3,
+      "result": "confirmed",
+      "source_unchanged": true,
+      "undo_items_added": 0,
+      "pairs_quotes": false
+    },
+    {
+      "case": "unmatched",
+      "profile": "plain",
+      "initial": "(ab",
+      "point_before": 0,
+      "target": 0,
+      "result": "refused",
+      "source_unchanged": true,
+      "undo_items_added": 0
+    },
+    {
+      "case": "explicit_prefix_refuses",
+      "profile": "plain",
+      "initial": "(ab)",
+      "point_before": 0,
+      "target": 0,
+      "result": "unsupported-prefix",
+      "source_unchanged": true,
+      "undo_items_added": 0,
+      "count": 2
+    }
+  ]
+}

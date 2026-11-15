@@ -1,12 +1,14 @@
 # Emacs Interaction Parity
 
 Status: Prepared for subsequent delivery slicing
+Expression navigation status: Approved through rev-delimiter-navigation
+Paragraph navigation status: Pending
 Date: 2026-11-14
 Direction approved: product owner, 2026-11-14; core-first functional parity and related Org/Git follow-through
 Decision evidence SHA-256: `cc915b2d4af14a6ad0da34a517724e9664f59436b40d1004877e8a539af21939`
 Format: OpenSpec behavioral requirements; workspace specification contract
 Native inspection source tree: `442765af9faac4351c208b2bfc5ca02c1b896331`
-Current delivery: [Factory Shortcut Alignment](editor-factory-shortcut-alignment.md), [plan](../plan/rev-factory-shortcuts.md), [tracker](../tracker/rev-factory-shortcuts.md)
+Current delivery: EIP04 expression portion through [Delimiter Navigation](editor-delimiter-navigation.md), [plan](../plan/rev-delimiter-navigation.md), [tracker](../tracker/rev-delimiter-navigation.md)
 Evidence: [semantic matrix](../report/rev-factory-shortcuts/semantic-matrix.md), [contextual review](../report/rev-factory-shortcuts/mode-review.md), [functional reference](../report/rev-factory-shortcuts/parity-reference.json)
 Baselines: [Interaction](editor-interaction.md), [Modal Editing](editor-modal-editing.md), [Prefix Arguments](editor-prefix-arguments.md), [Org](editor-org-mode.md), [Git](editor-git-integration.md)
 

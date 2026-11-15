@@ -4,7 +4,8 @@ Status: Partially approved
 Editing status: Completed
 Editing completed: 2026-11-15
 Editing approval: product owner, 2026-11-15; rev-delimiter-editing
-Navigation status: Draft
+Navigation status: Approved
+Navigation approval: product owner, 2026-11-15; rev-delimiter-navigation
 Presentation status: Draft
 Date: 2026-11-08
 Updated: 2026-11-15
@@ -189,9 +190,9 @@ for their separate deliveries. No new permanent worker/service is introduced.
 
 [rev-delimiter-editing](../plan/rev-delimiter-editing.md) owns only the approved
 five editing settings, qualified matching/context and native editing/provenance
-state. Navigation and visual records remain design context, not implementation
-authority. Editing closure changes Editing status to Completed and retains this
-model's Partially approved status while later capabilities remain Draft.
+state. For that editing delivery, navigation and visual records supplied design
+context rather than implementation authority. Editing closure set Editing status
+to Completed and retained this model's Partially approved status.
 
 Implementation evidence is collected in the
 [seven-slice tracker](../tracker/rev-delimiter-editing.md) and
@@ -201,5 +202,26 @@ Editing is Completed after the controller's unchanged combined gate passed at
 `QD5ALW2WJR64VCCTK4CJAOZPDK`. The
 [closure record](../report/slices/rev-delimiter-editing/slice-7-acceptance.md#delivery-set-closure)
 preserves that tested identity separately from the subsequent Markdown-only dev
-closure commit. This model stays Partially approved; navigation/presentation
-remain Draft and retain their independent acceptance boundaries.
+closure commit. At editing closure this model stayed Partially approved, with navigation and
+presentation Draft. The subsequent navigation authority is recorded below;
+presentation retains its separate Draft boundary.
+
+## Navigation delivery boundary
+
+[rev-delimiter-navigation](../plan/rev-delimiter-navigation.md) approves the shared
+source-qualified motion request/result, seven command identities and six native
+base-editor bindings in the [navigation specification](editor-delimiter-navigation.md).
+No new startup leaves, persistence format, pair palette or presentation fields
+are introduced. Automatic editing preferences are not navigation admission gates;
+readonly source remains navigable through native focus and coordinate owners.
+
+Typed Confirmed pair facts remain distinct from group/expression targets and
+ordinary boundaries/refusals. The existing per-buffer retained metadata and
+aggregate inspected-byte/depth/cooperative bounds apply across counted motion;
+source/view/point/mark/focus changes retire pending publication. A mode group
+cannot become typed pair evidence through cache reuse. Use the native mark and
+source-motion/jump owners; do not add an independent history or per-view cache.
+
+Navigation closure changes only Navigation status to Completed. Editing remains
+Completed, Presentation remains Draft and this model remains Partially approved.
+EIP04 closes only its expression portion; paragraph and broad parity stay pending.

@@ -95,8 +95,13 @@ records workspace/hook, 192 native cases, two Linux PTYs, bounded resource/frame
 and documentation results, and the subsequent Markdown-only closure relationship.
 All seven reports are delivered and owned integrated worktrees removed. Only the
 editing portion of the [shared model](spec/editor-delimiter-pairs-model.md) is
-Completed; the model remains Partially approved. [Navigation](spec/editor-delimiter-navigation.md)
-and [presentation](spec/editor-delimiter-presentation.md) remain Draft, in that order.
+Completed; the model remains Partially approved.
+[Navigation](spec/editor-delimiter-navigation.md) is Approved for the next
+[five-slice set](plan/rev-delimiter-navigation.md), with its
+[tracker](tracker/rev-delimiter-navigation.md). It delivers mate, group and
+expression navigation; the expression portion of EIP04 is tracked separately from
+paragraph parity. [Presentation](spec/editor-delimiter-presentation.md) remains
+Draft and follows navigation under its own execution authority.
 
 ## Pending proposals
 
