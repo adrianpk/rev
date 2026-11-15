@@ -1,6 +1,6 @@
 # Slice 4: Syntax-class expression motions
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-delimiter-navigation
 Plan: [Delimiter Navigation Delivery](../../../plan/rev-delimiter-navigation.md)
 Tracker: [Delimiter Navigation Tracker](../../../tracker/rev-delimiter-navigation.md)
@@ -66,8 +66,8 @@ is reconciled; paragraph motion and broad functional parity remain pending.
 ## Validation
 
 Focused checks are local; the controller owns the combined delivery gate.
-Final clean-HEAD evidence is recorded separately through looper validate after
-the PR-reference commit.
+All three ordered required commands passed through looper validate at clean,
+pushed `1d078b5599bdb46bb8bd65c507a4ea13f4c436f7`, integrated by PR #65.
 
 - PASS: `cargo fmt --all -- --check`.
 - PASS: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test pair_navigation expressions -- --test-threads=1`: eleven tests, including atomic byte/depth/retention refusal.
@@ -125,7 +125,8 @@ Slice 5 owns representative physical-input journeys and integrated guidance.
 The controller owns integration, the combined gate and navigation closure.
 No full delivery gate, guide build, main promotion or publication runs here.
 The existing vendored crossterm parentheses warning is unchanged.
-PR #65 is open against dev. Implementation is `f918eb682440e27ca4f0dff6b50de5a1429c6045`;
+PR #65 integrated into dev. Implementation is `f918eb682440e27ca4f0dff6b50de5a1429c6045`;
 test/report introduction is `b368dcae92539b730abde92f7099d9383fa575f8`.
-The final documentation commit adds the canonical PR reference; controller-owned
-integration and combined acceptance remain pending.
+The validated head is `1d078b5599bdb46bb8bd65c507a4ea13f4c436f7`. Fetched ancestry,
+cleanliness and inactivity were verified before non-forced owned worktree removal.
+Controller-owned combined acceptance remains pending.

@@ -12,7 +12,7 @@ Spec: [Delimiter Navigation](../spec/editor-delimiter-navigation.md)
 Model: [Pair Preferences and Native State](../spec/editor-delimiter-pairs-model.md)
 Concern: [Operations index](../README.md)
 Concern: [Interaction Parity](../spec/editor-emacs-interaction-parity.md)
-Active slice: Slice 4 — Syntax-class expression motions
+Active slice: Slice 5 — Integrated navigation acceptance
 Integration target: `dev`
 Tracker: [Delimiter Navigation Tracker](../tracker/rev-delimiter-navigation.md)
 
