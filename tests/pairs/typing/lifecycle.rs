@@ -33,8 +33,8 @@ fn named(session: &mut Session, name: &str) {
     settle(session);
 }
 
-// The independent frozen inventory still equals every old command. Its three
-// additions are explicitly specified here, not copied from live output.
+// The frozen inventory plus three editing and seven navigation additions
+// stays exact. Additions are literal identities, not copied from live output.
 #[test]
 fn inventory() {
     use std::collections::BTreeSet;
@@ -50,10 +50,21 @@ fn inventory() {
         .collect();
     assert_eq!(baseline.len(), 707);
     let live: BTreeSet<_> = Command::ALL.iter().map(Command::name).collect();
-    let added = BTreeSet::from(["auto-pair-mode", "pair-wrap", "pair-unwrap"]);
+    let added = BTreeSet::from([
+        "auto-pair-mode",
+        "pair-wrap",
+        "pair-unwrap",
+        "matching-delimiter",
+        "forward-pair",
+        "backward-pair",
+        "up-pair",
+        "down-pair",
+        "forward-sexp",
+        "backward-sexp",
+    ]);
     assert!(baseline.is_disjoint(&added));
     assert_eq!(baseline, live.difference(&added).copied().collect());
-    assert_eq!(live.len(), 710);
+    assert_eq!(live.len(), 717);
     assert!(added.is_subset(&live));
     assert_eq!(
         Command::named("auto-pair-mode"),

@@ -102,8 +102,8 @@ fn refusal() {
     }
 }
 
-// The independent frozen command set remains equal after exactly three named
-// additions. The two helpers have native descriptions and no factory assignment.
+// The frozen command set plus three editing and seven navigation additions
+// stays exact. The two editing helpers remain described and factory-unbound.
 #[test]
 fn inventory() {
     use std::collections::BTreeSet;
@@ -117,10 +117,21 @@ fn inventory() {
         .iter()
         .map(|c| c["name"].as_str().unwrap())
         .collect();
-    let added = BTreeSet::from(["auto-pair-mode", "pair-wrap", "pair-unwrap"]);
+    let added = BTreeSet::from([
+        "auto-pair-mode",
+        "pair-wrap",
+        "pair-unwrap",
+        "matching-delimiter",
+        "forward-pair",
+        "backward-pair",
+        "up-pair",
+        "down-pair",
+        "forward-sexp",
+        "backward-sexp",
+    ]);
     let live: BTreeSet<_> = Command::ALL.iter().map(Command::name).collect();
     assert_eq!(baseline.len(), 707);
-    assert_eq!(live.len(), 710);
+    assert_eq!(live.len(), 717);
     assert!(baseline.is_disjoint(&added));
     assert_eq!(baseline, live.difference(&added).copied().collect());
     for (name, description) in [
