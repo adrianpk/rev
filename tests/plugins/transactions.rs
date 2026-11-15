@@ -29,6 +29,46 @@ fn current_text(rpc: &Rpc) -> String {
         .to_string()
 }
 
+// Real child edits.apply keeps unmatched delimiters literal in both profiles.
+// Shared-view publication and local undo use the existing batch transaction.
+#[test]
+fn pair_provenance() {
+    let payload = "([{\"界e\u{301}\r\n";
+    for profile in ["non-modal", "modal"] {
+        let mut rpc = Rpc::new(profile);
+        let original = source(&mut rpc);
+        rpc.editor
+            .session
+            .execute(Command::Motion(Motion::BufferEnd));
+        rpc.editor.session.execute(Command::Split(Split::Right));
+        let point = rpc.editor.session.view().point.position;
+        let length = usize::try_from(original["scalar_len"].as_u64().unwrap()).unwrap();
+        rpc.ok(
+            "edits.apply",
+            &batch(&[target(&original, &[replacement(0, length, payload)])]),
+        );
+        assert_eq!(current_text(&rpc), payload);
+        let stamp = rpc.editor.session.buffer().unwrap().stamp();
+        assert!(
+            rpc.editor
+                .session
+                .windows()
+                .iter()
+                .all(|(_, v)| v.point.stamp == stamp)
+        );
+        assert_eq!(
+            rpc.editor.session.view().point.position.0,
+            payload.chars().count()
+        );
+        assert_eq!(rpc.editor.session.buffer().unwrap().history().len(), 1);
+        rpc.editor.session.execute(Command::History(History::Undo));
+        assert_eq!(current_text(&rpc), "source 🦀\n");
+        assert_eq!(rpc.editor.session.view().point.position, point);
+        rpc.editor.session.execute(Command::History(History::Redo));
+        assert_eq!(current_text(&rpc), payload);
+    }
+}
+
 // A real child publishes several replacements in two ordinary sources in both
 // profiles. The hidden participant stays hidden and undo/redo remain local.
 #[test]

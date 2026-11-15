@@ -11,6 +11,8 @@ mod edits;
 mod fixture;
 #[path = "lsp/lifetime.rs"]
 mod lifetime;
+#[path = "lsp/provenance.rs"]
+mod provenance;
 #[path = "lsp/real.rs"]
 mod real;
 

@@ -48,6 +48,15 @@ closers changes point only. Consecutive symmetric quote input closes its generat
 mate before further adjacent quotes remain literal. Paste and accepted source
 replacements insert literal bytes and do not generate mates.
 
+Raw macro keys apply the current buffer's typing policy once during replay.
+Generated mates are effects of that key, not additional recorded keys. Accepted
+paste and completion steps replay their literal payloads, including unmatched
+delimiters, without asking a completion provider again. AI result application,
+plugin edits, external reload and programmatic replacements also keep their
+literal source-edit behavior. Existing macro counts, counters, cancellation and
+buffer-local undo groups retain their owners. Closer skipping adds no history;
+redo restores the last source edit's point rather than later navigation.
+
 With an active ordinary linear region, typing either side of an admitted pair
 wraps the selected bytes once. Opening input leaves point after the generated
 openers; closing input leaves it after all generated closers. The region is
@@ -70,6 +79,15 @@ Go backticks and ordinary TOML single quotes retain their raw-content rules.
 Quote unwrapping refuses escape sequences and nested quote forms whose literal
 interpretation cannot be proved safe. Unconfirmed helpers refuse before mutation;
 uncertain ordinary structural typing retains the existing literal-input owner.
+
+Native Org and Markdown heading presentation can remain available during body
+typing and same-line wrap/unwrap while exact analysis refreshes. This display
+continuity does not authorize structural actions from stale analysis. The native
+32 KiB inspection and eight-row carry limits remain unchanged; paired edits share
+one inspection budget and admit only matched delimiter insertions or removals
+when two replacements share one source line.
+Line-structure changes, larger batches and unproved literal contexts require fresh
+analysis. Source spans, shared points and undo history remain native coordinates.
 
 Qualification inspects at most 256 KiB per request, admits depth 256 and retains
 at most 2 MiB of pair metadata per buffer. Counted work shares that budget.

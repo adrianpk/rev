@@ -22,6 +22,47 @@ fn switch(s: &mut Session, name: &str) {
     instruction(s, name);
 }
 
+// An owned offline peer returns unmatched delimiter text. Native result apply
+// must publish it literally in both profiles, without synthetic typing effects.
+#[test]
+fn pair_provenance() {
+    let generated = "([{\"界e\u{301}\r\n";
+    for profile in ["non-modal", "modal"] {
+        for (command, prefix) in [
+            (Command::AiPrompt, ""),
+            (Command::AiImplement, "é original"),
+        ] {
+            let f = Fixture::new();
+            let mut s = editor(&f, "normal", profile, true);
+            f.write("result", generated);
+            let stamp = s.buffer().unwrap().stamp();
+            let point = s.view().point.position;
+            assert!(s.buffer().unwrap().pair_policy().enabled);
+            s.execute(command);
+            instruction(&mut s, "Return the supplied literal text.");
+            proposal(&mut s);
+            s.execute(Command::AiApplyResult);
+            let expected = format!("{prefix}{generated} selection\n");
+            assert_eq!(text(&s), expected);
+            assert_ne!(s.buffer().unwrap().stamp(), stamp);
+            assert_eq!(s.buffer().unwrap().history().len(), 1);
+            assert_eq!(
+                s.view().point.position.0,
+                prefix.chars().count() + generated.chars().count()
+            );
+            s.execute(Command::History(History::Undo));
+            assert_eq!(text(&s), "é original selection\n");
+            assert_eq!(s.view().point.position, point);
+            s.execute(Command::History(History::Redo));
+            assert_eq!(text(&s), expected);
+            assert_eq!(
+                fs::read_to_string(f.0.join("source.txt")).unwrap(),
+                "é original selection\n"
+            );
+        }
+    }
+}
+
 // Request details start folded through native Org visibility, even without
 // coloring. TAB opens them per view; subsequent observations must not refold.
 #[test]

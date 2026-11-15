@@ -122,6 +122,81 @@ fn refused_shapes() {
     }
 }
 
+// Both ends of a same-row pair contribute to carried byte offsets. Larger,
+// cross-row and newline batches still publish source without carrying evidence.
+#[test]
+fn paired_rows() {
+    for (name, changes, expected) in [
+        (
+            "same row",
+            vec![(7..7, "("), (11..11, ")")],
+            Some("* Root\n(body) text\n** Child\n"),
+        ),
+        (
+            "counted pair",
+            vec![(7..7, "((("), (11..11, ")))")],
+            Some("* Root\n(((body))) text\n** Child\n"),
+        ),
+        (
+            "quote pair",
+            vec![(7..7, "\""), (11..11, "\"")],
+            Some("* Root\n\"body\" text\n** Child\n"),
+        ),
+        ("wrong closer", vec![(7..7, "("), (11..11, "]")], None),
+        ("different rows", vec![(7..7, "("), (17..17, ")")], None),
+        (
+            "three ends",
+            vec![(7..7, "("), (8..8, "["), (11..11, ")")],
+            None,
+        ),
+        ("newline end", vec![(7..7, "("), (11..11, ")\n")], None),
+    ] {
+        let mut buffer = observed("* Root\nbody text\n** Child\n");
+        let base = buffer.text.clone();
+        let edits: Vec<_> = changes
+            .into_iter()
+            .map(|(range, text)| replacement(&buffer, range, text))
+            .collect();
+        let prepared = buffer.prepare(&edits, &[], None).unwrap();
+        buffer.publish(prepared, &mut []).unwrap();
+        assert_eq!(buffer.presentation.is_some(), expected.is_some(), "{name}");
+        assert_eq!(buffer.history().len(), 1);
+        if let Some(expected) = expected {
+            assert_eq!(buffer.text.to_string(), expected);
+            mapped_rows(&buffer, &base);
+            assert!(buffer.org_outline().is_none());
+        }
+    }
+}
+
+// Two delimiter fragments share the unchanged 32 KiB inspection budget. The
+// second end cannot reset admission after the first complete line inspection.
+#[test]
+fn pair_scan_ceiling() {
+    for (name, length, admitted) in [
+        ("within shared budget", SCAN_BYTES / 4 - 3, true),
+        ("over shared budget", SCAN_BYTES / 4 - 2, false),
+    ] {
+        let mut buffer = observed(&format!("* Root\n{}\n", "a".repeat(length)));
+        let before = buffer.text.clone();
+        let stamp = buffer.stamp();
+        let edits = [
+            replacement(&buffer, 7..7, "("),
+            replacement(&buffer, 8..8, ")"),
+        ];
+        let prepared = buffer.prepare(&edits, &[], None).unwrap();
+        buffer.publish(prepared, &mut []).unwrap();
+        let mut remaining = SCAN_BYTES;
+        let mapping = Mapping::exact(stamp, before.len_bytes()).prepare(
+            &before,
+            &buffer.text,
+            buffer.history().back().unwrap(),
+            &mut remaining,
+        );
+        assert_eq!(mapping.is_some(), admitted, "{name}");
+    }
+}
+
 // Eight rows are accepted in arbitrary order; the ninth retires mapping before
 // publishing the next source revision. Repeated edits do not consume new slots.
 #[test]

@@ -6,6 +6,8 @@ mod deletion;
 mod editor;
 #[path = "configuration/fixture.rs"]
 mod fixture;
+#[path = "pairs/provenance.rs"]
+mod provenance;
 #[path = "pairs/qualification.rs"]
 mod qualification;
 #[path = "pairs/quotes.rs"]
