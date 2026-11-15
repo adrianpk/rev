@@ -163,7 +163,7 @@ Branch: `fix/rev-delimiter-editing-06-provenance`
 Expected PR title: `fix(editor): preserve literal edits and macro pair provenance`
 Report: `ops/default/report/slices/rev-delimiter-editing/slice-6-provenance.md`
 State: reviewing; implementation complete
-PR: pending
+PR: [#60](https://forge.adrianpk.com/rev/rev/pulls/60)
 Task commits: T6.1-T6.3/report introduction `40edb1bce7e68b3d537aff9e6a87b69232887241`; native ingress trace, bounded presentation correction and independent provenance/history regressions were committed together as one complete path.
 Validation: formatting, 11 required provenance cases, 20 required macro recording/region/runner cases, three offline AI/plugin/semantic-completion ingress cases, 24 presentation-owner regressions, 15 legacy continuity cases, 10 counter/completion cases and documentation with 22 reference tests PASS. Full staged-source hooks PASS for 1,953 Rust files and 77 Cargo roots. Personal settings and frozen catalog/manifest preserved. Exact clean-HEAD controller evidence follows PR-reference commits; combined acceptance remains controller-owned.
 
