@@ -153,7 +153,7 @@ The canonical PR contract was verified; PR #61 integrated that same candidate
 into dev, confirmed by Forgejo, fetched ancestry and Acta. Combined delivery-set
 acceptance remains controller-owned; this script run is slice acceptance, not that full gate.
 
-## Delivery evidence prepared for controller closure
+## Delivery-set closure
 
 | Slice | Report | Canonical PR | Current boundary |
 | --- | --- | --- | --- |
@@ -163,7 +163,7 @@ acceptance remains controller-owned; this script run is slice acceptance, not th
 | 4 | [Deletion](slice-4-deletion.md) | #58 | Delivered. |
 | 5 | [Regions](slice-5-regions.md) | #59 | Delivered. |
 | 6 | [Provenance](slice-6-provenance.md) | #60 | Delivered. |
-| 7 | This report | #61 | Delivered; combined gate pending. |
+| 7 | This report | #61 | Delivered; combined gate PASS. |
 
 Gate preparation verified canonical PRs #55-#61 as merged ancestors of fetched
 dev. All seven reports are delivered and all 21 task entries are complete. The
@@ -176,23 +176,44 @@ Preparation checks passed:
 - `bash -n scripts/check-quality.sh scripts/test-hooks.sh scripts/check-delimiter-editing.sh scripts/check-documentation.sh scripts/build-user-guide.sh`
 - `git diff --check`
 
-No combined gate ran in preparation. The slice receipt above belongs to its
-original exact HEAD; the controller selects and validates the clean published
-candidate containing these Markdown-only preparation changes.
+The preparation checks above preceded the controller's full gate. The controller
+subsequently ran this unchanged command with result PASS at tested candidate
+`eb65b227dee8b42bf8d0c8a6e0ef12f5675c756b`, receipt
+`QD5ALW2WJR64VCCTK4CJAOZPDK`:
 
-The approved plan fixes the final command and closure path allowlist. All runtime,
-settings, test, fixture, script, reference, guide/changelog and report content must
-already be in the tested candidate. After the unchanged combined gate passes,
-record its exact dev hash, receipt and any separate Markdown-only closure commit
-here and in the tracker. Reconcile the seven reports, editing specification,
-editing status in the shared model and operations index at that point. Keep the
-shared model Partially approved and navigation/presentation Draft.
+```sh
+env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 bash -c 'set -euo pipefail; make lint; make test-hooks; bash scripts/check-delimiter-editing.sh; bash scripts/check-documentation.sh; bash scripts/build-user-guide.sh; git diff --check'
+```
+
+- Formatting, strict all-target/all-feature workspace Clippy and native source policy passed for 1,956 first-party Rust files, two packages and all 78 Cargo roots; zero blocking or deferred Clippy diagnostics.
+- Real Git hook acceptance passed, including immutable/partial index cases, source bounds, linked-worktree ownership, cache isolation and concurrent-owner refusal. Its cold fixture took 35 seconds and warm fixture two seconds.
+- All 192 selected native acceptance cases passed with no failures/skips: 78 pair, 11 configuration, 28 editing, 12 paste, 40 macro, two modal, eight Org and 13 Markdown cases. Every filter selected nonzero coverage. Fixed byte/depth/metadata/work, cancellation, stale revision, counted atomicity, shared views and pending-frame continuity assertions remained intact.
+- The unchanged factory helper passed 28 complete maps, the frozen 707-command baseline plus three editing commands and both profile routes.
+- Both Linux PTYs passed exact physical typing, skip, literal paste, macro replay, undo/redo, save/reopen and focus checks with restored/reaped terminal state. Non-modal took 1,261 ms and 41,170 bytes; modal took 1,393 ms and 43,583 bytes. Both observed zero idle CPU ticks over 350 ms; peak RSS was 36,612 and 38,936 kB respectively.
+- Integrated queue release completed in both profiles at all four source sizes; the maximum observed host turn was 20.815 ms. The 1 MiB count-three requests refused atomically. Depth 256 confirmed, 257 refused, and actual retention exhaustion stopped at 2,097,136 retained bytes. The four-millisecond scheduling value remains a target.
+- Documentation passed for 710 commands, 332 configuration entries, 112 reachable pages and 791 local links/anchors, with all 22 reference tests. The strict local User Guide build and final whitespace check passed. No site was published.
+
+All 21 tasks, seven canonical PRs and seven reports are delivered. Integrated
+owned worktrees were removed without force; unrelated worktrees remain. After
+validation no owned editor fixture process remained. The pre-existing vendored
+crossterm parentheses warning remained non-blocking.
+
+The approved closure is a subsequent documentation-only descendant of the tested
+candidate, limited to the twelve configured Markdown paths: this plan/tracker,
+seven reports, editing specification/model status and operations index. The
+exact closure commit is retained in Git and Acta and pushed on dev. All files
+outside that allowlist, including runtime sources, configuration, fixtures,
+scripts, public identities and acceptance assertions, retain the tested bytes.
+Editing alone becomes Completed. The shared model remains Partially approved;
+navigation/presentation and their specifications remain Draft. No successor,
+main promotion, release, tag, mirror, installation or publication is part of
+this closure.
 
 ## Risks and Follow-ups
 
 The four-millisecond cooperative scheduling value is a target, not a wall-clock
 guarantee. Host turns include native source/projection work and are reported
 separately from individual qualification polls. All seven slices are integrated.
-The controller must run the unchanged combined gate against the exact published
-dev candidate before editing-only closure. That later Markdown closure records
-the tested hash and receipt independently; navigation/presentation remain Draft.
+The combined gate passed at the immutable candidate above. Closure preserves
+that receipt separately from its later Markdown-only commit. Conservative
+uncertainty/refusal policies and navigation/presentation Draft boundaries remain.

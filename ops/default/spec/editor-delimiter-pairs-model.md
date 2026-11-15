@@ -1,7 +1,8 @@
 # Pair Preferences and Native State
 
 Status: Partially approved
-Editing status: Approved
+Editing status: Completed
+Editing completed: 2026-11-15
 Editing approval: product owner, 2026-11-15; rev-delimiter-editing
 Navigation status: Draft
 Presentation status: Draft
@@ -195,6 +196,10 @@ model's Partially approved status while later capabilities remain Draft.
 Implementation evidence is collected in the
 [seven-slice tracker](../tracker/rev-delimiter-editing.md) and
 [acceptance report](../report/slices/rev-delimiter-editing/slice-7-acceptance.md).
-All seven editing slices are integrated. Editing status stays Approved pending
-the controller's exact-candidate combined gate. The closure record must preserve that tested hash,
-receipt and any subsequent Markdown-only closure commit separately.
+Editing is Completed after the controller's unchanged combined gate passed at
+`eb65b227dee8b42bf8d0c8a6e0ef12f5675c756b`, receipt
+`QD5ALW2WJR64VCCTK4CJAOZPDK`. The
+[closure record](../report/slices/rev-delimiter-editing/slice-7-acceptance.md#delivery-set-closure)
+preserves that tested identity separately from the subsequent Markdown-only dev
+closure commit. This model stays Partially approved; navigation/presentation
+remain Draft and retain their independent acceptance boundaries.

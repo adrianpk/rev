@@ -1,6 +1,7 @@
 # Automatic Delimiter Editing Tracker
 
-Status: Approved
+Status: Completed
+Completed: 2026-11-15
 Date: 2026-11-15
 Delivery set: rev-delimiter-editing
 Slice strategy: layered
@@ -10,7 +11,7 @@ Execution authority: slices 1-7, predecessor-ordered canonical PRs and controlle
 Planning baseline: `fa48f847e9075eafd2272891c29c7dbf04bf7f16`
 Spec: [Delimiter Pairs](../spec/editor-delimiter-pairs.md)
 Model: [Pair Preferences and Native State](../spec/editor-delimiter-pairs-model.md)
-Active slice: None — all seven slices delivered; controller full gate pending
+Active slice: None — Slice 7 of 7 completed; delivery set closed
 Integration target: `dev`
 Plan: [Automatic Delimiter Editing Delivery](../plan/rev-delimiter-editing.md)
 
@@ -208,7 +209,7 @@ git diff --check
 
 ## Final acceptance and closure
 
-State: ready for controller-owned full gate; all seven slices integrated
+State: Completed; all seven slices integrated and full gate PASS
 Required command:
 
 ```sh
@@ -229,9 +230,23 @@ between that tested candidate and ordinary closure. Only editing becomes
 Completed; navigation/presentation and their model portions remain Draft.
 
 - [x] All 21 tasks and seven canonical slice PRs delivered in predecessor order.
-- [ ] Integrated editing/configuration and shared-owner regressions pass.
-- [ ] Two representative owned Linux PTYs and bounded resource/frame workloads pass.
-- [ ] User Guide, configuration/command reference and concise Unreleased entry accepted.
-- [ ] Controller-owned unchanged full gate passes at the exact published dev candidate.
-- [ ] Seven reports, editing-only specification/model/index and tracker reconciled.
+- [x] Integrated editing/configuration and shared-owner regressions pass.
+- [x] Two representative owned Linux PTYs and bounded resource/frame workloads pass.
+- [x] User Guide, configuration/command reference and concise Unreleased entry accepted.
+- [x] Controller-owned unchanged full gate passes at the exact published dev candidate.
+- [x] Seven reports, editing-only specification/model/index and tracker reconciled.
 - [x] Integrated clean/inactive owned worktrees removed without force.
+
+Tested candidate: `eb65b227dee8b42bf8d0c8a6e0ef12f5675c756b`
+Gate result: PASS
+Gate receipt: `QD5ALW2WJR64VCCTK4CJAOZPDK`
+Closure: subsequent Markdown-only dev commit; exact closure identity retained in Git and Acta.
+
+The unchanged required command above passed through the controller at that
+immutable candidate. The [delivery-set closure](../report/slices/rev-delimiter-editing/slice-7-acceptance.md#delivery-set-closure)
+records complete results. All 21 tasks, seven PRs/reports, native and Linux PTY
+acceptance, guide/reference/changelog and worktree cleanup are closed. Editing
+is Completed; the shared model remains Partially approved and its later
+navigation/presentation portions remain Draft. The post-gate diff is restricted
+to the twelve configured Markdown closure paths and preserves all tested runtime,
+settings, fixtures, scripts, frozen identities and acceptance assertions.

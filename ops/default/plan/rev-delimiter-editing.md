@@ -1,6 +1,7 @@
 # Automatic Delimiter Editing Delivery
 
-Status: Approved
+Status: Completed
+Completed: 2026-11-15
 Date: 2026-11-15
 Delivery set: rev-delimiter-editing
 Slice strategy: layered
@@ -11,7 +12,7 @@ Planning baseline: `fa48f847e9075eafd2272891c29c7dbf04bf7f16`
 Spec: [Delimiter Pairs](../spec/editor-delimiter-pairs.md)
 Model: [Pair Preferences and Native State](../spec/editor-delimiter-pairs-model.md)
 Concern: [Operations index](../README.md)
-Active slice: None — all seven slices delivered; controller full gate pending
+Active slice: None — Slice 7 of 7 completed; delivery set closed
 Integration target: `dev`
 Tracker: [Automatic Delimiter Editing Tracker](../tracker/rev-delimiter-editing.md)
 
@@ -339,3 +340,19 @@ relationship. Close all 21 tasks and seven reports only after their real results
 No main promotion, mirror publication, release, global installation or successor
 startup is authorized by this delivery. Return the exact run/watch command after
 verified controller and worker startup.
+
+## Delivery-set closure
+
+Slice 7 of 7 completed. All 21 tasks and canonical PRs #55-#61 are delivered.
+The controller ran the unchanged full gate above with result PASS at tested
+candidate `eb65b227dee8b42bf8d0c8a6e0ef12f5675c756b`, receipt
+`QD5ALW2WJR64VCCTK4CJAOZPDK`. The [acceptance report](../report/slices/rev-delimiter-editing/slice-7-acceptance.md#delivery-set-closure)
+records workspace/hook, native/PTY/resource and documentation results.
+
+Closure is a later Markdown-only descendant of that candidate, restricted to the
+approved plan/tracker, seven reports, editing specification/model status and
+operations index. The exact closure commit is retained in Git and Acta. Runtime,
+configuration, fixtures, scripts, assertions and frozen identities are unchanged.
+All seven reports are delivered and integrated owned worktrees were removed
+without force; unrelated worktrees remain. Only editing is Completed; the shared
+model remains Partially approved with navigation/presentation Draft.

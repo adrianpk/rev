@@ -1,6 +1,7 @@
 # Delimiter Pairs
 
-Status: Approved
+Status: Completed
+Completed: 2026-11-15
 Date: 2026-11-08
 Updated: 2026-11-15
 Format: OpenSpec capability specification
@@ -341,7 +342,11 @@ bounds/shared owners and two Linux PTYs. The
 [editing lesson](../../../docs/tutorials/user-guide/02-edit-text.md) describe the
 implemented policy.
 
-All seven slices are integrated. Status remains Approved until the controller-owned
-combined gate passes at an exact published dev candidate. Post-gate closure records that
-candidate and receipt and changes only editing to Completed. DPR02/DPR03 and their
-model portions remain Draft; their acceptance is independent.
+All seven slices and DPR01/DPR04 are Completed. The controller's unchanged full
+gate passed at `eb65b227dee8b42bf8d0c8a6e0ef12f5675c756b`, receipt
+`QD5ALW2WJR64VCCTK4CJAOZPDK`; the
+[delivery-set closure](../report/slices/rev-delimiter-editing/slice-7-acceptance.md#delivery-set-closure)
+records native/PTY/resource, workspace/hook and documentation results. Closure
+is a subsequent Markdown-only dev commit with identical tested bytes outside
+the approved closure paths. DPR02/DPR03 and their model portions remain Draft;
+their acceptance is independent.

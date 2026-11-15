@@ -114,8 +114,14 @@ Paired deletion, selection wrapping, explicit helpers, complete literal/macro
 provenance and physical-input acceptance belong to their recorded later slices.
 The new checks are native; they do not claim PTY or completed-frame acceptance.
 
-Delivery-set closure evidence is collected in the
-[Slice 7 report](slice-7-acceptance.md). This slice's delivered status records
-its own canonical integration and focused checks. The combined exact-candidate
-gate and editing-only completion remain pending controller execution after
-Slice 7 integration.
+## Delivery-set closure
+
+This slice's delivered status records its own canonical integration and focused
+checks. The controller's unchanged combined gate passed at
+`eb65b227dee8b42bf8d0c8a6e0ef12f5675c756b`, receipt
+`QD5ALW2WJR64VCCTK4CJAOZPDK`. The
+[Slice 7 closure](slice-7-acceptance.md#delivery-set-closure) records integrated
+native/PTY/resource and documentation results. Later-slice editing and physical
+acceptance described above are complete; conservative uncertainty/refusal policy
+is preserved. Closure changes only approved Markdown paths in a later dev commit;
+the tested runtime, settings, fixtures, scripts and assertions remain unchanged.

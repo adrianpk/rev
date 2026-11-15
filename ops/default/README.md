@@ -85,17 +85,21 @@ records the fresh receipt, native/PTY/resource results and limits. Both delivery
 sets are Completed and all reports delivered. Other proposals keep their separate
 approval boundaries.
 
+[Automatic delimiter editing](spec/editor-delimiter-pairs.md) is Completed through
+[seven integrated slices](plan/rev-delimiter-editing.md), PRs #55-#61 and all 21
+[tracker tasks](tracker/rev-delimiter-editing.md). The unchanged controller-owned
+full gate passed at `eb65b227dee8b42bf8d0c8a6e0ef12f5675c756b`, receipt
+`QD5ALW2WJR64VCCTK4CJAOZPDK`. The
+[delivery-set closure](report/slices/rev-delimiter-editing/slice-7-acceptance.md#delivery-set-closure)
+records workspace/hook, 192 native cases, two Linux PTYs, bounded resource/frame
+and documentation results, and the subsequent Markdown-only closure relationship.
+All seven reports are delivered and owned integrated worktrees removed. Only the
+editing portion of the [shared model](spec/editor-delimiter-pairs-model.md) is
+Completed; the model remains Partially approved. [Navigation](spec/editor-delimiter-navigation.md)
+and [presentation](spec/editor-delimiter-presentation.md) remain Draft, in that order.
+
 ## Pending proposals
 
-- [Automatic delimiter editing](spec/editor-delimiter-pairs.md) is Approved for
-  [seven-slice delivery](plan/rev-delimiter-editing.md), with its
-  [tracker](tracker/rev-delimiter-editing.md) and editing portion of the
-  [shared model](spec/editor-delimiter-pairs-model.md). All seven slices are
-  integrated; the [acceptance report](report/slices/rev-delimiter-editing/slice-7-acceptance.md)
-  records their delivered evidence and prepared gate prerequisites. Completion
-  awaits the controller-owned exact-candidate combined gate. [Navigation](spec/editor-delimiter-navigation.md)
-  and [presentation](spec/editor-delimiter-presentation.md) remain Draft subsequent
-  capabilities, in that order. Approval is not delivered behavior.
 - [Development Workflow Plugin](spec/editor-development-workflow.md) and its
   [model](spec/editor-development-workflow-model.md) remain Draft. Editable context
   and questionnaires generate a revisable specification/slices/plan and one tracker;
