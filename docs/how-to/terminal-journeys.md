@@ -6,6 +6,31 @@ use Bash, util-linux `script`, `stty` and GNU `timeout`. Completion also needs
 suites below use Python 3 with its standard library. Run commands from the
 repository root.
 
+## Run automatic delimiter acceptance
+
+```sh
+bash scripts/check-delimiter-editing.sh
+```
+
+The script uses one Cargo build job, disabled incremental output and no dev/test
+debuginfo. It prints nonempty test counts for the complete pair suite and each
+focused configuration, editing, paste, macro, modal and Org/Markdown selection.
+Pair measurements include cold requests at 1 KiB, 64 KiB, 256 KiB and 1 MiB,
+bounded refusals, retention/depth, shared views and cooperative queued input.
+The native factory helper checks all existing maps and the three pair commands.
+
+Two Linux PTYs exercise non-modal and modal Insert input, generated mates,
+closer skipping, bracketed literal paste, macro replay, undo/redo, save, reopen
+and prompt focus. Each owns isolated HOME/XDG roots and files, an eight-second
+child deadline and a 1 MiB output cap. Exit verifies restored terminal attributes,
+alternate screen, bracketed-paste state and cursor visibility, then reaps its
+owned process. Native cases cover read-only admission in both profiles.
+
+Compilation is excluded from per-request timings. Printed latency and Linux
+RSS/idle observations describe the local host; the fixed byte, depth and retention
+limits remain correctness assertions. The delivery report records actual gate
+and cold-build costs.
+
 ## Run native completion acceptance
 
 ```sh

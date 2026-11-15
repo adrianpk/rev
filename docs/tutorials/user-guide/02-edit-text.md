@@ -63,24 +63,27 @@ Try `C-u 3 !` to insert `!!!`. One `C-x u` removes all three characters:
 a counted insertion is one undo step. The argument has already been consumed,
 so the next ordinary character inserts once.
 
-At the end of your note, press Enter and type `(`. Rev adds `)` and leaves the
-cursor between them. Press Backspace now to remove both empty delimiters; one
-`C-x u` restores the pair and the cursor between them. Type a short word, then `)`
-to move past the existing closer. Whitespace and other content prevent paired
-Backspace. Undo the word and pair edits with `C-x u`. Try `C-u 3 (` on an empty
-line to insert three nested pairs in one undo step. `M-x auto-pair-mode` toggles this behavior for
-the current buffer and all its panes. Quotes follow the language and local context;
-paste remains literal. See [Automatic Delimiter Editing](../../reference/delimiter-editing.md)
-for settings and conservative boundaries.
+## Try automatic delimiters
 
-Select a short word with `C-SPC` and the arrow keys, then type `(`. Rev wraps
-the word and leaves the cursor just after the opener. Typing `)` around a selection
-instead leaves the cursor after the closer. One undo restores the selected word
-and its original selection. Try `M-x pair-wrap`, enter `[` and press Enter to
-choose a pair explicitly. With the cursor inside the result, `M-x pair-unwrap`
-removes the innermost confirmed pair and preserves its contents. These helpers
-also work with automatic editing disabled; unsafe quote changes refuse before
-changing the text.
+At the end of your note, press Enter and type `(`. Rev adds `)` and leaves the
+cursor between them. Press Backspace to remove both empty delimiters, then press
+`C-x u` once: the pair and its inside cursor return together. Type `note`, then
+`)`. The result is `(note)` with the cursor after the existing closer; no second
+closer appears. Backspace inside a nonempty pair deletes ordinary content.
+
+Press `C-a`, then `C-SPC` and `C-e` to select this whole line. Type `[`.
+The result is `[(note)]`, with the cursor after `[`. One `C-x u` restores `(note)`
+and its active selection. Run `M-x pair-wrap`, enter `[` and press Enter to wrap
+explicitly. With the cursor just after `[`, run `M-x pair-unwrap` to remove that
+outer pair and leave `(note)` unchanged inside.
+
+On a new empty line, `C-u 3 (` inserts three nested pairs in one undo step.
+`M-x auto-pair-mode` toggles automatic editing for the current buffer and all its
+panes. Explicit wrap/unwrap still work when automatic editing is off. Quotes
+follow the language and context, while pasted delimiters remain literal.
+See [Configure automatic delimiter editing](../../how-to/configure-delimiter-editing.md)
+for independent controls and language overrides, and the
+[reference](../../reference/delimiter-editing.md) for conservative boundaries.
 
 Save with `C-x C-s`. You can also select text by dragging with the primary
 mouse button, or paste text through your terminal. For more tasks, see

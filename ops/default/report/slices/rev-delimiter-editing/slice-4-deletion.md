@@ -118,3 +118,9 @@ Selection wrapping, explicit helpers, complete literal/macro provenance and
 physical-input acceptance remain in their recorded later slices. These native
 checks do not claim PTY or completed-frame acceptance. Unproved embedded language
 and raw/triple/template context remains conservative.
+
+Delivery-set closure evidence is collected in the
+[Slice 7 report](slice-7-acceptance.md). This slice's delivered status records
+its own canonical integration and focused checks. The combined exact-candidate
+gate and editing-only completion remain pending controller execution after
+Slice 7 integration.

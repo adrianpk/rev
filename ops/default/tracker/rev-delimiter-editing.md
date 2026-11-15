@@ -187,14 +187,14 @@ Dependency: Slice 6 integrated and closed.
 Branch: `test/rev-delimiter-editing-07-acceptance`
 Expected PR title: `test(editor): verify automatic delimiter editing workflows`
 Report: `ops/default/report/slices/rev-delimiter-editing/slice-7-acceptance.md`
-State: active; implementation authorized
+State: reviewing; implementation complete
 PR: pending
-Task commits: pending
-Validation: not run
+Task commits: pending implementation/report-introduction commit
+Validation: formatting, the acceptance script (192 native cases, all fixed bounds, unchanged maps and two owned/restored Linux PTYs), documentation with 22 reference tests and the local User Guide build PASS. Exact clean-HEAD controller evidence follows PR-reference commits. Integration, combined gate and editing-only closure remain controller-owned.
 
-- [ ] T7.1: Create scripts/check-delimiter-editing.sh using existing native test/PTY support. Batch the complete pair suite, editing configuration and the focused shared regressions enumerated below; verify a nonempty selected test set. Add representative native and Linux PTY workflows for both profiles, literal paste/macro behavior, one undo/redo cycle and read-only/focus boundaries, with owned fixtures and restored terminal attributes.
-- [ ] T7.2: Measure new-service bytes/depth/retention/cooperative scheduling on 1 KiB, 64 KiB, 256 KiB and 1 MiB complete/malformed/oversized-token sources, count expansion and split views. Record bounded refusal and continuation, same-line Org/Markdown frame stability and queued-key release behavior. Keep finite native deadlines and disclose cold-build cost; do not tune frozen limits or expected fixtures to observed output.
-- [ ] T7.3: Finish the User Guide example, how-to controls/language overrides and exact command/config/reference policy. Normalize the existing Unreleased entry to the repository style, without process narrative. Prepare all seven reports and editing-only spec/model/index closure; leave final gate and post-gate closure publication to the controller.
+- [x] T7.1: Create scripts/check-delimiter-editing.sh using existing native test/PTY support. Batch the complete pair suite, editing configuration and the focused shared regressions enumerated below; verify a nonempty selected test set. Add representative native and Linux PTY workflows for both profiles, literal paste/macro behavior, one undo/redo cycle and read-only/focus boundaries, with owned fixtures and restored terminal attributes.
+- [x] T7.2: Measure new-service bytes/depth/retention/cooperative scheduling on 1 KiB, 64 KiB, 256 KiB and 1 MiB complete/malformed/oversized-token sources, count expansion and split views. Record bounded refusal and continuation, same-line Org/Markdown frame stability and queued-key release behavior. Keep finite native deadlines and disclose cold-build cost; do not tune frozen limits or expected fixtures to observed output.
+- [x] T7.3: Finish the User Guide example, how-to controls/language overrides and exact command/config/reference policy. Normalize the existing Unreleased entry to the repository style, without process narrative. Prepare all seven reports and editing-only spec/model/index closure; leave final gate and post-gate closure publication to the controller.
 
 Required commands:
 

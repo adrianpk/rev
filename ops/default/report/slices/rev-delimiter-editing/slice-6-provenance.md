@@ -123,3 +123,9 @@ measurements remain in Slice 7. These native checks establish source ingress and
 pending presentation behavior; they do not claim physical-input acceptance.
 Unproved context and exhausted presentation budgets retain conservative fresh
 analysis requirements.
+
+Delivery-set closure evidence is collected in the
+[Slice 7 report](slice-7-acceptance.md). This slice's delivered status records
+its own canonical integration and focused checks. The combined exact-candidate
+gate and editing-only completion remain pending controller execution after
+Slice 7 integration.

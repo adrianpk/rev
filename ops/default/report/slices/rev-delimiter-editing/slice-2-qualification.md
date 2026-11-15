@@ -167,3 +167,9 @@ physical-input acceptance and completed-frame continuity belong to later slices.
 Caller integration must honor Pending, cancellation and exact source revisions;
 this layer does not start a permanent worker or synchronously drain all work in
 an editor input handler.
+
+Delivery-set closure evidence is collected in the
+[Slice 7 report](slice-7-acceptance.md). This slice's delivered status records
+its own canonical integration and focused checks. The combined exact-candidate
+gate and editing-only completion remain pending controller execution after
+Slice 7 integration.

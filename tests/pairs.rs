@@ -16,3 +16,6 @@ mod quotes;
 mod regions;
 #[path = "pairs/typing.rs"]
 mod typing;
+
+#[path = "pairs/acceptance.rs"]
+mod acceptance;

@@ -125,3 +125,9 @@ Complete literal/macro provenance, source-projection continuity and physical-inp
 acceptance remain in their recorded later slices. These native checks do not
 claim PTY acceptance. Unproved literal contexts and unsafe quote transformations
 retain conservative refusal.
+
+Delivery-set closure evidence is collected in the
+[Slice 7 report](slice-7-acceptance.md). This slice's delivered status records
+its own canonical integration and focused checks. The combined exact-candidate
+gate and editing-only completion remain pending controller execution after
+Slice 7 integration.

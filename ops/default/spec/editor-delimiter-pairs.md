@@ -43,7 +43,7 @@ of paragraph and syntax-aware expression (sexp) behavior. It does not own automa
 pair insertion or colors, and a matching-delimiter jump is not a substitute for
 forward-sexp/backward-sexp.
 
-## Observed implementation
+## Observed implementation at the inspection baseline
 
 - The modal matching-delimiter action already exists, bound to %. It finds a
   starting parenthesis/bracket/brace at or after point on the current logical
@@ -313,7 +313,7 @@ slices and controller-owned canonical dev integration. Navigation and visual
 work remain separate subsequent sets in that order. No main/release or global
 installation is implied. Preserve the completed factory-shortcut receipts.
 
-## Later acceptance and documentation
+## Acceptance and documentation
 
 Use existing native edit/input/history, source/syntax, modal and PTY fixtures.
 Cover nested/multiline/malformed pairs, strings/comments/escapes, apostrophes,
@@ -325,3 +325,23 @@ The User Guide demonstrates one pair edit and undo. How-to covers independent
 controls and language overrides; reference owns exact policies, commands,
 configuration and limits. Navigation and visual acceptance belong to their own
 linked specifications, not to inferred success from an editing test.
+
+## Editing implementation and closure evidence
+
+The seven-slice [tracker](../tracker/rev-delimiter-editing.md) and
+[Slice 7 report](../report/slices/rev-delimiter-editing/slice-7-acceptance.md)
+collect the configuration, qualification, native editing, provenance and integrated
+acceptance evidence for DPR01/DPR04. The implementation owners are
+[src/pairs](../../../src/pairs.rs), [buffer qualification](../../../src/buffer/pairs.rs)
+and [session transactions](../../../src/session/pairs.rs). The
+[acceptance script](../../../scripts/check-delimiter-editing.sh) checks native
+bounds/shared owners and two Linux PTYs. The
+[reference](../../../docs/reference/delimiter-editing.md),
+[how-to](../../../docs/how-to/configure-delimiter-editing.md) and
+[editing lesson](../../../docs/tutorials/user-guide/02-edit-text.md) describe the
+implemented policy.
+
+Status remains Approved until Slice 7 integration and the controller-owned combined
+gate pass at an exact published dev candidate. Post-gate closure records that
+candidate and receipt and changes only editing to Completed. DPR02/DPR03 and their
+model portions remain Draft; their acceptance is independent.

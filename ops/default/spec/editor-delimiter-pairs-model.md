@@ -18,7 +18,8 @@ Use the existing startup settings loader, origins, validation and language
 merge owners. No new state file, settings directory or startup discovery is
 introduced. Missing leaves inherit compiled defaults; malformed candidates use
 the existing whole-candidate diagnostic/fallback policy. Runtime commands never
-save settings. The current binary has none of the proposed pairs leaves.
+save settings. The editing implementation accepts the five approved leaves below;
+future presentation leaves remain proposals.
 
 The first delivery approves only enabled, wrap_selection, delete_empty,
 skip_closing and quotes, all defaulting true. The remaining leaves below are
@@ -62,18 +63,17 @@ enabled = false
 quotes = false
 ```
 
-The proposed nested group admits only enabled, wrap_selection, delete_empty,
+The editing nested group admits only enabled, wrap_selection, delete_empty,
 skip_closing and quotes. Each leaf is optional in the parsed document. Omitted
 siblings inherit resolved global pairs leaves. The language identity remains
 available when syntax color is disabled or a grammar is absent. Unknown leaves,
 wrong types and malformed related values reject through existing validation.
 Retain origin paths such as language/rust/pairs/enabled as distinct components.
 
-At the inspected baseline, Language admits indentation and grammar/asset fields
-only. This nested group is an explicit extension to Document, merge, validation,
-origins and effective resolution; placing it in a config file today is not a
-workaround. Global and language sources must pass their normal independent and
-merged validation before publication. Runtime buffer override wins over the
+At the inspected baseline, Language admitted indentation and grammar/asset
+fields only. Editing delivery extends the native Document, merge, validation,
+origins and effective resolution with this nested group. Global and language sources must pass their normal
+independent and merged validation before publication. Runtime buffer override wins over the
 resolved base enabled value until the buffer closes; language changes recompute
 the base/profile without discarding that explicit override.
 
@@ -191,3 +191,10 @@ five editing settings, qualified matching/context and native editing/provenance
 state. Navigation and visual records remain design context, not implementation
 authority. Editing closure changes Editing status to Completed and retains this
 model's Partially approved status while later capabilities remain Draft.
+
+Implementation evidence is collected in the
+[seven-slice tracker](../tracker/rev-delimiter-editing.md) and
+[acceptance report](../report/slices/rev-delimiter-editing/slice-7-acceptance.md).
+Editing status stays Approved pending Slice 7 integration and the controller's
+exact-candidate combined gate. The closure record must preserve that tested hash,
+receipt and any subsequent Markdown-only closure commit separately.

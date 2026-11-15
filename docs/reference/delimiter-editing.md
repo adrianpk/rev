@@ -36,6 +36,7 @@ stale syntax and external grammar colors do not define additional quote rules.
 
 Use M-x auto-pair-mode to toggle automatic editing for the current buffer and all
 its panes. The override survives language changes and never saves configuration.
+For configuration examples, see [Configure automatic delimiter editing](../how-to/configure-delimiter-editing.md).
 Startup [pair preferences](defaults.md) resolve globally
 and per language. `enabled`, `quotes`, `skip_closing` and `delete_empty`
 independently control the delivered automatic effects. `wrap_selection` controls

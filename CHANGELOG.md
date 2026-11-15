@@ -9,14 +9,12 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 
 ### Added
 
-- Type parentheses, brackets, braces and eligible language quotes with automatic
-  mates, move past confirmed closers without duplicates, and remove an empty pair
-  with Backspace. Wrap selected text by typing either delimiter, or use M-x
-  pair-wrap and pair-unwrap to choose or remove a confirmed pair. Use counts for
-  one undo step or toggle the current buffer with M-x auto-pair-mode. Quotes follow
-  the language and local context. Paste, completion and generated edits remain
-  literal. Macro keys apply pairing once, and same-line wrapping keeps Org and
-  Markdown headings steady.
+- Type paired parentheses, brackets, braces and eligible quotes, skip confirmed
+  closers, and remove empty pairs with Backspace. Wrap selected text or use M-x
+  pair-wrap and pair-unwrap; counted edits stay in one undo step. Configure each
+  effect globally or by language, or toggle the current buffer with M-x
+  auto-pair-mode. Paste and completion remain literal, and macro typing applies
+  pairing once.
 
 - Cycle declared Org effort choices with C-c C-x E, inspect property columns
   with C-c C-x C-c, and add checked Babel header arguments with C-c C-v j or

@@ -12,6 +12,7 @@ session, start with the [User Guide](../tutorials/user-guide/index.md).
 - [Use command prefix arguments](use-prefix-arguments.md): count movement and edits, select an earlier yank or replay history groups.
 - [Save and revisit named locations](use-bookmarks.md): keep bookmarks across sessions, manage names and control their markers.
 - [Configure indentation by language](language-indentation.md): give Rust files their own indentation settings.
+- [Configure automatic delimiter editing](configure-delimiter-editing.md): toggle one buffer or set independent global and language preferences.
 - [Use completion](use-completion.md): choose names near the cursor and configure automatic requests.
 - [Use a language server](use-language-server.md): register or acquire a server, select sources and manage updates, cancellation and removal.
 - [Register grammar assets](register-grammar.md): admit precompiled syntax and completion queries for an explicit language.
