@@ -16,7 +16,6 @@ Active slice: Slice 1 of 6 - Configuration and view controls
 Completed slices: 0/6
 Completed tasks: 0/18
 Gate state: pending; controller-owned after all six canonical PRs integrate
-Controller startup: blocked before the first worker; the original unclassified stop is retained
 
 ## Canonical slice map
 
