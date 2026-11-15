@@ -10,7 +10,7 @@ Execution authority: slices 1-7, predecessor-ordered canonical PRs and controlle
 Planning baseline: `fa48f847e9075eafd2272891c29c7dbf04bf7f16`
 Spec: [Delimiter Pairs](../spec/editor-delimiter-pairs.md)
 Model: [Pair Preferences and Native State](../spec/editor-delimiter-pairs-model.md)
-Active slice: Slice 6 — Literal provenance and source projections
+Active slice: Slice 7 — Integrated acceptance and guidance
 Integration target: `dev`
 Plan: [Automatic Delimiter Editing Delivery](../plan/rev-delimiter-editing.md)
 
@@ -162,10 +162,10 @@ Dependency: Slice 5 integrated and closed.
 Branch: `fix/rev-delimiter-editing-06-provenance`
 Expected PR title: `fix(editor): preserve literal edits and macro pair provenance`
 Report: `ops/default/report/slices/rev-delimiter-editing/slice-6-provenance.md`
-State: reviewing; implementation complete
+State: delivered; PR #60 integrated into dev
 PR: [#60](https://forge.adrianpk.com/rev/rev/pulls/60)
 Task commits: T6.1-T6.3/report introduction `40edb1bce7e68b3d537aff9e6a87b69232887241`; native ingress trace, bounded presentation correction and independent provenance/history regressions were committed together as one complete path.
-Validation: formatting, 11 required provenance cases, 20 required macro recording/region/runner cases, three offline AI/plugin/semantic-completion ingress cases, 24 presentation-owner regressions, 15 legacy continuity cases, 10 counter/completion cases and documentation with 22 reference tests PASS. Full staged-source hooks PASS for 1,953 Rust files and 77 Cargo roots. Personal settings and frozen catalog/manifest preserved. Exact clean-HEAD controller evidence follows PR-reference commits; combined acceptance remains controller-owned.
+Validation: formatting, 11 required provenance cases, 20 required macro recording/region/runner cases, three offline AI/plugin/semantic-completion ingress cases, 24 presentation-owner regressions, 15 legacy continuity cases, 10 counter/completion cases and documentation with 22 reference tests PASS. Full staged-source hooks PASS for 1,953 Rust files and 77 Cargo roots. Personal settings and frozen catalog/manifest preserved. Exact four-command clean-HEAD controller validation PASS at `62649d8319a0316af03e77d62a3868ec3a773fea`, including 11 provenance and 20 macro cases. Canonical PR #60 integrated that same candidate; combined acceptance remains controller-owned.
 
 - [x] T6.1: Trace and exercise paste, completion, provider/AI edits, external reload, plugins and programmatic replacements through their real native source-edit ingress. They remain literal and never synthesize pair input. Integrate raw macro typing once while accepted literal macro steps replay literally, retaining existing counts, counters, cancellation and history semantics.
 - [x] T6.2: Verify shared-buffer/split-view policy, language changes, source replacement and stale-work retirement. Preserve Org/Markdown pretty/indent source-to-display mapping and completed-frame continuity during body typing; pair editing must not introduce transient literal fallback, cursor relocation or stale spans.
@@ -187,7 +187,7 @@ Dependency: Slice 6 integrated and closed.
 Branch: `test/rev-delimiter-editing-07-acceptance`
 Expected PR title: `test(editor): verify automatic delimiter editing workflows`
 Report: `ops/default/report/slices/rev-delimiter-editing/slice-7-acceptance.md`
-State: pending predecessor integration
+State: active; implementation authorized
 PR: pending
 Task commits: pending
 Validation: not run

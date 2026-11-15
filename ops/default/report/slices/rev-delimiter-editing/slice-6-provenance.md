@@ -1,6 +1,6 @@
 # Slice 6: Literal provenance and source projections
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-delimiter-editing
 Plan: [Automatic Delimiter Editing Delivery](../../../plan/rev-delimiter-editing.md)
 Tracker: [Automatic Delimiter Editing Tracker](../../../tracker/rev-delimiter-editing.md)
@@ -110,8 +110,10 @@ nesting and complexity policy for all 1,953 first-party Rust files, two packages
 and 77 Cargo roots. The staged tree was
 `0eb23aee41f8380d1565649132c957b5e01314a9`. The cold private-cache commit
 check completed in 247.46 seconds; its strict Clippy pass took 1 minute 39 seconds.
-The exact four-command controller receipt follows PR-reference commits at clean
-published HEAD. Existing fixtures own/reap their offline peers; no persistent service was
+The exact four-command clean-HEAD controller validation passed at
+`62649d8319a0316af03e77d62a3868ec3a773fea`: formatting, 11 provenance cases,
+20 macro cases and whitespace. Canonical PR #60 integrated that same candidate
+into dev; Forgejo, fetched ancestry and Acta agree. Existing fixtures own/reap their offline peers; no persistent service was
 started. Combined delivery acceptance remains controller-owned.
 
 ## Risks and Follow-ups

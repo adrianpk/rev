@@ -11,7 +11,7 @@ Planning baseline: `fa48f847e9075eafd2272891c29c7dbf04bf7f16`
 Spec: [Delimiter Pairs](../spec/editor-delimiter-pairs.md)
 Model: [Pair Preferences and Native State](../spec/editor-delimiter-pairs-model.md)
 Concern: [Operations index](../README.md)
-Active slice: Slice 6 — Literal provenance and source projections
+Active slice: Slice 7 — Integrated acceptance and guidance
 Integration target: `dev`
 Tracker: [Automatic Delimiter Editing Tracker](../tracker/rev-delimiter-editing.md)
 
