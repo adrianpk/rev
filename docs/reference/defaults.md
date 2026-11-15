@@ -429,6 +429,11 @@ edit limits and finite lifecycle.
 | `editor.indent_style` | String: "spaces" or "tabs" | `"spaces"` | Buffer policy; Tab emits the selected indentation form. Language-overridable. |
 | `editor.indent_width` | Integer 1..=32 | `4` | Buffer policy; indentation-stop display columns, independently of tab display width. Language-overridable. |
 | `editor.tab_width` | Integer 1..=32 | `4` | Buffer policy; literal-tab display cells. Shared views use the same width. Language-overridable. |
+| `pairs.enabled` | Boolean | `true` | Initial buffer automatic-editing policy, shared by its views. Language-overridable. |
+| `pairs.wrap_selection` | Boolean | `true` | Automatic ordinary linear-selection wrapping policy. Language-overridable. |
+| `pairs.delete_empty` | Boolean | `true` | Adjacent empty-pair Backspace policy. Language-overridable. |
+| `pairs.skip_closing` | Boolean | `true` | Policy for skipping a confirmed existing closer. Language-overridable. |
+| `pairs.quotes` | Boolean | `true` | Automatic quote policy, subject to current-language eligibility. Language-overridable; does not disable syntax. |
 | `scroll.page_overlap` | Integer 0..=1000 | `2` | Session; overlap in page rows, clamped so a usable pane advances at least one row. |
 | `windows.split_ratio` | Finite float 0.1..=0.9 | `0.5` | Session; preferred first-child share after the separator, clamped by both recursive subtree minima. |
 | `minibuffer.candidate_limit` | Integer 1..=32 | `8` | Session; maximum visible command/path candidate rows, including any list diagnostic, clipped to geometry. |
@@ -485,11 +490,24 @@ versus kill tab semantics across source/destination policies.
 
 ### Language rules
 
+The five `pairs` preferences currently resolve configuration and buffer state.
+Automatic insertion, deletion, wrapping and closer skipping are not yet active.
+`highlight`, `pulse_ms` and pair palette settings are not accepted. A malformed
+global or language preference rejects the complete configuration candidate.
+Omitted language siblings inherit the final global values even without a grammar
+or with syntax colors disabled. Buffer-local choices survive language changes
+without writing configuration or changing source/history.
+
 | Key | Type and bounds | Default | Scope and effect |
 | --- | --- | --- | --- |
 | `language.<id>.indent_style` | String: "spaces" or "tabs" | Inherit global | Selected language's buffer policy; replace only this editing leaf. |
 | `language.<id>.indent_width` | Integer 1..=32 | Inherit global | Selected language's indentation-stop display columns. |
 | `language.<id>.tab_width` | Integer 1..=32 | Inherit global | Selected language's literal-tab display cells. |
+| `language.<id>.pairs.enabled` | Boolean | Inherit global | Selected language's initial automatic-editing policy. |
+| `language.<id>.pairs.wrap_selection` | Boolean | Inherit global | Selected language's automatic linear-selection wrapping policy. |
+| `language.<id>.pairs.delete_empty` | Boolean | Inherit global | Selected language's empty-pair deletion policy. |
+| `language.<id>.pairs.skip_closing` | Boolean | Inherit global | Selected language's confirmed-closer skipping policy. |
+| `language.<id>.pairs.quotes` | Boolean | Inherit global | Selected language's automatic quote policy. |
 | `language.<id>.grammar` | String: "rust", "c", "go", "html", "css", "javascript", "typescript", "tsx", "json", "toml" or "plain" | Matching bundled grammar; plain otherwise | Selected language's grammar; no external parser download or installation. |
 | `language.<id>.external.parser` | Nonempty local path | Unset | Precompiled native library; relative to resolved XDG data root `rev/grammars`, or absolute. At most 32 complete registrations. |
 | `language.<id>.external.symbol` | ASCII `tree_sitter_` identifier, at most 128 bytes | Unset | Explicit parser export; required with the three asset paths. |

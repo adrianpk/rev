@@ -21,6 +21,23 @@ impl Buffer {
         &self.policy
     }
 
+    /// Effective automatic editing preferences shared by every view. An explicit
+    /// buffer choice survives language/settings changes until this buffer closes.
+    pub fn pair_policy(&self) -> crate::config::Pairs {
+        crate::config::Pairs {
+            enabled: self.pair_override.unwrap_or(self.pair_policy.enabled),
+            ..self.pair_policy
+        }
+    }
+
+    /// Change only this buffer's automatic editing state, without saving settings
+    /// or publishing a source/history operation.
+    pub fn toggle_auto_pairs(&mut self) -> bool {
+        let enabled = !self.pair_policy().enabled;
+        self.pair_override = Some(enabled);
+        enabled
+    }
+
     /// Resolve from a supplied snapshot without reloading files or changing
     /// canonical text, revisions, marks, saved states or undo history.
     /// Syntax presentation follows its admitted grammar and global cutoff.
@@ -33,6 +50,7 @@ impl Buffer {
         let policy = settings.editor(&language);
         let grammar = self.selected_grammar(settings.grammar(&language));
         self.policy = policy;
+        self.pair_policy = settings.pairs(&language);
         self.history_policy = settings.settings().history.clone();
         if self.text_byte_limit.is_some() {
             self.history_policy.group_limit = self.history_policy.group_limit.min(16);

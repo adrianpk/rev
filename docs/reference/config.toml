@@ -78,6 +78,21 @@ indent_width = 4
 # Integer 1..=32 display cells between literal-tab stops; does not rewrite bytes.
 tab_width = 4
 
+[pairs]
+# Boolean defaults for automatic delimiter editing, overridable per language.
+# This configuration layer does not yet insert, delete, wrap or skip source text.
+enabled = true
+wrap_selection = true
+delete_empty = true
+skip_closing = true
+# Quote eligibility requires the current language's context policy.
+quotes = true
+# Omitted language leaves inherit the final global value, independent of grammar
+# availability or syntax colors. Example: disable only quotes for Rust.
+# [language.rust.pairs]
+# quotes = false
+# Unknown leaves (including highlight and pulse_ms) reject the whole candidate.
+
 [scroll]
 # Integer 0..=1000 overlapping rows per page; usable panes still advance one row.
 page_overlap = 2
