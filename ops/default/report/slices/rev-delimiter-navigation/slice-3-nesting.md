@@ -5,7 +5,7 @@ Delivery set: rev-delimiter-navigation
 Plan: [Delimiter Navigation Delivery](../../../plan/rev-delimiter-navigation.md)
 Tracker: [Delimiter Navigation Tracker](../../../tracker/rev-delimiter-navigation.md)
 Branch: `feat/rev-delimiter-navigation-03-nesting`
-PR: pending
+PR: [#64](https://forge.adrianpk.com/rev/rev/pulls/64)
 
 ## Purpose
 
@@ -81,7 +81,7 @@ the PR-reference commit.
 - PASS: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test modal -- delimited_objects structural_targets --test-threads=1`: two existing modal percent/object tests.
 - PASS: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo run --locked --quiet --example factory-shortcuts-acceptance -- --native target`: 715 commands, six actions, all 28 complete maps in both profiles, and exactly the four delivered base group chords with their existing inheritance. Historical factory inputs remain unchanged.
 - PASS: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 bash scripts/check-documentation.sh`: 715 commands, 332 configuration entries, 112 reachable pages, 792 local links/anchors, 10 command and 12 configuration reference tests.
-- The implementation commit passed its exact staged hook: workspace formatting, strict all-target/all-feature Clippy and full native policy over 1,963 files and all 79 Cargo roots. Hooks and their private worktree cache remain unchanged.
+- Both implementation and test commits passed their exact staged hooks: workspace formatting, strict all-target/all-feature Clippy and full native policy over 1,963 and 1,965 files respectively, with all 79 Cargo roots selected. Hooks and their private worktree cache remain unchanged.
 - PASS: `git diff --check`.
 
 All twelve applicable frozen up/down cases are read without altering their
@@ -116,6 +116,8 @@ representative PTYs remain separate integrated acceptance.
 
 ## Risks and Follow-ups
 
+PR #64 is open against dev. Implementation is `b49dd9aa818d5242e9524ee57f3e6ec2eb181884`;
+test/report introduction is `51a95aad55804ebd8f5564a922d9c4f71ce96cc2`.
 Controller-owned integration and combined acceptance remain pending. Syntax-class
 expressions and representative physical-input PTYs belong to the next recorded
 slices. No full delivery gate was run here. The existing vendored crossterm
