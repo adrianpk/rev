@@ -42,14 +42,14 @@ Dependency: approved committed preparation and completed editing delivery.
 Branch: `feat/rev-delimiter-navigation-01-mate`
 Expected PR title: `feat(editor): jump to confirmed matching delimiters`
 Report: `ops/default/report/slices/rev-delimiter-navigation/slice-1-mate.md`
-State: ready; active
+State: reviewing; implementation and focused checks complete
 PR: pending
-Task commits: pending
-Validation: not run
+Task commits: T1.1/T1.2 `1c3491110d73603a21b0b9a4a792bcc7d4fe7d3a`; T1.3/report introduction pending commit.
+Validation: formatting, approved mate cases and supplemental lifecycle/history/modal checks PASS. One native point/mark/focus invalidation test, complete independent factory maps/catalog and documentation checks PASS. Final clean-HEAD evidence follows the PR-reference commit; integration and the combined gate remain controller-owned.
 
-- [ ] T1.1: Add a bounded typed-mate motion through the existing buffer request and session navigation owners. Prefer a delimiter at point, then immediately before; use confirmed structural/quote endpoints and preserve strict type matching. Do not search later in the line, infer raw-string proof or expose group results as typed mates.
-- [ ] T1.2: Publish matching-delimiter as one unbound native command, with named dispatch, descriptions and truthful hints. It works on read-only source and with automatic pairs or quote editing disabled. Use native unsupported-prefix admission rather than repeating a mate jump. Capture source/revision, view, point/mark and focus; support native cancellation, shared request budgets and safe source-jump publication.
-- [ ] T1.3: Create tests/pair_navigation.rs with mate cases from the independent approved contract: both endpoints and round trips, immediate-before/adjacent precedence, malformed/literal/stale/limited refusal, quotes, Unicode/CRLF, active linear mark and source/history preservation. Extend the independent catalog expectation from 710 to 711 without changing any factory mapping; report actual focused results.
+- [x] T1.1: Add a bounded typed-mate motion through the existing buffer request and session navigation owners. Prefer a delimiter at point, then immediately before; use confirmed structural/quote endpoints and preserve strict type matching. Do not search later in the line, infer raw-string proof or expose group results as typed mates.
+- [x] T1.2: Publish matching-delimiter as one unbound native command, with named dispatch, descriptions and truthful hints. It works on read-only source and with automatic pairs or quote editing disabled. Use native unsupported-prefix admission rather than repeating a mate jump. Capture source/revision, view, point/mark and focus; support native cancellation, shared request budgets and safe source-jump publication.
+- [x] T1.3: Create tests/pair_navigation.rs with mate cases from the independent approved contract: both endpoints and round trips, immediate-before/adjacent precedence, malformed/literal/stale/limited refusal, quotes, Unicode/CRLF, active linear mark and source/history preservation. Extend the independent catalog expectation from 710 to 711 without changing any factory mapping; report actual focused results.
 
 Required commands:
 

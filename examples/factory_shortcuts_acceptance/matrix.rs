@@ -79,7 +79,7 @@ pub(super) fn run() -> Result<()> {
         }
     }
     println!(
-        "PASS accepted manifest: 707 original commands plus three editing commands, six actions, 28 complete maps, 29 records / 49 base edits, inherited and retired leaves, both profiles; untouched defaults preserved"
+        "PASS accepted manifest: 707 original commands plus three editing commands and matching-delimiter, six actions, 28 complete maps, 29 records / 49 base edits, inherited and retired leaves, both profiles; untouched defaults preserved"
     );
     Ok(())
 }
@@ -87,11 +87,16 @@ pub(super) fn run() -> Result<()> {
 fn inventory(catalog: &Catalog) {
     let names: BTreeSet<_> = catalog.commands.iter().map(|c| c.name.as_str()).collect();
     assert_eq!(names.len(), 707);
-    let added = BTreeSet::from(["auto-pair-mode", "pair-wrap", "pair-unwrap"]);
+    let added = BTreeSet::from([
+        "auto-pair-mode",
+        "pair-wrap",
+        "pair-unwrap",
+        "matching-delimiter",
+    ]);
     let live: BTreeSet<_> = Command::ALL.iter().map(Command::name).collect();
     assert!(names.is_disjoint(&added));
     assert!(added.is_subset(&live));
-    assert_eq!(live.len(), 710);
+    assert_eq!(live.len(), 711);
     assert_eq!(names, live.difference(&added).copied().collect());
     let actions: BTreeSet<_> = catalog.actions.iter().map(String::as_str).collect();
     assert_eq!(actions.len(), 6);
