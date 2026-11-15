@@ -76,6 +76,14 @@ Final clean-HEAD evidence is recorded separately through the controller validato
 after report and PR-reference commits. The combined delivery gate remains
 controller-owned and has not run for this slice.
 
+The initial clean-HEAD batch passed all four listed checks, but the canonical PR
+check reported `required validation command order differs from configuration`:
+the optional template check interrupted the frozen three-command prefix. The PR
+now lists exactly formatting, the required pair-policy test and whitespace, in
+that order. The five supplemental template/default results remain recorded above.
+The corrected report commit receives fresh evidence for that exact required
+sequence before handoff; the earlier receipt is not reused for a changed HEAD.
+
 ## Risks and Follow-ups
 
 Automatic typing, deletion, wrapping and command dispatch belong to later slices.
