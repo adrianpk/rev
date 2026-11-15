@@ -321,12 +321,21 @@ compiled M-x name once.
 | Jump traversal | `modal-jump-backward`, `modal-jump-forward` |
 | Source wrapping | `visual-line-mode` |
 | Automatic delimiter editing | `auto-pair-mode`, `pair-wrap`, `pair-unwrap` |
+| Delimiter navigation | `matching-delimiter` |
 | Gutter | `gutter-toggle-line-numbers`, `gutter-cycle-line-number-mode`, `gutter-set-line-numbers-absolute`, `gutter-set-line-numbers-relative`, `gutter-cycle-current-line`, `gutter-toggle-line-number-side`, `gutter-inspect-numbering`, `gutter-reset-numbering` |
 | Bookmarks | `bookmark-set`, `bookmark-set-no-overwrite`, `bookmark-jump`, `bookmark-delete`, `bookmark-save`, `bookmark-reload`, `list-bookmarks`, `bookmark-next`, `bookmark-previous`, `bookmark-markers-mode`, `bookmark-bmenu-delete`, `bookmark-bmenu-unmark`, `bookmark-bmenu-execute-deletions`, `bookmark-bmenu-this-window` |
 | Rectangles | `rectangle-mark-mode`, `copy-rectangle-as-kill`, `kill-rectangle`, `yank-rectangle` |
 
 See [Rectangles](rectangles.md) for display-column selection and copy boundaries.
 See [File tree](file-tree.md) for root, layout and keyboard focus.
+
+M-x matching-delimiter jumps to the other endpoint of a confirmed typed pair.
+It prefers a delimiter at point, then immediately before point, and does not
+search later on the line. It has no factory shortcut and rejects a numeric prefix.
+Read-only source and disabled automatic pairing or quote editing remain navigable.
+Source, undo history and an active linear mark stay unchanged. An unmatched,
+mismatched, literal, uncertain or resource-limited request leaves point unchanged.
+The separate modal % command retains its current-line search policy.
 
 ## Line navigation
 

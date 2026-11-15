@@ -94,11 +94,8 @@ impl Session {
     }
 
     fn execute_source_invocation(&mut self, invocation: Invocation) -> Action {
-        if self.source_layout_focus()
-            && invocation.command == Command::GotoLine
-            && invocation.argument.value() <= 0
-        {
-            return self.error("Goto line requires a positive argument");
+        if let Err(error) = self.admit_source_argument(invocation) {
+            return self.error(error);
         }
         let variant = match invocation.command {
             Command::ShellCommand => Some(Command::ShellCommandInsert),
@@ -119,6 +116,18 @@ impl Session {
             return action;
         }
         self.publish_argument_movement(invocation)
+    }
+
+    fn admit_source_argument(&self, invocation: Invocation) -> Result<(), &'static str> {
+        match invocation.command {
+            Command::MatchingDelimiter if invocation.argument.supplied() => {
+                Err("Matching delimiter does not support a prefix argument")
+            }
+            Command::GotoLine if self.source_layout_focus() && invocation.argument.value() <= 0 => {
+                Err("Goto line requires a positive argument")
+            }
+            _ => Ok(()),
+        }
     }
 
     fn execute_argument_entry(&mut self, invocation: Invocation) -> Option<Action> {

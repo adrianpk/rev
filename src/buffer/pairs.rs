@@ -1,10 +1,23 @@
 use std::time::Instant;
 
-use crate::pairs::{Answer, Profile, Query, Stats, Status, Ticket};
+use crate::coordinates::Scalar;
+use crate::pairs::{Answer, Kind, Profile, Query, Stats, Status, Ticket};
 
 use super::{Buffer, Error};
 
 impl Buffer {
+    /// Prefer a delimiter at point, then immediately before it. Qualification
+    /// uses one existing bounded request; there is no later-line search.
+    pub fn start_mate_request(&mut self, point: Scalar) -> Result<Ticket, Error> {
+        self.span(point.0..point.0)?;
+        let at = if self.text.get_char(point.0).is_some_and(delimiter) {
+            point
+        } else {
+            Scalar(point.0.saturating_sub(1))
+        };
+        self.start_pair_request(Query::At(at))
+    }
+
     /// Begin one buffer-owned request and retire its previous ticket. Verified
     /// prefix facts can be reused; source, point, history and settings are unchanged.
     pub fn start_pair_request(&mut self, query: Query) -> Result<Ticket, Error> {
@@ -58,4 +71,8 @@ impl Buffer {
     pub fn cancel_pair_request(&mut self, ticket: Ticket) -> bool {
         self.pairing.cancel(ticket)
     }
+}
+
+fn delimiter(c: char) -> bool {
+    Kind::structural(c).is_some() || matches!(c, '"' | '\'' | '`')
 }

@@ -117,6 +117,7 @@ pub enum Command {
     AutoPairMode,
     PairWrap,
     PairUnwrap,
+    MatchingDelimiter,
     Mode(Mode),
     Org(OrgCommand),
     Markdown(MarkdownCommand),
@@ -161,7 +162,7 @@ pub enum Command {
 }
 
 impl Command {
-    pub const ALL: [Self; 710] = [
+    pub const ALL: [Self; 711] = [
         Self::Plugin(PluginCommand::List),
         Self::Plugin(PluginCommand::Activate),
         Self::Plugin(PluginCommand::Deactivate),
@@ -556,6 +557,7 @@ impl Command {
         Self::AutoPairMode,
         Self::PairWrap,
         Self::PairUnwrap,
+        Self::MatchingDelimiter,
         Self::Org(OrgCommand::PrettyHeadings),
         Self::Org(OrgCommand::ResetHeadingPresentation),
         Self::Org(OrgCommand::IndentMode),
@@ -1316,6 +1318,7 @@ impl Command {
             Self::AutoPairMode => "auto-pair-mode",
             Self::PairWrap => "pair-wrap",
             Self::PairUnwrap => "pair-unwrap",
+            Self::MatchingDelimiter => "matching-delimiter",
             _ => unreachable!("non-edit commands delegate before pair lookup"),
         }
     }
@@ -1330,6 +1333,9 @@ impl Command {
             }
             Self::PairUnwrap => {
                 "Remove the innermost confirmed enclosing pair while preserving its contents."
+            }
+            Self::MatchingDelimiter => {
+                "Jump to the confirmed typed mate at or immediately before point without editing source."
             }
             _ => unreachable!("non-edit commands delegate before pair lookup"),
         }

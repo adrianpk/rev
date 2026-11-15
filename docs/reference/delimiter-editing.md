@@ -104,3 +104,10 @@ work leaves source and history unchanged. Uncertain ordinary typing stays litera
 | `auto-pair-mode` | Toggle automatic delimiter editing for this buffer and its views without writing settings. |
 | `pair-wrap` | Choose an admitted delimiter and wrap the active linear region in one undo step. |
 | `pair-unwrap` | Remove the innermost confirmed enclosing pair while preserving its contents. |
+| `matching-delimiter` | Jump to the confirmed typed mate at or immediately before point without editing source. |
+
+The explicit matching-delimiter command is unbound. It uses the same confirmed
+source facts, works on read-only source and ignores automatic-editing preferences.
+It preserves an active linear mark, rejects numeric prefixes and refuses
+unconfirmed endpoints without movement. See [Commands](commands.md#implemented-catalog)
+for its entry policy and the distinct modal % behavior.

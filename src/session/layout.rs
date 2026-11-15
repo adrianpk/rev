@@ -20,6 +20,7 @@ enum Request {
     PairTyping,
     PairDeletion,
     PairRegions,
+    Mate,
     ArgumentText,
     ArgumentHistory,
     Pointer(crate::pointer::Event, Instant),
@@ -46,6 +47,7 @@ pub(super) struct Work {
     pub(super) pair: Option<super::pairs::Typing>,
     pub(super) deletion: Option<super::pairs::Deletion>,
     pub(super) regions: Option<super::pairs::Regions>,
+    pub(super) mate: Option<super::pairs::Mate>,
     pub(super) text: Option<super::arguments::Text>,
     pub(super) history: Option<super::arguments::Replay>,
     pub(super) movement: Option<super::arguments::Movement>,
@@ -82,6 +84,7 @@ impl Session {
             self.cancel_pair_typing();
             self.cancel_pair_deletion();
             self.cancel_pair_regions();
+            self.cancel_mate();
             self.layout.text = None;
             self.layout.history = None;
             self.layout.interrupt = true;
@@ -116,6 +119,7 @@ impl Session {
             self.cancel_pair_typing();
             self.cancel_pair_deletion();
             self.cancel_pair_regions();
+            self.cancel_mate();
             self.layout.text = None;
             self.layout.history = None;
             self.layout.interrupt = true;
@@ -213,6 +217,10 @@ impl Session {
         self.prepare_request(Request::PairRegions)
     }
 
+    pub(super) fn layout_mate(&mut self) -> Option<Action> {
+        self.prepare_request(Request::Mate)
+    }
+
     pub(super) fn layout_argument_text(&mut self) -> Option<Action> {
         self.prepare_request(Request::ArgumentText)
     }
@@ -247,6 +255,7 @@ impl Session {
                 self.cancel_pair_typing();
                 self.cancel_pair_deletion();
                 self.cancel_pair_regions();
+                self.cancel_mate();
                 self.layout.text = None;
                 self.layout.history = None;
                 Some(self.error(&error.to_string()))
@@ -291,6 +300,7 @@ impl Session {
             Request::PairTyping => self.prepare_pair_typing(),
             Request::PairDeletion => self.prepare_pair_deletion(),
             Request::PairRegions => self.prepare_pair_regions(),
+            Request::Mate => self.prepare_mate(),
             Request::ArgumentText => self.prepare_argument_text(),
             Request::ArgumentHistory => unreachable!("history uses progressive native admission"),
             Request::Invocation(invocation) => self.prepare_argument_movement(invocation),
@@ -359,22 +369,28 @@ impl Session {
             self.cancel_pair_typing();
             self.cancel_pair_deletion();
             self.cancel_pair_regions();
+            self.cancel_mate();
             self.layout.text = None;
             self.layout.history = None;
             self.message("Layout source or geometry changed")
         } else if let Some(outcome) = self.prepare_request(held.request) {
             outcome
         } else {
-            match held.request {
-                Request::Command(command) => self.execute_now(command),
-                Request::Invocation(invocation) => self.publish_argument_movement(invocation),
-                Request::PairTyping => self.publish_pair_typing(),
-                Request::PairDeletion => self.publish_pair_deletion(),
-                Request::PairRegions => self.publish_pair_regions(),
-                Request::ArgumentText => self.publish_argument_text(),
-                Request::ArgumentHistory => self.publish_argument_history(),
-                Request::Pointer(event, now) => self.pointer_now(event, now),
-            }
+            self.publish_layout_request(held.request)
+        }
+    }
+
+    fn publish_layout_request(&mut self, request: Request) -> Action {
+        match request {
+            Request::Command(command) => self.execute_now(command),
+            Request::Invocation(invocation) => self.publish_argument_movement(invocation),
+            Request::PairTyping => self.publish_pair_typing(),
+            Request::PairDeletion => self.publish_pair_deletion(),
+            Request::PairRegions => self.publish_pair_regions(),
+            Request::Mate => self.publish_mate(),
+            Request::ArgumentText => self.publish_argument_text(),
+            Request::ArgumentHistory => self.publish_argument_history(),
+            Request::Pointer(event, now) => self.pointer_now(event, now),
         }
     }
     fn held_layout_current(&self, held: &Held) -> bool {

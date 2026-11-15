@@ -1,9 +1,11 @@
 mod deletion;
+mod navigation;
 mod plan;
 mod regions;
 pub(super) use regions::{RegionPrompt, Regions};
 
 pub(super) use deletion::Deletion;
+pub(super) use navigation::Mate;
 
 use std::time::Instant;
 

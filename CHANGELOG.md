@@ -9,6 +9,11 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 
 ### Added
 
+- Jump between confirmed delimiter or quote endpoints with M-x
+  matching-delimiter, including read-only source and buffers with automatic
+  pairing disabled. Point and the active mark stay unchanged when no mate is
+  confirmed.
+
 - Type paired parentheses, brackets, braces and eligible quotes, skip confirmed
   closers, and remove empty pairs with Backspace. Wrap selected text or use M-x
   pair-wrap and pair-unwrap; counted edits stay in one undo step. Configure each

@@ -55,6 +55,7 @@ impl Session {
         match command {
             Command::PairWrap => self.start_pair_wrap_prompt(PrefixArgument::default()),
             Command::PairUnwrap => self.start_pair_unwrap(),
+            Command::MatchingDelimiter => self.matching_delimiter(),
             _ => self.dispatch(command),
         }
     }
