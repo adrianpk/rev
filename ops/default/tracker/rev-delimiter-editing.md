@@ -10,7 +10,7 @@ Execution authority: slices 1-7, predecessor-ordered canonical PRs and controlle
 Planning baseline: `fa48f847e9075eafd2272891c29c7dbf04bf7f16`
 Spec: [Delimiter Pairs](../spec/editor-delimiter-pairs.md)
 Model: [Pair Preferences and Native State](../spec/editor-delimiter-pairs-model.md)
-Active slice: Slice 7 — Integrated acceptance and guidance
+Active slice: None — all seven slices delivered; controller full gate pending
 Integration target: `dev`
 Plan: [Automatic Delimiter Editing Delivery](../plan/rev-delimiter-editing.md)
 
@@ -187,10 +187,10 @@ Dependency: Slice 6 integrated and closed.
 Branch: `test/rev-delimiter-editing-07-acceptance`
 Expected PR title: `test(editor): verify automatic delimiter editing workflows`
 Report: `ops/default/report/slices/rev-delimiter-editing/slice-7-acceptance.md`
-State: reviewing; implementation complete
+State: delivered; PR #61 integrated into dev
 PR: [#61](https://forge.adrianpk.com/rev/rev/pulls/61)
 Task commits: T7.1-T7.3/report introduction `cb3c09ca63e00d43b3f8a0642e7cbe2627874bae`; native/physical acceptance, measured bounds, guidance and editing-only closure preparation form one complete reviewable path.
-Validation: formatting, the acceptance script (192 native cases, all fixed bounds, unchanged maps and two owned/restored Linux PTYs), documentation with 22 reference tests and the local User Guide build PASS. Full staged-source hooks PASS for 1,956 Rust files and 78 Cargo roots. Exact clean-HEAD controller evidence follows PR-reference commits. Integration, combined gate and editing-only closure remain controller-owned.
+Validation: formatting, the acceptance script (192 native cases, all fixed bounds, unchanged maps and two owned/restored Linux PTYs), documentation with 22 reference tests and the local User Guide build PASS. Full staged-source hooks PASS for 1,956 Rust files and 78 Cargo roots. Exact five-command clean-HEAD controller validation PASS at `51e97dceef8db07021e9be2f7eef5cf77f61fdc8` in 369.20 seconds; canonical PR contract verified and PR #61 integrated that same candidate. Combined gate and editing-only closure remain controller-owned.
 
 - [x] T7.1: Create scripts/check-delimiter-editing.sh using existing native test/PTY support. Batch the complete pair suite, editing configuration and the focused shared regressions enumerated below; verify a nonempty selected test set. Add representative native and Linux PTY workflows for both profiles, literal paste/macro behavior, one undo/redo cycle and read-only/focus boundaries, with owned fixtures and restored terminal attributes.
 - [x] T7.2: Measure new-service bytes/depth/retention/cooperative scheduling on 1 KiB, 64 KiB, 256 KiB and 1 MiB complete/malformed/oversized-token sources, count expansion and split views. Record bounded refusal and continuation, same-line Org/Markdown frame stability and queued-key release behavior. Keep finite native deadlines and disclose cold-build cost; do not tune frozen limits or expected fixtures to observed output.
@@ -208,12 +208,18 @@ git diff --check
 
 ## Final acceptance and closure
 
-State: pending all seven integrated slices
+State: ready for controller-owned full gate; all seven slices integrated
 Required command:
 
 ```sh
 env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 bash -c 'set -euo pipefail; make lint; make test-hooks; bash scripts/check-delimiter-editing.sh; bash scripts/check-documentation.sh; bash scripts/build-user-guide.sh; git diff --check'
 ```
+
+Gate preparation verified canonical PRs #55-#61 merged into dev with fetched
+ancestry, all seven delivered reports and 21 completed tasks. The final owned
+worktree was clean and inactive and was removed without force; unrelated
+worktrees remain. Required tools, native/PTY fixtures and shell syntax are ready.
+No combined gate ran during preparation.
 
 The plan owns scope, fixed bounds, focused selection, cost and report/closure
 rules. The controller runs the combined gate only after Slice 7 integration.
@@ -222,10 +228,10 @@ Markdown-only closure commit. Source/settings/tests/fixtures must not change
 between that tested candidate and ordinary closure. Only editing becomes
 Completed; navigation/presentation and their model portions remain Draft.
 
-- [ ] All 21 tasks and seven canonical slice PRs delivered in predecessor order.
+- [x] All 21 tasks and seven canonical slice PRs delivered in predecessor order.
 - [ ] Integrated editing/configuration and shared-owner regressions pass.
 - [ ] Two representative owned Linux PTYs and bounded resource/frame workloads pass.
 - [ ] User Guide, configuration/command reference and concise Unreleased entry accepted.
 - [ ] Controller-owned unchanged full gate passes at the exact published dev candidate.
 - [ ] Seven reports, editing-only specification/model/index and tracker reconciled.
-- [ ] Integrated clean/inactive owned worktrees removed without force.
+- [x] Integrated clean/inactive owned worktrees removed without force.

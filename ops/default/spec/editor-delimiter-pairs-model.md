@@ -195,6 +195,6 @@ model's Partially approved status while later capabilities remain Draft.
 Implementation evidence is collected in the
 [seven-slice tracker](../tracker/rev-delimiter-editing.md) and
 [acceptance report](../report/slices/rev-delimiter-editing/slice-7-acceptance.md).
-Editing status stays Approved pending Slice 7 integration and the controller's
-exact-candidate combined gate. The closure record must preserve that tested hash,
+All seven editing slices are integrated. Editing status stays Approved pending
+the controller's exact-candidate combined gate. The closure record must preserve that tested hash,
 receipt and any subsequent Markdown-only closure commit separately.

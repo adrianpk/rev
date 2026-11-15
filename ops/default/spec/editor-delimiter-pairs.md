@@ -341,7 +341,7 @@ bounds/shared owners and two Linux PTYs. The
 [editing lesson](../../../docs/tutorials/user-guide/02-edit-text.md) describe the
 implemented policy.
 
-Status remains Approved until Slice 7 integration and the controller-owned combined
-gate pass at an exact published dev candidate. Post-gate closure records that
+All seven slices are integrated. Status remains Approved until the controller-owned
+combined gate passes at an exact published dev candidate. Post-gate closure records that
 candidate and receipt and changes only editing to Completed. DPR02/DPR03 and their
 model portions remain Draft; their acceptance is independent.

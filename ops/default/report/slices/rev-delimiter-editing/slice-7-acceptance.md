@@ -1,6 +1,6 @@
 # Slice 7: Integrated acceptance and guidance
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-delimiter-editing
 Plan: [Automatic Delimiter Editing Delivery](../../../plan/rev-delimiter-editing.md)
 Tracker: [Automatic Delimiter Editing Tracker](../../../tracker/rev-delimiter-editing.md)
@@ -147,9 +147,11 @@ Full staged-source hooks passed: formatting, strict all-target/all-feature
 workspace Clippy with zero blocking or deferred diagnostics, and native policy
 for 1,956 first-party Rust files, two packages and 78 Cargo roots. The immutable
 staged tree was `db522de16d14b829d9cf082b976dadce80d12f9d`; the cold private-cache
-hook took 250.11 seconds. The final exact clean-HEAD five-command controller
-receipt follows PR-reference commits. Combined delivery-set acceptance
-remains controller-owned; this script run is slice acceptance, not that full gate.
+hook took 250.11 seconds. The final exact five-command clean-HEAD controller
+validation passed at `51e97dceef8db07021e9be2f7eef5cf77f61fdc8` in 369.20 seconds.
+The canonical PR contract was verified; PR #61 integrated that same candidate
+into dev, confirmed by Forgejo, fetched ancestry and Acta. Combined delivery-set
+acceptance remains controller-owned; this script run is slice acceptance, not that full gate.
 
 ## Delivery evidence prepared for controller closure
 
@@ -161,7 +163,22 @@ remains controller-owned; this script run is slice acceptance, not that full gat
 | 4 | [Deletion](slice-4-deletion.md) | #58 | Delivered. |
 | 5 | [Regions](slice-5-regions.md) | #59 | Delivered. |
 | 6 | [Provenance](slice-6-provenance.md) | #60 | Delivered. |
-| 7 | This report | #61 | Integration and combined gate pending. |
+| 7 | This report | #61 | Delivered; combined gate pending. |
+
+Gate preparation verified canonical PRs #55-#61 as merged ancestors of fetched
+dev. All seven reports are delivered and all 21 task entries are complete. The
+last owned Slice 7 worktree was clean and inactive and was removed without force;
+unrelated worktrees were preserved. Required gate executables, scripts and
+native/PTY fixtures are present; existing hooks remain configured unchanged.
+
+Preparation checks passed:
+
+- `bash -n scripts/check-quality.sh scripts/test-hooks.sh scripts/check-delimiter-editing.sh scripts/check-documentation.sh scripts/build-user-guide.sh`
+- `git diff --check`
+
+No combined gate ran in preparation. The slice receipt above belongs to its
+original exact HEAD; the controller selects and validates the clean published
+candidate containing these Markdown-only preparation changes.
 
 The approved plan fixes the final command and closure path allowlist. All runtime,
 settings, test, fixture, script, reference, guide/changelog and report content must
@@ -175,7 +192,7 @@ shared model Partially approved and navigation/presentation Draft.
 
 The four-millisecond cooperative scheduling value is a target, not a wall-clock
 guarantee. Host turns include native source/projection work and are reported
-separately from individual qualification polls. The controller must integrate
-Slice 7 and run the unchanged combined gate against the exact published dev
-candidate before editing-only closure. That later Markdown closure records the
-tested hash and receipt independently; navigation/presentation remain Draft.
+separately from individual qualification polls. All seven slices are integrated.
+The controller must run the unchanged combined gate against the exact published
+dev candidate before editing-only closure. That later Markdown closure records
+the tested hash and receipt independently; navigation/presentation remain Draft.

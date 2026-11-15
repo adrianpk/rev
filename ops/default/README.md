@@ -90,10 +90,10 @@ approval boundaries.
 - [Automatic delimiter editing](spec/editor-delimiter-pairs.md) is Approved for
   [seven-slice delivery](plan/rev-delimiter-editing.md), with its
   [tracker](tracker/rev-delimiter-editing.md) and editing portion of the
-  [shared model](spec/editor-delimiter-pairs-model.md). Slices 1-6 are integrated;
-  [Slice 7](report/slices/rev-delimiter-editing/slice-7-acceptance.md) prepares
-  integrated acceptance and guidance. Completion awaits its integration and the
-  controller-owned exact-candidate combined gate. [Navigation](spec/editor-delimiter-navigation.md)
+  [shared model](spec/editor-delimiter-pairs-model.md). All seven slices are
+  integrated; the [acceptance report](report/slices/rev-delimiter-editing/slice-7-acceptance.md)
+  records their delivered evidence and prepared gate prerequisites. Completion
+  awaits the controller-owned exact-candidate combined gate. [Navigation](spec/editor-delimiter-navigation.md)
   and [presentation](spec/editor-delimiter-presentation.md) remain Draft subsequent
   capabilities, in that order. Approval is not delivered behavior.
 - [Development Workflow Plugin](spec/editor-development-workflow.md) and its
