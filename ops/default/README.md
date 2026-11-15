@@ -98,10 +98,11 @@ editing portion of the [shared model](spec/editor-delimiter-pairs-model.md) is
 Completed; the model remains Partially approved.
 [Navigation](spec/editor-delimiter-navigation.md) remains Approved under its
 [five-slice plan](plan/rev-delimiter-navigation.md) and
-[tracker](tracker/rev-delimiter-navigation.md). PRs #62-#65 integrate mate, group,
+[tracker](tracker/rev-delimiter-navigation.md). PRs #62-#66 integrate mate, group,
 nesting and expression commands. [Slice 5](report/slices/rev-delimiter-navigation/slice-5-acceptance.md)
-prepares native/physical acceptance and final guidance; controller integration,
-the combined gate and exact-candidate closure remain pending. The expression
+delivers native/physical acceptance and final guidance. All five reports are
+delivered and owned worktrees retired; the controller's combined gate and
+exact-candidate closure remain pending. The expression
 portion of EIP04 stays separate from paragraph parity.
 [Presentation](spec/editor-delimiter-presentation.md) remains
 Draft and follows navigation under its own execution authority.

@@ -20,13 +20,13 @@ structural group movement and a syntax-aware expression motion.
 
 ## Delivery progress
 
-Slices 1-4 are integrated through canonical PRs #62-#65. They deliver the seven
-commands, six additive base-editor chords and the shared bounded source owner.
+All five slices are integrated through canonical PRs #62-#66. They deliver the
+seven commands, six additive base-editor chords and shared bounded source owner.
 [Slice 5](../report/slices/rev-delimiter-navigation/slice-5-acceptance.md)
-prepares the complete native acceptance batch, two representative Linux PTYs
-and final guidance. Its report records local evidence; it is not the integrated
-receipt. Navigation remains Approved until the controller integrates all five
-PRs, passes the unchanged combined gate and records exact-candidate closure.
+delivers the complete native acceptance batch, two representative Linux PTYs
+and final guidance. Its report records exact slice validation and integration;
+the combined-gate receipt remains pending. Navigation remains Approved until
+the controller passes the unchanged combined gate and records exact-candidate closure.
 Pair presentation and paragraph parity retain their separate authority.
 
 ## Approved commands and endpoints

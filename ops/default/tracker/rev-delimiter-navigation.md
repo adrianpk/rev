@@ -12,7 +12,8 @@ Spec: [Delimiter Navigation](../spec/editor-delimiter-navigation.md)
 Model: [Pair Preferences and Native State](../spec/editor-delimiter-pairs-model.md)
 Concern: [Operations index](../README.md)
 Concern: [Interaction Parity](../spec/editor-emacs-interaction-parity.md)
-Active slice: Slice 5 — Integrated navigation acceptance
+Active slice: None — all five slices integrated; awaiting controller gate
+Gate state: prerequisites prepared; controller execution pending
 Integration target: `dev`
 Plan: [Delimiter Navigation Delivery](../plan/rev-delimiter-navigation.md)
 
@@ -138,10 +139,10 @@ Dependency: Slice 4 integrated and closed.
 Branch: `test/rev-delimiter-navigation-05-acceptance`
 Expected PR title: `test(editor): verify delimiter navigation workflows`
 Report: `ops/default/report/slices/rev-delimiter-navigation/slice-5-acceptance.md`
-State: reviewing; active
+State: delivered; PR #66 integrated
 PR: [#66](https://forge.adrianpk.com/rev/rev/pulls/66)
 Task commits: T5.1/T5.2 `2c67bdfdbd9baabedaf0d16ee4a698a6744fbe81`; additive pair inventory reconciliation `263bde3ffe17c1dabadd2bbf72f353de1213c117`; T5.3/report introduction `7006dae9907357d3417ef13ce24876614c6651e7`.
-Validation: all five ordered required commands PASS locally: 180 native cases, one independent complete factory helper, exactly two Linux PTYs, documentation and local guide build. Both code commits passed exact staged workspace formatting, strict all-target/all-feature Clippy and native policy over 1,971 files / 80 Cargo roots. Final clean-HEAD looper validation follows the PR-reference commit. PR integration, the combined gate and navigation closure remain controller-owned.
+Validation: all five ordered required commands PASS through looper validate at clean, pushed `74927143e7ad04b5ec594e4b7d6ddddcae0395d4` in 467.503 seconds, integrated by canonical PR #66. The script covers 180 native cases, one independent complete factory helper and exactly two Linux PTYs; documentation and local guide build pass. Both code commits passed exact staged workspace formatting, strict all-target/all-feature Clippy and native policy over 1,971 files / 80 Cargo roots. Fetched ancestry and clean inactive owned worktree verified; worktree removed without force. The combined gate and navigation closure remain controller-owned.
 
 - [x] T5.1: Create scripts/check-delimiter-navigation.sh with nonempty native filter checks. Batch the complete navigation suite, the shared pair qualifier/editing regressions justified below, focused native modal objects, keymap/override and macro cases. Reuse the current factory acceptance helper once for complete expected maps/catalog; never regenerate historical frozen inputs from runtime output.
 - [x] T5.2: Add exactly two representative owned Linux PTY journeys, non-modal and modal Insert, using real C-M input and named mate invocation. Verify endpoints through subsequent saved source effects, mark/read-only/focus behavior and configuration immutability; restore TTY and reap owned children. Measure aggregate budget/depth/retention, cancellation, source/view changes, queued-key release and folded Org/Markdown presentation with finite deadlines.
@@ -159,7 +160,7 @@ git diff --check
 
 ## Final acceptance and closure
 
-State: pending all five integrated slices
+State: prepared; all five slices integrated, controller full gate pending
 Required command:
 
 ```sh
@@ -171,11 +172,16 @@ selection, expected cost and report/closure rules. The controller owns final
 execution and receipt for the exact published dev candidate; preparation and
 focused results are not that receipt.
 
-- [ ] All 15 tasks and five canonical PRs delivered in predecessor order.
+All approved full-gate inputs and commands are present. Required executables are
+available, frozen input digests are unchanged, and integrated owned worktrees
+are retired. Gate preparation changes only delivery-state Markdown; navigation
+remains Approved until the controller records the combined gate and closure.
+
+- [x] All 15 tasks and five canonical PRs delivered in predecessor order.
 - [ ] Navigation and shared pair/editing, modal, keymap, macro and projection cases pass.
 - [ ] Two representative owned Linux PTYs restore TTY and preserve actual configuration.
 - [ ] Bounded-work/cancellation/held-input and source/region/frame contracts pass.
 - [ ] User Guide, exact bindings/commands/profile reference and concise Unreleased entry accepted.
 - [ ] Unchanged controller full gate passes at the exact candidate; tested hash/receipt recorded.
 - [ ] Eleven allowed Markdown records close navigation and only EIP04 expression progress.
-- [ ] Completed clean/inactive owned worktrees removed without force.
+- [x] Completed clean/inactive owned worktrees removed without force.

@@ -1,6 +1,6 @@
 # Slice 5: Integrated navigation acceptance
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-delimiter-navigation
 Plan: [Delimiter Navigation Delivery](../../../plan/rev-delimiter-navigation.md)
 Tracker: [Delimiter Navigation Tracker](../../../tracker/rev-delimiter-navigation.md)
@@ -72,14 +72,17 @@ model Partially approved. Paragraph motion, EIP04 as a whole and F2 stay pending
 - `tests/pair_navigation/acceptance.rs`: decoded input and exact heading-cell continuity.
 - `tests/pairs/regions/helpers.rs` and `tests/pairs/typing/lifecycle.rs`: exact additive inventory expectations.
 - User Guide, command reference and Unreleased entry: cohesive delivered navigation.
-- Navigation spec/model/index and EIP04 expression progress: pending integration boundary.
+- Navigation spec/model/index and EIP04 expression progress: integrated, with combined-gate closure pending.
 
 ## Validation
 
-All five required commands passed locally in canonical order, with one Cargo
-build job, disabled incremental output and no dev/test debuginfo. The controller
-owns the combined delivery gate. Final clean-HEAD evidence is recorded separately
-through looper validate after the PR-reference commit.
+All five required commands passed through looper validate in canonical order at
+clean, pushed `74927143e7ad04b5ec594e4b7d6ddddcae0395d4` in 467.503 seconds,
+using one Cargo build job, disabled incremental output and no dev/test debuginfo.
+Canonical PR #66 integrated that commit into dev. Acta records validation as
+`01M7G9Q9N97FJ3WHR41DVNTS82` and the merge as `01M7G9RSB59G7SD9454RJ3RHM5`.
+The controller owns the combined delivery gate. The earlier development timings
+below remain observations of their original runs.
 
 - PASS: `cargo fmt --all -- --check`: 4.204 seconds.
 - PASS: `bash scripts/check-delimiter-navigation.sh`: 520.992 seconds; 180 native cases, one complete factory helper and exactly two Linux PTYs.
@@ -120,7 +123,7 @@ The two literal sets now add exactly the seven approved navigation names to the
 three editing additions, retaining the immutable 707-command baseline, exact
 set equality, descriptions and unbound editing helpers. The focused command
 `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test pairs inventory -- --test-threads=1`
-passes both cases. The initial diagnostic log is preserved locally.
+passes both cases. The initial diagnostic log was retained through slice validation.
 
 Acceptance implementation is `2c67bdfdbd9baabedaf0d16ee4a698a6744fbe81`;
 the two inventory updates are `263bde3ffe17c1dabadd2bbf72f353de1213c117`.
@@ -129,9 +132,8 @@ Both exact staged hooks passed formatting, strict all-target/all-feature workspa
 Clippy and native source policy across 1,971 files, two packages and 80 Cargo
 roots. No hook, lint profile, acceptance limit or frozen input was changed.
 The report-introduction and PR-reference commits pass the installed docs/data
-whitespace and index-integrity hook. Canonical PR #66 targets dev with the exact
-approved title and immutable report link; its final clean HEAD is validated
-separately before handoff.
+whitespace and index-integrity hook. Canonical PR #66 merged into dev with the
+exact approved title and immutable report link after its final clean-HEAD checks.
 
 Fresh unoptimized requests measured 88 source-size samples across all four
 navigation owners, complete/malformed forms, long atoms/strings and both
@@ -165,8 +167,13 @@ turns include projection and cell comparison, not just the bounded lexical poll.
 
 ## Risks and Follow-ups
 
-PR integration, the unchanged combined gate and the eleven-file Markdown-only
-closure remain controller-owned. The plan estimates 10-20 minutes warm or 20-35
+All five slices are integrated. Fetched dev ancestry, a clean/unlocked Slice 5
+worktree and absence of owned processes were verified; the worktree was removed
+without force. Runtime, acceptance, guidance and all five delivered reports are
+present for the full gate. Only delivery-state Markdown changes in preparation.
+
+The unchanged combined gate and the eleven-file Markdown-only closure remain
+controller-owned. The plan estimates 10-20 minutes warm or 20-35
 minutes cold for that combined gate; this worker's selected commands and hook
 are separate evidence. No full delivery gate, hook installation, main promotion,
 release or publication runs here. The existing vendored crossterm parentheses

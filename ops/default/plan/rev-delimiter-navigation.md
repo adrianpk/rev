@@ -12,7 +12,8 @@ Spec: [Delimiter Navigation](../spec/editor-delimiter-navigation.md)
 Model: [Pair Preferences and Native State](../spec/editor-delimiter-pairs-model.md)
 Concern: [Operations index](../README.md)
 Concern: [Interaction Parity](../spec/editor-emacs-interaction-parity.md)
-Active slice: Slice 5 — Integrated navigation acceptance
+Active slice: None — all five slices integrated; awaiting controller gate
+Gate state: prerequisites prepared; controller execution pending
 Integration target: `dev`
 Tracker: [Delimiter Navigation Tracker](../tracker/rev-delimiter-navigation.md)
 
@@ -240,6 +241,15 @@ git diff --check
 ```
 
 ## Controller-owned delivery gate
+
+All five canonical PRs #62-#66 are integrated into dev. The runtime, acceptance
+script, fixtures, factory expectations, guidance, changelog and five delivered
+reports are present. Slice 5's clean-HEAD checks passed at
+`74927143e7ad04b5ec594e4b7d6ddddcae0395d4`; its
+[report](../report/slices/rev-delimiter-navigation/slice-5-acceptance.md) records
+the evidence. Gate preparation changes delivery records only. The controller
+still owns the combined gate and exact-candidate closure; no full-gate receipt
+is claimed by this preparation.
 
 After all five slices integrate, run the unchanged combined gate once against
 the exact clean, published dev candidate:
