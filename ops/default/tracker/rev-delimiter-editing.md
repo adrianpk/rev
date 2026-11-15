@@ -43,7 +43,7 @@ Branch: `feat/rev-delimiter-editing-01-config`
 Expected PR title: `feat(editor): configure automatic pair policies`
 Report: `ops/default/report/slices/rev-delimiter-editing/slice-1-config.md`
 State: reviewing; awaiting controller integration
-PR: pending
+PR: [#55](https://forge.adrianpk.com/rev/rev/pulls/55)
 Task commits: T1.1/report introduction `1c02645adf98458878588684db44cb78dcd7ecfa`; T1.2 `178c80b447525e60caba98ab84ee2ef2b30942a5`; T1.3 `1fc8533dd8dc95f2220c0a603e863be49d915538`.
 Validation: formatting and whitespace PASS; 11 pair-policy and five existing template/default regressions PASS; all three task commits passed the installed staged-source hooks. The final submitted clean HEAD is checked through the controller validator before handoff; the combined delivery gate remains controller-owned.
 
