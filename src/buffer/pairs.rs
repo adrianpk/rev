@@ -39,7 +39,7 @@ impl Buffer {
         Ok(self.pairing.start(query, (self.stamp(), profile), hint))
     }
 
-    /// Start one counted group request, retiring any typed-pair work. Group
+    /// Start one counted group/expression request, retiring typed-pair work. Its
     /// outcomes never supply typed-pair facts to editing or presentation.
     pub fn start_group_request(&mut self, request: GroupRequest) -> Result<Ticket, Error> {
         self.span(request.point.0..request.point.0)?;

@@ -566,6 +566,8 @@ fn supported(command: Command) -> bool {
             | Command::BackwardPair
             | Command::UpPair
             | Command::DownPair
+            | Command::ForwardSexp
+            | Command::BackwardSexp
             | Command::Navigate(_)
             | Command::Edit(_)
             | Command::Modal(_)

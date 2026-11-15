@@ -56,9 +56,12 @@ impl Session {
             Command::PairWrap => self.start_pair_wrap_prompt(PrefixArgument::default()),
             Command::PairUnwrap => self.start_pair_unwrap(),
             Command::MatchingDelimiter => self.matching_delimiter(),
-            Command::ForwardPair | Command::BackwardPair | Command::UpPair | Command::DownPair => {
-                self.group_motion(command, 1)
-            }
+            Command::ForwardPair
+            | Command::BackwardPair
+            | Command::UpPair
+            | Command::DownPair
+            | Command::ForwardSexp
+            | Command::BackwardSexp => self.group_motion(command, 1),
             _ => self.dispatch(command),
         }
     }

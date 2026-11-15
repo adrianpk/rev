@@ -107,6 +107,8 @@ fn add_navigation_maps(expected: &mut Maps) -> Result<()> {
             ("C-M-p", "backward-pair"),
             ("C-M-u", "up-pair"),
             ("C-M-d", "down-pair"),
+            ("C-M-f", "forward-sexp"),
+            ("C-M-b", "backward-sexp"),
         ] {
             let old = expected
                 .get_mut(context)
@@ -130,11 +132,13 @@ fn inventory(catalog: &Catalog) {
         "backward-pair",
         "up-pair",
         "down-pair",
+        "forward-sexp",
+        "backward-sexp",
     ]);
     let live: BTreeSet<_> = Command::ALL.iter().map(Command::name).collect();
     assert!(names.is_disjoint(&added));
     assert!(added.is_subset(&live));
-    assert_eq!(live.len(), 715);
+    assert_eq!(live.len(), 717);
     assert_eq!(names, live.difference(&added).copied().collect());
     let actions: BTreeSet<_> = catalog.actions.iter().map(String::as_str).collect();
     assert_eq!(actions.len(), 6);

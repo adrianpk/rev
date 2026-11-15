@@ -393,6 +393,8 @@ fn editing(command: Command) -> bool {
             | Command::BackwardPair
             | Command::UpPair
             | Command::DownPair
+            | Command::ForwardSexp
+            | Command::BackwardSexp
             | Command::Scroll(_)
             | Command::Newline
             | Command::InsertTab

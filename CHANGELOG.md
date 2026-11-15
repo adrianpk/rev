@@ -13,8 +13,9 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
   matching-delimiter, including read-only source and buffers with automatic
   pairing disabled. Point and the active mark stay unchanged when no mate is
   confirmed. Move across complete groups with C-M-n/C-M-p, or enter and leave
-  nested groups with C-M-d/C-M-u, including signed counts, while preserving
-  source, undo history and the active linear mark.
+  nested groups with C-M-d/C-M-u. Use C-M-f/C-M-b for mode-aware expressions,
+  including words, strings and complete forms. Signed counts preserve source,
+  undo history and the active linear mark.
 
 - Type paired parentheses, brackets, braces and eligible quotes, skip confirmed
   closers, and remove empty pairs with Backspace. Wrap selected text or use M-x

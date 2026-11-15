@@ -321,7 +321,7 @@ compiled M-x name once.
 | Jump traversal | `modal-jump-backward`, `modal-jump-forward` |
 | Source wrapping | `visual-line-mode` |
 | Automatic delimiter editing | `auto-pair-mode`, `pair-wrap`, `pair-unwrap` |
-| Delimiter navigation | `matching-delimiter`, `forward-pair`, `backward-pair`, `up-pair`, `down-pair` |
+| Delimiter navigation | `matching-delimiter`, `forward-pair`, `backward-pair`, `up-pair`, `down-pair`, `forward-sexp`, `backward-sexp` |
 | Gutter | `gutter-toggle-line-numbers`, `gutter-cycle-line-number-mode`, `gutter-set-line-numbers-absolute`, `gutter-set-line-numbers-relative`, `gutter-cycle-current-line`, `gutter-toggle-line-number-side`, `gutter-inspect-numbering`, `gutter-reset-numbering` |
 | Bookmarks | `bookmark-set`, `bookmark-set-no-overwrite`, `bookmark-jump`, `bookmark-delete`, `bookmark-save`, `bookmark-reload`, `list-bookmarks`, `bookmark-next`, `bookmark-previous`, `bookmark-markers-mode`, `bookmark-bmenu-delete`, `bookmark-bmenu-unmark`, `bookmark-bmenu-execute-deletions`, `bookmark-bmenu-this-window` |
 | Rectangles | `rectangle-mark-mode`, `copy-rectangle-as-kill`, `kill-rectangle`, `yank-rectangle` |
@@ -356,6 +356,22 @@ down-pair enters backward just before closing delimiters. Missing enclosing or
 nested groups refuse without changing point or the active mark. Folded targets
 are revealed in the selected view through native source projection; peer folds
 and source bytes stay unchanged. The same profile, focus and count rules apply.
+
+C-M-f (forward-sexp) and C-M-b (backward-sexp) cross mode-defined expressions:
+atoms, ordinary strings and complete forms. In `(ab) tail` from its opener,
+forward-sexp reaches the position after `)`; matching-delimiter reaches `)`
+itself. From `b` inside the form, forward-sexp crosses that atom, while a group
+motion needs another group at the current level.
+
+Endpoints follow syntax classes. C `12.5` stops after `12`; `*value` skips the
+punctuation prefix and crosses `value`. Script `$value` and CSS `font-size`
+are single atoms. Plain text keeps word apostrophes, hyphens and underscores
+together. HTML crosses a qualified opening tag token, without jumping across
+the element. Org/Markdown literal and embedded contexts retain native exclusions.
+A fully inspected unterminated ordinary C string can reach EOF; unproved raw,
+triple, template and embedded syntax refuses. This never proves a typed mate.
+Signed counts, atomic refusal, mark preservation, read-only access, grapheme
+normalization, native reveal and effective-map inheritance match group motions.
 
 ## Line navigation
 

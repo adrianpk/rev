@@ -134,7 +134,12 @@ impl Session {
         if self.source_layout_focus() {
             if matches!(
                 invocation.command,
-                Command::ForwardPair | Command::BackwardPair | Command::UpPair | Command::DownPair
+                Command::ForwardPair
+                    | Command::BackwardPair
+                    | Command::UpPair
+                    | Command::DownPair
+                    | Command::ForwardSexp
+                    | Command::BackwardSexp
             ) {
                 return Some(self.group_motion(invocation.command, invocation.argument.value()));
             }

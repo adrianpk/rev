@@ -182,6 +182,8 @@ pub(super) const EDITOR: &[(&str, &str)] = &[
     ("C-M-p", "backward-pair"),
     ("C-M-u", "up-pair"),
     ("C-M-d", "down-pair"),
+    ("C-M-f", "forward-sexp"),
+    ("C-M-b", "backward-sexp"),
     ("C-s", "isearch-forward"),
     ("C-r", "isearch-backward"),
     ("C-SPC", "set-mark-command"),

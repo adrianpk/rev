@@ -122,6 +122,8 @@ pub enum Command {
     BackwardPair,
     UpPair,
     DownPair,
+    ForwardSexp,
+    BackwardSexp,
     Mode(Mode),
     Org(OrgCommand),
     Markdown(MarkdownCommand),
@@ -166,7 +168,7 @@ pub enum Command {
 }
 
 impl Command {
-    pub const ALL: [Self; 715] = [
+    pub const ALL: [Self; 717] = [
         Self::Plugin(PluginCommand::List),
         Self::Plugin(PluginCommand::Activate),
         Self::Plugin(PluginCommand::Deactivate),
@@ -566,6 +568,8 @@ impl Command {
         Self::BackwardPair,
         Self::UpPair,
         Self::DownPair,
+        Self::ForwardSexp,
+        Self::BackwardSexp,
         Self::Org(OrgCommand::PrettyHeadings),
         Self::Org(OrgCommand::ResetHeadingPresentation),
         Self::Org(OrgCommand::IndentMode),
@@ -1326,11 +1330,19 @@ impl Command {
             Self::AutoPairMode => "auto-pair-mode",
             Self::PairWrap => "pair-wrap",
             Self::PairUnwrap => "pair-unwrap",
+            _ => self.navigation_name(),
+        }
+    }
+
+    fn navigation_name(self) -> &'static str {
+        match self {
             Self::MatchingDelimiter => "matching-delimiter",
             Self::ForwardPair => "forward-pair",
             Self::BackwardPair => "backward-pair",
             Self::UpPair => "up-pair",
             Self::DownPair => "down-pair",
+            Self::ForwardSexp => "forward-sexp",
+            Self::BackwardSexp => "backward-sexp",
             _ => unreachable!("non-edit commands delegate before pair lookup"),
         }
     }
@@ -1346,6 +1358,12 @@ impl Command {
             Self::PairUnwrap => {
                 "Remove the innermost confirmed enclosing pair while preserving its contents."
             }
+            _ => self.navigation_description(),
+        }
+    }
+
+    fn navigation_description(self) -> &'static str {
+        match self {
             Self::MatchingDelimiter => {
                 "Jump to the confirmed typed mate at or immediately before point without editing source."
             }
@@ -1357,6 +1375,12 @@ impl Command {
             }
             Self::UpPair => "Move backward out of counted enclosing groups without editing source.",
             Self::DownPair => "Move forward into counted nested groups without editing source.",
+            Self::ForwardSexp => {
+                "Move forward across counted mode-defined expressions without editing source."
+            }
+            Self::BackwardSexp => {
+                "Move backward across counted mode-defined expressions without editing source."
+            }
             _ => unreachable!("non-edit commands delegate before pair lookup"),
         }
     }
@@ -1433,6 +1457,8 @@ impl Command {
                 | Self::BackwardPair
                 | Self::UpPair
                 | Self::DownPair
+                | Self::ForwardSexp
+                | Self::BackwardSexp
                 | Self::Scroll(_)
                 | Self::History(_)
                 | Self::Region(_)

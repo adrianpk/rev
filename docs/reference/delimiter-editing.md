@@ -109,6 +109,8 @@ work leaves source and history unchanged. Uncertain ordinary typing stays litera
 | `backward-pair` | Move backward across counted mode-defined groups without editing source. |
 | `up-pair` | Move backward out of counted enclosing groups without editing source. |
 | `down-pair` | Move forward into counted nested groups without editing source. |
+| `forward-sexp` | Move forward across counted mode-defined expressions without editing source. |
+| `backward-sexp` | Move backward across counted mode-defined expressions without editing source. |
 
 The explicit matching-delimiter command is unbound. It uses the same confirmed
 source facts, works on read-only source and ignores automatic-editing preferences.

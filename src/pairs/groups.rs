@@ -11,7 +11,10 @@ use super::{
 use crate::buffer::Stamp;
 use crate::coordinates::Scalar;
 
-/// One admitted signed group motion. Construction preserves native count bounds.
+mod expressions;
+use expressions::Expressions;
+
+/// One admitted signed group/expression motion with native count bounds.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub struct GroupRequest {
     pub point: Scalar,
@@ -25,6 +28,7 @@ enum Movement {
     Across,
     Up,
     Down,
+    Expressions,
 }
 
 impl GroupRequest {
@@ -41,6 +45,18 @@ impl GroupRequest {
 
     pub fn count(self) -> i32 {
         self.count
+    }
+
+    /// Traverse syntax-class atoms, strings and forms under one signed budget.
+    pub fn expression(point: Scalar, backward: bool, count: i32) -> Option<Self> {
+        Self::new(point, backward, count).map(|mut request| {
+            request.movement = Movement::Expressions;
+            request
+        })
+    }
+
+    fn is_expression(self) -> bool {
+        self.movement == Movement::Expressions
     }
 
     /// Leave an enclosing group backward, or enter a nested group forward.
@@ -97,6 +113,7 @@ pub(super) struct Work {
     destination: usize,
     stats: Stats,
     hint: Option<Hint>,
+    expressions: Expressions,
 }
 
 impl Work {
@@ -125,6 +142,7 @@ impl Work {
                 ..Stats::default()
             },
             hint,
+            expressions: Expressions::default(),
         }
     }
 
@@ -199,36 +217,83 @@ impl Work {
 
     fn scan(&mut self, text: RopeSlice<'_>) -> Result<(), Pause> {
         let at = self.reader.at;
+        let context = self.lexical.context();
+        let start = self.lexical.start();
+        let c = self.reader.peek(text, 0)?.expect("scan precedes EOF");
+        if self.prepare_expression(text, c)? {
+            return Ok(());
+        }
         let action = self.lexical.step(&mut self.reader, text)?;
+        self.expression_tag_open((at, c, context), &action);
         self.observe_depth()?;
         self.action(at, &action)?;
+        if self.request.is_expression() {
+            self.expression_action((at, c, context), start, &action)?;
+        }
+        self.check_point_crossing();
+        Ok(())
+    }
+
+    fn check_point_crossing(&mut self) {
         if self.base.is_none() && self.reader.at > self.request.point.0 {
             self.finish(GroupOutcome::NoGroup);
         }
-        Ok(())
+    }
+
+    fn prepare_expression(&mut self, text: RopeSlice<'_>, c: char) -> Result<bool, Pause> {
+        if !self.request.is_expression() {
+            return Ok(false);
+        }
+        self.expression_boundary(Some(c))?;
+        if self.remaining == 0 {
+            return Ok(true);
+        }
+        self.expression_tag(text, c)?;
+        Ok(self.answer.is_some())
     }
 
     fn observe_point(&mut self) {
         if self.base.is_some() || self.reader.at != self.request.point.0 {
             return;
         }
-        if let Some(hint) = self.hint.take() {
-            if hint.limited {
-                self.finish(GroupOutcome::Limited(Limit::Depth));
-                return;
-            }
-            if hint.context == Context::Literal {
-                self.finish(GroupOutcome::Uncertain(Reason::LiteralContext));
-                return;
-            }
+        if !self.admit_hint() {
+            return;
         }
-        if self.lexical.context() != Context::Code && !self.lexical.complete_at_eof() {
+        let string =
+            self.request.is_expression() && matches!(self.lexical.context(), Context::String(_));
+        if !string && self.lexical.context() != Context::Code && !self.lexical.complete_at_eof() {
             self.finish(GroupOutcome::NoGroup);
             return;
         }
-        self.base = Some(self.stack.len());
+        self.base = Some(self.expression_level() + usize::from(string));
         if self.backward {
-            self.begin_backward();
+            self.expression_prefix();
+            if self.answer.is_none() {
+                self.begin_backward();
+            }
+        }
+    }
+
+    fn admit_hint(&mut self) -> bool {
+        if let Some(hint) = self.hint.take() {
+            if hint.limited {
+                self.finish(GroupOutcome::Limited(Limit::Depth));
+                return false;
+            }
+            if hint.context == Context::Literal {
+                self.finish(GroupOutcome::Uncertain(Reason::LiteralContext));
+                return false;
+            }
+        }
+        true
+    }
+
+    fn expression_prefix(&mut self) {
+        if self.request.is_expression()
+            && let Some((start, depth)) = self.expressions.take(self.reader.at)
+            && self.unit(start, self.reader.at, depth).is_err()
+        {
+            self.finish(GroupOutcome::Limited(Limit::Retention));
         }
     }
 
@@ -251,7 +316,7 @@ impl Work {
 
     fn observe_depth(&mut self) -> Result<(), Pause> {
         let quote = usize::from(matches!(self.lexical.context(), Context::String(_)));
-        let depth = self.stack.len() + self.lexical.comment_depth() + quote;
+        let depth = self.expression_level() + self.lexical.comment_depth() + quote;
         if depth > MAX_DEPTH {
             return Err(Pause::Limit(Limit::Depth));
         }
@@ -311,7 +376,7 @@ impl Work {
             });
         }
         match self.request.movement {
-            Movement::Across => self.across_close(start, depth),
+            Movement::Across | Movement::Expressions => self.across_close(start, depth),
             Movement::Up => self.up_close(depth),
             Movement::Down => self.down_close(depth),
         }
@@ -328,6 +393,113 @@ impl Work {
             self.destination = self.reader.at;
             self.remaining -= 1;
         }
+    }
+
+    fn expression_boundary(&mut self, next: Option<char>) -> Result<(), Pause> {
+        let depth = self.expression_level()
+            + usize::from(matches!(self.lexical.context(), Context::String(_)));
+        let syntax = (self.lexical.profile, self.lexical.context(), depth);
+        if let Some((start, depth)) = self.expressions.boundary(self.reader.at, next, syntax) {
+            self.unit(start, self.reader.at, depth)?;
+        }
+        Ok(())
+    }
+
+    fn expression_level(&self) -> usize {
+        self.stack.len() + usize::from(self.expressions.tag.is_some())
+    }
+
+    fn unit(&mut self, start: usize, end: usize, depth: usize) -> Result<(), Pause> {
+        if self.backward {
+            return self.retain(Group { start, end, depth });
+        }
+        if self.base == Some(depth) && end > self.request.point.0 {
+            self.destination = end;
+            self.remaining -= 1;
+        }
+        Ok(())
+    }
+
+    fn expression_tag(&mut self, text: RopeSlice<'_>, c: char) -> Result<(), Pause> {
+        if self.lexical.profile != Profile::Html || self.lexical.context() != Context::Code {
+            return Ok(());
+        }
+        if c == '<' {
+            if self.expressions.tag.is_some() {
+                self.finish(GroupOutcome::Uncertain(Reason::LiteralContext));
+                return Ok(());
+            }
+            let offset = if self.reader.peek(text, 1)? == Some('/') {
+                2
+            } else {
+                1
+            };
+            if !self
+                .reader
+                .peek(text, offset)?
+                .is_some_and(|c| c.is_ascii_alphabetic())
+            {
+                self.finish(GroupOutcome::Uncertain(Reason::LiteralContext));
+            }
+        }
+        Ok(())
+    }
+
+    fn expression_tag_open(&mut self, source: (usize, char, Context), action: &Action) {
+        let (at, c, context) = source;
+        // Commit context only after the lexical step succeeds. A yielded
+        // lookahead must leave the same opening token resumable.
+        if self.request.is_expression()
+            && self.lexical.profile == Profile::Html
+            && context == Context::Code
+            && c == '<'
+            && matches!(action, Action::Ignore)
+        {
+            self.expressions.tag = Some(at);
+        }
+    }
+
+    fn expression_action(
+        &mut self,
+        source: (usize, char, Context),
+        start: Option<usize>,
+        action: &Action,
+    ) -> Result<(), Pause> {
+        let (at, c, context) = source;
+        match action {
+            Action::Close(kind) if kind.quote() => {
+                if self.base.is_some_and(|base| base > self.expression_level()) {
+                    self.finish(GroupOutcome::NoGroup);
+                } else {
+                    self.unit(
+                        start.expect("qualified quote start"),
+                        self.reader.at,
+                        self.expression_level(),
+                    )?;
+                }
+            }
+            Action::Ignore => self.expression_ordinary((at, c, context))?,
+            _ => (),
+        }
+        Ok(())
+    }
+
+    fn expression_ordinary(&mut self, source: (usize, char, Context)) -> Result<(), Pause> {
+        let (at, c, context) = source;
+        if c == '>' && context == Context::Code && self.expressions.tag.is_some() {
+            let start = self.expressions.tag.take().expect("owned HTML tag");
+            if self.base.is_some_and(|base| base > self.stack.len()) {
+                self.finish(GroupOutcome::NoGroup);
+            } else {
+                self.unit(start, self.reader.at, self.stack.len())?;
+            }
+        } else if context == self.lexical.context() {
+            let depth =
+                self.expression_level() + usize::from(matches!(context, Context::String(_)));
+            self.expressions
+                .ordinary(at, c, (self.lexical.profile, context, depth));
+        }
+        Ok(())
     }
 
     fn up_close(&mut self, depth: usize) {
@@ -372,7 +544,11 @@ impl Work {
     fn search_step(&mut self) {
         let index = self.search.expect("owned backward group search");
         if index == 0 {
-            let outcome = if self.base == Some(0) && self.request.movement == Movement::Across {
+            let outcome = if self.base == Some(0)
+                && matches!(
+                    self.request.movement,
+                    Movement::Across | Movement::Expressions
+                ) {
                 GroupOutcome::Boundary(Scalar(0))
             } else {
                 GroupOutcome::NoGroup
@@ -398,10 +574,34 @@ impl Work {
     }
 
     fn eof(&mut self) {
+        if self.request.is_expression() {
+            self.expression_eof();
+            return;
+        }
         let outcome = if self.request.movement == Movement::Across
             && self.stack.is_empty()
             && self.lexical.complete_at_eof()
         {
+            GroupOutcome::Boundary(Scalar(self.reader.at))
+        } else {
+            GroupOutcome::NoGroup
+        };
+        self.finish(outcome);
+    }
+
+    fn expression_eof(&mut self) {
+        if self.expression_boundary(None).is_err() {
+            self.finish(GroupOutcome::Limited(Limit::Retention));
+            return;
+        }
+        if self.remaining == 0 {
+            self.finish(GroupOutcome::Target(Scalar(self.destination)));
+            return;
+        }
+        let ordinary_c_string = self.lexical.profile == Profile::C
+            && matches!(self.lexical.context(), Context::String(_));
+        let complete = self.lexical.complete_at_eof() || ordinary_c_string;
+        let outcome = if self.stack.is_empty() && self.expressions.tag.is_none() && complete {
             GroupOutcome::Boundary(Scalar(self.reader.at))
         } else {
             GroupOutcome::NoGroup

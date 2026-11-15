@@ -58,6 +58,9 @@ impl Session {
             Command::UpPair | Command::DownPair => {
                 GroupRequest::nesting(point, command == Command::DownPair, count)
             }
+            Command::ForwardSexp | Command::BackwardSexp => {
+                GroupRequest::expression(point, command == Command::BackwardSexp, count)
+            }
             _ => unreachable!("group command admission precedes request construction"),
         }
         .expect("native prefix magnitude is admitted")
@@ -205,7 +208,7 @@ impl Session {
             return self.error(if work.intent == Intent::Mate {
                 "No confirmed matching delimiter at or immediately before point"
             } else {
-                "No qualified group in that direction"
+                "No qualified group or expression in that direction"
             });
         };
         let result = if work.intent == Intent::Mate {

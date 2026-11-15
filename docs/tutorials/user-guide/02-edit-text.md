@@ -100,6 +100,13 @@ both levels at once. Use M-x up-pair/down-pair when the terminal intercepts a
 chord. A negative count leaves forward or enters backward; refusal preserves
 point and the active mark.
 
+Try `(note) tail` with point before `note`. C-M-f crosses the word and stops
+before `)`; C-M-b returns before the word. From before the opening parenthesis,
+C-M-f crosses the whole form. It also crosses ordinary quoted strings and
+mode-defined atoms. For example, C source `12.5` stops after `12`, while a
+CSS name such as `font-size` stays together. C-u 2 C-M-f crosses two expressions.
+Use M-x forward-sexp/backward-sexp when a chord is intercepted.
+
 Save with `C-x C-s`. You can also select text by dragging with the primary
 mouse button, or paste text through your terminal. For more tasks, see
 [Use command prefix arguments](../../how-to/use-prefix-arguments.md); the
