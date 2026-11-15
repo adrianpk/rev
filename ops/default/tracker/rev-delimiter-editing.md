@@ -189,8 +189,8 @@ Expected PR title: `test(editor): verify automatic delimiter editing workflows`
 Report: `ops/default/report/slices/rev-delimiter-editing/slice-7-acceptance.md`
 State: reviewing; implementation complete
 PR: pending
-Task commits: pending implementation/report-introduction commit
-Validation: formatting, the acceptance script (192 native cases, all fixed bounds, unchanged maps and two owned/restored Linux PTYs), documentation with 22 reference tests and the local User Guide build PASS. Exact clean-HEAD controller evidence follows PR-reference commits. Integration, combined gate and editing-only closure remain controller-owned.
+Task commits: T7.1-T7.3/report introduction `cb3c09ca63e00d43b3f8a0642e7cbe2627874bae`; native/physical acceptance, measured bounds, guidance and editing-only closure preparation form one complete reviewable path.
+Validation: formatting, the acceptance script (192 native cases, all fixed bounds, unchanged maps and two owned/restored Linux PTYs), documentation with 22 reference tests and the local User Guide build PASS. Full staged-source hooks PASS for 1,956 Rust files and 78 Cargo roots. Exact clean-HEAD controller evidence follows PR-reference commits. Integration, combined gate and editing-only closure remain controller-owned.
 
 - [x] T7.1: Create scripts/check-delimiter-editing.sh using existing native test/PTY support. Batch the complete pair suite, editing configuration and the focused shared regressions enumerated below; verify a nonempty selected test set. Add representative native and Linux PTY workflows for both profiles, literal paste/macro behavior, one undo/redo cycle and read-only/focus boundaries, with owned fixtures and restored terminal attributes.
 - [x] T7.2: Measure new-service bytes/depth/retention/cooperative scheduling on 1 KiB, 64 KiB, 256 KiB and 1 MiB complete/malformed/oversized-token sources, count expansion and split views. Record bounded refusal and continuation, same-line Org/Markdown frame stability and queued-key release behavior. Keep finite native deadlines and disclose cold-build cost; do not tune frozen limits or expected fixtures to observed output.

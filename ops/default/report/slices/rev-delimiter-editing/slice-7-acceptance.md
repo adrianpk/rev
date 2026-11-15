@@ -38,7 +38,8 @@ Unreleased entry describes the complete user capability.
 
 ## Implementation Notes
 
-T7.1-T7.3 form one reviewable acceptance path. The script uses one Cargo job,
+Task/report introduction commit: `cb3c09ca63e00d43b3f8a0642e7cbe2627874bae`. T7.1-T7.3
+were committed together as one complete acceptance and guidance path. The script uses one Cargo job,
 disabled incremental output and no dev/test debuginfo. Native fixtures own their
 sources; PTYs and the native helper use isolated HOME/XDG roots. No network
 provider, dependency, persistent service or installed editor is required.
@@ -142,8 +143,12 @@ gutter observation and the existing last-buffer `*scratch*` label. Their exact
 source oracle and all acceptance bounds were unchanged. The vendored crossterm
 parentheses warning is pre-existing and non-blocking.
 
-Full staged-source hooks and the final exact clean-HEAD five-command controller
-receipt follow metadata and PR-reference commits. Combined delivery-set acceptance
+Full staged-source hooks passed: formatting, strict all-target/all-feature
+workspace Clippy with zero blocking or deferred diagnostics, and native policy
+for 1,956 first-party Rust files, two packages and 78 Cargo roots. The immutable
+staged tree was `db522de16d14b829d9cf082b976dadce80d12f9d`; the cold private-cache
+hook took 250.11 seconds. The final exact clean-HEAD five-command controller
+receipt follows PR-reference commits. Combined delivery-set acceptance
 remains controller-owned; this script run is slice acceptance, not that full gate.
 
 ## Delivery evidence prepared for controller closure
