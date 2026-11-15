@@ -114,14 +114,14 @@ Dependency: Slice 3 integrated and closed.
 Branch: `feat/rev-delimiter-navigation-04-expressions`
 Expected PR title: `feat(editor): navigate syntax-aware expression boundaries`
 Report: `ops/default/report/slices/rev-delimiter-navigation/slice-4-expressions.md`
-State: ready; active
+State: reviewing; active
 PR: pending
-Task commits: pending
-Validation: not run
+Task commits: T4.1/T4.2 `f918eb682440e27ca4f0dff6b50de5a1429c6045`; T4.3/report introduction pending.
+Validation: all three ordered required commands PASS locally. Expressions (11 tests), native invalidation (4), preserved navigation (25), modal percent/objects (2), independent maps/catalog and documentation PASS. Implementation staged-source hook PASS; test/report hook and final clean-HEAD validation follow. Combined acceptance remains controller-owned.
 
-- [ ] T4.1: Implement forward-sexp/backward-sexp across the approved profile-specific atoms, quoted strings and complete forms. Use admitted syntax/context and reference syntax-class endpoints; a parser node, number token, group-only target or mate position cannot substitute for the declared expression boundary. Preserve word/symbol, punctuation-prefix and language quote distinctions from the independent cases.
-- [ ] T4.2: Complete mode-specific literal/comment and boundary handling, including ordinary known unterminated-string EOF results where the approved reference admits them. Keep unproved raw/triple/template/interpolation and embedded states conservative. Apply counted cancellation/refusal and native grapheme normalization without publishing stale/intermediate positions, changing source/history or fabricating pair proof.
-- [ ] T4.3: Add forward-sexp/backward-sexp and C-M-f/C-M-b base defaults. Extend independent expectations to 717 commands and exactly six authorized base leaves. Test exact expression/group/mate differences, strings/escapes/comments, atom classes, signed counts, active mark, Unicode/CRLF and read-only source. Reconcile only EIP04 expression progress, update guide/reference/changelog through its skill and provide the report.
+- [x] T4.1: Implement forward-sexp/backward-sexp across the approved profile-specific atoms, quoted strings and complete forms. Use admitted syntax/context and reference syntax-class endpoints; a parser node, number token, group-only target or mate position cannot substitute for the declared expression boundary. Preserve word/symbol, punctuation-prefix and language quote distinctions from the independent cases.
+- [x] T4.2: Complete mode-specific literal/comment and boundary handling, including ordinary known unterminated-string EOF results where the approved reference admits them. Keep unproved raw/triple/template/interpolation and embedded states conservative. Apply counted cancellation/refusal and native grapheme normalization without publishing stale/intermediate positions, changing source/history or fabricating pair proof.
+- [x] T4.3: Add forward-sexp/backward-sexp and C-M-f/C-M-b base defaults. Extend independent expectations to 717 commands and exactly six authorized base leaves. Test exact expression/group/mate differences, strings/escapes/comments, atom classes, signed counts, active mark, Unicode/CRLF and read-only source. Reconcile only EIP04 expression progress, update guide/reference/changelog through its skill and provide the report.
 
 Required commands:
 

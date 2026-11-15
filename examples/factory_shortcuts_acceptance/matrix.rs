@@ -67,7 +67,7 @@ pub(super) fn run() -> Result<()> {
     add_navigation_maps(&mut expected)?;
     compare_maps(&expected)?;
     println!(
-        "PASS accepted manifest: 707 original commands plus three editing commands and five navigation commands, six actions, 28 complete maps, 29 records / 49 base edits, inherited and retired leaves, both profiles; untouched defaults preserved"
+        "PASS accepted manifest: 707 original commands plus three editing commands and seven navigation commands, six actions, 28 complete maps, 29 records / 49 base edits, inherited and retired leaves, both profiles; untouched defaults preserved"
     );
     Ok(())
 }

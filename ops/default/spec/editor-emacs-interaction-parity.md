@@ -144,6 +144,12 @@ qualification/configuration model is [Pair Preferences and Native State](editor-
 Paragraph motion and the complete functional-parity delivery remain owned here;
 implementing delimiter navigation does not by itself complete F2 or this spec.
 
+Expression progress: forward-sexp/backward-sexp, C-M-f/C-M-b and their admitted
+mode/count/region behavior are implemented in navigation Slice 4. Its focused
+evidence is recorded in the [Slice 4 report](../report/slices/rev-delimiter-navigation/slice-4-expressions.md).
+Integrated physical-input and combined-gate acceptance remain pending.
+Paragraph motion remains pending; EIP04 and F2 retain that separate scope.
+
 #### Scenario: Forward past a balanced form
 
 - **GIVEN** Lisp text `(ab) tail` with point at 0

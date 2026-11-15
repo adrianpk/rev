@@ -47,6 +47,14 @@ fn nesting_stale() {
     }
 }
 
+// Expressions capture source point, mark and focus before scanning a long form.
+#[test]
+fn expressions_stale() {
+    for change in ["point", "mark", "focus"] {
+        stale_navigation(Command::ForwardSexp, change);
+    }
+}
+
 fn stale_navigation(command: Command, change: &str) {
     let mut session = editor();
     if command == Command::UpPair {
