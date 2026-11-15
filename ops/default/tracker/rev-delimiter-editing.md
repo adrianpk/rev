@@ -162,14 +162,14 @@ Dependency: Slice 5 integrated and closed.
 Branch: `fix/rev-delimiter-editing-06-provenance`
 Expected PR title: `fix(editor): preserve literal edits and macro pair provenance`
 Report: `ops/default/report/slices/rev-delimiter-editing/slice-6-provenance.md`
-State: active; implementation in progress
+State: reviewing; implementation complete
 PR: pending
-Task commits: pending
-Validation: not run
+Task commits: T6.1-T6.3/report introduction `40edb1bce7e68b3d537aff9e6a87b69232887241`; native ingress trace, bounded presentation correction and independent provenance/history regressions were committed together as one complete path.
+Validation: formatting, 11 required provenance cases, 20 required macro recording/region/runner cases, three offline AI/plugin/semantic-completion ingress cases, 24 presentation-owner regressions, 15 legacy continuity cases, 10 counter/completion cases and documentation with 22 reference tests PASS. Full staged-source hooks PASS for 1,953 Rust files and 77 Cargo roots. Personal settings and frozen catalog/manifest preserved. Exact clean-HEAD controller evidence follows PR-reference commits; combined acceptance remains controller-owned.
 
-- [ ] T6.1: Trace and exercise paste, completion, provider/AI edits, external reload, plugins and programmatic replacements through their real native source-edit ingress. They remain literal and never synthesize pair input. Integrate raw macro typing once while accepted literal macro steps replay literally, retaining existing counts, counters, cancellation and history semantics.
-- [ ] T6.2: Verify shared-buffer/split-view policy, language changes, source replacement and stale-work retirement. Preserve Org/Markdown pretty/indent source-to-display mapping and completed-frame continuity during body typing; pair editing must not introduce transient literal fallback, cursor relocation or stale spans.
-- [ ] T6.3: Add native provenance and projection regressions plus targeted existing macro cases. Assert exact bytes and source revision/point/mark/undo behavior at these boundaries, without network providers or changes to their business logic; document remaining physical-input acceptance in the report.
+- [x] T6.1: Trace and exercise paste, completion, provider/AI edits, external reload, plugins and programmatic replacements through their real native source-edit ingress. They remain literal and never synthesize pair input. Integrate raw macro typing once while accepted literal macro steps replay literally, retaining existing counts, counters, cancellation and history semantics.
+- [x] T6.2: Verify shared-buffer/split-view policy, language changes, source replacement and stale-work retirement. Preserve Org/Markdown pretty/indent source-to-display mapping and completed-frame continuity during body typing; pair editing must not introduce transient literal fallback, cursor relocation or stale spans.
+- [x] T6.3: Add native provenance and projection regressions plus targeted existing macro cases. Assert exact bytes and source revision/point/mark/undo behavior at these boundaries, without network providers or changes to their business logic; document remaining physical-input acceptance in the report.
 
 Required commands:
 

@@ -37,6 +37,10 @@ Exact structural actions still require current analysis.
 
 ## Implementation Notes
 
+Task/report introduction commit: `40edb1bce7e68b3d537aff9e6a87b69232887241`. T6.1-T6.3
+were committed together to keep the native ingress trace, presentation correction
+and independent provenance/history regressions one complete reviewable path.
+
 - `src/session/arguments/text.rs` gates pairing on typed input. Paste uses
   `src/session/paste.rs` and the native text/edit owner; counted literal payloads
   remain literal. `Session::replace` publishes checked source transactions.
@@ -79,7 +83,7 @@ frozen factory catalog/manifest digests remain unchanged.
 
 Successful implementation checks:
 
-- `cargo fmt --all -- --check`: formatting checked before the final commit.
+- `cargo fmt --all -- --check`: passed.
 - `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test pairs provenance -- --test-threads=1`: 11 passed in 8.04 seconds after a 52.65-second source rebuild.
 - `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test macros -- recording regions runner --test-threads=1`: 20 passed in 19.00 seconds.
 - `git diff --check`: passed.
@@ -100,9 +104,14 @@ navigation-cursor contracts. Completion recording uses physical M-Tab through th
 existing recorder guard. No acceptance or resource limit was relaxed.
 
 The vendored crossterm parentheses warning is pre-existing and non-blocking.
-Full staged-source hook evidence follows the implementation commit. The exact
-four-command controller receipt follows PR-reference commits at clean published
-HEAD. Existing fixtures own/reap their offline peers; no persistent service was
+Full staged-source hooks passed on the implementation commit: formatting, strict
+Clippy with zero blocking/deferred diagnostics, and native safe-Rust, parameter,
+nesting and complexity policy for all 1,953 first-party Rust files, two packages
+and 77 Cargo roots. The staged tree was
+`0eb23aee41f8380d1565649132c957b5e01314a9`. The cold private-cache commit
+check completed in 247.46 seconds; its strict Clippy pass took 1 minute 39 seconds.
+The exact four-command controller receipt follows PR-reference commits at clean
+published HEAD. Existing fixtures own/reap their offline peers; no persistent service was
 started. Combined delivery acceptance remains controller-owned.
 
 ## Risks and Follow-ups
