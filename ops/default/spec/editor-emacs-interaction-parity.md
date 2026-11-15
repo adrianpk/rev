@@ -136,6 +136,12 @@ empty/blank boundaries and malformed syntax SHALL have explicit reference
 cases. Movement SHALL preserve source/history and follow stock mark/region
 behavior; native coordinates and Unicode boundaries remain valid.
 
+The expression-motion portion is specialized by [Delimiter Navigation](editor-delimiter-navigation.md),
+DPN02, alongside distinct typed-mate and structural-group commands. Its shared
+qualification/configuration model is [Pair Preferences and Native State](editor-delimiter-pairs-model.md).
+Paragraph motion and the complete functional-parity delivery remain owned here;
+implementing delimiter navigation does not by itself complete F2 or this spec.
+
 #### Scenario: Forward past a balanced form
 
 - **GIVEN** Lisp text `(ab) tail` with point at 0

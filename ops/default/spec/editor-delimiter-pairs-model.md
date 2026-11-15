@@ -2,96 +2,174 @@
 
 Status: Draft
 Date: 2026-11-08
+Updated: 2026-11-15
 Specification: [Delimiter Pairs](editor-delimiter-pairs.md)
-Review scope: canonical draft; no runtime or stored configuration is changed
+Related specifications: [Delimiter Navigation](editor-delimiter-navigation.md), [Delimiter Presentation](editor-delimiter-presentation.md)
+Inspection baseline: dd1b569dd9c6e480ae4dd82a1f298bcc8478072f
+Review scope: one shared model; separate editing, navigation and visual policies
 
 ## Configuration proposal
 
-Use the existing startup settings loader, origins, validation and per-language
-merge owners. No new state/data file, settings directory or startup discovery.
-Missing values use compiled defaults. Unknown/invalid leaves follow the normal
-whole-candidate diagnostic/fallback contract; runtime commands never save settings.
+Use the existing startup settings loader, origins, validation and language
+merge owners. No new state file, settings directory or startup discovery is
+introduced. Missing leaves inherit compiled defaults; malformed candidates use
+the existing whole-candidate diagnostic/fallback policy. Runtime commands never
+save settings. The current binary has none of the proposed pairs leaves.
 
 Proposed global leaves:
 
-    [pairs]
-    enabled = true
-    wrap_selection = true
-    delete_empty = true
-    skip_closing = true
-    quotes = true
-    highlight = "depth"
-    pulse_ms = 250
+```toml
+[pairs]
+enabled = true
+wrap_selection = true
+delete_empty = true
+skip_closing = true
+quotes = true
+highlight = "depth"
+pulse_ms = 250
+```
 
-highlight admits depth, match, pulse and off. The owner selected depth as the
-default and match as the restrained alternative. pulse_ms is an integer in 50..1000.
-Quotes remain subject to the language profile; true does not force apostrophe,
-lifetime, raw-string or template transformations. These are draft settings,
-not a claim that the current binary accepts them.
+| Leaf | Type and proposed meaning | Scope |
+| --- | --- | --- |
+| enabled | Boolean; automatic typed pair editing, proposed true. | Initial buffer policy. |
+| wrap_selection | Boolean; automatic ordinary linear-region wrapping, proposed true. | Buffer editing policy. |
+| delete_empty | Boolean; adjacent empty-pair Backspace, proposed true. | Buffer editing policy. |
+| skip_closing | Boolean; skip only an admitted existing closer, proposed true. | Buffer editing policy. |
+| quotes | Boolean; automatic quote editing may consult the language profile, proposed true. | Buffer editing policy; not a parser switch. |
+| highlight | depth, match, pulse or off; depth is the settled default. | Initial view policy. |
+| pulse_ms | Integer 50..1000, proposed 250 ms. | Finite view presentation lifetime. |
 
-Per-language overrides belong to the existing language preference model. Editing
-leaves may override enabled/wrapping/deletion/skipping/quotes. The document must
-not invent project-local config discovery or a directory per language. Exact
-integration with existing language-table admission is verified before approval.
+pairs.enabled=false does not disable explicit navigation or pair presentation.
+pairs.quotes=false does not change source syntax or invalidate an existing
+string's classification. Explicit pair-wrap/unwrap retain their own eligibility
+and read-only checks; automatic editing need not be enabled to invoke them.
 
-Proposed visual leaves:
+### Per-language inheritance and origins
 
-    [palette.pairs]
-    match_background = "#283457"
-    match_text = "#c0caf5"
-    mismatch = "#e0af68"
-    depth_colors = ["#7aa2f7", "#e0af68", "#bb9af7", "#7dcfff", "#9ece6a", "#ff9e64"]
+Extend the existing singular language table, not a parallel lookup mechanism:
 
-Colors use existing opaque #RRGGBB parsing; depth_colors has 1..8 entries. Existing
-syntax roles remain authoritative outside eligible delimiters. Monochrome uses
-supported attributes without changing source bytes, cursor position or glyphs.
-Underline is the proposed active-pair attribute in match/depth/pulse presentation.
-Resolve final overlay order with current selection/search/diagnostic ownership.
+```toml
+[language.rust.pairs]
+enabled = false
+quotes = false
+```
 
-## Runtime model
+The proposed nested group admits only enabled, wrap_selection, delete_empty,
+skip_closing and quotes. Each leaf is optional in the parsed document. Omitted
+siblings inherit resolved global pairs leaves. The language identity remains
+available when syntax color is disabled or a grammar is absent. Unknown leaves,
+wrong types and malformed related values reject through existing validation.
+Retain origin paths such as language/rust/pairs/enabled as distinct components.
+
+At the inspected baseline, Language admits indentation and grammar/asset fields
+only. This nested group is an explicit extension to Document, merge, validation,
+origins and effective resolution; placing it in a config file today is not a
+workaround. Global and language sources must pass their normal independent and
+merged validation before publication. Runtime buffer override wins over the
+resolved base enabled value until the buffer closes; language changes recompute
+the base/profile without discarding that explicit override.
+
+### Visual roles and palette inheritance
+
+The proposed explicit visual override leaves retain their existing draft names:
+
+```toml
+[palette.pairs]
+match_background = "#283457"
+match_text = "#c0caf5"
+mismatch = "#e0af68"
+depth_colors = ["#7aa2f7", "#e0af68", "#bb9af7", "#7dcfff", "#9ece6a", "#ff9e64"]
+```
+
+These are examples of explicit overrides, not a theme independent of the active
+palette. If absent, resolve match background/text from palette.selection and
+palette.foreground, mismatch from palette.warning, and the depth cycle from
+syntax.function, syntax.number, syntax.keyword, syntax.type, syntax.string and
+syntax.punctuation after ordinary palette merging. Explicit user pair colors
+win. Preserve absent leaves until that resolution; do not prematurely freeze
+factory RGB values over user palette overrides.
+
+Colors use existing opaque #RRGGBB parsing; depth_colors has 1..8 entries.
+Depth repeats modulo the effective cycle without adding glyphs or indentation.
+Only admitted structural delimiters receive depth foreground. In depth style,
+the active-pair mark retains that foreground and adds background/underline.
+match_text applies to marked structural delimiters in match/pulse; a marked
+quote retains its string foreground. The active-pair mark otherwise uses the
+proposed underline/background policy. Selection/search and cursor/
+diagnostic ownership remain authoritative as defined in the presentation spec.
+NO_COLOR uses supported attributes without manufacturing punctuation or colors.
+
+## Qualified source and operation model
 
 | Value | Qualified fields and lifetime |
 | --- | --- |
-| Pair profile | Recognized language, admitted delimiters/quotes, lexical conditions; derived from current settings/syntax |
-| Buffer policy | Initial merged editing preferences plus optional buffer-local runtime override |
-| Pair result | Buffer id, revision, opening/closing source spans, pair kind, nesting, provenance and confirmed/unmatched/uncertain state |
-| Match request | Source/view/point revision and finite scan/work budget |
-| View presentation | Selected style, last non-off style, caret/viewport identity and source-qualified visible spans |
-| Pulse | One generation, qualified spans and monotonic expiry; at most one pending mark per view |
+| Pair profile | Recognized language, syntax/lexical policy version and admitted delimiter/quote/context rules. |
+| Buffer editing policy | Resolved global/language base plus explicit buffer-local automatic-editing override. |
+| Typed pair result | Buffer id/revision, opening and closing source spans/roles, delimiter kind, depth when proved, classification provenance and confirmed/unmatched/mismatched/uncertain/limited outcome. |
+| Group or expression motion result | Buffer id/revision, motion unit, mode policy, initial point, signed count, qualified target/boundary or refusal; not proof of a typed mate. |
+| Match request | Captured source/view/point identity, operation and entry policy, one shared finite scan/work budget and cancellation generation. |
+| View presentation | Style, last non-off style, qualified point/viewport and visible source spans with independent overlay authority. |
+| Pulse | One generation, qualified spans and monotonic expiry; at most one pending mark per view. |
 
-Coordinates use native source units; terminal cells are derived only during
-projection. Quotes may have identical visible endpoints but retain explicit
-opening/closing roles. No raw tree nodes/pointers survive a syntax revision.
-Malformed or limited matching never publishes a confirmed pair.
+Coordinates are native source units. Terminal-cell spans are derived by the
+existing projection, not stored as editable source positions. Quotes can have
+identical visible endpoints while retaining opening/closing roles. No raw tree
+nodes or pointers survive a syntax revision. A mode grouping result can coexist
+with a typed mismatch; never use that grouping result to claim a valid typed
+pair for edits or colors. Unknown nesting depth cannot be replaced by guessed
+zero merely to fill a viewport.
 
-A buffer editing override affects every view of that buffer. Visual override and
-pulse state belong to one view. Closing/reloading/replacing the source cancels
-stale requests and overlays. Resizing reprojects the same request and expiry;
-it cannot restart a pulse. Offscreen feedback is derived text, not a navigation
-or history transaction. No runtime preference is persisted automatically.
+Classification provenance distinguishes current native syntax from a declared
+bounded lexical fallback. A bare range from an old revision has no publication
+authority. A new revision can reuse a retained result only when verified source
+mapping proves both its transformed spans and lexical/nesting conditions; the
+qualification is then advanced explicitly. Otherwise retire the unproved result
+and expose the appropriate uncertain/limited state.
 
-## Edit ownership
+## Edit and literal-input ownership
 
-The pair owner proposes one native source transaction with source-precondition,
-selection/mark mapping and cursor placement. The ordinary edit owner admits it
-and creates its undo unit. Overtyping a closer is a navigation operation; deleting
-or wrapping publishes source edits. No unchecked byte-index insertion path.
+The pair owner prepares one source transaction with source/read-only/region
+preconditions, admitted policy, complete edits and point/mark mapping. Ordinary
+edit/history admission creates its undo unit. Both ends of insertion/wrapping/
+unwrap are one operation. Overtyping a confirmed closer is navigation without
+source history. Counted input consumes the existing validated count once and
+cannot reset its request budget for each generated mate.
 
-Input provenance distinguishes physical typed characters, paste, completion and
-other accepted literal edits. Generated mates are part of the same source effect,
-not new synthetic keyboard events. Replay observes the same raw-versus-literal
-contract to avoid second-generation mates. Pairing does not own the kill ring,
-macro library, terminal prompt, search query or provider output.
+Proposed automatic wrapping deactivates the region and places point after the
+outer opener for opener input, or after the outer closer for closer input.
+Undo restores the original source and selection orientation through native
+history. Rectangular/block input retains its existing owner. Refusal publishes
+neither an incomplete source change nor a fabricated point/mark update.
+
+Distinguish physical typed input, paste, completion, AI/reload/programmatic edits
+and accepted macro literal steps. Generated mates belong to the original source
+effect, never a new synthetic key event. Replay of raw typed steps can apply the
+effective typing policy once; replay of accepted literal edits remains literal.
+Preserve the macro library's existing identity, counters and history contracts.
+Pairing owns no kill ring, prompt text, terminal stream or provider output.
+
+## Independent runtime and presentation lifetime
+
+Editing policy is buffer-local and shared by its views. Visual overrides, active
+pair and pulse are view-local. Toggling either does not save configuration or
+modify source/history. Navigation remains available regardless of either toggle.
+Reload/close/source replacement retires stale matching and overlays. Resizing
+reprojects qualified spans and preserves an existing pulse's expiry; it cannot
+restart the duration. A view/source/point change cancels or replaces its mark.
+After expiry/off/cancellation no pair-owned deadline remains. Depth/match do not
+introduce polling or permanent background work.
 
 ## Proposed bounded retention
 
-- Fallback scan: at most 256 KiB per request, nesting at most 256.
+- Fallback source inspection: at most 256 KiB per request; depth at most 256.
 - Presentation: at most 8,192 eligible delimiter spans per view.
-- Pair metadata: at most 2 MiB per buffer.
-- Cooperative slice: at most 256 tokens and a four-millisecond scheduling target.
-- Pulse: one finite expiry per view; no deadline after it clears.
+- Retained qualified pairing metadata: at most 2 MiB per buffer.
+- Cooperative slice: at most 256 tokens; reuse the four-millisecond native input scheduling target.
+- Pulse: one finite expiry per view, within the existing admitted view count.
 
-These bounds require native measurement before becoming an approved contract.
-Shared/cached allocations count once under an explicit owner. No whole-file
-recoloring or reparsing is justified solely by a caret move. No background service,
-permanent timer, external dependency or separate persistent pairing database.
+Shared/cache allocations count once under an explicit owner. Byte limits also
+bound oversized lexical tokens; counts do not multiply admission into unbounded
+work. Exhaustion returns limited/uncertain rather than a guessed mate, guessed
+depth or partial edit. Measure large/malformed source, split views, rapid typing
+and held navigation before freezing delivery bounds. These are proposed limits,
+not observed capacity or a new permanent worker/service.

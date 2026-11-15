@@ -87,10 +87,12 @@ approval boundaries.
 
 ## Pending proposals
 
-- [Delimiter Pairs](spec/editor-delimiter-pairs.md) and its
-  [model](spec/editor-delimiter-pairs-model.md) remain Draft. Depth coloring and
-  the restrained match alternative are settled; editing defaults, context rules,
-  bindings and measured bounds still need review before planning.
+- The delimiter family has three Draft capabilities: [automatic editing](spec/editor-delimiter-pairs.md),
+  [navigation](spec/editor-delimiter-navigation.md) and [presentation](spec/editor-delimiter-presentation.md),
+  with one [shared model](spec/editor-delimiter-pairs-model.md). Depth coloring and
+  the restrained alternative are settled. Editing defaults, language admission,
+  navigation bindings and measured bounds remain under review; each capability
+  can be reviewed independently.
 - [Development Workflow Plugin](spec/editor-development-workflow.md) and its
   [model](spec/editor-development-workflow-model.md) remain Draft. Editable context
   and questionnaires generate a revisable specification/slices/plan and one tracker;
