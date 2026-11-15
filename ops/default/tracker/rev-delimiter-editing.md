@@ -115,7 +115,7 @@ Branch: `feat/rev-delimiter-editing-04-deletion`
 Expected PR title: `feat(editor): delete empty pairs and preserve quote contexts`
 Report: `ops/default/report/slices/rev-delimiter-editing/slice-4-deletion.md`
 State: reviewing; awaiting controller integration
-PR: pending
+PR: [#58](https://forge.adrianpk.com/rev/rev/pulls/58)
 Task commits: T4.1-T4.3/report introduction `a254aae20d567287160d83da3682fe0e006ca8e1`; deletion, conservative quote proof, native regressions and reader guidance committed together as one complete editing path.
 Validation: formatting, all 13 required deletion/quote tests, 19 shared qualification and 17 typing regressions, focused current-syntax/history checks and documentation with 22 reference tests PASS. Full staged-source hooks PASS for 1,940 Rust files and 77 Cargo roots. Personal settings and frozen factory catalog/manifest preserved. Final exact three-command clean-HEAD validation follows PR-reference commits; combined acceptance remains controller-owned.
 

@@ -5,7 +5,7 @@ Delivery set: rev-delimiter-editing
 Plan: [Automatic Delimiter Editing Delivery](../../../plan/rev-delimiter-editing.md)
 Tracker: [Automatic Delimiter Editing Tracker](../../../tracker/rev-delimiter-editing.md)
 Branch: `feat/rev-delimiter-editing-04-deletion`
-PR: pending
+PR: [#58](https://forge.adrianpk.com/rev/rev/pulls/58)
 
 ## Purpose
 
