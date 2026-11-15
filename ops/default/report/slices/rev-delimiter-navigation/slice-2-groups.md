@@ -1,6 +1,6 @@
 # Slice 2: Forward and backward groups
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-delimiter-navigation
 Plan: [Delimiter Navigation Delivery](../../../plan/rev-delimiter-navigation.md)
 Tracker: [Delimiter Navigation Tracker](../../../tracker/rev-delimiter-navigation.md)
@@ -108,9 +108,10 @@ native decoded input, not physical terminal transport or an optimized benchmark.
 
 ## Risks and Follow-ups
 
-PR #63 is open against dev. Implementation is `1d82c5099ed24fcf35d3670e4ce6c7693fc98894`;
-test/report introduction is `2e4a46f09e466698218fdb3ec8900d31bfd108bf`.
-Controller-owned integration and combined acceptance remain pending. Enclosing/
+PR #63 integrated validated commit `318a65e4030c857b9457db265d46cc447f3a51aa`
+into dev. Its three ordered required checks passed through looper validate.
+The clean inactive integrated worktree was removed without force.
+Controller-owned combined acceptance remains pending. Enclosing/
 nested groups, syntax-class expressions and representative physical-input PTYs
 belong to the next recorded slices. No full delivery gate was run in this slice.
 The existing vendored crossterm parentheses warning remains unchanged.

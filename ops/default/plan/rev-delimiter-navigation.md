@@ -12,7 +12,7 @@ Spec: [Delimiter Navigation](../spec/editor-delimiter-navigation.md)
 Model: [Pair Preferences and Native State](../spec/editor-delimiter-pairs-model.md)
 Concern: [Operations index](../README.md)
 Concern: [Interaction Parity](../spec/editor-emacs-interaction-parity.md)
-Active slice: Slice 2 — Forward and backward groups
+Active slice: Slice 3 — Enclosing and nested groups
 Integration target: `dev`
 Tracker: [Delimiter Navigation Tracker](../tracker/rev-delimiter-navigation.md)
 

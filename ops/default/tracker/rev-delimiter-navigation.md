@@ -12,7 +12,7 @@ Spec: [Delimiter Navigation](../spec/editor-delimiter-navigation.md)
 Model: [Pair Preferences and Native State](../spec/editor-delimiter-pairs-model.md)
 Concern: [Operations index](../README.md)
 Concern: [Interaction Parity](../spec/editor-emacs-interaction-parity.md)
-Active slice: Slice 2 — Forward and backward groups
+Active slice: Slice 3 — Enclosing and nested groups
 Integration target: `dev`
 Plan: [Delimiter Navigation Delivery](../plan/rev-delimiter-navigation.md)
 
@@ -66,10 +66,10 @@ Dependency: Slice 1 integrated and closed.
 Branch: `feat/rev-delimiter-navigation-02-groups`
 Expected PR title: `feat(editor): navigate forward and backward across groups`
 Report: `ops/default/report/slices/rev-delimiter-navigation/slice-2-groups.md`
-State: reviewing; active
+State: delivered; PR #63 integrated
 PR: [#63](https://forge.adrianpk.com/rev/rev/pulls/63)
 Task commits: T2.1/T2.2 `1d82c5099ed24fcf35d3670e4ce6c7693fc98894`; T2.3/report introduction `2e4a46f09e466698218fdb3ec8900d31bfd108bf`.
-Validation: all three ordered required commands PASS locally. Native navigation (25 tests), invalidation (2), shared qualification (21), modal percent/objects (2), independent maps/catalog and documentation PASS. Both staged-source hooks PASS; final clean-HEAD evidence is recorded separately through looper validate after PR-reference commit. Combined acceptance remains controller-owned.
+Validation: all three ordered required commands PASS through looper validate at `318a65e4030c857b9457db265d46cc447f3a51aa`, integrated by canonical PR #63. Native navigation (25 tests), invalidation (2), shared qualification (21), modal percent/objects (2), independent maps/catalog, documentation and both staged-source hooks PASS. Fetched ancestry and clean inactive owned worktree verified; worktree removed without force. Combined acceptance remains controller-owned.
 
 - [x] T2.1: Implement forward-pair and backward-pair with the approved mode/group syntax policy, distinct from strict typed mate validation. Traverse complete groups, skip declared comments/strings and preserve the no-next-group case when starting inside an atom without a later group at the current nesting level. Keep mismatched-kind grouping separate from typed proof.
 - [x] T2.2: Apply native signed counts once in one captured request; zero is inert, negative reverses direction and all iterations share byte/depth/memory/work admission. Accept normal reference file boundaries while refusing unproved or malformed destinations atomically. Preserve active linear mark and native grapheme boundaries, without source edits or new undo entries.
@@ -90,7 +90,7 @@ Dependency: Slice 2 integrated and closed.
 Branch: `feat/rev-delimiter-navigation-03-nesting`
 Expected PR title: `feat(editor): move out of and into nested groups`
 Report: `ops/default/report/slices/rev-delimiter-navigation/slice-3-nesting.md`
-State: pending predecessor integration
+State: ready; active
 PR: pending
 Task commits: pending
 Validation: not run
