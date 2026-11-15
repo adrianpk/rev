@@ -83,6 +83,18 @@ impl Lexical {
         }
     }
 
+    pub fn admits_typed_structure(&self) -> bool {
+        self.profile != Profile::Html || !self.html_tag
+    }
+
+    pub fn admits_typed_quote(&self, kind: Kind, previous: Option<char>) -> bool {
+        let boundary =
+            previous.is_none_or(|c| !c.is_alphanumeric() && c != '_' && c != kind.characters().0);
+        self.profile.quote(kind)
+            && boundary
+            && (self.profile != Profile::Html || self.html_tag && self.html_equals)
+    }
+
     pub fn comment_depth(&self) -> usize {
         if let Mode::Block(_, depth) = self.mode {
             depth

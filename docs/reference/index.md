@@ -11,6 +11,7 @@ Use this section to look up exact behavior. For a guided start, read the
 - [Keyboard macros](keyboard-macros.md): command, binding, state and limit references.
 - [Saved macro library](macro-library.md): inert TOML definitions, explicit persistence, revision conflicts and backup.
 - [Macro editing](macro-editing.md): checked TOML drafts, recent input, step choices and the read-only ring menu.
+- [Automatic delimiter editing](delimiter-editing.md): typed mates, closer skipping, language policy and buffer controls.
 - [Command prefix arguments](commands.md#command-prefix-arguments): forms, counts, contextual policies and limits.
 - [Focused prompts](prompts.md): arguments, path completion, decisions and cancellation.
 - [Search and replacement](search.md): literal smart-case queries and per-match replacement.

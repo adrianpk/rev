@@ -666,6 +666,7 @@ fn catalog_reference() {
     for line in specification
         .lines()
         .chain(plugin_reference.lines())
+        .chain(include_str!("../../docs/reference/delimiter-editing.md").lines())
         .filter_map(|line| line.strip_prefix("| `"))
     {
         let (name, description) = line.split_once("` | ").unwrap();

@@ -17,6 +17,7 @@ const INPUT_LIMIT: usize = 256;
 enum Request {
     Command(Command),
     Invocation(Invocation),
+    PairTyping,
     ArgumentText,
     ArgumentHistory,
     Pointer(crate::pointer::Event, Instant),
@@ -40,6 +41,7 @@ struct Held {
 /// The host stops reading before this FIFO fills; it never discards typed input.
 #[derive(Default)]
 pub(super) struct Work {
+    pub(super) pair: Option<super::pairs::Typing>,
     pub(super) text: Option<super::arguments::Text>,
     pub(super) history: Option<super::arguments::Replay>,
     pub(super) movement: Option<super::arguments::Movement>,
@@ -73,6 +75,7 @@ impl Session {
         if Input::interrupt(&event) {
             self.layout.held = None;
             self.layout.movement = None;
+            self.cancel_pair_typing();
             self.layout.text = None;
             self.layout.history = None;
             self.layout.interrupt = true;
@@ -104,6 +107,7 @@ impl Session {
         if command == Command::KeyboardQuit {
             self.layout.held = None;
             self.layout.movement = None;
+            self.cancel_pair_typing();
             self.layout.text = None;
             self.layout.history = None;
             self.layout.interrupt = true;
@@ -189,6 +193,10 @@ impl Session {
         self.prepare_request(Request::Invocation(invocation))
     }
 
+    pub(super) fn layout_pair_typing(&mut self) -> Option<Action> {
+        self.prepare_request(Request::PairTyping)
+    }
+
     pub(super) fn layout_argument_text(&mut self) -> Option<Action> {
         self.prepare_request(Request::ArgumentText)
     }
@@ -220,6 +228,7 @@ impl Session {
             }
             Err(error) => {
                 self.layout.movement = None;
+                self.cancel_pair_typing();
                 self.layout.text = None;
                 self.layout.history = None;
                 Some(self.error(&error.to_string()))
@@ -261,6 +270,7 @@ impl Session {
 
     fn prepared_request(&mut self, request: Request) -> Result<(), Error> {
         match request {
+            Request::PairTyping => self.prepare_pair_typing(),
             Request::ArgumentText => self.prepare_argument_text(),
             Request::ArgumentHistory => unreachable!("history uses progressive native admission"),
             Request::Invocation(invocation) => self.prepare_argument_movement(invocation),
@@ -326,6 +336,7 @@ impl Session {
     fn replay_held(&mut self, held: &Held) -> Action {
         if !self.held_layout_current(held) {
             self.layout.movement = None;
+            self.cancel_pair_typing();
             self.layout.text = None;
             self.layout.history = None;
             self.message("Layout source or geometry changed")
@@ -335,6 +346,7 @@ impl Session {
             match held.request {
                 Request::Command(command) => self.execute_now(command),
                 Request::Invocation(invocation) => self.publish_argument_movement(invocation),
+                Request::PairTyping => self.publish_pair_typing(),
                 Request::ArgumentText => self.publish_argument_text(),
                 Request::ArgumentHistory => self.publish_argument_history(),
                 Request::Pointer(event, now) => self.pointer_now(event, now),
@@ -346,6 +358,7 @@ impl Session {
             && match held.request {
                 Request::Command(_)
                 | Request::Invocation(_)
+                | Request::PairTyping
                 | Request::ArgumentText
                 | Request::ArgumentHistory => held.point == self.view().point,
                 Request::Pointer(..) => {

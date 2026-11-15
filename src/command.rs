@@ -114,6 +114,7 @@ pub enum Command {
     GotoLine,
     MouseMode,
     VisualLineMode,
+    AutoPairMode,
     Mode(Mode),
     Org(OrgCommand),
     Markdown(MarkdownCommand),
@@ -158,7 +159,7 @@ pub enum Command {
 }
 
 impl Command {
-    pub const ALL: [Self; 707] = [
+    pub const ALL: [Self; 708] = [
         Self::Plugin(PluginCommand::List),
         Self::Plugin(PluginCommand::Activate),
         Self::Plugin(PluginCommand::Deactivate),
@@ -550,6 +551,7 @@ impl Command {
         Self::GotoLine,
         Self::MouseMode,
         Self::VisualLineMode,
+        Self::AutoPairMode,
         Self::Org(OrgCommand::PrettyHeadings),
         Self::Org(OrgCommand::ResetHeadingPresentation),
         Self::Org(OrgCommand::IndentMode),
@@ -1281,6 +1283,7 @@ impl Command {
 
     fn edit_name(self) -> &'static str {
         match self {
+            Self::AutoPairMode => "auto-pair-mode",
             Self::Mode(mode) => mode.name(),
             Self::Markdown(command) => command.name(),
             Self::Org(command) => command.name(),
@@ -1294,6 +1297,9 @@ impl Command {
 
     fn edit_description(self) -> &'static str {
         match self {
+            Self::AutoPairMode => {
+                "Toggle automatic delimiter editing for this buffer and its views without writing settings."
+            }
             Self::Mode(mode) => mode.description(),
             Self::Markdown(command) => command.description(),
             Self::Org(command) => command.description(),

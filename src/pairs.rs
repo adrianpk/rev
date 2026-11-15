@@ -79,6 +79,7 @@ pub enum Provenance {
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum Query {
+    Typing(Typed),
     Context(Scalar),
     At(Scalar),
     Enclosing(Scalar),
@@ -87,9 +88,27 @@ pub enum Query {
 impl Query {
     pub fn point(self) -> Scalar {
         match self {
+            Self::Typing(input) => input.point,
             Self::Context(point) | Self::At(point) | Self::Enclosing(point) => point,
         }
     }
+}
+
+/// One physical scalar and its already admitted positive count. Replacement
+/// coordinates describe native Replace entry; generated mates never become input.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct Typed {
+    pub point: Scalar,
+    pub end: Scalar,
+    pub character: char,
+    pub count: usize,
+    pub skip: bool,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum Typing {
+    Open { kind: Kind, reused: usize },
+    Skip(usize),
 }
 
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -119,6 +138,7 @@ pub enum Reason {
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub enum Outcome {
+    Typing(Typing),
     Context(Context),
     Confirmed(Pair),
     Unmatched,

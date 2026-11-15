@@ -63,6 +63,29 @@ impl Session {
         result
     }
 
+    pub(in crate::session) fn retain_pair_skip(&mut self) {
+        let point = self.view().point;
+        if let Some(pending) = &mut self.repeat.pending {
+            pending.point = point;
+        }
+    }
+
+    pub(in crate::session) fn entry_pair_text(
+        &mut self,
+        range: std::ops::Range<usize>,
+        text: &str,
+        cursor: Scalar,
+    ) -> Result<bool, Error> {
+        let modal = self.editing_state().is_some_and(EditingState::text_entry);
+        if modal {
+            self.begin_repeat_text();
+        }
+        self.repeat.text = modal;
+        let result = self.edit(range, text, false, Some(cursor));
+        self.repeat.text = false;
+        result
+    }
+
     pub(in crate::session) fn entry_text_range(
         &self,
         text: &str,

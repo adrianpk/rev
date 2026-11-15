@@ -9,6 +9,9 @@ impl Buffer {
     /// prefix facts can be reused; source, point, history and settings are unchanged.
     pub fn start_pair_request(&mut self, query: Query) -> Result<Ticket, Error> {
         self.span(query.point().0..query.point().0)?;
+        if let Query::Typing(input) = query {
+            self.span(input.point.0..input.end.0)?;
+        }
         let byte = self.text.char_to_byte(query.point().0);
         let profile = if self.is_org() {
             Profile::Org

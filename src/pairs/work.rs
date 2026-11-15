@@ -1,3 +1,5 @@
+mod typing;
+
 use std::ops::Range;
 use std::time::Instant;
 
@@ -128,6 +130,7 @@ pub(super) struct Work {
     checkpoints: [Checkpoint; 2],
     checkpoint_next: usize,
     checkpoint_at: usize,
+    typing: Option<typing::Progress>,
 }
 
 impl Work {
@@ -161,6 +164,7 @@ impl Work {
             checkpoints: std::array::from_fn(|_| Checkpoint::new(profile)),
             checkpoint_next: 0,
             checkpoint_at: 0,
+            typing: None,
         }
     }
 
@@ -251,6 +255,9 @@ impl Work {
     }
 
     fn checkpoint(&mut self) {
+        if matches!(self.query, Query::Typing(_)) && self.point_seen {
+            return;
+        }
         if self.reader.at.saturating_sub(self.checkpoint_at) < SLICE_TOKENS {
             return;
         }
@@ -310,13 +317,7 @@ impl Work {
             self.search_step();
             return Ok(());
         }
-        self.syntax_hint(text)?;
-        if self.answer.is_some() {
-            return Ok(());
-        }
-        if !self.point_seen && self.reader.at == self.query.point().0 {
-            self.capture_point();
-        }
+        self.observe_point(text)?;
         if self.answer.is_some() {
             return Ok(());
         }
@@ -327,10 +328,27 @@ impl Work {
         self.scan_step(text)
     }
 
+    fn observe_point(&mut self, text: RopeSlice<'_>) -> Result<(), Pause> {
+        self.syntax_hint(text)?;
+        if self.answer.is_some() {
+            return Ok(());
+        }
+        if !self.point_seen && self.reader.at == self.query.point().0 {
+            self.capture_point(text)?;
+        }
+        if self.answer.is_none() {
+            self.typing_boundary(text)?;
+        }
+        Ok(())
+    }
+
     fn scan_step(&mut self, text: RopeSlice<'_>) -> Result<(), Pause> {
         let at = self.reader.at;
+        if self.typing_replacement(text)? {
+            return Ok(());
+        }
         let action = self.lexical.step(&mut self.reader, text)?;
-        let depth = self.stack.len() + self.lexical.comment_depth();
+        let depth = self.stack.len() + self.lexical.comment_depth() + self.typing_extra_depth();
         if depth > MAX_DEPTH {
             return Err(Pause::Limit(Limit::Depth));
         }
@@ -376,7 +394,15 @@ impl Work {
         Ok(())
     }
 
-    fn capture_point(&mut self) {
+    fn capture_point(&mut self, text: RopeSlice<'_>) -> Result<(), Pause> {
+        if matches!(self.query, Query::Typing(_)) {
+            return self.capture_typing(text);
+        }
+        self.capture_lookup();
+        Ok(())
+    }
+
+    fn capture_lookup(&mut self) {
         self.point_seen = true;
         self.context = self.lexical.context();
         if matches!(self.query, Query::Context(_)) {
@@ -404,7 +430,7 @@ impl Work {
             self.point_seen = true;
             self.context = Context::Literal;
             self.finish(Outcome::Uncertain(Reason::LiteralContext));
-        } else if before == point && self.target.is_none() {
+        } else if before == point && self.target.is_none() && self.typing.is_none() {
             let reason = if matches!(self.query, Query::Enclosing(_)) {
                 Reason::NoEnclosingPair
             } else {
@@ -428,7 +454,7 @@ impl Work {
     }
 
     fn open(&mut self, at: usize, policy: (Kind, bool)) -> Result<(), Pause> {
-        if self.stack.len() == MAX_DEPTH {
+        if self.stack.len() + self.typing_extra_depth() >= MAX_DEPTH {
             return Err(Pause::Limit(Limit::Depth));
         }
         let (kind, admitted) = policy;
@@ -439,7 +465,7 @@ impl Work {
             depth: self.stack.len(),
         });
         self.stats.maximum_depth = self.stats.maximum_depth.max(self.stack.len());
-        if at == self.query.point().0 {
+        if at == self.query.point().0 && !matches!(self.query, Query::Typing(_)) {
             if admitted {
                 self.target = Some(at);
             } else {
@@ -451,6 +477,9 @@ impl Work {
 
     fn close(&mut self, at: usize, kind: Kind) -> Result<(), Pause> {
         let Some(opening) = self.stack.pop() else {
+            if self.typing_unmatched(kind) {
+                return Ok(());
+            }
             self.stop(Outcome::Unmatched);
             return Ok(());
         };
@@ -471,6 +500,9 @@ impl Work {
             depth: opening.depth,
         };
         self.retain(Fact::Pair(pair))?;
+        if self.typing_closed(at, (kind, opening.admitted)) {
+            return Ok(());
+        }
         let at_query = matches!(self.query, Query::At(_)) && self.query.point().0 == at;
         if self.target == Some(opening.at) || at_query {
             self.finish(Outcome::Confirmed(pair.qualified(self.ticket.stamp)));
@@ -498,6 +530,9 @@ impl Work {
     }
 
     fn eof(&mut self) {
+        if self.finish_typing() {
+            return;
+        }
         if matches!(self.query, Query::At(_)) && self.query.point().0 == self.reader.at {
             self.finish(Outcome::Uncertain(Reason::NotDelimiter));
         } else {
@@ -536,6 +571,10 @@ impl Work {
         self.point_seen = query.point().0 < self.reader.at;
         self.target = None;
         self.search = None;
+        self.typing = None;
+        if matches!(query, Query::Typing(_)) {
+            self.rewind_typing();
+        }
         if self.point_seen {
             self.search = Some(Search::default());
         } else if let Some(outcome) = self.terminal.clone() {
@@ -591,7 +630,7 @@ impl Work {
             .find(|opening| match self.query {
                 Query::At(_) => opening.at == point,
                 Query::Enclosing(_) => opening.at <= point,
-                Query::Context(_) => false,
+                Query::Context(_) | Query::Typing(_) => false,
             })
             .map(|opening| opening.at);
         if self.target.is_none() {
@@ -605,6 +644,6 @@ fn matches_query(pair: &Record, query: Query) -> bool {
     match query {
         Query::At(_) => pair.opening == point || pair.closing == point,
         Query::Enclosing(_) => pair.opening <= point && point <= pair.closing,
-        Query::Context(_) => false,
+        Query::Context(_) | Query::Typing(_) => false,
     }
 }

@@ -41,6 +41,7 @@ mod kill;
 mod layout;
 mod linear;
 mod links;
+mod pairs;
 mod publishing;
 mod tables;
 mod wrap;
@@ -1162,6 +1163,7 @@ impl Session {
             Command::Gutter(command) => self.gutter_command(command),
             Command::MouseMode => self.toggle_mouse(),
             Command::VisualLineMode => self.toggle_wrap(),
+            Command::AutoPairMode => self.toggle_pairs(),
             Command::Mode(mode) => self.select_mode(mode),
             Command::Markdown(command) => self.markdown_command(command),
             Command::Org(command) => self.org_command(command),
@@ -1253,6 +1255,9 @@ impl Session {
         let mut bytes = [0; 4];
         self.tree.edit();
         let text = character.encode_utf8(&mut bytes);
+        if let Some(action) = self.start_pair_typing(character, Default::default()) {
+            return action;
+        }
         let result = self.type_text(text);
         self.finish(result)
     }

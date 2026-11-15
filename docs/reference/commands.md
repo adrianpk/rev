@@ -320,6 +320,7 @@ compiled M-x name once.
 | Visual text objects | `modal-select-inner-object`, `modal-select-around-object` |
 | Jump traversal | `modal-jump-backward`, `modal-jump-forward` |
 | Source wrapping | `visual-line-mode` |
+| Automatic delimiter editing | `auto-pair-mode` |
 | Gutter | `gutter-toggle-line-numbers`, `gutter-cycle-line-number-mode`, `gutter-set-line-numbers-absolute`, `gutter-set-line-numbers-relative`, `gutter-cycle-current-line`, `gutter-toggle-line-number-side`, `gutter-inspect-numbering`, `gutter-reset-numbering` |
 | Bookmarks | `bookmark-set`, `bookmark-set-no-overwrite`, `bookmark-jump`, `bookmark-delete`, `bookmark-save`, `bookmark-reload`, `list-bookmarks`, `bookmark-next`, `bookmark-previous`, `bookmark-markers-mode`, `bookmark-bmenu-delete`, `bookmark-bmenu-unmark`, `bookmark-bmenu-execute-deletions`, `bookmark-bmenu-this-window` |
 | Rectangles | `rectangle-mark-mode`, `copy-rectangle-as-kill`, `kill-rectangle`, `yank-rectangle` |

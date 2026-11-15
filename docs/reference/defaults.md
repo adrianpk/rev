@@ -490,8 +490,10 @@ versus kill tab semantics across source/destination policies.
 
 ### Language rules
 
-The five `pairs` preferences currently resolve configuration and buffer state.
-Automatic insertion, deletion, wrapping and closer skipping are not yet active.
+The five `pairs` preferences resolve configuration and buffer state. Automatic
+insertion and closer skipping are active for eligible source typing; see
+[Automatic Delimiter Editing](delimiter-editing.md). Paired deletion and wrapping
+are not active yet.
 `highlight`, `pulse_ms` and pair palette settings are not accepted. A malformed
 global or language preference rejects the complete configuration candidate.
 Omitted language siblings inherit the final global values even without a grammar

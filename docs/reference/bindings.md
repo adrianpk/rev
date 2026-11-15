@@ -209,6 +209,7 @@ Every command below is also available as `M-x` followed by its exact name.
 | `M-x untabify` | `untabify` | Expand marked literal tabs while preserving text columns. |
 | `M-x mouse-mode` | `mouse-mode` | Toggle native pointer support for this session without writing settings. |
 | `M-x visual-line-mode` | `visual-line-mode` | Toggle word-aware wrapping for this buffer and all its views without changing source or settings. |
+| `M-x auto-pair-mode` | `auto-pair-mode` | Toggle automatic delimiter editing for this buffer and its views without writing settings. |
 | `M-x gutter-toggle-line-numbers` | `gutter-toggle-line-numbers` | Hide or restore numbers, retaining mode. |
 | `M-x gutter-cycle-line-number-mode` | `gutter-cycle-line-number-mode` | Alternate absolute and relative, retaining visibility. |
 | `M-x gutter-set-line-numbers-absolute` | `gutter-set-line-numbers-absolute` | Show absolute logical line numbers. |

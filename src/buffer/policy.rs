@@ -33,6 +33,7 @@ impl Buffer {
     /// Change only this buffer's automatic editing state, without saving settings
     /// or publishing a source/history operation.
     pub fn toggle_auto_pairs(&mut self) -> bool {
+        self.pairing.retire();
         let enabled = !self.pair_policy().enabled;
         self.pair_override = Some(enabled);
         enabled

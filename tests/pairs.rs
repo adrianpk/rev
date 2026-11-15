@@ -4,3 +4,5 @@
 mod fixture;
 #[path = "pairs/qualification.rs"]
 mod qualification;
+#[path = "pairs/typing.rs"]
+mod typing;

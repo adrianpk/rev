@@ -32,6 +32,16 @@ impl Session {
         &mut self,
         invocation: TextInvocation,
     ) -> Action {
+        if invocation.typed && invocation.argument.value() > 0 {
+            if let Some(action) = self.argument_text_guard(invocation.origin) {
+                return action;
+            }
+            if let Some(c) = invocation.text.chars().next()
+                && let Some(action) = self.start_pair_typing(c, invocation.argument)
+            {
+                return action;
+            }
+        }
         self.start_argument_text(
             invocation.origin,
             invocation.argument,

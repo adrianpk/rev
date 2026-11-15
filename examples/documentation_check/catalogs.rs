@@ -277,6 +277,7 @@ fn models(root: &Path) -> Result<Models> {
         "src/config/publishing.rs",
         "src/config/source.rs",
         "src/config/feeds.rs",
+        "src/config/pairs.rs",
     ] {
         let source = fs::read_to_string(root.join(name))?;
         let tree = parser
@@ -299,9 +300,10 @@ fn add_models(root: Node<'_>, source: &str, models: &mut Models) -> Result<()> {
         let name = node
             .child_by_field_name("name")
             .ok_or("missing model name")?;
-        let body = node
-            .child_by_field_name("body")
-            .ok_or("missing model fields")?;
+        // Unit visitors are parsing helpers, without configuration fields.
+        let Some(body) = node.child_by_field_name("body") else {
+            continue;
+        };
         let fields = body
             .named_children(&mut body.walk())
             .filter(|field| field.kind() == "field_declaration")
@@ -354,12 +356,15 @@ fn schema(models: &Models) -> Result<BTreeSet<String>> {
     }
     let language = models.get("Language").ok_or("missing Language schema")?;
     for (field, kind) in language {
-        if kind == "Option<External>" {
-            let external = models.get("External").ok_or("missing External schema")?;
+        let nested = kind
+            .strip_prefix("Option<")
+            .and_then(|kind| kind.strip_suffix('>'))
+            .unwrap_or(kind);
+        if let Some(fields) = models.get(nested) {
             leaves.extend(
-                external
+                fields
                     .iter()
-                    .map(|(leaf, _)| format!("language.<id>.external.{leaf}")),
+                    .map(|(leaf, _)| format!("language.<id>.{field}.{leaf}")),
             );
         } else {
             leaves.insert(format!("language.<id>.{field}"));
@@ -423,6 +428,42 @@ mod tests {
             }
             assert!(check_configuration(root, &changed).is_err(), "{name}");
         }
+    }
+
+    // Pair groups must expose every actual Boolean, including inherited language
+    // leaves. Missing documentation and false compiled defaults must still fail.
+    #[test]
+    fn pair_drift() {
+        let root = Path::new(env!("CARGO_MANIFEST_DIR"));
+        let original = read_pair(root, "defaults.md", "org/configuration.md").unwrap();
+        check_configuration(root, &original).unwrap();
+        for key in [
+            "pairs.enabled",
+            "pairs.quotes",
+            "language.<id>.pairs.enabled",
+            "language.<id>.pairs.quotes",
+        ] {
+            let prefix = format!("| `{key}` |");
+            let row = original[0]
+                .lines()
+                .find(|line| line.starts_with(&prefix))
+                .unwrap();
+            let mut changed = original.clone();
+            changed[0] = changed[0].replace(row, "");
+            assert!(
+                check_configuration(root, &changed).is_err(),
+                "missing {key}"
+            );
+        }
+        let mut changed = original.clone();
+        changed[0] = changed[0].replace(
+            "| `pairs.enabled` | Boolean | `true` |",
+            "| `pairs.enabled` | Boolean | `false` |",
+        );
+        assert!(
+            check_configuration(root, &changed).is_err(),
+            "wrong pair default"
+        );
     }
 
     // A newly added accepted model field must make the old documentation fail;

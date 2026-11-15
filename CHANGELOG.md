@@ -9,6 +9,11 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 
 ### Added
 
+- Type parentheses, brackets, braces and eligible language quotes with automatic
+  mates, and move past confirmed closers without duplicates. Use counts for one
+  undo step or toggle the current buffer with M-x auto-pair-mode. Paste remains
+  literal.
+
 - Cycle declared Org effort choices with C-c C-x E, inspect property columns
   with C-c C-x C-c, and add checked Babel header arguments with C-c C-v j or
   C-c C-v C-j, replacing C-c C-v h. Clock reports remain available by name.

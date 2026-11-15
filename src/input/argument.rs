@@ -27,6 +27,8 @@ pub struct Invocation {
 #[derive(Debug, PartialEq, Eq)]
 pub struct TextInvocation {
     pub text: String,
+    /// Physical scalar entry is distinct from accepted literal paste.
+    pub typed: bool,
     pub argument: PrefixArgument,
     pub origin: InvocationOrigin,
 }
@@ -228,9 +230,11 @@ impl Input {
                 let KeyCode::Char(character) = key.code else {
                     unreachable!()
                 };
-                self.text_invocation(character.to_string())
+                self.text_invocation(character.to_string(), true)
             }
-            Outcome::Paste(text) if self.argument_admits_text() => self.text_invocation(text),
+            Outcome::Paste(text) if self.argument_admits_text() => {
+                self.text_invocation(text, false)
+            }
             _ => self.retire_editing_argument(outcome),
         }
     }
@@ -275,10 +279,11 @@ impl Input {
         }
     }
 
-    fn text_invocation(&mut self, text: String) -> Outcome {
+    fn text_invocation(&mut self, text: String, typed: bool) -> Outcome {
         let argument = std::mem::take(&mut self.argument);
         Outcome::TextInvocation(Box::new(TextInvocation {
             text,
+            typed,
             argument: argument.value,
             origin: argument.origin.expect("supplied text has an origin"),
         }))
