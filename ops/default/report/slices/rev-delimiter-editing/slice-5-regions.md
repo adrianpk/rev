@@ -1,6 +1,6 @@
 # Slice 5: Selection wrapping and explicit helpers
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-delimiter-editing
 Plan: [Automatic Delimiter Editing Delivery](../../../plan/rev-delimiter-editing.md)
 Tracker: [Automatic Delimiter Editing Tracker](../../../tracker/rev-delimiter-editing.md)
@@ -114,9 +114,10 @@ Clippy with zero blocking/deferred diagnostics, and native safe-Rust, parameter,
 nesting and complexity policy for all 1,948 first-party Rust files, two workspace
 packages and 77 Cargo roots. The staged tree was
 `aed1a5e62ce87890e386b9661ad71db7bea49c47`; the final Clippy pass took
-1 minute 17 seconds with its per-worktree cache. The controller receipt will use
-exactly the three injected commands at clean published HEAD after PR-reference
-commits. Combined acceptance remains controller-owned.
+1 minute 17 seconds with its per-worktree cache. Exact three-command clean-HEAD controller validation passed at
+`419e84ac43fc213078c6cc806e9dee960001525a`, and the canonical PR contract was verified.
+PR #59 integrated that same commit into dev. Combined acceptance remains
+controller-owned.
 
 ## Risks and Follow-ups
 

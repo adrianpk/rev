@@ -10,7 +10,7 @@ Execution authority: slices 1-7, predecessor-ordered canonical PRs and controlle
 Planning baseline: `fa48f847e9075eafd2272891c29c7dbf04bf7f16`
 Spec: [Delimiter Pairs](../spec/editor-delimiter-pairs.md)
 Model: [Pair Preferences and Native State](../spec/editor-delimiter-pairs-model.md)
-Active slice: Slice 5 — Selection wrapping and explicit helpers
+Active slice: Slice 6 — Literal provenance and source projections
 Integration target: `dev`
 Plan: [Automatic Delimiter Editing Delivery](../plan/rev-delimiter-editing.md)
 
@@ -138,10 +138,10 @@ Dependency: Slice 4 integrated and closed.
 Branch: `feat/rev-delimiter-editing-05-regions`
 Expected PR title: `feat(editor): wrap selections and unwrap confirmed pairs`
 Report: `ops/default/report/slices/rev-delimiter-editing/slice-5-regions.md`
-State: reviewing; implementation complete
+State: delivered; PR #59 integrated
 PR: [#59](https://forge.adrianpk.com/rev/rev/pulls/59)
 Task commits: T5.1-T5.3/report introduction `b37ef0b1e39b4b1da26969dad97b9d7c8e9d1231`; bounded wrapping, native selection/history publication, explicit helpers and independent regressions were committed together as one complete editing path.
-Validation: formatting, all 17 required region tests, the complete 64-case pair suite, the final 34-case typing/region batch, focused boundary/history checks, documentation with 22 reference tests and the native 28-map factory helper PASS. Full staged-source hooks PASS for 1,948 Rust files and 77 Cargo roots. Personal settings and frozen catalog/manifest preserved. Exact clean-HEAD controller evidence follows PR-reference commits; combined acceptance remains controller-owned.
+Validation: formatting, all 17 required region tests, the complete 64-case pair suite, the final 34-case typing/region batch, focused boundary/history checks, documentation with 22 reference tests and the native 28-map factory helper PASS. Full staged-source hooks PASS for 1,948 Rust files and 77 Cargo roots. Personal settings and frozen catalog/manifest preserved. Exact three-command clean-HEAD controller validation PASS at `419e84ac43fc213078c6cc806e9dee960001525a`, including all 17 selected region cases. Canonical PR contract verified; PR #59 integrated the same commit into dev. Combined acceptance remains controller-owned.
 
 - [x] T5.1: Implement typed opening/closing wrapping for active ordinary linear selections, including both orientations and positive counts. Preserve selected bytes, deactivate the region and use the approved opener/closer point placement. Reject unsafe quote transformations before mutation; leave rectangular/block owners intact.
 - [x] T5.2: Add unbound pair-wrap and pair-unwrap through native catalog/dispatch. Use a cancellable native pair-selection prompt for wrapping, with an admitted opening or closing character selecting its pair and opener placement. Unwrap only the innermost confirmed enclosing pair at point, preserving contents/literal meaning and native point/mark mapping; explicit helpers work with automatic editing disabled.
@@ -162,7 +162,7 @@ Dependency: Slice 5 integrated and closed.
 Branch: `fix/rev-delimiter-editing-06-provenance`
 Expected PR title: `fix(editor): preserve literal edits and macro pair provenance`
 Report: `ops/default/report/slices/rev-delimiter-editing/slice-6-provenance.md`
-State: pending predecessor integration
+State: active; implementation in progress
 PR: pending
 Task commits: pending
 Validation: not run
