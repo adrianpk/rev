@@ -90,14 +90,14 @@ Dependency: Slice 2 integrated and closed.
 Branch: `feat/rev-delimiter-editing-03-typing`
 Expected PR title: `feat(editor): insert and skip admitted delimiter pairs`
 Report: `ops/default/report/slices/rev-delimiter-editing/slice-3-typing.md`
-State: active; predecessor integrated and closed
+State: reviewing; awaiting controller integration
 PR: pending
-Task commits: pending
-Validation: not run
+Task commits: T3.1, T3.2 and T3.3/report introduction `5efbfa8a3a7ae1038f95ae2bd53dd1f2573e9b13`; native typing/count admission and its command/metadata were committed together to preserve one complete transaction path.
+Validation: formatting, all 17 typing tests, 19 shared qualification regressions, four focused count/skip/modal tests, documentation with 22 reference tests, four drift tests and the native 28-map factory helper PASS. Full staged-source hooks PASS for 1,936 Rust files and 77 Cargo roots; frozen catalog/manifest and personal settings preserved. Exact three-command clean-HEAD evidence is recorded after PR-reference commits; combined acceptance remains controller-owned.
 
-- [ ] T3.1: Route eligible physical source typing in non-modal and modal Insert/Replace through one checked native transaction. Insert admitted structural/quote mates, reuse an existing unmatched closer and skip only an admitted closer. Uncertain ordinary typing stays literal; preserve read-only, focus and modal owners.
-- [ ] T3.2: Honor native numeric prefixes once: positive counts compose one transaction and undo unit, zero is inert and negative typed repetition retains refusal. Preflight expansion and work limits before publication; generated mates are effects rather than new key events. Wire buffer-local auto-pair-mode shared across views and retained across language changes without writing configuration.
-- [ ] T3.3: Add the unbound auto-pair-mode catalog entry, named dispatch, descriptions and introspection, plus independent additive command-inventory expectations. Test insertion/count/skip/refusal, undo/redo, mode/focus/toggle and source-policy behavior; add concise reader-facing guidance for the delivered feature using the changelog skill.
+- [x] T3.1: Route eligible physical source typing in non-modal and modal Insert/Replace through one checked native transaction. Insert admitted structural/quote mates, reuse an existing unmatched closer and skip only an admitted closer. Uncertain ordinary typing stays literal; preserve read-only, focus and modal owners.
+- [x] T3.2: Honor native numeric prefixes once: positive counts compose one transaction and undo unit, zero is inert and negative typed repetition retains refusal. Preflight expansion and work limits before publication; generated mates are effects rather than new key events. Wire buffer-local auto-pair-mode shared across views and retained across language changes without writing configuration.
+- [x] T3.3: Add the unbound auto-pair-mode catalog entry, named dispatch, descriptions and introspection, plus independent additive command-inventory expectations. Test insertion/count/skip/refusal, undo/redo, mode/focus/toggle and source-policy behavior; add concise reader-facing guidance for the delivered feature using the changelog skill.
 
 Required commands:
 
