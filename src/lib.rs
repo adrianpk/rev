@@ -21,6 +21,7 @@ mod location;
 pub mod lsp;
 pub mod macros;
 pub mod org;
+pub mod pairs;
 pub mod panel;
 pub mod plugins;
 pub mod pointer;

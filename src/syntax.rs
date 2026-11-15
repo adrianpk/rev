@@ -2,6 +2,7 @@ pub(crate) mod assets;
 mod catalog;
 mod completion;
 mod formats;
+mod pairs;
 mod scope;
 mod source;
 mod style;

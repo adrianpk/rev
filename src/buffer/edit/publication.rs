@@ -82,6 +82,8 @@ impl Buffer {
         publication: Publication,
         points: &mut [Point],
     ) -> Option<Published> {
+        self.pairing
+            .source_changed((publication.before, publication.after), publication.changed);
         self.syntax
             .edit(publication.before, publication.after, &publication.syntax);
         self.edit_org(publication.before, publication.after, &publication.syntax);

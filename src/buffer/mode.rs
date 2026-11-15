@@ -68,6 +68,7 @@ impl Buffer {
             return Err(ModeError::MarkdownDisabled);
         }
         self.mode_choice = Some(mode);
+        self.pairing.retire();
         self.activate_org(mode == Mode::Org);
         self.activate_markdown(mode == Mode::Markdown);
         self.refresh_syntax();

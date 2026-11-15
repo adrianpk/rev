@@ -6,6 +6,7 @@ mod lifecycle;
 mod markdown;
 mod mode;
 mod org;
+mod pairs;
 mod policy;
 mod presentation;
 mod region;
@@ -160,6 +161,7 @@ pub struct Buffer {
     policy: crate::config::Editor,
     pair_policy: crate::config::Pairs,
     pair_override: Option<bool>,
+    pairing: crate::pairs::State,
     wrap_override: Option<bool>,
     pub(crate) coordinates: std::sync::Arc<std::sync::Mutex<crate::coordinates::Checkpoints>>,
     crlf: usize,
@@ -239,6 +241,7 @@ impl Buffer {
             policy: crate::config::Editor::default(),
             pair_policy: crate::config::Pairs::default(),
             pair_override: None,
+            pairing: crate::pairs::State::default(),
             wrap_override: None,
             coordinates: std::sync::Arc::default(),
             crlf: endings::count(text.slice(..)),
