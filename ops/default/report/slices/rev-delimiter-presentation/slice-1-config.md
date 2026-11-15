@@ -1,6 +1,6 @@
 # Slice 1: Configuration and view controls
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-delimiter-presentation
 Plan: [Delimiter Presentation Delivery](../../../plan/rev-delimiter-presentation.md)
 Tracker: [Delimiter Presentation Tracker](../../../tracker/rev-delimiter-presentation.md)
@@ -109,5 +109,9 @@ passes all 14 cases, and the existing automatic-editing toggle passes.
 
 ## Risks and Follow-ups
 
-Rendering, bounded source-qualified facts and finite pulses remain later slices.
+PR #67 integrated validated commit `f1515a01cf5434ce163840a99c1729da0bfaea0e`
+into dev. All three ordered required checks passed once through looper validate.
+Fetched ancestry, clean state and no owned processes were verified; the integrated
+worktree was removed without force. Rendering, qualified facts and finite pulses
+remain later slices; the combined gate remains controller-owned.
 The existing vendored crossterm unused-parentheses warning remains unchanged.
