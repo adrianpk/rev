@@ -12,7 +12,7 @@ Spec: [Delimiter Navigation](../spec/editor-delimiter-navigation.md)
 Model: [Pair Preferences and Native State](../spec/editor-delimiter-pairs-model.md)
 Concern: [Operations index](../README.md)
 Concern: [Interaction Parity](../spec/editor-emacs-interaction-parity.md)
-Active slice: Slice 3 — Enclosing and nested groups
+Active slice: Slice 4 — Syntax-class expression motions
 Integration target: `dev`
 Plan: [Delimiter Navigation Delivery](../plan/rev-delimiter-navigation.md)
 
@@ -90,10 +90,10 @@ Dependency: Slice 2 integrated and closed.
 Branch: `feat/rev-delimiter-navigation-03-nesting`
 Expected PR title: `feat(editor): move out of and into nested groups`
 Report: `ops/default/report/slices/rev-delimiter-navigation/slice-3-nesting.md`
-State: reviewing; active
+State: delivered; PR #64 integrated
 PR: [#64](https://forge.adrianpk.com/rev/rev/pulls/64)
 Task commits: T3.1/T3.2 `b49dd9aa818d5242e9524ee57f3e6ec2eb181884`; T3.3/report introduction `51a95aad55804ebd8f5564a922d9c4f71ce96cc2`.
-Validation: all three ordered required commands PASS locally. Nesting (10 tests), native invalidation (3), across/mate regressions (15), modal percent/objects (2), independent maps/catalog and documentation PASS. Both staged-source hooks PASS; final clean-HEAD evidence is recorded separately through looper validate after the PR-reference commit. Combined acceptance remains controller-owned.
+Validation: all three ordered required commands PASS through looper validate at `3fd22cbbb24f56adecf57b8dade7b242b38f1da4`, integrated by canonical PR #64. Nesting (10 tests), native invalidation (3), across/mate regressions (15), modal percent/objects (2), independent maps/catalog, documentation and both staged-source hooks PASS. Fetched ancestry and clean inactive owned worktree verified; worktree removed without force. Combined acceptance remains controller-owned.
 
 - [x] T3.1: Implement up-pair as backward-up-list and down-pair as down-list under the approved profile, including their signed-count reverse directions. Distinguish leaving an enclosing group, entering the next nested group and top/bottom-level refusal; do not replace them with next/previous delimiter search.
 - [x] T3.2: Reuse the qualified shared request, bounded continuation and native cursor/region owner. Preserve enclosing-source authority, readonly use, cancellation, source replacement and two-view ownership. Reveal folded source through the existing view path without modifying source or independent peer folds; rectangular/modal selection remains native.
@@ -114,7 +114,7 @@ Dependency: Slice 3 integrated and closed.
 Branch: `feat/rev-delimiter-navigation-04-expressions`
 Expected PR title: `feat(editor): navigate syntax-aware expression boundaries`
 Report: `ops/default/report/slices/rev-delimiter-navigation/slice-4-expressions.md`
-State: pending predecessor integration
+State: ready; active
 PR: pending
 Task commits: pending
 Validation: not run

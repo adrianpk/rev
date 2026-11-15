@@ -1,6 +1,6 @@
 # Slice 3: Enclosing and nested groups
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-delimiter-navigation
 Plan: [Delimiter Navigation Delivery](../../../plan/rev-delimiter-navigation.md)
 Tracker: [Delimiter Navigation Tracker](../../../tracker/rev-delimiter-navigation.md)
@@ -71,8 +71,8 @@ The existing four-millisecond poll deadline is a scheduling target.
 ## Validation
 
 Focused checks are local; the controller owns the combined delivery gate.
-Final clean-HEAD evidence is recorded separately through looper validate after
-the PR-reference commit.
+All three ordered required commands passed through looper validate at clean,
+pushed `3fd22cbbb24f56adecf57b8dade7b242b38f1da4`, integrated by PR #64.
 
 - PASS: `cargo fmt --all -- --check`.
 - PASS: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test pair_navigation nesting -- --test-threads=1`: 10 tests, 33.63 seconds after compilation.
@@ -116,9 +116,11 @@ representative PTYs remain separate integrated acceptance.
 
 ## Risks and Follow-ups
 
-PR #64 is open against dev. Implementation is `b49dd9aa818d5242e9524ee57f3e6ec2eb181884`;
+PR #64 integrated into dev. Implementation is `b49dd9aa818d5242e9524ee57f3e6ec2eb181884`;
 test/report introduction is `51a95aad55804ebd8f5564a922d9c4f71ce96cc2`.
-Controller-owned integration and combined acceptance remain pending. Syntax-class
+The validated head is `3fd22cbbb24f56adecf57b8dade7b242b38f1da4`. Fetched ancestry,
+cleanliness and inactivity were verified before non-forced owned worktree removal.
+Controller-owned combined acceptance remains pending. Syntax-class
 expressions and representative physical-input PTYs belong to the next recorded
 slices. No full delivery gate was run here. The existing vendored crossterm
 parentheses warning remains unchanged.
