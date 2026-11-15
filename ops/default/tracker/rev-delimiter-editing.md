@@ -114,14 +114,14 @@ Dependency: Slice 3 integrated and closed.
 Branch: `feat/rev-delimiter-editing-04-deletion`
 Expected PR title: `feat(editor): delete empty pairs and preserve quote contexts`
 Report: `ops/default/report/slices/rev-delimiter-editing/slice-4-deletion.md`
-State: active; implementation in progress
+State: reviewing; awaiting controller integration
 PR: pending
-Task commits: pending
-Validation: not run
+Task commits: T4.1-T4.3/report introduction `a254aae20d567287160d83da3682fe0e006ca8e1`; deletion, conservative quote proof, native regressions and reader guidance committed together as one complete editing path.
+Validation: formatting, all 13 required deletion/quote tests, 19 shared qualification and 17 typing regressions, focused current-syntax/history checks and documentation with 22 reference tests PASS. Full staged-source hooks PASS for 1,940 Rust files and 77 Cargo roots. Personal settings and frozen factory catalog/manifest preserved. Final exact three-command clean-HEAD validation follows PR-reference commits; combined acceptance remains controller-owned.
 
-- [ ] T4.1: Integrate Backspace with existing deletion and region precedence. Remove both ends only for an adjacent empty admitted pair, in one undo unit; whitespace/content, disabled policy and uncertain context retain ordinary deletion. Preserve grapheme, line-ending, read-only and history behavior.
-- [ ] T4.2: Complete the approved quote/profile matrix across ordinary code and prose contexts. Keep word apostrophes, escaped quotes, Rust lifetime/character ambiguity, raw/triple/template/interpolation ambiguity and unproved embedded contexts literal; confirm current-language evidence before automatic quote edits.
-- [ ] T4.3: Add deletion and quote matrices, including nonempty pairs, malformed source, comments, combining characters, split views and toggles. Verify exact source and cursor/mark restoration through undo/redo and update delivered policy documentation and the slice report.
+- [x] T4.1: Integrate Backspace with existing deletion and region precedence. Remove both ends only for an adjacent empty admitted pair, in one undo unit; whitespace/content, disabled policy and uncertain context retain ordinary deletion. Preserve grapheme, line-ending, read-only and history behavior.
+- [x] T4.2: Complete the approved quote/profile matrix across ordinary code and prose contexts. Keep word apostrophes, escaped quotes, Rust lifetime/character ambiguity, raw/triple/template/interpolation ambiguity and unproved embedded contexts literal; confirm current-language evidence before automatic quote edits.
+- [x] T4.3: Add deletion and quote matrices, including nonempty pairs, malformed source, comments, combining characters, split views and toggles. Verify exact source and cursor/mark restoration through undo/redo and update delivered policy documentation and the slice report.
 
 Required commands:
 

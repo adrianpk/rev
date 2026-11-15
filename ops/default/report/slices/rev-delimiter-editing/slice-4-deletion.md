@@ -99,7 +99,14 @@ rebuild took 75 seconds before the first completed test batch. The vendored
 crossterm parentheses warning is pre-existing and non-blocking.
 
 Personal configuration and frozen factory catalog/manifest digests are unchanged.
-Full staged-source hook results are recorded after the implementation commit.
+The implementation commit `a254aae20d567287160d83da3682fe0e006ca8e1` passed
+full staged-source formatting, strict workspace Clippy and native policy across
+1,940 Rust files and 77 Cargo roots. No blocking/deferred Clippy diagnostic or
+source-policy suppression was introduced. The strict check profile took 122 seconds
+after the private tool/cache build. T4.1-T4.3 were committed together to keep the
+deletion path, its quote proof, native regressions and reader guidance reviewable.
+The final structural/quote history matrix also passed its focused test in 1.31
+seconds after 3 seconds of linking.
 The controller receipt will use exactly the three injected commands at clean
 published HEAD after PR-reference commits. Combined acceptance remains
 controller-owned.
