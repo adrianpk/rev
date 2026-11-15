@@ -16,6 +16,18 @@ Active slice: Slice 1 of 6 - Configuration and view controls
 Completed slices: 0/6
 Completed tasks: 0/18
 Gate state: pending; controller-owned after all six canonical PRs integrate
+Controller startup: blocked before the first worker; the original unclassified stop is retained
+
+## Canonical slice map
+
+| Slice | Short name | Exact branch | Expected PR title | Report |
+| --- | --- | --- | --- | --- |
+| Slice 1 | Configuration and view controls | `feat/rev-delimiter-presentation-01-config` | `feat(editor): configure view-local delimiter presentation` | `ops/default/report/slices/rev-delimiter-presentation/slice-1-config.md` |
+| Slice 2 | Qualified presentation facts | `feat/rev-delimiter-presentation-02-qualification` | `feat(editor): retain bounded source-qualified delimiter spans` | `ops/default/report/slices/rev-delimiter-presentation/slice-2-qualification.md` |
+| Slice 3 | Depth colors and active pair | `feat/rev-delimiter-presentation-03-rendering` | `feat(editor): render delimiter depth and active-pair marks` | `ops/default/report/slices/rev-delimiter-presentation/slice-3-rendering.md` |
+| Slice 4 | Finite pulse lifecycle | `feat/rev-delimiter-presentation-04-pulse` | `feat(editor): add finite delimiter presentation pulses` | `ops/default/report/slices/rev-delimiter-presentation/slice-4-pulse.md` |
+| Slice 5 | Completed-frame continuity | `test/rev-delimiter-presentation-05-continuity` | `test(editor): verify delimiter continuity and input service` | `ops/default/report/slices/rev-delimiter-presentation/slice-5-continuity.md` |
+| Slice 6 | Integrated presentation acceptance | `test/rev-delimiter-presentation-06-acceptance` | `test(editor): verify delimiter presentation workflows` | `ops/default/report/slices/rev-delimiter-presentation/slice-6-acceptance.md` |
 
 ## Delivery checklist
 
