@@ -90,14 +90,14 @@ Dependency: Slice 2 integrated and closed.
 Branch: `feat/rev-delimiter-navigation-03-nesting`
 Expected PR title: `feat(editor): move out of and into nested groups`
 Report: `ops/default/report/slices/rev-delimiter-navigation/slice-3-nesting.md`
-State: ready; active
+State: reviewing; active
 PR: pending
-Task commits: pending
-Validation: not run
+Task commits: T3.1/T3.2 `b49dd9aa818d5242e9524ee57f3e6ec2eb181884`; T3.3/report introduction pending commit.
+Validation: all three ordered required commands PASS locally. Nesting (10 tests), native invalidation (3), across/mate regressions (15), modal percent/objects (2), independent maps/catalog and documentation PASS. The implementation staged-source hook PASS; final clean-HEAD evidence is recorded separately through looper validate after the PR-reference commit. Combined acceptance remains controller-owned.
 
-- [ ] T3.1: Implement up-pair as backward-up-list and down-pair as down-list under the approved profile, including their signed-count reverse directions. Distinguish leaving an enclosing group, entering the next nested group and top/bottom-level refusal; do not replace them with next/previous delimiter search.
-- [ ] T3.2: Reuse the qualified shared request, bounded continuation and native cursor/region owner. Preserve enclosing-source authority, readonly use, cancellation, source replacement and two-view ownership. Reveal folded source through the existing view path without modifying source or independent peer folds; rectangular/modal selection remains native.
-- [ ] T3.3: Add up-pair/down-pair and C-M-u/C-M-d base defaults. Extend independent expectations to 715 commands and the four authorized base leaves. Test nested and mixed groups, opener/closer/before/after positions, both directions, counts, ordinary boundaries and retained point/mark on refusal; provide the report and current command/binding references.
+- [x] T3.1: Implement up-pair as backward-up-list and down-pair as down-list under the approved profile, including their signed-count reverse directions. Distinguish leaving an enclosing group, entering the next nested group and top/bottom-level refusal; do not replace them with next/previous delimiter search.
+- [x] T3.2: Reuse the qualified shared request, bounded continuation and native cursor/region owner. Preserve enclosing-source authority, readonly use, cancellation, source replacement and two-view ownership. Reveal folded source through the existing view path without modifying source or independent peer folds; rectangular/modal selection remains native.
+- [x] T3.3: Add up-pair/down-pair and C-M-u/C-M-d base defaults. Extend independent expectations to 715 commands and the four authorized base leaves. Test nested and mixed groups, opener/closer/before/after positions, both directions, counts, ordinary boundaries and retained point/mark on refusal; provide the report and current command/binding references.
 
 Required commands:
 
