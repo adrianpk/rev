@@ -101,6 +101,11 @@ impl Session {
     }
 
     fn cancel_resource_prompt(&mut self) -> Option<Action> {
+        if matches!(self.pending, Some(Pending::PairHighlight(_))) {
+            self.pending = None;
+            self.input.cancel();
+            return Some(self.message("Pair highlight style canceled"));
+        }
         if let Some(action) = self.cancel_pair_prompt() {
             return Some(action);
         }
@@ -174,6 +179,9 @@ impl Session {
             return self.complete_org_argument();
         }
         match self.pending {
+            Some(Pending::PairHighlight(_)) => {
+                self.message("Choose depth, match, pulse or off; C-g cancels")
+            }
             Some(Pending::PairWrap(_)) => {
                 self.message("Choose one opening or closing delimiter; C-g cancels")
             }

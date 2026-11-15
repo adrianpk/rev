@@ -321,6 +321,7 @@ compiled M-x name once.
 | Jump traversal | `modal-jump-backward`, `modal-jump-forward` |
 | Source wrapping | `visual-line-mode` |
 | Automatic delimiter editing | `auto-pair-mode`, `pair-wrap`, `pair-unwrap` |
+| Delimiter presentation controls | `pair-highlight-mode`, `pair-highlight-style` (unbound, view-local; see [defaults](defaults.md#language-rules)) |
 | Delimiter navigation | `matching-delimiter`, `forward-pair`, `backward-pair`, `up-pair`, `down-pair`, `forward-sexp`, `backward-sexp` |
 | Gutter | `gutter-toggle-line-numbers`, `gutter-cycle-line-number-mode`, `gutter-set-line-numbers-absolute`, `gutter-set-line-numbers-relative`, `gutter-cycle-current-line`, `gutter-toggle-line-number-side`, `gutter-inspect-numbering`, `gutter-reset-numbering` |
 | Bookmarks | `bookmark-set`, `bookmark-set-no-overwrite`, `bookmark-jump`, `bookmark-delete`, `bookmark-save`, `bookmark-reload`, `list-bookmarks`, `bookmark-next`, `bookmark-previous`, `bookmark-markers-mode`, `bookmark-bmenu-delete`, `bookmark-bmenu-unmark`, `bookmark-bmenu-execute-deletions`, `bookmark-bmenu-this-window` |

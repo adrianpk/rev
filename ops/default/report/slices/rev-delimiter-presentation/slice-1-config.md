@@ -1,0 +1,109 @@
+# Slice 1: Configuration and view controls
+
+Status: reviewing
+Delivery set: rev-delimiter-presentation
+Plan: [Delimiter Presentation Delivery](../../../plan/rev-delimiter-presentation.md)
+Tracker: [Delimiter Presentation Tracker](../../../tracker/rev-delimiter-presentation.md)
+Branch: `feat/rev-delimiter-presentation-01-config`
+PR: pending
+
+## Purpose
+
+Deliver DPR03 configuration and view controls through T1.1-T1.3, preparing
+presentation without claiming visible delimiter rendering.
+
+## Delivered Behavior
+
+Global and optional language pairs.highlight/pulse_ms resolve independently of
+automatic editing, defaulting to depth and 250 ms. Durations admit 50..1000 ms.
+Omitted language leaves inherit final globals and retain native leaf origins.
+Malformed types, styles, durations and colors reject the whole candidate,
+including invalid included values masked by later overrides.
+
+Four optional palette.pairs roles resolve after ordinary palette merging.
+Absent roles inherit selection, foreground, warning and the ordered syntax
+function/number/keyword/type/string/punctuation cycle. Explicit opaque RGB
+colors win; depth arrays replace the cycle and admit 1..8 entries.
+
+The unbound pair-highlight-mode and pair-highlight-style commands change only
+the selected view. The bounded style prompt admits depth/match/pulse/off with
+Tab guidance and C-g cancellation; supplied numeric prefixes refuse. Off
+remembers the last non-off style, using depth when no prior active style exists.
+New views and splits use resolved language/global defaults; sibling overrides
+stay independent and explicit overrides survive source rebinds. Read-only
+source and disabled automatic editing remain admitted. Source bytes, point,
+viewport, mark, undo/redo and settings files remain unchanged.
+
+## Implementation Notes
+
+The existing partial configuration, merge, validation, origin and projection
+owners admit both preferences. String-only style deserialization prevents Serde
+from treating a unit-variant table as a valid configuration string. Palette role
+absence survives composition until final RGB projection.
+
+View PairPresentation owns only runtime style and last-active overrides. It
+reads startup defaults from the buffer's resolved preferences, preserving native
+language/reassociation updates without a second settings lookup. The session
+captures the selected view for prompt completion and uses native focus and
+argument admission. Pair-control dispatch stays with the pair owner to retain
+the root dispatcher's complexity ceiling. No source cache, timer, service or
+dependency is added.
+
+T1.1-T1.3 form one cohesive implementation commit because the new typed settings,
+view controls, independent catalog assertions and reference schema must agree.
+The PR-reference commit records that implementation identity separately.
+
+## Contracts Added or Changed
+
+- Two independent global/language preferences and four global palette roles.
+- Exactly two unbound catalog additions: 717 -> 719 commands.
+- All existing factory bindings and frozen oracle bytes remain unchanged.
+- Reference examples and documentation checks cover dynamic palette fallback;
+  drift checks reject fixed sample overrides or a different documented role.
+- No release note: qualification, visible rendering and pulse lifetime remain
+  assigned to their later approved slices.
+
+## Files of Interest
+
+- `src/config/pairs.rs`: typed preferences, inheritance and merge origins.
+- `src/config/palette.rs`: optional and effective pair roles.
+- `src/config/project.rs`: fallback after palette composition.
+- `src/view/pairs.rs`: view-local style and last-active override.
+- `src/session/pairs/presentation.rs`: command and prompt ownership.
+- `tests/pair_presentation.rs`: 14 nonempty configuration/control cases.
+- `examples/factory_shortcuts_acceptance/matrix.rs`: independent complete maps.
+- `examples/documentation_check/catalogs.rs`: dynamic-default drift checks.
+
+## Validation
+
+Local focused checks passed. Final ordered clean-HEAD evidence is recorded
+separately through looper validate after the PR-reference commit. The controller
+owns integration and the combined delivery-set gate.
+
+- PASS: `cargo fmt --all -- --check`.
+- PASS: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test pair_presentation config -- --test-threads=1`: 14 cases.
+- PASS: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test configuration pairs -- --test-threads=1`: 11 existing cases.
+- PASS: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test pairs inventory -- --test-threads=1`: two independent inventory cases.
+- PASS: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test pairs shared_toggle -- --test-threads=1`: existing automatic-editing dispatch after the routing change.
+- PASS: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test pair_navigation catalog_and_focus -- --test-threads=1`: one existing case.
+- PASS: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --example documentation-check -- --test-threads=1`: nine drift/navigation cases.
+- PASS: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo run --locked --quiet --example factory-shortcuts-acceptance -- --native target`: 719 commands, six actions, 28 complete maps and native effective hints in both profiles.
+- PASS: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 bash scripts/check-documentation.sh`: 340 schema entries, 112 reachable pages, 796 local links/anchors, 10 command and 12 configuration reference cases.
+- PASS: scoped native source policy over configuration/session/view, command,
+  new presentation tests and documentation checker: 365 files plus four focused
+  root/dispatch inputs, with parameter, nesting and complexity ceilings retained.
+  Preserved commit hooks additionally
+  enforce the exact staged candidate before each commit.
+- PASS: `git diff --check`.
+
+Development checks exposed Serde table admission and root dispatch complexity 11.
+The first preserved hook rejected staged tree `e06b25418756a1be5fa92c8ad2c16b2d1fb1cf4a`
+for that dispatch ceiling after full workspace Clippy passed with zero blocking
+or deferred diagnostics. String-only decoding and pair-owned routing correct
+both issues without a lint exception. The corrected configuration/control rerun
+passes all 14 cases, and the existing automatic-editing toggle passes.
+
+## Risks and Follow-ups
+
+Rendering, bounded source-qualified facts and finite pulses remain later slices.
+The existing vendored crossterm unused-parentheses warning remains unchanged.

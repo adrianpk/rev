@@ -1,6 +1,7 @@
 mod deletion;
 mod navigation;
 mod plan;
+mod presentation;
 mod regions;
 pub(super) use regions::{RegionPrompt, Regions};
 
@@ -10,7 +11,7 @@ pub(super) use navigation::Navigation;
 use std::time::Instant;
 
 use crate::buffer::edit::{Error, Point};
-use crate::command::PrefixArgument;
+use crate::command::{Command, PrefixArgument};
 use crate::config::Pairs;
 use crate::input::EditingState;
 use crate::pairs::{Query, Status, Ticket, Typed};
@@ -31,6 +32,16 @@ pub(super) struct Typing {
 }
 
 impl Session {
+    pub(super) fn pair_control_command(&mut self, command: Command) -> Action {
+        match command {
+            Command::AutoPairMode => self.toggle_pairs(),
+            Command::PairHighlightMode | Command::PairHighlightStyle => {
+                self.pair_highlight_command(command)
+            }
+            _ => self.pair_command(command),
+        }
+    }
+
     pub(super) fn toggle_pairs(&mut self) -> Action {
         if !self.source_layout_focus() || self.terminals.focused || self.git_visible() {
             return self.message("Automatic pairing requires source input focus");

@@ -120,6 +120,11 @@ impl Session {
 
     fn admit_source_argument(&self, invocation: Invocation) -> Result<(), &'static str> {
         match invocation.command {
+            Command::PairHighlightMode | Command::PairHighlightStyle
+                if invocation.argument.supplied() =>
+            {
+                Err("Pair presentation commands do not support a prefix argument")
+            }
             Command::MatchingDelimiter if invocation.argument.supplied() => {
                 Err("Matching delimiter does not support a prefix argument")
             }

@@ -14,7 +14,7 @@ Spec: `ops/default/spec/editor-delimiter-presentation.md`
 Model: `ops/default/spec/editor-delimiter-pairs-model.md`
 Active slice: Slice 1 of 6 - Configuration and view controls
 Completed slices: 0/6
-Completed tasks: 0/18
+Completed tasks: 3/18
 Gate state: pending; controller-owned after all six canonical PRs integrate
 
 ## Canonical slice map
@@ -44,14 +44,14 @@ Dependency: approved committed preparation
 Branch: `feat/rev-delimiter-presentation-01-config`
 Expected PR title: `feat(editor): configure view-local delimiter presentation`
 Report: `ops/default/report/slices/rev-delimiter-presentation/slice-1-config.md`
-State: ready
+State: reviewing
 PR: pending
 Task commits: pending
-Validation: pending
+Validation: local required/focused checks passed; final clean-HEAD controller evidence follows the PR-reference commit
 
-- [ ] T1.1: Extend the existing global and optional language pairs parser, merge, origins, candidate validation and effective defaults with highlight=depth and pulse_ms=250 (50..1000). Add the four optional palette.pairs roles, existing RGB parsing and 1..8 depth colors; resolve absent roles only after the editor palette is merged. Keep editing and visual preferences independent.
-- [ ] T1.2: Add view-local style/last-non-off state and the unbound pair-highlight-mode and pair-highlight-style commands using the existing bounded prompts, argument admission and session/view owners. New views start from resolved global/language defaults; sibling views retain independent overrides. Preserve point, mark, source, history and settings files. Update literal catalog expectations from 717 to 719 and preserve every existing factory binding.
-- [ ] T1.3: Create tests/pair_presentation.rs with nonempty config cases for defaults, language inheritance/origins, malformed whole-candidate rejection, palette overrides/fallback, command prompts/cancellation and independent views. Document only the admitted controls; omit a release note for an internal layer without visible rendering.
+- [x] T1.1: Extend the existing global and optional language pairs parser, merge, origins, candidate validation and effective defaults with highlight=depth and pulse_ms=250 (50..1000). Add the four optional palette.pairs roles, existing RGB parsing and 1..8 depth colors; resolve absent roles only after the editor palette is merged. Keep editing and visual preferences independent.
+- [x] T1.2: Add view-local style/last-non-off state and the unbound pair-highlight-mode and pair-highlight-style commands using the existing bounded prompts, argument admission and session/view owners. New views start from resolved global/language defaults; sibling views retain independent overrides. Preserve point, mark, source, history and settings files. Update literal catalog expectations from 717 to 719 and preserve every existing factory binding.
+- [x] T1.3: Create tests/pair_presentation.rs with nonempty config cases for defaults, language inheritance/origins, malformed whole-candidate rejection, palette overrides/fallback, command prompts/cancellation and independent views. Document only the admitted controls; omit a release note for an internal layer without visible rendering.
 
 Required commands:
 

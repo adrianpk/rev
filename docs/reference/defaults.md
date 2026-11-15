@@ -434,6 +434,8 @@ edit limits and finite lifecycle.
 | `pairs.delete_empty` | Boolean | `true` | Adjacent empty-pair Backspace policy. Language-overridable. |
 | `pairs.skip_closing` | Boolean | `true` | Policy for skipping a confirmed existing closer. Language-overridable. |
 | `pairs.quotes` | Boolean | `true` | Automatic quote policy, subject to current-language eligibility. Language-overridable; does not disable syntax. |
+| `pairs.highlight` | String: "depth", "match", "pulse" or "off" | `"depth"` | Initial view presentation style, independent of automatic editing; language-overridable. |
+| `pairs.pulse_ms` | Integer 50..=1000 | `250` | Initial view pulse duration in milliseconds; language-overridable. |
 | `scroll.page_overlap` | Integer 0..=1000 | `2` | Session; overlap in page rows, clamped so a usable pane advances at least one row. |
 | `windows.split_ratio` | Finite float 0.1..=0.9 | `0.5` | Session; preferred first-child share after the separator, clamped by both recursive subtree minima. |
 | `minibuffer.candidate_limit` | Integer 1..=32 | `8` | Session; maximum visible command/path candidate rows, including any list diagnostic, clipped to geometry. |
@@ -490,13 +492,20 @@ versus kill tab semantics across source/destination policies.
 
 ### Language rules
 
-The five `pairs` preferences resolve configuration and buffer state. Automatic
+The five automatic-editing `pairs` preferences resolve configuration and buffer state. Automatic
 insertion, closer skipping, empty-pair Backspace and ordinary linear-selection
 wrapping are active for eligible source input; see
 [Automatic Delimiter Editing](delimiter-editing.md). Explicit pair-wrap/unwrap
 retain their own eligibility checks when automatic editing is disabled.
-`highlight`, `pulse_ms` and pair palette settings are not accepted. A malformed
-global or language preference rejects the complete configuration candidate.
+`highlight` and `pulse_ms` initialize independent view preferences. The unbound
+`pair-highlight-mode` toggles off/the last non-off style; `pair-highlight-style`
+opens a bounded depth/match/pulse/off prompt with C-g cancellation. Both refuse
+numeric prefix arguments and preserve source, mark, point, history and settings.
+New views, including splits, start from resolved global/language defaults;
+sibling overrides remain independent. A view override survives source rebinds.
+These controls prepare presentation; delimiter colors and pulse rendering are
+not yet active. A malformed global or language preference rejects the complete
+configuration candidate.
 Omitted language siblings inherit the final global values even without a grammar
 or with syntax colors disabled. Buffer-local choices survive language changes
 without writing configuration or changing source/history.
@@ -511,6 +520,8 @@ without writing configuration or changing source/history.
 | `language.<id>.pairs.delete_empty` | Boolean | Inherit global | Selected language's empty-pair deletion policy. |
 | `language.<id>.pairs.skip_closing` | Boolean | Inherit global | Selected language's confirmed-closer skipping policy. |
 | `language.<id>.pairs.quotes` | Boolean | Inherit global | Selected language's automatic quote policy. |
+| `language.<id>.pairs.highlight` | String: "depth", "match", "pulse" or "off" | Inherit global | Selected language's initial view style; runtime view overrides win. |
+| `language.<id>.pairs.pulse_ms` | Integer 50..=1000 | Inherit global | Selected language's pulse duration in milliseconds. |
 | `language.<id>.grammar` | String: "rust", "c", "go", "html", "css", "javascript", "typescript", "tsx", "json", "toml" or "plain" | Matching bundled grammar; plain otherwise | Selected language's grammar; no external parser download or installation. |
 | `language.<id>.external.parser` | Nonempty local path | Unset | Precompiled native library; relative to resolved XDG data root `rev/grammars`, or absolute. At most 32 complete registrations. |
 | `language.<id>.external.symbol` | ASCII `tree_sitter_` identifier, at most 128 bytes | Unset | Explicit parser export; required with the three asset paths. |
@@ -565,6 +576,10 @@ All palette roles are global, with no language-scoped color override.
 | `palette.message` | RGB string | `"#c0caf5"` | Normal echo/message foreground. |
 | `palette.warning` | RGB string | `"#e0af68"` | Warning foreground. |
 | `palette.error` | RGB string | `"#db4b4b"` | Error foreground. |
+| `palette.pairs.match_background` | Opaque #RRGGBB string | Resolved `palette.selection` | Active delimiter background. |
+| `palette.pairs.match_text` | Opaque #RRGGBB string | Resolved `palette.foreground` | Structural endpoint text for match/pulse. |
+| `palette.pairs.mismatch` | Opaque #RRGGBB string | Resolved `palette.warning` | Confirmed mismatch role. |
+| `palette.pairs.depth_colors` | Array of 1..=8 opaque #RRGGBB strings | Resolved syntax function, number, keyword, type, string, punctuation | Ordered depth cycle; explicit arrays replace the whole cycle. |
 | `palette.git.heading` | RGB string | `"#7aa2f7"` | Git view titles and patch file headers. |
 | `palette.git.metadata` | RGB string | `"#a9b1d6"` | Repository and comparison metadata. |
 | `palette.git.untracked` | RGB string | `"#2ac3de"` | Untracked section and paths. |

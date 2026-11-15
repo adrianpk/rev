@@ -213,6 +213,7 @@ fn palette(base: &mut Palette, partial: &PartialPalette) {
     gutter_palette(&mut base.gutter, &partial.gutter);
     git_palette(&mut base.git, &partial.git);
     tree_palette(&mut base.tree_entries, &partial.tree_entries);
+    pair_palette(base, &partial.pairs);
 }
 
 fn git_palette(base: &mut super::GitPalette, partial: &super::PartialGitPalette) {
@@ -521,4 +522,18 @@ fn markdown_palette(base: &mut super::MarkdownPalette, partial: &super::PartialM
     color(&mut base.quote, &partial.quote);
     color(&mut base.list, &partial.list);
     color(&mut base.table, &partial.table);
+}
+
+fn pair_palette(base: &mut Palette, partial: &super::PartialPairPalette) {
+    base.pairs =
+        super::PairPalette::fallback(base.selection, base.foreground, base.warning, &base.syntax);
+    color(&mut base.pairs.match_background, &partial.match_background);
+    color(&mut base.pairs.match_text, &partial.match_text);
+    color(&mut base.pairs.mismatch, &partial.mismatch);
+    if let Some(colors) = &partial.depth_colors {
+        base.pairs.depth_colors = colors
+            .iter()
+            .map(|value| Rgb::parse(value).expect("validated pair color"))
+            .collect();
+    }
 }

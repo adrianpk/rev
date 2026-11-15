@@ -237,6 +237,13 @@ fn check_default(sample: &toml::Value, key: &str, row: &[String; 3]) -> Result<(
             format!("{key}: default must remain unset in the sample"),
         );
     }
+    if key.starts_with("palette.pairs.") {
+        return check_pair_default(sample, key, row);
+    }
+    check_sample_default(sample, key, row)
+}
+
+fn check_sample_default(sample: &toml::Value, key: &str, row: &[String; 3]) -> Result<()> {
     let actual = value_at(sample, key)?;
     if key.starts_with("keys.") {
         let count = actual.as_table().ok_or("keymap must be a table")?.len();
@@ -253,6 +260,28 @@ fn check_default(sample: &toml::Value, key: &str, row: &[String; 3]) -> Result<(
     require(
         declared.get("value") == Some(actual),
         format!("{key}: default drift"),
+    )
+}
+
+// Pair roles must remain absent in the sample to inherit the resolved palette.
+// Pin each documented fallback independently of runtime-derived colors.
+fn check_pair_default(sample: &toml::Value, key: &str, row: &[String; 3]) -> Result<()> {
+    let expected = match key {
+        "palette.pairs.match_background" => "Resolved `palette.selection`",
+        "palette.pairs.match_text" => "Resolved `palette.foreground`",
+        "palette.pairs.mismatch" => "Resolved `palette.warning`",
+        "palette.pairs.depth_colors" => {
+            "Resolved syntax function, number, keyword, type, string, punctuation"
+        }
+        _ => return Err(format!("unknown pair palette role: {key}").into()),
+    };
+    require(
+        row[1] == expected
+            && key
+                .split('.')
+                .try_fold(sample, |value, part| value.get(part))
+                .is_none(),
+        format!("{key}: resolved fallback required without a fixed sample override"),
     )
 }
 
@@ -430,8 +459,8 @@ mod tests {
         }
     }
 
-    // Pair groups must expose every actual Boolean, including inherited language
-    // leaves. Missing documentation and false compiled defaults must still fail.
+    // Pair groups must expose every admitted leaf, including inherited language
+    // leaves and palette roles. Missing documentation and false compiled defaults must still fail.
     #[test]
     fn pair_drift() {
         let root = Path::new(env!("CARGO_MANIFEST_DIR"));
@@ -440,6 +469,14 @@ mod tests {
         for key in [
             "pairs.enabled",
             "pairs.quotes",
+            "pairs.highlight",
+            "pairs.pulse_ms",
+            "palette.pairs.match_background",
+            "palette.pairs.match_text",
+            "palette.pairs.mismatch",
+            "palette.pairs.depth_colors",
+            "language.<id>.pairs.highlight",
+            "language.<id>.pairs.pulse_ms",
             "language.<id>.pairs.enabled",
             "language.<id>.pairs.quotes",
         ] {
@@ -487,5 +524,31 @@ mod tests {
             )
             .is_err()
         );
+    }
+}
+
+#[cfg(test)]
+mod pair_defaults {
+    use super::*;
+
+    // Dynamic defaults must not become hard-coded colors or silently follow a
+    // different role. A sample override would also mask later palette merging.
+    #[test]
+    fn fallback_drift() {
+        let sample: toml::Value = toml::from_str("").unwrap();
+        let key = "palette.pairs.match_text";
+        let row = [
+            "RGB".into(),
+            "Resolved `palette.foreground`".into(),
+            "Endpoint".into(),
+        ];
+        check_pair_default(&sample, key, &row).unwrap();
+        for wrong in ["Resolved `palette.selection`", "`\"#c0caf5\"`"] {
+            let mut changed = row.clone();
+            changed[1] = wrong.into();
+            assert!(check_pair_default(&sample, key, &changed).is_err());
+        }
+        let sample = toml::from_str("palette.pairs.match_text='#c0caf5'").unwrap();
+        assert!(check_pair_default(&sample, key, &row).is_err());
     }
 }

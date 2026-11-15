@@ -38,7 +38,7 @@ pub(crate) use external::symbol as external_symbol;
 mod completion;
 pub use completion::{Completion, PartialCompletion};
 mod pairs;
-pub use pairs::{Pairs, PartialPairs};
+pub use pairs::{PairHighlight, Pairs, PartialPairs};
 mod edit;
 mod lsp;
 mod lsp_merge;
@@ -68,9 +68,10 @@ mod xdg;
 pub use diagnostic::{Diagnostic, Position};
 pub use load::{Source, Sources, load};
 pub use palette::{
-    GitPalette, GutterPalette, MarkdownPalette, OrgPalette, Palette, PartialGitPalette,
-    PartialGutterPalette, PartialMarkdownPalette, PartialOrgPalette, PartialPalette,
-    PartialSyntaxPalette, PartialTreePalette, Rgb, SyntaxPalette, TreePalette,
+    GitPalette, GutterPalette, MarkdownPalette, OrgPalette, PairPalette, Palette,
+    PartialGitPalette, PartialGutterPalette, PartialMarkdownPalette, PartialOrgPalette,
+    PartialPairPalette, PartialPalette, PartialSyntaxPalette, PartialTreePalette, Rgb,
+    SyntaxPalette, TreePalette,
 };
 pub use parse::parse;
 pub use resolve::{Snapshot, resolve};

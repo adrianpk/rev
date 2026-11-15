@@ -31,7 +31,7 @@ fn text(buffer: &rev::buffer::Buffer) -> String {
 }
 
 // Empty groups cannot freeze defaults into a language partial. The shipped
-// template must explicitly declare exactly the five approved true leaves.
+// template must explicitly declare the five editing leaves and independent visual defaults.
 #[test]
 fn defaults() {
     let f = Fixture::new();
@@ -56,7 +56,7 @@ fn defaults() {
     assert_eq!(values(Snapshot::default().pairs("plain")), [true; 5]);
     let raw: toml::Table = toml::from_str(default_template()).unwrap();
     let table = raw["pairs"].as_table().unwrap();
-    assert_eq!(table.len(), 5);
+    assert_eq!(table.len(), 7);
     for leaf in LEAVES {
         assert_eq!(table[leaf].as_bool(), Some(true), "{leaf}");
     }
@@ -256,21 +256,24 @@ fn reject_types(key: &str) {
     }
 }
 
-// Future visual controls, malformed groups and invalid related language values
+// Malformed visual controls, groups and related language values
 // must reject the candidate even if the root would mask an included bad leaf.
 #[test]
 fn candidate_rejection() {
     let f = Fixture::new();
     for (name, source) in [
-        ("global future style", "pairs.highlight='depth'"),
-        ("global future pulse", "pairs.pulse_ms=250"),
+        ("global invalid style", "pairs.highlight='rainbow'"),
+        ("global invalid pulse", "pairs.pulse_ms=49"),
         (
-            "language future style",
-            "language.rust.pairs.highlight='off'",
+            "language invalid style",
+            "language.rust.pairs.highlight='disabled'",
         ),
-        ("language future pulse", "language.rust.pairs.pulse_ms=50"),
+        (
+            "language invalid pulse",
+            "language.rust.pairs.pulse_ms=1001",
+        ),
         ("unknown leaf", "pairs.unknown=true"),
-        ("future palette", "palette.pairs.match_text='#123456'"),
+        ("invalid palette", "palette.pairs.match_text='#12345'"),
         ("global group", "pairs=false"),
         ("global sequence", "pairs=[]"),
         ("language group", "language.rust.pairs=[]"),

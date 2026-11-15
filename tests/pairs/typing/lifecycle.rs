@@ -61,10 +61,12 @@ fn inventory() {
         "down-pair",
         "forward-sexp",
         "backward-sexp",
+        "pair-highlight-mode",
+        "pair-highlight-style",
     ]);
     assert!(baseline.is_disjoint(&added));
     assert_eq!(baseline, live.difference(&added).copied().collect());
-    assert_eq!(live.len(), 717);
+    assert_eq!(live.len(), 719);
     assert!(added.is_subset(&live));
     assert_eq!(
         Command::named("auto-pair-mode"),

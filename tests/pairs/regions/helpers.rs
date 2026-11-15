@@ -128,10 +128,12 @@ fn inventory() {
         "down-pair",
         "forward-sexp",
         "backward-sexp",
+        "pair-highlight-mode",
+        "pair-highlight-style",
     ]);
     let live: BTreeSet<_> = Command::ALL.iter().map(Command::name).collect();
     assert_eq!(baseline.len(), 707);
-    assert_eq!(live.len(), 717);
+    assert_eq!(live.len(), 719);
     assert!(baseline.is_disjoint(&added));
     assert_eq!(baseline, live.difference(&added).copied().collect());
     for (name, description) in [

@@ -67,7 +67,7 @@ pub(super) fn run() -> Result<()> {
     add_navigation_maps(&mut expected)?;
     compare_maps(&expected)?;
     println!(
-        "PASS accepted manifest: 707 original commands plus three editing commands and seven navigation commands, six actions, 28 complete maps, 29 records / 49 base edits, inherited and retired leaves, both profiles; untouched defaults preserved"
+        "PASS accepted manifest: 707 original commands plus three editing, seven navigation and two presentation commands, six actions, 28 complete maps, 29 records / 49 base edits, inherited and retired leaves, both profiles; untouched defaults preserved"
     );
     Ok(())
 }
@@ -134,11 +134,13 @@ fn inventory(catalog: &Catalog) {
         "down-pair",
         "forward-sexp",
         "backward-sexp",
+        "pair-highlight-mode",
+        "pair-highlight-style",
     ]);
     let live: BTreeSet<_> = Command::ALL.iter().map(Command::name).collect();
     assert!(names.is_disjoint(&added));
     assert!(added.is_subset(&live));
-    assert_eq!(live.len(), 717);
+    assert_eq!(live.len(), 719);
     assert_eq!(names, live.difference(&added).copied().collect());
     let actions: BTreeSet<_> = catalog.actions.iter().map(String::as_str).collect();
     assert_eq!(actions.len(), 6);

@@ -47,6 +47,7 @@ pub struct Palette {
     /// Number-field roles from the same immutable startup palette.
     pub gutter: GutterPalette,
     pub git: GitPalette,
+    pub pairs: PairPalette,
 }
 
 impl Default for Palette {
@@ -76,6 +77,12 @@ impl Default for Palette {
             markdown: MarkdownPalette::default(),
             gutter: GutterPalette::default(),
             git: GitPalette::default(),
+            pairs: PairPalette::fallback(
+                Rgb(0x28, 0x34, 0x57),
+                Rgb(0xc0, 0xca, 0xf5),
+                Rgb(0xe0, 0xaf, 0x68),
+                &SyntaxPalette::default(),
+            ),
         }
     }
 }
@@ -175,6 +182,8 @@ pub struct PartialPalette {
     pub markdown: PartialMarkdownPalette,
     pub gutter: PartialGutterPalette,
     pub git: PartialGitPalette,
+    #[serde(deserialize_with = "pair_table")]
+    pub pairs: PartialPairPalette,
 }
 
 /// The seven existing syntax groups; capture mapping remains syntax-owned.
@@ -465,4 +474,66 @@ pub struct PartialMarkdownPalette {
     pub quote: Option<String>,
     pub list: Option<String>,
     pub table: Option<String>,
+}
+
+/// Resolved delimiter roles, derived only after the ordinary palette is merged.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct PairPalette {
+    pub match_background: Rgb,
+    pub match_text: Rgb,
+    pub mismatch: Rgb,
+    pub depth_colors: Vec<Rgb>,
+}
+
+impl PairPalette {
+    pub(super) fn fallback(
+        selection: Rgb,
+        foreground: Rgb,
+        warning: Rgb,
+        syntax: &SyntaxPalette,
+    ) -> Self {
+        Self {
+            match_background: selection,
+            match_text: foreground,
+            mismatch: warning,
+            depth_colors: vec![
+                syntax.function,
+                syntax.number,
+                syntax.keyword,
+                syntax.r#type,
+                syntax.string,
+                syntax.punctuation,
+            ],
+        }
+    }
+}
+
+/// Absence survives includes so later editor colors remain the fallback source.
+#[derive(Clone, Debug, Default, PartialEq, Eq, Deserialize)]
+#[serde(default, deny_unknown_fields)]
+pub struct PartialPairPalette {
+    pub match_background: Option<String>,
+    pub match_text: Option<String>,
+    pub mismatch: Option<String>,
+    pub depth_colors: Option<Vec<String>>,
+}
+
+fn pair_table<'de, D: serde::Deserializer<'de>>(
+    deserializer: D,
+) -> Result<PartialPairPalette, D::Error> {
+    deserializer.deserialize_map(PairTable)
+}
+
+struct PairTable;
+
+impl<'de> serde::de::Visitor<'de> for PairTable {
+    type Value = PartialPairPalette;
+
+    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        formatter.write_str("a table of pair palette roles")
+    }
+
+    fn visit_map<A: serde::de::MapAccess<'de>>(self, map: A) -> Result<Self::Value, A::Error> {
+        PartialPairPalette::deserialize(serde::de::value::MapAccessDeserializer::new(map))
+    }
 }

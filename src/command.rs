@@ -115,6 +115,8 @@ pub enum Command {
     MouseMode,
     VisualLineMode,
     AutoPairMode,
+    PairHighlightMode,
+    PairHighlightStyle,
     PairWrap,
     PairUnwrap,
     MatchingDelimiter,
@@ -168,7 +170,7 @@ pub enum Command {
 }
 
 impl Command {
-    pub const ALL: [Self; 717] = [
+    pub const ALL: [Self; 719] = [
         Self::Plugin(PluginCommand::List),
         Self::Plugin(PluginCommand::Activate),
         Self::Plugin(PluginCommand::Deactivate),
@@ -561,6 +563,8 @@ impl Command {
         Self::MouseMode,
         Self::VisualLineMode,
         Self::AutoPairMode,
+        Self::PairHighlightMode,
+        Self::PairHighlightStyle,
         Self::PairWrap,
         Self::PairUnwrap,
         Self::MatchingDelimiter,
@@ -1328,6 +1332,8 @@ impl Command {
     fn pair_name(self) -> &'static str {
         match self {
             Self::AutoPairMode => "auto-pair-mode",
+            Self::PairHighlightMode => "pair-highlight-mode",
+            Self::PairHighlightStyle => "pair-highlight-style",
             Self::PairWrap => "pair-wrap",
             Self::PairUnwrap => "pair-unwrap",
             _ => self.navigation_name(),
@@ -1349,6 +1355,12 @@ impl Command {
 
     fn pair_description(self) -> &'static str {
         match self {
+            Self::PairHighlightMode => {
+                "Toggle this view between off and its last active delimiter style without writing settings."
+            }
+            Self::PairHighlightStyle => {
+                "Choose depth, match, pulse or off delimiter presentation for this view."
+            }
             Self::AutoPairMode => {
                 "Toggle automatic delimiter editing for this buffer and its views without writing settings."
             }

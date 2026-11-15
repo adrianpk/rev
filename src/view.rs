@@ -6,6 +6,8 @@ mod markdown;
 pub use fold::FoldError;
 pub(crate) use indentation::Projection;
 mod navigation;
+mod pairs;
+pub use pairs::PairPresentation;
 mod scroll;
 mod visibility;
 pub(crate) use visibility::Presentation as OrgPresentation;
@@ -121,6 +123,7 @@ pub struct View {
     pub(crate) jumps: crate::jump::History,
     /// Session-only presentation values, copied by splits and never text data.
     pub gutter: crate::gutter::Policy,
+    pub pairs: PairPresentation,
     /// Independent view presentation, inherited by splits and retained on rebind.
     pub bookmark_markers: bool,
     pub preview: crate::org::preview::State,
@@ -171,6 +174,7 @@ impl View {
             },
             jumps: crate::jump::History::default(),
             gutter: crate::gutter::Policy::default(),
+            pairs: PairPresentation::default(),
             bookmark_markers: bookmarks.markers,
             preview: crate::org::preview::State::default(),
             headings: std::sync::Arc::new(crate::config::Headings::default()),
@@ -211,6 +215,7 @@ impl View {
     /// retaining only this view's independent presentation policy and provenance.
     pub fn rebind(&mut self, buffer: &Buffer) {
         let gutter = self.gutter;
+        let pairs = self.pairs;
         let markers = self.bookmark_markers;
         let enabled = self.preview.enabled;
         let headings = std::sync::Arc::clone(&self.headings);
@@ -221,6 +226,7 @@ impl View {
         *self = Self::new(buffer);
         self.jumps = jumps;
         self.gutter = gutter;
+        self.pairs = pairs;
         self.bookmark_markers = markers;
         self.preview.enabled = enabled;
         self.headings = headings;
@@ -232,6 +238,7 @@ impl View {
 
     pub(crate) fn clone_for_split(&self) -> Self {
         let mut view = self.clone();
+        view.pairs = PairPresentation::default();
         view.wrap_cache = wrap::Cache::headings(view.compact_headings());
         view
     }

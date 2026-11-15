@@ -553,6 +553,7 @@ impl Merge {
         self.syntax_palette(&mut base.syntax, &later.syntax);
         self.gutter_palette(&mut base.gutter, &later.gutter);
         self.git_palette(&mut base.git, &later.git);
+        self.pair_palette(&mut base.pairs, &later.pairs);
         self.tree_palette(&mut base.tree_entries, &later.tree_entries);
     }
 
@@ -1331,6 +1332,31 @@ impl Merge {
             &["palette", "markdown", "table"],
             &mut base.table,
             &later.table,
+        );
+    }
+}
+
+impl Merge {
+    fn pair_palette(
+        &mut self,
+        base: &mut super::PartialPairPalette,
+        later: &super::PartialPairPalette,
+    ) {
+        for (leaf, base, later) in [
+            (
+                "match_background",
+                &mut base.match_background,
+                &later.match_background,
+            ),
+            ("match_text", &mut base.match_text, &later.match_text),
+            ("mismatch", &mut base.mismatch, &later.mismatch),
+        ] {
+            self.leaf(&["palette", "pairs", leaf], base, later);
+        }
+        self.leaf(
+            &["palette", "pairs", "depth_colors"],
+            &mut base.depth_colors,
+            &later.depth_colors,
         );
     }
 }

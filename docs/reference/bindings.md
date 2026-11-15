@@ -210,6 +210,8 @@ Every command below is also available as `M-x` followed by its exact name.
 | `M-x mouse-mode` | `mouse-mode` | Toggle native pointer support for this session without writing settings. |
 | `M-x visual-line-mode` | `visual-line-mode` | Toggle word-aware wrapping for this buffer and all its views without changing source or settings. |
 | `M-x auto-pair-mode` | `auto-pair-mode` | Toggle automatic delimiter editing for this buffer and its views without writing settings. |
+| `M-x pair-highlight-mode` | `pair-highlight-mode` | Toggle this view between off and its last active style without saving settings. |
+| `M-x pair-highlight-style` | `pair-highlight-style` | Choose depth, match, pulse or off for this view through a cancellable bounded prompt. |
 | `M-x pair-wrap` | `pair-wrap` | Choose an admitted delimiter and wrap the active linear region in one undo step. |
 | `M-x pair-unwrap` | `pair-unwrap` | Remove the innermost confirmed enclosing pair while preserving its contents. |
 | `M-x matching-delimiter` | `matching-delimiter` | Jump to the confirmed typed mate at or immediately before point without editing source. |

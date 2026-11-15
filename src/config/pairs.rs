@@ -14,7 +14,7 @@ impl<'de> serde::de::Visitor<'de> for Table {
     type Value = PartialPairs;
 
     fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        formatter.write_str("a table of automatic pair preferences")
+        formatter.write_str("a table of delimiter pair preferences")
     }
 
     fn visit_map<A: serde::de::MapAccess<'de>>(self, map: A) -> Result<Self::Value, A::Error> {
@@ -22,8 +22,8 @@ impl<'de> serde::de::Visitor<'de> for Table {
     }
 }
 
-/// Automatic editing policy. Language overrides inherit each omitted global leaf.
-/// These preferences do not control syntax, navigation or pair presentation.
+/// Independent editing and initial view preferences. Language overrides inherit
+/// each omitted global leaf; visual preferences never gate automatic editing.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub struct Pairs {
     pub enabled: bool,
@@ -31,6 +31,8 @@ pub struct Pairs {
     pub delete_empty: bool,
     pub skip_closing: bool,
     pub quotes: bool,
+    pub highlight: PairHighlight,
+    pub pulse_ms: usize,
 }
 
 impl Default for Pairs {
@@ -41,6 +43,8 @@ impl Default for Pairs {
             delete_empty: true,
             skip_closing: true,
             quotes: true,
+            highlight: PairHighlight::Depth,
+            pulse_ms: 250,
         }
     }
 }
@@ -54,6 +58,8 @@ pub struct PartialPairs {
     pub delete_empty: Option<bool>,
     pub skip_closing: Option<bool>,
     pub quotes: Option<bool>,
+    pub highlight: Option<PairHighlight>,
+    pub pulse_ms: Option<i64>,
 }
 
 impl Pairs {
@@ -72,6 +78,12 @@ impl Pairs {
         }
         if let Some(value) = partial.quotes {
             self.quotes = value;
+        }
+        if let Some(value) = partial.highlight {
+            self.highlight = value;
+        }
+        if let Some(value) = partial.pulse_ms {
+            self.pulse_ms = usize::try_from(value).expect("validated pair pulse duration");
         }
         self
     }
@@ -94,5 +106,50 @@ impl super::merge::Merge {
             key.push(leaf);
             self.leaf(&key, base, later);
         }
+        let mut key = prefix.to_vec();
+        key.push("highlight");
+        self.leaf(&key, &mut base.highlight, &later.highlight);
+        *key.last_mut().expect("pair leaf") = "pulse_ms";
+        self.leaf(&key, &mut base.pulse_ms, &later.pulse_ms);
+    }
+}
+
+/// Initial view style, independent of buffer editing and source qualification.
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Deserialize)]
+#[serde(try_from = "String")]
+pub enum PairHighlight {
+    #[default]
+    Depth,
+    Match,
+    Pulse,
+    Off,
+}
+
+impl PairHighlight {
+    pub fn name(self) -> &'static str {
+        match self {
+            Self::Depth => "depth",
+            Self::Match => "match",
+            Self::Pulse => "pulse",
+            Self::Off => "off",
+        }
+    }
+
+    pub fn parse(value: &str) -> Option<Self> {
+        match value {
+            "depth" => Some(Self::Depth),
+            "match" => Some(Self::Match),
+            "pulse" => Some(Self::Pulse),
+            "off" => Some(Self::Off),
+            _ => None,
+        }
+    }
+}
+
+impl TryFrom<String> for PairHighlight {
+    type Error = &'static str;
+
+    fn try_from(value: String) -> Result<Self, Self::Error> {
+        Self::parse(&value).ok_or("expected depth, match, pulse or off")
     }
 }

@@ -56,6 +56,7 @@ fn checked_document(
 }
 
 fn presentation(document: &Document) -> Result<(), Failure> {
+    integer("pairs.pulse_ms", document.pairs.pulse_ms, 50..=1000)?;
     gutter(document)?;
     layout(document)?;
     palette(&document.palette)
@@ -214,6 +215,7 @@ fn palette(palette: &PartialPalette) -> Result<(), Failure> {
     markdown_palette(&palette.markdown)?;
     gutter_palette(&palette.gutter)?;
     git_palette(&palette.git)?;
+    pair_palette(&palette.pairs)?;
     tree_palette(&palette.tree_entries)?;
     syntax_palette(&palette.syntax)
 }
@@ -272,6 +274,11 @@ fn languages(document: &Document) -> Result<(), Failure> {
             ));
         }
         super::external::validate(id, language.external.as_ref())?;
+        integer(
+            &format!("language.{id}.pairs.pulse_ms"),
+            language.pairs.pulse_ms,
+            50..=1000,
+        )?;
         integer(
             &format!("language.{id}.indent_width"),
             language.indent_width,
@@ -810,6 +817,28 @@ fn markdown_palette(palette: &super::PartialMarkdownPalette) -> Result<(), Failu
         ("table", &palette.table),
     ] {
         color(&format!("palette.markdown.{key}"), value.as_deref())?;
+    }
+    Ok(())
+}
+
+fn pair_palette(palette: &super::PartialPairPalette) -> Result<(), Failure> {
+    for (key, value) in [
+        ("match_background", &palette.match_background),
+        ("match_text", &palette.match_text),
+        ("mismatch", &palette.mismatch),
+    ] {
+        color(&format!("palette.pairs.{key}"), value.as_deref())?;
+    }
+    if let Some(colors) = &palette.depth_colors {
+        if !(1..=8).contains(&colors.len()) {
+            return Err(Failure::new(
+                "palette.pairs.depth_colors",
+                "expected 1..8 opaque RGB colors".into(),
+            ));
+        }
+        for value in colors {
+            color("palette.pairs.depth_colors", Some(value))?;
+        }
     }
     Ok(())
 }

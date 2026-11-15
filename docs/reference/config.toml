@@ -80,7 +80,6 @@ tab_width = 4
 
 [pairs]
 # Boolean defaults for automatic delimiter editing, overridable per language.
-# This configuration layer does not yet insert, delete, wrap or skip source text.
 enabled = true
 wrap_selection = true
 delete_empty = true
@@ -91,7 +90,11 @@ quotes = true
 # availability or syntax colors. Example: disable only quotes for Rust.
 # [language.rust.pairs]
 # quotes = false
-# Unknown leaves (including highlight and pulse_ms) reject the whole candidate.
+# Initial view style: depth, match, pulse or off. Runtime choices are view-local.
+highlight = "depth"
+# Integer 50..=1000 milliseconds; independent of automatic editing.
+pulse_ms = 250
+# Unknown leaves reject the whole configuration candidate.
 
 [scroll]
 # Integer 0..=1000 overlapping rows per page; usable panes still advance one row.
@@ -509,6 +512,13 @@ document = "#e0af68"
 configuration = "#bb9af7"
 file = "#c0caf5"
 symlink = "#7dcfff"
+
+# Optional pair roles inherit the final merged palette when omitted.
+# [palette.pairs]
+# match_background = "#283457" # palette.selection
+# match_text = "#c0caf5"       # palette.foreground
+# mismatch = "#e0af68"         # palette.warning
+# depth_colors = ["#7aa2f7"]   # 1..8 opaque RGB colors; otherwise syntax cycle
 
 [palette.syntax]
 keyword = "#9d7cd8"

@@ -102,6 +102,8 @@ work leaves source and history unchanged. Uncertain ordinary typing stays litera
 | Name | Description |
 | --- | --- |
 | `auto-pair-mode` | Toggle automatic delimiter editing for this buffer and its views without writing settings. |
+| `pair-highlight-mode` | Toggle this view between off and its last active delimiter style without writing settings. |
+| `pair-highlight-style` | Choose depth, match, pulse or off delimiter presentation for this view. |
 | `pair-wrap` | Choose an admitted delimiter and wrap the active linear region in one undo step. |
 | `pair-unwrap` | Remove the innermost confirmed enclosing pair while preserving its contents. |
 | `matching-delimiter` | Jump to the confirmed typed mate at or immediately before point without editing source. |
@@ -117,3 +119,8 @@ source facts, works on read-only source and ignores automatic-editing preference
 It preserves an active linear mark, rejects numeric prefixes and refuses
 unconfirmed endpoints without movement. See [Commands](commands.md#implemented-catalog)
 for its entry policy and the distinct modal % behavior.
+
+The unbound pair-highlight-mode and pair-highlight-style commands configure one
+view's presentation independently of automatic editing. See
+[Language rules](defaults.md#language-rules) for their startup defaults, prompt
+admission and current rendering boundary.
