@@ -123,6 +123,9 @@ impl Session {
 
     fn execute_argument_entry(&mut self, invocation: Invocation) -> Option<Action> {
         if self.source_layout_focus() {
+            if invocation.command == Command::PairWrap {
+                return Some(self.start_pair_wrap_prompt(invocation.argument));
+            }
             if matches!(invocation.command, Command::Newline | Command::InsertTab) {
                 return Some(self.execute_argument_insertion(invocation));
             }

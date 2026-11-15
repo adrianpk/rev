@@ -179,6 +179,7 @@ pub struct Transaction {
     bytes: usize,
     cursor: Option<usize>,
     origin: Option<crate::window::ViewId>,
+    selection: Option<(super::region::Mode, super::region::Mode)>,
     permutation: Option<Permutation>,
     automatic: Option<std::sync::Arc<AutomaticGroup>>,
 }
@@ -348,6 +349,7 @@ impl Buffer {
             bytes: 0,
             cursor: None,
             origin: None,
+            selection: None,
             permutation,
             automatic: self.automatic.clone(),
         };
@@ -571,6 +573,11 @@ fn insert(text: &mut Rope, mut position: usize, fragment: &Rope) -> Result<(), E
 }
 
 impl Prepared {
+    /// Retain the original linear selection for undo of one structural edit.
+    pub(crate) fn retain_selection(&mut self) {
+        self.record.selection = Some((self.active, super::region::Mode::Inactive));
+    }
+
     /// Admit a resulting mark on the private candidate, preserving the original
     /// mark for native undo and applying normal grapheme endpoint adjustment.
     pub(crate) fn set_mark(&mut self, mark: Scalar) -> Result<(), Error> {

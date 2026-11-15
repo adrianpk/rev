@@ -115,6 +115,8 @@ pub enum Command {
     MouseMode,
     VisualLineMode,
     AutoPairMode,
+    PairWrap,
+    PairUnwrap,
     Mode(Mode),
     Org(OrgCommand),
     Markdown(MarkdownCommand),
@@ -159,7 +161,7 @@ pub enum Command {
 }
 
 impl Command {
-    pub const ALL: [Self; 708] = [
+    pub const ALL: [Self; 710] = [
         Self::Plugin(PluginCommand::List),
         Self::Plugin(PluginCommand::Activate),
         Self::Plugin(PluginCommand::Deactivate),
@@ -552,6 +554,8 @@ impl Command {
         Self::MouseMode,
         Self::VisualLineMode,
         Self::AutoPairMode,
+        Self::PairWrap,
+        Self::PairUnwrap,
         Self::Org(OrgCommand::PrettyHeadings),
         Self::Org(OrgCommand::ResetHeadingPresentation),
         Self::Org(OrgCommand::IndentMode),
@@ -1283,7 +1287,6 @@ impl Command {
 
     fn edit_name(self) -> &'static str {
         match self {
-            Self::AutoPairMode => "auto-pair-mode",
             Self::Mode(mode) => mode.name(),
             Self::Markdown(command) => command.name(),
             Self::Org(command) => command.name(),
@@ -1291,15 +1294,12 @@ impl Command {
             Self::InsertTab => "insert-tab",
             Self::BackwardDeleteChar => "backward-delete-char",
             Self::DeleteChar => "delete-char",
-            _ => unreachable!("non-edit commands delegate their names before edit lookup"),
+            _ => self.pair_name(),
         }
     }
 
     fn edit_description(self) -> &'static str {
         match self {
-            Self::AutoPairMode => {
-                "Toggle automatic delimiter editing for this buffer and its views without writing settings."
-            }
             Self::Mode(mode) => mode.description(),
             Self::Markdown(command) => command.description(),
             Self::Org(command) => command.description(),
@@ -1307,7 +1307,31 @@ impl Command {
             Self::InsertTab => "Insert indentation using the active tabs and spaces settings.",
             Self::BackwardDeleteChar => "Delete the preceding grapheme.",
             Self::DeleteChar => "Delete the following grapheme.",
-            _ => unreachable!("non-edit commands delegate their names before edit lookup"),
+            _ => self.pair_description(),
+        }
+    }
+
+    fn pair_name(self) -> &'static str {
+        match self {
+            Self::AutoPairMode => "auto-pair-mode",
+            Self::PairWrap => "pair-wrap",
+            Self::PairUnwrap => "pair-unwrap",
+            _ => unreachable!("non-edit commands delegate before pair lookup"),
+        }
+    }
+
+    fn pair_description(self) -> &'static str {
+        match self {
+            Self::AutoPairMode => {
+                "Toggle automatic delimiter editing for this buffer and its views without writing settings."
+            }
+            Self::PairWrap => {
+                "Choose an admitted delimiter and wrap the active linear region in one undo step."
+            }
+            Self::PairUnwrap => {
+                "Remove the innermost confirmed enclosing pair while preserving its contents."
+            }
+            _ => unreachable!("non-edit commands delegate before pair lookup"),
         }
     }
 

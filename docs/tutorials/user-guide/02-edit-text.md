@@ -73,6 +73,15 @@ the current buffer and all its panes. Quotes follow the language and local conte
 paste remains literal. See [Automatic Delimiter Editing](../../reference/delimiter-editing.md)
 for settings and conservative boundaries.
 
+Select a short word with `C-SPC` and the arrow keys, then type `(`. Rev wraps
+the word and leaves the cursor just after the opener. Typing `)` around a selection
+instead leaves the cursor after the closer. One undo restores the selected word
+and its original selection. Try `M-x pair-wrap`, enter `[` and press Enter to
+choose a pair explicitly. With the cursor inside the result, `M-x pair-unwrap`
+removes the innermost confirmed pair and preserves its contents. These helpers
+also work with automatic editing disabled; unsafe quote changes refuse before
+changing the text.
+
 Save with `C-x C-s`. You can also select text by dragging with the primary
 mouse button, or paste text through your terminal. For more tasks, see
 [Use command prefix arguments](../../how-to/use-prefix-arguments.md); the

@@ -80,6 +80,8 @@ pub enum Provenance {
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum Query {
     Typing(Typed),
+    Wrap(Wrapping),
+    Unwrap(Scalar),
     Context(Scalar),
     At(Scalar),
     Enclosing(Scalar),
@@ -89,9 +91,23 @@ impl Query {
     pub fn point(self) -> Scalar {
         match self {
             Self::Typing(input) => input.point,
-            Self::Context(point) | Self::At(point) | Self::Enclosing(point) => point,
+            Self::Wrap(input) => input.start,
+            Self::Context(point)
+            | Self::At(point)
+            | Self::Enclosing(point)
+            | Self::Unwrap(point) => point,
         }
     }
+}
+
+/// One complete linear region and its admitted delimiter/count. The original
+/// source is inspected once; generated delimiters share this request's budget.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct Wrapping {
+    pub start: Scalar,
+    pub end: Scalar,
+    pub kind: Kind,
+    pub count: usize,
 }
 
 /// One physical scalar and its already admitted positive count. Replacement
@@ -138,6 +154,7 @@ pub enum Reason {
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub enum Outcome {
+    Wrap(Kind),
     Typing(Typing),
     Context(Context),
     Confirmed(Pair),

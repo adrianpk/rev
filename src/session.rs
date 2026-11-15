@@ -221,6 +221,7 @@ enum AfterSave {
 }
 
 enum Pending {
+    PairWrap(Box<pairs::RegionPrompt>),
     MarkdownTable(markdown::tables::Origin),
     Plugin(crate::command::PluginCommand),
     MacroStepKey,
@@ -1167,7 +1168,7 @@ impl Session {
             Command::Mode(mode) => self.select_mode(mode),
             Command::Markdown(command) => self.markdown_command(command),
             Command::Org(command) => self.org_command(command),
-            _ => self.dispatch(command),
+            _ => self.pair_command(command),
         }
     }
 

@@ -10,5 +10,7 @@ mod fixture;
 mod qualification;
 #[path = "pairs/quotes.rs"]
 mod quotes;
+#[path = "pairs/regions.rs"]
+mod regions;
 #[path = "pairs/typing.rs"]
 mod typing;

@@ -1,5 +1,7 @@
 mod deletion;
 mod plan;
+mod regions;
+pub(super) use regions::{RegionPrompt, Regions};
 
 pub(super) use deletion::Deletion;
 
@@ -57,14 +59,11 @@ impl Session {
         {
             return None;
         }
-        let buffer = self.buffer().ok()?;
-        let policy = buffer.pair_policy();
-        if !policy.enabled
-            || buffer.mark_active()
-            || !policy.quotes && matches!(character, '"' | '\'' | '`')
-        {
-            return None;
+        if let Some(action) = self.start_region_typing(character, argument) {
+            return Some(action);
         }
+        let policy = self.pair_typing_policy(character)?;
+        let buffer = self.buffer().ok()?;
         if buffer.is_readonly() {
             return Some(self.error("Source text is read-only"));
         }
@@ -91,6 +90,18 @@ impl Session {
             self.layout_pair_typing()
                 .unwrap_or_else(|| self.publish_pair_typing()),
         )
+    }
+
+    fn pair_typing_policy(&self, character: char) -> Option<Pairs> {
+        let buffer = self.buffer().ok()?;
+        let policy = buffer.pair_policy();
+        if !policy.enabled
+            || buffer.mark_active()
+            || !policy.quotes && matches!(character, '"' | '\'' | '`')
+        {
+            return None;
+        }
+        Some(policy)
     }
 
     fn pair_entry_focus(&self) -> bool {

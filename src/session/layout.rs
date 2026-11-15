@@ -19,6 +19,7 @@ enum Request {
     Invocation(Invocation),
     PairTyping,
     PairDeletion,
+    PairRegions,
     ArgumentText,
     ArgumentHistory,
     Pointer(crate::pointer::Event, Instant),
@@ -44,6 +45,7 @@ struct Held {
 pub(super) struct Work {
     pub(super) pair: Option<super::pairs::Typing>,
     pub(super) deletion: Option<super::pairs::Deletion>,
+    pub(super) regions: Option<super::pairs::Regions>,
     pub(super) text: Option<super::arguments::Text>,
     pub(super) history: Option<super::arguments::Replay>,
     pub(super) movement: Option<super::arguments::Movement>,
@@ -79,6 +81,7 @@ impl Session {
             self.layout.movement = None;
             self.cancel_pair_typing();
             self.cancel_pair_deletion();
+            self.cancel_pair_regions();
             self.layout.text = None;
             self.layout.history = None;
             self.layout.interrupt = true;
@@ -112,6 +115,7 @@ impl Session {
             self.layout.movement = None;
             self.cancel_pair_typing();
             self.cancel_pair_deletion();
+            self.cancel_pair_regions();
             self.layout.text = None;
             self.layout.history = None;
             self.layout.interrupt = true;
@@ -205,6 +209,10 @@ impl Session {
         self.prepare_request(Request::PairDeletion)
     }
 
+    pub(super) fn layout_pair_regions(&mut self) -> Option<Action> {
+        self.prepare_request(Request::PairRegions)
+    }
+
     pub(super) fn layout_argument_text(&mut self) -> Option<Action> {
         self.prepare_request(Request::ArgumentText)
     }
@@ -238,6 +246,7 @@ impl Session {
                 self.layout.movement = None;
                 self.cancel_pair_typing();
                 self.cancel_pair_deletion();
+                self.cancel_pair_regions();
                 self.layout.text = None;
                 self.layout.history = None;
                 Some(self.error(&error.to_string()))
@@ -281,6 +290,7 @@ impl Session {
         match request {
             Request::PairTyping => self.prepare_pair_typing(),
             Request::PairDeletion => self.prepare_pair_deletion(),
+            Request::PairRegions => self.prepare_pair_regions(),
             Request::ArgumentText => self.prepare_argument_text(),
             Request::ArgumentHistory => unreachable!("history uses progressive native admission"),
             Request::Invocation(invocation) => self.prepare_argument_movement(invocation),
@@ -348,6 +358,7 @@ impl Session {
             self.layout.movement = None;
             self.cancel_pair_typing();
             self.cancel_pair_deletion();
+            self.cancel_pair_regions();
             self.layout.text = None;
             self.layout.history = None;
             self.message("Layout source or geometry changed")
@@ -359,6 +370,7 @@ impl Session {
                 Request::Invocation(invocation) => self.publish_argument_movement(invocation),
                 Request::PairTyping => self.publish_pair_typing(),
                 Request::PairDeletion => self.publish_pair_deletion(),
+                Request::PairRegions => self.publish_pair_regions(),
                 Request::ArgumentText => self.publish_argument_text(),
                 Request::ArgumentHistory => self.publish_argument_history(),
                 Request::Pointer(event, now) => self.pointer_now(event, now),
@@ -368,12 +380,6 @@ impl Session {
     fn held_layout_current(&self, held: &Held) -> bool {
         held.selected == self.windows.selected_id()
             && match held.request {
-                Request::Command(_)
-                | Request::Invocation(_)
-                | Request::PairTyping
-                | Request::PairDeletion
-                | Request::ArgumentText
-                | Request::ArgumentHistory => held.point == self.view().point,
                 Request::Pointer(..) => {
                     held.size == self.size
                         && held.views.len() == self.windows.iter().len()
@@ -381,6 +387,7 @@ impl Session {
                             self.windows.get(*id).is_ok_and(|current| current == view)
                         })
                 }
+                _ => held.point == self.view().point,
             }
     }
 

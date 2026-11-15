@@ -14,6 +14,7 @@ pub(super) struct Publication {
     state: State,
     bom: bool,
     mark: Option<Scalar>,
+    mark_mode: super::super::region::Mode,
     changed: usize,
     points: Vec<Point>,
     bookmarks: Vec<Anchor>,
@@ -56,6 +57,9 @@ impl Publication {
             state: record.after_state,
             bom: record.after_bom,
             mark: record.after_mark,
+            mark_mode: record
+                .selection
+                .map_or(super::super::region::Mode::Inactive, |(_, after)| after),
             changed: record
                 .changes
                 .first()
@@ -106,7 +110,7 @@ impl Buffer {
         self.bom = publication.bom;
         self.next_state = publication.next_state;
         self.mark = publication.mark;
-        self.mark_mode = super::super::region::Mode::Inactive;
+        self.mark_mode = publication.mark_mode;
         points.copy_from_slice(&publication.points);
         self.bookmarks
             .lock()

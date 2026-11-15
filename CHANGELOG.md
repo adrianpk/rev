@@ -11,9 +11,10 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 
 - Type parentheses, brackets, braces and eligible language quotes with automatic
   mates, move past confirmed closers without duplicates, and remove an empty pair
-  with Backspace. Use counts for one undo step or toggle the current buffer with
-  M-x auto-pair-mode. Quotes follow the language and local context; paste remains
-  literal.
+  with Backspace. Wrap selected text by typing either delimiter, or use M-x
+  pair-wrap and pair-unwrap to choose or remove a confirmed pair. Use counts for
+  one undo step or toggle the current buffer with M-x auto-pair-mode. Quotes follow
+  the language and local context; paste remains literal.
 
 - Cycle declared Org effort choices with C-c C-x E, inspect property columns
   with C-c C-x C-c, and add checked Babel header arguments with C-c C-v j or

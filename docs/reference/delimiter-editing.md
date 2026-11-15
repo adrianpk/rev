@@ -38,8 +38,8 @@ Use M-x auto-pair-mode to toggle automatic editing for the current buffer and al
 its panes. The override survives language changes and never saves configuration.
 Startup [pair preferences](defaults.md) resolve globally
 and per language. `enabled`, `quotes`, `skip_closing` and `delete_empty`
-independently control the delivered automatic effects. `wrap_selection` reserves
-the separate selection-wrapping behavior.
+independently control the delivered automatic effects. `wrap_selection` controls
+automatic selection wrapping.
 
 A positive prefix applies the typed operation that many times in one checked
 undo unit. C-u 3 ( in an empty buffer produces ((())) with point after the three
@@ -47,6 +47,29 @@ openers. A zero count is inert; a negative count refuses. Overtyping confirmed
 closers changes point only. Consecutive symmetric quote input closes its generated
 mate before further adjacent quotes remain literal. Paste and accepted source
 replacements insert literal bytes and do not generate mates.
+
+With an active ordinary linear region, typing either side of an admitted pair
+wraps the selected bytes once. Opening input leaves point after the generated
+openers; closing input leaves it after all generated closers. The region is
+deactivated. Both selection orientations and positive structural counts use one
+undo step; undo restores the original point, mark and active orientation. Native
+rectangular/block and modal Visual input keep their existing behavior.
+
+M-x pair-wrap asks for one admitted opening or closing delimiter. Enter the
+character, then press Enter; C-g cancels the prompt and retains the selection.
+There is no default pair. Either choice uses opener placement. A positive prefix
+chooses nested structural pairs. M-x pair-unwrap removes the innermost confirmed
+pair enclosing point, including point on either delimiter. It preserves contents
+and maps point/mark through one native edit. Both commands work when automatic
+editing or its corresponding preference is disabled. They have no factory key.
+
+Quote wrapping never escapes or reformats selected bytes. It refuses embedded
+matching quotes, ordinary escape sequences, invalid single-line content and
+ambiguous repeated quote counts. C/Go single-character quotes require one scalar;
+Go backticks and ordinary TOML single quotes retain their raw-content rules.
+Quote unwrapping refuses escape sequences and nested quote forms whose literal
+interpretation cannot be proved safe. Unconfirmed helpers refuse before mutation;
+uncertain ordinary structural typing retains the existing literal-input owner.
 
 Qualification inspects at most 256 KiB per request, admits depth 256 and retains
 at most 2 MiB of pair metadata per buffer. Counted work shares that budget.
@@ -60,3 +83,5 @@ work leaves source and history unchanged. Uncertain ordinary typing stays litera
 | Name | Description |
 | --- | --- |
 | `auto-pair-mode` | Toggle automatic delimiter editing for this buffer and its views without writing settings. |
+| `pair-wrap` | Choose an admitted delimiter and wrap the active linear region in one undo step. |
+| `pair-unwrap` | Remove the innermost confirmed enclosing pair while preserving its contents. |

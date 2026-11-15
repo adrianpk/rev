@@ -92,6 +92,13 @@ impl Buffer {
             .restore_anchors(record, direction, &coordinates)?;
         prepared.record.bytes = prepared.record.payload();
         prepared.record.after_mark = record.mark(direction);
+        prepared.record.selection = record.selection.map(|(before, after)| {
+            let target = match direction {
+                History::Undo => before,
+                History::Redo => after,
+            };
+            (self.mark_mode, target)
+        });
         if let Some(mark) = prepared.record.after_mark {
             mapping::boundary(&coordinates, mark)?;
         }

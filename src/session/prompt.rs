@@ -101,6 +101,9 @@ impl Session {
     }
 
     fn cancel_resource_prompt(&mut self) -> Option<Action> {
+        if let Some(action) = self.cancel_pair_prompt() {
+            return Some(action);
+        }
         if self.cancel_context_operation() {
             return Some(self.message("Canceling Project preparation; live sources retained"));
         }
@@ -171,6 +174,9 @@ impl Session {
             return self.complete_org_argument();
         }
         match self.pending {
+            Some(Pending::PairWrap(_)) => {
+                self.message("Choose one opening or closing delimiter; C-g cancels")
+            }
             Some(Pending::Path(_)) => self.complete_path(),
             Some(Pending::Buffer { .. }) => self.complete_buffer(),
             _ => self.complete_literal_argument(),

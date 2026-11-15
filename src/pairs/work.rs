@@ -1,4 +1,5 @@
 mod typing;
+mod wrapping;
 
 use std::ops::Range;
 use std::time::Instant;
@@ -19,6 +20,7 @@ struct Opening {
     kind: Kind,
     admitted: bool,
     depth: usize,
+    literal_safe: bool,
 }
 
 struct Checkpoint {
@@ -53,6 +55,7 @@ struct Record {
     closing: usize,
     kind: Kind,
     depth: usize,
+    literal_safe: bool,
 }
 
 impl Record {
@@ -131,6 +134,7 @@ pub(super) struct Work {
     checkpoint_next: usize,
     checkpoint_at: usize,
     typing: Option<typing::Progress>,
+    wrapping: Option<wrapping::Progress>,
 }
 
 impl Work {
@@ -165,6 +169,7 @@ impl Work {
             checkpoint_next: 0,
             checkpoint_at: 0,
             typing: None,
+            wrapping: None,
         }
     }
 
@@ -255,7 +260,7 @@ impl Work {
     }
 
     fn checkpoint(&mut self) {
-        if matches!(self.query, Query::Typing(_)) && self.point_seen {
+        if matches!(self.query, Query::Typing(_) | Query::Wrap(_)) && self.point_seen {
             return;
         }
         if self.reader.at.saturating_sub(self.checkpoint_at) < SLICE_TOKENS {
@@ -338,12 +343,17 @@ impl Work {
         }
         if self.answer.is_none() {
             self.typing_boundary(text)?;
+            self.wrapping_boundary(text)?;
         }
         Ok(())
     }
 
     fn scan_step(&mut self, text: RopeSlice<'_>) -> Result<(), Pause> {
         let at = self.reader.at;
+        if self.wrapping_literal(text)? {
+            return Ok(());
+        }
+        self.observe_quote_literal(text)?;
         if self.typing_replacement(text)? {
             return Ok(());
         }
@@ -398,6 +408,9 @@ impl Work {
         if matches!(self.query, Query::Typing(_)) {
             return self.capture_typing(text);
         }
+        if matches!(self.query, Query::Wrap(_)) {
+            return self.capture_wrapping();
+        }
         self.capture_lookup();
         Ok(())
     }
@@ -413,7 +426,7 @@ impl Work {
             self.finish(Outcome::Uncertain(Reason::LiteralContext));
             return;
         }
-        if matches!(self.query, Query::Enclosing(_)) {
+        if matches!(self.query, Query::Enclosing(_) | Query::Unwrap(_)) {
             self.target = self.stack.last().map(|opening| opening.at);
             if self.stack.last().is_some_and(|opening| !opening.admitted) {
                 self.finish(Outcome::Uncertain(Reason::LiteralContext));
@@ -430,8 +443,12 @@ impl Work {
             self.point_seen = true;
             self.context = Context::Literal;
             self.finish(Outcome::Uncertain(Reason::LiteralContext));
-        } else if before == point && self.target.is_none() && self.typing.is_none() {
-            let reason = if matches!(self.query, Query::Enclosing(_)) {
+        } else if before == point
+            && self.target.is_none()
+            && self.typing.is_none()
+            && self.wrapping.is_none()
+        {
+            let reason = if matches!(self.query, Query::Enclosing(_) | Query::Unwrap(_)) {
                 Reason::NoEnclosingPair
             } else {
                 Reason::NotDelimiter
@@ -463,9 +480,10 @@ impl Work {
             kind,
             admitted,
             depth: self.stack.len(),
+            literal_safe: true,
         });
         self.stats.maximum_depth = self.stats.maximum_depth.max(self.stack.len());
-        if at == self.query.point().0 && !matches!(self.query, Query::Typing(_)) {
+        if at == self.query.point().0 && !matches!(self.query, Query::Typing(_) | Query::Wrap(_)) {
             if admitted {
                 self.target = Some(at);
             } else {
@@ -498,6 +516,7 @@ impl Work {
             closing: at,
             kind,
             depth: opening.depth,
+            literal_safe: opening.literal_safe,
         };
         self.retain(Fact::Pair(pair))?;
         if self.typing_closed(at, (kind, opening.admitted)) {
@@ -505,7 +524,7 @@ impl Work {
         }
         let at_query = matches!(self.query, Query::At(_)) && self.query.point().0 == at;
         if self.target == Some(opening.at) || at_query {
-            self.finish(Outcome::Confirmed(pair.qualified(self.ticket.stamp)));
+            self.finish_pair(pair);
         }
         Ok(())
     }
@@ -572,7 +591,8 @@ impl Work {
         self.target = None;
         self.search = None;
         self.typing = None;
-        if matches!(query, Query::Typing(_)) {
+        self.wrapping = None;
+        if matches!(query, Query::Typing(_) | Query::Wrap(_)) {
             self.rewind_typing();
         }
         if self.point_seen {
@@ -603,6 +623,19 @@ impl Work {
         self.cached_result(search.pair);
     }
 
+    fn cached_target(&self) -> Option<usize> {
+        let point = self.query.point().0;
+        self.stack
+            .iter()
+            .rev()
+            .find(|opening| match self.query {
+                Query::At(_) => opening.at == point,
+                Query::Enclosing(_) | Query::Unwrap(_) => opening.at <= point,
+                Query::Context(_) | Query::Typing(_) | Query::Wrap(_) => false,
+            })
+            .map(|opening| opening.at)
+    }
+
     fn cached_result(&mut self, pair: Option<Record>) {
         if matches!(self.query, Query::Context(_)) {
             self.finish(Outcome::Context(self.context));
@@ -615,24 +648,14 @@ impl Work {
         if let Some(pair) =
             pair.filter(|pair| !matches!(self.context, Context::String(_)) || pair.kind.quote())
         {
-            self.finish(Outcome::Confirmed(pair.qualified(self.ticket.stamp)));
+            self.finish_pair(pair);
             return;
         }
         if matches!(self.context, Context::String(_)) {
             self.finish(Outcome::Uncertain(Reason::LiteralContext));
             return;
         }
-        let point = self.query.point().0;
-        self.target = self
-            .stack
-            .iter()
-            .rev()
-            .find(|opening| match self.query {
-                Query::At(_) => opening.at == point,
-                Query::Enclosing(_) => opening.at <= point,
-                Query::Context(_) | Query::Typing(_) => false,
-            })
-            .map(|opening| opening.at);
+        self.target = self.cached_target();
         if self.target.is_none() {
             self.finish(Outcome::Uncertain(Reason::NoEnclosingPair));
         }
@@ -643,7 +666,7 @@ fn matches_query(pair: &Record, query: Query) -> bool {
     let point = query.point().0;
     match query {
         Query::At(_) => pair.opening == point || pair.closing == point,
-        Query::Enclosing(_) => pair.opening <= point && point <= pair.closing,
-        Query::Context(_) | Query::Typing(_) => false,
+        Query::Enclosing(_) | Query::Unwrap(_) => pair.opening <= point && point <= pair.closing,
+        Query::Context(_) | Query::Typing(_) | Query::Wrap(_) => false,
     }
 }

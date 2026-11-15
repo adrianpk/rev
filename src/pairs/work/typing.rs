@@ -96,6 +96,9 @@ impl Work {
     }
 
     pub(super) fn typing_extra_depth(&self) -> usize {
+        if let Query::Wrap(input) = self.query {
+            return self.wrapping.as_ref().map_or(0, |_| input.count);
+        }
         let Query::Typing(input) = self.query else {
             return 0;
         };

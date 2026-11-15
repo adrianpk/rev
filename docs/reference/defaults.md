@@ -491,9 +491,10 @@ versus kill tab semantics across source/destination policies.
 ### Language rules
 
 The five `pairs` preferences resolve configuration and buffer state. Automatic
-insertion, closer skipping and empty-pair Backspace are active for eligible
-source input; see [Automatic Delimiter Editing](delimiter-editing.md). Selection
-wrapping is not active yet.
+insertion, closer skipping, empty-pair Backspace and ordinary linear-selection
+wrapping are active for eligible source input; see
+[Automatic Delimiter Editing](delimiter-editing.md). Explicit pair-wrap/unwrap
+retain their own eligibility checks when automatic editing is disabled.
 `highlight`, `pulse_ms` and pair palette settings are not accepted. A malformed
 global or language preference rejects the complete configuration candidate.
 Omitted language siblings inherit the final global values even without a grammar

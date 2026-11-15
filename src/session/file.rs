@@ -142,6 +142,7 @@ impl Session {
     fn file_argument(&mut self, pending: Option<Pending>, path: String) -> Action {
         match pending {
             Some(Pending::MacroMenuPrompt(prompt)) => self.macro_menu_argument(&prompt, &path),
+            Some(Pending::PairWrap(prompt)) => self.pair_wrap_argument(*prompt, &path),
             Some(Pending::MacroEditSelect) => self.macro_edit_selected(&path),
             Some(Pending::MacroLibrary(prompt)) => self.macro_library_argument(*prompt, &path),
             Some(Pending::MacroName(draft)) => self.macro_name_argument(*draft, &path),
