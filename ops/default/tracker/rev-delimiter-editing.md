@@ -139,7 +139,7 @@ Branch: `feat/rev-delimiter-editing-05-regions`
 Expected PR title: `feat(editor): wrap selections and unwrap confirmed pairs`
 Report: `ops/default/report/slices/rev-delimiter-editing/slice-5-regions.md`
 State: reviewing; implementation complete
-PR: pending
+PR: [#59](https://forge.adrianpk.com/rev/rev/pulls/59)
 Task commits: T5.1-T5.3/report introduction `b37ef0b1e39b4b1da26969dad97b9d7c8e9d1231`; bounded wrapping, native selection/history publication, explicit helpers and independent regressions were committed together as one complete editing path.
 Validation: formatting, all 17 required region tests, the complete 64-case pair suite, the final 34-case typing/region batch, focused boundary/history checks, documentation with 22 reference tests and the native 28-map factory helper PASS. Full staged-source hooks PASS for 1,948 Rust files and 77 Cargo roots. Personal settings and frozen catalog/manifest preserved. Exact clean-HEAD controller evidence follows PR-reference commits; combined acceptance remains controller-owned.
 
