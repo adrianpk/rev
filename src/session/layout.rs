@@ -18,6 +18,7 @@ enum Request {
     Command(Command),
     Invocation(Invocation),
     PairTyping,
+    PairDeletion,
     ArgumentText,
     ArgumentHistory,
     Pointer(crate::pointer::Event, Instant),
@@ -42,6 +43,7 @@ struct Held {
 #[derive(Default)]
 pub(super) struct Work {
     pub(super) pair: Option<super::pairs::Typing>,
+    pub(super) deletion: Option<super::pairs::Deletion>,
     pub(super) text: Option<super::arguments::Text>,
     pub(super) history: Option<super::arguments::Replay>,
     pub(super) movement: Option<super::arguments::Movement>,
@@ -76,6 +78,7 @@ impl Session {
             self.layout.held = None;
             self.layout.movement = None;
             self.cancel_pair_typing();
+            self.cancel_pair_deletion();
             self.layout.text = None;
             self.layout.history = None;
             self.layout.interrupt = true;
@@ -108,6 +111,7 @@ impl Session {
             self.layout.held = None;
             self.layout.movement = None;
             self.cancel_pair_typing();
+            self.cancel_pair_deletion();
             self.layout.text = None;
             self.layout.history = None;
             self.layout.interrupt = true;
@@ -197,6 +201,10 @@ impl Session {
         self.prepare_request(Request::PairTyping)
     }
 
+    pub(super) fn layout_pair_deletion(&mut self) -> Option<Action> {
+        self.prepare_request(Request::PairDeletion)
+    }
+
     pub(super) fn layout_argument_text(&mut self) -> Option<Action> {
         self.prepare_request(Request::ArgumentText)
     }
@@ -229,6 +237,7 @@ impl Session {
             Err(error) => {
                 self.layout.movement = None;
                 self.cancel_pair_typing();
+                self.cancel_pair_deletion();
                 self.layout.text = None;
                 self.layout.history = None;
                 Some(self.error(&error.to_string()))
@@ -271,6 +280,7 @@ impl Session {
     fn prepared_request(&mut self, request: Request) -> Result<(), Error> {
         match request {
             Request::PairTyping => self.prepare_pair_typing(),
+            Request::PairDeletion => self.prepare_pair_deletion(),
             Request::ArgumentText => self.prepare_argument_text(),
             Request::ArgumentHistory => unreachable!("history uses progressive native admission"),
             Request::Invocation(invocation) => self.prepare_argument_movement(invocation),
@@ -337,6 +347,7 @@ impl Session {
         if !self.held_layout_current(held) {
             self.layout.movement = None;
             self.cancel_pair_typing();
+            self.cancel_pair_deletion();
             self.layout.text = None;
             self.layout.history = None;
             self.message("Layout source or geometry changed")
@@ -347,6 +358,7 @@ impl Session {
                 Request::Command(command) => self.execute_now(command),
                 Request::Invocation(invocation) => self.publish_argument_movement(invocation),
                 Request::PairTyping => self.publish_pair_typing(),
+                Request::PairDeletion => self.publish_pair_deletion(),
                 Request::ArgumentText => self.publish_argument_text(),
                 Request::ArgumentHistory => self.publish_argument_history(),
                 Request::Pointer(event, now) => self.pointer_now(event, now),
@@ -359,6 +371,7 @@ impl Session {
                 Request::Command(_)
                 | Request::Invocation(_)
                 | Request::PairTyping
+                | Request::PairDeletion
                 | Request::ArgumentText
                 | Request::ArgumentHistory => held.point == self.view().point,
                 Request::Pointer(..) => {

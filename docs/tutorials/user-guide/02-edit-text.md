@@ -64,9 +64,11 @@ a counted insertion is one undo step. The argument has already been consumed,
 so the next ordinary character inserts once.
 
 At the end of your note, press Enter and type `(`. Rev adds `)` and leaves the
-cursor between them. Type a short word, then `)` to move past the existing closer.
-Undo the word and pair edits with `C-x u`. Try `C-u 3 (` on an empty line to insert
-three nested pairs in one undo step. `M-x auto-pair-mode` toggles this behavior for
+cursor between them. Press Backspace now to remove both empty delimiters; one
+`C-x u` restores the pair and the cursor between them. Type a short word, then `)`
+to move past the existing closer. Whitespace and other content prevent paired
+Backspace. Undo the word and pair edits with `C-x u`. Try `C-u 3 (` on an empty
+line to insert three nested pairs in one undo step. `M-x auto-pair-mode` toggles this behavior for
 the current buffer and all its panes. Quotes follow the language and local context;
 paste remains literal. See [Automatic Delimiter Editing](../../reference/delimiter-editing.md)
 for settings and conservative boundaries.

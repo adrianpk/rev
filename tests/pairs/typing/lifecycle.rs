@@ -1,6 +1,7 @@
 use super::*;
 use rev::buffer::Mode;
 use rev::command::WindowCommand;
+use rev::session::Session;
 
 // The named unbound command toggles one canonical buffer. Shared panes and
 // language changes keep its override without source or history publication.

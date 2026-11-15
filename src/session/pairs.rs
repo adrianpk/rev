@@ -1,4 +1,7 @@
+mod deletion;
 mod plan;
+
+pub(super) use deletion::Deletion;
 
 use std::time::Instant;
 

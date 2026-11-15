@@ -9,13 +9,13 @@ use rev::pairs::{
 
 use crate::fixture::Fixture;
 
-struct Harness {
+pub(super) struct Harness {
     fixture: Fixture,
-    buffers: Buffers,
+    pub(super) buffers: Buffers,
 }
 
 impl Harness {
-    fn new(language: &str, colors: bool) -> Self {
+    pub(super) fn new(language: &str, colors: bool) -> Self {
         let fixture = Fixture::new();
         let config = format!("syntax.enabled={colors}\nfiles.associations.'*.case'='{language}'");
         let root = fixture.write("config.toml", &config);
@@ -25,14 +25,14 @@ impl Harness {
         Self { fixture, buffers }
     }
 
-    fn source(&mut self, source: &str) -> BufferId {
+    pub(super) fn source(&mut self, source: &str) -> BufferId {
         let name = format!("source-{}.case", self.buffers.iter().len());
         let path = self.fixture.write(&name, source);
         self.buffers.visit(&path).unwrap()
     }
 }
 
-fn finish(buffer: &mut Buffer, query: Query) -> Answer {
+pub(super) fn finish(buffer: &mut Buffer, query: Query) -> Answer {
     let ticket = buffer.start_pair_request(query).unwrap();
     complete(buffer, ticket)
 }

@@ -1191,6 +1191,11 @@ impl Session {
     }
 
     fn edit_command(&mut self, command: Command) -> Action {
+        if command == Command::BackwardDeleteChar
+            && let Some(action) = self.start_pair_deletion()
+        {
+            return action;
+        }
         let result = match command {
             Command::Newline => self.line_break(),
             Command::InsertTab => self.indent(),
