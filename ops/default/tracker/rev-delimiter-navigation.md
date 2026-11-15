@@ -42,9 +42,9 @@ Dependency: approved committed preparation and completed editing delivery.
 Branch: `feat/rev-delimiter-navigation-01-mate`
 Expected PR title: `feat(editor): jump to confirmed matching delimiters`
 Report: `ops/default/report/slices/rev-delimiter-navigation/slice-1-mate.md`
-State: reviewing; implementation and focused checks complete
-PR: pending
-Task commits: T1.1/T1.2 `1c3491110d73603a21b0b9a4a792bcc7d4fe7d3a`; T1.3/report introduction pending commit.
+State: reviewing; PR #62 open
+PR: [#62](https://forge.adrianpk.com/rev/rev/pulls/62)
+Task commits: T1.1/T1.2 `1c3491110d73603a21b0b9a4a792bcc7d4fe7d3a`; T1.3/report introduction `a089ebeac4f55919cff7fae1820c79649e826f16`.
 Validation: formatting, approved mate cases and supplemental lifecycle/history/modal checks PASS. One native point/mark/focus invalidation test, complete independent factory maps/catalog and documentation checks PASS. Final clean-HEAD evidence follows the PR-reference commit; integration and the combined gate remain controller-owned.
 
 - [x] T1.1: Add a bounded typed-mate motion through the existing buffer request and session navigation owners. Prefer a delimiter at point, then immediately before; use confirmed structural/quote endpoints and preserve strict type matching. Do not search later in the line, infer raw-string proof or expose group results as typed mates.

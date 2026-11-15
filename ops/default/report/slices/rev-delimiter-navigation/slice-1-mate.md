@@ -5,7 +5,7 @@ Delivery set: rev-delimiter-navigation
 Plan: [Delimiter Navigation Delivery](../../../plan/rev-delimiter-navigation.md)
 Tracker: [Delimiter Navigation Tracker](../../../tracker/rev-delimiter-navigation.md)
 Branch: `feat/rev-delimiter-navigation-01-mate`
-PR: pending
+PR: `#62`
 
 ## Purpose
 
@@ -73,12 +73,13 @@ the PR-reference commit.
 - PASS: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --lib mate -- --test-threads=1`: one native invalidation test.
 - PASS: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo run --locked --quiet --example factory-shortcuts-acceptance -- --native target`: independent complete maps/catalog and effective-hint routes.
 - PASS: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 bash scripts/check-documentation.sh`: 711 catalog entries, 112 reachable pages, 792 local links/anchors, 10 command and 12 configuration reference tests.
-- The implementation commit's exact staged hook passed formatting, strict
-  all-target/all-feature workspace Clippy and native policy for 1,958 files.
-  The test commit uses the same preserved hook and its exclusive cache.
+- Both implementation and test commits passed their exact staged hooks:
+  formatting, strict all-target/all-feature workspace Clippy and native policy
+  for 1,958 and 1,960 files respectively. The preserved hook uses its exclusive
+  cache; no hook was installed or bypassed.
 - PASS: `git diff --check`.
 
-The native suite reads all 19 approved mate cases without changing their bytes.
+The 11-test native suite reads all 19 approved mate cases without changing their bytes.
 Additional cases protect escapes/raw/literal refusal, adjacent precedence,
 endpoint round trips, prefix forms, active/empty marks, jump traversal, undo
 barriers, custom hints, read-only Insert/Replace, modal percent, cancellation,
