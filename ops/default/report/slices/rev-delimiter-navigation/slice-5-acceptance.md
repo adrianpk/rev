@@ -5,7 +5,7 @@ Delivery set: rev-delimiter-navigation
 Plan: [Delimiter Navigation Delivery](../../../plan/rev-delimiter-navigation.md)
 Tracker: [Delimiter Navigation Tracker](../../../tracker/rev-delimiter-navigation.md)
 Branch: `test/rev-delimiter-navigation-05-acceptance`
-PR: pending
+PR: [#66](https://forge.adrianpk.com/rev/rev/pulls/66)
 
 ## Purpose
 
@@ -124,9 +124,14 @@ passes both cases. The initial diagnostic log is preserved locally.
 
 Acceptance implementation is `2c67bdfdbd9baabedaf0d16ee4a698a6744fbe81`;
 the two inventory updates are `263bde3ffe17c1dabadd2bbf72f353de1213c117`.
+Guidance/report introduction is `7006dae9907357d3417ef13ce24876614c6651e7`.
 Both exact staged hooks passed formatting, strict all-target/all-feature workspace
 Clippy and native source policy across 1,971 files, two packages and 80 Cargo
 roots. No hook, lint profile, acceptance limit or frozen input was changed.
+The report-introduction and PR-reference commits pass the installed docs/data
+whitespace and index-integrity hook. Canonical PR #66 targets dev with the exact
+approved title and immutable report link; its final clean HEAD is validated
+separately before handoff.
 
 Fresh unoptimized requests measured 88 source-size samples across all four
 navigation owners, complete/malformed forms, long atoms/strings and both

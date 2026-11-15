@@ -139,8 +139,8 @@ Branch: `test/rev-delimiter-navigation-05-acceptance`
 Expected PR title: `test(editor): verify delimiter navigation workflows`
 Report: `ops/default/report/slices/rev-delimiter-navigation/slice-5-acceptance.md`
 State: reviewing; active
-PR: pending
-Task commits: T5.1/T5.2 `2c67bdfdbd9baabedaf0d16ee4a698a6744fbe81`; additive pair inventory reconciliation `263bde3ffe17c1dabadd2bbf72f353de1213c117`; T5.3/report introduction pending.
+PR: [#66](https://forge.adrianpk.com/rev/rev/pulls/66)
+Task commits: T5.1/T5.2 `2c67bdfdbd9baabedaf0d16ee4a698a6744fbe81`; additive pair inventory reconciliation `263bde3ffe17c1dabadd2bbf72f353de1213c117`; T5.3/report introduction `7006dae9907357d3417ef13ce24876614c6651e7`.
 Validation: all five ordered required commands PASS locally: 180 native cases, one independent complete factory helper, exactly two Linux PTYs, documentation and local guide build. Both code commits passed exact staged workspace formatting, strict all-target/all-feature Clippy and native policy over 1,971 files / 80 Cargo roots. Final clean-HEAD looper validation follows the PR-reference commit. PR integration, the combined gate and navigation closure remain controller-owned.
 
 - [x] T5.1: Create scripts/check-delimiter-navigation.sh with nonempty native filter checks. Batch the complete navigation suite, the shared pair qualifier/editing regressions justified below, focused native modal objects, keymap/override and macro cases. Reuse the current factory acceptance helper once for complete expected maps/catalog; never regenerate historical frozen inputs from runtime output.
