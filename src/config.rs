@@ -37,6 +37,8 @@ mod external;
 pub(crate) use external::symbol as external_symbol;
 mod completion;
 pub use completion::{Completion, PartialCompletion};
+mod pairs;
+pub use pairs::{Pairs, PartialPairs};
 mod edit;
 mod lsp;
 mod lsp_merge;
@@ -101,6 +103,7 @@ pub struct Settings {
     pub files: Files,
     pub bookmarks: Bookmarks,
     pub completion: Completion,
+    pub pairs: Pairs,
     pub lsp: Lsp,
     pub ai: Ai,
     pub shell: Shell,
@@ -137,6 +140,7 @@ pub struct Document {
     pub files: PartialFiles,
     pub bookmarks: PartialBookmarks,
     pub completion: PartialCompletion,
+    pub pairs: PartialPairs,
     pub lsp: PartialLsp,
     pub ai: PartialAi,
     pub shell: PartialShell,
@@ -523,6 +527,7 @@ pub enum InteractionProfile {
 #[derive(Clone, Debug, Default, PartialEq, Eq, Deserialize)]
 #[serde(default, deny_unknown_fields)]
 pub struct Language {
+    pub pairs: PartialPairs,
     pub indent_style: Option<IndentStyle>,
     pub indent_width: Option<i64>,
     pub tab_width: Option<i64>,

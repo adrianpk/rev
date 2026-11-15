@@ -53,6 +53,7 @@ impl Document {
         );
         merge.bookmarks(&mut self.bookmarks, &later.bookmarks);
         merge.completion(&mut self.completion, &later.completion);
+        merge.pairs(&["pairs"], &mut self.pairs, &later.pairs);
         merge.lsp(&mut self.lsp, &later.lsp);
         merge.ai(&mut self.ai, &later.ai);
         merge.shell(&mut self.shell, &later.shell);
@@ -749,6 +750,7 @@ impl Merge {
     }
 
     fn language(&mut self, id: &str, base: &mut Language, later: &Language) {
+        self.pairs(&["language", id, "pairs"], &mut base.pairs, &later.pairs);
         if let Some(external) = &later.external {
             base.external = Some(external.clone());
             for leaf in ["parser", "symbol", "highlights", "completions"] {

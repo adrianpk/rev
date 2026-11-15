@@ -123,6 +123,16 @@ impl Snapshot {
         project::language(&self.settings.editor, self.settings.language.get(language))
     }
 
+    /// Resolve editing leaves from the frozen global and language settings.
+    /// Grammar availability and syntax colors do not select this policy.
+    pub fn pairs(&self, language: &str) -> super::Pairs {
+        let global = self.settings.pairs;
+        self.settings
+            .language
+            .get(language)
+            .map_or(global, |language| global.overlay(&language.pairs))
+    }
+
     /// Bundled identities select their grammar by default; other identities are plain.
     pub fn grammar(&self, language: &str) -> Grammar {
         self.settings

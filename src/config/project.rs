@@ -29,6 +29,7 @@ pub(super) fn settings(document: &Document) -> Settings {
     files(&mut settings.files, &document.files);
     bookmarks(&mut settings.bookmarks, &document.bookmarks);
     completion(&mut settings.completion, &document.completion);
+    settings.pairs = settings.pairs.overlay(&document.pairs);
     settings.lsp = document.lsp.project();
     settings.ai = document.ai.project();
     settings.shell = document.shell.project();
