@@ -188,7 +188,7 @@ Branch: `test/rev-delimiter-editing-07-acceptance`
 Expected PR title: `test(editor): verify automatic delimiter editing workflows`
 Report: `ops/default/report/slices/rev-delimiter-editing/slice-7-acceptance.md`
 State: reviewing; implementation complete
-PR: pending
+PR: [#61](https://forge.adrianpk.com/rev/rev/pulls/61)
 Task commits: T7.1-T7.3/report introduction `cb3c09ca63e00d43b3f8a0642e7cbe2627874bae`; native/physical acceptance, measured bounds, guidance and editing-only closure preparation form one complete reviewable path.
 Validation: formatting, the acceptance script (192 native cases, all fixed bounds, unchanged maps and two owned/restored Linux PTYs), documentation with 22 reference tests and the local User Guide build PASS. Full staged-source hooks PASS for 1,956 Rust files and 78 Cargo roots. Exact clean-HEAD controller evidence follows PR-reference commits. Integration, combined gate and editing-only closure remain controller-owned.
 

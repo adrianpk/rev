@@ -5,7 +5,7 @@ Delivery set: rev-delimiter-editing
 Plan: [Automatic Delimiter Editing Delivery](../../../plan/rev-delimiter-editing.md)
 Tracker: [Automatic Delimiter Editing Tracker](../../../tracker/rev-delimiter-editing.md)
 Branch: `test/rev-delimiter-editing-07-acceptance`
-PR: pending
+PR: [#61](https://forge.adrianpk.com/rev/rev/pulls/61)
 
 ## Purpose
 
@@ -161,7 +161,7 @@ remains controller-owned; this script run is slice acceptance, not that full gat
 | 4 | [Deletion](slice-4-deletion.md) | #58 | Delivered. |
 | 5 | [Regions](slice-5-regions.md) | #59 | Delivered. |
 | 6 | [Provenance](slice-6-provenance.md) | #60 | Delivered. |
-| 7 | This report | Pending | Integration and combined gate pending. |
+| 7 | This report | #61 | Integration and combined gate pending. |
 
 The approved plan fixes the final command and closure path allowlist. All runtime,
 settings, test, fixture, script, reference, guide/changelog and report content must
