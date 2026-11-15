@@ -576,6 +576,27 @@ fn native_depth() {
     assert_eq!(answer.context, Context::Unknown);
 }
 
+// A native quote observation and fallback scanning share the same poll's
+// scalar admission. The native point cannot add a hidden 257th source read.
+#[test]
+fn native_observation_budget() {
+    let mut h = Harness::new("rust", true);
+    let source = format!("fn main() {{ let x = \"{}\"; }}", "x".repeat(1024));
+    let point = source.rfind('"').unwrap();
+    let id = h.source(&source);
+    let b = h.buffers.get_mut(id).unwrap();
+    let ticket = b.start_pair_request(Query::At(Scalar(point))).unwrap();
+    assert_eq!(
+        b.poll_pair_request(ticket, Instant::now() + SLICE_TIME),
+        Status::Pending
+    );
+    let stats = b.pair_stats(ticket).unwrap();
+    assert!(stats.syntax_nodes > 0);
+    assert!(stats.inspected_bytes <= SLICE_TOKENS);
+    assert!(b.pair_answer(ticket).is_none());
+    assert!(b.cancel_pair_request(ticket));
+}
+
 // Language/mode application and another view's request retire ticket ownership,
 // while observation never changes canonical bytes, marks or source history.
 #[test]

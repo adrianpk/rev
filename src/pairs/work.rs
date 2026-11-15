@@ -366,6 +366,7 @@ impl Work {
         if matches!(context, Context::String(_)) && matches!(self.query, Query::At(_)) {
             let c = text.get_char(self.query.point().0);
             self.reader.bytes += c.map_or(0, char::len_utf8);
+            self.reader.slice_reads += usize::from(c.is_some());
             if c.is_some_and(|c| !matches!(c, '\'' | '"' | '`')) {
                 self.context = context;
                 self.provenance = Provenance::CurrentSyntax;
