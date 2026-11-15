@@ -1,11 +1,17 @@
 # Slice 1: Configuration and language policies
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-delimiter-editing
 Plan: [Automatic Delimiter Editing Delivery](../../../plan/rev-delimiter-editing.md)
 Tracker: [Automatic Delimiter Editing Tracker](../../../tracker/rev-delimiter-editing.md)
 Branch: `feat/rev-delimiter-editing-01-config`
 PR: [#55](https://forge.adrianpk.com/rev/rev/pulls/55)
+
+Integration: canonical PR #55 merged into `dev` at
+`a5507c375908f499de0a369e6e10314c79d70a0a`, the same published commit that
+passed the exact three required commands and canonical PR check. Verified
+against the canonical forge and fetched `origin/dev`. This closure changes
+delivery Markdown only; combined acceptance remains pending later slices.
 
 ## Purpose
 
