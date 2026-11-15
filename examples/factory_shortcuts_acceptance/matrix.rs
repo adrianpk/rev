@@ -64,6 +64,15 @@ pub(super) fn run() -> Result<()> {
         edits += apply(&mut expected, change)?;
     }
     assert_eq!(edits, 49);
+    add_navigation_maps(&mut expected)?;
+    compare_maps(&expected)?;
+    println!(
+        "PASS accepted manifest: 707 original commands plus three editing commands and three navigation commands, six actions, 28 complete maps, 29 records / 49 base edits, inherited and retired leaves, both profiles; untouched defaults preserved"
+    );
+    Ok(())
+}
+
+fn compare_maps(expected: &Maps) -> Result<()> {
     for profile in [InteractionProfile::NonModal, InteractionProfile::Modal] {
         let actual = keymap::compile_for(&Keymaps::default(), profile)?;
         for context in Context::ALL {
@@ -78,9 +87,29 @@ pub(super) fn run() -> Result<()> {
             assert_eq!(&compiled, wanted, "{profile:?} {}", context.name());
         }
     }
-    println!(
-        "PASS accepted manifest: 707 original commands plus three editing commands and matching-delimiter, six actions, 28 complete maps, 29 records / 49 base edits, inherited and retired leaves, both profiles; untouched defaults preserved"
-    );
+    Ok(())
+}
+
+fn add_navigation_maps(expected: &mut Maps) -> Result<()> {
+    for context in [
+        "editor",
+        "vim_insert",
+        "vim_replace",
+        "markdown",
+        "org",
+        "org_capture",
+        "org_source_edit",
+        "macro_definition",
+        "git_commit",
+    ] {
+        for (key, name) in [("C-M-n", "forward-pair"), ("C-M-p", "backward-pair")] {
+            let old = expected
+                .get_mut(context)
+                .expect("frozen source context")
+                .insert(Sequence::parse(key)?, name.into());
+            assert!(old.is_none(), "new navigation leaf {context} {key}");
+        }
+    }
     Ok(())
 }
 
@@ -92,11 +121,13 @@ fn inventory(catalog: &Catalog) {
         "pair-wrap",
         "pair-unwrap",
         "matching-delimiter",
+        "forward-pair",
+        "backward-pair",
     ]);
     let live: BTreeSet<_> = Command::ALL.iter().map(Command::name).collect();
     assert!(names.is_disjoint(&added));
     assert!(added.is_subset(&live));
-    assert_eq!(live.len(), 711);
+    assert_eq!(live.len(), 713);
     assert_eq!(names, live.difference(&added).copied().collect());
     let actions: BTreeSet<_> = catalog.actions.iter().map(String::as_str).collect();
     assert_eq!(actions.len(), 6);

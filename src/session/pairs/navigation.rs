@@ -3,7 +3,7 @@ use std::time::Instant;
 use crate::buffer::edit::{Error, Point};
 use crate::coordinates::{Coordinates, Scalar};
 use crate::input::EditingState;
-use crate::pairs::{Outcome, Status, Ticket};
+use crate::pairs::{GroupOutcome, GroupRequest, Outcome, Status, Ticket};
 use crate::session::{Action, Session};
 use crate::view::View;
 use crate::window::ViewId;
@@ -11,8 +11,15 @@ use crate::window::ViewId;
 #[cfg(test)]
 mod tests;
 
-/// One disposable mate operation; all lexical facts remain buffer-owned.
-pub(in crate::session) struct Mate {
+#[derive(Clone, Copy, PartialEq, Eq)]
+enum Intent {
+    Mate,
+    Groups,
+}
+
+/// One disposable source motion; all qualified facts remain buffer-owned.
+pub(in crate::session) struct Navigation {
+    intent: Intent,
     point: Point,
     view: ViewId,
     mark: (Option<Scalar>, bool),
@@ -23,20 +30,52 @@ pub(in crate::session) struct Mate {
 
 impl Session {
     pub(in crate::session) fn matching_delimiter(&mut self) -> Action {
-        if !self.mate_focus() {
-            return self.error("Matching delimiter requires source input focus");
+        self.begin_pair_navigation(None)
+    }
+
+    pub(in crate::session) fn group_motion(&mut self, backward: bool, count: i32) -> Action {
+        if count == 0 {
+            return self.message("");
+        }
+        if !self.pair_navigation_focus() {
+            return self.error("Group motion requires source input focus");
+        }
+        self.command_boundary(if backward {
+            crate::command::Command::BackwardPair
+        } else {
+            crate::command::Command::ForwardPair
+        });
+        if let Err(error) = self.stop_typing() {
+            return self.error(&error.to_string());
+        }
+        let request = GroupRequest::new(self.view().point.position, backward, count)
+            .expect("native prefix magnitude is admitted");
+        self.begin_pair_navigation(Some(request))
+    }
+
+    fn begin_pair_navigation(&mut self, groups: Option<GroupRequest>) -> Action {
+        if !self.pair_navigation_focus() {
+            return self.error("Delimiter navigation requires source input focus");
         }
         let point = self.view().point;
-        let ticket = match self
-            .buffers
-            .get_mut(point.stamp.buffer)
-            .and_then(|buffer| buffer.start_mate_request(point.position))
-        {
-            Ok(ticket) => ticket,
-            Err(error) => return self.error(&error.to_string()),
-        };
-        let buffer = self.buffer().expect("admitted mate source");
-        self.layout.mate = Some(Mate {
+        let ticket =
+            match self
+                .buffers
+                .get_mut(point.stamp.buffer)
+                .and_then(|buffer| match groups {
+                    Some(request) => buffer.start_group_request(request),
+                    None => buffer.start_mate_request(point.position),
+                }) {
+                Ok(ticket) => ticket,
+                Err(error) => return self.error(&error.to_string()),
+            };
+        let buffer = self.buffer().expect("admitted navigation source");
+        self.layout.navigation = Some(Navigation {
+            intent: if groups.is_some() {
+                Intent::Groups
+            } else {
+                Intent::Mate
+            },
             point,
             view: self.windows.selected_id(),
             mark: (buffer.mark(), buffer.mark_active()),
@@ -44,10 +83,11 @@ impl Session {
             ticket,
             candidate: None,
         });
-        self.layout_mate().unwrap_or_else(|| self.publish_mate())
+        self.layout_pair_navigation()
+            .unwrap_or_else(|| self.publish_pair_navigation())
     }
 
-    fn mate_focus(&self) -> bool {
+    fn pair_navigation_focus(&self) -> bool {
         self.source_layout_focus()
             && !self.terminals.focused
             && !self.git_visible()
@@ -57,8 +97,8 @@ impl Session {
             && !self.input.editing_composition()
     }
 
-    fn mate_current(&self, work: &Mate) -> bool {
-        self.mate_focus()
+    fn pair_navigation_current(&self, work: &Navigation) -> bool {
+        self.pair_navigation_focus()
             && work.point == self.view().point
             && work.view == self.windows.selected_id()
             && work.state == self.editing_state()
@@ -68,23 +108,30 @@ impl Session {
             })
     }
 
-    pub(in crate::session) fn cancel_mate(&mut self) {
-        if let Some(work) = self.layout.mate.take()
+    pub(in crate::session) fn cancel_pair_navigation(&mut self) {
+        if let Some(work) = self.layout.navigation.take()
             && let Ok(buffer) = self.buffers.get_mut(work.ticket.stamp.buffer)
         {
             buffer.cancel_pair_request(work.ticket);
         }
     }
 
-    pub(in crate::session) fn prepare_mate(&mut self) -> Result<(), crate::view::Error> {
-        let mut work = self.layout.mate.take().expect("owned mate request");
-        let result = self.prepare_mate_target(&mut work);
-        self.layout.mate = Some(work);
+    pub(in crate::session) fn prepare_pair_navigation(&mut self) -> Result<(), crate::view::Error> {
+        let mut work = self
+            .layout
+            .navigation
+            .take()
+            .expect("owned delimiter navigation request");
+        let result = self.prepare_pair_navigation_target(&mut work);
+        self.layout.navigation = Some(work);
         result
     }
 
-    fn prepare_mate_target(&mut self, work: &mut Mate) -> Result<(), crate::view::Error> {
-        if !self.mate_current(work) {
+    fn prepare_pair_navigation_target(
+        &mut self,
+        work: &mut Navigation,
+    ) -> Result<(), crate::view::Error> {
+        if !self.pair_navigation_current(work) {
             return Err(Error::ChangedPositions.into());
         }
         let buffer = self.buffers.get_mut(work.ticket.stamp.buffer)?;
@@ -93,20 +140,34 @@ impl Session {
             Status::Retired => return Err(Error::ChangedPositions.into()),
             Status::Ready => (),
         }
-        let answer = buffer.pair_answer(work.ticket).expect("ready mate proof");
-        let Outcome::Confirmed(pair) = &answer.outcome else {
-            return Ok(());
-        };
-        let target = if answer.query.point().0 == pair.opening.range.start {
-            pair.closing.range.start
-        } else {
-            pair.opening.range.start
-        };
-        work.candidate = Some(self.mate_view(Scalar(target))?);
+        if let Some(target) = self.pair_navigation_target(work) {
+            work.candidate = Some(self.pair_navigation_view(target)?);
+        }
         Ok(())
     }
 
-    fn mate_view(&self, target: Scalar) -> Result<View, crate::view::Error> {
+    fn pair_navigation_target(&self, work: &Navigation) -> Option<Scalar> {
+        let buffer = self.buffer().ok()?;
+        if work.intent == Intent::Groups {
+            return match buffer.group_answer(work.ticket)?.outcome {
+                GroupOutcome::Target(point) | GroupOutcome::Boundary(point) => Some(point),
+                _ => None,
+            };
+        }
+        let answer = buffer.pair_answer(work.ticket)?;
+        let Outcome::Confirmed(pair) = &answer.outcome else {
+            return None;
+        };
+        Some(Scalar(
+            if answer.query.point().0 == pair.opening.range.start {
+                pair.closing.range.start
+            } else {
+                pair.opening.range.start
+            },
+        ))
+    }
+
+    fn pair_navigation_view(&self, target: Scalar) -> Result<View, crate::view::Error> {
         let buffer = self.buffer()?;
         let coordinates = Coordinates::new(buffer)?;
         let mut candidate = self.view().clone();
@@ -123,17 +184,25 @@ impl Session {
         Ok(candidate)
     }
 
-    pub(in crate::session) fn publish_mate(&mut self) -> Action {
-        let Some(work) = self.layout.mate.take() else {
-            return self.message("Matching delimiter request retired");
+    pub(in crate::session) fn publish_pair_navigation(&mut self) -> Action {
+        let Some(work) = self.layout.navigation.take() else {
+            return self.message("Delimiter navigation request retired");
         };
-        if !self.mate_current(&work) {
-            return self.message("Matching delimiter source changed");
+        if !self.pair_navigation_current(&work) {
+            return self.message("Delimiter navigation source changed");
         }
         let Some(candidate) = work.candidate else {
-            return self.error("No confirmed matching delimiter at or immediately before point");
+            return self.error(if work.intent == Intent::Mate {
+                "No confirmed matching delimiter at or immediately before point"
+            } else {
+                "No qualified group in that direction"
+            });
         };
-        let result = self.place_jump_view(candidate);
+        let result = if work.intent == Intent::Mate {
+            self.place_jump_view(candidate)
+        } else {
+            self.place_view(candidate)
+        };
         self.sync_input_context();
         match result {
             Ok(()) => self.message(""),

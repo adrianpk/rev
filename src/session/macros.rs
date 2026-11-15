@@ -562,6 +562,8 @@ fn supported(command: Command) -> bool {
             | Command::PluginDefined(_)
             | Command::MacroBinding(_)
             | Command::Motion(_)
+            | Command::ForwardPair
+            | Command::BackwardPair
             | Command::Navigate(_)
             | Command::Edit(_)
             | Command::Modal(_)

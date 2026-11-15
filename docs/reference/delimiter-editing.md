@@ -105,6 +105,8 @@ work leaves source and history unchanged. Uncertain ordinary typing stays litera
 | `pair-wrap` | Choose an admitted delimiter and wrap the active linear region in one undo step. |
 | `pair-unwrap` | Remove the innermost confirmed enclosing pair while preserving its contents. |
 | `matching-delimiter` | Jump to the confirmed typed mate at or immediately before point without editing source. |
+| `forward-pair` | Move forward across counted mode-defined groups without editing source. |
+| `backward-pair` | Move backward across counted mode-defined groups without editing source. |
 
 The explicit matching-delimiter command is unbound. It uses the same confirmed
 source facts, works on read-only source and ignores automatic-editing preferences.

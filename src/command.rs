@@ -118,6 +118,8 @@ pub enum Command {
     PairWrap,
     PairUnwrap,
     MatchingDelimiter,
+    ForwardPair,
+    BackwardPair,
     Mode(Mode),
     Org(OrgCommand),
     Markdown(MarkdownCommand),
@@ -162,7 +164,7 @@ pub enum Command {
 }
 
 impl Command {
-    pub const ALL: [Self; 711] = [
+    pub const ALL: [Self; 713] = [
         Self::Plugin(PluginCommand::List),
         Self::Plugin(PluginCommand::Activate),
         Self::Plugin(PluginCommand::Deactivate),
@@ -558,6 +560,8 @@ impl Command {
         Self::PairWrap,
         Self::PairUnwrap,
         Self::MatchingDelimiter,
+        Self::ForwardPair,
+        Self::BackwardPair,
         Self::Org(OrgCommand::PrettyHeadings),
         Self::Org(OrgCommand::ResetHeadingPresentation),
         Self::Org(OrgCommand::IndentMode),
@@ -1319,6 +1323,8 @@ impl Command {
             Self::PairWrap => "pair-wrap",
             Self::PairUnwrap => "pair-unwrap",
             Self::MatchingDelimiter => "matching-delimiter",
+            Self::ForwardPair => "forward-pair",
+            Self::BackwardPair => "backward-pair",
             _ => unreachable!("non-edit commands delegate before pair lookup"),
         }
     }
@@ -1336,6 +1342,12 @@ impl Command {
             }
             Self::MatchingDelimiter => {
                 "Jump to the confirmed typed mate at or immediately before point without editing source."
+            }
+            Self::ForwardPair => {
+                "Move forward across counted mode-defined groups without editing source."
+            }
+            Self::BackwardPair => {
+                "Move backward across counted mode-defined groups without editing source."
             }
             _ => unreachable!("non-edit commands delegate before pair lookup"),
         }
@@ -1409,6 +1421,8 @@ impl Command {
                 | Self::BackwardDeleteChar
                 | Self::DeleteChar
                 | Self::Motion(_)
+                | Self::ForwardPair
+                | Self::BackwardPair
                 | Self::Scroll(_)
                 | Self::History(_)
                 | Self::Region(_)

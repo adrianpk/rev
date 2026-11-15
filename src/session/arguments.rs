@@ -132,6 +132,15 @@ impl Session {
 
     fn execute_argument_entry(&mut self, invocation: Invocation) -> Option<Action> {
         if self.source_layout_focus() {
+            if matches!(
+                invocation.command,
+                Command::ForwardPair | Command::BackwardPair
+            ) {
+                return Some(self.group_motion(
+                    invocation.command == Command::BackwardPair,
+                    invocation.argument.value(),
+                ));
+            }
             if invocation.command == Command::PairWrap {
                 return Some(self.start_pair_wrap_prompt(invocation.argument));
             }

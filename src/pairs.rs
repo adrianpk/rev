@@ -1,12 +1,14 @@
 //! Bounded native typed-pair qualification, independent of modal grouping.
 //! One canonical buffer owns each request, its budget and retained facts.
 
+mod groups;
 mod lexical;
 mod profile;
 mod reader;
 mod state;
 mod work;
 
+pub use groups::{GroupAnswer, GroupOutcome, GroupRequest};
 pub use profile::Profile;
 pub(crate) use state::State;
 

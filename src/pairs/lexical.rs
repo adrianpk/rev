@@ -83,6 +83,10 @@ impl Lexical {
         }
     }
 
+    pub(super) fn complete_at_eof(&self) -> bool {
+        matches!(self.mode, Mode::Code | Mode::Line(_))
+    }
+
     pub fn admits_typed_structure(&self) -> bool {
         self.profile != Profile::Html || !self.html_tag
     }

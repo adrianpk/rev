@@ -5,7 +5,7 @@ mod regions;
 pub(super) use regions::{RegionPrompt, Regions};
 
 pub(super) use deletion::Deletion;
-pub(super) use navigation::Mate;
+pub(super) use navigation::Navigation;
 
 use std::time::Instant;
 

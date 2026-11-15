@@ -208,7 +208,7 @@ fn echo(e: &mut Editor) -> String {
 #[test]
 fn catalog_and_focus() {
     let command = Command::named("matching-delimiter").unwrap();
-    assert_eq!(Command::ALL.len(), 711);
+    assert_eq!(Command::ALL.len(), 713);
     assert!(
         command
             .description()

@@ -1,7 +1,9 @@
 use std::time::Instant;
 
 use crate::coordinates::Scalar;
-use crate::pairs::{Answer, Kind, Profile, Query, Stats, Status, Ticket};
+use crate::pairs::{
+    Answer, GroupAnswer, GroupRequest, Kind, Profile, Query, Stats, Status, Ticket,
+};
 
 use super::{Buffer, Error};
 
@@ -32,15 +34,38 @@ impl Buffer {
             _ => (),
         }
         let byte = self.text.char_to_byte(query.point().0);
-        let profile = if self.is_org() {
+        let profile = self.pair_profile();
+        let hint = self.syntax.pair_hint(self.stamp(), byte, profile);
+        Ok(self.pairing.start(query, (self.stamp(), profile), hint))
+    }
+
+    /// Start one counted group request, retiring any typed-pair work. Group
+    /// outcomes never supply typed-pair facts to editing or presentation.
+    pub fn start_group_request(&mut self, request: GroupRequest) -> Result<Ticket, Error> {
+        self.span(request.point.0..request.point.0)?;
+        let profile = self.pair_profile();
+        let hint = self.syntax.pair_hint(
+            self.stamp(),
+            self.text.char_to_byte(request.point.0),
+            profile,
+        );
+        Ok(self
+            .pairing
+            .start_groups(request, (self.stamp(), profile), hint))
+    }
+
+    pub fn group_answer(&self, ticket: Ticket) -> Option<&GroupAnswer> {
+        self.pairing.group_answer(ticket)
+    }
+
+    fn pair_profile(&self) -> Profile {
+        if self.is_org() {
             Profile::Org
         } else if self.is_markdown() {
             Profile::Markdown
         } else {
             Profile::language(&self.language_identity)
-        };
-        let hint = self.syntax.pair_hint(self.stamp(), byte, profile);
-        Ok(self.pairing.start(query, (self.stamp(), profile), hint))
+        }
     }
 
     /// At most 256 lexical steps and the native four-millisecond target per poll.

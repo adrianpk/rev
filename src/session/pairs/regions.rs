@@ -56,6 +56,8 @@ impl Session {
             Command::PairWrap => self.start_pair_wrap_prompt(PrefixArgument::default()),
             Command::PairUnwrap => self.start_pair_unwrap(),
             Command::MatchingDelimiter => self.matching_delimiter(),
+            Command::ForwardPair => self.group_motion(false, 1),
+            Command::BackwardPair => self.group_motion(true, 1),
             _ => self.dispatch(command),
         }
     }

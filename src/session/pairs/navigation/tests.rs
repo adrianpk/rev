@@ -26,33 +26,45 @@ fn editor() -> Session {
 #[test]
 fn mate_stale() {
     for change in ["point", "mark", "focus"] {
-        let mut session = editor();
-        session.execute(Command::MatchingDelimiter);
-        let ticket = session.layout.mate.as_ref().unwrap().ticket;
-        match change {
-            "point" => session.windows.selected_mut().point.position = Scalar(1),
-            "mark" => session
-                .buffers
-                .get_mut(ticket.stamp.buffer)
-                .unwrap()
-                .set_mark(Some(Scalar(1)))
-                .unwrap(),
-            "focus" => session.input.argument("Value: ", "").unwrap(),
-            _ => unreachable!(),
-        }
-        let point = session.view().point;
-        let mark = session.buffer().unwrap().mark();
-        let deadline = Instant::now() + Duration::from_secs(10);
-        while session.layout_active() {
-            assert!(Instant::now() < deadline, "{change}");
-            session.expire_input(Instant::now());
-        }
-        assert_eq!(session.view().point, point, "{change}");
-        assert_eq!(session.buffer().unwrap().mark(), mark, "{change}");
-        assert!(
-            session.buffer().unwrap().pair_stats(ticket).is_none(),
-            "{change}"
-        );
-        assert!(session.buffer().unwrap().history().is_empty(), "{change}");
+        stale_navigation(Command::MatchingDelimiter, change);
     }
+}
+
+// Group work uses the same captured point/mark/focus owner and retirement path.
+#[test]
+fn groups_stale() {
+    for change in ["point", "mark", "focus"] {
+        stale_navigation(Command::ForwardPair, change);
+    }
+}
+
+fn stale_navigation(command: Command, change: &str) {
+    let mut session = editor();
+    session.execute(command);
+    let ticket = session.layout.navigation.as_ref().unwrap().ticket;
+    match change {
+        "point" => session.windows.selected_mut().point.position = Scalar(1),
+        "mark" => session
+            .buffers
+            .get_mut(ticket.stamp.buffer)
+            .unwrap()
+            .set_mark(Some(Scalar(1)))
+            .unwrap(),
+        "focus" => session.input.argument("Value: ", "").unwrap(),
+        _ => unreachable!(),
+    }
+    let point = session.view().point;
+    let mark = session.buffer().unwrap().mark();
+    let deadline = Instant::now() + Duration::from_secs(10);
+    while session.layout_active() {
+        assert!(Instant::now() < deadline, "{change}");
+        session.expire_input(Instant::now());
+    }
+    assert_eq!(session.view().point, point, "{change}");
+    assert_eq!(session.buffer().unwrap().mark(), mark, "{change}");
+    assert!(
+        session.buffer().unwrap().pair_stats(ticket).is_none(),
+        "{change}"
+    );
+    assert!(session.buffer().unwrap().history().is_empty(), "{change}");
 }

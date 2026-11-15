@@ -85,6 +85,14 @@ See [Configure automatic delimiter editing](../../how-to/configure-delimiter-edi
 for independent controls and language overrides, and the
 [reference](../../reference/delimiter-editing.md) for conservative boundaries.
 
+On a line containing `(note) [next]`, place point before the first opening
+parenthesis. Press C-M-n to move after `(note)`, then C-M-p to return before it.
+C-u 2 C-M-n crosses both groups. A negative count reverses direction and zero
+leaves point unchanged. These motions also work on read-only source and with
+automatic pairing disabled. M-x forward-pair/backward-pair invoke the same
+operations. For a jump onto the opposite confirmed delimiter itself, use the
+unbound M-x matching-delimiter command.
+
 Save with `C-x C-s`. You can also select text by dragging with the primary
 mouse button, or paste text through your terminal. For more tasks, see
 [Use command prefix arguments](../../how-to/use-prefix-arguments.md); the

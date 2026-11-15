@@ -321,7 +321,7 @@ compiled M-x name once.
 | Jump traversal | `modal-jump-backward`, `modal-jump-forward` |
 | Source wrapping | `visual-line-mode` |
 | Automatic delimiter editing | `auto-pair-mode`, `pair-wrap`, `pair-unwrap` |
-| Delimiter navigation | `matching-delimiter` |
+| Delimiter navigation | `matching-delimiter`, `forward-pair`, `backward-pair` |
 | Gutter | `gutter-toggle-line-numbers`, `gutter-cycle-line-number-mode`, `gutter-set-line-numbers-absolute`, `gutter-set-line-numbers-relative`, `gutter-cycle-current-line`, `gutter-toggle-line-number-side`, `gutter-inspect-numbering`, `gutter-reset-numbering` |
 | Bookmarks | `bookmark-set`, `bookmark-set-no-overwrite`, `bookmark-jump`, `bookmark-delete`, `bookmark-save`, `bookmark-reload`, `list-bookmarks`, `bookmark-next`, `bookmark-previous`, `bookmark-markers-mode`, `bookmark-bmenu-delete`, `bookmark-bmenu-unmark`, `bookmark-bmenu-execute-deletions`, `bookmark-bmenu-this-window` |
 | Rectangles | `rectangle-mark-mode`, `copy-rectangle-as-kill`, `kill-rectangle`, `yank-rectangle` |
@@ -336,6 +336,17 @@ Read-only source and disabled automatic pairing or quote editing remain navigabl
 Source, undo history and an active linear mark stay unchanged. An unmatched,
 mismatched, literal, uncertain or resource-limited request leaves point unchanged.
 The separate modal % command retains its current-line search policy.
+
+C-M-n (forward-pair) and C-M-p (backward-pair) move across complete mode-defined
+groups, ending after the closing delimiter or before the opening delimiter.
+They skip classified strings/comments and preserve the ordinary linear mark and
+source/history. A numeric prefix counts groups once; zero is inert and a negative
+count reverses direction. Normal file boundaries are valid destinations, while
+a malformed or uncertain counted destination refuses the entire motion.
+Group syntax can accept [a) without proving a typed mate. Inside an enclosing
+group, starting in an atom with no later group at that level reports no group.
+The two chords inherit through existing source maps and modal Insert/Replace;
+Normal/Visual defaults and component-owned input retain their existing maps.
 
 ## Line navigation
 

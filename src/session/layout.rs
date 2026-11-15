@@ -20,7 +20,7 @@ enum Request {
     PairTyping,
     PairDeletion,
     PairRegions,
-    Mate,
+    PairNavigation,
     ArgumentText,
     ArgumentHistory,
     Pointer(crate::pointer::Event, Instant),
@@ -47,7 +47,7 @@ pub(super) struct Work {
     pub(super) pair: Option<super::pairs::Typing>,
     pub(super) deletion: Option<super::pairs::Deletion>,
     pub(super) regions: Option<super::pairs::Regions>,
-    pub(super) mate: Option<super::pairs::Mate>,
+    pub(super) navigation: Option<super::pairs::Navigation>,
     pub(super) text: Option<super::arguments::Text>,
     pub(super) history: Option<super::arguments::Replay>,
     pub(super) movement: Option<super::arguments::Movement>,
@@ -84,7 +84,7 @@ impl Session {
             self.cancel_pair_typing();
             self.cancel_pair_deletion();
             self.cancel_pair_regions();
-            self.cancel_mate();
+            self.cancel_pair_navigation();
             self.layout.text = None;
             self.layout.history = None;
             self.layout.interrupt = true;
@@ -119,7 +119,7 @@ impl Session {
             self.cancel_pair_typing();
             self.cancel_pair_deletion();
             self.cancel_pair_regions();
-            self.cancel_mate();
+            self.cancel_pair_navigation();
             self.layout.text = None;
             self.layout.history = None;
             self.layout.interrupt = true;
@@ -217,8 +217,8 @@ impl Session {
         self.prepare_request(Request::PairRegions)
     }
 
-    pub(super) fn layout_mate(&mut self) -> Option<Action> {
-        self.prepare_request(Request::Mate)
+    pub(super) fn layout_pair_navigation(&mut self) -> Option<Action> {
+        self.prepare_request(Request::PairNavigation)
     }
 
     pub(super) fn layout_argument_text(&mut self) -> Option<Action> {
@@ -255,7 +255,7 @@ impl Session {
                 self.cancel_pair_typing();
                 self.cancel_pair_deletion();
                 self.cancel_pair_regions();
-                self.cancel_mate();
+                self.cancel_pair_navigation();
                 self.layout.text = None;
                 self.layout.history = None;
                 Some(self.error(&error.to_string()))
@@ -300,7 +300,7 @@ impl Session {
             Request::PairTyping => self.prepare_pair_typing(),
             Request::PairDeletion => self.prepare_pair_deletion(),
             Request::PairRegions => self.prepare_pair_regions(),
-            Request::Mate => self.prepare_mate(),
+            Request::PairNavigation => self.prepare_pair_navigation(),
             Request::ArgumentText => self.prepare_argument_text(),
             Request::ArgumentHistory => unreachable!("history uses progressive native admission"),
             Request::Invocation(invocation) => self.prepare_argument_movement(invocation),
@@ -369,7 +369,7 @@ impl Session {
             self.cancel_pair_typing();
             self.cancel_pair_deletion();
             self.cancel_pair_regions();
-            self.cancel_mate();
+            self.cancel_pair_navigation();
             self.layout.text = None;
             self.layout.history = None;
             self.message("Layout source or geometry changed")
@@ -387,7 +387,7 @@ impl Session {
             Request::PairTyping => self.publish_pair_typing(),
             Request::PairDeletion => self.publish_pair_deletion(),
             Request::PairRegions => self.publish_pair_regions(),
-            Request::Mate => self.publish_mate(),
+            Request::PairNavigation => self.publish_pair_navigation(),
             Request::ArgumentText => self.publish_argument_text(),
             Request::ArgumentHistory => self.publish_argument_history(),
             Request::Pointer(event, now) => self.pointer_now(event, now),

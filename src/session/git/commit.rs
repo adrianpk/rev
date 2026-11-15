@@ -389,6 +389,8 @@ fn editing(command: Command) -> bool {
     matches!(
         command,
         Command::Motion(_)
+            | Command::ForwardPair
+            | Command::BackwardPair
             | Command::Scroll(_)
             | Command::Newline
             | Command::InsertTab
