@@ -5,7 +5,7 @@ Delivery set: rev-delimiter-navigation
 Plan: [Delimiter Navigation Delivery](../../../plan/rev-delimiter-navigation.md)
 Tracker: [Delimiter Navigation Tracker](../../../tracker/rev-delimiter-navigation.md)
 Branch: `feat/rev-delimiter-navigation-02-groups`
-PR: pending
+PR: [#63](https://forge.adrianpk.com/rev/rev/pulls/63)
 
 ## Purpose
 
@@ -78,7 +78,7 @@ the PR-reference commit.
 - `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test modal -- delimited_objects structural_targets --test-threads=1`: PASS, two existing modal percent/object tests.
 - `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo run --locked --quiet --example factory-shortcuts-acceptance -- --native target`: PASS, 713 commands, six actions and all 28 complete maps in both profiles; exactly two added base leaves and their existing inheritance.
 - `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 bash scripts/check-documentation.sh`: PASS, 713 commands, 332 configuration entries, 112 reachable pages, 792 local links/anchors, 10 command and 12 configuration reference tests. Development failures exposed the omitted packaged keymap leaves and stale documented counts; both now match the compiled Editor/Insert/Replace defaults.
-- The implementation commit passed its exact staged hook: formatting, strict all-target/all-feature workspace Clippy and full native policy for 1,961 files and 79 Cargo roots. The preserved hook uses its exclusive cache; no hook was installed or bypassed.
+- Both implementation and test commits passed their exact staged hooks: formatting, strict all-target/all-feature workspace Clippy and full native policy for 1,961 and 1,963 files respectively, with all 79 Cargo roots selected. The preserved hook uses its exclusive cache; no hook was installed or bypassed.
 - `git diff --check`: PASS.
 
 The frozen Emacs matrix supplies 31 applicable group cases, including counts,
@@ -108,6 +108,8 @@ native decoded input, not physical terminal transport or an optimized benchmark.
 
 ## Risks and Follow-ups
 
+PR #63 is open against dev. Implementation is `1d82c5099ed24fcf35d3670e4ce6c7693fc98894`;
+test/report introduction is `2e4a46f09e466698218fdb3ec8900d31bfd108bf`.
 Controller-owned integration and combined acceptance remain pending. Enclosing/
 nested groups, syntax-class expressions and representative physical-input PTYs
 belong to the next recorded slices. No full delivery gate was run in this slice.

@@ -67,9 +67,9 @@ Branch: `feat/rev-delimiter-navigation-02-groups`
 Expected PR title: `feat(editor): navigate forward and backward across groups`
 Report: `ops/default/report/slices/rev-delimiter-navigation/slice-2-groups.md`
 State: reviewing; active
-PR: pending
-Task commits: T2.1/T2.2 `1d82c5099ed24fcf35d3670e4ce6c7693fc98894`; T2.3/report introduction pending commit.
-Validation: all three ordered required commands PASS locally. Native navigation (25 tests), invalidation (2), shared qualification (21), modal percent/objects (2), independent maps/catalog and documentation PASS. The implementation staged-source hook PASS; final clean-HEAD evidence is recorded separately through looper validate after PR-reference commit. Combined acceptance remains controller-owned.
+PR: [#63](https://forge.adrianpk.com/rev/rev/pulls/63)
+Task commits: T2.1/T2.2 `1d82c5099ed24fcf35d3670e4ce6c7693fc98894`; T2.3/report introduction `2e4a46f09e466698218fdb3ec8900d31bfd108bf`.
+Validation: all three ordered required commands PASS locally. Native navigation (25 tests), invalidation (2), shared qualification (21), modal percent/objects (2), independent maps/catalog and documentation PASS. Both staged-source hooks PASS; final clean-HEAD evidence is recorded separately through looper validate after PR-reference commit. Combined acceptance remains controller-owned.
 
 - [x] T2.1: Implement forward-pair and backward-pair with the approved mode/group syntax policy, distinct from strict typed mate validation. Traverse complete groups, skip declared comments/strings and preserve the no-next-group case when starting inside an atom without a later group at the current nesting level. Keep mismatched-kind grouping separate from typed proof.
 - [x] T2.2: Apply native signed counts once in one captured request; zero is inert, negative reverses direction and all iterations share byte/depth/memory/work admission. Accept normal reference file boundaries while refusing unproved or malformed destinations atomically. Preserve active linear mark and native grapheme boundaries, without source edits or new undo entries.
