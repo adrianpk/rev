@@ -108,8 +108,11 @@ passed at `27957128f7626ee16b5dbdc50af52e9cee27f3c8`, receipt
 records workspace/hook, 180 native cases, two PTYs, reference/guide acceptance
 and the later eleven-file Markdown-only closure. Only the expression portion
 of EIP04 is Completed; paragraph parity remains pending.
-[Presentation](spec/editor-delimiter-presentation.md) remains
-Draft and follows navigation under its own execution authority.
+[Presentation](spec/editor-delimiter-presentation.md) is Approved for the final
+delimiter delivery under its [six-slice plan](plan/rev-delimiter-presentation.md)
+and [tracker](tracker/rev-delimiter-presentation.md). It covers palette-derived
+depth colors, active-pair marks, finite pulse and source-qualified continuity;
+implementation and the exact-candidate delivery gate remain pending.
 
 ## Pending proposals
 

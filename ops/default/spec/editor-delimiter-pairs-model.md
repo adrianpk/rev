@@ -1,13 +1,15 @@
 # Pair Preferences and Native State
 
-Status: Partially approved
+Status: Approved
 Editing status: Completed
 Editing completed: 2026-11-15
 Editing approval: product owner, 2026-11-15; rev-delimiter-editing
 Navigation status: Completed
 Navigation completed: 2026-11-15
 Navigation approval: product owner, 2026-11-15; rev-delimiter-navigation
-Presentation status: Draft
+Presentation status: Approved
+Presentation approval: product owner, 2026-11-15; rev-delimiter-presentation
+Presentation planning baseline: 744497bab434cc38204f091398c89e21d5147476
 Date: 2026-11-08
 Updated: 2026-11-15
 Specification: [Delimiter Pairs](editor-delimiter-pairs.md)
@@ -15,20 +17,20 @@ Related specifications: [Delimiter Navigation](editor-delimiter-navigation.md), 
 Inspection baseline: dd1b569dd9c6e480ae4dd82a1f298bcc8478072f
 Review scope: one shared model; separate editing, navigation and visual policies
 
-## Configuration proposal
+## Configuration contract
 
 Use the existing startup settings loader, origins, validation and language
 merge owners. No new state file, settings directory or startup discovery is
 introduced. Missing leaves inherit compiled defaults; malformed candidates use
 the existing whole-candidate diagnostic/fallback policy. Runtime commands never
-save settings. The editing implementation accepts the five approved leaves below;
-future presentation leaves remain proposals.
+save settings. Editing introduced the five automatic-editing leaves below; the
+approved presentation delivery adds highlight and pulse_ms through the same owner.
 
-The first delivery approves only enabled, wrap_selection, delete_empty,
-skip_closing and quotes, all defaulting true. The remaining leaves below are
-future presentation proposals; do not accept or install them in editing delivery.
+The completed first delivery approved enabled, wrap_selection, delete_empty,
+skip_closing and quotes, all defaulting true. Presentation now approves highlight
+and pulse_ms independently; this does not retroactively expand editing scope.
 
-Combined editing and future presentation schema:
+Combined editing and approved presentation schema:
 
 ```toml
 [pairs]
@@ -41,7 +43,7 @@ highlight = "depth"
 pulse_ms = 250
 ```
 
-| Leaf | Type and proposed meaning | Scope |
+| Leaf | Type and meaning | Scope |
 | --- | --- | --- |
 | enabled | Boolean; automatic typed pair editing, approved true. | Initial buffer policy. |
 | wrap_selection | Boolean; automatic ordinary linear-region wrapping, approved true. | Buffer editing policy. |
@@ -49,7 +51,7 @@ pulse_ms = 250
 | skip_closing | Boolean; skip only an admitted existing closer, approved true. | Buffer editing policy. |
 | quotes | Boolean; automatic quote editing consults the language profile, approved true. | Buffer editing policy; not a parser switch. |
 | highlight | depth, match, pulse or off; depth is the settled default. | Initial view policy. |
-| pulse_ms | Integer 50..1000, proposed 250 ms. | Finite view presentation lifetime. |
+| pulse_ms | Integer 50..1000, default 250 ms. | Finite view presentation lifetime. |
 
 pairs.enabled=false does not disable explicit navigation or pair presentation.
 pairs.quotes=false does not change source syntax or invalidate an existing
@@ -66,8 +68,10 @@ enabled = false
 quotes = false
 ```
 
-The editing nested group admits only enabled, wrap_selection, delete_empty,
-skip_closing and quotes. Each leaf is optional in the parsed document. Omitted
+The completed editing group admits enabled, wrap_selection, delete_empty,
+skip_closing and quotes. Presentation adds optional highlight and pulse_ms at the
+same language scope; view overrides win over this initial view policy. Each leaf
+is optional in the parsed document. Omitted
 siblings inherit resolved global pairs leaves. The language identity remains
 available when syntax color is disabled or a grammar is absent. Unknown leaves,
 wrong types and malformed related values reject through existing validation.
@@ -82,7 +86,7 @@ the base/profile without discarding that explicit override.
 
 ### Visual roles and palette inheritance
 
-The proposed explicit visual override leaves retain their existing draft names:
+The approved explicit visual override leaves retain their existing names:
 
 ```toml
 [palette.pairs]
@@ -106,7 +110,7 @@ Only admitted structural delimiters receive depth foreground. In depth style,
 the active-pair mark retains that foreground and adds background/underline.
 match_text applies to marked structural delimiters in match/pulse; a marked
 quote retains its string foreground. The active-pair mark otherwise uses the
-proposed underline/background policy. Selection/search and cursor/
+approved underline/background policy. Selection/search and cursor/
 diagnostic ownership remain authoritative as defined in the presentation spec.
 NO_COLOR uses supported attributes without manufacturing punctuation or colors.
 
@@ -184,8 +188,9 @@ work. Exhaustion returns limited/uncertain rather than a guessed mate, guessed
 depth or partial edit. Editing byte/depth/retention/cooperative bounds are approved
 and the editing plan records the measured current primitive baseline and resource
 sketch. Verify actual new-service and integrated workloads in Slices 2 and 7.
-Presentation span/pulse bounds and held-navigation acceptance remain proposals
-for their separate deliveries. No new permanent worker/service is introduced.
+Presentation approves the span/pulse bounds above, with all shared and per-view
+retention charged once within the buffer budget. Its plan freezes held-navigation
+and continuity acceptance. No new permanent worker/service is introduced.
 
 ## Editing delivery boundary
 
@@ -205,7 +210,7 @@ Editing is Completed after the controller's unchanged combined gate passed at
 preserves that tested identity separately from the subsequent Markdown-only dev
 closure commit. At editing closure this model stayed Partially approved, with navigation and
 presentation Draft. The subsequent navigation authority is recorded below;
-presentation retains its separate Draft boundary.
+presentation has its own approval and delivery boundary below.
 
 ## Navigation delivery boundary
 
@@ -232,6 +237,24 @@ two owned Linux PTY journeys. The controller's unchanged combined gate passed at
 [closure record](../report/slices/rev-delimiter-navigation/slice-5-acceptance.md#delivery-set-closure)
 distinguishes that tested candidate from the later Markdown-only closure.
 
-Navigation is Completed. Editing remains
-Completed, Presentation remains Draft and this model remains Partially approved.
+Navigation and Editing are Completed. Presentation is Approved for the separate
+delivery below; this shared model is Approved, not yet fully delivered.
 EIP04 closes only its expression portion; paragraph and broad parity stay pending.
+
+## Presentation delivery boundary
+
+[rev-delimiter-presentation](../plan/rev-delimiter-presentation.md) owns the final
+ordered delimiter delivery: six slices and eighteen tasks under the
+[presentation specification](editor-delimiter-presentation.md). It adds the two
+visual commands and six visual leaves: two preferences and four palette roles,
+with depth_colors one list role. Editing/navigation bindings remain unchanged.
+The two preference leaves also inherit at the existing language scope. Palette
+roles remain global and resolve after the active editor palette is merged.
+
+The existing buffer fact owner supplies bounded immutable typed spans to each
+view. Foreground editing/navigation requests retain scheduling and ticket
+ownership. The view owns style, last non-off style, active endpoints and at most
+one finite pulse generation; it owns no independent source/history state.
+Verified source advancement must preserve lexical/nesting proof before colors
+survive an edit. The plan freezes native/frame/PTY workloads and the exact final
+gate, and closure requires current-candidate evidence before Completed status.

@@ -1,0 +1,111 @@
+{
+  "schema_version": 1,
+  "delivery_set": "rev-delimiter-presentation",
+  "planning_baseline": "744497bab434cc38204f091398c89e21d5147476",
+  "independent_oracle": true,
+  "styles": [
+    "depth",
+    "match",
+    "pulse",
+    "off"
+  ],
+  "defaults": {
+    "highlight": "depth",
+    "pulse_ms": 250
+  },
+  "pulse_ms_bounds": [
+    50,
+    1000
+  ],
+  "depth_color_count_bounds": [
+    1,
+    8
+  ],
+  "fallback_cycle_roles": [
+    "syntax.function",
+    "syntax.number",
+    "syntax.keyword",
+    "syntax.type",
+    "syntax.string",
+    "syntax.punctuation"
+  ],
+  "entry_policy": [
+    "typed endpoint at point",
+    "typed endpoint immediately before point"
+  ],
+  "catalog": {
+    "baseline_count": 717,
+    "final_count": 719,
+    "additions": [
+      "pair-highlight-mode",
+      "pair-highlight-style"
+    ],
+    "factory_binding_changes": []
+  },
+  "limits": {
+    "source_bytes_per_request": 262144,
+    "nesting_depth": 256,
+    "visible_spans_per_view": 8192,
+    "retained_pair_bytes_per_buffer": 2097152,
+    "tokens_per_poll": 256,
+    "cooperative_target_ms": 4,
+    "pulse_generations_per_view": 1
+  },
+  "continuity": {
+    "profiles": [
+      "non-modal",
+      "modal"
+    ],
+    "styles": [
+      "depth",
+      "match",
+      "pulse",
+      "off"
+    ],
+    "sources": {
+      "text": "Body target (outer [middle {leaf}]) tail\n",
+      "org": "* Heading\nBody target (outer [middle {leaf}]) tail\n",
+      "markdown": "# Heading\nBody target (outer [middle {leaf}]) tail\n"
+    },
+    "point": "after le in leaf",
+    "insert_ascii_count": 32,
+    "backspace_count": 32,
+    "native_burst_count": 24,
+    "observe_every_completed_frame": true
+  },
+  "stress": {
+    "nesting_depths": [
+      128,
+      256,
+      257
+    ],
+    "dense_adjacent_pairs": 5000,
+    "oversized_token_bytes": 262145
+  },
+  "pty": {
+    "count": 2,
+    "profiles": [
+      "non-modal",
+      "modal"
+    ],
+    "deadline_ms": 8000,
+    "output_byte_limit": 1048576,
+    "held_down_inputs": 96,
+    "reverse_up_inputs": 12,
+    "navigation_source_lines": 1000,
+    "first_progress_ms_max": 250,
+    "release_settle_ms_max": 250,
+    "idle_ms": 350,
+    "idle_cpu_ticks_max": 3,
+    "pair_deadlines_after_expiry": 0,
+    "restore_terminal": true,
+    "reap_owned_child": true
+  },
+  "frozen_inputs": {
+    "ops/default/report/rev-factory-shortcuts/catalog.json": "bd694628253ddd3338e83aa5b79b1821429d50f5a1f6256e8490e0d99a715e3a",
+    "ops/default/report/rev-factory-shortcuts/mapping-proposal.json": "e578368195b2e46acb0c7e7e1a8f3b289ddf0595667f64f890a8cb418d8dd6cf",
+    "ops/default/report/rev-delimiter-navigation/reference-navigation.json": "b11986ff19227d0a30442325b7be95b4074b17b2649ad428bd0d4c717a1e3fd3",
+    "ops/default/report/rev-delimiter-navigation/reference-navigation.el": "3becd84cbe82297735b2a916556a4499cd3c284be9f072579160e93b8e70e724",
+    "ops/default/report/rev-delimiter-navigation/mate-contract.json": "a92c78e4ebf8127b82793cc0bd0703d7340ee7e80149f96abf6d678fd6479a8a"
+  }
+}
