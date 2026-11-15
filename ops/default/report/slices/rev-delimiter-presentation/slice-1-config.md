@@ -5,7 +5,7 @@ Delivery set: rev-delimiter-presentation
 Plan: [Delimiter Presentation Delivery](../../../plan/rev-delimiter-presentation.md)
 Tracker: [Delimiter Presentation Tracker](../../../tracker/rev-delimiter-presentation.md)
 Branch: `feat/rev-delimiter-presentation-01-config`
-PR: pending
+PR: `#67`
 
 ## Purpose
 
@@ -51,7 +51,8 @@ dependency is added.
 
 T1.1-T1.3 form one cohesive implementation commit because the new typed settings,
 view controls, independent catalog assertions and reference schema must agree.
-The PR-reference commit records that implementation identity separately.
+The implementation/report-introduction commit is `fdc1aa13dedfcef2c6ee4902669c5caad90dca6d`.
+Canonical review: [PR #67](https://forge.adrianpk.com/rev/rev/pulls/67).
 
 ## Contracts Added or Changed
 
@@ -94,6 +95,9 @@ owns integration and the combined delivery-set gate.
   root/dispatch inputs, with parameter, nesting and complexity ceilings retained.
   Preserved commit hooks additionally
   enforce the exact staged candidate before each commit.
+- PASS: implementation commit's exact staged hook: full workspace Clippy with
+  zero blocking/deferred diagnostics, all 1,977 first-party files and 81 Cargo
+  roots, with no unsafe code or parameter/nesting/complexity exceptions.
 - PASS: `git diff --check`.
 
 Development checks exposed Serde table admission and root dispatch complexity 11.

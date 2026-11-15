@@ -45,9 +45,9 @@ Branch: `feat/rev-delimiter-presentation-01-config`
 Expected PR title: `feat(editor): configure view-local delimiter presentation`
 Report: `ops/default/report/slices/rev-delimiter-presentation/slice-1-config.md`
 State: reviewing
-PR: pending
-Task commits: pending
-Validation: local required/focused checks passed; final clean-HEAD controller evidence follows the PR-reference commit
+PR: [#67](https://forge.adrianpk.com/rev/rev/pulls/67)
+Task commits: T1.1/T1.2/T1.3/report introduction `fdc1aa13dedfcef2c6ee4902669c5caad90dca6d`.
+Validation: required and focused checks PASS locally; 14 configuration/control cases, preserved exact staged hook, independent complete maps/catalog and documentation PASS. Final ordered clean-HEAD evidence is recorded separately through looper validate after this PR-reference commit; integration and the combined gate remain controller-owned.
 
 - [x] T1.1: Extend the existing global and optional language pairs parser, merge, origins, candidate validation and effective defaults with highlight=depth and pulse_ms=250 (50..1000). Add the four optional palette.pairs roles, existing RGB parsing and 1..8 depth colors; resolve absent roles only after the editor palette is merged. Keep editing and visual preferences independent.
 - [x] T1.2: Add view-local style/last-non-off state and the unbound pair-highlight-mode and pair-highlight-style commands using the existing bounded prompts, argument admission and session/view owners. New views start from resolved global/language defaults; sibling views retain independent overrides. Preserve point, mark, source, history and settings files. Update literal catalog expectations from 717 to 719 and preserve every existing factory binding.
