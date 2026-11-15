@@ -47,6 +47,7 @@ is introduced. Existing modal motion and objects retain their native owners.
 - Counted lookups continue one ticket without resetting inspection or retention.
   Cached fact searches also cooperate. Source reads use a finite 16-scalar window
   and chunk iteration; each newly inspected scalar is charged before admission.
+  The native syntax point observation shares that poll's scalar allowance.
 - Retention counts actual owned Rust payload: the state/work values, reader
   capacity, structural stack, both checkpoint stacks and fact-vector capacity.
   It excludes general allocator bookkeeping and canonical source owned elsewhere.
@@ -85,7 +86,8 @@ Successful focused checks before publication:
 
 - `cargo fmt --all -- --check`: passed.
 - `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test pairs qualification -- --test-threads=1 --nocapture`: 17 tests passed in 36.20 seconds after a 63-second rebuild; the subsequently added native AST-depth case passed in the focused command below.
-- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test pairs -- qualification::native_depth qualification::prefix_horizons --test-threads=1`: 2 passed in 1.65 seconds. The complete selected suite contains 18 tests.
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test pairs -- qualification::native_depth qualification::prefix_horizons --test-threads=1`: 2 passed in 1.65 seconds.
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test pairs qualification::native_observation_budget -- --exact --test-threads=1`: 1 passed in 0.45 seconds. This proves native syntax observation cannot add a 257th scalar read to a poll. The complete selected suite contains 19 tests.
 - `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test modal -- local_targets::structural_targets objects::delimited_objects --test-threads=1`: 2 passed in 22.37 seconds; legacy percent motion and inner/around objects retained.
 - `git diff --check`: passed.
 
@@ -97,7 +99,7 @@ forward typing reuse, recent deletion checkpoints and EOF/lookahead dependencies
 Personal configuration bytes remained unchanged. Fixtures use owned temporary
 files and finite observable-condition deadlines.
 
-Both source commits passed full staged-source formatting, Clippy and native
+All three source/test commits passed full staged-source formatting, Clippy and native
 source policy (1,931 first-party Rust files and 77 Cargo roots after adding the
 suite). Initial source-policy feedback required cohesive function extraction;
 the first commit attempt then rejected one collapsible checkpoint condition.
