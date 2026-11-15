@@ -10,7 +10,7 @@ Execution authority: slices 1-7, predecessor-ordered canonical PRs and controlle
 Planning baseline: `fa48f847e9075eafd2272891c29c7dbf04bf7f16`
 Spec: [Delimiter Pairs](../spec/editor-delimiter-pairs.md)
 Model: [Pair Preferences and Native State](../spec/editor-delimiter-pairs-model.md)
-Active slice: Slice 4 — Empty-pair deletion and quote boundaries
+Active slice: Slice 5 — Selection wrapping and explicit helpers
 Integration target: `dev`
 Plan: [Automatic Delimiter Editing Delivery](../plan/rev-delimiter-editing.md)
 
@@ -114,10 +114,10 @@ Dependency: Slice 3 integrated and closed.
 Branch: `feat/rev-delimiter-editing-04-deletion`
 Expected PR title: `feat(editor): delete empty pairs and preserve quote contexts`
 Report: `ops/default/report/slices/rev-delimiter-editing/slice-4-deletion.md`
-State: reviewing; awaiting controller integration
+State: delivered; PR #58 integrated
 PR: [#58](https://forge.adrianpk.com/rev/rev/pulls/58)
 Task commits: T4.1-T4.3/report introduction `a254aae20d567287160d83da3682fe0e006ca8e1`; deletion, conservative quote proof, native regressions and reader guidance committed together as one complete editing path.
-Validation: formatting, all 13 required deletion/quote tests, 19 shared qualification and 17 typing regressions, focused current-syntax/history checks and documentation with 22 reference tests PASS. Full staged-source hooks PASS for 1,940 Rust files and 77 Cargo roots. Personal settings and frozen factory catalog/manifest preserved. Final exact three-command clean-HEAD validation follows PR-reference commits; combined acceptance remains controller-owned.
+Validation: formatting, all 13 required deletion/quote tests, 19 shared qualification and 17 typing regressions, focused current-syntax/history checks and documentation with 22 reference tests PASS. Full staged-source hooks PASS for 1,940 Rust files and 77 Cargo roots. Personal settings and frozen factory catalog/manifest preserved. Exact three-command clean-HEAD validation PASS at `172fcaeea33367a72f1c98ec09c9281b34d12a86`, including all 13 selected deletion/quote tests. Canonical PR contract verified; PR #58 integrated that same commit into dev. Combined acceptance remains controller-owned.
 
 - [x] T4.1: Integrate Backspace with existing deletion and region precedence. Remove both ends only for an adjacent empty admitted pair, in one undo unit; whitespace/content, disabled policy and uncertain context retain ordinary deletion. Preserve grapheme, line-ending, read-only and history behavior.
 - [x] T4.2: Complete the approved quote/profile matrix across ordinary code and prose contexts. Keep word apostrophes, escaped quotes, Rust lifetime/character ambiguity, raw/triple/template/interpolation ambiguity and unproved embedded contexts literal; confirm current-language evidence before automatic quote edits.
@@ -138,7 +138,7 @@ Dependency: Slice 4 integrated and closed.
 Branch: `feat/rev-delimiter-editing-05-regions`
 Expected PR title: `feat(editor): wrap selections and unwrap confirmed pairs`
 Report: `ops/default/report/slices/rev-delimiter-editing/slice-5-regions.md`
-State: pending predecessor integration
+State: active; implementation in progress
 PR: pending
 Task commits: pending
 Validation: not run

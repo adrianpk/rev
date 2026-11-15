@@ -1,6 +1,6 @@
 # Slice 4: Empty-pair deletion and quote boundaries
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-delimiter-editing
 Plan: [Automatic Delimiter Editing Delivery](../../../plan/rev-delimiter-editing.md)
 Tracker: [Automatic Delimiter Editing Tracker](../../../tracker/rev-delimiter-editing.md)
@@ -107,9 +107,10 @@ after the private tool/cache build. T4.1-T4.3 were committed together to keep th
 deletion path, its quote proof, native regressions and reader guidance reviewable.
 The final structural/quote history matrix also passed its focused test in 1.31
 seconds after 3 seconds of linking.
-The controller receipt will use exactly the three injected commands at clean
-published HEAD after PR-reference commits. Combined acceptance remains
-controller-owned.
+The exact three-command clean-HEAD controller receipt passed at
+`172fcaeea33367a72f1c98ec09c9281b34d12a86`, including all 13 selected tests.
+Canonical PR #58 integrated that same commit into dev. Combined acceptance
+remains controller-owned.
 
 ## Risks and Follow-ups
 
