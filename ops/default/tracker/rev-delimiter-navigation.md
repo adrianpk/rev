@@ -66,14 +66,14 @@ Dependency: Slice 1 integrated and closed.
 Branch: `feat/rev-delimiter-navigation-02-groups`
 Expected PR title: `feat(editor): navigate forward and backward across groups`
 Report: `ops/default/report/slices/rev-delimiter-navigation/slice-2-groups.md`
-State: ready; active
+State: reviewing; active
 PR: pending
-Task commits: pending
-Validation: not run
+Task commits: T2.1/T2.2 `1d82c5099ed24fcf35d3670e4ce6c7693fc98894`; T2.3/report introduction pending commit.
+Validation: all three ordered required commands PASS locally. Native navigation (25 tests), invalidation (2), shared qualification (21), modal percent/objects (2), independent maps/catalog and documentation PASS. The implementation staged-source hook PASS; final clean-HEAD evidence is recorded separately through looper validate after PR-reference commit. Combined acceptance remains controller-owned.
 
-- [ ] T2.1: Implement forward-pair and backward-pair with the approved mode/group syntax policy, distinct from strict typed mate validation. Traverse complete groups, skip declared comments/strings and preserve the no-next-group case when starting inside an atom without a later group at the current nesting level. Keep mismatched-kind grouping separate from typed proof.
-- [ ] T2.2: Apply native signed counts once in one captured request; zero is inert, negative reverses direction and all iterations share byte/depth/memory/work admission. Accept normal reference file boundaries while refusing unproved or malformed destinations atomically. Preserve active linear mark and native grapheme boundaries, without source edits or new undo entries.
-- [ ] T2.3: Add the two canonical commands and C-M-n/C-M-p base-editor defaults, inherited only through existing map rules. Update independent expectations to 713 commands plus exactly these two base leaves. Test reference endpoints, counts, mode lexical exclusions, region/read-only behavior, custom overrides and preserved modal percent/objects; update delivered guidance and the report.
+- [x] T2.1: Implement forward-pair and backward-pair with the approved mode/group syntax policy, distinct from strict typed mate validation. Traverse complete groups, skip declared comments/strings and preserve the no-next-group case when starting inside an atom without a later group at the current nesting level. Keep mismatched-kind grouping separate from typed proof.
+- [x] T2.2: Apply native signed counts once in one captured request; zero is inert, negative reverses direction and all iterations share byte/depth/memory/work admission. Accept normal reference file boundaries while refusing unproved or malformed destinations atomically. Preserve active linear mark and native grapheme boundaries, without source edits or new undo entries.
+- [x] T2.3: Add the two canonical commands and C-M-n/C-M-p base-editor defaults, inherited only through existing map rules. Update independent expectations to 713 commands plus exactly these two base leaves. Test reference endpoints, counts, mode lexical exclusions, region/read-only behavior, custom overrides and preserved modal percent/objects; update delivered guidance and the report.
 
 Required commands:
 
