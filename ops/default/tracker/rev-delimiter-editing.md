@@ -66,14 +66,14 @@ Dependency: Slice 1 integrated and closed.
 Branch: `feat/rev-delimiter-editing-02-qualification`
 Expected PR title: `feat(editor): qualify delimiter pairs with bounded context`
 Report: `ops/default/report/slices/rev-delimiter-editing/slice-2-qualification.md`
-State: ready; active
+State: reviewing; awaiting controller integration
 PR: pending
-Task commits: pending
-Validation: not run
+Task commits: T2.1 and native T2.2/report introduction `cf787fbd636b5f80d2f535b6bc8838b7eef56c1e`; T2.2 measurements and T2.3 regressions `8fe4e91dae6acb74a6bd3a015c0ca5d9250f9488`.
+Validation: formatting, native source policy and both staged-source hooks PASS; 17-case qualification batch plus added native-depth/horizon checks PASS, covering all 18 selected tests; two existing modal structural/object regressions PASS. All fixed bounds and measured costs are recorded in the report. Exact three-command validation is recorded for the final clean published HEAD before handoff; combined acceptance remains controller-owned.
 
-- [ ] T2.1: Implement one cohesive native owner for language/context classification and strict typed-pair qualification. Reuse current syntax when qualified; use the approved conservative lexical policy otherwise. Retain buffer/revision, native spans, delimiter kind, provenance and explicit uncertain/limited outcomes; do not expose navigation commands or reuse loose group-motion results as mate proof.
-- [ ] T2.2: Enforce the fixed inspected-byte, nesting, retained-memory and cooperative-work bounds, including oversized tokens, counted-request reuse, cancellation and source replacement. Never retain tree nodes across revisions or scan the whole source on each key/frame. Record actual new-service work, latency and retention measurements against the planning baseline.
-- [ ] T2.3: Introduce tests/pairs.rs with qualification cases for mixed/nested/malformed and multiline punctuation, strings/comments/escapes, approved language profiles, stale/current syntax and disabled syntax colors, UTF-8/CRLF and every resource boundary. Preserve existing modal percent matching and inner/around objects; provide the slice report.
+- [x] T2.1: Implement one cohesive native owner for language/context classification and strict typed-pair qualification. Reuse current syntax when qualified; use the approved conservative lexical policy otherwise. Retain buffer/revision, native spans, delimiter kind, provenance and explicit uncertain/limited outcomes; do not expose navigation commands or reuse loose group-motion results as mate proof.
+- [x] T2.2: Enforce the fixed inspected-byte, nesting, retained-memory and cooperative-work bounds, including oversized tokens, counted-request reuse, cancellation and source replacement. Never retain tree nodes across revisions or scan the whole source on each key/frame. Record actual new-service work, latency and retention measurements against the planning baseline.
+- [x] T2.3: Introduce tests/pairs.rs with qualification cases for mixed/nested/malformed and multiline punctuation, strings/comments/escapes, approved language profiles, stale/current syntax and disabled syntax colors, UTF-8/CRLF and every resource boundary. Preserve existing modal percent matching and inner/around objects; provide the slice report.
 
 Required commands:
 
