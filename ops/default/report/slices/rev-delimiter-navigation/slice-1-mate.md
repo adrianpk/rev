@@ -1,6 +1,6 @@
 # Slice 1: Confirmed mate jump
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-delimiter-navigation
 Plan: [Delimiter Navigation Delivery](../../../plan/rev-delimiter-navigation.md)
 Tracker: [Delimiter Navigation Tracker](../../../tracker/rev-delimiter-navigation.md)
@@ -107,6 +107,9 @@ queued insertion. This measures native input processing, not a physical PTY.
 
 ## Risks and Follow-ups
 
-Controller-owned integration and combined acceptance remain pending. Physical
+PR #62 integrated validated commit `295aa89a6ac9db401784fbdd972d1624216a392d`
+into dev. Its three ordered required checks passed through looper validate.
+The clean inactive integrated worktree was removed without force.
+Controller-owned combined acceptance remains pending. Physical
 PTY acceptance belongs to Slice 5; group/expression motions remain later slices.
 The existing vendored crossterm unused-parentheses warning remains unchanged.

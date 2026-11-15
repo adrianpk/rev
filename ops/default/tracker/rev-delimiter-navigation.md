@@ -12,7 +12,7 @@ Spec: [Delimiter Navigation](../spec/editor-delimiter-navigation.md)
 Model: [Pair Preferences and Native State](../spec/editor-delimiter-pairs-model.md)
 Concern: [Operations index](../README.md)
 Concern: [Interaction Parity](../spec/editor-emacs-interaction-parity.md)
-Active slice: Slice 1 — Confirmed mate jump
+Active slice: Slice 2 — Forward and backward groups
 Integration target: `dev`
 Plan: [Delimiter Navigation Delivery](../plan/rev-delimiter-navigation.md)
 
@@ -42,10 +42,10 @@ Dependency: approved committed preparation and completed editing delivery.
 Branch: `feat/rev-delimiter-navigation-01-mate`
 Expected PR title: `feat(editor): jump to confirmed matching delimiters`
 Report: `ops/default/report/slices/rev-delimiter-navigation/slice-1-mate.md`
-State: reviewing; PR #62 open
+State: delivered; PR #62 integrated
 PR: [#62](https://forge.adrianpk.com/rev/rev/pulls/62)
 Task commits: T1.1/T1.2 `1c3491110d73603a21b0b9a4a792bcc7d4fe7d3a`; T1.3/report introduction `a089ebeac4f55919cff7fae1820c79649e826f16`.
-Validation: formatting, approved mate cases and supplemental lifecycle/history/modal checks PASS. One native point/mark/focus invalidation test, complete independent factory maps/catalog and documentation checks PASS. Final clean-HEAD evidence follows the PR-reference commit; integration and the combined gate remain controller-owned.
+Validation: all three ordered required commands PASS through looper validate at `295aa89a6ac9db401784fbdd972d1624216a392d`, integrated by canonical PR #62. Native invalidation, independent maps/catalog, documentation and both staged-source hooks PASS. Fetched ancestry and clean inactive owned worktree verified; worktree removed without force. The combined gate remains controller-owned.
 
 - [x] T1.1: Add a bounded typed-mate motion through the existing buffer request and session navigation owners. Prefer a delimiter at point, then immediately before; use confirmed structural/quote endpoints and preserve strict type matching. Do not search later in the line, infer raw-string proof or expose group results as typed mates.
 - [x] T1.2: Publish matching-delimiter as one unbound native command, with named dispatch, descriptions and truthful hints. It works on read-only source and with automatic pairs or quote editing disabled. Use native unsupported-prefix admission rather than repeating a mate jump. Capture source/revision, view, point/mark and focus; support native cancellation, shared request budgets and safe source-jump publication.
@@ -66,7 +66,7 @@ Dependency: Slice 1 integrated and closed.
 Branch: `feat/rev-delimiter-navigation-02-groups`
 Expected PR title: `feat(editor): navigate forward and backward across groups`
 Report: `ops/default/report/slices/rev-delimiter-navigation/slice-2-groups.md`
-State: pending predecessor integration
+State: ready; active
 PR: pending
 Task commits: pending
 Validation: not run

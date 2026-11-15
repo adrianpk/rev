@@ -12,7 +12,7 @@ Spec: [Delimiter Navigation](../spec/editor-delimiter-navigation.md)
 Model: [Pair Preferences and Native State](../spec/editor-delimiter-pairs-model.md)
 Concern: [Operations index](../README.md)
 Concern: [Interaction Parity](../spec/editor-emacs-interaction-parity.md)
-Active slice: Slice 1 — Confirmed mate jump
+Active slice: Slice 2 — Forward and backward groups
 Integration target: `dev`
 Tracker: [Delimiter Navigation Tracker](../tracker/rev-delimiter-navigation.md)
 
