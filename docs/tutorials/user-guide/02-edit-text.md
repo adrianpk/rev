@@ -93,6 +93,13 @@ automatic pairing disabled. M-x forward-pair/backward-pair invoke the same
 operations. For a jump onto the opposite confirmed delimiter itself, use the
 unbound M-x matching-delimiter command.
 
+Try `(note [next])` to navigate nesting. From before the outer parenthesis,
+C-M-d enters it and another C-M-d enters the brackets. C-M-u returns to the
+bracket opener; another C-M-u returns to the outer opener. C-u 2 C-M-d enters
+both levels at once. Use M-x up-pair/down-pair when the terminal intercepts a
+chord. A negative count leaves forward or enters backward; refusal preserves
+point and the active mark.
+
 Save with `C-x C-s`. You can also select text by dragging with the primary
 mouse button, or paste text through your terminal. For more tasks, see
 [Use command prefix arguments](../../how-to/use-prefix-arguments.md); the

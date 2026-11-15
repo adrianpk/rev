@@ -17,6 +17,14 @@ pub struct GroupRequest {
     pub point: Scalar,
     pub backward: bool,
     count: i32,
+    movement: Movement,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+enum Movement {
+    Across,
+    Up,
+    Down,
 }
 
 impl GroupRequest {
@@ -26,12 +34,22 @@ impl GroupRequest {
                 point,
                 backward,
                 count,
+                movement: Movement::Across,
             },
         )
     }
 
     pub fn count(self) -> i32 {
         self.count
+    }
+
+    /// Leave an enclosing group backward, or enter a nested group forward.
+    /// A negative count reverses that direction under the same work budget.
+    pub fn nesting(point: Scalar, down: bool, count: i32) -> Option<Self> {
+        Self::new(point, !down, count).map(|mut request| {
+            request.movement = if down { Movement::Down } else { Movement::Up };
+            request
+        })
     }
 }
 
@@ -75,6 +93,7 @@ pub(super) struct Work {
     groups: Vec<Group>,
     search: Option<usize>,
     base: Option<usize>,
+    floor: Option<usize>,
     destination: usize,
     stats: Stats,
     hint: Option<Hint>,
@@ -99,6 +118,7 @@ impl Work {
             groups: Vec::new(),
             search: None,
             base: None,
+            floor: None,
             destination: request.point.0,
             stats: Stats {
                 syntax_nodes: hint.as_ref().map_or(0, |h| h.nodes),
@@ -208,8 +228,25 @@ impl Work {
         }
         self.base = Some(self.stack.len());
         if self.backward {
-            self.search = Some(self.groups.len());
+            self.begin_backward();
         }
+    }
+
+    fn begin_backward(&mut self) {
+        if self.request.movement != Movement::Up {
+            self.search = Some(self.groups.len());
+            return;
+        }
+        let count = usize::try_from(self.remaining).expect("bounded group count fits usize");
+        let outcome = self
+            .stack
+            .len()
+            .checked_sub(count)
+            .and_then(|index| self.stack.get(index))
+            .map_or(GroupOutcome::NoGroup, |&start| {
+                GroupOutcome::Target(Scalar(start))
+            });
+        self.finish(outcome);
     }
 
     fn observe_depth(&mut self) -> Result<(), Pause> {
@@ -252,6 +289,11 @@ impl Work {
         }
         self.stack.push(at);
         self.stats.maximum_depth = self.stats.maximum_depth.max(self.stack.len());
+        if self.base.is_some() && self.request.movement == Movement::Down && !self.backward {
+            self.destination = self.reader.at;
+            self.remaining -= 1;
+            self.base = Some(self.stack.len());
+        }
         Ok(())
     }
 
@@ -261,15 +303,24 @@ impl Work {
             return Ok(());
         };
         let depth = self.stack.len();
-        if self.backward {
+        if self.backward && self.request.movement != Movement::Up {
             return self.retain(Group {
                 start,
                 end: self.reader.at,
                 depth,
             });
         }
+        match self.request.movement {
+            Movement::Across => self.across_close(start, depth),
+            Movement::Up => self.up_close(depth),
+            Movement::Down => self.down_close(depth),
+        }
+        Ok(())
+    }
+
+    fn across_close(&mut self, start: usize, depth: usize) {
         let Some(base) = self.base else {
-            return Ok(());
+            return;
         };
         if depth < base {
             self.finish(GroupOutcome::NoGroup);
@@ -277,7 +328,26 @@ impl Work {
             self.destination = self.reader.at;
             self.remaining -= 1;
         }
-        Ok(())
+    }
+
+    fn up_close(&mut self, depth: usize) {
+        let Some(base) = self.base else {
+            return;
+        };
+        if depth < base {
+            self.destination = self.reader.at;
+            self.remaining -= 1;
+            self.base = Some(depth);
+        }
+    }
+
+    fn down_close(&mut self, depth: usize) {
+        let Some(base) = self.base else {
+            return;
+        };
+        if depth < base {
+            self.finish(GroupOutcome::NoGroup);
+        }
     }
 
     fn retain(&mut self, group: Group) -> Result<(), Pause> {
@@ -302,7 +372,7 @@ impl Work {
     fn search_step(&mut self) {
         let index = self.search.expect("owned backward group search");
         if index == 0 {
-            let outcome = if self.base == Some(0) {
+            let outcome = if self.base == Some(0) && self.request.movement == Movement::Across {
                 GroupOutcome::Boundary(Scalar(0))
             } else {
                 GroupOutcome::NoGroup
@@ -312,14 +382,26 @@ impl Work {
         }
         self.search = Some(index - 1);
         let group = &self.groups[index - 1];
-        if Some(group.depth) == self.base && group.end <= self.destination {
-            self.destination = group.start;
+        if Some(group.depth) == self.base
+            && group.end <= self.destination
+            && self.floor.is_none_or(|start| group.start > start)
+        {
+            if self.request.movement == Movement::Down {
+                self.destination = group.end - 1;
+                self.base = Some(group.depth + 1);
+                self.floor = Some(group.start);
+            } else {
+                self.destination = group.start;
+            }
             self.remaining -= 1;
         }
     }
 
     fn eof(&mut self) {
-        let outcome = if self.stack.is_empty() && self.lexical.complete_at_eof() {
+        let outcome = if self.request.movement == Movement::Across
+            && self.stack.is_empty()
+            && self.lexical.complete_at_eof()
+        {
             GroupOutcome::Boundary(Scalar(self.reader.at))
         } else {
             GroupOutcome::NoGroup

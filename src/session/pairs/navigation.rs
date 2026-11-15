@@ -1,6 +1,7 @@
 use std::time::Instant;
 
 use crate::buffer::edit::{Error, Point};
+use crate::command::Command;
 use crate::coordinates::{Coordinates, Scalar};
 use crate::input::EditingState;
 use crate::pairs::{GroupOutcome, GroupRequest, Outcome, Status, Ticket};
@@ -33,24 +34,33 @@ impl Session {
         self.begin_pair_navigation(None)
     }
 
-    pub(in crate::session) fn group_motion(&mut self, backward: bool, count: i32) -> Action {
+    pub(in crate::session) fn group_motion(&mut self, command: Command, count: i32) -> Action {
         if count == 0 {
             return self.message("");
         }
         if !self.pair_navigation_focus() {
             return self.error("Group motion requires source input focus");
         }
-        self.command_boundary(if backward {
-            crate::command::Command::BackwardPair
-        } else {
-            crate::command::Command::ForwardPair
-        });
+        self.command_boundary(command);
         if let Err(error) = self.stop_typing() {
             return self.error(&error.to_string());
         }
-        let request = GroupRequest::new(self.view().point.position, backward, count)
-            .expect("native prefix magnitude is admitted");
+        let request = self.group_request(command, count);
         self.begin_pair_navigation(Some(request))
+    }
+
+    fn group_request(&self, command: Command, count: i32) -> GroupRequest {
+        let point = self.view().point.position;
+        match command {
+            Command::ForwardPair | Command::BackwardPair => {
+                GroupRequest::new(point, command == Command::BackwardPair, count)
+            }
+            Command::UpPair | Command::DownPair => {
+                GroupRequest::nesting(point, command == Command::DownPair, count)
+            }
+            _ => unreachable!("group command admission precedes request construction"),
+        }
+        .expect("native prefix magnitude is admitted")
     }
 
     fn begin_pair_navigation(&mut self, groups: Option<GroupRequest>) -> Action {

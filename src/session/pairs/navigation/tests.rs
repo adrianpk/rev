@@ -38,8 +38,21 @@ fn groups_stale() {
     }
 }
 
+// Leaving a deeply located enclosing group still captures point/mark/focus
+// through the same cooperative owner and retires its unfinished prefix scan.
+#[test]
+fn nesting_stale() {
+    for change in ["point", "mark", "focus"] {
+        stale_navigation(Command::UpPair, change);
+    }
+}
+
 fn stale_navigation(command: Command, change: &str) {
     let mut session = editor();
+    if command == Command::UpPair {
+        let point = session.buffer().unwrap().len_chars() - 1;
+        session.windows.selected_mut().point.position = Scalar(point);
+    }
     session.execute(command);
     let ticket = session.layout.navigation.as_ref().unwrap().ticket;
     match change {

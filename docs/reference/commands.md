@@ -321,7 +321,7 @@ compiled M-x name once.
 | Jump traversal | `modal-jump-backward`, `modal-jump-forward` |
 | Source wrapping | `visual-line-mode` |
 | Automatic delimiter editing | `auto-pair-mode`, `pair-wrap`, `pair-unwrap` |
-| Delimiter navigation | `matching-delimiter`, `forward-pair`, `backward-pair` |
+| Delimiter navigation | `matching-delimiter`, `forward-pair`, `backward-pair`, `up-pair`, `down-pair` |
 | Gutter | `gutter-toggle-line-numbers`, `gutter-cycle-line-number-mode`, `gutter-set-line-numbers-absolute`, `gutter-set-line-numbers-relative`, `gutter-cycle-current-line`, `gutter-toggle-line-number-side`, `gutter-inspect-numbering`, `gutter-reset-numbering` |
 | Bookmarks | `bookmark-set`, `bookmark-set-no-overwrite`, `bookmark-jump`, `bookmark-delete`, `bookmark-save`, `bookmark-reload`, `list-bookmarks`, `bookmark-next`, `bookmark-previous`, `bookmark-markers-mode`, `bookmark-bmenu-delete`, `bookmark-bmenu-unmark`, `bookmark-bmenu-execute-deletions`, `bookmark-bmenu-this-window` |
 | Rectangles | `rectangle-mark-mode`, `copy-rectangle-as-kill`, `kill-rectangle`, `yank-rectangle` |
@@ -347,6 +347,15 @@ Group syntax can accept [a) without proving a typed mate. Inside an enclosing
 group, starting in an atom with no later group at that level reports no group.
 The two chords inherit through existing source maps and modal Insert/Replace;
 Normal/Visual defaults and component-owned input retain their existing maps.
+
+C-M-u (up-pair) leaves the enclosing group backward, landing on its opening
+delimiter. C-M-d (down-pair) enters the next nested group forward, landing just
+after its opening delimiter. Counts repeat the nesting operation in one bounded
+request. A negative up-pair leaves forward after enclosing closers; a negative
+down-pair enters backward just before closing delimiters. Missing enclosing or
+nested groups refuse without changing point or the active mark. Folded targets
+are revealed in the selected view through native source projection; peer folds
+and source bytes stay unchanged. The same profile, focus and count rules apply.
 
 ## Line navigation
 

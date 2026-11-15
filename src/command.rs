@@ -120,6 +120,8 @@ pub enum Command {
     MatchingDelimiter,
     ForwardPair,
     BackwardPair,
+    UpPair,
+    DownPair,
     Mode(Mode),
     Org(OrgCommand),
     Markdown(MarkdownCommand),
@@ -164,7 +166,7 @@ pub enum Command {
 }
 
 impl Command {
-    pub const ALL: [Self; 713] = [
+    pub const ALL: [Self; 715] = [
         Self::Plugin(PluginCommand::List),
         Self::Plugin(PluginCommand::Activate),
         Self::Plugin(PluginCommand::Deactivate),
@@ -562,6 +564,8 @@ impl Command {
         Self::MatchingDelimiter,
         Self::ForwardPair,
         Self::BackwardPair,
+        Self::UpPair,
+        Self::DownPair,
         Self::Org(OrgCommand::PrettyHeadings),
         Self::Org(OrgCommand::ResetHeadingPresentation),
         Self::Org(OrgCommand::IndentMode),
@@ -1325,6 +1329,8 @@ impl Command {
             Self::MatchingDelimiter => "matching-delimiter",
             Self::ForwardPair => "forward-pair",
             Self::BackwardPair => "backward-pair",
+            Self::UpPair => "up-pair",
+            Self::DownPair => "down-pair",
             _ => unreachable!("non-edit commands delegate before pair lookup"),
         }
     }
@@ -1349,6 +1355,8 @@ impl Command {
             Self::BackwardPair => {
                 "Move backward across counted mode-defined groups without editing source."
             }
+            Self::UpPair => "Move backward out of counted enclosing groups without editing source.",
+            Self::DownPair => "Move forward into counted nested groups without editing source.",
             _ => unreachable!("non-edit commands delegate before pair lookup"),
         }
     }
@@ -1423,6 +1431,8 @@ impl Command {
                 | Self::Motion(_)
                 | Self::ForwardPair
                 | Self::BackwardPair
+                | Self::UpPair
+                | Self::DownPair
                 | Self::Scroll(_)
                 | Self::History(_)
                 | Self::Region(_)

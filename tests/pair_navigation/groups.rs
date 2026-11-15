@@ -33,7 +33,7 @@ struct Case {
     error: Option<String>,
 }
 
-fn marked(source: &str, point: usize) -> String {
+pub(super) fn marked(source: &str, point: usize) -> String {
     let mut source = source.to_owned();
     let at = source
         .char_indices()
@@ -43,7 +43,7 @@ fn marked(source: &str, point: usize) -> String {
     source
 }
 
-fn keys(e: &mut Editor, input: &str) {
+pub(super) fn keys(e: &mut Editor, input: &str) {
     for chord in input.split_whitespace() {
         if let Ok(number) = chord.parse::<i32>() {
             for c in number.to_string().chars() {
@@ -59,7 +59,7 @@ fn keys(e: &mut Editor, input: &str) {
     settle(&mut e.session);
 }
 
-fn named(e: &mut Editor, name: &str) {
+pub(super) fn named(e: &mut Editor, name: &str) {
     e.session.execute(Command::ExecuteExtended);
     e.session.handle(Event::Paste(name.into()));
     e.session.handle(key(KeyCode::Enter, KeyModifiers::NONE));
@@ -121,7 +121,7 @@ fn reference() {
     assert_eq!(count, 31);
 }
 
-fn echo(e: &mut Editor) -> String {
+pub(super) fn echo(e: &mut Editor) -> String {
     e.session
         .frame()
         .unwrap()
@@ -331,7 +331,7 @@ fn lifecycle() {
     assert_eq!(e.text(), format!("{source}x"));
 }
 
-fn complete(buffer: &mut Buffer, ticket: Ticket) -> (GroupAnswer, Duration) {
+pub(super) fn complete(buffer: &mut Buffer, ticket: Ticket) -> (GroupAnswer, Duration) {
     let deadline = Instant::now() + Duration::from_secs(10);
     let mut maximum = Duration::ZERO;
     loop {
@@ -347,7 +347,7 @@ fn complete(buffer: &mut Buffer, ticket: Ticket) -> (GroupAnswer, Duration) {
     }
 }
 
-fn bounded(answer: &GroupAnswer) {
+pub(super) fn bounded(answer: &GroupAnswer) {
     assert!(answer.stats.inspected_bytes <= rev::pairs::MAX_BYTES);
     assert!(answer.stats.retained_bytes <= rev::pairs::MAX_METADATA);
     assert!(answer.stats.maximum_depth <= rev::pairs::MAX_DEPTH);

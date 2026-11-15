@@ -67,7 +67,7 @@ pub(super) fn run() -> Result<()> {
     add_navigation_maps(&mut expected)?;
     compare_maps(&expected)?;
     println!(
-        "PASS accepted manifest: 707 original commands plus three editing commands and three navigation commands, six actions, 28 complete maps, 29 records / 49 base edits, inherited and retired leaves, both profiles; untouched defaults preserved"
+        "PASS accepted manifest: 707 original commands plus three editing commands and five navigation commands, six actions, 28 complete maps, 29 records / 49 base edits, inherited and retired leaves, both profiles; untouched defaults preserved"
     );
     Ok(())
 }
@@ -102,7 +102,12 @@ fn add_navigation_maps(expected: &mut Maps) -> Result<()> {
         "macro_definition",
         "git_commit",
     ] {
-        for (key, name) in [("C-M-n", "forward-pair"), ("C-M-p", "backward-pair")] {
+        for (key, name) in [
+            ("C-M-n", "forward-pair"),
+            ("C-M-p", "backward-pair"),
+            ("C-M-u", "up-pair"),
+            ("C-M-d", "down-pair"),
+        ] {
             let old = expected
                 .get_mut(context)
                 .expect("frozen source context")
@@ -123,11 +128,13 @@ fn inventory(catalog: &Catalog) {
         "matching-delimiter",
         "forward-pair",
         "backward-pair",
+        "up-pair",
+        "down-pair",
     ]);
     let live: BTreeSet<_> = Command::ALL.iter().map(Command::name).collect();
     assert!(names.is_disjoint(&added));
     assert!(added.is_subset(&live));
-    assert_eq!(live.len(), 713);
+    assert_eq!(live.len(), 715);
     assert_eq!(names, live.difference(&added).copied().collect());
     let actions: BTreeSet<_> = catalog.actions.iter().map(String::as_str).collect();
     assert_eq!(actions.len(), 6);

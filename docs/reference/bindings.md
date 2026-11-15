@@ -215,6 +215,8 @@ Every command below is also available as `M-x` followed by its exact name.
 | `M-x matching-delimiter` | `matching-delimiter` | Jump to the confirmed typed mate at or immediately before point without editing source. |
 | `C-M-n` | `forward-pair` | Move forward across counted mode-defined groups without editing source. |
 | `C-M-p` | `backward-pair` | Move backward across counted mode-defined groups without editing source. |
+| `C-M-u` | `up-pair` | Move backward out of counted enclosing groups without editing source. |
+| `C-M-d` | `down-pair` | Move forward into counted nested groups without editing source. |
 | `M-x gutter-toggle-line-numbers` | `gutter-toggle-line-numbers` | Hide or restore numbers, retaining mode. |
 | `M-x gutter-cycle-line-number-mode` | `gutter-cycle-line-number-mode` | Alternate absolute and relative, retaining visibility. |
 | `M-x gutter-set-line-numbers-absolute` | `gutter-set-line-numbers-absolute` | Show absolute logical line numbers. |

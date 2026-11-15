@@ -391,6 +391,8 @@ fn editing(command: Command) -> bool {
         Command::Motion(_)
             | Command::ForwardPair
             | Command::BackwardPair
+            | Command::UpPair
+            | Command::DownPair
             | Command::Scroll(_)
             | Command::Newline
             | Command::InsertTab

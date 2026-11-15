@@ -134,12 +134,9 @@ impl Session {
         if self.source_layout_focus() {
             if matches!(
                 invocation.command,
-                Command::ForwardPair | Command::BackwardPair
+                Command::ForwardPair | Command::BackwardPair | Command::UpPair | Command::DownPair
             ) {
-                return Some(self.group_motion(
-                    invocation.command == Command::BackwardPair,
-                    invocation.argument.value(),
-                ));
+                return Some(self.group_motion(invocation.command, invocation.argument.value()));
             }
             if invocation.command == Command::PairWrap {
                 return Some(self.start_pair_wrap_prompt(invocation.argument));
