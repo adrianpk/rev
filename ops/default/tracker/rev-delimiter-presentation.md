@@ -3,6 +3,12 @@
 Status: Approved
 Date: 2026-11-15
 Delivery set: rev-delimiter-presentation
+Slice strategy: behavior-first
+Planning authority: product-owner continuation to the final delimiter delivery, 2026-11-15
+Approved: product owner, 2026-11-15; presentation after accepted editing and navigation
+Execution authority: slices 1-6 and controller-owned predecessor-ordered Rebase + Fast-forward integration into dev
+Planning baseline: `744497bab434cc38204f091398c89e21d5147476`
+Integration target: `dev`
 Plan: `ops/default/plan/rev-delimiter-presentation.md`
 Spec: `ops/default/spec/editor-delimiter-presentation.md`
 Model: `ops/default/spec/editor-delimiter-pairs-model.md`
