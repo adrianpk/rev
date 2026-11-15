@@ -1,12 +1,15 @@
 # Delimiter Pairs
 
-Status: Draft
+Status: Approved
 Date: 2026-11-08
 Updated: 2026-11-15
-Format: OpenSpec capability proposal
+Format: OpenSpec capability specification
 Inspection baseline: dd1b569dd9c6e480ae4dd82a1f298bcc8478072f
 Review scope: automatic pair editing and the shared qualified pairing contract
-Implementation authority: specification refinement only; proposed editing defaults remain under review
+Approved: product owner, 2026-11-15; first capability, slicing and Looper execution
+Implementation authority: automatic pair editing and shared qualification only
+Plan: [Automatic Delimiter Editing Delivery](../plan/rev-delimiter-editing.md)
+Tracker: [Automatic Delimiter Editing Tracker](../tracker/rev-delimiter-editing.md)
 Model: [Pair Preferences and Native State](editor-delimiter-pairs-model.md)
 Baselines: [Bindings](../../../docs/reference/bindings.md), [Commands](../../../docs/reference/commands.md), [Configuration](../../../docs/reference/config.toml)
 Prerequisites: [Command Prefix Arguments](editor-prefix-arguments.md), [Keyboard Macros](editor-keyboard-macros.md), both delivered
@@ -33,7 +36,7 @@ one authoritative owner in the corresponding documents below.
 All three share the existing model companion. Disabling automatic editing does
 not disable navigation or color. Presentation can be approved or delivered
 without enabling automatic editing. Shared qualification has its own acceptance;
-it does not silently authorize every proposed editing default.
+the approved editing delivery does not authorize navigation or presentation implementation.
 
 [Interaction Parity](editor-emacs-interaction-parity.md), EIP04, remains the owner
 of paragraph and syntax-aware expression (sexp) behavior. It does not own automatic
@@ -59,10 +62,10 @@ Evidence: [matching](../../../src/coordinates/navigation/structure.rs),
 [palette](../../../src/config/palette.rs).
 At the inspection baseline, the startup schema has no pairs settings or pair
 palette, and language overrides admit editing indentation and grammar fields,
-not pairing leaves. The proposed TOML below requires explicit schema work; it
+not pairing leaves. The editing TOML requires explicit schema work; it
 is not configuration accepted by the installed binary.
 
-This draft does not claim these new capabilities are implemented.
+Approval authorizes implementation; it does not claim these capabilities are delivered.
 
 ## Shared pair contract
 
@@ -84,24 +87,25 @@ comments, Rust lifetimes/raw strings and template/interpolation boundaries stay
 literal or uncertain unless the profile proves the requested operation safe.
 Plain text can admit ordinary () [] {} without pretending to parse a language.
 
-The proposed starting limits are 256 KiB of fallback source inspection per
-request, depth 256, 8,192 painted delimiter spans per view and 2 MiB retained
-pair metadata per buffer. Cooperative work uses at most 256 tokens per slice
-and the existing four-millisecond native input scheduling target. Counted work
-shares one admitted request budget. One unusually large token may not bypass
-the byte bound. Measure and freeze the actual workload/limits before a delivery
-plan; these values are proposals, not measured results.
+The approved editing limits are 256 KiB of fallback source inspection per
+request, depth 256 and 2 MiB retained pair metadata per buffer. Cooperative work
+uses at most 256 tokens per slice and the existing four-millisecond native input
+scheduling target. Counted work shares one admitted request budget. One unusually
+large token may not bypass the byte bound or cancellation checkpoints. The plan
+records the measured current raw-scan baseline and resource sketch; Slice 2 must
+measure and verify the new service before typing integration. These hard limits
+are approved boundaries, not claims about future measured capacity. Presentation
+span limits belong to the separately scheduled visual capability.
 
 No permanent idle worker, per-delimiter timer, filesystem discovery, language
 server or new parser dependency is required. Presentation consumes bounded,
 qualified cached results rather than running a whole-file scan per frame.
 
-
-## Proposed ordinary behavior
+## Approved ordinary behavior
 
 ### Automatic pair editing
 
-The proposed public toggle is auto-pair-mode. In source text entry, typing an
+The public toggle is auto-pair-mode. In source text entry, typing an
 admitted opening delimiter inserts its closer and leaves point between them.
 For example, typing ( in an empty eligible context produces (|), where | marks
 point and is not document text. Typing the matching closer immediately before
@@ -139,7 +143,7 @@ additional input events. In an empty eligible buffer, C-u 3 ( produces ((()))
 with point after the three openers. Budget exhaustion refuses the whole counted
 edit before publication; it cannot leave half an admitted pair operation.
 
-Proposed wrapping placement follows the controlled reference: typing an opener
+Wrapping placement follows the controlled reference: typing an opener
 around an active linear selection leaves point immediately after the outer
 opener; typing its closer leaves point after the outer closer. The region is
 deactivated. Symmetric quote wrapping uses opener placement when admitted by
@@ -148,7 +152,6 @@ selection orientation. Explicit pair-wrap uses the opener placement. pair-unwrap
 only the confirmed enclosing delimiters and maps point/mark through that edit;
 strings/quotes that cannot be unwrapped without changing their literal meaning
 refuse before mutation.
-
 
 ### Language and string contexts
 
@@ -168,9 +171,44 @@ syntax coordinates. A bounded, conservative lexical fallback supports plain
 punctuation without claiming semantic knowledge of an unavailable language.
 Document the distinction between confirmed, unmatched and uncertain results.
 
-## Proposed commands and policy
+### Approved initial language admission
 
-| Command | Proposed binding | Scope |
+Every profile admits () [] {} only in a proved ordinary source context. Punctuation inside strings,
+comments and embedded literal/verbatim content stays literal unless the declared
+profile proves a safe pair operation;
+unknown context is not proof that punctuation is executable code. Disabled syntax
+colors do not disable recognized-language policy. Confirmed current syntax can
+strengthen classification; external grammar highlight names alone are insufficient
+quote grammar. Fallback is conservative and bounded.
+
+| Profile | Automatic quote admission and conservative boundaries |
+| --- | --- |
+| Plain/unknown text | Double quotes at eligible boundaries; word apostrophes and backticks remain literal. Structural punctuation has bounded plain-text balance, without semantic claims. |
+| Rust | Ordinary double-quoted strings at confirmed boundaries. Apostrophes remain literal because character/lifetime syntax is ambiguous; unproved raw-prefix/string contexts remain literal. |
+| C | Ordinary double strings and single character quotes at confirmed boundaries. Escapes/comments and character contexts are respected; backticks remain literal. |
+| Go | Ordinary double strings, single character quotes and confirmed backtick raw strings. Unknown or incomplete quote context stays literal. |
+| JavaScript, TypeScript, TSX | Ordinary single/double strings at confirmed boundaries. Template/backtick/interpolation contexts remain literal unless current classification proves a safe ordinary operation. |
+| JSON | Double strings only, with escapes and key/value string context; apostrophes/backticks remain literal. |
+| TOML | Ordinary single/double strings. Triple/raw or unproved multiline quote contexts remain literal. |
+| CSS | Ordinary single/double strings in confirmed string-eligible contexts. |
+| HTML | Single/double quotes only at confirmed attribute-value boundaries; other markup quote context remains literal. |
+| Org and Markdown | Prose punctuation and eligible double quotes. Inline/verbatim/code markers remain literal; embedded source uses its confirmed native language profile, otherwise conservative refusal/literal behavior. |
+| Other recognized or external languages | Bounded conservative structural policy. Double quotes require the plain-text boundary rule or a declared confirmed language profile; do not infer single/backtick rules from syntax colors. |
+
+An eligible prose quote boundary is outside an escaped/quoted context and a word
+interior. Never add a second apostrophe to ordinary prose or silently transform
+selected string bytes. If a requested explicit wrap/unwrap cannot preserve the
+selected literal contract, refuse with a useful message before mutation.
+
+pair-wrap uses the existing cancellable native prompt to select an admitted
+opening or closing delimiter, then opener-placement wrapping. It has no guessed
+pair default. pair-unwrap removes the innermost confirmed pair enclosing point,
+including point on either delimiter, through one checked transaction. Preserve
+contents and map point/mark; unconfirmed or meaning-changing removal refuses.
+
+## Commands and policy
+
+| Command | Binding | Scope |
 | --- | --- | --- |
 | auto-pair-mode | Unbound | Toggle automatic editing in this buffer. |
 | pair-wrap | Unbound | Wrap an active ordinary linear region in an admitted pair. |
@@ -182,15 +220,15 @@ input owners do not acquire source auto-pairing through a shared printable key.
 Modal Normal/Visual commands and pair text objects retain their existing owners;
 ordinary eligible Insert/Replace typing uses the admitted editing policy.
 
-Proposed defaults enable automatic editing, selection wrapping, empty-pair
+Approved defaults enable automatic editing, selection wrapping, empty-pair
 deletion and closer skipping. Quote eligibility comes from the language profile,
-not an unconditional rule for every apostrophe or backtick. These editing
-defaults require owner review. The independently settled depth-color default
+not an unconditional rule for every apostrophe or backtick. The five editing
+booleans default true. The independently settled depth-color default
 belongs to the presentation specification.
 
 Runtime editing policy is buffer-local and shared by its views. Commands never
 rewrite startup configuration. The [model](editor-delimiter-pairs-model.md)
-defines the proposed schema extension, per-language inheritance and origins.
+defines the approved editing schema extension, per-language inheritance and origins.
 
 ## Reference observations and limits
 
@@ -221,7 +259,6 @@ References: [Matching Parentheses](https://www.gnu.org/software/emacs/manual/htm
 installed elec-pair.el and the native owners linked above. The exact minor-mode
 configuration is material: automatic pairing is not implied by a stock mode
 with electric pairing disabled.
-
 
 ## ADDED Requirements
 
@@ -266,18 +303,15 @@ are not inserted a second time.
 - **THEN** it reports an uncertain/limited result without publishing an unproven mate or partial counted edit
 - **AND** cancellation and ordinary editing remain available.
 
-## Review and delivery boundary
+## Approval and delivery boundary
 
-Settled: separate editing/navigation/presentation controls; the presentation's
-depth default and restrained alternative; existing native source/history/input
-ownership. Proposed: enabled editing defaults, the exact quote/profile admission,
-wrapping placement and counted editing policy above. No runtime implementation,
-plan, tracker or controller is created by this specification refinement.
-
-Review the three capabilities independently, then prepare one coordinated
-bounded delivery scope for whichever capabilities are approved. Freeze reference
-fixtures, resource measurements and exact acceptance before implementation.
-Retain the completed factory-shortcut delivery and its receipts unchanged.
+The owner approved editing-first slicing and Looper execution on 2026-11-15.
+Automatic editing defaults, the initial language matrix, wrapping point
+placement, counted transactions and fixed bounded-work contract above define
+this first delivery. The plan and tracker record seven predecessor-ordered
+slices and controller-owned canonical dev integration. Navigation and visual
+work remain separate subsequent sets in that order. No main/release or global
+installation is implied. Preserve the completed factory-shortcut receipts.
 
 ## Later acceptance and documentation
 

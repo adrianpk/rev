@@ -87,12 +87,14 @@ approval boundaries.
 
 ## Pending proposals
 
-- The delimiter family has three Draft capabilities: [automatic editing](spec/editor-delimiter-pairs.md),
-  [navigation](spec/editor-delimiter-navigation.md) and [presentation](spec/editor-delimiter-presentation.md),
-  with one [shared model](spec/editor-delimiter-pairs-model.md). Depth coloring and
-  the restrained alternative are settled. Editing defaults, language admission,
-  navigation bindings and measured bounds remain under review; each capability
-  can be reviewed independently.
+- [Automatic delimiter editing](spec/editor-delimiter-pairs.md) is Approved for
+  [seven-slice delivery](plan/rev-delimiter-editing.md), with its
+  [tracker](tracker/rev-delimiter-editing.md) and editing portion of the
+  [shared model](spec/editor-delimiter-pairs-model.md). Execution starts with
+  configuration and bounded qualification, then typing, deletion, regions,
+  literal provenance and acceptance. [Navigation](spec/editor-delimiter-navigation.md)
+  and [presentation](spec/editor-delimiter-presentation.md) remain Draft subsequent
+  capabilities, in that order. Approval is not delivered behavior.
 - [Development Workflow Plugin](spec/editor-development-workflow.md) and its
   [model](spec/editor-development-workflow-model.md) remain Draft. Editable context
   and questionnaires generate a revisable specification/slices/plan and one tracker;

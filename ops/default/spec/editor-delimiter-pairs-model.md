@@ -1,6 +1,10 @@
 # Pair Preferences and Native State
 
-Status: Draft
+Status: Partially approved
+Editing status: Approved
+Editing approval: product owner, 2026-11-15; rev-delimiter-editing
+Navigation status: Draft
+Presentation status: Draft
 Date: 2026-11-08
 Updated: 2026-11-15
 Specification: [Delimiter Pairs](editor-delimiter-pairs.md)
@@ -16,7 +20,11 @@ introduced. Missing leaves inherit compiled defaults; malformed candidates use
 the existing whole-candidate diagnostic/fallback policy. Runtime commands never
 save settings. The current binary has none of the proposed pairs leaves.
 
-Proposed global leaves:
+The first delivery approves only enabled, wrap_selection, delete_empty,
+skip_closing and quotes, all defaulting true. The remaining leaves below are
+future presentation proposals; do not accept or install them in editing delivery.
+
+Combined editing and future presentation schema:
 
 ```toml
 [pairs]
@@ -31,11 +39,11 @@ pulse_ms = 250
 
 | Leaf | Type and proposed meaning | Scope |
 | --- | --- | --- |
-| enabled | Boolean; automatic typed pair editing, proposed true. | Initial buffer policy. |
-| wrap_selection | Boolean; automatic ordinary linear-region wrapping, proposed true. | Buffer editing policy. |
-| delete_empty | Boolean; adjacent empty-pair Backspace, proposed true. | Buffer editing policy. |
-| skip_closing | Boolean; skip only an admitted existing closer, proposed true. | Buffer editing policy. |
-| quotes | Boolean; automatic quote editing may consult the language profile, proposed true. | Buffer editing policy; not a parser switch. |
+| enabled | Boolean; automatic typed pair editing, approved true. | Initial buffer policy. |
+| wrap_selection | Boolean; automatic ordinary linear-region wrapping, approved true. | Buffer editing policy. |
+| delete_empty | Boolean; adjacent empty-pair Backspace, approved true. | Buffer editing policy. |
+| skip_closing | Boolean; skip only an admitted existing closer, approved true. | Buffer editing policy. |
+| quotes | Boolean; automatic quote editing consults the language profile, approved true. | Buffer editing policy; not a parser switch. |
 | highlight | depth, match, pulse or off; depth is the settled default. | Initial view policy. |
 | pulse_ms | Integer 50..1000, proposed 250 ms. | Finite view presentation lifetime. |
 
@@ -135,7 +143,7 @@ unwrap are one operation. Overtyping a confirmed closer is navigation without
 source history. Counted input consumes the existing validated count once and
 cannot reset its request budget for each generated mate.
 
-Proposed automatic wrapping deactivates the region and places point after the
+Approved automatic wrapping deactivates the region and places point after the
 outer opener for opener input, or after the outer closer for closer input.
 Undo restores the original source and selection orientation through native
 history. Rectangular/block input retains its existing owner. Refusal publishes
@@ -159,7 +167,7 @@ restart the duration. A view/source/point change cancels or replaces its mark.
 After expiry/off/cancellation no pair-owned deadline remains. Depth/match do not
 introduce polling or permanent background work.
 
-## Proposed bounded retention
+## Bounded retention by delivery scope
 
 - Fallback source inspection: at most 256 KiB per request; depth at most 256.
 - Presentation: at most 8,192 eligible delimiter spans per view.
@@ -170,6 +178,16 @@ introduce polling or permanent background work.
 Shared/cache allocations count once under an explicit owner. Byte limits also
 bound oversized lexical tokens; counts do not multiply admission into unbounded
 work. Exhaustion returns limited/uncertain rather than a guessed mate, guessed
-depth or partial edit. Measure large/malformed source, split views, rapid typing
-and held navigation before freezing delivery bounds. These are proposed limits,
-not observed capacity or a new permanent worker/service.
+depth or partial edit. Editing byte/depth/retention/cooperative bounds are approved
+and the editing plan records the measured current primitive baseline and resource
+sketch. Verify actual new-service and integrated workloads in Slices 2 and 7.
+Presentation span/pulse bounds and held-navigation acceptance remain proposals
+for their separate deliveries. No new permanent worker/service is introduced.
+
+## Editing delivery boundary
+
+[rev-delimiter-editing](../plan/rev-delimiter-editing.md) owns only the approved
+five editing settings, qualified matching/context and native editing/provenance
+state. Navigation and visual records remain design context, not implementation
+authority. Editing closure changes Editing status to Completed and retains this
+model's Partially approved status while later capabilities remain Draft.
