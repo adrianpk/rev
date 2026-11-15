@@ -1,6 +1,6 @@
 # Slice 3: Typed pairing and buffer toggle
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-delimiter-editing
 Plan: [Automatic Delimiter Editing Delivery](../../../plan/rev-delimiter-editing.md)
 Tracker: [Automatic Delimiter Editing Tracker](../../../tracker/rev-delimiter-editing.md)
@@ -102,9 +102,10 @@ ignores fieldless visitor helpers and checks global/language leaves with missing
 and wrong-default regressions. Exact equality checks remain in place. The vendored
 crossterm parentheses warning is pre-existing and non-blocking.
 
-The final controller receipt uses exactly the three injected commands at the
-clean published HEAD after PR-reference commits. Supplemental checks stay in
-this report. The combined delivery-set gate remains controller-owned.
+The final controller receipt passed exactly the three injected commands at
+`f7faa389bcdb785eec47c33408f9add179148ef1`, including all 17 typing tests.
+Canonical PR #57 integrated that same commit into dev. Supplemental checks stay
+in this report. The combined delivery-set gate remains controller-owned.
 
 ## Risks and Follow-ups
 

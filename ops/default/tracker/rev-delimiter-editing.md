@@ -10,7 +10,7 @@ Execution authority: slices 1-7, predecessor-ordered canonical PRs and controlle
 Planning baseline: `fa48f847e9075eafd2272891c29c7dbf04bf7f16`
 Spec: [Delimiter Pairs](../spec/editor-delimiter-pairs.md)
 Model: [Pair Preferences and Native State](../spec/editor-delimiter-pairs-model.md)
-Active slice: Slice 3 — Typed pairing and buffer toggle
+Active slice: Slice 4 — Empty-pair deletion and quote boundaries
 Integration target: `dev`
 Plan: [Automatic Delimiter Editing Delivery](../plan/rev-delimiter-editing.md)
 
@@ -90,10 +90,10 @@ Dependency: Slice 2 integrated and closed.
 Branch: `feat/rev-delimiter-editing-03-typing`
 Expected PR title: `feat(editor): insert and skip admitted delimiter pairs`
 Report: `ops/default/report/slices/rev-delimiter-editing/slice-3-typing.md`
-State: reviewing; awaiting controller integration
+State: delivered; PR #57 integrated
 PR: [#57](https://forge.adrianpk.com/rev/rev/pulls/57)
 Task commits: T3.1, T3.2 and T3.3/report introduction `5efbfa8a3a7ae1038f95ae2bd53dd1f2573e9b13`; native typing/count admission and its command/metadata were committed together to preserve one complete transaction path.
-Validation: formatting, all 17 typing tests, 19 shared qualification regressions, four focused count/skip/modal tests, documentation with 22 reference tests, four drift tests and the native 28-map factory helper PASS. Full staged-source hooks PASS for 1,936 Rust files and 77 Cargo roots; frozen catalog/manifest and personal settings preserved. Exact three-command clean-HEAD evidence is recorded after PR-reference commits; combined acceptance remains controller-owned.
+Validation: formatting, all 17 typing tests, 19 shared qualification regressions, four focused count/skip/modal tests, documentation with 22 reference tests, four drift tests and the native 28-map factory helper PASS. Full staged-source hooks PASS for 1,936 Rust files and 77 Cargo roots; frozen catalog/manifest and personal settings preserved. Exact three-command clean-HEAD validation PASS at `f7faa389bcdb785eec47c33408f9add179148ef1`, including all 17 typing tests. Canonical PR contract verified; PR #57 integrated that same commit into dev. Combined acceptance remains controller-owned.
 
 - [x] T3.1: Route eligible physical source typing in non-modal and modal Insert/Replace through one checked native transaction. Insert admitted structural/quote mates, reuse an existing unmatched closer and skip only an admitted closer. Uncertain ordinary typing stays literal; preserve read-only, focus and modal owners.
 - [x] T3.2: Honor native numeric prefixes once: positive counts compose one transaction and undo unit, zero is inert and negative typed repetition retains refusal. Preflight expansion and work limits before publication; generated mates are effects rather than new key events. Wire buffer-local auto-pair-mode shared across views and retained across language changes without writing configuration.
@@ -114,7 +114,7 @@ Dependency: Slice 3 integrated and closed.
 Branch: `feat/rev-delimiter-editing-04-deletion`
 Expected PR title: `feat(editor): delete empty pairs and preserve quote contexts`
 Report: `ops/default/report/slices/rev-delimiter-editing/slice-4-deletion.md`
-State: pending predecessor integration
+State: active; implementation in progress
 PR: pending
 Task commits: pending
 Validation: not run
