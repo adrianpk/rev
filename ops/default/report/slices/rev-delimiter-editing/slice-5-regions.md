@@ -38,6 +38,10 @@ block, modal Visual, focus and read-only owners retain their existing behavior.
 
 ## Implementation Notes
 
+Task/report introduction commit: `b37ef0b1e39b4b1da26969dad97b9d7c8e9d1231`. T5.1-T5.3
+were committed together to preserve one complete qualifier, native transaction,
+command-catalog and independently verified editing path.
+
 - The canonical buffer qualifier admits a complete wrapping range and count in
   one request. Structural content must retain strict balance and ordinary context
   at both ends. Quote payload work is virtual and never becomes retained syntax
@@ -105,9 +109,14 @@ created; the extracted owner and affected typing/region batch now pass. The vend
 crossterm parentheses warning is pre-existing and non-blocking.
 
 Personal configuration and frozen factory catalog/manifest digests are unchanged.
-Full staged-source hook results follow the implementation commit. The controller
-receipt will use exactly the three injected commands at clean published HEAD
-after PR-reference commits. Combined acceptance remains controller-owned.
+Full staged-source hooks passed on the implementation commit: formatting, strict
+Clippy with zero blocking/deferred diagnostics, and native safe-Rust, parameter,
+nesting and complexity policy for all 1,948 first-party Rust files, two workspace
+packages and 77 Cargo roots. The staged tree was
+`aed1a5e62ce87890e386b9661ad71db7bea49c47`; the final Clippy pass took
+1 minute 17 seconds with its per-worktree cache. The controller receipt will use
+exactly the three injected commands at clean published HEAD after PR-reference
+commits. Combined acceptance remains controller-owned.
 
 ## Risks and Follow-ups
 
