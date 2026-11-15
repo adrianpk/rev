@@ -5,7 +5,7 @@ Delivery set: rev-delimiter-navigation
 Plan: [Delimiter Navigation Delivery](../../../plan/rev-delimiter-navigation.md)
 Tracker: [Delimiter Navigation Tracker](../../../tracker/rev-delimiter-navigation.md)
 Branch: `feat/rev-delimiter-navigation-04-expressions`
-PR: pending
+PR: [#65](https://forge.adrianpk.com/rev/rev/pulls/65)
 
 ## Purpose
 
@@ -77,7 +77,7 @@ the PR-reference commit.
 - PASS: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo run --locked --quiet --example factory-shortcuts-acceptance -- --native target`: 717 commands, six actions, all 28 complete maps in both profiles, seven navigation commands and exactly six new base chords. Historical inputs remain unchanged.
 - PASS: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 bash scripts/check-documentation.sh`: 717 commands, 332 configuration entries, 112 reachable pages, 792 local links/anchors, ten command and twelve configuration reference tests.
 - PASS: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test pair_navigation expressions::resources -- --test-threads=1 --nocapture`: resource measurements below.
-- Implementation passed its exact staged workspace formatting, strict all-target/all-feature Clippy and native policy over 1,966 files, two packages and all 79 Cargo roots. The test/report commit uses the same unchanged hook.
+- Both implementation and test/report commits passed exact staged workspace formatting, strict all-target/all-feature Clippy and native policy over 1,966 and 1,968 files respectively, two packages and all 79 Cargo roots. Hooks and their private worktree cache remain unchanged.
 - PASS: `git diff --check`.
 
 All 37 frozen expression observations are read without editing their bytes.
@@ -125,5 +125,7 @@ Slice 5 owns representative physical-input journeys and integrated guidance.
 The controller owns integration, the combined gate and navigation closure.
 No full delivery gate, guide build, main promotion or publication runs here.
 The existing vendored crossterm parentheses warning is unchanged.
-Implementation is `f918eb682440e27ca4f0dff6b50de5a1429c6045`; test/report introduction
-and the PR reference are recorded with the final documentation commit.
+PR #65 is open against dev. Implementation is `f918eb682440e27ca4f0dff6b50de5a1429c6045`;
+test/report introduction is `b368dcae92539b730abde92f7099d9383fa575f8`.
+The final documentation commit adds the canonical PR reference; controller-owned
+integration and combined acceptance remain pending.
