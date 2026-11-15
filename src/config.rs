@@ -140,6 +140,7 @@ pub struct Document {
     pub files: PartialFiles,
     pub bookmarks: PartialBookmarks,
     pub completion: PartialCompletion,
+    #[serde(deserialize_with = "pairs::table")]
     pub pairs: PartialPairs,
     pub lsp: PartialLsp,
     pub ai: PartialAi,
@@ -527,6 +528,7 @@ pub enum InteractionProfile {
 #[derive(Clone, Debug, Default, PartialEq, Eq, Deserialize)]
 #[serde(default, deny_unknown_fields)]
 pub struct Language {
+    #[serde(deserialize_with = "pairs::table")]
     pub pairs: PartialPairs,
     pub indent_style: Option<IndentStyle>,
     pub indent_width: Option<i64>,

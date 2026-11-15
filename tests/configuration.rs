@@ -45,6 +45,8 @@ mod lsp;
 mod merging;
 #[path = "configuration/mouse.rs"]
 mod mouse;
+#[path = "configuration/pairs.rs"]
+mod pairs;
 #[path = "configuration/parsing.rs"]
 mod parsing;
 #[path = "configuration/reference.rs"]

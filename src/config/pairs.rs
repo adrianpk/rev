@@ -1,5 +1,27 @@
 use serde::Deserialize;
 
+/// Serde's struct visitor otherwise admits an empty sequence as all-absent.
+/// Both schema entry points require a TOML table, including an empty table.
+pub(super) fn table<'de, D: serde::Deserializer<'de>>(
+    deserializer: D,
+) -> Result<PartialPairs, D::Error> {
+    deserializer.deserialize_map(Table)
+}
+
+struct Table;
+
+impl<'de> serde::de::Visitor<'de> for Table {
+    type Value = PartialPairs;
+
+    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        formatter.write_str("a table of automatic pair preferences")
+    }
+
+    fn visit_map<A: serde::de::MapAccess<'de>>(self, map: A) -> Result<Self::Value, A::Error> {
+        PartialPairs::deserialize(serde::de::value::MapAccessDeserializer::new(map))
+    }
+}
+
 /// Automatic editing policy. Language overrides inherit each omitted global leaf.
 /// These preferences do not control syntax, navigation or pair presentation.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
