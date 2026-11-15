@@ -9,13 +9,12 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 
 ### Added
 
-- Jump between confirmed delimiter or quote endpoints with M-x
-  matching-delimiter, including read-only source and buffers with automatic
-  pairing disabled. Point and the active mark stay unchanged when no mate is
-  confirmed. Move across complete groups with C-M-n/C-M-p, or enter and leave
-  nested groups with C-M-d/C-M-u. Use C-M-f/C-M-b for mode-aware expressions,
-  including words, strings and complete forms. Signed counts preserve source,
-  undo history and the active linear mark.
+- Navigate complete groups with C-M-n/C-M-p, enter and leave nesting with
+  C-M-d/C-M-u, and cross mode-aware expressions with C-M-f/C-M-b. Jump onto a
+  confirmed delimiter or quote mate with M-x matching-delimiter. Navigation
+  works on read-only source and with automatic pairing disabled; signed motions
+  preserve source, undo history and the active mark, and refuse unproved targets
+  without moving point.
 
 - Type paired parentheses, brackets, braces and eligible quotes, skip confirmed
   closers, and remove empty pairs with Backspace. Wrap selected text or use M-x

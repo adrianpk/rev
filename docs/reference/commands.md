@@ -373,6 +373,23 @@ triple, template and embedded syntax refuses. This never proves a typed mate.
 Signed counts, atomic refusal, mark preservation, read-only access, grapheme
 normalization, native reveal and effective-map inheritance match group motions.
 
+The six motions share one request for the entire signed count, with at most
+262,144 inspected UTF-8 bytes, nesting depth 256 and 2 MiB retained metadata per
+buffer. A count up to magnitude 1,000,000 does not increase those limits.
+Continuation yields after at most 256 work steps; four milliseconds is a
+scheduling target, not a completion deadline. C-g cancels pending work, and
+source, selected-view, point, mark or focus changes retire its destination.
+Queued input waits for the complete motion; no intermediate point is published.
+When a destination lies between scalars of one grapheme, ordinary motion
+normalizes in its travel direction; the direct mate jump uses native source-jump
+normalization. Neither command family edits Unicode or line-ending bytes.
+
+Use M-x with the canonical name when a terminal intercepts a chord. Its hint
+comes from the effective origin map: keys.editor overrides non-modal editing,
+while keys.vim_insert and keys.vim_replace override their independent modal
+states. The factory chords stay absent from Normal/Visual and unrelated
+component maps. A named invocation retains native modal/operator admission.
+
 ## Line navigation
 
 With wrapping enabled, Up/Down and `C-n`/`C-p` move through visual rows.

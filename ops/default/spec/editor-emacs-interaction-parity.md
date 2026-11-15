@@ -147,7 +147,10 @@ implementing delimiter navigation does not by itself complete F2 or this spec.
 Expression progress: forward-sexp/backward-sexp, C-M-f/C-M-b and their admitted
 mode/count/region behavior are implemented in navigation Slice 4. Its focused
 evidence is recorded in the [Slice 4 report](../report/slices/rev-delimiter-navigation/slice-4-expressions.md).
-Integrated physical-input and combined-gate acceptance remain pending.
+The [Slice 5 report](../report/slices/rev-delimiter-navigation/slice-5-acceptance.md)
+records representative physical-input and complete native acceptance for this
+portion. Controller integration, the combined gate and expression closure remain
+pending; local evidence does not complete the requirement.
 Paragraph motion remains pending; EIP04 and F2 retain that separate scope.
 
 #### Scenario: Forward past a balanced form

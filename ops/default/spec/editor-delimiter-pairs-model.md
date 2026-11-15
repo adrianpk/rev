@@ -222,6 +222,12 @@ source/view/point/mark/focus changes retire pending publication. A mode group
 cannot become typed pair evidence through cache reuse. Use the native mark and
 source-motion/jump owners; do not add an independent history or per-view cache.
 
+The command and shared-owner implementation is integrated through PRs #62-#65.
+[Slice 5 acceptance](../report/slices/rev-delimiter-navigation/slice-5-acceptance.md)
+prepares nonempty native batches, independent complete factory expectations and
+two owned Linux PTY journeys. Local acceptance does not close Navigation;
+the controller still owns Slice 5 integration and the unchanged combined gate.
+
 Navigation closure changes only Navigation status to Completed. Editing remains
 Completed, Presentation remains Draft and this model remains Partially approved.
 EIP04 closes only its expression portion; paragraph and broad parity stay pending.

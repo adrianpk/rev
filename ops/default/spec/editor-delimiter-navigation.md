@@ -18,6 +18,17 @@ Navigate source structure independently of automatic edits and color. Retain
 DPR02 from the original pair proposal while distinguishing a typed mate jump,
 structural group movement and a syntax-aware expression motion.
 
+## Delivery progress
+
+Slices 1-4 are integrated through canonical PRs #62-#65. They deliver the seven
+commands, six additive base-editor chords and the shared bounded source owner.
+[Slice 5](../report/slices/rev-delimiter-navigation/slice-5-acceptance.md)
+prepares the complete native acceptance batch, two representative Linux PTYs
+and final guidance. Its report records local evidence; it is not the integrated
+receipt. Navigation remains Approved until the controller integrates all five
+PRs, passes the unchanged combined gate and records exact-candidate closure.
+Pair presentation and paragraph parity retain their separate authority.
+
 ## Approved commands and endpoints
 
 | Command | Binding | Observable target |

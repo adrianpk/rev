@@ -138,14 +138,14 @@ Dependency: Slice 4 integrated and closed.
 Branch: `test/rev-delimiter-navigation-05-acceptance`
 Expected PR title: `test(editor): verify delimiter navigation workflows`
 Report: `ops/default/report/slices/rev-delimiter-navigation/slice-5-acceptance.md`
-State: ready; active
+State: reviewing; active
 PR: pending
-Task commits: pending
-Validation: not run
+Task commits: T5.1/T5.2 `2c67bdfdbd9baabedaf0d16ee4a698a6744fbe81`; additive pair inventory reconciliation `263bde3ffe17c1dabadd2bbf72f353de1213c117`; T5.3/report introduction pending.
+Validation: all five ordered required commands PASS locally: 180 native cases, one independent complete factory helper, exactly two Linux PTYs, documentation and local guide build. Both code commits passed exact staged workspace formatting, strict all-target/all-feature Clippy and native policy over 1,971 files / 80 Cargo roots. Final clean-HEAD looper validation follows the PR-reference commit. PR integration, the combined gate and navigation closure remain controller-owned.
 
-- [ ] T5.1: Create scripts/check-delimiter-navigation.sh with nonempty native filter checks. Batch the complete navigation suite, the shared pair qualifier/editing regressions justified below, focused native modal objects, keymap/override and macro cases. Reuse the current factory acceptance helper once for complete expected maps/catalog; never regenerate historical frozen inputs from runtime output.
-- [ ] T5.2: Add exactly two representative owned Linux PTY journeys, non-modal and modal Insert, using real C-M input and named mate invocation. Verify endpoints through subsequent saved source effects, mark/read-only/focus behavior and configuration immutability; restore TTY and reap owned children. Measure aggregate budget/depth/retention, cancellation, source/view changes, queued-key release and folded Org/Markdown presentation with finite deadlines.
-- [ ] T5.3: Finish the user-facing navigation example, reference endpoints/counts/context/normalization, effective bindings, M-x fallback and concise Unreleased entry. Prepare all five reports, navigation-only spec/model/index and EIP04 expression progress before final integration. The controller owns the combined gate and Markdown-only closure; presentation and paragraph parity retain their separate boundaries.
+- [x] T5.1: Create scripts/check-delimiter-navigation.sh with nonempty native filter checks. Batch the complete navigation suite, the shared pair qualifier/editing regressions justified below, focused native modal objects, keymap/override and macro cases. Reuse the current factory acceptance helper once for complete expected maps/catalog; never regenerate historical frozen inputs from runtime output.
+- [x] T5.2: Add exactly two representative owned Linux PTY journeys, non-modal and modal Insert, using real C-M input and named mate invocation. Verify endpoints through subsequent saved source effects, mark/read-only/focus behavior and configuration immutability; restore TTY and reap owned children. Measure aggregate budget/depth/retention, cancellation, source/view changes, queued-key release and folded Org/Markdown presentation with finite deadlines.
+- [x] T5.3: Finish the user-facing navigation example, reference endpoints/counts/context/normalization, effective bindings, M-x fallback and concise Unreleased entry. Prepare all five reports, navigation-only spec/model/index and EIP04 expression progress before final integration. The controller owns the combined gate and Markdown-only closure; presentation and paragraph parity retain their separate boundaries.
 
 Required commands:
 

@@ -85,27 +85,49 @@ See [Configure automatic delimiter editing](../../how-to/configure-delimiter-edi
 for independent controls and language overrides, and the
 [reference](../../reference/delimiter-editing.md) for conservative boundaries.
 
-On a line containing `(note) [next]`, place point before the first opening
-parenthesis. Press C-M-n to move after `(note)`, then C-M-p to return before it.
-C-u 2 C-M-n crosses both groups. A negative count reverses direction and zero
-leaves point unchanged. These motions also work on read-only source and with
-automatic pairing disabled. M-x forward-pair/backward-pair invoke the same
-operations. For a jump onto the opposite confirmed delimiter itself, use the
-unbound M-x matching-delimiter command.
+## Navigate groups and expressions
 
-Try `(note [next])` to navigate nesting. From before the outer parenthesis,
-C-M-d enters it and another C-M-d enters the brackets. C-M-u returns to the
-bracket opener; another C-M-u returns to the outer opener. C-u 2 C-M-d enters
-both levels at once. Use M-x up-pair/down-pair when the terminal intercepts a
-chord. A negative count leaves forward or enters backward; refusal preserves
-point and the active mark.
+Put `(note [next]) tail` on a line and move before its opening parenthesis.
+`C-M-n` crosses the complete group and stops before the space; `C-M-p` returns
+before its opener. From there, `M-x matching-delimiter` lands on the closing
+parenthesis itself. Invoke it again to return to the opening parenthesis.
+This command has no factory shortcut and rejects a numeric prefix.
 
-Try `(note) tail` with point before `note`. C-M-f crosses the word and stops
-before `)`; C-M-b returns before the word. From before the opening parenthesis,
-C-M-f crosses the whole form. It also crosses ordinary quoted strings and
-mode-defined atoms. For example, C source `12.5` stops after `12`, while a
-CSS name such as `font-size` stays together. C-u 2 C-M-f crosses two expressions.
-Use M-x forward-sexp/backward-sexp when a chord is intercepted.
+From the outer opener, `C-M-d` enters the parentheses and another `C-M-d`
+enters the brackets. `C-M-u` returns to the bracket opener; another `C-M-u`
+returns to the outer opener. `C-u 2 C-M-d` enters both levels in one request.
+A negative `up-pair` count leaves forward after enclosing closers; a negative
+`down-pair` count enters backward before closing delimiters.
+
+Place point before `note`. `C-M-f` crosses that word and `C-M-b` returns
+before it. From before the outer opener, `C-M-f` crosses the whole form.
+These commands cross mode-defined expressions: atoms, ordinary strings and
+complete forms. C source `12.5` stops after `12`, while a CSS name such as
+`font-size` stays together. Delimiters in classified comments or literals do
+not become structural targets.
+
+The six motions accept signed counts. `C-u 2 C-M-f` crosses two expressions;
+a negative count reverses direction and zero leaves point unchanged. All
+iterations share one bounded request. An uncertain, malformed or oversized
+destination refuses the whole request, leaving point and the mark unchanged.
+`C-g` cancels pending movement. A successful motion preserves the mark too:
+set it with `C-SPC`, move with `C-M-n`, then use `M-w` to copy that region.
+Source and undo history do not change until you edit or yank.
+
+These motions work on read-only source and with automatic pairing or quote
+editing disabled. They use source coordinates, keep the cursor at a native
+grapheme boundary, and reveal folded destinations in the selected pane.
+The six shortcuts are available in non-modal editing and modal Insert/Replace;
+Normal/Visual and prompts keep their own maps.
+
+If a terminal intercepts a chord, invoke `forward-pair`, `backward-pair`,
+`up-pair`, `down-pair`, `forward-sexp` or `backward-sexp` through `M-x`.
+The selector shows the effective shortcut for its original input owner.
+Override `keys.editor` for non-modal editing or `keys.vim_insert` for modal
+Insert; those maps are independent. See the
+[binding configuration contracts](../../reference/bindings.md#configuration-keymap-contracts)
+and [navigation reference](../../reference/commands.md#implemented-catalog)
+for exact endpoint and context policies.
 
 Save with `C-x C-s`. You can also select text by dragging with the primary
 mouse button, or paste text through your terminal. For more tasks, see
