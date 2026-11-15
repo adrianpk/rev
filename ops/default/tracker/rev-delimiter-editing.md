@@ -10,7 +10,7 @@ Execution authority: slices 1-7, predecessor-ordered canonical PRs and controlle
 Planning baseline: `fa48f847e9075eafd2272891c29c7dbf04bf7f16`
 Spec: [Delimiter Pairs](../spec/editor-delimiter-pairs.md)
 Model: [Pair Preferences and Native State](../spec/editor-delimiter-pairs-model.md)
-Active slice: Slice 2 — Bounded context and pair qualification
+Active slice: Slice 3 — Typed pairing and buffer toggle
 Integration target: `dev`
 Plan: [Automatic Delimiter Editing Delivery](../plan/rev-delimiter-editing.md)
 
@@ -66,10 +66,10 @@ Dependency: Slice 1 integrated and closed.
 Branch: `feat/rev-delimiter-editing-02-qualification`
 Expected PR title: `feat(editor): qualify delimiter pairs with bounded context`
 Report: `ops/default/report/slices/rev-delimiter-editing/slice-2-qualification.md`
-State: reviewing; awaiting controller integration
+State: delivered; PR #56 integrated
 PR: [#56](https://forge.adrianpk.com/rev/rev/pulls/56)
 Task commits: T2.1 and native T2.2/report introduction `cf787fbd636b5f80d2f535b6bc8838b7eef56c1e`; T2.2 measurements and T2.3 regressions `8fe4e91dae6acb74a6bd3a015c0ca5d9250f9488`; shared native-observation budget and boundary regression `956fccb21b8b6b480cb6189a92258f5f0b940c7f`.
-Validation: formatting, native source policy and all three staged-source hooks PASS; 17-case qualification batch plus added native-depth/horizon and native-observation checks PASS, covering all 19 selected tests; two existing modal structural/object regressions PASS. All fixed bounds and measured costs are recorded in the report. Exact three-command validation is recorded for the final clean published HEAD before handoff; combined acceptance remains controller-owned.
+Validation: exact three-command controller validator PASS at `ed955dac56d22bb623ccec7b62652255af05632f`, including all 19 qualification tests. Canonical PR contract verified; PR #56 integrated the same commit into dev. All three staged-source hooks and two supplemental legacy modal structural/object regressions PASS. All fixed bounds and measured costs are recorded in the report; combined acceptance remains controller-owned.
 
 - [x] T2.1: Implement one cohesive native owner for language/context classification and strict typed-pair qualification. Reuse current syntax when qualified; use the approved conservative lexical policy otherwise. Retain buffer/revision, native spans, delimiter kind, provenance and explicit uncertain/limited outcomes; do not expose navigation commands or reuse loose group-motion results as mate proof.
 - [x] T2.2: Enforce the fixed inspected-byte, nesting, retained-memory and cooperative-work bounds, including oversized tokens, counted-request reuse, cancellation and source replacement. Never retain tree nodes across revisions or scan the whole source on each key/frame. Record actual new-service work, latency and retention measurements against the planning baseline.
@@ -90,7 +90,7 @@ Dependency: Slice 2 integrated and closed.
 Branch: `feat/rev-delimiter-editing-03-typing`
 Expected PR title: `feat(editor): insert and skip admitted delimiter pairs`
 Report: `ops/default/report/slices/rev-delimiter-editing/slice-3-typing.md`
-State: pending predecessor integration
+State: active; predecessor integrated and closed
 PR: pending
 Task commits: pending
 Validation: not run

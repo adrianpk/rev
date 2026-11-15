@@ -1,6 +1,6 @@
 # Slice 2: Bounded context and pair qualification
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-delimiter-editing
 Plan: [Automatic Delimiter Editing Delivery](../../../plan/rev-delimiter-editing.md)
 Tracker: [Automatic Delimiter Editing Tracker](../../../tracker/rev-delimiter-editing.md)
@@ -152,6 +152,10 @@ three nearby deletions. Runtime/PTY input latency remains Slice 7 acceptance.
 
 Final canonical evidence uses exactly the three injected commands, in their
 frozen order, at the final clean published HEAD after PR-reference commits.
+All three passed at `ed955dac56d22bb623ccec7b62652255af05632f`, including
+all 19 qualification tests. Canonical PR #56 integrated that same commit into
+`dev`; its title, body, branch, base and immutable report introduction passed
+the controller check.
 Supplemental focused commands remain recorded here. The combined delivery gate
 is controller-owned and has not run for this slice.
 
