@@ -93,17 +93,21 @@ full gate passed at `eb65b227dee8b42bf8d0c8a6e0ef12f5675c756b`, receipt
 [delivery-set closure](report/slices/rev-delimiter-editing/slice-7-acceptance.md#delivery-set-closure)
 records workspace/hook, 192 native cases, two Linux PTYs, bounded resource/frame
 and documentation results, and the subsequent Markdown-only closure relationship.
-All seven reports are delivered and owned integrated worktrees removed. Only the
+All seven reports are delivered and owned integrated worktrees removed. The
 editing portion of the [shared model](spec/editor-delimiter-pairs-model.md) is
 Completed; the model remains Partially approved.
-[Navigation](spec/editor-delimiter-navigation.md) remains Approved under its
+[Navigation](spec/editor-delimiter-navigation.md) is Completed under its
 [five-slice plan](plan/rev-delimiter-navigation.md) and
 [tracker](tracker/rev-delimiter-navigation.md). PRs #62-#66 integrate mate, group,
 nesting and expression commands. [Slice 5](report/slices/rev-delimiter-navigation/slice-5-acceptance.md)
 delivers native/physical acceptance and final guidance. All five reports are
-delivered and owned worktrees retired; the controller's combined gate and
-exact-candidate closure remain pending. The expression
-portion of EIP04 stays separate from paragraph parity.
+delivered and owned worktrees retired. The controller's unchanged full gate
+passed at `27957128f7626ee16b5dbdc50af52e9cee27f3c8`, receipt
+`YEU4CDCDB3RP65D5PG67RRYTYF`; the
+[closure record](report/slices/rev-delimiter-navigation/slice-5-acceptance.md#delivery-set-closure)
+records workspace/hook, 180 native cases, two PTYs, reference/guide acceptance
+and the later eleven-file Markdown-only closure. Only the expression portion
+of EIP04 is Completed; paragraph parity remains pending.
 [Presentation](spec/editor-delimiter-presentation.md) remains
 Draft and follows navigation under its own execution authority.
 

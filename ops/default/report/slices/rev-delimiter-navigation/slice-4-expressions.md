@@ -121,12 +121,15 @@ transport remains integrated acceptance.
 
 ## Risks and Follow-ups
 
-Slice 5 owns representative physical-input journeys and integrated guidance.
-The controller owns integration, the combined gate and navigation closure.
-No full delivery gate, guide build, main promotion or publication runs here.
+Slice 5 delivered representative physical-input journeys and integrated guidance.
+The controller subsequently ran the unchanged combined gate; its
+[closure record](slice-5-acceptance.md#delivery-set-closure) preserves the tested
+candidate and the later Markdown-only closure relationship.
 The existing vendored crossterm parentheses warning is unchanged.
 PR #65 integrated into dev. Implementation is `f918eb682440e27ca4f0dff6b50de5a1429c6045`;
 test/report introduction is `b368dcae92539b730abde92f7099d9383fa575f8`.
 The validated head is `1d078b5599bdb46bb8bd65c507a4ea13f4c436f7`. Fetched ancestry,
 cleanliness and inactivity were verified before non-forced owned worktree removal.
-Controller-owned combined acceptance remains pending.
+The combined gate passed at `27957128f7626ee16b5dbdc50af52e9cee27f3c8`, receipt
+`YEU4CDCDB3RP65D5PG67RRYTYF`. Only the EIP04 expression portion is Completed;
+paragraph parity and presentation retain their separate pending/Draft scope.

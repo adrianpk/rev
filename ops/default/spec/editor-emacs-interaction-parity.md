@@ -1,7 +1,7 @@
 # Emacs Interaction Parity
 
 Status: Prepared for subsequent delivery slicing
-Expression navigation status: Approved through rev-delimiter-navigation
+Expression navigation status: Completed
 Paragraph navigation status: Pending
 Date: 2026-11-14
 Direction approved: product owner, 2026-11-14; core-first functional parity and related Org/Git follow-through
@@ -149,8 +149,12 @@ mode/count/region behavior are implemented in navigation Slice 4. Its focused
 evidence is recorded in the [Slice 4 report](../report/slices/rev-delimiter-navigation/slice-4-expressions.md).
 The [Slice 5 report](../report/slices/rev-delimiter-navigation/slice-5-acceptance.md)
 records representative physical-input and complete native acceptance for this
-portion. All five navigation PRs are integrated; the controller's combined gate
-and expression closure remain pending. Slice evidence does not complete the requirement.
+portion. All five navigation PRs are integrated, and the controller's unchanged
+combined gate passed at `27957128f7626ee16b5dbdc50af52e9cee27f3c8`, receipt
+`YEU4CDCDB3RP65D5PG67RRYTYF`. The
+[delivery-set closure](../report/slices/rev-delimiter-navigation/slice-5-acceptance.md#delivery-set-closure)
+completes the expression portion only, preserving the later Markdown-only
+relationship to the tested candidate.
 Paragraph motion remains pending; EIP04 and F2 retain that separate scope.
 
 #### Scenario: Forward past a balanced form

@@ -62,7 +62,7 @@ The first four delivered reports remain authoritative for their own commits and
 integration. This report supplies their integrated local acceptance evidence:
 [mate](slice-1-mate.md), [groups](slice-2-groups.md),
 [nesting](slice-3-nesting.md) and [expressions](slice-4-expressions.md).
-Navigation stays Approved, editing Completed, presentation Draft and the shared
+Navigation is Completed, editing Completed, presentation Draft and the shared
 model Partially approved. Paragraph motion, EIP04 as a whole and F2 stay pending.
 
 ## Files of Interest
@@ -72,7 +72,7 @@ model Partially approved. Paragraph motion, EIP04 as a whole and F2 stay pending
 - `tests/pair_navigation/acceptance.rs`: decoded input and exact heading-cell continuity.
 - `tests/pairs/regions/helpers.rs` and `tests/pairs/typing/lifecycle.rs`: exact additive inventory expectations.
 - User Guide, command reference and Unreleased entry: cohesive delivered navigation.
-- Navigation spec/model/index and EIP04 expression progress: integrated, with combined-gate closure pending.
+- Navigation spec/model/index and EIP04 expression progress: Completed for navigation and expressions, with paragraph/presentation scope preserved.
 
 ## Validation
 
@@ -169,12 +169,55 @@ turns include projection and cell comparison, not just the bounded lexical poll.
 
 All five slices are integrated. Fetched dev ancestry, a clean/unlocked Slice 5
 worktree and absence of owned processes were verified; the worktree was removed
-without force. Runtime, acceptance, guidance and all five delivered reports are
-present for the full gate. Only delivery-state Markdown changes in preparation.
+without force. The controller completed the full gate, and the closure below
+changes only the eleven approved Markdown records. Presentation stays Draft;
+paragraph motion, EIP04 as a whole and F2 remain pending. The existing vendored
+crossterm parentheses warning is preserved.
 
-The unchanged combined gate and the eleven-file Markdown-only closure remain
-controller-owned. The plan estimates 10-20 minutes warm or 20-35
-minutes cold for that combined gate; this worker's selected commands and hook
-are separate evidence. No full delivery gate, hook installation, main promotion,
-release or publication runs here. The existing vendored crossterm parentheses
-warning is preserved.
+## Delivery-set closure
+
+The controller's unchanged full gate passed at immutable candidate
+`27957128f7626ee16b5dbdc50af52e9cee27f3c8`, receipt
+`YEU4CDCDB3RP65D5PG67RRYTYF`. All five canonical PRs #62-#66 and all 15 tasks
+are delivered. Acta records the verified gate as `01M7GBP6XPN1QMX6QC4C92M4QX`.
+The exact successful command was:
+
+```sh
+env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 bash -c 'set -euo pipefail; make lint; make test-hooks; bash scripts/check-delimiter-navigation.sh; bash scripts/check-documentation.sh; bash scripts/build-user-guide.sh; git diff --check'
+```
+
+The receipt log records these integrated outcomes:
+
+- Workspace formatting, strict all-target/all-feature Clippy and safe-Rust
+  source policy PASS: 1,971 files, two packages and 80 Cargo roots, zero blocking
+  or deferred selected-profile diagnostics.
+- All 28 real Git-hook fixtures PASS, including staged/index integrity,
+  partial-staging, ownership, linked-worktree and concurrent-cache checks.
+- All 180 navigation/shared-pair, keymap/count/history, macro, modal,
+  Org/Markdown frame and stale-request cases PASS. The hard byte/depth/retention,
+  cancellation, held-input, source/history/mark and shared-view assertions hold.
+- The independent factory helper and all five frozen digests PASS: 717 commands,
+  six actions and 28 complete maps in both profiles, with exactly the approved
+  additive navigation leaves.
+- Exactly two Linux PTYs PASS with saved endpoint effects, named mate, mark,
+  read-only/focus, effective override hints, undo, save/reopen, unchanged config,
+  TTY restoration and owned-child reaping. Non-modal measured 1,707 ms / 136,374
+  output bytes; modal Insert 1,854 ms / 143,553 bytes. Both observed idle silence
+  with zero CPU ticks, within the unchanged eight-second/1-MiB caps.
+- Documentation PASS: 717 commands, 332 configuration entries, 112 reachable
+  pages and 794 local links/anchors; ten command and twelve configuration
+  reference cases PASS. Strict Spore projection/render and local guide build PASS.
+
+Component timings in the log are 191.95 seconds for navigation, 190.57 seconds
+for shared pairs and 152 / 7 seconds for cold / warm hook fixtures. The supplied
+receipt does not record an aggregate elapsed time. These observations do not
+change limits, deadlines or the four-millisecond cooperative scheduling target.
+
+This documentation closure is a later descendant of the tested candidate.
+Git and Acta retain the separate closure commit identity, pushed on dev.
+Only the eleven configured closure Markdown files differ; runtime, scripts,
+fixtures, public identities, mappings and every required assertion retain the
+tested bytes. The full gate is not rerun or relabeled at the later document HEAD.
+The primary checkout remains on dev; all five integrated owned worktrees are
+retired and unrelated worktrees preserved. No main promotion, release,
+publication, hook activation or successor startup is part of this closure.

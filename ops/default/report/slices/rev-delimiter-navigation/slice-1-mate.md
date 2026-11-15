@@ -110,6 +110,10 @@ queued insertion. This measures native input processing, not a physical PTY.
 PR #62 integrated validated commit `295aa89a6ac9db401784fbdd972d1624216a392d`
 into dev. Its three ordered required checks passed through looper validate.
 The clean inactive integrated worktree was removed without force.
-Controller-owned combined acceptance remains pending. Physical
-PTY acceptance belongs to Slice 5; group/expression motions remain later slices.
+The later group/expression slices and physical PTY acceptance are delivered.
+The controller's unchanged combined gate passed at
+`27957128f7626ee16b5dbdc50af52e9cee27f3c8`, receipt
+`YEU4CDCDB3RP65D5PG67RRYTYF`. The
+[Slice 5 closure](slice-5-acceptance.md#delivery-set-closure) records the exact
+command, integrated outcomes and later Markdown-only closure relationship.
 The existing vendored crossterm unused-parentheses warning remains unchanged.

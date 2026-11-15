@@ -111,7 +111,10 @@ native decoded input, not physical terminal transport or an optimized benchmark.
 PR #63 integrated validated commit `318a65e4030c857b9457db265d46cc447f3a51aa`
 into dev. Its three ordered required checks passed through looper validate.
 The clean inactive integrated worktree was removed without force.
-Controller-owned combined acceptance remains pending. Enclosing/
-nested groups, syntax-class expressions and representative physical-input PTYs
-belong to the next recorded slices. No full delivery gate was run in this slice.
+The later nesting/expression slices and representative physical-input PTYs are
+delivered. The controller's unchanged combined gate passed at
+`27957128f7626ee16b5dbdc50af52e9cee27f3c8`, receipt
+`YEU4CDCDB3RP65D5PG67RRYTYF`. The
+[Slice 5 closure](slice-5-acceptance.md#delivery-set-closure) records the exact
+command, integrated outcomes and later Markdown-only closure relationship.
 The existing vendored crossterm parentheses warning remains unchanged.

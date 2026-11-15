@@ -1,6 +1,7 @@
 # Delimiter Navigation
 
-Status: Approved
+Status: Completed
+Completed: 2026-11-15
 Approved: product owner, 2026-11-15; continuation to the next ordered delivery set
 Plan: [Delimiter Navigation Delivery](../plan/rev-delimiter-navigation.md)
 Tracker: [Delimiter Navigation Tracker](../tracker/rev-delimiter-navigation.md)
@@ -24,9 +25,11 @@ All five slices are integrated through canonical PRs #62-#66. They deliver the
 seven commands, six additive base-editor chords and shared bounded source owner.
 [Slice 5](../report/slices/rev-delimiter-navigation/slice-5-acceptance.md)
 delivers the complete native acceptance batch, two representative Linux PTYs
-and final guidance. Its report records exact slice validation and integration;
-the combined-gate receipt remains pending. Navigation remains Approved until
-the controller passes the unchanged combined gate and records exact-candidate closure.
+and final guidance. The controller's unchanged combined gate passed at
+`27957128f7626ee16b5dbdc50af52e9cee27f3c8`, receipt
+`YEU4CDCDB3RP65D5PG67RRYTYF`, completing DPR02, DPN01 and DPN02. The
+[delivery-set closure](../report/slices/rev-delimiter-navigation/slice-5-acceptance.md#delivery-set-closure)
+records full-gate evidence and the subsequent documentation-only relationship.
 Pair presentation and paragraph parity retain their separate authority.
 
 ## Approved commands and endpoints

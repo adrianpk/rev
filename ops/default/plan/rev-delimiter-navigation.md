@@ -1,6 +1,7 @@
 # Delimiter Navigation Delivery
 
-Status: Approved
+Status: Completed
+Completed: 2026-11-15
 Date: 2026-11-15
 Delivery set: rev-delimiter-navigation
 Slice strategy: behavior-first
@@ -12,8 +13,8 @@ Spec: [Delimiter Navigation](../spec/editor-delimiter-navigation.md)
 Model: [Pair Preferences and Native State](../spec/editor-delimiter-pairs-model.md)
 Concern: [Operations index](../README.md)
 Concern: [Interaction Parity](../spec/editor-emacs-interaction-parity.md)
-Active slice: None — all five slices integrated; awaiting controller gate
-Gate state: prerequisites prepared; controller execution pending
+Active slice: None — Slice 5 of 5 completed; delivery set closed
+Gate state: PASS at `27957128f7626ee16b5dbdc50af52e9cee27f3c8`, receipt `YEU4CDCDB3RP65D5PG67RRYTYF`
 Integration target: `dev`
 Tracker: [Delimiter Navigation Tracker](../tracker/rev-delimiter-navigation.md)
 
@@ -247,12 +248,14 @@ script, fixtures, factory expectations, guidance, changelog and five delivered
 reports are present. Slice 5's clean-HEAD checks passed at
 `74927143e7ad04b5ec594e4b7d6ddddcae0395d4`; its
 [report](../report/slices/rev-delimiter-navigation/slice-5-acceptance.md) records
-the evidence. Gate preparation changes delivery records only. The controller
-still owns the combined gate and exact-candidate closure; no full-gate receipt
-is claimed by this preparation.
+the slice evidence. The controller subsequently passed the unchanged combined
+gate at `27957128f7626ee16b5dbdc50af52e9cee27f3c8`, receipt
+`YEU4CDCDB3RP65D5PG67RRYTYF`. The
+[delivery-set closure](../report/slices/rev-delimiter-navigation/slice-5-acceptance.md#delivery-set-closure)
+records full-gate outcomes and the subsequent eleven-file Markdown-only closure.
 
-After all five slices integrate, run the unchanged combined gate once against
-the exact clean, published dev candidate:
+The controller's exact successful command against that clean, published dev
+candidate was:
 
 ```sh
 env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 bash -c 'set -euo pipefail; make lint; make test-hooks; bash scripts/check-delimiter-navigation.sh; bash scripts/check-documentation.sh; bash scripts/build-user-guide.sh; git diff --check'
@@ -317,3 +320,10 @@ No tested runtime/fixture/input bytes, required command strings or requirement
 identities change during closure. Close all 15 tasks and five reports only after
 their actual integration/evidence. No main promotion, mirror publication, release,
 global installation or successor startup is part of this run.
+
+The five canonical PRs and all 15 tasks are delivered. This closure is a later
+documentation-only descendant of the tested candidate; Git and Acta retain its
+separate identity. All bytes outside the eleven configured closure files,
+including runtime, fixtures, mappings and gate assertions, remain those tested.
+Navigation and EIP04 expression progress are Completed. Paragraph parity and
+presentation retain their separate pending/Draft scope.

@@ -4,7 +4,8 @@ Status: Partially approved
 Editing status: Completed
 Editing completed: 2026-11-15
 Editing approval: product owner, 2026-11-15; rev-delimiter-editing
-Navigation status: Approved
+Navigation status: Completed
+Navigation completed: 2026-11-15
 Navigation approval: product owner, 2026-11-15; rev-delimiter-navigation
 Presentation status: Draft
 Date: 2026-11-08
@@ -225,9 +226,12 @@ source-motion/jump owners; do not add an independent history or per-view cache.
 The five navigation slices are integrated through PRs #62-#66.
 [Slice 5 acceptance](../report/slices/rev-delimiter-navigation/slice-5-acceptance.md)
 delivers nonempty native batches, independent complete factory expectations and
-two owned Linux PTY journeys. Local acceptance does not close Navigation;
-the controller still owns the unchanged combined gate and exact-candidate closure.
+two owned Linux PTY journeys. The controller's unchanged combined gate passed at
+`27957128f7626ee16b5dbdc50af52e9cee27f3c8`, receipt
+`YEU4CDCDB3RP65D5PG67RRYTYF`; its
+[closure record](../report/slices/rev-delimiter-navigation/slice-5-acceptance.md#delivery-set-closure)
+distinguishes that tested candidate from the later Markdown-only closure.
 
-Navigation closure changes only Navigation status to Completed. Editing remains
+Navigation is Completed. Editing remains
 Completed, Presentation remains Draft and this model remains Partially approved.
 EIP04 closes only its expression portion; paragraph and broad parity stay pending.

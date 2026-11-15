@@ -1,6 +1,7 @@
 # Delimiter Navigation Tracker
 
-Status: Approved
+Status: Completed
+Completed: 2026-11-15
 Date: 2026-11-15
 Delivery set: rev-delimiter-navigation
 Slice strategy: behavior-first
@@ -12,8 +13,8 @@ Spec: [Delimiter Navigation](../spec/editor-delimiter-navigation.md)
 Model: [Pair Preferences and Native State](../spec/editor-delimiter-pairs-model.md)
 Concern: [Operations index](../README.md)
 Concern: [Interaction Parity](../spec/editor-emacs-interaction-parity.md)
-Active slice: None — all five slices integrated; awaiting controller gate
-Gate state: prerequisites prepared; controller execution pending
+Active slice: None — Slice 5 of 5 completed; delivery set closed
+Gate state: PASS at `27957128f7626ee16b5dbdc50af52e9cee27f3c8`, receipt `YEU4CDCDB3RP65D5PG67RRYTYF`
 Integration target: `dev`
 Plan: [Delimiter Navigation Delivery](../plan/rev-delimiter-navigation.md)
 
@@ -46,7 +47,7 @@ Report: `ops/default/report/slices/rev-delimiter-navigation/slice-1-mate.md`
 State: delivered; PR #62 integrated
 PR: [#62](https://forge.adrianpk.com/rev/rev/pulls/62)
 Task commits: T1.1/T1.2 `1c3491110d73603a21b0b9a4a792bcc7d4fe7d3a`; T1.3/report introduction `a089ebeac4f55919cff7fae1820c79649e826f16`.
-Validation: all three ordered required commands PASS through looper validate at `295aa89a6ac9db401784fbdd972d1624216a392d`, integrated by canonical PR #62. Native invalidation, independent maps/catalog, documentation and both staged-source hooks PASS. Fetched ancestry and clean inactive owned worktree verified; worktree removed without force. The combined gate remains controller-owned.
+Validation: all three ordered required commands PASS through looper validate at `295aa89a6ac9db401784fbdd972d1624216a392d`, integrated by canonical PR #62. Native invalidation, independent maps/catalog, documentation and both staged-source hooks PASS. Fetched ancestry and clean inactive owned worktree verified; worktree removed without force. The controller's combined gate subsequently passed at `27957128f7626ee16b5dbdc50af52e9cee27f3c8`, receipt `YEU4CDCDB3RP65D5PG67RRYTYF`.
 
 - [x] T1.1: Add a bounded typed-mate motion through the existing buffer request and session navigation owners. Prefer a delimiter at point, then immediately before; use confirmed structural/quote endpoints and preserve strict type matching. Do not search later in the line, infer raw-string proof or expose group results as typed mates.
 - [x] T1.2: Publish matching-delimiter as one unbound native command, with named dispatch, descriptions and truthful hints. It works on read-only source and with automatic pairs or quote editing disabled. Use native unsupported-prefix admission rather than repeating a mate jump. Capture source/revision, view, point/mark and focus; support native cancellation, shared request budgets and safe source-jump publication.
@@ -70,7 +71,7 @@ Report: `ops/default/report/slices/rev-delimiter-navigation/slice-2-groups.md`
 State: delivered; PR #63 integrated
 PR: [#63](https://forge.adrianpk.com/rev/rev/pulls/63)
 Task commits: T2.1/T2.2 `1d82c5099ed24fcf35d3670e4ce6c7693fc98894`; T2.3/report introduction `2e4a46f09e466698218fdb3ec8900d31bfd108bf`.
-Validation: all three ordered required commands PASS through looper validate at `318a65e4030c857b9457db265d46cc447f3a51aa`, integrated by canonical PR #63. Native navigation (25 tests), invalidation (2), shared qualification (21), modal percent/objects (2), independent maps/catalog, documentation and both staged-source hooks PASS. Fetched ancestry and clean inactive owned worktree verified; worktree removed without force. Combined acceptance remains controller-owned.
+Validation: all three ordered required commands PASS through looper validate at `318a65e4030c857b9457db265d46cc447f3a51aa`, integrated by canonical PR #63. Native navigation (25 tests), invalidation (2), shared qualification (21), modal percent/objects (2), independent maps/catalog, documentation and both staged-source hooks PASS. Fetched ancestry and clean inactive owned worktree verified; worktree removed without force. The controller's combined gate subsequently passed at `27957128f7626ee16b5dbdc50af52e9cee27f3c8`, receipt `YEU4CDCDB3RP65D5PG67RRYTYF`.
 
 - [x] T2.1: Implement forward-pair and backward-pair with the approved mode/group syntax policy, distinct from strict typed mate validation. Traverse complete groups, skip declared comments/strings and preserve the no-next-group case when starting inside an atom without a later group at the current nesting level. Keep mismatched-kind grouping separate from typed proof.
 - [x] T2.2: Apply native signed counts once in one captured request; zero is inert, negative reverses direction and all iterations share byte/depth/memory/work admission. Accept normal reference file boundaries while refusing unproved or malformed destinations atomically. Preserve active linear mark and native grapheme boundaries, without source edits or new undo entries.
@@ -94,7 +95,7 @@ Report: `ops/default/report/slices/rev-delimiter-navigation/slice-3-nesting.md`
 State: delivered; PR #64 integrated
 PR: [#64](https://forge.adrianpk.com/rev/rev/pulls/64)
 Task commits: T3.1/T3.2 `b49dd9aa818d5242e9524ee57f3e6ec2eb181884`; T3.3/report introduction `51a95aad55804ebd8f5564a922d9c4f71ce96cc2`.
-Validation: all three ordered required commands PASS through looper validate at `3fd22cbbb24f56adecf57b8dade7b242b38f1da4`, integrated by canonical PR #64. Nesting (10 tests), native invalidation (3), across/mate regressions (15), modal percent/objects (2), independent maps/catalog, documentation and both staged-source hooks PASS. Fetched ancestry and clean inactive owned worktree verified; worktree removed without force. Combined acceptance remains controller-owned.
+Validation: all three ordered required commands PASS through looper validate at `3fd22cbbb24f56adecf57b8dade7b242b38f1da4`, integrated by canonical PR #64. Nesting (10 tests), native invalidation (3), across/mate regressions (15), modal percent/objects (2), independent maps/catalog, documentation and both staged-source hooks PASS. Fetched ancestry and clean inactive owned worktree verified; worktree removed without force. The controller's combined gate subsequently passed at `27957128f7626ee16b5dbdc50af52e9cee27f3c8`, receipt `YEU4CDCDB3RP65D5PG67RRYTYF`.
 
 - [x] T3.1: Implement up-pair as backward-up-list and down-pair as down-list under the approved profile, including their signed-count reverse directions. Distinguish leaving an enclosing group, entering the next nested group and top/bottom-level refusal; do not replace them with next/previous delimiter search.
 - [x] T3.2: Reuse the qualified shared request, bounded continuation and native cursor/region owner. Preserve enclosing-source authority, readonly use, cancellation, source replacement and two-view ownership. Reveal folded source through the existing view path without modifying source or independent peer folds; rectangular/modal selection remains native.
@@ -118,7 +119,7 @@ Report: `ops/default/report/slices/rev-delimiter-navigation/slice-4-expressions.
 State: delivered; PR #65 integrated
 PR: [#65](https://forge.adrianpk.com/rev/rev/pulls/65)
 Task commits: T4.1/T4.2 `f918eb682440e27ca4f0dff6b50de5a1429c6045`; T4.3/report introduction `b368dcae92539b730abde92f7099d9383fa575f8`.
-Validation: all three ordered required commands PASS through looper validate at `1d078b5599bdb46bb8bd65c507a4ea13f4c436f7`, integrated by canonical PR #65. Expressions (11 tests), native invalidation (4), preserved navigation (25), modal percent/objects (2), independent maps/catalog, documentation and both staged-source hooks PASS. Fetched ancestry and clean inactive owned worktree verified; worktree removed without force. The combined gate remains controller-owned.
+Validation: all three ordered required commands PASS through looper validate at `1d078b5599bdb46bb8bd65c507a4ea13f4c436f7`, integrated by canonical PR #65. Expressions (11 tests), native invalidation (4), preserved navigation (25), modal percent/objects (2), independent maps/catalog, documentation and both staged-source hooks PASS. Fetched ancestry and clean inactive owned worktree verified; worktree removed without force. The controller's combined gate subsequently passed at `27957128f7626ee16b5dbdc50af52e9cee27f3c8`, receipt `YEU4CDCDB3RP65D5PG67RRYTYF`.
 
 - [x] T4.1: Implement forward-sexp/backward-sexp across the approved profile-specific atoms, quoted strings and complete forms. Use admitted syntax/context and reference syntax-class endpoints; a parser node, number token, group-only target or mate position cannot substitute for the declared expression boundary. Preserve word/symbol, punctuation-prefix and language quote distinctions from the independent cases.
 - [x] T4.2: Complete mode-specific literal/comment and boundary handling, including ordinary known unterminated-string EOF results where the approved reference admits them. Keep unproved raw/triple/template/interpolation and embedded states conservative. Apply counted cancellation/refusal and native grapheme normalization without publishing stale/intermediate positions, changing source/history or fabricating pair proof.
@@ -142,7 +143,7 @@ Report: `ops/default/report/slices/rev-delimiter-navigation/slice-5-acceptance.m
 State: delivered; PR #66 integrated
 PR: [#66](https://forge.adrianpk.com/rev/rev/pulls/66)
 Task commits: T5.1/T5.2 `2c67bdfdbd9baabedaf0d16ee4a698a6744fbe81`; additive pair inventory reconciliation `263bde3ffe17c1dabadd2bbf72f353de1213c117`; T5.3/report introduction `7006dae9907357d3417ef13ce24876614c6651e7`.
-Validation: all five ordered required commands PASS through looper validate at clean, pushed `74927143e7ad04b5ec594e4b7d6ddddcae0395d4` in 467.503 seconds, integrated by canonical PR #66. The script covers 180 native cases, one independent complete factory helper and exactly two Linux PTYs; documentation and local guide build pass. Both code commits passed exact staged workspace formatting, strict all-target/all-feature Clippy and native policy over 1,971 files / 80 Cargo roots. Fetched ancestry and clean inactive owned worktree verified; worktree removed without force. The combined gate and navigation closure remain controller-owned.
+Validation: all five ordered required commands PASS through looper validate at clean, pushed `74927143e7ad04b5ec594e4b7d6ddddcae0395d4` in 467.503 seconds, integrated by canonical PR #66. The script covers 180 native cases, one independent complete factory helper and exactly two Linux PTYs; documentation and local guide build pass. Both code commits passed exact staged workspace formatting, strict all-target/all-feature Clippy and native policy over 1,971 files / 80 Cargo roots. Fetched ancestry and clean inactive owned worktree verified; worktree removed without force. The controller's combined gate subsequently passed at `27957128f7626ee16b5dbdc50af52e9cee27f3c8`, receipt `YEU4CDCDB3RP65D5PG67RRYTYF`.
 
 - [x] T5.1: Create scripts/check-delimiter-navigation.sh with nonempty native filter checks. Batch the complete navigation suite, the shared pair qualifier/editing regressions justified below, focused native modal objects, keymap/override and macro cases. Reuse the current factory acceptance helper once for complete expected maps/catalog; never regenerate historical frozen inputs from runtime output.
 - [x] T5.2: Add exactly two representative owned Linux PTY journeys, non-modal and modal Insert, using real C-M input and named mate invocation. Verify endpoints through subsequent saved source effects, mark/read-only/focus behavior and configuration immutability; restore TTY and reap owned children. Measure aggregate budget/depth/retention, cancellation, source/view changes, queued-key release and folded Org/Markdown presentation with finite deadlines.
@@ -160,7 +161,9 @@ git diff --check
 
 ## Final acceptance and closure
 
-State: prepared; all five slices integrated, controller full gate pending
+State: Completed; all five slices integrated and controller full gate PASS
+Tested candidate: `27957128f7626ee16b5dbdc50af52e9cee27f3c8`
+Gate receipt: `YEU4CDCDB3RP65D5PG67RRYTYF`
 Required command:
 
 ```sh
@@ -169,19 +172,23 @@ env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CAR
 
 The plan owns the fixed profile/resource contract, proportional regression
 selection, expected cost and report/closure rules. The controller owns final
-execution and receipt for the exact published dev candidate; preparation and
-focused results are not that receipt.
+execution and receipt for the exact published dev candidate. That full-gate
+receipt passed; the subsequent closure changes only the eleven configured
+Markdown files and preserves every tested runtime/input/assertion byte.
 
 All approved full-gate inputs and commands are present. Required executables are
 available, frozen input digests are unchanged, and integrated owned worktrees
-are retired. Gate preparation changes only delivery-state Markdown; navigation
-remains Approved until the controller records the combined gate and closure.
+are retired. Full workspace formatting, strict Clippy/source policy, 28 hook
+fixtures, 180 navigation/shared-owner cases, complete factory expectations, two
+PTYs, 22 reference tests and the local User Guide build passed. The
+[Slice 5 closure](../report/slices/rev-delimiter-navigation/slice-5-acceptance.md#delivery-set-closure)
+records the command, outcomes and separate Markdown-only closure relationship.
 
 - [x] All 15 tasks and five canonical PRs delivered in predecessor order.
-- [ ] Navigation and shared pair/editing, modal, keymap, macro and projection cases pass.
-- [ ] Two representative owned Linux PTYs restore TTY and preserve actual configuration.
-- [ ] Bounded-work/cancellation/held-input and source/region/frame contracts pass.
-- [ ] User Guide, exact bindings/commands/profile reference and concise Unreleased entry accepted.
-- [ ] Unchanged controller full gate passes at the exact candidate; tested hash/receipt recorded.
-- [ ] Eleven allowed Markdown records close navigation and only EIP04 expression progress.
+- [x] Navigation and shared pair/editing, modal, keymap, macro and projection cases pass.
+- [x] Two representative owned Linux PTYs restore TTY and preserve actual configuration.
+- [x] Bounded-work/cancellation/held-input and source/region/frame contracts pass.
+- [x] User Guide, exact bindings/commands/profile reference and concise Unreleased entry accepted.
+- [x] Unchanged controller full gate passes at the exact candidate; tested hash/receipt recorded.
+- [x] Eleven allowed Markdown records close navigation and only EIP04 expression progress.
 - [x] Completed clean/inactive owned worktrees removed without force.

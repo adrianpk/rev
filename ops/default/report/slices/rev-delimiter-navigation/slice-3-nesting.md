@@ -120,7 +120,10 @@ PR #64 integrated into dev. Implementation is `b49dd9aa818d5242e9524ee57f3e6ec2e
 test/report introduction is `51a95aad55804ebd8f5564a922d9c4f71ce96cc2`.
 The validated head is `3fd22cbbb24f56adecf57b8dade7b242b38f1da4`. Fetched ancestry,
 cleanliness and inactivity were verified before non-forced owned worktree removal.
-Controller-owned combined acceptance remains pending. Syntax-class
-expressions and representative physical-input PTYs belong to the next recorded
-slices. No full delivery gate was run here. The existing vendored crossterm
-parentheses warning remains unchanged.
+The expression slice and representative physical-input PTYs are delivered.
+The controller's unchanged combined gate passed at
+`27957128f7626ee16b5dbdc50af52e9cee27f3c8`, receipt
+`YEU4CDCDB3RP65D5PG67RRYTYF`. The
+[Slice 5 closure](slice-5-acceptance.md#delivery-set-closure) records the exact
+command, integrated outcomes and later Markdown-only closure relationship.
+The existing vendored crossterm parentheses warning remains unchanged.
