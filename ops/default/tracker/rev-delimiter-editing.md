@@ -42,14 +42,14 @@ Dependency: approved committed preparation.
 Branch: `feat/rev-delimiter-editing-01-config`
 Expected PR title: `feat(editor): configure automatic pair policies`
 Report: `ops/default/report/slices/rev-delimiter-editing/slice-1-config.md`
-State: ready; active
+State: reviewing; awaiting controller integration
 PR: pending
-Task commits: pending
-Validation: not run
+Task commits: T1.1/report introduction `1c02645adf98458878588684db44cb78dcd7ecfa`; T1.2 `178c80b447525e60caba98ab84ee2ef2b30942a5`; T1.3 `1fc8533dd8dc95f2220c0a603e863be49d915538`.
+Validation: formatting and whitespace PASS; 11 pair-policy and five existing template/default regressions PASS; all three task commits passed the installed staged-source hooks. The final submitted clean HEAD is checked through the controller validator before handoff; the combined delivery gate remains controller-owned.
 
-- [ ] T1.1: Extend the native parsed, partial and resolved configuration with only the five editing booleans. Add compiled defaults and per-language leaf inheritance, whole-candidate rejection, origin paths and effective snapshots; preserve absent-sibling inheritance and grammar-independent language resolution.
-- [ ] T1.2: Connect resolved editing policy to the native buffer/language lifecycle without automatic source edits. Preserve explicit user overrides, shared-buffer ownership and unrelated settings. Add only editing leaves to the generated template and configuration reference; do not accept future presentation leaves.
-- [ ] T1.3: Add parameterized configuration regressions for defaults, every false override, per-language inheritance/provenance, malformed candidates and language changes; report exact coverage and preserve personal configuration bytes.
+- [x] T1.1: Extend the native parsed, partial and resolved configuration with only the five editing booleans. Add compiled defaults and per-language leaf inheritance, whole-candidate rejection, origin paths and effective snapshots; preserve absent-sibling inheritance and grammar-independent language resolution.
+- [x] T1.2: Connect resolved editing policy to the native buffer/language lifecycle without automatic source edits. Preserve explicit user overrides, shared-buffer ownership and unrelated settings. Add only editing leaves to the generated template and configuration reference; do not accept future presentation leaves.
+- [x] T1.3: Add parameterized configuration regressions for defaults, every false override, per-language inheritance/provenance, malformed candidates and language changes; report exact coverage and preserve personal configuration bytes.
 
 Required commands:
 
