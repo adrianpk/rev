@@ -68,10 +68,10 @@ Dependency: Slice 1 integrated and closed
 Branch: `feat/rev-delimiter-presentation-02-qualification`
 Expected PR title: `feat(editor): retain bounded source-qualified delimiter spans`
 Report: `ops/default/report/slices/rev-delimiter-presentation/slice-2-qualification.md`
-State: reviewing; implementation and focused verification prepared
-PR: pending
-Task commits: pending
-Validation: pending
+State: reviewing; PR #68 open
+PR: [#68](https://forge.adrianpk.com/rev/rev/pulls/68)
+Task commits: T2.1/T2.2/T2.3/report introduction `f338d0f56f36d6c3e67740e3a597b6922a99f900`; shared publication/proof regression follow-up `30096774eb1e54b615aabe28c13c26c360850446`.
+Validation: 21 qualification cases and 23 existing pair/navigation qualification regressions PASS. Preserved staged hooks PASS full workspace Clippy and native source policy over 1987 files/81 roots. Ordered clean-HEAD evidence is recorded separately through looper validate after the PR-reference commit; integration and the combined gate remain controller-owned.
 
 - [x] T2.1: Extend the existing buffer-owned typed-pair fact service with bounded immutable presentation spans and proved depth. Reuse lexical profiles and typed confirmation; never promote loose group targets to typed mates. Foreground editing/navigation requests keep their tickets and scheduling priority; background presentation cannot retire or starve them or introduce a parallel mutable source cache.
 - [x] T2.2: Advance retained spans through native source transactions only when exact endpoint mapping and unchanged lexical/nesting classification are proved. Validate source/view identities and invalidate unproved ranges after delimiter, quote, escape, newline, language, reload or replacement changes. Preserve bounded neutral same-line edits without a transient fallback to unqualified syntax.

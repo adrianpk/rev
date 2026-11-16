@@ -5,7 +5,7 @@ Delivery set: rev-delimiter-presentation
 Plan: [Delimiter Presentation Delivery](../../../plan/rev-delimiter-presentation.md)
 Tracker: [Delimiter Presentation Tracker](../../../tracker/rev-delimiter-presentation.md)
 Branch: `feat/rev-delimiter-presentation-02-qualification`
-PR: pending
+PR: [#68](https://forge.adrianpk.com/rev/rev/pulls/68)
 
 ## Purpose
 
@@ -74,6 +74,9 @@ during viewport extension, keeps overlapping views in one inspection budget,
 and protects Org control-word qualification. Rendering and pulse integration
 remain later slices.
 
+Follow-up commit: `30096774eb1e54b615aabe28c13c26c360850446`.
+Canonical review: [PR #68](https://forge.adrianpk.com/rev/rev/pulls/68).
+
 ## Contracts Added or Changed
 
 - Buffer-owned presentation request/poll/borrow/cancel APIs and actual retention.
@@ -96,7 +99,7 @@ remain later slices.
 ## Validation
 
 Development qualification passes all 21 cases. Final ordered clean-HEAD evidence
-will be recorded once through looper validate after the PR-reference commit.
+is recorded separately through looper validate after the PR-reference commit.
 The controller owns integration and the combined delivery-set gate.
 
 - PASS: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo check --locked --lib`.
@@ -107,6 +110,7 @@ The controller owns integration and the combined delivery-set gate.
   safe Rust, parameter <=5, nesting <=3 and complexity <=10. The preserved
   staged hook remains responsible for complete workspace acceptance.
 - PASS: introduction commit hook at staged tree `5f49046d143b44d5e348f257a7cebe3f2bbf653a`: full workspace Clippy with zero blocking/deferred diagnostics, 1987/1987 first-party Rust files and 81/81 Cargo roots, with no source-policy exception.
+- PASS: corrected follow-up commit hook at staged tree `9f913b8ed548bd24fdce68d29bc17ae1074c31d1`: full workspace Clippy with zero blocking/deferred diagnostics and native policy across all 1987 files/81 roots.
 - PASS: `git diff --check`.
 
 Measured development observations (unoptimized, one build job, exclusive target):
