@@ -9,23 +9,21 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 
 ### Added
 
-- Delimiter depth colors and active-pair marks, with view-local depth, match,
-  pulse and off styles and offscreen mate locations. Colors remain stable while
-  typing. Pulse marks clear after the configured duration without blinking;
-  selection and search highlights retain their colors.
-- Navigate complete groups with C-M-n/C-M-p, enter and leave nesting with
-  C-M-d/C-M-u, and cross mode-aware expressions with C-M-f/C-M-b. Jump onto a
-  confirmed delimiter or quote mate with M-x matching-delimiter. Navigation
-  works on read-only source and with automatic pairing disabled; signed motions
-  preserve source, undo history and the active mark, and refuse unproved targets
-  without moving point.
+- Color delimiters by nesting depth and mark the active pair. Choose depth,
+  match, pulse or off in each pane, with configurable colors and pulse duration.
+  Offscreen mates show their source location; selection and search keep their
+  highlights.
+
+- Navigate paired groups with C-M-n/C-M-p, enter and leave nesting with
+  C-M-d/C-M-u, and cross expressions with C-M-f/C-M-b. Jump to the matching
+  delimiter or quote with M-x matching-delimiter. Navigation also works in
+  read-only files and with automatic pairing disabled.
 
 - Type paired parentheses, brackets, braces and eligible quotes, skip confirmed
   closers, and remove empty pairs with Backspace. Wrap selected text or use M-x
   pair-wrap and pair-unwrap; counted edits stay in one undo step. Configure each
   effect globally or by language, or toggle the current buffer with M-x
-  auto-pair-mode. Paste and completion remain literal, and macro typing applies
-  pairing once.
+  auto-pair-mode. Paste and completion remain literal.
 
 - Cycle declared Org effort choices with C-c C-x E, inspect property columns
   with C-c C-x C-c, and add checked Babel header arguments with C-c C-v j or
@@ -67,8 +65,8 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
   stay fixed, and later file visits retain automatic parent following.
 
 - Run `quit` from M-x or modal colon as a shorter name for the guarded exit.
-  Saving, discarding, cancellation and active-process decisions keep their
-  existing behavior.
+  The save prompt also accepts d to discard unsaved changes. Saving,
+  cancellation and active-process decisions keep their existing behavior.
 
 - Configure how Org views open, including heading-only outlines or text with
   drawers hidden. Show, hide or toggle drawers in the selected pane and restore

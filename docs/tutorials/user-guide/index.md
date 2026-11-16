@@ -8,7 +8,8 @@ small files you create yourself. The default path uses Emacs direct entry; later
 chapters offer startup-selected modal editing, optional language servers, external reload, optional Pi editing, local shell text filters and integrated terminals.
 
 1. [Edit Your First File](01-first-file.md): write, save, quit and reopen.
-2. [Move and Edit Text](02-edit-text.md): move by a count, select, copy and undo text.
+2. [Move and Edit Text](02-edit-text.md): move by a count, select, copy and undo text;
+   edit and navigate paired delimiters and recognize their nesting colors.
 3. [Use Buffers and Panes](03-buffers-and-panes.md): keep two files open and arrange their views.
 4. [Search and Run Commands](04-search-and-commands.md): find text, use M-x and keep named locations.
 5. [Record and Replay Editing](21-keyboard-macros.md): record one line edit, replay it and undo one iteration.

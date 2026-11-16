@@ -5,8 +5,9 @@ Emacs's navigation and buffer workflow, with a focus on quick, comfortable
 editing.
 
 Multiple buffers, split windows, search and replace, a file tree,
-[syntax highlighting](docs/reference/syntax.md) and
-[native Org mode](docs/tutorials/user-guide/org/index.md) come built in. These
+[syntax highlighting](docs/reference/syntax.md),
+[native Org mode](docs/tutorials/user-guide/org/index.md) and
+[Markdown editing](docs/tutorials/user-guide/markdown/index.md) come built in. These
 are everyday comforts you can use from the start, without first assembling a
 set of editor packages. The goal is a light, responsive editor with a
 deliberately small scope.
@@ -73,6 +74,9 @@ Start with the [User Guide](docs/tutorials/user-guide/index.md) for everyday
 editing, from your first file to buffers, search and preferences.
 The [Org mode guide](docs/tutorials/user-guide/org/index.md) has its own path
 for outlines, tasks, agendas and tables.
+The [Markdown guide](docs/tutorials/user-guide/markdown/index.md) covers headings,
+lists and tables. [Move and Edit Text](docs/tutorials/user-guide/02-edit-text.md)
+also introduces automatic delimiters, pair navigation and nesting colors.
 
 The [documentation index](docs/index.md) links to task guides, the
 [key bindings](docs/reference/bindings.md), configuration and explanations.
