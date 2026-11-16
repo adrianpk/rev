@@ -1,6 +1,6 @@
 # Slice 5: Completed-frame continuity
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-delimiter-presentation
 Plan: [Delimiter Presentation Delivery](../../../plan/rev-delimiter-presentation.md)
 Tracker: [Delimiter Presentation Tracker](../../../tracker/rev-delimiter-presentation.md)
@@ -97,13 +97,14 @@ Canonical review: [PR #71](https://forge.adrianpk.com/rev/rev/pulls/71).
 
 ## Validation
 
-Exact ordered clean-HEAD evidence is recorded through looper validate after the
-canonical PR-reference commit. Integration and the combined gate remain
+All three ordered required commands PASS once through looper validate at clean
+published `67f94244d2982f545be9f363408f62aadced76b5`, integrated by PR #71.
+Fetched ancestry, clean state and no owned processes verified; the integrated
+worktree was removed without force. Integration and the combined gate remain
 controller-owned. Every selected filter is nonempty; no test is ignored.
 
 - PASS: `cargo fmt --all -- --check`.
-- Continuity: all nine required cases PASS in the full native batch below;
-  the exact required command is recorded for the final clean PR HEAD.
+- PASS: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test pair_presentation continuity -- --test-threads=1`: nine cases at the exact integrated HEAD.
 - PASS: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test pair_presentation -- --test-threads=1`: 77 cases, including all 24 bursts and 18 pulse regressions.
 - PASS: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test pairs qualification -- --test-threads=1`: 21 cases.
 - PASS: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test pair_navigation lifecycle -- --test-threads=1`: four cases.

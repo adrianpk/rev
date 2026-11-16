@@ -12,8 +12,8 @@ Integration target: `dev`
 Plan: `ops/default/plan/rev-delimiter-presentation.md`
 Spec: `ops/default/spec/editor-delimiter-presentation.md`
 Model: `ops/default/spec/editor-delimiter-pairs-model.md`
-Active slice: Slice 5 of 6 - Completed-frame continuity
-Completed slices: 4/6
+Active slice: Slice 6 of 6 - Integrated presentation acceptance
+Completed slices: 5/6
 Completed tasks: 15/18
 Gate state: pending; controller-owned after all six canonical PRs integrate
 
@@ -140,10 +140,10 @@ Dependency: Slice 4 integrated and closed
 Branch: `test/rev-delimiter-presentation-05-continuity`
 Expected PR title: `test(editor): verify delimiter continuity and input service`
 Report: `ops/default/report/slices/rev-delimiter-presentation/slice-5-continuity.md`
-State: reviewing; canonical PR #71 open
+State: delivered; PR #71 integrated
 PR: [#71](https://forge.adrianpk.com/rev/rev/pulls/71)
 Task commits: T5.1/T5.2/T5.3/report introduction `84572a9c0ac1ae78595683ec290fef374c0c642b`.
-Validation: all nine continuity cases PASS, including exactly 24 bursts/1536 completed frames and eight native held-input journeys. All 77 presentation cases, 21 pair qualification cases, four navigation lifecycle cases, native drain-owner/observer cases, 22 documentation reference cases and preserved full workspace hook PASS. Exact ordered clean-HEAD evidence follows the canonical PR-reference commit through looper validate. The combined gate remains controller-owned.
+Validation: all nine continuity cases PASS, including exactly 24 bursts/1536 completed frames and eight native held-input journeys. All 77 presentation cases, 21 pair qualification cases, four navigation lifecycle cases, native drain-owner/observer cases, 22 documentation reference cases and preserved full workspace hook PASS. All three ordered required commands PASS once through looper validate at `67f94244d2982f545be9f363408f62aadced76b5`, integrated by PR #71. Fetched ancestry, clean state and no owned processes verified; integrated worktree removed without force. The combined gate remains controller-owned.
 
 - [x] T5.1: Exercise native completed-frame observation for the frozen Text/Org/Markdown forms in both profiles and all four styles. Across 32 neutral body insertions and 32 deletions, retain proved delimiter foregrounds and correct mapped endpoints; preserve headings, prefix geometry, source/selection/cursor mappings and active-pair eligibility. If a real seam fails, correct only its presentation/proof/scheduling owner.
 - [x] T5.2: Batch exactly 24 native completed-frame bursts (3 documents x 2 profiles x 4 styles), asserting nonzero observed frames and independent source/style oracles. Add invalidating edits, redraw/resize, split-view divergence, source reload and NO_COLOR cases at the lowest-cost native boundary without multiplying every case into a PTY.
@@ -164,7 +164,7 @@ Dependency: Slice 5 integrated and closed
 Branch: `test/rev-delimiter-presentation-06-acceptance`
 Expected PR title: `test(editor): verify delimiter presentation workflows`
 Report: `ops/default/report/slices/rev-delimiter-presentation/slice-6-acceptance.md`
-State: pending
+State: ready
 PR: pending
 Task commits: pending
 Validation: pending
