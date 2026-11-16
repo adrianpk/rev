@@ -248,7 +248,7 @@ impl Session {
         {
             let (events, diagnostic) = watch.take();
             if let Some(diagnostic) = diagnostic {
-                action = self.message(&diagnostic);
+                action = self.focus_message(&diagnostic);
             }
             for event in events {
                 self.queue_observation_event(event);
@@ -315,7 +315,7 @@ impl Session {
         }
         buffer.set_external_notice(Some(notice.clone()));
         // Echo and per-buffer status are passive; no prompt or input focus moves.
-        self.message(&notice)
+        self.focus_message(&notice)
     }
 
     pub(super) fn observed_reload(&mut self, source: &Source, reload: Reload) -> Action {

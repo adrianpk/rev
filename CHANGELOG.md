@@ -102,6 +102,9 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 
 ### Fixed
 
+- External file-change notices preserve pending save and discard confirmations.
+  Missing files and unavailable observations retain the active question.
+
 - M-x keeps name, shortcut and description columns stable while filtering or
   scrolling. Narrow panels clip each field, and held navigation responds
   without a lingering backlog.

@@ -380,8 +380,8 @@ two 512-file restore/checkpoint rounds and resource return. Printed service,
 resize, RSS, FD/thread and CPU observations describe that run; fixed storage
 capacities are not portable latency or memory guarantees.
 
-One bounded journey per profile starts three editors serially: no-target
-startup, explicit file and explicit directory. RGB/non-modal and NO_COLOR/modal
+One bounded journey per profile starts four editors serially: two no-target
+context phases, explicit file and explicit directory. RGB/non-modal and NO_COLOR/modal
 paths exercise the startup screen, temporary opening of a registered directory,
 Project promotion, independent Workspace sessions, roots, conversion and
 canceled duplication. Each editor has an eight-second/1 MiB bound; profile and

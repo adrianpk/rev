@@ -10,6 +10,8 @@ use std::{
     time::{Duration, Instant},
 };
 
+const PEER: &str = "workspace/beta/peer.txt";
+
 fn visible(frame: &str, text: &str) -> bool {
     (1..=30).any(|n| row(frame, n).contains(text))
 }
@@ -63,29 +65,76 @@ fn dashboard(terminal: &mut Terminal) -> Result<()> {
     Ok(())
 }
 
-// Three serial starts form one journey per profile: no target, explicit file,
-// explicit directory. Each keeps the shared eight-second/1-MiB editor limits.
+// Four serial starts form one journey per profile: two context phases, explicit
+// file and explicit directory. Each retains the eight-second/1-MiB editor limits.
 pub(super) fn journey(root: &Path, binary: &Path, wrapper: &Path, profile: &str) -> Result<()> {
     assert!(matches!(profile, "non-modal" | "modal"));
     let fixture = Fixture::prepare(root, profile)?;
     let started = Instant::now();
-    let mut terminal = Terminal::start_no_target(root, binary, wrapper)?;
-    interact(root, profile, &mut terminal, &fixture)?;
+    let checkpoint = first_context(root, binary, wrapper, profile, &fixture)?;
+    let resumed_bytes = resumed_context(root, binary, wrapper, profile, &checkpoint)?;
     let label = tree_label(profile);
-    terminal.finish()?;
-    let first_bytes = terminal.bytes();
-    drop(terminal);
+    let first_bytes = checkpoint.bytes;
     let retained = state(root)?;
     let file_bytes = restart_file(root, binary, wrapper)?;
     let directory = restart_directory(root, binary, wrapper, label)?;
     unchanged(root, &fixture, &retained)?;
     assert!(started.elapsed() < Duration::from_secs(30));
     println!(
-        "PASS Linux PTY {profile}: startup/actions/banner/resize, temporary matching directory, promotion, Unicode source anchor, Project/Workspace sessions, empty Workspace, duplicate/cancel/undo, membership, atomic conversion, explicit file/directory restart, unchanged source/configuration and restored TTYs; elapsed_ms={} output_bytes={first_bytes}+{file_bytes}+{}",
+        "PASS Linux PTY {profile}: startup/actions/banner/resize, temporary matching directory, promotion, Unicode source anchor, Project/Workspace sessions, empty Workspace, duplicate/cancel/undo, membership, atomic conversion, explicit file/directory restart, unchanged source/configuration and restored TTYs; elapsed_ms={} output_bytes={first_bytes}+{resumed_bytes}+{file_bytes}+{}",
         started.elapsed().as_millis(),
         directory.bytes()
     );
     Ok(())
+}
+
+struct Checkpoint {
+    project: rev::context::Project,
+    copy: rev::context::Workspace,
+    bytes: usize,
+}
+
+fn first_context(
+    root: &Path,
+    binary: &Path,
+    wrapper: &Path,
+    profile: &str,
+    fixture: &Fixture,
+) -> Result<Checkpoint> {
+    let mut terminal = Terminal::start_no_target(root, binary, wrapper)?;
+    startup(root, profile, &mut terminal, &fixture.first)?;
+    let project = project_work(root, profile, &mut terminal, &fixture.first)?;
+    let copy = duplicate(root, profile, &mut terminal, &fixture.first, &project)?;
+    terminal.finish()?;
+    Ok(Checkpoint {
+        project,
+        copy,
+        bytes: terminal.bytes(),
+    })
+}
+
+fn resumed_context(
+    root: &Path,
+    binary: &Path,
+    wrapper: &Path,
+    profile: &str,
+    checkpoint: &Checkpoint,
+) -> Result<usize> {
+    let mut resumed = Terminal::start_no_target(root, binary, wrapper)?;
+    dashboard(&mut resumed)?;
+    named(&mut resumed, profile, "workspace-open")?;
+    pick(&mut resumed, "Workspace:", "Copy")?;
+    resumed.frame(|f| visible(f, "界e\u{301} line"))?;
+    membership(root, profile, &mut resumed, &root.join(PEER))?;
+    convert(
+        root,
+        profile,
+        &mut resumed,
+        &checkpoint.project,
+        &checkpoint.copy,
+    )?;
+    resumed.finish()?;
+    Ok(resumed.bytes())
 }
 
 fn tree_label(profile: &str) -> &'static str {
@@ -192,7 +241,7 @@ impl Fixture {
         let config_path = root.join("pty/config/rev/config.toml");
         fs::write(&config_path, &config)?;
         let first = root.join("workspace/alpha/notes.txt");
-        let peer = root.join("workspace/beta/peer.txt");
+        let peer = root.join(PEER);
         fs::write(&first, DOCUMENT)?;
         fs::write(&peer, "peer source\n")?;
         Ok(Self {
@@ -202,15 +251,6 @@ impl Fixture {
             peer,
         })
     }
-}
-
-fn interact(root: &Path, profile: &str, terminal: &mut Terminal, fixture: &Fixture) -> Result<()> {
-    startup(root, profile, terminal, &fixture.first)?;
-    let project = project_work(root, profile, terminal, &fixture.first)?;
-    let copy = duplicate(root, profile, terminal, &fixture.first, &project)?;
-    membership(root, profile, terminal, &fixture.peer)?;
-    convert(root, profile, terminal, &project, &copy)?;
-    Ok(())
 }
 
 fn restart_file(root: &Path, binary: &Path, wrapper: &Path) -> Result<usize> {

@@ -6,7 +6,7 @@ rev [file-or-directory]
 
 | Invocation | Result |
 | --- | --- |
-| `rev` | Show the native startup screen with five context actions. |
+| `rev` | Show the native startup screen with four context actions. |
 | `rev notes.txt` | Open an existing UTF-8 file, or an empty visiting buffer if it does not exist. |
 | `rev src/main.rs` | Open a file relative to the shell's current directory. |
 | `rev .` | Browse the current directory with its immediate tree entries expanded. |

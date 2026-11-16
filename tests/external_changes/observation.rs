@@ -1,5 +1,45 @@
 use super::*;
 
+// A passive kernel notice must not replace the active save/discard question.
+// Both a missing image and a retired parent retain text and explicit consent.
+#[test]
+fn pending_decisions() {
+    for (name, profile, retire_parent) in [
+        ("missing file", "non-modal", false),
+        ("retired parent", "modal", true),
+    ] {
+        let fixture = Fixture::new();
+        let parent = fixture.0.join("watched");
+        fs::create_dir(&parent).unwrap();
+        let path = parent.join("source");
+        fs::write(&path, "retained").unwrap();
+        let mut editor = editor(&fixture, &path, profile, "ask");
+        editor.replace(0..0, "local ").unwrap();
+        editor.execute(Command::Quit);
+        let question = editor.echo().to_owned();
+        assert!(question.contains("y=save, n=discard, C-g=cancel"));
+        fs::remove_file(&path).unwrap();
+        if retire_parent {
+            fs::remove_dir(&parent).unwrap();
+        }
+        wait(&mut editor, |s| {
+            s.buffer().unwrap().external_change_notice().is_some()
+        });
+        assert!(
+            editor.echo().starts_with(&question),
+            "{name}: {}",
+            editor.echo()
+        );
+        assert_eq!(bytes(editor.buffer().unwrap()), b"local retained");
+        assert!(editor.buffer().unwrap().is_modified());
+        assert!(!path.exists());
+        assert_eq!(
+            editor.handle(key(KeyCode::Char('n'))),
+            rev::session::Action::Exit
+        );
+    }
+}
+
 // Kernel notifications drive one native edit for both shared panes under each
 // startup profile, and undo remains dirty without an unchanged-file reload loop.
 #[test]
