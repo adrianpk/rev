@@ -90,9 +90,11 @@ quotes = true
 # availability or syntax colors. Example: disable only quotes for Rust.
 # [language.rust.pairs]
 # quotes = false
-# Initial view style: depth, match, pulse or off. Runtime choices are view-local.
+# Initial view style: depth, match, pulse or off; independent of enabled above.
+# depth cycles endpoint colors; match marks only the active pair; off hides both.
+# Runtime pair-highlight-style/mode choices affect one pane without saving here.
 highlight = "depth"
-# Integer 50..=1000 milliseconds; independent of automatic editing.
+# Finite pulse duration, integer 50..=1000 milliseconds. Repaint cannot extend it.
 pulse_ms = 250
 # Unknown leaves reject the whole configuration candidate.
 
@@ -518,7 +520,12 @@ symlink = "#7dcfff"
 # match_background = "#283457" # palette.selection
 # match_text = "#c0caf5"       # palette.foreground
 # mismatch = "#e0af68"         # palette.warning
-# depth_colors = ["#7aa2f7"]   # 1..8 opaque RGB colors; otherwise syntax cycle
+# depth_colors = ["#7aa2f7", "#e0af68", "#bb9af7"] # 1..8 opaque RGB colors
+# The omitted depth cycle uses syntax function/number/keyword/type/string/punctuation.
+# Language-only alternatives can inherit every other global pair preference:
+# [language.markdown.pairs]
+# highlight = "match"
+# pulse_ms = 150
 
 [palette.syntax]
 keyword = "#9d7cd8"

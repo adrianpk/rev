@@ -503,9 +503,13 @@ opens a bounded depth/match/pulse/off prompt with C-g cancellation. Both refuse
 numeric prefix arguments and preserve source, mark, point, history and settings.
 New views, including splits, start from resolved global/language defaults;
 sibling overrides remain independent. A view override survives source rebinds.
-These controls prepare presentation; delimiter colors and pulse rendering are
-not yet active. A malformed global or language preference rejects the complete
-configuration candidate.
+Depth colors structural delimiters by nesting level and marks the active pair.
+Match marks only that pair; pulse clears its mark after `pulse_ms`; off removes
+pair presentation. These choices do not disable automatic editing or navigation.
+See [delimiter presentation](delimiter-editing.md#delimiter-presentation) for
+entry rules, palette/overlay priority and bounded qualification.
+A malformed global or language preference rejects the complete configuration
+candidate.
 Omitted language siblings inherit the final global values even without a grammar
 or with syntax colors disabled. Buffer-local choices survive language changes
 without writing configuration or changing source/history.

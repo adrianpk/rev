@@ -85,6 +85,34 @@ See [Configure automatic delimiter editing](../../how-to/configure-delimiter-edi
 for independent controls and language overrides, and the
 [reference](../../reference/delimiter-editing.md) for conservative boundaries.
 
+## Recognize a delimiter pair
+
+Put `(note [next]) tail` on a line. With the default `depth` style, the
+parentheses and brackets have different nesting colors. Only their endpoints
+receive these colors. Move before `(`: both parentheses gain a background and
+underline. Move into the middle of `note`: that active mark clears while the
+depth colors remain. Selection and search keep their own highlight colors.
+
+Run `M-x pair-highlight-style`, type `match` and press Enter. Move before `(`
+again. Only the two active parentheses are marked; the other text uses ordinary
+colors. Choose `pulse` the same way, then move right once onto `n`. The pair
+immediately before point is marked briefly and clears after 250 ms. It does
+not blink or move the cursor.
+
+Choose `off` to remove pair presentation. Run `M-x pair-highlight-mode` to
+restore your last non-off style, or run it again to switch off. These unbound
+commands affect only this pane. They preserve your text, undo history and
+settings; automatic insertion and navigation remain available. `C-g` cancels
+the style prompt without applying its draft. Choose `depth` to restore this
+lesson's default.
+
+When a confirmed mate is outside the pane, the echo area can show its line and
+column without scrolling. Uncertain source can remain uncolored. In a terminal
+with `NO_COLOR`, the supported active underline remains available. The
+[reference](../../reference/delimiter-editing.md#delimiter-presentation) explains
+palette roles and limits. [Set Your Preferences](09-preferences.md) shows how
+to keep a different startup style or pulse duration.
+
 ## Navigate groups and expressions
 
 Put `(note [next]) tail` on a line and move before its opening parenthesis.

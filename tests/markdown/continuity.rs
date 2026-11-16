@@ -118,6 +118,12 @@ fn continuity_cancel() {
     let frame = session.frame().unwrap();
     assert!(frame.rows()[3].text().contains("## Child"));
     assert!(frame.rows().iter().all(|row| row.syntax().is_empty()));
+    // A current depth-presentation request can still need a cooperative poll.
+    // Retiring that independent work must not restart canceled Markdown analysis.
+    settle(&mut session);
+    let settled = session.frame().unwrap();
+    assert!(settled.rows()[3].text().contains("## Child"));
+    assert!(settled.rows().iter().all(|row| row.syntax().is_empty()));
     assert_eq!(session.remaining_input(Instant::now()), None);
     let stamp = session.buffer().unwrap().stamp();
     session.execute(Command::Markdown(MarkdownCommand::Pretty));

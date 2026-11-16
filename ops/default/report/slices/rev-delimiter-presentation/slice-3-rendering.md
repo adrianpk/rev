@@ -91,8 +91,10 @@ Canonical review: [PR #69](https://forge.adrianpk.com/rev/rev/pulls/69).
 
 ## Validation
 
-Exact clean-HEAD evidence is recorded through looper validate after the canonical
-PR-reference commit. The controller owns integration and the combined gate.
+All three ordered required commands PASS once through looper validate at clean
+published `b21e7523f4eec23194836fae7634be4a9d8e9c76`, integrated by PR #69.
+Acta receipt: `01M7H060XQQZRD4BZAA0SN1SK9`. The combined gate remains
+controller-owned.
 
 - PASS: `cargo fmt --all -- --check`.
 - PASS: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test pair_presentation rendering -- --test-threads=1`: 15 cases, also repeated by the broader regression command.

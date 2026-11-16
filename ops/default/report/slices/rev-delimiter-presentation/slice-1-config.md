@@ -5,7 +5,7 @@ Delivery set: rev-delimiter-presentation
 Plan: [Delimiter Presentation Delivery](../../../plan/rev-delimiter-presentation.md)
 Tracker: [Delimiter Presentation Tracker](../../../tracker/rev-delimiter-presentation.md)
 Branch: `feat/rev-delimiter-presentation-01-config`
-PR: `#67`
+PR: [#67](https://forge.adrianpk.com/rev/rev/pulls/67)
 
 ## Purpose
 
@@ -77,9 +77,10 @@ Canonical review: [PR #67](https://forge.adrianpk.com/rev/rev/pulls/67).
 
 ## Validation
 
-Local focused checks passed. Final ordered clean-HEAD evidence is recorded
-separately through looper validate after the PR-reference commit. The controller
-owns integration and the combined delivery-set gate.
+All three ordered required commands PASS through looper validate at clean
+published `f1515a01cf5434ce163840a99c1729da0bfaea0e`, integrated by PR #67.
+Acta receipt: `01M7GSHBNQNRM98SFPE3E6MGCC`. The combined gate remains
+controller-owned.
 
 - PASS: `cargo fmt --all -- --check`.
 - PASS: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test pair_presentation config -- --test-threads=1`: 14 cases.

@@ -83,7 +83,9 @@ fn current_policy() {
 // existing macro owner. No half pair, queued source edit or retry survives C-g.
 #[test]
 fn pending_cancel() {
-    let mut e = Editor::new("", "plain", "|");
+    // Keep qualification cold while laying out the large fixture. Presentation
+    // can otherwise finish that scan before the macro under test even starts.
+    let mut e = Editor::new("pairs.highlight='off'", "plain", "|");
     function(&mut e.session, 3);
     e.type_key('(');
     function(&mut e.session, 4);
@@ -91,6 +93,14 @@ fn pending_cancel() {
     e.session.replace(0..2, &source).unwrap();
     e.session.execute(Command::Motion(Motion::BufferEnd));
     settle(&mut e.session);
+    e.session.execute(Command::PairHighlightMode);
+    assert_eq!(
+        e.session
+            .view()
+            .pairs
+            .style(e.session.buffer().unwrap().pair_policy()),
+        rev::config::PairHighlight::Depth
+    );
     let stamp = e.session.buffer().unwrap().stamp();
     let point = e.session.view().point;
     e.session.handle(key(KeyCode::F(4), KeyModifiers::NONE));

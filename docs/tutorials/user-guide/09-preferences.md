@@ -82,6 +82,47 @@ For a persistent choice, add or update `mode` in the `[gutter]` table:
 mode = "relative"
 ```
 
+## Choose delimiter presentation
+
+The [editing lesson](02-edit-text.md#recognize-a-delimiter-pair) demonstrates
+the view-local style commands. To start new panes with restrained matching,
+add or edit the existing `[pairs]` table and restart:
+
+```toml
+[pairs]
+highlight = "match"
+pulse_ms = 150
+```
+
+Move before a delimiter. Its mate is marked without coloring other nesting
+levels. Choose `pulse` through `M-x pair-highlight-style` to try the 150 ms
+duration. Valid durations are 50..1000 ms. Choose `depth` to return to depth
+colors, or `off` to hide pair presentation. Automatic insertion remains a
+separate `pairs.enabled` preference.
+
+For a language-specific startup choice, add only its override:
+
+```toml
+[language.markdown.pairs]
+highlight = "off"
+```
+
+Open a new Markdown file: its pane starts with presentation off. Other languages
+still start with match. Existing view choices take precedence and are not saved
+back to this file. A new split starts from the language's configured default.
+
+Depth colors normally follow your merged syntax palette. To choose a shorter
+cycle, add an explicit pair palette:
+
+```toml
+[palette.pairs]
+depth_colors = ["#7aa2f7", "#e0af68", "#bb9af7"]
+```
+
+Use 1..8 opaque RGB colors. Deeper nesting repeats the cycle. Omitted match and
+mismatch roles continue to inherit your editor palette; see the
+[complete settings reference](../../reference/defaults.md#language-rules).
+
 ## Choose a bookmark symbol
 
 Set a bookmark with `C-x r m`, type `checkpoint` and press Enter. Its source line

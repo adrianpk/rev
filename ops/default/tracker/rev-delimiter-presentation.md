@@ -14,7 +14,7 @@ Spec: `ops/default/spec/editor-delimiter-presentation.md`
 Model: `ops/default/spec/editor-delimiter-pairs-model.md`
 Active slice: Slice 6 of 6 - Integrated presentation acceptance
 Completed slices: 5/6
-Completed tasks: 15/18
+Completed tasks: 18/18
 Gate state: pending; controller-owned after all six canonical PRs integrate
 
 ## Canonical slice map
@@ -164,14 +164,14 @@ Dependency: Slice 5 integrated and closed
 Branch: `test/rev-delimiter-presentation-06-acceptance`
 Expected PR title: `test(editor): verify delimiter presentation workflows`
 Report: `ops/default/report/slices/rev-delimiter-presentation/slice-6-acceptance.md`
-State: ready
+State: reviewing; canonical PR pending
 PR: pending
 Task commits: pending
-Validation: pending
+Validation: all five required local commands PASS. The selected acceptance script passes 261 native cases, all six frozen digests, one independent 719-command/28-map oracle and exactly two restored/reaped PTYs. Both profiles satisfy the frozen input/idle bounds; documentation passes 22 reference cases and User Guide construction. Exact ordered clean-HEAD evidence follows the canonical PR-reference commit through looper validate. The combined gate remains controller-owned.
 
-- [ ] T6.1: Add scripts/check-delimiter-presentation.sh and one focused acceptance example using the existing owned controlling-PTY/observer infrastructure. Batch the complete new native presentation suite, existing pairs and pair_navigation regressions, relevant configuration/palette, macro-input and document-continuity selections plus one independent complete catalog/factory-map acceptance. Explicitly reject every empty test filter; do not invoke historical feature scripts or the whole repository test suite.
-- [ ] T6.2: Run exactly two owned Linux PTYs, one per interaction profile, covering default depth and named match/pulse/off controls, bounded prompt/cancellation, effective command hints, source/point/viewport invariants, save/reopen and held-input stop. Observe completed frames including foreground/mark attributes and the frozen progress/release/idle bounds. Update reference/default examples and the progressive User Guide. Normalize the existing concise Unreleased outcome; do not add delivery chronology or incidental fixes as product entries.
-- [ ] T6.3: Finish all eighteen task records and six concise reports with exact ordered clean-HEAD check receipts, immutable introduction commits and canonical PR links. Preserve frozen catalog/reference/contract digests and independent expectations of 719 commands with unchanged factory maps. After integration let the controller run the unchanged final gate; only a successful exact-candidate receipt authorizes Markdown-only set/model/spec closure.
+- [x] T6.1: Add scripts/check-delimiter-presentation.sh and one focused acceptance example using the existing owned controlling-PTY/observer infrastructure. Batch the complete new native presentation suite, existing pairs and pair_navigation regressions, relevant configuration/palette, macro-input and document-continuity selections plus one independent complete catalog/factory-map acceptance. Explicitly reject every empty test filter; do not invoke historical feature scripts or the whole repository test suite.
+- [x] T6.2: Run exactly two owned Linux PTYs, one per interaction profile, covering default depth and named match/pulse/off controls, bounded prompt/cancellation, effective command hints, source/point/viewport invariants, save/reopen and held-input stop. Observe completed frames including foreground/mark attributes and the frozen progress/release/idle bounds. Update reference/default examples and the progressive User Guide. Normalize the existing concise Unreleased outcome; do not add delivery chronology or incidental fixes as product entries.
+- [x] T6.3: Finish all eighteen task records and six concise reports with exact ordered clean-HEAD check receipts, immutable introduction commits and canonical PR links. Preserve frozen catalog/reference/contract digests and independent expectations of 719 commands with unchanged factory maps. After integration let the controller run the unchanged final gate; only a successful exact-candidate receipt authorizes Markdown-only set/model/spec closure.
 
 Required commands:
 

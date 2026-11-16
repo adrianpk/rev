@@ -123,4 +123,48 @@ for its entry policy and the distinct modal % behavior.
 The unbound pair-highlight-mode and pair-highlight-style commands configure one
 view's presentation independently of automatic editing. See
 [Language rules](defaults.md#language-rules) for their startup defaults, prompt
-admission and current rendering boundary.
+admission and language inheritance.
+
+## Delimiter presentation
+
+| Style | Visible result |
+| --- | --- |
+| depth | Default: color structural endpoints by nesting depth; underline and shade the active pair. |
+| match | Underline and shade only the active pair's two endpoints. |
+| pulse | Briefly mark an identified pair after accepted input or a successful pair motion. |
+| off | Use ordinary rendering without pair colors or marks. |
+
+The active pair uses a confirmed endpoint at point, then immediately before
+point. Ordinary text inside a form does not select an arbitrary enclosing pair.
+An offscreen mate gets a lower-priority line/column hint without scrolling or
+moving point; prompts, errors and explicit command feedback take precedence.
+Unfinished or resource-limited source is uncertain, not a confirmed mismatch.
+
+Depth colors cycle through the resolved syntax function, number, keyword, type,
+string and punctuation roles. Optional `palette.pairs.depth_colors` replaces
+that cycle with 1..8 opaque `#RRGGBB` colors. The other optional roles are
+`match_background` (selection fallback), `match_text` (foreground fallback) and
+`mismatch` (warning fallback). Resolve fallbacks after merging the editor
+palette. See the [palette reference](defaults.md#palette-roles) and
+[complete sample](config.toml) for settings.
+
+Only qualified structural delimiters receive depth colors. Eligible active
+quotes keep their string foreground. Depth retains its delimiter foreground
+under the active background/underline; match and pulse use `match_text` for
+marked structural endpoints. Selection and search keep their foreground and
+background; cursor and diagnostic attributes remain authoritative. `NO_COLOR`
+keeps supported underline without inventing colors, glyphs or terminal blinking.
+
+A pulse lasts 250 ms by default, configurable from 50 through 1000 ms. Each
+view owns at most one finite pulse. Rendering and resize do not extend it.
+Point, source, view or focus changes cancel or replace it; cancellation, off
+and expiry remove its mark and deadline. Depth, match and off have no recurring
+pair timer. Runtime choices never write settings or change source/history.
+
+Qualification inspects at most 256 KiB per shared request at depth 256, retains
+at most 8192 visible delimiter spans per view and charges all pair metadata
+once within 2 MiB per buffer. Cooperative work processes at most 256 tokens
+under the native 4 ms scheduling target. Exhaustion leaves unproved endpoints
+uncolored rather than guessing depth. Neutral same-line edits preserve proved
+colors through completed frames; delimiter or lexical changes invalidate
+unproved spans. Org/Markdown projections and source coordinates remain intact.

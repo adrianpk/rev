@@ -98,13 +98,15 @@ Canonical review: [PR #68](https://forge.adrianpk.com/rev/rev/pulls/68).
 
 ## Validation
 
-Development qualification passes all 21 cases. Final ordered clean-HEAD evidence
-is recorded separately through looper validate after the PR-reference commit.
-The controller owns integration and the combined delivery-set gate.
+All three ordered required commands PASS once through looper validate at clean
+published `733061bba1780466675111f86a3704fed71c977c`, integrated by PR #68.
+Acta receipt: `01M7GXGZHQTC1GPDEJG15WJ0S4`. The combined gate remains
+controller-owned.
 
+- PASS: `cargo fmt --all -- --check`.
+- PASS: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test pair_presentation qualification -- --test-threads=1`: 21 cases at the exact integrated HEAD.
 - PASS: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo check --locked --lib`.
 - PASS: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test pair_presentation qualification -- --test-threads=1 --nocapture`: 21 cases, 25.68 s excluding warm compilation.
-- PASS: `cargo fmt --all -- --check`.
 - PASS: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test pairs --test pair_navigation qualification -- --test-threads=1`: 21 existing pair/edit cases and two group/expression cases.
 - PASS: focused native source policy over 15 changed source/test inputs, retaining
   safe Rust, parameter <=5, nesting <=3 and complexity <=10. The preserved
