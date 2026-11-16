@@ -7,6 +7,8 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 
 ## Unreleased
 
+## 0.7.0 - 2026-11-16
+
 ### Added
 
 - Color delimiters by nesting depth and mark the active pair. Choose depth,

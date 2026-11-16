@@ -3,7 +3,7 @@
 Open a file, make a change and save it. Start there; no configuration is needed.
 
 If rev is not installed yet, follow [Install rev](../../how-to/install-rev.md).
-These chapters include unreleased changes and use default key bindings and
+These chapters describe rev 0.7.0 and use default key bindings and
 small files you create yourself. The default path uses Emacs direct entry; later
 chapters offer startup-selected modal editing, optional language servers, external reload, optional Pi editing, local shell text filters and integrated terminals.
 

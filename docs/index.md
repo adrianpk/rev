@@ -1,6 +1,6 @@
 # Documentation
 
-These pages include unreleased changes.
+These pages describe rev 0.7.0.
 
 Start with the [User Guide](tutorials/user-guide/index.md) to open, edit and save
 your first file, then learn delimiter editing and navigation, keyboard macros,
