@@ -5,7 +5,7 @@ Delivery set: rev-delimiter-presentation
 Plan: [Delimiter Presentation Delivery](../../../plan/rev-delimiter-presentation.md)
 Tracker: [Delimiter Presentation Tracker](../../../tracker/rev-delimiter-presentation.md)
 Branch: `feat/rev-delimiter-presentation-04-pulse`
-PR: pending
+PR: [#70](https://forge.adrianpk.com/rev/rev/pulls/70)
 
 ## Purpose
 
@@ -52,6 +52,9 @@ cannot recreate an expired pulse. Cancellation releases its native interest even
 when no frame ticket is present. There is no second parser, source copy, row cache,
 worker or timer thread. Derived pulse state remains outside semantic View equality.
 
+Implementation/report introduction: `75722e6015ab1bb00ac55cad83ee69f1398d9a4e`.
+Canonical review: [PR #70](https://forge.adrianpk.com/rev/rev/pulls/70).
+
 ## Contracts Added or Changed
 
 - One finite monotonic pulse per admitted view, triggered only by accepted input.
@@ -88,9 +91,11 @@ is a native-handler observation, not physical terminal input acceptance.
 - PASS: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test pair_presentation --test display --test pair_navigation -- --test-threads=1`: all 165 cases (68 presentation, 49 display, 48 navigation), with no ignored cases or empty filters.
 - PASS: focused native source policy over all 21 changed Rust source/test files,
   retaining safe Rust, parameters <=5, nesting <=3 and complexity <=10.
-- The preserved staged hook checks full workspace formatting, strict Clippy and
-  native source policy before committing; its successful receipt is added with
-  the canonical PR reference.
+- PASS: preserved implementation hook at staged tree
+  `1210d778049b9922ec5543aa5ad5da3022dc0143`: full workspace formatting and
+  Clippy, zero blocking/deferred diagnostics, native source policy over all
+  1999 first-party Rust files and 81 Cargo roots. The PR-reference commit changes
+  operational documentation only.
 - PASS: `git diff --check`.
 - PASS: frozen acceptance SHA-256 remains
   `8a0ccc8e6a9ac4ebb24f4445c2f314b472045f6a426014b53ced065f477da771`.

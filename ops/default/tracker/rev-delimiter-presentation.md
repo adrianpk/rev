@@ -116,10 +116,10 @@ Dependency: Slice 3 integrated and closed
 Branch: `feat/rev-delimiter-presentation-04-pulse`
 Expected PR title: `feat(editor): add finite delimiter presentation pulses`
 Report: `ops/default/report/slices/rev-delimiter-presentation/slice-4-pulse.md`
-State: reviewing; implementation complete, canonical PR pending
-PR: pending
-Task commits: T4.1/T4.2/T4.3 and report introduction delivered together; immutable commit reference follows canonical PR creation.
-Validation: all 165 focused cases PASS (68 presentation including 18 pulse cases, 49 display, 48 navigation); formatting, changed-source policy and whitespace PASS. Exact ordered clean-HEAD evidence follows the canonical PR-reference commit through looper validate. The combined gate remains controller-owned.
+State: reviewing; canonical PR #70 open
+PR: [#70](https://forge.adrianpk.com/rev/rev/pulls/70)
+Task commits: T4.1/T4.2/T4.3/report introduction `75722e6015ab1bb00ac55cad83ee69f1398d9a4e`.
+Validation: all 165 focused cases PASS (68 presentation including 18 pulse cases, 49 display, 48 navigation); formatting, changed-source policy, preserved full workspace hook and whitespace PASS. Exact ordered clean-HEAD evidence follows the canonical PR-reference commit through looper validate. The combined gate remains controller-owned.
 
 - [x] T4.1: Implement pulse style through the existing monotonic run/deadline owner. An accepted input or successful explicit pair motion that identifies an active endpoint starts one generation for the resolved pulse_ms. Rendering, resize, polls and unsuccessful/no-op motion never extend it. Keep key handling nonblocking and do not add a timer thread, service or terminal blink attribute.
 - [x] T4.2: Retire or explicitly requalify source/view/point generations on edits, motion, focus/view changes, reload and cancellation. Expired, replaced and off pulses release their marks and pair-owned deadlines; steady depth/match/off own none. Respect the existing admitted view count and preserve unrelated native deadlines.
