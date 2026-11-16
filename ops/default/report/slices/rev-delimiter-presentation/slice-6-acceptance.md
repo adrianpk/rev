@@ -5,7 +5,7 @@ Delivery set: rev-delimiter-presentation
 Plan: [Delimiter Presentation Delivery](../../../plan/rev-delimiter-presentation.md)
 Tracker: [Delimiter Presentation Tracker](../../../tracker/rev-delimiter-presentation.md)
 Branch: `test/rev-delimiter-presentation-06-acceptance`
-PR: pending
+PR: [#72](https://forge.adrianpk.com/rev/rev/pulls/72)
 
 ## Purpose
 
@@ -68,6 +68,9 @@ The single pending changelog outcome names all four styles without delivery
 chronology. Earlier report receipts are reconciled against Acta and canonical
 merged PRs; their original observations and immutable introductions remain intact.
 
+Implementation/report introduction: `8f0a2a9741ba48e6230bb92de73dac5a659e46e9`.
+Canonical review: [PR #72](https://forge.adrianpk.com/rev/rev/pulls/72).
+
 ## Contracts Added or Changed
 
 - Nonempty native selection and unchanged frozen-input digest checks.
@@ -123,8 +126,11 @@ even stricter one-tick ceiling than the frozen three-tick maximum. Source,
 caret/viewport, finite pulse, restoration and owned reaping assertions all PASS.
 Scoped native source policy PASS covers all seven changed Rust files with the
 safe-Rust, five-parameter, three-level nesting and complexity-ten limits intact.
-The preserved full-workspace staged-hook receipt is recorded in the PR-reference
-commit.
+Preserved implementation hook PASS at staged tree
+`0a46cc98ee3e00c42c7afe0c00005b535cb1d0e3`: full workspace formatting/Clippy,
+zero blocking/deferred diagnostics, and native policy over all 2013 first-party
+Rust files and 82 Cargo roots. This PR-reference commit changes operational
+documentation only.
 
 ## Traceability
 
@@ -135,7 +141,7 @@ commit.
 | 3 | [#69](https://forge.adrianpk.com/rev/rev/pulls/69) | `9cedf2c18e2bf90861db5b0b73aff818e5bf5500` | `b21e7523f4eec23194836fae7634be4a9d8e9c76` |
 | 4 | [#70](https://forge.adrianpk.com/rev/rev/pulls/70) | `75722e6015ab1bb00ac55cad83ee69f1398d9a4e` | `fd84b2b101479f763bcc015f50a715713c250f1a` |
 | 5 | [#71](https://forge.adrianpk.com/rev/rev/pulls/71) | `84572a9c0ac1ae78595683ec290fef374c0c642b` | `67f94244d2982f545be9f363408f62aadced76b5` |
-| 6 | pending | recorded after introduction | pending controller integration |
+| 6 | [#72](https://forge.adrianpk.com/rev/rev/pulls/72) | `8f0a2a9741ba48e6230bb92de73dac5a659e46e9` | pending controller integration |
 
 ## Risks and Follow-ups
 

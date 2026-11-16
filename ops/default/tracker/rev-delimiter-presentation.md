@@ -164,10 +164,10 @@ Dependency: Slice 5 integrated and closed
 Branch: `test/rev-delimiter-presentation-06-acceptance`
 Expected PR title: `test(editor): verify delimiter presentation workflows`
 Report: `ops/default/report/slices/rev-delimiter-presentation/slice-6-acceptance.md`
-State: reviewing; canonical PR pending
-PR: pending
-Task commits: pending
-Validation: all five required local commands PASS. The selected acceptance script passes 261 native cases, all six frozen digests, one independent 719-command/28-map oracle and exactly two restored/reaped PTYs. Both profiles satisfy the frozen input/idle bounds; documentation passes 22 reference cases and User Guide construction. Exact ordered clean-HEAD evidence follows the canonical PR-reference commit through looper validate. The combined gate remains controller-owned.
+State: reviewing; canonical PR #72 open
+PR: [#72](https://forge.adrianpk.com/rev/rev/pulls/72)
+Task commits: T6.1/T6.2/T6.3/report introduction `8f0a2a9741ba48e6230bb92de73dac5a659e46e9`.
+Validation: all five required local commands PASS. The selected acceptance script passes 261 native cases, all six frozen digests, one independent 719-command/28-map oracle and exactly two restored/reaped PTYs. Both profiles satisfy the frozen input/idle bounds; documentation passes 22 reference cases and User Guide construction. Preserved full staged hook passes 2013 Rust files/82 roots with zero blocking/deferred Clippy diagnostics. Exact ordered clean-HEAD evidence follows this PR-reference commit through looper validate. The combined gate remains controller-owned.
 
 - [x] T6.1: Add scripts/check-delimiter-presentation.sh and one focused acceptance example using the existing owned controlling-PTY/observer infrastructure. Batch the complete new native presentation suite, existing pairs and pair_navigation regressions, relevant configuration/palette, macro-input and document-continuity selections plus one independent complete catalog/factory-map acceptance. Explicitly reject every empty test filter; do not invoke historical feature scripts or the whole repository test suite.
 - [x] T6.2: Run exactly two owned Linux PTYs, one per interaction profile, covering default depth and named match/pulse/off controls, bounded prompt/cancellation, effective command hints, source/point/viewport invariants, save/reopen and held-input stop. Observe completed frames including foreground/mark attributes and the frozen progress/release/idle bounds. Update reference/default examples and the progressive User Guide. Normalize the existing concise Unreleased outcome; do not add delivery chronology or incidental fixes as product entries.
