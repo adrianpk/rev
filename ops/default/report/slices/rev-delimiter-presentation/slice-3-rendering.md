@@ -1,6 +1,6 @@
 # Slice 3: Delimiter rendering
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-delimiter-presentation
 Plan: [Delimiter Presentation Delivery](../../../plan/rev-delimiter-presentation.md)
 Tracker: [Delimiter Presentation Tracker](../../../tracker/rev-delimiter-presentation.md)
@@ -114,6 +114,11 @@ rows preserves every assertion. The successful receipt above applies to the impl
 snapshot; this PR-reference commit changes operational documentation only.
 
 ## Risks and Follow-ups
+
+PR #69 integrated validated commit `b21e7523f4eec23194836fae7634be4a9d8e9c76`
+into dev. All three required commands passed once through looper validate.
+Fetched ancestry, clean state and no owned processes were verified; the integrated
+worktree was removed without force. The combined gate remains controller-owned.
 
 Pulse lifetime belongs to Slice 4; the configured pulse style does not display a
 perpetual mark or own a timer here. Full 24-burst continuity, physical-key/input

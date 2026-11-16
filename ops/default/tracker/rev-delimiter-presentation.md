@@ -12,8 +12,8 @@ Integration target: `dev`
 Plan: `ops/default/plan/rev-delimiter-presentation.md`
 Spec: `ops/default/spec/editor-delimiter-presentation.md`
 Model: `ops/default/spec/editor-delimiter-pairs-model.md`
-Active slice: Slice 3 of 6 - Depth colors and active pair
-Completed slices: 2/6
+Active slice: Slice 4 of 6 - Finite pulse lifecycle
+Completed slices: 3/6
 Completed tasks: 9/18
 Gate state: pending; controller-owned after all six canonical PRs integrate
 
@@ -92,10 +92,10 @@ Dependency: Slice 2 integrated and closed
 Branch: `feat/rev-delimiter-presentation-03-rendering`
 Expected PR title: `feat(editor): render delimiter depth and active-pair marks`
 Report: `ops/default/report/slices/rev-delimiter-presentation/slice-3-rendering.md`
-State: reviewing; PR #69 opened
+State: delivered; PR #69 integrated
 PR: [#69](https://forge.adrianpk.com/rev/rev/pulls/69)
 Task commits: T3.1/T3.2/T3.3/report introduction `9cedf2c18e2bf90861db5b0b73aff818e5bf5500`.
-Validation: 15 focused rendering cases and all 163 presentation/display/gutter/wrapping regressions PASS; complete 719-command/28-map oracle and focused source policy PASS. Preserved staged hook PASS full workspace Clippy and native policy across 1993 files/81 roots. Final ordered clean-HEAD evidence is recorded separately through looper validate after the PR-reference commit.
+Validation: 15 focused rendering cases and all 163 presentation/display/gutter/wrapping regressions PASS; complete 719-command/28-map oracle and focused source policy PASS. Preserved staged hook PASS full workspace Clippy and native policy across 1993 files/81 roots. All three ordered required commands PASS once through looper validate at `b21e7523f4eec23194836fae7634be4a9d8e9c76`, integrated by PR #69. Fetched ancestry, clean state and no owned processes verified; integrated worktree removed without force. The combined gate remains controller-owned.
 
 - [x] T3.1: Project current qualified structural spans through native source/grapheme/fold/wrap mappings. Depth style colors only delimiters with the resolved cyclic palette; off leaves ordinary rendering intact. Reuse existing cells/paint ownership rather than a retained row cache or whole-buffer scan per frame. Preserve Org/Markdown prefix and table projections.
 - [x] T3.2: Add active-pair marks using the existing at-point then immediately-before entry policy. Match style affects only the two endpoints; depth adds background/underline while retaining depth foreground. Keep eligible quote foregrounds, selection/search cells, cursor and diagnostic attributes authoritative. Confirmed mismatches may use warning; unfinished/limited source does not. Add lower-priority offscreen mate line/column feedback without moving point/view or replacing prompts/errors. Honor NO_COLOR and supported attributes.
@@ -116,7 +116,7 @@ Dependency: Slice 3 integrated and closed
 Branch: `feat/rev-delimiter-presentation-04-pulse`
 Expected PR title: `feat(editor): add finite delimiter presentation pulses`
 Report: `ops/default/report/slices/rev-delimiter-presentation/slice-4-pulse.md`
-State: pending
+State: ready
 PR: pending
 Task commits: pending
 Validation: pending
