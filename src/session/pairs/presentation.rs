@@ -1,3 +1,5 @@
+mod rendering;
+
 use crate::command::Command;
 use crate::config::PairHighlight;
 use crate::session::{Action, Pending, Session};

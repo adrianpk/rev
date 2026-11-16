@@ -727,6 +727,7 @@ impl Session {
         self.input.reveal_names(candidate_rows);
         self.reveal_paths(candidate_rows);
         self.reveal_workspace(composition.as_ref())?;
+        self.refresh_pair_presentation(composition.as_ref())?;
         let mut frame = self.compose_native_frame(composition.as_ref())?;
         self.native_overlays(&mut frame, composition.as_ref())?;
         frame.message_kind(self.echo_kind);

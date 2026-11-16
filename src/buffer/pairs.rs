@@ -12,12 +12,16 @@ impl Buffer {
     /// uses one existing bounded request; there is no later-line search.
     pub fn start_mate_request(&mut self, point: Scalar) -> Result<Ticket, Error> {
         self.span(point.0..point.0)?;
-        let at = if self.text.get_char(point.0).is_some_and(delimiter) {
+        let at = self.pair_entry(point);
+        self.start_pair_request(Query::At(at))
+    }
+
+    pub(crate) fn pair_entry(&self, point: Scalar) -> Scalar {
+        if self.text.get_char(point.0).is_some_and(delimiter) {
             point
         } else {
             Scalar(point.0.saturating_sub(1))
-        };
-        self.start_pair_request(Query::At(at))
+        }
     }
 
     /// Begin one buffer-owned request and retire its previous ticket. Verified
@@ -112,8 +116,26 @@ impl Buffer {
     ) -> Result<crate::pairs::PresentationTicket, Error> {
         self.slice(&visible)?;
         self.pairing
-            .start_presentation(view, visible)
+            .start_presentation(
+                view,
+                visible,
+                std::mem::size_of::<crate::view::PairPresentation>(),
+            )
             .ok_or(Error::Exhausted)
+    }
+
+    /// Repaint retains an identical live interest. Explicit start requests still
+    /// retire previous generations; source publication invalidates their entries.
+    pub(crate) fn refresh_pair_presentation(
+        &mut self,
+        view: crate::window::ViewId,
+        visible: super::Span,
+    ) -> Result<crate::pairs::PresentationTicket, Error> {
+        self.slice(&visible)?;
+        match self.pairing.presentation_interest(view, &visible) {
+            Some(ticket) => Ok(ticket),
+            None => self.start_pair_presentation(view, visible),
+        }
     }
 
     /// One cooperative lexical or export slice. Pending foreground work wins;
@@ -149,5 +171,23 @@ impl Buffer {
     /// plus their inline owners, counted once per canonical buffer.
     pub fn retained_pair_bytes(&self) -> usize {
         self.pairing.retained()
+    }
+}
+
+impl Buffer {
+    pub(crate) fn retain_pair_presentations(&mut self, windows: &crate::window::Windows) {
+        let id = self.id();
+        let policy = self.pair_policy();
+        let source = self.terminal().is_none();
+        self.pairing.retain_presentations(|view| {
+            windows.get(view).is_ok_and(|v| {
+                source
+                    && v.point.stamp.buffer == id
+                    && !matches!(
+                        v.pairs.style(policy),
+                        crate::config::PairHighlight::Off | crate::config::PairHighlight::Pulse
+                    )
+            })
+        });
     }
 }

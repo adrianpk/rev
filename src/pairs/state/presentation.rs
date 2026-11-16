@@ -19,8 +19,18 @@ impl State {
             + self.presentation.heap()
     }
 
-    pub fn start_presentation(&mut self, view: ViewId, span: Span) -> Option<PresentationTicket> {
-        self.presentation.request(view, span, self.retained())
+    pub fn start_presentation(
+        &mut self,
+        view: ViewId,
+        span: Span,
+        owner_bytes: usize,
+    ) -> Option<PresentationTicket> {
+        self.presentation
+            .request(view, span, self.retained(), owner_bytes)
+    }
+
+    pub fn presentation_interest(&self, view: ViewId, span: &Span) -> Option<PresentationTicket> {
+        self.presentation.interest(view, span)
     }
 
     pub fn presentation(&self, ticket: PresentationTicket) -> Option<Presentation<'_>> {
@@ -33,6 +43,13 @@ impl State {
             self.restore_foreground();
         }
         cancelled
+    }
+
+    pub fn retain_presentations(&mut self, keep: impl Fn(ViewId) -> bool) {
+        self.presentation.retain(keep);
+        if self.presentation.empty() && self.work.as_ref().is_some_and(Active::background) {
+            self.restore_foreground();
+        }
     }
 
     fn restore_foreground(&mut self) {

@@ -148,7 +148,7 @@ impl Row {
         )?;
         underline(
             writer,
-            covers(&self.search, column),
+            covers(&self.search, column) || self.pair_underline(column),
             &mut attributes.underlined,
         )?;
         bold(

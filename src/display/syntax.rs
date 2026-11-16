@@ -14,16 +14,33 @@ pub struct Paint {
     pub columns: Range<u16>,
     pub style: Style,
     heading_level: Option<usize>,
+    pub(super) delimiter: Option<super::pairs::Mark>,
 }
 
 impl Paint {
+    /// Source identity is retained only in this immutable frame's derived paint.
+    pub fn delimiter(&self) -> Option<crate::coordinates::Scalar> {
+        self.delimiter.map(|mark| mark.source)
+    }
+
+    pub(super) fn pair(style: Option<&Self>, mark: super::pairs::Mark) -> Self {
+        Self {
+            columns: 0..0,
+            style: style.map_or(Style::Punctuation, |p| p.style),
+            heading_level: style.and_then(|p| p.heading_level),
+            delimiter: Some(mark),
+        }
+    }
+
     pub(super) fn foreground(&self, palette: &Palette) -> Rgb {
-        match (self.style, self.heading_level) {
+        let native = match (self.style, self.heading_level) {
             (Style::Org(crate::org::Role::Heading), Some(level)) => {
                 palette.org.heading_color(level)
             }
             _ => foreground(self.style, palette),
-        }
+        };
+        self.delimiter
+            .map_or(native, |mark| mark.foreground(palette, native))
     }
 }
 
@@ -105,6 +122,7 @@ fn paint(
                     columns,
                     style: capture.style,
                     heading_level,
+                    delimiter: None,
                 },
             );
         }
@@ -116,6 +134,7 @@ fn append(result: &mut Vec<Paint>, paint: Paint) {
     if let Some(last) = result.last_mut()
         && last.style == paint.style
         && last.heading_level == paint.heading_level
+        && last.delimiter == paint.delimiter
         && last.columns.end == paint.columns.start
     {
         last.columns.end = paint.columns.end;
@@ -142,7 +161,7 @@ pub(super) fn foreground(style: Style, palette: &Palette) -> Rgb {
 
 impl super::Row {
     pub(super) fn style(&self, column: usize) -> Option<&Paint> {
-        self.syntax.iter().find(|paint| {
+        self.syntax.iter().rev().find(|paint| {
             usize::from(paint.columns.start) <= column && column < usize::from(paint.columns.end)
         })
     }

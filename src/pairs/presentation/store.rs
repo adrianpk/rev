@@ -12,6 +12,7 @@ use crate::window::ViewId;
 pub(in crate::pairs) struct Entry {
     ticket: PresentationTicket,
     range: Range<usize>,
+    owner_bytes: usize,
 }
 
 pub(in crate::pairs) struct Snapshot {
@@ -50,6 +51,7 @@ impl Store {
 
     pub fn heap(&self) -> usize {
         self.entries.capacity() * std::mem::size_of::<Entry>()
+            + self.entries.iter().map(|e| e.owner_bytes).sum::<usize>()
             + self.build.capacity() * std::mem::size_of::<Delimiter>()
             + self
                 .snapshot
@@ -62,6 +64,7 @@ impl Store {
         view: ViewId,
         span: crate::buffer::Span,
         retained: usize,
+        owner_bytes: usize,
     ) -> Option<PresentationTicket> {
         self.generation = self
             .generation
@@ -75,21 +78,24 @@ impl Store {
         let entry = Entry {
             ticket,
             range: span.range,
+            owner_bytes,
         };
         if let Some(old) = self.entries.iter_mut().find(|e| e.ticket.view == view) {
             *old = entry;
         } else {
-            self.reserve_entry(retained)?;
+            self.reserve_entry(retained, owner_bytes)?;
             self.entries.push(entry);
         }
         Some(ticket)
     }
 
-    fn reserve_entry(&mut self, retained: usize) -> Option<()> {
-        if self.entries.len() < self.entries.capacity() {
-            return Some(());
-        }
-        if retained.saturating_add(std::mem::size_of::<Entry>()) > MAX_METADATA {
+    fn reserve_entry(&mut self, retained: usize, owner_bytes: usize) -> Option<()> {
+        let extra = if self.entries.len() < self.entries.capacity() {
+            0
+        } else {
+            std::mem::size_of::<Entry>()
+        };
+        if retained.saturating_add(extra).saturating_add(owner_bytes) > MAX_METADATA {
             return None;
         }
         self.entries.try_reserve_exact(1).ok()?;
@@ -111,6 +117,17 @@ impl Store {
             .map(|e| e.range.clone())
     }
 
+    pub fn interest(&self, view: ViewId, span: &crate::buffer::Span) -> Option<PresentationTicket> {
+        self.entries
+            .iter()
+            .find(|entry| {
+                entry.ticket.view == view
+                    && entry.ticket.stamp == span.stamp
+                    && entry.range == span.range
+            })
+            .map(|entry| entry.ticket)
+    }
+
     pub fn ready(&self, ticket: PresentationTicket) -> bool {
         let Some(range) = self.range(ticket) else {
             return false;
@@ -129,6 +146,13 @@ impl Store {
             self.abandon();
         }
         true
+    }
+
+    pub fn retain(&mut self, keep: impl Fn(ViewId) -> bool) {
+        self.entries.retain(|entry| keep(entry.ticket.view));
+        if self.empty() {
+            self.abandon();
+        }
     }
 
     pub fn retire(&mut self) {

@@ -13,6 +13,7 @@ mod habit;
 mod headings;
 mod markdown;
 mod native_completion;
+mod pairs;
 pub use agenda::AgendaDisplay;
 pub use habit::HabitDisplay;
 mod inventory;
@@ -202,11 +203,22 @@ impl Frame {
         )?;
         self.bookmark_markers(buffer, view, geometry, &fragments)?;
         self.status(buffer, point, panel, None)?;
-        self.preview(buffer, view, text.content(), &fragments)?;
-        if panel.active() {
-            self.cursor = Self::position(point, view, text, buffer, &fragments);
+        self.finish_panel(buffer, view, text, &fragments)
+    }
+
+    fn finish_panel(
+        &mut self,
+        buffer: &Buffer,
+        view: &View,
+        text: Panel,
+        fragments: &[crate::view::Fragment],
+    ) -> Result<(), Error> {
+        self.preview(buffer, view, text.content(), fragments)?;
+        self.record_source_rows(buffer, view, text, fragments);
+        if text.active() {
+            self.cursor = Self::position(view.cell(buffer)?, view, text, buffer, fragments);
+            self.pair_hint(buffer, view)?;
         }
-        self.record_source_rows(buffer, view, text, &fragments);
         Ok(())
     }
 
@@ -326,7 +338,6 @@ impl Frame {
         let content = panel.content();
         for row in 0..content.height() {
             let fragment = fragments.get(usize::from(row));
-            remember_columns(buffer, fragment)?;
             let source = if buffer.soft_wrap() {
                 fragment.map_or(buffer.len_lines(), |f| f.line)
             } else {
@@ -351,7 +362,7 @@ impl Frame {
                     .saturating_sub(projection.margin)
             });
             let text = document_text(buffer, &coordinates, fragment, projection, view)?;
-            let projected = Row {
+            let mut projected = Row {
                 row,
                 text,
                 syntax: syntax::row(buffer, left, source, painted)?
@@ -381,9 +392,11 @@ impl Frame {
                     .transpose()?
                     .flatten()
                     .map(|columns| projection.shift(columns)),
-            }
-            .projected(panel);
-            self.blit(content, projected)?;
+            };
+            let mut pair_projection = projection;
+            pair_projection.width = painted;
+            pairs::paint(buffer, view, pair_projection, &mut projected)?;
+            self.blit(content, projected.projected(panel))?;
         }
         Ok(())
     }
@@ -490,6 +503,7 @@ fn document_text(
     projection: Projection,
     view: &View,
 ) -> Result<String, Error> {
+    remember_columns(buffer, fragment)?;
     let mut text = if let Some(fragment) = fragment {
         fragment.text.clone()
     } else if projection.source.row < buffer.len_lines() {

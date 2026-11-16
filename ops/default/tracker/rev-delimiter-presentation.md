@@ -14,7 +14,7 @@ Spec: `ops/default/spec/editor-delimiter-presentation.md`
 Model: `ops/default/spec/editor-delimiter-pairs-model.md`
 Active slice: Slice 3 of 6 - Depth colors and active pair
 Completed slices: 2/6
-Completed tasks: 6/18
+Completed tasks: 9/18
 Gate state: pending; controller-owned after all six canonical PRs integrate
 
 ## Canonical slice map
@@ -92,14 +92,14 @@ Dependency: Slice 2 integrated and closed
 Branch: `feat/rev-delimiter-presentation-03-rendering`
 Expected PR title: `feat(editor): render delimiter depth and active-pair marks`
 Report: `ops/default/report/slices/rev-delimiter-presentation/slice-3-rendering.md`
-State: ready
+State: reviewing; canonical PR pending
 PR: pending
-Task commits: pending
-Validation: pending
+Task commits: implementation/report introduction pending
+Validation: 15 focused rendering cases and all 163 presentation/display/gutter/wrapping regressions PASS; complete 719-command/28-map oracle and focused source policy PASS. Preserved staged hook and exact clean-HEAD evidence pending.
 
-- [ ] T3.1: Project current qualified structural spans through native source/grapheme/fold/wrap mappings. Depth style colors only delimiters with the resolved cyclic palette; off leaves ordinary rendering intact. Reuse existing cells/paint ownership rather than a retained row cache or whole-buffer scan per frame. Preserve Org/Markdown prefix and table projections.
-- [ ] T3.2: Add active-pair marks using the existing at-point then immediately-before entry policy. Match style affects only the two endpoints; depth adds background/underline while retaining depth foreground. Keep eligible quote foregrounds, selection/search cells, cursor and diagnostic attributes authoritative. Confirmed mismatches may use warning; unfinished/limited source does not. Add lower-priority offscreen mate line/column feedback without moving point/view or replacing prompts/errors. Honor NO_COLOR and supported attributes.
-- [ ] T3.3: Add rendering cases for independent palette inputs/overrides, repeated depths, lexical exclusions, mismatch/uncertainty, quotes, split views, read-only source, wrapping, wide/combining graphemes, folds and overlay precedence. Assert source/history/point/viewport preservation and complete command/map inventory. Use changelog-normalize for one concise product entry when this visible outcome becomes usable.
+- [x] T3.1: Project current qualified structural spans through native source/grapheme/fold/wrap mappings. Depth style colors only delimiters with the resolved cyclic palette; off leaves ordinary rendering intact. Reuse existing cells/paint ownership rather than a retained row cache or whole-buffer scan per frame. Preserve Org/Markdown prefix and table projections.
+- [x] T3.2: Add active-pair marks using the existing at-point then immediately-before entry policy. Match style affects only the two endpoints; depth adds background/underline while retaining depth foreground. Keep eligible quote foregrounds, selection/search cells, cursor and diagnostic attributes authoritative. Confirmed mismatches may use warning; unfinished/limited source does not. Add lower-priority offscreen mate line/column feedback without moving point/view or replacing prompts/errors. Honor NO_COLOR and supported attributes.
+- [x] T3.3: Add rendering cases for independent palette inputs/overrides, repeated depths, lexical exclusions, mismatch/uncertainty, quotes, split views, read-only source, wrapping, wide/combining graphemes, folds and overlay precedence. Assert source/history/point/viewport preservation and complete command/map inventory. Use changelog-normalize for one concise product entry when this visible outcome becomes usable.
 
 Required commands:
 

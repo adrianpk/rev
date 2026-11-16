@@ -2,13 +2,29 @@ use crate::config::{PairHighlight, Pairs};
 
 /// Runtime overrides and remembered style belong to one view. The buffer only
 /// supplies resolved startup defaults, including after a language change.
-#[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
+#[derive(Clone, Copy, Debug, Default)]
 pub struct PairPresentation {
+    pub(crate) ticket: Option<crate::pairs::PresentationTicket>,
+    pub(crate) pending: bool,
     style: Option<PairHighlight>,
     last_non_off: Option<PairHighlight>,
 }
 
+// Qualification tickets are disposable observations, like the native wrap
+// cache. They cannot change the semantic View identity captured by a prompt.
+impl PartialEq for PairPresentation {
+    fn eq(&self, other: &Self) -> bool {
+        self.style == other.style && self.last_non_off == other.last_non_off
+    }
+}
+impl Eq for PairPresentation {}
+
 impl PairPresentation {
+    pub(crate) fn retire(&mut self) {
+        self.ticket = None;
+        self.pending = false;
+    }
+
     pub fn style(self, defaults: Pairs) -> PairHighlight {
         self.style.unwrap_or(defaults.highlight)
     }
@@ -41,4 +57,74 @@ impl PairPresentation {
             self.style = Some(PairHighlight::Off);
         }
     }
+}
+
+impl super::View {
+    pub(crate) fn pair_visible_span(
+        &self,
+        buffer: &crate::buffer::Buffer,
+        area: crate::window::Area,
+    ) -> Result<crate::buffer::Span, super::Error> {
+        let text = self.gutter_geometry(buffer, area)?.text();
+        let fragments = if buffer.soft_wrap() {
+            self.wrapped_rows(buffer, text.width(), text.height())?
+        } else {
+            Vec::new()
+        };
+        let mut range = None;
+        for row in 0..text.height() {
+            let projection = match fragments.get(usize::from(row)) {
+                Some(fragment) => {
+                    let mut projection = super::Projection::wrapped(fragment, text.width());
+                    projection.width = fragment
+                        .painted_width(text.width())
+                        .saturating_sub(projection.margin);
+                    projection
+                }
+                None => {
+                    let Some(source) = self.source_row(buffer, usize::from(row)) else {
+                        continue;
+                    };
+                    super::Projection::horizontal(
+                        buffer,
+                        source,
+                        self.left,
+                        text.width(),
+                        self.compact_headings(),
+                    )
+                }
+            };
+            if projection.source.row < buffer.len_lines() {
+                include(buffer, projection, &mut range)?;
+            }
+        }
+        let (start, end) = range.unwrap_or((self.point.position.0, self.point.position.0));
+        Ok(buffer.span(start..end)?)
+    }
+}
+
+fn include(
+    buffer: &crate::buffer::Buffer,
+    projection: super::Projection,
+    range: &mut Option<(usize, usize)>,
+) -> Result<(), super::Error> {
+    let coordinates = crate::coordinates::Coordinates::new(buffer)?;
+    let right = projection
+        .source
+        .column
+        .saturating_add(usize::from(projection.width));
+    for glyph in coordinates.glyphs_from_column(projection.source)? {
+        let glyph = glyph?;
+        if glyph.columns.start >= right {
+            break;
+        }
+        if glyph.columns.start >= projection.source.column && glyph.columns.end <= right {
+            let previous = range.unwrap_or((glyph.source.start.0, glyph.source.end.0));
+            *range = Some((
+                previous.0.min(glyph.source.start.0),
+                previous.1.max(glyph.source.end.0),
+            ));
+        }
+    }
+    Ok(())
 }

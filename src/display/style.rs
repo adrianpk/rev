@@ -204,6 +204,9 @@ impl Row {
         let mut colors = tone.colors(palette);
         if let Some(style) = self.style(column) {
             colors.foreground = style.foreground(palette);
+            if style.delimiter.is_some_and(|mark| mark.active) {
+                colors.background = palette.pairs.match_background;
+            }
         }
         colors
     }

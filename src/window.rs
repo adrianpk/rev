@@ -128,6 +128,12 @@ impl Windows {
     pub fn iter(&self) -> impl ExactSizeIterator<Item = (ViewId, &View)> {
         self.views.iter().map(|(id, view)| (*id, view))
     }
+    pub(crate) fn retire_pair_tickets(&mut self) {
+        for view in self.views.values_mut() {
+            view.pairs.retire();
+        }
+    }
+
     pub fn layout(&self) -> &Layout {
         &self.layout
     }
