@@ -72,40 +72,42 @@ impl super::View {
         area: crate::window::Area,
     ) -> Result<crate::buffer::Span, super::Error> {
         let text = self.gutter_geometry(buffer, area)?.text();
-        let fragments = if buffer.soft_wrap() {
-            self.wrapped_rows(buffer, text.width(), text.height())?
-        } else {
-            Vec::new()
-        };
+        if buffer.soft_wrap() {
+            return self.wrapped_pair_span(buffer, text);
+        }
         let mut range = None;
         for row in 0..text.height() {
-            let projection = match fragments.get(usize::from(row)) {
-                Some(fragment) => {
-                    let mut projection = super::Projection::wrapped(fragment, text.width());
-                    projection.width = fragment
-                        .painted_width(text.width())
-                        .saturating_sub(projection.margin);
-                    projection
-                }
-                None => {
-                    let Some(source) = self.source_row(buffer, usize::from(row)) else {
-                        continue;
-                    };
-                    super::Projection::horizontal(
-                        buffer,
-                        source,
-                        self.left,
-                        text.width(),
-                        self.compact_headings(),
-                    )
-                }
+            let Some(source) = self.source_row(buffer, usize::from(row)) else {
+                continue;
             };
+            let projection = super::Projection::horizontal(
+                buffer,
+                source,
+                self.left,
+                text.width(),
+                self.compact_headings(),
+            );
             if projection.source.row < buffer.len_lines() {
                 include(buffer, projection, &mut range)?;
             }
         }
         let (start, end) = range.unwrap_or((self.point.position.0, self.point.position.0));
         Ok(buffer.span(start..end)?)
+    }
+
+    // Wrapped fragments already carry qualified scalar bounds. Rewalking their
+    // glyphs spends the shared layout budget again and can evict a tall canvas.
+    fn wrapped_pair_span(
+        &self,
+        buffer: &crate::buffer::Buffer,
+        area: crate::window::Area,
+    ) -> Result<crate::buffer::Span, super::Error> {
+        let fragments = self.wrapped_rows(buffer, area.width(), area.height())?;
+        let range = fragments.first().zip(fragments.last()).map_or(
+            self.point.position.0..self.point.position.0,
+            |(first, last)| first.source.start.0..last.source.end.0,
+        );
+        Ok(buffer.span(range)?)
     }
 }
 

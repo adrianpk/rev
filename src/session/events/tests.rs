@@ -29,6 +29,30 @@ fn text(session: &Session) -> String {
         .to_string()
 }
 
+// Prepare the independent lexical owner without warming wrap or coordinate
+// caches. The original layout turns and all idle/source assertions stay intact.
+fn qualify_pairs(session: &mut Session) {
+    use crate::pairs::{MAX_BYTES, MAX_METADATA, SLICE_TIME, SLICE_TOKENS, Status};
+    let view = session.windows.selected_id();
+    let id = session.view().point.stamp.buffer;
+    let buffer = session.buffers.get_mut(id).unwrap();
+    let span = buffer.span(0..buffer.len_chars()).unwrap();
+    let ticket = buffer.start_pair_presentation(view, span).unwrap();
+    let end = Instant::now() + Duration::from_secs(10);
+    while Instant::now() < end {
+        let status = buffer.poll_pair_presentation(ticket, Instant::now() + SLICE_TIME);
+        assert!(buffer.retained_pair_bytes() <= MAX_METADATA);
+        if status == Status::Ready {
+            let result = buffer.pair_presentation(ticket).unwrap();
+            assert!(result.stats.inspected_bytes <= MAX_BYTES);
+            assert!(result.stats.maximum_slice_tokens <= SLICE_TOKENS);
+            return;
+        }
+        assert_eq!(status, Status::Pending);
+    }
+    panic!("lexical fixture preparation exceeded its finite deadline");
+}
+
 // Cold reflow yields to native input between finite batches. Source edits and
 // C-g remain admitted; pending surfaces expose no stale pointer destination.
 #[test]
@@ -54,6 +78,7 @@ fn cold_reflow() {
         },
     )
     .unwrap();
+    qualify_pairs(&mut session);
     assert!(session.poll_frame().unwrap().cursor().is_none());
     assert_eq!(
         session.remaining_input(Instant::now()),
@@ -78,6 +103,7 @@ fn cold_reflow() {
         session.handle(key(KeyCode::Char('g'), KeyModifiers::CONTROL)),
         Action::Redraw
     );
+    qualify_pairs(&mut session);
     let point = session.view().point;
     for _ in 0..100 {
         if !session.layout_pending {
@@ -164,6 +190,7 @@ fn cold_consumers() {
             },
         )
         .unwrap();
+        qualify_pairs(&mut session);
         assert!(session.poll_frame().unwrap().cursor().is_none());
         let mut ready = false;
         for _ in 0..100 {
@@ -209,6 +236,7 @@ fn tall_canvas() {
         },
     )
     .unwrap();
+    qualify_pairs(&mut session);
     let frame = session.poll_frame().unwrap();
     assert_eq!(
         frame.cursor(),
