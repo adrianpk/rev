@@ -5,7 +5,7 @@ Delivery set: rev-delimiter-presentation
 Plan: [Delimiter Presentation Delivery](../../../plan/rev-delimiter-presentation.md)
 Tracker: [Delimiter Presentation Tracker](../../../tracker/rev-delimiter-presentation.md)
 Branch: `feat/rev-delimiter-presentation-03-rendering`
-PR: pending
+PR: [#69](https://forge.adrianpk.com/rev/rev/pulls/69)
 
 ## Purpose
 
@@ -68,6 +68,9 @@ the independent reviewed baseline and accepted deltas rather than deriving an
 expected map from current defaults. The Unreleased changelog contains one concise
 visible-feature entry using changelog-normalize.
 
+Implementation/report introduction: `9cedf2c18e2bf90861db5b0b73aff818e5bf5500`.
+Canonical review: [PR #69](https://forge.adrianpk.com/rev/rev/pulls/69).
+
 ## Contracts Added or Changed
 
 - Current qualified endpoints participate in native immutable cell painting.
@@ -96,6 +99,9 @@ PR-reference commit. The controller owns integration and the combined gate.
 - PASS: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test pair_presentation --test display --test gutter --test wrapping -- --test-threads=1`: all 163 cases (50 presentation, 49 display, 37 gutter, 27 wrapping).
 - PASS: focused native source policy on all 20 changed source/test files,
   retaining safe Rust, parameters <=5, nesting <=3 and complexity <=10.
+- PASS: preserved implementation hook at staged tree
+  `3c41e04e61d88e5db93ba3cdabf4ba152ccaa2ef`: full workspace Clippy, zero
+  blocking/deferred diagnostics, native source policy over 1993 files/81 roots.
 - PASS: `git diff --check`.
 - PASS: frozen acceptance SHA-256 remains
   `8a0ccc8e6a9ac4ebb24f4445c2f314b472045f6a426014b53ced065f477da771`.
@@ -104,8 +110,8 @@ The initial staged hook accepted native source policy across all 1993 files/81
 roots and rejected one needless temporary collection. Retiring tickets directly
 through Windows removes that collection without changing admission. The next
 Clippy pass rejected an indexed test loop; enumerating the same three expected
-rows preserves every assertion. The successful hook receipt is appended with the
-canonical PR reference before final validation.
+rows preserves every assertion. The successful receipt above applies to the implementation
+snapshot; this PR-reference commit changes operational documentation only.
 
 ## Risks and Follow-ups
 
