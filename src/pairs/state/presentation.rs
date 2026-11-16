@@ -69,9 +69,22 @@ impl State {
         if !self.work.as_ref().is_some_and(Active::background)
             || self.presentation.needs_target(range.end)
         {
-            self.background(request, range.end, source.1);
+            if self.presentation.running() && self.work.as_ref().is_some_and(Active::background) {
+                self.extend_background(range.end);
+            } else {
+                self.background(request, range.end, source.1);
+            }
         }
         self.poll_background(source.0, deadline)
+    }
+
+    fn extend_background(&mut self, target: usize) {
+        self.presentation.begin(target);
+        let Some(Active::Background(work)) = &mut self.work else {
+            unreachable!("current background request");
+        };
+        // Overlapping views share the in-flight request's inspection budget.
+        work.retarget(Query::Presentation(Scalar(target)));
     }
 
     fn background(&mut self, request: PresentationTicket, target: usize, profile: Profile) {

@@ -232,3 +232,55 @@ fn reload_and_read_only() {
     assert!(b.is_readonly() && !b.is_modified());
     assert_ne!(b.state(), state);
 }
+
+// A malformed suffix cannot revoke an earlier confirmed pair's neutral edit
+// proof. Advancement preserves the conservative outcome and only proven spans.
+#[test]
+fn neutral_proved_prefix() {
+    for source in ["(alpha) {]", "(alpha) ("] {
+        let mut h = Harness::new("plain", false);
+        let id = h.source(source);
+        let b = h.buffers.get_mut(id).unwrap();
+        let view = view(b);
+        let old = request(b, view);
+        complete(b, old);
+        let result = b.pair_presentation(old).unwrap();
+        let outcome = result.outcome;
+        assert_eq!(result.spans.len(), 2);
+        replace(b, 3..3, "x");
+        let next = request(b, view);
+        let result = b
+            .pair_presentation(next)
+            .expect("known prefix advances before a lexical poll");
+        assert_eq!(result.outcome, outcome);
+        assert_eq!(result.spans.len(), 2);
+        assert_eq!((result.spans[0].at.0, result.spans[0].mate.0), (0, 7));
+        assert_eq!((result.spans[1].at.0, result.spans[1].mate.0), (7, 0));
+        assert_eq!(result.provenance, Provenance::MappedLexical);
+    }
+}
+
+// An Org word edit can introduce inline source syntax without changing any
+// punctuation. Such control words require fresh lexical qualification.
+#[test]
+fn org_control_word() {
+    let mut h = Harness::new("org", false);
+    let source = "Body (sxc_rust{leaf})\n";
+    let id = h.source(source);
+    let b = h.buffers.get_mut(id).unwrap();
+    let view = view(b);
+    let old = request(b, view);
+    complete(b, old);
+    assert_eq!(b.pair_presentation(old).unwrap().spans.len(), 4);
+    let at = source.find('x').unwrap();
+    replace(b, at..at + 1, "r");
+    let next = request(b, view);
+    assert!(b.pair_presentation(next).is_none());
+    complete(b, next);
+    let result = b.pair_presentation(next).unwrap();
+    assert_eq!(
+        result.outcome,
+        rev::pairs::PresentationOutcome::Uncertain(rev::pairs::Reason::LiteralContext)
+    );
+    assert!(result.spans.is_empty());
+}

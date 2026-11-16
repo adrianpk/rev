@@ -619,7 +619,7 @@ impl Work {
             self.rewind_typing();
         }
         if matches!(query, Query::Presentation(_)) {
-            self.presentation_boundary();
+            self.retarget_presentation();
         } else if self.point_seen {
             self.search = Some(Search::default());
         } else if let Some(outcome) = self.terminal.clone() {

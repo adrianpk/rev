@@ -34,6 +34,7 @@ pub(in crate::pairs) struct Store {
     build: Vec<Delimiter>,
     cursor: usize,
     target: usize,
+    running: bool,
     export_slices: usize,
     maximum_export_tokens: usize,
 }
@@ -96,7 +97,7 @@ impl Store {
     }
 
     pub fn needs_target(&self, end: usize) -> bool {
-        end > self.target || self.snapshot.is_some()
+        end > self.target || !self.running
     }
 
     pub fn empty(&self) -> bool {
@@ -139,18 +140,25 @@ impl Store {
         self.snapshot = None;
         self.build = Vec::new();
         self.cursor = 0;
+        self.running = false;
         self.export_slices = 0;
         self.maximum_export_tokens = 0;
     }
 
     pub fn begin(&mut self, target: usize) {
-        self.abandon();
+        self.stop_export();
         self.target = target;
+        self.running = true;
+    }
+
+    pub fn running(&self) -> bool {
+        self.running
     }
 
     pub fn stop_export(&mut self) {
         self.build = Vec::new();
         self.cursor = 0;
+        self.running = false;
         self.export_slices = 0;
         self.maximum_export_tokens = 0;
     }
@@ -201,11 +209,13 @@ impl Store {
             .checked_add(1)
             .expect("pair publication exhausted");
         let answer: &Answer = work.answer.as_ref().expect("completed typed qualification");
+        let spans = self.publication_spans(answer);
+        self.running = false;
         self.snapshot = Some(Snapshot {
             stamp: answer.stamp,
             profile: answer.profile,
             provenance: answer.provenance,
-            spans: std::mem::take(&mut self.build),
+            spans,
             inspected: work.inspected_to(),
             target: self.target,
             outcome: limited.unwrap_or_else(|| PresentationOutcome::from_pair(&answer.outcome)),
@@ -220,6 +230,20 @@ impl Store {
         });
         self.export_slices = 0;
         self.maximum_export_tokens = 0;
+    }
+
+    fn publication_spans(&mut self, answer: &Answer) -> Vec<Delimiter> {
+        let build = std::mem::take(&mut self.build);
+        match self.snapshot.take() {
+            Some(previous)
+                if previous.stamp == answer.stamp
+                    && previous.profile == answer.profile
+                    && previous.spans.len() > build.len() =>
+            {
+                previous.spans
+            }
+            _ => build,
+        }
     }
 
     pub fn answer(&self, ticket: PresentationTicket, retained: usize) -> Option<Presentation<'_>> {
@@ -281,9 +305,6 @@ impl Store {
 }
 
 impl Snapshot {
-    pub(super) fn outcome(&self) -> PresentationOutcome {
-        self.outcome
-    }
     pub(super) fn target(&self) -> usize {
         self.target
     }

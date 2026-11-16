@@ -85,6 +85,14 @@ impl Work {
         }
     }
 
+    pub(super) fn retarget_presentation(&mut self) {
+        if let Some(outcome) = self.terminal.clone() {
+            self.finish(outcome);
+        } else {
+            self.presentation_boundary();
+        }
+    }
+
     pub(super) fn presentation_boundary(&mut self) {
         if matches!(self.query, Query::Presentation(_))
             && self.reader.at >= self.query.point().0

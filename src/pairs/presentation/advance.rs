@@ -6,10 +6,7 @@ use crate::buffer::{
     Stamp,
     edit::{Change, Transaction},
 };
-use crate::pairs::{
-    MAX_BYTES, Profile,
-    presentation::{PresentationOutcome, store::Snapshot},
-};
+use crate::pairs::{MAX_BYTES, Profile, presentation::store::Snapshot};
 
 #[derive(Clone, Copy, Default)]
 struct Delta {
@@ -33,7 +30,7 @@ impl Advance {
         texts: (&Rope, &Rope),
     ) -> Option<Self> {
         let (snapshot, publication) = source;
-        if snapshot.stamp != record.before || snapshot.outcome() != PresentationOutcome::Complete {
+        if snapshot.stamp != record.before {
             return None;
         }
         if record.changes().len() > 16 || snapshot.profile == Profile::Html {
@@ -104,11 +101,9 @@ fn validate_change(
     }
     neutral_payload(change.removed(), budget)?;
     neutral_payload(change.inserted(), budget)?;
-    interior_word(texts.0.slice(..), before.clone(), budget)?;
+    interior_word(texts.0.slice(..), before, budget)?;
     interior_word(texts.1.slice(..), change.after(), budget)?;
-    if matches!(snapshot.profile, Profile::Org | Profile::Markdown) {
-        prose_line(texts.0.slice(..), before.start, budget)?;
-    }
+    prose_change(snapshot.profile, change, texts, budget)?;
     Some(())
 }
 
@@ -149,4 +144,47 @@ fn contained(snapshot: &Snapshot, range: &std::ops::Range<usize>) -> bool {
         .spans
         .iter()
         .any(|s| s.opening && !s.kind.quote() && s.at.0 < range.start && range.end <= s.mate.0)
+}
+
+fn prose_change(
+    profile: Profile,
+    change: &Change,
+    texts: (&Rope, &Rope),
+    budget: &mut usize,
+) -> Option<()> {
+    if matches!(profile, Profile::Org | Profile::Markdown) {
+        prose_line(texts.0.slice(..), change.before().start, budget)?;
+    }
+    if profile == Profile::Org {
+        // Underscored Org words can introduce inline source syntax. Restrict
+        // advancement to ordinary alphanumeric words instead of guessing it.
+        ordinary_word(texts.0.slice(..), change.before().start, budget)?;
+        ordinary_word(texts.1.slice(..), change.after().start, budget)?;
+    }
+    Some(())
+}
+
+fn ordinary_word(text: RopeSlice<'_>, at: usize, budget: &mut usize) -> Option<()> {
+    let mut start = at;
+    while start > 0 {
+        let c = text.char(start - 1);
+        *budget = budget.checked_sub(c.len_utf8())?;
+        if c == '_' {
+            return None;
+        }
+        if !c.is_ascii_alphanumeric() {
+            break;
+        }
+        start -= 1;
+    }
+    for c in text.slice(start..).chars() {
+        *budget = budget.checked_sub(c.len_utf8())?;
+        if c == '_' {
+            return None;
+        }
+        if !c.is_ascii_alphanumeric() {
+            return Some(());
+        }
+    }
+    Some(())
 }

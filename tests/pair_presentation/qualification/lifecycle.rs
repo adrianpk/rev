@@ -211,3 +211,66 @@ fn retained_prefix_is_idle() {
         PresentationOutcome::Unmatched
     );
 }
+
+// Extending another viewport must preserve existing qualified spans during every
+// poll, including when the larger request exhausts the shared metadata budget.
+#[test]
+fn publication_extension() {
+    for (name, source, end) in [
+        ("sparse", format!("(one) {}[two]", "word ".repeat(1000)), 5),
+        ("dense", "()".repeat(50000), 8192),
+    ] {
+        let mut h = Harness::new("plain", false);
+        let id = h.source(&source);
+        let b = h.buffers.get_mut(id).unwrap();
+        let first = b
+            .start_pair_presentation(view(b), b.span(0..end).unwrap())
+            .unwrap();
+        complete(b, first);
+        let retained = b.pair_presentation(first).unwrap().spans.to_vec();
+        let next = request(b, view(b));
+        let deadline = Instant::now() + std::time::Duration::from_secs(10);
+        loop {
+            assert!(Instant::now() < deadline);
+            let status = b.poll_pair_presentation(next, Instant::now() + SLICE_TIME);
+            let original = b
+                .pair_presentation(first)
+                .expect("current view retains its qualified publication");
+            assert_eq!(original.spans, retained, "{name}");
+            assert!(b.retained_pair_bytes() <= rev::pairs::MAX_METADATA);
+            if status == Status::Ready {
+                break;
+            }
+            assert_eq!(status, Status::Pending);
+        }
+    }
+}
+
+// Concurrent view extensions belong to one shared in-flight request; each view
+// must not reset its byte budget or disguise earlier inspection as prefix reuse.
+#[test]
+fn overlapping_view_budget() {
+    let mut h = Harness::new("plain", false);
+    let id = h.source(&"word ".repeat(rev::pairs::MAX_BYTES / 5 + 10000));
+    let b = h.buffers.get_mut(id).unwrap();
+    let mut last = None;
+    for extra in 0..20 {
+        let ticket = b
+            .start_pair_presentation(view(b), b.span(0..rev::pairs::MAX_BYTES + extra).unwrap())
+            .unwrap();
+        assert_eq!(
+            b.poll_pair_presentation(ticket, Instant::now() + SLICE_TIME),
+            Status::Pending
+        );
+        last = Some(ticket);
+    }
+    let last = last.unwrap();
+    complete(b, last);
+    let answer = b.pair_presentation(last).unwrap();
+    assert_eq!(
+        answer.outcome,
+        PresentationOutcome::Limited(rev::pairs::Limit::Bytes)
+    );
+    assert_eq!(answer.stats.inspected_bytes, rev::pairs::MAX_BYTES);
+    assert_eq!(answer.stats.reused_chars, 0);
+}

@@ -45,7 +45,10 @@ source copy, timer, worker or dependency. Ordered endpoint facts extend that
 owner's existing typed records and lexical checkpoints. Checkpoint restoration
 removes mate claims learned after the retained prefix. Only confirmed endpoints
 are cooperatively exported. Views retain a ticket/range and borrow one shared
-sorted publication, capped at 8192 eligible visible endpoints per view.
+sorted publication, capped at 8192 eligible visible endpoints per view. Extending
+one viewport retains the previous publication throughout every poll. If the
+extension is limited, already confirmed spans remain available. Overlapping
+views extend one in-flight request without resetting its inspection budget.
 
 Scanner allocations, stacks/checkpoints, fact capacity, pending export,
 published spans, per-view capacity and inline owners count once in the shared
@@ -59,13 +62,17 @@ Native edit preparation captures a fixed proof for at most 16 replacements,
 without copying endpoint arrays. Removed/inserted payloads and neighboring
 source share a bounded inspection budget; quotes, escapes, delimiters and
 newlines refuse. Org/Markdown additionally require an ordinary prose line;
-HTML does not advance cached qualification. A publication identity rejects a
+Org refuses underscored tokens that could introduce inline source syntax. HTML
+does not advance cached qualification. Known prefixes can advance while their
+malformed or limited suffix keeps its conservative outcome. A publication identity rejects a
 proof if another snapshot replaces it between preparation and installation.
 These conservative misses rebuild through the same bounded lexical owner.
 
-T2.1-T2.3 form one cohesive implementation/report-introduction commit because
-scanner facts, native transaction mapping, resource accounting and foreground
-continuation must agree. Rendering and pulse integration remain later slices.
+T2.1-T2.3 were introduced together in implementation/report commit
+`f338d0f56f36d6c3e67740e3a597b6922a99f900`. A follow-up retains publications
+during viewport extension, keeps overlapping views in one inspection budget,
+and protects Org control-word qualification. Rendering and pulse integration
+remain later slices.
 
 ## Contracts Added or Changed
 
@@ -84,39 +91,40 @@ continuation must agree. Rendering and pulse integration remain later slices.
 - `src/pairs/work/presentation.rs`: typed endpoint confirmation and checkpoint repair.
 - `src/buffer/pairs.rs`: source-qualified native service API.
 - `src/buffer/edit.rs`, `src/buffer/edit/publication.rs`: prepared proof/publication.
-- `tests/pair_presentation/qualification.rs`: 17 nonempty focused cases.
+- `tests/pair_presentation/qualification.rs`: 21 nonempty focused cases.
 
 ## Validation
 
-Development qualification passes all 17 cases. Final ordered clean-HEAD evidence
+Development qualification passes all 21 cases. Final ordered clean-HEAD evidence
 will be recorded once through looper validate after the PR-reference commit.
 The controller owns integration and the combined delivery-set gate.
 
 - PASS: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo check --locked --lib`.
-- PASS: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test pair_presentation qualification -- --test-threads=1 --nocapture`: 17 cases, 25.70 s excluding warm compilation.
+- PASS: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test pair_presentation qualification -- --test-threads=1 --nocapture`: 21 cases, 25.68 s excluding warm compilation.
 - PASS: `cargo fmt --all -- --check`.
 - PASS: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test pairs --test pair_navigation qualification -- --test-threads=1`: 21 existing pair/edit cases and two group/expression cases.
 - PASS: focused native source policy over 15 changed source/test inputs, retaining
   safe Rust, parameter <=5, nesting <=3 and complexity <=10. The preserved
   staged hook remains responsible for complete workspace acceptance.
+- PASS: introduction commit hook at staged tree `5f49046d143b44d5e348f257a7cebe3f2bbf653a`: full workspace Clippy with zero blocking/deferred diagnostics, 1987/1987 first-party Rust files and 81/81 Cargo roots, with no source-policy exception.
 - PASS: `git diff --check`.
 
 Measured development observations (unoptimized, one build job, exclusive target):
 
 | Fixture | Inspected bytes | Retained bytes | Poll slices | Maximum poll |
 | --- | ---: | ---: | ---: | ---: |
-| Depth 128 | 256 | 60912 | 3 | 0.432 ms |
-| Depth 256 | 512 | 79344 | 5 | 0.257 ms |
-| Depth 257, limited | 272 | 42480 | 3 | 0.231 ms |
-| Oversized token, limited | 262144 | 32240 | 1026 | 0.257 ms |
-| 5000 adjacent pairs | 10000 | 964080 | bounded lexical/export | 0.330 ms |
-| Aggregate retention stress | bounded | peak 2097152 | bounded lexical/export | 0.357 ms |
+| Depth 128 | 256 | 60920 | 3 | 0.218 ms |
+| Depth 256 | 512 | 79352 | 5 | 0.254 ms |
+| Depth 257, limited | 272 | 42488 | 3 | 0.212 ms |
+| Oversized token, limited | 262144 | 32248 | 1026 | 0.245 ms |
+| 5000 adjacent pairs | 10000 | 964088 | bounded lexical/export | 0.197 ms |
+| Aggregate retention stress | bounded | peak 2097128 | bounded lexical/export | 0.321 ms |
 
 An endpoint occupies 32 bytes on this target. The dense publication remains one
 shared allocation: one original view, 20 additional full-range interests and a
-tail viewport total 965088 retained bytes; the additional interests cost 1008
+tail viewport total 965096 retained bytes; the additional interests cost 1008
 bytes. The full viewport reports its 8192-span limit; the tail reads the remaining
-1808 spans without a copy. Stress cancellation leaves 520 bytes of inline owner
+1808 spans without a copy. Stress cancellation leaves 528 bytes of inline owner
 and retained view capacity. Expired deadlines, current/stale cancellation,
 foreground continuation, lexical exclusion with/without syntax colors, native
 read-only reload, transactional history and every mapped burst revision pass.
@@ -125,11 +133,17 @@ These observations are not a physical-key or terminal-frame acceptance claim.
 Development checks corrected a test's Rust module paths and native source access,
 extracted the transaction containment predicate to retain complexity <=10, and
 corrected the reload fixture to write the actual visiting path. No acceptance
-assertion, frozen oracle or resource limit was weakened.
+assertion, frozen oracle or resource limit was weakened. A new viewport-extension
+regression first reproduced loss of the current publication, then passed after
+retention was corrected. Additional cases protect overlapping request budgets,
+neutral proved prefixes and Org inline-source control words. The follow-up hook
+rejected staged tree `44d3eab34d4c9cd76bf27e34b95945b0ee77c7be` for one redundant Range
+clone after the containment refactor; removing it preserves behavior and the
+unchanged Clippy/source policy.
 
 ## Risks and Follow-ups
 
 Neutral mapping intentionally refuses unproved lexical boundaries, HTML and
-batches beyond 16 replacements. Limited results may retain only a proved prefix.
+batches beyond 16 replacements and underscored Org words. Limited results may retain only a proved prefix.
 Visible rendering, projection overlays and pulse lifetimes remain assigned to
 Slices 3-6. The existing vendored crossterm parentheses warning is unchanged.
