@@ -13,7 +13,7 @@ Model: [Pair Preferences and Native State](../spec/editor-delimiter-pairs-model.
 Concern: [Operations index](../README.md)
 Tracker: [Delimiter Presentation Tracker](../tracker/rev-delimiter-presentation.md)
 Acceptance: [Frozen contract](../report/rev-delimiter-presentation/acceptance-contract.json)
-Active slice: Slice 4 of 6 - Finite pulse lifecycle
+Active slice: Slice 5 of 6 - Completed-frame continuity
 Gate state: pending; controller-owned after all six canonical PRs integrate
 Integration target: `dev`
 

@@ -1,6 +1,6 @@
 # Slice 4: Finite pulse lifecycle
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-delimiter-presentation
 Plan: [Delimiter Presentation Delivery](../../../plan/rev-delimiter-presentation.md)
 Tracker: [Delimiter Presentation Tracker](../../../tracker/rev-delimiter-presentation.md)
@@ -76,8 +76,9 @@ Canonical review: [PR #70](https://forge.adrianpk.com/rev/rev/pulls/70).
 
 ## Validation
 
-Exact clean-HEAD evidence is recorded through looper validate after the canonical
-PR-reference commit. The controller owns integration and the combined gate.
+All three ordered required commands passed once through looper validate at clean
+published HEAD `fd84b2b101479f763bcc015f50a715713c250f1a`, integrated by canonical
+PR #70. The combined gate remains controller-owned.
 
 Controlled clocks advance through 50/250/1000 ms boundaries;
 tests do not sleep through production pulse durations. The accepted-key case
@@ -85,9 +86,7 @@ checks that dispatch returns within 250 ms for a configured 1000 ms pulse; this
 is a native-handler observation, not physical terminal input acceptance.
 
 - PASS: `cargo fmt --all -- --check`.
-- Required pulse subset: all 18 cases PASS in the broader native batch below;
-  the exact required command is recorded for the final clean PR HEAD through
-  looper validate.
+- PASS: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test pair_presentation pulse -- --test-threads=1`: all 18 cases, also covered by the broader native batch below.
 - PASS: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test pair_presentation --test display --test pair_navigation -- --test-threads=1`: all 165 cases (68 presentation, 49 display, 48 navigation), with no ignored cases or empty filters.
 - PASS: focused native source policy over all 21 changed Rust source/test files,
   retaining safe Rust, parameters <=5, nesting <=3 and complexity <=10.
@@ -105,6 +104,10 @@ retired an expired pulse. The implementation preserves that redraw, and the exac
 expiry assertion remains in the controlled-clock case.
 
 ## Risks and Follow-ups
+
+PR #70 integrated validated commit `fd84b2b101479f763bcc015f50a715713c250f1a`
+into dev. Fetched ancestry, clean state and no owned processes were verified;
+the integrated worktree was removed without force.
 
 Full 24-burst continuity, frozen workload/input-service measurements and the two
 representative PTYs remain Slices 5-6. No physical-key acceptance or full delivery

@@ -12,8 +12,8 @@ Integration target: `dev`
 Plan: `ops/default/plan/rev-delimiter-presentation.md`
 Spec: `ops/default/spec/editor-delimiter-presentation.md`
 Model: `ops/default/spec/editor-delimiter-pairs-model.md`
-Active slice: Slice 4 of 6 - Finite pulse lifecycle
-Completed slices: 3/6
+Active slice: Slice 5 of 6 - Completed-frame continuity
+Completed slices: 4/6
 Completed tasks: 12/18
 Gate state: pending; controller-owned after all six canonical PRs integrate
 
@@ -116,10 +116,10 @@ Dependency: Slice 3 integrated and closed
 Branch: `feat/rev-delimiter-presentation-04-pulse`
 Expected PR title: `feat(editor): add finite delimiter presentation pulses`
 Report: `ops/default/report/slices/rev-delimiter-presentation/slice-4-pulse.md`
-State: reviewing; canonical PR #70 open
+State: delivered; PR #70 integrated
 PR: [#70](https://forge.adrianpk.com/rev/rev/pulls/70)
 Task commits: T4.1/T4.2/T4.3/report introduction `75722e6015ab1bb00ac55cad83ee69f1398d9a4e`.
-Validation: all 165 focused cases PASS (68 presentation including 18 pulse cases, 49 display, 48 navigation); formatting, changed-source policy, preserved full workspace hook and whitespace PASS. Exact ordered clean-HEAD evidence follows the canonical PR-reference commit through looper validate. The combined gate remains controller-owned.
+Validation: all three ordered required commands PASS once through looper validate at `fd84b2b101479f763bcc015f50a715713c250f1a`, integrated by canonical PR #70. All 165 focused cases and preserved staged hooks PASS. Fetched ancestry, clean state and no owned processes verified; the integrated worktree was removed without force. The combined gate remains controller-owned.
 
 - [x] T4.1: Implement pulse style through the existing monotonic run/deadline owner. An accepted input or successful explicit pair motion that identifies an active endpoint starts one generation for the resolved pulse_ms. Rendering, resize, polls and unsuccessful/no-op motion never extend it. Keep key handling nonblocking and do not add a timer thread, service or terminal blink attribute.
 - [x] T4.2: Retire or explicitly requalify source/view/point generations on edits, motion, focus/view changes, reload and cancellation. Expired, replaced and off pulses release their marks and pair-owned deadlines; steady depth/match/off own none. Respect the existing admitted view count and preserve unrelated native deadlines.
@@ -140,7 +140,7 @@ Dependency: Slice 4 integrated and closed
 Branch: `test/rev-delimiter-presentation-05-continuity`
 Expected PR title: `test(editor): verify delimiter continuity and input service`
 Report: `ops/default/report/slices/rev-delimiter-presentation/slice-5-continuity.md`
-State: pending
+State: ready
 PR: pending
 Task commits: pending
 Validation: pending
