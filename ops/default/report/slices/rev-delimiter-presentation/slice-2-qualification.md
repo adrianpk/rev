@@ -1,6 +1,6 @@
 # Slice 2: Qualified presentation facts
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-delimiter-presentation
 Plan: [Delimiter Presentation Delivery](../../../plan/rev-delimiter-presentation.md)
 Tracker: [Delimiter Presentation Tracker](../../../tracker/rev-delimiter-presentation.md)
@@ -146,6 +146,11 @@ clone after the containment refactor; removing it preserves behavior and the
 unchanged Clippy/source policy.
 
 ## Risks and Follow-ups
+
+PR #68 integrated validated commit `733061bba1780466675111f86a3704fed71c977c`
+into dev. All three required commands passed once through looper validate.
+Fetched ancestry, clean state and no owned processes were verified; the integrated
+worktree was removed without force. The combined gate remains controller-owned.
 
 Neutral mapping intentionally refuses unproved lexical boundaries, HTML and
 batches beyond 16 replacements and underscored Org words. Limited results may retain only a proved prefix.
