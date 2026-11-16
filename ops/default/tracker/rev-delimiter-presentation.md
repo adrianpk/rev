@@ -12,10 +12,10 @@ Integration target: `dev`
 Plan: `ops/default/plan/rev-delimiter-presentation.md`
 Spec: `ops/default/spec/editor-delimiter-presentation.md`
 Model: `ops/default/spec/editor-delimiter-pairs-model.md`
-Active slice: Slice 6 of 6 - Integrated presentation acceptance
-Completed slices: 5/6
+Active slice: none; all six slices integrated
+Completed slices: 6/6
 Completed tasks: 18/18
-Gate state: pending; controller-owned after all six canonical PRs integrate
+Gate state: pending; prerequisites prepared for controller-owned execution
 
 ## Canonical slice map
 
@@ -33,7 +33,7 @@ Gate state: pending; controller-owned after all six canonical PRs integrate
 - [x] Owner continuation authorizes the final delimiter presentation scope.
 - [x] Editing/navigation completed; source baseline and existing receipts verified.
 - [x] Presentation spec/model approved; frozen contract, plan and tracker aligned.
-- [ ] Six canonical PRs integrated into dev and owned worktrees retired safely.
+- [x] Six canonical PRs integrated into dev and owned worktrees retired safely.
 - [ ] Unchanged combined gate passes on exact clean published dev candidate.
 - [ ] All reports delivered and Markdown-only closure records the receipt.
 
@@ -164,10 +164,10 @@ Dependency: Slice 5 integrated and closed
 Branch: `test/rev-delimiter-presentation-06-acceptance`
 Expected PR title: `test(editor): verify delimiter presentation workflows`
 Report: `ops/default/report/slices/rev-delimiter-presentation/slice-6-acceptance.md`
-State: reviewing; canonical PR #72 open
+State: delivered; PR #72 integrated
 PR: [#72](https://forge.adrianpk.com/rev/rev/pulls/72)
 Task commits: T6.1/T6.2/T6.3/report introduction `8f0a2a9741ba48e6230bb92de73dac5a659e46e9`.
-Validation: all five required local commands PASS. The selected acceptance script passes 261 native cases, all six frozen digests, one independent 719-command/28-map oracle and exactly two restored/reaped PTYs. Both profiles satisfy the frozen input/idle bounds; documentation passes 22 reference cases and User Guide construction. Preserved full staged hook passes 2013 Rust files/82 roots with zero blocking/deferred Clippy diagnostics. Exact ordered clean-HEAD evidence follows this PR-reference commit through looper validate. The combined gate remains controller-owned.
+Validation: all five ordered required commands PASS once through looper validate on clean published `cfa6cdd4e6c86af1cf453af812f4cf63d2f0c47d`, integrated by canonical PR #72; Acta validation record `01M7HBWEMFVRQ18SJXTA04GX8S`. The selected acceptance script passes 261 native cases, all six frozen digests, one independent 719-command/28-map oracle and exactly two restored/reaped PTYs. Both profiles satisfy the frozen input/idle bounds; documentation passes 22 reference cases and User Guide construction. Preserved full staged hook passes 2013 Rust files/82 roots with zero blocking/deferred Clippy diagnostics. Fetched ancestry, clean state and no owned processes verified; integrated worktree removed without force. The combined gate remains controller-owned.
 
 - [x] T6.1: Add scripts/check-delimiter-presentation.sh and one focused acceptance example using the existing owned controlling-PTY/observer infrastructure. Batch the complete new native presentation suite, existing pairs and pair_navigation regressions, relevant configuration/palette, macro-input and document-continuity selections plus one independent complete catalog/factory-map acceptance. Explicitly reject every empty test filter; do not invoke historical feature scripts or the whole repository test suite.
 - [x] T6.2: Run exactly two owned Linux PTYs, one per interaction profile, covering default depth and named match/pulse/off controls, bounded prompt/cancellation, effective command hints, source/point/viewport invariants, save/reopen and held-input stop. Observe completed frames including foreground/mark attributes and the frozen progress/release/idle bounds. Update reference/default examples and the progressive User Guide. Normalize the existing concise Unreleased outcome; do not add delivery chronology or incidental fixes as product entries.
@@ -184,6 +184,12 @@ git diff --check
 ```
 
 ## Delivery-set closure
+
+Preparation: all six canonical PRs and their validated heads are integrated;
+all six reports are delivered and owned slice worktrees are retired. Required
+gate tools are available, all six frozen digests match and the three gate shell
+scripts pass syntax checks. Existing hooks and checkout-owned caches are
+preserved. The combined gate has not run; the controller owns its execution.
 
 Pending. Record the exact clean runtime candidate, complete successful command,
 controller receipt and any subsequent Markdown-only closure separately. A passing

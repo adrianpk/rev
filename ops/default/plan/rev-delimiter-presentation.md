@@ -13,8 +13,8 @@ Model: [Pair Preferences and Native State](../spec/editor-delimiter-pairs-model.
 Concern: [Operations index](../README.md)
 Tracker: [Delimiter Presentation Tracker](../tracker/rev-delimiter-presentation.md)
 Acceptance: [Frozen contract](../report/rev-delimiter-presentation/acceptance-contract.json)
-Active slice: Slice 6 of 6 - Integrated presentation acceptance
-Gate state: pending; controller-owned after all six canonical PRs integrate
+Active slice: none; all six slices integrated
+Gate state: pending; prerequisites prepared for controller-owned execution
 Integration target: `dev`
 
 ## Outcome and strategy

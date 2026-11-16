@@ -1,6 +1,6 @@
 # Slice 6: Integrated presentation acceptance
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-delimiter-presentation
 Plan: [Delimiter Presentation Delivery](../../../plan/rev-delimiter-presentation.md)
 Tracker: [Delimiter Presentation Tracker](../../../tracker/rev-delimiter-presentation.md)
@@ -10,8 +10,8 @@ PR: [#72](https://forge.adrianpk.com/rev/rev/pulls/72)
 ## Purpose
 
 Deliver T6.1-T6.3: selected native acceptance, two owned Linux PTYs and complete
-reference/User Guide coverage. Integration, the combined gate and final
-Markdown-only set/model/spec closure remain controller-owned.
+reference/User Guide coverage. Canonical integration is verified; the combined
+gate and final Markdown-only set/model/spec closure remain controller-owned.
 
 ## Delivered Behavior
 
@@ -70,6 +70,9 @@ merged PRs; their original observations and immutable introductions remain intac
 
 Implementation/report introduction: `8f0a2a9741ba48e6230bb92de73dac5a659e46e9`.
 Canonical review: [PR #72](https://forge.adrianpk.com/rev/rev/pulls/72).
+Canonical integration: `cfa6cdd4e6c86af1cf453af812f4cf63d2f0c47d`; fetched
+ancestry, clean state and no owned processes verified. The integrated worktree
+was removed without force.
 
 ## Contracts Added or Changed
 
@@ -91,9 +94,11 @@ Canonical review: [PR #72](https://forge.adrianpk.com/rev/rev/pulls/72).
 
 ## Validation
 
-All five required local commands PASS. Exact ordered clean-HEAD evidence follows
-the canonical PR-reference commit through looper validate. The combined gate is
-unchanged and remains controller-owned.
+All five ordered required commands PASS once through looper validate on clean
+published `cfa6cdd4e6c86af1cf453af812f4cf63d2f0c47d`, the canonical PR-reference
+commit integrated by PR #72. Acta validation record:
+`01M7HBWEMFVRQ18SJXTA04GX8S`. The combined gate is unchanged and remains
+controller-owned.
 
 - PASS: `cargo fmt --all -- --check`.
 - PASS: `bash scripts/check-delimiter-presentation.sh`: 261 selected native cases, all six frozen digests, one complete catalog/map oracle and exactly two PTYs; no ignored cases or empty filters. The unoptimized checkout batch took 891.10 s, including its builds and journeys.
@@ -141,11 +146,11 @@ documentation only.
 | 3 | [#69](https://forge.adrianpk.com/rev/rev/pulls/69) | `9cedf2c18e2bf90861db5b0b73aff818e5bf5500` | `b21e7523f4eec23194836fae7634be4a9d8e9c76` |
 | 4 | [#70](https://forge.adrianpk.com/rev/rev/pulls/70) | `75722e6015ab1bb00ac55cad83ee69f1398d9a4e` | `fd84b2b101479f763bcc015f50a715713c250f1a` |
 | 5 | [#71](https://forge.adrianpk.com/rev/rev/pulls/71) | `84572a9c0ac1ae78595683ec290fef374c0c642b` | `67f94244d2982f545be9f363408f62aadced76b5` |
-| 6 | [#72](https://forge.adrianpk.com/rev/rev/pulls/72) | `8f0a2a9741ba48e6230bb92de73dac5a659e46e9` | pending controller integration |
+| 6 | [#72](https://forge.adrianpk.com/rev/rev/pulls/72) | `8f0a2a9741ba48e6230bb92de73dac5a659e46e9` | `cfa6cdd4e6c86af1cf453af812f4cf63d2f0c47d` |
 
 ## Risks and Follow-ups
 
-The controller must integrate this PR, run the unchanged combined gate on its
-exact clean dev candidate and record the receipt before Markdown-only delivery
-closure. No full delivery-set gate, main promotion, release or publication runs
-in this slice. The existing vendored crossterm parentheses warning is unchanged.
+The controller must run the unchanged combined gate on its exact clean dev
+candidate and record the receipt before Markdown-only delivery closure. No full
+delivery-set gate, main promotion, release or publication runs in this slice.
+The existing vendored crossterm parentheses warning is unchanged.
