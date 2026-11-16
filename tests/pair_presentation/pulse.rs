@@ -20,6 +20,9 @@ thread_local! {
 pub(super) fn now() -> Instant {
     CLOCK.with(Cell::get)
 }
+pub(super) fn reset() {
+    CLOCK.with(|clock| clock.set(Instant::now()));
+}
 pub(super) fn advance(millis: usize) {
     CLOCK.with(|clock| {
         clock.set(clock.get() + Duration::from_millis(u64::try_from(millis).unwrap()))
@@ -52,7 +55,7 @@ impl Editor {
         Self::attach(native)
     }
     pub fn attach(mut native: rendering::Editor) -> Self {
-        CLOCK.with(|clock| clock.set(Instant::now()));
+        reset();
         native.session = native.session.with_pair_clock(now);
         Self { native }
     }

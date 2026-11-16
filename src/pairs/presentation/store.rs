@@ -148,9 +148,11 @@ impl Store {
         true
     }
 
-    pub fn retain(&mut self, keep: impl Fn(ViewId) -> bool) {
+    pub fn retain(&mut self, visible: bool, keep: impl Fn(ViewId) -> bool) {
         self.entries.retain(|entry| keep(entry.ticket.view));
-        if self.empty() {
+        // Source advancement retires view tickets before the next admission.
+        // Keep its proved snapshot while a live source view will re-admit it.
+        if self.empty() && !visible {
             self.abandon();
         }
     }

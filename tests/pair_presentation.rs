@@ -4,6 +4,8 @@
 mod accepted_maps;
 #[path = "pair_presentation/config.rs"]
 mod config;
+#[path = "pair_presentation/continuity.rs"]
+mod continuity;
 #[path = "configuration/fixture.rs"]
 mod fixture;
 #[path = "pair_presentation/qualification.rs"]

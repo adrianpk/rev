@@ -6,6 +6,9 @@ use super::*;
 use crate::command::{Command, Motion};
 use crate::view::Size;
 
+#[path = "tests/presentation.rs"]
+mod presentation;
+
 fn session() -> Session {
     Session::empty(Size {
         width: 80,

@@ -10,8 +10,9 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 ### Added
 
 - Delimiter depth colors and active-pair marks, with independent view controls
-  and offscreen mate locations. Pulse marks clear after the configured duration
-  without blinking. Selection and search highlights retain their colors.
+  and offscreen mate locations. Delimiter colors remain stable while typing.
+  Pulse marks clear after the configured duration without blinking. Selection
+  and search highlights retain their colors.
 - Navigate complete groups with C-M-n/C-M-p, enter and leave nesting with
   C-M-d/C-M-u, and cross mode-aware expressions with C-M-f/C-M-b. Jump onto a
   confirmed delimiter or quote mate with M-x matching-delimiter. Navigation

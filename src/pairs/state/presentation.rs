@@ -49,8 +49,8 @@ impl State {
         cancelled
     }
 
-    pub fn retain_presentations(&mut self, keep: impl Fn(ViewId) -> bool) {
-        self.presentation.retain(keep);
+    pub fn retain_presentations(&mut self, visible: bool, keep: impl Fn(ViewId) -> bool) {
+        self.presentation.retain(visible, keep);
         if self.presentation.empty() && self.work.as_ref().is_some_and(Active::background) {
             self.restore_foreground();
         }

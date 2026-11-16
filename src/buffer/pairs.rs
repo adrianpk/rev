@@ -208,7 +208,11 @@ impl Buffer {
         let id = self.id();
         let policy = self.pair_policy();
         let source = self.terminal().is_none();
-        self.pairing.retain_presentations(|view| {
+        let visible = source
+            && windows
+                .iter()
+                .any(|(_, v)| v.point.stamp.buffer == id && v.pairs.visible(policy, v.point));
+        self.pairing.retain_presentations(visible, |view| {
             windows.get(view).is_ok_and(|v| {
                 source && v.point.stamp.buffer == id && v.pairs.visible(policy, v.point)
             })

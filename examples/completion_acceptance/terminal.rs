@@ -6,8 +6,9 @@ use std::sync::mpsc::{Receiver, RecvTimeoutError, sync_channel};
 use std::thread::JoinHandle;
 use std::time::{Duration, Instant};
 
-const HIDE: &str = "\x1b[?25l";
-const SHOW: &str = "\x1b[?25h";
+#[path = "../../tests/support/completed.rs"]
+mod frames;
+use frames::{HIDE, SHOW, completed};
 const LIMIT: usize = 1024 * 1024;
 
 // Same util-linux controlling-PTY boundary and eight-second/1-MiB ownership
@@ -371,21 +372,6 @@ fn diagnostic(output: &str, dimensions: Option<(usize, usize)>) -> String {
         .chars()
         .take(4500)
         .collect()
-}
-
-// Writer frames are complete only through their Show footer. A partial UTF-8
-// chunk or split footer remains queued for the next bounded stream read.
-fn completed(output: &str, cursor: &mut usize, observe: &mut impl FnMut(&str)) {
-    while let Some(start) = output[*cursor..].find(HIDE) {
-        let start = *cursor + start;
-        let Some(end) = output[start..].find(SHOW) else {
-            *cursor = start;
-            return;
-        };
-        let end = start + end + SHOW.len();
-        observe(&output[start..end]);
-        *cursor = end;
-    }
 }
 
 #[cfg(test)]
