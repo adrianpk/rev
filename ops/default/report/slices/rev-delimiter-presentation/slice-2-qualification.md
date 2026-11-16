@@ -72,7 +72,7 @@ T2.1-T2.3 were introduced together in implementation/report commit
 `f338d0f56f36d6c3e67740e3a597b6922a99f900`. A follow-up retains publications
 during viewport extension, keeps overlapping views in one inspection budget,
 and protects Org control-word qualification. Rendering and pulse integration
-remain later slices.
+were delivered by later slices.
 
 Follow-up commit: `30096774eb1e54b615aabe28c13c26c360850446`.
 Canonical review: [PR #68](https://forge.adrianpk.com/rev/rev/pulls/68).
@@ -100,8 +100,8 @@ Canonical review: [PR #68](https://forge.adrianpk.com/rev/rev/pulls/68).
 
 All three ordered required commands PASS once through looper validate at clean
 published `733061bba1780466675111f86a3704fed71c977c`, integrated by PR #68.
-Acta receipt: `01M7GXGZHQTC1GPDEJG15WJ0S4`. The combined gate remains
-controller-owned.
+Acta receipt: `01M7GXGZHQTC1GPDEJG15WJ0S4`. The later controller gate PASS is
+recorded in [delivery-set closure](slice-6-acceptance.md#delivery-set-closure).
 
 - PASS: `cargo fmt --all -- --check`.
 - PASS: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test pair_presentation qualification -- --test-threads=1`: 21 cases at the exact integrated HEAD.
@@ -152,9 +152,9 @@ unchanged Clippy/source policy.
 PR #68 integrated validated commit `733061bba1780466675111f86a3704fed71c977c`
 into dev. All three required commands passed once through looper validate.
 Fetched ancestry, clean state and no owned processes were verified; the integrated
-worktree was removed without force. The combined gate remains controller-owned.
+worktree was removed without force. The final gate receipt is linked above.
 
 Neutral mapping intentionally refuses unproved lexical boundaries, HTML and
 batches beyond 16 replacements and underscored Org words. Limited results may retain only a proved prefix.
-Visible rendering, projection overlays and pulse lifetimes remain assigned to
+Visible rendering, projection overlays and pulse lifetimes were delivered in
 Slices 3-6. The existing vendored crossterm parentheses warning is unchanged.

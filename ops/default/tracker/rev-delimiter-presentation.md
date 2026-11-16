@@ -1,6 +1,7 @@
 # Delimiter Presentation Tracker
 
-Status: Approved
+Status: Completed
+Completed: 2026-11-16
 Date: 2026-11-15
 Delivery set: rev-delimiter-presentation
 Slice strategy: behavior-first
@@ -12,10 +13,10 @@ Integration target: `dev`
 Plan: `ops/default/plan/rev-delimiter-presentation.md`
 Spec: `ops/default/spec/editor-delimiter-presentation.md`
 Model: `ops/default/spec/editor-delimiter-pairs-model.md`
-Active slice: none; all six slices integrated
+Active slice: none; Slice 6 of 6 completed; delivery set closed
 Completed slices: 6/6
 Completed tasks: 18/18
-Gate state: pending; prerequisites prepared for controller-owned execution
+Gate state: PASS at `30620453c5fff9194f455303db8b64ed18fc4021`, receipt `IAOWABDMUUKBZKJQIFWEXFS3VT`
 
 ## Canonical slice map
 
@@ -34,8 +35,8 @@ Gate state: pending; prerequisites prepared for controller-owned execution
 - [x] Editing/navigation completed; source baseline and existing receipts verified.
 - [x] Presentation spec/model approved; frozen contract, plan and tracker aligned.
 - [x] Six canonical PRs integrated into dev and owned worktrees retired safely.
-- [ ] Unchanged combined gate passes on exact clean published dev candidate.
-- [ ] All reports delivered and Markdown-only closure records the receipt.
+- [x] Unchanged combined gate passes on exact clean published dev candidate.
+- [x] All reports delivered and Markdown-only closure records the receipt.
 
 ## Slice 1: Configuration and view controls
 
@@ -47,7 +48,7 @@ Report: `ops/default/report/slices/rev-delimiter-presentation/slice-1-config.md`
 State: delivered; PR #67 integrated
 PR: [#67](https://forge.adrianpk.com/rev/rev/pulls/67)
 Task commits: T1.1/T1.2/T1.3/report introduction `fdc1aa13dedfcef2c6ee4902669c5caad90dca6d`.
-Validation: all three ordered required commands PASS through looper validate at `f1515a01cf5434ce163840a99c1729da0bfaea0e`, integrated by canonical PR #67. Focused configuration/control regressions, complete factory maps/catalog, documentation and preserved staged hooks PASS. Fetched ancestry, clean state and no owned processes verified; the integrated worktree was removed without force. The combined gate remains controller-owned.
+Validation: all three ordered required commands PASS through looper validate at `f1515a01cf5434ce163840a99c1729da0bfaea0e`, integrated by canonical PR #67. Focused configuration/control regressions, complete factory maps/catalog, documentation and preserved staged hooks PASS. Fetched ancestry, clean state and no owned processes verified; the integrated worktree was removed without force. The subsequent controller gate PASS is recorded in the delivery-set closure below.
 
 - [x] T1.1: Extend the existing global and optional language pairs parser, merge, origins, candidate validation and effective defaults with highlight=depth and pulse_ms=250 (50..1000). Add the four optional palette.pairs roles, existing RGB parsing and 1..8 depth colors; resolve absent roles only after the editor palette is merged. Keep editing and visual preferences independent.
 - [x] T1.2: Add view-local style/last-non-off state and the unbound pair-highlight-mode and pair-highlight-style commands using the existing bounded prompts, argument admission and session/view owners. New views start from resolved global/language defaults; sibling views retain independent overrides. Preserve point, mark, source, history and settings files. Update literal catalog expectations from 717 to 719 and preserve every existing factory binding.
@@ -71,7 +72,7 @@ Report: `ops/default/report/slices/rev-delimiter-presentation/slice-2-qualificat
 State: delivered; PR #68 integrated
 PR: [#68](https://forge.adrianpk.com/rev/rev/pulls/68)
 Task commits: T2.1/T2.2/T2.3/report introduction `f338d0f56f36d6c3e67740e3a597b6922a99f900`; shared publication/proof regression follow-up `30096774eb1e54b615aabe28c13c26c360850446`.
-Validation: 21 qualification cases and 23 existing pair/navigation qualification regressions PASS. Preserved staged hooks PASS full workspace Clippy and native source policy over 1987 files/81 roots. All three required commands PASS once through looper validate at `733061bba1780466675111f86a3704fed71c977c`, integrated by PR #68. Fetched ancestry, clean state and no owned processes verified; integrated worktree removed without force. The combined gate remains controller-owned.
+Validation: 21 qualification cases and 23 existing pair/navigation qualification regressions PASS. Preserved staged hooks PASS full workspace Clippy and native source policy over 1987 files/81 roots. All three required commands PASS once through looper validate at `733061bba1780466675111f86a3704fed71c977c`, integrated by PR #68. Fetched ancestry, clean state and no owned processes verified; integrated worktree removed without force. The subsequent controller gate PASS is recorded in the delivery-set closure below.
 
 - [x] T2.1: Extend the existing buffer-owned typed-pair fact service with bounded immutable presentation spans and proved depth. Reuse lexical profiles and typed confirmation; never promote loose group targets to typed mates. Foreground editing/navigation requests keep their tickets and scheduling priority; background presentation cannot retire or starve them or introduce a parallel mutable source cache.
 - [x] T2.2: Advance retained spans through native source transactions only when exact endpoint mapping and unchanged lexical/nesting classification are proved. Validate source/view identities and invalidate unproved ranges after delimiter, quote, escape, newline, language, reload or replacement changes. Preserve bounded neutral same-line edits without a transient fallback to unqualified syntax.
@@ -95,7 +96,7 @@ Report: `ops/default/report/slices/rev-delimiter-presentation/slice-3-rendering.
 State: delivered; PR #69 integrated
 PR: [#69](https://forge.adrianpk.com/rev/rev/pulls/69)
 Task commits: T3.1/T3.2/T3.3/report introduction `9cedf2c18e2bf90861db5b0b73aff818e5bf5500`.
-Validation: 15 focused rendering cases and all 163 presentation/display/gutter/wrapping regressions PASS; complete 719-command/28-map oracle and focused source policy PASS. Preserved staged hook PASS full workspace Clippy and native policy across 1993 files/81 roots. All three ordered required commands PASS once through looper validate at `b21e7523f4eec23194836fae7634be4a9d8e9c76`, integrated by PR #69. Fetched ancestry, clean state and no owned processes verified; integrated worktree removed without force. The combined gate remains controller-owned.
+Validation: 15 focused rendering cases and all 163 presentation/display/gutter/wrapping regressions PASS; complete 719-command/28-map oracle and focused source policy PASS. Preserved staged hook PASS full workspace Clippy and native policy across 1993 files/81 roots. All three ordered required commands PASS once through looper validate at `b21e7523f4eec23194836fae7634be4a9d8e9c76`, integrated by PR #69. Fetched ancestry, clean state and no owned processes verified; integrated worktree removed without force. The subsequent controller gate PASS is recorded in the delivery-set closure below.
 
 - [x] T3.1: Project current qualified structural spans through native source/grapheme/fold/wrap mappings. Depth style colors only delimiters with the resolved cyclic palette; off leaves ordinary rendering intact. Reuse existing cells/paint ownership rather than a retained row cache or whole-buffer scan per frame. Preserve Org/Markdown prefix and table projections.
 - [x] T3.2: Add active-pair marks using the existing at-point then immediately-before entry policy. Match style affects only the two endpoints; depth adds background/underline while retaining depth foreground. Keep eligible quote foregrounds, selection/search cells, cursor and diagnostic attributes authoritative. Confirmed mismatches may use warning; unfinished/limited source does not. Add lower-priority offscreen mate line/column feedback without moving point/view or replacing prompts/errors. Honor NO_COLOR and supported attributes.
@@ -119,7 +120,7 @@ Report: `ops/default/report/slices/rev-delimiter-presentation/slice-4-pulse.md`
 State: delivered; PR #70 integrated
 PR: [#70](https://forge.adrianpk.com/rev/rev/pulls/70)
 Task commits: T4.1/T4.2/T4.3/report introduction `75722e6015ab1bb00ac55cad83ee69f1398d9a4e`.
-Validation: all three ordered required commands PASS once through looper validate at `fd84b2b101479f763bcc015f50a715713c250f1a`, integrated by canonical PR #70. All 165 focused cases and preserved staged hooks PASS. Fetched ancestry, clean state and no owned processes verified; the integrated worktree was removed without force. The combined gate remains controller-owned.
+Validation: all three ordered required commands PASS once through looper validate at `fd84b2b101479f763bcc015f50a715713c250f1a`, integrated by canonical PR #70. All 165 focused cases and preserved staged hooks PASS. Fetched ancestry, clean state and no owned processes verified; the integrated worktree was removed without force. The subsequent controller gate PASS is recorded in the delivery-set closure below.
 
 - [x] T4.1: Implement pulse style through the existing monotonic run/deadline owner. An accepted input or successful explicit pair motion that identifies an active endpoint starts one generation for the resolved pulse_ms. Rendering, resize, polls and unsuccessful/no-op motion never extend it. Keep key handling nonblocking and do not add a timer thread, service or terminal blink attribute.
 - [x] T4.2: Retire or explicitly requalify source/view/point generations on edits, motion, focus/view changes, reload and cancellation. Expired, replaced and off pulses release their marks and pair-owned deadlines; steady depth/match/off own none. Respect the existing admitted view count and preserve unrelated native deadlines.
@@ -143,7 +144,7 @@ Report: `ops/default/report/slices/rev-delimiter-presentation/slice-5-continuity
 State: delivered; PR #71 integrated
 PR: [#71](https://forge.adrianpk.com/rev/rev/pulls/71)
 Task commits: T5.1/T5.2/T5.3/report introduction `84572a9c0ac1ae78595683ec290fef374c0c642b`.
-Validation: all nine continuity cases PASS, including exactly 24 bursts/1536 completed frames and eight native held-input journeys. All 77 presentation cases, 21 pair qualification cases, four navigation lifecycle cases, native drain-owner/observer cases, 22 documentation reference cases and preserved full workspace hook PASS. All three ordered required commands PASS once through looper validate at `67f94244d2982f545be9f363408f62aadced76b5`, integrated by PR #71. Fetched ancestry, clean state and no owned processes verified; integrated worktree removed without force. The combined gate remains controller-owned.
+Validation: all nine continuity cases PASS, including exactly 24 bursts/1536 completed frames and eight native held-input journeys. All 77 presentation cases, 21 pair qualification cases, four navigation lifecycle cases, native drain-owner/observer cases, 22 documentation reference cases and preserved full workspace hook PASS. All three ordered required commands PASS once through looper validate at `67f94244d2982f545be9f363408f62aadced76b5`, integrated by PR #71. Fetched ancestry, clean state and no owned processes verified; integrated worktree removed without force. The subsequent controller gate PASS is recorded in the delivery-set closure below.
 
 - [x] T5.1: Exercise native completed-frame observation for the frozen Text/Org/Markdown forms in both profiles and all four styles. Across 32 neutral body insertions and 32 deletions, retain proved delimiter foregrounds and correct mapped endpoints; preserve headings, prefix geometry, source/selection/cursor mappings and active-pair eligibility. If a real seam fails, correct only its presentation/proof/scheduling owner.
 - [x] T5.2: Batch exactly 24 native completed-frame bursts (3 documents x 2 profiles x 4 styles), asserting nonzero observed frames and independent source/style oracles. Add invalidating edits, redraw/resize, split-view divergence, source reload and NO_COLOR cases at the lowest-cost native boundary without multiplying every case into a PTY.
@@ -167,7 +168,7 @@ Report: `ops/default/report/slices/rev-delimiter-presentation/slice-6-acceptance
 State: delivered; PR #72 integrated
 PR: [#72](https://forge.adrianpk.com/rev/rev/pulls/72)
 Task commits: T6.1/T6.2/T6.3/report introduction `8f0a2a9741ba48e6230bb92de73dac5a659e46e9`.
-Validation: all five ordered required commands PASS once through looper validate on clean published `cfa6cdd4e6c86af1cf453af812f4cf63d2f0c47d`, integrated by canonical PR #72; Acta validation record `01M7HBWEMFVRQ18SJXTA04GX8S`. The selected acceptance script passes 261 native cases, all six frozen digests, one independent 719-command/28-map oracle and exactly two restored/reaped PTYs. Both profiles satisfy the frozen input/idle bounds; documentation passes 22 reference cases and User Guide construction. Preserved full staged hook passes 2013 Rust files/82 roots with zero blocking/deferred Clippy diagnostics. Fetched ancestry, clean state and no owned processes verified; integrated worktree removed without force. The combined gate remains controller-owned.
+Validation: all five ordered required commands PASS once through looper validate on clean published `cfa6cdd4e6c86af1cf453af812f4cf63d2f0c47d`, integrated by canonical PR #72; Acta validation record `01M7HBWEMFVRQ18SJXTA04GX8S`. The selected acceptance script passes 261 native cases, all six frozen digests, one independent 719-command/28-map oracle and exactly two restored/reaped PTYs. Both profiles satisfy the frozen input/idle bounds; documentation passes 22 reference cases and User Guide construction. Preserved full staged hook passes 2013 Rust files/82 roots with zero blocking/deferred Clippy diagnostics. Fetched ancestry, clean state and no owned processes verified; integrated worktree removed without force. The subsequent controller gate PASS is recorded in the delivery-set closure below.
 
 - [x] T6.1: Add scripts/check-delimiter-presentation.sh and one focused acceptance example using the existing owned controlling-PTY/observer infrastructure. Batch the complete new native presentation suite, existing pairs and pair_navigation regressions, relevant configuration/palette, macro-input and document-continuity selections plus one independent complete catalog/factory-map acceptance. Explicitly reject every empty test filter; do not invoke historical feature scripts or the whole repository test suite.
 - [x] T6.2: Run exactly two owned Linux PTYs, one per interaction profile, covering default depth and named match/pulse/off controls, bounded prompt/cancellation, effective command hints, source/point/viewport invariants, save/reopen and held-input stop. Observe completed frames including foreground/mark attributes and the frozen progress/release/idle bounds. Update reference/default examples and the progressive User Guide. Normalize the existing concise Unreleased outcome; do not add delivery chronology or incidental fixes as product entries.
@@ -189,8 +190,15 @@ Preparation: all six canonical PRs and their validated heads are integrated;
 all six reports are delivered and owned slice worktrees are retired. Required
 gate tools are available, all six frozen digests match and the three gate shell
 scripts pass syntax checks. Existing hooks and checkout-owned caches are
-preserved. The combined gate has not run; the controller owns its execution.
+preserved. The controller subsequently completed the unchanged combined gate.
 
-Pending. Record the exact clean runtime candidate, complete successful command,
-controller receipt and any subsequent Markdown-only closure separately. A passing
-slice check or a current installed binary is not the combined delivery gate.
+Completed on 2026-11-16. The unchanged controller gate passed at immutable
+`30620453c5fff9194f455303db8b64ed18fc4021`, receipt
+`IAOWABDMUUKBZKJQIFWEXFS3VT`; Acta gate verification
+`01M7HDBYFJHQWNGHD9GXYBX3ZR`. The
+[Slice 6 closure](../report/slices/rev-delimiter-presentation/slice-6-acceptance.md#delivery-set-closure)
+records the exact successful command, 261 selected native cases, 28 hook
+fixtures, two restored/reaped PTYs and strict local documentation/guide results.
+Only the eleven configured closure Markdown paths may differ from the tested
+candidate. This later documentation commit is recorded separately in Git and
+Acta and does not relabel the full-gate result at its new HEAD.

@@ -93,8 +93,8 @@ Canonical review: [PR #69](https://forge.adrianpk.com/rev/rev/pulls/69).
 
 All three ordered required commands PASS once through looper validate at clean
 published `b21e7523f4eec23194836fae7634be4a9d8e9c76`, integrated by PR #69.
-Acta receipt: `01M7H060XQQZRD4BZAA0SN1SK9`. The combined gate remains
-controller-owned.
+Acta receipt: `01M7H060XQQZRD4BZAA0SN1SK9`. The later controller gate PASS is
+recorded in [delivery-set closure](slice-6-acceptance.md#delivery-set-closure).
 
 - PASS: `cargo fmt --all -- --check`.
 - PASS: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test pair_presentation rendering -- --test-threads=1`: 15 cases, also repeated by the broader regression command.
@@ -120,11 +120,11 @@ snapshot; this PR-reference commit changes operational documentation only.
 PR #69 integrated validated commit `b21e7523f4eec23194836fae7634be4a9d8e9c76`
 into dev. All three required commands passed once through looper validate.
 Fetched ancestry, clean state and no owned processes were verified; the integrated
-worktree was removed without force. The combined gate remains controller-owned.
+worktree was removed without force. The final gate receipt is linked above.
 
-Pulse lifetime belongs to Slice 4; the configured pulse style does not display a
-perpetual mark or own a timer here. Full 24-burst continuity, physical-key/input
-service measurements and the two representative PTYs remain Slices 5-6.
+Pulse lifetime was delivered in Slice 4; this rendering slice does not introduce
+a perpetual mark or timer. Full 24-burst continuity, input-service measurements
+and the two representative PTYs were delivered in Slices 5-6.
 Confirmed malformed source retains ordinary ink; optional mismatch warning marks
 are not fabricated from a global outcome without a qualified cell. The existing
 vendored crossterm parentheses warning is unchanged.

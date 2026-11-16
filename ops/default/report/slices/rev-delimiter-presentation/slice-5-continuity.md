@@ -100,8 +100,9 @@ Canonical review: [PR #71](https://forge.adrianpk.com/rev/rev/pulls/71).
 All three ordered required commands PASS once through looper validate at clean
 published `67f94244d2982f545be9f363408f62aadced76b5`, integrated by PR #71.
 Fetched ancestry, clean state and no owned processes verified; the integrated
-worktree was removed without force. Integration and the combined gate remain
-controller-owned. Every selected filter is nonempty; no test is ignored.
+worktree was removed without force. The later controller gate PASS is recorded
+in [delivery-set closure](slice-6-acceptance.md#delivery-set-closure).
+Every selected filter is nonempty; no test is ignored.
 
 - PASS: `cargo fmt --all -- --check`.
 - PASS: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test pair_presentation continuity -- --test-threads=1`: nine cases at the exact integrated HEAD.
@@ -124,8 +125,7 @@ controller-owned. Every selected filter is nonempty; no test is ignored.
 
 ## Risks and Follow-ups
 
-Slice 6 retains the native drain-owner regression in final acceptance and owns
-the two representative Linux PTYs, physical progress/release and idle CPU
-observations, and User Guide acceptance. No PTY or delivery-set gate ran here.
-The existing vendored crossterm parentheses warning is unchanged. The controller
-owns integration, the combined gate and successor startup.
+Slice 6 delivered the native drain-owner regression, two representative Linux
+PTYs, progress/release and idle CPU observations, and User Guide acceptance.
+The later combined gate PASS is linked above; no PTY or delivery-set gate ran
+within Slice 5. The existing vendored crossterm parentheses warning is unchanged.

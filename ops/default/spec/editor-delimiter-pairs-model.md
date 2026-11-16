@@ -1,17 +1,19 @@
 # Pair Preferences and Native State
 
-Status: Approved
+Status: Completed
+Completed: 2026-11-16
 Editing status: Completed
 Editing completed: 2026-11-15
 Editing approval: product owner, 2026-11-15; rev-delimiter-editing
 Navigation status: Completed
 Navigation completed: 2026-11-15
 Navigation approval: product owner, 2026-11-15; rev-delimiter-navigation
-Presentation status: Approved
+Presentation status: Completed
+Presentation completed: 2026-11-16
 Presentation approval: product owner, 2026-11-15; rev-delimiter-presentation
 Presentation planning baseline: 744497bab434cc38204f091398c89e21d5147476
 Date: 2026-11-08
-Updated: 2026-11-15
+Updated: 2026-11-16
 Specification: [Delimiter Pairs](editor-delimiter-pairs.md)
 Related specifications: [Delimiter Navigation](editor-delimiter-navigation.md), [Delimiter Presentation](editor-delimiter-presentation.md)
 Inspection baseline: dd1b569dd9c6e480ae4dd82a1f298bcc8478072f
@@ -237,8 +239,8 @@ two owned Linux PTY journeys. The controller's unchanged combined gate passed at
 [closure record](../report/slices/rev-delimiter-navigation/slice-5-acceptance.md#delivery-set-closure)
 distinguishes that tested candidate from the later Markdown-only closure.
 
-Navigation and Editing are Completed. Presentation is Approved for the separate
-delivery below; this shared model is Approved, not yet fully delivered.
+Navigation and Editing are Completed. Presentation and this shared model are
+Completed after the final delivery below.
 EIP04 closes only its expression portion; paragraph and broad parity stay pending.
 
 ## Presentation delivery boundary
@@ -258,3 +260,13 @@ one finite pulse generation; it owns no independent source/history state.
 Verified source advancement must preserve lexical/nesting proof before colors
 survive an edit. The plan freezes native/frame/PTY workloads and the exact final
 gate, and closure requires current-candidate evidence before Completed status.
+
+All six presentation slices and eighteen tasks are integrated through canonical
+PRs #67-#72. The unchanged controller-owned gate passed at immutable candidate
+`30620453c5fff9194f455303db8b64ed18fc4021`, receipt
+`IAOWABDMUUKBZKJQIFWEXFS3VT`. The
+[Slice 6 closure](../report/slices/rev-delimiter-presentation/slice-6-acceptance.md#delivery-set-closure)
+records the exact command, shared-pair/navigation and presentation acceptance,
+two restored/reaped PTYs, resource/pulse bounds and local reference/User Guide
+results. This later Markdown-only closure completes the model without changing
+tested source facts, controls, mappings, fixtures or assertions.

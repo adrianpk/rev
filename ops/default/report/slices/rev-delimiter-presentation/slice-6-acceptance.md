@@ -10,8 +10,9 @@ PR: [#72](https://forge.adrianpk.com/rev/rev/pulls/72)
 ## Purpose
 
 Deliver T6.1-T6.3: selected native acceptance, two owned Linux PTYs and complete
-reference/User Guide coverage. Canonical integration is verified; the combined
-gate and final Markdown-only set/model/spec closure remain controller-owned.
+reference/User Guide coverage. Canonical integration and the controller's combined
+gate are verified; the delivery set is closed through the later Markdown-only
+set/model/spec update recorded below.
 
 ## Delivered Behavior
 
@@ -97,8 +98,8 @@ was removed without force.
 All five ordered required commands PASS once through looper validate on clean
 published `cfa6cdd4e6c86af1cf453af812f4cf63d2f0c47d`, the canonical PR-reference
 commit integrated by PR #72. Acta validation record:
-`01M7HBWEMFVRQ18SJXTA04GX8S`. The combined gate is unchanged and remains
-controller-owned.
+`01M7HBWEMFVRQ18SJXTA04GX8S`. The later controller-owned combined gate PASS is
+recorded in the delivery-set closure below.
 
 - PASS: `cargo fmt --all -- --check`.
 - PASS: `bash scripts/check-delimiter-presentation.sh`: 261 selected native cases, all six frozen digests, one complete catalog/map oracle and exactly two PTYs; no ignored cases or empty filters. The unoptimized checkout batch took 891.10 s, including its builds and journeys.
@@ -148,9 +149,64 @@ documentation only.
 | 5 | [#71](https://forge.adrianpk.com/rev/rev/pulls/71) | `84572a9c0ac1ae78595683ec290fef374c0c642b` | `67f94244d2982f545be9f363408f62aadced76b5` |
 | 6 | [#72](https://forge.adrianpk.com/rev/rev/pulls/72) | `8f0a2a9741ba48e6230bb92de73dac5a659e46e9` | `cfa6cdd4e6c86af1cf453af812f4cf63d2f0c47d` |
 
+## Delivery-set closure
+
+The controller's unchanged full gate passed at immutable candidate
+`30620453c5fff9194f455303db8b64ed18fc4021`, receipt
+`IAOWABDMUUKBZKJQIFWEXFS3VT`. All six canonical PRs #67-#72 and eighteen tasks
+are delivered. Acta records the verified gate as `01M7HDBYFJHQWNGHD9GXYBX3ZR`.
+The exact successful command was:
+
+```sh
+env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 bash -c 'set -euo pipefail; make lint; make test-hooks; bash scripts/check-delimiter-presentation.sh; bash scripts/check-documentation.sh; bash scripts/build-user-guide.sh; git diff --check'
+```
+
+The supplied receipt log records these integrated outcomes:
+
+- Workspace formatting, strict all-target/all-feature Clippy and native source
+  policy PASS: 2013 first-party Rust files, two packages and 82 Cargo roots;
+  zero blocking or deferred selected-profile diagnostics. Safe Rust and the
+  five-parameter, three-level nesting and complexity-ten limits remain intact.
+- All 28 real Git-hook fixtures PASS, including staged/index integrity,
+  partial staging, cache ownership and independent linked-worktree checks.
+- All 261 selected native cases PASS with no ignored cases or empty filters.
+  The 24 frozen bursts observe 1536 completed frames. Shared editing/navigation,
+  configuration/palette, macros, document continuity, input drain and the
+  completed-update observer retain their semantic and resource assertions.
+- All six frozen digests and the single independent 719-command/28-map oracle
+  PASS. Public identities, factory maps and literal expected data are unchanged.
+- Exactly two Linux PTYs PASS with all four styles, bounded prompt/cancellation,
+  effective hints, source/point/viewport, save/reopen, held-input stop, finite
+  pulse expiry, terminal restoration and owned-child reaping.
+- Documentation PASS: 719 commands, 340 configuration entries, 112 reachable
+  pages and 803 local links/anchors; ten command and twelve configuration
+  reference cases PASS. Strict Spore projection/render and local User Guide
+  construction PASS. The combined command ends with `git diff --check`.
+
+| Full-gate PTY profile | Journey ms | First progress ms | Reverse/Release to final ms | Output bytes | Completed frames | Idle CPU ticks |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| non-modal | 3114 | 14.625 | 43.020 | 396542 | 107 | 0 |
+| modal | 3146 | 17.713 | 43.992 | 398727 | 107 | 0 |
+
+Both journeys retain the eight-second/1 MiB limits, 250 ms progress/release
+bounds and 350 ms idle silence. Native checks retain zero pair-owned deadlines
+after expiry. Observed peak RSS is 38188 KiB non-modal and 41620 KiB modal.
+These are isolated fixture observations, not physical workstation latency claims.
+The log reports 91 seconds for the main Clippy build, 34 / 2 seconds for cold /
+warm hook fixtures and 132.02 / 180.97 / 170.37 seconds for the presentation /
+shared-pair / navigation batches. The supplied receipt does not record an
+aggregate elapsed time. No limit, timeout or retry budget changes.
+
+This documentation closure is a later descendant of the tested candidate.
+Git and Acta retain its separate commit identity, pushed on dev. Only the eleven
+configured closure Markdown paths differ; runtime, scripts, fixtures, frozen
+inputs and every required assertion retain the tested bytes. The full gate is
+not rerun or relabeled at the later document HEAD. All six reports are delivered,
+owned worktrees are retired and unrelated worktrees are preserved. No active
+checkout build or target process remains; both owned PTY children were reaped.
+
 ## Risks and Follow-ups
 
-The controller must run the unchanged combined gate on its exact clean dev
-candidate and record the receipt before Markdown-only delivery closure. No full
-delivery-set gate, main promotion, release or publication runs in this slice.
-The existing vendored crossterm parentheses warning is unchanged.
+The existing vendored crossterm parentheses warning is unchanged. Main promotion,
+release, publication, hook activation and successor startup remain separate
+from this completed delivery.

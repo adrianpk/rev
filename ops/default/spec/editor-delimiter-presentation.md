@@ -1,8 +1,9 @@
 # Delimiter Presentation
 
-Status: Approved
+Status: Completed
+Completed: 2026-11-16
 Date: 2026-11-15
-Format: OpenSpec capability proposal
+Format: OpenSpec capability specification
 Inspection baseline: 744497bab434cc38204f091398c89e21d5147476
 Owner decision retained: depth coloring by default, restrained match alternative; 2026-11-08
 Approval: product-owner continuation to the final delimiter delivery, 2026-11-15
@@ -191,8 +192,14 @@ existing document projections and cancellation without whole-buffer work per key
 The owner authorized this final delimiter delivery on 2026-11-15. The operating
 contract above and shared model settle the 250 ms default pulse, palette fallback,
 overlay ordering and resource bounds. The delivery plan freezes measurement and
-continuity workloads before implementation. Editing and navigation are Completed;
-presentation remains Approved until its exact-candidate delivery gate passes.
+continuity workloads before implementation. Editing, navigation and presentation
+are Completed. All six presentation slices and eighteen tasks are integrated
+through canonical PRs #67-#72. The unchanged controller gate passed at immutable
+`30620453c5fff9194f455303db8b64ed18fc4021`, receipt
+`IAOWABDMUUKBZKJQIFWEXFS3VT`, completing DPR03 and DPV01. The
+[Slice 6 closure](../report/slices/rev-delimiter-presentation/slice-6-acceptance.md#delivery-set-closure)
+records exact native/PTY, resource, workspace/hook and local reference/User Guide
+evidence, separately from this later Markdown-only closure.
 
 Use source/frame and completed-frame observer regressions plus representative
 owned PTYs: nested/deep/malformed input, offscreen endpoints, Unicode, wrapping,

@@ -78,7 +78,8 @@ Canonical review: [PR #70](https://forge.adrianpk.com/rev/rev/pulls/70).
 
 All three ordered required commands passed once through looper validate at clean
 published HEAD `fd84b2b101479f763bcc015f50a715713c250f1a`, integrated by canonical
-PR #70. The combined gate remains controller-owned.
+PR #70. The later controller gate PASS is recorded in
+[delivery-set closure](slice-6-acceptance.md#delivery-set-closure).
 
 Controlled clocks advance through 50/250/1000 ms boundaries;
 tests do not sleep through production pulse durations. The accepted-key case
@@ -110,6 +111,6 @@ into dev. Fetched ancestry, clean state and no owned processes were verified;
 the integrated worktree was removed without force.
 
 Full 24-burst continuity, frozen workload/input-service measurements and the two
-representative PTYs remain Slices 5-6. No physical-key acceptance or full delivery
-gate is claimed here. The existing vendored crossterm parentheses warning remains.
-The controller owns integration, the combined gate and successor startup.
+representative PTYs were delivered in Slices 5-6. The later controller gate PASS
+is linked above; this slice's focused checks retain their original scope.
+The existing vendored crossterm parentheses warning remains.

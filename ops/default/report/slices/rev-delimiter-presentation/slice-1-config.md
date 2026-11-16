@@ -79,8 +79,8 @@ Canonical review: [PR #67](https://forge.adrianpk.com/rev/rev/pulls/67).
 
 All three ordered required commands PASS through looper validate at clean
 published `f1515a01cf5434ce163840a99c1729da0bfaea0e`, integrated by PR #67.
-Acta receipt: `01M7GSHBNQNRM98SFPE3E6MGCC`. The combined gate remains
-controller-owned.
+Acta receipt: `01M7GSHBNQNRM98SFPE3E6MGCC`. The later controller gate PASS is
+recorded in [delivery-set closure](slice-6-acceptance.md#delivery-set-closure).
 
 - PASS: `cargo fmt --all -- --check`.
 - PASS: `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test pair_presentation config -- --test-threads=1`: 14 cases.
@@ -113,6 +113,6 @@ passes all 14 cases, and the existing automatic-editing toggle passes.
 PR #67 integrated validated commit `f1515a01cf5434ce163840a99c1729da0bfaea0e`
 into dev. All three ordered required checks passed once through looper validate.
 Fetched ancestry, clean state and no owned processes were verified; the integrated
-worktree was removed without force. Rendering, qualified facts and finite pulses
-remain later slices; the combined gate remains controller-owned.
+worktree was removed without force. Qualified facts, rendering and finite pulses
+were delivered in Slices 2-6; the final gate receipt is linked above.
 The existing vendored crossterm unused-parentheses warning remains unchanged.

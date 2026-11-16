@@ -1,6 +1,7 @@
 # Delimiter Presentation Delivery
 
-Status: Approved
+Status: Completed
+Completed: 2026-11-16
 Date: 2026-11-15
 Delivery set: rev-delimiter-presentation
 Slice strategy: behavior-first
@@ -13,8 +14,8 @@ Model: [Pair Preferences and Native State](../spec/editor-delimiter-pairs-model.
 Concern: [Operations index](../README.md)
 Tracker: [Delimiter Presentation Tracker](../tracker/rev-delimiter-presentation.md)
 Acceptance: [Frozen contract](../report/rev-delimiter-presentation/acceptance-contract.json)
-Active slice: none; all six slices integrated
-Gate state: pending; prerequisites prepared for controller-owned execution
+Active slice: none; Slice 6 of 6 completed; delivery set closed
+Gate state: PASS at `30620453c5fff9194f455303db8b64ed18fc4021`, receipt `IAOWABDMUUKBZKJQIFWEXFS3VT`
 Integration target: `dev`
 
 ## Outcome and strategy
@@ -310,3 +311,13 @@ operations index through the configured exact Markdown closure paths. Distinguis
 the tested runtime candidate from later Markdown-only closure. No runtime,
 fixture, assertion, frozen contract or gate changes belong in that closure.
 Stop after this delivery; main promotion and later work remain separate.
+
+Completed on 2026-11-16 after all six canonical PRs #67-#72 and eighteen tasks
+integrated. The unchanged controller-owned gate passed at immutable candidate
+`30620453c5fff9194f455303db8b64ed18fc4021`, receipt
+`IAOWABDMUUKBZKJQIFWEXFS3VT`. The
+[Slice 6 closure](../report/slices/rev-delimiter-presentation/slice-6-acceptance.md#delivery-set-closure)
+records the exact command, native/PTY measurements, workspace/hook and local
+reference/User Guide results. All reports are delivered and owned worktrees
+retired. This later Markdown-only closure preserves every tested runtime,
+fixture, frozen input and assertion; Git and Acta retain its separate identity.

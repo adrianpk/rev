@@ -95,7 +95,7 @@ records workspace/hook, 192 native cases, two Linux PTYs, bounded resource/frame
 and documentation results, and the subsequent Markdown-only closure relationship.
 All seven reports are delivered and owned integrated worktrees removed. The
 editing portion of the [shared model](spec/editor-delimiter-pairs-model.md) is
-Completed; the model remains Partially approved.
+Completed; navigation and presentation closure are recorded below.
 [Navigation](spec/editor-delimiter-navigation.md) is Completed under its
 [five-slice plan](plan/rev-delimiter-navigation.md) and
 [tracker](tracker/rev-delimiter-navigation.md). PRs #62-#66 integrate mate, group,
@@ -108,11 +108,19 @@ passed at `27957128f7626ee16b5dbdc50af52e9cee27f3c8`, receipt
 records workspace/hook, 180 native cases, two PTYs, reference/guide acceptance
 and the later eleven-file Markdown-only closure. Only the expression portion
 of EIP04 is Completed; paragraph parity remains pending.
-[Presentation](spec/editor-delimiter-presentation.md) is Approved for the final
+[Presentation](spec/editor-delimiter-presentation.md) is Completed as the final
 delimiter delivery under its [six-slice plan](plan/rev-delimiter-presentation.md)
-and [tracker](tracker/rev-delimiter-presentation.md). It covers palette-derived
-depth colors, active-pair marks, finite pulse and source-qualified continuity;
-implementation and the exact-candidate delivery gate remain pending.
+and [tracker](tracker/rev-delimiter-presentation.md). PRs #67-#72 and all eighteen
+tasks deliver palette-derived depth colors, active-pair marks, finite pulse and
+source-qualified continuity. The unchanged controller gate passed at
+`30620453c5fff9194f455303db8b64ed18fc4021`, receipt
+`IAOWABDMUUKBZKJQIFWEXFS3VT`; the
+[Slice 6 closure](report/slices/rev-delimiter-presentation/slice-6-acceptance.md#delivery-set-closure)
+records 261 selected native cases, 28 hook fixtures, two restored/reaped Linux
+PTYs, the independent 719-command/28-map oracle and strict local reference/User
+Guide results. All six reports are delivered and owned worktrees retired. The
+shared model is Completed across editing, navigation and presentation. The
+later Markdown-only closure preserves the tested runtime candidate.
 
 ## Pending proposals
 
