@@ -4,3 +4,5 @@
 mod config;
 #[path = "configuration/fixture.rs"]
 mod fixture;
+#[path = "pair_presentation/qualification.rs"]
+mod qualification;

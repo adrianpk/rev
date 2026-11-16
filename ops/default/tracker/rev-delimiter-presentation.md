@@ -14,7 +14,7 @@ Spec: `ops/default/spec/editor-delimiter-presentation.md`
 Model: `ops/default/spec/editor-delimiter-pairs-model.md`
 Active slice: Slice 2 of 6 - Qualified presentation facts
 Completed slices: 1/6
-Completed tasks: 3/18
+Completed tasks: 6/18
 Gate state: pending; controller-owned after all six canonical PRs integrate
 
 ## Canonical slice map
@@ -68,14 +68,14 @@ Dependency: Slice 1 integrated and closed
 Branch: `feat/rev-delimiter-presentation-02-qualification`
 Expected PR title: `feat(editor): retain bounded source-qualified delimiter spans`
 Report: `ops/default/report/slices/rev-delimiter-presentation/slice-2-qualification.md`
-State: ready
+State: reviewing; implementation and focused verification prepared
 PR: pending
 Task commits: pending
 Validation: pending
 
-- [ ] T2.1: Extend the existing buffer-owned typed-pair fact service with bounded immutable presentation spans and proved depth. Reuse lexical profiles and typed confirmation; never promote loose group targets to typed mates. Foreground editing/navigation requests keep their tickets and scheduling priority; background presentation cannot retire or starve them or introduce a parallel mutable source cache.
-- [ ] T2.2: Advance retained spans through native source transactions only when exact endpoint mapping and unchanged lexical/nesting classification are proved. Validate source/view identities and invalidate unproved ranges after delimiter, quote, escape, newline, language, reload or replacement changes. Preserve bounded neutral same-line edits without a transient fallback to unqualified syntax.
-- [ ] T2.3: Test source qualification, malformed-versus-uncertain outcomes, lexical exclusions/eligible quotes, Unicode/CRLF and current/stale cancellation. Enforce aggregate 256 KiB inspection, depth 256, 8192 visible spans per view and 2 MiB retained pair metadata per buffer, including shared/per-view charges. Poll at most 256 tokens under the existing 4 ms target; expose limited results without invented depth. Record measured service and retention data in the report.
+- [x] T2.1: Extend the existing buffer-owned typed-pair fact service with bounded immutable presentation spans and proved depth. Reuse lexical profiles and typed confirmation; never promote loose group targets to typed mates. Foreground editing/navigation requests keep their tickets and scheduling priority; background presentation cannot retire or starve them or introduce a parallel mutable source cache.
+- [x] T2.2: Advance retained spans through native source transactions only when exact endpoint mapping and unchanged lexical/nesting classification are proved. Validate source/view identities and invalidate unproved ranges after delimiter, quote, escape, newline, language, reload or replacement changes. Preserve bounded neutral same-line edits without a transient fallback to unqualified syntax.
+- [x] T2.3: Test source qualification, malformed-versus-uncertain outcomes, lexical exclusions/eligible quotes, Unicode/CRLF and current/stale cancellation. Enforce aggregate 256 KiB inspection, depth 256, 8192 visible spans per view and 2 MiB retained pair metadata per buffer, including shared/per-view charges. Poll at most 256 tokens under the existing 4 ms target; expose limited results without invented depth. Record measured service and retention data in the report.
 
 Required commands:
 

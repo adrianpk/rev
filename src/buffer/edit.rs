@@ -201,6 +201,7 @@ impl Transaction {
 /// A private copy-on-write candidate; dropping it cancels without publication.
 /// Publication rechecks the live revision, read-only state, points, and mark.
 pub struct Prepared {
+    pair_mapping: Option<crate::pairs::Advance>,
     presentation: Option<super::presentation::Mapping>,
     macro_lines: Vec<macro_lines::Mapped>,
     syntax: Vec<tree_sitter::InputEdit>,
@@ -356,7 +357,13 @@ impl Buffer {
         self.prepare_anchors(&mut record, &coordinates)?;
         let syntax = syntax::edits(&self.text, &record.changes)?;
         let macro_lines = macro_lines::prepare(self, &record, &coordinates)?;
+        let pair_mapping = record
+            .permutation
+            .is_none()
+            .then(|| self.pairing.prepare_advance(&record, (&self.text, &text)))
+            .flatten();
         Ok(Prepared {
+            pair_mapping,
             presentation: None,
             macro_lines,
             syntax,

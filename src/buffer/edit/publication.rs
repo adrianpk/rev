@@ -8,6 +8,7 @@ use crate::{bookmark::Anchor, coordinates::Scalar, location::Snapshot};
 use ropey::Rope;
 
 pub(super) struct Publication {
+    pair_mapping: Option<crate::pairs::Advance>,
     presentation: Option<super::super::presentation::Mapping>,
     before: Stamp,
     after: Stamp,
@@ -51,6 +52,11 @@ impl Publication {
             .map(|_| Published::capture(&buffer.text, &prepared.text, &prepared.record));
         let record = prepared.record;
         let publication = Self {
+            pair_mapping: if matches!(prepared.operation, Operation::Reload) {
+                None
+            } else {
+                prepared.pair_mapping
+            },
             presentation: prepared.presentation,
             before: record.before,
             after: record.after,
@@ -88,6 +94,7 @@ impl Buffer {
     ) -> Option<Published> {
         self.pairing
             .source_changed((publication.before, publication.after), publication.changed);
+        self.pairing.advance_presentation(publication.pair_mapping);
         self.syntax
             .edit(publication.before, publication.after, &publication.syntax);
         self.edit_org(publication.before, publication.after, &publication.syntax);

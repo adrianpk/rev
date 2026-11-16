@@ -1,3 +1,4 @@
+mod presentation;
 mod typing;
 mod wrapping;
 
@@ -21,6 +22,7 @@ struct Opening {
     admitted: bool,
     depth: usize,
     literal_safe: bool,
+    endpoint: Option<usize>,
 }
 
 struct Checkpoint {
@@ -78,6 +80,7 @@ impl Record {
 enum Fact {
     Pair(Record),
     Excluded(Range<usize>, Context),
+    Endpoint(super::presentation::PendingDelimiter),
 }
 
 #[derive(Default)]
@@ -135,6 +138,7 @@ pub(super) struct Work {
     checkpoint_at: usize,
     typing: Option<typing::Progress>,
     wrapping: Option<wrapping::Progress>,
+    pub(in crate::pairs) metadata_limit: usize,
 }
 
 impl Work {
@@ -170,6 +174,7 @@ impl Work {
             checkpoint_at: 0,
             typing: None,
             wrapping: None,
+            metadata_limit: MAX_METADATA,
         }
     }
 
@@ -255,6 +260,7 @@ impl Work {
         self.checkpoint_at = checkpoint.at;
         self.checkpoint_next = 1 - index;
         self.checkpoints[1 - index].valid &= self.checkpoints[1 - index].at <= self.checkpoint_at;
+        self.restore_open_endpoints();
         self.terminal = None;
         true
     }
@@ -367,6 +373,7 @@ impl Work {
         self.action(at, action)?;
         self.checkpoint();
         self.crossed_point(at);
+        self.presentation_boundary();
         Ok(())
     }
 
@@ -405,6 +412,11 @@ impl Work {
     }
 
     fn capture_point(&mut self, text: RopeSlice<'_>) -> Result<(), Pause> {
+        if matches!(self.query, Query::Presentation(_)) {
+            self.point_seen = true;
+            self.presentation_boundary();
+            return Ok(());
+        }
         if matches!(self.query, Query::Typing(_)) {
             return self.capture_typing(text);
         }
@@ -435,7 +447,7 @@ impl Work {
     }
 
     fn crossed_point(&mut self, before: usize) {
-        if self.answer.is_some() {
+        if matches!(self.query, Query::Presentation(_)) || self.answer.is_some() {
             return;
         }
         let point = self.query.point().0;
@@ -475,15 +487,22 @@ impl Work {
             return Err(Pause::Limit(Limit::Depth));
         }
         let (kind, admitted) = policy;
+        let endpoint = self.open_endpoint(at, kind, admitted)?;
         self.stack.push(Opening {
             at,
             kind,
             admitted,
             depth: self.stack.len(),
             literal_safe: true,
+            endpoint,
         });
         self.stats.maximum_depth = self.stats.maximum_depth.max(self.stack.len());
-        if at == self.query.point().0 && !matches!(self.query, Query::Typing(_) | Query::Wrap(_)) {
+        if at == self.query.point().0
+            && !matches!(
+                self.query,
+                Query::Typing(_) | Query::Wrap(_) | Query::Presentation(_)
+            )
+        {
             if admitted {
                 self.target = Some(at);
             } else {
@@ -518,6 +537,7 @@ impl Work {
             depth: opening.depth,
             literal_safe: opening.literal_safe,
         };
+        self.confirm_endpoints(&opening, at)?;
         self.retain(Fact::Pair(pair))?;
         if self.typing_closed(at, (kind, opening.admitted)) {
             return Ok(());
@@ -531,7 +551,9 @@ impl Work {
 
     fn retain(&mut self, fact: Fact) -> Result<(), Pause> {
         if self.facts.len() == self.facts.capacity() {
-            let available = MAX_METADATA.saturating_sub(self.stats().retained_bytes);
+            let available = self
+                .metadata_limit
+                .saturating_sub(self.stats().retained_bytes);
             let extra = (available / std::mem::size_of::<Fact>()).min(256);
             if extra == 0 {
                 return Err(Pause::Limit(Limit::Retention));
@@ -539,8 +561,9 @@ impl Work {
             self.facts
                 .try_reserve_exact(extra)
                 .map_err(|_| Pause::Limit(Limit::Retention))?;
-            if self.stats().retained_bytes > MAX_METADATA {
+            if self.stats().retained_bytes > self.metadata_limit {
                 self.facts = Vec::new();
+                self.checkpoints.iter_mut().for_each(|c| c.valid = false);
                 return Err(Pause::Limit(Limit::Retention));
             }
         }
@@ -549,7 +572,7 @@ impl Work {
     }
 
     fn eof(&mut self) {
-        if self.finish_typing() {
+        if self.presentation_eof() || self.finish_typing() {
             return;
         }
         if matches!(self.query, Query::At(_)) && self.query.point().0 == self.reader.at {
@@ -595,7 +618,9 @@ impl Work {
         if matches!(query, Query::Typing(_) | Query::Wrap(_)) {
             self.rewind_typing();
         }
-        if self.point_seen {
+        if matches!(query, Query::Presentation(_)) {
+            self.presentation_boundary();
+        } else if self.point_seen {
             self.search = Some(Search::default());
         } else if let Some(outcome) = self.terminal.clone() {
             self.finish(outcome);
@@ -631,7 +656,9 @@ impl Work {
             .find(|opening| match self.query {
                 Query::At(_) => opening.at == point,
                 Query::Enclosing(_) | Query::Unwrap(_) => opening.at <= point,
-                Query::Context(_) | Query::Typing(_) | Query::Wrap(_) => false,
+                Query::Context(_) | Query::Typing(_) | Query::Wrap(_) | Query::Presentation(_) => {
+                    false
+                }
             })
             .map(|opening| opening.at)
     }
@@ -667,6 +694,6 @@ fn matches_query(pair: &Record, query: Query) -> bool {
     match query {
         Query::At(_) => pair.opening == point || pair.closing == point,
         Query::Enclosing(_) | Query::Unwrap(_) => pair.opening <= point && point <= pair.closing,
-        Query::Context(_) | Query::Typing(_) | Query::Wrap(_) => false,
+        Query::Context(_) | Query::Typing(_) | Query::Wrap(_) | Query::Presentation(_) => false,
     }
 }

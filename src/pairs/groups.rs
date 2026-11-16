@@ -114,6 +114,7 @@ pub(super) struct Work {
     stats: Stats,
     hint: Option<Hint>,
     expressions: Expressions,
+    pub(super) metadata_limit: usize,
 }
 
 impl Work {
@@ -143,6 +144,7 @@ impl Work {
             },
             hint,
             expressions: Expressions::default(),
+            metadata_limit: MAX_METADATA,
         }
     }
 
@@ -524,7 +526,9 @@ impl Work {
 
     fn retain(&mut self, group: Group) -> Result<(), Pause> {
         if self.groups.len() == self.groups.capacity() {
-            let available = MAX_METADATA.saturating_sub(self.stats().retained_bytes);
+            let available = self
+                .metadata_limit
+                .saturating_sub(self.stats().retained_bytes);
             let extra = (available / std::mem::size_of::<Group>()).min(256);
             if extra == 0 {
                 return Err(Pause::Limit(Limit::Retention));
@@ -532,7 +536,7 @@ impl Work {
             self.groups
                 .try_reserve_exact(extra)
                 .map_err(|_| Pause::Limit(Limit::Retention))?;
-            if self.stats().retained_bytes > MAX_METADATA {
+            if self.stats().retained_bytes > self.metadata_limit {
                 self.groups = Vec::new();
                 return Err(Pause::Limit(Limit::Retention));
             }

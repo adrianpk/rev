@@ -3,7 +3,12 @@
 
 mod groups;
 mod lexical;
+pub(crate) mod presentation;
 mod profile;
+pub(crate) use presentation::Advance;
+pub use presentation::{
+    Delimiter, MAX_VISIBLE_SPANS, Presentation, PresentationOutcome, PresentationTicket,
+};
 mod reader;
 mod state;
 mod work;
@@ -87,6 +92,7 @@ pub enum Query {
     Context(Scalar),
     At(Scalar),
     Enclosing(Scalar),
+    Presentation(Scalar),
 }
 
 impl Query {
@@ -97,7 +103,8 @@ impl Query {
             Self::Context(point)
             | Self::At(point)
             | Self::Enclosing(point)
-            | Self::Unwrap(point) => point,
+            | Self::Unwrap(point)
+            | Self::Presentation(point) => point,
         }
     }
 }

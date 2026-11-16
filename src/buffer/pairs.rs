@@ -101,3 +101,53 @@ impl Buffer {
 fn delimiter(c: char) -> bool {
     Kind::structural(c).is_some() || matches!(c, '"' | '\'' | '`')
 }
+
+impl Buffer {
+    /// Capture a live view's visible source range without retiring foreground
+    /// editing/navigation. The caller cancels its ticket when that view closes.
+    pub fn start_pair_presentation(
+        &mut self,
+        view: crate::window::ViewId,
+        visible: super::Span,
+    ) -> Result<crate::pairs::PresentationTicket, Error> {
+        self.slice(&visible)?;
+        self.pairing
+            .start_presentation(view, visible)
+            .ok_or(Error::Exhausted)
+    }
+
+    /// One cooperative lexical or export slice. Pending foreground work wins;
+    /// source/view generations are checked before accessing retained facts.
+    pub fn poll_pair_presentation(
+        &mut self,
+        ticket: crate::pairs::PresentationTicket,
+        deadline: Instant,
+    ) -> Status {
+        if ticket.stamp != self.stamp() {
+            return Status::Retired;
+        }
+        let profile = self.pair_profile();
+        self.pairing
+            .poll_presentation(ticket, (self.text.slice(..), profile), deadline)
+    }
+
+    pub fn pair_presentation(
+        &self,
+        ticket: crate::pairs::PresentationTicket,
+    ) -> Option<crate::pairs::Presentation<'_>> {
+        if ticket.stamp != self.stamp() {
+            return None;
+        }
+        self.pairing.presentation(ticket)
+    }
+
+    pub fn cancel_pair_presentation(&mut self, ticket: crate::pairs::PresentationTicket) -> bool {
+        self.pairing.cancel_presentation(ticket)
+    }
+
+    /// Actual capacities of the scanner, publication, export and view interests,
+    /// plus their inline owners, counted once per canonical buffer.
+    pub fn retained_pair_bytes(&self) -> usize {
+        self.pairing.retained()
+    }
+}
