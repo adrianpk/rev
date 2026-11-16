@@ -102,7 +102,7 @@ impl Session {
             self.input.command_usage_remaining(),
             self.completion_remaining(now),
             self.assets_remaining(),
-            self.pair_presentation_remaining(),
+            self.pair_presentation_remaining(now),
             self.lsp_remaining(),
             self.reload_remaining(),
             self.ai_remaining(),
@@ -176,6 +176,13 @@ impl Session {
 
     /// Expire Escape before dispatch; pointer deadlines wait until input is drained.
     pub fn handle_at(&mut self, event: Event, now: Instant) -> Action {
+        let changed = self.begin_pair_event(&event);
+        let action = self.handle_event_at(event, now);
+        let retired = self.reconcile_pair_pulses(self.pair_now());
+        Self::pair_redraw(action, changed || retired)
+    }
+
+    fn handle_event_at(&mut self, event: Event, now: Instant) -> Action {
         if let Some(action) = self.macro_step_input_guard(&event) {
             return action;
         }
@@ -304,9 +311,10 @@ impl Session {
         self.observe_files();
         self.qualify_one_normal();
         let action = self.expire_owned_input(now);
+        let changed = self.reconcile_pair_pulses(self.pair_now());
         self.retire_context_preparation();
         self.complete_one_normal();
-        action
+        Self::pair_redraw(action, changed)
     }
 
     fn expire_owned_input(&mut self, now: Instant) -> Action {
@@ -322,7 +330,7 @@ impl Session {
             self.expire_org(now),
             self.expire_markdown(now),
             self.expire_assets(),
-            self.expire_pair_presentation(),
+            self.expire_pair_presentation(now),
             self.expire_lsp(),
             self.expire_reload(),
             self.expire_ai(),

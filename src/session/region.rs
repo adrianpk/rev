@@ -35,6 +35,7 @@ impl Session {
     }
 
     pub(super) fn keyboard_quit(&mut self) -> Action {
+        self.cancel_pair_pulses();
         if let Some(action) = self.terminal_quit_input() {
             return action;
         }

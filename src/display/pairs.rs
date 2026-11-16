@@ -36,13 +36,7 @@ impl Mark {
 }
 
 pub(super) fn active(buffer: &Buffer, view: &View) -> Option<Delimiter> {
-    let facts = buffer.pair_presentation(view.pairs.ticket?)?;
-    let entry = buffer.pair_entry(view.point.position);
-    facts
-        .spans
-        .binary_search_by_key(&entry, |s| s.at)
-        .ok()
-        .map(|i| facts.spans[i])
+    buffer.active_pair_presentation(view.pairs.ticket?, view.point.position)
 }
 
 pub(super) fn paint(
@@ -53,7 +47,7 @@ pub(super) fn paint(
 ) -> Result<(), Error> {
     let style = view.pairs.style(buffer.pair_policy());
     if projection.source.row >= buffer.len_lines()
-        || matches!(style, PairHighlight::Off | PairHighlight::Pulse)
+        || !view.pairs.visible(buffer.pair_policy(), view.point)
     {
         return Ok(());
     }
@@ -74,13 +68,13 @@ pub(super) fn paint(
         if !visible(&glyph.columns, projection.source.column..right) {
             continue;
         }
-        let Ok(index) = facts
-            .spans
-            .binary_search_by_key(&glyph.source.start, |s| s.at)
-        else {
+        let Some(endpoint) = endpoint(
+            facts.spans,
+            selected.filter(|_| style == PairHighlight::Pulse),
+            glyph.source.start,
+        ) else {
             continue;
         };
-        let endpoint = facts.spans[index];
         let active = selected.is_some_and(|s| endpoint.at == s.at || endpoint.at == s.mate);
         append(row, (endpoint, style, active), projection, glyph.columns);
     }
@@ -147,10 +141,7 @@ impl Row {
 
 impl super::Frame {
     pub(super) fn pair_hint(&mut self, buffer: &Buffer, view: &View) -> Result<(), Error> {
-        if matches!(
-            view.pairs.style(buffer.pair_policy()),
-            PairHighlight::Off | PairHighlight::Pulse
-        ) {
+        if !view.pairs.visible(buffer.pair_policy(), view.point) {
             return Ok(());
         }
         let Some(endpoint) = active(buffer, view) else {
@@ -191,4 +182,26 @@ impl super::Frame {
 
 fn visible(glyph: &std::ops::Range<usize>, row: std::ops::Range<usize>) -> bool {
     glyph.start >= row.start && glyph.end <= row.end
+}
+
+// A pulse retains one confirmed endpoint and its typed mate. The borrowed
+// visible slice need not contain an offscreen or separately projected mate.
+fn endpoint(spans: &[Delimiter], selected: Option<Delimiter>, at: Scalar) -> Option<Delimiter> {
+    if let Some(pair) = selected {
+        if at == pair.at {
+            return Some(pair);
+        }
+        if at == pair.mate {
+            return Some(Delimiter {
+                at,
+                mate: pair.at,
+                opening: !pair.opening,
+                ..pair
+            });
+        }
+    }
+    spans
+        .binary_search_by_key(&at, |s| s.at)
+        .ok()
+        .map(|i| spans[i])
 }

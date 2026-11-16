@@ -33,7 +33,9 @@ impl Session {
         self.stop_typing()?;
         self.prepare_terminal_view(id)?;
         self.kills.break_chain();
+        let previous = self.windows.selected_id();
         self.windows.select(id)?;
+        self.pair_view_changed(previous);
         self.terminal_source_focus();
         if self.buffer()?.terminal().is_some() {
             self.focus_terminal_view(id);

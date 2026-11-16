@@ -24,6 +24,28 @@ impl Buffer {
         }
     }
 
+    pub(crate) fn pair_candidate(&self, point: Scalar) -> Option<Scalar> {
+        let entry = self.pair_entry(point);
+        self.text
+            .get_char(entry.0)
+            .filter(|c| delimiter(*c))
+            .map(|_| entry)
+    }
+
+    pub(crate) fn active_pair_presentation(
+        &self,
+        ticket: crate::pairs::PresentationTicket,
+        point: Scalar,
+    ) -> Option<crate::pairs::Delimiter> {
+        let facts = self.pair_presentation(ticket)?;
+        let entry = self.pair_entry(point);
+        facts
+            .spans
+            .binary_search_by_key(&entry, |s| s.at)
+            .ok()
+            .map(|i| facts.spans[i])
+    }
+
     /// Begin one buffer-owned request and retire its previous ticket. Verified
     /// prefix facts can be reused; source, point, history and settings are unchanged.
     pub fn start_pair_request(&mut self, query: Query) -> Result<Ticket, Error> {
@@ -163,6 +185,13 @@ impl Buffer {
         self.pairing.presentation(ticket)
     }
 
+    pub(crate) fn pair_presentation_current(
+        &self,
+        ticket: crate::pairs::PresentationTicket,
+    ) -> bool {
+        ticket.stamp == self.stamp() && self.pairing.presentation_current(ticket)
+    }
+
     pub fn cancel_pair_presentation(&mut self, ticket: crate::pairs::PresentationTicket) -> bool {
         self.pairing.cancel_presentation(ticket)
     }
@@ -181,12 +210,7 @@ impl Buffer {
         let source = self.terminal().is_none();
         self.pairing.retain_presentations(|view| {
             windows.get(view).is_ok_and(|v| {
-                source
-                    && v.point.stamp.buffer == id
-                    && !matches!(
-                        v.pairs.style(policy),
-                        crate::config::PairHighlight::Off | crate::config::PairHighlight::Pulse
-                    )
+                source && v.point.stamp.buffer == id && v.pairs.visible(policy, v.point)
             })
         });
     }

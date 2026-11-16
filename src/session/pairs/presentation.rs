@@ -1,3 +1,4 @@
+mod pulse;
 mod rendering;
 
 use crate::command::Command;

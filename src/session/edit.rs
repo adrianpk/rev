@@ -48,7 +48,9 @@ impl Session {
         self.cancel_pointer_capture();
         self.yank = None;
         self.kills.break_chain();
-        self.edit(range, text, false, None)
+        let result = self.edit(range, text, false, None);
+        self.reconcile_pair_pulses(self.pair_now());
+        result
     }
 
     pub(super) fn type_text(&mut self, text: &str) -> Result<bool, Error> {

@@ -1,9 +1,13 @@
+mod pulse;
+
 use crate::config::{PairHighlight, Pairs};
 
 /// Runtime overrides and remembered style belong to one view. The buffer only
 /// supplies resolved startup defaults, including after a language change.
 #[derive(Clone, Copy, Debug, Default)]
 pub struct PairPresentation {
+    pub(crate) pulse: Option<pulse::Pulse>,
+    pub(crate) generation: u64,
     pub(crate) ticket: Option<crate::pairs::PresentationTicket>,
     pub(crate) pending: bool,
     style: Option<PairHighlight>,
@@ -37,6 +41,7 @@ impl PairPresentation {
     }
 
     pub fn choose(&mut self, style: PairHighlight, defaults: Pairs) {
+        self.cancel_pulse();
         let remembered = if style == PairHighlight::Off {
             self.style(defaults)
         } else {
@@ -54,6 +59,7 @@ impl PairPresentation {
             self.choose(self.last_non_off(defaults), defaults);
         } else {
             self.last_non_off = Some(style);
+            self.cancel_pulse();
             self.style = Some(PairHighlight::Off);
         }
     }

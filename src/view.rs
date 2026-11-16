@@ -228,6 +228,7 @@ impl View {
         self.gutter = gutter;
         self.pairs = pairs;
         self.pairs.retire();
+        self.pairs.cancel_pulse();
         self.bookmark_markers = markers;
         self.preview.enabled = enabled;
         self.headings = headings;

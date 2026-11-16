@@ -33,6 +33,10 @@ impl State {
         self.presentation.interest(view, span)
     }
 
+    pub fn presentation_current(&self, ticket: PresentationTicket) -> bool {
+        self.presentation.range(ticket).is_some()
+    }
+
     pub fn presentation(&self, ticket: PresentationTicket) -> Option<Presentation<'_>> {
         self.presentation.answer(ticket, self.retained())
     }

@@ -381,6 +381,15 @@ impl Session {
     }
 
     fn publish_layout_request(&mut self, request: Request) -> Action {
+        let origin = match request {
+            Request::Command(command) => self.pair_command_origin(command),
+            _ => self.pair_input_origin(),
+        };
+        let action = self.apply_layout_request(request);
+        self.after_pair_input(origin, self.pair_now(), action)
+    }
+
+    fn apply_layout_request(&mut self, request: Request) -> Action {
         match request {
             Request::Command(command) => self.execute_now(command),
             Request::Invocation(invocation) => self.publish_argument_movement(invocation),

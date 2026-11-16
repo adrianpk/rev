@@ -14,7 +14,7 @@ Spec: `ops/default/spec/editor-delimiter-presentation.md`
 Model: `ops/default/spec/editor-delimiter-pairs-model.md`
 Active slice: Slice 4 of 6 - Finite pulse lifecycle
 Completed slices: 3/6
-Completed tasks: 9/18
+Completed tasks: 12/18
 Gate state: pending; controller-owned after all six canonical PRs integrate
 
 ## Canonical slice map
@@ -116,14 +116,14 @@ Dependency: Slice 3 integrated and closed
 Branch: `feat/rev-delimiter-presentation-04-pulse`
 Expected PR title: `feat(editor): add finite delimiter presentation pulses`
 Report: `ops/default/report/slices/rev-delimiter-presentation/slice-4-pulse.md`
-State: ready
+State: reviewing; implementation complete, canonical PR pending
 PR: pending
-Task commits: pending
-Validation: pending
+Task commits: T4.1/T4.2/T4.3 and report introduction delivered together; immutable commit reference follows canonical PR creation.
+Validation: all 165 focused cases PASS (68 presentation including 18 pulse cases, 49 display, 48 navigation); formatting, changed-source policy and whitespace PASS. Exact ordered clean-HEAD evidence follows the canonical PR-reference commit through looper validate. The combined gate remains controller-owned.
 
-- [ ] T4.1: Implement pulse style through the existing monotonic run/deadline owner. An accepted input or successful explicit pair motion that identifies an active endpoint starts one generation for the resolved pulse_ms. Rendering, resize, polls and unsuccessful/no-op motion never extend it. Keep key handling nonblocking and do not add a timer thread, service or terminal blink attribute.
-- [ ] T4.2: Retire or explicitly requalify source/view/point generations on edits, motion, focus/view changes, reload and cancellation. Expired, replaced and off pulses release their marks and pair-owned deadlines; steady depth/match/off own none. Respect the existing admitted view count and preserve unrelated native deadlines.
-- [ ] T4.3: Add controlled-clock pulse cases for 50/250/1000 ms, replacement, exact expiry, resize, source/point/view changes, cancellation and late results. Check no obsolete mark/deadline, no style-triggered caret/scroll movement and no ordinary keystroke waiting for pulse duration. Do not sleep through production-length durations in deterministic tests.
+- [x] T4.1: Implement pulse style through the existing monotonic run/deadline owner. An accepted input or successful explicit pair motion that identifies an active endpoint starts one generation for the resolved pulse_ms. Rendering, resize, polls and unsuccessful/no-op motion never extend it. Keep key handling nonblocking and do not add a timer thread, service or terminal blink attribute.
+- [x] T4.2: Retire or explicitly requalify source/view/point generations on edits, motion, focus/view changes, reload and cancellation. Expired, replaced and off pulses release their marks and pair-owned deadlines; steady depth/match/off own none. Respect the existing admitted view count and preserve unrelated native deadlines.
+- [x] T4.3: Add controlled-clock pulse cases for 50/250/1000 ms, replacement, exact expiry, resize, source/point/view changes, cancellation and late results. Check no obsolete mark/deadline, no style-triggered caret/scroll movement and no ordinary keystroke waiting for pulse duration. Do not sleep through production-length durations in deterministic tests.
 
 Required commands:
 

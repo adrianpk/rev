@@ -62,6 +62,7 @@ impl Session {
         Ok(())
     }
     pub(super) fn revert_buffer(&mut self) -> Action {
+        self.cancel_pair_pulses();
         if self.reload.task.is_some() || matches!(self.pending, Some(Pending::Reload(_))) {
             return self.message("Reload is already pending; C-g cancels");
         }

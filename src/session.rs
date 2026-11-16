@@ -201,6 +201,7 @@ pub struct Session {
     timestamp_repeat: Option<outline::timestamps::Repeat>,
     timer: crate::org::time::Timer,
     timer_clock: Option<fn() -> std::time::Instant>,
+    pair_clock: Option<fn() -> std::time::Instant>,
     timer_notice: bool,
     habit_agenda: Option<habits::State>,
     agenda_sources: Option<crate::org::agenda::SourceSet>,
@@ -545,6 +546,7 @@ impl Session {
             timestamp_repeat: None,
             timer: crate::org::time::Timer::default(),
             timer_clock: None,
+            pair_clock: None,
             timer_notice: false,
             habit_agenda: None,
             agenda_sources: None,
@@ -679,6 +681,7 @@ impl Session {
     }
 
     fn refresh_frame(&mut self) -> Result<(), view::Error> {
+        self.reconcile_pair_pulses(self.pair_now());
         // Canonical completion precedes the derived layout budget. Embedding
         // hosts may observe ready jobs through frame() without synthesizing input.
         self.expire_shell();
@@ -871,6 +874,12 @@ impl Session {
     }
 
     fn outcome(&mut self, outcome: Outcome, now: std::time::Instant) -> Action {
+        let origin = self.pair_outcome_origin(&outcome);
+        let action = self.owned_outcome(outcome, now);
+        self.after_pair_input(origin, self.pair_now(), action)
+    }
+
+    fn owned_outcome(&mut self, outcome: Outcome, now: std::time::Instant) -> Action {
         self.qualify_one_normal();
         let complete = matches!(
             &outcome,
@@ -989,6 +998,13 @@ impl Session {
 
     /// Executes the same implemented command enum produced by key bindings.
     pub fn execute(&mut self, command: Command) -> Action {
+        self.begin_pair_command(command);
+        let action = self.execute_command(command);
+        let changed = self.reconcile_pair_pulses(self.pair_now());
+        Self::pair_redraw(action, changed)
+    }
+
+    fn execute_command(&mut self, command: Command) -> Action {
         let command = command.canonical();
         if let Some(action) = self.execute_macro_control(command) {
             return action;
@@ -1054,6 +1070,12 @@ impl Session {
     }
 
     fn execute_now(&mut self, command: Command) -> Action {
+        let origin = self.pair_command_origin(command);
+        let action = self.execute_now_owned(command);
+        self.after_pair_input(origin, self.pair_now(), action)
+    }
+
+    fn execute_now_owned(&mut self, command: Command) -> Action {
         if let Some(action) = self.git_command(command) {
             return action;
         }
