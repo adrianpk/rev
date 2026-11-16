@@ -118,6 +118,8 @@ fn state_hints() {
         ("Visual block", ModalCommand::VisualBlock, "M-c", true),
     ] {
         let mut editor = session(&config, "ab\ncd", 1);
+        // Keep complete description assertions on a pane wide enough for fixed columns.
+        editor.handle(Event::Resize(140, 24));
         editor.execute(Command::Modal(entry));
         let state = editor.editing_state();
         let point = editor.view().point;

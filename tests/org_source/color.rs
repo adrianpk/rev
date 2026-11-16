@@ -63,8 +63,8 @@ fn source_roles() {
     assert!(!buffer.is_modified());
 }
 
-// An installed observation is never silently rebased after an edit or installed
-// onto another buffer. Fresh current styles remain available after rejection.
+// Unproved structural edits invalidate coloring; stale and foreign snapshots
+// cannot replace current styles. Fresh coloring survives a rejected install.
 #[test]
 fn stale_styles() {
     let mut buffers = Buffers::new().unwrap();
@@ -74,7 +74,7 @@ fn stale_styles() {
     buffer.select_mode(Mode::Org).unwrap();
     paint(buffer);
     let old = ColorScan::new(buffer, Limits::default()).unwrap();
-    super::incremental::replace(buffer, 2..5, "Two");
+    super::incremental::replace(buffer, 0..1, "**");
     assert!(roles(buffer).is_empty());
     let stale = old.run(&Cancellation::default());
     paint(buffer);

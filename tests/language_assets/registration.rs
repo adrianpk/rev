@@ -107,6 +107,7 @@ fn first_use_snapshot() {
     fixture.write("config.toml", "[language.rust]\ngrammar = 'plain'\n");
     fixture.write("highlights.scm", "(absent) @function");
     editor.poll_frame().unwrap();
+    support::settle(&mut editor);
     assert_eq!(
         editor.buffer().unwrap().external_grammar_status(),
         Some(Ok(()))

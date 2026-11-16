@@ -79,6 +79,14 @@ fn direction_changes() {
     session.select_view(session.windows().order()[1]).unwrap();
     session.execute(Command::Motion(Motion::BufferEnd));
     session.frame().unwrap();
+    // Finish independent source presentation before measuring pointer deadlines.
+    for _ in 0..100 {
+        if session.remaining_input(Instant::now()).is_none() {
+            break;
+        }
+        session.expire_input(Instant::now());
+    }
+    assert_eq!(session.remaining_input(Instant::now()), None);
     let top = session.view().top;
     let now = Instant::now();
     session.handle_at(super::focus::press(Position { column: 7, row: 6 }), now);

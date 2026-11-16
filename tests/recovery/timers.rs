@@ -45,6 +45,13 @@ fn timer_quit() {
         KeyModifiers::CONTROL,
     )));
     assert_eq!(session.buffer().unwrap().len_chars(), 7);
+    // The completed frame can admit source work independently of the countdown.
+    for _ in 0..100 {
+        if session.remaining_input(clock()) != Some(Duration::ZERO) {
+            break;
+        }
+        session.expire_input(clock());
+    }
     arm(&mut session);
     session.execute(Command::Quit);
     session.handle(Event::Key(KeyEvent::new(

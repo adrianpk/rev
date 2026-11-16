@@ -77,7 +77,11 @@ fn recolored(
             .iter()
             .filter(|paint| paint.style == Style::Markdown(role))
         {
-            for column in paint.columns.clone() {
+            for column in paint
+                .columns
+                .clone()
+                .filter(|column| !pair_column(row, *column))
+            {
                 expected
                     .get_mut(&(usize::from(row.row()), usize::from(column)))
                     .unwrap()
@@ -88,6 +92,13 @@ fn recolored(
     }
     assert!(count > 0, "{role:?}");
     expected
+}
+
+// Pair ink has precedence over an overlapping Markdown base span.
+fn pair_column(row: &rev::display::Row, column: u16) -> bool {
+    row.syntax()
+        .iter()
+        .any(|paint| paint.delimiter().is_some() && paint.columns.contains(&column))
 }
 
 // The shared monochrome writer must suppress RGB syntax output while retaining

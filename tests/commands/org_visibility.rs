@@ -120,7 +120,7 @@ fn clock_keys() {
         ('z', OrgCommand::ResolveClocks),
         ('x', OrgCommand::ClockInLast),
         ('d', OrgCommand::ClockDisplay),
-        ('c', OrgCommand::ClockReport),
+        ('c', OrgCommand::Columns),
         ('u', OrgCommand::UpdateDynamicBlock),
         ('r', OrgCommand::ToggleRadioButton),
     ] {

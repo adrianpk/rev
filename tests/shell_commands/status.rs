@@ -20,6 +20,7 @@ fn frame_completion() {
     let (mut editor, path) = editor(&f, "");
     assert!(editor.remaining_input(Instant::now()).is_none());
     assert!(!painted(&mut editor).contains("<Shell"));
+    settle(&mut editor);
     editor.execute(Command::ExecuteExtended);
     editor.handle(Event::Paste("shell-command".into()));
     assert!(editor.remaining_input(Instant::now()).is_none());

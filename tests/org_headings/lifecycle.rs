@@ -148,6 +148,7 @@ fn continuity_cancel() {
     let current = Frame::project(session.buffer().unwrap(), session.view(), SIZE, "").unwrap();
     assert!(body(&current, 0).starts_with("○ zHeading"));
     session.execute(Command::KeyboardQuit);
+    settle(&mut session);
     let cancelled = session.frame().unwrap();
     assert!(body(&cancelled, 0).starts_with("** zHeading"));
     assert!(cancelled.rows()[0].syntax().is_empty());

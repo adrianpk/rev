@@ -82,6 +82,8 @@ fn colon_catalog() {
 fn colon_ranking() {
     for colon in [true, false] {
         let mut editor = session(VIM, "one\ntwo\nthree", 0);
+        // Keep complete description assertions on a pane wide enough for fixed columns.
+        editor.handle(Event::Resize(140, 24));
         editor.execute(Command::GotoLine);
         control(&mut editor, 'g');
         let open = |editor: &mut Session, colon: bool| {

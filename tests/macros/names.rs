@@ -317,6 +317,7 @@ fn protected_keys() {
         record(&mut session, [character('X')]);
         bind(&mut session, [event]);
         assert!(!confirming(&mut session));
+        settle(&mut session);
         assert_eq!(text(&session), "X");
         assert_eq!(session.remaining_input(Instant::now()), None);
     }
